@@ -1,103 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWBXA1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWBXA1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWBXA1N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 19:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWBXA1M
+	id S932244AbWBXA1e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 19:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWBXA1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 19:27:12 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:49370 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S932240AbWBXA1L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 19:27:11 -0500
-Date: Thu, 23 Feb 2006 18:31:46 -0600
-From: Nathan Lynch <ntl@pobox.com>
+	Thu, 23 Feb 2006 19:27:34 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:4065 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S932244AbWBXA1c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 19:27:32 -0500
+X-ORBL: [67.117.73.34]
+Date: Thu, 23 Feb 2006 16:26:53 -0800
+From: Tony Lindgren <tony@atomide.com>
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] softlockup detection vs. cpu hotplug
-Message-ID: <20060224003146.GJ3293@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Russell King <linux@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>
+Subject: [PATCH] Fix next_timer_interrupt() for hrtimer
+Message-ID: <20060224002653.GC4578@atomide.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="B4IIlcmfBL/1gGOG"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm able to trigger bogus softlockup warnings during cpu hotplug
-testing, due to the percpu timestamp not being re-initialized before
-the cpu starts servicing timer interrupts.
 
-Before starting a cpu's watchdog thread, touch the cpu's timestamp to
-avoid false positives.
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In the watchdog thread, do touch_softlockup_watchdog in a
-non-preemptible section so that it won't touch another cpu's
-timestamp.  This can happen in the window between the watchdog thread
-getting forcefully migrated during a cpu offline operation and
-kthread_should_stop.
+Hi all,
 
-Signed-off-by: Nathan Lynch <ntl@pobox.com>
+Looks like next_timer_interrupt() got broken recently with sys_nanosleep
+move to hrtimer. Here's a patch to fix it. Anybody got any better ideas
+for ktime_to_jiffies() ?
 
----
+Regards,
 
- kernel/softlockup.c |   20 ++++++++++++++++----
- 1 files changed, 16 insertions(+), 4 deletions(-)
+Tony
 
-33426e0c29ad973f9107cbd872648050f8988e61
-diff --git a/kernel/softlockup.c b/kernel/softlockup.c
-index c67189a..bd86fe1 100644
---- a/kernel/softlockup.c
-+++ b/kernel/softlockup.c
-@@ -34,9 +34,14 @@ static struct notifier_block panic_block
- 	.notifier_call = softlock_panic,
- };
+
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=patch-hrtimer-dyntick
+
+This patch adds support for hrtimer to next_timer_interrupt()
+and fixes current breakage.
+
+Function next_timer_interrupt() got broken with a recent patch
+6ba1b91213e81aa92b5cf7539f7d2a94ff54947c as sys_nanosleep() was
+moved to hrtimer. This broke things as next_timer_interrupt()
+did not check hrtimer tree for next event.
+
+Function next_timer_interrupt() is needed with dyntick
+(CONFIG_NO_IDLE_HZ, VST) implementations, as the system can
+be in idle when next hrtimer event was supposed to happen.
+At least ARM and S390 currently use next_timer_interrupt(). 
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+
+--- a/kernel/hrtimer.c
++++ b/kernel/hrtimer.c
+@@ -505,6 +505,94 @@
+ 	return rem;
+ }
  
-+static void __touch_softlockup_watchdog(int cpu)
++#ifdef CONFIG_NO_IDLE_HZ
++
++/**
++ * hrtimer_get_next - get next hrtimer to expire
++ *
++ * @bases:	ktimer base array
++ */
++static inline struct hrtimer * hrtimer_get_next(struct hrtimer_base *bases)
 +{
-+	per_cpu(timestamp, cpu) = jiffies;
++	unsigned long flags;
++	struct hrtimer *timer = NULL;
++	int i;
++
++	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
++		struct hrtimer_base *base;
++		struct hrtimer *cur;
++
++		base = &bases[i];
++		spin_lock_irqsave(&base->lock, flags);
++		cur = rb_entry(base->first, struct hrtimer, node);
++		spin_unlock_irqrestore(&base->lock, flags);
++
++		if (cur == NULL)
++			continue;
++
++		if (timer == NULL || cur->expires.tv64 < timer->expires.tv64)
++			timer = cur;
++	}
++
++	return timer;
 +}
 +
- void touch_softlockup_watchdog(void)
- {
--	per_cpu(timestamp, raw_smp_processor_id()) = jiffies;
-+	__touch_softlockup_watchdog(raw_smp_processor_id());
++/**
++ * ktime_to_jiffies - converts ktime to jiffies
++ *
++ * @event:	ktime event to be converted
++ *
++ * Caller must take care xtime locking.
++ */
++static inline unsigned long ktime_to_jiffies(const ktime_t event)
++{
++	ktime_t now, delta;
++	unsigned long sec, nsec;
++	struct timespec tv;
++
++	tv = ktime_to_timespec(event);
++
++	/* Assume read xtime_lock is held, so we can't use getnstimeofday() */
++	sec = xtime.tv_sec;
++	nsec = xtime.tv_nsec;
++	while (unlikely(nsec >= NSEC_PER_SEC)) {
++		nsec -= NSEC_PER_SEC;
++		++sec;
++	}
++	tv.tv_sec = sec;
++	tv.tv_nsec = nsec;
++
++	now = timespec_to_ktime(tv);
++	delta = ktime_sub(event, now);
++
++	tv = ktime_to_timespec(delta);
++
++	return jiffies - 1 + timespec_to_jiffies(&tv);
++}
++
++/**
++ * hrtimer_next_jiffie - get next hrtimer event in jiffies
++ *
++ * Called from next_timer_interrupt() to get the next hrtimer event.
++ * Eventually we should change next_timer_interrupt() to return
++ * results in nanoseconds instead of jiffies. Caller must host xtime_lock.
++ */
++int hrtimer_next_jiffie(unsigned long *next_jiffie)
++{
++	struct hrtimer_base *base = __get_cpu_var(hrtimer_bases);
++	struct hrtimer * timer;
++
++	timer = hrtimer_get_next(base);
++	if (timer == NULL)
++		return -EAGAIN;
++
++	*next_jiffie = ktime_to_jiffies(timer->expires);
++
++	return 0;
++}
++
++#endif
++
+ /**
+  * hrtimer_init - initialize a timer to the given clock
+  *
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -478,6 +478,7 @@
  }
- EXPORT_SYMBOL(touch_softlockup_watchdog);
  
-@@ -73,6 +78,7 @@ void softlockup_tick(struct pt_regs *reg
- static int watchdog(void * __bind_cpu)
- {
- 	struct sched_param param = { .sched_priority = 99 };
-+	unsigned long bind_cpu = (unsigned long)__bind_cpu;
+ #ifdef CONFIG_NO_IDLE_HZ
++
+ /*
+  * Find out when the next timer event is due to happen. This
+  * is used on S/390 to stop all activity when a cpus is idle.
+@@ -489,9 +490,15 @@
+ 	struct list_head *list;
+ 	struct timer_list *nte;
+ 	unsigned long expires;
++	unsigned long hr_expires = jiffies + 10 * HZ;	/* Anything far ahead */
+ 	tvec_t *varray[4];
+ 	int i, j;
  
- 	sched_setscheduler(current, SCHED_FIFO, &param);
- 	current->flags |= PF_NOFREEZE;
-@@ -86,10 +92,15 @@ static int watchdog(void * __bind_cpu)
- 	 */
- 	while (!kthread_should_stop()) {
- 		msleep_interruptible(1000);
--		touch_softlockup_watchdog();
-+		/* When our cpu is offlined the watchdog thread can
-+		 * get migrated before it is stopped.
-+		 */
-+		preempt_disable();
-+		if (likely(smp_processor_id() == bind_cpu))
-+			touch_softlockup_watchdog();
-+		preempt_enable();
-+		__set_current_state(TASK_RUNNING);
- 	}
--	__set_current_state(TASK_RUNNING);
--
- 	return 0;
- }
- 
-@@ -112,6 +123,7 @@ cpu_callback(struct notifier_block *nfb,
++	/* Look for timer events in hrtimer. */
++	if ((hrtimer_next_jiffie(&hr_expires) == 0)
++		&& (time_before(hr_expires, jiffies + 2)))
++			return hr_expires;
++
+ 	base = &__get_cpu_var(tvec_bases);
+ 	spin_lock(&base->t_base.lock);
+ 	expires = base->timer_jiffies + (LONG_MAX >> 1);
+@@ -542,6 +549,10 @@
  		}
-   		per_cpu(watchdog_task, hotcpu) = p;
- 		kthread_bind(p, hotcpu);
-+		__touch_softlockup_watchdog(hotcpu);
-  		break;
- 	case CPU_ONLINE:
+ 	}
+ 	spin_unlock(&base->t_base.lock);
++
++	if (time_before(hr_expires, expires))
++		expires = hr_expires;
++
+ 	return expires;
+ }
+ #endif
+--- a/include/linux/hrtimer.h
++++ b/include/linux/hrtimer.h
+@@ -115,6 +115,7 @@ extern int hrtimer_try_to_cancel(struct 
+ /* Query timers: */
+ extern ktime_t hrtimer_get_remaining(const struct hrtimer *timer);
+ extern int hrtimer_get_res(const clockid_t which_clock, struct timespec *tp);
++extern int hrtimer_next_jiffie(unsigned long *next_jiffie);
  
--- 
-1.1.5
+ static inline int hrtimer_active(const struct hrtimer *timer)
+ {
 
+
+--B4IIlcmfBL/1gGOG--

@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWBXDSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWBXDYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWBXDSV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 22:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWBXDSV
+	id S1751280AbWBXDYz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 22:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWBXDYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 22:18:21 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:62220 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1750742AbWBXDSU (ORCPT
+	Thu, 23 Feb 2006 22:24:55 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:64268 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S1751280AbWBXDYy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 22:18:20 -0500
-Date: Thu, 23 Feb 2006 22:18:18 -0500 (EST)
+	Thu, 23 Feb 2006 22:24:54 -0500
+Date: Thu, 23 Feb 2006 22:24:53 -0500 (EST)
 From: Alan Stern <stern@rowland.harvard.edu>
 X-X-Sender: stern@netrider.rowland.org
-To: Benjamin LaHaise <bcrl@kvack.org>
-cc: Andrew Morton <akpm@osdl.org>, <sekharan@us.ibm.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
-In-Reply-To: <20060223161631.6f8fa41d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0602232211260.19776-100000@netrider.rowland.org>
+To: Andi Kleen <ak@suse.de>
+cc: sekharan@us.ibm.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] The idle notifier chain should be atomic
+In-Reply-To: <p737j7l3ab7.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.44L0.0602232218280.19776-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Feb 2006, Andrew Morton wrote:
+On 24 Feb 2006, Andi Kleen wrote:
 
-> Benjamin LaHaise <bcrl@kvack.org> wrote:
-> >
-> > On Thu, Feb 23, 2006 at 05:36:56PM -0500, Alan Stern wrote:
-> >  > This patch (as660) changes the registration and unregistration routines 
-> >  > for blocking notifier chains.  During system startup, when task switching 
-> >  > is illegal, the routines will avoid calling down_write().
-> > 
-> >  Why is that necessary?  The down_write() will immediately succeed as no 
-> >  other process can possibly be holding the lock when the system is booting, 
-> >  so the special casing doesn't fix anything.
+> Alan Stern <stern@rowland.harvard.edu> writes:
 > 
-> down_write() unconditionally (and reasonably) does local_irq_enable() in
-> the uncontended case.  And enabling local interrupts early in boot can
-> cause crashes.
+> > This patch (as658) makes the idle_notifier in x86_64 and idle_chain in
+> > s390 into atomic notifier chains rather than blocking chains.  This is
+> > necessary because they are called during IRQ handling as CPUs leave and
+> > enter the idle state.
+> 
+> Actually they aren't. While the code is called from the interrupt
+> handler logically it belong to the idle thread, not the interrupt handler.
+> They are only called when the interrupt directly interrupts the idle 
+> thread, so no atomicity needed.
 
-Ben, earlier you expressed concern about the extra overhead due to 
-cache-line contention (on SMP) in the down_read() call added to 
-blocking_notifier_call_chain.  I don't remember which notifier chain in 
-particular you were worried about; something to do with networking.
+In do_IRQ() there's a call to exit_idle(), which calls __exit_idle(), 
+which runs the idle_notifier call chain.  Surely you're not saying that we 
+can do a down_read() in this pathway?
 
-Does this still bother you?  I can see a couple of ways around it.
+And actually the chain's type doesn't seem to make much difference, since
+at the moment there's nothing in the vanilla kernel that registers for the
+idle_notifier chain.
 
-One is to make that notifier chain atomic instead of blocking.  Of course,
-this is feasible only if the chain's callout routines never block.  If
-they do, then perhaps there's no point worrying about cache misses.
+> -Andi
+> 
+> P.S.: Please cc maintainers in the future.
 
-Another possibility is to write a variant implementation of rw-semaphores,
-one that wouldn't cause a cache miss in the common case of an uncontested
-read lock.  It could be done.  I can write a somewhat inefficient
-version easily enough; no doubt someone more experienced in this sort of
-thing could do a better job.
-
-What do you think?
+Yes, I should have sent the patch to you too.  I apologize.
 
 Alan Stern
 

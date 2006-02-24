@@ -1,103 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWBXV2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWBXVaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbWBXV2y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 16:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWBXV2y
+	id S932519AbWBXVaM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 16:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWBXVaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 16:28:54 -0500
-Received: from jenny.ondioline.org ([66.220.1.122]:11525 "EHLO
-	jenny.ondioline.org") by vger.kernel.org with ESMTP id S932531AbWBXV2x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 16:28:53 -0500
-From: Paul Collins <paul@briny.ondioline.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kjournald keeps reference to namespace
-References: <20060218013547.GA32706@MAIL.13thfloor.at>
-	<20060217175428.7ce7b26f.akpm@osdl.org>
-	<20060218033031.GB32706@MAIL.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Date: Fri, 24 Feb 2006 21:28:19 +0000
-In-Reply-To: <20060218033031.GB32706@MAIL.13thfloor.at> (Herbert Poetzl's
-	message of "Sat, 18 Feb 2006 04:30:31 +0100")
-Message-ID: <873bi88n0s.fsf@briny.internal.ondioline.org>
-MIME-Version: 1.0
+	Fri, 24 Feb 2006 16:30:11 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:15102 "EHLO avexch02.qlogic.com")
+	by vger.kernel.org with ESMTP id S932519AbWBXVaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 16:30:10 -0500
+Date: Fri, 24 Feb 2006 13:30:07 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/13] small whitespace cleanup for qlogic driver
+Message-ID: <20060224213007.GI6022@andrew-vasquezs-powerbook-g4-15.local>
+References: <200602242147.23648.jesper.juhl@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602242147.23648.jesper.juhl@gmail.com>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 24 Feb 2006 21:30:07.0682 (UTC) FILETIME=[7BCAAA20:01C63989]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl <herbert@13thfloor.at> writes:
+On Fri, 24 Feb 2006, Jesper Juhl wrote:
 
-> On Fri, Feb 17, 2006 at 05:54:28PM -0800, Andrew Morton wrote:
->> I think it'd be better to convert ext3 to use the kthread API which
->> appears to accidentally not have this problem, because such threads
->> are parented by keventd, which were parented by init.
->
-> sounds like a plan!
+> Add a few spaces to MODULE_PARM_DESC() text for qla2xxx. Without these
+> spaces text runs together when modinfo prints the text.
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
-Here's my attempt at such a conversion.  Since jbd doesn't seem to
-want to collect an exit status, I didn't bother with kthread_stop().
+Ack.
 
-I got overexcited and also embedded the journal device in the process
-name, but that's probably useless churn.  Looks nice in pstree though:
-
-     |-kthread-+-kblockd/0
-     |         |-khubd
-     |         |-2*[pdflush]
-     |         |-aio/0
-     |         |-v9fs/0
-     |         |-cqueue/0
-     |         |-kfand
-     |         |-kcryptd/0
-     |         |-kjournald/3:3
-     |         |-kjournald/3:8
-     |         |-kjournald/3:4
-     |         |-kjournald/3:5
-     |         `-kjournald/254:1
-
-
-Signed-off-by: Paul Collins <paul@ondioline.org>
-
-diff --git a/fs/jbd/journal.c b/fs/jbd/journal.c
-index e4b516a..e33d993 100644
---- a/fs/jbd/journal.c
-+++ b/fs/jbd/journal.c
-@@ -33,6 +33,8 @@
- #include <linux/mm.h>
- #include <linux/suspend.h>
- #include <linux/pagemap.h>
-+#include <linux/kthread.h>
-+#include <linux/kdev_t.h>
- #include <asm/uaccess.h>
- #include <asm/page.h>
- #include <linux/proc_fs.h>
-@@ -115,8 +117,6 @@ static int kjournald(void *arg)
- 	transaction_t *transaction;
- 	struct timer_list timer;
- 
--	daemonize("kjournald");
--
- 	/* Set up an interval timer which can be used to trigger a
-            commit wakeup after the commit interval expires */
- 	init_timer(&timer);
-@@ -207,12 +207,14 @@ end_loop:
- 	journal->j_task = NULL;
- 	wake_up(&journal->j_wait_done_commit);
- 	jbd_debug(1, "Journal thread exiting.\n");
--	return 0;
-+	do_exit(0);
- }
- 
- static void journal_start_thread(journal_t *journal)
- {
--	kernel_thread(kjournald, journal, CLONE_VM|CLONE_FS|CLONE_FILES);
-+	dev_t jdev = journal->j_dev->bd_dev;
-+	kthread_run(kjournald, journal, "kjournald/%d:%d",
-+		    MAJOR(jdev), MINOR(jdev), NULL);
- 	wait_event(journal->j_wait_done_commit, journal->j_task != 0);
- }
- 
-
-
--- 
-Dag vijandelijk luchtschip de huismeester is dood
+--
+av

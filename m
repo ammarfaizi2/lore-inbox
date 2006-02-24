@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWBXPDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWBXPE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWBXPDp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 10:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWBXPDp
+	id S932242AbWBXPE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 10:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWBXPE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 10:03:45 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:20706 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932239AbWBXPDo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 10:03:44 -0500
-Date: Fri, 24 Feb 2006 10:03:42 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Benjamin LaHaise <bcrl@kvack.org>
-cc: Andrew Morton <akpm@osdl.org>, <sekharan@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid calling down_read and down_write during startup
-In-Reply-To: <20060224143900.GA7101@kvack.org>
-Message-ID: <Pine.LNX.4.44L0.0602240959460.5071-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Feb 2006 10:04:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22928 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932243AbWBXPEZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 10:04:25 -0500
+Subject: GFS2 Filesystem [16/16]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Fri, 24 Feb 2006 15:08:35 +0000
+Message-Id: <1140793715.6400.740.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006, Benjamin LaHaise wrote:
+[PATCH 16/16] GFS2: 
 
-> On Thu, Feb 23, 2006 at 04:16:31PM -0800, Andrew Morton wrote:
-> > down_write() unconditionally (and reasonably) does local_irq_enable() in
-> > the uncontended case.  And enabling local interrupts early in boot can
-> > cause crashes.
-> 
-> Why not do a down_write_trylock() instead first?  Then the code doesn't 
-> have the dependancy on system_state, which seems horribly fragile.
+Export tty_write_message(). This is required by the quota code and is
+used in the same way as the core kernel quota code uses it. Also
+export the routine for initialising ra_state structures and the
+file_read_actor for GFS2's internal read routines.
 
-I suggested this to Andrew.  His reply was as follows:
 
-> > which means we can't avoid calling down_write.  The 
-> >  only solution I can think of is to use down_write_trylock in the 
-> >  blocking_notifier_chain_register and unregister routines, even though 
-> >  doing that is a crock.
-> > 
-> >  Or else change __down_read and __down_write to use spin_lock_irqsave 
-> >  instead of spin_lock_irq.  What do you think would be best?
-> 
-> Nothing's pretty.  Perhaps look at system_state and not do any locking at all
-> in early boot?
+Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 
-I admit that the whole things is fragile.  IMO the safest approach would
-be for __down_read and __down_write not to assume that interrupts are
-currently enabled.  But that would introduce more overhead as well; at
-least this way the overhead is confined to the notifier chain registration
-routines.
 
-Alan Stern
+ kernel/printk.c |    1 +
+ mm/filemap.c    |    1 +
+ mm/readahead.c  |    1 +
+ 3 files changed, 3 insertions(+)
+
+--- a/kernel/printk.c
++++ b/kernel/printk.c
+@@ -999,6 +999,7 @@ void tty_write_message(struct tty_struct
+ 		tty->driver->write(tty, msg, strlen(msg));
+ 	return;
+ }
++EXPORT_SYMBOL_GPL(tty_write_message);
+ 
+ /*
+  * printk rate limiting, lifted from the networking subsystem.
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -981,6 +981,7 @@ success:
+ 	desc->arg.buf += size;
+ 	return size;
+ }
++EXPORT_SYMBOL(file_read_actor);
+ 
+ /*
+  * This is the "read()" routine for all filesystems
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -38,6 +38,7 @@ file_ra_state_init(struct file_ra_state 
+ 	ra->ra_pages = mapping->backing_dev_info->ra_pages;
+ 	ra->prev_page = -1;
+ }
++EXPORT_SYMBOL_GPL(file_ra_state_init);
+ 
+ /*
+  * Return max readahead size for this inode in number-of-pages.
+
 

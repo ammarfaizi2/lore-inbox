@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWBXTOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWBXTZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbWBXTOt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 14:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWBXTOt
+	id S932432AbWBXTZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 14:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWBXTZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 14:14:49 -0500
-Received: from mx3.mail.ru ([194.67.23.149]:2136 "EHLO mx3.mail.ru")
-	by vger.kernel.org with ESMTP id S932428AbWBXTOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 14:14:49 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: "Ghost" devices in /sys/firmware/edd
-Date: Fri, 24 Feb 2006 22:14:34 +0300
-User-Agent: KMail/1.9.1
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 24 Feb 2006 14:25:55 -0500
+Received: from mail.atl.external.lmco.com ([192.35.37.50]:21161 "EHLO
+	enterprise.atl.lmco.com") by vger.kernel.org with ESMTP
+	id S932432AbWBXTZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 14:25:54 -0500
+Message-ID: <43FF5DBE.1080905@atl.lmco.com>
+Date: Fri, 24 Feb 2006 14:25:50 -0500
+From: Gautam H Thaker <gthaker@atl.lmco.com>
+Organization: Lockheed Martin -- Advanced Technology Laboratories
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Gautam H Thaker <gautam.h.thaker@lmco.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: ~5x greater CPU load for a networked application when using 2.6.15-rt15-smp
+ vs. 2.6.12-1.1390_FC4
+References: <43FE134C.6070600@atl.lmco.com> <20060224165209.GC22097@thunk.org>
+In-Reply-To: <20060224165209.GC22097@thunk.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602242214.46290.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Theodore Ts'o wrote:
+> On Thu, Feb 23, 2006 at 02:55:56PM -0500, Gautam H Thaker wrote:
+> 
+>>The real-time patches at the URL below do a great job of endowing Linux with
+>>real-time capabilities.
+>>
+>>http://people.redhat.com/mingo/realtime-preempt/
+> 
+> 
+> Gautam,
+> 
+> #1) Can you publish the code you used in your tests?
 
-I have single drive hda; still EDD shows valid and the _same_ MBR signature 
-for all possible 16 drives:
+This may not be easy for me but I will try to get corp. approval(s).
+Basically, the process that is, at least according to "top", showing ~5x
+increased CPU usage is receiving very short UDP packets over a gigabit
+interface at the rate of about 38,000 per second. UDP packets are small and
+according to "/sbin/ifconfig" there are no errors, drops, overruns, frame or
+carrier errors or collisions. (it is an isolated network of 20 PC3000s (3 GH
+Xeon processors) at www.emulab.net.
 
-{pts/0}% cat /sys/firmware/edd/*/mbr_*
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
-0x7fca3a0a
+> 
+> #2) Can you post your .config file?  In particular, did you have any
+> of the latency measurement options or other debugging options?  
 
-other attributes are correctly present for the drive 0x80 only.
+The config file I had used to build the "RT" kernel can be found at:
 
-Not being expert in x86 assembly, but comparing main loops for signature and 
-other info:
+http://www.atl.external.lmco.com/projects/QoS/config.2.6.15-rt15-smp
 
-signature:
-        int     $0x13
-        sti                     # work around buggy BIOSes
-        popw    %dx
-        popw    %es
-        popw    %bx
-        jc      edd_mbr_sig_done                # on failure, we're done.
+I had tried to have all debug options off
 
-extended EDD info:
+> 
+> Regards,
+> 
+> 					- Ted
 
-edd_check_ext:
-        movb    $CHECKEXTENSIONSPRESENT, %ah    # Function 41
-        movw    $EDDMAGIC1, %bx                 # magic
-        int     $0x13                           # make the call
-        jc      edd_done                        # no more BIOS devices
 
-Is it possible that carry flag is cleared between return from int 0x13 and 
-querying for it in the former case? This would perfectly explain that EDD 
-does not notice failure of reading sector and simply copies the same 
-signature from the very first drive.
+Gautam
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
+-- 
 
-iD8DBQFD/1smR6LMutpd94wRAncjAJ0b9wLmKK9V2bc93ghAIUa7dY5VWQCfZ8BP
-aiT8y5TX3DE05ZN8wfnfg7E=
-=uB1I
------END PGP SIGNATURE-----
+Gautam H. Thaker
+Distributed Processing Lab; Lockheed Martin Adv. Tech. Labs
+3 Executive Campus; Cherry Hill, NJ 08002
+856-792-9754, fax 856-792-9925  email: gthaker@atl.lmco.com

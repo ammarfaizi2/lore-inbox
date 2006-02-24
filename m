@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWBXC1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751810AbWBXCfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWBXC1R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Feb 2006 21:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932570AbWBXC1R
+	id S1751810AbWBXCfY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Feb 2006 21:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751813AbWBXCfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Feb 2006 21:27:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15503 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932558AbWBXC1P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Feb 2006 21:27:15 -0500
-Date: Thu, 23 Feb 2006 21:27:01 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Suppress APIC errors on UP x86-64.
-Message-ID: <20060224022701.GJ23471@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060224014228.GB16089@redhat.com> <200602240245.30161.ak@suse.de> <20060224015322.GG23471@redhat.com> <200602240318.12239.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602240318.12239.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 23 Feb 2006 21:35:24 -0500
+Received: from web31605.mail.mud.yahoo.com ([68.142.198.151]:25484 "HELO
+	web31605.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751810AbWBXCfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Feb 2006 21:35:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=fMozqfMEmlIXfNJTjY2UupXKwddKuncRNmpoomi04lSmtufmzUbFTaV8eah6XWs263jcE3Q8J41XeIK5Tm+A/Rx9mXTrorXNiBgD7t6BEyMvZLEEgf+3ARY3oDW55oHdiXHYMZNzWv4cyuygubz8CpjuL8CrB5rsfuXVLPW88WI=  ;
+Message-ID: <20060224023522.43019.qmail@web31605.mail.mud.yahoo.com>
+Date: Thu, 23 Feb 2006 18:35:22 -0800 (PST)
+From: Mohit Jaggi <jaggi_mohit@yahoo.com>
+Subject: latency measurements on 2.4.21 (EL 3.0) on SMP (4-cpu)
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 03:18:11AM +0100, Andi Kleen wrote:
- > On Friday 24 February 2006 02:53, Dave Jones wrote:
- > > On Fri, Feb 24, 2006 at 02:45:29AM +0100, Andi Kleen wrote:
- > >  > On Friday 24 February 2006 02:42, Dave Jones wrote:
- > >  > > Quite a few UP x86-64 laptops print APIC error 40's repeatedly
- > >  > > when they run an SMP kernel (And Fedora doesn't ship a UP x86-64 kernel
- > >  > > any more).  We can suppress this as there's not really anything we
- > >  > > can do about them.
- > >  > 
- > >  > No we need to fix the APIC errors, not hide them.
- > > 
- > > What do you need to fix them ?  I've got one laptop here that
- > > is affected, and there's a few other examples with dmesg's
- > > in Red Hat bugzilla that I can trawl.
- > 
- > Some pattern analysis would be useful. All the same chipset, revision?
+Folks,
+I am testing a PCI card that accelerates and offloads
+certain functions. I have a multi-threaded real-time
+priority (SCHED_FIFO) process to send data to the card
+and receive the results. Sending is done by a an
+ingress thread(priority=25) and receiving is handled
+by an egress thread(priority=35). Using affinity calls
+I have made sure that they run concurrently on two
+different CPUs. My goal is get the lowest possible
+latency from the card. I am measuring it using the
+delta of the values returned by gettimeofday() from
+ingress thread just before I send the data to the card
+and from egress thread just after I receive it. 
+While trying various scenarios I noticed that if the
+ingress thread send a few messages and then sleeps for
+time 't' using usleep(t), then depending on 't' I see
+that the latency measured as described above is
+different. For example, for t=20k I observe latency of
+around 20ms. If I use t=50k I observe 60ms. For 40k  I
+see 40ms. Since my delta is not counting this sleep I
+find this behaviour quite surprising. I would
+appreciate if anyone can venture an explanation.
 
->From first impression, it seems they're all (including mine) HP laptops
-with ATI chipsets.
+I have been trying to find out how gettimeofday()
+works on SMP linux. Any pointers?
 
-A quick google seems to confirm this.
-http://www.google.com/search?&q=HP+%22apic+error%22
+Is there a catch to using real-time priority processes
+that I should be aware of? Because the latency
+measurements I am doing are of the order of
+microseconds I believe I have to have real time
+scheduling otherwise time-slicing which is of the
+order of milliseconds will mess it up.
 
-I wonder if this is related at all to the 'time goes double speed'
-bug that some folks see (incidentally, I don't on mine).
+Thanks,
+Mohit.
 
- > Best you collect boot logs.
-
-I'll try to gather some more data.
-
-		Dave
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

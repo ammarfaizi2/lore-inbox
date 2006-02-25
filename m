@@ -1,83 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbWBYEUr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWBYE0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932604AbWBYEUr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 23:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWBYEUr
+	id S932655AbWBYE0x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 23:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbWBYE0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 23:20:47 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:14258 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932604AbWBYEUr (ORCPT
+	Fri, 24 Feb 2006 23:26:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58274 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932655AbWBYE0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 23:20:47 -0500
-Subject: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 24 Feb 2006 20:20:50 -0800
-Message-Id: <1140841250.2587.33.camel@localhost.localdomain>
+	Fri, 24 Feb 2006 23:26:52 -0500
+Date: Fri, 24 Feb 2006 23:24:56 -0500
+From: Dave Jones <davej@redhat.com>
+To: Johannes Stezenbach <js@linuxtv.org>, Adrian Bunk <bunk@stusta.de>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
+       Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
+Subject: Re: Status of X86_P4_CLOCKMOD?
+Message-ID: <20060225042456.GA7851@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Johannes Stezenbach <js@linuxtv.org>, Adrian Bunk <bunk@stusta.de>,
+	Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
+	Zwane Mwaikambo <zwane@commfireservices.com>,
+	Samuel Masham <samuel.masham@gmail.com>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	cpufreq@lists.linux.org.uk, ak@suse.de
+References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <20060225015722.GC8132@linuxtv.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060225015722.GC8132@linuxtv.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On some platforms, a regular wmb() is not sufficient to guarantee that
-PCI writes have been flushed to the bus if write combining is in effect.
+On Sat, Feb 25, 2006 at 02:57:22AM +0100, Johannes Stezenbach wrote:
+ > On Thu, Feb 23, 2006, Dave Jones wrote:
+ > > On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
+ > >  > And if the option is mostly useless, what is it good for?
+ > > 
+ > > It's sometimes useful in cases where the target CPU doesn't have any better
+ > > option (Speedstep/Powernow).  The big misconception is that it
+ > > somehow saves power & increases battery life. Not so.
+ > > All it does is 'not do work so often'.  The upside of this is
+ > > that in some situations, we generate less heat this way.
+ > 
+ > Doesn't less heat imply less power consumption?
 
-This change introduces a new macro, wc_wmb(), that makes this guarantee.
+Not really.  The only energy you're saving is that your CPU fan
+will turn slightly slower, which is probably going to be < 1W
+of difference.  Generated heat drop in a large room of servers
+*may* mean the aircon has less to do, but I'd be surprised if
+it made a noticable difference.
 
-It does so by way of a new header file, <linux/system.h>.  This header
-can be a site for oft-replicated code from <asm-*/system.h>, but isn't
-just yet.
+ > - after some minutes of idling without user activity
+ >   go into lowest power mode (could be triggered
+ >   from xscreensaver)
+ > - at the slightest hint of user activity or CPU load jump
+ >   back to max performance mode
+ > (- optionally use intermediate clock mod steps for
+ >   non-interactive loads, but I'm not convinced it's
+ >   worth it)
 
-We also define a version of wc_wmb() with the required semantics
-on x86_64.
+You should be able to modify cpuspeed or some other userspace
+governor to do this quite easily.
 
-Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
-
-diff -r c89918da5f7b -r 94d372e00ccd include/asm-x86_64/system.h
---- a/include/asm-x86_64/system.h	Sat Feb 25 08:01:07 2006 +0800
-+++ b/include/asm-x86_64/system.h	Fri Feb 24 20:15:07 2006 -0800
-@@ -321,6 +321,8 @@ static inline unsigned long __cmpxchg(vo
- #define mb() 	asm volatile("mfence":::"memory")
- #define rmb()	asm volatile("lfence":::"memory")
- 
-+#define wc_wmb()	asm volatile("sfence" ::: "memory")
-+
- #ifdef CONFIG_UNORDERED_IO
- #define wmb()	asm volatile("sfence" ::: "memory")
- #else
-diff -r c89918da5f7b -r 94d372e00ccd include/linux/system.h
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/include/linux/system.h	Fri Feb 24 20:15:07 2006 -0800
-@@ -0,0 +1,27 @@
-+/*
-+ * Copyright 2006 PathScale, Inc.  All Rights Reserved.
-+ *
-+ * This file is free software; you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License
-+ * as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software Foundation,
-+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
-+ */
-+
-+#ifndef _LINUX_SYSTEM_H
-+#define _LINUX_SYSTEM_H
-+
-+#include <asm/system.h>
-+
-+#ifndef wc_wmb
-+#define wc_wmb() wmb()
-+#endif
-+
-+#endif /* _LINUX_SYSTEM_H */
-
+		Dave
 

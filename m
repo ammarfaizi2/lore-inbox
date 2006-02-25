@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWBYTHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWBYTHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161066AbWBYTHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 14:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWBYTHJ
+	id S1161074AbWBYTHo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 14:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWBYTHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 14:07:09 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:64910 "EHLO
+	Sat, 25 Feb 2006 14:07:43 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:5519 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1161062AbWBYTHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 14:07:07 -0500
-Date: Sat, 25 Feb 2006 16:07:34 -0300
+	id S1161069AbWBYTHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 14:07:39 -0500
+Date: Sat, 25 Feb 2006 16:08:12 -0300
 From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
 To: davem <davem@davemloft.net>
 Cc: lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
        robert.olsson@its.uu.se
-Subject: [PATCH 0/6] pktgen: refinements and small fixes (V3).
-Message-ID: <20060225160734.020bba3b@home.brethil>
+Subject: [PATCH 4/6] pktgen: Fix Initialization fail leak.
+Message-ID: <20060225160812.0ae0ee94@home.brethil>
 Organization: Mandriva
 X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
 Mime-Version: 1.0
@@ -25,31 +25,55 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- Hi David,
+ Even if pktgen's thread initialization fails for all CPUs, the module
+will be successfully loaded.
 
- As you've asked, I'm sending again my patches for pktgen:
+ This patch changes that behaivor, by returning an error on module load time,
+and also freeing all the resources allocated. It also prints a warning if a
+thread initialization has failed.
 
-[PATCH 1/6] pktgen: Lindent run.
-[PATCH 2/6] pktgen: Ports thread list to Kernel list implementation.
-[PATCH 3/6] pktgen: Fix kernel_thread() fail leak.
-[PATCH 4/6] pktgen: Fix Initialization fail leak.
-[PATCH 5/6] pktgen: Ports if_list to the in-kernel implementation.
-[PATCH 6/6] pktgen: Updates version.
+Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
 
- The changes from V2 are:
+---
 
- 1. Generated all the patches again agaisnt current net-2.6.17 tree
- 2. Added the if_list port patch to the series, because it was sent
- separately last time
- 3. Added a patch to updates pktgen's version (forgot this one first
- time).
+ net/core/pktgen.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
- As I did before, all the patches were tested with QEMU emulating a four
-CPU machine with four NICS.
+7084c4ee538fcac59f0d9f64c840c45f8caeab8f
+diff --git a/net/core/pktgen.c b/net/core/pktgen.c
+index 1c565fe..89480e3 100644
+--- a/net/core/pktgen.c
++++ b/net/core/pktgen.c
+@@ -3216,11 +3216,24 @@ static int __init pg_init(void)
+ 	register_netdevice_notifier(&pktgen_notifier_block);
+ 
+ 	for_each_online_cpu(cpu) {
++		int err;
+ 		char buf[30];
+ 
+ 		sprintf(buf, "kpktgend_%i", cpu);
+-		pktgen_create_thread(buf, cpu);
++		err = pktgen_create_thread(buf, cpu);
++		if (err)
++			printk("pktgen: WARNING: Cannot create thread for cpu %d (%d)\n",
++					cpu, err);
+ 	}
++
++	if (list_empty(&pktgen_threads)) {
++		printk("pktgen: ERROR: Initialization failed for all threads\n");
++		unregister_netdevice_notifier(&pktgen_notifier_block);
++		remove_proc_entry(PGCTRL, pg_proc_dir);
++		proc_net_remove(PG_PROC_DIR);
++		return -ENODEV;
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+1.2.1.g3397f9
 
- Also note that Robert have already acked patches 1 to 4.
 
- Thanks,
 
 -- 
 Luiz Fernando N. Capitulino

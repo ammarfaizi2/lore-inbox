@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWBYSmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbWBYSwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161053AbWBYSmV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:42:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbWBYSmV
+	id S1161054AbWBYSwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 13:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWBYSwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:42:21 -0500
-Received: from gateway.peppydog.com ([66.135.132.9]:29078 "EHLO
-	zaphod.andrewtv.org") by vger.kernel.org with ESMTP
-	id S1161053AbWBYSmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:42:21 -0500
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: "Adrian Bunk" <bunk@stusta.de>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: OSS msnd build failure
-References: <9a8748490602250824u34e664fandc56c20394367926@mail.gmail.com>
-	<20060225163221.GZ3674@stusta.de>
-	<9a8748490602250841q32213603l50dd4142a9a107ae@mail.gmail.com>
-From: Andrew Veliath <andrewtv@usa.net>
-Date: 25 Feb 2006 10:38:48 -0800
-In-Reply-To: <9a8748490602250841q32213603l50dd4142a9a107ae@mail.gmail.com>
-Message-ID: <m38xrz1dxj.fsf@zaphod.andrewtv.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Sat, 25 Feb 2006 13:52:09 -0500
+Received: from pproxy.gmail.com ([64.233.166.176]:25824 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161054AbWBYSwH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 13:52:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oTbbfD747yXY3hPHHAy4dtkAQ8m7Q2/d2IzvRHskQD6R7EP+DEtEUQlBdK1JNLtGpPoqPSZTrmexHGBOo1s7vg9xIpW5hf8JByztvR+5SSFT7gJEhe2HzNjfmTmYqhmEMZgDp6MeyU5/hvxClmA7qCF61dFzWuNhdtgzUNrxX7g=
+Message-ID: <9a8748490602251052p3e56334ei755c9ce2100e03c@mail.gmail.com>
+Date: Sat, 25 Feb 2006 19:52:06 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Rik van Riel" <riel@redhat.com>
+Subject: Re: creating live virtual files by concatenation
+Cc: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <Pine.LNX.4.63.0602251339320.13659@cuia.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1271316508.20060225153749@dns.toxicfilms.tv>
+	 <9a8748490602250735l6161a96dte2805b772a89a436@mail.gmail.com>
+	 <612760535.20060225181521@dns.toxicfilms.tv>
+	 <Pine.LNX.4.63.0602251339320.13659@cuia.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -- yes, it is looking to compile the firmware into the kernel so
-that during boot it can access it in-memory.  Despite showing it's age
-as a driver, unfortunately we still probably cannot just include the
-firmware for obvious reasons.  I actually have an update for this
-driver that I need to get around to patching up, so this kind of
-reminded me.
+On 2/25/06, Rik van Riel <riel@redhat.com> wrote:
+> On Sat, 25 Feb 2006, Maciej Soltysiak wrote:
+>
+> > Code files, DNS zones, configuration files, HTML code. We are still
+> > dealing with lots of text files today.
+>
+> You say it like it's a bad thing, but in truth I suspect
+> people often deal with text files because they're EASY
+> to manipulate through scripts, etc.
+>
 
-thanks
+I agree 100%, plain text serial files are *easy*.
 
-Andrew
+Given the swiss-army knife of tools we have at our disposal (cat, cut,
+head, tail, sed, awk, split, sort, grep  and many more), plain text
+files are very easy to manipulate - not to mention write apps to
+manipulate. And that is a very good thing IMHO.
 
- .........----------------==================----
-..--==-  Sat, 25 Feb 2006 17:41:54 +0100,
-..--==-  Jesper Juhl (JJ) discussed:
+I can imagine quite a mess if I open a file that is really a view of
+several files and then start manipulating text in it across "actual
+file" boundaries  that could blow up easily.
 
- JJ)  On 2/25/06, Adrian Bunk <bunk@stusta.de> wrote:
- )) On Sat, Feb 25, 2006 at 05:24:10PM +0100, Jesper Juhl wrote:
- )) 
- )) > During some build tests of 2.6.16-rc4-mm2 with  'make randconfig'  I
- )) > found this build failure :
- )) >
- )) >   ...
- )) >   LD      drivers/built-in.o
- )) >   CC      sound/sound_core.o
- )) >   CC      sound/sound_firmware.o
- )) >   CC      sound/oss/msnd.o
- )) > make[2]: *** No rule to make target `/etc/sound/msndperm.bin', needed
- )) > by `sound/oss/msndperm.c'.  Stop.
- )) > make[2]: *** Waiting for unfinished jobs....
- )) > make[1]: *** [sound/oss] Error 2
- )) > make: *** [sound] Error 2
- )) >
- )) > I must admit I don't know how to fix it, so I'll have to just report it.
- )) 
- )) That's expected if the .config contains CONFIG_STANDALONE=n
- )) 
-
- JJ)  Ahhh, makes perfect sense, I should have thought of that.
-
- JJ)  Thanks Adrian.
-
- JJ)  --
- JJ)  Jesper Juhl <jesper.juhl@gmail.com>
- JJ)  Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
- JJ)  Plain text mails only, please      http://www.expita.com/nomime.html
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

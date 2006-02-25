@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932596AbWBYDbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbWBYDjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932596AbWBYDbb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 22:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWBYDbb
+	id S932602AbWBYDjF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 22:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWBYDjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 22:31:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20242 "HELO
+	Fri, 24 Feb 2006 22:39:05 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23058 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932596AbWBYDba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 22:31:30 -0500
-Date: Sat, 25 Feb 2006 04:31:18 +0100
+	id S932602AbWBYDjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 22:39:02 -0500
+Date: Sat, 25 Feb 2006 04:38:55 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Alessandro Zummo <a.zummo@towertech.it>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: 2.6.16-rc4-mm2: drivers/rtc/utils.c should become part of a generic implementation
-Message-ID: <20060225033118.GF3674@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc4-mm2: drivers/isdn/hysdn/hysdn_net.c module_param() compile error
+Message-ID: <20060225033855.GG3674@stusta.de>
 References: <20060224031002.0f7ff92a.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -29,22 +28,25 @@ On Fri, Feb 24, 2006 at 03:10:02AM -0800, Andrew Morton wrote:
 >...
 > Changes since 2.6.16-rc4-mm1:
 >...
-> +rtc-subsystem-class.patch
+> +remove-module_parm.patch
 >...
->  rtc subsystem rework.   These patches are being updated.
+>  Current 2.6.16 queue.  Some of these are a bit questionable at this stage.
 >...
 
-Always building drivers/rtc/utils.o even if no RTC support is enabled 
-seems to be a workaround for an issue that should instead be fixed 
-properly:
+This causes the following compile error:
 
-The code in e.g. fs/udf/udftime.c or drivers/scsi/ips.c has some 
-overlaps with what you are adding (they are not doing exactly the 
-same, but there are overlaps).
+<--  snip  -->
 
-We should have one common set of defines/inlines/functions dealing with 
-all these time conversion, leap year, length of months/years etc. issues 
-instead of adding one more implementation in this area.
+...
+  CC [M]  drivers/isdn/hysdn/hysdn_net.o
+drivers/isdn/hysdn/hysdn_net.c:27: error: syntax error before 'int'
+drivers/isdn/hysdn/hysdn_net.c:27: error: syntax error before ',' token
+drivers/isdn/hysdn/hysdn_net.c:27: error: 'param_set_unsigned' undeclared here (not in a function)
+drivers/isdn/hysdn/hysdn_net.c:27: error: syntax error before 'int'
+drivers/isdn/hysdn/hysdn_net.c:27: error: 'param_get_unsigned' undeclared here (not in a function)
+make[3]: *** [drivers/isdn/hysdn/hysdn_net.o] Error 1
+
+<--  snip  -->
 
 cu
 Adrian

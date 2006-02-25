@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWBYB6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWBYCIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWBYB6S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 20:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWBYB6S
+	id S964855AbWBYCIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 21:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWBYCIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 20:58:18 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:4492 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S964844AbWBYB6R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 20:58:17 -0500
-Date: Sat, 25 Feb 2006 02:57:22 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-       Zwane Mwaikambo <zwane@commfireservices.com>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
-Message-ID: <20060225015722.GC8132@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-	Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-	Zwane Mwaikambo <zwane@commfireservices.com>,
-	Samuel Masham <samuel.masham@gmail.com>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	cpufreq@lists.linux.org.uk, ak@suse.de
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060223204110.GE6213@redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.189.240.195
-Subject: Re: Status of X86_P4_CLOCKMOD?
-X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+	Fri, 24 Feb 2006 21:08:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11700 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964855AbWBYCIk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 21:08:40 -0500
+Date: Fri, 24 Feb 2006 18:07:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch] x86: clean up early_printk output
+Message-Id: <20060224180752.41a13387.akpm@osdl.org>
+In-Reply-To: <200602241909_MC3-1-B93E-25B@compuserve.com>
+References: <200602241909_MC3-1-B93E-25B@compuserve.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006, Dave Jones wrote:
-> On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
->  > And if the option is mostly useless, what is it good for?
-> 
-> It's sometimes useful in cases where the target CPU doesn't have any better
-> option (Speedstep/Powernow).  The big misconception is that it
-> somehow saves power & increases battery life. Not so.
-> All it does is 'not do work so often'.  The upside of this is
-> that in some situations, we generate less heat this way.
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+>  early_printk() starts output on the second screen line and doesn't
+>  clear the rest of the line when it hits a newline char.  When there
+>  is already a BIOS message there, it becomes hard to read.  Change
+>  this so it starts on the first line and clears to EOL upon hitting
+>  newline.
 
-Doesn't less heat imply less power consumption?
+This conflicts in intent with Stas's patch:
 
-Anyway, I have P4 in my desktop machine, and the reason
-why I tried to use P4 clock modulation was to reduce fan noise,
-and save some energy. And yes, fan noise was reduced.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/x86-early-printk-handling-fixes.patch
 
-The reason why I turned it off again was that I couldn't
-find any governor or userspace daemon that would work
-in a sensible way with the high latency of the P4
-clock modulation.
-What I think could work:
+that patch solves the same problem, and I think in a slightly better way:
+at least there's a chance that some of those (potentially useful)
+bootloader messages are still visible when the kernel goes tits up.
 
-- after some minutes of idling without user activity
-  go into lowest power mode (could be triggered
-  from xscreensaver)
-- at the slightest hint of user activity or CPU load jump
-  back to max performance mode
-(- optionally use intermediate clock mod steps for
-  non-interactive loads, but I'm not convinced it's
-  worth it)
+Of course, the best fix would be to start the kernel messages at the next
+line after the bootloader, but I guess that info would be hard to locate.
 
-P4 clockmod certainly sucks compared to Speedstep,
-but IMHO it is still potentially useful for the average
-desktop PC user (at least those many who let their PCs
-run 24/7, but 90% idle and unused).
-
-
-Johannes

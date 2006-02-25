@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWBYD54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbWBYEAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbWBYD54 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 22:57:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWBYD54
+	id S932660AbWBYEAK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 23:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932661AbWBYEAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 22:57:56 -0500
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:1440 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932601AbWBYD54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 22:57:56 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: multimedia keys on dell inspiron 8200s.
-Date: Fri, 24 Feb 2006 22:57:53 -0500
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <20060224014947.GA17397@redhat.com>
-In-Reply-To: <20060224014947.GA17397@redhat.com>
+	Fri, 24 Feb 2006 23:00:10 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:54415 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S932660AbWBYEAJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 23:00:09 -0500
+X-ORBL: [68.252.239.198]
+Message-ID: <43FFD641.6020104@gmail.com>
+Date: Fri, 24 Feb 2006 22:00:01 -0600
+From: Hareesh Nagarajan <hnagar2@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Wei Hu <glegoo@gmail.com>
+CC: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Looking for a file monitor
+References: <5be025980602232351k3f6182bbqed5ea54079193953@mail.gmail.com>	 <43FEBE83.6070700@gmail.com>	 <20060224130543.f5b46bcf.diegocg@gmail.com>	 <43FF3C1C.5040200@gmail.com> <5be025980602241640o84878ddy87fa8027b5cc6be5@mail.gmail.com>
+In-Reply-To: <5be025980602241640o84878ddy87fa8027b5cc6be5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602242257.54062.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 February 2006 20:49, Dave Jones wrote:
-> We've been carrying this patch in Fedora for way too long.
-> So long, I've forgotten a lot of the history.
-> 
-> Aparently, it makes multimedia buttons on Dell Inspiron 8200's
-> produce keycodes.  The only reference to this I found was
-> at http://linux.siprell.com/, but I don't know if that's its origin.
-> 
+Wei Hu wrote:
+> Yeah, that's basically what I'm looking for.
+> So is it correct that I can keep track of all the actions as inotify events?
 
-Dave,
+Yes, you can. I just looked at the defn of sys_open and I see that 	
+	fsnotify_open(f->f_dentry);
+gets called, which internally calls:
+	inotify_dentry_parent_queue_event(...) and,
+	inotify_inode_queue_event(...)
 
-This patch was refused before. Any additional/non-standard mapping is
-to be done in userspace (you need to properly adjust xorg.conf anyway):
+Do check out inotify. The same applies to other generic operations on 
+the VFS layer.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=2817#c4
-
-> ------- Additional Comment #4 From Vojtech Pavlik 2005-07-03 00:19 -------
-> I will not accept this patch (or any similar patch) to extend the
-> atkbd.c mapping table - only standard scancodes are allowed there. The
-> table is easily modified from userspace, and that is the way to go.
->
-> In the past I tried to fill the table with all the entries, but found
-> out that there are two or three keyboards competing for every position
-> in the scancode table, with a different keycode.
-
--- 
-Dmitry
+Hareesh

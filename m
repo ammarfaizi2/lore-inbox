@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWBYEBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWBYELr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932661AbWBYEBD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 23:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbWBYEBB
+	id S964790AbWBYELr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 23:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWBYELr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 23:01:01 -0500
-Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:25738 "HELO
-	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932661AbWBYEBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 23:01:00 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: Extra keycodes
-Date: Fri, 24 Feb 2006 23:00:58 -0500
-User-Agent: KMail/1.9.1
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-References: <20060223175328.GA25482@srcf.ucam.org>
-In-Reply-To: <20060223175328.GA25482@srcf.ucam.org>
+	Fri, 24 Feb 2006 23:11:47 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:33810 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932621AbWBYELq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 23:11:46 -0500
+Date: Sat, 25 Feb 2006 05:11:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc4-mm2: useless acpi_pmtmr_buggy
+Message-ID: <20060225041143.GH3674@stusta.de>
+References: <20060224031002.0f7ff92a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602242300.58815.dtor_core@ameritech.net>
+In-Reply-To: <20060224031002.0f7ff92a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 February 2006 12:53, Matthew Garrett wrote:
-> Hi,
+On Fri, Feb 24, 2006 at 03:10:02AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc4-mm1:
+>...
+> +time-i386-clocksource-drivers-backout-pmtmr-changes.patch
 > 
-> Several laptops have keys that are intended to show battery status. In 
-> order to present a consistent view to userspace, it would be nice to 
-> have a standard keycode to map them to. linux/input.h doesn't currently 
-> provide anything appropriate. What's the correct way of allocating 
-> another keycode?
-> 
+>  Various updates, fixes and cleanups for the time management patches in -mm.
+>...
 
-Just post a patch adding it to input.h and we'll discuss... Who is intended
-user? What interface is expected to be used (evdev)?
+Both before and after this patch, acpi_pmtmr_buggy is useless since it 
+never gets any value assigned.
+
+cu
+Adrian
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

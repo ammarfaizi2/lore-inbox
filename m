@@ -1,375 +1,342 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWBYPvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWBYPx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWBYPvR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 10:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWBYPvQ
+	id S932394AbWBYPx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 10:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWBYPx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 10:51:16 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:45971 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932297AbWBYPvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 10:51:16 -0500
+	Sat, 25 Feb 2006 10:53:29 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:34896 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932394AbWBYPx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 10:53:28 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=ScsXnSf9ewM+PyZz47K/UxrudZL/5qsb+qU9go8mvc3TNUGB6NKVdXy220C+HL9Yu3oYQfG/m3yRwxM0/US0wWyoD+TZbllm5r2Tb7dfW3Ynok+yY6e/XyuAyuIFfKf0Aa1Bv9HywfrKE75XsVp1rrTZkiuv7cTBAt8p8wz7UB4=
-Message-ID: <9a8748490602250751h12bf3801m9ff9f47f23235be6@mail.gmail.com>
-Date: Sat, 25 Feb 2006 16:51:14 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.16-rc4-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490602250441h710fd194u420ffbac58d7a18d@mail.gmail.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
+  b=rAkaqo90PsB61d3GoPNBgApgVkUIiNXbD2HwppdtTzYtfkzgZZR04B5ekm1XtTrgJ3azY+7shsNIfp8pwUECp4sPie3C0v4N/9V7sxIBKTj3YA0cWs2z3nbcdPv/kjgs67xHc+i40QZ5tAhEiPnVQHJpv3hVZW58nrfnuFJ0gTY=  ;
+Message-ID: <44007D6C.6020909@yahoo.com.au>
+Date: Sun, 26 Feb 2006 02:53:16 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7738_25755563.1140882674555"
-References: <20060224031002.0f7ff92a.akpm@osdl.org>
-	 <9a8748490602250359w7880d820lae65ceb50bf6e08e@mail.gmail.com>
-	 <20060225041703.6d771f10.akpm@osdl.org>
-	 <9a8748490602250425m6d99cd54la451795648c31c42@mail.gmail.com>
-	 <20060225043102.73d1a7d8.akpm@osdl.org>
-	 <9a8748490602250441h710fd194u420ffbac58d7a18d@mail.gmail.com>
+To: Robin Holt <holt@SGI.com>
+CC: Andrew Morton <akpm@osdl.org>, John McCutchan <john@johnmccutchan.com>,
+       linux-kernel@vger.kernel.org, rml@novell.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org
+Subject: [patch] inotify: lock avoidance with parent watch status in dentry
+References: <20060222134250.GE20786@lnx-holt.americas.sgi.com> <1140626903.13461.5.camel@localhost.localdomain> <20060222175030.GB30556@lnx-holt.americas.sgi.com> <1140648776.1729.5.camel@localhost.localdomain> <20060222151223.5c9061fd.akpm@osdl.org> <1140651662.2985.2.camel@localhost.localdomain> <20060223161425.4388540e.akpm@osdl.org> <20060224054724.GA8593@johnmccutchan.com> <20060223220053.2f7a977e.akpm@osdl.org> <43FEB0BF.6080403@yahoo.com.au> <20060224185632.GB343@lnx-holt.americas.sgi.com>
+In-Reply-To: <20060224185632.GB343@lnx-holt.americas.sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------050503020504030905020804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7738_25755563.1140882674555
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This is a multi-part message in MIME format.
+--------------050503020504030905020804
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On 2/25/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 2/25/06, Andrew Morton <akpm@osdl.org> wrote:
-> > "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
-> > >
-> > > On 2/25/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >  > "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
-> > >  > >
-> > >  > >  On 2/24/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >  > >  >
-> > >  > >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6=
-/2.6.16-rc4/2.6.16-rc4-mm2/
-> > >  > >  >
-> > >  > >
-> > >  > >  Geode video breaks the build :
-> > >  > >
-> > >  > >    LD      init/built-in.o
-> > >  > >    LD      .tmp_vmlinux1
-> > >  > >  drivers/built-in.o(.text+0x133f6): In function `gxfb_set_par':
-> > >  > >  : undefined reference to `fb_dealloc_cmap'
-> > >  > >  drivers/built-in.o(.text+0x13432): In function `gxfb_set_par':
-> > >  > >  : undefined reference to `fb_alloc_cmap'
-> > >  >
-> > >  > How'd you manage that?  Those things are dragged in via CONFIG_FB.
-> > >  >
-> > >  with "make randconfig" - the config it generated for me (and which
-> > >  broke) is attached.
-> >
-> > CONFIG_FB=3Dm, CONFIG_FB_GEODE_GX=3Dy.   An easy mistake, that.
-> >
->
-> Does it even make sense to build CONFIG_FB modular?
->
+This is about as far as my inotify/vfs knowledge takes me. Comments
+would be appreciated, in particular whether locking and core vfs
+parts look OK (eg. inotify_d_instantiate takes ->d_lock - might
+that be possible to avoid? is d_move the best place for the move hook?)
 
-Whoops, broke it again with a different config (attached) :
+The patch is tested with a basic inotify tester, moving files in and
+out of watched directory, creating, deleting, overwriting, etc.
 
-  LD      init/built-in.o
-  LD      vmlinux
-kernel/built-in.o(.data+0x8b8): undefined reference to `uevent_helper'
-make: *** [vmlinux] Error 1
+(sorry it is an attachment, I'm having technical difficulties)
+
+-- 
+SUSE Labs, Novell Inc.
+
+--------------050503020504030905020804
+Content-Type: text/plain;
+ name="inotify-dentry-flag.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="inotify-dentry-flag.patch"
+
+Previous inotify work avoidance is good when inotify is completely
+unused, but it breaks down if even a single watch is in place anywhere
+in the system. Robin Holt notices that udev is one such culprit - it
+slows down a 512-thread application on a 512 CPU system from 6 seconds
+to 22 minutes.
+
+Solve this by adding a flag in the dentry that tells inotify whether
+or not its parent inode has a watch on it. Event queueing to parent
+will skip taking locks if this flag is cleared. Setting and clearing
+of this flag on all child dentries versus event delivery: this is no
+different to the way that inode_watches modifications was implemented,
+in terms of race cases, and that was shown to be equivalent to always
+performing the check.
+
+The essential behaviour is that activity occuring _after_ a watch has
+been added and _before_ it has been removed, will generate events. 
+
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Index: linux-2.6/fs/dcache.c
+===================================================================
+--- linux-2.6.orig/fs/dcache.c
++++ linux-2.6/fs/dcache.c
+@@ -799,6 +799,7 @@ void d_instantiate(struct dentry *entry,
+ 	if (inode)
+ 		list_add(&entry->d_alias, &inode->i_dentry);
+ 	entry->d_inode = inode;
++	fsnotify_d_instantiate(entry, inode);
+ 	spin_unlock(&dcache_lock);
+ 	security_d_instantiate(entry, inode);
+ }
+@@ -850,6 +851,7 @@ struct dentry *d_instantiate_unique(stru
+ 	list_add(&entry->d_alias, &inode->i_dentry);
+ do_negative:
+ 	entry->d_inode = inode;
++	fsnotify_d_instantiate(entry, inode);
+ 	spin_unlock(&dcache_lock);
+ 	security_d_instantiate(entry, inode);
+ 	return NULL;
+@@ -980,6 +982,7 @@ struct dentry *d_splice_alias(struct ino
+ 		new = __d_find_alias(inode, 1);
+ 		if (new) {
+ 			BUG_ON(!(new->d_flags & DCACHE_DISCONNECTED));
++			fsnotify_d_instantiate(new, inode);
+ 			spin_unlock(&dcache_lock);
+ 			security_d_instantiate(new, inode);
+ 			d_rehash(dentry);
+@@ -989,6 +992,7 @@ struct dentry *d_splice_alias(struct ino
+ 			/* d_instantiate takes dcache_lock, so we do it by hand */
+ 			list_add(&dentry->d_alias, &inode->i_dentry);
+ 			dentry->d_inode = inode;
++			fsnotify_d_instantiate(dentry, inode);
+ 			spin_unlock(&dcache_lock);
+ 			security_d_instantiate(dentry, inode);
+ 			d_rehash(dentry);
+@@ -1339,6 +1343,7 @@ already_unhashed:
+ 
+ 	list_add(&dentry->d_u.d_child, &dentry->d_parent->d_subdirs);
+ 	spin_unlock(&target->d_lock);
++	fsnotify_d_move(dentry);
+ 	spin_unlock(&dentry->d_lock);
+ 	write_sequnlock(&rename_lock);
+ 	spin_unlock(&dcache_lock);
+Index: linux-2.6/fs/inotify.c
+===================================================================
+--- linux-2.6.orig/fs/inotify.c
++++ linux-2.6/fs/inotify.c
+@@ -38,7 +38,6 @@
+ #include <asm/ioctls.h>
+ 
+ static atomic_t inotify_cookie;
+-static atomic_t inotify_watches;
+ 
+ static kmem_cache_t *watch_cachep;
+ static kmem_cache_t *event_cachep;
+@@ -381,6 +380,41 @@ static int find_inode(const char __user 
+ }
+ 
+ /*
++ * inotify_inode_watched - returns nonzero if there are watches on this inode
++ * and zero otherwise.  We call this lockless, we do not care if we race.
++ */
++static inline int inotify_inode_watched(struct inode *inode)
++{
++	return !list_empty(&inode->inotify_watches);
++}
++
++/*
++ * Get child dentry flag into synch with parent inode.
++ */
++static void set_dentry_child_flags(struct inode *inode, int watched)
++{
++	struct dentry *alias;
++
++	spin_lock(&dcache_lock);
++	list_for_each_entry(alias, &inode->i_dentry, d_alias) {
++		struct dentry *child;
++
++		list_for_each_entry(child, &alias->d_subdirs, d_u.d_child) {
++			spin_lock(&child->d_lock);
++			if (watched) {
++				WARN_ON(child->d_flags & DCACHE_INOTIFY_PARENT_WATCHED);
++				child->d_flags |= DCACHE_INOTIFY_PARENT_WATCHED;
++			} else {
++				WARN_ON(!(child->d_flags & DCACHE_INOTIFY_PARENT_WATCHED));
++				child->d_flags &= ~DCACHE_INOTIFY_PARENT_WATCHED;
++			}
++			spin_unlock(&child->d_lock);
++		}
++	}
++	spin_unlock(&dcache_lock);
++}
++
++/*
+  * create_watch - creates a watch on the given device.
+  *
+  * Callers must hold dev->sem.  Calls inotify_dev_get_wd() so may sleep.
+@@ -426,7 +460,6 @@ static struct inotify_watch *create_watc
+ 	get_inotify_watch(watch);
+ 
+ 	atomic_inc(&dev->user->inotify_watches);
+-	atomic_inc(&inotify_watches);
+ 
+ 	return watch;
+ }
+@@ -458,8 +491,10 @@ static void remove_watch_no_event(struct
+ 	list_del(&watch->i_list);
+ 	list_del(&watch->d_list);
+ 
++	if (!inotify_inode_watched(watch->inode))
++		set_dentry_child_flags(watch->inode, 0);
++
+ 	atomic_dec(&dev->user->inotify_watches);
+-	atomic_dec(&inotify_watches);
+ 	idr_remove(&dev->idr, watch->wd);
+ 	put_inotify_watch(watch);
+ }
+@@ -481,16 +516,39 @@ static void remove_watch(struct inotify_
+ 	remove_watch_no_event(watch, dev);
+ }
+ 
++/* Kernel API */
++
+ /*
+- * inotify_inode_watched - returns nonzero if there are watches on this inode
+- * and zero otherwise.  We call this lockless, we do not care if we race.
++ * inotify_d_instantiate - instantiate dcache entry for inode
+  */
+-static inline int inotify_inode_watched(struct inode *inode)
++void inotify_d_instantiate(struct dentry *entry, struct inode *inode)
+ {
+-	return !list_empty(&inode->inotify_watches);
++	struct dentry *parent;
++
++	if (!inode)
++		return;
++
++	WARN_ON(entry->d_flags & DCACHE_INOTIFY_PARENT_WATCHED);
++	spin_lock(&entry->d_lock);
++	parent = entry->d_parent;
++	if (inotify_inode_watched(parent->d_inode))
++		entry->d_flags |= DCACHE_INOTIFY_PARENT_WATCHED;
++	spin_unlock(&entry->d_lock);
+ }
+ 
+-/* Kernel API */
++/*
++ * inotify_d_move - dcache entry has been moved
++ */
++void inotify_d_move(struct dentry *entry)
++{
++	struct dentry *parent;
++
++	parent = entry->d_parent;
++	if (inotify_inode_watched(parent->d_inode))
++		entry->d_flags |= DCACHE_INOTIFY_PARENT_WATCHED;
++	else
++		entry->d_flags &= ~DCACHE_INOTIFY_PARENT_WATCHED;
++}
+ 
+ /**
+  * inotify_inode_queue_event - queue an event to all watches on this inode
+@@ -538,7 +596,7 @@ void inotify_dentry_parent_queue_event(s
+ 	struct dentry *parent;
+ 	struct inode *inode;
+ 
+-	if (!atomic_read (&inotify_watches))
++	if (!(dentry->d_flags & DCACHE_INOTIFY_PARENT_WATCHED))
+ 		return;
+ 
+ 	spin_lock(&dentry->d_lock);
+@@ -993,6 +1051,9 @@ asmlinkage long sys_inotify_add_watch(in
+ 		goto out;
+ 	}
+ 
++	if (!inotify_inode_watched(inode))
++		set_dentry_child_flags(inode, 1);
++
+ 	/* Add the watch to the device's and the inode's list */
+ 	list_add(&watch->d_list, &dev->watches);
+ 	list_add(&watch->i_list, &inode->inotify_watches);
+@@ -1065,7 +1126,6 @@ static int __init inotify_setup(void)
+ 	inotify_max_user_watches = 8192;
+ 
+ 	atomic_set(&inotify_cookie, 0);
+-	atomic_set(&inotify_watches, 0);
+ 
+ 	watch_cachep = kmem_cache_create("inotify_watch_cache",
+ 					 sizeof(struct inotify_watch),
+Index: linux-2.6/include/linux/dcache.h
+===================================================================
+--- linux-2.6.orig/include/linux/dcache.h
++++ linux-2.6/include/linux/dcache.h
+@@ -162,6 +162,8 @@ d_iput:		no		no		no       yes
+ #define DCACHE_REFERENCED	0x0008  /* Recently used, don't discard. */
+ #define DCACHE_UNHASHED		0x0010	
+ 
++#define DCACHE_INOTIFY_PARENT_WATCHED	0x0020 /* Parent inode is watched */
++
+ extern spinlock_t dcache_lock;
+ 
+ /**
+Index: linux-2.6/include/linux/fsnotify.h
+===================================================================
+--- linux-2.6.orig/include/linux/fsnotify.h
++++ linux-2.6/include/linux/fsnotify.h
+@@ -17,6 +17,25 @@
+ #include <linux/inotify.h>
+ 
+ /*
++ * fsnotify_d_instantiate - instantiate a dentry for inode
++ * Called with dcache_lock held.
++ */
++static inline void fsnotify_d_instantiate(struct dentry *entry,
++						struct inode *inode)
++{
++	inotify_d_instantiate(entry, inode);
++}
++
++/*
++ * fsnotify_d_move - entry has been moved
++ * Called with dcache_lock and entry->d_lock held.
++ */
++static inline void fsnotify_d_move(struct dentry *entry)
++{
++	inotify_d_move(entry);
++}
++
++/*
+  * fsnotify_move - file old_name at old_dir was moved to new_name at new_dir
+  */
+ static inline void fsnotify_move(struct inode *old_dir, struct inode *new_dir,
+Index: linux-2.6/include/linux/inotify.h
+===================================================================
+--- linux-2.6.orig/include/linux/inotify.h
++++ linux-2.6/include/linux/inotify.h
+@@ -71,6 +71,8 @@ struct inotify_event {
+ 
+ #ifdef CONFIG_INOTIFY
+ 
++extern void inotify_d_instantiate(struct dentry *, struct inode *);
++extern void inotify_d_move(struct dentry *);
+ extern void inotify_inode_queue_event(struct inode *, __u32, __u32,
+ 				      const char *);
+ extern void inotify_dentry_parent_queue_event(struct dentry *, __u32, __u32,
+@@ -81,6 +83,14 @@ extern u32 inotify_get_cookie(void);
+ 
+ #else
+ 
++static inline void inotify_d_instantiate(struct dentry *, struct inode *)
++{
++}
++
++static inline void inotify_d_move(struct dentry *)
++{
++}
++
+ static inline void inotify_inode_queue_event(struct inode *inode,
+ 					     __u32 mask, __u32 cookie,
+ 					     const char *filename)
 
-------=_Part_7738_25755563.1140882674555
-Content-Type: application/octet-stream; name="config"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="config"
-X-Attachment-Id: f_ek442pye
-
-IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIG1ha2UgY29uZmlnOiBkb24ndCBlZGl0CiMgTGlu
-dXgga2VybmVsIHZlcnNpb246IDIuNi4xNi1yYzQtbW0yCiMgU2F0IEZlYiAyNSAxNTowMDoxOCAy
-MDA2CiMKQ09ORklHX1g4Nl8zMj15CkNPTkZJR19HRU5FUklDX1RJTUU9eQpDT05GSUdfU0VNQVBI
-T1JFX1NMRUVQRVJTPXkKQ09ORklHX1g4Nj15CkNPTkZJR19NTVU9eQpDT05GSUdfR0VORVJJQ19J
-U0FfRE1BPXkKQ09ORklHX0dFTkVSSUNfSU9NQVA9eQpDT05GSUdfR0VORVJJQ19IV0VJR0hUPXkK
-Q09ORklHX0FSQ0hfTUFZX0hBVkVfUENfRkRDPXkKQ09ORklHX0RNST15CgojCiMgQ29kZSBtYXR1
-cml0eSBsZXZlbCBvcHRpb25zCiMKIyBDT05GSUdfRVhQRVJJTUVOVEFMIGlzIG5vdCBzZXQKQ09O
-RklHX0xPQ0tfS0VSTkVMPXkKQ09ORklHX0lOSVRfRU5WX0FSR19MSU1JVD0zMgoKIwojIEdlbmVy
-YWwgc2V0dXAKIwpDT05GSUdfTE9DQUxWRVJTSU9OPSIiCkNPTkZJR19MT0NBTFZFUlNJT05fQVVU
-Tz15CkNPTkZJR19TV0FQPXkKIyBDT05GSUdfU1lTVklQQyBpcyBub3Qgc2V0CkNPTkZJR19CU0Rf
-UFJPQ0VTU19BQ0NUPXkKQ09ORklHX0JTRF9QUk9DRVNTX0FDQ1RfVjM9eQpDT05GSUdfU1lTQ1RM
-PXkKQ09ORklHX0lLQ09ORklHPXkKIyBDT05GSUdfSUtDT05GSUdfUFJPQyBpcyBub3Qgc2V0CkNP
-TkZJR19DUFVTRVRTPXkKIyBDT05GSUdfUkVMQVkgaXMgbm90IHNldApDT05GSUdfSU5JVFJBTUZT
-X1NPVVJDRT0iIgojIENPTkZJR19VSUQxNiBpcyBub3Qgc2V0CkNPTkZJR19WTTg2PXkKQ09ORklH
-X0VNQkVEREVEPXkKIyBDT05GSUdfS0FMTFNZTVMgaXMgbm90IHNldApDT05GSUdfSE9UUExVRz15
-CiMgQ09ORklHX1BSSU5USyBpcyBub3Qgc2V0CkNPTkZJR19CVUc9eQojIENPTkZJR19FTEZfQ09S
-RSBpcyBub3Qgc2V0CkNPTkZJR19CQVNFX0ZVTEw9eQojIENPTkZJR19GVVRFWCBpcyBub3Qgc2V0
-CiMgQ09ORklHX0VQT0xMIGlzIG5vdCBzZXQKIyBDT05GSUdfU0hNRU0gaXMgbm90IHNldApDT05G
-SUdfU0xBQj15CkNPTkZJR19USU5ZX1NITUVNPXkKQ09ORklHX0JBU0VfU01BTEw9MAojIENPTkZJ
-R19TTE9CIGlzIG5vdCBzZXQKCiMKIyBMb2FkYWJsZSBtb2R1bGUgc3VwcG9ydAojCiMgQ09ORklH
-X01PRFVMRVMgaXMgbm90IHNldAoKIwojIEJsb2NrIGxheWVyCiMKQ09ORklHX0xCRD15CkNPTkZJ
-R19MU0Y9eQoKIwojIElPIFNjaGVkdWxlcnMKIwpDT05GSUdfSU9TQ0hFRF9OT09QPXkKQ09ORklH
-X0lPU0NIRURfQVM9eQojIENPTkZJR19JT1NDSEVEX0RFQURMSU5FIGlzIG5vdCBzZXQKIyBDT05G
-SUdfSU9TQ0hFRF9DRlEgaXMgbm90IHNldApDT05GSUdfREVGQVVMVF9BUz15CiMgQ09ORklHX0RF
-RkFVTFRfREVBRExJTkUgaXMgbm90IHNldAojIENPTkZJR19ERUZBVUxUX0NGUSBpcyBub3Qgc2V0
-CiMgQ09ORklHX0RFRkFVTFRfTk9PUCBpcyBub3Qgc2V0CkNPTkZJR19ERUZBVUxUX0lPU0NIRUQ9
-ImFudGljaXBhdG9yeSIKCiMKIyBQcm9jZXNzb3IgdHlwZSBhbmQgZmVhdHVyZXMKIwojIENPTkZJ
-R19YODZfUEMgaXMgbm90IHNldAojIENPTkZJR19YODZfRUxBTiBpcyBub3Qgc2V0CiMgQ09ORklH
-X1g4Nl9WT1lBR0VSIGlzIG5vdCBzZXQKIyBDT05GSUdfWDg2X05VTUFRIGlzIG5vdCBzZXQKIyBD
-T05GSUdfWDg2X1NVTU1JVCBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9CSUdTTVAgaXMgbm90IHNl
-dAojIENPTkZJR19YODZfVklTV1MgaXMgbm90IHNldApDT05GSUdfWDg2X0dFTkVSSUNBUkNIPXkK
-IyBDT05GSUdfWDg2X0VTNzAwMCBpcyBub3Qgc2V0CkNPTkZJR19YODZfQ1lDTE9ORV9USU1FUj15
-CiMgQ09ORklHX00zODYgaXMgbm90IHNldAojIENPTkZJR19NNDg2IGlzIG5vdCBzZXQKIyBDT05G
-SUdfTTU4NiBpcyBub3Qgc2V0CiMgQ09ORklHX001ODZUU0MgaXMgbm90IHNldAojIENPTkZJR19N
-NTg2TU1YIGlzIG5vdCBzZXQKIyBDT05GSUdfTTY4NiBpcyBub3Qgc2V0CiMgQ09ORklHX01QRU5U
-SVVNSUkgaXMgbm90IHNldAojIENPTkZJR19NUEVOVElVTUlJSSBpcyBub3Qgc2V0CiMgQ09ORklH
-X01QRU5USVVNTSBpcyBub3Qgc2V0CiMgQ09ORklHX01QRU5USVVNNCBpcyBub3Qgc2V0CiMgQ09O
-RklHX01LNiBpcyBub3Qgc2V0CiMgQ09ORklHX01LNyBpcyBub3Qgc2V0CiMgQ09ORklHX01LOCBp
-cyBub3Qgc2V0CkNPTkZJR19NQ1JVU09FPXkKIyBDT05GSUdfTUVGRklDRU9OIGlzIG5vdCBzZXQK
-IyBDT05GSUdfTVdJTkNISVBDNiBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5DSElQMiBpcyBub3Qg
-c2V0CiMgQ09ORklHX01XSU5DSElQM0QgaXMgbm90IHNldAojIENPTkZJR19NR0VPREVHWDEgaXMg
-bm90IHNldAojIENPTkZJR19NR0VPREVfTFggaXMgbm90IHNldAojIENPTkZJR19NQ1lSSVhJSUkg
-aXMgbm90IHNldAojIENPTkZJR19NVklBQzNfMiBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9HRU5F
-UklDIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9DTVBYQ0hHPXkKQ09ORklHX1g4Nl9YQUREPXkKQ09O
-RklHX1g4Nl9MMV9DQUNIRV9TSElGVD01CkNPTkZJR19SV1NFTV9YQ0hHQUREX0FMR09SSVRITT15
-CkNPTkZJR19HRU5FUklDX0NBTElCUkFURV9ERUxBWT15CkNPTkZJR19YODZfV1BfV09SS1NfT0s9
-eQpDT05GSUdfWDg2X0lOVkxQRz15CkNPTkZJR19YODZfQlNXQVA9eQpDT05GSUdfWDg2X1BPUEFE
-X09LPXkKQ09ORklHX1g4Nl9DTVBYQ0hHNjQ9eQpDT05GSUdfWDg2X1RTQz15CiMgQ09ORklHX0hQ
-RVRfVElNRVIgaXMgbm90IHNldApDT05GSUdfU01QPXkKQ09ORklHX05SX0NQVVM9OAojIENPTkZJ
-R19TQ0hFRF9TTVQgaXMgbm90IHNldAojIENPTkZJR19TQ0hFRF9NQyBpcyBub3Qgc2V0CiMgQ09O
-RklHX1BSRUVNUFRfTk9ORSBpcyBub3Qgc2V0CkNPTkZJR19QUkVFTVBUX1ZPTFVOVEFSWT15CiMg
-Q09ORklHX1BSRUVNUFQgaXMgbm90IHNldApDT05GSUdfUFJFRU1QVF9CS0w9eQpDT05GSUdfWDg2
-X0xPQ0FMX0FQSUM9eQpDT05GSUdfWDg2X0lPX0FQSUM9eQojIENPTkZJR19YODZfTUNFIGlzIG5v
-dCBzZXQKIyBDT05GSUdfVE9TSElCQSBpcyBub3Qgc2V0CiMgQ09ORklHX0k4SyBpcyBub3Qgc2V0
-CiMgQ09ORklHX1g4Nl9SRUJPT1RGSVhVUFMgaXMgbm90IHNldAojIENPTkZJR19NSUNST0NPREUg
-aXMgbm90IHNldAojIENPTkZJR19YODZfTVNSIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9DUFVJRD15
-CgojCiMgRmlybXdhcmUgRHJpdmVycwojCkNPTkZJR19ERUxMX1JCVT15CkNPTkZJR19EQ0RCQVM9
-eQojIENPTkZJR19OT0hJR0hNRU0gaXMgbm90IHNldApDT05GSUdfSElHSE1FTTRHPXkKIyBDT05G
-SUdfSElHSE1FTTY0RyBpcyBub3Qgc2V0CkNPTkZJR19QQUdFX09GRlNFVD0weEMwMDAwMDAwCkNP
-TkZJR19ISUdITUVNPXkKQ09ORklHX0ZMQVRNRU09eQpDT05GSUdfRkxBVF9OT0RFX01FTV9NQVA9
-eQojIENPTkZJR19TUEFSU0VNRU1fU1RBVElDIGlzIG5vdCBzZXQKQ09ORklHX1NQTElUX1BUTE9D
-S19DUFVTPTQKQ09ORklHX0hJR0hQVEU9eQojIENPTkZJR19NQVRIX0VNVUxBVElPTiBpcyBub3Qg
-c2V0CkNPTkZJR19NVFJSPXkKQ09ORklHX0lSUUJBTEFOQ0U9eQpDT05GSUdfUkVHUEFSTT15CkNP
-TkZJR19TRUNDT01QPXkKQ09ORklHX0haXzEwMD15CiMgQ09ORklHX0haXzI1MCBpcyBub3Qgc2V0
-CiMgQ09ORklHX0haXzEwMDAgaXMgbm90IHNldApDT05GSUdfSFo9MTAwCkNPTkZJR19QSFlTSUNB
-TF9TVEFSVD0weDEwMDAwMApDT05GSUdfRE9VQkxFRkFVTFQ9eQoKIwojIFBvd2VyIG1hbmFnZW1l
-bnQgb3B0aW9ucyAoQUNQSSwgQVBNKQojCkNPTkZJR19QTT15CiMgQ09ORklHX1BNX0xFR0FDWSBp
-cyBub3Qgc2V0CiMgQ09ORklHX1BNX0RFQlVHIGlzIG5vdCBzZXQKCiMKIyBBQ1BJIChBZHZhbmNl
-ZCBDb25maWd1cmF0aW9uIGFuZCBQb3dlciBJbnRlcmZhY2UpIFN1cHBvcnQKIwojIENPTkZJR19B
-Q1BJIGlzIG5vdCBzZXQKCiMKIyBBUE0gKEFkdmFuY2VkIFBvd2VyIE1hbmFnZW1lbnQpIEJJT1Mg
-U3VwcG9ydAojCkNPTkZJR19BUE09eQpDT05GSUdfQVBNX0lHTk9SRV9VU0VSX1NVU1BFTkQ9eQoj
-IENPTkZJR19BUE1fRE9fRU5BQkxFIGlzIG5vdCBzZXQKQ09ORklHX0FQTV9DUFVfSURMRT15CiMg
-Q09ORklHX0FQTV9ESVNQTEFZX0JMQU5LIGlzIG5vdCBzZXQKIyBDT05GSUdfQVBNX1JUQ19JU19H
-TVQgaXMgbm90IHNldApDT05GSUdfQVBNX0FMTE9XX0lOVFM9eQojIENPTkZJR19BUE1fUkVBTF9N
-T0RFX1BPV0VSX09GRiBpcyBub3Qgc2V0CgojCiMgQ1BVIEZyZXF1ZW5jeSBzY2FsaW5nCiMKQ09O
-RklHX0NQVV9GUkVRPXkKQ09ORklHX0NQVV9GUkVRX1RBQkxFPXkKIyBDT05GSUdfQ1BVX0ZSRVFf
-REVCVUcgaXMgbm90IHNldApDT05GSUdfQ1BVX0ZSRVFfU1RBVD15CiMgQ09ORklHX0NQVV9GUkVR
-X1NUQVRfREVUQUlMUyBpcyBub3Qgc2V0CkNPTkZJR19DUFVfRlJFUV9ERUZBVUxUX0dPVl9QRVJG
-T1JNQU5DRT15CiMgQ09ORklHX0NQVV9GUkVRX0RFRkFVTFRfR09WX1VTRVJTUEFDRSBpcyBub3Qg
-c2V0CkNPTkZJR19DUFVfRlJFUV9HT1ZfUEVSRk9STUFOQ0U9eQpDT05GSUdfQ1BVX0ZSRVFfR09W
-X1BPV0VSU0FWRT15CiMgQ09ORklHX0NQVV9GUkVRX0dPVl9VU0VSU1BBQ0UgaXMgbm90IHNldApD
-T05GSUdfQ1BVX0ZSRVFfR09WX09OREVNQU5EPXkKIyBDT05GSUdfQ1BVX0ZSRVFfR09WX0NPTlNF
-UlZBVElWRSBpcyBub3Qgc2V0CgojCiMgQ1BVRnJlcSBwcm9jZXNzb3IgZHJpdmVycwojCkNPTkZJ
-R19YODZfUE9XRVJOT1dfSzY9eQpDT05GSUdfWDg2X1BPV0VSTk9XX0s3PXkKQ09ORklHX1g4Nl9T
-UEVFRFNURVBfQ0VOVFJJTk89eQpDT05GSUdfWDg2X1NQRUVEU1RFUF9DRU5UUklOT19UQUJMRT15
-CiMgQ09ORklHX1g4Nl9TUEVFRFNURVBfSUNIIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9QNF9DTE9D
-S01PRD15CkNPTkZJR19YODZfTE9OR1JVTj15CkNPTkZJR19YODZfTE9OR0hBVUw9eQoKIwojIHNo
-YXJlZCBvcHRpb25zCiMKQ09ORklHX1g4Nl9TUEVFRFNURVBfTElCPXkKCiMKIyBCdXMgb3B0aW9u
-cyAoUENJLCBQQ01DSUEsIEVJU0EsIE1DQSwgSVNBKQojCiMgQ09ORklHX1BDSSBpcyBub3Qgc2V0
-CkNPTkZJR19JU0FfRE1BX0FQST15CkNPTkZJR19JU0E9eQojIENPTkZJR19FSVNBIGlzIG5vdCBz
-ZXQKQ09ORklHX01DQT15CiMgQ09ORklHX01DQV9MRUdBQ1kgaXMgbm90IHNldApDT05GSUdfU0N4
-MjAwPXkKCiMKIyBQQ0NBUkQgKFBDTUNJQS9DYXJkQnVzKSBzdXBwb3J0CiMKQ09ORklHX1BDQ0FS
-RD15CiMgQ09ORklHX1BDTUNJQV9ERUJVRyBpcyBub3Qgc2V0CkNPTkZJR19QQ01DSUE9eQpDT05G
-SUdfUENNQ0lBX0lPQ1RMPXkKCiMKIyBQQy1jYXJkIGJyaWRnZXMKIwojIENPTkZJR19JODIzNjUg
-aXMgbm90IHNldApDT05GSUdfVENJQz15CkNPTkZJR19QQ01DSUFfUFJPQkU9eQpDT05GSUdfUEND
-QVJEX05PTlNUQVRJQz15CgojCiMgUENJIEhvdHBsdWcgU3VwcG9ydAojCgojCiMgRXhlY3V0YWJs
-ZSBmaWxlIGZvcm1hdHMKIwojIENPTkZJR19CSU5GTVRfRUxGIGlzIG5vdCBzZXQKQ09ORklHX0JJ
-TkZNVF9BT1VUPXkKQ09ORklHX0JJTkZNVF9NSVNDPXkKCiMKIyBOZXR3b3JraW5nCiMKIyBDT05G
-SUdfTkVUIGlzIG5vdCBzZXQKCiMKIyBEZXZpY2UgRHJpdmVycwojCgojCiMgR2VuZXJpYyBEcml2
-ZXIgT3B0aW9ucwojCkNPTkZJR19TVEFOREFMT05FPXkKIyBDT05GSUdfUFJFVkVOVF9GSVJNV0FS
-RV9CVUlMRCBpcyBub3Qgc2V0CkNPTkZJR19GV19MT0FERVI9eQoKIwojIENvbm5lY3RvciAtIHVu
-aWZpZWQgdXNlcnNwYWNlIDwtPiBrZXJuZWxzcGFjZSBsaW5rZXIKIwoKIwojIE1lbW9yeSBUZWNo
-bm9sb2d5IERldmljZXMgKE1URCkKIwojIENPTkZJR19NVEQgaXMgbm90IHNldAoKIwojIFBhcmFs
-bGVsIHBvcnQgc3VwcG9ydAojCkNPTkZJR19QQVJQT1JUPXkKQ09ORklHX1BBUlBPUlRfUEM9eQpD
-T05GSUdfUEFSUE9SVF9QQ19QQ01DSUE9eQojIENPTkZJR19QQVJQT1JUX0dTQyBpcyBub3Qgc2V0
-CkNPTkZJR19QQVJQT1JUXzEyODQ9eQoKIwojIFBsdWcgYW5kIFBsYXkgc3VwcG9ydAojCkNPTkZJ
-R19QTlA9eQojIENPTkZJR19QTlBfREVCVUcgaXMgbm90IHNldAoKIwojIFByb3RvY29scwojCiMg
-Q09ORklHX0lTQVBOUCBpcyBub3Qgc2V0CgojCiMgQmxvY2sgZGV2aWNlcwojCkNPTkZJR19CTEtf
-REVWX0ZEPXkKQ09ORklHX0JMS19ERVZfWEQ9eQpDT05GSUdfUEFSSURFPXkKQ09ORklHX1BBUklE
-RV9QQVJQT1JUPXkKCiMKIyBQYXJhbGxlbCBJREUgaGlnaC1sZXZlbCBkcml2ZXJzCiMKQ09ORklH
-X1BBUklERV9QRD15CkNPTkZJR19QQVJJREVfUENEPXkKIyBDT05GSUdfUEFSSURFX1BGIGlzIG5v
-dCBzZXQKIyBDT05GSUdfUEFSSURFX1BUIGlzIG5vdCBzZXQKQ09ORklHX1BBUklERV9QRz15Cgoj
-CiMgUGFyYWxsZWwgSURFIHByb3RvY29sIG1vZHVsZXMKIwpDT05GSUdfUEFSSURFX0FURU49eQpD
-T05GSUdfUEFSSURFX0JQQ0s9eQpDT05GSUdfUEFSSURFX0JQQ0s2PXkKIyBDT05GSUdfUEFSSURF
-X0NPTU0gaXMgbm90IHNldAojIENPTkZJR19QQVJJREVfRFNUUiBpcyBub3Qgc2V0CkNPTkZJR19Q
-QVJJREVfRklUMj15CiMgQ09ORklHX1BBUklERV9GSVQzIGlzIG5vdCBzZXQKQ09ORklHX1BBUklE
-RV9FUEFUPXkKIyBDT05GSUdfUEFSSURFX0VQSUEgaXMgbm90IHNldApDT05GSUdfUEFSSURFX0ZS
-SVE9eQojIENPTkZJR19QQVJJREVfRlJQVyBpcyBub3Qgc2V0CiMgQ09ORklHX1BBUklERV9LQklD
-IGlzIG5vdCBzZXQKIyBDT05GSUdfUEFSSURFX0tUVEkgaXMgbm90IHNldAojIENPTkZJR19QQVJJ
-REVfT04yMCBpcyBub3Qgc2V0CiMgQ09ORklHX1BBUklERV9PTjI2IGlzIG5vdCBzZXQKIyBDT05G
-SUdfQkxLX0RFVl9DT1dfQ09NTU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9MT09QIGlz
-IG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9SQU0gaXMgbm90IHNldApDT05GSUdfQkxLX0RFVl9S
-QU1fQ09VTlQ9MTYKQ09ORklHX0NEUk9NX1BLVENEVkQ9eQpDT05GSUdfQ0RST01fUEtUQ0RWRF9C
-VUZGRVJTPTgKCiMKIyBBVEEvQVRBUEkvTUZNL1JMTCBzdXBwb3J0CiMKIyBDT05GSUdfSURFIGlz
-IG5vdCBzZXQKCiMKIyBTQ1NJIGRldmljZSBzdXBwb3J0CiMKQ09ORklHX1JBSURfQVRUUlM9eQoj
-IENPTkZJR19TQ1NJIGlzIG5vdCBzZXQKCiMKIyBPbGQgQ0QtUk9NIGRyaXZlcnMgKG5vdCBTQ1NJ
-LCBub3QgSURFKQojCkNPTkZJR19DRF9OT19JREVTQ1NJPXkKQ09ORklHX0FaVENEPXkKIyBDT05G
-SUdfR1NDRCBpcyBub3Qgc2V0CiMgQ09ORklHX01DRFggaXMgbm90IHNldAojIENPTkZJR19PUFRD
-RCBpcyBub3Qgc2V0CiMgQ09ORklHX1NKQ0QgaXMgbm90IHNldAojIENPTkZJR19JU1AxNl9DREkg
-aXMgbm90IHNldAojIENPTkZJR19DRFU1MzUgaXMgbm90IHNldAoKIwojIE11bHRpLWRldmljZSBz
-dXBwb3J0IChSQUlEIGFuZCBMVk0pCiMKQ09ORklHX01EPXkKQ09ORklHX0JMS19ERVZfTUQ9eQpD
-T05GSUdfTURfTElORUFSPXkKIyBDT05GSUdfTURfUkFJRDAgaXMgbm90IHNldApDT05GSUdfTURf
-UkFJRDE9eQojIENPTkZJR19NRF9SQUlENSBpcyBub3Qgc2V0CiMgQ09ORklHX01EX1JBSUQ2IGlz
-IG5vdCBzZXQKIyBDT05GSUdfTURfTVVMVElQQVRIIGlzIG5vdCBzZXQKIyBDT05GSUdfTURfRkFV
-TFRZIGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZfRE09eQoKIwojIEZ1c2lvbiBNUFQgZGV2aWNl
-IHN1cHBvcnQKIwojIENPTkZJR19GVVNJT04gaXMgbm90IHNldAoKIwojIElFRUUgMTM5NCAoRmly
-ZVdpcmUpIHN1cHBvcnQKIwoKIwojIEkyTyBkZXZpY2Ugc3VwcG9ydAojCgojCiMgSVNETiBzdWJz
-eXN0ZW0KIwoKIwojIFRlbGVwaG9ueSBTdXBwb3J0CiMKIyBDT05GSUdfUEhPTkUgaXMgbm90IHNl
-dAoKIwojIElucHV0IGRldmljZSBzdXBwb3J0CiMKQ09ORklHX0lOUFVUPXkKCiMKIyBVc2VybGFu
-ZCBpbnRlcmZhY2VzCiMKIyBDT05GSUdfSU5QVVRfTU9VU0VERVYgaXMgbm90IHNldAojIENPTkZJ
-R19JTlBVVF9KT1lERVYgaXMgbm90IHNldApDT05GSUdfSU5QVVRfVFNERVY9eQpDT05GSUdfSU5Q
-VVRfVFNERVZfU0NSRUVOX1g9MjQwCkNPTkZJR19JTlBVVF9UU0RFVl9TQ1JFRU5fWT0zMjAKQ09O
-RklHX0lOUFVUX0VWREVWPXkKQ09ORklHX0lOUFVUX0VWQlVHPXkKCiMKIyBJbnB1dCBEZXZpY2Ug
-RHJpdmVycwojCkNPTkZJR19JTlBVVF9LRVlCT0FSRD15CkNPTkZJR19LRVlCT0FSRF9BVEtCRD15
-CkNPTkZJR19LRVlCT0FSRF9TVU5LQkQ9eQojIENPTkZJR19LRVlCT0FSRF9MS0tCRCBpcyBub3Qg
-c2V0CkNPTkZJR19LRVlCT0FSRF9YVEtCRD15CiMgQ09ORklHX0tFWUJPQVJEX05FV1RPTiBpcyBu
-b3Qgc2V0CiMgQ09ORklHX0lOUFVUX01PVVNFIGlzIG5vdCBzZXQKIyBDT05GSUdfSU5QVVRfSk9Z
-U1RJQ0sgaXMgbm90IHNldApDT05GSUdfSU5QVVRfVE9VQ0hTQ1JFRU49eQojIENPTkZJR19UT1VD
-SFNDUkVFTl9BRFM3ODQ2IGlzIG5vdCBzZXQKIyBDT05GSUdfVE9VQ0hTQ1JFRU5fR1VOWkUgaXMg
-bm90IHNldApDT05GSUdfVE9VQ0hTQ1JFRU5fRUxPPXkKQ09ORklHX1RPVUNIU0NSRUVOX01UT1VD
-SD15CkNPTkZJR19UT1VDSFNDUkVFTl9NSzcxMj15CiMgQ09ORklHX0lOUFVUX01JU0MgaXMgbm90
-IHNldAoKIwojIEhhcmR3YXJlIEkvTyBwb3J0cwojCkNPTkZJR19TRVJJTz15CkNPTkZJR19TRVJJ
-T19JODA0Mj15CkNPTkZJR19TRVJJT19TRVJQT1JUPXkKQ09ORklHX1NFUklPX0NUODJDNzEwPXkK
-IyBDT05GSUdfU0VSSU9fUEFSS0JEIGlzIG5vdCBzZXQKQ09ORklHX1NFUklPX0xJQlBTMj15CiMg
-Q09ORklHX1NFUklPX1JBVyBpcyBub3Qgc2V0CkNPTkZJR19HQU1FUE9SVD15CiMgQ09ORklHX0dB
-TUVQT1JUX05TNTU4IGlzIG5vdCBzZXQKQ09ORklHX0dBTUVQT1JUX0w0PXkKCiMKIyBDaGFyYWN0
-ZXIgZGV2aWNlcwojCkNPTkZJR19WVD15CiMgQ09ORklHX1ZUX0NPTlNPTEUgaXMgbm90IHNldApD
-T05GSUdfSFdfQ09OU09MRT15CiMgQ09ORklHX1NFUklBTF9OT05TVEFOREFSRCBpcyBub3Qgc2V0
-CgojCiMgU2VyaWFsIGRyaXZlcnMKIwpDT05GSUdfU0VSSUFMXzgyNTA9eQojIENPTkZJR19TRVJJ
-QUxfODI1MF9DT05TT0xFIGlzIG5vdCBzZXQKIyBDT05GSUdfU0VSSUFMXzgyNTBfQ1MgaXMgbm90
-IHNldApDT05GSUdfU0VSSUFMXzgyNTBfTlJfVUFSVFM9NApDT05GSUdfU0VSSUFMXzgyNTBfUlVO
-VElNRV9VQVJUUz00CiMgQ09ORklHX1NFUklBTF84MjUwX0VYVEVOREVEIGlzIG5vdCBzZXQKQ09O
-RklHX1NFUklBTF84MjUwX01DQT15CgojCiMgTm9uLTgyNTAgc2VyaWFsIHBvcnQgc3VwcG9ydAoj
-CkNPTkZJR19TRVJJQUxfQ09SRT15CiMgQ09ORklHX1VOSVg5OF9QVFlTIGlzIG5vdCBzZXQKIyBD
-T05GSUdfTEVHQUNZX1BUWVMgaXMgbm90IHNldAojIENPTkZJR19QUklOVEVSIGlzIG5vdCBzZXQK
-IyBDT05GSUdfUFBERVYgaXMgbm90IHNldApDT05GSUdfVElQQVI9eQoKIwojIElQTUkKIwojIENP
-TkZJR19JUE1JX0hBTkRMRVIgaXMgbm90IHNldAoKIwojIFdhdGNoZG9nIENhcmRzCiMKIyBDT05G
-SUdfV0FUQ0hET0cgaXMgbm90IHNldApDT05GSUdfTlZSQU09eQpDT05GSUdfUlRDPXkKIyBDT05G
-SUdfRFRMSyBpcyBub3Qgc2V0CiMgQ09ORklHX1IzOTY0IGlzIG5vdCBzZXQKCiMKIyBGdGFwZSwg
-dGhlIGZsb3BweSB0YXBlIGRldmljZSBkcml2ZXIKIwpDT05GSUdfQUdQPXkKIyBDT05GSUdfQUdQ
-X0FMSSBpcyBub3Qgc2V0CiMgQ09ORklHX0FHUF9BVEkgaXMgbm90IHNldAojIENPTkZJR19BR1Bf
-QU1EIGlzIG5vdCBzZXQKQ09ORklHX0FHUF9BTUQ2ND15CiMgQ09ORklHX0FHUF9JTlRFTCBpcyBu
-b3Qgc2V0CiMgQ09ORklHX0FHUF9OVklESUEgaXMgbm90IHNldApDT05GSUdfQUdQX1NJUz15CkNP
-TkZJR19BR1BfU1dPUktTPXkKQ09ORklHX0FHUF9WSUE9eQojIENPTkZJR19BR1BfRUZGSUNFT04g
-aXMgbm90IHNldAoKIwojIFBDTUNJQSBjaGFyYWN0ZXIgZGV2aWNlcwojCkNPTkZJR19TWU5DTElO
-S19DUz15CiMgQ09ORklHX0NBUkRNQU5fNDAwMCBpcyBub3Qgc2V0CkNPTkZJR19DQVJETUFOXzQw
-NDA9eQpDT05GSUdfTVdBVkU9eQojIENPTkZJR19TQ3gyMDBfR1BJTyBpcyBub3Qgc2V0CkNPTkZJ
-R19DUzU1MzVfR1BJTz15CiMgQ09ORklHX1JBV19EUklWRVIgaXMgbm90IHNldApDT05GSUdfSEFO
-R0NIRUNLX1RJTUVSPXkKCiMKIyBUUE0gZGV2aWNlcwojCgojCiMgSTJDIHN1cHBvcnQKIwpDT05G
-SUdfSTJDPXkKQ09ORklHX0kyQ19DSEFSREVWPXkKCiMKIyBJMkMgQWxnb3JpdGhtcwojCkNPTkZJ
-R19JMkNfQUxHT0JJVD15CkNPTkZJR19JMkNfQUxHT1BDRj15CkNPTkZJR19JMkNfQUxHT1BDQT15
-CgojCiMgSTJDIEhhcmR3YXJlIEJ1cyBzdXBwb3J0CiMKQ09ORklHX0kyQ19JU0E9eQpDT05GSUdf
-STJDX1BBUlBPUlQ9eQpDT05GSUdfSTJDX1BBUlBPUlRfTElHSFQ9eQpDT05GSUdfSTJDX1BDQV9J
-U0E9eQoKIwojIE1pc2NlbGxhbmVvdXMgSTJDIENoaXAgc3VwcG9ydAojCkNPTkZJR19JMkNfREVC
-VUdfQ09SRT15CiMgQ09ORklHX0kyQ19ERUJVR19BTEdPIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJD
-X0RFQlVHX0JVUyBpcyBub3Qgc2V0CkNPTkZJR19JMkNfREVCVUdfQ0hJUD15CgojCiMgU1BJIHN1
-cHBvcnQKIwpDT05GSUdfU1BJPXkKQ09ORklHX1NQSV9NQVNURVI9eQoKIwojIFNQSSBNYXN0ZXIg
-Q29udHJvbGxlciBEcml2ZXJzCiMKCiMKIyBTUEkgUHJvdG9jb2wgTWFzdGVycwojCgojCiMgRGFs
-bGFzJ3MgMS13aXJlIGJ1cwojCiMgQ09ORklHX1cxIGlzIG5vdCBzZXQKCiMKIyBIYXJkd2FyZSBN
-b25pdG9yaW5nIHN1cHBvcnQKIwpDT05GSUdfSFdNT049eQpDT05GSUdfSFdNT05fVklEPXkKIyBD
-T05GSUdfU0VOU09SU19BRE0xMDIxIGlzIG5vdCBzZXQKQ09ORklHX1NFTlNPUlNfR0w1MThTTT15
-CiMgQ09ORklHX1NFTlNPUlNfSVQ4NyBpcyBub3Qgc2V0CiMgQ09ORklHX1NFTlNPUlNfTE03NSBp
-cyBub3Qgc2V0CkNPTkZJR19TRU5TT1JTX0xNODM9eQojIENPTkZJR19TRU5TT1JTX0xNOTAgaXMg
-bm90IHNldApDT05GSUdfU0VOU09SU19XODM3ODFEPXkKIyBDT05GSUdfU0VOU09SU19XODM2MjdI
-RiBpcyBub3Qgc2V0CiMgQ09ORklHX1NFTlNPUlNfSERBUFMgaXMgbm90IHNldAojIENPTkZJR19I
-V01PTl9ERUJVR19DSElQIGlzIG5vdCBzZXQKCiMKIyBNaXNjIGRldmljZXMKIwoKIwojIE11bHRp
-bWVkaWEgZGV2aWNlcwojCiMgQ09ORklHX1ZJREVPX0RFViBpcyBub3Qgc2V0CgojCiMgRGlnaXRh
-bCBWaWRlbyBCcm9hZGNhc3RpbmcgRGV2aWNlcwojCgojCiMgR3JhcGhpY3Mgc3VwcG9ydAojCkNP
-TkZJR19GQj15CkNPTkZJR19GQl9DRkJfRklMTFJFQ1Q9eQpDT05GSUdfRkJfQ0ZCX0NPUFlBUkVB
-PXkKQ09ORklHX0ZCX0NGQl9JTUFHRUJMSVQ9eQojIENPTkZJR19GQl9NQUNNT0RFUyBpcyBub3Qg
-c2V0CiMgQ09ORklHX0ZCX0ZJUk1XQVJFX0VESUQgaXMgbm90IHNldApDT05GSUdfRkJfTU9ERV9I
-RUxQRVJTPXkKQ09ORklHX0ZCX1RJTEVCTElUVElORz15CkNPTkZJR19GQl9BUkM9eQojIENPTkZJ
-R19GQl9WR0ExNiBpcyBub3Qgc2V0CiMgQ09ORklHX0ZCX1ZFU0EgaXMgbm90IHNldApDT05GSUdf
-VklERU9fU0VMRUNUPXkKQ09ORklHX0ZCX0hHQT15CiMgQ09ORklHX0ZCX1MxRDEzWFhYIGlzIG5v
-dCBzZXQKQ09ORklHX0ZCX1ZJUlRVQUw9eQoKIwojIENvbnNvbGUgZGlzcGxheSBkcml2ZXIgc3Vw
-cG9ydAojCkNPTkZJR19WR0FfQ09OU09MRT15CiMgQ09ORklHX1ZHQUNPTl9TT0ZUX1NDUk9MTEJB
-Q0sgaXMgbm90IHNldApDT05GSUdfTURBX0NPTlNPTEU9eQpDT05GSUdfRFVNTVlfQ09OU09MRT15
-CiMgQ09ORklHX0ZSQU1FQlVGRkVSX0NPTlNPTEUgaXMgbm90IHNldAoKIwojIExvZ28gY29uZmln
-dXJhdGlvbgojCiMgQ09ORklHX0xPR08gaXMgbm90IHNldAoKIwojIFNvdW5kCiMKIyBDT05GSUdf
-U09VTkQgaXMgbm90IHNldAoKIwojIFVTQiBzdXBwb3J0CiMKIyBDT05GSUdfVVNCX0FSQ0hfSEFT
-X0hDRCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9BUkNIX0hBU19PSENJIGlzIG5vdCBzZXQKIyBD
-T05GSUdfVVNCX0FSQ0hfSEFTX0VIQ0kgaXMgbm90IHNldAoKIwojIE5PVEU6IFVTQl9TVE9SQUdF
-IGVuYWJsZXMgU0NTSSwgYW5kICdTQ1NJIGRpc2sgc3VwcG9ydCcKIwoKIwojIFVTQiBHYWRnZXQg
-U3VwcG9ydAojCkNPTkZJR19VU0JfR0FER0VUPXkKQ09ORklHX1VTQl9HQURHRVRfREVCVUdfRklM
-RVM9eQojIENPTkZJR19VU0JfR0FER0VUX05FVDIyODAgaXMgbm90IHNldAojIENPTkZJR19VU0Jf
-R0FER0VUX1BYQTJYWCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9HQURHRVRfR09LVSBpcyBub3Qg
-c2V0CiMgQ09ORklHX1VTQl9HQURHRVRfTEg3QTQwWCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9H
-QURHRVRfT01BUCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9HQURHRVRfQVQ5MSBpcyBub3Qgc2V0
-CiMgQ09ORklHX1VTQl9HQURHRVRfRFVNTVlfSENEIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0dB
-REdFVF9EVUFMU1BFRUQgaXMgbm90IHNldAoKIwojIE1NQy9TRCBDYXJkIHN1cHBvcnQKIwojIENP
-TkZJR19NTUMgaXMgbm90IHNldAoKIwojIExFRCBkZXZpY2VzCiMKIyBDT05GSUdfTkVXX0xFRFMg
-aXMgbm90IHNldAoKIwojIEluZmluaUJhbmQgc3VwcG9ydAojCgojCiMgU04gRGV2aWNlcwojCgoj
-CiMgRURBQyAtIGVycm9yIGRldGVjdGlvbiBhbmQgcmVwb3J0aW5nIChSQVMpCiMKQ09ORklHX0VE
-QUM9eQoKIwojIFJlcG9ydGluZyBzdWJzeXN0ZW1zCiMKIyBDT05GSUdfRURBQ19ERUJVRyBpcyBu
-b3Qgc2V0CiMgQ09ORklHX0VEQUNfTU1fRURBQyBpcyBub3Qgc2V0CkNPTkZJR19FREFDX1BPTEw9
-eQoKIwojIFJlYWwgVGltZSBDbG9jawojCgojCiMgRmlsZSBzeXN0ZW1zCiMKQ09ORklHX0VYVDJf
-RlM9eQojIENPTkZJR19FWFQyX0ZTX1hBVFRSIGlzIG5vdCBzZXQKIyBDT05GSUdfRVhUMl9GU19Y
-SVAgaXMgbm90IHNldAojIENPTkZJR19FWFQzX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfUkVJU0VS
-RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19KRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19GU19Q
-T1NJWF9BQ0wgaXMgbm90IHNldAojIENPTkZJR19YRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19N
-SU5JWF9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1JPTUZTX0ZTIGlzIG5vdCBzZXQKQ09ORklHX0lO
-T1RJRlk9eQpDT05GSUdfUVVPVEE9eQpDT05GSUdfUUZNVF9WMT15CkNPTkZJR19RRk1UX1YyPXkK
-Q09ORklHX1FVT1RBQ1RMPXkKIyBDT05GSUdfRE5PVElGWSBpcyBub3Qgc2V0CkNPTkZJR19BVVRP
-RlNfRlM9eQpDT05GSUdfQVVUT0ZTNF9GUz15CkNPTkZJR19GVVNFX0ZTPXkKCiMKIyBDRC1ST00v
-RFZEIEZpbGVzeXN0ZW1zCiMKIyBDT05GSUdfSVNPOTY2MF9GUyBpcyBub3Qgc2V0CkNPTkZJR19V
-REZfRlM9eQpDT05GSUdfVURGX05MUz15CgojCiMgRE9TL0ZBVC9OVCBGaWxlc3lzdGVtcwojCkNP
-TkZJR19GQVRfRlM9eQojIENPTkZJR19NU0RPU19GUyBpcyBub3Qgc2V0CkNPTkZJR19WRkFUX0ZT
-PXkKQ09ORklHX0ZBVF9ERUZBVUxUX0NPREVQQUdFPTQzNwpDT05GSUdfRkFUX0RFRkFVTFRfSU9D
-SEFSU0VUPSJpc284ODU5LTEiCiMgQ09ORklHX05URlNfRlMgaXMgbm90IHNldAoKIwojIFBzZXVk
-byBmaWxlc3lzdGVtcwojCkNPTkZJR19QUk9DX0ZTPXkKIyBDT05GSUdfUFJPQ19LQ09SRSBpcyBu
-b3Qgc2V0CiMgQ09ORklHX1NZU0ZTIGlzIG5vdCBzZXQKQ09ORklHX1RNUEZTPXkKIyBDT05GSUdf
-SFVHRVRMQkZTIGlzIG5vdCBzZXQKIyBDT05GSUdfSFVHRVRMQl9QQUdFIGlzIG5vdCBzZXQKQ09O
-RklHX1JBTUZTPXkKCiMKIyBNaXNjZWxsYW5lb3VzIGZpbGVzeXN0ZW1zCiMKIyBDT05GSUdfSEZT
-UExVU19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX0NSQU1GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1ZY
-RlNfRlMgaXMgbm90IHNldApDT05GSUdfSFBGU19GUz15CkNPTkZJR19RTlg0RlNfRlM9eQojIENP
-TkZJR19TWVNWX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfVUZTX0ZTIGlzIG5vdCBzZXQKCiMKIyBQ
-YXJ0aXRpb24gVHlwZXMKIwojIENPTkZJR19QQVJUSVRJT05fQURWQU5DRUQgaXMgbm90IHNldApD
-T05GSUdfTVNET1NfUEFSVElUSU9OPXkKCiMKIyBOYXRpdmUgTGFuZ3VhZ2UgU3VwcG9ydAojCkNP
-TkZJR19OTFM9eQpDT05GSUdfTkxTX0RFRkFVTFQ9Imlzbzg4NTktMSIKQ09ORklHX05MU19DT0RF
-UEFHRV80Mzc9eQpDT05GSUdfTkxTX0NPREVQQUdFXzczNz15CkNPTkZJR19OTFNfQ09ERVBBR0Vf
-Nzc1PXkKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1MCBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19D
-T0RFUEFHRV84NTIgaXMgbm90IHNldApDT05GSUdfTkxTX0NPREVQQUdFXzg1NT15CiMgQ09ORklH
-X05MU19DT0RFUEFHRV84NTcgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYwIGlz
-IG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MSBpcyBub3Qgc2V0CkNPTkZJR19OTFNf
-Q09ERVBBR0VfODYyPXkKQ09ORklHX05MU19DT0RFUEFHRV84NjM9eQpDT05GSUdfTkxTX0NPREVQ
-QUdFXzg2ND15CiMgQ09ORklHX05MU19DT0RFUEFHRV84NjUgaXMgbm90IHNldAojIENPTkZJR19O
-TFNfQ09ERVBBR0VfODY2IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2OSBpcyBu
-b3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV85MzYgaXMgbm90IHNldApDT05GSUdfTkxTX0NP
-REVQQUdFXzk1MD15CiMgQ09ORklHX05MU19DT0RFUEFHRV85MzIgaXMgbm90IHNldApDT05GSUdf
-TkxTX0NPREVQQUdFXzk0OT15CiMgQ09ORklHX05MU19DT0RFUEFHRV84NzQgaXMgbm90IHNldApD
-T05GSUdfTkxTX0lTTzg4NTlfOD15CiMgQ09ORklHX05MU19DT0RFUEFHRV8xMjUwIGlzIG5vdCBz
-ZXQKQ09ORklHX05MU19DT0RFUEFHRV8xMjUxPXkKIyBDT05GSUdfTkxTX0FTQ0lJIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfMSBpcyBub3Qgc2V0CkNPTkZJR19OTFNfSVNPODg1OV8y
-PXkKQ09ORklHX05MU19JU084ODU5XzM9eQojIENPTkZJR19OTFNfSVNPODg1OV80IGlzIG5vdCBz
-ZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfNSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5
-XzYgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV83IGlzIG5vdCBzZXQKIyBDT05GSUdf
-TkxTX0lTTzg4NTlfOSBpcyBub3Qgc2V0CkNPTkZJR19OTFNfSVNPODg1OV8xMz15CkNPTkZJR19O
-TFNfSVNPODg1OV8xND15CkNPTkZJR19OTFNfSVNPODg1OV8xNT15CiMgQ09ORklHX05MU19LT0k4
-X1IgaXMgbm90IHNldApDT05GSUdfTkxTX0tPSThfVT15CiMgQ09ORklHX05MU19VVEY4IGlzIG5v
-dCBzZXQKCiMKIyBLZXJuZWwgaGFja2luZwojCkNPTkZJR19QUklOVEtfVElNRT15CiMgQ09ORklH
-X01BR0lDX1NZU1JRIGlzIG5vdCBzZXQKQ09ORklHX0RFQlVHX1NISVJRPXkKIyBDT05GSUdfREVC
-VUdfS0VSTkVMIGlzIG5vdCBzZXQKQ09ORklHX0xPR19CVUZfU0hJRlQ9MTUKIyBDT05GSUdfREVC
-VUdfQlVHVkVSQk9TRSBpcyBub3Qgc2V0CkNPTkZJR19VTldJTkRfSU5GTz15CkNPTkZJR19FQVJM
-WV9QUklOVEs9eQpDT05GSUdfU1RBQ0tfQkFDS1RSQUNFX0NPTFM9MgpDT05GSUdfNEtTVEFDS1M9
-eQpDT05GSUdfWDg2X0ZJTkRfU01QX0NPTkZJRz15CkNPTkZJR19YODZfTVBQQVJTRT15CgojCiMg
-U2VjdXJpdHkgb3B0aW9ucwojCkNPTkZJR19LRVlTPXkKIyBDT05GSUdfS0VZU19ERUJVR19QUk9D
-X0tFWVMgaXMgbm90IHNldAoKIwojIENyeXB0b2dyYXBoaWMgb3B0aW9ucwojCiMgQ09ORklHX0NS
-WVBUTyBpcyBub3Qgc2V0CgojCiMgSGFyZHdhcmUgY3J5cHRvIGRldmljZXMKIwoKIwojIExpYnJh
-cnkgcm91dGluZXMKIwpDT05GSUdfQ1JDX0NDSVRUPXkKQ09ORklHX0NSQzE2PXkKQ09ORklHX0NS
-QzMyPXkKQ09ORklHX0xJQkNSQzMyQz15CkNPTkZJR19HRU5FUklDX0hBUkRJUlFTPXkKQ09ORklH
-X0dFTkVSSUNfSVJRX1BST0JFPXkKQ09ORklHX0dFTkVSSUNfUEVORElOR19JUlE9eQpDT05GSUdf
-WDg2X1NNUD15CkNPTkZJR19YODZfSFQ9eQpDT05GSUdfWDg2X0JJT1NfUkVCT09UPXkKQ09ORklH
-X1g4Nl9UUkFNUE9MSU5FPXkKQ09ORklHX0tUSU1FX1NDQUxBUj15Cg==
-------=_Part_7738_25755563.1140882674555--
+--------------050503020504030905020804--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

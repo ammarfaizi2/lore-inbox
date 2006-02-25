@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161054AbWBYSwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbWBYS4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161054AbWBYSwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbWBYSwJ
+	id S1161057AbWBYS4E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 13:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbWBYS4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:52:09 -0500
-Received: from pproxy.gmail.com ([64.233.166.176]:25824 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161054AbWBYSwH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:52:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oTbbfD747yXY3hPHHAy4dtkAQ8m7Q2/d2IzvRHskQD6R7EP+DEtEUQlBdK1JNLtGpPoqPSZTrmexHGBOo1s7vg9xIpW5hf8JByztvR+5SSFT7gJEhe2HzNjfmTmYqhmEMZgDp6MeyU5/hvxClmA7qCF61dFzWuNhdtgzUNrxX7g=
-Message-ID: <9a8748490602251052p3e56334ei755c9ce2100e03c@mail.gmail.com>
-Date: Sat, 25 Feb 2006 19:52:06 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Rik van Riel" <riel@redhat.com>
-Subject: Re: creating live virtual files by concatenation
-Cc: "Maciej Soltysiak" <solt2@dns.toxicfilms.tv>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.63.0602251339320.13659@cuia.boston.redhat.com>
+	Sat, 25 Feb 2006 13:56:04 -0500
+Received: from lucidpixels.com ([66.45.37.187]:56532 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1161057AbWBYS4D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 13:56:03 -0500
+Date: Sat, 25 Feb 2006 13:55:58 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Mark Lord <liml@rtr.ca>
+cc: Mark Lord <lkml@rtr.ca>, David Greaves <david@dgreaves.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <4400A1BF.7020109@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0602251355060.4827@p34>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
+ <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
+ <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
+ <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1271316508.20060225153749@dns.toxicfilms.tv>
-	 <9a8748490602250735l6161a96dte2805b772a89a436@mail.gmail.com>
-	 <612760535.20060225181521@dns.toxicfilms.tv>
-	 <Pine.LNX.4.63.0602251339320.13659@cuia.boston.redhat.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/25/06, Rik van Riel <riel@redhat.com> wrote:
-> On Sat, 25 Feb 2006, Maciej Soltysiak wrote:
+I will give 2.6.16-rcX a try shortly, here is the error again (with a 
+freshly patched 2.6.15.4) just to rule out any problems with the first 
+time that I patched:
+
+[ 1037.451784] ata3: translated op=0x2a ATA stat/err 0x51/04 to SCSI 
+SK/ASC/ASCQ 0xb/00/00
+[ 1037.451791] ata3: status=0x51 { DriveReady SeekComplete Error }
+[ 1037.451796] ata3: error=0x04 { DriveStatusError }
+[ 1517.050496] ata3: no sense translation for op=0x2a status: 0x51
+[ 1517.050504] ata3: translated op=0x2a ATA stat/err 0x51/00 to SCSI 
+SK/ASC/ASCQ 0x3/11/04
+[ 1517.050506] ata3: status=0x51 { DriveReady SeekComplete Error }
+
+
+On Sat, 25 Feb 2006, Mark Lord wrote:
+
+> Justin Piszcz wrote:
+>> Second patch fails for me.
+> ..
+>> Should I be using 2.6.16-rcX?
 >
-> > Code files, DNS zones, configuration files, HTML code. We are still
-> > dealing with lots of text files today.
+> Mmm... that's what I'm using (plus other patches),
+> so, yes.. give that a try.  2.6.16 does seem to
+> be shaping up to be a nice kernel.
 >
-> You say it like it's a bad thing, but in truth I suspect
-> people often deal with text files because they're EASY
-> to manipulate through scripts, etc.
+> Cheers
 >
-
-I agree 100%, plain text serial files are *easy*.
-
-Given the swiss-army knife of tools we have at our disposal (cat, cut,
-head, tail, sed, awk, split, sort, grep  and many more), plain text
-files are very easy to manipulate - not to mention write apps to
-manipulate. And that is a very good thing IMHO.
-
-I can imagine quite a mess if I open a file that is really a view of
-several files and then start manipulating text in it across "actual
-file" boundaries  that could blow up easily.
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

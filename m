@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWBYGGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932693AbWBYGKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWBYGGF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 01:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWBYGGF
+	id S932693AbWBYGKx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 01:10:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbWBYGKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 01:06:05 -0500
-Received: from fgwmail.fujitsu.co.jp ([164.71.1.133]:60855 "EHLO
+	Sat, 25 Feb 2006 01:10:53 -0500
+Received: from fgwmail.fujitsu.co.jp ([164.71.1.133]:33727 "EHLO
 	fgwmail.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932637AbWBYGGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 01:06:04 -0500
-Date: Sat, 25 Feb 2006 15:05:28 +0900
+	id S932693AbWBYGKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 01:10:52 -0500
+Date: Sat, 25 Feb 2006 15:10:13 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] for_each_online_pgdat (take2)  [1/5]  define
- for_each_online_pgdat
-Message-Id: <20060225150528.98386921.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [PATCH] for_each_online_pgdat (take2)  [2/5]  for_each_bootmem
+Message-Id: <20060225151013.701ecc49.kamezawa.hiroyu@jp.fujitsu.com>
 Organization: Fujitsu
 X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -24,186 +23,113 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replaces for_each_pgdat with for_each_online_pgdat()
-and makes use of node_online_map instead of pgdat_link.
+This patch adds list_head to bootmem_data_t and make bootmems use it.
+bootmem list is sorted by node_boot_start.
 
-Changelog v1 -> v2
- - fixes bug in code for ia64 initialization.
- - restructured patch dependency.
- - introduce for_each_online_pgdat().
+Only nodes against which init_bootmem() is called are linked to the list.
+(i386 allocates bootmem from only one node not from all online nodes.)
 
-This patch is against 2.6.16-rc4-mm2. 
-tested on i386/ia64(smp)/ia64(NUMA config..but not on NUMA hardware.)
+A summary:
+ 1. for_each_online_pgdat() traverses all *online* nodes.
+ 2. alloc_bootmem() allocates memory only from initialized-for-bootmem nodes.
 
--- Kame
-
-This patch defines for_each_online_pgdat() as a replacement of for_each_pgdat()
-
-Now, online nodes are managed by node_online_map. But for_each_pgdat() uses
-pgdat_link to iterate over all nodes(pgdat). This means management structure
-for online pgdat is duplicated.
-
-I think using node_online_map for for_each_pgdat() is simple and sane rather
-ather than pgdat_link. New macro is named as for_each_online_pgdat().
-Following patch will fix callers of for_each_pgdat().
-
-The bootmem allocater uses for_each_pgdat() before pgdat initialization.
-I don't think it's sane.Following patch will fix it.
-
-Signed-Off-By: Yasunori Goto     <y-goto@jp.fujitsu.com>
 Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-
-Index: linux-2.6.16-rc4-mm2/include/linux/mmzone.h
+Index: linux-2.6.16-rc4-mm2/include/linux/bootmem.h
 ===================================================================
---- linux-2.6.16-rc4-mm2.orig/include/linux/mmzone.h
-+++ linux-2.6.16-rc4-mm2/include/linux/mmzone.h
-@@ -13,6 +13,7 @@
- #include <linux/numa.h>
- #include <linux/init.h>
- #include <linux/seqlock.h>
-+#include <linux/nodemask.h>
- #include <asm/atomic.h>
+--- linux-2.6.16-rc4-mm2.orig/include/linux/bootmem.h
++++ linux-2.6.16-rc4-mm2/include/linux/bootmem.h
+@@ -38,6 +38,7 @@ typedef struct bootmem_data {
+ 	unsigned long last_pos;
+ 	unsigned long last_success;	/* Previous allocation point.  To speed
+ 					 * up searching */
++	struct list_head list;
+ } bootmem_data_t;
  
- /* Free memory management - zoned buddy allocator.  */
-@@ -349,57 +350,6 @@ unsigned long __init node_memmap_size_by
-  */
- #define zone_idx(zone)		((zone) - (zone)->zone_pgdat->node_zones)
+ extern unsigned long __init bootmem_bootmap_pages (unsigned long);
+Index: linux-2.6.16-rc4-mm2/mm/bootmem.c
+===================================================================
+--- linux-2.6.16-rc4-mm2.orig/mm/bootmem.c
++++ linux-2.6.16-rc4-mm2/mm/bootmem.c
+@@ -33,6 +33,7 @@ EXPORT_SYMBOL(max_pfn);		/* This is expo
+ 				 * dma_get_required_mask(), which uses
+ 				 * it, can be an inline function */
  
--/**
-- * for_each_pgdat - helper macro to iterate over all nodes
-- * @pgdat - pointer to a pg_data_t variable
-- *
-- * Meant to help with common loops of the form
-- * pgdat = pgdat_list;
-- * while(pgdat) {
-- * 	...
-- * 	pgdat = pgdat->pgdat_next;
-- * }
-- */
--#define for_each_pgdat(pgdat) \
--	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
--
--/*
-- * next_zone - helper magic for for_each_zone()
-- * Thanks to William Lee Irwin III for this piece of ingenuity.
-- */
--static inline struct zone *next_zone(struct zone *zone)
--{
--	pg_data_t *pgdat = zone->zone_pgdat;
--
--	if (zone < pgdat->node_zones + MAX_NR_ZONES - 1)
--		zone++;
--	else if (pgdat->pgdat_next) {
--		pgdat = pgdat->pgdat_next;
--		zone = pgdat->node_zones;
--	} else
--		zone = NULL;
--
--	return zone;
--}
--
--/**
-- * for_each_zone - helper macro to iterate over all memory zones
-- * @zone - pointer to struct zone variable
-- *
-- * The user only needs to declare the zone variable, for_each_zone
-- * fills it in. This basically means for_each_zone() is an
-- * easier to read version of this piece of code:
-- *
-- * for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
-- * 	for (i = 0; i < MAX_NR_ZONES; ++i) {
-- * 		struct zone * z = pgdat->node_zones + i;
-- * 		...
-- * 	}
-- * }
-- */
--#define for_each_zone(zone) \
--	for (zone = pgdat_list->node_zones; zone; zone = next_zone(zone))
--
- static inline int populated_zone(struct zone *zone)
- {
- 	return (!!zone->present_pages);
-@@ -471,6 +421,62 @@ extern struct pglist_data contig_page_da
++LIST_HEAD(bdata_list);
+ #ifdef CONFIG_CRASH_DUMP
+ /*
+  * If we have booted due to a crash, max_pfn will be a very low value. We need
+@@ -52,6 +53,27 @@ unsigned long __init bootmem_bootmap_pag
  
- #endif /* !CONFIG_NEED_MULTIPLE_NODES */
- 
-+static inline struct pglist_data *first_online_pgdat(void)
-+{
-+	return NODE_DATA(first_online_node);
-+}
-+
-+static inline struct pglist_data *next_online_pgdat(struct pglist_data *pgdat)
-+{
-+	int nid = next_online_node(pgdat->node_id);
-+
-+	if (nid == MAX_NUMNODES)
-+		return NULL;
-+	return NODE_DATA(nid);
-+}
-+
-+
-+/**
-+ * for_each_pgdat - helper macro to iterate over all nodes
-+ * @pgdat - pointer to a pg_data_t variable
-+ */
-+#define for_each_online_pgdat(pgdat)			\
-+	for (pgdat = first_online_pgdat();		\
-+	     pgdat;					\
-+	     pgdat = next_online_pgdat(pgdat))
-+
+ 	return mapsize;
+ }
 +/*
-+ * next_zone - helper magic for for_each_zone()
-+ * Thanks to William Lee Irwin III for this piece of ingenuity.
++ * link bdata in order
 + */
-+static inline struct zone *next_zone(struct zone *zone)
++static void link_bootmem(bootmem_data_t *bdata)
 +{
-+	pg_data_t *pgdat = zone->zone_pgdat;
-+
-+	if (zone < pgdat->node_zones + MAX_NR_ZONES - 1)
-+		zone++;
-+	else {
-+		pgdat = next_online_pgdat(pgdat);
-+		if (pgdat)
-+			zone = pgdat->node_zones;
-+		else
-+			zone = NULL;
++	bootmem_data_t *ent;
++	if (list_empty(&bdata_list)) {
++		list_add(&bdata->list, &bdata_list);
++		return;
 +	}
-+	return zone;
++	/* insert in order */
++	list_for_each_entry(ent, &bdata_list, list) {
++		if (ent->node_boot_start < ent->node_boot_start) {
++			list_add_tail(&bdata->list, &ent->list);
++			return;
++		}
++	}
++	list_add_tail(&bdata->list, &bdata_list);
++	return;
 +}
 +
-+/**
-+ * for_each_zone - helper macro to iterate over all memory zones
-+ * @zone - pointer to struct zone variable
-+ *
-+ * The user only needs to declare the zone variable, for_each_zone
-+ * fills it in.
-+ */
-+#define for_each_zone(zone)			        \
-+	for (zone = (first_online_pgdat())->node_zones; \
-+	     zone;					\
-+	     zone = next_zone(zone))
-+
- #ifdef CONFIG_SPARSEMEM
- #include <asm/sparsemem.h>
- #endif
-Index: linux-2.6.16-rc4-mm2/include/linux/nodemask.h
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/include/linux/nodemask.h
-+++ linux-2.6.16-rc4-mm2/include/linux/nodemask.h
-@@ -350,11 +350,15 @@ extern nodemask_t node_possible_map;
- #define num_possible_nodes()	nodes_weight(node_possible_map)
- #define node_online(node)	node_isset((node), node_online_map)
- #define node_possible(node)	node_isset((node), node_possible_map)
-+#define first_online_node	first_node(node_online_map)
-+#define next_online_node(nid)	next_node((nid), node_online_map)
- #else
- #define num_online_nodes()	1
- #define num_possible_nodes()	1
- #define node_online(node)	((node) == 0)
- #define node_possible(node)	((node) == 0)
-+#define first_online_node	0
-+#define next_online_node(nid)	(MAX_NUMNODES)
- #endif
  
- #define any_online_node(mask)			\
+ /*
+  * Called once to set up the allocator itself.
+@@ -62,13 +84,11 @@ static unsigned long __init init_bootmem
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long mapsize = ((end - start)+7)/8;
+ 
+-	pgdat->pgdat_next = pgdat_list;
+-	pgdat_list = pgdat;
+-
+ 	mapsize = ALIGN(mapsize, sizeof(long));
+ 	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
+ 	bdata->node_boot_start = (start << PAGE_SHIFT);
+ 	bdata->node_low_pfn = end;
++	link_bootmem(bdata);
+ 
+ 	/*
+ 	 * Initially all pages are reserved - setup_arch() has to
+@@ -383,12 +403,11 @@ unsigned long __init free_all_bootmem (v
+ 
+ void * __init __alloc_bootmem(unsigned long size, unsigned long align, unsigned long goal)
+ {
+-	pg_data_t *pgdat = pgdat_list;
++	bootmem_data_t *bdata;
+ 	void *ptr;
+ 
+-	for_each_pgdat(pgdat)
+-		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
+-						 align, goal, 0)))
++	list_for_each_entry(bdata, &bdata_list, list)
++		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 0)))
+ 			return(ptr);
+ 
+ 	/*
+@@ -416,11 +435,11 @@ void * __init __alloc_bootmem_node(pg_da
+ 
+ void * __init __alloc_bootmem_low(unsigned long size, unsigned long align, unsigned long goal)
+ {
+-	pg_data_t *pgdat = pgdat_list;
++	bootmem_data_t *bdata;
+ 	void *ptr;
+ 
+-	for_each_pgdat(pgdat)
+-		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
++	list_for_each_entry(bdata, &bdata_list, list)
++		if ((ptr = __alloc_bootmem_core(bdata, size,
+ 						 align, goal, LOW32LIMIT)))
+ 			return(ptr);
+ 

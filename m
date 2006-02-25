@@ -1,122 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWBYQE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWBYQIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161021AbWBYQE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161023AbWBYQE1
+	id S1161022AbWBYQIn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 11:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWBYQIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:04:27 -0500
-Received: from pat.uio.no ([129.240.130.16]:42170 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161021AbWBYQE0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:04:26 -0500
-Subject: Re: kernel BUG at fs/locks.c:1932!
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Fermin Molina <fermin@asic.udl.es>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060225153525.GT3674@stusta.de>
-References: <1140189359.22719.51.camel@viagra.udl.net>
-	 <1140373675.7883.45.camel@lade.trondhjem.org>
-	 <20060225153525.GT3674@stusta.de>
-Content-Type: multipart/mixed; boundary="=-S7UU9j340PJ1CWOrTh2T"
-Date: Sat, 25 Feb 2006 11:04:06 -0500
-Message-Id: <1140883446.3615.168.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.136, required 12,
-	autolearn=disabled, AWL 1.68, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Sat, 25 Feb 2006 11:08:43 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:63716 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S964771AbWBYQIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 11:08:42 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [patch] fuse: fix bug in negative lookup
+Message-Id: <E1FD1xt-0008Du-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 25 Feb 2006 17:08:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If negative entries (nodeid == 0) were sent in reply to LOOKUP
+requests, two bugs could be triggered:
 
---=-S7UU9j340PJ1CWOrTh2T
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+- looking up a negative entry would return -EIO,
 
-On Sat, 2006-02-25 at 16:35 +0100, Adrian Bunk wrote:
-> On Sun, Feb 19, 2006 at 01:27:55PM -0500, Trond Myklebust wrote:
-> > On Fri, 2006-02-17 at 16:15 +0100, Fermin Molina wrote:
-> > > Hi,
-> > > 
-> > > I run samba sharing NFS mounted shares from another machine. I'm getting
-> > > the following bugs in console (and in logs), when I stop samba (but not
-> > > always, I think it depends of stalled locks):
-> > > 
-> > > lockd: unexpected unlock status: 7
-> > > lockd: unexpected unlock status: 7
-> > > lockd: unexpected unlock status: 7
-> > > ------------[ cut here ]------------
-> > 
-> > Hmm... The problem here is that the server is returning an unexpected
-> > error: it is normally supposed to return "lock granted" or "grace
-> > error", but is actually returning "stale filehandle".
-> > 
-> > Anyhow, the client should be able to deal with this without Oopsing.
-> 
-> 
-> This seems to be a patch that should go into 2.6.16?
+- revaildate on an entry which turned negative would send a FORGET
+  request with zero nodeid, which would cause an abort() in the
+  library.
 
-I'm still waiting to hear if it fixes the problem. In the meantime, here
-is a slightly cleaner version, that also fixes most of those "unexpected
-un/lock status" messages.
+The above would only happen if the 'negative_timeout=N' option was
+used, otherwise lookups reply -ENOENT, which worked correctly.
 
-Cheers,
-  Trond
-
-
-
---=-S7UU9j340PJ1CWOrTh2T
-Content-Disposition: inline; filename=linux-2.6.16-04-fix_unlock_bad_res.dif
-Content-Type: text/plain; name=linux-2.6.16-04-fix_unlock_bad_res.dif; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Author: Trond Myklebust <Trond.Myklebust@netapp.com>
-NLM: Ensure we do not Oops in the case of an unlock
-
-In theory, NLM specs assure us that the server will only reply LCK_GRANTED
-or LCK_DENIED_GRACE_PERIOD to our NLM_UNLOCK request.
-
-In practice, we should not assume this to be the case, and the code will
-currently Oops if we do.
-
-Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 ---
 
- fs/lockd/clntproc.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/fs/lockd/clntproc.c b/fs/lockd/clntproc.c
-index 220058d..970b6a6 100644
---- a/fs/lockd/clntproc.c
-+++ b/fs/lockd/clntproc.c
-@@ -662,12 +662,18 @@ nlmclnt_unlock(struct nlm_rqst *req, str
- 	 * reclaimed while we're stuck in the unlock call. */
- 	fl->fl_u.nfs_fl.flags &= ~NFS_LCK_GRANTED;
+Index: linux/fs/fuse/dir.c
+===================================================================
+--- linux.orig/fs/fuse/dir.c	2006-02-25 16:29:59.000000000 +0100
++++ linux/fs/fuse/dir.c	2006-02-25 16:34:46.000000000 +0100
+@@ -111,6 +111,8 @@ static int fuse_dentry_revalidate(struct
  
-+	/*
-+	 * Note: the server is supposed to either grant us the unlock
-+	 * request, or to deny it with NLM_LCK_DENIED_GRACE_PERIOD. In either
-+	 * case, we want to unlock.
-+	 */
-+	do_vfs_lock(fl);
+ 		/* Doesn't hurt to "reset" the validity timeout */
+ 		fuse_invalidate_entry_cache(entry);
 +
- 	if (req->a_flags & RPC_TASK_ASYNC) {
- 		status = nlmclnt_async_call(req, NLMPROC_UNLOCK,
- 					&nlmclnt_unlock_ops);
- 		/* Hrmf... Do the unlock early since locks_remove_posix()
- 		 * really expects us to free the lock synchronously */
--		do_vfs_lock(fl);
- 		if (status < 0) {
- 			nlmclnt_release_lockargs(req);
- 			kfree(req);
-@@ -680,7 +686,6 @@ nlmclnt_unlock(struct nlm_rqst *req, str
- 	if (status < 0)
- 		return status;
++		/* For negative dentries, always do a fresh lookup */
+ 		if (!inode)
+ 			return 0;
  
--	do_vfs_lock(fl);
- 	if (resp->status == NLM_LCK_GRANTED)
- 		return 0;
- 
-
---=-S7UU9j340PJ1CWOrTh2T--
-
+@@ -122,6 +124,9 @@ static int fuse_dentry_revalidate(struct
+ 		fuse_lookup_init(req, entry->d_parent->d_inode, entry, &outarg);
+ 		request_send(fc, req);
+ 		err = req->out.h.error;
++		/* Zero nodeid is same as -ENOENT */
++		if (!err && !outarg.nodeid)
++			err = -ENOENT;
+ 		if (!err) {
+ 			struct fuse_inode *fi = get_fuse_inode(inode);
+ 			if (outarg.nodeid != get_node_id(inode)) {
+@@ -190,8 +195,9 @@ static struct dentry *fuse_lookup(struct
+ 	fuse_lookup_init(req, dir, entry, &outarg);
+ 	request_send(fc, req);
+ 	err = req->out.h.error;
+-	if (!err && ((outarg.nodeid && invalid_nodeid(outarg.nodeid)) ||
+-		     !valid_mode(outarg.attr.mode)))
++	/* Zero nodeid is same as -ENOENT, but with valid timeout */
++	if (!err && outarg.nodeid &&
++	    (invalid_nodeid(outarg.nodeid) || !valid_mode(outarg.attr.mode)))
+ 		err = -EIO;
+ 	if (!err && outarg.nodeid) {
+ 		inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,

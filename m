@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWBYR21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWBYRb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWBYR21 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 12:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWBYR21
+	id S932593AbWBYRb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 12:31:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWBYRb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 12:28:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50348 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932366AbWBYR20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 12:28:26 -0500
-Subject: Re: [2.6 patch] make UNIX a bool
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <44009024.5050105@osdl.org>
-References: <20060225160150.GX3674@stusta.de>  <44009024.5050105@osdl.org>
-Content-Type: text/plain
-Date: Sat, 25 Feb 2006 18:28:11 +0100
-Message-Id: <1140888491.2991.31.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sat, 25 Feb 2006 12:31:27 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:19470 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932593AbWBYRb0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 12:31:26 -0500
+Message-ID: <440093C6.4000904@vmware.com>
+Date: Sat, 25 Feb 2006 09:28:38 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ak@suse.de,
+       dhecht@vmware.com, torvalds@osdl.org
+Subject: Re: [PATCH] Fix topology.c location
+References: <200602242305.k1ON5Tmb026520@hera.kernel.org> <20060225085538.GA17448@redhat.com>
+In-Reply-To: <20060225085538.GA17448@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-25 at 09:13 -0800, Stephen Hemminger wrote:
-> Adrian Bunk wrote:
-> > CONFIG_UNIX=m doesn't make much sense.
-> >
-> >
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> >
-> >
-> >   
-> Why? You can build unix domain sockets as a loadable module and
-> it runs fine (or it did last I tried). Whether that makes sense from a 
-> distribution point of
-you didn't use to when modutils used unix sockets internally :)
+Dave Jones wrote:
 
-unix also needs a bunch of deeply internals exported that apparently
-people want to play with...
+>This change breaks x86-64 compiles, as it uses the same file.
+>  
+>
 
+Thanks for fixing that.  Have we decided that file sharing of this sort 
+is a really bad idea yet?  I still see early_printk and  pci-direct.h 
+sharing remains.  If this sharing really must go on, isn't there a less 
+ad-hoc way to do it?  Or at least a mention in the file that "before you 
+modify, note this is shared by arch foo".
+
+Zach

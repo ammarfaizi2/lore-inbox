@@ -1,99 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWBYHGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWBYHIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWBYHGc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 02:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBYHGc
+	id S932427AbWBYHIO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 02:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWBYHIO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 02:06:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:8359 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932406AbWBYHGb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 02:06:31 -0500
-Date: Thu, 23 Feb 2006 19:40:07 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (common) (rev.2)
-Message-ID: <20060224034007.GA2769@suse.de>
-References: <43FC8C00.5020600@ce.jp.nec.com> <43FC8D8C.1060904@ce.jp.nec.com> <20060222184853.GB13638@suse.de> <43FCE40A.1010206@ce.jp.nec.com> <20060222222846.GA14249@suse.de> <43FE09E1.4080907@ce.jp.nec.com>
+	Sat, 25 Feb 2006 02:08:14 -0500
+Received: from fgwmail2.fujitsu.co.jp ([164.71.1.135]:33958 "EHLO
+	fgwmail2.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932427AbWBYHIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 02:08:13 -0500
+Date: Sat, 25 Feb 2006 16:07:36 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_online_pgdat (take2)  [1/5]  define
+ for_each_online_pgdat
+Message-Id: <20060225160736.56f9393e.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060225152218.a9e74acf.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060225150528.98386921.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060224221651.58950b8c.akpm@osdl.org>
+	<20060225152218.a9e74acf.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FE09E1.4080907@ce.jp.nec.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 02:15:45PM -0500, Jun'ichi Nomura wrote:
-> Hello Greg,
+On Sat, 25 Feb 2006 15:22:18 +0900
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+
+> On Fri, 24 Feb 2006 22:16:51 -0800
+> Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > Some of these things must generate a large amount of code - would you have
+> > time to look into uninlining them, see what impact that has on .text size?
 > 
-> >>>>+/* This is a mere directory in sysfs. No methods are needed. */
-> >>>>+static struct kobj_type bd_holder_ktype = {
-> >>>>+	.release	= NULL,
-> >>>>+	.sysfs_ops	= NULL,
-> >>>>+	.default_attrs	= NULL,
-> >>>>+};
-> >>>
-> >>>That doesn't look right.  You always need a release function.
+> Okay, I'll do soon on ia64.
 > 
-> I updated the patch based your comments.
-> Could you take a look at this version whether there's
-> any problematic use of sysfs/kobjects?
-> 
->   - I removed embedded child-kobjects from struct block_device
->     and struct gendisk which I added in my previous patch.
->     Kobject registration occurs when gendisk or hd_struct is
->     registered. Release function of the kobject type is added.
->   - Reference counting of kobjects is done in much symmetric
->     manner than before.
->   - Added bd_claim_by_disk/bd_release_from_disk inline functions
->     to help proper reference counting.
+I compared inlined and out-of-lined vmlinux on ia64 NUMA config kernel.
 
-Looks great, only one comment:
+	inline		out-of-line
+.text   005c0680        005bf6a0
 
-> --- linux-2.6.16-rc4/fs/partitions/check.c	2006-02-17 17:23:45.000000000 -0500
-> +++ linux-2.6.16-rc4/fs/partitions/check.c	2006-02-22 23:18:06.000000000 -0500
-> @@ -297,6 +297,56 @@ struct kobj_type ktype_part = {
->  	.sysfs_ops	= &part_sysfs_ops,
->  };
->  
-> +static void dir_release(struct kobject *kobj)
-> +{
-> +	kfree(kobj);
-> +}
-> +
-> +static struct kobj_type dir_ktype = {
-> +	.release	= dir_release,
-> +	.sysfs_ops	= NULL,
-> +	.default_attrs	= NULL,
-> +};
-> +
-> +static inline struct kobject *add_dir(struct kobject *parent, const char *name)
-> +{
-> +	struct kobject *k;
-> +
-> +	if (!parent)
-> +		return NULL;
-> +
-> +	k = kmalloc(sizeof(*k), GFP_KERNEL);
-> +	if (!k)
-> +		return NULL;
-> +
-> +	memset(k, 0, sizeof(*k));
-> +	k->parent = parent;
-> +	k->ktype = &dir_ktype;
-> +	kobject_set_name(k, name);
-> +	kobject_register(k);
-> +
-> +	return k;
-> +}
+005c0680 - 005bf6a0 = FE0 = 4Kbytes. 
 
-This code looks good enough that we should add it to the core kobject
-code, don't you think?  Also, you might use kzalloc instead of kmalloc
-here.
+Considering the usage of this loop,  above size looks big ;)
 
-thanks,
+I attaches a patch which makes pgdat_walk funcs out-of-line.
+I'll rewrite this if necessary.
+(make this patch depends on some config or move the place of funcs...)
 
-greg k-h
+--Kame
+
+==
+Helper function for for_each_online_pgdat / for_each_zone looks too big to
+be inlined. Speed of these helper macro itself is not very important.
+(inner loops are tend to do more work than this)
+
+This patch make helper function to be out-of-lined.
+
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+
+
+Index: linux-2.6.16-rc4-mm2/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.16-rc4-mm2.orig/include/linux/mmzone.h	2006-02-25 13:58:52.000000000 +0900
++++ linux-2.6.16-rc4-mm2/include/linux/mmzone.h	2006-02-25 15:27:49.000000000 +0900
+@@ -418,20 +418,9 @@
+ 
+ #endif /* !CONFIG_NEED_MULTIPLE_NODES */
+ 
+-static inline struct pglist_data *first_online_pgdat(void)
+-{
+-	return NODE_DATA(first_online_node);
+-}
+-
+-static inline struct pglist_data *next_online_pgdat(struct pglist_data *pgdat)
+-{
+-	int nid = next_online_node(pgdat->node_id);
+-
+-	if (nid == MAX_NUMNODES)
+-		return NULL;
+-	return NODE_DATA(nid);
+-}
+-
++extern struct pglist_data *first_online_pgdat(void);
++extern struct pglist_data *next_online_pgdat(struct pglist_data *pgdat);
++extern struct zone *next_zone(struct zone *zone);
+ 
+ /**
+  * for_each_pgdat - helper macro to iterate over all nodes
+@@ -441,27 +430,6 @@
+ 	for (pgdat = first_online_pgdat();		\
+ 	     pgdat;					\
+ 	     pgdat = next_online_pgdat(pgdat))
+-
+-/*
+- * next_zone - helper magic for for_each_zone()
+- * Thanks to William Lee Irwin III for this piece of ingenuity.
+- */
+-static inline struct zone *next_zone(struct zone *zone)
+-{
+-	pg_data_t *pgdat = zone->zone_pgdat;
+-
+-	if (zone < pgdat->node_zones + MAX_NR_ZONES - 1)
+-		zone++;
+-	else {
+-		pgdat = next_online_pgdat(pgdat);
+-		if (pgdat)
+-			zone = pgdat->node_zones;
+-		else
+-			zone = NULL;
+-	}
+-	return zone;
+-}
+-
+ /**
+  * for_each_zone - helper macro to iterate over all memory zones
+  * @zone - pointer to struct zone variable
+Index: linux-2.6.16-rc4-mm2/mm/mmzone.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.16-rc4-mm2/mm/mmzone.c	2006-02-25 15:32:31.000000000 +0900
+@@ -0,0 +1,50 @@
++/*
++ * linux/mm/mmzone.c
++ *
++ * management codes for pgdats and zones.
++ */
++
++
++#include <linux/config.h>
++#include <linux/stddef.h>
++#include <linux/mmzone.h>
++#include <linux/module.h>
++
++struct pglist_data *first_online_pgdat(void)
++{
++	return NODE_DATA(first_online_node);
++}
++
++EXPORT_SYMBOL(first_online_pgdat);
++
++struct pglist_data *next_online_pgdat(struct pglist_data *pgdat)
++{
++	int nid = next_online_node(pgdat->node_id);
++
++	if (nid == MAX_NUMNODES)
++		return NULL;
++	return NODE_DATA(nid);
++}
++EXPORT_SYMBOL(next_online_pgdat);
++
++
++/*
++ * next_zone - helper magic for for_each_zone()
++ */
++struct zone *next_zone(struct zone *zone)
++{
++	pg_data_t *pgdat = zone->zone_pgdat;
++
++	if (zone < pgdat->node_zones + MAX_NR_ZONES - 1)
++		zone++;
++	else {
++		pgdat = next_online_pgdat(pgdat);
++		if (pgdat)
++			zone = pgdat->node_zones;
++		else
++			zone = NULL;
++	}
++	return zone;
++}
++EXPORT_SYMBOL(next_zone);
++
+
+

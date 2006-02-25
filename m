@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWBYQ2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWBYQcX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbWBYQ2d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWBYQ2d
+	id S1161033AbWBYQcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 11:32:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWBYQcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:28:33 -0500
-Received: from correo.gobiernodecanarias.org ([82.150.2.66]:63388 "EHLO
-	yaiza.gobiernodecanarias.org") by vger.kernel.org with ESMTP
-	id S964774AbWBYQ2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:28:32 -0500
-Date: Sat, 25 Feb 2006 16:28:30 +0000 (GMT)
-From: Lucas Quintana Rodriguez <lucasquintana@canarias.org>
-Subject: keyboard and keycodes at boot time
-To: linux-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <3066031b9b.31b9b30660@canarias.org>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 Patch 2 (built Jul 14 2004)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
-X-imss-version: 2.038
-X-imss-result: Passed
-X-imss-scores: Clean:66.18745 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:2 C:4 M:4 S:4 R:4 (0.1500 0.1500)
+	Sat, 25 Feb 2006 11:32:23 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:8199 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964774AbWBYQcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 11:32:23 -0500
+Date: Sat, 25 Feb 2006 17:32:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Andrew Veliath <andrewtv@usa.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS msnd build failure
+Message-ID: <20060225163221.GZ3674@stusta.de>
+References: <9a8748490602250824u34e664fandc56c20394367926@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490602250824u34e664fandc56c20394367926@mail.gmail.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Feb 25, 2006 at 05:24:10PM +0100, Jesper Juhl wrote:
 
-I've been trying to implement fbsplash on my computer; as you might be
-concerned, this allows the user to specify background and *silent*
-images to be shown at boot-time.
+> During some build tests of 2.6.16-rc4-mm2 with  'make randconfig'  I
+> found this build failure :
+> 
+>   ...
+>   LD      drivers/built-in.o
+>   CC      sound/sound_core.o
+>   CC      sound/sound_firmware.o
+>   CC      sound/oss/msnd.o
+> make[2]: *** No rule to make target `/etc/sound/msndperm.bin', needed
+> by `sound/oss/msndperm.c'.  Stop.
+> make[2]: *** Waiting for unfinished jobs....
+> make[1]: *** [sound/oss] Error 2
+> make: *** [sound] Error 2
+> 
+> I must admit I don't know how to fix it, so I'll have to just report it.
 
-The nowadays oficially unmaintained Bootsplash, used to work on my
-laptop back when I used 2.4.18. Now that I've switched to 2.6.10, can
-notice how things has changed dramatically within the keyboard, n_tty or
-related kernel layers.
+That's expected if the .config contains CONFIG_STANDALONE=n
 
-The kernel says this is about my keyboard:
+> Jesper Juhl <jesper.juhl@gmail.com>
 
-input: AT Translated Set 2 keyboard on isa0060/serio0
+cu
+Adrian
 
-But even when I've got event interface compiled into my kernel (together
-with event debugging), I'm not able to catch any key-press event till
-the keyboard's been recognized by the input driver in this case.
+-- 
 
-I'm wondering whether is it possible at all to revert the situation so I
-can catch again key-press events at boot-time, and still comply with the
-actual kernel architecture as of 2.6.10.
-
-I would really appreciate if someone could point me on where to start
-from, or what to do about this.
-
-Kind Regards, 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

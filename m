@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWBYHhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWBYHn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWBYHhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 02:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWBYHhP
+	id S932499AbWBYHn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 02:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWBYHn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 02:37:15 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:28847 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932462AbWBYHhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 02:37:13 -0500
-Date: Sat, 25 Feb 2006 16:38:18 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+	Sat, 25 Feb 2006 02:43:27 -0500
+Received: from liaag2ac.mx.compuserve.com ([149.174.40.152]:43167 "EHLO
+	liaag2ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932499AbWBYHn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 02:43:27 -0500
+Date: Sat, 25 Feb 2006 02:41:07 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [-mm patch] x86: start early_printk at sensible screen row
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_online_pgdat (take2)  [1/5]  define
- for_each_online_pgdat
-Message-Id: <20060225163818.a89c5a22.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060224233030.3fd18e25.akpm@osdl.org>
-References: <20060225150528.98386921.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060224221651.58950b8c.akpm@osdl.org>
-	<20060225152218.a9e74acf.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060225160736.56f9393e.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060224233030.3fd18e25.akpm@osdl.org>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc: Andi Kleen <ak@suse.de>, Stas Sergeev <stsp@aknet.ru>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200602250243_MC3-1-B93E-1384@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006 23:30:30 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Use boot info to start early_printk() at the proper row on VGA console.
 
-> > I'll rewrite this if necessary.
-> > (make this patch depends on some config or move the place of funcs...)
-> 
-> We wouldn't want a config option for it.
-> 
-> And the new mmzone.c probably makes sense too - I expect there are a few
-> related things (page_alloc.c) which could be moved there.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Yes, I'd like to move some of initialization funcs and counting pages funcs to mmzone.c.
-Maybe I'll do so for patches related to node-hotplug.
-
---Kame
-
-
+--- 2.6.16-rc4-mm2-64.orig/arch/x86_64/kernel/early_printk.c
++++ 2.6.16-rc4-mm2-64/arch/x86_64/kernel/early_printk.c
+@@ -244,7 +244,7 @@ int __init setup_early_printk(char *opt)
+ 	           && SCREEN_INFO.orig_video_isVGA == 1) {
+ 		max_xpos = SCREEN_INFO.orig_video_cols;
+ 		max_ypos = SCREEN_INFO.orig_video_lines;
+-		current_ypos = max_ypos;
++		current_ypos = SCREEN_INFO.orig_y;
+ 		early_console = &early_vga_console; 
+  	} else if (!strncmp(buf, "simnow", 6)) {
+  		simnow_init(buf + 6);
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

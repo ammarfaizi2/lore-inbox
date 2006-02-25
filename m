@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWBYArN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWBYAsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWBYArN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 19:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBYArN
+	id S932654AbWBYAsx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 19:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWBYAsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 19:47:13 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51102 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964825AbWBYArM (ORCPT
+	Fri, 24 Feb 2006 19:48:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15275 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932654AbWBYAsw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 19:47:12 -0500
-Date: Sat, 25 Feb 2006 01:46:37 +0100
+	Fri, 24 Feb 2006 19:48:52 -0500
+Date: Sat, 25 Feb 2006 01:48:33 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Message-ID: <20060225004637.GF1930@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602250911.54850.ncunningham@cyclades.com> <200602250120.39936.rjw@sisk.pl> <200602251026.21441.ncunningham@cyclades.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Takashi Iwai <tiwai@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
+       vojtech@suse.cz
+Subject: Re: My machine is cursed: no sound. Help! [was Re: es1371 sound problems]
+Message-ID: <20060225004833.GG1930@elf.ucw.cz>
+References: <20060223205309.GA2045@elf.ucw.cz> <s5h1wxtdmri.wl%tiwai@suse.de> <20060224161631.GB1925@elf.ucw.cz> <20060224234050.GA1644@elf.ucw.cz> <20060225001459.GC9655@kvack.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602251026.21441.ncunningham@cyclades.com>
+In-Reply-To: <20060225001459.GC9655@kvack.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 25-02-06 10:26:17, Nigel Cunningham wrote:
-> Hi.
+On Pá 24-02-06 19:14:59, Benjamin LaHaise wrote:
+> On Sat, Feb 25, 2006 at 12:40:50AM +0100, Pavel Machek wrote:
+> >  0 [I82801DBICH4   ]: ICH4 - Intel 82801DB-ICH4
+> >                       Intel 82801DB-ICH4 with AD1981B at 0xc0000c00, irq 5
+> >  1 [U0x4fa0x4201   ]: USB-Audio - USB Device 0x4fa:0x4201
+> >                       USB Device 0x4fa:0x4201 at usb-0000:00:1d.1-2, full speed
+> > root@amd:~#
+> > 
+> > (usb soundcard clicks when I launch mpg123, but that's it.)
+> > 
+> > Any ideas?
 > 
-> On Saturday 25 February 2006 10:20, Rafael J. Wysocki wrote:
-> > Hi,
-> >
-> > On Saturday 25 February 2006 00:11, Nigel Cunningham wrote:
-> > > On Saturday 25 February 2006 06:22, Rafael J. Wysocki wrote:
-> > > > On Friday 24 February 2006 14:12, Pavel Machek wrote:
-> > > > > On Pá 24-02-06 11:58:07, Rafael J. Wysocki wrote:
+> I had problems with the ac97 driver and newer kernels until toggling Mute 
+> on the headphone sense channel.  Alsa has too many bells and whistles that 
+> need to be properly incanted for machines to emit sound.  Just try futzing 
+> with the channels in alsamixer.  Otoh, that's a good way to end up with a 
+> config that doesn't work, too...
 
-> > > I mean, that only means that the poor system has more pages to fault back
-> > > in at resume time, before the user can even begin to think about doing
-> > > anything useful.
-> >
-> > Well, that's not the only possibility.  After we fix the memory freeing
-> > issue we can use the observation that page cache pages need not be saved to
-> > disk during suspend, because they already are in a storage.  We only need
-> > to create a map of these pages during suspend with the information on where
-> > to get them from and prefetch them into memory during resume independently
-> > of the page fault mechanism.
-> >
-> > This way we won't have to actually save anything before we snapshot the
-> > system and the system should be reasonably responsive after resume.
-> 
-> But this is going to be much more complicated than simply saving the pages in 
-> the first place. You'll need some mechanism for figuring out what pages to 
-> get, how to fault them in, etc. In addition, it will be much slower than 
-> simply reading them back from (ideally) contiguous storage.
-
-It will not be *much* slower. You gain some speed by not having to
-write anything, too. And done properly, it is going to be simple. Lets
-see what Rafael comes up with.
-
-[Big advantage is that /proc/list-me-pagecache can be implemented
-without any dependencies on the rest of swsusp code, and is likely to
-be useful for speeding up boot, etc.]
-									Pavel
+Could we get some alsa-produce-sound script? On emu10k, there's 30+
+options in mixer to set, and default setting is useless :-(.
+								Pavel
 -- 
 Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWBYTJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWBYTO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbWBYTJX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 14:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbWBYTJX
+	id S1161072AbWBYTO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 14:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161080AbWBYTO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 14:09:23 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:47285 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1161071AbWBYTJI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 14:09:08 -0500
-Date: Sat, 25 Feb 2006 14:09:06 -0500
+	Sat, 25 Feb 2006 14:14:28 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:44782 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1161072AbWBYTO1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 14:14:27 -0500
+Date: Sat, 25 Feb 2006 14:14:25 -0500
 From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
-In-reply-to: <Pine.LNX.4.61.0602251518200.31692@yvahk01.tjqt.qr>
+Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works ;)
+In-reply-to: <200602250042.51677.bero@arklinux.org>
 To: linux-kernel@vger.kernel.org
 Reply-to: gene.heskett@verizononline.net
-Message-id: <200602251409.06493.gene.heskett@verizon.net>
+Message-id: <200602251414.25260.gene.heskett@verizon.net>
 Organization: Organization? Absolutely zip.
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
 Content-disposition: inline
-References: <43FF88E6.6020603@linux.intel.com>
- <200602250549.47547.gene.heskett@verizon.net>
- <Pine.LNX.4.61.0602251518200.31692@yvahk01.tjqt.qr>
+References: <200602250042.51677.bero@arklinux.org>
 User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 February 2006 09:19, Jan Engelhardt wrote:
->>If the modules crc changes,
->>it must do an instant disable of the transmitter functions and exit
->> or crash, thereby precluding any 'hot rodding' of the chipset.
+On Friday 24 February 2006 18:42, Bernhard Rosenkraenzer wrote:
+>Slightly OT, but I think it's about time to work on a solution rather
+> than the flamewar. ;)
 >
->Would not it be easiest to have the chipset enforce the acceptable
-> bands? So that software can't switch the chipset to 1337 GHz no
-> matter how hard you forward/reverse-engineer it.
+>I've just released dvdrtools 0.3.1
+>(http://www.arklinux.org/projects/dvdrtools/). It is a fork of
+> cdrtools that (as the name indicates) adds support for writing to
+> DVD-R and DVD-RW disks using purely Free Software, that tries to do
+> things the Linux way ("dvdrecord dev=/dev/cdrom whatever.iso")
+> without suggesting to use 2.4 kernels or even other operating
+> systems, uses a standard make system, is maintained in a public svn
+> repository, and does away with a lot of the libc
+>functionality-clones found in cdrtools.
+>
+>There are a lot more things to do to get CD/DVD writing where it
+> should (and could) be -- if anyone else is interested in fixing the
+> CD/DVD situation, you're more than welcome to join our team.
+>
+>Best regards,
+>bero
 
-That removes the ability to legally use this chipset in regions other 
-than the one its designed for.  We tend to forget that a set of masks 
-to make a chip, in the currently fabbing 90nm process, can ran as high 
-as 50 million dollars for the more complex stuff.  And it can only 
-multiply when 45nm and even 15nm come online in the coming years. Such 
-precision costs money, and must be recouped by sufficient volume of the 
-single chip that mask set makes.
-
-If Litchenstein has a different set of rules, I guarantee that there 
-will NOT be a seperate chips masked out just for Litchenstein.
-
-Sure, thats so ridiculous an example its sublime, but those are the 
-facts that the chip makers must deal with on a global scale.  Its much 
-easier for them to furnish a binary only driver that enforces the rules 
-for the region where the chip will be used.  Economically, its the only 
-choice they have.  I'd be interested in how, if they supply binaries 
-that could supposedly be downloaded to anyplace on the planet, do they 
-enforce in software the miriad variations of the rules.  It would have 
-to have some means of discovering where it is in order to enable the 
-proper subset of those rules.  That however, is also proprietary info 
-because of the potential for hackability if the method were known.
-
->Jan Engelhardt
+Thank you very much Bernard. Hopefully this will lead to real progress 
+in this arena.
 
 -- 
 Cheers, Gene

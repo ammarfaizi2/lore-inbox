@@ -1,62 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWBYEqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWBYFHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932674AbWBYEqn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 23:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbWBYEqn
+	id S932679AbWBYFHv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 00:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbWBYFHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 23:46:43 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:38071 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S932674AbWBYEqm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 23:46:42 -0500
-Date: Sat, 25 Feb 2006 05:46:19 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: 2.6.16-rc4-mm2: drivers/rtc/utils.c should become part of a
- generic implementation
-Message-ID: <20060225054619.149db264@inspiron>
-In-Reply-To: <20060225033118.GF3674@stusta.de>
-References: <20060224031002.0f7ff92a.akpm@osdl.org>
-	<20060225033118.GF3674@stusta.de>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Importance: high
-X-Priority: 1 (Highest)
+	Sat, 25 Feb 2006 00:07:51 -0500
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:31595 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S932679AbWBYFHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 00:07:50 -0500
+X-IronPort-AV: i="4.02,145,1139205600"; 
+   d="scan'208"; a="50424368:sNHT30749260"
+Date: Fri, 24 Feb 2006 23:07:45 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Ghost" devices in /sys/firmware/edd
+Message-ID: <20060225050745.GA4796@lists.us.dell.com>
+References: <200602242214.46290.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602242214.46290.arvidjaar@mail.ru>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Feb 2006 04:31:18 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
-
-> Always building drivers/rtc/utils.o even if no RTC support is enabled 
-> seems to be a workaround for an issue that should instead be fixed 
-> properly:
+On Fri, Feb 24, 2006 at 10:14:34PM +0300, Andrey Borzenkov wrote:
+> I have single drive hda; still EDD shows valid and the _same_ MBR signature 
+> for all possible 16 drives:
 > 
-> The code in e.g. fs/udf/udftime.c or drivers/scsi/ips.c has some 
-> overlaps with what you are adding (they are not doing exactly the 
-> same, but there are overlaps).
+> {pts/0}% cat /sys/firmware/edd/*/mbr_*
+> 0x7fca3a0a
+> 0x7fca3a0a
+> 0x7fca3a0a
+[snip]
 > 
-> We should have one common set of defines/inlines/functions dealing with 
-> all these time conversion, leap year, length of months/years etc. issues 
-> instead of adding one more implementation in this area.
+> other attributes are correctly present for the drive 0x80 only.
+> 
+> Not being expert in x86 assembly, but comparing main loops for signature and 
+> other info:
+> 
+> signature:
+>         int     $0x13
+>         sti                     # work around buggy BIOSes
+>         popw    %dx
+>         popw    %es
+>         popw    %bx
+>         jc      edd_mbr_sig_done                # on failure, we're done.
 
- I agree. My idea was to place those routines in utils.o and then
- modify callers, like udftime.c and ips.c to use them. What is currently
- in utils.c has been gathered from files that were known to me,
- lice rtctime.c in the arm arch and some rtc drivers. Once deployed,
- it will be easier to find and convert similar routines.y
+The code here is fine.  Immediately before the int13 is an stc
+instruction, so the carry flag is set.  sti and popw don't change CF.
+What this means is that your BIOS cleared CF in the int13 to a
+nonexistant disk, rather than setting CF (or leaving it unchanged).
+CF being clear means the command succeeded.  In your case, the BIOS
+cleared it, but shouldn't have.
+
+Care to share your system type / BIOS version, and if it's at all
+recent, file an bug with their support department?
+
+
+> extended EDD info:
+> 
+> edd_check_ext:
+>         movb    $CHECKEXTENSIONSPRESENT, %ah    # Function 41
+>         movw    $EDDMAGIC1, %bx                 # magic
+>         int     $0x13                           # make the call
+>         jc      edd_done                        # no more BIOS devices
+> 
+
+Yet, it does properly set CF on int13 AH=41h to a nonexistant disk.
+How annoying.
+
+
+> Is it possible that carry flag is cleared between return from int 0x13 and 
+> querying for it in the former case? This would perfectly explain that EDD 
+> does not notice failure of reading sector and simply copies the same 
+> signature from the very first drive.
+
+I'll look more next week, but what isn't ever happening is an int13
+AH=15h GET DISK TYPE probe to see if the disk is there.  The edd.S
+code just issue a READ SECTORS and expects that to fail (to set CF) if
+it's not there.  This has been working fine for most people.  In your
+case, it's not reporting a failure (CF is cleared by the int13).  Now,
+there's no guarantee your BIOS would respond properly to the GET DISK
+TYPE command either.  There are also notes that BIOS should set
+0040h:0075h to the number of drives present, and the code isn't
+reading that value now either.  Either of these tests, if the BIOS
+isn't buggy for them, could result in reporting the right number of
+disks.
+
+Thanks much for the report and for digging to find where the mistake
+could be.
+
+Thanks,
+Matt
 
 -- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

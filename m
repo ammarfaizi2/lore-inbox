@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWBYWBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWBYWDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWBYWBv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 17:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWBYWBv
+	id S1750891AbWBYWDM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 17:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWBYWDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 17:01:51 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:55444 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932089AbWBYWBu (ORCPT
+	Sat, 25 Feb 2006 17:03:11 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:60879 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1750744AbWBYWDJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 17:01:50 -0500
-Date: Sat, 25 Feb 2006 23:01:03 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] make INPUT a bool
-In-Reply-To: <20060225154028.GU3674@stusta.de>
-Message-ID: <Pine.LNX.4.61.0602252300200.7535@yvahk01.tjqt.qr>
-References: <20060217163802.GI4422@stusta.de> <93564eb70602191933x2a20ce0m@mail.gmail.com>
- <20060220132832.GF4971@stusta.de> <20060222013410.GH20204@MAIL.13thfloor.at>
- <20060222023121.GB4661@stusta.de> <Pine.LNX.4.62.0602251255110.18095@pademelon.sonytel.be>
- <20060225124606.GI3674@stusta.de> <Pine.LNX.4.61.0602251521300.31692@yvahk01.tjqt.qr>
- <20060225145049.GQ3674@stusta.de> <Pine.LNX.4.61.0602251628050.13355@yvahk01.tjqt.qr>
- <20060225154028.GU3674@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Feb 2006 17:03:09 -0500
+Date: Sat, 25 Feb 2006 17:03:03 -0500
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] net driver fix
+Message-ID: <20060225220303.GA27133@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> You said that INPUT was not a driver, right. But without it, a keyboard 
->> >> won't work, will it?
->> >
->> >Yes, you do need INPUT for a keyboard.
->> >No, INPUT alone does not support any hardware - that's the job of the 
->> >drivers depending on INPUT.
->> >No, I don't understand what your question wants to achieve.
->> 
->> Let's look at another subsystem:
->> "Yes, you do need SND for a soundcard."
->> "No, SND alone does not support any hardware - that's the job of the drivers
->> depending on SND."
->> Should SND also be made a bool like INPUT?
->
->No, SND=m is also possible in the EMBEDDED=n case.
->
-This example was to show that INPUT should not be y-only. Except if you plan to
-make SND y-only too.
 
+Please pull from 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
-Jan Engelhardt
--- 
+to receive the following updates:
+
+ drivers/net/sis900.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+Daniele Venzano:
+      Fix Wake on LAN support in sis900
+
+diff --git a/drivers/net/sis900.c b/drivers/net/sis900.c
+index 3d95fa2..7a952fe 100644
+--- a/drivers/net/sis900.c
++++ b/drivers/net/sis900.c
+@@ -540,7 +540,7 @@ static int __devinit sis900_probe(struct
+ 	printk("%2.2x.\n", net_dev->dev_addr[i]);
+ 
+ 	/* Detect Wake on Lan support */
+-	ret = inl(CFGPMC & PMESP);
++	ret = (inl(net_dev->base_addr + CFGPMC) & PMESP) >> 27;
+ 	if (netif_msg_probe(sis_priv) && (ret & PME_D3C) == 0)
+ 		printk(KERN_INFO "%s: Wake on LAN only available from suspend to RAM.", net_dev->name);
+ 
+@@ -2040,7 +2040,7 @@ static int sis900_set_wol(struct net_dev
+ 
+ 	if (wol->wolopts == 0) {
+ 		pci_read_config_dword(sis_priv->pci_dev, CFGPMCSR, &cfgpmcsr);
+-		cfgpmcsr |= ~PME_EN;
++		cfgpmcsr &= ~PME_EN;
+ 		pci_write_config_dword(sis_priv->pci_dev, CFGPMCSR, cfgpmcsr);
+ 		outl(pmctrl_bits, pmctrl_addr);
+ 		if (netif_msg_wol(sis_priv))

@@ -1,112 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWBYA5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWBYBJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbWBYA5E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 19:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWBYA5D
+	id S964832AbWBYBJU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 20:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWBYBJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 19:57:03 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:50336 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S964829AbWBYA5B convert rfc822-to-8bit
+	Fri, 24 Feb 2006 20:09:20 -0500
+Received: from physics.harvard.edu ([128.103.101.20]:45495 "EHLO
+	physics.harvard.edu") by vger.kernel.org with ESMTP id S964832AbWBYBJT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 19:57:01 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Sat, 25 Feb 2006 01:56:48 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
-       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602250120.39936.rjw@sisk.pl> <200602251026.21441.ncunningham@cyclades.com>
-In-Reply-To: <200602251026.21441.ncunningham@cyclades.com>
+	Fri, 24 Feb 2006 20:09:19 -0500
+Message-ID: <43FFAE3D.7010002@physics.harvard.edu>
+Date: Fri, 24 Feb 2006 20:09:17 -0500
+From: Milan Kupcevic <milan@physics.harvard.edu>
+Organization: Harvard University
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602250156.49228.rjw@sisk.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
+       torvalds@osdl.org
+Subject: [PATCH] sata_promise: Port enumeration order - SATA 150 TX4, SATA
+ 300 TX4 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Milan Kupcevic <milan@physics.harvard.edu>
 
-On Saturday 25 February 2006 01:26, Nigel Cunningham wrote:
-> On Saturday 25 February 2006 10:20, Rafael J. Wysocki wrote:
-> > On Saturday 25 February 2006 00:11, Nigel Cunningham wrote:
-> > > On Saturday 25 February 2006 06:22, Rafael J. Wysocki wrote:
-> > > > On Friday 24 February 2006 14:12, Pavel Machek wrote:
-> > > > > On Pá 24-02-06 11:58:07, Rafael J. Wysocki wrote:
-> >
-> > }-- snip --{
-> >
-> > > > > > Well, if all of the pages that Nigel saves before snapshot are
-> > > > > > freeable in theory, there evidently is something wrong with freeing
-> > > > > > in swsusp, as we have a testcase in which the user was unable to
-> > > > > > suspend with swsusp due to the lack of memory and could suspend
-> > > > > > with suspend2.
-> > > > > >
-> > > > > > However, the only thing in swsusp_shrink_memory() that may be wrong
-> > > > > > is we return -ENOMEM as soon as shrink_all_memory() returns 0.
-> > > > > > Namely, if shrink_all_memory() can return 0 prematurely (ie. "there
-> > > > > > still are some freeable pages, but they could not be freed in
-> > > > > > _this_ call"), we should continue until it returns 0 twice in a row
-> > > > > > (or something like that).  If this doesn't help, we'll have to fix
-> > > > > > shrink_all_memory() I'm afraid.
-> > > > >
-> > > > > I did try shrink_all_memory() five times, with .5 second delay
-> > > > > between them, and it freed more memory at later tries.
-> > > >
-> > > > I wonder if the delays are essential or if so, whether they may be
-> > > > shorter than .5 sec.
-> > > >
-> > > > > Sometimes it even freed 0 pages at the first try.
-> > > > >
-> > > > > I did not push the patch because
-> > > > >
-> > > > > 1) it was way too ugly
-> > > >
-> > > > I think I can do something like that in swsusp_shrink_memory() and it
-> > > > won't be very ugly.
-> > > >
-> > > > > 2) shrink_all_memory() should be fixed. It should not really return
-> > > > > if there are more pages freeable.
-> > > >
-> > > > Well, that would be a long-run solution.  However, until it's fixed we
-> > > > can use a workaround IMHO. ;-)
-> > >
-> > > Isn't trying to free as much memory as you can the wrong solution anyway?
-> >
-> > No, it isn't.  There are situations in which we would like to suspend
-> > "whatever it takes" and then we should be able to free as much memory as
-> > _really_ possible.
-> >
-> > Besides, it is supposed to work, and it doesn't, so it needs fixing.
-> >
-> > > I mean, that only means that the poor system has more pages to fault back
-> > > in at resume time, before the user can even begin to think about doing
-> > > anything useful.
-> >
-> > Well, that's not the only possibility.  After we fix the memory freeing
-> > issue we can use the observation that page cache pages need not be saved to
-> > disk during suspend, because they already are in a storage.  We only need
-> > to create a map of these pages during suspend with the information on where
-> > to get them from and prefetch them into memory during resume independently
-> > of the page fault mechanism.
-> >
-> > This way we won't have to actually save anything before we snapshot the
-> > system and the system should be reasonably responsive after resume.
-> 
-> But this is going to be much more complicated than simply saving the pages in 
-> the first place. You'll need some mechanism for figuring out what pages to 
-> get, how to fault them in, etc.
+Fix Promise SATAII 150 TX4 (PDC40518) and Promise SATA 300 TX4 
+(PDC40718-GP) wrong port enumeration order that makes it (nearly) 
+impossible to deal with boot problems using two or more drives.
 
-Yes, this is going to be quite difficult indeed.  Still there's a price for saving the
-pages and I'd like to avoid paying it. ;-)
+Signed-off-by: Milan Kupcevic <milan@physics.harvard.edu>
+---
 
-> In addition, it will be much slower than simply reading them back from (ideally)
-> contiguous storage.
+The current kernel driver assumes:
 
-Not necessarily.  These pages may come from contiguous storage areas as well.
+port 1 - scsi3
+port 2 - scsi1
+port 3 - scsi0
+port 4 - scsi2
 
-Greetings,
-Rafael
+Having 4 hard drives connected to the controller grub recognizes the 
+port 1 connected drive as "(hd0)" but kernel recognizes the port 3 
+connected drive as scsi0:0:0:0 (/dev/sda). There is no clean way to make 
+it boot correctly.
+
+ sata_promise.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
+
+diff -uprN ./drivers/scsi/sata_promise.c 
+../linux/drivers/scsi/sata_promise.c
+--- ./drivers/scsi/sata_promise.c       2006-02-17 17:23:45.000000000 -0500
++++ ../linux/drivers/scsi/sata_promise.c        2006-02-24 
+19:35:16.000000000 -0500
+@@ -707,14 +707,18 @@ static int pdc_ata_init_one (struct pci_
+ 
+        /* notice 4-port boards */
+        switch (board_idx) {
+-       case board_20319:
++       case board_20319: /* tx4  */
+                        probe_ent->n_ports = 4;
+ 
+-               pdc_ata_setup_port(&probe_ent->port[2], base + 0x300);
+-               pdc_ata_setup_port(&probe_ent->port[3], base + 0x380);
+-
+-               probe_ent->port[2].scr_addr = base + 0x600;
+-               probe_ent->port[3].scr_addr = base + 0x700;
++               pdc_ata_setup_port(&probe_ent->port[0], base + 0x380);
++               pdc_ata_setup_port(&probe_ent->port[1], base + 0x280);
++               pdc_ata_setup_port(&probe_ent->port[2], base + 0x200);
++               pdc_ata_setup_port(&probe_ent->port[3], base + 0x300);
++
++               probe_ent->port[0].scr_addr = base + 0x700;
++               probe_ent->port[1].scr_addr = base + 0x500;
++               probe_ent->port[2].scr_addr = base + 0x400;
++               probe_ent->port[3].scr_addr = base + 0x600;
+                break;
+        case board_2037x:
+                probe_ent->n_ports = 2;
+
+-- 
+Milan Kupcevic
+System Administrator
+Harvard University
+Department of Physics
+

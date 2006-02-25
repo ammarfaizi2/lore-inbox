@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWBYWKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWBYWPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWBYWKm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 17:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWBYWKm
+	id S1750897AbWBYWPw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 17:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWBYWPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 17:10:42 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54993 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932074AbWBYWKl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 17:10:41 -0500
-Date: Sat, 25 Feb 2006 23:10:39 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Michael Buesch <mbuesch@freenet.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Mapping to 0x0
-In-Reply-To: <BE7AD56A-27CA-465C-A4C6-774E8C074EF0@mac.com>
-Message-ID: <Pine.LNX.4.61.0602252309150.10677@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr>
- <200602241237.21628.mbuesch@freenet.de> <BE7AD56A-27CA-465C-A4C6-774E8C074EF0@mac.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Feb 2006 17:15:52 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:47269 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750797AbWBYWPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 17:15:52 -0500
+Subject: Re: slab: Remove SLAB_NO_REAP option
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Alok Kataria <alok.kataria@calsoftinc.com>,
+       manfred@colorfullife.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0602240817110.20760@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.63.0602231502380.7798@localhost.localdomain>
+	 <20060223020957.478d4cc1.akpm@osdl.org>
+	 <Pine.LNX.4.58.0602231331530.15716@sbz-30.cs.Helsinki.FI>
+	 <Pine.LNX.4.64.0602230917540.1796@schroedinger.engr.sgi.com>
+	 <1140719812.11455.1.camel@localhost>
+	 <Pine.LNX.4.64.0602231044210.13228@schroedinger.engr.sgi.com>
+	 <84144f020602232336l480f6a4el9f7f708f9c3a61e1@mail.gmail.com>
+	 <Pine.LNX.4.64.0602240817110.20760@schroedinger.engr.sgi.com>
+Date: Sun, 26 Feb 2006 00:15:50 +0200
+Message-Id: <1140905750.11182.7.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I am playing around with it. I did the attached code. It is a usermode
->> program, which tries to map NULL, and a kernel module, which calls a NULL
->> pointer. The file badcode.bin contains an i386 ud2 instruction. When
->> loading the kernel module, while the usermode program is executing, I get
->> the usual NULL pointer dereference oops:
->
-> You need to trigger the null pointer dereference from within the userspace
-> program that maps NULL.  The reason your test doesn't do anything is that it is
-> the insmod tool whose address space gets used, as opposed to your nulltest
-> program.
->
+On Fri, 24 Feb 2006, Pekka Enberg wrote:
+> > I don't think its worth it. It doesn't make much sense to create a
+> > separate object cache if you're not using it, we're better off
+> > converting those to kmalloc(). cache_cache is there to make
+> > bootstrapping easier, it is very unlikely that you ever have more than
+> > one page allocated for that cache which is why scanning the freelist
+> > _at all_ is silly. I think SLAB_NO_REAP should go away but we also
+> > must ensure we don't introduce a performance regression while doing
+> > that.
 
-Think of a device driver which dereferences on read() or write() or ioctl.
-Then the userspace program gets its chance, does not it?
+On Fri, 2006-02-24 at 08:19 -0800, Christoph Lameter wrote:
+> Got some way to get rid of cache_cache? Or remove it after boot?
 
+Well, yeah. We can bootsrap a generic cache that can hold sizeof(struct
+kmem_cache) first and use that.
 
+				Pekka
 
-Jan Engelhardt
--- 

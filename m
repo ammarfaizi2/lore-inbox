@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWBYC5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWBYC56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932522AbWBYC5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 21:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWBYC5w
+	id S932565AbWBYC56 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 21:57:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWBYC56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 21:57:52 -0500
-Received: from xenotime.net ([66.160.160.81]:49546 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932522AbWBYC5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 21:57:52 -0500
-Date: Fri, 24 Feb 2006 18:59:02 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: sam@ravnborg.org, barkalow@iabervon.org, herbert@13thfloor.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] duplicate #include check for build system
-Message-Id: <20060224185902.fd2a43f5.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.61.0602240820000.16363@yvahk01.tjqt.qr>
-References: <20060221014824.GA19998@MAIL.13thfloor.at>
-	<Pine.LNX.4.64.0602210149190.6773@iabervon.org>
-	<20060221175246.GA9070@mars.ravnborg.org>
-	<Pine.LNX.4.61.0602240820000.16363@yvahk01.tjqt.qr>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 24 Feb 2006 21:57:58 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:25754 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932565AbWBYC56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 21:57:58 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 2.6.16-rc4-mm1]  Task Throttling V14
+Date: Sat, 25 Feb 2006 13:57:23 +1100
+User-Agent: KMail/1.9.1
+Cc: Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
+       MIke Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+References: <1140183903.14128.77.camel@homer> <43FFAFE9.8000206@bigpond.net.au> <43FFC411.8010106@yahoo.com.au>
+In-Reply-To: <43FFC411.8010106@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602251357.24665.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006 08:23:23 +0100 (MET) Jan Engelhardt wrote:
-
-> >> I think the kernel style is to encourage duplicate includes, rather than 
-> >> removing them. Removing duplicate includes won't remove any dependancies 
-> >> (since the includes that they duplicate will remain).
-> >The style as I have understood it is that each .h file in include/linux/
-> >are supposed to be self-contained. So it includes what is needs, and the
-> >'what it needs' are kept small.
+On Saturday 25 February 2006 13:42, Nick Piggin wrote:
+> Peter Williams wrote:
+> > Andrew Morton wrote:
+> >> MIke Galbraith <efault@gmx.de> wrote:
+> >>> Not many comments came back, zero actually.
+> >>
+> >> That's because everyone's terribly busy chasing down those final bugs
+> >> so we
+> >> get a really great 2.6.16 release (heh, I kill me).
+> >>
+> >> I'm a bit reluctant to add changes like this until we get the smpnice
+> >> stuff
+> >> settled down and validated.  I guess that means once Ken's run all his
+> >> performance tests across it.
+> >>
+> >> Of course, if Ken does his testing with just mainline+smpnice then any
+> >> coupling becomes less of a problem.  But I would like to see some
+> >> feedback
+> >> from the other sched developers first.
 > >
-> >Keeping the 'what it needs' part small is a challenge resulting in
-> >smaller .h files. But also a good way to keep related things together.
+> > Personally, I'd rather see PlugSched merged in and this patch be used to
+> > create a new scheduler inside PlugSched.  But I'm biased :-)
 > >
-> How far does this go? Consider the following hypothetical case:
-> 
-> ---dcache.h---
-> struct dentry {
->    ...
-> };
-> ---fs.h---
-> #include "dcache.h"
-> struct inode {
->     struct dentry *de;
-> };
-> 
-> Since only a pointer to struct dentry is involved, I would compress it to:
-> 
-> ---fs.h---
-> struct dentry;
-> struct inode {
->     struct dentry *de;
-> };
-> 
-> The fs.h file still "compiles" (gcc -xc fs.h), and there is one file less 
-> to be read. And since dcache.h in this case here should anyway be included 
-> in the .c file if *DE is dereferenced, I do not see a problem with this.
-> Objections?
+> > As I see it, the problem that this patch is addressing is caused by the
+> > fact that the current scheduler is overly complicated.  This patch just
+> > makes it more complicated.  Some of the schedulers in PlugSched already
+> > handle this problem adequately and some of them are simpler than the
+> > current scheduler -- the intersection of these two sets is not empty.
+> >
+> > So now that it's been acknowledged that the current scheduler has
+> > problems, I think that we should be looking at other solutions in
+> > addition to just making the current one more complicated.
+>
+> I tried this angle years ago and it didn't work :)
 
-Nope, your method is good & correct AFAIAC.
+Our "2.6 forever" policy is why we're stuck with this approach. We tried 
+alternative implementations in -mm for a while but like all alternatives they 
+need truckloads more testing to see if they provide a real advantage and 
+don't cause any regressions. This made it impossible to seriously consider 
+any alternatives.
 
----
-~Randy
+I hacked on and pushed plugsched in an attempt to make it possible to work on 
+an alternative implementation that would make the transition possible in a 
+stable series. This was vetoed by Linus and Ingo and yourself for the reason 
+it dilutes developer effort on the current scheduler. Which leaves us with 
+only continually polishing what is already in place.
+
+None of this is news of course but it helps to set the history for outside 
+observers of this thread.
+
+Cheers,
+Con

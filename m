@@ -1,59 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161103AbWBYUwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWBYVEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161103AbWBYUwe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 15:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161108AbWBYUwe
+	id S1161113AbWBYVEu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 16:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161112AbWBYVEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 15:52:34 -0500
-Received: from nproxy.gmail.com ([64.233.182.206]:49353 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161103AbWBYUwe (ORCPT
+	Sat, 25 Feb 2006 16:04:50 -0500
+Received: from [192.231.160.6] ([192.231.160.6]:14302 "EHLO cinder.waste.org")
+	by vger.kernel.org with ESMTP id S1161113AbWBYVEt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 15:52:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=CTS6tHcUmV21Ykdg+ysnifVCOYO1Yf/uWAH0Q4g7W5iiWOVV+XK/OtDPQNoTQOhfY9G5XHflIwiRo6HFca1lNFAsvp89JkKbYm2HX6Y9N23Dn5SoQTpMJ2EdNJ1qxxT43ymqxllZRWeoLh4vxyKeHn2Zxkj8XFxXhJcTdswtYMs=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH] small update of allnoconfig description
-Date: Sat, 25 Feb 2006 21:52:50 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
+	Sat, 25 Feb 2006 16:04:49 -0500
+Date: Sat, 25 Feb 2006 15:04:54 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
+Message-ID: <20060225210454.GL13116@waste.org>
+References: <0.399206195@selenic.com> <4.399206195@selenic.com> <20060224221909.GD28855@flint.arm.linux.org.uk> <20060225065136.GH13116@waste.org> <20060225084955.GA27538@flint.arm.linux.org.uk> <20060225145412.GI13116@waste.org> <20060225180521.GB15276@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602252152.50354.jesper.juhl@gmail.com>
+In-Reply-To: <20060225180521.GB15276@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 25, 2006 at 06:05:21PM +0000, Russell King wrote:
+> It seems that you're missing this case - the case where lib/inflate.c
+> is used elsewhere in the kernel apart from the boot time decompressors.
 
-'allnoconfig' is described by 'make help' as a "minimal config", that's not
-strictly correct. To be pedantic, a minimal config would be one where 
-EMBEDDED was set to Y and most things therein disabled etc. Simply 
-answering 'no' to all options does not give a minimal config.
-A better description of allnoconfig is that it answers all options with 'no'.
+I think you must be getting confused with lib/zlib. lib/inflate.c is
+only used at boot.
 
-This patch updates the description.
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- scripts/kconfig/Makefile |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.16-rc4-mm2-orig/scripts/kconfig/Makefile	2006-02-18 02:09:11.000000000 +0100
-+++ linux-2.6.16-rc4-mm2-work/scripts/kconfig/Makefile	2006-02-25 21:46:15.000000000 +0100
-@@ -78,7 +78,7 @@ help:
- 	@echo  '  defconfig	  - New config with default answer to all options'
- 	@echo  '  allmodconfig	  - New config selecting modules when possible'
- 	@echo  '  allyesconfig	  - New config where all options are accepted with yes'
--	@echo  '  allnoconfig	  - New minimal config'
-+	@echo  '  allnoconfig	  - New config where all options are answered with no'
- 
- # ===========================================================================
- # Shared Makefile for the various kconfig executables:
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

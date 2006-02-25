@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWBYGZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWBYG3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWBYGZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 01:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWBYGZU
+	id S932341AbWBYG3e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 01:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWBYG3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 01:25:20 -0500
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:14560 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932258AbWBYGZT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 01:25:19 -0500
-Date: Sat, 25 Feb 2006 01:22:17 -0500
+	Sat, 25 Feb 2006 01:29:34 -0500
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:38821 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932341AbWBYG3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 01:29:34 -0500
+Date: Sat, 25 Feb 2006 01:22:16 -0500
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] x86_64: don't use early_printk() during memory
-  init
+Subject: Re: [patch] x86: clean up early_printk output
 To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Message-ID: <200602250124_MC3-1-B940-4AEE@compuserve.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <200602250124_MC3-1-B940-4AED@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -24,22 +25,19 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <200602250526.06389.ak@suse.de>
+In-Reply-To: <200602250529.11099.ak@suse.de>
 
-On Sat, 25 Feb 2006 at 05:26:05 +0100, Andi Kleen wrote:
+On Sat, 25 Feb 2006 at 05:29:10 +0100, Andi Kleen wrote:
 
-> > printk is working by the time this memory init message prints.
-> > As it stands, output jumps to the top of the screen and prints
-> > this message, then back to normal boot messages, overwriting
-> > a line at the top.
-> 
-> Using of early_printk here was intentional because it needs
-> much less infrastructure than printk and is pretty good proof
-> that the kernel at least started.
+> early_printk is designed to do absolutely minimal work to get the 
+> message out. Your patch adds too much potential disturbance 
+> imho.
 
- Well it made me think something had gone horribly wrong and was
-scribbling over video memory.  Especially since it left debris
-at the end of the line... and you don't want to fix that either.
+You're kidding... right?
+
+early_printk copies the entire screen up, line-by-line, in order to do
+scrolling, then blanks the bottom line using the exact code I used to
+clear to EOL.  How can that be OK if my fix isn't?
 
 -- 
 Chuck

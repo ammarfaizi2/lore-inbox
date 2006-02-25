@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWBYHeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWBYHhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWBYHeq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 02:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWBYHeq
+	id S932462AbWBYHhP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 02:37:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWBYHhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 02:34:46 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:14271 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932440AbWBYHep (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 02:34:45 -0500
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200602250543.22421.ak@suse.de>
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	 <200602250543.22421.ak@suse.de>
-Content-Type: text/plain
-Date: Fri, 24 Feb 2006 23:34:53 -0800
-Message-Id: <1140852894.2587.43.camel@localhost.localdomain>
+	Sat, 25 Feb 2006 02:37:15 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:28847 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932462AbWBYHhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 02:37:13 -0500
+Date: Sat, 25 Feb 2006 16:38:18 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_online_pgdat (take2)  [1/5]  define
+ for_each_online_pgdat
+Message-Id: <20060225163818.a89c5a22.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060224233030.3fd18e25.akpm@osdl.org>
+References: <20060225150528.98386921.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060224221651.58950b8c.akpm@osdl.org>
+	<20060225152218.a9e74acf.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060225160736.56f9393e.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060224233030.3fd18e25.akpm@osdl.org>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-25 at 05:43 +0100, Andi Kleen wrote:
-> On Saturday 25 February 2006 05:20, Bryan O'Sullivan wrote:
-> > On some platforms, a regular wmb() is not sufficient to guarantee that
-> > PCI writes have been flushed to the bus if write combining is in effect.
+On Fri, 24 Feb 2006 23:30:30 -0800
+Andrew Morton <akpm@osdl.org> wrote:
+
+> > I'll rewrite this if necessary.
+> > (make this patch depends on some config or move the place of funcs...)
 > 
-> On what platforms?
-
-On x86_64 in particular, if CONFIG_UNORDERED_IO is defined.  Regular
-wmb() is implemented as a compiler memory barrier then, which isn't
-sufficient for PCI write combining.
-
-> linux/system.h looks unnatural to me.
-
-I used this for symmetry with <asm/system.h> where other barriers are
-defined.  It could obviously go into io.h instead, since it's an
-MMIO-related barrier, but I didn't want to separate it from other
-barriers.
-
-If you have a location you'd prefer, please let me know.
-
-> > We also define a version of wc_wmb() with the required semantics
-> > on x86_64.
+> We wouldn't want a config option for it.
 > 
-> Leaving i386 out in the cold?
+> And the new mmzone.c probably makes sense too - I expect there are a few
+> related things (page_alloc.c) which could be moved there.
 
-Looks like it should be defined there, too, something like this perhaps:
+Yes, I'd like to move some of initialization funcs and counting pages funcs to mmzone.c.
+Maybe I'll do so for patches related to node-hotplug.
 
-#define wc_wmb() alternative("lock; addl $0,0(%%esp)", "sfence", X86_FEATURE_XMM)
+--Kame
 
-Does that look right?
-
-	<b
 

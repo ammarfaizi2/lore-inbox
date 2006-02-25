@@ -1,61 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161089AbWBYTlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbWBYTkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161089AbWBYTlc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 14:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbWBYTlc
+	id S1161083AbWBYTkW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 14:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbWBYTkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 14:41:32 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:6855 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id S1161089AbWBYTlb (ORCPT
+	Sat, 25 Feb 2006 14:40:22 -0500
+Received: from [125.247.109.106] ([125.247.109.106]:49679 "HELO virgilio.it")
+	by vger.kernel.org with SMTP id S1161083AbWBYTkW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 14:41:31 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: gene.heskett@verizononline.net
-Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
-Date: Sat, 25 Feb 2006 20:41:24 +0100
-User-Agent: KMail/1.8.3
-References: <43FF88E6.6020603@linux.intel.com> <Pine.LNX.4.61.0602251518200.31692@yvahk01.tjqt.qr> <200602251409.06493.gene.heskett@verizon.net>
-In-Reply-To: <200602251409.06493.gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 25 Feb 2006 14:40:22 -0500
+Message-ID: <30A420A2.4883FDA@virgilio.it>
+Date: Sun, 26 Feb 2006 06:21:56 +1000
+From: "Quazi Hossain" <quazihossain4@virgilio.it>
+User-Agent: Mozilla 4.79 [en] (Win98; U)
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1655050.NBC4jyttXS";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "Thanks" <linux-kernel@vger.kernel.org>
+Subject: CAN YOU BE TRUSTED
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602252041.24333.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1655050.NBC4jyttXS
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello!
 
-On Saturday 25 February 2006 20:09, Gene Heskett wrote:
-> Sure, thats so ridiculous an example its sublime, but those are the=20
-> facts that the chip makers must deal with on a global scale.  Its much=20
-> easier for them to furnish a binary only driver that enforces the rules=20
-> for the region where the chip will be used.
+Compliments
 
-But that is exactly the point. A binary only driver does not enforce
-something. It can easily be run though a disassembler, hooked at kernel
-level, modified with a hexeditor, rewritten as opensource...
-It is not worth the pain.
+I have been searching for a person whom we can jointly invest, Trust in and
+also solicit an honorable partnership with. 
 
-=2D-=20
-Greetings Michael.
+I want to confirm that your contact information was got from a web email
+directory. I represent a client who is interested in investing in your
+country in areas related to agriculture or any business of your choice, to
+initiate a proper and structured relationship. Please let me know what your
+response will be to an offer to receive investment funds in cash if; 
 
---nextPart1655050.NBC4jyttXS
-Content-Type: application/pgp-signature
+1. The said fund amounts to US$38,500,000 (Thirty Eight Million, Five
+hundred Thousand US Dollars).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+2. The said fund is in cash and needs to be transferred in the same state,
+due to some covert reasons.
 
-iD8DBQBEALLklb09HEdWDKgRAm7nAJ45HSsJ9uBtWpyLqYzBv61KeAg/QQCdGHal
-YTE/Y0IcJLmVazv7cKzoczY=
-=wLxT
------END PGP SIGNATURE-----
+3. The fund could be invested through your agency in the purchase of
+facility and assets for investment purposes within your country, in
+collaboration with the agency of the current brokers.
 
---nextPart1655050.NBC4jyttXS--
+4. This transaction will result in you being paid a commission of 10% off
+the investment capital.
+
+5. The fund owners desire absolute confidentiality and professionalism
+in the handling of this matter, due to risks of seizure of the fund and
+litigation if personalities are revealed. 
+
+The fund owners have interest to invest in any of the following industries,
+depending on which is most transparent, low risk, and average profit
+yielding: Power Generation, Telecommunication and Software Development, Film
+Production, Hardware Manufacturing and Export, Medicine, Construction or
+Real-Estate Development.
+
+Based upon the information provided above, I would like to know if you
+shall be able to assist in the nature of managing the investment fund. You
+must note that the fund can only be transferred in cash, therefore if you
+are in acceptance to participate with us in the investment of the fund, you
+shall also need to participate with us in the transfer of the fund in cash
+in the manner of receiving the fund in cash and depositing it in a Trusted
+account opened in favour of the investment to be established.
+
+And this account would serve as the base or operating account for the
+investment. I am obliged to believe that you would be able to understand the
+information above, and should you need further information, please do not
+hesitate to ask.
+
+Kindly confirm receipt of this email by sending all correspondence to:
+quazihossain77@netscape.net OR quazihossain77@myway.com
+
+ 
+
+Sincerely,
+Quazi Hossain (Esq.)
+Tel: +871 763 591 465 
+Fax: +871 763 591 466
+

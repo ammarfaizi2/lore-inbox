@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWBYQcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWBYQcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161033AbWBYQcX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWBYQcX
+	id S1161032AbWBYQcN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 11:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964776AbWBYQcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:32:23 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8199 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964774AbWBYQcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:32:23 -0500
-Date: Sat, 25 Feb 2006 17:32:22 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Andrew Veliath <andrewtv@usa.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OSS msnd build failure
-Message-ID: <20060225163221.GZ3674@stusta.de>
-References: <9a8748490602250824u34e664fandc56c20394367926@mail.gmail.com>
+	Sat, 25 Feb 2006 11:32:13 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:10134 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S964774AbWBYQcM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 11:32:12 -0500
+Message-Id: <200602251632.k1PGWAEH027670@zeus2.kernel.org>
+From: "Sagt. Manfred Gibson Jr." <gibsman_fred@yahoo.com>
+Reply-To: gidsmanfred55@netscape.net
+To: linux-kernel@vger.kernel.org
+Date: Sat, 25 Feb 2006 17:32:11 +0100
+Subject: i need your trusted assistant. 
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490602250824u34e664fandc56c20394367926@mail.gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 25, 2006 at 05:24:10PM +0100, Jesper Juhl wrote:
 
-> During some build tests of 2.6.16-rc4-mm2 with  'make randconfig'  I
-> found this build failure :
-> 
->   ...
->   LD      drivers/built-in.o
->   CC      sound/sound_core.o
->   CC      sound/sound_firmware.o
->   CC      sound/oss/msnd.o
-> make[2]: *** No rule to make target `/etc/sound/msndperm.bin', needed
-> by `sound/oss/msndperm.c'.  Stop.
-> make[2]: *** Waiting for unfinished jobs....
-> make[1]: *** [sound/oss] Error 2
-> make: *** [sound] Error 2
-> 
-> I must admit I don't know how to fix it, so I'll have to just report it.
+>From Sgt. Manfred Gibson Jr. 
 
-That's expected if the .config contains CONFIG_STANDALONE=n
+Good Day,
 
-> Jesper Juhl <jesper.juhl@gmail.com>
+I hope my email meets you well. I am in need of your assistance. My name is Sgt Manfred Gibson Jr. I am in the Engineering military unit here in Ba'qubah in Iraq,we have about $25 Million US dollars that we want to move out of the country. My partners and I need a good partner someone we can trust. It is oil money and legal.
 
-cu
-Adrian
+But we are moving it through diplomatic means, to send it to your house directly or a bank of your choice using diplomatic courier service.The most important thing is that can we trust you? Once the funds get to you, you take your 40% out and keep our own 60%. Your own part of this deal is to find a safe place where the funds can be sent to. Our own part is sending it to you.If you are interested i will furnish you with more details. But the whole process is simple and we must keep a low profile at all times. 
 
--- 
+I look forward to your reply and co-operation, and I thank you in 
+advance as I anticipate your co-operation.You can reach me on via email : gidsmanfred55@netscape.net or gibsman_fred@yahoo.com.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Waiting for your urgent response.
+
+Regards,
+
+Sgt. Manfred Gibson Jr.
+
+
 

@@ -1,103 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161024AbWBYQQD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWBYQSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161024AbWBYQQD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:16:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWBYQQD
+	id S1161026AbWBYQSu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 11:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964771AbWBYQSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:16:03 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:6112
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1161024AbWBYQQB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:16:01 -0500
-Subject: Re: + fix-next_timer_interrupt-for-hrtimer.patch added to -mm tree
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: akpm@osdl.org
-Cc: tony@atomide.com, heiko.carstens@de.ibm.com, johnstul@us.ibm.com,
-       rmk@arm.linux.org.uk, schwidefsky@de.ibm.com,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200602250219.k1P2JLqY018864@shell0.pdx.osdl.net>
-References: <200602250219.k1P2JLqY018864@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Sat, 25 Feb 2006 17:17:22 +0100
-Message-Id: <1140884243.5237.104.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Feb 2006 11:18:50 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:62131 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964773AbWBYQSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 11:18:49 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 2/6] relax sig_needs_tasklist()
+References: <43FCEE08.7923E800@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 25 Feb 2006 09:17:22 -0700
+In-Reply-To: <43FCEE08.7923E800@tv-sign.ru> (Oleg Nesterov's message of
+ "Thu, 23 Feb 2006 02:04:40 +0300")
+Message-ID: <m1r75r1kh9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#ifdef CONFIG_NO_IDLE_HZ
-> +/**
-> + * hrtimer_get_next - get next hrtimer to expire
-> + *
-> + * @bases:	ktimer base array
-> + */
-> +static inline struct hrtimer *hrtimer_get_next(struct hrtimer_base *bases)
-> +{
-> +	unsigned long flags;
-> +	struct hrtimer *timer = NULL;
-> +	int i;
-> +
-> +	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
-> +		struct hrtimer_base *base;
-> +		struct hrtimer *cur;
-> +
-> +		base = &bases[i];
-> +		spin_lock_irqsave(&base->lock, flags);
-> +		cur = rb_entry(base->first, struct hrtimer, node);
-> +		spin_unlock_irqrestore(&base->lock, flags);
-> +
-> +		if (cur == NULL)
-> +			continue;
-> +
-> +		if (timer == NULL || cur->expires.tv64 < timer->expires.tv64)
-> +			timer = cur;
-> +	}
-> +
-> +	return timer;
-> +}
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-This is racy on SMP. nanosleep hrtimers are on the stack and can go away
-due to a signal. posix timers can be removed and destroyed on another
-CPU.
+> handle_stop_signal() does not need tasklist_lock for
+> SIG_KERNEL_STOP_MASK signals anymore.
 
-Also the expires fields of CLOCK_MONOTONIC and CLOCK_REALTIME based
-tiemrs can not really be compared. Expiry value is absolute time of the
-respective base clock.
+Small question.
 
-> +/**
-> + * ktime_to_jiffies - converts ktime to jiffies
-> + *
-> + * @event:	ktime event to be converted to jiffies
-> + *
-> + * Caller must take care of xtime locking.
-> + */
-> +static inline unsigned long ktime_to_jiffies(const ktime_t event)
-> +{
-> +	ktime_t now, delta;
-> +
-> +	now = timespec_to_ktime(xtime);
-> +	delta = ktime_sub(event, now);
-> +
-> +	return jiffies + (((delta.tv64 * NSEC_CONVERSION) >>
-> +			(NSEC_JIFFIE_SC - SEC_JIFFIE_SC)) >> SEC_JIFFIE_SC);
-> +}
+If I read the code correctly the only thing handle_stop_signal needs
+the tasklist_lock for is to protect task->parent, for the
+do_notify_parent_cldstop(...) case.
 
-Only CLOCK_REALTIME based timers are based on xtime. For CLOCK_MONOTONIC
-based timers this calculation is off by wall_to_monotonic.
+If this is correct.  I think I see a path to kill read_lock(&tasklist_lock)
+completely. 
 
-> +/**
-> + * hrtimer_next_jiffie - get next hrtimer event in jiffies
-> + *
-> + * Called from next_timer_interrupt() to get the next hrtimer event.
-> + * Eventually we should change next_timer_interrupt() to return
-> + * results in nanoseconds instead of jiffies. Caller must host xtime_lock.
+- Protect task->parent with the rcu_read_lock && task_lock().
+- Use the rcu forms of list_add/list_del on the tasklist.
+- replace read_lock(&tasklist_lock) with rcu_read_lock().
+- Make tasklist_lock a simple spin lock.
 
-S390 does not hold xtime lock when calling next_timer_interrupt !
+Comments?
 
-I look for a sane solution.
-
-	tglx
-
-
+Eric

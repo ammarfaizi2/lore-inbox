@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWBYAnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbWBYAnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932652AbWBYAnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 19:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbWBYAnj
+	id S932651AbWBYAnV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 19:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbWBYAnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 19:43:39 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57271 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932652AbWBYAni
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 19:43:38 -0500
-Subject: Re: IT8212 ide controller problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matheus Izvekov <mizvekov@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <305c16960602241326j35b71447g6540fa7f252b7e0e@mail.gmail.com>
-References: <305c16960602241326j35b71447g6540fa7f252b7e0e@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 25 Feb 2006 00:47:53 +0000
-Message-Id: <1140828474.11217.25.camel@localhost.localdomain>
+	Fri, 24 Feb 2006 19:43:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48798 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932651AbWBYAnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 19:43:21 -0500
+Date: Sat, 25 Feb 2006 01:43:02 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Message-ID: <20060225004302.GD1930@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602250911.54850.ncunningham@cyclades.com> <20060224235321.GA1930@elf.ucw.cz> <200602251022.43453.ncunningham@cyclades.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602251022.43453.ncunningham@cyclades.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-02-24 at 18:26 -0300, Matheus Izvekov wrote:
->  hdg:hdg: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdg: recal_intr: error=0x04 { DriveStatusError }
-> ide: failed opcode was: unknown
->  hdg1
+Hi!
+
+> > We are trying to catch a bug here. suspend2 or not, it is a bug and it
+> > should be fixed (or at least understood).
+> >
+> > [Also please try to tone down your messages. Your suspend2 may be more
+> > user-friendly, you do not want to start that flamewar again, do you?
+> > Saying "don't bother fixing that" is not nice thing to do.]
 > 
-> This error doesnt happens if the same hd is connected to another ide
-> controller on the same machine.
+> What's the bug?
 
-
-The core IDE code sends commands without checking if they are valid for
-the hardware sometimes. This confuses the raid chip slightly but appears
-harmless. I've no plan to fix it as I'm working on moving it to libata
-anyway.
-
+shrink_all_memory() returns zero, even throught there are still pages
+freeable.
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

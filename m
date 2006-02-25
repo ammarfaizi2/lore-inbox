@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWBYQYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWBYQ2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWBYQYR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWBYQYR
+	id S1161017AbWBYQ2d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 11:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWBYQ2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:24:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:34791 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964773AbWBYQYQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:24:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=D0e0+zFuk6fA/Qku5T0lqW2k/coVigmCtSyT32IgQB/wDZHXq6aaahAqHvXtOCJk4w8RnlAE7hKK3etTpXS9R6rcqtclkPdOrm/wp8k+wLWGT59tkorJS3Bi2H8Eeg2AiSGHZ2kLGLfkzoRhbqHBaAa/DzAfNLBLPbhDC1Uj0oQ=
-Message-ID: <9a8748490602250824u34e664fandc56c20394367926@mail.gmail.com>
-Date: Sat, 25 Feb 2006 17:24:10 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Veliath" <andrewtv@usa.net>
-Subject: OSS msnd build failure
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sat, 25 Feb 2006 11:28:33 -0500
+Received: from correo.gobiernodecanarias.org ([82.150.2.66]:63388 "EHLO
+	yaiza.gobiernodecanarias.org") by vger.kernel.org with ESMTP
+	id S964774AbWBYQ2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 11:28:32 -0500
+Date: Sat, 25 Feb 2006 16:28:30 +0000 (GMT)
+From: Lucas Quintana Rodriguez <lucasquintana@canarias.org>
+Subject: keyboard and keycodes at boot time
+To: linux-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <3066031b9b.31b9b30660@canarias.org>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 Patch 2 (built Jul 14 2004)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
+X-imss-version: 2.038
+X-imss-result: Passed
+X-imss-scores: Clean:66.18745 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:2 C:4 M:4 S:4 R:4 (0.1500 0.1500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During some build tests of 2.6.16-rc4-mm2 with  'make randconfig'  I
-found this build failure :
+Hi,
 
-  ...
-  LD      drivers/built-in.o
-  CC      sound/sound_core.o
-  CC      sound/sound_firmware.o
-  CC      sound/oss/msnd.o
-make[2]: *** No rule to make target `/etc/sound/msndperm.bin', needed
-by `sound/oss/msndperm.c'.  Stop.
-make[2]: *** Waiting for unfinished jobs....
-make[1]: *** [sound/oss] Error 2
-make: *** [sound] Error 2
+I've been trying to implement fbsplash on my computer; as you might be
+concerned, this allows the user to specify background and *silent*
+images to be shown at boot-time.
 
-I must admit I don't know how to fix it, so I'll have to just report it.
+The nowadays oficially unmaintained Bootsplash, used to work on my
+laptop back when I used 2.4.18. Now that I've switched to 2.6.10, can
+notice how things has changed dramatically within the keyboard, n_tty or
+related kernel layers.
 
+The kernel says this is about my keyboard:
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+input: AT Translated Set 2 keyboard on isa0060/serio0
+
+But even when I've got event interface compiled into my kernel (together
+with event debugging), I'm not able to catch any key-press event till
+the keyboard's been recognized by the input driver in this case.
+
+I'm wondering whether is it possible at all to revert the situation so I
+can catch again key-press events at boot-time, and still comply with the
+actual kernel architecture as of 2.6.10.
+
+I would really appreciate if someone could point me on where to start
+from, or what to do about this.
+
+Kind Regards, 
+

@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWBYGvj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWBYG7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWBYGvj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 01:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWBYGvi
+	id S932419AbWBYG7R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 01:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWBYG7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 01:51:38 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:45739
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S932401AbWBYGvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 01:51:38 -0500
-Date: Sat, 25 Feb 2006 00:51:36 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
-Message-ID: <20060225065136.GH13116@waste.org>
-References: <0.399206195@selenic.com> <4.399206195@selenic.com> <20060224221909.GD28855@flint.arm.linux.org.uk>
+	Sat, 25 Feb 2006 01:59:16 -0500
+Received: from ihug-mail.icp-qv1-irony4.iinet.net.au ([203.59.1.198]:36172
+	"EHLO mail-ihug.icp-qv1-irony4.iinet.net.au") by vger.kernel.org
+	with ESMTP id S932378AbWBYG7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 01:59:15 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,145,1139155200"; 
+   d="scan'208"; a="626317469:sNHT385531682"
+Message-ID: <44000036.7070403@eyal.emu.id.au>
+Date: Sat, 25 Feb 2006 17:59:02 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060224221909.GD28855@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Milan Kupcevic <milan@physics.harvard.edu>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au, torvalds@osdl.org
+Subject: Re: [PATCH] sata_promise: Port enumeration order - SATA 150 TX4,
+ SATA 300 TX4
+References: <43FFAE3D.7010002@physics.harvard.edu>
+In-Reply-To: <43FFAE3D.7010002@physics.harvard.edu>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 10:19:09PM +0000, Russell King wrote:
-> On Fri, Feb 24, 2006 at 02:12:16PM -0600, Matt Mackall wrote:
-> > -static const u16 mask_bits[] = {
-> > -	0x0000,
-> > -	0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
-> > -	0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
-> > -};
-> > +static inline u32 readbits(u32 *b, u32 *k, int n)
-> > +{
-> > +	for( ; *k < n; *k += 8)
-> > +		*b |= (u32)get_byte() << *k;
-> > +	return *b & ((1 << n) - 1);
-> > +}
-> >  
-> > -#define NEXTBYTE()  ({ int v = get_byte(); if (v < 0) goto underrun; (u8)v; })
+Milan Kupcevic wrote:
+> From: Milan Kupcevic <milan@physics.harvard.edu>
 > 
-> How does this change handle the case where we run out of input data?
-> This condition needs to be handled explicitly because the inflate
-> functions can infinitely loop.
+> Fix Promise SATAII 150 TX4 (PDC40518) and Promise SATA 300 TX4
+> (PDC40718-GP) wrong port enumeration order that makes it (nearly)
+> impossible to deal with boot problems using two or more drives.
+> 
+> Signed-off-by: Milan Kupcevic <milan@physics.harvard.edu>
+> ---
+> 
+> The current kernel driver assumes:
+> 
+> port 1 - scsi3
+> port 2 - scsi1
+> port 3 - scsi0
+> port 4 - scsi2
 
-And if you look at the current users, you'll see that only two of 15
-actually use it.
+I totally agree with the fact that the Linux driver gets the ports wrong
+when compared to the BIOS, Windows and surely contradicts the port
+numbers printed on the board. I doubt we all got samples on the one
+bad batch...
 
-> Relying on a bit pattern returned by get_byte() is how this code
-> pre-fix used to work, and it caused several confused bug reports.
+It *is* a real problem and if the solution is correct then I support it.
 
-Just about everywhere, get_byte prints an error message and halts. In
-the final refactoring, get_byte goes away and is replaced by a
-->fill() method that's only called when the input buffer is emptied,
-rather than byte by byte. Most of the users leave this null (since
-they have the entire contents in memory already), which will give us a
-nice oops. I can add another patch in the next batch that makes an
-attempt to call a null ->fill instead do ->error("gunzip underrun").
+Maybe we need a quick feedback from current users: do you guys find
+that the ports are detected as they are labelled (white silk screen)
+on the board or do they show up out of order (as listed above by
+Milan)?
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	attach .zip as .dat

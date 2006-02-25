@@ -1,101 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWBYK4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWBYLIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWBYK4q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 05:56:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWBYK4q
+	id S1030207AbWBYLIr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 06:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbWBYLIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 05:56:46 -0500
-Received: from vmx03.prolocation.net ([81.23.230.33]:38080 "EHLO
-	vmx03.prolocation.net") by vger.kernel.org with ESMTP
-	id S1030204AbWBYK4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 05:56:44 -0500
-Message-ID: <011f01c639f9$8dc86bc0$3d64880a@speedy>
-Reply-To: "Christiaan den Besten" <chris@scorpion.nl>
-From: "Christiaan den Besten" <chris@scorpion.nl>
-To: "Eyal Lebedinsky" <eyal@eyal.emu.id.au>,
-       "Milan Kupcevic" <milan@physics.harvard.edu>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-ide@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <trivial@rustcorp.com.au>, <torvalds@osdl.org>
-References: <43FFAE3D.7010002@physics.harvard.edu> <44000036.7070403@eyal.emu.id.au>
-Subject: Re: [PATCH] sata_promise: Port enumeration order - SATA 150 TX4, SATA 300 TX4
-Date: Sat, 25 Feb 2006 11:52:21 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-KM95-MailScanner: Found to be clean
-X-MailScanner-From: chris@scorpion.nl
-X-Prolocation-MailScanner-Information: Please contact helpdesk@prolocation.net for more information
-X-Prolocation-MailScanner: Found to be clean
-X-Prolocation-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.589,
-	required 5, autolearn=not spam, BAYES_00 -2.60,
-	FORGED_RCVD_HELO 0.00, PROLO_LEO5 0.01)
-X-Prolocation-MailScanner-From: chris@scorpion.nl
+	Sat, 25 Feb 2006 06:08:47 -0500
+Received: from mx1.suse.de ([195.135.220.2]:14984 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030207AbWBYLIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 06:08:47 -0500
+Date: Sat, 25 Feb 2006 12:08:44 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: cramfs mounts provide corrupted content since 2.6.15
+Message-ID: <20060225110844.GA18221@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-We have several of these boards in use [SATA 300 TX4] (bought over time .. not in one batch). All of them have the ordering as 
-described below. So another vote for "Please fix!" :)
+Any ideas why a cramfs mount provides empty files since at least 2.6.15?
+It worked ok in 2.6.13 at least. Bug is still present in Linus tree.
 
-bye,
-Chris
+These files (from the current openSuSE beta) needed updating. But the results are random.
+Right now, after the 3th try, most files are correct, Hostname.so is still zero...
 
------ Original Message ----- 
-From: "Eyal Lebedinsky" <eyal@eyal.emu.id.au>
-To: "Milan Kupcevic" <milan@physics.harvard.edu>
-Cc: "Jeff Garzik" <jgarzik@pobox.com>; <linux-ide@vger.kernel.org>; <linux-scsi@vger.kernel.org>; <linux-kernel@vger.kernel.org>; 
-<trivial@rustcorp.com.au>; <torvalds@osdl.org>
-Sent: Saturday, February 25, 2006 7:59 AM
-Subject: Re: [PATCH] sata_promise: Port enumeration order - SATA 150 TX4, SATA 300 TX4
+building file list ... done
+etc/nsswitch.conf
+usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Data/Dumper/Dumper.so
+usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Fcntl/Fcntl.so
+usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/IO/IO.so
+usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/POSIX/POSIX.so
+usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Sys/Hostname/Hostname.so
+usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Compress/Zlib/Zlib.so
+usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.so
+var/spool/locks -> ../lock
 
 
-> Milan Kupcevic wrote:
->> From: Milan Kupcevic <milan@physics.harvard.edu>
->>
->> Fix Promise SATAII 150 TX4 (PDC40518) and Promise SATA 300 TX4
->> (PDC40718-GP) wrong port enumeration order that makes it (nearly)
->> impossible to deal with boot problems using two or more drives.
->>
->> Signed-off-by: Milan Kupcevic <milan@physics.harvard.edu>
->> ---
->>
->> The current kernel driver assumes:
->>
->> port 1 - scsi3
->> port 2 - scsi1
->> port 3 - scsi0
->> port 4 - scsi2
->
-> I totally agree with the fact that the Linux driver gets the ports wrong
-> when compared to the BIOS, Windows and surely contradicts the port
-> numbers printed on the board. I doubt we all got samples on the one
-> bad batch...
->
-> It *is* a real problem and if the solution is correct then I support it.
->
-> Maybe we need a quick feedback from current users: do you guys find
-> that the ports are detected as they are labelled (white silk screen)
-> on the board or do they show up out of order (as listed above by
-> Milan)?
->
-> -- 
-> Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-> attach .zip as .dat
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
-> 
+lrwxrwxrwx  1 root root 7 1970-01-01 01:00 /mnt/var/spool/locks -> ../lock
+lrwxrwxrwx  1 root root 7 2006-02-25 11:55 inst-sys/var/spool/locks -> ../lock
+-rw-r--r--  1 root root 1220 1970-01-01 01:00 /mnt/etc/nsswitch.conf
+-rw-r--r--  1 root root 1220 1970-01-01 01:00 inst-sys/etc/nsswitch.conf
+-r-xr-xr-x  1 root root 36236 1970-01-01 01:00 /mnt/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Data/Dumper/Dumper.so
+-r-xr-xr-x  1 root root 36236 1970-01-01 01:00 inst-sys/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Data/Dumper/Dumper.so
+-r-xr-xr-x  1 root root 21136 1970-01-01 01:00 /mnt/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Fcntl/Fcntl.so
+-r-xr-xr-x  1 root root 21136 1970-01-01 01:00 inst-sys/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Fcntl/Fcntl.so
+-r-xr-xr-x  1 root root 22644 1970-01-01 01:00 /mnt/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/IO/IO.so
+-r-xr-xr-x  1 root root 22644 1970-01-01 01:00 inst-sys/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/IO/IO.so
+-r-xr-xr-x  1 root root 140852 1970-01-01 01:00 /mnt/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/POSIX/POSIX.so
+-r-xr-xr-x  1 root root 140852 1970-01-01 01:00 inst-sys/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/POSIX/POSIX.so
+-r--r--r--  1 root root     0 1970-01-01 01:00 /mnt/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Sys/Hostname/Hostname.so
+-r-xr-xr-x  1 root root 11384 1970-01-01 01:00 inst-sys/usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Sys/Hostname/Hostname.so
+-r-xr-xr-x  1 root root 69844 1970-01-01 01:00 /mnt/usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Compress/Zlib/Zlib.so
+-r-xr-xr-x  1 root root 69844 1970-01-01 01:00 inst-sys/usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Compress/Zlib/Zlib.so
+-r-xr-xr-x  1 root root 24004 1970-01-01 01:00 /mnt/usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.so
+-r-xr-xr-x  1 root root 24004 1970-01-01 01:00 inst-sys/usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.so
+
+
+Oh, and doing the md5sum thing shows even more errors.
+
+olaf@ibook:/install/sles10/CD1/boot/ppc/inst-sys> sudo env -i md5sum -c /dev/shm/log  | grep -wv OK$
+olaf@ibook:/install/sles10/CD1/boot/ppc/inst-sys> cd /mnt/
+olaf@ibook:/mnt> sudo env -i md5sum -c /dev/shm/log  | grep -wv OK$
+./etc/mtab: FAILED
+./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Data/Dumper/Dumper.bs: FAILED
+./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Fcntl/Fcntl.bs: FAILED
+./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/IO/IO.bs: FAILED
+./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/POSIX/POSIX.bs: FAILED
+./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Sys/Hostname/Hostname.so: FAILED
+./usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Compress/Zlib/Zlib.bs: FAILED
+./usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.bs: FAILED
+md5sum: ./var/log/faillog: Is a directory
+md5sum: ./var/log/lastlog: Is a directory
+md5sum: ./var/log/mail: Is a directory
+md5sum: ./var/log/messages: Is a directory
+md5sum: ./var/log/news/news.crit: No such file or directory
+md5sum: ./var/log/news/news.err: No such file or directory
+md5sum: ./var/log/news/news.notice: No such file or directory
+md5sum: ./var/log/sendmail.st: Is a directory
+md5sum: ./var/log/wtmp: Is a directory
+md5sum: ./var/log/xdm.errors: Is a directory
+md5sum: WARNING: 10 of 6867 listed files could not be read
+md5sum: WARNING: 8 of 6857 computed checksums did NOT match
+./var/log/faillog: FAILED open or read
+./var/log/lastlog: FAILED open or read
+./var/log/mail: FAILED open or read
+./var/log/messages: FAILED open or read
+./var/log/news/news.crit: FAILED open or read
+./var/log/news/news.err: FAILED open or read
+./var/log/news/news.notice: FAILED open or read
+./var/log/sendmail.st: FAILED open or read
+./var/log/wtmp: FAILED open or read
+./var/log/xdm.errors: FAILED open or read
+
+Looking at the loopmount with a 2.6.13 kernel:
+
+nectarine:~/inst-sys.orig # l ./var/log/lastlog
+-rw-r--r--  1 root tty 0 Jan  1  1970 ./var/log/lastlog
+
+olaf@ibook:/mnt> l ./var/log/lastlog
+lrwxrwxrwx  1 root root 7 1970-01-01 01:00 ./var/log/lastlog -> ../lock/
 

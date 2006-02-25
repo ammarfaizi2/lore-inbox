@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWBYItH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbWBYIuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbWBYItH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 03:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbWBYItH
+	id S932619AbWBYIuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 03:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWBYIuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 03:49:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:63146 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932618AbWBYItG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 03:49:06 -0500
-Subject: Re: Looking for a file monitor
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hareesh Nagarajan <hnagar2@gmail.com>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Diego Calleja <diegocg@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43FFD684.2020309@gmail.com>
-References: <200602241949_MC3-1-B93F-2159@compuserve.com>
-	 <43FFD684.2020309@gmail.com>
-Content-Type: text/plain
-Date: Sat, 25 Feb 2006 09:49:02 +0100
-Message-Id: <1140857342.2991.6.camel@laptopd505.fenrus.org>
+	Sat, 25 Feb 2006 03:50:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48652 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932619AbWBYIuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 03:50:04 -0500
+Date: Sat, 25 Feb 2006 08:49:55 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
+Message-ID: <20060225084955.GA27538@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <0.399206195@selenic.com> <4.399206195@selenic.com> <20060224221909.GD28855@flint.arm.linux.org.uk> <20060225065136.GH13116@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060225065136.GH13116@waste.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-24 at 22:01 -0600, Hareesh Nagarajan wrote:
-> Chuck Ebbert wrote:
-> > In-Reply-To: <43FF3C1C.5040200@gmail.com>
-> > 
-> > On Fri, 24 Feb 2006 at 11:02:20 -0600, Hareesh Nagarajan wrote:
-> > 
-> >> But if we want to keep a track of all the files that are opened, read, 
-> >> written or deleted (much like filemon; ``Filemon's timestamping feature 
-> >> will show you precisely when every open, read, write or delete, happens, 
-> >> and its status column tells you the outcome."), we can write a simple 
-> >> patch that makes a note of these events on the VFS layer, and then we 
-> >> could export this information to userspace, via relayfs. It wouldn't be 
-> >> too hard to code a relatively efficient implementation.
-> > 
-> >  Doesn't auditing do all this?
+On Sat, Feb 25, 2006 at 12:51:36AM -0600, Matt Mackall wrote:
+> On Fri, Feb 24, 2006 at 10:19:09PM +0000, Russell King wrote:
+> > How does this change handle the case where we run out of input data?
+> > This condition needs to be handled explicitly because the inflate
+> > functions can infinitely loop.
 > 
-> I have no idea about auditing, but I would guess it internally uses inotify.
+> And if you look at the current users, you'll see that only two of 15
+> actually use it.
 
+Sorry, I don't understand the relevance of your comment.
 
-it doesn't; it uses the audit framework which, by the way, exactly does
-what the proposed patch above would do :)
+As the code stands in mainline, if we run out of input data, we are
+guaranteed to exit from inflate.
 
+With your change in this patch set, we no longer guaranteed to exit,
+but will in some circumstances loop indefinitely.
 
+The problem this causes is that if the ramdisk decompression runs out
+of data, the kernel will just silently hang.
+
+Please do not back out this fix.
+
+> > Relying on a bit pattern returned by get_byte() is how this code
+> > pre-fix used to work, and it caused several confused bug reports.
+> 
+> Just about everywhere, get_byte prints an error message and halts.
+
+And the cases where it doesn't halt is the important case.
+
+Sorry, but I hope that this code does not get merged as is.  It's
+backing out a fix that I was involved in getting in, and therefore
+I'm completely opposed to your code as it stands.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

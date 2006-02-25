@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWBYSRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWBYSTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161039AbWBYSRb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWBYSRb
+	id S1161038AbWBYSTD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 13:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWBYSTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:17:31 -0500
-Received: from [68.56.186.170] ([68.56.186.170]:56335 "HELO 68.56.186.170")
-	by vger.kernel.org with SMTP id S1161039AbWBYSRa (ORCPT
+	Sat, 25 Feb 2006 13:19:03 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:62397 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1161038AbWBYSTC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:17:30 -0500
-Message-Id: <1kkntg73foxnw4rcqmxpi.12106.166.done544@mailpride.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-Date: Sat, 25 Feb 2006 19:04:45 +0000
-From: "Maria Parsons" <done544@mailpride.com>
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 25 Feb 2006 13:19:02 -0500
+Date: Sat, 25 Feb 2006 14:55:31 -0600
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Willy Tarreau <willy@w.ods.org>
+Subject: Re: Linux 2.4.33-pre2
+Message-ID: <20060225205531.GA4524@dmt.cnet>
+References: <20060221214844.GA22561@dmt.cnet> <Pine.LNX.4.62.0602251053000.18095@pademelon.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0602251053000.18095@pademelon.sonytel.be>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hynate
-Subject: upgraded your s0ftware yet? disc0untz-9o% - Maria)
+On Sat, Feb 25, 2006 at 10:53:24AM +0100, Geert Uytterhoeven wrote:
+> On Tue, 21 Feb 2006, Marcelo Tosatti wrote:
+> > Here goes the second -pre of v2.4.33, containing a small number of
+> > changes.
+> 
+> It accidentally ended up in /pub/linux/kernel/v2.4/ instead of
+> /pub/linux/kernel/v2.4/testing/?
 
-Helllo .. linux-kernel
-UPGRADED YOUR S0FTWARE YET?
+_Eeek_.
 
-Are u still using the old version of your windows operating system / office applications / Adobe / AutoCAD or Macromedia
+Moved to testing/ now.
 
-Dont be left behind - upgrade to the latest versions - at upto 99percent discount - Download Now
-http://freepaylinks.com/?assam
-
-Super Saver Packs - Adobe S0ftwares
-Microsoft
-Macromedia
-Save thousands - Download Now
-http://freepaylinks.com/?therewith
-
-kind regards
-Maria Parsons
-
+Sorry about that. 

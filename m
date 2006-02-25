@@ -1,115 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161058AbWBYS6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbWBYTBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161058AbWBYS6A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWBYS6A
+	id S1161059AbWBYTBO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 14:01:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbWBYTBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:58:00 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:60587 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP
-	id S1161058AbWBYS6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:58:00 -0500
-X-ORBL: [67.117.73.34]
-Date: Sat, 25 Feb 2006 10:57:31 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: akpm@osdl.org, heiko.carstens@de.ibm.com, johnstul@us.ibm.com,
-       rmk@arm.linux.org.uk, schwidefsky@de.ibm.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: + fix-next_timer_interrupt-for-hrtimer.patch added to -mm tree
-Message-ID: <20060225185731.GA4294@atomide.com>
-References: <200602250219.k1P2JLqY018864@shell0.pdx.osdl.net> <1140884243.5237.104.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140884243.5237.104.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Sat, 25 Feb 2006 14:01:14 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:11245 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1161059AbWBYTBO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 14:01:14 -0500
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200602251428.01767.ak@suse.de>
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	 <200602250543.22421.ak@suse.de>
+	 <1140852894.2587.43.camel@localhost.localdomain>
+	 <200602251428.01767.ak@suse.de>
+Content-Type: text/plain
+Date: Sat, 25 Feb 2006 11:01:23 -0800
+Message-Id: <1140894083.9852.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Thomas Gleixner <tglx@linutronix.de> [060225 08:16]:
-> > +#ifdef CONFIG_NO_IDLE_HZ
-> > +/**
-> > + * hrtimer_get_next - get next hrtimer to expire
-> > + *
-> > + * @bases:	ktimer base array
-> > + */
-> > +static inline struct hrtimer *hrtimer_get_next(struct hrtimer_base *bases)
-> > +{
-> > +	unsigned long flags;
-> > +	struct hrtimer *timer = NULL;
-> > +	int i;
-> > +
-> > +	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
-> > +		struct hrtimer_base *base;
-> > +		struct hrtimer *cur;
-> > +
-> > +		base = &bases[i];
-> > +		spin_lock_irqsave(&base->lock, flags);
-> > +		cur = rb_entry(base->first, struct hrtimer, node);
-> > +		spin_unlock_irqrestore(&base->lock, flags);
-> > +
-> > +		if (cur == NULL)
-> > +			continue;
-> > +
-> > +		if (timer == NULL || cur->expires.tv64 < timer->expires.tv64)
-> > +			timer = cur;
-> > +	}
-> > +
-> > +	return timer;
-> > +}
-> 
-> This is racy on SMP. nanosleep hrtimers are on the stack and can go away
-> due to a signal. posix timers can be removed and destroyed on another
-> CPU.
+On Sat, 2006-02-25 at 14:28 +0100, Andi Kleen wrote:
 
-This should be fixed. But just as a note, we can tolerate some removed
-timer values values as it would be just an extra timer interrupt.
- 
-> Also the expires fields of CLOCK_MONOTONIC and CLOCK_REALTIME based
-> tiemrs can not really be compared. Expiry value is absolute time of the
-> respective base clock.
+> Before we can add such a macro I suspect you would first 
+> need to provide some spec how that "portable write combining"
+> is supposed to work and get feedback from the other architectures.
 
-OK. How can we get the first event in nanoseconds easily?
- 
-> > +/**
-> > + * ktime_to_jiffies - converts ktime to jiffies
-> > + *
-> > + * @event:	ktime event to be converted to jiffies
-> > + *
-> > + * Caller must take care of xtime locking.
-> > + */
-> > +static inline unsigned long ktime_to_jiffies(const ktime_t event)
-> > +{
-> > +	ktime_t now, delta;
-> > +
-> > +	now = timespec_to_ktime(xtime);
-> > +	delta = ktime_sub(event, now);
-> > +
-> > +	return jiffies + (((delta.tv64 * NSEC_CONVERSION) >>
-> > +			(NSEC_JIFFIE_SC - SEC_JIFFIE_SC)) >> SEC_JIFFIE_SC);
-> > +}
-> 
-> Only CLOCK_REALTIME based timers are based on xtime. For CLOCK_MONOTONIC
-> based timers this calculation is off by wall_to_monotonic.
+It seems like we'd need a function that tries to enable or disable write
+combining on an MMIO memory range.  This would be implemented by arches
+that support it, and would fail on others.  Drivers could then try to
+enable write combining, and if it failed, either bail, print a warning
+message, or do something else appropriate.
 
-Needs to be fixed then.
- 
-> > +/**
-> > + * hrtimer_next_jiffie - get next hrtimer event in jiffies
-> > + *
-> > + * Called from next_timer_interrupt() to get the next hrtimer event.
-> > + * Eventually we should change next_timer_interrupt() to return
-> > + * results in nanoseconds instead of jiffies. Caller must host xtime_lock.
-> 
-> S390 does not hold xtime lock when calling next_timer_interrupt !
+So on i386 and x86_64, this function would fiddle with the MTRRs.  On
+powerpc, it would either configure the northbridge appropriately or
+fail.  On other arches, I don't know enough to say, so the default would
+be to fail.
 
-Good point. Needs to be fixed.
- 
-> I look for a sane solution.
+Is this reasonable?  I can code a strawman implementation up, if the
+basic idea looks sane.
 
-We really should fix this for 2.6.16. Then maybe after 2.6.16 we can
-convert next_timer_interrupt() to return nanosecond instead of jiffies.
-And then we can get rid of jiffies again in the hrtimer code :)
+	<b
 
-Tony

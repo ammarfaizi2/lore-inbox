@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932654AbWBYAsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWBYAtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932654AbWBYAsx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 19:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWBYAsx
+	id S964826AbWBYAtV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 19:49:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWBYAtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 19:48:53 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15275 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932654AbWBYAsw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 19:48:52 -0500
-Date: Sat, 25 Feb 2006 01:48:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Takashi Iwai <tiwai@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz
-Subject: Re: My machine is cursed: no sound. Help! [was Re: es1371 sound problems]
-Message-ID: <20060225004833.GG1930@elf.ucw.cz>
-References: <20060223205309.GA2045@elf.ucw.cz> <s5h1wxtdmri.wl%tiwai@suse.de> <20060224161631.GB1925@elf.ucw.cz> <20060224234050.GA1644@elf.ucw.cz> <20060225001459.GC9655@kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 24 Feb 2006 19:49:20 -0500
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:45018 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964826AbWBYAtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 19:49:19 -0500
+Date: Fri, 24 Feb 2006 19:46:19 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Looking for a file monitor
+To: Hareesh Nagarajan <hnagar2@gmail.com>
+Cc: Diego Calleja <diegocg@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200602241949_MC3-1-B93F-2159@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060225001459.GC9655@kvack.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 24-02-06 19:14:59, Benjamin LaHaise wrote:
-> On Sat, Feb 25, 2006 at 12:40:50AM +0100, Pavel Machek wrote:
-> >  0 [I82801DBICH4   ]: ICH4 - Intel 82801DB-ICH4
-> >                       Intel 82801DB-ICH4 with AD1981B at 0xc0000c00, irq 5
-> >  1 [U0x4fa0x4201   ]: USB-Audio - USB Device 0x4fa:0x4201
-> >                       USB Device 0x4fa:0x4201 at usb-0000:00:1d.1-2, full speed
-> > root@amd:~#
-> > 
-> > (usb soundcard clicks when I launch mpg123, but that's it.)
-> > 
-> > Any ideas?
-> 
-> I had problems with the ac97 driver and newer kernels until toggling Mute 
-> on the headphone sense channel.  Alsa has too many bells and whistles that 
-> need to be properly incanted for machines to emit sound.  Just try futzing 
-> with the channels in alsamixer.  Otoh, that's a good way to end up with a 
-> config that doesn't work, too...
+In-Reply-To: <43FF3C1C.5040200@gmail.com>
 
-Could we get some alsa-produce-sound script? On emu10k, there's 30+
-options in mixer to set, and default setting is useless :-(.
-								Pavel
+On Fri, 24 Feb 2006 at 11:02:20 -0600, Hareesh Nagarajan wrote:
+
+> But if we want to keep a track of all the files that are opened, read, 
+> written or deleted (much like filemon; ``Filemon's timestamping feature 
+> will show you precisely when every open, read, write or delete, happens, 
+> and its status column tells you the outcome."), we can write a simple 
+> patch that makes a note of these events on the VFS layer, and then we 
+> could export this information to userspace, via relayfs. It wouldn't be 
+> too hard to code a relatively efficient implementation.
+
+ Doesn't auditing do all this?
+
+ I have Fedora Core 4 installed and it comes with the 'audit' RPM.
+
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert
+

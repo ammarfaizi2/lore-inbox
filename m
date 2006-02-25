@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbWBYJQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWBYJgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932626AbWBYJQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 04:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWBYJQK
+	id S1030188AbWBYJgv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 04:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWBYJgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 04:16:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34797 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932627AbWBYJQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 04:16:09 -0500
-Date: Sat, 25 Feb 2006 09:16:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] flags parameter for linkat
-Message-ID: <20060225091606.GA22749@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ulrich Drepper <drepper@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org
-References: <200602231410.k1NEAMk1021578@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602231410.k1NEAMk1021578@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 25 Feb 2006 04:36:51 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:41197 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1030188AbWBYJgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 04:36:50 -0500
+Date: Sat, 25 Feb 2006 10:36:43 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ben Pfaff <blp@cs.stanford.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 12/13] "const static" vs "static const" in nfs4
+In-Reply-To: <87oe0wxryk.fsf@benpfaff.org>
+Message-ID: <Pine.LNX.4.61.0602251036080.1479@yvahk01.tjqt.qr>
+References: <200602242149.42735.jesper.juhl@gmail.com>
+ <1140821964.3615.95.camel@lade.trondhjem.org>
+ <9a8748490602241501q550488baqad63df65f4dd8623@mail.gmail.com>
+ <20060224231749.GH27946@ftp.linux.org.uk> <87oe0wxryk.fsf@benpfaff.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 09:10:22AM -0500, Ulrich Drepper wrote:
-> I'm currently at the POSIX meeting and one thing covered was the
-> incompatibility of Linux's link() with the POSIX definition.  The
-> difference is the treatment of symbolic links in the destination
-> name.  Linux does not follow symlinks, POSIX requires it does.
-> 
-> Even somebody thinks this is a good default behavior we cannot
-> change this because it would break the ABI.  But the fact remains
-> that some application might want this behavior.
-> 
-> We have one chance to help implementing this without breaking the
-> behavior.  For this we could use the new linkat interface which
-> would need a new flags parameter.  If the new parameter is
-> AT_SYMLINK_FOLLOW the new behavior could be invoked.
-> 
-> I do not want to introduce such a patch now.  But we could add the
-> parameter now, just don't use it.  The patch below would do this.
-> Can we get this late patch applied before the release more or less
-> fixes the syscall API?
+>>> No need for that. It's just something that ICC complains about
+>>> "storage class not being first" - gcc doesn't care.
+>>
+>> Neither does C99, so ICC really should either STFU or make that warning
+>> independent from the rest and possible to turn off...
+>
+>C99 does deprecate "const static":
+>
+>     6.11.5 Storage-class specifiers
+>1    The placement of a storage-class specifier other than at the
+>     beginning of the declaration specifiers in a declaration is
+>     an obsolescent feature.
+>
+Hm, how about "inline"? GCC also just keeps quiet when a function (or 
+prototype) is written as:
 
-Please stop adding these crappy flags argument everywhere, they're also
-creaping like a cancer through the other *at stuff.  Just make linkat
-do the righ thing per posix spec for link, and then you can implement
-a posix link based on it in glibc if the user compiles with XOPEN_SOURCE
-or whatever.
+inline static int foo(int bar);
+
+
+
+Jan Engelhardt
+-- 

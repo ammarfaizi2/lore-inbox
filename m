@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWBYTIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbWBYTJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161075AbWBYTIp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 14:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbWBYTIC
+	id S1161076AbWBYTJD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 14:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWBYTHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 14:08:02 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:9615 "EHLO
+	Sat, 25 Feb 2006 14:07:47 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:3471 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1161068AbWBYTH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 14:07:57 -0500
-Date: Sat, 25 Feb 2006 16:08:30 -0300
+	id S1161068AbWBYTHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 14:07:32 -0500
+Date: Sat, 25 Feb 2006 16:08:04 -0300
 From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
 To: davem <davem@davemloft.net>
 Cc: lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
        robert.olsson@its.uu.se
-Subject: [PATCH 6/6] pktgen: Updates version.
-Message-ID: <20060225160830.4f690931@home.brethil>
+Subject: [PATCH 3/6] pktgen: Fix kernel_thread() fail leak.
+Message-ID: <20060225160804.4f7dd91c@home.brethil>
 Organization: Mandriva
 X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
 Mime-Version: 1.0
@@ -25,31 +25,49 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- With all the previous changes, we're at a new version now.
+ Free all the alocated resources if kernel_thread() call fails.
 
 Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
 
 ---
 
- net/core/pktgen.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ net/core/pktgen.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
 
-32d9b9951586e505b4b8bc587f9e170612a48a4d
+c3fd9c4bbddab18349563c0c5d90c4bf0002de99
 diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-index 5d13626..2221b86 100644
+index 2d6b147..1c565fe 100644
 --- a/net/core/pktgen.c
 +++ b/net/core/pktgen.c
-@@ -153,7 +153,7 @@
- #include <asm/div64.h>		/* do_div */
- #include <asm/timex.h>
+@@ -3082,6 +3082,7 @@ static struct pktgen_thread *__init pktg
  
--#define VERSION  "pktgen v2.64: Packet Generator for packet performance testing.\n"
-+#define VERSION  "pktgen v2.65: Packet Generator for packet performance testing.\n"
+ static int __init pktgen_create_thread(const char *name, int cpu)
+ {
++	int err;
+ 	struct pktgen_thread *t = NULL;
+ 	struct proc_dir_entry *pe;
  
- /* #define PG_DEBUG(a) a */
- #define PG_DEBUG(a)
+@@ -3120,9 +3121,15 @@ static int __init pktgen_create_thread(c
+ 
+ 	t->removed = 0;
+ 
+-	if (kernel_thread((void *)pktgen_thread_worker, (void *)t,
+-			  CLONE_FS | CLONE_FILES | CLONE_SIGHAND) < 0)
++	err = kernel_thread((void *)pktgen_thread_worker, (void *)t,
++			  CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
++	if (err < 0) {
+ 		printk("pktgen: kernel_thread() failed for cpu %d\n", t->cpu);
++		remove_proc_entry(t->name, pg_proc_dir);
++		list_del(&t->th_list);
++		kfree(t);
++		return err;
++	}
+ 
+ 	return 0;
+ }
 -- 
 1.2.1.g3397f9
+
 
 -- 
 Luiz Fernando N. Capitulino

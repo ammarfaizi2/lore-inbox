@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbWBYIll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWBYItH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932599AbWBYIll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 03:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWBYIll
+	id S932618AbWBYItH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 03:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbWBYItH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 03:41:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:31711 "EHLO
+	Sat, 25 Feb 2006 03:49:07 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63146 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932599AbWBYIlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 03:41:40 -0500
-Date: Sat, 25 Feb 2006 08:41:39 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: James Ketrenos <jketreno@linux.intel.com>
-Cc: NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
-       okir@suse.de
-Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
-Message-ID: <20060225084139.GB22109@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Ketrenos <jketreno@linux.intel.com>,
-	NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
-	okir@suse.de
-References: <43FF88E6.6020603@linux.intel.com>
+	id S932618AbWBYItG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 03:49:06 -0500
+Subject: Re: Looking for a file monitor
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hareesh Nagarajan <hnagar2@gmail.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Diego Calleja <diegocg@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43FFD684.2020309@gmail.com>
+References: <200602241949_MC3-1-B93F-2159@compuserve.com>
+	 <43FFD684.2020309@gmail.com>
+Content-Type: text/plain
+Date: Sat, 25 Feb 2006 09:49:02 +0100
+Message-Id: <1140857342.2991.6.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43FF88E6.6020603@linux.intel.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 04:29:58PM -0600, James Ketrenos wrote:
-> As a result of this change, some of the capabilities currently required
-> to be provided on the host include enforcement of regulatory limits for
-> the radio transmitter (radio calibration, transmit power, valid
-> channels, 802.11h, etc.) In order to meet the requirements of all
-> geographies into which our adapters ship (over 100 countries) we have
-> placed the regulatory enforcement logic into a user space daemon that
-> we provide as a binary under the same license agreement as the
-> microcode.  We provide that binary pre-compiled as both a 32-bit and
+On Fri, 2006-02-24 at 22:01 -0600, Hareesh Nagarajan wrote:
+> Chuck Ebbert wrote:
+> > In-Reply-To: <43FF3C1C.5040200@gmail.com>
+> > 
+> > On Fri, 24 Feb 2006 at 11:02:20 -0600, Hareesh Nagarajan wrote:
+> > 
+> >> But if we want to keep a track of all the files that are opened, read, 
+> >> written or deleted (much like filemon; ``Filemon's timestamping feature 
+> >> will show you precisely when every open, read, write or delete, happens, 
+> >> and its status column tells you the outcome."), we can write a simple 
+> >> patch that makes a note of these events on the VFS layer, and then we 
+> >> could export this information to userspace, via relayfs. It wouldn't be 
+> >> too hard to code a relatively efficient implementation.
+> > 
+> >  Doesn't auditing do all this?
+> 
+> I have no idea about auditing, but I would guess it internally uses inotify.
 
-the regualatory problems are not true.  they are completely focused on
-the users.  Someone who wants to change it can always do it, may it be
-by binary patching.  I don't know of a single country that forbids
-implementing those bits in source code shipped, and in those countries
-we alredy couldn't distribute the kernel.
 
-A binary daemon is completely unacceptable and unless you fix that there
-is zero chance the driver could get into mainline.  I'd also like to
-urge the distributors to not put this crap in to weaken our free drivers
-future.  Intel, please stop this madness and play by the rules.
+it doesn't; it uses the audit framework which, by the way, exactly does
+what the proposed patch above would do :)
+
 

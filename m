@@ -1,105 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWBYO03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWBYObE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWBYO03 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 09:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWBYO03
+	id S1030253AbWBYObE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 09:31:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWBYObE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 09:26:29 -0500
-Received: from mx5.mail.ru ([194.67.23.25]:18727 "EHLO mx5.mail.ru")
-	by vger.kernel.org with ESMTP id S1030244AbWBYO02 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 09:26:28 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: "Ghost" devices in /sys/firmware/edd
-Date: Sat, 25 Feb 2006 17:26:21 +0300
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200602242214.46290.arvidjaar@mail.ru> <20060225050745.GA4796@lists.us.dell.com>
-In-Reply-To: <20060225050745.GA4796@lists.us.dell.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Feb 2006 09:31:04 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:18148 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030253AbWBYObC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 09:31:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dBlQ9ad3gmn/nuEB1FznJYbhppy6DoXU5sXyErYELAuhsOW7SD4XD2OCYqa7003GI7pH2EECpmNzc+Y4vtU9yTcY5vw+HyA+CRxQZHHBmMcUx1g90f9xCn21tnoGp7j6QYyIb2vEz1Ui2PARuLCNDrafYF6PD2CbM8/BjzDFMAo=
+Message-ID: <39e6f6c70602250631kef5adb7r7e0558733b9d2c9d@mail.gmail.com>
+Date: Sat, 25 Feb 2006 11:31:01 -0300
+From: "Arnaldo Carvalho de Melo" <acme@ghostprotocols.net>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: [-mm patch] net/dccp/ipv4.c: make struct dccp_v4_prot static
+Cc: "Andrew Morton" <akpm@osdl.org>, davem@davemloft.net,
+       acme@conectiva.com.br, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20060225132729.GP3674@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200602251726.23500.arvidjaar@mail.ru>
+References: <20060224031002.0f7ff92a.akpm@osdl.org>
+	 <20060225132729.GP3674@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Saturday 25 February 2006 08:07, Matt Domsch wrote:
-[...]
-> The code here is fine.  Immediately before the int13 is an stc
-> instruction, so the carry flag is set.  sti and popw don't change CF.
-> What this means is that your BIOS cleared CF in the int13 to a
-> nonexistant disk, rather than setting CF (or leaving it unchanged).
-> CF being clear means the command succeeded.  In your case, the BIOS
-> cleared it, but shouldn't have.
+On 2/25/06, Adrian Bunk <bunk@stusta.de> wrote:
+> On Fri, Feb 24, 2006 at 03:10:02AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.16-rc4-mm1:
+> >...
+> >  git-net.patch
+> >...
+> >  git trees.
+> >...
 >
-> Care to share your system type / BIOS version, and if it's at all
-> recent, file an bug with their support department?
 >
-
-This is Toshiba Portege 4000, BIOS 2.10 dated 15 Dec 2003. I'll try to find 
-how to submit a bug report but I do not hold my breath.
-
-[...]
+> There's no reason for struct dccp_v4_prot being global.
 >
-> I'll look more next week, but what isn't ever happening is an int13
-> AH=15h GET DISK TYPE probe to see if the disk is there.  The edd.S
-> code just issue a READ SECTORS and expects that to fail (to set CF) if
-> it's not there.  This has been working fine for most people.  In your
-> case, it's not reporting a failure (CF is cleared by the int13).  Now,
-> there's no guarantee your BIOS would respond properly to the GET DISK
-> TYPE command either.  There are also notes that BIOS should set
-> 0040h:0075h to the number of drives present, and the code isn't
-> reading that value now either.  Either of these tests, if the BIOS
-> isn't buggy for them, could result in reporting the right number of
-> disks.
 >
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-2.6.16-rc4-mm2-full/net/dccp/ipv4.c.old       2006-02-25 04:32:45.000000000 +0100
+> +++ linux-2.6.16-rc4-mm2-full/net/dccp/ipv4.c   2006-02-25 04:32:53.000000000 +0100
+> @@ -1022,7 +1022,7 @@
+>         .twsk_obj_size  = sizeof(struct inet_timewait_sock),
+>  };
+>
+> -struct proto dccp_v4_prot = {
+> +static struct proto dccp_v4_prot = {
+>         .name                   = "DCCP",
+>         .owner                  = THIS_MODULE,
+>         .close                  = dccp_close,
 
-More simple solution may be the patch below. I am not sure if INT13 succeeded 
-is always the same as status == 0; there appears to be at least one corner 
-case 11h == "data ECC corrected". 
+Heck, the last series of patches were exactly to separate ipv4/ipv6 in
+DCCP more clearly, how could I forget the cherry on top (sticking this static
+in front of dccp_v4_prot)?
 
-The patch fixed the issue here.
+Eagle eyes indeed.
 
-regards
+Thanks.
 
-- -andrey
-
-Subject: [PATCH] Fix EDD to properly ignore signature of non-existing drives
-
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-
-Some BIOSes do not always set CF on error before return from int13.
-The patch adds additional check for status being zero (AH == 0).
-
-Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
-
-- ---
-
- arch/i386/boot/edd.S |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/arch/i386/boot/edd.S b/arch/i386/boot/edd.S
-index d8d69f2..4b84ea2 100644
-- --- a/arch/i386/boot/edd.S
-+++ b/arch/i386/boot/edd.S
-@@ -76,6 +76,8 @@ edd_mbr_sig_read:
- 	popw	%es
- 	popw	%bx
- 	jc	edd_mbr_sig_done		# on failure, we're done.
-+	cmpb	$0, %ah		# some BIOSes do not set CF
-+	jne	edd_mbr_sig_done		# on failure, we're done.
- 	movl	(EDDBUF+EDD_MBR_SIG_OFFSET), %eax # read sig out of the MBR
- 	movl	%eax, (%bx)			# store success
- 	incb	(EDD_MBR_SIG_NR_BUF)		# note that we stored something
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQFEAGkPR6LMutpd94wRAocYAJ4mRhgW0UOoK2+0bfQsh0+s1nUyIgCdGRrF
-UCJpkIEPVEuUE2Gnfe7mG/Q=
-=ij5i
------END PGP SIGNATURE-----
+- Arnaldo

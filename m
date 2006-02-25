@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWBYIcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbWBYIll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932610AbWBYIcN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 03:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWBYIcN
+	id S932599AbWBYIll (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 03:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWBYIll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 03:32:13 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:1676 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S932610AbWBYIcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 03:32:12 -0500
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <20060225021152.GI1637@vanheusden.com>
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
-	 <43FF26A8.9070600@keyaccess.nl> <m17j7kda52.fsf@ebiederm.dsl.xmission.com>
-	 <200602241748.39949.ak@suse.de> <m1wtfkbihh.fsf@ebiederm.dsl.xmission.com>
-	 <20060225021152.GI1637@vanheusden.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 25 Feb 2006 09:32:05 +0100
-Message-Id: <1140856326.2991.1.camel@laptopd505.fenrus.org>
+	Sat, 25 Feb 2006 03:41:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:31711 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932599AbWBYIlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 03:41:40 -0500
+Date: Sat, 25 Feb 2006 08:41:39 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       okir@suse.de
+Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
+Message-ID: <20060225084139.GB22109@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Ketrenos <jketreno@linux.intel.com>,
+	NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+	okir@suse.de
+References: <43FF88E6.6020603@linux.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43FF88E6.6020603@linux.intel.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-25 at 03:11 +0100, Folkert van Heusden wrote:
-> What about shuffeling the pages at runtime? Or are cachelines wired to
-> physical pages?
+On Fri, Feb 24, 2006 at 04:29:58PM -0600, James Ketrenos wrote:
+> As a result of this change, some of the capabilities currently required
+> to be provided on the host include enforcement of regulatory limits for
+> the radio transmitter (radio calibration, transmit power, valid
+> channels, 802.11h, etc.) In order to meet the requirements of all
+> geographies into which our adapters ship (over 100 countries) we have
+> placed the regulatory enforcement logic into a user space daemon that
+> we provide as a binary under the same license agreement as the
+> microcode.  We provide that binary pre-compiled as both a 32-bit and
 
-remember that kernel pages are 2Mb in size, not 4Kb.
-That makes it rather highly impractical ;)
+the regualatory problems are not true.  they are completely focused on
+the users.  Someone who wants to change it can always do it, may it be
+by binary patching.  I don't know of a single country that forbids
+implementing those bits in source code shipped, and in those countries
+we alredy couldn't distribute the kernel.
 
-(even 4Kb has many practical issues since most functions are smaller
-than 4Kb by far)
+A binary daemon is completely unacceptable and unless you fix that there
+is zero chance the driver could get into mainline.  I'd also like to
+urge the distributors to not put this crap in to weaken our free drivers
+future.  Intel, please stop this madness and play by the rules.
+

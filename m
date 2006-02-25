@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWBYQIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWBYQLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbWBYQIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWBYQIn
+	id S1161025AbWBYQLt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 11:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbWBYQLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:08:43 -0500
-Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:63716 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S964771AbWBYQIm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:08:42 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [patch] fuse: fix bug in negative lookup
-Message-Id: <E1FD1xt-0008Du-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 25 Feb 2006 17:08:13 +0100
+	Sat, 25 Feb 2006 11:11:48 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:63699 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964774AbWBYQLr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 11:11:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GL2qh/Fh52IFKRHbeseXCvgJKsuRD9BgW/vXG6DV4BRVVgL5lV6kILlxBZrrxZOhIz2Wi/Lrx9aS//Tg3rEma0Xkhw5902a9mFaHmAFDO8iVOXLKXneBLqBH0DcBcLkGTSNjrQEfdY6MS7T88ZMM9Jt06qYZBW7m5MLqzTNaP00=
+Message-ID: <9a8748490602250811t42629a73o7abbc2cb60a6c8f8@mail.gmail.com>
+Date: Sat, 25 Feb 2006 17:11:46 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
+Subject: Re: LibPATA code issues / 2.6.15.4
+Cc: "Mark Lord" <lkml@rtr.ca>, "David Greaves" <david@dgreaves.com>,
+       "Jeff Garzik" <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       "IDE/ATA development list" <linux-ide@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0602251058110.30688@p34>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0602140439580.3567@p34>
+	 <43F2050B.8020006@dgreaves.com>
+	 <Pine.LNX.4.64.0602141211350.10793@p34>
+	 <200602141300.37118.lkml@rtr.ca>
+	 <Pine.LNX.4.64.0602231838420.3374@p34> <44007892.9090002@rtr.ca>
+	 <Pine.LNX.4.64.0602251058110.30688@p34>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If negative entries (nodeid == 0) were sent in reply to LOOKUP
-requests, two bugs could be triggered:
+On 2/25/06, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
 
-- looking up a negative entry would return -EIO,
+Please don't top-post.
 
-- revaildate on an entry which turned negative would send a FORGET
-  request with zero nodeid, which would cause an abort() in the
-  library.
+> The kernel is patched, if you did not get what you wanted maybe the patch
+> does not work in some instances or there is a bug?
+>
 
-The above would only happen if the 'negative_timeout=N' option was
-used, otherwise lookups reply -ENOENT, which worked correctly.
+You may have patched a kernel source with Mark's patch, but you are
+very clearly not running a kernel build from that patched source.
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
----
+As can be seen from (for example) this bit from Mark's patch
 
-Index: linux/fs/fuse/dir.c
-===================================================================
---- linux.orig/fs/fuse/dir.c	2006-02-25 16:29:59.000000000 +0100
-+++ linux/fs/fuse/dir.c	2006-02-25 16:34:46.000000000 +0100
-@@ -111,6 +111,8 @@ static int fuse_dentry_revalidate(struct
- 
- 		/* Doesn't hurt to "reset" the validity timeout */
- 		fuse_invalidate_entry_cache(entry);
-+
-+		/* For negative dentries, always do a fresh lookup */
- 		if (!inode)
- 			return 0;
- 
-@@ -122,6 +124,9 @@ static int fuse_dentry_revalidate(struct
- 		fuse_lookup_init(req, entry->d_parent->d_inode, entry, &outarg);
- 		request_send(fc, req);
- 		err = req->out.h.error;
-+		/* Zero nodeid is same as -ENOENT */
-+		if (!err && !outarg.nodeid)
-+			err = -ENOENT;
- 		if (!err) {
- 			struct fuse_inode *fi = get_fuse_inode(inode);
- 			if (outarg.nodeid != get_node_id(inode)) {
-@@ -190,8 +195,9 @@ static struct dentry *fuse_lookup(struct
- 	fuse_lookup_init(req, dir, entry, &outarg);
- 	request_send(fc, req);
- 	err = req->out.h.error;
--	if (!err && ((outarg.nodeid && invalid_nodeid(outarg.nodeid)) ||
--		     !valid_mode(outarg.attr.mode)))
-+	/* Zero nodeid is same as -ENOENT, but with valid timeout */
-+	if (!err && outarg.nodeid &&
-+	    (invalid_nodeid(outarg.nodeid) || !valid_mode(outarg.attr.mode)))
- 		err = -EIO;
- 	if (!err && outarg.nodeid) {
- 		inode = fuse_iget(dir->i_sb, outarg.nodeid, outarg.generation,
+ translate_done:
+-       printk(KERN_ERR "ata%u: translated ATA stat/err 0x%02x/%02x to "
+-              "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, drv_stat, drv_err,
++       printk(KERN_ERR "ata%u: translated op=0x%02x ATA stat/err
+0x%02x/%02x to "
++              "SCSI SK/ASC/ASCQ 0x%x/%02x/%02x\n", id, opcode,
+drv_stat, drv_err,
+              *sk, *asc, *ascq);
+
+the patch changes the text being printed. In this case the text
+"ata%u: translated ATA stat/err ..." is changed into "ata%u:
+translated ATA stat/err ..."
+
+And if we look at the output you posted :
+
+> >> Here it is:
+> >>
+> >> [263864.109854] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ
+> >> 0xb/00/00
+
+That string is clearly from an un-patched kernel as Mark also pointed
+out in his reply to you.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

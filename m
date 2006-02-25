@@ -1,49 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWBYWrt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWBYW6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWBYWrt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 17:47:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWBYWrt
+	id S1750702AbWBYW6H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 17:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWBYW6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 17:47:49 -0500
-Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:7591 "EHLO
-	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S932189AbWBYWrs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 17:47:48 -0500
-Message-ID: <4400DE8C.1000303@lwfinger.net>
-Date: Sat, 25 Feb 2006 16:47:40 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: matthieu castet <castet.matthieu@free.fr>
-CC: John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
-References: <43FF88E6.6020603@linux.intel.com>	<20060225084139.GB22109@infradead.org>	<200602250549.47547.gene.heskett@verizon.net>	<Pine.LNX.4.61.0602251518200.31692@yvahk01.tjqt.qr>	<pan.2006.02.25.22.07.53.810642@free.fr> <17408.55266.948833.168988@smtp.charter.net> <4400DA0B.1060502@free.fr>
-In-Reply-To: <4400DA0B.1060502@free.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 25 Feb 2006 17:58:07 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35089 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750702AbWBYW6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 17:58:06 -0500
+Date: Sat, 25 Feb 2006 22:57:49 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
+Message-ID: <20060225225748.GF15276@flint.arm.linux.org.uk>
+Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060224221909.GD28855@flint.arm.linux.org.uk> <20060225065136.GH13116@waste.org> <20060225084955.GA27538@flint.arm.linux.org.uk> <20060225145412.GI13116@waste.org> <20060225180521.GB15276@flint.arm.linux.org.uk> <20060225210454.GL13116@waste.org> <20060225212247.GC15276@flint.arm.linux.org.uk> <20060225214704.GN13116@waste.org> <20060225215850.GD15276@flint.arm.linux.org.uk> <20060225223737.GO13116@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060225223737.GO13116@waste.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthieu castet wrote:
-> And what happen with the userspace binary blob ?
+On Sat, Feb 25, 2006 at 04:37:37PM -0600, Matt Mackall wrote:
+> On Sat, Feb 25, 2006 at 09:58:50PM +0000, Russell King wrote:
+> > 1. kernel is loaded.
+> > 2. firmware scans loaded kernel, finds gzip magic numbers (the compressed
+> >    kernel.)
+> > 3. firmware sets initrd pointeres to point at the compressed kernel.
+> > 4. firmware calls kernel decompressor.
+> > 5. kernel decompresses and self-relocates.
+> > 6. compressed kernel image is thereby partly corrupted.
+> > 7. kernel boots.
+> > 8. kernel tries to decompress the compressed kernel image.
+> > 9. decompressor gets confused and tries to gobble more data than is
+> >    available.
+> > 10. kernel sits there being a dumb fuck.
 > 
-> How it will know in which country you are ?
-> Does it access to a secret GPS on your computer ?
+> Why are we attempting to decompress the kernel image again? Accident?
+
+The firmware is trying to be "clever" - looking in the object it TFTP'd
+for the gzip magic numbers and assuming that any it finds are an initrd.
+The firmware then points the kernel at the start of that gzipped image.
+
+The fact that a zImage contains the gzip magic numbers never occurred to
+the people who implemented this misfeature in the firmware.  It is a
+misfeature because:
+
+1. this exact problem - that a zImage contents can be mistaken for an initrd.
+2. an initrd doesn't have to be compressed with gzip.
+3. an initrd may contain gzip markers which do not relate to the start of
+   the initrd.
+
+> > > In my mind, being unable to decompress init* is every bit as fatal as
+> > > being unable to mount root.
+> > 
+> > It's very simple.  With fix, the kernel successfully boots on these
+> > machines.  Without fix, the kernel hangs on these machines for _no_
+> > good reason other than the firmware did something that was stupid.
 > 
-> So there are 2 solutions :
-> - make the card work only for a country with a flag in a RO eeprom or in 
-> another place in the hardware (firmware, ....).
-> - make the card works on all the possible channels.
+> And how does this work currently? We attempt to decompress the kernel
+> a second time, give up and move on?
+
+Yes.
+
+> Assuming we can write to the compressed image (and thereby corrupt
+> it), wouldn't it be better to just stomp on the gzip magic and spare
+> us the overhead of decompressing it twice?
+
+That's not guaranteed, so is impossible to do in the boot time
+decompressor.
+
+> > I'm sorry, I just do not see why you're being soo bloody difficult
+> > over this.
 > 
-> Also if the firmware need to be load each time you reset the card (this 
-> is the case with the current ipw2xxx implementation), you won't notice 
-> if you switch for a firmware for a country X to a firmware for a country Y.
+> Because it's taken this long to get close to an explanation of what
+> the problem is.
 
-I haven't looked at the driver code, but I would expect it to be like the ipw2200 where the 
-"country" code is in eeprom, which sets a code specifying the region where it will work. If you take 
-a given piece of hardware somewhere else in the world, it will likely not be in complience.
+$#%@%#$%#@!!!  I really think you're intentionally trying to wind me up
+through this whole thread.
 
-Larry
+The email:
 
+  http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/1024.html
+
+contains a full and clear explaination of the situation.  The second
+paragraph of that email is key to understanding the problem and makes
+it absolutely clear what is trying to be decompressed as the initrd
+(the corrupted compressed piggy).
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,50 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160997AbWBYOW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWBYOZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160997AbWBYOW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 09:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160999AbWBYOW7
+	id S1030234AbWBYOZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 09:25:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWBYOZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 09:22:59 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:15318 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1160997AbWBYOW7 (ORCPT
+	Sat, 25 Feb 2006 09:25:58 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:59578 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1030234AbWBYOZ6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 09:22:59 -0500
-Date: Sat, 25 Feb 2006 15:22:04 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] make INPUT a bool
-In-Reply-To: <20060225124606.GI3674@stusta.de>
-Message-ID: <Pine.LNX.4.61.0602251521300.31692@yvahk01.tjqt.qr>
-References: <20060214152218.GI10701@stusta.de> <Pine.LNX.4.61.0602141912580.32490@yvahk01.tjqt.qr>
- <20060214182238.GB3513@stusta.de> <Pine.LNX.4.61.0602171655530.27452@yvahk01.tjqt.qr>
- <20060217163802.GI4422@stusta.de> <93564eb70602191933x2a20ce0m@mail.gmail.com>
- <20060220132832.GF4971@stusta.de> <20060222013410.GH20204@MAIL.13thfloor.at>
- <20060222023121.GB4661@stusta.de> <Pine.LNX.4.62.0602251255110.18095@pademelon.sonytel.be>
- <20060225124606.GI3674@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Feb 2006 09:25:58 -0500
+Date: Sat, 25 Feb 2006 09:20:49 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH] No idle HZ aka dynticks i386 for 2.6.16-rc4
+Message-ID: <20060225142049.GA17844@kvack.org>
+References: <200602251530.58797.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602251530.58797.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 25, 2006 at 03:30:57PM +1100, Con Kolivas wrote:
+> +struct dyntick_timer {
+> +	spinlock_t lock;
+> +
+> +	/* dyntick init */
+> +	int (*arch_init)(void);
+> +	/* Enables dynamic tick */
+> +	int (*arch_enable)(void);
+> +	/* Disables dynamic tick */
+> +	int (*arch_disable)(void);
+> +	/* Reprograms the timer */
+> +	void (*arch_reprogram)(unsigned long);
+> +	/* Function called when all cpus are idle, passing the idle duration */
+> +	void (*arch_all_cpus_idle)(unsigned int);
+> +
+> +	unsigned short state;		/* Current state */
+> +	unsigned int min_skip;		/* Min number of ticks to skip */
+> +	unsigned int max_skip;		/* Max number of ticks to skip */
+> +	unsigned long tick;		/* The next earliest tick */
+> +};
+
+If you make min_skip a short here, the structure will pack nicely and 
+save 6 bytes of padding on 64 bit machines.  Alternatively, keep it an 
+int and put it in the padding following the spinlock to save the whole 
+8 bytes.
+
+> +int dyntick_skipping(void)
+> +{
+> +	int ret = (get_cpu_var(dyn_cpu).next_tick > jiffies);
+> +
+> +	put_cpu_var(dyn_cpu);
+> +	return ret;
 >
->My 50 MB number was much too high (I didn't want to think where exactly 
->to set the borderline).
->
->My point is that if you are in an environment that is that space limited 
->that you want to see options that allow e.g. not building futexes, 
->module support with an impact of approx. 10% on code size would be one 
->of the first things you should disable.
->
 
-You said that INPUT was not a driver, right. But without it, a keyboard 
-won't work, will it?
+This looks wrong...  Shouldn't it be time_after()?  Otherwise it seems to 
+not work when jiffies wraps.
+
+> +int dyntick_current_skip(void)
+> +{
+> +	int ret = 0;
+> +
+> +	if (get_cpu_var(dyn_cpu).next_tick > jiffies)
+> +		ret = __get_cpu_var(dyn_cpu).skip;
+> +	put_cpu_var(dyn_cpu);
+> +	return ret;
+> +}
+
+Ditto.
 
 
+> +/*
+> + * Returns the next scheduled dyntick if we are skipping ticks.
+> + */
+> +unsigned long dyntick_next_tick(void)
+> +{
+> +	unsigned long next = 0;
+> +
+> +	if (get_cpu_var(dyn_cpu).next_tick > jiffies)
+> +		next = __get_cpu_var(dyn_cpu).next_tick;
+> +	put_cpu_var(dyn_cpu);
+> +	return next;
+> +}
 
-Jan Engelhardt
+Ditto.
+
+> +/*
+> + * dyn_early_reprogram is used to reprogram an earlier tick than is currently
+> + * set by timer_dyn_reprogram.
+> + * dyn_early_reprogram allows other code such as the acpi idle code to
+> + * program an earlier tick than the one already chosen by timer_dyn_reprogram.
+> + * It only reprograms it if the tick is earlier than the next one planned.
+> + */
+> +void dyn_early_reprogram(unsigned int delta)
+> +{
+> +	unsigned long flags, tick = jiffies + delta;
+> +
+> +	if (tick >= get_cpu_var(dyn_cpu).next_tick &&
+> +		__get_cpu_var(dyn_cpu).next_tick > jiffies)
+> +			goto put_out;
+
+Ditto.
+
+The SMP case requires a bit more thorough reading...  It seems there 
+are a few places that call test_nohz_cpu() without taking the spinlock.  
+That could be the race causing missed ticks on smp.  Cheers,
+
+		-ben
 -- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

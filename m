@@ -1,103 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWBYFHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWBYFQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932679AbWBYFHv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 00:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbWBYFHv
+	id S1030183AbWBYFQj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 00:16:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWBYFQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 00:07:51 -0500
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:31595 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S932679AbWBYFHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 00:07:50 -0500
-X-IronPort-AV: i="4.02,145,1139205600"; 
-   d="scan'208"; a="50424368:sNHT30749260"
-Date: Fri, 24 Feb 2006 23:07:45 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "Ghost" devices in /sys/firmware/edd
-Message-ID: <20060225050745.GA4796@lists.us.dell.com>
-References: <200602242214.46290.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602242214.46290.arvidjaar@mail.ru>
-User-Agent: Mutt/1.5.9i
+	Sat, 25 Feb 2006 00:16:39 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:59100 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1030183AbWBYFQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 00:16:38 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: Which is simpler? (Was Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Sat, 25 Feb 2006 15:13:36 +1000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andreas Happe <andreashappe@snikt.net>, linux-kernel@vger.kernel.org,
+       Suspend2 Devel List <suspend2-devel@lists.suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602251026.21441.ncunningham@cyclades.com> <200602250156.49228.rjw@sisk.pl>
+In-Reply-To: <200602250156.49228.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart6919104.U6oMLIceWs";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602251513.41697.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 24, 2006 at 10:14:34PM +0300, Andrey Borzenkov wrote:
-> I have single drive hda; still EDD shows valid and the _same_ MBR signature 
-> for all possible 16 drives:
-> 
-> {pts/0}% cat /sys/firmware/edd/*/mbr_*
-> 0x7fca3a0a
-> 0x7fca3a0a
-> 0x7fca3a0a
-[snip]
-> 
-> other attributes are correctly present for the drive 0x80 only.
-> 
-> Not being expert in x86 assembly, but comparing main loops for signature and 
-> other info:
-> 
-> signature:
->         int     $0x13
->         sti                     # work around buggy BIOSes
->         popw    %dx
->         popw    %es
->         popw    %bx
->         jc      edd_mbr_sig_done                # on failure, we're done.
+--nextPart6919104.U6oMLIceWs
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The code here is fine.  Immediately before the int13 is an stc
-instruction, so the carry flag is set.  sti and popw don't change CF.
-What this means is that your BIOS cleared CF in the int13 to a
-nonexistant disk, rather than setting CF (or leaving it unchanged).
-CF being clear means the command succeeded.  In your case, the BIOS
-cleared it, but shouldn't have.
+Hi.
 
-Care to share your system type / BIOS version, and if it's at all
-recent, file an bug with their support department?
+On Saturday 25 February 2006 10:56, Rafael J. Wysocki wrote:
+> On Saturday 25 February 2006 01:26, Nigel Cunningham wrote:
+> > On Saturday 25 February 2006 10:20, Rafael J. Wysocki wrote:
+> > > On Saturday 25 February 2006 00:11, Nigel Cunningham wrote:
+> > > > On Saturday 25 February 2006 06:22, Rafael J. Wysocki wrote:
+> > > > > On Friday 24 February 2006 14:12, Pavel Machek wrote:
+> > > > > > On P=C3=A1 24-02-06 11:58:07, Rafael J. Wysocki wrote:
+> > >
+> > > }-- snip --{
+> > >
+> > > > > > > Well, if all of the pages that Nigel saves before snapshot are
+> > > > > > > freeable in theory, there evidently is something wrong with
+> > > > > > > freeing in swsusp, as we have a testcase in which the user was
+> > > > > > > unable to suspend with swsusp due to the lack of memory and
+> > > > > > > could suspend with suspend2.
+> > > > > > >
+> > > > > > > However, the only thing in swsusp_shrink_memory() that may be
+> > > > > > > wrong is we return -ENOMEM as soon as shrink_all_memory()
+> > > > > > > returns 0. Namely, if shrink_all_memory() can return 0
+> > > > > > > prematurely (ie. "there still are some freeable pages, but th=
+ey
+> > > > > > > could not be freed in _this_ call"), we should continue until
+> > > > > > > it returns 0 twice in a row (or something like that).  If this
+> > > > > > > doesn't help, we'll have to fix shrink_all_memory() I'm afrai=
+d.
+> > > > > >
+> > > > > > I did try shrink_all_memory() five times, with .5 second delay
+> > > > > > between them, and it freed more memory at later tries.
+> > > > >
+> > > > > I wonder if the delays are essential or if so, whether they may be
+> > > > > shorter than .5 sec.
+> > > > >
+> > > > > > Sometimes it even freed 0 pages at the first try.
+> > > > > >
+> > > > > > I did not push the patch because
+> > > > > >
+> > > > > > 1) it was way too ugly
+> > > > >
+> > > > > I think I can do something like that in swsusp_shrink_memory() and
+> > > > > it won't be very ugly.
+> > > > >
+> > > > > > 2) shrink_all_memory() should be fixed. It should not really
+> > > > > > return if there are more pages freeable.
+> > > > >
+> > > > > Well, that would be a long-run solution.  However, until it's fix=
+ed
+> > > > > we can use a workaround IMHO. ;-)
+> > > >
+> > > > Isn't trying to free as much memory as you can the wrong solution
+> > > > anyway?
+> > >
+> > > No, it isn't.  There are situations in which we would like to suspend
+> > > "whatever it takes" and then we should be able to free as much memory
+> > > as _really_ possible.
+> > >
+> > > Besides, it is supposed to work, and it doesn't, so it needs fixing.
+> > >
+> > > > I mean, that only means that the poor system has more pages to fault
+> > > > back in at resume time, before the user can even begin to think abo=
+ut
+> > > > doing anything useful.
+> > >
+> > > Well, that's not the only possibility.  After we fix the memory freei=
+ng
+> > > issue we can use the observation that page cache pages need not be
+> > > saved to disk during suspend, because they already are in a storage.=
+=20
+> > > We only need to create a map of these pages during suspend with the
+> > > information on where to get them from and prefetch them into memory
+> > > during resume independently of the page fault mechanism.
+> > >
+> > > This way we won't have to actually save anything before we snapshot t=
+he
+> > > system and the system should be reasonably responsive after resume.
+> >
+> > But this is going to be much more complicated than simply saving the
+> > pages in the first place. You'll need some mechanism for figuring out
+> > what pages to get, how to fault them in, etc.
+>
+> Yes, this is going to be quite difficult indeed.  Still there's a price f=
+or
+> saving the pages and I'd like to avoid paying it. ;-)
+>
+> > In addition, it will be much slower than simply reading them back from
+> > (ideally) contiguous storage.
+>
+> Not necessarily.  These pages may come from contiguous storage areas as
+> well.
 
+Oh well, I suppose we can compare once you've spent the time implementing i=
+t.
 
-> extended EDD info:
-> 
-> edd_check_ext:
->         movb    $CHECKEXTENSIONSPRESENT, %ah    # Function 41
->         movw    $EDDMAGIC1, %bx                 # magic
->         int     $0x13                           # make the call
->         jc      edd_done                        # no more BIOS devices
-> 
+Regards,
 
-Yet, it does properly set CF on int13 AH=41h to a nonexistant disk.
-How annoying.
+Nigel
 
+--nextPart6919104.U6oMLIceWs
+Content-Type: application/pgp-signature
 
-> Is it possible that carry flag is cleared between return from int 0x13 and 
-> querying for it in the former case? This would perfectly explain that EDD 
-> does not notice failure of reading sector and simply copies the same 
-> signature from the very first drive.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-I'll look more next week, but what isn't ever happening is an int13
-AH=15h GET DISK TYPE probe to see if the disk is there.  The edd.S
-code just issue a READ SECTORS and expects that to fail (to set CF) if
-it's not there.  This has been working fine for most people.  In your
-case, it's not reporting a failure (CF is cleared by the int13).  Now,
-there's no guarantee your BIOS would respond properly to the GET DISK
-TYPE command either.  There are also notes that BIOS should set
-0040h:0075h to the number of drives present, and the code isn't
-reading that value now either.  Either of these tests, if the BIOS
-isn't buggy for them, could result in reporting the right number of
-disks.
+iD8DBQBD/+eFN0y+n1M3mo0RAoZKAKDmhszwWaUmJIOcgdv/BvY8Ec2CjgCfUjlK
+piy019AfRNp7AGYDVDMdT94=
+=/TIs
+-----END PGP SIGNATURE-----
 
-Thanks much for the report and for digging to find where the mistake
-could be.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+--nextPart6919104.U6oMLIceWs--

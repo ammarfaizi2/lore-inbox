@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWBYS2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbWBYSbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161045AbWBYS2O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWBYS2O
+	id S1161037AbWBYSbf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 13:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161053AbWBYSbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:28:14 -0500
-Received: from rtr.ca ([64.26.128.89]:35504 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1161045AbWBYS2O (ORCPT
+	Sat, 25 Feb 2006 13:31:35 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:61580 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161050AbWBYSbe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:28:14 -0500
-Message-ID: <4400A1BF.7020109@rtr.ca>
-Date: Sat, 25 Feb 2006 13:28:15 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Sat, 25 Feb 2006 13:31:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=oC+KMkF3udJNDTPzoGh/Cj2e4eGWhGjJ/sFgxITbtYKlUGL726AOU+LUpMs4OGkASgA6qMwkFDz4sM7k+x3MI2q4kj1knUaLn2EocgsDEvbjHmvtZ0tXR01sUOd0EYZu6XjAxnQ40bw9eRDOgjn1hWPEKrgsSS31d6nKwGOnAf8=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: David Howells <dhowells@redhat.com>
+Subject: [PATCH] fix 'defined but not used' warning in net/rxrpc/main.c::rxrpc_initialise
+Date: Sat, 25 Feb 2006 19:31:50 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Mark Lord <lkml@rtr.ca>, David Greaves <david@dgreaves.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>
-In-Reply-To: <Pine.LNX.4.64.0602251244070.20297@p34>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602251931.50545.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> Second patch fails for me.
-..
-> Should I be using 2.6.16-rcX?
 
-Mmm... that's what I'm using (plus other patches),
-so, yes.. give that a try.  2.6.16 does seem to
-be shaping up to be a nice kernel.
+fix a 'defined but not used' warning in net/rxrpc/main.c::rxrpc_initialise()
 
-Cheers
+  net/rxrpc/main.c: In function `rxrpc_initialise':
+  net/rxrpc/main.c:83: warning: label `error_proc' defined but not used
+
+The only user of the label is inside  #ifdef CONFIG_SYSCTL  so move the label
+inside as well to silence the warning.
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ net/rxrpc/main.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.16-rc4-mm2-orig/net/rxrpc/main.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.16-rc4-mm2/net/rxrpc/main.c	2006-02-25 19:23:39.000000000 +0100
+@@ -79,8 +79,8 @@ static int __init rxrpc_initialise(void)
+  error_sysctl:
+ #ifdef CONFIG_SYSCTL
+ 	rxrpc_sysctl_cleanup();
+-#endif
+  error_proc:
++#endif
+ #ifdef CONFIG_PROC_FS
+ 	rxrpc_proc_cleanup();
+ #endif
+
+

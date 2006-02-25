@@ -1,84 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbWBYTkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbWBYTq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161083AbWBYTkW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 14:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161089AbWBYTkW
+	id S1161101AbWBYTq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 14:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWBYTq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 14:40:22 -0500
-Received: from [125.247.109.106] ([125.247.109.106]:49679 "HELO virgilio.it")
-	by vger.kernel.org with SMTP id S1161083AbWBYTkW (ORCPT
+	Sat, 25 Feb 2006 14:46:57 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:40154 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1161090AbWBYTqy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 14:40:22 -0500
-Message-ID: <30A420A2.4883FDA@virgilio.it>
-Date: Sun, 26 Feb 2006 06:21:56 +1000
-From: "Quazi Hossain" <quazihossain4@virgilio.it>
-User-Agent: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: en-us
+	Sat, 25 Feb 2006 14:46:54 -0500
+Message-ID: <4400B439.8050202@dgreaves.com>
+Date: Sat, 25 Feb 2006 19:47:05 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Thanks" <linux-kernel@vger.kernel.org>
-Subject: CAN YOU BE TRUSTED
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Mark Lord <liml@rtr.ca>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <lkml@rtr.ca>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
+In-Reply-To: <4400A1BF.7020109@rtr.ca>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Mark Lord wrote:
 
-Compliments
+> Justin Piszcz wrote:
+>
+>> Should I be using 2.6.16-rcX?
+>
+>
+> Mmm... that's what I'm using (plus other patches),
+> so, yes.. give that a try.  2.6.16 does seem to
+> be shaping up to be a nice kernel.
 
-I have been searching for a person whom we can jointly invest, Trust in and
-also solicit an honorable partnership with. 
+OK, failed for me too - I updated to 2.6.16-rc4 and it still failed
+(despite -F) so I fixed by hand.
+(printk -> DPRINTK
 
-I want to confirm that your contact information was got from a web email
-directory. I represent a client who is interested in investing in your
-country in areas related to agriculture or any business of your choice, to
-initiate a proper and structured relationship. Please let me know what your
-response will be to an offer to receive investment funds in cash if; 
+anyway:
+Linux haze 2.6.16-rc4patched #1 PREEMPT Sat Feb 25 19:29:11 UTC 2006
+i686 GNU/Linux
 
-1. The said fund amounts to US$38,500,000 (Thirty Eight Million, Five
-hundred Thousand US Dollars).
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata2: error=0x04 { DriveStatusError }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+sd 1:0:0:0: SCSI error: return code = 0x8000002
+sdb: Current: sense key: Medium Error
+    Additional sense: Unrecovered read error - auto reallocate failed
+end_request: I/O error, dev sdb, sector 398283329
+raid1: Disk failure on sdb2, disabling device.
+        Operation continuing on 1 devices
 
-2. The said fund is in cash and needs to be transferred in the same state,
-due to some covert reasons.
 
-3. The fund could be invested through your agency in the purchase of
-facility and assets for investment purposes within your country, in
-collaboration with the agency of the current brokers.
+and later...
 
-4. This transaction will result in you being paid a commission of 10% off
-the investment capital.
 
-5. The fund owners desire absolute confidentiality and professionalism
-in the handling of this matter, due to risks of seizure of the fund and
-litigation if personalities are revealed. 
+device-mapper: 4.5.0-ioctl (2005-10-04) initialised: dm-devel@redhat.com
+XFS mounting filesystem dm-0
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata1: error=0x04 { DriveStatusError }
+ata1: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata1: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata1: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+ata1: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata1: status=0x51 { DriveReady SeekComplete Error }
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+sd 0:0:0:0: SCSI error: return code = 0x8000002
+sda: Current: sense key: Medium Error
+    Additional sense: Unrecovered read error - auto reallocate failed
+end_request: I/O error, dev sda, sector 390716735
+raid5: Disk failure on sda1, disabling device. Operation continuing on 2
+devices
+ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+ata2: status=0x51 { DriveReady SeekComplete Error }
+sd 1:0:0:0: SCSI error: return code = 0x8000002
+sdb: Current: sense key: Medium Error
+    Additional sense: Unrecovered read error - auto reallocate failed
+end_request: I/O error, dev sdb, sector 390716735
+raid5: Disk failure on sdb1, disabling device. Operation continuing on 1
+devices
+RAID5 conf printout:
+ --- rd:3 wd:1 fd:2
+ disk 0, o:1, dev:sdd1
+ disk 1, o:0, dev:sdb1
+ disk 2, o:0, dev:sda1
+xfs_force_shutdown(dm-0,0x1) called from line 338 of file
+fs/xfs/xfs_rw.c.  Return address = 0xc020c0e9
+Filesystem "dm-0": I/O Error Detected.  Shutting down filesystem: dm-0
+Please umount the filesystem, and rectify the problem(s)
+I/O error in filesystem ("dm-0") meta-data dev dm-0 block
+0x640884a       ("xlog_bwrite") error 5 buf count 262144
+XFS: failed to locate log tail
+XFS: log mount/recovery failed: error 5
+XFS: log mount failed
+RAID5 conf printout:
+ --- rd:3 wd:1 fd:2
+ disk 0, o:1, dev:sdd1
+ disk 1, o:0, dev:sdb1
+RAID5 conf printout:
+ --- rd:3 wd:1 fd:2
+ disk 0, o:1, dev:sdd1
+ disk 1, o:0, dev:sdb1
+RAID5 conf printout:
+ --- rd:3 wd:1 fd:2
+ disk 0, o:1, dev:sdd1
 
-The fund owners have interest to invest in any of the following industries,
-depending on which is most transparent, low risk, and average profit
-yielding: Power Generation, Telecommunication and Software Development, Film
-Production, Hardware Manufacturing and Export, Medicine, Construction or
-Real-Estate Development.
 
-Based upon the information provided above, I would like to know if you
-shall be able to assist in the nature of managing the investment fund. You
-must note that the fund can only be transferred in cash, therefore if you
-are in acceptance to participate with us in the investment of the fund, you
-shall also need to participate with us in the transfer of the fund in cash
-in the manner of receiving the fund in cash and depositing it in a Trusted
-account opened in favour of the investment to be established.
+So I guess my raid just blew up too... hope there's no corruption!
 
-And this account would serve as the base or operating account for the
-investment. I am obliged to believe that you would be able to understand the
-information above, and should you need further information, please do not
-hesitate to ask.
+David
 
-Kindly confirm receipt of this email by sending all correspondence to:
-quazihossain77@netscape.net OR quazihossain77@myway.com
+(PS Hi Mark, this is lbt from the Empeg BBS :) )
 
- 
-
-Sincerely,
-Quazi Hossain (Esq.)
-Tel: +871 763 591 465 
-Fax: +871 763 591 466
+-- 
 

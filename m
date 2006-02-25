@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbWBYT43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbWBYUJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161093AbWBYT43 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 14:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWBYT43
+	id S1161100AbWBYUJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 15:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161102AbWBYUJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 14:56:29 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:47750 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161093AbWBYT43 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 14:56:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nh3JKu7mGsfwXr5z3FzOQ/9uXCy1U4STIJOl1291OcXffLYzqwUR2xVtB4pa05X61ajRpQTd2QxZslqBzbvhXV0yczjK+kdXgSzu4HFVVTuiCf3vbNxJ4f89CQ218IWMO5NpHv16RJxcJwBLA/YY/wTNQTWz2W1g693ZSSiGzuo=
-Message-ID: <9a8748490602251156y6dc22a7by53b85570feb8d4a7@mail.gmail.com>
-Date: Sat, 25 Feb 2006 20:56:27 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Avi Kivity" <avi@argo.co.il>
-Subject: Re: New reliability technique
-Cc: "Victor Porton" <porton@ex-code.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4400B562.6020203@argo.co.il>
+	Sat, 25 Feb 2006 15:09:57 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:18360 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1161100AbWBYUJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 15:09:56 -0500
+Message-ID: <4400B8D7.BE68EEDF@tv-sign.ru>
+Date: Sat, 25 Feb 2006 23:06:47 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <E1FCzMX-0000Ym-00@porton.narod.ru>
-	 <9a8748490602250526p2187e04ej9a680e6b2b948e7d@mail.gmail.com>
-	 <9a8748490602250527l78e057ecvcd2e656b8ff5c9f2@mail.gmail.com>
-	 <4400B562.6020203@argo.co.il>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 2/6] relax sig_needs_tasklist()
+References: <43FCEE08.7923E800@tv-sign.ru> <m1r75r1kh9.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/25/06, Avi Kivity <avi@argo.co.il> wrote:
-> Jesper Juhl wrote:
+Eric W. Biederman wrote:
 >
-> >On 2/25/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >
-> >
-> >>On 2/25/06, Victor Porton <porton@ex-code.com> wrote:
-> >>
-> >>
-> >>>A minute ago I invented a new reliability enhancing technique.
-> >>>
-> >>>In idle cycles (or periodically in expense of some performance) Linux can
-> >>>calculate MD5 or CRC sums of _unused_ (free) memory areas and compare these
-> >>>sums with previously calculated sums.
-> >>>
-> >>>Additionally it can be done for allocated memory, if it will be write
-> >>>protected before the first actual write. Moreover, all memory may be made
-> >>>write-protected if it is not written e.g. more than a second. (When it
-> >>>is written kernel would unlock it and allow to write, by a techniqie like
-> >>>to how swap works.) If write-protected memory appears to be modified by
-> >>>a check sum, this likewise indicates a bug.
-> >>>
-> >>>If a sum is inequal, it would notice a bug in kernel or in hardware.
-> >>>
-> >>>I suggest to add "Check free memory control sums" in config.
-> >>>
-> >>>
-> >>>
-> >>Implement it then and send a patch.
-> >>
-> >>
-> >>
-> >
-> >But, doesn't slab poisoning and the like already cover this ground somewhat?
-> >
-> >
-> >
-> No, they don't. They cover only a very small percentage of memory.
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
 >
+> > handle_stop_signal() does not need tasklist_lock for
+> > SIG_KERNEL_STOP_MASK signals anymore.
+>
+> Small question.
+>
+> If I read the code correctly the only thing handle_stop_signal needs
+> the tasklist_lock for is to protect task->parent, for the
+> do_notify_parent_cldstop(...) case.
 
-Ohh, ok, then it makes sense as a debug thing.
+Yes, exactly.
 
-Let's see an implementation then.
+> If this is correct.  I think I see a path to kill read_lock(&tasklist_lock)
+> completely.
+>
+> - Protect task->parent with the rcu_read_lock && task_lock().
+> - Use the rcu forms of list_add/list_del on the tasklist.
+> - replace read_lock(&tasklist_lock) with rcu_read_lock().
+> - Make tasklist_lock a simple spin lock.
+>
+> Comments?
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I must admit, I am not brave enough to even think about this
+now :)
+
+I already thought about protecting ->parent with task_lock(),
+but I can't find a reasonable solution.
+
+As for handle_stop_signal(), there is another problem.
+do_notify_parent_cldstop takes ->parent's sighand->siglock, so
+the caller drops child's. And this is possible only because we
+are holding tasklist_lock.
+
+Somehow we need to lock both the parent and the child, and what
+if child does ptrace on it's ->real_parent?
+
+Oleg.

@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbWBYEBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbWBYEBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbWBYEBW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 23:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWBYEBV
+	id S932661AbWBYEBD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 23:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbWBYEBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 23:01:21 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:28817 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S932662AbWBYEBU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 23:01:20 -0500
-X-ORBL: [68.252.239.198]
-Message-ID: <43FFD684.2020309@gmail.com>
-Date: Fri, 24 Feb 2006 22:01:08 -0600
-From: Hareesh Nagarajan <hnagar2@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Fri, 24 Feb 2006 23:01:01 -0500
+Received: from smtp107.sbc.mail.re2.yahoo.com ([68.142.229.98]:25738 "HELO
+	smtp107.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932661AbWBYEBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 23:01:00 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: Extra keycodes
+Date: Fri, 24 Feb 2006 23:00:58 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+References: <20060223175328.GA25482@srcf.ucam.org>
+In-Reply-To: <20060223175328.GA25482@srcf.ucam.org>
 MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>
-CC: Diego Calleja <diegocg@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Looking for a file monitor
-References: <200602241949_MC3-1-B93F-2159@compuserve.com>
-In-Reply-To: <200602241949_MC3-1-B93F-2159@compuserve.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602242300.58815.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert wrote:
-> In-Reply-To: <43FF3C1C.5040200@gmail.com>
+On Thursday 23 February 2006 12:53, Matthew Garrett wrote:
+> Hi,
 > 
-> On Fri, 24 Feb 2006 at 11:02:20 -0600, Hareesh Nagarajan wrote:
+> Several laptops have keys that are intended to show battery status. In 
+> order to present a consistent view to userspace, it would be nice to 
+> have a standard keycode to map them to. linux/input.h doesn't currently 
+> provide anything appropriate. What's the correct way of allocating 
+> another keycode?
 > 
->> But if we want to keep a track of all the files that are opened, read, 
->> written or deleted (much like filemon; ``Filemon's timestamping feature 
->> will show you precisely when every open, read, write or delete, happens, 
->> and its status column tells you the outcome."), we can write a simple 
->> patch that makes a note of these events on the VFS layer, and then we 
->> could export this information to userspace, via relayfs. It wouldn't be 
->> too hard to code a relatively efficient implementation.
-> 
->  Doesn't auditing do all this?
 
-I have no idea about auditing, but I would guess it internally uses inotify.
+Just post a patch adding it to input.h and we'll discuss... Who is intended
+user? What interface is expected to be used (evdev)?
 
-Hareesh
+-- 
+Dmitry

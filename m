@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWBYSVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWBYSZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161048AbWBYSVN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWBYSVN
+	id S1161044AbWBYSZs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 13:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161045AbWBYSZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:21:13 -0500
-Received: from ns2.hostinglmi.net ([213.194.149.12]:62108 "EHLO
-	ns2.hostinglmi.net") by vger.kernel.org with ESMTP id S1161045AbWBYSVM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:21:12 -0500
-Date: Sat, 25 Feb 2006 19:17:27 +0100
-From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
-To: Bernhard Rosenkraenzer <bero@arklinux.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works ;)
-Message-ID: <20060225181726.GC25076@fargo>
-Mail-Followup-To: Bernhard Rosenkraenzer <bero@arklinux.org>,
-	linux-kernel@vger.kernel.org
-References: <200602250042.51677.bero@arklinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602250042.51677.bero@arklinux.org>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns2.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - pleyades.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Sat, 25 Feb 2006 13:25:48 -0500
+Received: from smtpout.mac.com ([17.250.248.86]:17612 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1161044AbWBYSZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 13:25:48 -0500
+In-Reply-To: <200602241237.21628.mbuesch@freenet.de>
+References: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr> <200602241237.21628.mbuesch@freenet.de>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <BE7AD56A-27CA-465C-A4C6-774E8C074EF0@mac.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Mapping to 0x0
+Date: Sat, 25 Feb 2006 13:25:33 -0500
+To: Michael Buesch <mbuesch@freenet.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bernard,
+On Feb 24, 2006, at 06:37:21, Michael Buesch wrote:
+> I am playing around with it. I did the attached code. It is a  
+> usermode program, which tries to map NULL, and a kernel module,  
+> which calls a NULL pointer. The file badcode.bin contains an i386  
+> ud2 instruction. When loading the kernel module, while the usermode  
+> program is executing, I get the usual NULL pointer dereference oops:
 
-On Feb 25 at 12:42:51, Bernhard Rosenkraenzer wrote:
-> 
-> I've just released dvdrtools 0.3.1 
-> (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools that 
-> (as the name indicates) adds support for writing to DVD-R and DVD-RW disks 
-> using purely Free Software, that tries to do things the Linux way ("dvdrecord 
-> dev=/dev/cdrom whatever.iso") without suggesting to use 2.4 kernels or even 
-> other operating systems, uses a standard make system, is maintained in a 
-> public svn repository, and does away with a lot of the libc 
-> functionality-clones found in cdrtools.
+You need to trigger the null pointer dereference from within the  
+userspace program that maps NULL.  The reason your test doesn't do  
+anything is that it is the insmod tool whose address space gets used,  
+as opposed to your nulltest program.
 
-Good ;). This is first useful post i see since the CD recording flamewar ;).
+Cheers,
+Kyle Moffett
 
-regards,
-
--- 
-David Gómez                                      Jabber ID: davidge@jabber.org

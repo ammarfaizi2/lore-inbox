@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWBYIOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWBYIRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWBYIOb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 03:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWBYIOa
+	id S932251AbWBYIRB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 03:17:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWBYIRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 03:14:30 -0500
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:61842 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932513AbWBYIOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 03:14:30 -0500
-Date: Sat, 25 Feb 2006 03:02:42 -0500
-From: Chuck Ebbert <76306.1226@CompuServe.com>
-Subject: [patch] i386: more vsyscall documentation
-To: Andrew Morton <akpm@osdl.org>
-Cc: Albert Cahalan <acahalan@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-ID: <200602250306_MC3-1-B93A-6757@compuserve.com>
-MIME-Version: 1.0
+	Sat, 25 Feb 2006 03:17:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16107 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932251AbWBYIRA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 03:17:00 -0500
+Date: Sat, 25 Feb 2006 00:15:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: ak@suse.de, stsp@aknet.ru, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] x86: start early_printk at sensible screen row
+Message-Id: <20060225001533.3b06bbe0.akpm@osdl.org>
+In-Reply-To: <200602250243_MC3-1-B93E-1384@compuserve.com>
+References: <200602250243_MC3-1-B93E-1384@compuserve.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Document a limitation of vsyscall-sysenter, since patches to fix it
-have been rejected.
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>
+> Use boot info to start early_printk() at the proper row on VGA console.
+> 
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Define "proper".
 
---- 2.6.16-rc4-64.orig/arch/i386/kernel/vsyscall-sysenter.S
-+++ 2.6.16-rc4-64/arch/i386/kernel/vsyscall-sysenter.S
-@@ -21,6 +21,9 @@
-  * instruction clobbers %esp, the user's %esp won't even survive entry
-  * into the kernel. We store %esp in %ebp. Code in entry.S must fetch
-  * arg6 from the stack.
-+ *
-+ * You can not use this vsyscall for the clone() syscall because the
-+ * three dwords on the parent stack do not get copied to the child.
-  */
- 	.text
- 	.globl __kernel_vsyscall
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+> 
+> --- 2.6.16-rc4-mm2-64.orig/arch/x86_64/kernel/early_printk.c
+> +++ 2.6.16-rc4-mm2-64/arch/x86_64/kernel/early_printk.c
+> @@ -244,7 +244,7 @@ int __init setup_early_printk(char *opt)
+>  	           && SCREEN_INFO.orig_video_isVGA == 1) {
+>  		max_xpos = SCREEN_INFO.orig_video_cols;
+>  		max_ypos = SCREEN_INFO.orig_video_lines;
+> -		current_ypos = max_ypos;
+> +		current_ypos = SCREEN_INFO.orig_y;
+>  		early_console = &early_vga_console; 
+>   	} else if (!strncmp(buf, "simnow", 6)) {
+>   		simnow_init(buf + 6);
+
+Is that the place at which the boot loader left the cursor?
+

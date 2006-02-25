@@ -1,116 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWBYOZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWBYO03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWBYOZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 09:25:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030244AbWBYOZ6
+	id S1030244AbWBYO03 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 09:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWBYO03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 09:25:58 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:59578 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1030234AbWBYOZ6 (ORCPT
+	Sat, 25 Feb 2006 09:26:29 -0500
+Received: from mx5.mail.ru ([194.67.23.25]:18727 "EHLO mx5.mail.ru")
+	by vger.kernel.org with ESMTP id S1030244AbWBYO02 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 09:25:58 -0500
-Date: Sat, 25 Feb 2006 09:20:49 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux list <linux-kernel@vger.kernel.org>, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH] No idle HZ aka dynticks i386 for 2.6.16-rc4
-Message-ID: <20060225142049.GA17844@kvack.org>
-References: <200602251530.58797.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 25 Feb 2006 09:26:28 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: "Ghost" devices in /sys/firmware/edd
+Date: Sat, 25 Feb 2006 17:26:21 +0300
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200602242214.46290.arvidjaar@mail.ru> <20060225050745.GA4796@lists.us.dell.com>
+In-Reply-To: <20060225050745.GA4796@lists.us.dell.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602251530.58797.kernel@kolivas.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200602251726.23500.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 25, 2006 at 03:30:57PM +1100, Con Kolivas wrote:
-> +struct dyntick_timer {
-> +	spinlock_t lock;
-> +
-> +	/* dyntick init */
-> +	int (*arch_init)(void);
-> +	/* Enables dynamic tick */
-> +	int (*arch_enable)(void);
-> +	/* Disables dynamic tick */
-> +	int (*arch_disable)(void);
-> +	/* Reprograms the timer */
-> +	void (*arch_reprogram)(unsigned long);
-> +	/* Function called when all cpus are idle, passing the idle duration */
-> +	void (*arch_all_cpus_idle)(unsigned int);
-> +
-> +	unsigned short state;		/* Current state */
-> +	unsigned int min_skip;		/* Min number of ticks to skip */
-> +	unsigned int max_skip;		/* Max number of ticks to skip */
-> +	unsigned long tick;		/* The next earliest tick */
-> +};
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-If you make min_skip a short here, the structure will pack nicely and 
-save 6 bytes of padding on 64 bit machines.  Alternatively, keep it an 
-int and put it in the padding following the spinlock to save the whole 
-8 bytes.
-
-> +int dyntick_skipping(void)
-> +{
-> +	int ret = (get_cpu_var(dyn_cpu).next_tick > jiffies);
-> +
-> +	put_cpu_var(dyn_cpu);
-> +	return ret;
+On Saturday 25 February 2006 08:07, Matt Domsch wrote:
+[...]
+> The code here is fine.  Immediately before the int13 is an stc
+> instruction, so the carry flag is set.  sti and popw don't change CF.
+> What this means is that your BIOS cleared CF in the int13 to a
+> nonexistant disk, rather than setting CF (or leaving it unchanged).
+> CF being clear means the command succeeded.  In your case, the BIOS
+> cleared it, but shouldn't have.
+>
+> Care to share your system type / BIOS version, and if it's at all
+> recent, file an bug with their support department?
 >
 
-This looks wrong...  Shouldn't it be time_after()?  Otherwise it seems to 
-not work when jiffies wraps.
+This is Toshiba Portege 4000, BIOS 2.10 dated 15 Dec 2003. I'll try to find 
+how to submit a bug report but I do not hold my breath.
 
-> +int dyntick_current_skip(void)
-> +{
-> +	int ret = 0;
-> +
-> +	if (get_cpu_var(dyn_cpu).next_tick > jiffies)
-> +		ret = __get_cpu_var(dyn_cpu).skip;
-> +	put_cpu_var(dyn_cpu);
-> +	return ret;
-> +}
+[...]
+>
+> I'll look more next week, but what isn't ever happening is an int13
+> AH=15h GET DISK TYPE probe to see if the disk is there.  The edd.S
+> code just issue a READ SECTORS and expects that to fail (to set CF) if
+> it's not there.  This has been working fine for most people.  In your
+> case, it's not reporting a failure (CF is cleared by the int13).  Now,
+> there's no guarantee your BIOS would respond properly to the GET DISK
+> TYPE command either.  There are also notes that BIOS should set
+> 0040h:0075h to the number of drives present, and the code isn't
+> reading that value now either.  Either of these tests, if the BIOS
+> isn't buggy for them, could result in reporting the right number of
+> disks.
+>
 
-Ditto.
+More simple solution may be the patch below. I am not sure if INT13 succeeded 
+is always the same as status == 0; there appears to be at least one corner 
+case 11h == "data ECC corrected". 
 
+The patch fixed the issue here.
 
-> +/*
-> + * Returns the next scheduled dyntick if we are skipping ticks.
-> + */
-> +unsigned long dyntick_next_tick(void)
-> +{
-> +	unsigned long next = 0;
-> +
-> +	if (get_cpu_var(dyn_cpu).next_tick > jiffies)
-> +		next = __get_cpu_var(dyn_cpu).next_tick;
-> +	put_cpu_var(dyn_cpu);
-> +	return next;
-> +}
+regards
 
-Ditto.
+- -andrey
 
-> +/*
-> + * dyn_early_reprogram is used to reprogram an earlier tick than is currently
-> + * set by timer_dyn_reprogram.
-> + * dyn_early_reprogram allows other code such as the acpi idle code to
-> + * program an earlier tick than the one already chosen by timer_dyn_reprogram.
-> + * It only reprograms it if the tick is earlier than the next one planned.
-> + */
-> +void dyn_early_reprogram(unsigned int delta)
-> +{
-> +	unsigned long flags, tick = jiffies + delta;
-> +
-> +	if (tick >= get_cpu_var(dyn_cpu).next_tick &&
-> +		__get_cpu_var(dyn_cpu).next_tick > jiffies)
-> +			goto put_out;
+Subject: [PATCH] Fix EDD to properly ignore signature of non-existing drives
 
-Ditto.
+From: Andrey Borzenkov <arvidjaar@mail.ru>
 
-The SMP case requires a bit more thorough reading...  It seems there 
-are a few places that call test_nohz_cpu() without taking the spinlock.  
-That could be the race causing missed ticks on smp.  Cheers,
+Some BIOSes do not always set CF on error before return from int13.
+The patch adds additional check for status being zero (AH == 0).
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
+
+- ---
+
+ arch/i386/boot/edd.S |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/arch/i386/boot/edd.S b/arch/i386/boot/edd.S
+index d8d69f2..4b84ea2 100644
+- --- a/arch/i386/boot/edd.S
++++ b/arch/i386/boot/edd.S
+@@ -76,6 +76,8 @@ edd_mbr_sig_read:
+ 	popw	%es
+ 	popw	%bx
+ 	jc	edd_mbr_sig_done		# on failure, we're done.
++	cmpb	$0, %ah		# some BIOSes do not set CF
++	jne	edd_mbr_sig_done		# on failure, we're done.
+ 	movl	(EDDBUF+EDD_MBR_SIG_OFFSET), %eax # read sig out of the MBR
+ 	movl	%eax, (%bx)			# store success
+ 	incb	(EDD_MBR_SIG_NR_BUF)		# note that we stored something
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQFEAGkPR6LMutpd94wRAocYAJ4mRhgW0UOoK2+0bfQsh0+s1nUyIgCdGRrF
+UCJpkIEPVEuUE2Gnfe7mG/Q=
+=ij5i
+-----END PGP SIGNATURE-----

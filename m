@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWBYAG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWBYAIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWBYAG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 19:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWBYAG0
+	id S964812AbWBYAIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 19:08:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWBYAIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 19:06:26 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52864 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964810AbWBYAG0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 19:06:26 -0500
-Date: Sat, 25 Feb 2006 00:40:50 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-Subject: My machine is cursed: no sound. Help! [was Re: es1371 sound problems]
-Message-ID: <20060224234050.GA1644@elf.ucw.cz>
-References: <20060223205309.GA2045@elf.ucw.cz> <s5h1wxtdmri.wl%tiwai@suse.de> <20060224161631.GB1925@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060224161631.GB1925@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 24 Feb 2006 19:08:25 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:10410 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S964812AbWBYAIY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 19:08:24 -0500
+Message-ID: <43FF9FEA.6030902@BitWagon.com>
+Date: Fri, 24 Feb 2006 16:08:10 -0800
+From: John Reiser <jreiser@BitWagon.com>
+Organization: -
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniele Venzano <venza@brownhat.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] Add Wake on LAN support to sis900 (2)
+References: <200601050223.k052Ngu2003866@hera.kernel.org> <20060224025759.GA14027@redhat.com> <5698750A-4231-4500-B060-B06165E5C0FD@brownhat.org>
+In-Reply-To: <5698750A-4231-4500-B060-B06165E5C0FD@brownhat.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Daniele Venzano wrote:
+> Attached you find the patch that fixes two bugs in the WoL 
+> implementation of sis900. The first causes hangs on some system on 
+> driver load, the second causes troubles when disabling WoL support. 
+> Both fixes are one liner and really simple. Patch is against latest 
+> netdev-2.6 tree.
 
-> > I've seen similar messages in some reports but haven't figured out the
-> > cause yet.
-> > 
-> > To be sure, could you check the patch below, making the wait time in
-> > codec acceessor longer?
-> > Also, try to build ens1371 driver as a module.
-> 
-> Tried that... only msleep() hunks did apply, but that should be only
-> more conservative, AFAICT. It took looong time to boot (my fault,
-> should have used 50, not 0xa000 or how much is that), but same result
-> as before. I tried loading it as a module, but same problem :-(.
+Thank you for your prompt attention.  The patch works for me
+(my SiS 730 board now boots again) when applied to Fedora Core
+kernel-2.6.15-1.1977_FC5 which claims to be 2.6.16rc4-git6
+of 2006-02-23.
 
-I guess my machine is cursed. emu10k does not work -- produces no
-sound. ens1371 does not work -- is not initialized. usb sound card --
-produces no sound.
-
-Now, I tried to break the curse by connecting usb sound card to
-another machine... but guess what, still no sound. Connected to second
-machine:
-
-root@amd:~# cat /proc/asound/cards
- 0 [I82801DBICH4   ]: ICH4 - Intel 82801DB-ICH4
-                      Intel 82801DB-ICH4 with AD1981B at 0xc0000c00, irq 5
- 1 [U0x4fa0x4201   ]: USB-Audio - USB Device 0x4fa:0x4201
-                      USB Device 0x4fa:0x4201 at usb-0000:00:1d.1-2, full speed
-root@amd:~#
-
-(usb soundcard clicks when I launch mpg123, but that's it.)
-
-Any ideas?
-								Pavel
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

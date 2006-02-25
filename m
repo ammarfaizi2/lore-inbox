@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWBYWBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWBYWBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWBYWBd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 17:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWBYWBd
+	id S932089AbWBYWBv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 17:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWBYWBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 17:01:33 -0500
-Received: from ns2.suse.de ([195.135.220.15]:45212 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750728AbWBYWBc (ORCPT
+	Sat, 25 Feb 2006 17:01:51 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:55444 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932089AbWBYWBu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 17:01:32 -0500
-Date: Sat, 25 Feb 2006 23:01:30 +0100
-From: Olaf Hering <olh@suse.de>
-To: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cramfs mounts provide corrupted content since 2.6.15
-Message-ID: <20060225220130.GA2748@suse.de>
-References: <20060225110844.GA18221@suse.de> <20060225125551.GA21203@suse.de> <17408.34808.422077.518881@zeus.sw.starentnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <17408.34808.422077.518881@zeus.sw.starentnetworks.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sat, 25 Feb 2006 17:01:50 -0500
+Date: Sat, 25 Feb 2006 23:01:03 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] make INPUT a bool
+In-Reply-To: <20060225154028.GU3674@stusta.de>
+Message-ID: <Pine.LNX.4.61.0602252300200.7535@yvahk01.tjqt.qr>
+References: <20060217163802.GI4422@stusta.de> <93564eb70602191933x2a20ce0m@mail.gmail.com>
+ <20060220132832.GF4971@stusta.de> <20060222013410.GH20204@MAIL.13thfloor.at>
+ <20060222023121.GB4661@stusta.de> <Pine.LNX.4.62.0602251255110.18095@pademelon.sonytel.be>
+ <20060225124606.GI3674@stusta.de> <Pine.LNX.4.61.0602251521300.31692@yvahk01.tjqt.qr>
+ <20060225145049.GQ3674@stusta.de> <Pine.LNX.4.61.0602251628050.13355@yvahk01.tjqt.qr>
+ <20060225154028.GU3674@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sat, Feb 25, Dave Johnson wrote:
-
-> Looking at your output it's definitely getting inodes confused with
-> each other so the checks in cramfs_iget5_test() aren't working.
-> 
-> Can you stat the files in question to make sure they are actually
-> inode #1 on a working as well as non-working kernel?  If your mkcramfs
-> isn't using #1 for empty files/links/dirs that'd be the problem.
-
-Another try, and different results again:
-
-./etc/nsswitch.conf: FAILED
-./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Data/Dumper/Dumper.so: FAILED
-./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Fcntl/Fcntl.so: FAILED
-./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/IO/IO.so: FAILED
-./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/POSIX/POSIX.so: FAILED
-./usr/lib/perl5/5.8.8/ppc-linux-thread-multi-64int/auto/Sys/Hostname/Hostname.so: FAILED
-./usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Compress/Zlib/Zlib.so: FAILED
-./usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.so: FAILED
-
-inode numbers match in both cases, just the filesize is zero and they have only one block.
+>> >> You said that INPUT was not a driver, right. But without it, a keyboard 
+>> >> won't work, will it?
+>> >
+>> >Yes, you do need INPUT for a keyboard.
+>> >No, INPUT alone does not support any hardware - that's the job of the 
+>> >drivers depending on INPUT.
+>> >No, I don't understand what your question wants to achieve.
+>> 
+>> Let's look at another subsystem:
+>> "Yes, you do need SND for a soundcard."
+>> "No, SND alone does not support any hardware - that's the job of the drivers
+>> depending on SND."
+>> Should SND also be made a bool like INPUT?
+>
+>No, SND=m is also possible in the EMBEDDED=n case.
+>
+This example was to show that INPUT should not be y-only. Except if you plan to
+make SND y-only too.
 
 
-  File: `./usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.so'
-  Size: 0               Blocks: 1          IO Block: 4096   regular empty file
-Device: 701h/1793d      Inode: 53053956    Links: 1
-Access: (0444/-r--r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 1970-01-01 01:00:00.000000000 +0100
-Modify: 1970-01-01 01:00:00.000000000 +0100
-Change: 1970-01-01 01:00:00.000000000 +0100
-
-  File: `./usr/lib/perl5/vendor_perl/5.8.8/ppc-linux-thread-multi-64int/auto/Locale/gettext/gettext.so'
-  Size: 24004           Blocks: 47         IO Block: 4096   regular file
-Device: 702h/1794d      Inode: 53053956    Links: 1
-Access: (0555/-r-xr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 1970-01-01 01:00:00.000000000 +0100
-Modify: 1970-01-01 01:00:00.000000000 +0100
-Change: 1970-01-01 01:00:00.000000000 +0100
-
-
-./var/spool/locks turned into a file:
-
-  File: `./var/spool/locks'
-  Size: 0               Blocks: 1          IO Block: 4096   regular empty file
-Device: 701h/1793d      Inode: 85741484    Links: 1
-Access: (0600/-rw-------)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 1970-01-01 01:00:00.000000000 +0100
-Modify: 1970-01-01 01:00:00.000000000 +0100
-Change: 1970-01-01 01:00:00.000000000 +0100
-
-  File: `./var/spool/locks' -> `../lock'
-  Size: 7               Blocks: 1          IO Block: 4096   symbolic link
-Device: 702h/1794d      Inode: 85741484    Links: 1
-Access: (0777/lrwxrwxrwx)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 1970-01-01 01:00:00.000000000 +0100
-Modify: 1970-01-01 01:00:00.000000000 +0100
-Change: 1970-01-01 01:00:00.000000000 +0100
-
+Jan Engelhardt
+-- 

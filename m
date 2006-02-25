@@ -1,55 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWBYCLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWBYCQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWBYCLz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 21:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWBYCLz
+	id S964856AbWBYCQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 21:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964859AbWBYCQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 21:11:55 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:61932 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S964852AbWBYCLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 21:11:54 -0500
-Date: Sat, 25 Feb 2006 03:11:52 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch to reorder functions in the vmlinux to a defined order
-Message-ID: <20060225021152.GI1637@vanheusden.com>
-References: <1140700758.4672.51.camel@laptopd505.fenrus.org>
-	<43FF26A8.9070600@keyaccess.nl>
-	<m17j7kda52.fsf@ebiederm.dsl.xmission.com>
-	<200602241748.39949.ak@suse.de>
-	<m1wtfkbihh.fsf@ebiederm.dsl.xmission.com>
+	Fri, 24 Feb 2006 21:16:24 -0500
+Received: from mail.gmx.net ([213.165.64.20]:55704 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964856AbWBYCQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 21:16:23 -0500
+X-Authenticated: #14349625
+Subject: Re: [patch 2.6.16-rc4-mm1]  Task Throttling V14
+From: MIke Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       kernel@kolivas.org, nickpiggin@yahoo.com.au,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+In-Reply-To: <43FFAFE9.8000206@bigpond.net.au>
+References: <1140183903.14128.77.camel@homer>
+	 <1140812981.8713.35.camel@homer> <20060224141505.41b1a627.akpm@osdl.org>
+	 <43FFAFE9.8000206@bigpond.net.au>
+Content-Type: text/plain
+Date: Sat, 25 Feb 2006 03:20:02 +0100
+Message-Id: <1140834002.7641.20.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1wtfkbihh.fsf@ebiederm.dsl.xmission.com>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Sat Feb 25 22:28:47 CET 2006
-X-Message-Flag: Want to extend your PGP web-of-trust? Coordinate a key-signing
-	at www.biglumber.com
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What about shuffeling the pages at runtime? Or are cachelines wired to
-physical pages?
+On Sat, 2006-02-25 at 12:16 +1100, Peter Williams wrote:
+> Andrew Morton wrote:
+> > MIke Galbraith <efault@gmx.de> wrote:
+> > 
+> >>Not many comments came back, zero actually.
+> >>
+> > 
+> > 
+> > That's because everyone's terribly busy chasing down those final bugs so we
+> > get a really great 2.6.16 release (heh, I kill me).
+> > 
+> > I'm a bit reluctant to add changes like this until we get the smpnice stuff
+> > settled down and validated.  I guess that means once Ken's run all his
+> > performance tests across it.
+> > 
+> > Of course, if Ken does his testing with just mainline+smpnice then any
+> > coupling becomes less of a problem.  But I would like to see some feedback
+> > from the other sched developers first.
+> 
+> Personally, I'd rather see PlugSched merged in and this patch be used to 
+> create a new scheduler inside PlugSched.  But I'm biased :-)
+> 
+> As I see it, the problem that this patch is addressing is caused by the 
+> fact that the current scheduler is overly complicated.  This patch just 
+> makes it more complicated.
 
-If not: group pages (even system-wide?) which are used most frequented.
-Maybe with help from a userspace tool?
+What's complicated about the scheduler?  I see simple/elegant when I
+look in there.  Interaction with the user is complex, but interactive
+feel is a nebulous thing not restricted to this scheduler.
 
+I really don't think this patch adds complexity, quite the opposite
+actually.  It just does a small bit of tweaking to the scheduler's weak
+spot, and adds a dirt simple barrier against starvation.  IMO, this
+scheduler is not only quite simple, it's one weakness is generally
+wonderful for throughput.  It's just that it's sometimes a bit _too_
+wonderful ;-)
 
-Folkert van Heusden
+	-Mike
 
--- 
-iPod winnen? --> http://keetweej.vanheusden.com/redir.php?id=62
---------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

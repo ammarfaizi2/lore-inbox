@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWBYAIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWBYAJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWBYAIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Feb 2006 19:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWBYAIZ
+	id S964815AbWBYAJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Feb 2006 19:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWBYAJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Feb 2006 19:08:25 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:10410 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S964812AbWBYAIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Feb 2006 19:08:24 -0500
-Message-ID: <43FF9FEA.6030902@BitWagon.com>
-Date: Fri, 24 Feb 2006 16:08:10 -0800
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 24 Feb 2006 19:09:58 -0500
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:6792 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964815AbWBYAJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Feb 2006 19:09:58 -0500
+Date: Fri, 24 Feb 2006 19:07:00 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] x86: clean up early_printk output
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200602241909_MC3-1-B93E-25B@compuserve.com>
 MIME-Version: 1.0
-To: Daniele Venzano <venza@brownhat.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] Add Wake on LAN support to sis900 (2)
-References: <200601050223.k052Ngu2003866@hera.kernel.org> <20060224025759.GA14027@redhat.com> <5698750A-4231-4500-B060-B06165E5C0FD@brownhat.org>
-In-Reply-To: <5698750A-4231-4500-B060-B06165E5C0FD@brownhat.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniele Venzano wrote:
-> Attached you find the patch that fixes two bugs in the WoL 
-> implementation of sis900. The first causes hangs on some system on 
-> driver load, the second causes troubles when disabling WoL support. 
-> Both fixes are one liner and really simple. Patch is against latest 
-> netdev-2.6 tree.
+early_printk() starts output on the second screen line and doesn't
+clear the rest of the line when it hits a newline char.  When there
+is already a BIOS message there, it becomes hard to read.  Change
+this so it starts on the first line and clears to EOL upon hitting
+newline.
 
-Thank you for your prompt attention.  The patch works for me
-(my SiS 730 board now boots again) when applied to Fedora Core
-kernel-2.6.15-1.1977_FC5 which claims to be 2.6.16rc4-git6
-of 2006-02-23.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
+--- 2.6.16-rc4-64.orig/arch/x86_64/kernel/early_printk.c
++++ 2.6.16-rc4-64/arch/x86_64/kernel/early_printk.c
+@@ -21,7 +21,15 @@
+ #define MAX_XPOS	max_xpos
+ 
+ static int max_ypos = 25, max_xpos = 80;
+-static int current_ypos = 1, current_xpos = 0; 
++static int current_ypos, current_xpos; /* 0,0 */
++
++static noinline void clear_to_eol(int xpos, int ypos)
++{
++	int i;
++
++	for (i = xpos; i < MAX_XPOS; i++)
++		writew(0x720, VGABASE + 2*(MAX_XPOS*ypos + i));
++}
+ 
+ static void early_vga_write(struct console *con, const char *str, unsigned n)
+ {
+@@ -37,11 +45,11 @@ static void early_vga_write(struct conso
+ 					       VGABASE + 2*(MAX_XPOS*j + i));
+ 				}
+ 			}
+-			for (i = 0; i < MAX_XPOS; i++)
+-				writew(0x720, VGABASE + 2*(MAX_XPOS*j + i));
++			clear_to_eol(0, j);
+ 			current_ypos = MAX_YPOS-1;
+ 		}
+ 		if (c == '\n') {
++			clear_to_eol(current_xpos, current_ypos);
+ 			current_xpos = 0;
+ 			current_ypos++;
+ 		} else if (c != '\r')  {
 -- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161044AbWBYSZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWBYS2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161044AbWBYSZs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 13:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161045AbWBYSZs
+	id S1161045AbWBYS2O (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 13:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161047AbWBYS2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 13:25:48 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:17612 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1161044AbWBYSZs (ORCPT
+	Sat, 25 Feb 2006 13:28:14 -0500
+Received: from rtr.ca ([64.26.128.89]:35504 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1161045AbWBYS2O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 13:25:48 -0500
-In-Reply-To: <200602241237.21628.mbuesch@freenet.de>
-References: <Pine.LNX.4.61.0602221504120.11432@yvahk01.tjqt.qr> <200602241237.21628.mbuesch@freenet.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <BE7AD56A-27CA-465C-A4C6-774E8C074EF0@mac.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 25 Feb 2006 13:28:14 -0500
+Message-ID: <4400A1BF.7020109@rtr.ca>
+Date: Sat, 25 Feb 2006 13:28:15 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Mark Lord <lkml@rtr.ca>, David Greaves <david@dgreaves.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>
+In-Reply-To: <Pine.LNX.4.64.0602251244070.20297@p34>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Mapping to 0x0
-Date: Sat, 25 Feb 2006 13:25:33 -0500
-To: Michael Buesch <mbuesch@freenet.de>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 24, 2006, at 06:37:21, Michael Buesch wrote:
-> I am playing around with it. I did the attached code. It is a  
-> usermode program, which tries to map NULL, and a kernel module,  
-> which calls a NULL pointer. The file badcode.bin contains an i386  
-> ud2 instruction. When loading the kernel module, while the usermode  
-> program is executing, I get the usual NULL pointer dereference oops:
+Justin Piszcz wrote:
+> Second patch fails for me.
+..
+> Should I be using 2.6.16-rcX?
 
-You need to trigger the null pointer dereference from within the  
-userspace program that maps NULL.  The reason your test doesn't do  
-anything is that it is the insmod tool whose address space gets used,  
-as opposed to your nulltest program.
+Mmm... that's what I'm using (plus other patches),
+so, yes.. give that a try.  2.6.16 does seem to
+be shaping up to be a nice kernel.
 
-Cheers,
-Kyle Moffett
-
+Cheers

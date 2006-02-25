@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWBYQzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWBYRLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWBYQzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 11:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWBYQzA
+	id S932489AbWBYRLt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 12:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWBYRLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 11:55:00 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:65222 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S932154AbWBYQzA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 11:55:00 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 25 Feb 2006 12:11:49 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:46309 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932489AbWBYRLs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 12:11:48 -0500
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060225142814.GB17844@kvack.org>
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	 <20060225142814.GB17844@kvack.org>
+Content-Type: text/plain
+Date: Sat, 25 Feb 2006 09:11:57 -0800
+Message-Id: <1140887517.9852.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17408.35811.419079.574238@gargle.gargle.HOWL>
-Date: Sat, 25 Feb 2006 19:54:59 +0300
-To: Steven Whitehouse <swhiteho@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GFS2 Filesystem [14/16]
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <1140793580.6400.736.camel@quoit.chygwyn.com>
-References: <1140793580.6400.736.camel@quoit.chygwyn.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Whitehouse writes:
- > [PATCH 14/16] GFS2: 
- > 
+On Sat, 2006-02-25 at 09:28 -0500, Benjamin LaHaise wrote:
 
-[...]
+> sfence has no impact 
+> on the flushing of the write combining buffers
 
- > +
- > +int gdlm_kobject_setup(struct gdlm_ls *ls, struct kobject *fskobj)
- > +{
- > +	int error;
- > +
- > +	error = kobject_set_name(&ls->kobj, "%s", "lock_module");
- > +	if (error) {
- > +		log_error("can't set kobj name %d", error);
- > +		return error;
- > +	}
- > +
- > +	ls->kobj.kset = &gdlm_kset;
- > +	ls->kobj.ktype = &gdlm_ktype;
- > +	ls->kobj.parent = fskobj;
- > +
- > +	error = kobject_register(&ls->kobj);
+The sfence instruction guarantees that every store that precedes it in
+program order is globally visible, including over the likes of the PCI
+bus, before any store instruction that follows the fence.
 
-What prevents races between file system umount (and file system module
-unloading) and invocations of ->show/->store? This used to be a
-show-stopper for exporting file system attributes in sysfs.
+	<b
 
-Nikita.

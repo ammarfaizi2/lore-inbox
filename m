@@ -1,135 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWBYPNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWBYPVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWBYPNy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 10:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWBYPNy
+	id S1161001AbWBYPVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 10:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161005AbWBYPVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 10:13:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29958 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030268AbWBYPNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 10:13:53 -0500
-Date: Sat, 25 Feb 2006 16:13:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Yu, Luming" <luming.yu@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org
-Subject: [RFC: 2.6.16 patch] drivers/acpi/ec.c: default to polling mode for 2.6.16
-Message-ID: <20060225151351.GR3674@stusta.de>
-References: <3ACA40606221794F80A5670F0AF15F840B020D85@pdsmsx403> <20060222122317.GF4661@stusta.de>
+	Sat, 25 Feb 2006 10:21:51 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25011 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161001AbWBYPVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 10:21:50 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/23] proc cleanup.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+	<20060225042757.1442ee2c.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 25 Feb 2006 08:20:32 -0700
+In-Reply-To: <20060225042757.1442ee2c.akpm@osdl.org> (Andrew Morton's
+ message of "Sat, 25 Feb 2006 04:27:57 -0800")
+Message-ID: <m13bi731of.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222122317.GF4661@stusta.de>
-User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 01:23:17PM +0100, Adrian Bunk wrote:
-> On Wed, Feb 22, 2006 at 02:55:10PM +0800, Yu, Luming wrote:
-> > > >Subject    : S3 sleep hangs the second time - 600X
-> > >> >References : http://bugzilla.kernel.org/show_bug.cgi?id=5989
-> > >> >Submitter  : Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-> > >> >Status     : problematic commit identified,
-> > >> >             further discussion is in the bug
-> > >> 
-> > >> The real problem is there are some bugs hidden by ec_intr=0.
-> > >> ec_intr=1 just get these bug  just exposed, and we need to fix them. 
-> > >
-> > >From a users' point of view, these are regressions from 
-> > >2.6.15, and not 
-> > >all of them might be fixed in time for 2.6.16.
-> > >
-> > >What is a possible short term solution/workaround for 2.6.16?
-> > 
-> > ec_intr=0 is a reasonable workaround for this box,
-> > if we couldn't root-cause and fix the real problem on time.
-> > 
-> > >Can we go back to default to polling mode in 2.6.16?
-> > 
-> > No, don't do this.  There are other laptops need this. And I didn't
-> > get regression report that is root-caused to enabling ec_intr=1 by
-> > default. If you argue bug 5989, 6075 could be,  I think
-> > the truth is, for 5989, we need to fix thermal and processor driver
-> > issue.
-> 
-> We do both agree that defaulting to polling mode is not a long term 
-> solution.
-> 
-> The question is what to do until it's resolved - assuming that issues 
-> like 5989 might not be fixed in time for 2.6.16.
-> 
-> Breaking setups working with the defaults under 2.6.15 in 2.6.16 doesn't 
-> sound that good.
-> 
-> > for 6075, we need to fix interrupt issue.
-> 
-> As far as I understand 6075, the submitter already tried ec_intr=0 
-> without success.
->...
+Andrew Morton <akpm@osdl.org> writes:
 
-Let me suggest the following patch for going back to default to polling 
-mode in 2.6.16.
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+>>
+>> When working on pid namespaces I keep tripping over /proc.
+>>  It's hard coded inode numbers and the amount of cruft
+>>  accumulated over the years makes it hard to deal with.
+>> 
+>>  So to put /proc out of my misery here is a series of patches that
+>>  removes the worst of the warts.
+>
+> An additional 2.7k of vmlinux.  A shame.
 
-The idea is to get this patch into 2.6.16, immediately revert it in 
-Len's ACPI tree, and properly fix all issues before 2.6.17.
+Looks like that at least is compiler dependent, with gcc-3.3.5 I get:
 
-This way, there will be less regressions when the changed default is in 
-a stable kernel.
+   text    data     bss     dec     hex filename
+2601428  502342  226092 3329862  32cf46 ../linux-2.6-ns-mirror-build1/vmlinux
+2602548  502494  226092 3331134  32d43e ../linux-2.6-ns-mirror-build2/vmlinux
 
-cu
-Adrian
+So it looks like 1K of test and about 100 bytes of data.
 
+Investigating this quickly.  Because of the refactoring it
+is hard to pin this down to any major culprit.  But that is
+also good news in that it doesn't look like an inline function
+is responsible for this growth :)
 
-<--  snip  -->
+It looks like the culprit for small amounts of growth is
+the work to see if a task still exists, and other similar
+checks that were needed but missing.
 
+For the big chunks it looks like the work to populate the
+dcache during readdir, which keeps the inode numbers in
+sync and should help readdir+stat performance.
 
-The changed default seems to cause regressions (see 
-http://bugzilla.kernel.org/show_bug.cgi?id=5989).
+The other big culprit is proc_flush_task which is both
+more comprehensive and simpler that proc_pid_flush+proc_pid_unhash=107+28.
+But unfortunately that has made it a lot bigger.
 
-Let's change the default back to polling mode for one more stable 
-kernel.
+So short of getting better dcache helpers for the case
+where readdir populates the dcache it doesn't look the code
+size will come down much.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+The one practical thing that will help a little is that it
+looks like with just a little more work we can replace
+all of read_lock(&tasklist_lock) with rcu_read_lock().
 
----
+add/remove: 33/23 grow/shrink: 28/16 up/down: 4968/-3619 (1349)
+function                                     old     new   delta
+proc_flush_task                                -     605    +605
+proc_check_dentry_visible                      -     325    +325
+proc_fill_cache                                -     256    +256
+proc_fd_instantiate                            -     243    +243
+tref_get_by_task                               -     200    +200
+first_tid                                      -     179    +179
+tgid_base_stuff                              336     504    +168
+tid_base_stuff                               320     480    +160
+first_tgid                                     -     159    +159
+proc_pident_instantiate                        -     158    +158
+proc_task_instantiate                          -     128    +128
+proc_pid_instantiate                           -     128    +128
+attr_dir_stuff                                 -     120    +120
+proc_attr_dir_operations                       -     108    +108
+tref_get_by_pid                                -     107    +107
+proc_task_getattr                              -     105    +105
+next_tid                                       -     100    +100
+next_tgid                                      -      89     +89
+tref_put                                       -      87     +87
+proc_attr_dir_inode_operations                 -      84     +84
+do_maps_open                                   -      80     +80
+proc_fd_fill_cache                             -      63     +63
+proc_task_fill_cache                           -      60     +60
+proc_pid_fill_cache                            -      60     +60
+__detach_pid                                 136     195     +59
+proc_info_read                               111     164     +53
+oom_adjust_read                              162     215     +53
+proc_get_sb                                   26      78     +52
+seccomp_write                                168     218     +50
+seccomp_read                                 164     214     +50
+oom_adjust_write                             164     214     +50
+proc_pid_attr_read                           124     172     +48
+proc_base_stuff                                -      48     +48
+proc_pid_attr_write                          148     194     +46
+proc_fd_link                                 122     168     +46
+proc_exe_link                                152     198     +46
+mounts_open                                  157     200     +43
+proc_root_link                                99     141     +42
+proc_cwd_link                                 99     141     +42
+tid_fd_revalidate                            207     247     +40
+proc_pident_fill_cache                         -      40     +40
+get_tref_task                                  -      33     +33
+dup_task_struct                              137     170     +33
+m_stop                                        59      88     +29
+m_start                                      235     264     +29
+tref_reset                                     -      28     +28
+proc_attr_dir_readdir                          -      28     +28
+proc_pident_readdir                          270     296     +26
+proc_attr_dir_lookup                           -      22     +22
+tref_set                                       -      21     +21
+tref_fini                                      -      21     +21
+tref_init                                      -      18     +18
+proc_pid_follow_link                          98     116     +18
+init_tref                                      -      16     +16
+init_task                                   1328    1344     +16
+pid_revalidate                               178     192     +14
+attach_pid                                   149     162     +13
+tref_get                                       -       8      +8
+mem_read                                     430     438      +8
+proc_alloc_inode                              98     102      +4
+proc_task_readdir                            320     323      +3
+pid_delete_dentry                             24      21      -3
+m_next                                        70      61      -9
+proc_readfd                                  327     307     -20
+copy_process                                3190    3170     -20
+smaps_open                                    43      22     -21
+maps_open                                     43      22     -21
+proc_tid_attr_lookup                          22       -     -22
+proc_tgid_attr_lookup                         22       -     -22
+proc_delete_inode                            129     105     -24
+pid_base_dentry_operations                    24       -     -24
+proc_tid_attr_readdir                         28       -     -28
+proc_tgid_attr_readdir                        28       -     -28
+proc_pid_flush                                28       -     -28
+release_task                                 257     228     -29
+proc_permission                               38       -     -38
+proc_pid_make_inode                          205     166     -39
+unhash_process                                73      33     -40
+de_thread                                   1310    1266     -44
+proc_check_root                               55       -     -55
+proc_task_lookup                             244     188     -56
+pid_base_iput                                 62       -     -62
+proc_pid_readdir                             303     229     -74
+tid_attr_stuff                                80       -     -80
+tgid_attr_stuff                               80       -     -80
+proc_task_permission                          82       -     -82
+proc_tid_attr_inode_operations                84       -     -84
+proc_tgid_attr_inode_operations               84       -     -84
+proc_mem_inode_operations                     84       -     -84
+get_tid_list                                  97       -     -97
+proc_pid_unhash                              107       -    -107
+proc_tid_attr_operations                     108       -    -108
+proc_tgid_attr_operations                    108       -    -108
+proc_lookupfd                                240      99    -141
+get_tgid_list                                146       -    -146
+proc_task_root_link                          218       -    -218
+proc_check_chroot                            245       -    -245
+switch_exec_pids                             290       -    -290
+proc_pid_lookup                              503     145    -358
+proc_pident_lookup                           742     142    -600
 
- Documentation/kernel-parameters.txt |    4 ++--
- drivers/acpi/ec.c                   |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
---- linux-2.6.16-rc4-mm2-full/Documentation/kernel-parameters.txt.old	2006-02-25 16:01:51.000000000 +0100
-+++ linux-2.6.16-rc4-mm2-full/Documentation/kernel-parameters.txt	2006-02-25 16:02:04.000000000 +0100
-@@ -460,8 +460,8 @@
- 
- 	ec_intr=	[HW,ACPI] ACPI Embedded Controller interrupt mode
- 			Format: <int>
--			0: polling mode
--			non-0: interrupt mode (default)
-+			0: polling mode (default)
-+			non-0: interrupt mode
- 
- 	eda=		[HW,PS2]
- 
---- linux-2.6.16-rc4-mm2-full/drivers/acpi/ec.c.old	2006-02-25 16:00:22.000000000 +0100
-+++ linux-2.6.16-rc4-mm2-full/drivers/acpi/ec.c	2006-02-25 16:01:24.000000000 +0100
-@@ -73,7 +73,7 @@
- 	.class = ACPI_EC_CLASS,
- 	.ids = ACPI_EC_HID,
- 	.ops = {
--		.add = acpi_ec_intr_add,
-+		.add = acpi_ec_poll_add,
- 		.remove = acpi_ec_remove,
- 		.start = acpi_ec_start,
- 		.stop = acpi_ec_stop,
-@@ -147,7 +147,7 @@
- 
- /* External interfaces use first EC only, so remember */
- static struct acpi_device *first_ec;
--static int acpi_ec_poll_mode = EC_INTR;
-+static int acpi_ec_poll_mode = EC_POLL;
- 
- /* --------------------------------------------------------------------------
-                              Transaction Management
+Eric

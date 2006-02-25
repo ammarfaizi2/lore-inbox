@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWBYMF5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWBYMGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWBYMF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 07:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWBYMF5
+	id S932279AbWBYMGu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 07:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWBYMGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 07:05:57 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:47761 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S932241AbWBYMF4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 07:05:56 -0500
-Date: Sat, 25 Feb 2006 12:58:01 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] make INPUT a bool
-In-Reply-To: <20060222023121.GB4661@stusta.de>
-Message-ID: <Pine.LNX.4.62.0602251255110.18095@pademelon.sonytel.be>
-References: <20060214152218.GI10701@stusta.de> <Pine.LNX.4.61.0602141912580.32490@yvahk01.tjqt.qr>
- <20060214182238.GB3513@stusta.de> <Pine.LNX.4.61.0602171655530.27452@yvahk01.tjqt.qr>
- <20060217163802.GI4422@stusta.de> <93564eb70602191933x2a20ce0m@mail.gmail.com>
- <20060220132832.GF4971@stusta.de> <20060222013410.GH20204@MAIL.13thfloor.at>
- <20060222023121.GB4661@stusta.de>
+	Sat, 25 Feb 2006 07:06:50 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:48078 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932279AbWBYMGt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 07:06:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o4rDvUSQTCjZhvWn2cNz/3AmD4cR2hLxXlYjMkOCGwi4ibzeiawCjkwn5yFod/0v+EjJGzkwWEa+4Xdc2pVXic84CXBwWKsdhmDsgvt9wXKriG+BhTibdhX/8GQtt8BuVjn44s4wtuJ1NDy7wkwE2O9IgsMsYev0+2O2Vgw1+ho=
+Message-ID: <84144f020602250406v7295b185i5035baf217faec58@mail.gmail.com>
+Date: Sat, 25 Feb 2006 14:06:48 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Steven Whitehouse" <swhiteho@redhat.com>
+Subject: Re: GFS2 Filesystem [15/16]
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1140793662.6400.738.camel@quoit.chygwyn.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1140793662.6400.738.camel@quoit.chygwyn.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Feb 2006, Adrian Bunk wrote:
-> On Wed, Feb 22, 2006 at 02:34:11AM +0100, Herbert Poetzl wrote:
-> > On Mon, Feb 20, 2006 at 02:28:32PM +0100, Adrian Bunk wrote:
-> > > On Mon, Feb 20, 2006 at 12:33:55PM +0900, Samuel Masham wrote:
-> That's not a good solution since EMBEDDED is really only about 
-> additional space savings - even if you are an "expert", there's no 
-> reason to enable EMBEDDED when building a kernel for systems 
-> with > 50 MB RAM.
+On 2/24/06, Steven Whitehouse <swhiteho@redhat.com> wrote:
+> +       nl = kmalloc(sizeof(struct nolock_lockspace), GFP_KERNEL);
+> +       if (!nl)
+> +               return -ENOMEM;
+> +
+> +       memset(nl, 0, sizeof(struct nolock_lockspace));
 
-and
+kzalloc, please.
 
-On Fri, 17 Feb 2006, Adrian Bunk wrote:
-> And I've already given numbers why CONFIG_EMBEDDED=y and
-> CONFIG_MODULES=y at the same time is insane.
+> +       *lvbp = kmalloc(nl->nl_lvb_size, GFP_KERNEL);
+> +       if (*lvbp)
+> +               memset(*lvbp, 0, nl->nl_lvb_size);
+> +       else
+> +               error = -ENOMEM;
 
-But if my m68k box has less than 47.68 MiB RAM, I may want CONFIG_EMBEDDED=y,
-and I like to have CONFIG_MODULES=y...
+Likewise.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+                                   Pekka

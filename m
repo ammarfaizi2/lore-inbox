@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWBZSMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWBZSNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWBZSMW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 13:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWBZSMW
+	id S1751028AbWBZSNk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 13:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWBZSNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 13:12:22 -0500
-Received: from natsluvver.rzone.de ([81.169.145.176]:3308 "EHLO
-	natsluvver.rzone.de") by vger.kernel.org with ESMTP
-	id S1751380AbWBZSMV convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 13:12:21 -0500
-From: Wolfgang Hoffmann <woho@woho.de>
-Reply-To: woho@woho.de
-To: pomac@vapor.com
-Subject: Re: [PATCH] Revert sky2 to 0.13a
-Date: Sun, 26 Feb 2006 19:13:36 +0100
-User-Agent: KMail/1.8
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       Pavel Volkovitskiy <int@mtx.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4400FC28.1060705@gmx.net> <200602260957.04305.woho@woho.de> <1140966011.22812.2.camel@localhost>
-In-Reply-To: <1140966011.22812.2.camel@localhost>
+	Sun, 26 Feb 2006 13:13:40 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18191 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751028AbWBZSNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 13:13:39 -0500
+Date: Sun, 26 Feb 2006 19:13:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6 patch] make INPUT a bool
+Message-ID: <20060226181338.GL3674@stusta.de>
+References: <20060220132832.GF4971@stusta.de> <Pine.LNX.4.61.0602252300200.7535@yvahk01.tjqt.qr> <20060225220737.GE3674@stusta.de> <200602251723.53349.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602261913.36308.woho@woho.de>
+In-Reply-To: <200602251723.53349.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 February 2006 16:00, Ian Kumlien wrote:
-> On Sun, 2006-02-26 at 09:57 +0100, Wolfgang Hoffmann wrote:
-> > Stephen, if you want me (as suggested off-list) to bisect the individual
-> > patches leading from 0.13a to current head, please give me a series of
-> > patches to incrementally apply, eighter via mail/ftp/git, and I'll test.
-> > I don't want to hack the patches together myself, because results would
-> > be worthless if I screw up, and given that I have no networking
-> > background chances are high ...
->
-> There is a git bisect for that, and a link for it somewhere =)
+On Sat, Feb 25, 2006 at 05:23:52PM -0500, Dmitry Torokhov wrote:
+> 
+> Adrian,
+> 
+> There are requests to move it out of EMBEDDED because sometimes you
+> just  don't need input layer at all. Dave Jones mentioned that he
+> feels silly enabling EMBEDDED on iSeries... I am thinking about
+> changing it to "EMBEDDED || !X86_PC" to safe-guard the most common
+> platform from accidenially disabling it.
 
-Ok, I did some reading and just started a git bisect. I didn't find hints on 
-how to bisect if I'm only interested in changes to sky2.[ch], so I'm taking 
-the full kernel tree and skip testing those bisect steps that didn't change 
-sky2.[ch].
+Sounds reasonable.
 
-Looking at Carl-Danies 0.13a and Stephens patch against 0.15 in this thread, 
-I'll patch each bisect step such that sky2_poll() has
+> I am still not convinced whether INPUT=m makes sence, especially if
+> we make ACPI use input layer... Jan's example about input device with
+> hot-pluggable keyboard is a bit of a stretch. 
 
-       sky2_write32(hw, STAT_CTRL, SC_STAT_CLR_IRQ);
-       if (sky2_read8(hw, STAT_LEV_TIMER_CTRL) == TIM_START) {
-               sky2_write8(hw, STAT_LEV_TIMER_CTRL, TIM_STOP);
-               sky2_write8(hw, STAT_LEV_TIMER_CTRL, TIM_START);
-        }
+Agreed.
 
-after exit_loop. Is that ok?
+> Dmitry
 
-I'll report as soon as I have results.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

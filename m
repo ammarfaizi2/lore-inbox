@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWBZWcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWBZWfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbWBZWcY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 17:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWBZWcY
+	id S1751399AbWBZWfG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 17:35:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWBZWfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 17:32:24 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:904 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751360AbWBZWcX (ORCPT
+	Sun, 26 Feb 2006 17:35:06 -0500
+Received: from hell.org.pl ([62.233.239.4]:58891 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S1751399AbWBZWfF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 17:32:23 -0500
-Date: Sun, 26 Feb 2006 23:32:10 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Luke-Jr <luke@dashjr.org>
-cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works
- ;)
-In-Reply-To: <200602261339.13821.luke@dashjr.org>
-Message-ID: <Pine.LNX.4.61.0602262331330.12118@yvahk01.tjqt.qr>
-References: <200602250042.51677.bero@arklinux.org> <200602261330.15709.luke@dashjr.org>
- <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
- <200602261339.13821.luke@dashjr.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 26 Feb 2006 17:35:05 -0500
+Date: Sun, 26 Feb 2006 23:34:48 +0100
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
+Message-ID: <20060226223448.GA27562@hell.org.pl>
+References: <5Kr1a-6MF-15@gated-at.bofh.it> <5KraE-6XP-15@gated-at.bofh.it> <5KyFv-RL-15@gated-at.bofh.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <5KyFv-RL-15@gated-at.bofh.it>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > > I've just released dvdrtools 0.3.1
->> > > (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools
->> > > that (as the name indicates) adds support for writing to DVD-R and
->> > > DVD-RW disks using purely Free Software,
->> >
->> > also DVD+R/RW/DL, I hope?
->>
->> And what about DVD-RAM drives? Any plans to support those?
->
->My [limited] understanding of DVD-RAM drives was that they are basically 
->removable block devices... you wouldn't need a recording program for that, 
->you'd use it like a floppy.
->
-Same goes for DVD+RW. One may want to use it in conjunction with pktcdvd 
-for aligning and command queueing/iosched reasons.
+Thus wrote Russell King:
+> > > Calling serial functions to flush buffers, or try to send more data
+> > >  after the port has been closed or hung up is a bug in the code doing
+> > >  the calling, not in the serial_core driver.
+> > > 
+> > >  Make this explicitly obvious by adding BUG_ON()'s.
+> > 
+> > If we make it
+> > 
+> >       if (!info) {
+> >               WARN_ON(1);
+> >               return;
+> >       }
+> > 
+> > will that allow people's kernels to limp along until it gets fixed?
+> "until" - I think you mean "if anyone ever bothers" so no I don't agree.
 
+Russel, I agree this should be clearly marked and an oops seems okay here,
+but we're talking dead systems here (dead as in all interrupts masked type
+of dead). Most users won't even be aware an oops occured, let alone be able
+to read the messages on the console. 
 
-Jan Engelhardt
+I was just lucky because after the first one I got (#5958, a regular oops)
+I tried to nail it down in text mode, with the console loglevel upped a
+bit, so I was able to see what the panic (#6131) was all about.
+
+I think we really need those *_ON()s at least in uart_write().
+
+Best regards,
+
 -- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

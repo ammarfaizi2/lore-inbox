@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWBZTDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWBZTIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWBZTDc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 14:03:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWBZTDc
+	id S932182AbWBZTIf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 14:08:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWBZTIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 14:03:32 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:45710 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932175AbWBZTDb convert rfc822-to-8bit
+	Sun, 26 Feb 2006 14:08:35 -0500
+Received: from silver.veritas.com ([143.127.12.111]:2611 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932182AbWBZTIe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 14:03:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=kndW1GZhMZHxHbWZ4he3xOSjPmY4ioxxT5COlAbMRT03xu4Okz06GiNprUkkAsY9TVWOdtI8NpU2UesYjpULxJlhFfBSIfpCzdIMCWXCpBtpq3v+ikXi2eqUPURmnwuwsLKZxeGsx5Zo82kdXucIWyHHaacvoBxXvypYrSj+0bQ=
-Date: Sun, 26 Feb 2006 20:03:17 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sam@ravnborg.org
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in
- warnings
-Message-Id: <20060226200317.29bc889a.diegocg@gmail.com>
-In-Reply-To: <9a8748490602261045q6553b849lac7d8b209a905635@mail.gmail.com>
-References: <200602261721.17373.jesper.juhl@gmail.com>
-	<20060226192140.4951f5a0.diegocg@gmail.com>
-	<9a8748490602261045q6553b849lac7d8b209a905635@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 26 Feb 2006 14:08:34 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,148,1139212800"; 
+   d="scan'208"; a="35018725:sNHT24048068"
+Date: Sun, 26 Feb 2006 19:09:04 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] shmem: inline to avoid warning
+Message-ID: <Pine.LNX.4.61.0602261903280.17738@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 26 Feb 2006 19:08:29.0320 (UTC) FILETIME=[07330880:01C63B08]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 26 Feb 2006 19:45:52 +0100,
-"Jesper Juhl" <jesper.juhl@gmail.com> escribió:
+shmem.c was named and shamed in Jesper's "Building 100 kernels" warnings:
+shmem_parse_mpol is only used when CONFIG_TMPFS parses mount options; and
+only called from that one site, so mark it inline like its non-NUMA stub.
 
-> no tricky Makefile hackery there, just a little shell scripting magic.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-Oh sure but "make compiletest" looked nicer ;) 
+ mm/shmem.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-the compile statistics (http://developer.osdl.org/cherry/compile/)
-were also nice, it's a shame it's not updated
+--- 2.6.16-rc4-git9/mm/shmem.c	2006-02-26 14:43:13.000000000 +0000
++++ linux/mm/shmem.c	2006-02-26 18:53:47.000000000 +0000
+@@ -875,7 +875,7 @@ redirty:
+ }
+ 
+ #ifdef CONFIG_NUMA
+-static int shmem_parse_mpol(char *value, int *policy, nodemask_t *policy_nodes)
++static inline int shmem_parse_mpol(char *value, int *policy, nodemask_t *policy_nodes)
+ {
+ 	char *nodelist = strchr(value, ':');
+ 	int err = 1;

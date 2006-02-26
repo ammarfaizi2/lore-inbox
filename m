@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWBZNgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWBZNur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWBZNgf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 08:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWBZNgf
+	id S1751124AbWBZNur (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 08:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWBZNur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 08:36:35 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:57012 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751125AbWBZNge convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 08:36:34 -0500
+	Sun, 26 Feb 2006 08:50:47 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:8287 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751124AbWBZNuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 08:50:46 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VRjOmVZZ4rjWZSbqm6JbSAJSdYxjPJvipAz1LF5BeiEq7r5++6v84nOyaGIHxU32MecsG/TiawhRNuon7JnFx0Y+Lq55qs93CPnpaQPV0pI7E8+9HcJhEz83llegYRfroGjVeouuxHm9f74rktd0umBCQaOgJ4unRJXU2i0uCqk=
-Message-ID: <9a8748490602260536v22cc4dc0ma4e2702cd064e5c0@mail.gmail.com>
-Date: Sun, 26 Feb 2006 14:36:31 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: Luke-Jr <luke@dashjr.org>
-Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works ;)
-Cc: "Bernhard Rosenkraenzer" <bero@arklinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200602261339.13821.luke@dashjr.org>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Rhapx7zihsE0iHmyA+v5JKswFimwdGHRqFClYTnaAL70wsrxvu97KI0+c79wE7ENvZJVwqBxLgzETtD/hjR7f+Zwf2+p6gJeNDEbvOFp1QXqr8hZ0jedz53h72nfbBrJg0wcLm7NtxPIzDeYWW8wD2pJjgz4CN6I77eG7WyAhSQ=  ;
+Message-ID: <4401B233.7050308@yahoo.com.au>
+Date: Mon, 27 Feb 2006 00:50:43 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602250042.51677.bero@arklinux.org>
-	 <200602261330.15709.luke@dashjr.org>
-	 <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
-	 <200602261339.13821.luke@dashjr.org>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Marr <marr@flex.com>, reiserfs-dev@namesys.com
+Subject: Re: Drastic Slowdown of 'fseek()' Calls From 2.4 to 2.6 -- VMM Change?
+References: <200602241522.48725.marr@flex.com> <20060224211650.569248d0.akpm@osdl.org> <200602261407.33262.ioe-lkml@rameria.de>
+In-Reply-To: <200602261407.33262.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/26/06, Luke-Jr <luke@dashjr.org> wrote:
-> On Sunday 26 February 2006 13:29, Jesper Juhl wrote:
-> > On 2/26/06, Luke-Jr <luke@dashjr.org> wrote:
-> > > On Friday 24 February 2006 23:42, Bernhard Rosenkraenzer wrote:
-> > > > I've just released dvdrtools 0.3.1
-> > > > (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools
-> > > > that (as the name indicates) adds support for writing to DVD-R and
-> > > > DVD-RW disks using purely Free Software,
-> > >
-> > > also DVD+R/RW/DL, I hope?
-> >
-> > And what about DVD-RAM drives? Any plans to support those?
->
-> My [limited] understanding of DVD-RAM drives was that they are basically
-> removable block devices... you wouldn't need a recording program for that,
-> you'd use it like a floppy.
->
-I guess you are right. I haven't used a DVD-RAM device in a few years,
-I just seem to recall that when I last used one on an AIX pSeries
-machine I had to use some burner software to dump data on it - I may
-remember wrong though.
+Ingo Oeser wrote:
+> On Saturday, 25. February 2006 06:16, Andrew Morton wrote:
+> 
+>>runs like a dog on 2.6's reiserfs.  libc is doing a (probably) 128k read
+>>on every fseek.
+> 
+> 
+> Thats the bug. If I seek, I never like to have an read issued.
+> seek should just return whether the result is a valid offset 
+> in the underlying object. 
+> 
+> It is perfectly valid to have a real time device which produces data 
+> very fast and where you are allowed to skip without reading anything.
+> 
+> This device coul be a pipe, which just allows forward seeking for exactly
+> this (implemented by me some years ago).
+> 
+> 
+>>- fseek is a pretty dumb function anyway - you're better off with
+>>  stateless functions like pread() - half the number of syscalls, don't
+>>  have to track where the file pointer is at.  I don't know if there's a
+>>  pread()-like function in stdio though?
+> 
+> 
+> pread and anything else not using RELATIVE descriptor offsets are not
+> very useful for pipe like interfaces that can seek, but just forward.
+> 
+> There are even cases, where you can seek forward and backward, but 
+> only with relative offsets ever, because you have a circular buffer indexed by time.
+> If you like to get the last N minutes, the relative index is always stable, 
+> but the absolute offset jumps.
+> 
+> So I hope glibc will fix fseek to work as advertised.
+> 
+> But for the simple file case all your answers are valid.
+> 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Not really. The app is not silly if it does an fseek() then a _write_.
+Writing page sized and aligned chunks should not require previously
+uptodate pagecache, so doing a pre-read like this is a complete waste.
+
+Actually glibc tries to turn this pre-read off if the seek is to a page
+aligned offset, presumably to handle this case. However a big write
+would only have to RMW the first and last partial pages, so pre-reading
+128KB in this case is wrong.
+
+And I would also say a 4K read is wrong as well, because a big read will
+be less efficient due to the extra syscall and small IO.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

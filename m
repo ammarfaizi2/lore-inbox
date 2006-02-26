@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWBZUUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWBZUdD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWBZUUL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 15:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWBZUUL
+	id S1750972AbWBZUdD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 15:33:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWBZUdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 15:20:11 -0500
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:13696
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S1751009AbWBZUUK (ORCPT
+	Sun, 26 Feb 2006 15:33:03 -0500
+Received: from rtr.ca ([64.26.128.89]:56778 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750972AbWBZUdB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 15:20:10 -0500
-Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-To: John Stoffel <john@stoffel.org>
-Cc: Matthieu CASTET <castet.matthieu@free.fr>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <17408.55266.948833.168988@smtp.charter.net>
-References: <43FF88E6.6020603@linux.intel.com>
-	 <20060225084139.GB22109@infradead.org>
-	 <200602250549.47547.gene.heskett@verizon.net>
-	 <Pine.LNX.4.61.0602251518200.31692@yvahk01.tjqt.qr>
-	 <pan.2006.02.25.22.07.53.810642@free.fr>
-	 <17408.55266.948833.168988@smtp.charter.net>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 14:20:03 -0600
-Message-Id: <1140985203.6862.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+	Sun, 26 Feb 2006 15:33:01 -0500
+Message-ID: <4402106D.60605@rtr.ca>
+Date: Sun, 26 Feb 2006 15:32:45 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hda: irq timeout: status=0xd0 DMA question
+References: <5KtPb-2oP-9@gated-at.bofh.it> <5Kxzs-7M7-19@gated-at.bofh.it> <5KxJa-7XQ-31@gated-at.bofh.it> <5KxT2-8a6-15@gated-at.bofh.it> <5KyFa-RL-1@gated-at.bofh.it> <4401F6BA.5010607@shaw.ca>
+In-Reply-To: <4401F6BA.5010607@shaw.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-25 at 17:19 -0500, John Stoffel wrote:
-> >>>>> "Matthieu" == Matthieu CASTET <castet.matthieu@free.fr> writes:
+Robert Hancock wrote:
+> Henrik Persson wrote:
+>> Does happen once or twice a year.. Probably something funky with the
+>> cabling or some power-related issues.
+>>
+>> Anyway, I would be happy if the IDE driver would "just not do that". :)
 > 
-> Matthieu> I will say, why not put the restriction of the firmware
-> Matthieu> binary blob ?  It run on the device so it will be difficult
-> Matthieu> for people to analyse it.
-> 
-> So what do I do when I take my US laptop and fly to country X, which
-> has comletely different rules for these radios?  Do I have to re-flash
-> my firmware to make it work properly?  
+> I can see the reasoning where the device just doesn't function properly 
+> with DMA at all (like on some Compact Flash-to-IDE adapters where the 
+> card claims to support DMA but the DMA lines aren't wired through in the 
+> adapter properly). In that case not disabling DMA would render it 
+> useless. The IDE layer could keep track of whether DMA was previously 
+> working on that device however, and not disable DMA on reset if it had 
+> previously been working.
 
-Intel has got the obligation to make sure they are not letting you use
-not allowed channels. If you as a manufacturer allow with a certain
-change to let people use the channels they want, you are actually
-encouraging people to use those channels. Letting the option available
-makes Intel liable to get sued. If you buy an US PC, you stick to the US
-channels. If you are a world traveler, buy the PC in japan or in Europe.
-Then, you will be able to use the US and ROW(Rest of World) channels.
+Definitely.  Where these things get sticky is in defining "DMA was working".
+And keeping track of it separately for reads and writes.
 
-This is just the way it works, else you are liable. Believe me, and not
-only me. Intel does not do things to give you a hard time, it is because
-of a reason and they have the best lawyers at it.
-
-It is just the Law and the FCC's.
-
-.Alejandro
-
-> 
-> The big problem is the lack of global unity, but that will slowly get
-> fixes as more countries realize it's a problem.  The big issue will be
-> military/govt radio spectrum users, they won't want to move if they
-> can help it.
-> 
-> John
-
+cheers

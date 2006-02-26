@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWBZPAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWBZPAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWBZPAL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 10:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWBZPAL
+	id S1751153AbWBZPAF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 10:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWBZPAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 10:00:11 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:55730 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S1751191AbWBZPAI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 10:00:08 -0500
-Subject: Re: [PATCH] Revert sky2 to 0.13a
-From: Ian Kumlien <pomac@vapor.com>
-Reply-To: pomac@vapor.com
-To: woho@woho.de
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       Pavel Volkovitskiy <int@mtx.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200602260957.04305.woho@woho.de>
-References: <4400FC28.1060705@gmx.net>
-	 <20060225180353.5908c955@localhost.localdomain>
-	 <200602260957.04305.woho@woho.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gGwFEbi5+z/ApT70N3Xa"
-Date: Sun, 26 Feb 2006 16:00:11 +0100
-Message-Id: <1140966011.22812.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Sun, 26 Feb 2006 10:00:05 -0500
+Received: from pproxy.gmail.com ([64.233.166.177]:6634 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751153AbWBZPAC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 10:00:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=plAtivzVv+PyOB5MxQXTTvXIAb4hWzDXI3raT2XNfQcKAu8xkcuHDXPD4PQ9ZAwkSFcIdl3TiEc/8Pq29no366u/GOOXIlAQKrMCigCrbrTtw16f+PLd+uq1mdxJtl+696LQXF5UbyZ84Ev5n23KyiPS2bR6oriWUhM1sWB//Uo=
+Message-ID: <9a8748490602260700s2e82a623mcf2d778aa109bb00@mail.gmail.com>
+Date: Sun, 26 Feb 2006 16:00:01 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Paul Rolland" <rol@witbe.net>
+Subject: Re: [2.4.32 - 2.6.15.4] e1000 - Fix mii interface
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux.nics@intel.com,
+       cramerj@intel.com, john.ronciak@intel.com, Ganesh.Venkatesan@intel.com
+In-Reply-To: <01d801c63ae4$b7d71b00$2001a8c0@cortex>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a8748490602260459j76409f0cu287d7efad4d1781c@mail.gmail.com>
+	 <01d801c63ae4$b7d71b00$2001a8c0@cortex>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2/26/06, Paul Rolland <rol@witbe.net> wrote:
+> Hello,
+>
+> > are you planning a 2.6 patch as well ?
+> >
+> I'm preparing it, and I'll be carefull with Tab/space ;)
+>
+Ok, great, I was just wondering since I would have made one if you had
+no plans to do so.
 
---=-gGwFEbi5+z/ApT70N3Xa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2006-02-26 at 09:57 +0100, Wolfgang Hoffmann wrote:
-> On Sunday 26 February 2006 03:03, Stephen Hemminger wrote:
-> > Instead of whining, try this.
->=20
-> I tried and still see the hang.
-
-I'm at a record 12 hours with that patch.
-
-> Stephen, if you want me (as suggested off-list) to bisect the individual=20
-> patches leading from 0.13a to current head, please give me a series of=20
-> patches to incrementally apply, eighter via mail/ftp/git, and I'll test. =
-I=20
-> don't want to hack the patches together myself, because results would be=20
-> worthless if I screw up, and given that I have no networking background=20
-> chances are high ...
-
-There is a git bisect for that, and a link for it somewhere =3D)
-
-> It takes me between 5 - 20 GB of data transfer to reproduce the hang, so =
-it=20
-> will take a while, but I'm willing to help. If you see vendor chip specs=20
-> arrive soon and feel it's not worth the hassle, that's fine for me, too.
-
-My last real test with sky2 was at 205gb, which made me think that it's
-more of a race and not data dependant (read, 2 boxes doing ping -f -s
-8000)...
-
-> In the meanwhile, I'll resort to 0.13a
->=20
-> Wolfgang
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-gGwFEbi5+z/ApT70N3Xa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBEAcJ77F3Euyc51N8RAlTZAKC59pzFoEGmCHMFZaHysbMZZX7zNwCePDan
-LC1kIvqBb2qkM6OsnP/n2G8=
-=gxHp
------END PGP SIGNATURE-----
-
---=-gGwFEbi5+z/ApT70N3Xa--
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

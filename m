@@ -1,89 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWBZXkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWBZXrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751431AbWBZXkA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:40:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWBZXkA
+	id S1751428AbWBZXrn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWBZXrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:40:00 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:39337 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751424AbWBZXj7 (ORCPT
+	Sun, 26 Feb 2006 18:47:42 -0500
+Received: from colin.muc.de ([193.149.48.1]:5636 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751428AbWBZXrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:39:59 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC/RFT][PATCH -mm] swsusp: improve memory shrinking
-Date: Mon, 27 Feb 2006 00:32:24 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602261627.18012.rjw@sisk.pl> <20060226185319.GB2055@elf.ucw.cz>
-In-Reply-To: <20060226185319.GB2055@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Feb 2006 18:47:42 -0500
+Date: 27 Feb 2006 00:47:36 +0100
+Date: Mon, 27 Feb 2006 00:47:36 +0100
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: largret@gmail.com, 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: OOM-killer too aggressive?
+Message-ID: <20060226234736.GA91959@muc.de>
+References: <200602260938_MC3-1-B94B-EE2B@compuserve.com> <20060226102152.69728696.akpm@osdl.org> <1140988015.5178.15.camel@shogun.daga.dyndns.org> <20060226133140.4cf05ea5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602270032.25324.rjw@sisk.pl>
+In-Reply-To: <20060226133140.4cf05ea5.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> hm, OK.  I suppose we can hit it with the big hammer, but I'd be reluctant
+> to merge this patch because it has the potential to hide problems, such as
+> the as-yet-unfixed bio-uses-ZONE_DMA one.
 
-On Sunday 26 February 2006 19:53, Pavel Machek wrote:
-> > > > > I did try shrink_all_memory() five times, with .5 second delay between
-> > > > > them, and it freed more memory at later tries.
-> > > > 
-> > > > I wonder if the delays are essential or if so, whether they may be shorter
-> > > > than .5 sec.
-> > > 
-> > > I was using this with some success... (Warning, against old
-> > > kernel). But, as I said, I consider it ugly, and it would be better to
-> > > fix shrink_all_memory.
-> > 
-> > Appended is a patch against the current -mm.
-> >   [It also makes
-> > swsusp_shrink_memory() behave as documented for image_size = 0.
-> > Currently, if it states there's enough free RAM to suspend, it won't bother
-> > to free a single page.]
-> 
-> Could we get bugfix part separately?
+Better would be to fix the block layer. I think something like that
+would be better: (only lightly tested - it booted on a 6GB x86-64 box) 
 
-Sure.  Appended is the bugfix (I haven't tested it separately yet, but I think
-it's simple enough) ...
+It is over pessimistic on systems with real IOMMU that can even remap
+to DMA addresses < 4GB - in the future those might want to define
+some ARCH_HAS macro so it can be checked here.
 
----
-Make swsusp_shrink_memory() behave as documented when image_size = 0.
+Does that patch fix the problem?
+
+That said adding GFP_NORETRY to the floppy allocation is probably still a good
+idea. I will do that change here.
+
+-Andi
 
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- kernel/power/swsusp.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+Disable block layer bouncing for most memory on 64bit systems
 
-Index: linux-2.6.16-rc4-mm2/kernel/power/swsusp.c
+The low level PCI DMA mapping functions should handle it in most cases.
+
+This should fix problems with depleting the DMA zone early. The old
+code used precious GFP_DMA memory in many cases where it was not needed.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/block/ll_rw_blk.c
 ===================================================================
---- linux-2.6.16-rc4-mm2.orig/kernel/power/swsusp.c	2006-02-26 15:12:04.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/kernel/power/swsusp.c	2006-02-27 00:25:34.000000000 +0100
-@@ -194,14 +194,15 @@ int swsusp_shrink_memory(void)
- 		for_each_zone (zone)
- 			if (!is_highmem(zone))
- 				tmp -= zone->free_pages;
--		if (tmp > 0) {
--			tmp = shrink_all_memory(SHRINK_BITE);
--			if (!tmp)
-+		if (tmp > 0 || size > image_size / PAGE_SIZE) {
-+			long freed = shrink_all_memory(SHRINK_BITE);
-+
-+			if (freed > 0) {
-+				pages += freed;
-+				tmp = freed;
-+			} else if (tmp > 0) {
- 				return -ENOMEM;
--			pages += tmp;
--		} else if (size > image_size / PAGE_SIZE) {
--			tmp = shrink_all_memory(SHRINK_BITE);
--			pages += tmp;
-+			}
- 		}
- 		printk("\b%c", p[i++%4]);
- 	} while (tmp > 0);
-
+--- linux.orig/block/ll_rw_blk.c
++++ linux/block/ll_rw_blk.c
+@@ -625,26 +625,32 @@ static inline int ordered_bio_endio(stru
+  *    Different hardware can have different requirements as to what pages
+  *    it can do I/O directly to. A low level driver can call
+  *    blk_queue_bounce_limit to have lower memory pages allocated as bounce
+- *    buffers for doing I/O to pages residing above @page. By default
+- *    the block layer sets this to the highest numbered "low" memory page.
++ *    buffers for doing I/O to pages residing above @page. 
+  **/
+ void blk_queue_bounce_limit(request_queue_t *q, u64 dma_addr)
+ {
+ 	unsigned long bounce_pfn = dma_addr >> PAGE_SHIFT;
++	int dma = 0;
+ 
+-	/*
+-	 * set appropriate bounce gfp mask -- unfortunately we don't have a
+-	 * full 4GB zone, so we have to resort to low memory for any bounces.
+-	 * ISA has its own < 16MB zone.
+-	 */
+-	if (bounce_pfn < blk_max_low_pfn) {
++	q->bounce_gfp = GFP_NOIO;
++#if BITS_PER_LONG == 64
++	/* Assume anything >= 4GB can be handled by IOMMU. 
++	   Actually some IOMMUs can handle everything, but I don't
++	   know of a way to test this here. */
++	if (bounce_pfn < (0xffffffff>>PAGE_SHIFT))
++		dma = 1;
++	q->bounce_pfn = max_low_pfn;
++#else
++	if (bounce_pfn < blk_max_low_pfn)
++		dma = 1;
++	q->bounce_pfn = bounce_pfn;
++#endif
++	if (dma) {	
+ 		BUG_ON(dma_addr < BLK_BOUNCE_ISA);
+ 		init_emergency_isa_pool();
+ 		q->bounce_gfp = GFP_NOIO | GFP_DMA;
+-	} else
+-		q->bounce_gfp = GFP_NOIO;
+-
+-	q->bounce_pfn = bounce_pfn;
++		q->bounce_pfn = bounce_pfn;
++	}
+ }
+ 
+ EXPORT_SYMBOL(blk_queue_bounce_limit);

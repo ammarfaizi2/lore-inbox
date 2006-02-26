@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWBZVq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWBZVtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbWBZVq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 16:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWBZVq5
+	id S1750823AbWBZVtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 16:49:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWBZVtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 16:46:57 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:10761 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750760AbWBZVq4
+	Sun, 26 Feb 2006 16:49:02 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:42809 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750823AbWBZVtA convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 16:46:56 -0500
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in
- warnings
-References: <200602261721.17373.jesper.juhl@gmail.com>
-	<1140986578.24141.141.camel@mindpipe>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: because editing your files should be a traumatic experience.
-Date: Sun, 26 Feb 2006 21:46:32 +0000
-In-Reply-To: <1140986578.24141.141.camel@mindpipe> (Lee Revell's message of
- "26 Feb 2006 20:43:31 -0000")
-Message-ID: <87wtfh3i9z.fsf@hades.wkstn.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sun, 26 Feb 2006 16:49:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m4nNt4NaHq+J0qrcmAB5dFQYNzsqk02UGiGWkOfvTpZ8BMFmX4AjBncidsQtmL7TWNF6yMiUwVcYRpi6GGtFlreqi0UJ1m/0YZeWVuzWydffcjE1lz417J21ggD6Ncevd9rJD3T5414EWYwdP41hic2NMQTCu0MUdamSqhzs9hE=
+Message-ID: <9a8748490602261349v381933b9xeb2ddeedac053910@mail.gmail.com>
+Date: Sun, 26 Feb 2006 22:49:00 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: Nix <nix@esperi.org.uk>
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+Cc: "Lee Revell" <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <87wtfh3i9z.fsf@hades.wkstn.nix>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602261721.17373.jesper.juhl@gmail.com>
+	 <1140986578.24141.141.camel@mindpipe> <87wtfh3i9z.fsf@hades.wkstn.nix>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Feb 2006, Lee Revell announced authoritatively:
-> What GCC version?  4.x still has the bug where it spews false warnings
-> about things being used uninitialized.
+On 2/26/06, Nix <nix@esperi.org.uk> wrote:
+> (i.e., there's a reason that warning uses the word *might*.)
+>
+The compiler says "might be used uninitialized" when it cannot
+determine if a variable will be initialized before first use or not.
 
-`4.x still has the bug where it cannot solve the Halting Problem'?
 
-(i.e., there's a reason that warning uses the word *might*.)
-
--- 
-`... follow the bouncing internment camps.' --- Peter da Silva
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

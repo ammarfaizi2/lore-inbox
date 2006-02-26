@@ -1,54 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWBZRvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWBZSIn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751237AbWBZRvy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 12:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWBZRvy
+	id S1750981AbWBZSIn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 13:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWBZSIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 12:51:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8463 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751237AbWBZRvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 12:51:53 -0500
-Date: Sun, 26 Feb 2006 18:51:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Steve French <smfrench@austin.rr.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cifs hang patch idea - reduce sendtimeo on socket
-Message-ID: <20060226175152.GK3674@stusta.de>
-References: <43F3FA4E.2050608@austin.rr.com> <20060216205623.GA8784@stusta.de> <1140644100.9942.15.camel@kleikamp.austin.ibm.com>
+	Sun, 26 Feb 2006 13:08:43 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:39978 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750981AbWBZSIm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 13:08:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q8TNMIYrfCGkPmaYEf3W2F1DWjMNp+xRMY4yyTgkNhUg6T/5K/LMBW+FgYJgGYttl5sPD3xGSJaZaCLIM8V0WDJrhjR2aIt1gf6Xbjn+wQ7QLKpfwQVXflIunF8MhB/iivs6AaCV+bc90kRPiNlYVxh+sjaXgjm6+zhxygOLW6U=
+Message-ID: <9a8748490602261008v427d3cb6ufb446efc96117220@mail.gmail.com>
+Date: Sun, 26 Feb 2006 19:08:41 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Sam Ravnborg" <sam@ravnborg.org>
+In-Reply-To: <20060226174123.GJ3674@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1140644100.9942.15.camel@kleikamp.austin.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <200602261721.17373.jesper.juhl@gmail.com>
+	 <20060226170038.GF3674@stusta.de>
+	 <9a8748490602260929v74fd8358r8bdb2d670508bb0a@mail.gmail.com>
+	 <20060226174123.GJ3674@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22, 2006 at 03:35:00PM -0600, Dave Kleikamp wrote:
-> On Thu, 2006-02-16 at 21:56 +0100, Adrian Bunk wrote:
-> > 
-> > I'm a bit lost now, but I hope this information helps you in finding 
-> > what is going wrong?
-> 
-> Steve and I think we have figured this out.  In some cases, CIFSSMBRead
-> was returning a recently freed buffer.
->...
+On 2/26/06, Adrian Bunk <bunk@stusta.de> wrote:
+> On Sun, Feb 26, 2006 at 06:29:54PM +0100, Jesper Juhl wrote:
+> > On 2/26/06, Adrian Bunk <bunk@stusta.de> wrote:
+> >...
+> > > > >From 100 kernel builds there was a total of 16152 warnings and 645 of those
+> > > > are unique warnings, the rest are duplicates.
+> > > >
+> > > > We are drowning in warnings people. Sure, many of the warnings are due to
+> > > > gcc getting something wrong and shouldn't really be emitted, but a lot of
+> > > > them point to actual problems or deficiencies (I obviously haven't looked
+> > > > at them all in detail yet, so take that with a grain of salt please).
+> > > >...
+> > >
+> > > It's well-known that BROKEN_ON_SMP drivers often spit 50 warnings in one
+> > > warning. If you remove the dozen worst drivers the numbers should look
+> > > much better.
+> > >
+> > Better yet, let's fix the warnings.
+>
+> It's never bad if someone converts drivers still using cli/sti.
+>
+> Unfortunately, this is non-trivial...
+>
+> > > Not that our current situation was perfect, but the number of warnings
+> > > in .config's people usually use isn't that bad.
+> >
+> > I agree it's not too bad for most people. The point of my post was
+> > mostly a "call to arms" trying to get people interrested in fixing all
+> > the warnings and build errors we have.
+>
+> I'm agreeing that this is a good idea, I simply disagreed with your
+> "we suck at..." point, since although we can become better we aren't
+> that bad.
+>
+Ok, maybe that was a bit too stong wording.
 
-Thanks a lot!
 
-In my testing, this patch applied against 2.6.14-rc4 fixed all problems 
-I observed.
+> > There's a lot of focus on implementing new features - and that's great
+> > - but there's little emphasis on fixing the problems we have and
+> > already know about - I'd like to see that change, and my post was
+> > mainly an attempt at making that happen :)
+>
+> IMHO, the real problems we already know about are not warnings, they are
+> the ones listed at
+>   http://bugzilla.kernel.org/
+>
+> And in these cases, the bugs in unmaintained areas of the kernel like
+> APM or the floppy driver are the worst ones.
+>
 
-> David Kleikamp
+Agreed, those bugs should be fixed as well. Unfortunately most of them
+are beyond my abilities, so I tend to focus on the stuff that I see is
+broken and that I am actually able to help fix.  :-)
 
-cu
-Adrian
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWBZXh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWBZXiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWBZXh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWBZXh2
+	id S1750871AbWBZXiz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWBZXiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:37:28 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:21776 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751423AbWBZXh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:37:27 -0500
-Message-ID: <44023B24.9070100@vmware.com>
-Date: Mon, 27 Feb 2006 00:35:00 +0100
-From: Petr Vandrovec <petr@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
-X-Accept-Language: en
+	Sun, 26 Feb 2006 18:38:55 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:1839 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750871AbWBZXiy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 18:38:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=pkSzFnaNLysdtOBHbRm37yDjqnhkZSTaI96au1FBLmyOdEQgQVcAwSIYq4ir2kXCDEpsdzITeQ97USVgEeoZTFiIb8dfzi0TH3QzJbrB4qX4xgCTZ9LHVezWyI4bt9sb36w5XU+aY56E2d2oDaE1S4xlTPUnOUJCLOTd/K7DFCM=
+Message-ID: <44023BF3.7060703@gmail.com>
+Date: Mon, 27 Feb 2006 07:38:27 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: Git via a proxy server?
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F022DD553@otce2k03.adaptec.com> <20060223171010.283a9bfe.vsu@altlinux.ru>
-In-Reply-To: <20060223171010.283a9bfe.vsu@altlinux.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       info-linux@geode.amd.com
+Subject: Re: 2.6.16-rc4-mm2
+References: <20060224031002.0f7ff92a.akpm@osdl.org>	 <9a8748490602250359w7880d820lae65ceb50bf6e08e@mail.gmail.com>	 <20060225041703.6d771f10.akpm@osdl.org>	 <9a8748490602250425m6d99cd54la451795648c31c42@mail.gmail.com>	 <20060225043102.73d1a7d8.akpm@osdl.org> <9a8748490602250441h710fd194u420ffbac58d7a18d@mail.gmail.com>
+In-Reply-To: <9a8748490602250441h710fd194u420ffbac58d7a18d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Feb 2006 23:35:08.0326 (UTC) FILETIME=[47599C60:01C63B2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Vlasov wrote:
-> On Wed, 22 Feb 2006 10:44:23 -0500 Salyzyn, Mark wrote:
+Jesper Juhl wrote:
+> On 2/25/06, Andrew Morton <akpm@osdl.org> wrote:
+>> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+>>> On 2/25/06, Andrew Morton <akpm@osdl.org> wrote:
+>>>  > "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+>>>  > >
+>>>  > >  On 2/24/06, Andrew Morton <akpm@osdl.org> wrote:
+>>>  > >  >
+>> CONFIG_FB=m, CONFIG_FB_GEODE_GX=y.   An easy mistake, that.
+>>
+
+Need to change CONFIG_FB_GEODE_GX to depends on (FB = y)
+
 > 
+> Does it even make sense to build CONFIG_FB modular?
 > 
->>Rsync protocol for git is not working for some reason when I pick up the
->>trees; apparently others share my experience. So I switched to the git
->>protocol. I can pick up the trees via git if I am outside Adaptec's
->>network, but inside I need to go through the proxy server.
-> 
-> 
-> I have successfully used transconnect
-> (http://sourceforge.net/projects/transconnect) for tunnelling git
-> protocol through a HTTP proxy (squid in my case) supporting the CONNECT
-> method.
-> 
-> Git also supports the GIT_PROXY_COMMAND environment variable (or
-> core.gitproxy config option), through which you can specify a program to
-> be run instead of connecting to a TCP port - then you can use netcat for
-> connecting through proxy; however, I have not tried this.
 
-I know I'm comming kinda late, but I'm using:
+If you're a developer.
 
-export GIT_PROXY_COMMAND=/usr/local/bin/proxy-cmd.sh
+Tony
 
-and proxy-cmd.sh is just single-line command glued from what I found 
-available in /bin:
-
-#! /bin/bash
-
-(echo "CONNECT $1:$2 HTTP/1.0"; echo; cat ) | socket 
-proxy.ourcompany.com 3128 | (read a; read a; cat )
-
-Replace socket's arguments 'proxy.ourcompany.com 3128' with your http 
-proxy.  Fortunately our proxy does not see anything wrong with git's port.
-				Best regards,
-					Petr Vandrovec

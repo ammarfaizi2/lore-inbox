@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750851AbWBZSzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWBZS7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750851AbWBZSzU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 13:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWBZSzU
+	id S1751312AbWBZS7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 13:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWBZS7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 13:55:20 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33039 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750851AbWBZSzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 13:55:19 -0500
-Date: Sun, 26 Feb 2006 19:55:18 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: 2.6.16-rc4-mm2: drivers/rtc/utils.c should become part of a generic implementation
-Message-ID: <20060226185518.GM3674@stusta.de>
-References: <20060224031002.0f7ff92a.akpm@osdl.org> <20060225033118.GF3674@stusta.de> <20060225054619.149db264@inspiron> <20060225131025.GK3674@stusta.de> <20060226194116.50f7ad2e@inspiron>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060226194116.50f7ad2e@inspiron>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 26 Feb 2006 13:59:40 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:7917 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751314AbWBZS7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 13:59:39 -0500
+Subject: Re: [PATCH] silence gcc warning about possibly uninitialized use
+	of variable in scsi_scan
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Eric Youngdale <ericy@cais.com>,
+       Eric Youngdale <eric@andante.org>, linux-scsi@vger.kernel.org
+In-Reply-To: <9a8748490602261023j46eb39f2peaa080d737fee5e1@mail.gmail.com>
+References: <200602261639.15657.jesper.juhl@gmail.com>
+	 <1140978084.3692.6.camel@mulgrave.il.steeleye.com>
+	 <9a8748490602261023j46eb39f2peaa080d737fee5e1@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 26 Feb 2006 12:59:37 -0600
+Message-Id: <1140980377.3692.9.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 07:41:16PM +0100, Alessandro Zummo wrote:
-> On Sat, 25 Feb 2006 14:10:25 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > 
-> > Sounds good, but for generic functions, two adjustments are required:
-> > - move the code to lib/
-> > - remove rtc_ prefixes from the functions
-> 
->  Moved. I'm not sure about renaming them.. 
-> 
->  the functions are:
-> 
-> rtc_month_days
-> rtc_time_to_tm
-> rtc_valid_tm
-> rtc_tm_to_time
-> 
->  I think they make more sense with the rtc prefix
+On Sun, 2006-02-26 at 19:23 +0100, Jesper Juhl wrote:
+> > gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
+> >
+> > Doesn't give this warning.  And, since the loop has fixed parameters,
+> > gcc should see not only that it's always executed, but that it could be
+> > unrolled.
+> >
+> > Which version is causing the problem?
+> >
+> 2.6.16-rc4-mm2 build with gcc 3.4.5
 
-None of these functions is in any way specicific to RTC drivers.
+I also tried with
 
->  Best regards,
->  Alessandro Zummo,
+gcc version 3.3.5 (Debian 1:3.3.5-13)
 
-cu
-Adrian
+which likewise fails to give this warning, so I really think this is a
+bug in your particular version of gcc.
 
--- 
+James
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+> and I agree that gcc really should be noticing, but in fact it
+> doesn't. It's no big deal, I just thought we might want to shut gcc up
+> and give people one less warning to worry about.
+> 
+> --
+> Jesper Juhl <jesper.juhl@gmail.com>
+> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+> Plain text mails only, please      http://www.expita.com/nomime.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

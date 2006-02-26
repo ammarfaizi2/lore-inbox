@@ -1,106 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWBZPM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWBZPLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWBZPM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 10:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWBZPM1
+	id S1751113AbWBZPLc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 10:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWBZPLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 10:12:27 -0500
-Received: from tag.witbe.net ([81.88.96.48]:37257 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S1751218AbWBZPM0 (ORCPT
+	Sun, 26 Feb 2006 10:11:32 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:14912 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751113AbWBZPLb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 10:12:26 -0500
-From: "Paul Rolland" <rol@witbe.net>
-To: "'Jesper Juhl'" <jesper.juhl@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       <linux.nics@intel.com>, <cramerj@intel.com>, <john.ronciak@intel.com>,
-       <Ganesh.Venkatesan@intel.com>
-Subject: Re: [2.4.32 - 2.6.15.4] e1000 - Fix mii interface
-Date: Sun, 26 Feb 2006 16:12:48 +0100
-Organization: Witbe.net
-Message-ID: <01e101c63ae7$1b417990$2001a8c0@cortex>
+	Sun, 26 Feb 2006 10:11:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=COJhlPJOD+OtdtdDQ8XWOD+39exY4AIVr0yxwHC2Zd0h6fhj6GF6/K3UwUqdaa8CitP6f0O0Igkk/TR+K8NCu+wvpZkOsGAWml5nOCm7t/Sn0cLJO5TiowaxYCSukIW6qFSh8SsX80FCYrsrouECyN9GHTzKV6CgywSxmG+PImg=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix implicit declaration of GET_APIC_ID in arch/i386/kernel/apic.c
+Date: Sun, 26 Feb 2006 16:11:47 +0100
+User-Agent: KMail/1.9.1
+Cc: mingo@redhat.com, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01E2_01C63AEF.7D05E190"
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <9a8748490602260700s2e82a623mcf2d778aa109bb00@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcY65VJXq8Vx2DnqQNa50lfVlM/bLgAAWklg
-x-ncc-regid: fr.witbe
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602261611.47254.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_01E2_01C63AEF.7D05E190
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Fix implicit declaration of GET_APIC_ID in arch/i386/kernel/apic.c
 
-Hello,
+  arch/i386/kernel/apic.c:840: warning: implicit declaration of function `GET_APIC_ID'
 
-> Ok, great, I was just wondering since I would have made one if you had
-> no plans to do so.
 
-Well, I was just waiting to make sure it was interesting for someone ;)
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Here is it, verified with tab and not spaces... but attached as my mailer
-is likely to cripple anything I try to inline...
+ arch/i386/kernel/apic.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-Signed-off-by: Paul Rolland <rol@as2917.net>
+--- linux-2.6.16-rc4-mm2-orig/arch/i386/kernel/apic.c	2006-02-18 02:08:40.000000000 +0100
++++ linux-2.6.16-rc4-mm2/arch/i386/kernel/apic.c	2006-02-26 15:42:48.000000000 +0100
+@@ -38,6 +38,7 @@
+ #include <asm/i8253.h>
+ 
+ #include <mach_apic.h>
++#include <mach_apicdef.h>
+ #include <mach_ipi.h>
+ 
+ #include "io_ports.h"
 
-Cheers,
-Paul
-
-------=_NextPart_000_01E2_01C63AEF.7D05E190
-Content-Type: application/octet-stream;
-	name="e1000.patch-2.6.15.4"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="e1000.patch-2.6.15.4"
-
-diff -urN linux-2.6.15.4.orig/drivers/net/e1000/e1000_main.c =
-linux-2.6.15.4/drivers/net/e1000/e1000_main.c=0A=
---- linux-2.6.15.4.orig/drivers/net/e1000/e1000_main.c	Fri Feb 10 =
-07:22:48 2006=0A=
-+++ linux-2.6.15.4/drivers/net/e1000/e1000_main.c	Sun Feb 26 15:04:40 =
-2006=0A=
-@@ -4153,29 +4153,29 @@=0A=
- =0A=
- 	/* Fiber NICs only allow 1000 gbps Full duplex */=0A=
- 	if((adapter->hw.media_type =3D=3D e1000_media_type_fiber) &&=0A=
--		spddplx !=3D (SPEED_1000 + DUPLEX_FULL)) {=0A=
-+		spddplx !=3D (SPEED_1000 + FULL_DUPLEX)) {=0A=
- 		DPRINTK(PROBE, ERR, "Unsupported Speed/Duplex configuration\n");=0A=
- 		return -EINVAL;=0A=
- 	}=0A=
- =0A=
- 	switch(spddplx) {=0A=
--	case SPEED_10 + DUPLEX_HALF:=0A=
-+	case SPEED_10 + HALF_DUPLEX:=0A=
- 		adapter->hw.forced_speed_duplex =3D e1000_10_half;=0A=
- 		break;=0A=
--	case SPEED_10 + DUPLEX_FULL:=0A=
-+	case SPEED_10 + FULL_DUPLEX:=0A=
- 		adapter->hw.forced_speed_duplex =3D e1000_10_full;=0A=
- 		break;=0A=
--	case SPEED_100 + DUPLEX_HALF:=0A=
-+	case SPEED_100 + HALF_DUPLEX:=0A=
- 		adapter->hw.forced_speed_duplex =3D e1000_100_half;=0A=
- 		break;=0A=
--	case SPEED_100 + DUPLEX_FULL:=0A=
-+	case SPEED_100 + FULL_DUPLEX:=0A=
- 		adapter->hw.forced_speed_duplex =3D e1000_100_full;=0A=
- 		break;=0A=
--	case SPEED_1000 + DUPLEX_FULL:=0A=
-+	case SPEED_1000 + FULL_DUPLEX:=0A=
- 		adapter->hw.autoneg =3D 1;=0A=
- 		adapter->hw.autoneg_advertised =3D ADVERTISE_1000_FULL;=0A=
- 		break;=0A=
--	case SPEED_1000 + DUPLEX_HALF: /* not supported */=0A=
-+	case SPEED_1000 + HALF_DUPLEX: /* not supported */=0A=
- 	default:=0A=
- 		DPRINTK(PROBE, ERR, "Unsupported Speed/Duplex configuration\n");=0A=
- 		return -EINVAL;=0A=
-
-------=_NextPart_000_01E2_01C63AEF.7D05E190--
 

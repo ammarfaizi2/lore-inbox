@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWBZXhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWBZXh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWBZXhs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWBZXhs
+	id S1751423AbWBZXh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWBZXh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:37:48 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:35981 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751425AbWBZXhr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:37:47 -0500
-Date: Mon, 27 Feb 2006 00:37:45 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
-       Dave Jones <davej@redhat.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-       Zwane Mwaikambo <zwane@commfireservices.com>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
-Message-ID: <20060226233745.GA6804@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
-	Dave Jones <davej@redhat.com>,
-	Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-	Zwane Mwaikambo <zwane@commfireservices.com>,
-	Samuel Masham <samuel.masham@gmail.com>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	cpufreq@lists.linux.org.uk
-References: <20060214152218.GI10701@stusta.de> <20060223204110.GE6213@redhat.com> <20060225015722.GC8132@linuxtv.org> <200602250527.03493.ak@suse.de> <20060225125326.GJ3674@stusta.de> <20060225132820.GA13413@isilmar.linta.de> <20060226203941.GA5783@linuxtv.org> <20060226205513.GA26486@isilmar.linta.de>
+	Sun, 26 Feb 2006 18:37:28 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:21776 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751423AbWBZXh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 18:37:27 -0500
+Message-ID: <44023B24.9070100@vmware.com>
+Date: Mon, 27 Feb 2006 00:35:00 +0100
+From: Petr Vandrovec <petr@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060226205513.GA26486@isilmar.linta.de>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.189.241.246
-Subject: Re: Status of X86_P4_CLOCKMOD?
-X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+To: Sergey Vlasov <vsu@altlinux.ru>
+Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: Git via a proxy server?
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F022DD553@otce2k03.adaptec.com> <20060223171010.283a9bfe.vsu@altlinux.ru>
+In-Reply-To: <20060223171010.283a9bfe.vsu@altlinux.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Feb 2006 23:35:08.0326 (UTC) FILETIME=[47599C60:01C63B2D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006, Dominik Brodowski wrote:
-> On Sun, Feb 26, 2006 at 09:39:41PM +0100, Johannes Stezenbach wrote:
-> > 
-> > Do you have the numbers for a Pentium(R) 4 HT? (I couldn't find
-> > anything substantial with google.) Especially C2 vs. C2 + throttling?
-> > Because the way I remember having read somewhere, the idle
-> > (C2) power consumption of the P4 is significantly higher
-> > than with the Pentium(R) M.
+Sergey Vlasov wrote:
+> On Wed, 22 Feb 2006 10:44:23 -0500 Salyzyn, Mark wrote:
 > 
-> Unfortunately, I do not have these numbers present. You can check the
-> processor specification sheets at Intel's website, though.
-
-Went to the Intel(R) website, searched for half an hour, found many
-docs but none that gives useful information about this, gave up. :-(
-
-> > > So: P4-clockmod style throttling only makes sense if either
-> > > 
-> > > a) the idle handler does not enter the Stop-Grant state (C2) efficiently, or
-> > 
-> > Maybe my previous mails were not clear enough: The goal is to
-> > reduce idle power consumption (and by that fan noise). The PC
-> > is running but is idle, e.g just listening for possible incoming
-> > jabber messages or whatever.
 > 
-> Most probably, the idle handler can't make use of the Stop-Grant state (C2)
-> here, so this is case a) noted above.
+>>Rsync protocol for git is not working for some reason when I pick up the
+>>trees; apparently others share my experience. So I switched to the git
+>>protocol. I can pick up the trees via git if I am outside Adaptec's
+>>network, but inside I need to go through the proxy server.
+> 
+> 
+> I have successfully used transconnect
+> (http://sourceforge.net/projects/transconnect) for tunnelling git
+> protocol through a HTTP proxy (squid in my case) supporting the CONNECT
+> method.
+> 
+> Git also supports the GIT_PROXY_COMMAND environment variable (or
+> core.gitproxy config option), through which you can specify a program to
+> be run instead of connecting to a TCP port - then you can use netcat for
+> connecting through proxy; however, I have not tried this.
 
-Hm.
+I know I'm comming kinda late, but I'm using:
 
-Thanks,
-Johannes
+export GIT_PROXY_COMMAND=/usr/local/bin/proxy-cmd.sh
+
+and proxy-cmd.sh is just single-line command glued from what I found 
+available in /bin:
+
+#! /bin/bash
+
+(echo "CONNECT $1:$2 HTTP/1.0"; echo; cat ) | socket 
+proxy.ourcompany.com 3128 | (read a; read a; cat )
+
+Replace socket's arguments 'proxy.ourcompany.com 3128' with your http 
+proxy.  Fortunately our proxy does not see anything wrong with git's port.
+				Best regards,
+					Petr Vandrovec

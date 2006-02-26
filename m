@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWBZRNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWBZRRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbWBZRNV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 12:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWBZRNV
+	id S1750917AbWBZRRO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 12:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWBZRRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 12:13:21 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:20438 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751019AbWBZRNU
+	Sun, 26 Feb 2006 12:17:14 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:30413 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750917AbWBZRRN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 12:13:20 -0500
-Date: Sun, 26 Feb 2006 17:13:07 +0000
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
-To: Mark Lord <liml@rtr.ca>
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       David Greaves <david@dgreaves.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com
-Subject: Re: Kernel SeekCompleteErrors... Different from Re: LibPATA code issues / 2.6.15.4
-Message-ID: <20060226171307.GA9682@gallifrey>
-References: <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44019E96.20804@superbug.co.uk> <4401B378.3030005@rtr.ca> <4401BB85.7070407@superbug.co.uk> <4401DF6B.9010409@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 26 Feb 2006 12:17:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LS4FnWknVmIFGtG3Me2eDvRx2FEbL/bWzZhdYGzE66VUJkX0HePu/iu+ViN324Lng++1FjHO5QLwFWbr0Lflc3ZitcSN+gEPHGSFrUHcMQxfEu6tOvf/AN17Z8jpFQXzNZxu95MVKmT2VwAzRQVpP7rpqkTIGMa/aI5UBkoSGAg=
+Message-ID: <9a8748490602260917h31883941qa46dea626276d389@mail.gmail.com>
+Date: Sun, 26 Feb 2006 18:17:12 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Mark Lord" <lkml@rtr.ca>
+Subject: Re: hda: irq timeout: status=0xd0 DMA question
+Cc: "Nick Warne" <nick@linicks.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <4401E06D.90305@rtr.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4401DF6B.9010409@rtr.ca>
-User-Agent: Mutt/1.4.1i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.11-1.14_FC3 (i686)
-X-Uptime: 17:05:43 up 177 days,  5:31, 70 users,  load average: 0.23, 0.12, 0.02
+References: <200602261308.47513.nick@linicks.net> <4401B689.5050106@rtr.ca>
+	 <9a8748490602260615i8b72ae4ta3c6b13b568ca45d@mail.gmail.com>
+	 <4401E06D.90305@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mark Lord (liml@rtr.ca) wrote:
-> >>James Courtier-Dutton wrote:
-> >>>
-> >>>I have what looks like similar problems. The issue I have is that I 
-> >>
-> >>Nope.  Different issues.
-> >I have changed the Subject line to indicate this so any future responses 
-> >can be indicated.
-> >
-> >>
-> >>>) #1 Sat Dec 3 18:47:19 GMT 2005
-> >>>Dec 16 22:51:57 games kernel: hdc: dma_intr: status=0x51 { DriveReady 
-> >>>SeekComplete Error }
-> >>>Dec 16 22:52:32 games kernel: hdc: dma_intr: error=0x40 { 
-> >>>UncorrectableError }, LBAsect=53058185, sector=53057951
-> >>
-> >>The disk really does have bad sectors in this case (above).
-> >The disk has NO bad sectors. It has been checked using two different tests.
-> 
-> The *only* test that matters is to enable S.M.A.R.T.,
-> and read out the error logs from it.
+On 2/26/06, Mark Lord <lkml@rtr.ca> wrote:
+> Jesper Juhl wrote:
+>  >
+> > Or how about an option for the IDE driver to "not do that" that people
+> > could enable if needed/wanted?
+> > Or just change the code to "not do that" since we are no longer in the
+> > mid-1990s?
+>
+> Well, yes.  That's what I would do, were I still maintaining the IDE layer.
+>
+> But that code has become so twisted and confused since then,
+> that a change like this is probably too risky/challenging for
+> the current maintainers.  It seems really easy to break stuff
+> when touching parts of that code now, and people don't like it
+> much when their hard drives get corrupted.
+>
+> But perhaps someone may successfully implement this.
+>
+Unfortunately my machines only have SCSI devices, so I'd have no way
+to actually test a patch, otherwise I'd be happy to give it a shot - a
+parameter to disable the behaviour shouldn't be too difficult to
+implement, and if the default stays as the current behaviour then it
+shouldn't be too controversial.
+I wouldn't mind trying to hack up a patch, but it would be untested...
 
-I have seen a set of drives that has reported UncorrectableErrors
-and :
-    * Shows the Uncorrectable error in the SMART log
-    * Passes a full SMART test
-    * Shows no remapped sectors
-    * Passes the vendors drive test
-    * Now fully passes a dd if=/dev/hdx of=/dev/null with no errors.
-
-They were a set of 250GB SATA drives by the same vendor; I've taken
- them out one at a time as each did the same thing and replaced them
-with another vendors drive.  They were all in use in RAID-1 MD 
-configuration (under heavy load).
-
-I do wonder about the 'uncorrectable error rate' that vendors report;
-it doesn't seem very large - but I'll admit to not understanding its
-units.  Are soft non-repeatable uncorrectable errors expected in
-principal? (Pointers to a good explanation of what this actually
-means would be appreciated).
-
-I do wonder how often this happens to people and if the read succeeds
-again they just blame it on software.
-
-Dave
 --
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

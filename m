@@ -1,92 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWBZXI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWBZXIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWBZXI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWBZXI2
+	id S932235AbWBZXIK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWBZXIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:08:28 -0500
-Received: from smtpq2.groni1.gr.home.nl ([213.51.130.201]:45451 "EHLO
-	smtpq2.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S932232AbWBZXI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:08:27 -0500
-Message-ID: <44023520.8020009@keyaccess.nl>
-Date: Mon, 27 Feb 2006 00:09:20 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [TRIVIAL] move PP_MAJOR from ppdev.h to major.h
-Content-Type: multipart/mixed;
- boundary="------------090406010501060707080605"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Sun, 26 Feb 2006 18:08:10 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:20102 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932235AbWBZXIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 18:08:09 -0500
+Subject: [PATCH] fix voyager after topology.c move
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Dan Hecht <dhect@vmware.com>, Zachary Amsden <zach@vmware.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 26 Feb 2006 17:07:45 -0600
+Message-Id: <1140995265.3692.20.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090406010501060707080605
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch:
 
-Hi Andrew.
+[PATCH] Fix topology.c location
 
-Is this okay? Today I wondered about /dev/parport<n> after not seeing 
-anything in drivers/parport register char-major-99. Having PP_MAJOR in 
-include/linux/major.h would've allowed me to more quickly determine that 
-it was the ppdev driver driving these.
+Broke voyager again rather subtly because it already had its own
+topology exporting functions, so now each CPU gets registered twice.  I
+think we can actually use the generic ones, so I don't propose reverting
+it.  The attached should eliminate the voyager topology functions in
+favour of the generic ones.  I also added a define to ensure voyager is
+never hotplug CPU (we don't have the support in the SMP harness).
 
-Rene
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 
+---
 
---------------090406010501060707080605
-Content-Type: text/plain;
- name="ppdev_cleanup.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ppdev_cleanup.diff"
-
-Index: local/drivers/char/ppdev.c
-===================================================================
---- local.orig/drivers/char/ppdev.c	2006-01-03 04:21:10.000000000 +0100
-+++ local/drivers/char/ppdev.c	2006-02-26 20:41:04.000000000 +0100
-@@ -65,10 +65,11 @@
- #include <linux/parport.h>
- #include <linux/ctype.h>
- #include <linux/poll.h>
--#include <asm/uaccess.h>
-+#include <linux/major.h>
- #include <linux/ppdev.h>
- #include <linux/smp_lock.h>
- #include <linux/device.h>
-+#include <asm/uaccess.h>
+diff --git a/arch/i386/Kconfig b/arch/i386/Kconfig
+index 0afec85..af41159 100644
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -733,7 +733,7 @@ config PHYSICAL_START
  
- #define PP_VERSION "ppdev: user-space parallel port driver"
- #define CHRDEV "ppdev"
-Index: local/include/linux/major.h
-===================================================================
---- local.orig/include/linux/major.h	2006-01-03 04:21:10.000000000 +0100
-+++ local/include/linux/major.h	2006-02-26 20:40:00.000000000 +0100
-@@ -113,6 +113,7 @@
- 
- #define UBD_MAJOR		98
- 
-+#define PP_MAJOR		99
- #define JSFD_MAJOR		99
- 
- #define PHONE_MAJOR		100
-Index: local/include/linux/ppdev.h
-===================================================================
---- local.orig/include/linux/ppdev.h	2006-01-03 04:21:10.000000000 +0100
-+++ local/include/linux/ppdev.h	2006-02-26 20:39:04.000000000 +0100
-@@ -14,8 +14,6 @@
-  * Added PPGETMODES/PPGETMODE/PPGETPHASE, Fred Barnes <frmb2@ukc.ac.uk>, 03/01/2001
-  */
- 
--#define PP_MAJOR	99
+ config HOTPLUG_CPU
+ 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+-	depends on SMP && HOTPLUG && EXPERIMENTAL
++	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER
+ 	---help---
+ 	  Say Y here to experiment with turning CPUs off and on.  CPUs
+ 	  can be controlled through /sys/devices/system/cpu.
+diff --git a/arch/i386/mach-voyager/voyager_basic.c b/arch/i386/mach-voyager/voyager_basic.c
+index 6761d29..b584060 100644
+--- a/arch/i386/mach-voyager/voyager_basic.c
++++ b/arch/i386/mach-voyager/voyager_basic.c
+@@ -25,7 +25,6 @@
+ #include <linux/sysrq.h>
+ #include <linux/smp.h>
+ #include <linux/nodemask.h>
+-#include <asm/cpu.h>
+ #include <asm/io.h>
+ #include <asm/voyager.h>
+ #include <asm/vic.h>
+@@ -331,16 +330,3 @@ void machine_power_off(void)
+ 	if (pm_power_off)
+ 		pm_power_off();
+ }
 -
- #define PP_IOCTL	'p'
- 
- /* Set mode for read/write (e.g. IEEE1284_MODE_EPP) */
+-static struct i386_cpu cpu_devices[NR_CPUS];
+-
+-static int __init topology_init(void)
+-{
+-	int i;
+-
+-	for_each_present_cpu(i)
+-		register_cpu(&cpu_devices[i].cpu, i, NULL);
+-	return 0;
+-}
+-
+-subsys_initcall(topology_init);
 
---------------090406010501060707080605--
+

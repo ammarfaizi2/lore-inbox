@@ -1,181 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWBZS7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWBZTBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWBZS7L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 13:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWBZS7L
+	id S932143AbWBZTBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 14:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWBZTBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 13:59:11 -0500
-Received: from xenotime.net ([66.160.160.81]:11961 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751278AbWBZS7J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 13:59:09 -0500
-Date: Sun, 26 Feb 2006 11:00:24 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: hch@infradead.org, alan@lxorguk.ukuu.org.uk, erich@areca.com.tw,
-       arjan@infradead.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, billion.wu@areca.com.tw, akpm@osdl.org,
-       oliver@neukum.org
-Subject: Re: Areca RAID driver remaining items?
-Message-Id: <20060226110024.874328e3.rdunlap@xenotime.net>
-In-Reply-To: <20060226160247.GT28587@parisc-linux.org>
-References: <001401c63779$12e49aa0$b100a8c0@erich2003>
-	<20060222145733.GC16269@infradead.org>
-	<00dc01c63842$381f9a30$b100a8c0@erich2003>
-	<1140683157.2972.6.camel@laptopd505.fenrus.org>
-	<001901c6385e$9aee7d40$b100a8c0@erich2003>
-	<1140695990.19361.8.camel@localhost.localdomain>
-	<20060224165647.GA4176@infradead.org>
-	<Pine.LNX.4.58.0602240858180.7894@shark.he.net>
-	<20060224193830.GR28587@parisc-linux.org>
-	<20060225224112.72c20f2f.rdunlap@xenotime.net>
-	<20060226160247.GT28587@parisc-linux.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Sun, 26 Feb 2006 14:01:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:53607 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932143AbWBZTBX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 14:01:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TPqXRedjgvVJMEdgyQAM6pKPex4CpKbsdsD/v8F7ccGHWKzi9xpZGNAa5PBwKZEnaNNJenh6I9k5YvyKM++oKKCG7wOqFg4d81WLxj3msSUeihP4yAqaeoYiDCNdc/w0BW8pI91/1ZWNCaGrBRikFH4PW7N7O5r7kvVJ3qCxFCs=
+Message-ID: <9a8748490602261101q39f4cf8eqabe0143921389ce6@mail.gmail.com>
+Date: Sun, 26 Feb 2006 20:01:22 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "James Bottomley" <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH] silence gcc warning about possibly uninitialized use of variable in scsi_scan
+Cc: linux-kernel@vger.kernel.org, "Eric Youngdale" <ericy@cais.com>,
+       "Eric Youngdale" <eric@andante.org>, linux-scsi@vger.kernel.org
+In-Reply-To: <1140980377.3692.9.camel@mulgrave.il.steeleye.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602261639.15657.jesper.juhl@gmail.com>
+	 <1140978084.3692.6.camel@mulgrave.il.steeleye.com>
+	 <9a8748490602261023j46eb39f2peaa080d737fee5e1@mail.gmail.com>
+	 <1140980377.3692.9.camel@mulgrave.il.steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Feb 2006 09:02:47 -0700 Matthew Wilcox wrote:
+On 2/26/06, James Bottomley <James.Bottomley@steeleye.com> wrote:
+> On Sun, 2006-02-26 at 19:23 +0100, Jesper Juhl wrote:
+> > > gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
+> > >
+> > > Doesn't give this warning.  And, since the loop has fixed parameters,
+> > > gcc should see not only that it's always executed, but that it could be
+> > > unrolled.
+> > >
+> > > Which version is causing the problem?
+> > >
+> > 2.6.16-rc4-mm2 build with gcc 3.4.5
+>
+> I also tried with
+>
+> gcc version 3.3.5 (Debian 1:3.3.5-13)
+>
+> which likewise fails to give this warning, so I really think this is a
+> bug in your particular version of gcc.
+>
 
-> On Sat, Feb 25, 2006 at 10:41:12PM -0800, Randy.Dunlap wrote:
-> > OK, updated patch for "pci=nomsi" is now at
-> >   http://www.xenotime.net/linux/patches/pci_nomsi.patch
-> 
-> After sleeping on it, I realised this wouldn't work if CONFIG_PCI_MSI
-> is disabled.  So how about this (not even compile-tested):
+Hmm, it's quite reproducible and the gcc 3.4.5 I have here is not
+patched by the distribution (Slackware). If you want I can send you
+the .config that results in the warning..
 
-It's good.  Thanks for catching that.
-
-> Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-
-
-> Index: ./Documentation/kernel-parameters.txt
-> ===================================================================
-> RCS file: /var/cvs/linux-2.6/Documentation/kernel-parameters.txt,v
-> retrieving revision 1.41.4.1
-> diff -u -p -r1.41.4.1 kernel-parameters.txt
-> --- ./Documentation/kernel-parameters.txt	18 Feb 2006 05:26:01 -0000	1.41.4.1
-> +++ ./Documentation/kernel-parameters.txt	26 Feb 2006 15:58:40 -0000
-> @@ -49,6 +49,7 @@ restrictions referred to are that the re
->  	MCA	MCA bus support is enabled.
->  	MDA	MDA console support is enabled.
->  	MOUSE	Appropriate mouse support is enabled.
-> +	MSI	Message Signaled Interrupts (PCI).
->  	MTD	MTD support is enabled.
->  	NET	Appropriate network support is enabled.
->  	NUMA	NUMA support is enabled.
-> @@ -1135,6 +1136,9 @@ running once the system is up.
->  				Mechanism 2.
->  		nommconf	[IA-32,X86_64] Disable use of MMCONFIG for PCI
->  				Configuration
-> +		nomsi		[MSI] If the PCI_MSI kernel config parameter is
-> +				enabled, this kernel boot option can be used to
-> +				disable the use of MSI interrupts system-wide.
->  		nosort		[IA-32] Don't sort PCI devices according to
->  				order given by the PCI BIOS. This sorting is
->  				done to get a device order compatible with
-> Index: ./drivers/pci/Kconfig
-> ===================================================================
-> RCS file: /var/cvs/linux-2.6/drivers/pci/Kconfig,v
-> retrieving revision 1.8
-> diff -u -p -r1.8 Kconfig
-> --- ./drivers/pci/Kconfig	14 Sep 2005 12:56:32 -0000	1.8
-> +++ ./drivers/pci/Kconfig	26 Feb 2006 15:58:40 -0000
-> @@ -11,6 +11,10 @@ config PCI_MSI
->  	   generate an interrupt using an inbound Memory Write on its
->  	   PCI bus instead of asserting a device IRQ pin.
->  
-> +	   Use of PCI MSI interrupts can be disabled at kernel boot time
-> +	   by using the 'pci=nomsi' option.  This disables MSI for the
-> +	   entire system.
-> +
->  	   If you don't know what to do here, say N.
->  
->  config PCI_LEGACY_PROC
-> Index: ./drivers/pci/msi.c
-> ===================================================================
-> RCS file: /var/cvs/linux-2.6/drivers/pci/msi.c,v
-> retrieving revision 1.17
-> diff -u -p -r1.17 msi.c
-> --- ./drivers/pci/msi.c	4 Feb 2006 04:51:55 -0000	1.17
-> +++ ./drivers/pci/msi.c	26 Feb 2006 15:58:40 -0000
-> @@ -755,6 +755,9 @@ void pci_disable_msi(struct pci_dev* dev
->  	u16 control;
->  	unsigned long flags;
->  
-> +	if (!pci_msi_enable)
-> + 		return;
-> +
->     	if (!dev || !(pos = pci_find_capability(dev, PCI_CAP_ID_MSI)))
->  		return;
->  
-> @@ -1006,6 +1009,9 @@ void pci_disable_msix(struct pci_dev* de
->  	int pos, temp;
->  	u16 control;
->  
-> +	if (!pci_msi_enable)
-> + 		return;
-> +
->     	if (!dev || !(pos = pci_find_capability(dev, PCI_CAP_ID_MSIX)))
->  		return;
->  
-> @@ -1121,6 +1127,11 @@ void msi_remove_pci_irq_vectors(struct p
->  		}
->  		dev->irq = temp;		/* Restore IOAPIC IRQ */
->  	}
-> +}
-> +
-> +void pci_no_msi(void)
-> +{
-> +	pci_msi_enable = 0;
->  }
->  
->  EXPORT_SYMBOL(pci_enable_msi);
-> Index: ./drivers/pci/pci.c
-> ===================================================================
-> RCS file: /var/cvs/linux-2.6/drivers/pci/pci.c,v
-> retrieving revision 1.28
-> diff -u -p -r1.28 pci.c
-> --- ./drivers/pci/pci.c	4 Feb 2006 04:51:55 -0000	1.28
-> +++ ./drivers/pci/pci.c	26 Feb 2006 15:58:40 -0000
-> @@ -900,8 +900,12 @@ static int __devinit pci_setup(char *str
->  		if (k)
->  			*k++ = 0;
->  		if (*str && (str = pcibios_setup(str)) && *str) {
-> -			/* PCI layer options should be handled here */
-> -			printk(KERN_ERR "PCI: Unknown option `%s'\n", str);
-> +			if (!strcmp(str, "nomsi")) {
-> +				pci_no_msi();
-> +			} else {
-> +				printk(KERN_ERR "PCI: Unknown option `%s'\n",
-> +						str);
-> +			}
->  		}
->  		str = k;
->  	}
-> Index: ./drivers/pci/pci.h
-> ===================================================================
-> RCS file: /var/cvs/linux-2.6/drivers/pci/pci.h,v
-> retrieving revision 1.13
-> diff -u -p -r1.13 pci.h
-> --- ./drivers/pci/pci.h	17 Jan 2006 14:51:41 -0000	1.13
-> +++ ./drivers/pci/pci.h	26 Feb 2006 15:58:40 -0000
-> @@ -50,8 +50,10 @@ extern int pci_msi_quirk;
->  
->  #ifdef CONFIG_PCI_MSI
->  void disable_msi_mode(struct pci_dev *dev, int pos, int type);
-> +void pci_no_msi(void);
->  #else
->  static inline void disable_msi_mode(struct pci_dev *dev, int pos, int type) { }
-> +static inline void pci_no_msi(void) { }
->  #endif
->  
->  extern int pcie_mch_quirk;
-> 
-
-
----
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

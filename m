@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWBZFb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWBZGj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWBZFb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 00:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWBZFb4
+	id S1751251AbWBZGj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 01:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWBZGj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 00:31:56 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:21394 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750766AbWBZFbz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 00:31:55 -0500
-Date: Sun, 26 Feb 2006 05:31:38 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
-       Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [stable] [PATCH 1/2] sd: fix memory corruption by sd_read_cache_type
-Message-ID: <20060226053138.GM27946@ftp.linux.org.uk>
-References: <tkrat.014f03dc41356221@s5r6.in-berlin.de> <20060225021009.GV3883@sorel.sous-sol.org> <4400E34B.1000400@s5r6.in-berlin.de> <Pine.LNX.4.64.0602251600480.22647@g5.osdl.org> <1140930888.3279.4.camel@mulgrave.il.steeleye.com>
+	Sun, 26 Feb 2006 01:39:59 -0500
+Received: from xenotime.net ([66.160.160.81]:33950 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751251AbWBZGj6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 01:39:58 -0500
+Date: Sat, 25 Feb 2006 22:41:12 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: hch@infradead.org, alan@lxorguk.ukuu.org.uk, erich@areca.com.tw,
+       arjan@infradead.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, billion.wu@areca.com.tw, akpm@osdl.org,
+       oliver@neukum.org
+Subject: Re: Areca RAID driver remaining items?
+Message-Id: <20060225224112.72c20f2f.rdunlap@xenotime.net>
+In-Reply-To: <20060224193830.GR28587@parisc-linux.org>
+References: <1140458552.3495.26.camel@mentorng.gurulabs.com>
+	<20060220182045.GA1634@infradead.org>
+	<001401c63779$12e49aa0$b100a8c0@erich2003>
+	<20060222145733.GC16269@infradead.org>
+	<00dc01c63842$381f9a30$b100a8c0@erich2003>
+	<1140683157.2972.6.camel@laptopd505.fenrus.org>
+	<001901c6385e$9aee7d40$b100a8c0@erich2003>
+	<1140695990.19361.8.camel@localhost.localdomain>
+	<20060224165647.GA4176@infradead.org>
+	<Pine.LNX.4.58.0602240858180.7894@shark.he.net>
+	<20060224193830.GR28587@parisc-linux.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1140930888.3279.4.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 25, 2006 at 11:14:48PM -0600, James Bottomley wrote:
-> On Sat, 2006-02-25 at 16:01 -0800, Linus Torvalds wrote:
-> > Perhaps equally importantly, let's get them into mainline if they are so 
-> > important. Which means that I want sign-offs and acks from the appropriate 
-> > people (scsi and original author, which is apparently Al).
+On Fri, 24 Feb 2006 12:38:30 -0700 Matthew Wilcox wrote:
+
+> On Fri, Feb 24, 2006 at 09:03:47AM -0800, Randy.Dunlap wrote:
+> > On Fri, 24 Feb 2006, Christoph Hellwig wrote:
+> > > Please avoid that unless really nessecary.  I doubt there's boards where
+> > > MSI would only be broken with the areca card but not with other MSI-capable
+> > > ones.  If a board or chipset is generally broken vs MSI it should be
+> > > added to the global MSI blacklist.  It's probably be nice to have a global
+> > > nomsi boot option instead of one in every driver aswell..
+> > 
+> > http://www.xenotime.net/linux/patches/pci_nomsi.patch adds a
+> > global boot option to disable MSI interrupt assignments.
 > 
-> Yes, I've been thinking about this.  The problem is that it's a change
-> to sd and a change to scsi_lib in a fairly critical routine.  While I'm
-> reasonably certain the change is safe, I'd prefer to make sure by
-> incubating in -mm for a while.
+> I like it.  How about adding pci=nomsi instead of pci_nomsi?
 > 
-> The title, by the way, is misleading; it's not a memory corruption in sd
-> at all really.  It's the initio bridge which produces a totally
-> standards non conformant return to a mode sense which produces the
-> problem.  And so, it's only the single initio bridge which is currently
-> affected; hence the caution.
+> --- drivers/pci/pci.c   4 Feb 2006 04:51:55 -0000       1.28
+> +++ drivers/pci/pci.c   24 Feb 2006 19:33:25 -0000
+> @@ -900,8 +900,12 @@ static int __devinit pci_setup(char *str
+>                 if (k)
+>                         *k++ = 0;
+>                 if (*str && (str = pcibios_setup(str)) && *str) {
+> -                       /* PCI layer options should be handled here */
+> -                       printk(KERN_ERR "PCI: Unknown option `%s'\n", str);
+> +                       if (!strcmp(str, "nomsi")) {
+> +                               pci_msi_enable = 0;
+> +                       } else {
+> +                               printk(KERN_ERR "PCI: Unknown option `%s'\n",
+> +                                               str);
+> +                       }
+>                 }
+>                 str = k;
 
-No.  It's sd.c assuming that mode page header is sane, without any
-checks.  And yes, it does give memory corruption if it's not.
+OK, updated patch for "pci=nomsi" is now at
+  http://www.xenotime.net/linux/patches/pci_nomsi.patch
 
-Initio-related part is in scsi_lib.c (and in recovery part of sd.c
-changes).  That one is about how we can handle gracefully a broken
-device that gives no header at all.
-
-Checks for ->block_descriptors_length are just making sure we won't try
-to do any access past the end of buffer, no matter what crap we got from
-device.
+Thanks.
+---
+~Randy

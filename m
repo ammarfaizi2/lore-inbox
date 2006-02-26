@@ -1,93 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWBZSIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWBZSK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWBZSIn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 13:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWBZSIn
+	id S1751377AbWBZSK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 13:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWBZSK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 13:08:43 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:39978 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750981AbWBZSIm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 13:08:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=q8TNMIYrfCGkPmaYEf3W2F1DWjMNp+xRMY4yyTgkNhUg6T/5K/LMBW+FgYJgGYttl5sPD3xGSJaZaCLIM8V0WDJrhjR2aIt1gf6Xbjn+wQ7QLKpfwQVXflIunF8MhB/iivs6AaCV+bc90kRPiNlYVxh+sjaXgjm6+zhxygOLW6U=
-Message-ID: <9a8748490602261008v427d3cb6ufb446efc96117220@mail.gmail.com>
-Date: Sun, 26 Feb 2006 19:08:41 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
-Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       "Sam Ravnborg" <sam@ravnborg.org>
-In-Reply-To: <20060226174123.GJ3674@stusta.de>
+	Sun, 26 Feb 2006 13:10:59 -0500
+Received: from av10-1-sn2.hy.skanova.net ([81.228.8.181]:54974 "EHLO
+	av10-1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1751377AbWBZSK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 13:10:58 -0500
+X-Spam-Score: -3.8
+Message-ID: <4401EF2C.2000004@fulhack.info>
+Date: Sun, 26 Feb 2006 19:10:52 +0100
+From: Henrik Persson <root@fulhack.info>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602261721.17373.jesper.juhl@gmail.com>
-	 <20060226170038.GF3674@stusta.de>
-	 <9a8748490602260929v74fd8358r8bdb2d670508bb0a@mail.gmail.com>
-	 <20060226174123.GJ3674@stusta.de>
+To: Nick Warne <nick@linicks.net>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Mark Lord <lkml@rtr.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: hda: irq timeout: status=0xd0 DMA question
+References: <200602261308.47513.nick@linicks.net> <4401E06D.90305@rtr.ca> <9a8748490602260917h31883941qa46dea626276d389@mail.gmail.com> <200602261720.34062.nick@linicks.net>
+In-Reply-To: <200602261720.34062.nick@linicks.net>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/26/06, Adrian Bunk <bunk@stusta.de> wrote:
-> On Sun, Feb 26, 2006 at 06:29:54PM +0100, Jesper Juhl wrote:
-> > On 2/26/06, Adrian Bunk <bunk@stusta.de> wrote:
-> >...
-> > > > >From 100 kernel builds there was a total of 16152 warnings and 645 of those
-> > > > are unique warnings, the rest are duplicates.
-> > > >
-> > > > We are drowning in warnings people. Sure, many of the warnings are due to
-> > > > gcc getting something wrong and shouldn't really be emitted, but a lot of
-> > > > them point to actual problems or deficiencies (I obviously haven't looked
-> > > > at them all in detail yet, so take that with a grain of salt please).
-> > > >...
-> > >
-> > > It's well-known that BROKEN_ON_SMP drivers often spit 50 warnings in one
-> > > warning. If you remove the dozen worst drivers the numbers should look
-> > > much better.
-> > >
-> > Better yet, let's fix the warnings.
->
-> It's never bad if someone converts drivers still using cli/sti.
->
-> Unfortunately, this is non-trivial...
->
-> > > Not that our current situation was perfect, but the number of warnings
-> > > in .config's people usually use isn't that bad.
-> >
-> > I agree it's not too bad for most people. The point of my post was
-> > mostly a "call to arms" trying to get people interrested in fixing all
-> > the warnings and build errors we have.
->
-> I'm agreeing that this is a good idea, I simply disagreed with your
-> "we suck at..." point, since although we can become better we aren't
-> that bad.
->
-Ok, maybe that was a bit too stong wording.
+Nick Warne wrote:
+> On Sunday 26 February 2006 17:17, Jesper Juhl wrote:
+> 
+> 
+>>>But perhaps someone may successfully implement this.
+>>
+>>Unfortunately my machines only have SCSI devices, so I'd have no way
+>>to actually test a patch, otherwise I'd be happy to give it a shot - a
+>>parameter to disable the behaviour shouldn't be too difficult to
+>>implement, and if the default stays as the current behaviour then it
+>>shouldn't be too controversial.
+>>I wouldn't mind trying to hack up a patch, but it would be untested...
+> 
+> 
+> Post it to me - but look at my original post - this is/was on kernel 2.4.32.  
+> I have yet to see such output on 2.6.x series kernels.
 
+I get those on 2.6.x.
 
-> > There's a lot of focus on implementing new features - and that's great
-> > - but there's little emphasis on fixing the problems we have and
-> > already know about - I'd like to see that change, and my post was
-> > mainly an attempt at making that happen :)
->
-> IMHO, the real problems we already know about are not warnings, they are
-> the ones listed at
->   http://bugzilla.kernel.org/
->
-> And in these cases, the bugs in unmaintained areas of the kernel like
-> APM or the floppy driver are the worst ones.
->
+Does happen once or twice a year.. Probably something funky with the
+cabling or some power-related issues.
 
-Agreed, those bugs should be fixed as well. Unfortunately most of them
-are beyond my abilities, so I tend to focus on the stuff that I see is
-broken and that I am actually able to help fix.  :-)
-
+Anyway, I would be happy if the IDE driver would "just not do that". :)
 
 --
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Henrik Persson

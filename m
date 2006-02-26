@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWBZSNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWBZSRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751028AbWBZSNk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 13:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWBZSNk
+	id S1751259AbWBZSRy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 13:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWBZSRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 13:13:40 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18191 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751028AbWBZSNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 13:13:39 -0500
-Date: Sun, 26 Feb 2006 19:13:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] make INPUT a bool
-Message-ID: <20060226181338.GL3674@stusta.de>
-References: <20060220132832.GF4971@stusta.de> <Pine.LNX.4.61.0602252300200.7535@yvahk01.tjqt.qr> <20060225220737.GE3674@stusta.de> <200602251723.53349.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Sun, 26 Feb 2006 13:17:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52753 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751259AbWBZSRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 13:17:53 -0500
+Date: Sun, 26 Feb 2006 18:17:47 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
+Message-ID: <20060226181747.GB31256@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060226100518.GA31256@flint.arm.linux.org.uk> <20060226021414.6a3db942.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602251723.53349.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <20060226021414.6a3db942.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 25, 2006 at 05:23:52PM -0500, Dmitry Torokhov wrote:
+On Sun, Feb 26, 2006 at 02:14:14AM -0800, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> > Calling serial functions to flush buffers, or try to send more data
+> >  after the port has been closed or hung up is a bug in the code doing
+> >  the calling, not in the serial_core driver.
+> > 
+> >  Make this explicitly obvious by adding BUG_ON()'s.
 > 
-> Adrian,
+> If we make it
 > 
-> There are requests to move it out of EMBEDDED because sometimes you
-> just  don't need input layer at all. Dave Jones mentioned that he
-> feels silly enabling EMBEDDED on iSeries... I am thinking about
-> changing it to "EMBEDDED || !X86_PC" to safe-guard the most common
-> platform from accidenially disabling it.
+> 	if (!info) {
+> 		WARN_ON(1);
+> 		return;
+> 	}
+> 
+> will that allow people's kernels to limp along until it gets fixed?
 
-Sounds reasonable.
-
-> I am still not convinced whether INPUT=m makes sence, especially if
-> we make ACPI use input layer... Jan's example about input device with
-> hot-pluggable keyboard is a bit of a stretch. 
-
-Agreed.
-
-> Dmitry
-
-cu
-Adrian
+"until" - I think you mean "if anyone ever bothers" so no I don't agree.
+The bluetooth folk seem to have absolutely no interest in bug fixing.
+Can we mark bluetooth broken please?
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

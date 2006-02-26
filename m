@@ -1,68 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWBZMnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWBZMzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbWBZMnz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 07:43:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBZMnz
+	id S1751099AbWBZMzF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 07:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWBZMzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 07:43:55 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:33751 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751089AbWBZMny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 07:43:54 -0500
-Date: Sun, 26 Feb 2006 13:43:51 +0100
-From: "Stefan-W. Hahn" <stefan.hahn@s-hahn.de>
-To: linux-kernel@vger.kernel.org
-Cc: mec@shout.net
-Subject: [PATCH] Corrected faulty syntax in drivers/input/Config.in
-Message-ID: <20060226124351.GA7239@scotty.home>
-Mail-Followup-To: linux-kernel@vger.kernel.org, mec@shout.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: -no organization-
-X-Mailer: Mutt 1.5.6 http://www.mutt.org/
-X-Editor: GNU Emacs 21.4.1 http://www.gnu.org/
-X-Accept-Language: de en
-X-Location: Europe, Germany, Wolfenbuettel
-X-GPG-Public-Key: http://www.s-hahn.de/gpg-public-stefan.asc
-X-GPG-key-ID/Fingerprint: 0xE4FCD563 / EF09 97BB 3731 7DC7 25BA 5C39 185C F986 E4FC D563
-User-Agent: Mutt/1.5.9i
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:77aa76da759ebc9bab1cc524fc813130
+	Sun, 26 Feb 2006 07:55:05 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:36008 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1750817AbWBZMzD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 07:55:03 -0500
+Message-ID: <4401A532.4030602@dgreaves.com>
+Date: Sun, 26 Feb 2006 12:55:14 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: Mark Lord <lkml@rtr.ca>, Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44019E96.20804@superbug.co.uk>
+In-Reply-To: <44019E96.20804@superbug.co.uk>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Corrected faulty syntax in drivers/input/Config.in
+James Courtier-Dutton wrote:
 
-If statement in drivers/input/Config.in for "make xconfig" corrected.
+> I have two desktop linux machines. One is an old Pentium 3 which shows
+> the following errors(no libata involved):
+> Linux version 2.6.15-rc4 (root@games) (gcc version 4.0.3 20051111
+> (prerelease) (Debian 4.0.2-4)
+> ) #1 Sat Dec 3 18:47:19 GMT 2005
+> Dec 16 22:51:57 games kernel: hdc: dma_intr: status=0x51 { DriveReady
+> SeekComplete Error }
+> Dec 16 22:52:32 games kernel: hdc: dma_intr: error=0x40 {
+> UncorrectableError }, LBAsect=53058185, sector=53057951
+> Dec 16 22:52:32 games kernel: ide: failed opcode was: unknown
+> Dec 16 22:52:32 games kernel: end_request: I/O error, dev hdc, sector
+> 53057951
+> Dec 16 22:52:32 games kernel: hdc: dma_intr: status=0x51 { DriveReady
+> SeekComplete Error }
+> Dec 16 22:52:32 games kernel: hdc: dma_intr: error=0x10 {
+> SectorIdNotFound }, LBAsect=53058185, sector=53057959
+> Dec 16 22:52:32 games kernel: ide: failed opcode was: unknown
 
-Signed-off-by: Stefan-W. Hahn <stefan.hahn@s-hahn.de>
+This looks like a simple bad disk drive. Notice that the sectors are
+quite close.
+If you like you can move the drive to a working machine and run a
+badblocks on it.
+do 'man badblocks' before you start.
+Is it SMART capable? What does
+  smartctl -a /dev/hdc
+show?
 
----
+ddrescue may be your friend if you need to recover data.
 
-Surely this is just for Linux 2.4.33-pre2!
+Reply offlist if this is the case.
 
- drivers/input/Config.in |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> The other has the following errors:
+> Linux version 2.6.15.1 (root@localhost) (gcc version 3.4.5 (Gentoo
+> 3.4.5, ssp-3.4.5-1.0, pi
+> e-8.7.9)) #3 SMP PREEMPT Fri Feb 3 23:19:05 GMT 2006
+> Feb 10 23:30:07 localhost kernel: ata3: command 0xb0 timeout, stat
+> 0xd0 host_stat 0x0
+> Feb 10 23:30:07 localhost kernel: ata3: translated ATA stat/err
+> 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+> Feb 10 23:30:07 localhost kernel: ata3: status=0xd0 { Busy }
+> Feb 10 23:30:07 localhost kernel: ATA: abnormal status 0xD0 on port
+> 0xF880E087
+> Feb 10 23:30:07 localhost last message repeated 3 times
+> Feb 10 23:30:10 localhost kernel: ata3: PIO error
+> Feb 10 23:30:10 localhost kernel: ata3: status=0x50 { DriveReady
+> SeekComplete }
+> Feb 11 10:18:10 localhost kernel: ata2: command 0xb0 timeout, stat
+> 0xd0 host_stat 0x0
+> Feb 11 10:18:10 localhost kernel: ata2: translated ATA stat/err
+> 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+> Feb 11 10:18:10 localhost kernel: ata2: status=0xd0 { Busy }
+> Feb 11 10:18:10 localhost kernel: ATA: abnormal status 0xD0 on port 0x177
+> Feb 11 10:18:10 localhost last message repeated 3 times
 
-81f9e154659df0504179612968d61912da9c135c
-diff --git a/drivers/input/Config.in b/drivers/input/Config.in
-index 56fd537..d24d0fb 100644
---- a/drivers/input/Config.in
-+++ b/drivers/input/Config.in
-@@ -8,7 +8,7 @@ comment 'Input core support'
- tristate 'Input core support' CONFIG_INPUT
- dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
- 
--if [ "$CONFIG_INPUT_KEYBDEV" == "n" ]; then
-+if [ "$CONFIG_INPUT_KEYBDEV" = "n" ]; then
- 	bool '  Use dummy keyboard driver' CONFIG_DUMMY_KEYB $CONFIG_INPUT
- fi
- 
+Have you got smartd running?
+I get a similar problem running some smartcl commands (-s on and -o on)
+I suspect this is a libata ata passthru problem - but I'm *guessing* :)
+
+check the last messages in dmesg then run
+smartctl -data -s on /dev/sd...
+smartctl -data -o on /dev/sd...
+See if there are new messages in dmesg
+
+David
+
 -- 
-1.2.3.g8fcf1
-
-
--- 
-Stefan-W. Hahn                          It is easy to make things.
-/ mailto:stefan.hahn@s-hahn.de /        It is hard to make things simple.			
 

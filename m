@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWBZNTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWBZN3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWBZNTS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 08:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWBZNTS
+	id S1751122AbWBZN3K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 08:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWBZN3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 08:19:18 -0500
-Received: from mail.gmx.de ([213.165.64.20]:29332 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751114AbWBZNTR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 08:19:17 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch 2.6.16-rc4-mm1]  Task Throttling V14
-From: MIke Galbraith <efault@gmx.de>
-To: "Daniel K." <daniel@cluded.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <44019075.2000205@cluded.net>
-References: <1140183903.14128.77.camel@homer>
-	 <1140812981.8713.35.camel@homer>  <44019075.2000205@cluded.net>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 14:19:35 +0100
-Message-Id: <1140959975.7658.9.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 26 Feb 2006 08:29:10 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:37523 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751122AbWBZN3J convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 08:29:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TVekUYrTgO5KudGa/QPn3wjcNRIY2C0SedDGrw6JsNNQOq6/zHWXBZmwM3eH6LBbaGQyzUuidsYZVtscDLpeREnP3S2SALBVlwJMYF9PaLSIzzmrLadIoletIs9u0UXdyFEW8mRnD+MbDxg4s07uV43+rHWNO7RKQoibxtWT4e8=
+Message-ID: <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
+Date: Sun, 26 Feb 2006 14:29:08 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: Luke-Jr <luke@dashjr.org>
+Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works ;)
+Cc: "Bernhard Rosenkraenzer" <bero@arklinux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200602261330.15709.luke@dashjr.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602250042.51677.bero@arklinux.org>
+	 <200602261330.15709.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-26 at 11:26 +0000, Daniel K. wrote:
-> MIke Galbraith wrote:
-> > On Fri, 2006-02-17 at 14:45 +0100, MIke Galbraith wrote: 
-> > +/*
-> > + * Masks for p->slice_info, formerly p->first_time_slice.
-> > + * SLICE_FTS:   0x80000000  Task is in it's first ever timeslice.
-> > + * SLICE_NEW:   0x40000000  Slice refreshed.
-> > + * SLICE_SPA:   0x3FFF8000  Spare bits.
-> > + * SLICE_LTS:   0x00007F80  Last time slice
-> > + * SLICE_AVG:   0x0000007F  Task slice_avg stored as percentage.
-> > + */
-> > +#define SLICE_AVG_BITS    7
-> > +#define SLICE_LTS_BITS   10
-> > +#define SLICE_SPA_BITS   13
-> > +#define SLICE_NEW_BITS    1
-> > +#define SLICE_FTS_BITS    1
-> 
-> I count 8 and 15 bits in the documentation of LTS/SPA respectively, not 
-> 10 and 13.
+On 2/26/06, Luke-Jr <luke@dashjr.org> wrote:
+> On Friday 24 February 2006 23:42, Bernhard Rosenkraenzer wrote:
+> > I've just released dvdrtools 0.3.1
+> > (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools
+> > that (as the name indicates) adds support for writing to DVD-R and DVD-RW
+> > disks using purely Free Software,
+>
+> also DVD+R/RW/DL, I hope?
+>
 
-Dang, fixed the stupid bug, but forgot to wipe the evidence ;-)  Fixed.
+And what about DVD-RAM drives? Any plans to support those?
 
-> 
-> >  	}
-> >  
-> >  	if (likely(sleep_time > 0)) {
-> > +
-> 
-> Extra line
+> > that tries to do things the Linux way ("dvdrecord dev=/dev/cdrom
+> > whatever.iso")
+>
+> Shouldn't that be "dvdrecord whatever.iso /dev/cdrom" or similar?
 
-Fixed.
+I'd agree, that would match 'cp', 'mv', 'ln' etc by having the source
+first and destination second.
 
-> 
-> > +	{
-> > +		.ctl_name	= KERN_SCHED_THROTTLE1,
-> > +		.procname	= "sched_g1",
-> > +		.data		= &sched_g1,
-> > +		.maxlen		= sizeof (int),
-> > +		.mode		= 0644,
-> > +		.proc_handler	= &proc_dointvec_minmax,
-> > +		.strategy	= &sysctl_intvec,
-> > +		.extra1		= &zero,
-> > +		.extra2		= &sched_g2_max,
-> 
-> sched_g2_max is possibly badly named, as it is used in connection with 
-> sched_g1 here.
-> 
-> > +	},
-> > +	{
-> > +		.ctl_name	= KERN_SCHED_THROTTLE2,
-> > +		.procname	= "sched_g2",
-> > +		.data		= &sched_g2,
-> > +		.maxlen		= sizeof (int),
-> > +		.mode		= 0644,
-> > +		.proc_handler	= &proc_dointvec_minmax,
-> > +		.strategy	= &sysctl_intvec,
-> > +		.extra1		= &zero,
-> > +		.extra2		= &sched_g2_max,
-> > +	},
 
-I suppose sched_grace_max would fit better.
+> Any plans to support growing an ISO fs (ala growisofs)? Maybe by simply
+> including a modified growisofs using dvdrecord-libscg?
 
-Thanks for taking a look.
 
-	-Mike
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

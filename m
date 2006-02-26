@@ -1,62 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWBZUCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWBZUEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWBZUCT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 15:02:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWBZUCT
+	id S1751398AbWBZUEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 15:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWBZUEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 15:02:19 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47112 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751398AbWBZUCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 15:02:18 -0500
-Date: Sun, 26 Feb 2006 20:02:12 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.16-rc4-mm2: drivers/rtc/utils.c should become part of a generic implementation
-Message-ID: <20060226200212.GD31256@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Greg KH <greg@kroah.com>
-References: <20060224031002.0f7ff92a.akpm@osdl.org> <20060225033118.GF3674@stusta.de> <20060225054619.149db264@inspiron> <20060225131025.GK3674@stusta.de> <20060226194116.50f7ad2e@inspiron> <20060226185518.GM3674@stusta.de>
+	Sun, 26 Feb 2006 15:04:21 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:20435 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751398AbWBZUEU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 15:04:20 -0500
+Date: Sun, 26 Feb 2006 15:56:27 -0600
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OOM-killer too aggressive?
+Message-ID: <20060226215627.GB4979@dmt.cnet>
+References: <5KvnZ-4uN-27@gated-at.bofh.it> <4401F5E3.3090003@shaw.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060226185518.GM3674@stusta.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <4401F5E3.3090003@shaw.ca>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 07:55:18PM +0100, Adrian Bunk wrote:
-> On Sun, Feb 26, 2006 at 07:41:16PM +0100, Alessandro Zummo wrote:
-> > On Sat, 25 Feb 2006 14:10:25 +0100
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > 
-> > > 
-> > > Sounds good, but for generic functions, two adjustments are required:
-> > > - move the code to lib/
-> > > - remove rtc_ prefixes from the functions
-> > 
-> >  Moved. I'm not sure about renaming them.. 
-> > 
-> >  the functions are:
-> > 
-> > rtc_month_days
-> > rtc_time_to_tm
-> > rtc_valid_tm
-> > rtc_tm_to_time
-> > 
-> >  I think they make more sense with the rtc prefix
+On Sun, Feb 26, 2006 at 12:39:31PM -0600, Robert Hancock wrote:
+> Chuck Ebbert wrote:
+> >DMA free:44kB min:32kB low:40kB high:48kB active:0kB inactive:0kB
+> >present:15728kB pages_scanned:0 all_unreclaimable? yes
 > 
-> None of these functions is in any way specicific to RTC drivers.
+> I think the big question is who used up all the DMA zone.. Surely not 
+> the floppy driver..
 
-Doesn't having them take a struct rtc_time (which is different from
-struct tm) make them rather RTC specific?
+The kernel text and data? "readelf -S vmlinux" output would be useful.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

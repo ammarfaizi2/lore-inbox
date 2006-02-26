@@ -1,82 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWBZOEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWBZOEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWBZOEA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 09:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWBZOEA
+	id S1750812AbWBZOEY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 09:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbWBZOEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 09:04:00 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:39579 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S1750748AbWBZOD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 09:03:59 -0500
-Date: Sun, 26 Feb 2006 15:03:57 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15] running tcpdump on 3c905b causes freeze (reproducable)
-Message-ID: <20060226140357.GU1570@vanheusden.com>
-References: <20060108114305.GA32425@vanheusden.com>
-	<20060109041114.6e797a9b.akpm@osdl.org>
-	<20060109144522.GB10955@vanheusden.com>
-	<20060109193754.GD12673@vanheusden.com>
-	<20060109224821.7a40bc69.akpm@osdl.org>
-	<20060110142725.GH12673@vanheusden.com>
-	<20060114132414.GN6087@vanheusden.com>
-	<20060114060457.06efae88.akpm@osdl.org>
-	<20060114233648.GA24049@vanheusden.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060114233648.GA24049@vanheusden.com>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Sun Feb 26 16:34:07 CET 2006
-X-Message-Flag: www.vanheusden.com
-User-Agent: Mutt/1.5.10i
+	Sun, 26 Feb 2006 09:04:24 -0500
+Received: from rtr.ca ([64.26.128.89]:47851 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750883AbWBZOEW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 09:04:22 -0500
+Message-ID: <4401B560.40702@rtr.ca>
+Date: Sun, 26 Feb 2006 09:04:16 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: David Greaves <david@dgreaves.com>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
+In-Reply-To: <44017B4B.3030900@dgreaves.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >  > > > > > Have you tried enabling the NMI watchdog?  Enable CONFIG_X86_LOCAL_APIC and
-> > >  > > > > > boot with `nmi_watchdog=1' on the command line, make sure that the NMI line
-> > >  > > > > > of /proc/interrupts is incrementing.
-> > >  > > > > I'll give it a try. I've added it to the append-line in the lilo config.
-> > >  > > > > Am now compiling the kernel.
-> > >  > > > No change. Well, that is: the last message on the console now is
-> > >  > > > "setting eth1 to promiscues mode".
-> > >  > > Did you confirm that the NMI counters in /proc/interrupts are incrementing?
-> > >  > Yes:
-> > >  > root@muur:/home/folkert# for i in `seq 1 5` ; do cat /proc/interrupts  | grep NMI ; sleep 1 ; done
-> > >  > NMI:    6949080    6949067
-> ...
-> > >  > NMI:    6949488    6949475
-> > > 
-> > >  Is there anything else I can try?
-> > argh.   I haven't forgotten.  Hopefully after -rc1 I'll have more time...
-> Sorry :-)
-> > Your report didn't mention whether that card work OK under earlier 2.6
-> > kernels.  If it does, a bit of bisection searching would really help.
-> 2.6.15   crash
-> 2.6.14.4 crash
-> 2.6.14   crash
-> 2.6.12.6 crash "NMI watchdog detected LOCKUP"
-> 2.6.6    crash "NMI watchdog detected LOCKUP on CPU1 eip c02500aa, registers:"
-> 2.6.1    would not boot
+David Greaves wrote:
+> Mark Lord wrote:
+> 
+>>> sdb: Current: sense key: Medium Error
+>>>     Additional sense: Unrecovered read error - auto reallocate failed
+>>> end_request: I/O error, dev sdb, sector 398283329
+>>> raid1: Disk failure on sdb2, disabling device.
+>>>         Operation continuing on 1 devices
+..
+>> The command failing above is SCSI WRITE_10, which is being
+>> translated into ATA_CMD_WRITE_FUA_EXT by libata.
+>>
+>> This command fails -- unrecognized by the drive in question.
+>> But libata reports it (most incorrectly) as a "medium error",
+>> and the drive is taken out of service from its RAID.
+>>
+>> Bad, bad, and worse.
+..
+> Thanks Mark
+> 
+> I'm glad it's a bug and not bad hardware.
+> 
+> I am quite concerned that the basic effect of just booting a practically
+> vanilla 2.6.16-rc4 like this was to fry my raid array.
+> 
+> Luckily it dropped 2 (of  3) disks so quickly that the event counter was
+> the same allowing an easy rebuild.
+> 
+> 2.6.15 has similar issues but they seem to happen *very* infrequently by
+> comparison - this hit me several times during a single boot.
+> 
+> Should Linus (cc'ed) hold off on 2.6.16 because of this or not?
 
-It is definately a 3com 3c905b problem: I swapped that card yesterday
-with an adapter from a different brand (gigabit one) and now I can
-tcpdump without any lockups.
+Well, no doubt whatsoever about it being a "regression",
+since the FUA code is *new* in 2.6.16 (not present in 2.6.15).
 
+The FUA code should either get fixed, or removed from 2.6.16.
 
-Folkert van Heusden
-
--- 
-iPod winnen? --> http://keetweej.vanheusden.com/redir.php?id=62
---------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Cheers

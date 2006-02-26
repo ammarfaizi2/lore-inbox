@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWBZV1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWBZVbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWBZV1U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 16:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWBZV1U
+	id S1751408AbWBZVbd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 16:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWBZVbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 16:27:20 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:28071 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1750940AbWBZV1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 16:27:19 -0500
-Message-ID: <44021D2D.20105@vilain.net>
-Date: Mon, 27 Feb 2006 10:27:09 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Xin Zhao <uszhaoxin@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: question about possibility of data loss in Ext2/3 file system
-References: <4ae3c140602221356x15015171h5aa4a3d7bb6034e0@mail.gmail.com> <1140645651.2979.79.camel@laptopd505.fenrus.org> <4ae3c140602221434v6ec583a7yf04df5fa7a4948fc@mail.gmail.com> <20060223045836.GC9645@thunk.org> <43FE1110.1030707@vilain.net> <20060224162957.GA22097@thunk.org>
-In-Reply-To: <20060224162957.GA22097@thunk.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 26 Feb 2006 16:31:33 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62390 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751408AbWBZVbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 16:31:33 -0500
+Subject: Re: old radeon latency problem still unfixed?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1140988293.3982.8.camel@localhost.localdomain>
+References: <1140917787.24141.78.camel@mindpipe>
+	 <1140945232.2934.0.camel@laptopd505.fenrus.org>
+	 <1140982513.24141.118.camel@mindpipe>
+	 <1140988293.3982.8.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Sun, 26 Feb 2006 16:31:28 -0500
+Message-Id: <1140989489.24141.159.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.91 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
->>I always liked Sun's approach to this in Online Disk Suite - journal at 
->>the block device level rather than the FS / application level. 
->>Something I haven't seen from the Linux md-utils or DM.
-> You can do data block journalling in ext3.  But the performance impact
-> can be significant for some work loads.   TNSFAAFL.
+On Mon, 2006-02-27 at 08:11 +1100, Benjamin Herrenschmidt wrote:
+> > AFAICT it's more like trading 3D performance for having audio work at
+> > all.  Other video drivers that were too aggressive and caused audio
+> > dropouts (VIA) were fixed, even though there was a slight performance
+> > cost.
+> 
+> In addition, the radeon DRI shouldn't do active spinning like that in
+> "normal" circumstances ... it should instead block on interrupts. if it
+> does, I suppose that could safely be considered as a bug in the radeon
+> DRM/DRI driver. It will do such loops on engine reset and such, which
+> happen on X launch, VT switches or in case of lockups... I have to
+> double check what happens in the code path used for 2d/3d transitions
+> though, those might be a problem.
 
-Sure, but on a large system with a big array, you just move the journal 
-to a seperate diskset.  That can make a big speed improvement for those 
-types of update patterns where you care about always applying updates 
-sequentially, such as a filesystem or a database.
+What about switching from 2D->3D mode, like when xscreensaver kicks in?
+IIRC people reported audio underruns when that happened but I could
+never narrow it down any further.
 
-Sam.
+If as Arjan said the only lock this driver takes is the BKL then it's
+either a local config issue (ancient kernel or failure to enable preempt
+BKL) or something at the hardware level... I'm waiting for more info
+from the original reporter.
+
+Lee
+
+
+

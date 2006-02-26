@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWBZWfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWBZWik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWBZWfG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 17:35:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWBZWfG
+	id S1751418AbWBZWik (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 17:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWBZWij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 17:35:06 -0500
-Received: from hell.org.pl ([62.233.239.4]:58891 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S1751399AbWBZWfF (ORCPT
+	Sun, 26 Feb 2006 17:38:39 -0500
+Received: from mail.gmx.net ([213.165.64.20]:51627 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751413AbWBZWii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 17:35:05 -0500
-Date: Sun, 26 Feb 2006 23:34:48 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: linux-kernel@vger.kernel.org
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
-Message-ID: <20060226223448.GA27562@hell.org.pl>
-References: <5Kr1a-6MF-15@gated-at.bofh.it> <5KraE-6XP-15@gated-at.bofh.it> <5KyFv-RL-15@gated-at.bofh.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <5KyFv-RL-15@gated-at.bofh.it>
-User-Agent: Mutt/1.4.2i
+	Sun, 26 Feb 2006 17:38:38 -0500
+X-Authenticated: #31060655
+Message-ID: <44022DEC.1070601@gmx.net>
+Date: Sun, 26 Feb 2006 23:38:36 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: pomac@vapor.com
+CC: Arjan van de Ven <arjan@infradead.org>, woho@woho.de,
+       Stephen Hemminger <shemminger@osdl.org>, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, Pavel Volkovitskiy <int@mtx.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Revert sky2 to 0.13a
+References: <4400FC28.1060705@gmx.net>	 <20060225180353.5908c955@localhost.localdomain>	 <200602260957.04305.woho@woho.de>  <1140966011.22812.2.camel@localhost>	 <1140968831.2934.32.camel@laptopd505.fenrus.org> <1140970427.23375.11.camel@localhost>
+In-Reply-To: <1140970427.23375.11.camel@localhost>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Russell King:
-> > > Calling serial functions to flush buffers, or try to send more data
-> > >  after the port has been closed or hung up is a bug in the code doing
-> > >  the calling, not in the serial_core driver.
-> > > 
-> > >  Make this explicitly obvious by adding BUG_ON()'s.
-> > 
-> > If we make it
-> > 
-> >       if (!info) {
-> >               WARN_ON(1);
-> >               return;
-> >       }
-> > 
-> > will that allow people's kernels to limp along until it gets fixed?
-> "until" - I think you mean "if anyone ever bothers" so no I don't agree.
+Ian Kumlien schrieb:
+> On Sun, 2006-02-26 at 16:47 +0100, Arjan van de Ven wrote:
+> 
+>>On Sun, 2006-02-26 at 16:00 +0100, Ian Kumlien wrote:
+>>
+>>>On Sun, 2006-02-26 at 09:57 +0100, Wolfgang Hoffmann wrote:
+>>>
+>>>>On Sunday 26 February 2006 03:03, Stephen Hemminger wrote:
+>>>>
+>>>>>Instead of whining, try this.
+>>>>
+>>>>I tried and still see the hang.
+>>>
+>>>I'm at a record 12 hours with that patch.
+>>
+>>shhh don't jinx it ;)
+> 
+> 
+> Well it died 33 mins later... =)
+> 
+> I also saw some oddities... portage stopped working, i dunno if this can
+> be MSI related or so, else something is trashing memory in a very
+> special way =P
 
-Russel, I agree this should be clearly marked and an oops seems okay here,
-but we're talking dead systems here (dead as in all interrupts masked type
-of dead). Most users won't even be aware an oops occured, let alone be able
-to read the messages on the console. 
+Yes, 0.15 causes memory corruption even if MSI is disabled.
 
-I was just lucky because after the first one I got (#5958, a regular oops)
-I tried to nail it down in text mode, with the console loglevel upped a
-bit, so I was able to see what the panic (#6131) was all about.
 
-I think we really need those *_ON()s at least in uart_write().
-
-Best regards,
-
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Regards,
+Carl-Daniel

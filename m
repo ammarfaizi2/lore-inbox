@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWBZWac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWBZWcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWBZWac (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 17:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWBZWac
+	id S1751362AbWBZWcc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 17:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWBZWcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 17:30:32 -0500
-Received: from natblindhugh.rzone.de ([81.169.145.175]:45014 "EHLO
-	natblindhugh.rzone.de") by vger.kernel.org with ESMTP
-	id S1751209AbWBZWab convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 17:30:31 -0500
-From: Wolfgang Hoffmann <woho@woho.de>
-Reply-To: woho@woho.de
-To: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: [PATCH] Revert sky2 to 0.13a
-Date: Sun, 26 Feb 2006 23:31:47 +0100
-User-Agent: KMail/1.8
-Cc: pomac@vapor.com,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
-       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
-       Pavel Volkovitskiy <int@mtx.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4400FC28.1060705@gmx.net> <1140966011.22812.2.camel@localhost> <200602261913.36308.woho@woho.de>
-In-Reply-To: <200602261913.36308.woho@woho.de>
+	Sun, 26 Feb 2006 17:32:32 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:12050 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751362AbWBZWcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 17:32:31 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in
+ warnings
+References: <200602261721.17373.jesper.juhl@gmail.com>
+	<1140986578.24141.141.camel@mindpipe> <87wtfh3i9z.fsf@hades.wkstn.nix>
+	<20060226221401.GS27946@ftp.linux.org.uk>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: impress your (remaining) friends and neighbors.
+Date: Sun, 26 Feb 2006 22:32:21 +0000
+In-Reply-To: <20060226221401.GS27946@ftp.linux.org.uk> (Al Viro's message of
+ "Sun, 26 Feb 2006 22:14:01 +0000")
+Message-ID: <87fym53g5m.fsf@hades.wkstn.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200602262331.47750.woho@woho.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 26 February 2006 19:13, Wolfgang Hoffmann wrote:
-> Ok, I did some reading and just started a git bisect. I didn't find hints
-> on how to bisect if I'm only interested in changes to sky2.[ch], so I'm
-> taking the full kernel tree and skip testing those bisect steps that didn't
-> change sky2.[ch].
->
-> Looking at Carl-Daniels 0.13a and Stephens patch against 0.15 in this
-> thread, I'll patch each bisect step such that sky2_poll() has
->
->        sky2_write32(hw, STAT_CTRL, SC_STAT_CLR_IRQ);
->        if (sky2_read8(hw, STAT_LEV_TIMER_CTRL) == TIM_START) {
->                sky2_write8(hw, STAT_LEV_TIMER_CTRL, TIM_STOP);
->                sky2_write8(hw, STAT_LEV_TIMER_CTRL, TIM_START);
->         }
->
-> after exit_loop. Is that ok?
->
-> I'll report as soon as I have results.
+On Sun, 26 Feb 2006, Al Viro moaned:
+> On Sun, Feb 26, 2006 at 09:46:32PM +0000, Nix wrote:
+>> (i.e., there's a reason that warning uses the word *might*.)
+> 
+> The bug is in spewing tons of false positives, reducing S/N on that
+> warning to nearly useless level.  Note that in this case actually
+> missing some would be more useful if what remains is less diluted
+> by crap.
 
-Bisect done:
+I think this might be <http://gcc.gnu.org/PR5035>.
 
-4d52b48b43d0d1d5959fa722ee0046e3542e5e1b is first bad commit
-    [PATCH] sky2: support msi interrupt (revised)
+It's in the nature of this warning that improving its accuracy is often,
+to quote rth in that bug, `distinctly non-trivial'. The (numerous) new
+SSA optimizers in GCC 4.1 may well have fixed it: I'd be surprised if
+they hadn't zapped a heap of FPs. I doubt it'll ever improve in 4.0.x,
+because the magnitude of the changes required to do so is just so large.
 
-Reverting this commit in git head seems to work, at least the driver builds 
-and loads. Is that sane?
+There is ongoing argument on the GCC list between two camps: one that
+proposes moving such warnings into the frontend, and says that the
+increase in FPs is worth it given the increase in warning stability (the
+warnings don't go away just because you change optimization level); the
+other argues against this on the basis that a warning that gives lots
+of FPs is mostly useless.
 
-I'm currently testing this (without any further modifications), let's see if 
-it hangs or not.
+Feel free to chip in the next time this argument flares up :)
+
+-- 
+`... follow the bouncing internment camps.' --- Peter da Silva

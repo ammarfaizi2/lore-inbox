@@ -1,152 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWBZCWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWBZC2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWBZCWC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 21:22:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWBZCV7
+	id S1751177AbWBZC2B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Feb 2006 21:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWBZC2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 21:21:59 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:34990 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751167AbWBZCV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 21:21:58 -0500
-Date: Sun, 26 Feb 2006 11:21:38 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: Aubin LaBrosse <aubin@stormboxes.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] for_each_online_pgdat (take2)  [2/5]  for_each_bootmem
-Message-Id: <20060226112138.fbcebe0c.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <44006C0E.7030106@stormboxes.com>
-References: <20060225151013.701ecc49.kamezawa.hiroyu@jp.fujitsu.com>
-	<44006C0E.7030106@stormboxes.com>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 25 Feb 2006 21:28:01 -0500
+Received: from rtr.ca ([64.26.128.89]:47317 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751173AbWBZC2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Feb 2006 21:28:00 -0500
+Message-ID: <4401122A.3010908@rtr.ca>
+Date: Sat, 25 Feb 2006 21:27:54 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
+To: David Greaves <david@dgreaves.com>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com>
+In-Reply-To: <4400B439.8050202@dgreaves.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Feb 2006 09:39:10 -0500
-Aubin LaBrosse <aubin@stormboxes.com> wrote
+David Greaves wrote:
 >
-> > +	/* insert in order */
-> > +	list_for_each_entry(ent, &bdata_list, list) {
-> > +		if (ent->node_boot_start < ent->node_boot_start) {
-> >   
->        not a kernel hacker, but even I know that that 'if' isn't what 
-> you want. :)
-Oh, yes. thank you.
+> Linux haze 2.6.16-rc4patched #1 PREEMPT Sat Feb 25 19:29:11 UTC 2006
+> i686 GNU/Linux
+> 
+> ata2: status=0x51 { DriveReady SeekComplete Error }
+> ata2: error=0x04 { DriveStatusError }
+> ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+> ata2: status=0x51 { DriveReady SeekComplete Error }
+> ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+> ata2: status=0x51 { DriveReady SeekComplete Error }
+> ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+> ata2: status=0x51 { DriveReady SeekComplete Error }
+> ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+> ata2: status=0x51 { DriveReady SeekComplete Error }
+> sd 1:0:0:0: SCSI error: return code = 0x8000002
+> sdb: Current: sense key: Medium Error
+>     Additional sense: Unrecovered read error - auto reallocate failed
+> end_request: I/O error, dev sdb, sector 398283329
+> raid1: Disk failure on sdb2, disabling device.
+>         Operation continuing on 1 devices
 
-this is fixed one.
---Kame
+Oh good, *now* we've gotten somewhere!!
 
-This patch adds list_head to bootmem_data_t and make bootmems use it.
-bootmem list is sorted by node_boot_start.
+Albert / Jens / Jeff:
 
-Only nodes against which init_bootmem() is called will be linked to the list.
-(i386 allocates bootmem from only one node not from all online nodes.)
+The command failing above is SCSI WRITE_10, which is being
+translated into ATA_CMD_WRITE_FUA_EXT by libata.
 
-A summary:
- 1. for_each_online_pgdat() traverses all *online* nodes.
- 2. alloc_bootmem() allocates memory only from initialized-for-bootmem nodes.
+This command fails -- unrecognized by the drive in question.
+But libata reports it (most incorrectly) as a "medium error",
+and the drive is taken out of service from its RAID.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Bad, bad, and worse.
 
-Index: linux-2.6.16-rc4-mm2/include/linux/bootmem.h
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/include/linux/bootmem.h
-+++ linux-2.6.16-rc4-mm2/include/linux/bootmem.h
-@@ -38,6 +38,7 @@ typedef struct bootmem_data {
- 	unsigned long last_pos;
- 	unsigned long last_success;	/* Previous allocation point.  To speed
- 					 * up searching */
-+	struct list_head list;
- } bootmem_data_t;
- 
- extern unsigned long __init bootmem_bootmap_pages (unsigned long);
-Index: linux-2.6.16-rc4-mm2/mm/bootmem.c
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/mm/bootmem.c
-+++ linux-2.6.16-rc4-mm2/mm/bootmem.c
-@@ -33,6 +33,7 @@ EXPORT_SYMBOL(max_pfn);		/* This is expo
- 				 * dma_get_required_mask(), which uses
- 				 * it, can be an inline function */
- 
-+LIST_HEAD(bdata_list);
- #ifdef CONFIG_CRASH_DUMP
- /*
-  * If we have booted due to a crash, max_pfn will be a very low value. We need
-@@ -52,6 +53,27 @@ unsigned long __init bootmem_bootmap_pag
- 
- 	return mapsize;
- }
-+/*
-+ * link bdata in order
-+ */
-+static void link_bootmem(bootmem_data_t *bdata)
-+{
-+	bootmem_data_t *ent;
-+	if (list_empty(&bdata_list)) {
-+		list_add(&bdata->list, &bdata_list);
-+		return;
-+	}
-+	/* insert in order */
-+	list_for_each_entry(ent, &bdata_list, list) {
-+		if (bdata->node_boot_start < ent->node_boot_start) {
-+			list_add_tail(&bdata->list, &ent->list);
-+			return;
-+		}
-+	}
-+	list_add_tail(&bdata->list, &bdata_list);
-+	return;
-+}
-+
- 
- /*
-  * Called once to set up the allocator itself.
-@@ -62,13 +84,11 @@ static unsigned long __init init_bootmem
- 	bootmem_data_t *bdata = pgdat->bdata;
- 	unsigned long mapsize = ((end - start)+7)/8;
- 
--	pgdat->pgdat_next = pgdat_list;
--	pgdat_list = pgdat;
--
- 	mapsize = ALIGN(mapsize, sizeof(long));
- 	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
- 	bdata->node_boot_start = (start << PAGE_SHIFT);
- 	bdata->node_low_pfn = end;
-+	link_bootmem(bdata);
- 
- 	/*
- 	 * Initially all pages are reserved - setup_arch() has to
-@@ -383,12 +403,11 @@ unsigned long __init free_all_bootmem (v
- 
- void * __init __alloc_bootmem(unsigned long size, unsigned long align, unsigned long goal)
- {
--	pg_data_t *pgdat = pgdat_list;
-+	bootmem_data_t *bdata;
- 	void *ptr;
- 
--	for_each_pgdat(pgdat)
--		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
--						 align, goal, 0)))
-+	list_for_each_entry(bdata, &bdata_list, list)
-+		if ((ptr = __alloc_bootmem_core(bdata, size, align, goal, 0)))
- 			return(ptr);
- 
- 	/*
-@@ -416,11 +435,11 @@ void * __init __alloc_bootmem_node(pg_da
- 
- void * __init __alloc_bootmem_low(unsigned long size, unsigned long align, unsigned long goal)
- {
--	pg_data_t *pgdat = pgdat_list;
-+	bootmem_data_t *bdata;
- 	void *ptr;
- 
--	for_each_pgdat(pgdat)
--		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
-+	list_for_each_entry(bdata, &bdata_list, list)
-+		if ((ptr = __alloc_bootmem_core(bdata, size,
- 						 align, goal, LOW32LIMIT)))
- 			return(ptr);
- 
+Libata should really recover from this, by recognizing that
+the command was rejected, and replacing it with a simple
+WRITE_EXT instead.  Possibly followed by FLUSH_CACHE.
 
+So.. I've forgotten who put FUA into libata, but hopefully
+it's one of the folks on the CC: list, and that nice person
+can now generate a patch to fix this bug somehow.
+
+Cheers

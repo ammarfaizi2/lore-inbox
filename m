@@ -1,361 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWBZXP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWBZXQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWBZXP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBZXPV
+	id S932259AbWBZXQo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWBZXPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:15:21 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:30245 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932268AbWBZXOy (ORCPT
+	Sun, 26 Feb 2006 18:15:41 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:29733 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932259AbWBZXOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:14:54 -0500
-Message-Id: <20060226231440.807553000@towertech.it>
+	Sun, 26 Feb 2006 18:14:52 -0500
+Message-Id: <20060226231439.778628000@towertech.it>
 References: <20060226231438.307751000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Mon, 27 Feb 2006 00:14:51 +0100
+Date: Mon, 27 Feb 2006 00:14:45 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 13/13] RTC subsystem, RS5C372 driver
-Content-Disposition: inline; filename=rtc-drv-rs5c372.patch
+Subject: [PATCH 07/13] RTC subsystem, proc interface
+Content-Disposition: inline; filename=rtc-intf-proc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RTC class aware driver for the Ricoh RS5C372
-chip used, among others, on the Synology DS101.
+This patch adds the proc interface to the
+RTC subsystem.
+
+The first RTC driver which registers with
+the class will be accessible by /proc/driver/rtc .
+
+This is required for compatibility with the standard
+RTC driver and to avoid breaking any user space
+application which may erroneusly rely on this.
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 --
- drivers/rtc/Kconfig       |   10 +
- drivers/rtc/Makefile      |    1 
- drivers/rtc/rtc-rs5c372.c |  295 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 306 insertions(+)
 
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-02-26 23:22:12.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-02-26 23:22:13.000000000 +0100
-@@ -103,6 +103,16 @@ config RTC_DRV_PCF8563
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf8563.
- 
-+config RTC_DRV_RS5C372
-+	tristate "Ricoh RS5C372A/B"
-+	depends on RTC_CLASS && I2C
-+	help
-+	  If you say yes here you get support for the
-+	  Ricoh RS5C372A and RS5C372B RTC chips.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-rs5c372.
-+
- config RTC_DRV_TEST
- 	tristate "Test driver/device"
- 	depends on RTC_CLASS
---- linux-rtc.orig/drivers/rtc/Makefile	2006-02-26 23:22:12.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-02-26 23:22:13.000000000 +0100
-@@ -13,4 +13,5 @@ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
- obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
-+obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
- 
+ drivers/rtc/Kconfig    |   11 +++
+ drivers/rtc/Makefile   |    1 
+ drivers/rtc/rtc-proc.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+)
+
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-rs5c372.c	2006-02-26 23:22:13.000000000 +0100
-@@ -0,0 +1,295 @@
++++ linux-rtc/drivers/rtc/rtc-proc.c	2006-02-26 23:22:05.000000000 +0100
+@@ -0,0 +1,162 @@
 +/*
-+ * An I2C driver for the Ricoh RS5C372 RTC
++ * RTC subsystem, proc interface
 + *
-+ * Copyright (C) 2005 Pavel Mironchik pmironchik@optifacio.net
-+ * Copyright (C) 2006 Tower Technologies
++ * Copyright (C) 2005-06 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * based on arch/arm/common/rtctime.c
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++*/
 +
-+#include <linux/i2c.h>
++#include <linux/module.h>
 +#include <linux/rtc.h>
-+#include <linux/bcd.h>
++#include <linux/proc_fs.h>
++#include <linux/seq_file.h>
 +
-+#define DRV_VERSION "0.2"
++static struct class_device *rtc_dev = NULL;
++static DEFINE_MUTEX(rtc_lock);
 +
-+/* Addresses to scan */
-+static unsigned short normal_i2c[] = { /* 0x32,*/ I2C_CLIENT_END };
-+
-+/* Insmod parameters */
-+I2C_CLIENT_INSMOD;
-+
-+#define RS5C372_REG_SECS	0
-+#define RS5C372_REG_MINS	1
-+#define RS5C372_REG_HOURS	2
-+#define RS5C372_REG_WDAY	3
-+#define RS5C372_REG_DAY		4
-+#define RS5C372_REG_MONTH	5
-+#define RS5C372_REG_YEAR	6
-+#define RS5C372_REG_TRIM	7
-+
-+#define RS5C372_TRIM_XSL	0x80
-+#define RS5C372_TRIM_MASK	0x7F
-+
-+#define RS5C372_REG_BASE	0
-+
-+static int rs5c372_attach(struct i2c_adapter *adapter);
-+static int rs5c372_detach(struct i2c_client *client);
-+static int rs5c372_probe(struct i2c_adapter *adapter, int address, int kind);
-+
-+static struct i2c_driver rs5c372_driver = {
-+	.driver		= {
-+		.name	= "rs5c372",
-+	},
-+	.attach_adapter	= &rs5c372_attach,
-+	.detach_client	= &rs5c372_detach,
-+};
-+
-+static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	unsigned char buf[7] = { RS5C372_REG_BASE };
-+
-+	/* this implements the 1st reading method, according
-+	 * to the datasheet. buf[0] is initialized with
-+	 * address ptr and transmission format register.
-+	 */
-+	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, buf },
-+		{ client->addr, I2C_M_RD, 7, buf },
-+	};
-+
-+	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		return -EIO;
-+	}
-+
-+	tm->tm_sec = BCD2BIN(buf[RS5C372_REG_SECS] & 0x7f);
-+	tm->tm_min = BCD2BIN(buf[RS5C372_REG_MINS] & 0x7f);
-+	tm->tm_hour = BCD2BIN(buf[RS5C372_REG_HOURS] & 0x3f);
-+	tm->tm_wday = BCD2BIN(buf[RS5C372_REG_WDAY] & 0x07);
-+	tm->tm_mday = BCD2BIN(buf[RS5C372_REG_DAY] & 0x3f);
-+
-+	/* tm->tm_mon is zero-based */
-+	tm->tm_mon = BCD2BIN(buf[RS5C372_REG_MONTH] & 0x1f) - 1;
-+
-+	/* year is 1900 + tm->tm_year */
-+	tm->tm_year = BCD2BIN(buf[RS5C372_REG_YEAR]) + 100;
-+
-+	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
-+		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	return 0;
-+}
-+
-+static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
-+{
-+	unsigned char buf[8] = { RS5C372_REG_BASE };
-+
-+	dev_dbg(&client->dev,
-+		"%s: secs=%d, mins=%d, hours=%d ",
-+		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__, tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	buf[1] = BIN2BCD(tm->tm_sec);
-+	buf[2] = BIN2BCD(tm->tm_min);
-+	buf[3] = BIN2BCD(tm->tm_hour);
-+	buf[4] = BIN2BCD(tm->tm_wday);
-+	buf[5] = BIN2BCD(tm->tm_mday);
-+	buf[6] = BIN2BCD(tm->tm_mon + 1);
-+	buf[7] = BIN2BCD(tm->tm_year - 100);
-+
-+	if ((i2c_master_send(client, buf, 8)) != 8) {
-+		dev_err(&client->dev, "%s: write error\n", __FUNCTION__);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int rs5c372_get_trim(struct i2c_client *client, int *osc, int *trim)
-+{
-+	unsigned char buf = RS5C372_REG_TRIM;
-+
-+	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, &buf },
-+		{ client->addr, I2C_M_RD, 1, &buf },
-+	};
-+
-+	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		return -EIO;
-+	}
-+
-+	dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, trim);
-+
-+	if (osc)
-+		*osc = (buf & RS5C372_TRIM_XSL) ? 32000 : 32768;
-+
-+	if (trim)
-+		*trim = buf & RS5C372_TRIM_MASK;
-+
-+	return 0;
-+}
-+
-+static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return rs5c372_get_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return rs5c372_set_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int rs5c372_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	int err, osc, trim;
-+
-+	seq_printf(seq, "24hr\t\t: yes\n");
-+
-+	if ((err = rs5c372_get_trim(to_i2c_client(dev), &osc, &trim)) == 0) {
-+		seq_printf(seq, "%d.%03d KHz\n", osc / 1000, osc % 1000);
-+		seq_printf(seq, "trim\t: %d\n", trim);
-+	}
-+
-+	return 0;
-+}
-+
-+static struct rtc_class_ops rs5c372_rtc_ops = {
-+	.proc		= rs5c372_rtc_proc,
-+	.read_time	= rs5c372_rtc_read_time,
-+	.set_time	= rs5c372_rtc_set_time,
-+};
-+
-+static ssize_t rs5c372_sysfs_show_trim(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	int trim;
-+
-+	if (rs5c372_get_trim(to_i2c_client(dev), NULL, &trim) == 0)
-+		return sprintf(buf, "0x%2x\n", trim);
-+
-+	return 0;
-+}
-+static DEVICE_ATTR(trim, S_IRUGO, rs5c372_sysfs_show_trim, NULL);
-+
-+static ssize_t rs5c372_sysfs_show_osc(struct device *dev,
-+				struct device_attribute *attr, char *buf)
-+{
-+	int osc;
-+
-+	if (rs5c372_get_trim(to_i2c_client(dev), &osc, NULL) == 0)
-+		return sprintf(buf, "%d.%03d KHz\n", osc / 1000, osc % 1000);
-+
-+	return 0;
-+}
-+static DEVICE_ATTR(osc, S_IRUGO, rs5c372_sysfs_show_osc, NULL);
-+
-+static int rs5c372_attach(struct i2c_adapter *adapter)
-+{
-+	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
-+	return i2c_probe(adapter, &addr_data, rs5c372_probe);
-+}
-+
-+static int rs5c372_probe(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	int err = 0;
-+	struct i2c_client *client;
-+	struct rtc_device *rtc;
-+
-+	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
-+		err = -ENODEV;
-+		goto exit;
-+	}
-+
-+	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	/* I2C client */
-+	client->addr = address;
-+	client->driver = &rs5c372_driver;
-+	client->adapter = adapter;
-+
-+	strlcpy(client->name, rs5c372_driver.driver.name, I2C_NAME_SIZE);
-+
-+	/* Inform the i2c layer */
-+	if ((err = i2c_attach_client(client)))
-+		goto exit_kfree;
-+
-+	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
-+
-+	rtc = rtc_device_register(rs5c372_driver.driver.name, &client->dev,
-+				&rs5c372_rtc_ops, THIS_MODULE);
-+
-+	if (IS_ERR(rtc)) {
-+		err = PTR_ERR(rtc);
-+		dev_err(&client->dev,
-+			"unable to register the class device\n");
-+		goto exit_detach;
-+	}
-+
-+	i2c_set_clientdata(client, rtc);
-+
-+	device_create_file(&client->dev, &dev_attr_trim);
-+	device_create_file(&client->dev, &dev_attr_osc);
-+
-+	return 0;
-+
-+exit_detach:
-+	i2c_detach_client(client);
-+
-+exit_kfree:
-+	kfree(client);
-+
-+exit:
-+	return err;
-+}
-+
-+static int rs5c372_detach(struct i2c_client *client)
++static int rtc_proc_show(struct seq_file *seq, void *offset)
 +{
 +	int err;
-+	struct rtc_device *rtc = i2c_get_clientdata(client);
++	struct class_device *class_dev = seq->private;
++	struct rtc_class_ops *ops = to_rtc_device(class_dev)->ops;
++	struct rtc_wkalrm alrm;
++	struct rtc_time tm;
 +
-+	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
++	err = rtc_read_time(class_dev, &tm);
++	if (err == 0) {
++		seq_printf(seq,
++			"rtc_time\t: %02d:%02d:%02d\n"
++			"rtc_date\t: %04d-%02d-%02d\n",
++			tm.tm_hour, tm.tm_min, tm.tm_sec,
++			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
++	}
 +
-+	if (rtc)
-+		rtc_device_unregister(rtc);
++	err = rtc_read_alarm(class_dev, &alrm);
++	if (err == 0) {
++		seq_printf(seq, "alrm_time\t: ");
++		if ((unsigned int)alrm.time.tm_hour <= 24)
++			seq_printf(seq, "%02d:", alrm.time.tm_hour);
++		else
++			seq_printf(seq, "**:");
++		if ((unsigned int)alrm.time.tm_min <= 59)
++			seq_printf(seq, "%02d:", alrm.time.tm_min);
++		else
++			seq_printf(seq, "**:");
++		if ((unsigned int)alrm.time.tm_sec <= 59)
++			seq_printf(seq, "%02d\n", alrm.time.tm_sec);
++		else
++			seq_printf(seq, "**\n");
 +
-+	if ((err = i2c_detach_client(client)))
-+		return err;
++		seq_printf(seq, "alrm_date\t: ");
++		if ((unsigned int)alrm.time.tm_year <= 200)
++			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
++		else
++			seq_printf(seq, "****-");
++		if ((unsigned int)alrm.time.tm_mon <= 11)
++			seq_printf(seq, "%02d-", alrm.time.tm_mon + 1);
++		else
++			seq_printf(seq, "**-");
++		if ((unsigned int)alrm.time.tm_mday <= 31)
++			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
++		else
++			seq_printf(seq, "**\n");
++		seq_printf(seq, "alrm_wakeup\t: %s\n",
++			     alrm.enabled ? "yes" : "no");
++		seq_printf(seq, "alrm_pending\t: %s\n",
++			     alrm.pending ? "yes" : "no");
++	}
 +
-+	kfree(client);
++	if (ops->proc)
++		ops->proc(class_dev->dev, seq);
 +
 +	return 0;
 +}
 +
-+static __init int rs5c372_init(void)
++static int rtc_proc_open(struct inode *inode, struct file *file)
 +{
-+	return i2c_add_driver(&rs5c372_driver);
++	struct class_device *class_dev = PDE(inode)->data;
++
++	if (!try_module_get(THIS_MODULE))
++		return -ENODEV;
++
++	return single_open(file, rtc_proc_show, class_dev);
 +}
 +
-+static __exit void rs5c372_exit(void)
++static int rtc_proc_release(struct inode *inode, struct file *file)
 +{
-+	i2c_del_driver(&rs5c372_driver);
++	int res = single_release(inode, file);
++	module_put(THIS_MODULE);
++	return res;
 +}
 +
-+module_init(rs5c372_init);
-+module_exit(rs5c372_exit);
++static struct file_operations rtc_proc_fops = {
++	.open		= rtc_proc_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= rtc_proc_release,
++};
 +
-+MODULE_AUTHOR(
-+		"Pavel Mironchik <pmironchik@optifacio.net>, "
-+		"Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("Ricoh RS5C372 RTC driver");
++static int rtc_proc_add_device(struct class_device *class_dev,
++					   struct class_interface *class_intf)
++{
++	mutex_lock(&rtc_lock);
++	if (rtc_dev == NULL) {
++		struct proc_dir_entry *ent;
++
++		rtc_dev = class_dev;
++
++		ent = create_proc_entry("driver/rtc", 0, NULL);
++		if (ent) {
++			struct rtc_device *rtc = to_rtc_device(class_dev);
++
++			ent->proc_fops = &rtc_proc_fops;
++			ent->owner = rtc->owner;
++			ent->data = class_dev;
++
++			dev_info(class_dev->dev, "rtc intf: proc\n");
++		}
++		else
++			rtc_dev = NULL;
++	}
++	mutex_unlock(&rtc_lock);
++
++	return 0;
++}
++
++static void rtc_proc_remove_device(struct class_device *class_dev,
++					      struct class_interface *class_intf)
++{
++	mutex_lock(&rtc_lock);
++	if (rtc_dev == class_dev) {
++		remove_proc_entry("driver/rtc", NULL);
++		rtc_dev = NULL;
++	}
++	mutex_unlock(&rtc_lock);
++}
++
++static struct class_interface rtc_proc_interface = {
++	.add = &rtc_proc_add_device,
++	.remove = &rtc_proc_remove_device,
++};
++
++static int __init rtc_proc_init(void)
++{
++	return rtc_interface_register(&rtc_proc_interface);
++}
++
++static void __exit rtc_proc_exit(void)
++{
++	class_interface_unregister(&rtc_proc_interface);
++}
++
++module_init(rtc_proc_init);
++module_exit(rtc_proc_exit);
++
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("RTC class proc interface");
 +MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-02-26 23:22:03.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-02-26 23:22:05.000000000 +0100
+@@ -47,6 +47,17 @@ config RTC_INTF_SYSFS
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-sysfs.
+ 
++config RTC_INTF_PROC
++	tristate "proc"
++	depends on RTC_CLASS && PROC_FS
++	default RTC_CLASS
++	help
++	  Say yes here if you want to use your RTC using the proc
++	  interface, /proc/driver/rtc .
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-proc.
++
+ comment "RTC drivers"
+ 	depends on RTC_CLASS
+ 
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-02-26 23:22:03.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-02-26 23:22:05.000000000 +0100
+@@ -6,3 +6,4 @@ obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
+ obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
+ rtc-core-y			:= class.o interface.o
+ obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
++obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
 
 --

@@ -1,90 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWBZOad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWBZOfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWBZOad (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 09:30:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWBZOad
+	id S1751136AbWBZOfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 09:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWBZOfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 09:30:33 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:48393 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751133AbWBZOac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 09:30:32 -0500
-Message-ID: <4401BB85.7070407@superbug.co.uk>
-Date: Sun, 26 Feb 2006 14:30:29 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Mark Lord <liml@rtr.ca>
-CC: Mark Lord <lkml@rtr.ca>, David Greaves <david@dgreaves.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com
-Subject: Kernel SeekCompleteErrors... Different from Re: LibPATA code issues
- / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44019E96.20804@superbug.co.uk> <4401B378.3030005@rtr.ca>
-In-Reply-To: <4401B378.3030005@rtr.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 26 Feb 2006 09:35:04 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:30948 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751136AbWBZOfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 09:35:01 -0500
+Subject: Re: [stable] [PATCH 1/2] sd: fix memory corruption by
+	sd_read_cache_type
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
+       Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <20060226053138.GM27946@ftp.linux.org.uk>
+References: <tkrat.014f03dc41356221@s5r6.in-berlin.de>
+	 <20060225021009.GV3883@sorel.sous-sol.org>
+	 <4400E34B.1000400@s5r6.in-berlin.de>
+	 <Pine.LNX.4.64.0602251600480.22647@g5.osdl.org>
+	 <1140930888.3279.4.camel@mulgrave.il.steeleye.com>
+	 <20060226053138.GM27946@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 26 Feb 2006 08:34:10 -0600
+Message-Id: <1140964451.3337.5.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> James Courtier-Dutton wrote:
->>
->> I have what looks like similar problems. The issue I have is that I 
->
-> Nope.  Different issues.
-I have changed the Subject line to indicate this so any future responses 
-can be indicated.
+On Sun, 2006-02-26 at 05:31 +0000, Al Viro wrote:
+> No.  It's sd.c assuming that mode page header is sane, without any
+> checks.  And yes, it does give memory corruption if it's not.
 
->
->> ) #1 Sat Dec 3 18:47:19 GMT 2005
->> Dec 16 22:51:57 games kernel: hdc: dma_intr: status=0x51 { DriveReady 
->> SeekComplete Error }
->> Dec 16 22:52:32 games kernel: hdc: dma_intr: error=0x40 { 
->> UncorrectableError }, LBAsect=53058185, sector=53057951
->
-> The disk really does have bad sectors in this case (above).
-The disk has NO bad sectors. It has been checked using two different tests.
-1) seatools (The seagate test tool passed the deep test where it reads 
-all sectors.)
-2) dd of the entire HD image onto another HD.
-No sector errors were encountered in either case.
+Well, OK, I agree allowing us to request data longer than the actual
+buffer is a problem.  However, I don't exactly see how this actually
+causes corruption, since even the initio bridge only sends 12 bytes of
+data, so we should stop with a data underrun at that point (however big
+the buffer is)
 
->
->
->> The other has the following errors:
->> Linux version 2.6.15.1 (root@localhost) (gcc version 3.4.5 (Gentoo 
->> 3.4.5, ssp-3.4.5-1.0, pi
->> e-8.7.9)) #3 SMP PREEMPT Fri Feb 3 23:19:05 GMT 2006
->> Feb 10 23:30:07 localhost kernel: ata3: command 0xb0 timeout, stat 
->> 0xd0 host_stat 0x0
->> Feb 10 23:30:07 localhost kernel: ata3: translated ATA stat/err 
->> 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
->> Feb 10 23:30:07 localhost kernel: ata3: status=0xd0 { Busy }
->> Feb 10 23:30:07 localhost kernel: ATA: abnormal status 0xD0 on port 
->> 0xF880E087
->> Feb 10 23:30:07 localhost last message repeated 3 times
->> Feb 10 23:30:10 localhost kernel: ata3: PIO error
->> Feb 10 23:30:10 localhost kernel: ata3: status=0x50 { DriveReady 
->> SeekComplete }
->> Feb 11 10:18:10 localhost kernel: ata2: command 0xb0 timeout, stat 
->> 0xd0 host_stat 0x0
->> Feb 11 10:18:10 localhost kernel: ata2: translated ATA stat/err 
->> 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
->> Feb 11 10:18:10 localhost kernel: ata2: status=0xd0 { Busy }
->> Feb 11 10:18:10 localhost kernel: ATA: abnormal status 0xD0 on port 
->> 0x177
->> Feb 11 10:18:10 localhost last message repeated 3 times
->
-> PIO errors?  Are you using Alan Cox's experimental PATA code for libata?
->
-> -ml
->
-No, this is Linux kernel 2.6.15.1 with no patches.
+> Initio-related part is in scsi_lib.c (and in recovery part of sd.c
+> changes).  That one is about how we can handle gracefully a broken
+> device that gives no header at all.
+> 
+> Checks for ->block_descriptors_length are just making sure we won't try
+> to do any access past the end of buffer, no matter what crap we got from
+> device.
 
-I cut and pasted the Linux version number to the top of each trace 
-output in my original email.
+I agree; how about this for the actual patch (for 2.6.16) ... I put two
+more tidy ups into it ...
+
+James
+
+---
+
+[SCSI] sd: Add sanity checking to mode sense return data
+
+From: Al Viro <viro@ftp.linux.org.uk>
+
+There's a problem in sd where we blindly believe the length of the
+headers and block descriptors.  Some devices return insane values for
+these and cause our length to end up greater than the actual buffer
+size, so check to make sure.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+
+Also removed the buffer size magic number (512) and added DPOFUA of
+zero to the defaults
+
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+Index: linux-2.6/drivers/scsi/sd.c
+===================================================================
+--- linux-2.6.orig/drivers/scsi/sd.c
++++ linux-2.6/drivers/scsi/sd.c
+@@ -89,6 +89,11 @@
+ #define SD_MAX_RETRIES		5
+ #define SD_PASSTHROUGH_RETRIES	1
+ 
++/*
++ * Size of the initial data buffer for mode and read capacity data
++ */
++#define SD_BUF_SIZE		512
++
+ static void scsi_disk_release(struct kref *kref);
+ 
+ struct scsi_disk {
+@@ -1239,7 +1244,7 @@ sd_do_mode_sense(struct scsi_device *sdp
+ 
+ /*
+  * read write protect setting, if possible - called only in sd_revalidate_disk()
+- * called with buffer of length 512
++ * called with buffer of length SD_BUF_SIZE
+  */
+ static void
+ sd_read_write_protect_flag(struct scsi_disk *sdkp, char *diskname,
+@@ -1297,7 +1302,7 @@ sd_read_write_protect_flag(struct scsi_d
+ 
+ /*
+  * sd_read_cache_type - called only from sd_revalidate_disk()
+- * called with buffer of length 512
++ * called with buffer of length SD_BUF_SIZE
+  */
+ static void
+ sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
+@@ -1342,6 +1347,8 @@ sd_read_cache_type(struct scsi_disk *sdk
+ 
+ 	/* Take headers and block descriptors into account */
+ 	len += data.header_length + data.block_descriptor_length;
++	if (len > SD_BUF_SIZE)
++		goto bad_sense;
+ 
+ 	/* Get the data */
+ 	res = sd_do_mode_sense(sdp, dbd, modepage, buffer, len, &data, &sshdr);
+@@ -1354,6 +1361,12 @@ sd_read_cache_type(struct scsi_disk *sdk
+ 		int ct = 0;
+ 		int offset = data.header_length + data.block_descriptor_length;
+ 
++		if (offset >= SD_BUF_SIZE - 2) {
++			printk(KERN_ERR "%s: malformed MODE SENSE response",
++				diskname);
++			goto defaults;
++		}
++
+ 		if ((buffer[offset] & 0x3f) != modepage) {
+ 			printk(KERN_ERR "%s: got wrong page\n", diskname);
+ 			goto defaults;
+@@ -1398,6 +1411,7 @@ defaults:
+ 	       diskname);
+ 	sdkp->WCE = 0;
+ 	sdkp->RCD = 0;
++	sdkp->DPOFUA = 0;
+ }
+ 
+ /**
+@@ -1421,7 +1435,7 @@ static int sd_revalidate_disk(struct gen
+ 	if (!scsi_device_online(sdp))
+ 		goto out;
+ 
+-	buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
++	buffer = kmalloc(SD_BUF_SIZE, GFP_KERNEL | __GFP_DMA);
+ 	if (!buffer) {
+ 		printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
+ 		       "failure.\n");
 
 

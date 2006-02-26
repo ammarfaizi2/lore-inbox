@@ -1,151 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWBZOfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWBZOkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWBZOfE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 09:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbWBZOfE
+	id S1751141AbWBZOkY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 09:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBZOkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 09:35:04 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:30948 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751136AbWBZOfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 09:35:01 -0500
-Subject: Re: [stable] [PATCH 1/2] sd: fix memory corruption by
-	sd_read_cache_type
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
-       Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20060226053138.GM27946@ftp.linux.org.uk>
-References: <tkrat.014f03dc41356221@s5r6.in-berlin.de>
-	 <20060225021009.GV3883@sorel.sous-sol.org>
-	 <4400E34B.1000400@s5r6.in-berlin.de>
-	 <Pine.LNX.4.64.0602251600480.22647@g5.osdl.org>
-	 <1140930888.3279.4.camel@mulgrave.il.steeleye.com>
-	 <20060226053138.GM27946@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 08:34:10 -0600
-Message-Id: <1140964451.3337.5.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 26 Feb 2006 09:40:24 -0500
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:31890 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751141AbWBZOkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 09:40:24 -0500
+Date: Sun, 26 Feb 2006 09:35:39 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: OOM-killer too aggressive?
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Chris Largret <largret@gmail.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-26 at 05:31 +0000, Al Viro wrote:
-> No.  It's sd.c assuming that mode page header is sane, without any
-> checks.  And yes, it does give memory corruption if it's not.
+Chris Largret is getting repeated OOM kills because of DMA memory
+exhaustion:
 
-Well, OK, I agree allowing us to request data longer than the actual
-buffer is a problem.  However, I don't exactly see how this actually
-causes corruption, since even the initio bridge only sends 12 bytes of
-data, so we should stop with a data underrun at that point (however big
-the buffer is)
+oom-killer: gfp_mask=0xd1, order=3
 
-> Initio-related part is in scsi_lib.c (and in recovery part of sd.c
-> changes).  That one is about how we can handle gracefully a broken
-> device that gives no header at all.
-> 
-> Checks for ->block_descriptors_length are just making sure we won't try
-> to do any access past the end of buffer, no matter what crap we got from
-> device.
+Call Trace: <ffffffff8104ed46>{out_of_memory+58} <ffffffff8104ff30>{__alloc_pages+534}
+       <ffffffff8104ffee>{__get_free_pages+48} <ffffffff8117d8e9>{dma_mem_alloc+31}
+       <ffffffff81183e70>{floppy_open+348} <ffffffff81072125>{do_open+172}
+       <ffffffff810724b4>{blkdev_open+0} <ffffffff810724dc>{blkdev_open+40}
+       <ffffffff81069fea>{__dentry_open+230} <ffffffff8106a10e>{nameidata_to_filp+40}
+       <ffffffff8106a153>{do_filp_open+51} <ffffffff8106a2cb>{get_unused_fd+116}
+       <ffffffff8106a477>{do_sys_open+73} <ffffffff8106a4d3>{sys_open+27}
+       <ffffffff8100aa3a>{system_call+126}
+Mem-info:
+DMA per-cpu:
+cpu 0 hot: high 0, batch 1 used:0
+cpu 0 cold: high 0, batch 1 used:0
+cpu 1 hot: high 0, batch 1 used:0
+cpu 1 cold: high 0, batch 1 used:0
+DMA32 per-cpu:
+cpu 0 hot: high 186, batch 31 used:184
+cpu 0 cold: high 62, batch 15 used:4
+cpu 1 hot: high 186, batch 31 used:160
+cpu 1 cold: high 62, batch 15 used:4
+Normal per-cpu: empty
+HighMem per-cpu: empty
+Free pages:     2843384kB (0kB HighMem)
+Active:10367 inactive:38871 dirty:42 writeback:0 unstable:0 free:710846
+slab:4726 mapped:2155 pagetables:147
+DMA free:44kB min:32kB low:40kB high:48kB active:0kB inactive:0kB
+present:15728kB pages_scanned:0 all_unreclaimable? yes
+lowmem_reserve[]: 0 3014 3014 3014
+DMA32 free:2843340kB min:7008kB low:8760kB high:10512kB active:41468kB
+inactive:155484kB present:3086500kB pages_scanned:0 all_unreclaimable?
+no
+lowmem_reserve[]: 0 0 0 0
+Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+HighMem free:0kB min:128kB low:128kB high:128kB active:0kB inactive:0kB
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+DMA: 1*4kB 1*8kB 0*16kB 1*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB
+0*2048kB 0*4096kB = 44kB
+DMA32: 933*4kB 573*8kB 229*16kB 74*32kB 21*64kB 5*128kB 1*256kB 1*512kB
+0*1024kB 0*2048kB 690*4096kB = 2843340kB
+Normal: empty
+HighMem: empty
+Swap cache: add 0, delete 0, find 0/0, race 0+0
+Free swap  = 1477960kB
+Total swap = 1477960kB
+Free swap:       1477960kB
+786416 pages of RAM
+17590 reserved pages
+10033 pages shared
+0 pages swap cached
+Out of Memory: Killed process 4886 (dbus-daemon).
 
-I agree; how about this for the actual patch (for 2.6.16) ... I put two
-more tidy ups into it ...
 
-James
+Looking at floppy_open, we have:
 
----
+        if (!floppy_track_buffer) {
+                /* if opening an ED drive, reserve a big buffer,
+                 * else reserve a small one */
+                if ((UDP->cmos == 6) || (UDP->cmos == 5))
+                        try = 64;       /* Only 48 actually useful */
+                else
+                        try = 32;       /* Only 24 actually useful */
 
-[SCSI] sd: Add sanity checking to mode sense return data
+                tmp = (char *)fd_dma_mem_alloc(1024 * try);
+                if (!tmp && !floppy_track_buffer) {
+                        try >>= 1;      /* buffer only one side */
+                        INFBOUND(try, 16);
+                        tmp = (char *)fd_dma_mem_alloc(1024 * try);
+                }
+                if (!tmp && !floppy_track_buffer) {
+                        fallback_on_nodma_alloc(&tmp, 2048 * try);
+                }
 
-From: Al Viro <viro@ftp.linux.org.uk>
+So it will try to allocate half its first request if that fails, then
+fall back to non-DMA memory as a last resort, but doesn't get a chance
+because the OOM killer gets invoked.  Maybe we need a new flag that says
+"fail me immediately if no memory available"?
 
-There's a problem in sd where we blindly believe the length of the
-headers and block descriptors.  Some devices return insane values for
-these and cause our length to end up greater than the actual buffer
-size, so check to make sure.
+Or should floppy.c be fixed so it doesn't ask for so much?
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-Also removed the buffer size magic number (512) and added DPOFUA of
-zero to the defaults
+I found a diagnostic patch but only this part applies to 2.6.16-rc4:
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-Index: linux-2.6/drivers/scsi/sd.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/sd.c
-+++ linux-2.6/drivers/scsi/sd.c
-@@ -89,6 +89,11 @@
- #define SD_MAX_RETRIES		5
- #define SD_PASSTHROUGH_RETRIES	1
+> From: Jens Axboe <axboe@suse.de>
+
+--- a/block/ll_rw_blk.c
++++ b/block/ll_rw_blk.c
+@@ -637,6 +637,8 @@ void blk_queue_bounce_limit(request_queu
+ {
+ 	unsigned long bounce_pfn = dma_addr >> PAGE_SHIFT;
  
-+/*
-+ * Size of the initial data buffer for mode and read capacity data
-+ */
-+#define SD_BUF_SIZE		512
++	printk("q=%p, dma_addr=%llx, bounce pfn %lu\n", q, dma_addr, bounce_pfn);
 +
- static void scsi_disk_release(struct kref *kref);
+ 	/*
+ 	 * set appropriate bounce gfp mask -- unfortunately we don't have a
+ 	 * full 4GB zone, so we have to resort to low memory for any bounces.
  
- struct scsi_disk {
-@@ -1239,7 +1244,7 @@ sd_do_mode_sense(struct scsi_device *sdp
- 
- /*
-  * read write protect setting, if possible - called only in sd_revalidate_disk()
-- * called with buffer of length 512
-+ * called with buffer of length SD_BUF_SIZE
-  */
- static void
- sd_read_write_protect_flag(struct scsi_disk *sdkp, char *diskname,
-@@ -1297,7 +1302,7 @@ sd_read_write_protect_flag(struct scsi_d
- 
- /*
-  * sd_read_cache_type - called only from sd_revalidate_disk()
-- * called with buffer of length 512
-+ * called with buffer of length SD_BUF_SIZE
-  */
- static void
- sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
-@@ -1342,6 +1347,8 @@ sd_read_cache_type(struct scsi_disk *sdk
- 
- 	/* Take headers and block descriptors into account */
- 	len += data.header_length + data.block_descriptor_length;
-+	if (len > SD_BUF_SIZE)
-+		goto bad_sense;
- 
- 	/* Get the data */
- 	res = sd_do_mode_sense(sdp, dbd, modepage, buffer, len, &data, &sshdr);
-@@ -1354,6 +1361,12 @@ sd_read_cache_type(struct scsi_disk *sdk
- 		int ct = 0;
- 		int offset = data.header_length + data.block_descriptor_length;
- 
-+		if (offset >= SD_BUF_SIZE - 2) {
-+			printk(KERN_ERR "%s: malformed MODE SENSE response",
-+				diskname);
-+			goto defaults;
-+		}
-+
- 		if ((buffer[offset] & 0x3f) != modepage) {
- 			printk(KERN_ERR "%s: got wrong page\n", diskname);
- 			goto defaults;
-@@ -1398,6 +1411,7 @@ defaults:
- 	       diskname);
- 	sdkp->WCE = 0;
- 	sdkp->RCD = 0;
-+	sdkp->DPOFUA = 0;
- }
- 
- /**
-@@ -1421,7 +1435,7 @@ static int sd_revalidate_disk(struct gen
- 	if (!scsi_device_online(sdp))
- 		goto out;
- 
--	buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
-+	buffer = kmalloc(SD_BUF_SIZE, GFP_KERNEL | __GFP_DMA);
- 	if (!buffer) {
- 		printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
- 		       "failure.\n");
-
-
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

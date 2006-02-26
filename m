@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWBZWop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWBZWux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWBZWop (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 17:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWBZWop
+	id S1751421AbWBZWux (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 17:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWBZWux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 17:44:45 -0500
-Received: from sccrmhc14.comcast.net ([204.127.200.84]:8703 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751419AbWBZWoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 17:44:44 -0500
-Date: Sun, 26 Feb 2006 17:44:45 -0500
-From: Brian Magnuson <magnuson@rcn.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix build for x86_64 for !CONFIG_HOTPLUG_CPU
-Message-ID: <20060226224445.GA6425@tinygod.moriquendi.net>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sun, 26 Feb 2006 17:50:53 -0500
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:25553 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP
+	id S1751421AbWBZWuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 17:50:52 -0500
+Date: Sun, 26 Feb 2006 23:50:40 +0100
+From: col-pepper@piments.com
+To: linux-kernel@vger.kernel.org
+Subject: o_sync in vfat driver
+References: <op.s5cj47sxj68xd1@mail.piments.com> <op.s5jpqvwhui3qek@mail.piments.com> <op.s5kxhyzgfx0war@mail.piments.com> <op.s5kx7xhfj68xd1@mail.piments.com> <op.s5kya3t0j68xd1@mail.piments.com> <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com> <op.s5kzao2jj68xd1@mail.piments.com>
+Message-ID: <op.s5lq2hllj68xd1@mail.piments.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <op.s5kzao2jj68xd1@mail.piments.com>
+User-Agent: Opera M2/8.51 (Linux, build 1462)
+X-Ovh-Remote: 213.103.54.253 (d213-103-54-253.cust.tele2.fr)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|0.3|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The commit e2c0388866dc12bef56b178b958f9b778fe6c687 added
-setup_additional_cpus to setup.c but this is only defined if
-CONFIG_HOTPLUG_CPU is set.  This patch changes the #ifdef to reflect that.
+Hi,
 
-Signed-off-by: Brian Magnuson <magnuson@rcn.com>
+OMG what do I have to do to post here? 10th attempt.
+{part2}
 
---- linux-2.6.orig/arch/x86_64/kernel/setup.c   2006-02-26 17:03:26.000000000 -0500
-+++ linux-2.6/arch/x86_64/kernel/setup.c        2006-02-26 17:33:05.000000000 -0500
-@@ -424,7 +424,7 @@ static __init void parse_cmdline_early (
-                        elfcorehdr_addr = memparse(from+11, &from);
- #endif
+Here is a non-exhaustive list of typical devices types requiring fat vfat
+support:
 
--#ifdef CONFIG_SMP
-+#ifdef CONFIG_HOTPLUG_CPU
-                else if (!memcmp(from, "additional_cpus=", 16))
-                        setup_additional_cpus(from+16);
- #endif
+fd ide-hd scsi-hd usb-hd cdrom usb-hd usb-handheld (iPod, iRiver etc)
+usb-flash (usbsticks, cameras, some music devices.)
 
+IIRC the sync mount option for vfat is ignored for file systems >2G, this
+effectively (and probably intentionally) excludes nearly all hd partitions
+and iPod type devices.
 
-.
+sync does not have any meaning for CD DVD media.

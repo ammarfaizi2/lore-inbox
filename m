@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbWBZN3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWBZNdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbWBZN3K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 08:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWBZN3K
+	id S1751118AbWBZNdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 08:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWBZNdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 08:29:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:37523 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751122AbWBZN3J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 08:29:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TVekUYrTgO5KudGa/QPn3wjcNRIY2C0SedDGrw6JsNNQOq6/zHWXBZmwM3eH6LBbaGQyzUuidsYZVtscDLpeREnP3S2SALBVlwJMYF9PaLSIzzmrLadIoletIs9u0UXdyFEW8mRnD+MbDxg4s07uV43+rHWNO7RKQoibxtWT4e8=
-Message-ID: <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
-Date: Sun, 26 Feb 2006 14:29:08 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: Luke-Jr <luke@dashjr.org>
+	Sun, 26 Feb 2006 08:33:15 -0500
+Received: from CPE-24-31-249-53.kc.res.rr.com ([24.31.249.53]:19845 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1751118AbWBZNdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 08:33:14 -0500
+From: Luke-Jr <luke@dashjr.org>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
 Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works ;)
+Date: Sun, 26 Feb 2006 13:39:12 +0000
+User-Agent: KMail/1.9.1
 Cc: "Bernhard Rosenkraenzer" <bero@arklinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <200602261330.15709.luke@dashjr.org>
+References: <200602250042.51677.bero@arklinux.org> <200602261330.15709.luke@dashjr.org> <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
+In-Reply-To: <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200602250042.51677.bero@arklinux.org>
-	 <200602261330.15709.luke@dashjr.org>
+Message-Id: <200602261339.13821.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/26/06, Luke-Jr <luke@dashjr.org> wrote:
-> On Friday 24 February 2006 23:42, Bernhard Rosenkraenzer wrote:
-> > I've just released dvdrtools 0.3.1
-> > (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools
-> > that (as the name indicates) adds support for writing to DVD-R and DVD-RW
-> > disks using purely Free Software,
+On Sunday 26 February 2006 13:29, Jesper Juhl wrote:
+> On 2/26/06, Luke-Jr <luke@dashjr.org> wrote:
+> > On Friday 24 February 2006 23:42, Bernhard Rosenkraenzer wrote:
+> > > I've just released dvdrtools 0.3.1
+> > > (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools
+> > > that (as the name indicates) adds support for writing to DVD-R and
+> > > DVD-RW disks using purely Free Software,
+> >
+> > also DVD+R/RW/DL, I hope?
 >
-> also DVD+R/RW/DL, I hope?
->
+> And what about DVD-RAM drives? Any plans to support those?
 
-And what about DVD-RAM drives? Any plans to support those?
-
-> > that tries to do things the Linux way ("dvdrecord dev=/dev/cdrom
-> > whatever.iso")
->
-> Shouldn't that be "dvdrecord whatever.iso /dev/cdrom" or similar?
-
-I'd agree, that would match 'cp', 'mv', 'ln' etc by having the source
-first and destination second.
-
-
-> Any plans to support growing an ISO fs (ala growisofs)? Maybe by simply
-> including a modified growisofs using dvdrecord-libscg?
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+My [limited] understanding of DVD-RAM drives was that they are basically 
+removable block devices... you wouldn't need a recording program for that, 
+you'd use it like a floppy.

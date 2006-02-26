@@ -1,52 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWBZXiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWBZXkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWBZXiz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:38:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWBZXiz
+	id S1751424AbWBZXkB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:40:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWBZXkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:38:55 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:1839 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750871AbWBZXiy (ORCPT
+	Sun, 26 Feb 2006 18:40:01 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:39593 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751424AbWBZXkA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:38:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=pkSzFnaNLysdtOBHbRm37yDjqnhkZSTaI96au1FBLmyOdEQgQVcAwSIYq4ir2kXCDEpsdzITeQ97USVgEeoZTFiIb8dfzi0TH3QzJbrB4qX4xgCTZ9LHVezWyI4bt9sb36w5XU+aY56E2d2oDaE1S4xlTPUnOUJCLOTd/K7DFCM=
-Message-ID: <44023BF3.7060703@gmail.com>
-Date: Mon, 27 Feb 2006 07:38:27 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Sun, 26 Feb 2006 18:40:00 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [RFC/RFT][PATCH -mm] swsusp: improve memory shrinking
+Date: Mon, 27 Feb 2006 00:38:40 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060226185319.GB2055@elf.ucw.cz> <200602270032.25324.rjw@sisk.pl>
+In-Reply-To: <200602270032.25324.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       info-linux@geode.amd.com
-Subject: Re: 2.6.16-rc4-mm2
-References: <20060224031002.0f7ff92a.akpm@osdl.org>	 <9a8748490602250359w7880d820lae65ceb50bf6e08e@mail.gmail.com>	 <20060225041703.6d771f10.akpm@osdl.org>	 <9a8748490602250425m6d99cd54la451795648c31c42@mail.gmail.com>	 <20060225043102.73d1a7d8.akpm@osdl.org> <9a8748490602250441h710fd194u420ffbac58d7a18d@mail.gmail.com>
-In-Reply-To: <9a8748490602250441h710fd194u420ffbac58d7a18d@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602270038.41287.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 2/25/06, Andrew Morton <akpm@osdl.org> wrote:
->> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
->>> On 2/25/06, Andrew Morton <akpm@osdl.org> wrote:
->>>  > "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
->>>  > >
->>>  > >  On 2/24/06, Andrew Morton <akpm@osdl.org> wrote:
->>>  > >  >
->> CONFIG_FB=m, CONFIG_FB_GEODE_GX=y.   An easy mistake, that.
->>
-
-Need to change CONFIG_FB_GEODE_GX to depends on (FB = y)
-
+On Monday 27 February 2006 00:32, Rafael J. Wysocki wrote:
+> On Sunday 26 February 2006 19:53, Pavel Machek wrote:
+> > > > > > I did try shrink_all_memory() five times, with .5 second delay between
+> > > > > > them, and it freed more memory at later tries.
+> > > > > 
+> > > > > I wonder if the delays are essential or if so, whether they may be shorter
+> > > > > than .5 sec.
+> > > > 
+> > > > I was using this with some success... (Warning, against old
+> > > > kernel). But, as I said, I consider it ugly, and it would be better to
+> > > > fix shrink_all_memory.
+> > > 
+> > > Appended is a patch against the current -mm.
+> > >   [It also makes
+> > > swsusp_shrink_memory() behave as documented for image_size = 0.
+> > > Currently, if it states there's enough free RAM to suspend, it won't bother
+> > > to free a single page.]
+> > 
+> > Could we get bugfix part separately?
 > 
-> Does it even make sense to build CONFIG_FB modular?
-> 
+> Sure.  Appended is the bugfix (I haven't tested it separately yet, but I think
+> it's simple enough) ...
 
-If you're a developer.
+... and this is the workaround of the "shrink_all_memory() returns 0 prematurely"
+problem (not tested separately yet).  [Together these patches make my box
+actually free more memory when image_size = 0.]
 
-Tony
+---
+Make swsusp_shrink_memory() try harder to free more RAM if necessary or
+if the anticipated size of the image is greater than image_size.
 
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ kernel/power/swsusp.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
+
+Index: linux-2.6.16-rc4-mm2/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.16-rc4-mm2.orig/kernel/power/swsusp.c	2006-02-27 00:25:34.000000000 +0100
++++ linux-2.6.16-rc4-mm2/kernel/power/swsusp.c	2006-02-27 00:28:58.000000000 +0100
+@@ -175,6 +175,8 @@ void free_all_swap_pages(int swap, struc
+  */
+ 
+ #define SHRINK_BITE	10000
++#define SHRINK_RETRY	3
++#define SHRINK_SLEEP	100
+ 
+ int swsusp_shrink_memory(void)
+ {
+@@ -182,6 +184,7 @@ int swsusp_shrink_memory(void)
+ 	struct zone *zone;
+ 	unsigned long pages = 0;
+ 	unsigned int i = 0;
++	int retry = SHRINK_RETRY;
+ 	char *p = "-\\|/";
+ 
+ 	printk("Shrinking memory...  ");
+@@ -200,8 +203,14 @@ int swsusp_shrink_memory(void)
+ 			if (freed > 0) {
+ 				pages += freed;
+ 				tmp = freed;
+-			} else if (tmp > 0) {
+-				return -ENOMEM;
++				retry = SHRINK_RETRY;
++			} else {
++				if (--retry) {
++					msleep_interruptible(SHRINK_SLEEP);
++					tmp = size;
++				} else if (tmp > 0) {
++					return -ENOMEM;
++				}
+ 			}
+ 		}
+ 		printk("\b%c", p[i++%4]);

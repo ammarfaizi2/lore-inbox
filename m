@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWBZLrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWBZMSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWBZLrT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 06:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBZLrT
+	id S1751331AbWBZMSh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 07:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWBZMSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 06:47:19 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:20616 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750836AbWBZLrT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 06:47:19 -0500
-Date: Sun, 26 Feb 2006 11:47:00 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
-       Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Junio C Hamano <junkio@cox.net>
-Subject: Re: [stable] [PATCH 1/2] sd: fix memory corruption by sd_read_cache_type
-Message-ID: <20060226114700.GP27946@ftp.linux.org.uk>
-References: <tkrat.014f03dc41356221@s5r6.in-berlin.de> <20060225021009.GV3883@sorel.sous-sol.org> <4400E34B.1000400@s5r6.in-berlin.de> <Pine.LNX.4.64.0602251600480.22647@g5.osdl.org> <20060226001716.GL27946@ftp.linux.org.uk> <Pine.LNX.4.64.0602251626280.22647@g5.osdl.org> <44016956.2030609@pobox.com> <20060226090024.GO27946@ftp.linux.org.uk> <440186AE.2@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440186AE.2@pobox.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 26 Feb 2006 07:18:37 -0500
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:43235 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP
+	id S1751332AbWBZMSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 07:18:36 -0500
+Date: Sun, 26 Feb 2006 13:18:26 +0100
+To: linux-kernel@vger.kernel.org
+From: col-pepper@piments.com
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.s5kxs0cyj68xd1@mail.piments.com>
+User-Agent: Opera M2/8.51 (Linux, build 1462)
+X-Ovh-Remote: 213.103.54.253 (d213-103-54-253.cust.tele2.fr)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|0.3|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 05:45:02AM -0500, Jeff Garzik wrote:
-> AFAICS 'git clone $rsync_url' pulls down the heads and tags just fine... 
->  I just tried it again to be certain.  refs/heads and refs/tags is 
-> fully populated, and HEAD links to refs/master as it should.
+Hi,
 
-Why should it?  Note that this is _not_ what happens with e.g. git://
-URLs.  And while we are at it, who said that refs/master even exists?
-AFAICS, it's a convention and no more - it doesn't have to be there.
+having read lkml.org/lkml/2005/5/17/47 , I am wondering how
+appropriate the new vfat sync policy is.
 
-Even if it does exist, I'd say that behaviour of git:// makes more sense -
-it sets HEAD to the same thing we have in remote; if it's refs/master,
-so be it, if it's set to a different branch, we start on the same branch.
+It can be fatal for hardware , at best it is very slow and probably fails
+it's basic aim of offering increased data security at any price.
+
+
+
+-- 
+
+Opera e-mail on Gentoo Linux

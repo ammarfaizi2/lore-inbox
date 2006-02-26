@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWBZVxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWBZVzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbWBZVxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 16:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWBZVxm
+	id S1751023AbWBZVzu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 16:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWBZVzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 16:53:42 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:32184 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750926AbWBZVxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 16:53:41 -0500
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in
-	warnings
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Nix <nix@esperi.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490602261349v381933b9xeb2ddeedac053910@mail.gmail.com>
-References: <200602261721.17373.jesper.juhl@gmail.com>
-	 <1140986578.24141.141.camel@mindpipe> <87wtfh3i9z.fsf@hades.wkstn.nix>
-	 <9a8748490602261349v381933b9xeb2ddeedac053910@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 16:53:39 -0500
-Message-Id: <1140990819.24141.176.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+	Sun, 26 Feb 2006 16:55:50 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:63375 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1751015AbWBZVzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 16:55:49 -0500
+Message-ID: <440223D6.1060200@austin.rr.com>
+Date: Sun, 26 Feb 2006 15:55:34 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Dave Kleikamp <shaggy@austin.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cifs hang patch idea - reduce sendtimeo on socket
+References: <43F3FA4E.2050608@austin.rr.com> <20060216205623.GA8784@stusta.de> <1140644100.9942.15.camel@kleikamp.austin.ibm.com> <20060226175152.GK3674@stusta.de>
+In-Reply-To: <20060226175152.GK3674@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-26 at 22:49 +0100, Jesper Juhl wrote:
-> On 2/26/06, Nix <nix@esperi.org.uk> wrote:
-> > (i.e., there's a reason that warning uses the word *might*.)
-> >
-> The compiler says "might be used uninitialized" when it cannot
-> determine if a variable will be initialized before first use or not.
+Adrian Bunk wrote:
 
-Quoting the "silence gcc warning" thread:
+>>Steve and I think we have figured this out.  In some cases, CIFSSMBRead
+>>was returning a recently freed buffer.
+>>...
+>>    
+>>
+>
+>Thanks a lot!
+>
+>In my testing, this patch applied against 2.6.14-rc4 fixed all problems 
+>I observed.
+>  
+>
+Adrian,
+Thanks for the info.  Our testing looked good too.
 
-"Really, this is a gcc bug.  My version of the compiler:
-
-gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
-
-Doesn't give this warning.  And, since the loop has fixed parameters,
-gcc should see not only that it's always executed, but that it could be
-unrolled."
-
-Lee
-
+In the development tree for cifs we are working on reducing buffer usage 
+(a good first
+step is already checked in) and enabling additional important security 
+features (NTLMv2 and
+Kerberos for newer more secure clients and also an option to configure 
+and mount for
+allowing lanman and plaintext sessionsetup to allow mounts to older 
+legacy servers).

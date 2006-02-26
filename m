@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWBZSYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWBZSX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWBZSYV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 13:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751388AbWBZSYV
+	id S1751378AbWBZSX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 13:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWBZSX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 13:24:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46987 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751386AbWBZSYU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 13:24:20 -0500
-Date: Sun, 26 Feb 2006 10:21:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org, largret@gmail.com, axboe@suse.de,
-       Andi Kleen <ak@muc.de>
-Subject: Re: OOM-killer too aggressive?
-Message-Id: <20060226102152.69728696.akpm@osdl.org>
-In-Reply-To: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
-References: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Sun, 26 Feb 2006 13:23:58 -0500
+Received: from pproxy.gmail.com ([64.233.166.178]:23424 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751378AbWBZSX4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 13:23:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jZU+vNrY84LPTXHDVhkzO2xlHf1GYY2R5OweHfUKvUn3n6V9PhOUqB3xnmwGdyvdJjpVJyQ1Sn33ImWJ8t7ahcCeDEq/0V/2WZb0yyquttTzJ6BZz8NsjzhyLjyfLEkyHC21g+XBlvC99VOQ+hgnfoUnZI5sHLsIaqIrooBHWUU=
+Message-ID: <9a8748490602261023j46eb39f2peaa080d737fee5e1@mail.gmail.com>
+Date: Sun, 26 Feb 2006 19:23:55 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "James Bottomley" <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH] silence gcc warning about possibly uninitialized use of variable in scsi_scan
+Cc: linux-kernel@vger.kernel.org, "Eric Youngdale" <ericy@cais.com>,
+       "Eric Youngdale" <eric@andante.org>, linux-scsi@vger.kernel.org
+In-Reply-To: <1140978084.3692.6.camel@mulgrave.il.steeleye.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602261639.15657.jesper.juhl@gmail.com>
+	 <1140978084.3692.6.camel@mulgrave.il.steeleye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
+On 2/26/06, James Bottomley <James.Bottomley@steeleye.com> wrote:
+> On Sun, 2006-02-26 at 16:39 +0100, Jesper Juhl wrote:
+> > Gcc can't see that 'result' will always be initialized inside the for loop
+> > and thus it warns
+> >   drivers/scsi/scsi_scan.c:445: warning: 'result' might be used uninitialized in this function
+> > This patch silences the warning by initializing 'result' to zero.
 >
-> Chris Largret is getting repeated OOM kills because of DMA memory
-> exhaustion:
-> 
-> oom-killer: gfp_mask=0xd1, order=3
-> 
+> Really, this is a gcc bug.  My version of the compiler:
+>
+> gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
+>
+> Doesn't give this warning.  And, since the loop has fixed parameters,
+> gcc should see not only that it's always executed, but that it could be
+> unrolled.
+>
+> Which version is causing the problem?
+>
+2.6.16-rc4-mm2 build with gcc 3.4.5
 
-This could be related to the known GFP_DMA oom on some x86_64 machines.
+and I agree that gcc really should be noticing, but in fact it
+doesn't. It's no big deal, I just thought we might want to shut gcc up
+and give people one less warning to worry about.
 
-> Looking at floppy_open, we have:
-> 
->         if (!floppy_track_buffer) {
->                 /* if opening an ED drive, reserve a big buffer,
->                  * else reserve a small one */
->                 if ((UDP->cmos == 6) || (UDP->cmos == 5))
->                         try = 64;       /* Only 48 actually useful */
->                 else
->                         try = 32;       /* Only 24 actually useful */
-> 
->                 tmp = (char *)fd_dma_mem_alloc(1024 * try);
->                 if (!tmp && !floppy_track_buffer) {
->                         try >>= 1;      /* buffer only one side */
->                         INFBOUND(try, 16);
->                         tmp = (char *)fd_dma_mem_alloc(1024 * try);
->                 }
->                 if (!tmp && !floppy_track_buffer) {
->                         fallback_on_nodma_alloc(&tmp, 2048 * try);
->                 }
-> 
-> So it will try to allocate half its first request if that fails, then
-> fall back to non-DMA memory as a last resort, but doesn't get a chance
-> because the OOM killer gets invoked.  Maybe we need a new flag that says
-> "fail me immediately if no memory available"?
-
-That's __GFP_NORETRY.
-
-> Or should floppy.c be fixed so it doesn't ask for so much?
-> 
-
-The page allocator uses 32k as the threshold for when-to-try-like-crazy.
-
-x86_64 should probably be defining its own fd_dma_mem_alloc() which doesn't
-use GFP_DMA.
-
---- devel/drivers/block/floppy.c~floppy-false-oom-fix	2006-02-26 10:14:38.000000000 -0800
-+++ devel-akpm/drivers/block/floppy.c	2006-02-26 10:15:04.000000000 -0800
-@@ -278,7 +278,8 @@ static void do_fd_request(request_queue_
- #endif
- 
- #ifndef fd_dma_mem_alloc
--#define fd_dma_mem_alloc(size) __get_dma_pages(GFP_KERNEL,get_order(size))
-+#define fd_dma_mem_alloc(size)	\
-+		__get_dma_pages(GFP_KERNEL|__GFP_NORETRY,get_order(size))
- #endif
- 
- static inline void fallback_on_nodma_alloc(char **addr, size_t l)
-_
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

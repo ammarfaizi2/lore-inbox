@@ -1,121 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWBZXSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWBZXTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWBZXSl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWBZXRt
+	id S932271AbWBZXTM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWBZXP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:17:49 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:6035 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932301AbWBZXRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:17:48 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 27 Feb 2006 00:16:10 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 2.6.15.4 update] sd: fix memory corruption with broken mode
- page headers
-To: stable@kernel.org
-cc: linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-In-Reply-To: <4400E34B.1000400@s5r6.in-berlin.de>
-Message-ID: <tkrat.ac90e0d775a5c272@s5r6.in-berlin.de>
-References: <tkrat.014f03dc41356221@s5r6.in-berlin.de>
- <20060225021009.GV3883@sorel.sous-sol.org>
- <4400E34B.1000400@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.735) AWL,BAYES_50
+	Sun, 26 Feb 2006 18:15:27 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:28709 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932265AbWBZXOx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 18:14:53 -0500
+Message-Id: <20060226231440.431127000@towertech.it>
+References: <20060226231438.307751000@towertech.it>
+User-Agent: quilt/0.43-1
+Date: Mon, 27 Feb 2006 00:14:49 +0100
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 11/13] RTC subsystem, DS1672 driver
+Content-Disposition: inline; filename=rtc-drv-ds1672.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sd: fix memory corruption with broken mode page headers
+Driver for the Dallas/Maxim DS1672 chip, found
+on the Loft (http://www.giantshoulderinc.com) .
 
-There's a problem in sd where we blindly believe the length of the
-headers and block descriptors.  Some devices return insane values for
-these and cause our length to end up greater than the actual buffer
-size, so check to make sure.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+--
+ drivers/rtc/Kconfig      |   10 ++
+ drivers/rtc/Makefile     |    1 
+ drivers/rtc/rtc-ds1672.c |  233 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 244 insertions(+)
 
-Also removed the buffer size magic number (512) and added DPOFUA of
-zero to the defaults
-
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-rediff for 2.6.15.x without DPOFUA bit, taken from commit
-489708007785389941a89fa06aedc5ec53303c96
-
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
----
-fixes http://bugzilla.kernel.org/show_bug.cgi?id=6114 and
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=182005
-
-Index: linux-2.6.15.4/drivers/scsi/sd.c
-===================================================================
---- linux-2.6.15.4.orig/drivers/scsi/sd.c	2006-02-26 23:58:40.000000000 +0100
-+++ linux-2.6.15.4/drivers/scsi/sd.c	2006-02-27 00:03:07.000000000 +0100
-@@ -88,6 +88,11 @@
- #define SD_MAX_RETRIES		5
- #define SD_PASSTHROUGH_RETRIES	1
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-02-26 23:22:10.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-02-26 23:22:11.000000000 +0100
+@@ -82,6 +82,16 @@ config RTC_DRV_X1205
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-x1205.
  
++config RTC_DRV_DS1672
++	tristate "Dallas/Maxim DS1672"
++	depends on RTC_CLASS && I2C
++	help
++	  If you say yes here you get support for the
++	  Dallas/Maxim DS1672 timekeeping chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ds1672.
++
+ config RTC_DRV_TEST
+ 	tristate "Test driver/device"
+ 	depends on RTC_CLASS
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-02-26 23:22:10.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-02-26 23:22:11.000000000 +0100
+@@ -11,4 +11,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
+ 
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
++obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
+ 
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-ds1672.c	2006-02-26 23:22:11.000000000 +0100
+@@ -0,0 +1,233 @@
 +/*
-+ * Size of the initial data buffer for mode and read capacity data
++ * An rtc/i2c driver for the Dallas DS1672
++ * Copyright 2005 Alessandro Zummo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + */
-+#define SD_BUF_SIZE		512
 +
- static void scsi_disk_release(struct kref *kref);
- 
- struct scsi_disk {
-@@ -1299,7 +1304,7 @@ sd_do_mode_sense(struct scsi_device *sdp
- 
- /*
-  * read write protect setting, if possible - called only in sd_revalidate_disk()
-- * called with buffer of length 512
-+ * called with buffer of length SD_BUF_SIZE
-  */
- static void
- sd_read_write_protect_flag(struct scsi_disk *sdkp, char *diskname,
-@@ -1357,7 +1362,7 @@ sd_read_write_protect_flag(struct scsi_d
- 
- /*
-  * sd_read_cache_type - called only from sd_revalidate_disk()
-- * called with buffer of length 512
-+ * called with buffer of length SD_BUF_SIZE
-  */
- static void
- sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
-@@ -1402,6 +1407,8 @@ sd_read_cache_type(struct scsi_disk *sdk
- 
- 	/* Take headers and block descriptors into account */
- 	len += data.header_length + data.block_descriptor_length;
-+	if (len > SD_BUF_SIZE)
-+		goto bad_sense;
- 
- 	/* Get the data */
- 	res = sd_do_mode_sense(sdp, dbd, modepage, buffer, len, &data, &sshdr);
-@@ -1414,6 +1421,12 @@ sd_read_cache_type(struct scsi_disk *sdk
- 		int ct = 0;
- 		int offset = data.header_length + data.block_descriptor_length;
- 
-+		if (offset >= SD_BUF_SIZE - 2) {
-+			printk(KERN_ERR "%s: malformed MODE SENSE response",
-+				diskname);
-+			goto defaults;
-+		}
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/rtc.h>
 +
- 		if ((buffer[offset] & 0x3f) != modepage) {
- 			printk(KERN_ERR "%s: got wrong page\n", diskname);
- 			goto defaults;
-@@ -1472,7 +1485,7 @@ static int sd_revalidate_disk(struct gen
- 	if (!scsi_device_online(sdp))
- 		goto out;
- 
--	buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
-+	buffer = kmalloc(SD_BUF_SIZE, GFP_KERNEL | __GFP_DMA);
- 	if (!buffer) {
- 		printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
- 		       "failure.\n");
++#define DRV_VERSION "0.2"
++
++/* Addresses to scan: none. This chip cannot be detected. */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++
++/* Insmod parameters */
++I2C_CLIENT_INSMOD;
++
++/* Registers */
++
++#define DS1672_REG_CNT_BASE	0
++#define DS1672_REG_CONTROL	4
++#define DS1672_REG_TRICKLE	5
++
++
++/* Prototypes */
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind);
++
++/*
++ * In the routines that deal directly with the ds1672 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
++ * Epoch is initialized as 2000. Time is set to UTC.
++ */
++static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long time;
++	unsigned char addr = DS1672_REG_CNT_BASE;
++	unsigned char buf[4];
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 1, &addr },		/* setup read ptr */
++		{ client->addr, I2C_M_RD, 4, buf },	/* read date */
++	};
++
++        /* read date registers */
++        if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++                dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++                return -EIO;
++        }
++
++	dev_dbg(&client->dev,
++		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n"
++		__FUNCTION__,
++		buf[0], buf[1], buf[2], buf[3]);
++
++	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++
++	rtc_time_to_tm(time, tm);
++
++	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	return 0;
++}
++
++static int ds1672_set_mmss(struct i2c_client *client, unsigned long secs)
++{
++	int xfer;
++	unsigned char buf[5];
++
++	buf[0] = DS1672_REG_CNT_BASE;
++	buf[1] = secs & 0x000000FF;
++	buf[2] = (secs & 0x0000FF00) >> 8;
++	buf[3] = (secs & 0x00FF0000) >> 16;
++	buf[4] = (secs & 0xFF000000) >> 24;
++
++	xfer = i2c_master_send(client, buf, 5);
++	if (xfer != 5) {
++		dev_err(&client->dev, "%s: send: %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int ds1672_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long secs;
++
++	dev_dbg(&client->dev,
++		"%s: secs=%d, mins=%d, hours=%d, ",
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	rtc_tm_to_time(tm, &secs);
++
++	return ds1672_set_mmss(client, secs);
++}
++
++static int ds1672_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_set_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_mmss(struct device *dev, unsigned long secs)
++{
++	return ds1672_set_mmss(to_i2c_client(dev), secs);
++}
++
++static struct rtc_class_ops ds1672_rtc_ops = {
++	.read_time	= ds1672_rtc_read_time,
++	.set_time	= ds1672_rtc_set_time,
++	.set_mmss	= ds1672_rtc_set_mmss,
++};
++
++static int ds1672_attach(struct i2c_adapter *adapter)
++{
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++	return i2c_probe(adapter, &addr_data, ds1672_probe);
++}
++
++static int ds1672_detach(struct i2c_client *client)
++{
++	int err;
++	struct rtc_device *rtc = i2c_get_clientdata(client);
++
++	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
++
++ 	if (rtc)
++		rtc_device_unregister(rtc);
++
++	if ((err = i2c_detach_client(client)))
++		return err;
++
++	kfree(client);
++
++	return 0;
++}
++
++static struct i2c_driver ds1672_driver = {
++	.driver		= {
++		.name	= "ds1672",
++	},
++	.attach_adapter = &ds1672_attach,
++	.detach_client	= &ds1672_detach,
++};
++
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind)
++{
++	int err = 0;
++	struct i2c_client *client;
++	struct rtc_device *rtc;
++
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
++		err = -ENODEV;
++		goto exit;
++	}
++
++	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	/* I2C client */
++	client->addr = address;
++	client->driver = &ds1672_driver;
++	client->adapter	= adapter;
++
++	strlcpy(client->name, ds1672_driver.driver.name, I2C_NAME_SIZE);
++
++	/* Inform the i2c layer */
++	if ((err = i2c_attach_client(client)))
++		goto exit_kfree;
++
++	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
++
++	rtc = rtc_device_register(ds1672_driver.driver.name, &client->dev,
++				&ds1672_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc)) {
++		err = PTR_ERR(rtc);
++		dev_err(&client->dev,
++			"unable to register the class device\n");
++		goto exit_detach;
++	}
++
++	i2c_set_clientdata(client, rtc);
++
++	return 0;
++
++exit_detach:
++	i2c_detach_client(client);
++
++exit_kfree:
++	kfree(client);
++
++exit:
++	return err;
++}
++
++static int __init ds1672_init(void)
++{
++	return i2c_add_driver(&ds1672_driver);
++}
++
++static void __exit ds1672_exit(void)
++{
++	i2c_del_driver(&ds1672_driver);
++}
++
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("Dallas/Maxim DS1672 timekeeper driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
++
++module_init(ds1672_init);
++module_exit(ds1672_exit);
 
-
+--

@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWBZEXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWBZFPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWBZEXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Feb 2006 23:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWBZEXw
+	id S1751199AbWBZFPc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 00:15:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWBZFPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Feb 2006 23:23:52 -0500
-Received: from i-216-58-89-227.gta.igs.net ([216.58.89.227]:2688 "EHLO
-	mail.undead.cc") by vger.kernel.org with ESMTP id S1751200AbWBZEXv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Feb 2006 23:23:51 -0500
-X-AuthUser: john@undead.cc
-Message-ID: <44012D53.30700@undead.cc>
-Date: Sat, 25 Feb 2006 23:23:47 -0500
-From: John Zielinski <john_ml@undead.cc>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: netdev@vger.kernel.org
-Subject: RTL 8139 stops RX after receiving a jumbo frame
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 26 Feb 2006 00:15:32 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:33490 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751199AbWBZFPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 00:15:31 -0500
+Subject: Re: [stable] [PATCH 1/2] sd: fix memory corruption by
+	sd_read_cache_type
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Chris Wright <chrisw@sous-sol.org>, stable@kernel.org,
+       Jody McIntyre <scjody@modernduck.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.64.0602251600480.22647@g5.osdl.org>
+References: <tkrat.014f03dc41356221@s5r6.in-berlin.de>
+	 <20060225021009.GV3883@sorel.sous-sol.org>
+	 <4400E34B.1000400@s5r6.in-berlin.de>
+	 <Pine.LNX.4.64.0602251600480.22647@g5.osdl.org>
+Content-Type: text/plain
+Date: Sat, 25 Feb 2006 23:14:48 -0600
+Message-Id: <1140930888.3279.4.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was testing a patch for the VIA Velocity adapter and accidentally 
-pinged a jumbo packet to 192.168.0.1 instead of 192.168.0.10.  The 
-machine I pinged is my Linux firewall box with a RTL 8139 card (8139 rev 
-K chip).  When my internet connection went down I tried pinging the 
-firewall with regular sized packets and it wouldn't respond.  I had to 
-ifdown/ifup the interface to get things going again.  The output from 
-ifconfig shows I had an overrun.
+On Sat, 2006-02-25 at 16:01 -0800, Linus Torvalds wrote:
+> Perhaps equally importantly, let's get them into mainline if they are so 
+> important. Which means that I want sign-offs and acks from the appropriate 
+> people (scsi and original author, which is apparently Al).
 
-I'm replacing that card with a VIA Velocity card as I'm upgrading my 
-entire network to GigE but a friend of mine is only doing a partial 
-upgrade and will have several boxes with RTL 8139's still in them.  I'm 
-going to move the RTL card into my test box for further testing.
+Yes, I've been thinking about this.  The problem is that it's a change
+to sd and a change to scsi_lib in a fairly critical routine.  While I'm
+reasonably certain the change is safe, I'd prefer to make sure by
+incubating in -mm for a while.
 
-I'm surprised that the switch actually let the jumbo packet through onto 
-a 100Mbit link.  I'm going to see if I can find a non RTL 8139 card in 
-my parts bin and see what that one does.
+The title, by the way, is misleading; it's not a memory corruption in sd
+at all really.  It's the initio bridge which produces a totally
+standards non conformant return to a mode sense which produces the
+problem.  And so, it's only the single initio bridge which is currently
+affected; hence the caution.
 
-What's the normal behavior for overruns on an interface?
+James
+
 

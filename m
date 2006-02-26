@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWBZVGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWBZVLX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWBZVGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 16:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751209AbWBZVGq
+	id S1751401AbWBZVLX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 16:11:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWBZVLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 16:06:46 -0500
-Received: from xproxy.gmail.com ([66.249.82.205]:33560 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750792AbWBZVGp (ORCPT
+	Sun, 26 Feb 2006 16:11:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6839 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751401AbWBZVLW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 16:06:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=rpe0ELxe8uSWEzVOolWxoMOQAYeSr1A3jFDdl9vVki50yra8WcHwZSgDioG5N4YBxeULvlZPvcf6NLBCwhQ5Ad8bqVJ9FyzVIdGJ0bnC/4uHHqUGvVzyZDtRUubclWVb+0ARTTigGWQXufUgK00SGltoewMRtAnpZQ65ppjjK2I=
+	Sun, 26 Feb 2006 16:11:22 -0500
+Date: Sun, 26 Feb 2006 13:04:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@muc.de>
+Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org, largret@gmail.com,
+       axboe@suse.de
 Subject: Re: OOM-killer too aggressive?
-From: Chris Largret <largret@gmail.com>
-Reply-To: largret@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       axboe@suse.de, Andi Kleen <ak@muc.de>
-In-Reply-To: <20060226102152.69728696.akpm@osdl.org>
+Message-Id: <20060226130402.5aa39e34.akpm@osdl.org>
+In-Reply-To: <20060226203917.GA76858@muc.de>
 References: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
-	 <20060226102152.69728696.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 13:06:55 -0800
-Message-Id: <1140988015.5178.15.camel@shogun.daga.dyndns.org>
+	<20060226102152.69728696.akpm@osdl.org>
+	<20060226203917.GA76858@muc.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 Dropline GNOME 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-26 at 10:21 -0800, Andrew Morton wrote: 
-> Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> >
-> > Chris Largret is getting repeated OOM kills because of DMA memory
-> > exhaustion:
+Andi Kleen <ak@muc.de> wrote:
+>
+> On Sun, Feb 26, 2006 at 10:21:52AM -0800, Andrew Morton wrote:
+> > Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > >
+> > > Chris Largret is getting repeated OOM kills because of DMA memory
+> > > exhaustion:
+> > > 
+> > > oom-killer: gfp_mask=0xd1, order=3
+> > > 
 > > 
-> > oom-killer: gfp_mask=0xd1, order=3
-> > 
+> > This could be related to the known GFP_DMA oom on some x86_64 machines.
 > 
-> This could be related to the known GFP_DMA oom on some x86_64 machines.
-
-I'm not sure if this has any bearing on it, but the OOM Killer only does
-this when I compile the kernel with SMP support.
-
-> > Or should floppy.c be fixed so it doesn't ask for so much?
+> What known GFP_DMA oom? GFP_DMA allocation should work.
 > 
-> The page allocator uses 32k as the threshold for when-to-try-like-crazy.
-> 
-> x86_64 should probably be defining its own fd_dma_mem_alloc() which doesn't
-> use GFP_DMA.
-> 
-> --- devel/drivers/block/floppy.c~floppy-false-oom-fix	2006-02-26 10:14:38.000000000 -0800
-> +++ devel-akpm/drivers/block/floppy.c	2006-02-26 10:15:04.000000000 -0800
-> @@ -278,7 +278,8 @@ static void do_fd_request(request_queue_
 
-Sorry, this didn't help on my machine. I am running that latest kernel
-pre-patch (2.6.16-rc4) for testing right now and had to modify the
-offsets a little. If there's any output that would help, please let me
-know.
+There's a problem on some x86_64 machines which confuses the BIO layer. 
+BIO makes simple decisions about bounce pfns and some x86_64 memory layouts
+cause them to go wrong.  Net effect: lots of GFP_DMA allocations in the BIO
+layer.
 
---
-Chris Largret <http://daga.dyndns.org>
-
+http://readlist.com/lists/vger.kernel.org/linux-kernel/36/182357.html
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175173

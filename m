@@ -1,115 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWBZP13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWBZP2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWBZP13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 10:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWBZP13
+	id S1751225AbWBZP2S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 10:28:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWBZP2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 10:27:29 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:29863 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751224AbWBZP13 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 10:27:29 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: [RFC/RFT][PATCH -mm] swsusp: improve memory shrinking
-Date: Sun, 26 Feb 2006 16:27:17 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@cyclades.com>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602242122.53763.rjw@sisk.pl> <20060224235548.GB1930@elf.ucw.cz>
-In-Reply-To: <20060224235548.GB1930@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602261627.18012.rjw@sisk.pl>
+	Sun, 26 Feb 2006 10:28:18 -0500
+Received: from mxfep02.bredband.com ([195.54.107.73]:20456 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S1751225AbWBZP2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 10:28:17 -0500
+Subject: Re: [PATCH] Revert sky2 to 0.13a
+From: Ian Kumlien <pomac@vapor.com>
+Reply-To: pomac@vapor.com
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
+       Wolfgang Hoffmann <woho@woho.de>, Pavel Volkovitskiy <int@mtx.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060225180353.5908c955@localhost.localdomain>
+References: <4400FC28.1060705@gmx.net>
+	 <20060225180353.5908c955@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rp7gQsBI8g3XSiPF2ZxR"
+Date: Sun, 26 Feb 2006 16:28:29 +0100
+Message-Id: <1140967709.23375.0.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Saturday 25 February 2006 00:55, Pavel Machek wrote:
-> > > I did try shrink_all_memory() five times, with .5 second delay between
-> > > them, and it freed more memory at later tries.
-> > 
-> > I wonder if the delays are essential or if so, whether they may be shorter
-> > than .5 sec.
-> 
-> I was using this with some success... (Warning, against old
-> kernel). But, as I said, I consider it ugly, and it would be better to
-> fix shrink_all_memory.
+--=-rp7gQsBI8g3XSiPF2ZxR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Appended is a patch against the current -mm.  [It also makes
-swsusp_shrink_memory() behave as documented for image_size = 0.
-Currently, if it states there's enough free RAM to suspend, it won't bother
-to free a single page.]
+On Sat, 2006-02-25 at 18:03 -0800, Stephen Hemminger wrote:
+> Instead of whining, try this.
 
-If anyone please can test it on a machine with less than 128 MB of RAM
-and see if it helps suspend there (in particular when X is running), 
-and if changing the value of SHRINK_SLEEP to 200 (or more) makes
-any difference,  I'll appreciate it very much.
+I'm sorry to say that this failed after 12h 33m =3DP
 
-Greetings,
-Rafael
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
 
----
-Make swsusp_shrink_memory() try harder to free more RAM if necessary or
-if the anticipated size of the image is greater than image_size.
+--=-rp7gQsBI8g3XSiPF2ZxR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1-ecc0.1.6 (GNU/Linux)
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- kernel/power/swsusp.c |   26 ++++++++++++++++++--------
- 1 files changed, 18 insertions(+), 8 deletions(-)
+iD8DBQBEAckd7F3Euyc51N8RAiETAKCpLeezEjnP4+LyGn7uyirG6nfj/gCeIpyH
+l3r8kb4EX+IVd2onukXhTy4=
+=LdeO
+-----END PGP SIGNATURE-----
 
-Index: linux-2.6.16-rc4-mm2/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/kernel/power/swsusp.c	2006-02-26 15:12:04.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/kernel/power/swsusp.c	2006-02-26 16:06:27.000000000 +0100
-@@ -175,6 +175,8 @@ void free_all_swap_pages(int swap, struc
-  */
- 
- #define SHRINK_BITE	10000
-+#define SHRINK_RETRY	3
-+#define SHRINK_SLEEP	100
- 
- int swsusp_shrink_memory(void)
- {
-@@ -182,6 +184,7 @@ int swsusp_shrink_memory(void)
- 	struct zone *zone;
- 	unsigned long pages = 0;
- 	unsigned int i = 0;
-+	int retry = SHRINK_RETRY;
- 	char *p = "-\\|/";
- 
- 	printk("Shrinking memory...  ");
-@@ -194,14 +197,21 @@ int swsusp_shrink_memory(void)
- 		for_each_zone (zone)
- 			if (!is_highmem(zone))
- 				tmp -= zone->free_pages;
--		if (tmp > 0) {
--			tmp = shrink_all_memory(SHRINK_BITE);
--			if (!tmp)
--				return -ENOMEM;
--			pages += tmp;
--		} else if (size > image_size / PAGE_SIZE) {
--			tmp = shrink_all_memory(SHRINK_BITE);
--			pages += tmp;
-+		if (tmp > 0 || size > image_size / PAGE_SIZE) {
-+			long freed = shrink_all_memory(SHRINK_BITE);
-+
-+			if (freed > 0) {
-+				pages += freed;
-+				tmp = freed;
-+				retry = SHRINK_RETRY;
-+			} else {
-+				if (--retry) {
-+					msleep_interruptible(SHRINK_SLEEP);
-+					tmp = size;
-+				} else if (tmp > 0) {
-+					return -ENOMEM;
-+				}
-+			}
- 		}
- 		printk("\b%c", p[i++%4]);
- 	} while (tmp > 0);
+--=-rp7gQsBI8g3XSiPF2ZxR--
+

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWBZRfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWBZRii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWBZRfF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 12:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWBZRfF
+	id S1751357AbWBZRii (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 12:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWBZRii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 12:35:05 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:17466 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751356AbWBZRfD convert rfc822-to-8bit
+	Sun, 26 Feb 2006 12:38:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:7810 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751357AbWBZRih convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 12:35:03 -0500
+	Sun, 26 Feb 2006 12:38:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kLv6U1mr+e6FL2wfdUmpKzPhoQz/9NpRxVtKziqxTfOg6TC/wDiUB8qX3mQXBToCCf5v+mPKi4XB9BlV9Hk5GzTEqIXYmck1vXUNepDk5dpWEP4+HviUWJzVMC4fgnfijhxMwtk65rHQTQsgGBGRRi+9P4YHCFA5ajPvZ/AbKNg=
-Message-ID: <9a8748490602260935t2cc15bcdqb500908de55cef5c@mail.gmail.com>
-Date: Sun, 26 Feb 2006 18:35:02 +0100
+        b=bM4k1j9f6AVII+3KCw/TLxsnOSETo5IaFXuPRjHTMQux7Q+lMvDEgR/2Mx9oJpzzjujbSsTt6J6ub4ruDlPGvBsB+rkL1kHE5ftwLE3PRtwLgEPLxmgSVXdEiuRqJv8SpGxJHIg7BuS9TEiIwwz4ezHs76Aw1/1EQAkHDThr7YU=
+Message-ID: <9a8748490602260938u7213c906w310b943b339344e2@mail.gmail.com>
+Date: Sun, 26 Feb 2006 18:38:36 +0100
 From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Nick Warne" <nick@linicks.net>
-Subject: Re: hda: irq timeout: status=0xd0 DMA question
-Cc: "Mark Lord" <lkml@rtr.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <200602261720.34062.nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+Cc: "Andrew Morton" <akpm@osdl.org>, "Sam Ravnborg" <sam@ravnborg.org>,
+       "Adrian Bunk" <bunk@stusta.de>
+In-Reply-To: <200602261721.17373.jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <200602261308.47513.nick@linicks.net> <4401E06D.90305@rtr.ca>
-	 <9a8748490602260917h31883941qa46dea626276d389@mail.gmail.com>
-	 <200602261720.34062.nick@linicks.net>
+References: <200602261721.17373.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/26/06, Nick Warne <nick@linicks.net> wrote:
-> On Sunday 26 February 2006 17:17, Jesper Juhl wrote:
+On 2/26/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
 >
-> > > But perhaps someone may successfully implement this.
-> >
-> > Unfortunately my machines only have SCSI devices, so I'd have no way
-> > to actually test a patch, otherwise I'd be happy to give it a shot - a
-> > parameter to disable the behaviour shouldn't be too difficult to
-> > implement, and if the default stays as the current behaviour then it
-> > shouldn't be too controversial.
-> > I wouldn't mind trying to hack up a patch, but it would be untested...
+[snip]
 >
-> Post it to me - but look at my original post - this is/was on kernel 2.4.32.
-> I have yet to see such output on 2.6.x series kernels.
->
-> I could test that for you, as I have a test box at work running 2.4.32 that
-> gets these strange disk errors sometimes (never have nailed that one down).
+> That's it for now, I'll get to work trying to clean up some of the breakage
+> I've seen, if anyone wants to join in feel free :)
 >
 
-I haven't been looked at 2.4.x for years, so whatever patch I cook up
-would be for 2.6.x
+Thanks to Adrian Bunk the kernel configuration files and build logs
+for all 100 kernels are now online at
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/jesper/
+So those of you who want to take a closer look can go there and grab
+whatever you need.
 
-My time currently is limited so it'll probably be a few days before I
-have something ready for you to test, but thank you very much for the
-offer, I'll get back to you shortly after I've embedded myself in the
-IDE code and hopefully cooked something up that makes sense for you to
-test.
+Thanks Adrian.
 
 --
 Jesper Juhl <jesper.juhl@gmail.com>

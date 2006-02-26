@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWBZXex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWBZXhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWBZXex (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 18:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWBZXew
+	id S1751425AbWBZXhs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 18:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWBZXhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 18:34:52 -0500
-Received: from liaag1ag.mx.compuserve.com ([149.174.40.33]:33968 "EHLO
-	liaag1ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751193AbWBZXew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 18:34:52 -0500
-Date: Sun, 26 Feb 2006 18:32:44 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: OOM-killer too aggressive?
-To: Andi Kleen <ak@muc.de>
-Cc: axboe@suse.de, largret@gmail.com, linux-kernel@vger.kernel.org
-Message-ID: <200602261834_MC3-1-B958-4454@compuserve.com>
+	Sun, 26 Feb 2006 18:37:48 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:35981 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751425AbWBZXhr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 18:37:47 -0500
+Date: Mon, 27 Feb 2006 00:37:45 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+       Dave Jones <davej@redhat.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
+       Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk
+Message-ID: <20060226233745.GA6804@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+	Dave Jones <davej@redhat.com>,
+	Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
+	Zwane Mwaikambo <zwane@commfireservices.com>,
+	Samuel Masham <samuel.masham@gmail.com>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	cpufreq@lists.linux.org.uk
+References: <20060214152218.GI10701@stusta.de> <20060223204110.GE6213@redhat.com> <20060225015722.GC8132@linuxtv.org> <200602250527.03493.ak@suse.de> <20060225125326.GJ3674@stusta.de> <20060225132820.GA13413@isilmar.linta.de> <20060226203941.GA5783@linuxtv.org> <20060226205513.GA26486@isilmar.linta.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060226205513.GA26486@isilmar.linta.de>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: 84.189.241.246
+Subject: Re: Status of X86_P4_CLOCKMOD?
+X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060226203917.GA76858@muc.de>
-
-On Sun, 26 Feb 2006 at 21:39:17 +0100, Andi Kleen wrote:
-> On Sun, Feb 26, 2006 at 10:21:52AM -0800, Andrew Morton wrote:
-> > Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> > >
-> > > Chris Largret is getting repeated OOM kills because of DMA memory
-> > > exhaustion:
-> > > 
-> > > oom-killer: gfp_mask=0xd1, order=3
-> > > 
+On Sun, Feb 26, 2006, Dominik Brodowski wrote:
+> On Sun, Feb 26, 2006 at 09:39:41PM +0100, Johannes Stezenbach wrote:
 > > 
-> > This could be related to the known GFP_DMA oom on some x86_64 machines.
+> > Do you have the numbers for a Pentium(R) 4 HT? (I couldn't find
+> > anything substantial with google.) Especially C2 vs. C2 + throttling?
+> > Because the way I remember having read somewhere, the idle
+> > (C2) power consumption of the P4 is significantly higher
+> > than with the Pentium(R) M.
 > 
-> What known GFP_DMA oom? GFP_DMA allocation should work.
+> Unfortunately, I do not have these numbers present. You can check the
+> processor specification sheets at Intel's website, though.
 
-        http://marc.theaimsgroup.com/?t=113895864600001&r=1&w=2
-        http://marc.theaimsgroup.com/?t=113766047000002&r=1&w=2
+Went to the Intel(R) website, searched for half an hour, found many
+docs but none that gives useful information about this, gave up. :-(
 
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+> > > So: P4-clockmod style throttling only makes sense if either
+> > > 
+> > > a) the idle handler does not enter the Stop-Grant state (C2) efficiently, or
+> > 
+> > Maybe my previous mails were not clear enough: The goal is to
+> > reduce idle power consumption (and by that fan noise). The PC
+> > is running but is idle, e.g just listening for possible incoming
+> > jabber messages or whatever.
+> 
+> Most probably, the idle handler can't make use of the Stop-Grant state (C2)
+> here, so this is case a) noted above.
 
+Hm.
+
+Thanks,
+Johannes

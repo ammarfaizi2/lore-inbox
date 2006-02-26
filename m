@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWBZTWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWBZTa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWBZTWD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 14:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWBZTWB
+	id S932231AbWBZTa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 14:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWBZTa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 14:22:01 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:57581 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932215AbWBZTV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 14:21:57 -0500
-Subject: Re: [PATCH] silence gcc warning about possibly uninitialized use
-	of variable in scsi_scan
-From: James Bottomley <James.Bottomley@SteelEye.com>
+	Sun, 26 Feb 2006 14:30:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54668 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932231AbWBZTa4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 14:30:56 -0500
+Date: Sun, 26 Feb 2006 14:30:40 -0500
+From: Dave Jones <davej@redhat.com>
 To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Eric Youngdale <eric@andante.org>,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <9a8748490602261101q39f4cf8eqabe0143921389ce6@mail.gmail.com>
-References: <200602261639.15657.jesper.juhl@gmail.com>
-	 <1140978084.3692.6.camel@mulgrave.il.steeleye.com>
-	 <9a8748490602261023j46eb39f2peaa080d737fee5e1@mail.gmail.com>
-	 <1140980377.3692.9.camel@mulgrave.il.steeleye.com>
-	 <9a8748490602261101q39f4cf8eqabe0143921389ce6@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 13:21:54 -0600
-Message-Id: <1140981714.3692.12.camel@mulgrave.il.steeleye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+Message-ID: <20060226193040.GF7851@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+References: <200602261721.17373.jesper.juhl@gmail.com> <9a8748490602260831l3338f03ew60f99648848aa177@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9a8748490602260831l3338f03ew60f99648848aa177@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-26 at 20:01 +0100, Jesper Juhl wrote:
-> Hmm, it's quite reproducible and the gcc 3.4.5 I have here is not
-> patched by the distribution (Slackware). If you want I can send you
-> the .config that results in the warning..
+On Sun, Feb 26, 2006 at 05:31:49PM +0100, Jesper Juhl wrote:
+ > drivers/char/agp/amd64-agp.c:754: warning: unused variable `amd64nb'
 
-I really don't think it's a config issue.  scsi_probe_lun() is always
-compiled in if CONFIG_SCSI is set.  I think you have a compiler problem.
+This is due to CONFIG_PCI not being set, which doesn't really
+make any sense on x86-64, as there aren't any PCI-less systems
+on that platform (With the CPU containing a PCI northbridge, it
+doesn't make a lot of sense not to have PCI enabled)
 
-James
-
+		Dave
 

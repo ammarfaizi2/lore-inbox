@@ -1,52 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWBZLR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWBZL1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWBZLR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 06:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWBZLR6
+	id S1751319AbWBZL1G (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 06:27:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBZL1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 06:17:58 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:1796 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751322AbWBZLR5 (ORCPT
+	Sun, 26 Feb 2006 06:27:06 -0500
+Received: from in.cluded.net ([195.159.29.203]:1259 "EHLO in.cluded.net")
+	by vger.kernel.org with ESMTP id S1751319AbWBZL1B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 06:17:57 -0500
-Date: Sun, 26 Feb 2006 12:17:50 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: ide: fix section mismatch warning
-Message-ID: <20060226111750.GA30135@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sun, 26 Feb 2006 06:27:01 -0500
+Message-ID: <44019075.2000205@cluded.net>
+Date: Sun, 26 Feb 2006 11:26:45 +0000
+From: "Daniel K." <daniel@cluded.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050611
+MIME-Version: 1.0
+To: MIke Galbraith <efault@gmx.de>
+CC: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 2.6.16-rc4-mm1]  Task Throttling V14
+References: <1140183903.14128.77.camel@homer> <1140812981.8713.35.camel@homer>
+In-Reply-To: <1140812981.8713.35.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In latest -mm ide-code.o gave a number of warnings like the following:
+MIke Galbraith wrote:
+> On Fri, 2006-02-17 at 14:45 +0100, MIke Galbraith wrote: 
+> +/*
+> + * Masks for p->slice_info, formerly p->first_time_slice.
+> + * SLICE_FTS:   0x80000000  Task is in it's first ever timeslice.
+> + * SLICE_NEW:   0x40000000  Slice refreshed.
+> + * SLICE_SPA:   0x3FFF8000  Spare bits.
+> + * SLICE_LTS:   0x00007F80  Last time slice
+> + * SLICE_AVG:   0x0000007F  Task slice_avg stored as percentage.
+> + */
+> +#define SLICE_AVG_BITS    7
+> +#define SLICE_LTS_BITS   10
+> +#define SLICE_SPA_BITS   13
+> +#define SLICE_NEW_BITS    1
+> +#define SLICE_FTS_BITS    1
 
-WARNING: drivers/ide/ide-core.o - Section mismatch: reference to    \
-.init.text: from .text between 'init_module' (at offset 0x1f97) and \
-'cleanup_module'
+I count 8 and 15 bits in the documentation of LTS/SPA respectively, not 
+10 and 13.
 
-The warning was caused by init_module() calling parse_option() and
-ide_init() both declared __init.
+>  	}
+>  
+>  	if (likely(sleep_time > 0)) {
+> +
 
-Declaring init_module() __init fixes the warnings.
+Extra line
 
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
----
-Compiletime tested with allmodconfig on amd64 only.
+> +	{
+> +		.ctl_name	= KERN_SCHED_THROTTLE1,
+> +		.procname	= "sched_g1",
+> +		.data		= &sched_g1,
+> +		.maxlen		= sizeof (int),
+> +		.mode		= 0644,
+> +		.proc_handler	= &proc_dointvec_minmax,
+> +		.strategy	= &sysctl_intvec,
+> +		.extra1		= &zero,
+> +		.extra2		= &sched_g2_max,
 
-diff --git a/drivers/ide/ide.c b/drivers/ide/ide.c
-index b2cc437..3fdab56 100644
---- a/drivers/ide/ide.c
-+++ b/drivers/ide/ide.c
-@@ -2058,7 +2058,7 @@ static void __init parse_options (char *
- 	}
- }
- 
--int init_module (void)
-+int __init init_module (void)
- {
- 	parse_options(options);
- 	return ide_init();
+sched_g2_max is possibly badly named, as it is used in connection with 
+sched_g1 here.
+
+> +	},
+> +	{
+> +		.ctl_name	= KERN_SCHED_THROTTLE2,
+> +		.procname	= "sched_g2",
+> +		.data		= &sched_g2,
+> +		.maxlen		= sizeof (int),
+> +		.mode		= 0644,
+> +		.proc_handler	= &proc_dointvec_minmax,
+> +		.strategy	= &sysctl_intvec,
+> +		.extra1		= &zero,
+> +		.extra2		= &sched_g2_max,
+> +	},
+
+
+Daniel K.

@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWBZRii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWBZRlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWBZRii (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 12:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWBZRii
+	id S1751359AbWBZRlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 12:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWBZRlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 12:38:38 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:7810 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751357AbWBZRih convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 12:38:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bM4k1j9f6AVII+3KCw/TLxsnOSETo5IaFXuPRjHTMQux7Q+lMvDEgR/2Mx9oJpzzjujbSsTt6J6ub4ruDlPGvBsB+rkL1kHE5ftwLE3PRtwLgEPLxmgSVXdEiuRqJv8SpGxJHIg7BuS9TEiIwwz4ezHs76Aw1/1EQAkHDThr7YU=
-Message-ID: <9a8748490602260938u7213c906w310b943b339344e2@mail.gmail.com>
-Date: Sun, 26 Feb 2006 18:38:36 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
-Cc: "Andrew Morton" <akpm@osdl.org>, "Sam Ravnborg" <sam@ravnborg.org>,
-       "Adrian Bunk" <bunk@stusta.de>
-In-Reply-To: <200602261721.17373.jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602261721.17373.jesper.juhl@gmail.com>
+	Sun, 26 Feb 2006 12:41:07 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36541 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751359AbWBZRlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 12:41:05 -0500
+Subject: Re: Kernel SeekCompleteErrors... Different from Re: LibPATA code
+	issues / 2.6.15.4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+Cc: Mark Lord <liml@rtr.ca>, James Courtier-Dutton <James@superbug.co.uk>,
+       David Greaves <david@dgreaves.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com
+In-Reply-To: <20060226171307.GA9682@gallifrey>
+References: <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
+	 <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
+	 <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca>
+	 <44019E96.20804@superbug.co.uk> <4401B378.3030005@rtr.ca>
+	 <4401BB85.7070407@superbug.co.uk> <4401DF6B.9010409@rtr.ca>
+	 <20060226171307.GA9682@gallifrey>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 26 Feb 2006 17:43:11 +0000
+Message-Id: <1140975791.27539.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/26/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
->
-[snip]
->
-> That's it for now, I'll get to work trying to clean up some of the breakage
-> I've seen, if anyone wants to join in feel free :)
->
+On Sul, 2006-02-26 at 17:13 +0000, Dr. David Alan Gilbert wrote:
+> > The *only* test that matters is to enable S.M.A.R.T.,
+> > and read out the error logs from it.
 
-Thanks to Adrian Bunk the kernel configuration files and build logs
-for all 100 kernels are now online at
-ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/jesper/
-So those of you who want to take a closer look can go there and grab
-whatever you need.
+SMART is unreliable for many cases
 
-Thanks Adrian.
+> I have seen a set of drives that has reported UncorrectableErrors
+> and :
+>     * Shows the Uncorrectable error in the SMART log
+>     * Passes a full SMART test
+>     * Shows no remapped sectors
+>     * Passes the vendors drive test
+>     * Now fully passes a dd if=/dev/hdx of=/dev/null with no errors.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+The very early SATA code didnt decode the errors from the drive fully so
+could produce bogus reports. The current code decodes it and also
+displays the ATA level diagnostics so should be reliable.
+

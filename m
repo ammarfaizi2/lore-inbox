@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWBZVzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWBZV42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWBZVzu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 16:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWBZVzu
+	id S1751043AbWBZV42 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 16:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWBZV42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 16:55:50 -0500
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:63375 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1751015AbWBZVzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 16:55:49 -0500
-Message-ID: <440223D6.1060200@austin.rr.com>
-Date: Sun, 26 Feb 2006 15:55:34 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Sun, 26 Feb 2006 16:56:28 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:18437 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751043AbWBZV41 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 16:56:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dG+ybXv0pPRYWQkiGs5nPqNwjR37UsthyvPa1UETMJj1JUxV7wVyEGzZ4y9i3PLVC2er4rofDlBlZqbaBpwjoerAYCwZ/OXb6jjaofN1cBG8lA3lcLscycKOqyXpfn6O+dKkR8tbN0GYAqF9u+gBq0FSmgHMGBgt8HkHBOcHguU=
+Message-ID: <9a8748490602261356l222c9689w8fa1d5e2395bb183@mail.gmail.com>
+Date: Sun, 26 Feb 2006 22:56:26 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+Cc: Nix <nix@esperi.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <1140990819.24141.176.camel@mindpipe>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Dave Kleikamp <shaggy@austin.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cifs hang patch idea - reduce sendtimeo on socket
-References: <43F3FA4E.2050608@austin.rr.com> <20060216205623.GA8784@stusta.de> <1140644100.9942.15.camel@kleikamp.austin.ibm.com> <20060226175152.GK3674@stusta.de>
-In-Reply-To: <20060226175152.GK3674@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602261721.17373.jesper.juhl@gmail.com>
+	 <1140986578.24141.141.camel@mindpipe> <87wtfh3i9z.fsf@hades.wkstn.nix>
+	 <9a8748490602261349v381933b9xeb2ddeedac053910@mail.gmail.com>
+	 <1140990819.24141.176.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
+On 2/26/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Sun, 2006-02-26 at 22:49 +0100, Jesper Juhl wrote:
+> > On 2/26/06, Nix <nix@esperi.org.uk> wrote:
+> > > (i.e., there's a reason that warning uses the word *might*.)
+> > >
+> > The compiler says "might be used uninitialized" when it cannot
+> > determine if a variable will be initialized before first use or not.
+>
+> Quoting the "silence gcc warning" thread:
+>
+> "Really, this is a gcc bug.  My version of the compiler:
+>
+> gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
+>
+> Doesn't give this warning.  And, since the loop has fixed parameters,
+> gcc should see not only that it's always executed, but that it could be
+> unrolled."
+>
+Yeah so gcc is not perfect, but that still doesn't change that the
+intention of the warning and the use of the word "might" is as I said
+above.
 
->>Steve and I think we have figured this out.  In some cases, CIFSSMBRead
->>was returning a recently freed buffer.
->>...
->>    
->>
->
->Thanks a lot!
->
->In my testing, this patch applied against 2.6.14-rc4 fixed all problems 
->I observed.
->  
->
-Adrian,
-Thanks for the info.  Our testing looked good too.
 
-In the development tree for cifs we are working on reducing buffer usage 
-(a good first
-step is already checked in) and enabling additional important security 
-features (NTLMv2 and
-Kerberos for newer more secure clients and also an option to configure 
-and mount for
-allowing lanman and plaintext sessionsetup to allow mounts to older 
-legacy servers).
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

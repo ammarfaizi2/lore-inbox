@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWB0Wmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWB0Wmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbWB0Wmj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWB0WmQ
+	id S932349AbWB0Wmx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWB0Wml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:42:16 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:640 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932352AbWB0WbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:25 -0500
-Message-Id: <20060227223319.071279000@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:03 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com, hugh@veritas.com,
-       manfred@colorfullife.com, mm-commits@vger.kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 03/39] shmdt cannot detach not-alined shm segment cleanly.
-Content-Disposition: inline; filename=shmdt-cannot-detach-not-alined-shm-segment-cleanly.patch
+	Mon, 27 Feb 2006 17:42:41 -0500
+Received: from mx2.suse.de ([195.135.220.15]:38789 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932355AbWB0WmW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:42:22 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take 3)
+Date: Mon, 27 Feb 2006 23:42:09 +0100
+User-Agent: KMail/1.9.1
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, benh@kernel.crashing.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+References: <44028502.4000108@soft.fujitsu.com> <20060227214244.GA9008@colo.lackof.org> <44037BC6.30003@pobox.com>
+In-Reply-To: <44037BC6.30003@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602272342.11047.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+On Monday 27 February 2006 23:23, Jeff Garzik wrote:
+> Or do you have another way of avoiding unused resource allocation?
+> 
+> Fix the [firmware | device load order] to allocate I/O ports first to 
+> the hardware that only supports IO port accesses. 
 
-sys_shmdt() can manage shm segments which are covered by multiple vmas.  (This
-can happen when a user uses mprotect() after shmat().)
+How should the firmware know what hardware needs io ports and what hardware
+doesn't? I don't think it will scale well to put long lists of PCI-IDs into 
+their firmware.
 
-This works well if shm is aligned to PAGE_SIZE, but if not, the last
-segment cannot be detached.  It is because a comparison in sys_shmdt()
+The driver is really the natural place to put such knowledge.
 
-	(vma->vm_end - addr) < size
-		addr == return address of shmat()
-		size == shmsize, argments to shmget()
+-Andi
 
-size should be aligned to PAGE_SIZE before being compared with vma->vm_end,
-which is aligned.
-
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: Hugh Dickins <hugh@veritas.com>
-Cc: <stable@kernel.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
----
- ipc/shm.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- linux-2.6.15.3.orig/ipc/shm.c
-+++ linux-2.6.15.3/ipc/shm.c
-@@ -863,6 +863,7 @@ asmlinkage long sys_shmdt(char __user *s
- 	 * could possibly have landed at. Also cast things to loff_t to
- 	 * prevent overflows and make comparisions vs. equal-width types.
- 	 */
-+	size = PAGE_ALIGN(size);
- 	while (vma && (loff_t)(vma->vm_end - addr) <= size) {
- 		next = vma->vm_next;
- 
-
---

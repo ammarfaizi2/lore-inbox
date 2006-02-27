@@ -1,97 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWB0UWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWB0UXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWB0UWa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 15:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWB0UWa
+	id S1751507AbWB0UXT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 15:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWB0UXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 15:22:30 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:47733 "EHLO
+	Mon, 27 Feb 2006 15:23:19 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:23159 "EHLO
 	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751239AbWB0UW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 15:22:29 -0500
-Message-ID: <44035FBB.9060209@tmr.com>
-Date: Mon, 27 Feb 2006 15:23:23 -0500
+	id S1751507AbWB0UXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 15:23:18 -0500
+Message-ID: <44035FF4.8070600@tmr.com>
+Date: Mon, 27 Feb 2006 15:24:20 -0500
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <878xt3rfjc.fsf@amaterasu.srvr.nix> <20060218120617.GA911@infradead.org> <200602181215.30277.gene.heskett@verizon.net> <200602181941.40093.dhazelton@enter.net> <20060219092713.GB21626@merlin.emma.line.org>
-In-Reply-To: <20060219092713.GB21626@merlin.emma.line.org>
+References: <fa.0hPNxE1lrymMdITLfVqoa6fG+nM@ifi.uio.no> <20060218183639.GA1023444@hiwaay.net>
+In-Reply-To: <20060218183639.GA1023444@hiwaay.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
-> On Sat, 18 Feb 2006, D. Hazelton wrote:
+Chris Adams wrote:
+> Once upon a time, Christoph Hellwig  <hch@infradead.org> said:
+>> On Fri, Feb 17, 2006 at 04:35:30PM -0500, Bill Davidsen wrote:
+>>> It would be nice to have one place to go to find burners, and to have 
+>>> the model information in that place.
+>> /proc/sys/dev/cdrom/info
 > 
->> Well, in this case I'm actually trying to work with Joerg to produce a patch 
->> that unifies the ATAPI and SCSI busses inside his program.
-> 
-> This patch already exists, see:
-> <http://www.ussg.iu.edu/hypermail/linux/kernel/0602.0/1103.html>
-> 
-> It's a proof of concept and needs to be polished (I'll look into that
-> again in March).
-> 
-> Only it still probes all /dev/hd and /dev/sg and /dev/pg in a dumb way,
-> rather than looking at sysfs or reading through /dev/.
-> 
->> I've seen the "MRW" stuff in some of the specs, but had to check the net to 
->> find out what it was. MRW is the Mt. Rainier format - basic support was added 
->> by Jens back in 2.4.19 according to the archives. 
->> (http://www.ussg.iu.edu/hypermail/linux/kernel/0203.2/1214.html)
->>
->> I'm not positive, but the "Can Read RAM" line might refer to DVD-RAM type 
->> discs
-> 
-> That's probably not it, since there's a separate DVD-RAM line here:
-> 
-> CD-ROM information, Id: cdrom.c 3.20 2003/12/17
-> 
-> drive name:             hdd     hdc     sr0
-> drive speed:            40      48      1
-> drive # of slots:       1       1       1
-> Can close tray:         1       1       1
-> Can open tray:          1       1       1
-> Can lock tray:          1       1       1
-> Can change speed:       1       1       0
-> Can select disk:        0       0       0
-> Can read multisession:  1       1       1
-> Can read MCN:           1       1       1
-> Reports media changed:  1       1       1
-> Can play audio:         1       1       1
-> Can write CD-R:         1       1       0
-> Can write CD-RW:        1       1       0
-> Can read DVD:           0       1       0
-> Can write DVD-R:        0       1       0
-> Can write DVD-RAM:      0       1       0
-> Can read MRW:           1       1       1
-> Can write MRW:          1       1       1
-> Can write RAM:          1       1       1
-> 
-> hdd = Plextor PX-W4824TA
-> hdc = NEC ND-4550A
-> sr0 = Plextor PX-32TS
+> Which is bad, as it is incomplete and requires the kernel be updated to
+> know about every format just to document them.
 
-Other than my 2.6.15 not producing those last three lines, looks good.
-The names are those in /sys, which of course many distros change in udev
-to make things hard for the user. Hard t write an app portably to cope
-with /dev/scd0, /dev/sr0, /dev/cdroms/sr0, etc.
-
-I am NOT suggesting changing a stable interface, but this really should
-be in /sys I would think. It would be nice to have the major/minor and
-model info, so programs could find the "better" named in /dev or just
-mknod their own.
+Document them where? In the kernel Documentation directory? I believe
+those strings come back from the drive, as long as the human or
+application can parse them the kernel operationally needs only what you
+mentioned below.
 > 
-> (Now NEC only needs to teach their drives to be more error tolerant when
-> reading and adjust their read speed to the actual sustained transfer
-> rate as Toshiba drives have been doing for ages...)
-> 
+> Problems with that file:
 
-This would appear to be almost all the user needs to at least find the
-devices. I don't know why no one mentioned it several years ago.
+The main problem with that file is that it wasn't mentioned several
+years ago... and I hope you aren't even thinking of suggesting any
+changes to something which has been around for years and which
+applications are undoubtedly quietly using.
+
+A changed version of the same information in /sys would be a better
+solution if changes other than some additions are needed.
+> 
+> - What is "drive speed" (no units); also most drives do different speeds
+>   for different modes/media.
+
+Presumably the max speed mechanically possible, in the units of "x"
+which are used to identify both media and burners and have been since
+"2x" was the fast burner.
+> 
+> - CD-RW really covers a range of different formats ("high speed" CD-RW
+>   is different and IIRC there's also "ultra high speed" CD-RW).
+> 
+> - Several formats are missing: DVD-RW DVD+R DVD+RW DVD-DL DVD+DL (at
+>   least).
+> 
+> - What is the "RAM" format (not "DVD-RAM")?  I haven't heard of that.
+> 
+> The kernel really only needs to know:
+> 
+> - how the drive can control the tray (open/close/lock/change disc)
+> 
+> - if the drive can handle rewritable formats (for UDF support)
+
+CD-RW seems to cover that.
+> 
+> Alternately, every known format needs to be added to that file (both
+> read and write support).  It also needs to note read and write speeds
+> for each available format.
+
+Why? The mmc/scsi commands work or don't, the device returns the info in
+the capabilities page if the application can use it, so it doesn't seem
+that the kernel cares, other than the cases you mentioned.
+> 
+> Also, that is an annoying to parse format.  What if there's a really
+> long text column field like "Can write Blu-Ray HD dual layer v2"?
+> Something under /sys would be better with one value per file, so if you
+> want to burn a DVD-R, you look for /sys/block/*/cdinfo/write/dvd-r;
+
+Isn't there a problem with having the same device in multiple places?
+Someone posted that there was, but I didn't really get into the details.
+In any case, why is opening dozens of files better than opening one file
+with all of the info. Long names can be abbreviated, complexity in the
+kernel to avoid complexity in the application is bad, particularly when
+humans parse the existing format nicely.
+
+> maybe that file contains a space separated list of available speeds (so
+> "1 2 4 8").  Also, right now as far as I can see, /sys doesn't present
+> manufacturer, model, and/or serial number info.
+
+The only applications which care about speeds other than max are already
+reading the capabilities page. Use cdrecord with the "-prcap" options,
+there is a boatload of stuff there. I agree the the three text items are
+  useful, and major/minor to map the device to the name actually used in
+/dev, but that data doesn't fit the format well, and might be better
+presented in /sys. Preferably in a human readable format, like
+/proc/scsi/scsi rather than multiple file per device.
+
 
 -- 
     -bill davidsen (davidsen@tmr.com)

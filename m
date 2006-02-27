@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWB0JFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWB0JFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751684AbWB0JFO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 04:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWB0JFO
+	id S1751672AbWB0JFX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 04:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWB0JFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 04:05:14 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:42900 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751684AbWB0JFL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 04:05:11 -0500
-Date: Mon, 27 Feb 2006 14:34:14 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Patch 4/7] Add sysctl for delay accounting
-Message-ID: <20060227090414.GA18941@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1141026996.5785.38.camel@elinux04.optonline.net> <1141028322.5785.60.camel@elinux04.optonline.net> <1141028784.2992.58.camel@laptopd505.fenrus.org> <4402BA93.5010302@watson.ibm.com> <1141029743.2992.71.camel@laptopd505.fenrus.org>
+	Mon, 27 Feb 2006 04:05:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53226 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751672AbWB0JFU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 04:05:20 -0500
+Subject: Re: GFS2 Filesystem [1/16]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <84144f020602251348t3ea1420du4e84ac012e9d7909@mail.gmail.com>
+References: <1140792745.6400.710.camel@quoit.chygwyn.com>
+	 <84144f020602251348t3ea1420du4e84ac012e9d7909@mail.gmail.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 27 Feb 2006 09:10:19 +0000
+Message-Id: <1141031419.6400.798.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141029743.2992.71.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 09:42:23AM +0100, Arjan van de Ven wrote:
-> On Mon, 2006-02-27 at 03:38 -0500, Shailabh Nagar wrote:
-> > Arjan van de Ven wrote:
-> > 
-> > The function needs to allocate task_delay_info structs for all tasks 
-> > that might
-> > have been forked since the last time delay accounting was turned off.
-> > Either we have to count how many such tasks there are, or preallocate
-> > nr_tasks (as an upper bound) and then use as many as needed.
+Hi,
+
+Thanks for the feedback and now added to out todo list along with your
+earlier comments,
+
+Steve.
+
+On Sat, 2006-02-25 at 23:48 +0200, Pekka Enberg wrote:
+> On 2/24/06, Steven Whitehouse <swhiteho@redhat.com> wrote:
+> > +/*  Divide num by den.  Round up if there is a remainder.  */
+> > +#define DIV_RU(num, den) (((num) + (den) - 1) / (den))
 > 
-> it generally feels really fragile, especially with the task enumeration
-> going to RCU soon. (eg you'd lose the ability to lock out new task
-> creation)
+> Seems generally useful. Consider putting this to <linux/kernel.h> and
+> giving it a better name e.g. DIV_ROUND_UP.
+> 
+> > +#define get_v2sdp(sb) ((struct gfs2_sbd *)(sb)->s_fs_info)
+> > +#define set_v2sdp(sb, sdp) (sb)->s_fs_info = (sdp)
+> > +#define get_v2ip(inode) ((struct gfs2_inode *)(inode)->u.generic_ip)
+> > +#define set_v2ip(inode, ip) (inode)->u.generic_ip = (ip)
+> > +#define get_v2fp(file) ((struct gfs2_file *)(file)->private_data)
+> > +#define set_v2fp(file, fp) (file)->private_data = (fp)
+> > +#define get_v2bd(bh) ((struct gfs2_bufdata *)(bh)->b_private)
+> > +#define set_v2bd(bh, bd) (bh)->b_private = (bd)
+> > +
+> > +#define get_transaction ((struct gfs2_trans *)(current->journal_info))
+> > +#define set_transaction(tr) (current->journal_info) = (tr)
+> > +
+> > +#define get_gl2ip(gl) ((struct gfs2_inode *)(gl)->gl_object)
+> > +#define set_gl2ip(gl, ip) (gl)->gl_object = (ip)
+> > +#define get_gl2rgd(gl) ((struct gfs2_rgrpd *)(gl)->gl_object)
+> > +#define set_gl2rgd(gl, rgd) (gl)->gl_object = (rgd)
+> > +#define get_gl2gl(gl) ((struct gfs2_glock *)(gl)->gl_object)
+> > +#define set_gl2gl(gl, gl2) (gl)->gl_object = (gl2)
+> 
+> Consider dropping these macros. Please note redundant casting.
+> 
+> > +#define gfs2_inum_equal(ino1, ino2) \
+> > +       (((ino1)->no_formal_ino == (ino2)->no_formal_ino) && \
+> > +       ((ino1)->no_addr == (ino2)->no_addr))
+> 
+> Consider using static inline function instead.
+> 
+> > +#define DT2IF(dt) (((dt) << 12) & S_IFMT)
+> > +#define IF2DT(sif) (((sif) & S_IFMT) >> 12)
+> 
+> Ditto.
+> 
+>                                               Pekka
 
-I haven't yet seen any RCU-based code that does this. Can you point out
-what patches you are talking about ? As of 2.6.16-rc4 and -rt15,
-AFAICS, you can count tasks by holding the read side of tasklist_lock.
-Granted it is a bit ugly to repeat this in order to overcome
-the race on dropping tasklist_lock for allocation.
-
-> On first sight it looks a lot better to allocate these things on demand,
-> but I'm not sure how the sleeping-allocation would interact with the
-> places it'd need to be called...
-
-This could be a problem for contexts where sleeping cannot be permitted,
-not to mention fast paths where blocking may introduce a skew. It seems
-simpler to just let this happen during sysctl time.
-
-Thanks
-Dipankar

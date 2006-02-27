@@ -1,92 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWB0Hmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751654AbWB0Hon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751647AbWB0Hmi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 02:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751652AbWB0Hmi
+	id S1751654AbWB0Hon (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 02:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWB0Hon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 02:42:38 -0500
-Received: from ozlabs.org ([203.10.76.45]:44259 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751612AbWB0Hmi (ORCPT
+	Mon, 27 Feb 2006 02:44:43 -0500
+Received: from thorn.pobox.com ([208.210.124.75]:61629 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S1751652AbWB0Hom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 02:42:38 -0500
-Date: Mon, 27 Feb 2006 18:26:14 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       kenneth.w.chen@intel.com,
-       "yanmin.zhang@intel.com" <yanmin.zhang@intel.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Paul Mundt <lethal@linux-sh.org>, kkojima@rr.iij4u.or.jp,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH] Enable mprotect on huge pages
-Message-ID: <20060227072614.GD24422@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	"Zhang, Yanmin" <yanmin_zhang@linux.intel.com>,
-	Andrew Morton <akpm@osdl.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	kenneth.w.chen@intel.com,
-	"yanmin.zhang@intel.com" <yanmin.zhang@intel.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Paul Mackerras <paulus@samba.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Paul Mundt <lethal@linux-sh.org>, kkojima@rr.iij4u.or.jp,
-	"Luck, Tony" <tony.luck@intel.com>
-References: <1140664780.12944.26.camel@ymzhang-perf.sh.intel.com> <20060224142844.77cbd484.akpm@osdl.org> <20060226230903.GA24422@localhost.localdomain> <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
+	Mon, 27 Feb 2006 02:44:42 -0500
+Date: Mon, 27 Feb 2006 01:50:34 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i386 cpu hotplug bug - instant reboot when onlining secondary
+Message-ID: <20060227075033.GK3293@localhost.localdomain>
+References: <20060219235826.GF3293@localhost.localdomain> <Pine.LNX.4.64.0602210800290.1579@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.64.0602210800290.1579@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 01:36:32PM +0800, Zhang, Yanmin wrote:
-> On Mon, 2006-02-27 at 07:09, David Gibson wrote:
-> > On Fri, Feb 24, 2006 at 02:28:44PM -0800, Andrew Morton wrote:
-> > > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
-> > > >
-> > > > From: Zhang, Yanmin <yanmin.zhang@intel.com>
-> > > > 
-> > > > 2.6.16-rc3 uses hugetlb on-demand paging, but it doesn_t support hugetlb
-> > > > mprotect. My patch against 2.6.16-rc3 enables this capability.
-> > > > 
-> > > 
-> > > Well I suppose that makes sense.  It does assume that the normal pte
-> > > protection-changing APIs do the right thing on all architectures which
-> > > implement huge pages.  That's quite possibly the case, but we should
-> > > confirm that.
+Zwane Mwaikambo wrote:
+> On Sun, 19 Feb 2006, Nathan Lynch wrote:
+> 
+> > On a dual P3 Xeon machine, offlining and then onlining a cpu makes the
+> > box instantly reboot.  I've been seeing this throughout the 2.6.16-rc
+> > series, but wasn't able to collect more information until now.  Not
+> > sure when this last worked, unfortunately.
 > > 
-> > Well, it will need to be huge_ptep_get_and_clear() below, not the
-> > normal version.
-> I will change it.
+> > With the debugging patch below, I get this on serial console:
 > 
-> 
-> >   But pte_modify should be ok.  I'm not sure
-> > pte_present() is safe, either, !pte_none() is what we use elsewhere in
-> > hugetlb.c.
-> pte_present is used in some files while !pte_none is used 
-> in other files. Anyway, I will change it to !pte_none.
+> Does 2.6.14 work? Also i wonder if it gets out of the trampoline...
 
-But most importantly, pte_present() is not used in mm/hugetlb.c, the
-generic part of the code.
+2.6.14 works (albeit with an APIC error reported).  When retesting
+2.6.16-rc4 with your patch on top of my debugging patch, I don't see the
+"startup_secondary" line:
 
-> > And.. looks like lazy_mmu_prot_update() is unsafe, too.  The only arch
-> > which has something here (ia64) has a function which does icache
-> > flushes on PAGE_SIZE only.
-> I already sent another patch to ia64 maillist to fix the issue.
-> See http://marc.theaimsgroup.com/?l=linux-ia64&m=114066414720468&w=2
-> 
-> Thanks.
-> 
-> 
+[17179709.100000] CPU 1 is now offline
+[17179714.636000] Booting processor 1/1 eip 3000
+[17179714.688000] CPU 1 irqstacks, hard=7837f000 soft=78377000
+[17179714.756000] Setting warm reset code and vector.
+[17179714.812000] 1.
+[17179714.836000] 2.
+[17179714.860000] 3.
+[17179714.880000] Asserting INIT.
+[17179714.916000] Waiting for send to finish...
+[17179714.968000] +<7>Deasserting INIT.
+[17179715.024000] Waiting for send to finish...
+[17179715.072000] +<7>#startup loops: 2.
+[17179715.116000] Sending STARTUP #1.
+[17179715.160000] After apic_write.
+[17179715.196000] Doing apic_write_around for target chip...
+[17179715.260000] Doing apic_write_around to kick the second...
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+> 
+> Index: linux-2.6.16-rc2/arch/i386/kernel/smpboot.c
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.16-rc2/arch/i386/kernel/smpboot.c,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 smpboot.c
+> --- linux-2.6.16-rc2/arch/i386/kernel/smpboot.c	11 Feb 2006 18:55:06 -0000	1.1.1.1
+> +++ linux-2.6.16-rc2/arch/i386/kernel/smpboot.c	21 Feb 2006 16:19:22 -0000
+> @@ -514,6 +514,7 @@ static void __devinit start_secondary(vo
+>  	cpu_init();
+>  	preempt_disable();
+>  	smp_callin();
+> +	Dprintk("startup_secondary\n");
+>  	while (!cpu_isset(smp_processor_id(), smp_commenced_mask))
+>  		rep_nop();
+>  	setup_secondary_APIC_clock();

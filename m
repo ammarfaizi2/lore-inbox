@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWB0Ix6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWB0I6E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751700AbWB0Ix6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 03:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWB0Ix5
+	id S1751161AbWB0I6E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 03:58:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWB0I6E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 03:53:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18914 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751697AbWB0Ix4 (ORCPT
+	Mon, 27 Feb 2006 03:58:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:26085 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751161AbWB0I6D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 03:53:56 -0500
-Subject: Re: GFS2 Filesystem [13/16]
+	Mon, 27 Feb 2006 03:58:03 -0500
+Subject: Re: GFS2 Filesystem [0/16]
 From: Steven Whitehouse <swhiteho@redhat.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, David Teigland <teigland@redhat.com>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20060224223046.GS8083@ca-server1.us.oracle.com>
-References: <1140793524.6400.734.camel@quoit.chygwyn.com>
-	 <20060222185059.GC2633@ucw.cz>
-	 <20060224223046.GS8083@ca-server1.us.oracle.com>
+In-Reply-To: <20060224213553.GA8817@infradead.org>
+References: <1140792511.6400.707.camel@quoit.chygwyn.com>
+	 <20060224213553.GA8817@infradead.org>
 Content-Type: text/plain
 Organization: Red Hat (UK) Ltd
-Date: Mon, 27 Feb 2006 08:58:58 +0000
-Message-Id: <1141030738.6400.788.camel@quoit.chygwyn.com>
+Date: Mon, 27 Feb 2006 09:03:04 +0000
+Message-Id: <1141030984.6400.792.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
@@ -30,32 +29,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, 2006-02-24 at 14:30 -0800, Joel Becker wrote:
-> On Wed, Feb 22, 2006 at 06:50:59PM +0000, Pavel Machek wrote:
-> > > --- a/fs/Kconfig
-> > > +++ b/fs/Kconfig
-> > > @@ -883,8 +884,6 @@ config CONFIGFS_FS
-> > >  	  Both sysfs and configfs can and should exist together on the
-> > >  	  same system. One is not a replacement for the other.
-> > >  
-> > > -	  If unsure, say N.
-> > > -
-> > 
-> > Why? Most users probably still want configfs_fs=N.
+On Fri, 2006-02-24 at 21:35 +0000, Christoph Hellwig wrote:
+> >  b) The .gfs2_admin directory exposes the internal files that GFS uses
+> >     to store various bits of file system related information. This means
+> >     that we've been able to remove virtually all the ioctl() calls from
+> >     GFS2. There is one ioctl() call left which relates to
+> >     getting/setting GFS2 specific flags on files. The various GFS2 tools
+> >     will be updated in due course to use this new interface.
 > 
-> 	What version is this patch against?  This line was removed from
-> mainline a while ago.
-> 	As to why it was removed, the discussion happened back then.
-> Basically, if something requires CONFIGFS_FS (eg, OCFS2) and is a
-> module, then a user is asked whether they want configfs as a module or
-> built-in.  Text saying "say N" is completely incorrect there.
+> Without even looking at the code a strong NACK here.  This is polluting
+> the namespace which is not acceptable.  Please implement a second
+> filesystem type gfsmeta to do this kind of admin work.  Search for ext2meta
+> which did something similar.  Or use a completely different approach,
+> I'd need to look at the actual functionality provided to give a better
+> advice, but currently I'm lacking the time for that.
 > 
-> Joel
-> 
-Checking the gfs2 git tree and Linus' tree again reveals that its not
-something that we changed. I think I must have fed the wrong command to
-git to produce the diff as the change is quite clearly there, exactly
-same in both trees,
+Of all the comments we've received so far, this one raises the most
+issues for us. Let me think about this one for a day or two and I'll get
+back to you. Ideally we'd like to do it the way you propose, but I need
+to check that it doesn't raise any other problems before I commit to
+actually doing it,
 
 Steve.
 

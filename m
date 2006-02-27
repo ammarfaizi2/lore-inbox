@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751739AbWB0TRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWB0TSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751739AbWB0TRT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 14:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbWB0TRT
+	id S932068AbWB0TSu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 14:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751743AbWB0TSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 14:17:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45274 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751739AbWB0TRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 14:17:19 -0500
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
-       Kay Sievers <kay.sievers@vrfy.org>
-In-Reply-To: <20060227191108.GA9221@suse.de>
-References: <20060227190150.GA9121@kroah.com>
-	 <1141067298.2992.154.camel@laptopd505.fenrus.org>
-	 <20060227191108.GA9221@suse.de>
-Content-Type: text/plain
-Date: Mon, 27 Feb 2006 20:17:11 +0100
-Message-Id: <1141067831.2992.156.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 27 Feb 2006 14:18:50 -0500
+Received: from digitalimplant.org ([64.62.235.95]:41412 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S1751707AbWB0TSt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 14:18:49 -0500
+Date: Mon, 27 Feb 2006 11:18:43 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Greg KH <greg@kroah.com>
+cc: akpm@osdl.org, "" <torvalds@osdl.org>, "" <linux-kernel@vger.kernel.org>,
+       "" <linux-pm@osdl.org>
+Subject: Re: [PATCH 0/4] Fix runtime device suspend/resumre interface
+In-Reply-To: <20060221174950.GA23054@kroah.com>
+Message-ID: <Pine.LNX.4.50.0602271111101.28882-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0602201641380.21145-100000@monsoon.he.net>
+ <20060221174950.GA23054@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > 2) the per interface description needs a "depends on config option"
-> > field; not all options are always there, but depend on a config option
-> > to be set. It makes a lot of sense to mark these as such so that users
-> > KNOW they have to deal with the interface not being there occasionally,
-> > depending on the kernel.
-> 
-> Hm, almost _everything_ is configurable these days, including sysfs.  Do
-> we really want to keep the config value in sync with the kernel config
-> system too?  I can add it, but it seems a bit unnecessary.
+On Tue, 21 Feb 2006, Greg KH wrote:
+
+> On Mon, Feb 20, 2006 at 04:55:34PM -0800, Patrick Mochel wrote:
+> >
+> > Hi there,
+> >
+> > Here is an updated version of the patches to fix the sysfs interface for
+> > runtime device power management by restoring the file to its originally
+> > designed behavior - to place devices in the power state specified by the
+> > user process writing to the file.
+> >
+> > Recently, the interface was changed to filter out values to prevent a
+> > BUG() that was introduced in the PCI power management code. While a valid
+> > fix, it makes the driver core filter values that might otherwise be used
+> > by the bus/device drivers.
+>
+> Are there any existing bus/device drivers that are currently broken
+> because of this change?
+
+It's difficult to tell. There are several devices that support multiple
+PCI power states, and several drivers that will attempt to put the device
+into whatever state is passed to their ->suspend() method. But, there are
+not many that handle D1 or D2 specially.
+
+The point of the patches was to restore the functionality of the sysfs
+file to its documented interface, which had been that way since the file
+was created (early in 2.6). In the last year, since the conversion to the
+pm_message_t in driver suspend methods, it is not behaved as it was
+advertised to do.
+
+One solution is to prohibit any suspend/resume commands besides "on" and
+"off", and to change the documented semantics of the file. But, it seems
+much more useful to enable the use of the intermediate states, so long as
+it doesn't do any serious harm. Put another way, it doesn't seem to make
+sense to intentionally prevent the use of intermediate power states.
+
+What is also a bit wonky is the handling of those intermediate power
+states now. If someone has a PCI device that advertises D1/D2 support, and
+he/she knows the driver supports it (or is writing the driver support for
+it), a write of "1" or "2" to the device's state file is not going to
+provide the type of behavior that one would expect..
+
+Does that help at all?
+
+Thanks,
 
 
-well there is "configurable" and "configurable"... but yeah. I don't
-mean to document which config options it depends on, but more
-"applications need to deal with this not being there since it's optional
-and not uncommon to be disabled" or something.
-
+	Pat
 

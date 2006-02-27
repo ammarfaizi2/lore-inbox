@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbWB0QIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWB0QNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbWB0QIo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 11:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWB0QIn
+	id S1751477AbWB0QNF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 11:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWB0QNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 11:08:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19105 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751264AbWB0QIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 11:08:42 -0500
-Message-ID: <4403244D.2080700@ce.jp.nec.com>
-Date: Mon, 27 Feb 2006 11:09:49 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Neil Brown <neilb@suse.de>, Alasdair Kergon <agk@redhat.com>,
-       Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: Re: [PATCH 1/3] sysfs representation of stacked devices (common)
- (rev.2)
-References: <43FC8C00.5020600@ce.jp.nec.com> <43FC8D8C.1060904@ce.jp.nec.com> <20060222184853.GB13638@suse.de> <43FCE40A.1010206@ce.jp.nec.com> <20060222222846.GA14249@suse.de> <43FE09E1.4080907@ce.jp.nec.com> <20060224034007.GA2769@suse.de>
-In-Reply-To: <20060224034007.GA2769@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Feb 2006 11:13:05 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:22316 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751477AbWB0QNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 11:13:04 -0500
+In-Reply-To: <1140986335.8697.139.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0602241054090.2981-100000@gate.crashing.org> <1140986335.8697.139.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <77448EF2-4D5F-4E7C-B1A5-6164A88E43C7@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [PATCH] powerpc: Fix mem= cmdline handling on arch/powerpc for !MULTIPLATFORM
+Date: Mon, 27 Feb 2006 10:12:44 -0600
+To: Dave Hansen <haveblue@us.ibm.com>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
 
-Thank you for the comments.
+On Feb 26, 2006, at 2:38 PM, Dave Hansen wrote:
 
-Greg KH wrote:
->>+static inline struct kobject *add_dir(struct kobject *parent, const char *name)
->>+{
->>+	struct kobject *k;
->>+
->>+	if (!parent)
->>+		return NULL;
->>+
->>+	k = kmalloc(sizeof(*k), GFP_KERNEL);
->>+	if (!k)
->>+		return NULL;
->>+
->>+	memset(k, 0, sizeof(*k));
->>+	k->parent = parent;
->>+	k->ktype = &dir_ktype;
->>+	kobject_set_name(k, name);
->>+	kobject_register(k);
->>+
->>+	return k;
->>+}
-> 
-> This code looks good enough that we should add it to the core kobject
-> code, don't you think?  Also, you might use kzalloc instead of kmalloc
-> here.
+> On Fri, 2006-02-24 at 10:54 -0600, Kumar Gala wrote:
+>> +       if (strstr(cmd_line, "mem=")) {
+>> +               char *p, *q;
+>> +               unsigned long maxmem = 0;
+>> +
+>> +               for (q = cmd_line; (p = strstr(q, "mem=")) != 0; ) {
+>> +                       q = p + 4;
+>> +                       if (p > cmd_line && p[-1] != ' ')
+>> +                               continue;
+>> +                       maxmem = simple_strtoul(q, &q, 0);
+>> +                       if (*q == 'k' || *q == 'K') {
+>> +                               maxmem <<= 10;
+>> +                               ++q;
+>> +                       } else if (*q == 'm' || *q == 'M') {
+>> +                               maxmem <<= 20;
+>> +                               ++q;
+>> +                       } else if (*q == 'g' || *q == 'G') {
+>> +                               maxmem <<= 30;
+>> +                               ++q;
+>> +                       }
+>> +               }
+>> +               memory_limit = maxmem;
+>> +       }
+>
+> You may want to check out lib/cmdline.c's memparse() function.  I  
+> think
+> it does this for you.
 
-Yes, it would be nice if kobject core has this function.
-I'll move them to lib/kobject.c.
+Yeah, found it after I sent the patch.  Since Linus applied this  
+version, I'll provide Paul a version that changes this code to use  
+memparse for post 2.6.16.
 
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+- kumar

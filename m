@@ -1,74 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751716AbWB0WRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWB0WSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751716AbWB0WRe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWB0WRe
+	id S932340AbWB0WSL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWB0WSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:17:34 -0500
-Received: from mta6.srv.hcvlny.cv.net ([167.206.4.201]:15837 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S1751694AbWB0WRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:17:34 -0500
-Date: Mon, 27 Feb 2006 17:16:47 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: [Patch 6/7] Swapin page fault delays
-In-reply-to: <1141029030.2992.63.camel@laptopd505.fenrus.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Message-id: <44037A4F.5000107@watson.ibm.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-References: <1141026996.5785.38.camel@elinux04.optonline.net>
- <1141028549.5785.67.camel@elinux04.optonline.net>
- <1141029030.2992.63.camel@laptopd505.fenrus.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Mon, 27 Feb 2006 17:18:11 -0500
+Received: from smtp106.rog.mail.re2.yahoo.com ([68.142.225.204]:47030 "HELO
+	smtp106.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932340AbWB0WSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:18:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=SPz0bxmFuGdOiKOJXbsgNNO7/7mHGuFi4hT/WqDKqFp8YC6eArn9Wd5+nIx1kmqYc+SoJt+Kk5QyomnrWjykckdTbhJkFOlHMM48lIRtIXT40G2viTJR0dcB8DJl42Ac8M357s9HHYaKgDT1moiyup5+B+yotEh6EGf+NSPGZlA=  ;
+Subject: Re: [2.6 patch] make UNIX a bool
+From: "James C. Georgas" <jgeorgas@rogers.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060225160150.GX3674@stusta.de>
+References: <20060225160150.GX3674@stusta.de>
+Content-Type: text/plain
+Date: Mon, 27 Feb 2006 17:18:06 -0500
+Message-Id: <1141078686.28136.20.camel@Rainsong.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sat, 2006-25-02 at 17:01 +0100, Adrian Bunk wrote:
+> CONFIG_UNIX=m doesn't make much sense.
 
->On Mon, 2006-02-27 at 03:22 -0500, Shailabh Nagar wrote:
->  
->
->>delayacct-swapin.patch
->>
->>Record time spent by a task waiting for its pages to be swapped in.
->>This statistic can help in adjusting the rss limits of 
->>tasks (process), especially relative to each other, when the system is 
->>under memory pressure.
->>    
->>
->
->
->ok this poses a question: how do you deal with nested timings? 
->
-I don't :-(
-An earlier version used local variables instead of one within the 
-task_delay_info
-struct but we moved to using a var within to save on stack space in 
-critical paths.
+I've been building it as a module forever. I often load kernels from
+floppy disk, and building CONFIG_UNIX as a module often makes the
+difference between the kernel fitting or not fitting on the disk. Could
+we please keep this functionality?
 
->Say an
->O_SYC write which internally causes a pagefault?
->  
->
-And here we hit the problem of nesting being needed....so....
-
->delayacct_timestamp_start() at minimum has to get event-type specific,
->or even implement a stack of some sorts.
->  
->
-Would keeping the timespec vars on the stacks of the functions being 
-accounted be too
-expensive vs. keeping bunches of vars within task_delay_info to deal 
-with the nesting ?
-
-Unfortunately, the need for accuracy also means the variables needed are 
-timespecs and
-not something smaller.
-
---Shailabh
+-- 
+James C. Georgas <jgeorgas@rogers.com>
 

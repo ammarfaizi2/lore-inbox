@@ -1,87 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWB0TWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWB0T0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWB0TWN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 14:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWB0TWN
+	id S932073AbWB0T0O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 14:26:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWB0T0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 14:22:13 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:2366 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751748AbWB0TWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 14:22:12 -0500
-In-Reply-To: <20060227190150.GA9121@kroah.com>
-References: <20060227190150.GA9121@kroah.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8C0F522E-E21E-40DD-8EFA-6D1111AF4CA1@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
-       gregkh@suse.de, Kay Sievers <kay.sievers@vrfy.org>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Date: Mon, 27 Feb 2006 13:22:05 -0600
-To: Greg KH <greg@kroah.com>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 27 Feb 2006 14:26:14 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:12171 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751745AbWB0T0N convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 14:26:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=p5FRs1/wKNAQ1KdPkLvoipJh7LazXeQWVY7ERUVDY+UhaTh4Yr/3yOjyC+/er3jNenfZB61xqJ2AHchwuPlLXPceKg01Te9HBRlDlisQosVWHRZWHngBOWPT1qEZmSR8grO3SWOpENWL4/5iIcUfO+eqBF6gvWBj3a/7OSAD7eY=
+Message-ID: <4807377b0602271126s39285884gd0e1c51c14b5d6a7@mail.gmail.com>
+Date: Mon, 27 Feb 2006 11:26:12 -0800
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "Paul Rolland" <rol@witbe.net>, "Jeff Garzik" <jgarzik@pobox.com>
+Subject: Re: [2.4.32 - 2.6.15.4] e1000 - Fix mii interface
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, cramerj@intel.com, john.ronciak@intel.com
+In-Reply-To: <01e101c63ae7$1b417990$2001a8c0@cortex>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9a8748490602260700s2e82a623mcf2d778aa109bb00@mail.gmail.com>
+	 <01e101c63ae7$1b417990$2001a8c0@cortex>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2/26/06, Paul Rolland <rol@witbe.net> wrote:
+> Hello,
+>
+> > Ok, great, I was just wondering since I would have made one if you had
+> > no plans to do so.
+>
+> Well, I was just waiting to make sure it was interesting for someone ;)
+>
+> Here is it, verified with tab and not spaces... but attached as my mailer
+> is likely to cripple anything I try to inline...
+>
+> Signed-off-by: Paul Rolland <rol@as2917.net>
 
-On Feb 27, 2006, at 1:01 PM, Greg KH wrote:
+I've got an issue with this, as the same function is called in
+e1000_ethtool.c.  I think the correct fix is to fix the caller in the
+mii-tool case, but I am working on verifiying my assumptions.
 
-> Hi all,
->
-> As has been noticed recently by a lot of different people, it seems  
-> like
-> we are breaking the userspace<->kernelspace interface a lot.  Well, in
-> looking back over time, we always have been doing this, but no one  
-> seems
-> to notice (proc files changing format and location, netlink library
-> bindings, etc.)
->
-> Linux is a dynamic system, we add and change things all the time based
-> on the need of its developers and users.  Because of this, we now  
-> run on
-> more platforms than any other operating system ever has, from the
-> world's top supercomputers, to the phone in your pocket.  It is how we
-> have survived so far, and is how we will survive in the future.
->
-> In order to ensure that we can continue to be dynamic in the  
-> future, and
-> not get bogged down by interfaces that are half-baked, or just turn  
-> out
-> to be wrong once we implement them and find ways to break them (anyone
-> remember the sys_futex evolution?) we need to be able to handle the
-> changes in the userspace<->kernelspace ABI properly.
->
-> So, here's a first cut at how we can do this.  Lots of other operating
-> systems explicity document what the interfaces to it are, and give a
-> "stability" rating of those interfaces (for one example, look at
-> http://opensolaris.org/os/community/onnv/devref_toc/devref_7/ ).  I  
-> feel
-> that we too need to document this interface, in order to keep everyone
-> in the loop and not cause any unwanted surprises at times they do not
-> need them (like right before a company's deadline.)
->
-> I've sketched out a directory structure that starts in
-> Documentation/ABI/ and has five different states, "stable", "testing",
-> "unstable", "obsolete", and "private".  The README file describes  
-> these
-> different states, and how things can move between them.  I've also
-> seeded the directories with some well known examples of the different
-> interfaces that are already in these states.
->
-> So, any comments?  Criticisms?
-
-It would be nice if we can come up with some way for Linus to  
-document state changes in his release notes.
-
-- kumar
+In the meantime can you send the exact command you were having the problem with?

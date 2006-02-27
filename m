@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWB0Vc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWB0Ved@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWB0Vc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 16:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWB0Vc0
+	id S1751254AbWB0Ved (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 16:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWB0Ved
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 16:32:26 -0500
-Received: from colo.lackof.org ([198.49.126.79]:10949 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1750848AbWB0VcZ (ORCPT
+	Mon, 27 Feb 2006 16:34:33 -0500
+Received: from rtr.ca ([64.26.128.89]:1695 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751254AbWB0Vec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 16:32:25 -0500
-Date: Mon, 27 Feb 2006 14:42:44 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
+	Mon, 27 Feb 2006 16:34:32 -0500
+Message-ID: <4403704E.4090109@rtr.ca>
+Date: Mon, 27 Feb 2006 16:34:06 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+MIME-Version: 1.0
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andi Kleen <ak@suse.de>,
-       benh@kernel.crashing.org,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take 3)
-Message-ID: <20060227214244.GA9008@colo.lackof.org>
-References: <44028502.4000108@soft.fujitsu.com> <44033A2D.9000902@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44033A2D.9000902@pobox.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Cc: David Greaves <david@dgreaves.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca>
+In-Reply-To: <4401B560.40702@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 12:43:09PM -0500, Jeff Garzik wrote:
-> This series still leaves a lot to be desired, and creates unnecessary
-> driver churn.
+Mark Lord wrote:
+>> Mark Lord wrote:
+>>
+>>>> sdb: Current: sense key: Medium Error
+>>>>     Additional sense: Unrecovered read error - auto reallocate failed
+>>>> end_request: I/O error, dev sdb, sector 398283329
+>>>> raid1: Disk failure on sdb2, disabling device.
+>>>>         Operation continuing on 1 devices
+> ..
+>>> The command failing above is SCSI WRITE_10, which is being
+>>> translated into ATA_CMD_WRITE_FUA_EXT by libata.
+>>>
+>>> This command fails -- unrecognized by the drive in question.
+>>> But libata reports it (most incorrectly) as a "medium error",
+>>> and the drive is taken out of service from its RAID.
+>>>
+>>> Bad, bad, and worse.
 
-This is a pretty small change and is not necessary for every driver.
-What do you still desire that this patch set doesn't provide?
+.. hold off on 2.6.16 because of this or not?
 
->   The better solution is:
 > 
-> 1) pci_enable_device() enables what it can
+> Well, no doubt whatsoever about it being a "regression",
+> since the FUA code is *new* in 2.6.16 (not present in 2.6.15).
 > 
-> 2) Drivers, as they already do, will fail if they cannot map the desired
-> memory or IO resources that are needed.
-> 
-> Thus, the PCI layer needs only to do #1, and existing driver code
-> handles the rest of the situation as one currently expects.
+> The FUA code should either get fixed, or removed from 2.6.16.
 
-If in #1 pci_enable_device() assigns I/O Port resources even though
-the driver doesn't need it, PCI devices which _only_ support I/O Port
-space will get screwed (depending on config). We are trying to avoid that.
-Or do you have another way of avoiding unused resource allocation?
+Actually, now that I've done a little more digging, this FUA stuff
+is inherently dangerous as implemented.  A least a few SATA controllers
+including pipelines and whatnot that rely upon recognizing the (S)ATA
+opcodes being using.  And I sincerely doubt that any of those will
+recognize the very newish (and aptly named..) FUA opcodes.
 
-thanks,
-grant
+These may be unsafe in general, unless we tag controllers as
+FUA-capable and NON-FUA-capable, in addition to tagging the drives.
+
+:/

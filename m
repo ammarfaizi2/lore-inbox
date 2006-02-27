@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWB0WcK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbWB0WcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWB0WcK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:32:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWB0Wb7
+	id S932463AbWB0WcA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:32:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWB0Wbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:31:59 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9345 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932464AbWB0Wb5
+	Mon, 27 Feb 2006 17:31:55 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:2944 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932087AbWB0Wbh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:57 -0500
-Message-Id: <20060227223405.357906000@sorel.sous-sol.org>
+	Mon, 27 Feb 2006 17:31:37 -0500
+Message-Id: <20060227223316.558197000@sorel.sous-sol.org>
 References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:35 -0800
+Date: Mon, 27 Feb 2006 14:32:01 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,104 +19,88 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Al Viro <viro@zeniv.linux.org.uk>
-Subject: [patch 35/39] [PATCH] sd: fix memory corruption with broken mode page headers
-Content-Disposition: inline; filename=sd-fix-memory-corruption-with-broken-mode-page-headers.patch
+       Tom Rini <trini@kernel.crashing.org>, Paul Janzen <pcj@linux.sez.to>,
+       Paul Mackerras <paulus@samba.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 01/39] ppc32: Put cache flush routines back into .relocate_code section
+Content-Disposition: inline; filename=ppc32-put-cache-flush-routines-back-into-.relocate_code-section.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-There's a problem in sd where we blindly believe the length of the
-headers and block descriptors.  Some devices return insane values for
-these and cause our length to end up greater than the actual buffer
-size, so check to make sure.
+[PATCH] ppc32: Put cache flush routines back into .relocate_code section
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+In 2.6.14, we had the following definition of _GLOBAL() in
+include/asm-ppc/processor.h:
 
-Also removed the buffer size magic number (512) and added DPOFUA of
-zero to the defaults
+#define _GLOBAL(n)\
+        .stabs __stringify(n:F-1),N_FUN,0,0,n;\
+        .globl n;\
+n:
 
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+In 2.6.15, as part of the great powerpc merge, we moved this definition to
+include/asm-powerpc/ppc_asm.h, where it appears (to 32-bit code) as:
 
-rediff for 2.6.15.x without DPOFUA bit, taken from commit
-489708007785389941a89fa06aedc5ec53303c96
+#define _GLOBAL(n)      \
+        .text;          \
+        .stabs __stringify(n:F-1),N_FUN,0,0,n;\
+        .globl n;       \
+n:
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Mostly, this is fine.  However, we also have the following, in
+arch/ppc/boot/common/util.S:
+
+        .section ".relocate_code","xa"
+[...]
+_GLOBAL(flush_instruction_cache)
+[...]
+_GLOBAL(flush_data_cache)
+[...]
+
+The addition of the .text section definition in the definition of
+_GLOBAL overrides the .relocate_code section definition.  As a result,
+these two functions don't end up in .relocate_code, so they don't get
+relocated correctly, and the boot fails.
+
+There's another suspicious-looking usage at kernel/swsusp.S:37 that
+someone should look into.  I did not exhaustively search the source
+tree, though.
+
+The following is the minimal patch that fixes the immediate problem.
+I could easily be convinced that the _GLOBAL definition should be
+modified to remove the ".text;" line either instead of, or in addition
+to, this fix.
+
+Signed-off-by: Paul Janzen <pcj@linux.sez.to>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
-fixes http://bugzilla.kernel.org/show_bug.cgi?id=6114 and
-http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=182005
+ arch/ppc/boot/common/util.S |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
- drivers/scsi/sd.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
-
---- linux-2.6.15.4.orig/drivers/scsi/sd.c
-+++ linux-2.6.15.4/drivers/scsi/sd.c
-@@ -88,6 +88,11 @@
- #define SD_MAX_RETRIES		5
- #define SD_PASSTHROUGH_RETRIES	1
- 
-+/*
-+ * Size of the initial data buffer for mode and read capacity data
-+ */
-+#define SD_BUF_SIZE		512
-+
- static void scsi_disk_release(struct kref *kref);
- 
- struct scsi_disk {
-@@ -1299,7 +1304,7 @@ sd_do_mode_sense(struct scsi_device *sdp
- 
- /*
-  * read write protect setting, if possible - called only in sd_revalidate_disk()
-- * called with buffer of length 512
-+ * called with buffer of length SD_BUF_SIZE
+--- linux-2.6.15.3.orig/arch/ppc/boot/common/util.S
++++ linux-2.6.15.3/arch/ppc/boot/common/util.S
+@@ -234,7 +234,8 @@ udelay:
+  * First, flush the data cache in case it was enabled and may be
+  * holding instructions for copy back.
   */
- static void
- sd_read_write_protect_flag(struct scsi_disk *sdkp, char *diskname,
-@@ -1357,7 +1362,7 @@ sd_read_write_protect_flag(struct scsi_d
+-_GLOBAL(flush_instruction_cache)
++        .globl flush_instruction_cache
++flush_instruction_cache:
+ 	mflr	r6
+ 	bl	flush_data_cache
  
- /*
-  * sd_read_cache_type - called only from sd_revalidate_disk()
-- * called with buffer of length 512
-+ * called with buffer of length SD_BUF_SIZE
+@@ -279,7 +280,8 @@ _GLOBAL(flush_instruction_cache)
+  * Flush data cache
+  * Do this by just reading lots of stuff into the cache.
   */
- static void
- sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
-@@ -1402,6 +1407,8 @@ sd_read_cache_type(struct scsi_disk *sdk
- 
- 	/* Take headers and block descriptors into account */
- 	len += data.header_length + data.block_descriptor_length;
-+	if (len > SD_BUF_SIZE)
-+		goto bad_sense;
- 
- 	/* Get the data */
- 	res = sd_do_mode_sense(sdp, dbd, modepage, buffer, len, &data, &sshdr);
-@@ -1414,6 +1421,12 @@ sd_read_cache_type(struct scsi_disk *sdk
- 		int ct = 0;
- 		int offset = data.header_length + data.block_descriptor_length;
- 
-+		if (offset >= SD_BUF_SIZE - 2) {
-+			printk(KERN_ERR "%s: malformed MODE SENSE response",
-+				diskname);
-+			goto defaults;
-+		}
-+
- 		if ((buffer[offset] & 0x3f) != modepage) {
- 			printk(KERN_ERR "%s: got wrong page\n", diskname);
- 			goto defaults;
-@@ -1472,7 +1485,7 @@ static int sd_revalidate_disk(struct gen
- 	if (!scsi_device_online(sdp))
- 		goto out;
- 
--	buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
-+	buffer = kmalloc(SD_BUF_SIZE, GFP_KERNEL | __GFP_DMA);
- 	if (!buffer) {
- 		printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
- 		       "failure.\n");
+-_GLOBAL(flush_data_cache)
++        .globl flush_data_cache
++flush_data_cache:
+ 	lis	r3,cache_flush_buffer@h
+ 	ori	r3,r3,cache_flush_buffer@l
+ 	li	r4,NUM_CACHE_LINES
 
 --

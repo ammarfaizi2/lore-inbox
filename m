@@ -1,150 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWB0Lkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWB0LpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWB0Lkd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 06:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWB0Lkd
+	id S1750940AbWB0LpH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 06:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWB0LpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 06:40:33 -0500
-Received: from seldon.control.lth.se ([130.235.83.40]:49884 "EHLO
-	seldon.control.lth.se") by vger.kernel.org with ESMTP
-	id S1750754AbWB0Lkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 06:40:33 -0500
-Message-ID: <4402E52F.6080409@control.lth.se>
-Date: Mon, 27 Feb 2006 12:40:31 +0100
-From: Martin Andersson <martin.andersson@control.lth.se>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Strange interactivity behaviour
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Feb 2006 06:45:07 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37539 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750940AbWB0LpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 06:45:05 -0500
+Subject: Re: Kernel SeekCompleteErrors... Different from Re: LibPATA code
+	issues / 2.6.15.4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Lord <liml@rtr.ca>
+Cc: "Dr. David Alan Gilbert" <linux@treblig.org>,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       David Greaves <david@dgreaves.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, htejun@gmail.com
+In-Reply-To: <44021141.6000601@rtr.ca>
+References: <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
+	 <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
+	 <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca>
+	 <44019E96.20804@superbug.co.uk> <4401B378.3030005@rtr.ca>
+	 <4401BB85.7070407@superbug.co.uk> <4401DF6B.9010409@rtr.ca>
+	 <20060226171307.GA9682@gallifrey>
+	 <1140975791.27539.19.camel@localhost.localdomain> <44021141.6000601@rtr.ca>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Feb 2006 11:48:08 +0000
+Message-Id: <1141040889.27539.60.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Possible Problem:
-There may be a truncation error in kernel/sched.c triggered when the 
-nice value is negative. The affected code is used in the 
-TASK_INTERACTIVE macro.
+On Sul, 2006-02-26 at 15:36 -0500, Mark Lord wrote:
+> It still is unreliable, as being discussed in another thread.
+> 
+> libata wrongly says "medium error" any time it issues a command
+> that the drive rejects (unsupported, invalid parameters, etc..).
 
-The code is:
-#define SCALE(v1,v1_max,v2_max) \
-	(v1) * (v2_max) / (v1_max)
+It seems to still get a single case wrong. But it does the report the
+ATA state correctly still.
 
-which is used in this way:
-SCALE(TASK_NICE(p), 40, MAX_BONUS)
+> This is biting a few people in 2.6.16-rc*, due to the FUA stuff.
 
-Comments in the code says:
-  * This part scales the interactivity limit depending on niceness.
-  *
-  * We scale it linearly, offset by the INTERACTIVE_DELTA delta.
-  * Here are a few examples of different nice levels:
-  *
-  *  TASK_INTERACTIVE(-20): [1,1,1,1,1,1,1,1,1,0,0]
-  *  TASK_INTERACTIVE(-10): [1,1,1,1,1,1,1,0,0,0,0]
-  *  TASK_INTERACTIVE(  0): [1,1,1,1,0,0,0,0,0,0,0]
-  *  TASK_INTERACTIVE( 10): [1,1,0,0,0,0,0,0,0,0,0]
-  *  TASK_INTERACTIVE( 19): [0,0,0,0,0,0,0,0,0,0,0]
-  *
-  * (the X axis represents the possible -5 ... 0 ... +5 dynamic
-  *  priority range a task can explore, a value of '1' means the
-  *  task is rated interactive.)
+It is driven by a table in 
 
-However, the current code does not scale it linearly and the result 
-differs from the given examples. If the mathematical function "floor" is 
-used when the nice value is negative instead of the truncation one gets 
-when using integer division, the result conforms to the documentation.
+libata-scsi.c:ata_to_sense_error()
 
-I belive that this is a bug. Is this correct or have i misunderstood 
-something?
+so if you can figure out the wrong entry and tweak the table that would
+be great
 
-/Martin Andersson
-
----
-
-Output of TASK_INTERACTIVE when using the kernel code:
-nice    dynamic priorities
--20     1     1     1     1     1     1     1     1     1     0     0
--19     1     1     1     1     1     1     1     1     0     0     0
--18     1     1     1     1     1     1     1     1     0     0     0
--17     1     1     1     1     1     1     1     1     0     0     0
--16     1     1     1     1     1     1     1     1     0     0     0
--15     1     1     1     1     1     1     1     0     0     0     0
--14     1     1     1     1     1     1     1     0     0     0     0
--13     1     1     1     1     1     1     1     0     0     0     0
--12     1     1     1     1     1     1     1     0     0     0     0
--11     1     1     1     1     1     1     0     0     0     0     0
--10     1     1     1     1     1     1     0     0     0     0     0
-  -9     1     1     1     1     1     1     0     0     0     0     0
-  -8     1     1     1     1     1     1     0     0     0     0     0
-  -7     1     1     1     1     1     0     0     0     0     0     0
-  -6     1     1     1     1     1     0     0     0     0     0     0
-  -5     1     1     1     1     1     0     0     0     0     0     0
-  -4     1     1     1     1     1     0     0     0     0     0     0
-  -3     1     1     1     1     0     0     0     0     0     0     0
-  -2     1     1     1     1     0     0     0     0     0     0     0
-  -1     1     1     1     1     0     0     0     0     0     0     0
-  0      1     1     1     1     0     0     0     0     0     0     0
-  1      1     1     1     1     0     0     0     0     0     0     0
-  2      1     1     1     1     0     0     0     0     0     0     0
-  3      1     1     1     1     0     0     0     0     0     0     0
-  4      1     1     1     0     0     0     0     0     0     0     0
-  5      1     1     1     0     0     0     0     0     0     0     0
-  6      1     1     1     0     0     0     0     0     0     0     0
-  7      1     1     1     0     0     0     0     0     0     0     0
-  8      1     1     0     0     0     0     0     0     0     0     0
-  9      1     1     0     0     0     0     0     0     0     0     0
-10      1     1     0     0     0     0     0     0     0     0     0
-11      1     1     0     0     0     0     0     0     0     0     0
-12      1     0     0     0     0     0     0     0     0     0     0
-13      1     0     0     0     0     0     0     0     0     0     0
-14      1     0     0     0     0     0     0     0     0     0     0
-15      1     0     0     0     0     0     0     0     0     0     0
-16      0     0     0     0     0     0     0     0     0     0     0
-17      0     0     0     0     0     0     0     0     0     0     0
-18      0     0     0     0     0     0     0     0     0     0     0
-19      0     0     0     0     0     0     0     0     0     0     0
-
-
-Output of TASK_INTERACTIVE when using "floor"
-nice    dynamic priorities
--20     1     1     1     1     1     1     1     1     1     0     0
--19     1     1     1     1     1     1     1     1     1     0     0
--18     1     1     1     1     1     1     1     1     1     0     0
--17     1     1     1     1     1     1     1     1     1     0     0
--16     1     1     1     1     1     1     1     1     0     0     0
--15     1     1     1     1     1     1     1     1     0     0     0
--14     1     1     1     1     1     1     1     1     0     0     0
--13     1     1     1     1     1     1     1     1     0     0     0
--12     1     1     1     1     1     1     1     0     0     0     0
--11     1     1     1     1     1     1     1     0     0     0     0
--10     1     1     1     1     1     1     1     0     0     0     0
-  -9     1     1     1     1     1     1     1     0     0     0     0
-  -8     1     1     1     1     1     1     0     0     0     0     0
-  -7     1     1     1     1     1     1     0     0     0     0     0
-  -6     1     1     1     1     1     1     0     0     0     0     0
-  -5     1     1     1     1     1     1     0     0     0     0     0
-  -4     1     1     1     1     1     0     0     0     0     0     0
-  -3     1     1     1     1     1     0     0     0     0     0     0
-  -2     1     1     1     1     1     0     0     0     0     0     0
-  -1     1     1     1     1     1     0     0     0     0     0     0
-   0     1     1     1     1     0     0     0     0     0     0     0
-   1     1     1     1     1     0     0     0     0     0     0     0
-   2     1     1     1     1     0     0     0     0     0     0     0
-   3     1     1     1     1     0     0     0     0     0     0     0
-   4     1     1     1     0     0     0     0     0     0     0     0
-   5     1     1     1     0     0     0     0     0     0     0     0
-   6     1     1     1     0     0     0     0     0     0     0     0
-   7     1     1     1     0     0     0     0     0     0     0     0
-   8     1     1     0     0     0     0     0     0     0     0     0
-   9     1     1     0     0     0     0     0     0     0     0     0
-  10     1     1     0     0     0     0     0     0     0     0     0
-  11     1     1     0     0     0     0     0     0     0     0     0
-  12     1     0     0     0     0     0     0     0     0     0     0
-  13     1     0     0     0     0     0     0     0     0     0     0
-  14     1     0     0     0     0     0     0     0     0     0     0
-  15     1     0     0     0     0     0     0     0     0     0     0
-  16     0     0     0     0     0     0     0     0     0     0     0
-  17     0     0     0     0     0     0     0     0     0     0     0
-  18     0     0     0     0     0     0     0     0     0     0     0
-  19     0     0     0     0     0     0     0     0     0     0     0

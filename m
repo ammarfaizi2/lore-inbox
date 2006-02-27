@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWB0PcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWB0Pch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbWB0PcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 10:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWB0PcJ
+	id S1751479AbWB0Pch (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 10:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWB0Pcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 10:32:09 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:28139
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751464AbWB0PcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 10:32:08 -0500
-Subject: [PATCH] tty buffering: comment out debug code
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 27 Feb 2006 10:32:35 -0500
+Received: from a222036.upc-a.chello.nl ([62.163.222.36]:21958 "EHLO
+	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
+	id S1751473AbWB0PcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 10:32:19 -0500
+Subject: [Patch 1/4] avoid entry.S functions from reordering
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Cc: akpm@osdl.org, ak@suse.de
+In-Reply-To: <1141053825.2992.125.camel@laptopd505.fenrus.org>
+References: <1141053825.2992.125.camel@laptopd505.fenrus.org>
 Content-Type: text/plain
-Date: Mon, 27 Feb 2006 09:32:05 -0600
-Message-Id: <1141054325.2884.15.camel@x2.pipehead.org>
+Content-Transfer-Encoding: 7bit
+Date: Mon, 27 Feb 2006 16:31:43 +0100
+Message-Id: <1141054303.2992.142.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comment out debug code in tty receive buffering.
+This patch puts the code from head.S in a special .bootstrap.text
+section.
 
-Signed-off-by: Paul Fulghum <paulkf@microgate.com>
+I'm working on a patch to reorder the functions in the kernel (I'll post
+that later), but for x86-64 at least the kernel bootstrap requires that the
+head.S functions are on the very first page/pages of the kernel text. This
+is understandable since the bootstrap is complex enough already and not a
+problem at all, it just means they aren't allowed to be reordered. This
+patch puts these special functions into a separate section to document this,
+and to guarantee this in the light of possibly reordering the rest later.
 
---- linux-2.6.16-rc5/drivers/char/tty_io.c	2006-02-27 09:24:26.000000000 -0600
-+++ b/drivers/char/tty_io.c	2006-02-27 09:26:40.000000000 -0600
-@@ -303,7 +303,7 @@ static struct tty_buffer *tty_buffer_fin
- 			t->commit = 0;
- 			t->read = 0;
- 			/* DEBUG ONLY */
--			memset(t->data, '*', size);
-+/*			memset(t->data, '*', size); */
- /* 			printk("Flip recycle %p\n", t); */
- 			return t;
- 		}
+(So this patch doesn't fix a bug per se, but makes things more robust by
+making the order of these functions explicit)
 
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+---
+ arch/x86_64/kernel/head.S        |    1 +
+ arch/x86_64/kernel/vmlinux.lds.S |    1 +
+ 2 files changed, 2 insertions(+)
+
+Index: linux-reorder2/arch/x86_64/kernel/head.S
+===================================================================
+--- linux-reorder2.orig/arch/x86_64/kernel/head.S
++++ linux-reorder2/arch/x86_64/kernel/head.S
+@@ -26,6 +26,7 @@
+  */
+ 
+ 	.text
++	.section .bootstrap.text
+ 	.code32
+ 	.globl startup_32
+ /* %bx:	 1 if coming from smp trampoline on secondary cpu */ 
+Index: linux-reorder2/arch/x86_64/kernel/vmlinux.lds.S
+===================================================================
+--- linux-reorder2.orig/arch/x86_64/kernel/vmlinux.lds.S
++++ linux-reorder2/arch/x86_64/kernel/vmlinux.lds.S
+@@ -20,6 +20,7 @@ SECTIONS
+   phys_startup_64 = startup_64 - LOAD_OFFSET;
+   _text = .;			/* Text and read-only data */
+   .text :  AT(ADDR(.text) - LOAD_OFFSET) {
++	*(.bootstrap.text)
+ 	*(.text)
+ 	SCHED_TEXT
+ 	LOCK_TEXT
 

@@ -1,99 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWB0Ws4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751778AbWB0WtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751758AbWB0Ws4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751776AbWB0Wsz
+	id S1751778AbWB0WtL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWB0WtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:48:55 -0500
-Received: from lugor.de ([212.112.242.222]:40917 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S1751758AbWB0Wsx (ORCPT
+	Mon, 27 Feb 2006 17:49:11 -0500
+Received: from ns.suse.de ([195.135.220.2]:22156 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751778AbWB0WtI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:48:53 -0500
-From: "Hesse, Christian" <mail@earthworm.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: hald in status D with 2.6.16-rc4
-Date: Mon, 27 Feb 2006 23:48:37 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <200602202034.29413.mail@earthworm.de> <200602221110.44813.mail@earthworm.de> <200602222112.09567.mail@earthworm.de>
-In-Reply-To: <200602222112.09567.mail@earthworm.de>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Mon, 27 Feb 2006 17:49:08 -0500
+From: Neil Brown <neilb@suse.de>
+To: "matteo brancaleoni" <mbrancaleoni@gmail.com>
+Date: Tue, 28 Feb 2006 09:46:50 +1100
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart39355267.8HGVQ3LJXq";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602272348.37288.mail@earthworm.de>
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Mon, 27 Feb 2006 23:48:39 +0100 (CET)
-X-Spam-Flag: NO
+Message-ID: <17411.33114.403066.812228@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bio & Biovec-1 increasing cache size, never freed during disk IO
+In-Reply-To: message from matteo brancaleoni on Monday February 27
+References: <d6fe45ba0602251245h32b9ac5dw65246ed6e1bba607@mail.gmail.com>
+	<d6fe45ba0602271238q10fea0f8tfc29f0d51c4df1c8@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart39355267.8HGVQ3LJXq
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Monday February 27, mbrancaleoni@gmail.com wrote:
+> FYI, this problem on 2.6.14.7 does not happens at all...
+> 
+> anyone has any idea about?
 
-On Wednesday 22 February 2006 21:12, Hesse, Christian wrote:
-> On Wednesday 22 February 2006 11:10, Hesse, Christian wrote:
-> > On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
-> > > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
-> > > > > "Hesse, Christian" <mail@earthworm.de> wrote:
-> > > > > > Hello everybody,
-> > > > > >
-> > > > > > since using kernel version 2.6.16-rc4 the hal daemon is in stat=
-us
-> > > > > > D after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3. Any hints
-> > > > > > what could be the problem? It worked perfectly with 2.6.15.x and
-> > > > > > suspend2 2.2.
-> > > > >
-> > > > > a) Look in the logs for any oopses, other nasties
-> > > >
-> > > > Nothing.
-> > > >
-> > > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo' th=
-en
-> > > > > find the trace for `hald' in `foo', send it to this list.
-> > > >
-> > > > Ok, here it is:
-> > > >
-> > > > [ trace snipped ]
-> > > >
-> > > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
-> > >
-> > > Hopefully suspend2 isn't involved.  People would feel more comfortable
-> > > if you could test a vanilla mainline tree..
-> > >
-> > > Could the ACPI team please take a look at fixing this regression?
+Apparently not.  Fingers are pointing at md/raid1 - with reasonable
+cause - but I cannot find any error in that code, not can I reproduce
+the problem.
+
+Are you able to narrow down the difference between working and
+not-working.
+
+Possibly use 'git bisect' (This is the best option, but not having
+used it myself yet, I don't feel comfortable recommending it).
+
+Possibly just try the various 2.6.15-rcX kernels and find the first
+one that breaks.  
+
+That would be a great help.
+
+NeilBrown
+
+> 
+> Greetings, Matteo.
+> 
+> On 2/25/06, matteo brancaleoni <mbrancaleoni@gmail.com> wrote:
+> > Hi.
 > >
-> > I did two cycles with mainline suspend now and did not hit the problem.=
-=2E.
-> > I will keep an eye on it.
->
-> It is independent from suspend version, hald hangs with mainline suspend =
-as
-> well.
-
-I think this is a big regression since 2.5.15. Is anybody working on it? I =
-did=20
-not get a reply for nearly a week now...
-If anybody needs more information let me know.
-=2D-=20
-Regards,
-Christian
-
---nextPart39355267.8HGVQ3LJXq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.20 (GNU/Linux)
-
-iD8DBQBEA4HFlZfG2c8gdSURAtfHAKC/NIY8RpYHug4Z8rRF7QowW/2vuwCggs4K
-Rrs8sUtwg0lzdBUnsUUYRxA=
-=V3Me
------END PGP SIGNATURE-----
-
---nextPart39355267.8HGVQ3LJXq--
+> > I'm experiencing a problem with 2.6.15.4 / 2.6.16-rc4, noticed during
+> > high disk IO (copying a lot of data between 2 machines): the system
+> > memory get filled up, until the full swap is used and the system must
+> > be rebooted (or is unusable). Stopping the process does not free the
+> > memory, and happens not only copying via network, but also with a
+> > simple
+> > cp -a dirwithmanybigfiles testdir.
+> >
+> > The system is running on athlon64:
+> > Linux morgor 2.6.16-rc4 #2 SMP Sat Feb 25 19:55:36 CET 2006 x86_64
+> > x86_64 x86_64 GNU/Linux
+> > Same issue with 2.6.15.4
+> >
+> > The box has a single soft-raid1 device made by 2 sata disk on promise
+> > controller.
+> > Attached slabinfo dump and dmesg dump.
+> >
+> > Some system informations:
+> > * This is the modules list:
+> > Linux morgor 2.6.16-rc4 #2 SMP Sat Feb 25 19:55:36 CET 2006 x86_64
+> > x86_64 x86_64 GNU/Linux
+> > [root@morgor ~]# lsmod
+> > Module                  Size  Used by
+> > ipv6                  399008  18
+> > ppdev                  42888  0
+> > autofs4                55560  1
+> > nfs                   251224  2
+> > lockd                  97424  2 nfs
+> > nfs_acl                37120  1 nfs
+> > sunrpc                191944  4 nfs,lockd,nfs_acl
+> > rfcomm                105376  0
+> > l2cap                  92160  5 rfcomm
+> > bluetooth             117252  4 rfcomm,l2cap
+> > dm_mirror              54912  0
+> > dm_mod                 90192  1 dm_mirror
+> > video                  50952  0
+> > button                 41120  0
+> > battery                43912  0
+> > ac                     38920  0
+> > lp                     48208  0
+> > parport_pc             63144  1
+> > parport                74636  3 ppdev,lp,parport_pc
+> > nvram                  42888  0
+> > ohci1394               67272  0
+> > ehci_hcd               65160  0
+> > sg                     69672  0
+> > ieee1394              392216  1 ohci1394
+> > uhci_hcd               65952  0
+> > snd_via82xx            63784  0
+> > gameport               50832  1 snd_via82xx
+> > snd_ac97_codec        136536  1 snd_via82xx
+> > snd_ac97_bus           36224  1 snd_ac97_codec
+> > snd_seq_dummy          37508  0
+> > snd_seq_oss            66688  0
+> > snd_seq_midi_event     41472  1 snd_seq_oss
+> > snd_seq                90144  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi_event
+> > snd_pcm_oss            85632  0
+> > snd_mixer_oss          51328  1 snd_pcm_oss
+> > snd_pcm               126728  3 snd_via82xx,snd_ac97_codec,snd_pcm_oss
+> > snd_timer              59656  2 snd_seq,snd_pcm
+> > snd_page_alloc         44816  2 snd_via82xx,snd_pcm
+> > snd_mpu401_uart        42112  1 snd_via82xx
+> > snd_rawmidi            61696  1 snd_mpu401_uart
+> > snd_seq_device         43280  4 snd_seq_dummy,snd_seq_oss,snd_seq,snd_rawmidi
+> > i2c_viapro             43160  0
+> > snd                    97320  11
+> > snd_via82xx,snd_ac97_codec,snd_seq_oss,snd_seq,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+> > i2c_core               57728  1 i2c_viapro
+> > skge                   72720  0
+> > soundcore              44576  1 snd
+> > raid1                  54912  2
+> > ext3                  163984  2
+> > jbd                    93480  1 ext3
+> > sata_promise           45700  6
+> > sata_via               42500  0
+> > libata                 93592  2 sata_promise,sata_via
+> > sd_mod                 50688  8
+> > scsi_mod              180688  4 sg,sata_promise,libata,sd_mod
+> >
+> > * fstab
+> > [root@morgor ~]# cat /etc/fstab
+> > /dev/md1                /                       ext3    defaults        1 1
+> > /dev/md0                /boot                   ext3    defaults        1 2
+> > devpts                  /dev/pts                devpts  gid=5,mode=620  0 0
+> > tmpfs                   /dev/shm                tmpfs   defaults        0 0
+> > proc                    /proc                   proc    defaults        0 0
+> > sysfs                   /sys                    sysfs   defaults        0 0
+> > LABEL=SWAP-sda2         swap                    swap    defaults        0 0
+> > LABEL=SWAP-sdb2         swap                    swap    defaults        0 0
+> >
+> > * cpuinfo
+> > [root@morgor ~]# cat /proc/cpuinfo
+> > processor       : 0
+> > vendor_id       : AuthenticAMD
+> > cpu family      : 15
+> > model           : 47
+> > model name      : AMD Athlon(tm) 64 Processor 3200+
+> > stepping        : 0
+> > cpu MHz         : 1800.000
+> > cache size      : 512 KB
+> > fpu             : yes
+> > fpu_exception   : yes
+> > cpuid level     : 1
+> > wp              : yes
+> > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> > mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext
+> > fxsr_opt lm 3dnowext 3dnow pni lahf_lm
+> > bogomips        : 3613.48
+> > TLB size        : 1024 4K pages
+> > clflush size    : 64
+> > cache_alignment : 64
+> > address sizes   : 40 bits physical, 48 bits virtual
+> > power management: ts fid vid ttp tm stc
+> >
+> > Thanks a lot,
+> >
+> > Matteo Brancaleoni
+> >
+> >
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

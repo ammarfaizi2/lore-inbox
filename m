@@ -1,81 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWB0QYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWB0Qba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751482AbWB0QYW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 11:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWB0QYW
+	id S1751413AbWB0Qba (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 11:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWB0Qba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 11:24:22 -0500
-Received: from postage-due.permabit.com ([66.228.95.230]:10985 "EHLO
-	postage-due.permabit.com") by vger.kernel.org with ESMTP
-	id S1751482AbWB0QYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 11:24:21 -0500
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.31 hangs, no information on console or serial port
-References: <7yirr8hh0z.fsf@questionably-configured.permabit.com>
-	<20060221152949.GA31273@kvack.org>
-From: David Golombek <daveg@permabit.com>
-Date: 27 Feb 2006 11:24:10 -0500
-In-Reply-To: <20060221152949.GA31273@kvack.org>
-Message-ID: <7yfym4lqhh.fsf@questionably-configured.permabit.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	Mon, 27 Feb 2006 11:31:30 -0500
+Received: from newmail.sw.starentnetworks.com ([12.33.234.78]:30220 "EHLO
+	mail.sw.starentnetworks.com") by vger.kernel.org with ESMTP
+	id S1751413AbWB0Qb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 11:31:29 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Permabit-Spam: SKIPPED
+Content-Transfer-Encoding: 7bit
+Message-ID: <17411.10591.927433.619327@zeus.sw.starentnetworks.com>
+Date: Mon, 27 Feb 2006 11:31:27 -0500
+From: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cramfs mounts provide corrupted content since 2.6.15
+In-Reply-To: <20060225220130.GA2748@suse.de>
+References: <20060225110844.GA18221@suse.de>
+	<20060225125551.GA21203@suse.de>
+	<17408.34808.422077.518881@zeus.sw.starentnetworks.com>
+	<20060225220130.GA2748@suse.de>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Feb 21, 2006 at 10:23:56AM -0500, David Golombek wrote:
-> > I have a box running a modified Debian/woody system and 2.4.31.  It is
-> > intermittently hanging such that:
+Olaf Hering writes:
+>  On Sat, Feb 25, Dave Johnson wrote:
+> 
+> > Looking at your output it's definitely getting inodes confused with
+> > each other so the checks in cramfs_iget5_test() aren't working.
 > > 
-> > * All logging to /var/log ceases.
-> > * Machine is still pingable.
-> > * Machine can be telneted to on time port, but no time is echoed.
-> > * After attaching a console+keyboard, console would not unblank.
-> > * Nothing responded when attaching a serial console.
-> > * Machine does not respond to Ctrl-Alt-Del
-> > * No DMI messages are logged.
-> > * Hang is persistent until physical reboot.
-> > 
-> > This has happened 4 times, on 2 separate machines (under roughly
-> > similar conditions).  Machines are up variable amounts of time before
-> > crashing, between many weeks and less than 1 day.  Nothing unusual is
-> > logged in /var/log/{deamon.log,kern.log,messages,syslog} prior the
-> > hang, except that /var/log/messages includes the "TCP: Treason
-> > uncloaked!" warnings that are fixed in 2.4.32.  No users were logged
-> > on at the time of 3 of the 4 crashes, and no local user activity was
-> > present at the time of the 4th.
-> > 
-> > The machines are Intel P4's with 2GB of memory
-> > 
-> > The machine is under relatively high load and has a custom userspace
-> > nfs server running on it (which is potentially to blame, but we've
-> > been unable to determine how).  The custom userspace nfs server and
-> > tomcat4 are the primary applications running.
-> > 
-> > Any suggestions as to how we might debug this or possible causes would
-> > be greatly appreciated.
->
-> Benjamin LaHaise <bcrl@kvack.org> writes:
-> Have you tried turning on the NMI watchdog (nmi_watchdog=1)?  It
-> should be able to kick the machine out of the locked state, as these
-> symptoms would hint at a spinlock deadlock with interrupts disabled.
-> Also, try to reproduce on the latest 2.4.33pre.  That said, for an
-> io intensive workload like you're running, 2.6 is much better,
-> especially for systems using highmem.
+> > Can you stat the files in question to make sure they are actually
+> > inode #1 on a working as well as non-working kernel?  If your mkcramfs
+> > isn't using #1 for empty files/links/dirs that'd be the problem.
+> 
+> Another try, and different results again:
 
-After a week of intensive testing, we were finally able to reproduce
-this hang.  Sadly, the nmi watchdog did not appear to trigger (I'm
-pretty sure it was configured correctly, I did see NMIs occurring).
-No information appeared on serial or console (although this time they
-weren't blanked).  We're building 2.4.33pre kernel now to try and test
-on now to see if we're still able to reproduce using it.
+Is it the same files every time you mount/umount the image?
 
-We're beginning to suspect that a hung loopback NFS mount might be to
-blame, although we can't reproduce this trivially.  Is there anyway in
-which a mount that was behaving badly could affect the kernel in this
-manner?
 
-Dave
+I think I've spotted an issue.
+
+Both ifind() and find_inode() will call the test function on inodes
+that still have I_LOCK|I_NEW set.  This means everything that the
+test function needs _must_ be set in the set function (which is called
+while the inode_lock is still held).
+
+This could cause issues for inodes of 1 (only i_ino is getting set
+right now).
+
+However since you're seeing issues for inodes != 1, it could indicate
+code elsewhere that isn't checking for I_LOCK|I_NEW.
+
+Anyway, can you give the following patch a try?
+
+-- 
+Dave Johnson
+Starent Networks
+
+======================================
+
+
+Fill out inode contents in cramfs_iget5_set() instead of get_cramfs_inode() to
+prevent issues if cramfs_iget5_test() is called with I_LOCK|I_NEW still set.
+
+Signed-off-by: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
+
+diff -Naur linux-2.6.15.4.orig/fs/cramfs/inode.c linux-2.6.15.4/fs/cramfs/inode.c
+--- linux-2.6.15.4.orig/fs/cramfs/inode.c	2006-02-10 07:22:48.000000000 +0000
++++ linux-2.6.15.4/fs/cramfs/inode.c	2006-02-27 15:16:52.000000000 +0000
+@@ -66,8 +66,36 @@
+ 
+ static int cramfs_iget5_set(struct inode *inode, void *opaque)
+ {
++	static struct timespec zerotime;
+ 	struct cramfs_inode *cramfs_inode = opaque;
++	inode->i_mode = cramfs_inode->mode;
++	inode->i_uid = cramfs_inode->uid;
++	inode->i_size = cramfs_inode->size;
++	inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
++	inode->i_blksize = PAGE_CACHE_SIZE;
++	inode->i_gid = cramfs_inode->gid;
++	/* Struct copy intentional */
++	inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
+ 	inode->i_ino = CRAMINO(cramfs_inode);
++	/* inode->i_nlink is left 1 - arguably wrong for directories,
++	   but it's the best we can do without reading the directory
++           contents.  1 yields the right result in GNU find, even
++	   without -noleaf option. */
++	if (S_ISREG(inode->i_mode)) {
++		inode->i_fop = &generic_ro_fops;
++		inode->i_data.a_ops = &cramfs_aops;
++	} else if (S_ISDIR(inode->i_mode)) {
++		inode->i_op = &cramfs_dir_inode_operations;
++		inode->i_fop = &cramfs_directory_operations;
++	} else if (S_ISLNK(inode->i_mode)) {
++		inode->i_op = &page_symlink_inode_operations;
++		inode->i_data.a_ops = &cramfs_aops;
++	} else {
++		inode->i_size = 0;
++		inode->i_blocks = 0;
++		init_special_inode(inode, inode->i_mode,
++			old_decode_dev(cramfs_inode->size));
++	}
+ 	return 0;
+ }
+ 
+@@ -77,37 +105,7 @@
+ 	struct inode *inode = iget5_locked(sb, CRAMINO(cramfs_inode),
+ 					    cramfs_iget5_test, cramfs_iget5_set,
+ 					    cramfs_inode);
+-	static struct timespec zerotime;
+-
+ 	if (inode && (inode->i_state & I_NEW)) {
+-		inode->i_mode = cramfs_inode->mode;
+-		inode->i_uid = cramfs_inode->uid;
+-		inode->i_size = cramfs_inode->size;
+-		inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+-		inode->i_gid = cramfs_inode->gid;
+-		/* Struct copy intentional */
+-		inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
+-		inode->i_ino = CRAMINO(cramfs_inode);
+-		/* inode->i_nlink is left 1 - arguably wrong for directories,
+-		   but it's the best we can do without reading the directory
+-	           contents.  1 yields the right result in GNU find, even
+-		   without -noleaf option. */
+-		if (S_ISREG(inode->i_mode)) {
+-			inode->i_fop = &generic_ro_fops;
+-			inode->i_data.a_ops = &cramfs_aops;
+-		} else if (S_ISDIR(inode->i_mode)) {
+-			inode->i_op = &cramfs_dir_inode_operations;
+-			inode->i_fop = &cramfs_directory_operations;
+-		} else if (S_ISLNK(inode->i_mode)) {
+-			inode->i_op = &page_symlink_inode_operations;
+-			inode->i_data.a_ops = &cramfs_aops;
+-		} else {
+-			inode->i_size = 0;
+-			inode->i_blocks = 0;
+-			init_special_inode(inode, inode->i_mode,
+-				old_decode_dev(cramfs_inode->size));
+-		}
+ 		unlock_new_inode(inode);
+ 	}
+ 	return inode;
 

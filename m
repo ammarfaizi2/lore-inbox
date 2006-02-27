@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWB0JD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWB0JFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751701AbWB0JD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 04:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWB0JD0
+	id S1751684AbWB0JFO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 04:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWB0JFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 04:03:26 -0500
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:58496 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751701AbWB0JD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 04:03:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=p/Zmna0DvCtwfCAK9Mclu14bmXCV+jNkdgE/Ta6uj67qD88G6LWP/0ZSKyHP6F5C79Z8oGCaDhA6bYA0biE/Teo3RdVVqBlPt52igRU1wPrfNgwDl+qN9a+8czY2KmmcF41htj29aChdSBoT4zdgx0pcjrPwxDk1RUQ7xw8G4Z8=  ;
-Message-ID: <4402C05A.2020404@yahoo.com.au>
-Date: Mon, 27 Feb 2006 20:03:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Xin Zhao <uszhaoxin@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: page cache question
-References: <4ae3c140602262345g43e71a2oea7db21c05dd5aba@mail.gmail.com>
-In-Reply-To: <4ae3c140602262345g43e71a2oea7db21c05dd5aba@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Feb 2006 04:05:14 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:42900 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751684AbWB0JFL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 04:05:11 -0500
+Date: Mon, 27 Feb 2006 14:34:14 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Patch 4/7] Add sysctl for delay accounting
+Message-ID: <20060227090414.GA18941@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <1141026996.5785.38.camel@elinux04.optonline.net> <1141028322.5785.60.camel@elinux04.optonline.net> <1141028784.2992.58.camel@laptopd505.fenrus.org> <4402BA93.5010302@watson.ibm.com> <1141029743.2992.71.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141029743.2992.71.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xin Zhao wrote:
-> Sorry if this question is dumb.
+On Mon, Feb 27, 2006 at 09:42:23AM +0100, Arjan van de Ven wrote:
+> On Mon, 2006-02-27 at 03:38 -0500, Shailabh Nagar wrote:
+> > Arjan van de Ven wrote:
+> > 
+> > The function needs to allocate task_delay_info structs for all tasks 
+> > that might
+> > have been forked since the last time delay accounting was turned off.
+> > Either we have to count how many such tasks there are, or preallocate
+> > nr_tasks (as an upper bound) and then use as many as needed.
 > 
-> Linux uses address_space to identify pages in the page cache. An
-> address space is often associated with a memory object such as inode.
-> That seems to associate the cached page with that inode. My question
-> is: if a file is closed and the inode is destroyed, will the cached
-> page be removed from page cache immediately?  If so, does that mean
+> it generally feels really fragile, especially with the task enumeration
+> going to RCU soon. (eg you'd lose the ability to lock out new task
+> creation)
 
-Yes. The inode's struct address_space contains the radix tree which
-indexes the pagecache pages.
+I haven't yet seen any RCU-based code that does this. Can you point out
+what patches you are talking about ? As of 2.6.16-rc4 and -rt15,
+AFAICS, you can count tasks by holding the read side of tasklist_lock.
+Granted it is a bit ugly to repeat this in order to overcome
+the race on dropping tasklist_lock for allocation.
 
-> the file system has to load data from disk again if a user promptly
-> open and read the same file again? If not, how does linux determine
-> when to evict a cached page? using LRU?
-> 
+> On first sight it looks a lot better to allocate these things on demand,
+> but I'm not sure how the sleeping-allocation would interact with the
+> places it'd need to be called...
 
-Yes they would have to be read again. However in general the inode is
-not destroyed after the file is closed -- inodes are cached too.
+This could be a problem for contexts where sleeping cannot be permitted,
+not to mention fast paths where blocking may introduce a skew. It seems
+simpler to just let this happen during sysctl time.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Thanks
+Dipankar

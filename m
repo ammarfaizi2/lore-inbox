@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWB0GjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751585AbWB0Gl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWB0GjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 01:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbWB0GjP
+	id S1751585AbWB0Gl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 01:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWB0Gl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 01:39:15 -0500
-Received: from styx.suse.cz ([82.119.242.94]:34463 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1751569AbWB0GjN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 01:39:13 -0500
-Date: Mon, 27 Feb 2006 07:39:31 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Ryan Phillips <ryan@trolocsis.com>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Tom Seeley <redhat@tomseeley.co.uk>,
-       Dave Jones <davej@redhat.com>, Jiri Slaby <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, Brian Marete <bgmarete@gmail.com>,
-       Ryan Phillips <rphillips@gentoo.org>, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net,
-       Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, Luming Yu <luming.yu@intel.com>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Mark Lord <lkml@rtr.ca>, Randy Dunlap <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       Duncan <1i5t5.duncan@cox.net>, linux-input@atrey.karlin.mff.cuni.cz,
-       Meelis Roos <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions
-Message-ID: <20060227063930.GA8018@suse.cz>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060227061354.GO3674@stusta.de> <44029BA1.8030601@trolocsis.com>
+	Mon, 27 Feb 2006 01:41:29 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:17865 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751095AbWB0Gl3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 01:41:29 -0500
+Date: Mon, 27 Feb 2006 12:12:58 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] kprobes: kprobe_mutex is no longer a semaphore
+Message-ID: <20060227064258.GB19153@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <200602251242.46408.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44029BA1.8030601@trolocsis.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200602251242.46408.jesper.juhl@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 10:26:41PM -0800, Ryan Phillips wrote:
-> Adrian Bunk wrote:
-> > This email lists some known regressions in 2.6.16-rc5 compared to 2.6.15.
-> >
-> > If you find your name in the Cc header, you are either submitter of one
-> > of the bugs, maintainer of an affectected subsystem or driver, a patch
-> > of you was declared guilty for a breakage or I'm considering you in any
-> > other way possibly involved with one or more of these issues.
-> >
-> > Due to the huge amount of recipients, this email has a Reply-To set.
-> > Please add the appropriate people to the Cc when replying regarding one 
-> > of these issues.
-> >
-> >
-> > Subject    : usb_submit_urb(ctrl) failed on 2.6.16-rc4-git10 kernel
-> > References : http://bugzilla.kernel.org/show_bug.cgi?id=6134
-> > Submitter  : Ryan Phillips <rphillips@gentoo.org>
-> > Status     : unknown
-> >
-> >   
-> *snipped
-> > Subject    : total ps2 keyboard lockup from boot
-> > References : http://bugzilla.kernel.org/show_bug.cgi?id=6130
-> > Submitter  : Duncan <1i5t5.duncan@cox.net>
-> > Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >              Pavlik Vojtech <vojtech@suse.cz>
-> > Status     : discussion and debugging in the bug logs
-> >
-> >   
-> *snipped
+On Sat, Feb 25, 2006 at 12:42:46PM +0100, Jesper Juhl wrote:
 > 
-> It appears that Duncan's "total ps2 keyboard lockup from boot" is the
-> same, or similar problem as mine.
-> 2.6.15.1 kernel is working for me though.
- 
-Except one of the keyboards is USB and the other PS/2. Both are
-Microsoft wireless, though.
+> kprobe_mutex used to be a semaphore it is now a mutex, so calling down/up on
+> it is wrong, we should be using mutex_lock/mutex_unlock instead.
+> 
+> gcc was kind enough to warn about this :
+>  arch/i386/kernel/kprobes.c: In function `arch_remove_kprobe':
+>  arch/i386/kernel/kprobes.c:135: warning: passing arg 1 of `down' from incompatible pointer type
+>  arch/i386/kernel/kprobes.c:137: warning: passing arg 1 of `up' from incompatible pointer type
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+
+
+Looks good, this patch depends on the sem2mutex-kprobes.patch in -mm
+tree.
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/sem2mutex-kprobes.patch
+
+Acked-by : Prasanna S Panchamukhi <prasanna@in.ibm.com>
+
+> ---
+> 
+>  arch/i386/kernel/kprobes.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.16-rc4-mm2-orig/arch/i386/kernel/kprobes.c	2006-02-24 19:25:29.000000000 +0100
+> +++ linux-2.6.16-rc4-mm2/arch/i386/kernel/kprobes.c	2006-02-25 12:34:19.000000000 +0100
+> @@ -132,9 +132,9 @@ void __kprobes arch_disarm_kprobe(struct
+>  
+>  void __kprobes arch_remove_kprobe(struct kprobe *p)
+>  {
+> -	down(&kprobe_mutex);
+> +	mutex_lock(&kprobe_mutex);
+>  	free_insn_slot(p->ainsn.insn);
+> -	up(&kprobe_mutex);
+> +	mutex_unlock(&kprobe_mutex);
+>  }
+>  
+>  static inline void save_previous_kprobe(struct kprobe_ctlblk *kcb)
+> 
+> 
 
 -- 
-Vojtech Pavlik
-Director SuSE Labs
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-51776329

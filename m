@@ -1,74 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWB0Fka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWB0FvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbWB0Fka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 00:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWB0Fka
+	id S1751538AbWB0FvM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 00:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWB0FvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 00:40:30 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:44475 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751123AbWB0Fk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 00:40:29 -0500
-Subject: Re: [PATCH] Enable mprotect on huge pages
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       kenneth.w.chen@intel.com,
-       "yanmin.zhang@intel.com" <yanmin.zhang@intel.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Paul Mundt <lethal@linux-sh.org>, kkojima@rr.iij4u.or.jp,
-       "Luck, Tony" <tony.luck@intel.com>
-In-Reply-To: <20060226230903.GA24422@localhost.localdomain>
-References: <1140664780.12944.26.camel@ymzhang-perf.sh.intel.com>
-	 <20060224142844.77cbd484.akpm@osdl.org>
-	 <20060226230903.GA24422@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 27 Feb 2006 13:36:32 +0800
+	Mon, 27 Feb 2006 00:51:12 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:15292 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751038AbWB0FvL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 00:51:11 -0500
+Message-ID: <4402934B.7040506@pobox.com>
+Date: Mon, 27 Feb 2006 00:51:07 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 07:09, David Gibson wrote:
-> On Fri, Feb 24, 2006 at 02:28:44PM -0800, Andrew Morton wrote:
-> > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
-> > >
-> > > From: Zhang, Yanmin <yanmin.zhang@intel.com>
-> > > 
-> > > 2.6.16-rc3 uses hugetlb on-demand paging, but it doesn_t support hugetlb
-> > > mprotect. My patch against 2.6.16-rc3 enables this capability.
-> > > 
-> > 
-> > Well I suppose that makes sense.  It does assume that the normal pte
-> > protection-changing APIs do the right thing on all architectures which
-> > implement huge pages.  That's quite possibly the case, but we should
-> > confirm that.
+Linus Torvalds wrote:
+> The tar-ball is being uploaded right now, and everything else should 
+> already be pushed out. Mirroring might take a while, of course.
 > 
-> Well, it will need to be huge_ptep_get_and_clear() below, not the
-> normal version.
-I will change it.
-
-
->   But pte_modify should be ok.  I'm not sure
-> pte_present() is safe, either, !pte_none() is what we use elsewhere in
-> hugetlb.c.
-pte_present is used in some files while !pte_none is used 
-in other files. Anyway, I will change it to !pte_none.
-
-
+> There's not much to say about this: people have been pretty good, and it's 
+> just a random collection of fixes in various random areas. The shortlog is 
+> actually pretty short, and it really describes the updates better than 
+> anything else.
 > 
-> And.. looks like lazy_mmu_prot_update() is unsafe, too.  The only arch
-> which has something here (ia64) has a function which does icache
-> flushes on PAGE_SIZE only.
-I already sent another patch to ia64 maillist to fix the issue.
-See http://marc.theaimsgroup.com/?l=linux-ia64&m=114066414720468&w=2
+> Have I missed anything? Holler. And please keep reminding about any 
+> regressions since 2.6.15.
 
-Thanks.
+Yep, you missed the data corruption fix (libata) and oops fix (netdev) 
+that I sent at 5pm EST today...
+
+And we may have to turn off FUA (barriers) before 2.6.16 goes out.
+
+	Jeff
+
 
 

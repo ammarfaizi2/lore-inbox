@@ -1,85 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWB0MID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWB0MIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWB0MID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 07:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWB0MID
+	id S1751347AbWB0MIe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 07:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751720AbWB0MIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 07:08:03 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:11662 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751295AbWB0MIA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 07:08:00 -0500
-Date: Mon, 27 Feb 2006 13:07:29 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Message-ID: <20060227120729.GC7863@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060225145412.GI13116@waste.org> <20060225180521.GB15276@flint.arm.linux.org.uk> <20060225210454.GL13116@waste.org> <20060225212247.GC15276@flint.arm.linux.org.uk> <20060225214704.GN13116@waste.org> <20060225215850.GD15276@flint.arm.linux.org.uk> <20060225223737.GO13116@waste.org> <20060225225748.GF15276@flint.arm.linux.org.uk> <20060227011844.GA7218@linuxtv.org> <20060227083232.GA21994@flint.arm.linux.org.uk>
-MIME-Version: 1.0
+	Mon, 27 Feb 2006 07:08:34 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:55617 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751347AbWB0MId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 07:08:33 -0500
+Date: Mon, 27 Feb 2006 13:08:29 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Marc Zyngier <maz@misterjones.org>
+Cc: R.E.Wolff@BitWizard.nl, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Fix Specialix SX corruption
+Message-ID: <20060227120828.GC14296@bitwizard.nl>
+References: <wrpk6bh9i0f.fsf@wild-wind.fr.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060227083232.GA21994@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.189.207.47
-Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
-X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+In-Reply-To: <wrpk6bh9i0f.fsf@wild-wind.fr.eu.org>
+Organization: BitWizard.nl
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006, Russell King wrote:
-> On Mon, Feb 27, 2006 at 02:18:44AM +0100, Johannes Stezenbach wrote:
-> > On Sat, Feb 25, 2006 at 10:57:49PM +0000, Russell King wrote:
-> > > The email:
-> > > 
-> > >   http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/1024.html
-> > > 
-> > > contains a full and clear explaination of the situation.  The second
-> > > paragraph of that email is key to understanding the problem and makes
-> > > it absolutely clear what is trying to be decompressed as the initrd
-> > > (the corrupted compressed piggy).
-> > 
-> > FWIW, I didn't it either. "Work around broken boot firmware which passes
-> > invalid initrd to kernel" would have been a simpler description.
+On Mon, Feb 27, 2006 at 12:08:00PM +0100, Marc Zyngier wrote:
+> Roger,
 > 
-> Sigh, I'm sick of this crap.  I'm not going to debate it any further.
+> With the latest kernels, I experienced some strange corruption, some
+> '*****' being randomly inserted in the character flow, like this:
 > 
-> > I agree that it would be nice if inflate.c would fail gracefully
-> > instead of halting,
+> ashes:~#
+> ashes:~#
+> a*******shes:~#
+> ashes:~#
+> ashes:~#
 > 
-> IT _DOES_ FAIL GRACEFULLY TODAY.  WITH MATT'S PATCHES, IT _DOESN'T_.
-> THAT'S A REGRESSION.  WHAT IS IT ABOUT THAT WHICH PEOPLE DON'T
-> UNDERSTAND?  DO I HAVE TO SPELL IT OUT IN ONE SYLLABLE WORDS?
-
-I got that already, no need to shout. I just wanted to point
-out that from the information you provided so far it
-looks like your problem could be fixed in a more straight
-forward fashion.
-
-Problem:  Boot firmware passes invalid arguments.
-Solution: Ignore invalid boot firmware arguments.
-
-> > but why can't you just use CONFIG_BLK_DEV_INITRD=n?
+> Further investigation shows that the problem was introduced during
+> Alan's "TTY layer buffering revamp" patch, the amount of data to be
+> copied being reduced after buffer allocation. Moving the count fixup
+> around solves the problem.
 > 
-> Because you might want to use an initrd for real (for installation
-> purposes) and therefore distributions (eg Debian) want it turned on?
+> Patch against v2.6.16-rc5.
+> 
+> Signed-off-by: Marc Zyngier <maz@misterjones.org>
+> 
+> diff --git a/drivers/char/sx.c b/drivers/char/sx.c
+> index 588e75e..a6b4f02 100644
+> --- a/drivers/char/sx.c
+> +++ b/drivers/char/sx.c
+> @@ -1095,17 +1095,17 @@ static inline void sx_receive_chars (str
+>  
+>  		sx_dprintk (SX_DEBUG_RECEIVE, "rxop=%d, c = %d.\n", rx_op, c); 
+>  
+> +		/* Don't copy past the end of the hardware receive buffer */
+> +		if (rx_op + c > 0x100) c = 0x100 - rx_op;
+> +
+> +		sx_dprintk (SX_DEBUG_RECEIVE, "c = %d.\n", c);
+> +
+>  		/* Don't copy more bytes than there is room for in the buffer */
+>  
+>  		c = tty_prepare_flip_string(tty, &rp, c);
+>  
+>  		sx_dprintk (SX_DEBUG_RECEIVE, "c = %d.\n", c); 
+>  
+> -		/* Don't copy past the end of the hardware receive buffer */
+> -		if (rx_op + c > 0x100) c = 0x100 - rx_op;
+> -
+> -		sx_dprintk (SX_DEBUG_RECEIVE, "c = %d.\n", c);
+> -
 
-If you use a distribution kernel which contains one, you
-could simply add "noinitrd" to the kernel command line
-to ignore it, no?
 
-> Okay, this does it - I'm ignoring further discussion on this stupid
-> idiotic topic which is soo bloody difficult for others to understand.
+The idea behind this code is that we start out with the maximum amount of 
+data we'd want to copy, and then reduce it to prevent copying more data
+than we should for any other reason we can think of. 
 
-I don't understand your aggressiveness, there must be a dark
-secret behind all this. Or maybe it's just the season
-for flame wars.
+The reason I do it this way is that the hardware for instance may increase 
+the number of bytes that can be copied, just because another byte came in. 
+The rest of the system may INCREASE the number of bytes we can put in the buffer
+because someone copied bytes out of the buffer or something like that 
+(probably doesn't happen like that because it's called a flip-buffer, but 
+whatever).  
+
+Both of these "races" are not really races: We'd end up copying less data this 
+time, and we'd copy the rest the next time. 
+
+So, if the modern flip buffer stuff expects us to provide the exact number
+of bytes we prepared the flip buffer for we shouldn't adjust the number of chars
+copied after preparing the flip buffer. 
+
+So indeed the check for the end of the hardware buffer needs to go before the
+prepare flip string. 
+
+Approved!
+
+	Roger. 
 
 
-I'm sorry to have bothered you,
-Johannes
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ

@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWB0VTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWB0VTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751756AbWB0VTW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 16:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751755AbWB0VTW
+	id S1751752AbWB0VTU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 16:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWB0VTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 16:19:22 -0500
-Received: from main.gmane.org ([80.91.229.2]:56200 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751756AbWB0VTV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 16:19:21 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Wes Felter <wesley@felter.org>
-Subject: Re: Status of X86_P4_CLOCKMOD?
-Date: Mon, 27 Feb 2006 15:17:37 -0600
-Message-ID: <dtvqaa$1et$1@sea.gmane.org>
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <20060225015722.GC8132@linuxtv.org> <20060225042456.GA7851@redhat.com> <20060225125337.GB8698@linuxtv.org>
+	Mon, 27 Feb 2006 16:19:20 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:27275 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751752AbWB0VTT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 16:19:19 -0500
+Subject: [PATCH 0/4] map multiple blocks in get_block() and
+	mpage_readpages()
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: akpm@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>, pbadari@us.ibm.com
+Content-Type: text/plain
+Date: Mon, 27 Feb 2006 13:20:39 -0800
+Message-Id: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pixpat.austin.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-In-Reply-To: <20060225125337.GB8698@linuxtv.org>
-Cc: cpufreq@lists.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach wrote:
+Hi,
 
-> If someone has done measurements I'd be interested to
-> know the numbers about the actual power savings which
-> can be achieved by using P4 clock mod. I don't expect
-> it to be much, but I bet it's more than 1W.
+Following patches add support to map multiple blocks in ->get_block().
+This is will allow us to handle mapping of multiple disk blocks for
+mpage_readpages() and mpage_writepages() etc. Instead of adding new
+argument, I use "b_size" to indicate the amount of disk mapping needed
+for get_block(). And also, on success get_block() actually indicates
+the amount of disk mapping it did.
 
-Clock modulation can reduce power by 40W on a 3.6GHz Xeon when the 
-system is running a high-power application (e.g. Linpack). (It also 
-reduces performance by a factor of 6-10). Clock modulation saves no 
-power at all during idle.
+Now that get_block() can handle multiple blocks, there is no need
+for ->get_blocks() which was added for DIO.
 
-Wes Felter - wesley@felter.org
+[PATCH 1/4] change buffer_head.b_size to size_t
+
+[PATCH 2/4] pass b_size to ->get_block()
+
+[PATCH 3/4] map multiple blocks for mpage_readpages()
+
+[PATCH 4/4] remove ->get_blocks() support
+
+I noticed decent improvements (reduced sys time) on JFS, XFS and ext3.
+(on simple "dd" read tests).
+
+         (rc3.mm1)      (rc3.mm1 + patches)
+real    0m18.814s       0m18.482s
+user    0m0.000s        0m0.004s
+sys     0m3.240s        0m2.912s
+
+Andrew, Could you include it in -mm tree ?
+
+Comments ?
+
+Thanks,
+Badari
+
 

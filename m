@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWB0Im0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWB0Ir1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWB0Im0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 03:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWB0Im0
+	id S932310AbWB0Ir1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 03:47:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWB0Ir1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 03:42:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50387 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932313AbWB0ImZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 03:42:25 -0500
-Subject: Re: [Patch 4/7] Add sysctl for delay accounting
-From: Arjan van de Ven <arjan@infradead.org>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <4402BA93.5010302@watson.ibm.com>
-References: <1141026996.5785.38.camel@elinux04.optonline.net>
-	 <1141028322.5785.60.camel@elinux04.optonline.net>
-	 <1141028784.2992.58.camel@laptopd505.fenrus.org>
-	 <4402BA93.5010302@watson.ibm.com>
+	Mon, 27 Feb 2006 03:47:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55515 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932310AbWB0Ir1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 03:47:27 -0500
+Subject: Re: GFS2 Filesystem [15/16]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060222185400.GD2633@ucw.cz>
+References: <1140793662.6400.738.camel@quoit.chygwyn.com>
+	 <20060222185400.GD2633@ucw.cz>
 Content-Type: text/plain
-Date: Mon, 27 Feb 2006 09:42:23 +0100
-Message-Id: <1141029743.2992.71.camel@laptopd505.fenrus.org>
+Organization: Red Hat (UK) Ltd
+Date: Mon, 27 Feb 2006 08:52:36 +0000
+Message-Id: <1141030356.6400.786.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 03:38 -0500, Shailabh Nagar wrote:
-> Arjan van de Ven wrote:
-> 
-> >>+/* Allocate task_delay_info for all tasks without one */
-> >>+static int alloc_delays(void)
-> >>    
-> >>
-> >
-> >I'm sorry but this function seems to be highly horrible
-> >  
-> >
-> Could you be more specific ? Is it the way its coded or the design 
-> (preallocate, then assign)
-> itself ?
-> 
-> The function needs to allocate task_delay_info structs for all tasks 
-> that might
-> have been forked since the last time delay accounting was turned off.
-> Either we have to count how many such tasks there are, or preallocate
-> nr_tasks (as an upper bound) and then use as many as needed.
+Hi,
 
-it generally feels really fragile, especially with the task enumeration
-going to RCU soon. (eg you'd lose the ability to lock out new task
-creation)
+On Wed, 2006-02-22 at 18:54 +0000, Pavel Machek wrote:
+> > +#include <linux/module.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/module.h>
+> > +#include <linux/init.h>
+> > +#include <linux/types.h>
+> > +#include <linux/fs.h>
+> > +#include <linux/smp_lock.h>
+> > +
+> > +#include "../../lm_interface.h"
+> 
+> ugly...
+> 
+Agreed (see below)
 
-On first sight it looks a lot better to allocate these things on demand,
-but I'm not sure how the sleeping-allocation would interact with the
-places it'd need to be called...
+> > +{
+> > +	char *c;
+> > +	unsigned int jid;
+> > +	struct nolock_lockspace *nl;
+> > +
+> > +	/* If there is a "jid=" in the hostdata, return that jid.
+> > +	   Otherwise, return zero. */
+> 
+> useful comment of the year 2006....
+> 
+> > +	c = strstr(host_data, "jid=");
+> > +	if (!c)
+> > +		jid = 0;
+> > +	else {
+> > +		c += 4;
+> > +		sscanf(c, "%u", &jid);
+> > +	}
+> > +
+> 
+> ...
+> > +
+> > +static int nolock_get_lock(lm_lockspace_t *lockspace, struct lm_lockname *name,
+> > +			   lm_lock_t **lockp)
+> > +{
+> > +	*lockp = (lm_lock_t *)lockspace;
+> 
+> 
+> typedef abuse?
+> 
+The lock module interface has been left identical to that in GFS1 for
+the time being so that it is possible to share lock modules between the
+two versions. There are a few things which could be tidied up if we were
+to change the interface, and we may well do that, but we've been holding
+off as long as possible if only to make testing easier.
+
+Since you've brought the subject up, we'll add it to out list :-) Thanks
+for the suggestions,
+
+Steve.
 
 

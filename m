@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWB0Sxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbWB0S6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751604AbWB0Sxs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 13:53:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWB0Sxs
+	id S1751624AbWB0S6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 13:58:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbWB0S6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 13:53:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:51560 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751604AbWB0Sxr convert rfc822-to-8bit
+	Mon, 27 Feb 2006 13:58:31 -0500
+Received: from rrcs-24-227-114-150.se.biz.rr.com ([24.227.114.150]:8932 "EHLO
+	sleekfreak.ath.cx") by vger.kernel.org with ESMTP id S1751624AbWB0S6a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 13:53:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DdHkM8PFzdQAPSPVCuR2XrWMra0G/t5XzhzP0YuxjJja4RAhZHFCFnYR7tvlDgE16P0NscrSPjgJtgd+QOHkl/ugLyGPCktAoZucC/yzpCJXWFd1l01OVMufIqlWNkvYTXBAMuyJIfgvFKZ70jyZ755ClYqxzAIv0MEAkWqGPkw=
-Message-ID: <9a8748490602271053q6c92a844ied947fba859201d1@mail.gmail.com>
-Date: Mon, 27 Feb 2006 19:53:47 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC][PATCH -mm 1/2] mm: make shrink_all_memory overflow-resistant
-Cc: "Pavel Machek" <pavel@suse.cz>, "Andrew Morton" <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200602271928.22791.rjw@sisk.pl>
+	Mon, 27 Feb 2006 13:58:30 -0500
+Date: Mon, 27 Feb 2006 14:04:40 -0500 (EST)
+From: shogunx <shogunx@sleekfreak.ath.cx>
+To: Christian <christiand59@web.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Integration of clustering (mosix) into mainline
+In-Reply-To: <200602271638.11147.christiand59@web.de>
+Message-ID: <Pine.LNX.4.44.0602271354020.28982-100000@sleekfreak.ath.cx>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602271926.20294.rjw@sisk.pl> <200602271928.22791.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/27/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> Make shrink_all_memory() overflow-resistant.
+On Mon, 27 Feb 2006, Christian wrote:
+
+Hi Christian,
+
+> I just wondered if there is any interest in integrating a technology like
+> OpenMosix into mainline. This would make more sense than ever, especially
+> with the virtualization work going on now. What objections do you feel, and
+> what amount of work would it be?
+
+I have an interest in such.  I agree that xen/openmosix is a powerful
+combo, one that would give linux mainframe-like capabilities,
+(i know, i know, there is linux support for s/390, in fact, I
+own such a mainframe, but there is no Xen for linux/390, and
+most linux/390 images run in vm's anyway) particularly
+with the addition of OM for scalability.  Amount of work?  On x86, the 2.6
+OM branch is (relatively) stable as a set of patches now, but the entire
+suite is not finished yet.  The kernel code is functional, though, being
+massaged, something that would no doubt be better off with the help of
+mainline kernel developers.  As of yet there are no userspace apps, such
+as an automigration daemon, that are necessary to have a fuctional OM
+cluster that actually migrates processes.  The biggest hurdle I see to
+inclusion in the mainline kernel is the support for previously
+non-supported architectures... though I would love to add my alphaservers
+to my OM cluster:)  Once again, these ports could probably be lubricated
+with the help of mainline kernel developers with specific knowledge and
+experience on these platforms.
+
+I hope that helps,
+Scott
+
+
 >
+> Just curious...
 >
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> ---
->  include/linux/swap.h |    2 +-
->  mm/vmscan.c          |    9 +++++----
->  2 files changed, 6 insertions(+), 5 deletions(-)
->
-> Index: linux-2.6.16-rc4-mm2/mm/vmscan.c
-> ===================================================================
-> --- linux-2.6.16-rc4-mm2.orig/mm/vmscan.c
-> +++ linux-2.6.16-rc4-mm2/mm/vmscan.c
-> @@ -1785,18 +1785,19 @@ void wakeup_kswapd(struct zone *zone, in
->   * Try to free `nr_pages' of memory, system-wide.  Returns the number of freed
->   * pages.
->   */
-> -int shrink_all_memory(unsigned long nr_pages)
-> +unsigned long shrink_all_memory(unsigned int nr_pages)
-
-What about the callers of shrink_all_memory() who currently expect it
-to return an int, have you checked how they will react to you changing
-the return type (and signedness) ?
-
->  {
->         pg_data_t *pgdat;
-> -       unsigned long nr_to_free = nr_pages;
-> -       int ret = 0;
-> +       long long nr_to_free = nr_pages;
-
-'nr_pages' passed to the function is an unsigned int, why this change?
-also, nr_to_free is later passed to balance_pgdat() as the second
-argument and balance_pgdat() expects to be passed an int.
-
-
-> +       unsigned long ret = 0;
->         struct reclaim_state reclaim_state = {
->                 .reclaimed_slab = 0,
->         };
->
->         current->reclaim_state = &reclaim_state;
->         for_each_pgdat(pgdat) {
-> -               int freed;
-> +               unsigned long freed;
-
-balance_pgdat() returns a plain int, so what's the point of making
-'freed' an unsigned long?
-
-
-> +
->                 freed = balance_pgdat(pgdat, nr_to_free, 0);
->                 ret += freed;
->                 nr_to_free -= freed;
-> Index: linux-2.6.16-rc4-mm2/include/linux/swap.h
-> ===================================================================
-> --- linux-2.6.16-rc4-mm2.orig/include/linux/swap.h
-> +++ linux-2.6.16-rc4-mm2/include/linux/swap.h
-> @@ -173,7 +173,7 @@ extern void swap_setup(void);
->
->  /* linux/mm/vmscan.c */
->  extern unsigned long try_to_free_pages(struct zone **, gfp_t);
-> -extern int shrink_all_memory(unsigned long nr_pages);
-> +extern unsigned long shrink_all_memory(unsigned int nr_pages);
->  extern int vm_swappiness;
->
->  #ifdef CONFIG_NUMA
+> -Christian
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
+sleekfreak pirate broadcast
+http://sleekfreak.ath.cx:81/
 
-This patch may be correct or it may be wrong, I've not spend enough
-time staring at it and follow the code it calls and gets called by to
-say which, but I for one would like an explanation of why these
-changes are made and why they are correct.
-There's a distinct lack of a changelog/explanation with this patch.
-Or maybe I'm just dense and can't see the obvious correctness, but if
-that's the case I'd still like to be enlightened :)
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

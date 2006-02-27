@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWB0J3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWB0Jlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWB0J3p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 04:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWB0J3p
+	id S1750970AbWB0Jlm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 04:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWB0Jlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 04:29:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3002 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750856AbWB0J3o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 04:29:44 -0500
-Subject: Re: [PATCH 0/7] isdn4linux: add drivers for Siemens Gigaset ISDN
-	DECT PABX
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hansjoerg Lipp <hjlipp@web.de>
-Cc: Karsten Keil <kkeil@suse.de>, i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tilman Schmidt <tilman@imap.cc>
-In-Reply-To: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>
-References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>
-Content-Type: text/plain
-Date: Mon, 27 Feb 2006 10:29:37 +0100
-Message-Id: <1141032577.2992.83.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 27 Feb 2006 04:41:42 -0500
+Received: from pproxy.gmail.com ([64.233.166.179]:46381 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750892AbWB0Jll convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 04:41:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HAOc9WzIiDV1eXrkvHFJKuGE04m1mlLhCTqgSYVWP9Ei1PxBofMWGxBOjbmKJwwgt7AEbROPCMAsmUxSEjHN+N9jitV3XAwU6hzcw4Svhi/Fh4cbQRczmLsjSxiVnLx2dmbXjx1ym6lF0J73RtQcKLOls2LfTl3KunpEFn2UGtE=
+Message-ID: <9a8748490602270141y67316c66q4be2ce64d9786eb9@mail.gmail.com>
+Date: Mon, 27 Feb 2006 10:41:40 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: prasanna@in.ibm.com
+Subject: Re: [PATCH] kprobes: kprobe_mutex is no longer a semaphore
+Cc: linux-kernel@vger.kernel.org,
+       "Ananth N Mavinakayanahalli" <ananth@in.ibm.com>,
+       "Anil S Keshavamurthy" <anil.s.keshavamurthy@intel.com>,
+       "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060227064258.GB19153@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602251242.46408.jesper.juhl@gmail.com>
+	 <20060227064258.GB19153@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 07:23 +0100, Hansjoerg Lipp wrote:
-> The following patches add drivers for the Siemens Gigaset 3070 family of
-> ISDN DECT PABXes connected via USB, either directly or over a DECT link
-> using a Gigaset M105 or compatible DECT data adapter. The devices are
-> integrated as ISDN adapters within the isdn4linux framework, supporting
-> incoming and outgoing voice and data connections, and also as tty
-> devices providing access to device specific AT commands.
+On 2/27/06, Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
+> On Sat, Feb 25, 2006 at 12:42:46PM +0100, Jesper Juhl wrote:
+> >
+> > kprobe_mutex used to be a semaphore it is now a mutex, so calling down/up on
+> > it is wrong, we should be using mutex_lock/mutex_unlock instead.
+> >
+> > gcc was kind enough to warn about this :
+> >  arch/i386/kernel/kprobes.c: In function `arch_remove_kprobe':
+> >  arch/i386/kernel/kprobes.c:135: warning: passing arg 1 of `down' from incompatible pointer type
+> >  arch/i386/kernel/kprobes.c:137: warning: passing arg 1 of `up' from incompatible pointer type
+> >
+> >
+> > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+>
+>
+> Looks good, this patch depends on the sem2mutex-kprobes.patch in -mm
+> tree.
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/sem2mutex-kprobes.patch
+>
+> Acked-by : Prasanna S Panchamukhi <prasanna@in.ibm.com>
+>
+
+Thank you.
+
+Are you going to merge it / push it to Andrew or Linus?
+If not I'll just queue it up with some other patches I have lying
+around and forward it with those other patches in a week or so.
 
 
-as a general review remark: you seem to use a LOT of atomic variables.
-This I think is not too good an approach in general, because you get
-into all kinds of race situations if you need to access multiple (and
-you do). In addition I've seen a lot of your code using 2 or more
-atomics in the same function, at which point it's most likely cheaper to
-just have a spinlock instead... (yes a single atomic is same cost as a
-spinlock, but once you do multiple in the same function the price is
-thus higher than a spinlock ;)
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

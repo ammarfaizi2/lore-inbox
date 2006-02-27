@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWB0Mrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWB0Mz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWB0Mrp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 07:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWB0Mrp
+	id S1751087AbWB0Mz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 07:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWB0Mz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 07:47:45 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:23008 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750874AbWB0Mro (ORCPT
+	Mon, 27 Feb 2006 07:55:58 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:51107 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1751087AbWB0Mz6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 07:47:44 -0500
-Date: Mon, 27 Feb 2006 09:47:37 -0600
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Largret <largret@gmail.com>
-Cc: Robert Hancock <hancockr@shaw.ca>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: OOM-killer too aggressive?
-Message-ID: <20060227154737.GA4463@dmt.cnet>
-References: <5KvnZ-4uN-27@gated-at.bofh.it> <4401F5E3.3090003@shaw.ca> <20060226215627.GB4979@dmt.cnet> <1140987370.5178.9.camel@shogun.daga.dyndns.org> <20060227002254.GA4393@dmt.cnet> <1141004895.17427.13.camel@shogun.daga.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141004895.17427.13.camel@shogun.daga.dyndns.org>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 27 Feb 2006 07:55:58 -0500
+Message-ID: <4402F6E7.3050500@dgreaves.com>
+Date: Mon, 27 Feb 2006 12:56:07 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gcoady@gmail.com
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+References: <200602261721.17373.jesper.juhl@gmail.com> <336402hq8014pc1cg8169f8tumhj302vho@4ax.com>
+In-Reply-To: <336402hq8014pc1cg8169f8tumhj302vho@4ax.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 05:48:15PM -0800, Chris Largret wrote:
-> On Sun, 2006-02-26 at 18:22 -0600, Marcelo Tosatti wrote:
-> > On Sun, Feb 26, 2006 at 12:56:10PM -0800, Chris Largret wrote:
-> > > $ readelf -S vmlinux
-> > > There are 52 section headers, starting at offset 0x2548488:
-> > 
-> > <snip>
-> > 
-> > >   [49] .shstrtab         STRTAB           0000000000000000  02548212
-> > >        0000000000000273  0000000000000000           0     0     1
-> > >   [50] .symtab           SYMTAB           0000000000000000  02549188
-> > >        00000000000b3898  0000000000000018          51   20791     8
-> > >   [51] .strtab           STRTAB           0000000000000000  025fca20
-> > >        0000000000096692  0000000000000000           0     0     1
-> > 
-> > More than 40MB, that should partially explain it...
-> 
-> Ouch. I hadn't noticed that and will have to see about bringing that
-> down a little. It's the same size when compiling without SMP, and the
-> OOM Killer doesn't cause problems then. There is something else that is
-> causing these problems.
+Grant Coady wrote:
 
-Indeed, this only explains why the DMA zone is full.
+>On Sun, 26 Feb 2006 17:21:17 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>  
+>
+>>Hi everyone,
+>>
+>>I just sat down and build 100 kernels (2.6.16-rc4-mm2 kernels to be exact)
+>>
+>>	95 kernels were build with 'make randconfig'.
+>>    
+>>
+>>That was an interresting experience. 
+>>    
+>>
+>
+>Welcome to the club ;)  I gave up make randconfig months ago as 
+>there's simply too much noise in there...  There are same errors 
+>popping up for months now without resolution, and I lack experience 
+>to fix most things I see -- asked akpm once but not grok Andrew's 
+>response (months ago).
+>  
+>
+How about introducing an 'overlay' config that is introduced after
+randconfig runs?
 
-The floppy driver is asking for a large contiguous chunk of memory
-in the DMA zone, which the allocator tries to satistify by killing
-applications.
+That gives you the ability to, for example, always set
 
-Andrew's patch makes the allocator give up easier, which allows the
-driver to fallback to non-contiguous memory (that is the real problem).
+CONFIG_EMBEDDED=n
 
-> >From using ls on the *.o files, it appears (as expected) that most of
-> this is the built-in drivers. The pruning should be fun. :)
+Then you can progressivley eliminate some known issues (which is not
+what you're trying to find anyway).
 
-There should be no need to prune it to fix the OOM issue, it explains
-why the DMA memory is full though.
+David
+
+-- 
 

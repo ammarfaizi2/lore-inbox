@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWB0SuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWB0Su3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWB0SuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 13:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbWB0SuU
+	id S1751578AbWB0Su3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 13:50:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751597AbWB0Su2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 13:50:20 -0500
-Received: from [200.55.139.213] ([200.55.139.213]:30161 "EHLO proxy2.uh.cu")
-	by vger.kernel.org with ESMTP id S1751578AbWB0SuT (ORCPT
+	Mon, 27 Feb 2006 13:50:28 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:659 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751578AbWB0Su2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 13:50:19 -0500
-Message-ID: <44035886.4070306@uh.cu>
-Date: Mon, 27 Feb 2006 14:52:38 -0500
-From: Yoanis Gil Delgado <fred@uh.cu>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Mon, 27 Feb 2006 13:50:28 -0500
+Date: Mon, 27 Feb 2006 19:50:15 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Sam Vilain <sam@vilain.net>
+cc: Luke-Jr <luke@dashjr.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Bernhard Rosenkraenzer <bero@arklinux.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works
+ ;)
+In-Reply-To: <440240F8.3010207@vilain.net>
+Message-ID: <Pine.LNX.4.61.0602271946470.13987@yvahk01.tjqt.qr>
+References: <200602250042.51677.bero@arklinux.org> <200602261330.15709.luke@dashjr.org>
+ <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com>
+ <200602261339.13821.luke@dashjr.org> <Pine.LNX.4.61.0602262331330.12118@yvahk01.tjqt.qr>
+ <440240F8.3010207@vilain.net>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: creating live virtual files by concatenation
-References: <1271316508.20060225153749@dns.toxicfilms.tv> <Pine.LNX.4.61.0602251629560.13355@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602251629560.13355@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+>> > > And what about DVD-RAM drives? Any plans to support those?
+>> > My [limited] understanding of DVD-RAM drives was that they are
+>> > basically removable block devices... you wouldn't need a recording
+>> > program for that, you'd use it like a floppy.
+>> Same goes for DVD+RW. One may want to use it in conjunction with pktcdvd
+>> for aligning and command queueing/iosched reasons.
+>
+> Can I mount a friendly challenge to that idea?
+>
+I win, reiserfs on a dvd+rw:
+  http://jengelh.hopto.org/GFX/dvdrw_r3mnt.jpg
 
->>Now let us say I am creating sort of a virtual text file (code.js)
->>that is a live-concatenation of these files:
->># concatenate tooltip.js banner.js foo.js code.js
->>
->>Note I am not talking about the cat(1) utility. I am thinking of
->>code.js be always a live concatenated version of these three, so when
->>I modify one file, the live-version is also modified.
->>
->>What puprose I might have? Network-related. Say, I have an HTML file
->>that includes these three files in its code.
->>
->>    
->>
->Try FUSE.
->  
+> I had presumed that these are to give the drive
+> something big to key its read/write operations on.  Nice, except I don't think
+> the media is compatible with a regular DVD drive.
 >
-Yes that's the best solution. Email me if you have a question about how 
-to accomplish this. Here at
-our school we have created a fuse filesystem that "glues" files in a 
-single one.
+Yes. A 650 MB *CD*-RW (DVD-RW too?) formatted in packet mode only has like
+500-something megabytes to allow for the sort of seeks required.
+On DVD+RW, you get the full 4.3 GB (4.7 gB) AFAICS.
 
->  
+> DVD+RW, on the other hand, I just thought was a different surface technology
+> (more expensive, higher quality) than DVD-RW.  There is nothing to help with
+> the lead-in/lead-out problem that is why you have several megabytes of lead-in
+> and lead-out per session on a multi-session disc.
 >
->>If I had a live-concatenated file, I could reference it in the HTML file
->>so that the browser does not have to download three files but just one.
->>
->>This would surely reduce network overhead of downloading the same amount
->>of data but within just one connection, reduce resource usage on the client
->>and possibly (depending on implementation) reduce the cost of accessing
->>three individual files on the server.
->>
->>    
->>
->Have you ever heard of persistent connections with HTTP/1.1?
+> But maybe I'm wrong here... if I could use a DVD+RW like a DVD-RAM I'd be very
+> happy indeed.
 >
+> Sam.
 >
->Jan Engelhardt
->  
 >
 
+Jan Engelhardt
+-- 

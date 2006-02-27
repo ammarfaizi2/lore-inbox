@@ -1,150 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWB0Qba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWB0QbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWB0Qba (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 11:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWB0Qba
+	id S1751484AbWB0QbY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 11:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWB0QbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 11:31:30 -0500
-Received: from newmail.sw.starentnetworks.com ([12.33.234.78]:30220 "EHLO
-	mail.sw.starentnetworks.com") by vger.kernel.org with ESMTP
-	id S1751413AbWB0Qb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 11:31:29 -0500
+	Mon, 27 Feb 2006 11:31:24 -0500
+Received: from dslsmtp.struer.net ([62.242.36.21]:5642 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1751484AbWB0QbX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 11:31:23 -0500
+Message-ID: <49447.194.237.142.21.1141057876.squirrel@194.237.142.21>
+In-Reply-To: <1141054054.2992.130.camel@laptopd505.fenrus.org>
+References: <1141053825.2992.125.camel@laptopd505.fenrus.org>
+    <1141054054.2992.130.camel@laptopd505.fenrus.org>
+Date: Mon, 27 Feb 2006 17:31:16 +0100 (CET)
+Subject: Re: [Patch 2/4] Basic reorder infrastructure
+From: sam@ravnborg.org
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org, ak@suse.de
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17411.10591.927433.619327@zeus.sw.starentnetworks.com>
-Date: Mon, 27 Feb 2006 11:31:27 -0500
-From: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cramfs mounts provide corrupted content since 2.6.15
-In-Reply-To: <20060225220130.GA2748@suse.de>
-References: <20060225110844.GA18221@suse.de>
-	<20060225125551.GA21203@suse.de>
-	<17408.34808.422077.518881@zeus.sw.starentnetworks.com>
-	<20060225220130.GA2748@suse.de>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering writes:
->  On Sat, Feb 25, Dave Johnson wrote:
-> 
-> > Looking at your output it's definitely getting inodes confused with
-> > each other so the checks in cramfs_iget5_test() aren't working.
-> > 
-> > Can you stat the files in question to make sure they are actually
-> > inode #1 on a working as well as non-working kernel?  If your mkcramfs
-> > isn't using #1 for empty files/links/dirs that'd be the problem.
-> 
-> Another try, and different results again:
+> This patch puts the infrastructure in place to allow for a reordering of
+> functions based inside the vmlinux.
 
-Is it the same files every time you mount/umount the image?
+Can we make this general instead of x86_64 only?
+Then we can use Kconfig to enable it for the architectures where we want it.
 
 
-I think I've spotted an issue.
+>
+> Index: linux-reorder2/arch/x86_64/Makefile
+> ===================================================================
+> --- linux-reorder2.orig/arch/x86_64/Makefile
+> +++ linux-reorder2/arch/x86_64/Makefile
+> @@ -35,6 +35,7 @@ CFLAGS += -m64
+>  CFLAGS += -mno-red-zone
+>  CFLAGS += -mcmodel=kernel
+>  CFLAGS += -pipe
+> +CFLAGS += -ffunction-sections
 
-Both ifind() and find_inode() will call the test function on inodes
-that still have I_LOCK|I_NEW set.  This means everything that the
-test function needs _must_ be set in the set function (which is called
-while the inode_lock is still held).
+This should go in top-level Makefile
+> Index: linux-reorder2/arch/x86_64/kernel/functionlist
+> ===================================================================
+> --- /dev/null
+> +++ linux-reorder2/arch/x86_64/kernel/functionlist
 
-This could cause issues for inodes of 1 (only i_ino is getting set
-right now).
+I would have used extension .lds - but no strong feeling for it.
 
-However since you're seeing issues for inodes != 1, it could indicate
-code elsewhere that isn't checking for I_LOCK|I_NEW.
+> Index: linux-reorder2/arch/x86_64/kernel/vmlinux.lds.S
+> ===================================================================
+> --- linux-reorder2.orig/arch/x86_64/kernel/vmlinux.lds.S
+> +++ linux-reorder2/arch/x86_64/kernel/vmlinux.lds.S
+> @@ -20,7 +20,12 @@ SECTIONS
+>    phys_startup_64 = startup_64 - LOAD_OFFSET;
+>    _text = .;			/* Text and read-only data */
+>    .text :  AT(ADDR(.text) - LOAD_OFFSET) {
+> +	/* First the code that has to be first for bootstrapping */
+>  	*(.bootstrap.text)
+> +	/* Then all the functions that are "hot" in profiles, to group them
+> +           onto the same hugetlb entry */
+> +	#include "functionlist"
+> +	/* Then the rest */
 
-Anyway, can you give the following patch a try?
+And this part to go into include/asm-generaic/vmlinux.lds.h
 
--- 
-Dave Johnson
-Starent Networks
-
-======================================
+>  	*(.text)
+>  	SCHED_TEXT
+>  	LOCK_TEXT
 
 
-Fill out inode contents in cramfs_iget5_set() instead of get_cramfs_inode() to
-prevent issues if cramfs_iget5_test() is called with I_LOCK|I_NEW still set.
-
-Signed-off-by: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
-
-diff -Naur linux-2.6.15.4.orig/fs/cramfs/inode.c linux-2.6.15.4/fs/cramfs/inode.c
---- linux-2.6.15.4.orig/fs/cramfs/inode.c	2006-02-10 07:22:48.000000000 +0000
-+++ linux-2.6.15.4/fs/cramfs/inode.c	2006-02-27 15:16:52.000000000 +0000
-@@ -66,8 +66,36 @@
- 
- static int cramfs_iget5_set(struct inode *inode, void *opaque)
- {
-+	static struct timespec zerotime;
- 	struct cramfs_inode *cramfs_inode = opaque;
-+	inode->i_mode = cramfs_inode->mode;
-+	inode->i_uid = cramfs_inode->uid;
-+	inode->i_size = cramfs_inode->size;
-+	inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
-+	inode->i_blksize = PAGE_CACHE_SIZE;
-+	inode->i_gid = cramfs_inode->gid;
-+	/* Struct copy intentional */
-+	inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
- 	inode->i_ino = CRAMINO(cramfs_inode);
-+	/* inode->i_nlink is left 1 - arguably wrong for directories,
-+	   but it's the best we can do without reading the directory
-+           contents.  1 yields the right result in GNU find, even
-+	   without -noleaf option. */
-+	if (S_ISREG(inode->i_mode)) {
-+		inode->i_fop = &generic_ro_fops;
-+		inode->i_data.a_ops = &cramfs_aops;
-+	} else if (S_ISDIR(inode->i_mode)) {
-+		inode->i_op = &cramfs_dir_inode_operations;
-+		inode->i_fop = &cramfs_directory_operations;
-+	} else if (S_ISLNK(inode->i_mode)) {
-+		inode->i_op = &page_symlink_inode_operations;
-+		inode->i_data.a_ops = &cramfs_aops;
-+	} else {
-+		inode->i_size = 0;
-+		inode->i_blocks = 0;
-+		init_special_inode(inode, inode->i_mode,
-+			old_decode_dev(cramfs_inode->size));
-+	}
- 	return 0;
- }
- 
-@@ -77,37 +105,7 @@
- 	struct inode *inode = iget5_locked(sb, CRAMINO(cramfs_inode),
- 					    cramfs_iget5_test, cramfs_iget5_set,
- 					    cramfs_inode);
--	static struct timespec zerotime;
--
- 	if (inode && (inode->i_state & I_NEW)) {
--		inode->i_mode = cramfs_inode->mode;
--		inode->i_uid = cramfs_inode->uid;
--		inode->i_size = cramfs_inode->size;
--		inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
--		inode->i_blksize = PAGE_CACHE_SIZE;
--		inode->i_gid = cramfs_inode->gid;
--		/* Struct copy intentional */
--		inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
--		inode->i_ino = CRAMINO(cramfs_inode);
--		/* inode->i_nlink is left 1 - arguably wrong for directories,
--		   but it's the best we can do without reading the directory
--	           contents.  1 yields the right result in GNU find, even
--		   without -noleaf option. */
--		if (S_ISREG(inode->i_mode)) {
--			inode->i_fop = &generic_ro_fops;
--			inode->i_data.a_ops = &cramfs_aops;
--		} else if (S_ISDIR(inode->i_mode)) {
--			inode->i_op = &cramfs_dir_inode_operations;
--			inode->i_fop = &cramfs_directory_operations;
--		} else if (S_ISLNK(inode->i_mode)) {
--			inode->i_op = &page_symlink_inode_operations;
--			inode->i_data.a_ops = &cramfs_aops;
--		} else {
--			inode->i_size = 0;
--			inode->i_blocks = 0;
--			init_special_inode(inode, inode->i_mode,
--				old_decode_dev(cramfs_inode->size));
--		}
- 		unlock_new_inode(inode);
- 	}
- 	return inode;
+   Sam
 

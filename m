@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWB0PdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWB0Pgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWB0PdH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 10:33:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWB0Pci
+	id S964776AbWB0Pgd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 10:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWB0Pgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 10:32:38 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:21446 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1751470AbWB0PcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 10:32:18 -0500
-Subject: [Patch 3/4] Move the base kernel to 2Mb to align with TLB
-	boundaries
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, ak@suse.de
-In-Reply-To: <1141053825.2992.125.camel@laptopd505.fenrus.org>
-References: <1141053825.2992.125.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Feb 2006 16:31:37 +0100
-Message-Id: <1141054297.2992.140.camel@laptopd505.fenrus.org>
+	Mon, 27 Feb 2006 10:36:33 -0500
+Received: from main.gmane.org ([80.91.229.2]:60625 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964776AbWB0Pgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 10:36:32 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: MACH BOOT
+Date: Tue, 28 Feb 2006 00:30:22 +0900
+Message-ID: <dtv5ug$g38$1@sea.gmane.org>
+References: <200602271438.AA00697@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060209)
+In-Reply-To: <200602271438.AA00697@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As suggested by Andi (and Alan), move the default kernel location
-from 1Mb to 2Mb, to align to the start of a TLB entry.
+Jun OKAJIMA wrote:
+> 
+> We introduce here that MACH BOOT, which is an experimental CD booting technology
+> with the goal of achieving fast booting with x48 CD-ROM drive.
+> 
+> Check this out, please.
+> http://www.machboot.com/
+OK, a cool movie of something booting apparently quick probably from a CD.
+Then angle is a bit odd, but..
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+> Features:
+> 
+>     1.  Booting fast, usually within 10 secs from x48 CD-ROM drive.
+What do you define as booting?
+Up to console? Up to X and Fx opening Yahoo?
+>From power on or from after POST?
 
----
- arch/x86_64/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>     2.  Launching apps is also fast. Almost same as from HDD.
+Hard to believe, especially if you have lots of files (.so files, Fx plugins)
 
-Index: linux-reorder2/arch/x86_64/Kconfig
-===================================================================
---- linux-reorder2.orig/arch/x86_64/Kconfig
-+++ linux-reorder2/arch/x86_64/Kconfig
-@@ -429,10 +429,10 @@ config CRASH_DUMP
- config PHYSICAL_START
- 	hex "Physical address where the kernel is loaded" if (EMBEDDED || CRASH_DUMP)
- 	default "0x1000000" if CRASH_DUMP
--	default "0x100000"
-+	default "0x200000"
- 	help
- 	  This gives the physical address where the kernel is loaded. Normally
--	  for regular kernels this value is 0x100000 (1MB). But in the case
-+	  for regular kernels this value is 0x200000 (2MB). But in the case
- 	  of kexec on panic the fail safe kernel needs to run at a different
- 	  address than the panic-ed kernel. This option is used to set the load
- 	  address for kernels used to capture crash dump on being kexec'ed
+But if you say. That Fx, was quick indeed.
+
+>     3.  Customizable. You can make it "MACH" with any distribution,
+>         including your original one.
+>     4.  (Hopefully) Better PnP than KNOPPIX.
+>         This feature is not sure for now --- I just have tested on only a few PCs.
+
+How does it relate to Linux and kernel in particular?
+
+Any code?
+
+License?
+
+What is it? A user space app, boot loader, kernel module, fs...?
+
+Any demos?
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

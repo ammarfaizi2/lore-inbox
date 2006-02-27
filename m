@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWB0PUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWB0PYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWB0PUo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 10:20:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWB0PUn
+	id S1751447AbWB0PYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 10:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWB0PYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 10:20:43 -0500
-Received: from [129.59.116.43] ([129.59.116.43]:41371 "EHLO
-	compsci.cas.vanderbilt.edu") by vger.kernel.org with ESMTP
-	id S1751266AbWB0PUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 10:20:43 -0500
-From: "S. Umar" <umar@compsci.cas.vanderbilt.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ALSA HDA Intel stoped to work in 2.6.16-*
-Date: Mon, 27 Feb 2006 09:20:42 -0600
-User-Agent: KMail/1.9.1
+	Mon, 27 Feb 2006 10:24:13 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:24713 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751447AbWB0PYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 10:24:12 -0500
+Date: Mon, 27 Feb 2006 10:24:05 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH -rt] buggy UART fix
+Message-ID: <Pine.LNX.4.58.0602270954520.26564@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602270920.42474.umar@compsci.cas.vanderbilt.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I am just responding to your e-mail as well since I see the same problem.
+Ingo,
 
-Machine is Dell Precision 380, Dual Core, EM64T.
+I'm not sure if this is the correct fix, but it fixes a problem on one of
+our boards.  The uart does't set the IIR register upon receiving an
+interrupt for transmit.  Thus we get processes stuck waiting to send
+data out.
 
-Codec is: snd_hda_codec
+This doesn't seem to be a problem on vanilla, and I'm not sure why.
+Perhaps the scheduling doesn't ever let the transmit buffer get full? Well
+I haven't look too much into the vanilla side.
 
-# lspci -vvv | grep ICH
-00:1b.0 Audio device: Intel Corporation 82801G (ICH7 Family) High Definition Audio Controller (rev 01)
-00:1c.0 PCI bridge: Intel Corporation 82801G (ICH7 Family) PCI Express Port 1 (rev 01) (prog-if 00 [Normal decode])
-00:1c.4 PCI bridge: Intel Corporation 82801GR/GH/GHM (ICH7 Family) PCI Express Port 5 (rev 01) (prog-if 00 [Normal decode])
-00:1c.5 PCI bridge: Intel Corporation 82801GR/GH/GHM (ICH7 Family) PCI Express Port 6 (rev 01) (prog-if 00 [Normal decode])
-00:1d.0 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #1 (rev 01) (prog-if 00 [UHCI])
-00:1d.1 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #2 (rev 01) (prog-if 00 [UHCI])
-00:1d.2 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #3 (rev 01) (prog-if 00 [UHCI])
-00:1d.3 USB Controller: Intel Corporation 82801G (ICH7 Family) USB UHCI #4 (rev 01) (prog-if 00 [UHCI])
-00:1d.7 USB Controller: Intel Corporation 82801G (ICH7 Family) USB2 EHCI Controller (rev 01) (prog-if 20 [EHCI])
-00:1f.0 ISA bridge: Intel Corporation 82801GB/GR (ICH7 Family) LPC Interface Bridge (rev 01)
-00:1f.1 IDE interface: Intel Corporation 82801G (ICH7 Family) IDE Controller (rev 01) (prog-if 8a [Master SecP PriP])
-00:1f.2 SATA controller: Intel Corporation 82801GR/GH (ICH7 Family) Serial ATA Storage Controllers cc=AHCI (rev 01) (prog-if 01 [AHCI 1.0])
-00:1f.3 SMBus: Intel Corporation 82801G (ICH7 Family) SMBus Controller (rev 01)
+This patch forces the processing of the interrupt even if the iir doesn't
+show that there was an interrupt, iff the uart has been detected as buggy
+(which our board's uart is ) and the interrupt hasn't already handled
+it.
+
+-- Steve
+
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+Index: linux-2.6.15-rt17/drivers/serial/8250.c
+===================================================================
+--- linux-2.6.15-rt17.orig/drivers/serial/8250.c	2006-02-27 10:20:31.000000000 -0500
++++ linux-2.6.15-rt17/drivers/serial/8250.c	2006-02-27 10:20:53.000000000 -0500
+@@ -1344,6 +1344,17 @@ static irqreturn_t serial8250_interrupt(
+ 				"irq%d\n", irq);
+ 			break;
+ 		}
++		/*
++		 * If we have a buggy TX line, that doesn't
++		 * notify us via iir that we need to transmit
++		 * then force the call.
++		 */
++		if (!handled && (up->bugs & UART_BUG_TXEN)) {
++			spin_lock(&up->port.lock);
++			serial8250_handle_port(up, regs);
++			spin_unlock(&up->port.lock);
++		}
++
+ 	} while (l != end);
+
+ 	spin_unlock(&i->lock);

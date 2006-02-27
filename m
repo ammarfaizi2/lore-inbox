@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWB0Pmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWB0Pmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWB0Pmz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 10:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWB0Pmy
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S964792AbWB0Pmy (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Feb 2006 10:42:54 -0500
-Received: from ns1.suse.de ([195.135.220.2]:48807 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964786AbWB0Pmc (ORCPT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWB0Pmx
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 27 Feb 2006 10:42:53 -0500
+Received: from ns1.suse.de ([195.135.220.2]:54183 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964788AbWB0Pmm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 10:42:32 -0500
+	Mon, 27 Feb 2006 10:42:42 -0500
 From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: [Patch 4/4] Tell GCC 4.1 to move unlikely() code to a separate section
-Date: Mon, 27 Feb 2006 16:39:34 +0100
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [Patch 2/4] Basic reorder infrastructure
+Date: Mon, 27 Feb 2006 16:41:37 +0100
 User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-References: <1141053825.2992.125.camel@laptopd505.fenrus.org> <1141054284.2992.136.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141054284.2992.136.camel@laptopd505.fenrus.org>
+References: <1141053825.2992.125.camel@laptopd505.fenrus.org> <1141054054.2992.130.camel@laptopd505.fenrus.org>
+In-Reply-To: <1141054054.2992.130.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602271639.34776.ak@suse.de>
+Message-Id: <200602271641.37733.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 February 2006 16:31, Arjan van de Ven wrote:
-> This patch is more controversial I assume; it offers the option 
-> to use the gcc 4.1 option to move unlikely() code to a separate section.
-> On the con side, this means that longer byte sequences are needed to jump
-> to this code, on the Pro side it means that the unlikely() code isn't sharing
-> icache cachelines and tlbs anymore.
+On Monday 27 February 2006 16:27, Arjan van de Ven wrote:
+> This patch puts the infrastructure in place to allow for a reordering of
+> functions based inside the vmlinux. The general idea is that it is possible
+> to put all "common" functions into the first 2Mb of the code, so that they
+> are covered by one TLB entry. This as opposed to the current situation where
+> a typical vmlinux covers about 3.5Mb (on x86-64) and thus 2 TLB entries.
 
-I don't think this will do anything because the default Makefile
-still has
-
-CFLAGS += -fno-reorder-blocks 
-
-That was me because it made assembly debugging much easier. I would be willing
-to reconsider this if you can give me some hard data just from this change:
-- benchmark changes
-- .text size increase
-
-Also I don't like it being an separate CONFIG options. We already have too many
-obscure ones. Either it should be on by default or not there at all.
+Looks good. I will apply that.
 
 -Andi

@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWB0Whn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWB0Wio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbWB0Whn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWB0WgX
+	id S932359AbWB0Wio (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWB0Wih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:36:23 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:24449 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932380AbWB0Wby
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:54 -0500
-Message-Id: <20060227223347.377860000@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:14 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 14/39] [PATCH] Fix s390 build failure.
-Content-Disposition: inline; filename=fix-s390-build-failure.patch
+	Mon, 27 Feb 2006 17:38:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15030 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964854AbWB0WiG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:38:06 -0500
+Date: Mon, 27 Feb 2006 17:47:26 -0500 (EST)
+From: Jason Baron <jbaron@redhat.com>
+X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+cc: bubshait <darkray@ic3man.com>, linux-kernel@vger.kernel.org
+Subject: Re: AMD64 X2 lost ticks on PM timer
+In-Reply-To: <20060227222152.GA26541@ti64.telemetry-investments.com>
+Message-ID: <Pine.LNX.4.61.0602271744270.31386@dhcp83-105.boston.redhat.com>
+References: <200602280022.40769.darkray@ic3man.com>
+ <20060227222152.GA26541@ti64.telemetry-investments.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
 
-arch/s390/kernel/compat_signal.c:199: error: conflicting types for 'do_sigaction'
-include/linux/sched.h:1115: error: previous declaration of 'do_sigaction' was here
+On Mon, 27 Feb 2006, Bill Rugolsky Jr. wrote:
 
-Signed-off-by: Dave Jones <davej@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
+> On Tue, Feb 28, 2006 at 12:22:40AM +0300, bubshait wrote:
+> > 	Losing some ticks... checking if CPU frequency changed.
+> > 	warning: many lost ticks.
+> > 	Your time source seems to be instable or some driver is hogging interupts
+> > 	rip __do_softirq+0x47/0xd1
+> > 
+> > adding report_lost_ticks only prints repeating messages like
+> > 
+> > 	Lost 3 timer tick(s)! rip __do_softirq+0x47/0xd1
+> 
+> I'm seeing tons of these on a Tyan 2895 (Nvidia CKO4) running FC4 with
+> kernel-2.6.15-1.1830 (2.6.15.2) SMP: 
+> 
+> time.c: Lost 1 timer tick(s)! rip default_idle+0x37/0x7a)
+> time.c: Lost 2 timer tick(s)! rip __do_softirq+0x55/0xd4)
+> 
+> [I've seen the same thing with earlier FC 2.6.14 kernels.]
+> 
+> On our systems the __do_softirq messages are strongly correlated with
+> sata_nv interrupts, especially during our nightly tripwire-like fs
+> checksum job.  Unfortunately, the log messages are not very informative.
+> I'm not sure what ever happened to the following patch,
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm3/broken-out/report-lost-ticks.patch
+> 
+> but it was dropped.
+> 
+> Unfortunately, I need to spend tomorrow patching kernels in search of a
+> fix or workaround, as I have to start using these boxes in production,
+> and they need to keep time.
+> 
 
- arch/s390/kernel/compat_signal.c |    3 ---
- 1 files changed, 3 deletions(-)
+passing 'nohpet' and/or 'nopmtimer' will force the use of a different 
+timer...but this is certainly a workaround, if it helps...
 
---- linux-2.6.15.4.orig/arch/s390/kernel/compat_signal.c
-+++ linux-2.6.15.4/arch/s390/kernel/compat_signal.c
-@@ -258,9 +258,6 @@ sys32_sigaction(int sig, const struct ol
- 	return ret;
- }
- 
--int
--do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
--
- asmlinkage long
- sys32_rt_sigaction(int sig, const struct sigaction32 __user *act,
- 	   struct sigaction32 __user *oact,  size_t sigsetsize)
 
---

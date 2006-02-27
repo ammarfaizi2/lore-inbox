@@ -1,75 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751654AbWB0Hon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWB0Hpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751654AbWB0Hon (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 02:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751655AbWB0Hon
+	id S1751656AbWB0Hpf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 02:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWB0Hpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 02:44:43 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:61629 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1751652AbWB0Hom (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 02:44:42 -0500
-Date: Mon, 27 Feb 2006 01:50:34 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i386 cpu hotplug bug - instant reboot when onlining secondary
-Message-ID: <20060227075033.GK3293@localhost.localdomain>
-References: <20060219235826.GF3293@localhost.localdomain> <Pine.LNX.4.64.0602210800290.1579@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Feb 2006 02:45:35 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:59287 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751655AbWB0Hpe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 02:45:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MlwbRRz4kHYNbz6W41slIK7aUBb56NvaExNfmFPY4pOVbkaaUIF6bHJ/UfNjb1dnb6flBMZ2fUntSbo841gDHTbu7HF9uEgfCHpy9126mILHDlgUspzk3HJO+WFZPQthWVkMJtxUgMynyFRXFLROn79XAuQRN4Fk24ieMnxpmOY=
+Message-ID: <4ae3c140602262345g43e71a2oea7db21c05dd5aba@mail.gmail.com>
+Date: Mon, 27 Feb 2006 02:45:33 -0500
+From: "Xin Zhao" <uszhaoxin@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: page cache question
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602210800290.1579@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Sun, 19 Feb 2006, Nathan Lynch wrote:
-> 
-> > On a dual P3 Xeon machine, offlining and then onlining a cpu makes the
-> > box instantly reboot.  I've been seeing this throughout the 2.6.16-rc
-> > series, but wasn't able to collect more information until now.  Not
-> > sure when this last worked, unfortunately.
-> > 
-> > With the debugging patch below, I get this on serial console:
-> 
-> Does 2.6.14 work? Also i wonder if it gets out of the trampoline...
+Sorry if this question is dumb.
 
-2.6.14 works (albeit with an APIC error reported).  When retesting
-2.6.16-rc4 with your patch on top of my debugging patch, I don't see the
-"startup_secondary" line:
+Linux uses address_space to identify pages in the page cache. An
+address space is often associated with a memory object such as inode.
+That seems to associate the cached page with that inode. My question
+is: if a file is closed and the inode is destroyed, will the cached
+page be removed from page cache immediately?  If so, does that mean
+the file system has to load data from disk again if a user promptly
+open and read the same file again? If not, how does linux determine
+when to evict a cached page? using LRU?
 
-[17179709.100000] CPU 1 is now offline
-[17179714.636000] Booting processor 1/1 eip 3000
-[17179714.688000] CPU 1 irqstacks, hard=7837f000 soft=78377000
-[17179714.756000] Setting warm reset code and vector.
-[17179714.812000] 1.
-[17179714.836000] 2.
-[17179714.860000] 3.
-[17179714.880000] Asserting INIT.
-[17179714.916000] Waiting for send to finish...
-[17179714.968000] +<7>Deasserting INIT.
-[17179715.024000] Waiting for send to finish...
-[17179715.072000] +<7>#startup loops: 2.
-[17179715.116000] Sending STARTUP #1.
-[17179715.160000] After apic_write.
-[17179715.196000] Doing apic_write_around for target chip...
-[17179715.260000] Doing apic_write_around to kick the second...
+Thanks in advance for your kind help!
 
-> 
-> Index: linux-2.6.16-rc2/arch/i386/kernel/smpboot.c
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.16-rc2/arch/i386/kernel/smpboot.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 smpboot.c
-> --- linux-2.6.16-rc2/arch/i386/kernel/smpboot.c	11 Feb 2006 18:55:06 -0000	1.1.1.1
-> +++ linux-2.6.16-rc2/arch/i386/kernel/smpboot.c	21 Feb 2006 16:19:22 -0000
-> @@ -514,6 +514,7 @@ static void __devinit start_secondary(vo
->  	cpu_init();
->  	preempt_disable();
->  	smp_callin();
-> +	Dprintk("startup_secondary\n");
->  	while (!cpu_isset(smp_processor_id(), smp_commenced_mask))
->  		rep_nop();
->  	setup_secondary_APIC_clock();
+-x

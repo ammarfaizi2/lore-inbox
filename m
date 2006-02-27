@@ -1,217 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWB0WA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWB0WCW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWB0WA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWB0WA7
+	id S964836AbWB0WCW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:02:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWB0WCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:00:59 -0500
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:39892 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932347AbWB0WA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:00:58 -0500
-Date: Mon, 27 Feb 2006 16:57:55 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch] i386: make bitops safe
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Message-ID: <200602271700_MC3-1-B969-F4A5@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Mon, 27 Feb 2006 17:02:22 -0500
+Received: from solarneutrino.net ([66.199.224.43]:62218 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S932347AbWB0WCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:02:21 -0500
+Date: Mon, 27 Feb 2006 15:37:41 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: lockd: couldn't create RPC handle for (host)
+Message-ID: <20060227203740.GB10719@tau.solarneutrino.net>
+References: <20051217055907.GC20539@tau.solarneutrino.net> <1134801822.7946.4.camel@lade.trondhjem.org> <20051217070222.GD20539@tau.solarneutrino.net> <1134847699.7950.25.camel@lade.trondhjem.org> <20051217194553.GE20539@tau.solarneutrino.net> <1134894836.7931.17.camel@lade.trondhjem.org> <20051218180150.GF20539@tau.solarneutrino.net> <1134934267.7966.37.camel@lade.trondhjem.org> <20051218200052.GA21665@tau.solarneutrino.net> <1134944665.11596.9.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+In-Reply-To: <1134944665.11596.9.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make i386 bitops safe.  Currently they can be fooled, even on
-uniprocessor, by code that uses regions of the bitmap before
-invoking the bitop.  The least costly way to make them safe
-is to add a memory clobber and tag all of them as volatile.
+On Sun, Dec 18, 2005 at 05:24:24PM -0500, Trond Myklebust wrote:
+> OK. I think this client patch ought to fix the Oopses. It should apply
+> to a 2.6.14 kernel as well as 2.6.15-rc5.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+Oops still occurs with 2.6.15.4.
 
----
+Unable to handle kernel paging request at 0000000100000011 RIP: 
+<ffffffff801c3424>{nlmclnt_mark_reclaim+67}
+PGD 7bc9b067 PUD 0 
+Oops: 0000 [1] 
+CPU 0 
+Modules linked in:
+Pid: 2210, comm: lockd Not tainted 2.6.15.4 #3
+RIP: 0010:[<ffffffff801c3424>] <ffffffff801c3424>{nlmclnt_mark_reclaim+67}
+RSP: 0018:ffff81007ddf9e70  EFLAGS: 00010206
+RAX: 00000000fffffff9 RBX: ffff81007f35a540 RCX: ffff81007ecb5980
+RDX: ffff81007ecb5988 RSI: 0000000000000053 RDI: ffff81007f35a540
+RBP: ffff81007f8e1800 R08: 00000000fffffffa R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000010 R15: ffffffff803bb460
+FS:  00002aaaab00c4a0(0000) GS:ffffffff80489800(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000000100000011 CR3: 000000007bc9a000 CR4: 00000000000006e0
+Process lockd (pid: 2210, threadinfo ffff81007ddf8000, task ffff81007ed261c0)
+Stack: ffffffff801c34db ffff81007f35a540 ffffffff801ca1a6 3256cc8459020002 
+       0000000000000000 0000000000000004 ffff81007ec94000 ffff81007ec940a0 
+       ffffffff803bc4e0 ffff810061626014 
+Call Trace:<ffffffff801c34db>{nlmclnt_recovery+139} <ffffffff801ca1a6>{nlm4svc_proc_sm_notify+188}
+       <ffffffff803149d7>{svc_process+871} <ffffffff801c5089>{lockd+344}
+       <ffffffff801c4f31>{lockd+0} <ffffffff801c4f31>{lockd+0}
+       <ffffffff8010dfaa>{child_rip+8} <ffffffff801c4f31>{lockd+0}
+       <ffffffff801c4f31>{lockd+0} <ffffffff8010dfa2>{child_rip+0}
+       
 
- include/asm-i386/bitops.h |   56 ++++++++++++++++++++++++++++++----------------
- 1 files changed, 37 insertions(+), 19 deletions(-)
+Code: 48 39 78 18 75 13 8b 81 8c 00 00 00 a8 01 74 09 83 c8 02 89 
+RIP <ffffffff801c3424>{nlmclnt_mark_reclaim+67} RSP <ffff81007ddf9e70>
+CR2: 0000000100000011
 
---- 2.6.16-rc4-32b.orig/include/asm-i386/bitops.h
-+++ 2.6.16-rc4-32b/include/asm-i386/bitops.h
-@@ -44,7 +44,8 @@ static inline void set_bit(int nr, volat
- 	__asm__ __volatile__( LOCK_PREFIX
- 		"btsl %1,%0"
- 		:"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- }
- 
- /**
-@@ -58,10 +59,11 @@ static inline void set_bit(int nr, volat
-  */
- static inline void __set_bit(int nr, volatile unsigned long * addr)
- {
--	__asm__(
-+	__asm__ __volatile__(
- 		"btsl %1,%0"
- 		:"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- }
- 
- /**
-@@ -79,7 +81,8 @@ static inline void clear_bit(int nr, vol
- 	__asm__ __volatile__( LOCK_PREFIX
- 		"btrl %1,%0"
- 		:"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- }
- 
- static inline void __clear_bit(int nr, volatile unsigned long * addr)
-@@ -87,7 +90,8 @@ static inline void __clear_bit(int nr, v
- 	__asm__ __volatile__(
- 		"btrl %1,%0"
- 		:"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- }
- #define smp_mb__before_clear_bit()	barrier()
- #define smp_mb__after_clear_bit()	barrier()
-@@ -106,7 +110,8 @@ static inline void __change_bit(int nr, 
- 	__asm__ __volatile__(
- 		"btcl %1,%0"
- 		:"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- }
- 
- /**
-@@ -124,7 +129,8 @@ static inline void change_bit(int nr, vo
- 	__asm__ __volatile__( LOCK_PREFIX
- 		"btcl %1,%0"
- 		:"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- }
- 
- /**
-@@ -143,7 +149,8 @@ static inline int test_and_set_bit(int n
- 	__asm__ __volatile__( LOCK_PREFIX
- 		"btsl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit),"+m" (ADDR)
--		:"Ir" (nr) : "memory");
-+		:"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -160,10 +167,11 @@ static inline int __test_and_set_bit(int
- {
- 	int oldbit;
- 
--	__asm__(
-+	__asm__ __volatile__(
- 		"btsl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit),"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -183,7 +191,8 @@ static inline int test_and_clear_bit(int
- 	__asm__ __volatile__( LOCK_PREFIX
- 		"btrl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit),"+m" (ADDR)
--		:"Ir" (nr) : "memory");
-+		:"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -200,10 +209,11 @@ static inline int __test_and_clear_bit(i
- {
- 	int oldbit;
- 
--	__asm__(
-+	__asm__ __volatile__(
- 		"btrl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit),"+m" (ADDR)
--		:"Ir" (nr));
-+		:"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -215,7 +225,8 @@ static inline int __test_and_change_bit(
- 	__asm__ __volatile__(
- 		"btcl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit),"+m" (ADDR)
--		:"Ir" (nr) : "memory");
-+		:"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -234,7 +245,8 @@ static inline int test_and_change_bit(in
- 	__asm__ __volatile__( LOCK_PREFIX
- 		"btcl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit),"+m" (ADDR)
--		:"Ir" (nr) : "memory");
-+		:"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -259,7 +271,8 @@ static inline int variable_test_bit(int 
- 	__asm__ __volatile__(
- 		"btl %2,%1\n\tsbbl %0,%0"
- 		:"=r" (oldbit)
--		:"m" (ADDR),"Ir" (nr));
-+		:"m" (ADDR),"Ir" (nr)
-+		:"memory");
- 	return oldbit;
- }
- 
-@@ -298,7 +311,8 @@ static inline int find_first_zero_bit(co
- 		"shll $3,%%edi\n\t"
- 		"addl %%edi,%%edx"
- 		:"=d" (res), "=&c" (d0), "=&D" (d1), "=&a" (d2)
--		:"1" ((size + 31) >> 5), "2" (addr), "b" (addr) : "memory");
-+		:"1" ((size + 31) >> 5), "2" (addr), "b" (addr)
-+		:"memory");
- 	return res;
- }
- 
-@@ -405,7 +419,9 @@ static inline int ffs(int x)
- 	__asm__("bsfl %1,%0\n\t"
- 		"jnz 1f\n\t"
- 		"movl $-1,%0\n"
--		"1:" : "=r" (r) : "rm" (x));
-+		"1:"
-+		: "=r" (r)
-+		: "rm" (x));
- 	return r+1;
- }
- 
-@@ -422,7 +438,9 @@ static inline int fls(int x)
- 	__asm__("bsrl %1,%0\n\t"
- 		"jnz 1f\n\t"
- 		"movl $-1,%0\n"
--		"1:" : "=r" (r) : "rm" (x));
-+		"1:"
-+		: "=r" (r)
-+		: "rm" (x));
- 	return r+1;
- }
- 
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+-ryan

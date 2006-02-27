@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWB0TwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWB0T51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbWB0TwI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 14:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWB0TwI
+	id S932084AbWB0T51 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 14:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWB0T51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 14:52:08 -0500
-Received: from lucidpixels.com ([66.45.37.187]:7058 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932098AbWB0TwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 14:52:05 -0500
-Date: Mon, 27 Feb 2006 14:52:04 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question regarding call trace.
-In-Reply-To: <9a8748490602271133o4aa673e4x3c069c1ab08fc392@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0602271452010.5678@p34>
-References: <Pine.LNX.4.64.0602271411020.5678@p34>
- <9a8748490602271133o4aa673e4x3c069c1ab08fc392@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 27 Feb 2006 14:57:27 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:44717
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932084AbWB0T50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 14:57:26 -0500
+Date: Mon, 27 Feb 2006 11:57:27 -0800
+From: Greg KH <gregkh@suse.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
+Message-ID: <20060227195727.GA10752@suse.de>
+References: <20060227190150.GA9121@kroah.com> <200602271952.08949.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602271952.08949.s0348365@sms.ed.ac.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the information.
+On Mon, Feb 27, 2006 at 07:52:08PM +0000, Alistair John Strachan wrote:
+> On Monday 27 February 2006 19:01, Greg KH wrote:
+> [snip]
+> > +
+> > +Interfaces in the testing state can move to the stable state when the
+> > +developers feel they are finished.  They can not be removed from the
+> > +kernel tree without going through the obsolete state first.
+> > +
+> > +It's up to the developer to place their interface in the category they
+> > +wish for it to start out in.
+> > --- /dev/null
+> > +++ gregkh-2.6/Documentation/ABI/obsolete/devfs
+> > @@ -0,0 +1,13 @@
+> > +What:		devfs
+> > +Date:		July 2005
+> > +Contact:	Greg Kroah-Hartman <gregkh@suse.de>
+> [snip]
+> 
+> July 2005? Either this date is wrong or the document is out of date.
 
-On Mon, 27 Feb 2006, Jesper Juhl wrote:
+Heh, I wish.  Have you looked at
+Documentation/feature-removal-schedule.txt lately?
 
-> On 2/27/06, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
->> I have a trace that looks like the following, my question is, are the
->> process(es) at the top of the call trace responible for the actual crash
->> of the machine?  Are they the root cause?
->>
->
-> As a general rule, functions near the top of a trace are more likely
-> to be the cause of the crash than functions near the bottom, but
-> that's not always the case.
-> Also sometimes when dealing with race conditions some part of the
-> kernel messes up and causes a different part of the kernel to crase so
-> that what you see in the trace is not what actually *caused* the
-> problem but merely what was affected by a problem somewhere else.
-> And if there's memory corruption going on then sometimes one part of
-> the kernel can scrible on random memory and cause a different and
-> completely unrelated part of the kernel to blow up.
-> So you cannot always trust a call trace 100%.
->
->
->> Would this point to a bad SCSI board?
->>
-> I'm sorry, I can't tell you :(
->
-> You might want to try enable debugging symbols and frame pointers to
-> get a more readable trace.
->
-> Consider these options (in the Kernel Hacking section of menuconfig) :
->  CONFIG_DEBUG_KERNEL
->  CONFIG_DEBUG_INFO
->  CONFIG_FRAME_POINTER
->  CONFIG_UNWIND_INFO
->
-> There are other options in there as well that may help, read their
-> description and decide for yourself if you think they will be needed -
-> or maybe someone else who understands your dump better than me can
-> advice on what specific options to enable.
->
-> Hope this helps you.
->
-> --
-> Jesper Juhl <jesper.juhl@gmail.com>
-> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please      http://www.expita.com/nomime.html
->
+Yeah, it's sad, but I keep trying...
+
+thanks,
+
+greg k-h

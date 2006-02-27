@@ -1,108 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWB0BPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWB0BSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWB0BPe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 20:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWB0BPe
+	id S1751445AbWB0BSt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 20:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWB0BSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 20:15:34 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:32654 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1750741AbWB0BPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 20:15:34 -0500
-Date: Mon, 27 Feb 2006 02:16:15 +0100
-From: Petr Baudis <pasky@suse.cz>
-To: git@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Cogito-0.17
-Message-ID: <20060227011615.GW31278@pasky.or.cz>
-Mime-Version: 1.0
+	Sun, 26 Feb 2006 20:18:49 -0500
+Received: from allen.werkleitz.de ([80.190.251.108]:42381 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S1751445AbWB0BSt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 20:18:49 -0500
+Date: Mon, 27 Feb 2006 02:18:44 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Message-ID: <20060227011844.GA7218@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060225065136.GH13116@waste.org> <20060225084955.GA27538@flint.arm.linux.org.uk> <20060225145412.GI13116@waste.org> <20060225180521.GB15276@flint.arm.linux.org.uk> <20060225210454.GL13116@waste.org> <20060225212247.GC15276@flint.arm.linux.org.uk> <20060225214704.GN13116@waste.org> <20060225215850.GD15276@flint.arm.linux.org.uk> <20060225223737.GO13116@waste.org> <20060225225748.GF15276@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060225225748.GF15276@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: 84.189.241.246
+Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
+X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 25, 2006 at 10:57:49PM +0000, Russell King wrote:
+> On Sat, Feb 25, 2006 at 04:37:37PM -0600, Matt Mackall wrote:
+> > On Sat, Feb 25, 2006 at 09:58:50PM +0000, Russell King wrote:
+> > > I'm sorry, I just do not see why you're being soo bloody difficult
+> > > over this.
+> > 
+> > Because it's taken this long to get close to an explanation of what
+> > the problem is.
+> 
+> $#%@%#$%#@!!!  I really think you're intentionally trying to wind me up
+> through this whole thread.
+> 
+> The email:
+> 
+>   http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/1024.html
+> 
+> contains a full and clear explaination of the situation.  The second
+> paragraph of that email is key to understanding the problem and makes
+> it absolutely clear what is trying to be decompressed as the initrd
+> (the corrupted compressed piggy).
 
-		The last winter snow
-		leaves but Cogito comes in
-		its place, snow-white 0.17
-				(*)
+FWIW, I didn't it either. "Work around broken boot firmware which passes
+invalid initrd to kernel" would have been a simpler description.
 
-
-  After some random bugfixes I got no more bugreports so this feels
-stable enough for a release. The rest of this mail will mostly be
-a rehash of the 0.17rc1 announcement; the rc2-to-0.17 bugfixes were
-rather dull.
-
-  Huge amount of new features and cool stuff. The highlight is cg-switch
-for switching between local branches and massive cg-patch improvements,
-but there is plenty of other stuff as well. Read on for more details.
-
-  The notable new stuff includes:
-
-  * cg-switch - Cogito finally gives you the full convenience of
-    multiple local branches in a single repository ;)
-  * cg-patch -c, -C, -d - Cogito now supports cherrypicking, easy commit
-    reverts and automatic committing of applied patches
-  * Resumable cg-clone - if cg-clone fails in the middle of the initial
-    fetch, the directory is not deleted and you do not have to start all
-    over again - just cd inside and run cg-fetch and it will DTRT
-
-  * Support for tracking rebasing branches; as long as you use cg-update
-    (NOT cg-fetch + cg-merge) and won't commit local changes, Cogito
-    will correctly update the branch even if it got rebased in the
-    meanwhile
-  * Quoting fixes - this means that Cogito should be now theoretically
-    100% resilient to whitespaces and metacharacters in filenames etc.
-    Note that filenames containing newlines still aren't supported and
-    aren't likely to ever be. You are a loonie. Go away.
-  * Radically improved cg-fetch progressbar; it still doesn't quite work
-    with rsync (use cg-fetch -v -v), but I don't think that can be
-    helped. The main advantage is that it will show HTTP fetch progress
-    even when fetching large files (especially packs).
-  * Much more sensible behaviour for cg-clean wrt. untracked directories
-    (do not erase their content).
-
-  * Significant merges speedup (but still quite some potential for
-    improvement)
-  * cg-* --help now by default shows only short help; use --long-help
-    to see the full manual
-  * cg-commit --signoff
-  * cg-commit --review to review and even modify the patch you are
-    committing
-  * cg-commit -M to take the commit message from a file
-  * bash commandline autocompletion files in contrib/
-  * cg-fetch -v, cg-fetch -v -v, cg-merge -v, cg-update -v
-  * cg-push -r to push a different branch (or even a specific commit)
-    instead of your current branch
-  * cg-rm -r for recursive directories removal
-  * cg-mv trivial wrapper for git-mv
-  * cg-push over HTTP
-  * cg-patch -u for applying non-git patches while autoadding/removing
-    files, cg-patch -pN with obvious meaning
-  * cg-object-id -d for short human-readable commit string id
-    (just wraps git-describe)
-
-  * Too many minor new features to list here
-
-  * Incompatible change - cg-log -d renamed to cg-log -D
-  * Incompatible change - the post-commit hook won't be ran for all the
-    merged commits anymore when you commit a merge; you can reenable
-    that in .git/config, see the cg-commit documentation for details
+I agree that it would be nice if inflate.c would fail gracefully
+instead of halting, but why can't you just use CONFIG_BLK_DEV_INITRD=n?
 
 
-P.S.: See us at #git @ FreeNode!
-P.P.S.: (*) That means bug-free, if it wasn't obvious!
-P.P.P.S.: Yes, it just occurred to me that I've forgot about the
-pre-built documentation, but it's too late in the night by now. Sorry,
-the next time.
-
-  Happy hacking,
-
--- 
-				Petr "Pasky the lousy poet" Baudis
-Stuff: http://pasky.or.cz/
-Of the 3 great composers Mozart tells us what it's like to be human,
-Beethoven tells us what it's like to be Beethoven and Bach tells us
-what it's like to be the universe.  -- Douglas Adams
+Johannes

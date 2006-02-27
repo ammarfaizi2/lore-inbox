@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWB0Hpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWB0HxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbWB0Hpf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 02:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWB0Hpf
+	id S1750976AbWB0HxE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 02:53:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWB0HxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 02:45:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:59287 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751655AbWB0Hpe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 02:45:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=MlwbRRz4kHYNbz6W41slIK7aUBb56NvaExNfmFPY4pOVbkaaUIF6bHJ/UfNjb1dnb6flBMZ2fUntSbo841gDHTbu7HF9uEgfCHpy9126mILHDlgUspzk3HJO+WFZPQthWVkMJtxUgMynyFRXFLROn79XAuQRN4Fk24ieMnxpmOY=
-Message-ID: <4ae3c140602262345g43e71a2oea7db21c05dd5aba@mail.gmail.com>
-Date: Mon, 27 Feb 2006 02:45:33 -0500
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: page cache question
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Mon, 27 Feb 2006 02:53:03 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:43944 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750976AbWB0HxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 02:53:01 -0500
+Subject: Re: [PATCH 1/7] isdn4linux: Siemens Gigaset drivers - common module
+From: Arjan van de Ven <arjan@infradead.org>
+To: Hansjoerg Lipp <hjlipp@web.de>
+Cc: Karsten Keil <kkeil@suse.de>, i4ldeveloper@listserv.isdn4linux.de,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tilman Schmidt <tilman@imap.cc>
+In-Reply-To: <gigaset307x.2006.02.27.001.1@hjlipp.my-fqdn.de>
+References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>
+	 <gigaset307x.2006.02.27.001.1@hjlipp.my-fqdn.de>
+Content-Type: text/plain
+Date: Mon, 27 Feb 2006 08:52:50 +0100
+Message-Id: <1141026770.2992.38.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this question is dumb.
+On Mon, 2006-02-27 at 07:23 +0100, Hansjoerg Lipp wrote:
+> +#define IFNULL(a) \
+> +       if (unlikely(!(a)))
 
-Linux uses address_space to identify pages in the page cache. An
-address space is often associated with a memory object such as inode.
-That seems to associate the cached page with that inode. My question
-is: if a file is closed and the inode is destroyed, will the cached
-page be removed from page cache immediately?  If so, does that mean
-the file system has to load data from disk again if a user promptly
-open and read the same file again? If not, how does linux determine
-when to evict a cached page? using LRU?
+please please get rid of this!
 
-Thanks in advance for your kind help!
+first of all, gcc ALREADY treats null pointer checks as unlikely,
+second of all this makes code entirely unreadable, so please just
+use "if (!a)" where you would want to use IFNULL
 
--x
+(same goes for the variants of this just below this)
+

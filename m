@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751047AbWB0CAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWB0CCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751047AbWB0CAy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 21:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWB0CAy
+	id S1751000AbWB0CCx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 21:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWB0CCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 21:00:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9964 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750826AbWB0CAy (ORCPT
+	Sun, 26 Feb 2006 21:02:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21411 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751000AbWB0CCw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 21:00:54 -0500
-Date: Sun, 26 Feb 2006 17:59:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc4-mm2 configs
-Message-Id: <20060226175959.45efd7cc.akpm@osdl.org>
-In-Reply-To: <20060226170940.220cc347.rdunlap@xenotime.net>
-References: <20060226170940.220cc347.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 26 Feb 2006 21:02:52 -0500
+Date: Mon, 27 Feb 2006 03:02:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jesper Juhl <jesper.juhl@gmail.com>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
+Message-ID: <20060227020238.GA1868@elf.ucw.cz>
+References: <200602261721.17373.jesper.juhl@gmail.com> <9a8748490602260835l2430e841p2bf02c1f99e55b91@mail.gmail.com> <20060226193121.GG7851@redhat.com> <200602262043.22463.jesper.juhl@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602262043.22463.jesper.juhl@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> 
-> a.  why does SONY_ACPI default to m ?  Other similar options are default n.
+Hi!
 
-Because I got heartily sick of losing the setting each time I went back to
-a mainline kernel and did `make oldconfig'.
+> rand63.log-drivers/built-in.o(.text+0x20ac6): In function `device_suspend':
+> rand63.log-drivers/base/power/suspend.c:94: undefined reference to `fg_console'
+> rand63.log-drivers/built-in.o(.text+0x20ace):drivers/base/power/suspend.c:94: undefined reference to `vc_cons'
+> rand63.log:make: *** [.tmp_vmlinux1] Error 1
 
-> b.  config LSF
-> 	bool "Support for Large Single Files"
-> 	depends on X86 || (MIPS && 32BIT) || PPC32 || ARCH_S390_31 || SUPERH || UML
-> 	default n
-> 	help
-> 	  When CONFIG_LBD is disabled, say Y here if you want to
-> 	  handle large file(bigger than 2TB), otherwise say N.
-> 	  When CONFIG_LBD is enabled, Y is set automatically.
-> 
-> This config option appears to be unimplemented and the Help text is
-> incorrect:  it is not set to Y automatically when CONFIG_LBD is enabled.
-> Where did this come from?
+Rafael, this one is yours (and mine). We probably need #ifdef
+CONFIG_VT or something like that around this code.
+								Pavel
 
-2tb-files-*.patch.
-
-That config option needs to go away, but the developer didn't seem to agree
-with or appreciate that at the time.
-
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

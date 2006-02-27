@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWB0RTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWB0RU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbWB0RTi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 12:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWB0RTh
+	id S1751517AbWB0RU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 12:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWB0RU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 12:19:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37790 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751510AbWB0RTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 12:19:37 -0500
-Subject: Re: [Patch 2/4] Basic reorder infrastructure
-From: Arjan van de Ven <arjan@infradead.org>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org, ak@suse.de
-In-Reply-To: <49447.194.237.142.21.1141057876.squirrel@194.237.142.21>
-References: <1141053825.2992.125.camel@laptopd505.fenrus.org>
-	 <1141054054.2992.130.camel@laptopd505.fenrus.org>
-	 <49447.194.237.142.21.1141057876.squirrel@194.237.142.21>
-Content-Type: text/plain
-Date: Mon, 27 Feb 2006 18:19:34 +0100
-Message-Id: <1141060775.2992.149.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 27 Feb 2006 12:20:59 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:24012 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751517AbWB0RU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 12:20:58 -0500
+To: jdike@addtoit.com
+CC: fuse-devel@lists.sourceforge.net,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-reply-to: <20060227170826.GA5481@ccure.user-mode-linux.org> (message from
+	Jeff Dike on Mon, 27 Feb 2006 12:08:26 -0500)
+Subject: Re: [uml-devel] [Announce] mountlo 0.5 - Loopback mounting in userspace
+References: <E1FDk1G-0004S6-00@dorka.pomaz.szeredi.hu> <20060227170826.GA5481@ccure.user-mode-linux.org>
+Message-Id: <E1FDm2v-0004gV-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 27 Feb 2006 18:20:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 17:31 +0100, sam@ravnborg.org wrote:
-> > This patch puts the infrastructure in place to allow for a reordering of
-> > functions based inside the vmlinux.
+> > I'm proud to announce a new version of my pet project 'mountlo', a
+> > utility which works similarly to 'mount -o loop', but the filesystem
+> > runs entirely in userspace.
+> > 
+> > While arguably it is quite useless, I like it because it combines some
+> > of my favorite technologies (Linux, UML and FUSE) with very little
+> > additional glue code.
 > 
-> Can we make this general instead of x86_64 only?
-> Then we can use Kconfig to enable it for the architectures where we want it.
+> Very cute.  I'm in the process of doing something similar, except I'm
+> integrating a FUSE server into the UML kernel to export the UML
+> filesystem to the host.  So far, I can cd and ls inside the mount -
+> lookup and readdir are implemented.
 
-Actually Linus had pretty good arguments to make this per-architecture:
-the list will be different on each architecture.
+Great.  I always wanted to do the exporting inside the kernel, but put
+it off as being too hard :)
 
-(eg my first patch had it more generic; but Linus asked it to be per
-arch, and I agree with the reasons he gave)
-
-Also I doubt it can be enabled "blindly" for all architectures; I expect
-more to need hacks similar to the x86_64 entry.S fix before it can
-work...
-
-
+Miklos

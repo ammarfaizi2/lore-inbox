@@ -1,46 +1,1031 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751566AbWB0GZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWB0GZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751566AbWB0GZe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 01:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWB0GZF
+	id S1751472AbWB0GZv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 01:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWB0GZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 01:25:05 -0500
-Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:60895 "EHLO
+	Mon, 27 Feb 2006 01:25:48 -0500
+Received: from wp060.webpack.hosteurope.de ([80.237.132.67]:65247 "EHLO
 	wp060.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S1751472AbWB0GY4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 01:24:56 -0500
+	id S1751472AbWB0GZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 01:25:09 -0500
 Date: Mon, 27 Feb 2006 07:23:10 +0100
 From: Hansjoerg Lipp <hjlipp@web.de>
 To: Karsten Keil <kkeil@suse.de>
 Cc: i4ldeveloper@listserv.isdn4linux.de, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
        Tilman Schmidt <tilman@imap.cc>
-Subject: [PATCH 2/7] isdn4linux: Siemens Gigaset drivers - event layer
-Message-ID: <gigaset307x.2006.02.27.001.2@hjlipp.my-fqdn.de>
-References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de> <gigaset307x.2006.02.27.001.1@hjlipp.my-fqdn.de>
+Subject: [PATCH 1/7] isdn4linux: Siemens Gigaset drivers - common module
+Message-ID: <gigaset307x.2006.02.27.001.1@hjlipp.my-fqdn.de>
+References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <gigaset307x.2006.02.27.001.1@hjlipp.my-fqdn.de>
+In-Reply-To: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>
 
-This patch adds the event layer to the gigaset module. The event layer
-serializes events from hardware, userspace, and other kernel subsystems.
+This patch adds the common include file for the Siemens Gigaset drivers,
+providing definitions used by all of the Gigaset ISDN driver source files.
+It also adds the main source file of the gigaset module which manages
+common functions not specific to the type of connection to the device.
 
 Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
 Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 ---
 
- drivers/isdn/gigaset/ev-layer.c | 1981 ++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 1981 insertions(+)
+ drivers/isdn/gigaset/common.c  | 1213 +++++++++++++++++++++++++++++++++++++++++
+ drivers/isdn/gigaset/gigaset.h |  979 +++++++++++++++++++++++++++++++++
+ 2 files changed, 2192 insertions(+)
 
---- linux-2.6.16-rc4.orig/drivers/isdn/gigaset/ev-layer.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.16-rc4-mm2/drivers/isdn/gigaset/ev-layer.c	2006-02-24 00:19:28.000000000 +0100
-@@ -0,0 +1,1981 @@
+--- linux-2.6.16-rc4.orig/drivers/isdn/gigaset/gigaset.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.16-rc4-mm2/drivers/isdn/gigaset/gigaset.h	2006-02-26 01:22:39.000000000 +0100
+@@ -0,0 +1,979 @@
++/*
++ * Siemens Gigaset 307x driver
++ * Common header file for all connection variants
++ *
++ * Written by Stefan Eilers <Eilers.Stefan@epost.de>
++ *        and Hansjoerg Lipp <hjlipp@web.de>
++ *
++ * =====================================================================
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License as
++ *	published by the Free Software Foundation; either version 2 of
++ *	the License, or (at your option) any later version.
++ * =====================================================================
++ */
++
++#ifndef GIGASET_H
++#define GIGASET_H
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/compiler.h>
++#include <linux/types.h>
++#include <linux/spinlock.h>
++#include <linux/isdnif.h>
++#include <linux/usb.h>
++#include <linux/skbuff.h>
++#include <linux/netdevice.h>
++#include <linux/ppp_defs.h>
++#include <linux/timer.h>
++#include <linux/interrupt.h>
++#include <linux/tty.h>
++#include <linux/tty_driver.h>
++#include <linux/list.h>
++#include <asm/atomic.h>
++
++#define GIG_VERSION {0,5,0,0}
++#define GIG_COMPAT  {0,4,0,0}
++
++#define MAX_REC_PARAMS 10	/* Max. number of params in response string */
++#define MAX_RESP_SIZE 512	/* Max. size of a response string */
++#define HW_HDR_LEN 2		/* Header size used to store ack info */
++
++#define MAX_EVENTS 64		/* size of event queue */
++
++#define RBUFSIZE 8192
++#define SBUFSIZE 4096		/* sk_buff payload size */
++
++#define TRANSBUFSIZE 768	/* bytes per skb for transparent receive */
++#define MAX_BUF_SIZE (SBUFSIZE - 2)	/* Max. size of a data packet from LL */
++
++/* compile time options */
++#define GIG_MAJOR 0
++
++#define GIG_MAYINITONDIAL
++#define GIG_RETRYCID
++#define GIG_X75
++
++#define MAX_TIMER_INDEX 1000
++#define MAX_SEQ_INDEX   1000
++
++#define GIG_TICK 100		/* in milliseconds */
++
++/* timeout values (unit: 1 sec) */
++#define INIT_TIMEOUT 1
++
++/* timeout values (unit: 0.1 sec) */
++#define RING_TIMEOUT 3		/* for additional parameters to RING */
++#define BAS_TIMEOUT 20		/* for response to Base USB ops */
++#define ATRDY_TIMEOUT 3		/* for HD_READY_SEND_ATDATA */
++
++#define BAS_RETRY 3		/* max. retries for base USB ops */
++
++#define MAXACT 3
++
++#define IFNULL(a) \
++	if (unlikely(!(a)))
++
++#define IFNULLRET(a) \
++	if (unlikely(!(a))) { \
++		err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); \
++		return; \
++	}
++
++#define IFNULLRETVAL(a,b) \
++	if (unlikely(!(a))) { \
++		err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); \
++		return (b); \
++	}
++
++#define IFNULLCONT(a) \
++	if (unlikely(!(a))) { \
++		err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); \
++		continue; \
++	}
++
++#define IFNULLGOTO(a,b) \
++	if (unlikely(!(a))) { \
++		err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); \
++		goto b; \
++	}
++
++extern int gigaset_debuglevel;	/* "needs" cast to (enum debuglevel) */
++
++/* any combination of these can be given with the 'debug=' parameter to insmod,
++ * e.g. 'insmod usb_gigaset.o debug=0x2c' will set DEBUG_OPEN, DEBUG_CMD and
++ * DEBUG_INTR.
++ */
++enum debuglevel { /* up to 24 bits (atomic_t) */
++	DEBUG_REG	  = 0x0002, /* serial port I/O register operations */
++	DEBUG_OPEN	  = 0x0004, /* open/close serial port */
++	DEBUG_INTR	  = 0x0008, /* interrupt processing */
++	DEBUG_INTR_DUMP	  = 0x0010, /* Activating hexdump debug output on
++				       interrupt requests, not available as
++				       run-time option */
++	DEBUG_CMD	  = 0x00020, /* sent/received LL commands */
++	DEBUG_STREAM	  = 0x00040, /* application data stream I/O events */
++	DEBUG_STREAM_DUMP = 0x00080, /* application data stream content */
++	DEBUG_LLDATA	  = 0x00100, /* sent/received LL data */
++	DEBUG_INTR_0	  = 0x00200, /* serial port interrupt processing */
++	DEBUG_DRIVER	  = 0x00400, /* driver structure */
++	DEBUG_HDLC	  = 0x00800, /* M10x HDLC processing */
++	DEBUG_WRITE	  = 0x01000, /* M105 data write */
++	DEBUG_TRANSCMD	  = 0x02000, /* AT-COMMANDS+RESPONSES */
++	DEBUG_MCMD	  = 0x04000, /* COMMANDS THAT ARE SENT VERY OFTEN */
++	DEBUG_INIT	  = 0x08000, /* (de)allocation+initialization of data
++					structures */
++	DEBUG_LOCK	  = 0x10000, /* semaphore operations */
++	DEBUG_OUTPUT	  = 0x20000, /* output to device */
++	DEBUG_ISO	  = 0x40000, /* isochronous transfers */
++	DEBUG_IF	  = 0x80000, /* character device operations */
++	DEBUG_USBREQ	  = 0x100000, /* USB communication (except payload
++					 data) */
++	DEBUG_LOCKCMD	  = 0x200000, /* AT commands and responses when
++					 MS_LOCKED */
++
++	DEBUG_ANY	  = 0x3fffff, /* print message if any of the others is
++					 activated */
++};
++
++/* missing from linux/device.h ... */
++#ifndef dev_notice
++#define dev_notice(dev, format, arg...)		\
++	dev_printk(KERN_NOTICE , dev , format , ## arg)
++#endif
++
++/* missing from linux/usb.h ... */
++#ifndef notice
++#define notice(format, arg...) \
++	printk(KERN_NOTICE "%s: " format "\n", \
++	       THIS_MODULE ? THIS_MODULE->name : __FILE__ , ## arg)
++#endif
++
++#ifdef CONFIG_GIGASET_DEBUG
++
++#define gig_dbg(level, format, arg...) \
++	do { \
++		if (unlikely(((enum debuglevel)gigaset_debuglevel) & (level))) \
++			printk(KERN_DEBUG "%s: " format "\n", \
++			       THIS_MODULE ? THIS_MODULE->name : __FILE__ \
++			       , ## arg); \
++	} while (0)
++#define DEBUG_DEFAULT (DEBUG_INIT | DEBUG_TRANSCMD | DEBUG_CMD | DEBUG_USBREQ)
++
++#else
++
++#define gig_dbg(level, format, arg...) do {} while (0)
++#define DEBUG_DEFAULT 0
++
++#endif
++
++void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *msg,
++			size_t len, const unsigned char *buf, int from_user);
++
++/* connection state */
++#define ZSAU_NONE			0
++#define ZSAU_DISCONNECT_IND		4
++#define ZSAU_OUTGOING_CALL_PROCEEDING	1
++#define ZSAU_PROCEEDING			1
++#define ZSAU_CALL_DELIVERED		2
++#define ZSAU_ACTIVE			3
++#define ZSAU_NULL			5
++#define ZSAU_DISCONNECT_REQ		6
++#define ZSAU_UNKNOWN			-1
++
++/* USB control transfer requests */
++#define OUT_VENDOR_REQ	(USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT)
++#define IN_VENDOR_REQ	(USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT)
++
++/* int-in-events 3070 */
++#define HD_B1_FLOW_CONTROL		0x80
++#define HD_B2_FLOW_CONTROL		0x81
++#define HD_RECEIVEATDATA_ACK		(0x35)		// 3070
++						// att: HD_RECEIVE>>AT<<DATA_ACK
++#define HD_READY_SEND_ATDATA		(0x36)		// 3070
++#define HD_OPEN_ATCHANNEL_ACK		(0x37)		// 3070
++#define HD_CLOSE_ATCHANNEL_ACK		(0x38)		// 3070
++#define HD_DEVICE_INIT_OK		(0x11)		// ISurf USB + 3070
++#define HD_OPEN_B1CHANNEL_ACK		(0x51)		// ISurf USB + 3070
++#define HD_OPEN_B2CHANNEL_ACK		(0x52)		// ISurf USB + 3070
++#define HD_CLOSE_B1CHANNEL_ACK		(0x53)		// ISurf USB + 3070
++#define HD_CLOSE_B2CHANNEL_ACK		(0x54)		// ISurf USB + 3070
++// 	 Powermangment
++#define HD_SUSPEND_END			(0x61)		// ISurf USB
++//   Configuration
++#define HD_RESET_INTERRUPT_PIPE_ACK	(0xFF)		// ISurf USB + 3070
++
++/* control requests 3070 */
++#define	HD_OPEN_B1CHANNEL		(0x23)		// ISurf USB + 3070
++#define	HD_CLOSE_B1CHANNEL		(0x24)		// ISurf USB + 3070
++#define	HD_OPEN_B2CHANNEL		(0x25)		// ISurf USB + 3070
++#define	HD_CLOSE_B2CHANNEL		(0x26)		// ISurf USB + 3070
++#define HD_RESET_INTERRUPT_PIPE		(0x27)		// ISurf USB + 3070
++#define	HD_DEVICE_INIT_ACK		(0x34)		// ISurf USB + 3070
++#define	HD_WRITE_ATMESSAGE		(0x12)		// 3070
++#define	HD_READ_ATMESSAGE		(0x13)		// 3070
++#define	HD_OPEN_ATCHANNEL		(0x28)		// 3070
++#define	HD_CLOSE_ATCHANNEL		(0x29)		// 3070
++
++/* USB frames for isochronous transfer */
++#define BAS_FRAMETIME	1	/* number of milliseconds between frames */
++#define BAS_NUMFRAMES	8	/* number of frames per URB */
++#define BAS_MAXFRAME	16	/* allocated bytes per frame */
++#define BAS_NORMFRAME	8	/* send size without flow control */
++#define BAS_HIGHFRAME	10	/* "    "    with positive flow control */
++#define BAS_LOWFRAME	5	/* "    "    with negative flow control */
++#define BAS_CORRFRAMES	4	/* flow control multiplicator */
++
++#define BAS_INBUFSIZE	(BAS_MAXFRAME * BAS_NUMFRAMES)
++					/* size of isoc in buf per URB */
++#define BAS_OUTBUFSIZE	4096		/* size of common isoc out buffer */
++#define BAS_OUTBUFPAD	BAS_MAXFRAME	/* size of pad area for isoc out buf */
++
++#define BAS_INURBS	3
++#define BAS_OUTURBS	3
++
++/* variable commands in struct bc_state */
++#define AT_ISO		0
++#define AT_DIAL		1
++#define AT_MSN		2
++#define AT_BC		3
++#define AT_PROTO	4
++#define AT_TYPE		5
++#define AT_HLC		6
++#define AT_NUM		7
++
++/* variables in struct at_state_t */
++#define VAR_ZSAU	0
++#define VAR_ZDLE	1
++#define VAR_ZVLS	2
++#define VAR_ZCTP	3
++#define VAR_NUM		4
++
++#define STR_NMBR	0
++#define STR_ZCPN	1
++#define STR_ZCON	2
++#define STR_ZBC		3
++#define STR_ZHLC	4
++#define STR_NUM		5
++
++#define EV_TIMEOUT	-105
++#define EV_IF_VER	-106
++#define EV_PROC_CIDMODE	-107
++#define EV_SHUTDOWN	-108
++#define EV_START	-110
++#define EV_STOP		-111
++#define EV_IF_LOCK	-112
++#define EV_PROTO_L2	-113
++#define EV_ACCEPT	-114
++#define EV_DIAL		-115
++#define EV_HUP		-116
++#define EV_BC_OPEN	-117
++#define EV_BC_CLOSED	-118
++
++/* input state */
++#define INS_command	0x0001
++#define INS_DLE_char	0x0002
++#define INS_byte_stuff	0x0004
++#define INS_have_data	0x0008
++#define INS_skip_frame	0x0010
++#define INS_DLE_command	0x0020
++#define INS_flag_hunt	0x0040
++
++/* channel state */
++#define CHS_D_UP	0x01
++#define CHS_B_UP	0x02
++#define CHS_NOTIFY_LL	0x04
++
++#define ICALL_REJECT	0
++#define ICALL_ACCEPT	1
++#define ICALL_IGNORE	2
++
++/* device state */
++#define MS_UNINITIALIZED	0
++#define MS_INIT			1
++#define MS_LOCKED		2
++#define MS_SHUTDOWN		3
++#define MS_RECOVER		4
++#define MS_READY		5
++
++/* mode */
++#define M_UNKNOWN	0
++#define M_CONFIG	1
++#define M_UNIMODEM	2
++#define M_CID		3
++
++/* start mode */
++#define SM_LOCKED	0
++#define SM_ISDN		1 /* default */
++
++struct gigaset_ops;
++struct gigaset_driver;
++
++struct usb_cardstate;
++struct ser_cardstate;
++struct bas_cardstate;
++
++struct bc_state;
++struct usb_bc_state;
++struct ser_bc_state;
++struct bas_bc_state;
++
++struct reply_t {
++	int	resp_code;	/* RSP_XXXX */
++	int	min_ConState;	/* <0 => ignore */
++	int	max_ConState;	/* <0 => ignore */
++	int	parameter;	/* e.g. ZSAU_XXXX <0: ignore*/
++	int	new_ConState;	/* <0 => ignore */
++	int	timeout;	/* >0 => *HZ; <=0 => TOUT_XXXX*/
++	int	action[MAXACT];	/* ACT_XXXX */
++	char	*command;	/* NULL==none */
++};
++
++extern struct reply_t gigaset_tab_cid_m10x[];
++extern struct reply_t gigaset_tab_nocid_m10x[];
++
++struct inbuf_t {
++	unsigned char		*rcvbuf;	/* usb-gigaset receive buffer */
++	struct bc_state		*bcs;
++	struct cardstate	*cs;
++	int			inputstate;
++	atomic_t		head, tail;
++	unsigned char		data[RBUFSIZE];
++};
++
++/* isochronous write buffer structure
++ * circular buffer with pad area for extraction of complete USB frames
++ * - data[read..nextread-1] is valid data already submitted to the USB subsystem
++ * - data[nextread..write-1] is valid data yet to be sent
++ * - data[write] is the next byte to write to
++ *   - in byte-oriented L2 procotols, it is completely free
++ *   - in bit-oriented L2 procotols, it may contain a partial byte of valid data
++ * - data[write+1..read-1] is free
++ * - wbits is the number of valid data bits in data[write], starting at the LSB
++ * - writesem is the semaphore for writing to the buffer:
++ *   if writesem <= 0, data[write..read-1] is currently being written to
++ * - idle contains the byte value to repeat when the end of valid data is
++ *   reached; if nextread==write (buffer contains no data to send), either the
++ *   BAS_OUTBUFPAD bytes immediately before data[write] (if
++ *   write>=BAS_OUTBUFPAD) or those of the pad area (if write<BAS_OUTBUFPAD)
++ *   are also filled with that value
++ */
++struct isowbuf_t {
++	atomic_t	read;
++	atomic_t	nextread;
++	atomic_t	write;
++	atomic_t	writesem;
++	int		wbits;
++	unsigned char	data[BAS_OUTBUFSIZE + BAS_OUTBUFPAD];
++	unsigned char	idle;
++};
++
++/* isochronous write URB context structure
++ * data to be stored along with the URB and retrieved when it is returned
++ * as completed by the USB subsystem
++ * - urb: pointer to the URB itself
++ * - bcs: pointer to the B Channel control structure
++ * - limit: end of write buffer area covered by this URB
++ */
++struct isow_urbctx_t {
++	struct urb *urb;
++	struct bc_state *bcs;
++	int limit;
++};
++
++/* AT state structure
++ * data associated with the state of an ISDN connection, whether or not
++ * it is currently assigned a B channel
++ */
++struct at_state_t {
++	struct list_head	list;
++	int			waiting;
++	int			getstring;
++	atomic_t		timer_index;
++	unsigned long		timer_expires;
++	int			timer_active;
++	unsigned int		ConState;	/* State of connection */
++	struct reply_t		*replystruct;
++	int			cid;
++	int			int_var[VAR_NUM];	/* see VAR_XXXX */
++	char			*str_var[STR_NUM];	/* see STR_XXXX */
++	unsigned		pending_commands;	/* see PC_XXXX */
++	atomic_t		seq_index;
++
++	struct cardstate	*cs;
++	struct bc_state		*bcs;
++};
++
++struct resp_type_t {
++	unsigned char	*response;
++	int		resp_code;	/* RSP_XXXX */
++	int		type;		/* RT_XXXX */
++};
++
++struct event_t {
++	int type;
++	void *ptr, *arg;
++	int parameter;
++	int cid;
++	struct at_state_t *at_state;
++};
++
++/* This buffer holds all information about the used B-Channel */
++struct bc_state {
++	struct sk_buff *tx_skb;		/* Current transfer buffer to modem */
++	struct sk_buff_head squeue;	/* B-Channel send Queue */
++
++	/* Variables for debugging .. */
++	int corrupted;			/* Counter for corrupted packages */
++	int trans_down;			/* Counter of packages (downstream) */
++	int trans_up;			/* Counter of packages (upstream) */
++
++	struct at_state_t at_state;
++	unsigned long rcvbytes;
++
++	__u16 fcs;
++	struct sk_buff *skb;
++	int inputstate;			/* see INS_XXXX */
++
++	int channel;
++
++	struct cardstate *cs;
++
++	unsigned chstate;		/* bitmap (CHS_*) */
++	int ignore;
++	unsigned proto2;		/* Layer 2 protocol (ISDN_PROTO_L2_*) */
++	char *commands[AT_NUM];		/* see AT_XXXX */
++
++#ifdef CONFIG_GIGASET_DEBUG
++	int emptycount;
++#endif
++	int busy;
++	int use_count;
++
++	/* private data of hardware drivers */
++	union {
++		struct ser_bc_state *ser;	/* serial hardware driver */
++		struct usb_bc_state *usb;	/* usb hardware driver (m105) */
++		struct bas_bc_state *bas;	/* usb hardware driver (base) */
++	} hw;
++};
++
++struct cardstate {
++	struct gigaset_driver *driver;
++	unsigned minor_index;
++	struct device *dev;
++
++	const struct gigaset_ops *ops;
++
++	/* Stuff to handle communication */
++	wait_queue_head_t waitqueue;
++	int waiting;
++	atomic_t mode;			/* see M_XXXX */
++	atomic_t mstate;		/* Modem state: see MS_XXXX */
++					/* only changed by the event layer */
++	int cmd_result;
++
++	int channels;
++	struct bc_state *bcs;		/* Array of struct bc_state */
++
++	int onechannel;			/* data and commands transmitted in one
++					   stream (M10x) */
++
++	spinlock_t lock;
++	struct at_state_t at_state;	/* at_state_t for cid == 0 */
++	struct list_head temp_at_states;/* list of temporary "struct
++					   at_state_t"s without B channel */
++
++	struct inbuf_t *inbuf;
++
++	struct cmdbuf_t *cmdbuf, *lastcmdbuf;
++	spinlock_t cmdlock;
++	unsigned curlen, cmdbytes;
++
++	unsigned open_count;
++	struct tty_struct *tty;
++	struct tasklet_struct if_wake_tasklet;
++	unsigned control_state;
++
++	unsigned fwver[4];
++	int gotfwver;
++
++	atomic_t running;		/* !=0 if events are handled */
++	atomic_t connected;		/* !=0 if hardware is connected */
++
++	atomic_t cidmode;
++
++	int myid;			/* id for communication with LL */
++	isdn_if iif;
++
++	struct reply_t *tabnocid;
++	struct reply_t *tabcid;
++	int cs_init;
++	int ignoreframes;		/* frames to ignore after setting up the
++					   B channel */
++	struct semaphore sem;		/* locks this structure:
++					 *   connected is not changed,
++					 *   hardware_up is not changed,
++					 *   MState is not changed to or from
++					 *   MS_LOCKED */
++
++	struct timer_list timer;
++	int retry_count;
++	int dle;			/* !=0 if modem commands/responses are
++					   dle encoded */
++	int cur_at_seq;			/* sequence of AT commands being
++					   processed */
++	int curchannel;			/* channel those commands are meant
++					   for */
++	atomic_t commands_pending;	/* flag(s) in xxx.commands_pending have
++					   been set */
++	struct tasklet_struct event_tasklet;
++					/* tasklet for serializing AT commands.
++					 * Scheduled
++					 *   -> for modem reponses (and
++					 *      incoming data for M10x)
++					 *   -> on timeout
++					 *   -> after setting bits in
++					 *      xxx.at_state.pending_command
++					 *      (e.g. command from LL) */
++	struct tasklet_struct write_tasklet;
++					/* tasklet for serial output
++					 * (not used in base driver) */
++
++	/* event queue */
++	struct event_t events[MAX_EVENTS];
++	atomic_t ev_tail, ev_head;
++	spinlock_t ev_lock;
++
++	/* current modem response */
++	unsigned char respdata[MAX_RESP_SIZE];
++	unsigned cbytes;
++
++	/* private data of hardware drivers */
++	union {
++		struct usb_cardstate *usb; /* USB hardware driver (m105) */
++		struct ser_cardstate *ser; /* serial hardware driver */
++		struct bas_cardstate *bas; /* USB hardware driver (base) */
++	} hw;
++};
++
++struct gigaset_driver {
++	struct list_head list;
++	spinlock_t lock;		/* locks minor tables and blocked */
++	struct tty_driver *tty;
++	unsigned have_tty;
++	unsigned minor;
++	unsigned minors;
++	struct cardstate *cs;
++	unsigned *flags;
++	int blocked;
++
++	const struct gigaset_ops *ops;
++	struct module *owner;
++};
++
++struct cmdbuf_t {
++	struct cmdbuf_t *next, *prev;
++	int len, offset;
++	struct tasklet_struct *wake_tasklet;
++	unsigned char buf[0];
++};
++
++struct bas_bc_state {
++	/* isochronous output state */
++	atomic_t	running;
++	atomic_t	corrbytes;
++	spinlock_t	isooutlock;
++	struct isow_urbctx_t	isoouturbs[BAS_OUTURBS];
++	struct isow_urbctx_t	*isooutdone, *isooutfree, *isooutovfl;
++	struct isowbuf_t	*isooutbuf;
++	unsigned numsub;		/* submitted URB counter
++					   (for diagnostic messages only) */
++	struct tasklet_struct	sent_tasklet;
++
++	/* isochronous input state */
++	spinlock_t isoinlock;
++	struct urb *isoinurbs[BAS_INURBS];
++	unsigned char isoinbuf[BAS_INBUFSIZE * BAS_INURBS];
++	struct urb *isoindone;		/* completed isoc read URB */
++	int loststatus;			/* status of dropped URB */
++	unsigned isoinlost;		/* number of bytes lost */
++	/* state of bit unstuffing algorithm
++	   (in addition to BC_state.inputstate) */
++	unsigned seqlen;		/* number of '1' bits not yet
++					   unstuffed */
++	unsigned inbyte, inbits;	/* collected bits for next byte */
++	/* statistics */
++	unsigned goodbytes;		/* bytes correctly received */
++	unsigned alignerrs;		/* frames with incomplete byte at end */
++	unsigned fcserrs;		/* FCS errors */
++	unsigned frameerrs;		/* framing errors */
++	unsigned giants;		/* long frames */
++	unsigned runts;			/* short frames */
++	unsigned aborts;		/* HDLC aborts */
++	unsigned shared0s;		/* '0' bits shared between flags */
++	unsigned stolen0s;		/* '0' stuff bits also serving as
++					   leading flag bits */
++	struct tasklet_struct rcvd_tasklet;
++};
++
++struct gigaset_ops {
++	/* Called from ev-layer.c/interface.c for sending AT commands to the
++	   device */
++	int (*write_cmd)(struct cardstate *cs,
++			 const unsigned char *buf, int len,
++			 struct tasklet_struct *wake_tasklet);
++
++	/* Called from interface.c for additional device control */
++	int (*write_room)(struct cardstate *cs);
++	int (*chars_in_buffer)(struct cardstate *cs);
++	int (*brkchars)(struct cardstate *cs, const unsigned char buf[6]);
++
++	/* Called from ev-layer.c after setting up connection
++	 * Should call gigaset_bchannel_up(), when finished. */
++	int (*init_bchannel)(struct bc_state *bcs);
++
++	/* Called from ev-layer.c after hanging up
++	 * Should call gigaset_bchannel_down(), when finished. */
++	int (*close_bchannel)(struct bc_state *bcs);
++
++	/* Called by gigaset_initcs() for setting up bcs->hw.xxx */
++	int (*initbcshw)(struct bc_state *bcs);
++
++	/* Called by gigaset_freecs() for freeing bcs->hw.xxx */
++	int (*freebcshw)(struct bc_state *bcs);
++
++	/* Called by gigaset_stop() or gigaset_bchannel_down() for resetting
++	   bcs->hw.xxx */
++	void (*reinitbcshw)(struct bc_state *bcs);
++
++	/* Called by gigaset_initcs() for setting up cs->hw.xxx */
++	int (*initcshw)(struct cardstate *cs);
++
++	/* Called by gigaset_freecs() for freeing cs->hw.xxx */
++	void (*freecshw)(struct cardstate *cs);
++
++	/* Called from common.c/interface.c for additional serial port
++	   control */
++	int (*set_modem_ctrl)(struct cardstate *cs, unsigned old_state,
++			      unsigned new_state);
++	int (*baud_rate)(struct cardstate *cs, unsigned cflag);
++	int (*set_line_ctrl)(struct cardstate *cs, unsigned cflag);
++
++	/* Called from i4l.c to put an skb into the send-queue. */
++	int (*send_skb)(struct bc_state *bcs, struct sk_buff *skb);
++
++	/* Called from ev-layer.c to process a block of data
++	 * received through the common/control channel. */
++	void (*handle_input)(struct inbuf_t *inbuf);
++
++};
++
++/* = Common structures and definitions ======================================= */
++
++/* Parser states for DLE-Event:
++ * <DLE-EVENT>: <DLE_FLAG> "X" <EVENT> <DLE_FLAG> "."
++ * <DLE_FLAG>:  0x10
++ * <EVENT>:     ((a-z)* | (A-Z)* | (0-10)*)+
++ */
++#define DLE_FLAG	0x10
++
++/* ===========================================================================
++ *  Functions implemented in asyncdata.c
++ */
++
++/* Called from i4l.c to put an skb into the send-queue.
++ * After sending gigaset_skb_sent() should be called. */
++int gigaset_m10x_send_skb(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Called from ev-layer.c to process a block of data
++ * received through the common/control channel. */
++void gigaset_m10x_input(struct inbuf_t *inbuf);
++
++/* ===========================================================================
++ *  Functions implemented in isocdata.c
++ */
++
++/* Called from i4l.c to put an skb into the send-queue.
++ * After sending gigaset_skb_sent() should be called. */
++int gigaset_isoc_send_skb(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Called from ev-layer.c to process a block of data
++ * received through the common/control channel. */
++void gigaset_isoc_input(struct inbuf_t *inbuf);
++
++/* Called from bas-gigaset.c to process a block of data
++ * received through the isochronous channel */
++void gigaset_isoc_receive(unsigned char *src, unsigned count,
++			  struct bc_state *bcs);
++
++/* Called from bas-gigaset.c to put a block of data
++ * into the isochronous output buffer */
++int gigaset_isoc_buildframe(struct bc_state *bcs, unsigned char *in, int len);
++
++/* Called from bas-gigaset.c to initialize the isochronous output buffer */
++void gigaset_isowbuf_init(struct isowbuf_t *iwb, unsigned char idle);
++
++/* Called from bas-gigaset.c to retrieve a block of bytes for sending */
++int gigaset_isowbuf_getbytes(struct isowbuf_t *iwb, int size);
++
++/* ===========================================================================
++ *  Functions implemented in i4l.c/gigaset.h
++ */
++
++/* Called by gigaset_initcs() for setting up with the isdn4linux subsystem */
++int gigaset_register_to_LL(struct cardstate *cs, const char *isdnid);
++
++/* Called from xxx-gigaset.c to indicate completion of sending an skb */
++void gigaset_skb_sent(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Called from common.c/ev-layer.c to indicate events relevant to the LL */
++int gigaset_isdn_icall(struct at_state_t *at_state);
++int gigaset_isdn_setup_accept(struct at_state_t *at_state);
++int gigaset_isdn_setup_dial(struct at_state_t *at_state, void *data);
++
++void gigaset_i4l_cmd(struct cardstate *cs, int cmd);
++void gigaset_i4l_channel_cmd(struct bc_state *bcs, int cmd);
++
++
++static inline void gigaset_isdn_rcv_err(struct bc_state *bcs)
++{
++	isdn_ctrl response;
++
++	/* error -> LL */
++	gig_dbg(DEBUG_CMD, "sending L1ERR");
++	response.driver = bcs->cs->myid;
++	response.command = ISDN_STAT_L1ERR;
++	response.arg = bcs->channel;
++	response.parm.errcode = ISDN_STAT_L1ERR_RECV;
++	bcs->cs->iif.statcallb(&response);
++}
++
++/* ===========================================================================
++ *  Functions implemented in ev-layer.c
++ */
++
++/* tasklet called from common.c to process queued events */
++void gigaset_handle_event(unsigned long data);
++
++/* called from isocdata.c / asyncdata.c
++ * when a complete modem response line has been received */
++void gigaset_handle_modem_response(struct cardstate *cs);
++
++/* ===========================================================================
++ *  Functions implemented in proc.c
++ */
++
++/* initialize sysfs for device */
++void gigaset_init_dev_sysfs(struct cardstate *cs);
++void gigaset_free_dev_sysfs(struct cardstate *cs);
++
++/* ===========================================================================
++ *  Functions implemented in common.c/gigaset.h
++ */
++
++void gigaset_bcs_reinit(struct bc_state *bcs);
++void gigaset_at_init(struct at_state_t *at_state, struct bc_state *bcs,
++		     struct cardstate *cs, int cid);
++int gigaset_get_channel(struct bc_state *bcs);
++void gigaset_free_channel(struct bc_state *bcs);
++int gigaset_get_channels(struct cardstate *cs);
++void gigaset_free_channels(struct cardstate *cs);
++void gigaset_block_channels(struct cardstate *cs);
++
++/* Allocate and initialize driver structure. */
++struct gigaset_driver *gigaset_initdriver(unsigned minor, unsigned minors,
++					  const char *procname,
++					  const char *devname,
++					  const char *devfsname,
++					  const struct gigaset_ops *ops,
++					  struct module *owner);
++
++/* Deallocate driver structure. */
++void gigaset_freedriver(struct gigaset_driver *drv);
++void gigaset_debugdrivers(void);
++struct cardstate *gigaset_get_cs_by_minor(unsigned minor);
++struct cardstate *gigaset_get_cs_by_tty(struct tty_struct *tty);
++struct cardstate *gigaset_get_cs_by_id(int id);
++
++/* For drivers without fixed assignment device<->cardstate (usb) */
++struct cardstate *gigaset_getunassignedcs(struct gigaset_driver *drv);
++void gigaset_unassign(struct cardstate *cs);
++void gigaset_blockdriver(struct gigaset_driver *drv);
++
++/* Allocate and initialize card state. Calls hardware dependent
++   gigaset_init[b]cs(). */
++struct cardstate *gigaset_initcs(struct gigaset_driver *drv, int channels,
++				 int onechannel, int ignoreframes,
++				 int cidmode, const char *modulename);
++
++/* Free card state. Calls hardware dependent gigaset_free[b]cs(). */
++void gigaset_freecs(struct cardstate *cs);
++
++/* Tell common.c that hardware and driver are ready. */
++int gigaset_start(struct cardstate *cs);
++
++/* Tell common.c that the device is not present any more. */
++void gigaset_stop(struct cardstate *cs);
++
++/* Tell common.c that the driver is being unloaded. */
++void gigaset_shutdown(struct cardstate *cs);
++
++/* Tell common.c that an skb has been sent. */
++void gigaset_skb_sent(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Append event to the queue.
++ * Returns NULL on failure or a pointer to the event on success.
++ * ptr must be kmalloc()ed (and not be freed by the caller).
++ */
++struct event_t *gigaset_add_event(struct cardstate *cs,
++				  struct at_state_t *at_state, int type,
++				  void *ptr, int parameter, void *arg);
++
++/* Called on CONFIG1 command from frontend. */
++int gigaset_enterconfigmode(struct cardstate *cs); //0: success <0: errorcode
++
++/* cs->lock must not be locked */
++static inline void gigaset_schedule_event(struct cardstate *cs)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&cs->lock, flags);
++	if (atomic_read(&cs->running))
++		tasklet_schedule(&cs->event_tasklet);
++	spin_unlock_irqrestore(&cs->lock, flags);
++}
++
++/* Tell common.c that B channel has been closed. */
++/* cs->lock must not be locked */
++static inline void gigaset_bchannel_down(struct bc_state *bcs)
++{
++	gigaset_add_event(bcs->cs, &bcs->at_state, EV_BC_CLOSED, NULL, 0, NULL);
++
++	gig_dbg(DEBUG_CMD, "scheduling BC_CLOSED");
++	gigaset_schedule_event(bcs->cs);
++}
++
++/* Tell common.c that B channel has been opened. */
++/* cs->lock must not be locked */
++static inline void gigaset_bchannel_up(struct bc_state *bcs)
++{
++	gigaset_add_event(bcs->cs, &bcs->at_state, EV_BC_OPEN, NULL, 0, NULL);
++
++	gig_dbg(DEBUG_CMD, "scheduling BC_OPEN");
++	gigaset_schedule_event(bcs->cs);
++}
++
++/* handling routines for sk_buff */
++/* ============================= */
++
++/* private version of __skb_put()
++ * append 'len' bytes to the content of 'skb', already knowing that the
++ * existing buffer can accomodate them
++ * returns a pointer to the location where the new bytes should be copied to
++ * This function does not take any locks so it must be called with the
++ * appropriate locks held only.
++ */
++static inline unsigned char *gigaset_skb_put_quick(struct sk_buff *skb,
++						   unsigned int len)
++{
++	unsigned char *tmp = skb->tail;
++	/*SKB_LINEAR_ASSERT(skb);*/		/* not needed here */
++	skb->tail += len;
++	skb->len += len;
++	return tmp;
++}
++
++/* pass received skb to LL
++ * Warning: skb must not be accessed anymore!
++ */
++static inline void gigaset_rcv_skb(struct sk_buff *skb,
++				   struct cardstate *cs,
++				   struct bc_state *bcs)
++{
++	cs->iif.rcvcallb_skb(cs->myid, bcs->channel, skb);
++	bcs->trans_down++;
++}
++
++/* handle reception of corrupted skb
++ * Warning: skb must not be accessed anymore!
++ */
++static inline void gigaset_rcv_error(struct sk_buff *procskb,
++				     struct cardstate *cs,
++				     struct bc_state *bcs)
++{
++	if (procskb)
++		dev_kfree_skb(procskb);
++
++	if (bcs->ignore)
++		--bcs->ignore;
++	else {
++		++bcs->corrupted;
++		gigaset_isdn_rcv_err(bcs);
++	}
++}
++
++
++/* bitwise byte inversion table */
++extern __u8 gigaset_invtab[];	/* in common.c */
++
++
++/* append received bytes to inbuf */
++static inline int gigaset_fill_inbuf(struct inbuf_t *inbuf,
++				     const unsigned char *src,
++				     unsigned numbytes)
++{
++	unsigned n, head, tail, bytesleft;
++
++	gig_dbg(DEBUG_INTR, "received %u bytes", numbytes);
++
++	if (!numbytes)
++		return 0;
++
++	bytesleft = numbytes;
++	tail = atomic_read(&inbuf->tail);
++	head = atomic_read(&inbuf->head);
++	gig_dbg(DEBUG_INTR, "buffer state: %u -> %u", head, tail);
++
++	while (bytesleft) {
++		if (head > tail)
++			n = head - 1 - tail;
++		else if (head == 0)
++			n = (RBUFSIZE-1) - tail;
++		else
++			n = RBUFSIZE - tail;
++		if (!n) {
++			dev_err(inbuf->cs->dev,
++				"buffer overflow (%u bytes lost)", bytesleft);
++			break;
++		}
++		if (n > bytesleft)
++			n = bytesleft;
++		memcpy(inbuf->data + tail, src, n);
++		bytesleft -= n;
++		tail = (tail + n) % RBUFSIZE;
++		src += n;
++	}
++	gig_dbg(DEBUG_INTR, "setting tail to %u", tail);
++	atomic_set(&inbuf->tail, tail);
++	return numbytes != bytesleft;
++}
++
++/* ===========================================================================
++ *  Functions implemented in interface.c
++ */
++
++/* initialize interface */
++void gigaset_if_initdriver(struct gigaset_driver *drv, const char *procname,
++			   const char *devname, const char *devfsname);
++/* release interface */
++void gigaset_if_freedriver(struct gigaset_driver *drv);
++/* add minor */
++void gigaset_if_init(struct cardstate *cs);
++/* remove minor */
++void gigaset_if_free(struct cardstate *cs);
++/* device received data */
++void gigaset_if_receive(struct cardstate *cs,
++			unsigned char *buffer, size_t len);
++
++#endif
+--- linux-2.6.16-rc4.orig/drivers/isdn/gigaset/common.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.16-rc4-mm2/drivers/isdn/gigaset/common.c	2006-02-26 01:22:39.000000000 +0100
+@@ -0,0 +1,1213 @@
 +/*
 + * Stuff used by all variants of the driver
 + *
@@ -57,1968 +1042,1200 @@ Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 + */
 +
 +#include "gigaset.h"
++#include <linux/ctype.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
 +
-+/* ========================================================== */
-+/* bit masks for pending commands */
-+#define PC_DIAL		0x001
-+#define PC_HUP		0x002
-+#define PC_INIT		0x004
-+#define PC_DLE0		0x008
-+#define PC_DLE1		0x010
-+#define PC_SHUTDOWN	0x020
-+#define PC_ACCEPT	0x040
-+#define PC_CID		0x080
-+#define PC_NOCID	0x100
-+#define PC_CIDMODE	0x200
-+#define PC_UMMODE	0x400
++/* Version Information */
++#define DRIVER_AUTHOR "Hansjoerg Lipp <hjlipp@web.de>, Tilman Schmidt <tilman@imap.cc>, Stefan Eilers <Eilers.Stefan@epost.de>"
++#define DRIVER_DESC "Driver for Gigaset 307x"
 +
-+/* types of modem responses */
-+#define RT_NOTHING	0
-+#define RT_ZSAU		1
-+#define RT_RING		2
-+#define RT_NUMBER	3
-+#define RT_STRING	4
-+#define RT_HEX		5
-+#define RT_ZCAU		6
++/* Module parameters */
++int gigaset_debuglevel = DEBUG_DEFAULT;
++EXPORT_SYMBOL_GPL(gigaset_debuglevel);
++module_param_named(debug, gigaset_debuglevel, int, S_IRUGO|S_IWUSR);
++MODULE_PARM_DESC(debug, "debug level");
 +
-+/* Possible ASCII responses */
-+#define RSP_OK		0
-+//#define RSP_BUSY	1
-+//#define RSP_CONNECT	2
-+#define RSP_ZGCI	3
-+#define RSP_RING	4
-+#define RSP_ZAOC	5
-+#define RSP_ZCSTR	6
-+#define RSP_ZCFGT	7
-+#define RSP_ZCFG	8
-+#define RSP_ZCCR	9
-+#define RSP_EMPTY	10
-+#define RSP_ZLOG	11
-+#define RSP_ZCAU	12
-+#define RSP_ZMWI	13
-+#define RSP_ZABINFO	14
-+#define RSP_ZSMLSTCHG	15
-+#define RSP_VAR		100
-+#define RSP_ZSAU	(RSP_VAR + VAR_ZSAU)
-+#define RSP_ZDLE	(RSP_VAR + VAR_ZDLE)
-+#define RSP_ZVLS	(RSP_VAR + VAR_ZVLS)
-+#define RSP_ZCTP	(RSP_VAR + VAR_ZCTP)
-+#define RSP_STR		(RSP_VAR + VAR_NUM)
-+#define RSP_NMBR	(RSP_STR + STR_NMBR)
-+#define RSP_ZCPN	(RSP_STR + STR_ZCPN)
-+#define RSP_ZCON	(RSP_STR + STR_ZCON)
-+#define RSP_ZBC		(RSP_STR + STR_ZBC)
-+#define RSP_ZHLC	(RSP_STR + STR_ZHLC)
-+#define RSP_ERROR	-1	/* ERROR              */
-+#define RSP_WRONG_CID	-2	/* unknown cid in cmd */
-+//#define RSP_EMPTY	-3
-+#define RSP_UNKNOWN	-4	/* unknown response   */
-+#define RSP_FAIL	-5	/* internal error     */
-+#define RSP_INVAL	-6	/* invalid response   */
-+
-+#define RSP_NONE	-19
-+#define RSP_STRING	-20
-+#define RSP_NULL	-21
-+//#define RSP_RETRYFAIL	-22
-+//#define RSP_RETRY	-23
-+//#define RSP_SKIP	-24
-+#define RSP_INIT	-27
-+#define RSP_ANY		-26
-+#define RSP_LAST	-28
-+#define RSP_NODEV	-9
-+
-+/* actions for process_response */
-+#define ACT_NOTHING		0
-+#define ACT_SETDLE1		1
-+#define ACT_SETDLE0		2
-+#define ACT_FAILINIT		3
-+#define ACT_HUPMODEM		4
-+#define ACT_CONFIGMODE		5
-+#define ACT_INIT		6
-+#define ACT_DLE0		7
-+#define ACT_DLE1		8
-+#define ACT_FAILDLE0		9
-+#define ACT_FAILDLE1		10
-+#define ACT_RING		11
-+#define ACT_CID			12
-+#define ACT_FAILCID		13
-+#define ACT_SDOWN		14
-+#define ACT_FAILSDOWN		15
-+#define ACT_DEBUG		16
-+#define ACT_WARN		17
-+#define ACT_DIALING		18
-+#define ACT_ABORTDIAL		19
-+#define ACT_DISCONNECT		20
-+#define ACT_CONNECT		21
-+#define ACT_REMOTEREJECT	22
-+#define ACT_CONNTIMEOUT		23
-+#define ACT_REMOTEHUP		24
-+#define ACT_ABORTHUP		25
-+#define ACT_ICALL		26
-+#define ACT_ACCEPTED		27
-+#define ACT_ABORTACCEPT		28
-+#define ACT_TIMEOUT		29
-+#define ACT_GETSTRING		30
-+#define ACT_SETVER		31
-+#define ACT_FAILVER		32
-+#define ACT_GOTVER		33
-+#define ACT_TEST		34
-+#define ACT_ERROR		35
-+#define ACT_ABORTCID		36
-+#define ACT_ZCAU		37
-+#define ACT_NOTIFY_BC_DOWN	38
-+#define ACT_NOTIFY_BC_UP	39
-+#define ACT_DIAL		40
-+#define ACT_ACCEPT		41
-+#define ACT_PROTO_L2		42
-+#define ACT_HUP			43
-+#define ACT_IF_LOCK		44
-+#define ACT_START		45
-+#define ACT_STOP		46
-+#define ACT_FAKEDLE0		47
-+#define ACT_FAKEHUP		48
-+#define ACT_FAKESDOWN		49
-+#define ACT_SHUTDOWN		50
-+#define ACT_PROC_CIDMODE	51
-+#define ACT_UMODESET		52
-+#define ACT_FAILUMODE		53
-+#define ACT_CMODESET		54
-+#define ACT_FAILCMODE		55
-+#define ACT_IF_VER		56
-+#define ACT_CMD			100
-+
-+/* at command sequences */
-+#define SEQ_NONE	0
-+#define SEQ_INIT	100
-+#define SEQ_DLE0	200
-+#define SEQ_DLE1	250
-+#define SEQ_CID		300
-+#define SEQ_NOCID	350
-+#define SEQ_HUP		400
-+#define SEQ_DIAL	600
-+#define SEQ_ACCEPT	720
-+#define SEQ_SHUTDOWN	500
-+#define SEQ_CIDMODE	10
-+#define SEQ_UMMODE	11
-+
-+
-+// 100: init, 200: dle0, 250:dle1, 300: get cid (dial), 350: "hup" (no cid), 400: hup, 500: reset, 600: dial, 700: ring
-+struct reply_t gigaset_tab_nocid_m10x[]= /* with dle mode */
-+{
-+	/* resp_code, min_ConState, max_ConState, parameter, new_ConState, timeout, action, command */
-+
-+	/* initialize device, set cid mode if possible */
-+	//{RSP_INIT,     -1, -1,100,                900, 0, {ACT_TEST}},
-+	//{RSP_ERROR,   900,900, -1,                  0, 0, {ACT_FAILINIT}},
-+	//{RSP_OK,      900,900, -1,                100, INIT_TIMEOUT,
-+	//                                                  {ACT_TIMEOUT}},
-+
-+	{RSP_INIT,     -1, -1,SEQ_INIT,           100, INIT_TIMEOUT,
-+							  {ACT_TIMEOUT}},                /* wait until device is ready */
-+
-+	{EV_TIMEOUT,  100,100, -1,                101, 3, {0},             "Z\r"},       /* device in transparent mode? try to initialize it. */
-+	{RSP_OK,      101,103, -1,                120, 5, {ACT_GETSTRING}, "+GMR\r"},    /* get version */
-+
-+	{EV_TIMEOUT,  101,101, -1,                102, 5, {0},             "Z\r"},       /* timeout => try once again. */
-+	{RSP_ERROR,   101,101, -1,                102, 5, {0},             "Z\r"},       /* error => try once again. */
-+
-+	{EV_TIMEOUT,  102,102, -1,                108, 5, {ACT_SETDLE1},   "^SDLE=0\r"}, /* timeout => try again in DLE mode. */
-+	{RSP_OK,      108,108, -1,                104,-1},
-+	{RSP_ZDLE,    104,104,  0,                103, 5, {0},             "Z\r"},
-+	{EV_TIMEOUT,  104,104, -1,                  0, 0, {ACT_FAILINIT}},
-+	{RSP_ERROR,   108,108, -1,                  0, 0, {ACT_FAILINIT}},
-+
-+	{EV_TIMEOUT,  108,108, -1,                105, 2, {ACT_SETDLE0,
-+							   ACT_HUPMODEM,
-+							   ACT_TIMEOUT}},                /* still timeout => connection in unimodem mode? */
-+	{EV_TIMEOUT,  105,105, -1,                103, 5, {0},             "Z\r"},
-+
-+	{RSP_ERROR,   102,102, -1,                107, 5, {0},             "^GETPRE\r"}, /* ERROR on ATZ => maybe in config mode? */
-+	{RSP_OK,      107,107, -1,                  0, 0, {ACT_CONFIGMODE}},
-+	{RSP_ERROR,   107,107, -1,                  0, 0, {ACT_FAILINIT}},
-+	{EV_TIMEOUT,  107,107, -1,                  0, 0, {ACT_FAILINIT}},
-+
-+	{RSP_ERROR,   103,103, -1,                  0, 0, {ACT_FAILINIT}},
-+	{EV_TIMEOUT,  103,103, -1,                  0, 0, {ACT_FAILINIT}},
-+
-+	{RSP_STRING,  120,120, -1,                121,-1, {ACT_SETVER}},
-+
-+	{EV_TIMEOUT,  120,121, -1,                  0, 0, {ACT_FAILVER, ACT_INIT}},
-+	{RSP_ERROR,   120,121, -1,                  0, 0, {ACT_FAILVER, ACT_INIT}},
-+	{RSP_OK,      121,121, -1,                  0, 0, {ACT_GOTVER,  ACT_INIT}},
-+#if 0
-+	{EV_TIMEOUT,  120,121, -1,                130, 5, {ACT_FAILVER},   "^SGCI=1\r"},
-+	{RSP_ERROR,   120,121, -1,                130, 5, {ACT_FAILVER},   "^SGCI=1\r"},
-+	{RSP_OK,      121,121, -1,                130, 5, {ACT_GOTVER},    "^SGCI=1\r"},
-+
-+	{RSP_OK,      130,130, -1,                  0, 0, {ACT_INIT}},
-+	{RSP_ERROR,   130,130, -1,                  0, 0, {ACT_FAILINIT}},
-+	{EV_TIMEOUT,  130,130, -1,                  0, 0, {ACT_FAILINIT}},
-+#endif
-+
-+	/* leave dle mode */
-+	{RSP_INIT,      0,  0,SEQ_DLE0,           201, 5, {0},             "^SDLE=0\r"},
-+	{RSP_OK,      201,201, -1,                202,-1},
-+	//{RSP_ZDLE,    202,202,  0,                202, 0, {ACT_ERROR}},//DELETE
-+	{RSP_ZDLE,    202,202,  0,                  0, 0, {ACT_DLE0}},
-+	{RSP_NODEV,   200,249, -1,                  0, 0, {ACT_FAKEDLE0}},
-+	{RSP_ERROR,   200,249, -1,                  0, 0, {ACT_FAILDLE0}},
-+	{EV_TIMEOUT,  200,249, -1,                  0, 0, {ACT_FAILDLE0}},
-+
-+	/* enter dle mode */
-+	{RSP_INIT,      0,  0,SEQ_DLE1,           251, 5, {0},             "^SDLE=1\r"},
-+	{RSP_OK,      251,251, -1,                252,-1},
-+	{RSP_ZDLE,    252,252,  1,                  0, 0, {ACT_DLE1}},
-+	{RSP_ERROR,   250,299, -1,                  0, 0, {ACT_FAILDLE1}},
-+	{EV_TIMEOUT,  250,299, -1,                  0, 0, {ACT_FAILDLE1}},
-+
-+	/* incoming call */
-+	{RSP_RING,     -1, -1, -1,                 -1,-1, {ACT_RING}},
-+
-+	/* get cid */
-+	//{RSP_INIT,      0,  0,300,                901, 0, {ACT_TEST}},
-+	//{RSP_ERROR,   901,901, -1,                  0, 0, {ACT_FAILCID}},
-+	//{RSP_OK,      901,901, -1,                301, 5, {0},             "^SGCI?\r"},
-+
-+	{RSP_INIT,      0,  0,SEQ_CID,            301, 5, {0},             "^SGCI?\r"},
-+	{RSP_OK,      301,301, -1,                302,-1},
-+	{RSP_ZGCI,    302,302, -1,                  0, 0, {ACT_CID}},
-+	{RSP_ERROR,   301,349, -1,                  0, 0, {ACT_FAILCID}},
-+	{EV_TIMEOUT,  301,349, -1,                  0, 0, {ACT_FAILCID}},
-+
-+	/* enter cid mode */
-+	{RSP_INIT,      0,  0,SEQ_CIDMODE,        150, 5, {0},             "^SGCI=1\r"},
-+	{RSP_OK,      150,150, -1,                  0, 0, {ACT_CMODESET}},
-+	{RSP_ERROR,   150,150, -1,                  0, 0, {ACT_FAILCMODE}},
-+	{EV_TIMEOUT,  150,150, -1,                  0, 0, {ACT_FAILCMODE}},
-+
-+	/* leave cid mode */
-+	//{RSP_INIT,      0,  0,SEQ_UMMODE,         160, 5, {0},             "^SGCI=0\r"},
-+	{RSP_INIT,      0,  0,SEQ_UMMODE,         160, 5, {0},             "Z\r"},
-+	{RSP_OK,      160,160, -1,                  0, 0, {ACT_UMODESET}},
-+	{RSP_ERROR,   160,160, -1,                  0, 0, {ACT_FAILUMODE}},
-+	{EV_TIMEOUT,  160,160, -1,                  0, 0, {ACT_FAILUMODE}},
-+
-+	/* abort getting cid */
-+	{RSP_INIT,      0,  0,SEQ_NOCID,            0, 0, {ACT_ABORTCID}},
-+
-+	/* reset */
-+#if 0
-+	{RSP_INIT,      0,  0,SEQ_SHUTDOWN,       503, 5, {0},             "^SGCI=0\r"},
-+	{RSP_OK,      503,503, -1,                504, 5, {0},             "Z\r"},
-+#endif
-+	{RSP_INIT,      0,  0,SEQ_SHUTDOWN,       504, 5, {0},             "Z\r"},
-+	{RSP_OK,      504,504, -1,                  0, 0, {ACT_SDOWN}},
-+	{RSP_ERROR,   501,599, -1,                  0, 0, {ACT_FAILSDOWN}},
-+	{EV_TIMEOUT,  501,599, -1,                  0, 0, {ACT_FAILSDOWN}},
-+	{RSP_NODEV,   501,599, -1,                  0, 0, {ACT_FAKESDOWN}},
-+
-+	{EV_PROC_CIDMODE,-1, -1, -1,               -1,-1, {ACT_PROC_CIDMODE}}, //FIXME
-+	{EV_IF_LOCK,   -1, -1, -1,                 -1,-1, {ACT_IF_LOCK}}, //FIXME
-+	{EV_IF_VER,    -1, -1, -1,                 -1,-1, {ACT_IF_VER}}, //FIXME
-+	{EV_START,     -1, -1, -1,                 -1,-1, {ACT_START}}, //FIXME
-+	{EV_STOP,      -1, -1, -1,                 -1,-1, {ACT_STOP}}, //FIXME
-+	{EV_SHUTDOWN,  -1, -1, -1,                 -1,-1, {ACT_SHUTDOWN}}, //FIXME
-+
-+	/* misc. */
-+	{RSP_EMPTY,    -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZCFGT,    -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZCFG,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZLOG,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZMWI,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZABINFO,  -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZSMLSTCHG,-1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+
-+	{RSP_ZCAU,     -1, -1, -1,                 -1,-1, {ACT_ZCAU}},
-+	{RSP_NONE,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ANY,      -1, -1, -1,                 -1,-1, {ACT_WARN}},
-+	{RSP_LAST}
-+};
-+
-+// 600: start dialing, 650: dial in progress, 800: connection is up, 700: ring, 400: hup, 750: accepted icall
-+struct reply_t gigaset_tab_cid_m10x[] = /* for M10x */
-+{
-+	/* resp_code, min_ConState, max_ConState, parameter, new_ConState, timeout, action, command */
-+
-+	/* dial */
-+	{EV_DIAL,      -1, -1, -1,                 -1,-1, {ACT_DIAL}}, //FIXME
-+	{RSP_INIT,      0,  0,SEQ_DIAL,           601, 5, {ACT_CMD+AT_BC}},
-+	{RSP_OK,      601,601, -1,                602, 5, {ACT_CMD+AT_HLC}},
-+	{RSP_NULL,    602,602, -1,                603, 5, {ACT_CMD+AT_PROTO}},
-+	{RSP_OK,      602,602, -1,                603, 5, {ACT_CMD+AT_PROTO}},
-+	{RSP_OK,      603,603, -1,                604, 5, {ACT_CMD+AT_TYPE}},
-+	{RSP_OK,      604,604, -1,                605, 5, {ACT_CMD+AT_MSN}},
-+	{RSP_OK,      605,605, -1,                606, 5, {ACT_CMD+AT_ISO}},
-+	{RSP_NULL,    605,605, -1,                606, 5, {ACT_CMD+AT_ISO}},
-+	{RSP_OK,      606,606, -1,                607, 5, {0},             "+VLS=17\r"}, /* set "Endgeraetemodus" */
-+	{RSP_OK,      607,607, -1,                608,-1},
-+	//{RSP_ZSAU,    608,608,ZSAU_PROCEEDING,    608, 0, {ACT_ERROR}},//DELETE
-+	{RSP_ZSAU,    608,608,ZSAU_PROCEEDING,    609, 5, {ACT_CMD+AT_DIAL}},
-+	{RSP_OK,      609,609, -1,                650, 0, {ACT_DIALING}},
-+
-+	{RSP_ZVLS,    608,608, 17,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ZCTP,    609,609, -1,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ZCPN,    609,609, -1,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ERROR,   601,609, -1,                  0, 0, {ACT_ABORTDIAL}},
-+	{EV_TIMEOUT,  601,609, -1,                  0, 0, {ACT_ABORTDIAL}},
-+
-+	/* dialing */
-+	{RSP_ZCTP,    650,650, -1,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ZCPN,    650,650, -1,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ZSAU,    650,650,ZSAU_CALL_DELIVERED, -1,-1, {ACT_DEBUG}}, /* some devices don't send this */
-+
-+	/* connection established  */
-+	{RSP_ZSAU,    650,650,ZSAU_ACTIVE,        800,-1, {ACT_CONNECT}}, //FIXME -> DLE1
-+	{RSP_ZSAU,    750,750,ZSAU_ACTIVE,        800,-1, {ACT_CONNECT}}, //FIXME -> DLE1
-+
-+	{EV_BC_OPEN,  800,800, -1,                800,-1, {ACT_NOTIFY_BC_UP}}, //FIXME new constate + timeout
-+
-+	/* remote hangup */
-+	{RSP_ZSAU,    650,650,ZSAU_DISCONNECT_IND,  0, 0, {ACT_REMOTEREJECT}},
-+	{RSP_ZSAU,    750,750,ZSAU_DISCONNECT_IND,  0, 0, {ACT_REMOTEHUP}},
-+	{RSP_ZSAU,    800,800,ZSAU_DISCONNECT_IND,  0, 0, {ACT_REMOTEHUP}},
-+
-+	/* hangup */
-+	{EV_HUP,       -1, -1, -1,                 -1,-1, {ACT_HUP}}, //FIXME
-+	{RSP_INIT,     -1, -1,SEQ_HUP,            401, 5, {0},             "+VLS=0\r"}, /* hang up */ //-1,-1?
-+	{RSP_OK,      401,401, -1,                402, 5},
-+	{RSP_ZVLS,    402,402,  0,                403, 5},
-+	{RSP_ZSAU,    403,403,ZSAU_DISCONNECT_REQ, -1,-1, {ACT_DEBUG}}, /* if not remote hup */
-+	//{RSP_ZSAU,    403,403,ZSAU_NULL,          401, 0, {ACT_ERROR}}, //DELETE//FIXME -> DLE0 // should we do this _before_ hanging up for base driver?
-+	{RSP_ZSAU,    403,403,ZSAU_NULL,            0, 0, {ACT_DISCONNECT}}, //FIXME -> DLE0 // should we do this _before_ hanging up for base driver?
-+	{RSP_NODEV,   401,403, -1,                  0, 0, {ACT_FAKEHUP}}, //FIXME -> DLE0 // should we do this _before_ hanging up for base driver?
-+	{RSP_ERROR,   401,401, -1,                  0, 0, {ACT_ABORTHUP}},
-+	{EV_TIMEOUT,  401,403, -1,                  0, 0, {ACT_ABORTHUP}},
-+
-+	{EV_BC_CLOSED,  0,  0, -1,                  0,-1, {ACT_NOTIFY_BC_DOWN}}, //FIXME new constate + timeout
-+
-+	/* ring */
-+	{RSP_ZBC,     700,700, -1,                 -1,-1, {0}},
-+	{RSP_ZHLC,    700,700, -1,                 -1,-1, {0}},
-+	{RSP_NMBR,    700,700, -1,                 -1,-1, {0}},
-+	{RSP_ZCPN,    700,700, -1,                 -1,-1, {0}},
-+	{RSP_ZCTP,    700,700, -1,                 -1,-1, {0}},
-+	{EV_TIMEOUT,  700,700, -1,               720,720, {ACT_ICALL}},
-+	{EV_BC_CLOSED,720,720, -1,                  0,-1, {ACT_NOTIFY_BC_DOWN}},
-+
-+	/*accept icall*/
-+	{EV_ACCEPT,    -1, -1, -1,                 -1,-1, {ACT_ACCEPT}}, //FIXME
-+	{RSP_INIT,    720,720,SEQ_ACCEPT,         721, 5, {ACT_CMD+AT_PROTO}},
-+	{RSP_OK,      721,721, -1,                722, 5, {ACT_CMD+AT_ISO}},
-+	{RSP_OK,      722,722, -1,                723, 5, {0},             "+VLS=17\r"}, /* set "Endgeraetemodus" */
-+	{RSP_OK,      723,723, -1,                724, 5, {0}},
-+	{RSP_ZVLS,    724,724, 17,                750,50, {ACT_ACCEPTED}},
-+	{RSP_ERROR,   721,729, -1,                  0, 0, {ACT_ABORTACCEPT}},
-+	{EV_TIMEOUT,  721,729, -1,                  0, 0, {ACT_ABORTACCEPT}},
-+	{RSP_ZSAU,    700,729,ZSAU_NULL,            0, 0, {ACT_ABORTACCEPT}},
-+	{RSP_ZSAU,    700,729,ZSAU_ACTIVE,          0, 0, {ACT_ABORTACCEPT}},
-+	{RSP_ZSAU,    700,729,ZSAU_DISCONNECT_IND,  0, 0, {ACT_ABORTACCEPT}},
-+
-+	{EV_TIMEOUT,  750,750, -1,                  0, 0, {ACT_CONNTIMEOUT}},
-+
-+	/* misc. */
-+	{EV_PROTO_L2,  -1, -1, -1,                 -1,-1, {ACT_PROTO_L2}}, //FIXME
-+
-+	{RSP_ZCON,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZCCR,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZAOC,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+	{RSP_ZCSTR,    -1, -1, -1,                 -1,-1, {ACT_DEBUG}}, //FIXME
-+
-+	{RSP_ZCAU,     -1, -1, -1,                 -1,-1, {ACT_ZCAU}},
-+	{RSP_NONE,     -1, -1, -1,                 -1,-1, {ACT_DEBUG}},
-+	{RSP_ANY,      -1, -1, -1,                 -1,-1, {ACT_WARN}},
-+	{RSP_LAST}
-+};
-+
-+
-+#if 0
-+static struct reply_t tab_nocid[]= /* no dle mode */ //FIXME
-+{
-+	/* resp_code, min_ConState, max_ConState, parameter, new_ConState, timeout, action, command */
-+
-+	{RSP_ANY,      -1, -1, -1,                 -1,-1, ACT_WARN,         NULL},
-+	{RSP_LAST,0,0,0,0,0,0}
-+};
-+
-+static struct reply_t tab_cid[] = /* no dle mode */ //FIXME
-+{
-+	/* resp_code, min_ConState, max_ConState, parameter, new_ConState, timeout, action, command */
-+
-+	{RSP_ANY,      -1, -1, -1,                 -1,-1, ACT_WARN,         NULL},
-+	{RSP_LAST,0,0,0,0,0,0}
-+};
-+#endif
-+
-+static struct resp_type_t resp_type[]=
-+{
-+	/*{"",		RSP_EMPTY,	RT_NOTHING},*/
-+	{"OK",		RSP_OK,		RT_NOTHING},
-+	{"ERROR",	RSP_ERROR,	RT_NOTHING},
-+	{"ZSAU",	RSP_ZSAU,	RT_ZSAU},
-+	{"ZCAU",	RSP_ZCAU,	RT_ZCAU},
-+	{"RING",	RSP_RING,	RT_RING},
-+	{"ZGCI",	RSP_ZGCI,	RT_NUMBER},
-+	{"ZVLS",	RSP_ZVLS,	RT_NUMBER},
-+	{"ZCTP",	RSP_ZCTP,	RT_NUMBER},
-+	{"ZDLE",	RSP_ZDLE,	RT_NUMBER},
-+	{"ZCFGT",	RSP_ZCFGT,	RT_NUMBER},
-+	{"ZCCR",	RSP_ZCCR,	RT_NUMBER},
-+	{"ZMWI",	RSP_ZMWI,	RT_NUMBER},
-+	{"ZHLC",	RSP_ZHLC,	RT_STRING},
-+	{"ZBC",		RSP_ZBC,	RT_STRING},
-+	{"NMBR",	RSP_NMBR,	RT_STRING},
-+	{"ZCPN",	RSP_ZCPN,	RT_STRING},
-+	{"ZCON",	RSP_ZCON,	RT_STRING},
-+	{"ZAOC",	RSP_ZAOC,	RT_STRING},
-+	{"ZCSTR",	RSP_ZCSTR,	RT_STRING},
-+	{"ZCFG",	RSP_ZCFG,	RT_HEX},
-+	{"ZLOG",	RSP_ZLOG,	RT_NOTHING},
-+	{"ZABINFO",	RSP_ZABINFO,	RT_NOTHING},
-+	{"ZSMLSTCHG",	RSP_ZSMLSTCHG,	RT_NOTHING},
-+	{NULL,0,0}
-+};
-+
-+/*
-+ * Get integer from char-pointer
++/*======================================================================
++  Prototypes of internal functions
 + */
-+static int isdn_getnum(char *p)
++
++static struct cardstate *alloc_cs(struct gigaset_driver *drv);
++static void free_cs(struct cardstate *cs);
++static void make_valid(struct cardstate *cs, unsigned mask);
++static void make_invalid(struct cardstate *cs, unsigned mask);
++
++#define VALID_MINOR	0x01
++#define VALID_ID	0x02
++#define ASSIGNED	0x04
++
++/* bitwise byte inversion table */
++__u8 gigaset_invtab[256] = {
++	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
++	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
++	0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
++	0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
++	0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4,
++	0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
++	0x0c, 0x8c, 0x4c, 0xcc, 0x2c, 0xac, 0x6c, 0xec,
++	0x1c, 0x9c, 0x5c, 0xdc, 0x3c, 0xbc, 0x7c, 0xfc,
++	0x02, 0x82, 0x42, 0xc2, 0x22, 0xa2, 0x62, 0xe2,
++	0x12, 0x92, 0x52, 0xd2, 0x32, 0xb2, 0x72, 0xf2,
++	0x0a, 0x8a, 0x4a, 0xca, 0x2a, 0xaa, 0x6a, 0xea,
++	0x1a, 0x9a, 0x5a, 0xda, 0x3a, 0xba, 0x7a, 0xfa,
++	0x06, 0x86, 0x46, 0xc6, 0x26, 0xa6, 0x66, 0xe6,
++	0x16, 0x96, 0x56, 0xd6, 0x36, 0xb6, 0x76, 0xf6,
++	0x0e, 0x8e, 0x4e, 0xce, 0x2e, 0xae, 0x6e, 0xee,
++	0x1e, 0x9e, 0x5e, 0xde, 0x3e, 0xbe, 0x7e, 0xfe,
++	0x01, 0x81, 0x41, 0xc1, 0x21, 0xa1, 0x61, 0xe1,
++	0x11, 0x91, 0x51, 0xd1, 0x31, 0xb1, 0x71, 0xf1,
++	0x09, 0x89, 0x49, 0xc9, 0x29, 0xa9, 0x69, 0xe9,
++	0x19, 0x99, 0x59, 0xd9, 0x39, 0xb9, 0x79, 0xf9,
++	0x05, 0x85, 0x45, 0xc5, 0x25, 0xa5, 0x65, 0xe5,
++	0x15, 0x95, 0x55, 0xd5, 0x35, 0xb5, 0x75, 0xf5,
++	0x0d, 0x8d, 0x4d, 0xcd, 0x2d, 0xad, 0x6d, 0xed,
++	0x1d, 0x9d, 0x5d, 0xdd, 0x3d, 0xbd, 0x7d, 0xfd,
++	0x03, 0x83, 0x43, 0xc3, 0x23, 0xa3, 0x63, 0xe3,
++	0x13, 0x93, 0x53, 0xd3, 0x33, 0xb3, 0x73, 0xf3,
++	0x0b, 0x8b, 0x4b, 0xcb, 0x2b, 0xab, 0x6b, 0xeb,
++	0x1b, 0x9b, 0x5b, 0xdb, 0x3b, 0xbb, 0x7b, 0xfb,
++	0x07, 0x87, 0x47, 0xc7, 0x27, 0xa7, 0x67, 0xe7,
++	0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
++	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
++	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
++};
++EXPORT_SYMBOL_GPL(gigaset_invtab);
++
++void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *msg,
++			size_t len, const unsigned char *buf, int from_user)
 +{
-+	int v = -1;
++	unsigned char outbuf[80];
++	unsigned char inbuf[80 - 1];
++	unsigned char c;
++	size_t numin;
++	const unsigned char *in;
++	size_t space = sizeof outbuf - 1;
++	unsigned char *out = outbuf;
 +
-+	IFNULLRETVAL(p, -1);
-+
-+	gig_dbg(DEBUG_TRANSCMD, "string: %s", p);
-+
-+	while (*p >= '0' && *p <= '9')
-+		v = ((v < 0) ? 0 : (v * 10)) + (int) ((*p++) - '0');
-+	if (*p)
-+		v = -1; /* invalid Character */
-+	return v;
-+}
-+
-+/*
-+ * Get integer from char-pointer
-+ */
-+static int isdn_gethex(char *p)
-+{
-+	int v = 0;
-+	int c;
-+
-+	IFNULLRETVAL(p, -1);
-+
-+	gig_dbg(DEBUG_TRANSCMD, "string: %s", p);
-+
-+	if (!*p)
-+		return -1;
-+
-+	do {
-+		if (v > (INT_MAX - 15) / 16)
-+			return -1;
-+		c = *p;
-+		if (c >= '0' && c <= '9')
-+			c -= '0';
-+		else if (c >= 'a' && c <= 'f')
-+			c -= 'a' - 10;
-+		else if (c >= 'A' && c <= 'F')
-+			c -= 'A' - 10;
-+		else
-+			return -1;
-+		v = v * 16 + c;
-+	} while (*++p);
-+
-+	return v;
-+}
-+
-+static inline void new_index(atomic_t *index, int max)
-+{
-+	if (atomic_read(index) == max)	//FIXME race?
-+		atomic_set(index, 0);
-+	else
-+		atomic_inc(index);
-+}
-+
-+/* retrieve CID from parsed response
-+ * returns 0 if no CID, -1 if invalid CID, or CID value 1..65535
-+ */
-+static int cid_of_response(char *s)
-+{
-+	int cid;
-+
-+	if (s[-1] != ';')
-+		return 0;	/* no CID separator */
-+	cid = isdn_getnum(s);
-+	if (cid < 0)
-+		return 0;	/* CID not numeric */
-+	if (cid < 1 || cid > 65535)
-+		return -1;	/* CID out of range */
-+	return cid;
-+	//FIXME is ;<digit>+ at end of non-CID response really impossible?
-+}
-+
-+/* This function will be called via task queue from the callback handler.
-+ * We received a modem response and have to handle it..
-+ */
-+void gigaset_handle_modem_response(struct cardstate *cs)
-+{
-+	unsigned char *argv[MAX_REC_PARAMS + 1];
-+	int params;
-+	int i, j;
-+	struct resp_type_t *rt;
-+	int curarg;
-+	unsigned long flags;
-+	unsigned next, tail, head;
-+	struct event_t *event;
-+	int resp_code;
-+	int param_type;
-+	int abort;
-+	size_t len;
-+	int cid;
-+	int rawstring;
-+
-+	IFNULLRET(cs);
-+
-+	len = cs->cbytes;
-+	if (!len) {
-+		/* ignore additional LFs/CRs (M10x config mode or cx100) */
-+		gig_dbg(DEBUG_MCMD, "skipped EOL [%02X]", cs->respdata[len]);
-+		return;
-+	}
-+	cs->respdata[len] = 0;
-+	gig_dbg(DEBUG_TRANSCMD, "raw string: '%s'", cs->respdata);
-+	argv[0] = cs->respdata;
-+	params = 1;
-+	if (cs->at_state.getstring) {
-+		/* getstring only allowed without cid at the moment */
-+		cs->at_state.getstring = 0;
-+		rawstring = 1;
-+		cid = 0;
++	if (!from_user) {
++		in = buf;
++		numin = len;
 +	} else {
-+		/* parse line */
-+		for (i = 0; i < len; i++)
-+			switch (cs->respdata[i]) {
-+			case ';':
-+			case ',':
-+			case '=':
-+				if (params > MAX_REC_PARAMS) {
-+					dev_warn(cs->dev,
-+					   "too many parameters in response\n");
-+					/* need last parameter (might be CID) */
-+					params--;
-+				}
-+				argv[params++] = cs->respdata + i + 1;
-+			}
-+
-+		rawstring = 0;
-+		cid = params > 1 ? cid_of_response(argv[params-1]) : 0;
-+		if (cid < 0) {
-+			gigaset_add_event(cs, &cs->at_state, RSP_INVAL,
-+					  NULL, 0, NULL);
++		numin = len < sizeof inbuf ? len : sizeof inbuf;
++		in = inbuf;
++		if (copy_from_user(inbuf, (const unsigned char __user *) buf,
++				   numin)) {
++			gig_dbg(level, "%s (%u bytes) - copy_from_user failed",
++				msg, (unsigned) len);
 +			return;
 +		}
-+
-+		for (j = 1; j < params; ++j)
-+			argv[j][-1] = 0;
-+
-+		gig_dbg(DEBUG_TRANSCMD, "CMD received: %s", argv[0]);
-+		if (cid) {
-+			--params;
-+			gig_dbg(DEBUG_TRANSCMD, "CID: %s", argv[params]);
-+		}
-+		gig_dbg(DEBUG_TRANSCMD, "available params: %d", params - 1);
-+		for (j = 1; j < params; j++)
-+			gig_dbg(DEBUG_TRANSCMD, "param %d: %s", j, argv[j]);
 +	}
 +
-+	spin_lock_irqsave(&cs->ev_lock, flags);
-+	head = atomic_read(&cs->ev_head);
-+	tail = atomic_read(&cs->ev_tail);
-+
-+	abort = 1;
-+	curarg = 0;
-+	while (curarg < params) {
-+		next = (tail + 1) % MAX_EVENTS;
-+		if (unlikely(next == head)) {
-+			dev_err(cs->dev, "event queue full\n");
-+			break;
-+		}
-+
-+		event = cs->events + tail;
-+		event->at_state = NULL;
-+		event->cid = cid;
-+		event->ptr = NULL;
-+		event->arg = NULL;
-+		tail = next;
-+
-+		if (rawstring) {
-+			resp_code = RSP_STRING;
-+			param_type = RT_STRING;
-+		} else {
-+			for (rt = resp_type; rt->response; ++rt)
-+				if (!strcmp(argv[curarg], rt->response))
-+					break;
-+
-+			if (!rt->response) {
-+				event->type = RSP_UNKNOWN;
-+				dev_warn(cs->dev,
-+					 "unknown modem response: %s\n",
-+					 argv[curarg]);
++	while (numin-- > 0) {
++		c = *buf++;
++		if (c == '~' || c == '^' || c == '\\') {
++			if (space-- <= 0)
 +				break;
-+			}
-+
-+			resp_code = rt->resp_code;
-+			param_type = rt->type;
-+			++curarg;
++			*out++ = '\\';
 +		}
-+
-+		event->type = resp_code;
-+
-+		switch (param_type) {
-+		case RT_NOTHING:
-+			break;
-+		case RT_RING:
-+			if (!cid) {
-+				dev_err(cs->dev,
-+					"received RING without CID!\n");
-+				event->type = RSP_INVAL;
-+				abort = 1;
-+			} else {
-+				event->cid = 0;
-+				event->parameter = cid;
-+				abort = 0;
-+			}
-+			break;
-+		case RT_ZSAU:
-+			if (curarg >= params) {
-+				event->parameter = ZSAU_NONE;
++		if (c & 0x80) {
++			if (space-- <= 0)
 +				break;
-+			}
-+			if (!strcmp(argv[curarg], "OUTGOING_CALL_PROCEEDING"))
-+				event->parameter = ZSAU_OUTGOING_CALL_PROCEEDING;
-+			else if (!strcmp(argv[curarg], "CALL_DELIVERED"))
-+				event->parameter = ZSAU_CALL_DELIVERED;
-+			else if (!strcmp(argv[curarg], "ACTIVE"))
-+				event->parameter = ZSAU_ACTIVE;
-+			else if (!strcmp(argv[curarg], "DISCONNECT_IND"))
-+				event->parameter = ZSAU_DISCONNECT_IND;
-+			else if (!strcmp(argv[curarg], "NULL"))
-+				event->parameter = ZSAU_NULL;
-+			else if (!strcmp(argv[curarg], "DISCONNECT_REQ"))
-+				event->parameter = ZSAU_DISCONNECT_REQ;
-+			else {
-+				event->parameter = ZSAU_UNKNOWN;
-+				dev_warn(cs->dev,
-+					"%s: unknown parameter %s after ZSAU\n",
-+					 __func__, argv[curarg]);
-+			}
-+			++curarg;
-+			break;
-+		case RT_STRING:
-+			if (curarg < params) {
-+				event->ptr = kstrdup(argv[curarg], GFP_ATOMIC);
-+				if (!event->ptr)
-+					dev_err(cs->dev, "out of memory\n");
-+				++curarg;
-+			}
-+#ifdef CONFIG_GIGASET_DEBUG
-+			if (!event->ptr)
-+				gig_dbg(DEBUG_CMD, "string==NULL");
-+			else
-+				gig_dbg(DEBUG_CMD, "string==%s",
-+					(char *) event->ptr);
-+#endif
-+			break;
-+		case RT_ZCAU:
-+			event->parameter = -1;
-+			if (curarg + 1 < params) {
-+				i = isdn_gethex(argv[curarg]);
-+				j = isdn_gethex(argv[curarg + 1]);
-+				if (i >= 0 && i < 256 && j >= 0 && j < 256)
-+					event->parameter = (unsigned) i << 8
-+							   | j;
-+				curarg += 2;
-+			} else
-+				curarg = params - 1;
-+			break;
-+		case RT_NUMBER:
-+		case RT_HEX:
-+			if (curarg < params) {
-+				if (param_type == RT_HEX)
-+					event->parameter =
-+						isdn_gethex(argv[curarg]);
-+				else
-+					event->parameter =
-+						isdn_getnum(argv[curarg]);
-+				++curarg;
-+			} else
-+				event->parameter = -1;
-+#ifdef CONFIG_GIGASET_DEBUG
-+			gig_dbg(DEBUG_CMD, "parameter==%d", event->parameter);
-+#endif
-+			break;
++			*out++ = '~';
++			c ^= 0x80;
 +		}
-+
-+		if (resp_code == RSP_ZDLE)
-+			cs->dle = event->parameter;
-+
-+		if (abort)
++		if (c < 0x20 || c == 0x7f) {
++			if (space-- <= 0)
++				break;
++			*out++ = '^';
++			c ^= 0x40;
++		}
++		if (space-- <= 0)
 +			break;
++		*out++ = c;
 +	}
++	*out = 0;
 +
-+	atomic_set(&cs->ev_tail, tail);
-+	spin_unlock_irqrestore(&cs->ev_lock, flags);
-+
-+	if (curarg != params)
-+		gig_dbg(DEBUG_ANY,
-+			"invalid number of processed parameters: %d/%d",
-+			curarg, params);
++	gig_dbg(level, "%s (%u bytes): %s", msg, (unsigned) len, outbuf);
 +}
-+EXPORT_SYMBOL_GPL(gigaset_handle_modem_response);
++EXPORT_SYMBOL_GPL(gigaset_dbg_buffer);
 +
-+/* disconnect
-+ * process closing of connection associated with given AT state structure
-+ */
-+static void disconnect(struct at_state_t **at_state_p)
++static int setflags(struct cardstate *cs, unsigned flags, unsigned delay)
 +{
-+	unsigned long flags;
-+	struct bc_state *bcs;
-+	struct cardstate *cs;
++	int r;
 +
-+	IFNULLRET(at_state_p);
-+	IFNULLRET(*at_state_p);
-+	bcs = (*at_state_p)->bcs;
-+	cs = (*at_state_p)->cs;
-+	IFNULLRET(cs);
++	r = cs->ops->set_modem_ctrl(cs, cs->control_state, flags);
++	cs->control_state = flags;
++	if (r < 0)
++		return r;
 +
-+	new_index(&(*at_state_p)->seq_index, MAX_SEQ_INDEX);
-+
-+	/* revert to selected idle mode */
-+	if (!atomic_read(&cs->cidmode)) {
-+		cs->at_state.pending_commands |= PC_UMMODE;
-+		atomic_set(&cs->commands_pending, 1); //FIXME
-+		gig_dbg(DEBUG_CMD, "Scheduling PC_UMMODE");
++	if (delay) {
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(delay * HZ / 1000);
 +	}
-+
-+	if (bcs) {
-+		/* B channel assigned: invoke hardware specific handler */
-+		cs->ops->close_bchannel(bcs);
-+	} else {
-+		/* no B channel assigned: just deallocate */
-+		spin_lock_irqsave(&cs->lock, flags);
-+		list_del(&(*at_state_p)->list);
-+		kfree(*at_state_p);
-+		*at_state_p = NULL;
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+	}
-+}
-+
-+/* get_free_channel
-+ * get a free AT state structure: either one of those associated with the
-+ * B channels of the Gigaset device, or if none of those is available,
-+ * a newly allocated one with bcs=NULL
-+ * The structure should be freed by calling disconnect() after use.
-+ */
-+static inline struct at_state_t *get_free_channel(struct cardstate *cs,
-+						  int cid)
-+/* cids: >0: siemens-cid
-+	  0: without cid
-+	 -1: no cid assigned yet
-+*/
-+{
-+	unsigned long flags;
-+	int i;
-+	struct at_state_t *ret;
-+
-+	for (i = 0; i < cs->channels; ++i)
-+		if (gigaset_get_channel(cs->bcs + i)) {
-+			ret = &cs->bcs[i].at_state;
-+			ret->cid = cid;
-+			return ret;
-+		}
-+
-+	spin_lock_irqsave(&cs->lock, flags);
-+	ret = kmalloc(sizeof(struct at_state_t), GFP_ATOMIC);
-+	if (ret) {
-+		gigaset_at_init(ret, NULL, cs, cid);
-+		list_add(&ret->list, &cs->temp_at_states);
-+	}
-+	spin_unlock_irqrestore(&cs->lock, flags);
-+	return ret;
-+}
-+
-+static void init_failed(struct cardstate *cs, int mode)
-+{
-+	int i;
-+	struct at_state_t *at_state;
-+
-+	cs->at_state.pending_commands &= ~PC_INIT;
-+	atomic_set(&cs->mode, mode);
-+	atomic_set(&cs->mstate, MS_UNINITIALIZED);
-+	gigaset_free_channels(cs);
-+	for (i = 0; i < cs->channels; ++i) {
-+		at_state = &cs->bcs[i].at_state;
-+		if (at_state->pending_commands & PC_CID) {
-+			at_state->pending_commands &= ~PC_CID;
-+			at_state->pending_commands |= PC_NOCID;
-+			atomic_set(&cs->commands_pending, 1);
-+		}
-+	}
-+}
-+
-+static void schedule_init(struct cardstate *cs, int state)
-+{
-+	if (cs->at_state.pending_commands & PC_INIT) {
-+		gig_dbg(DEBUG_CMD, "not scheduling PC_INIT again");
-+		return;
-+	}
-+	atomic_set(&cs->mstate, state);
-+	atomic_set(&cs->mode, M_UNKNOWN);
-+	gigaset_block_channels(cs);
-+	cs->at_state.pending_commands |= PC_INIT;
-+	atomic_set(&cs->commands_pending, 1);
-+	gig_dbg(DEBUG_CMD, "Scheduling PC_INIT");
-+}
-+
-+/* Add "AT" to a command, add the cid, dle encode it, send the result to the
-+   hardware. */
-+static void send_command(struct cardstate *cs, const char *cmd, int cid,
-+			 int dle, gfp_t kmallocflags)
-+{
-+	size_t cmdlen, buflen;
-+	char *cmdpos, *cmdbuf, *cmdtail;
-+
-+	cmdlen = strlen(cmd);
-+	buflen = 11 + cmdlen;
-+	if (unlikely(buflen <= cmdlen)) {
-+		dev_err(cs->dev, "integer overflow in buflen\n");
-+		return;
-+	}
-+
-+	cmdbuf = kmalloc(buflen, kmallocflags);
-+	if (unlikely(!cmdbuf)) {
-+		dev_err(cs->dev, "out of memory\n");
-+		return;
-+	}
-+
-+	cmdpos = cmdbuf + 9;
-+	cmdtail = cmdpos + cmdlen;
-+	memcpy(cmdpos, cmd, cmdlen);
-+
-+	if (cid > 0 && cid <= 65535) {
-+		do {
-+			*--cmdpos = '0' + cid % 10;
-+			cid /= 10;
-+			++cmdlen;
-+		} while (cid);
-+	}
-+
-+	cmdlen += 2;
-+	*--cmdpos = 'T';
-+	*--cmdpos = 'A';
-+
-+	if (dle) {
-+		cmdlen += 4;
-+		*--cmdpos = '(';
-+		*--cmdpos = 0x10;
-+		*cmdtail++ = 0x10;
-+		*cmdtail++ = ')';
-+	}
-+
-+	cs->ops->write_cmd(cs, cmdpos, cmdlen, NULL);
-+	kfree(cmdbuf);
-+}
-+
-+static struct at_state_t *at_state_from_cid(struct cardstate *cs, int cid)
-+{
-+	struct at_state_t *at_state;
-+	int i;
-+	unsigned long flags;
-+
-+	if (cid == 0)
-+		return &cs->at_state;
-+
-+	for (i = 0; i < cs->channels; ++i)
-+		if (cid == cs->bcs[i].at_state.cid)
-+			return &cs->bcs[i].at_state;
-+
-+	spin_lock_irqsave(&cs->lock, flags);
-+
-+	list_for_each_entry(at_state, &cs->temp_at_states, list)
-+		if (cid == at_state->cid) {
-+			spin_unlock_irqrestore(&cs->lock, flags);
-+			return at_state;
-+		}
-+
-+	spin_unlock_irqrestore(&cs->lock, flags);
-+
-+	return NULL;
-+}
-+
-+static void bchannel_down(struct bc_state *bcs)
-+{
-+	IFNULLRET(bcs);
-+	IFNULLRET(bcs->cs);
-+
-+	if (bcs->chstate & CHS_B_UP) {
-+		bcs->chstate &= ~CHS_B_UP;
-+		gigaset_i4l_channel_cmd(bcs, ISDN_STAT_BHUP);
-+	}
-+
-+	if (bcs->chstate & (CHS_D_UP | CHS_NOTIFY_LL)) {
-+		bcs->chstate &= ~(CHS_D_UP | CHS_NOTIFY_LL);
-+		gigaset_i4l_channel_cmd(bcs, ISDN_STAT_DHUP);
-+	}
-+
-+	gigaset_free_channel(bcs);
-+
-+	gigaset_bcs_reinit(bcs);
-+}
-+
-+static void bchannel_up(struct bc_state *bcs)
-+{
-+	IFNULLRET(bcs);
-+
-+	if (!(bcs->chstate & CHS_D_UP)) {
-+		dev_notice(bcs->cs->dev, "%s: D channel not up\n", __func__);
-+		bcs->chstate |= CHS_D_UP;
-+		gigaset_i4l_channel_cmd(bcs, ISDN_STAT_DCONN);
-+	}
-+
-+	if (bcs->chstate & CHS_B_UP) {
-+		dev_notice(bcs->cs->dev, "%s: B channel already up\n",
-+			   __func__);
-+		return;
-+	}
-+
-+	bcs->chstate |= CHS_B_UP;
-+	gigaset_i4l_channel_cmd(bcs, ISDN_STAT_BCONN);
-+}
-+
-+static void start_dial(struct at_state_t *at_state, void *data, int seq_index)
-+{
-+	struct bc_state *bcs = at_state->bcs;
-+	struct cardstate *cs = at_state->cs;
-+	int retval;
-+
-+	bcs->chstate |= CHS_NOTIFY_LL;
-+	//atomic_set(&bcs->status, BCS_INIT);
-+
-+	if (atomic_read(&at_state->seq_index) != seq_index)
-+		goto error;
-+
-+	retval = gigaset_isdn_setup_dial(at_state, data);
-+	if (retval != 0)
-+		goto error;
-+
-+
-+	at_state->pending_commands |= PC_CID;
-+	gig_dbg(DEBUG_CMD, "Scheduling PC_CID");
-+	atomic_set(&cs->commands_pending, 1);
-+	return;
-+
-+error:
-+	at_state->pending_commands |= PC_NOCID;
-+	gig_dbg(DEBUG_CMD, "Scheduling PC_NOCID");
-+	atomic_set(&cs->commands_pending, 1);
-+	return;
-+}
-+
-+static void start_accept(struct at_state_t *at_state)
-+{
-+	struct cardstate *cs = at_state->cs;
-+	int retval;
-+
-+	retval = gigaset_isdn_setup_accept(at_state);
-+
-+	if (retval == 0) {
-+		at_state->pending_commands |= PC_ACCEPT;
-+		gig_dbg(DEBUG_CMD, "Scheduling PC_ACCEPT");
-+		atomic_set(&cs->commands_pending, 1);
-+	} else {
-+		//FIXME
-+		at_state->pending_commands |= PC_HUP;
-+		gig_dbg(DEBUG_CMD, "Scheduling PC_HUP");
-+		atomic_set(&cs->commands_pending, 1);
-+	}
-+}
-+
-+static void do_start(struct cardstate *cs)
-+{
-+	gigaset_free_channels(cs);
-+
-+	if (atomic_read(&cs->mstate) != MS_LOCKED)
-+		schedule_init(cs, MS_INIT);
-+
-+	gigaset_i4l_cmd(cs, ISDN_STAT_RUN);
-+					// FIXME: not in locked mode
-+					// FIXME 2: only after init sequence
-+
-+	cs->waiting = 0;
-+	wake_up(&cs->waitqueue);
-+}
-+
-+static void finish_shutdown(struct cardstate *cs)
-+{
-+	if (atomic_read(&cs->mstate) != MS_LOCKED) {
-+		atomic_set(&cs->mstate, MS_UNINITIALIZED);
-+		atomic_set(&cs->mode, M_UNKNOWN);
-+	}
-+
-+	/* The rest is done by cleanup_cs () in user mode. */
-+
-+	cs->cmd_result = -ENODEV;
-+	cs->waiting = 0;
-+	wake_up_interruptible(&cs->waitqueue);
-+}
-+
-+static void do_shutdown(struct cardstate *cs)
-+{
-+	gigaset_block_channels(cs);
-+
-+	if (atomic_read(&cs->mstate) == MS_READY) {
-+		atomic_set(&cs->mstate, MS_SHUTDOWN);
-+		cs->at_state.pending_commands |= PC_SHUTDOWN;
-+		atomic_set(&cs->commands_pending, 1);
-+		gig_dbg(DEBUG_CMD, "Scheduling PC_SHUTDOWN");
-+	} else
-+		finish_shutdown(cs);
-+}
-+
-+static void do_stop(struct cardstate *cs)
-+{
-+	do_shutdown(cs);
-+}
-+
-+/* Entering cid mode or getting a cid failed:
-+ * try to initialize the device and try again.
-+ *
-+ * channel >= 0: getting cid for the channel failed
-+ * channel < 0:  entering cid mode failed
-+ *
-+ * returns 0 on failure
-+ */
-+static int reinit_and_retry(struct cardstate *cs, int channel)
-+{
-+	int i;
-+
-+	if (--cs->retry_count <= 0)
-+		return 0;
-+
-+	for (i = 0; i < cs->channels; ++i)
-+		if (cs->bcs[i].at_state.cid > 0)
-+			return 0;
-+
-+	if (channel < 0)
-+		dev_warn(cs->dev,
-+		    "Could not enter cid mode. Reinit device and try again.\n");
-+	else {
-+		dev_warn(cs->dev,
-+		    "Could not get a call id. Reinit device and try again.\n");
-+		cs->bcs[channel].at_state.pending_commands |= PC_CID;
-+	}
-+	schedule_init(cs, MS_INIT);
-+	return 1;
-+}
-+
-+static int at_state_invalid(struct cardstate *cs,
-+			    struct at_state_t *test_ptr)
-+{
-+	unsigned long flags;
-+	unsigned channel;
-+	struct at_state_t *at_state;
-+	int retval = 0;
-+
-+	spin_lock_irqsave(&cs->lock, flags);
-+
-+	if (test_ptr == &cs->at_state)
-+		goto exit;
-+
-+	list_for_each_entry(at_state, &cs->temp_at_states, list)
-+		if (at_state == test_ptr)
-+			goto exit;
-+
-+	for (channel = 0; channel < cs->channels; ++channel)
-+		if (&cs->bcs[channel].at_state == test_ptr)
-+			goto exit;
-+
-+	retval = 1;
-+exit:
-+	spin_unlock_irqrestore(&cs->lock, flags);
-+	return retval;
-+}
-+
-+static void handle_icall(struct cardstate *cs, struct bc_state *bcs,
-+			 struct at_state_t **p_at_state)
-+{
-+	int retval;
-+	struct at_state_t *at_state = *p_at_state;
-+
-+	retval = gigaset_isdn_icall(at_state);
-+	switch (retval) {
-+	case ICALL_ACCEPT:
-+		break;
-+	default:
-+		dev_err(cs->dev, "internal error: disposition=%d\n", retval);
-+		/* --v-- fall through --v-- */
-+	case ICALL_IGNORE:
-+	case ICALL_REJECT:
-+		/* hang up actively
-+		 * Device doc says that would reject the call.
-+		 * In fact it doesn't.
-+		 */
-+		at_state->pending_commands |= PC_HUP;
-+		atomic_set(&cs->commands_pending, 1);
-+		break;
-+	}
-+}
-+
-+static int do_lock(struct cardstate *cs)
-+{
-+	int mode;
-+	int i;
-+
-+	switch (atomic_read(&cs->mstate)) {
-+	case MS_UNINITIALIZED:
-+	case MS_READY:
-+		if (cs->cur_at_seq || !list_empty(&cs->temp_at_states) ||
-+		    cs->at_state.pending_commands)
-+			return -EBUSY;
-+
-+		for (i = 0; i < cs->channels; ++i)
-+			if (cs->bcs[i].at_state.pending_commands)
-+				return -EBUSY;
-+
-+		if (!gigaset_get_channels(cs))
-+			return -EBUSY;
-+
-+		break;
-+	case MS_LOCKED:
-+		//retval = -EACCES;
-+		break;
-+	default:
-+		return -EBUSY;
-+	}
-+
-+	mode = atomic_read(&cs->mode);
-+	atomic_set(&cs->mstate, MS_LOCKED);
-+	atomic_set(&cs->mode, M_UNKNOWN);
-+
-+	return mode;
-+}
-+
-+static int do_unlock(struct cardstate *cs)
-+{
-+	if (atomic_read(&cs->mstate) != MS_LOCKED)
-+		return -EINVAL;
-+
-+	atomic_set(&cs->mstate, MS_UNINITIALIZED);
-+	atomic_set(&cs->mode, M_UNKNOWN);
-+	gigaset_free_channels(cs);
-+	if (atomic_read(&cs->connected))
-+		schedule_init(cs, MS_INIT);
 +
 +	return 0;
 +}
 +
-+static void do_action(int action, struct cardstate *cs,
-+		      struct bc_state *bcs,
-+		      struct at_state_t **p_at_state, char **pp_command,
-+		      int *p_genresp, int *p_resp_code,
-+		      struct event_t *ev)
++int gigaset_enterconfigmode(struct cardstate *cs)
 +{
-+	struct at_state_t *at_state = *p_at_state;
-+	struct at_state_t *at_state2;
-+	unsigned long flags;
++	int i, r;
 +
-+	int channel;
-+
-+	unsigned char *s, *e;
-+	int i;
-+	unsigned long val;
-+
-+	switch (action) {
-+	case ACT_NOTHING:
-+		break;
-+	case ACT_TIMEOUT:
-+		at_state->waiting = 1;
-+		break;
-+	case ACT_INIT:
-+		cs->at_state.pending_commands &= ~PC_INIT;
-+		cs->cur_at_seq = SEQ_NONE;
-+		atomic_set(&cs->mode, M_UNIMODEM);
-+		if (!atomic_read(&cs->cidmode)) {
-+			gigaset_free_channels(cs);
-+			atomic_set(&cs->mstate, MS_READY);
-+			break;
-+		}
-+		cs->at_state.pending_commands |= PC_CIDMODE;
-+		atomic_set(&cs->commands_pending, 1);
-+		gig_dbg(DEBUG_CMD, "Scheduling PC_CIDMODE");
-+		break;
-+	case ACT_FAILINIT:
-+		dev_warn(cs->dev, "Could not initialize the device.\n");
-+		cs->dle = 0;
-+		init_failed(cs, M_UNKNOWN);
-+		cs->cur_at_seq = SEQ_NONE;
-+		break;
-+	case ACT_CONFIGMODE:
-+		init_failed(cs, M_CONFIG);
-+		cs->cur_at_seq = SEQ_NONE;
-+		break;
-+	case ACT_SETDLE1:
-+		cs->dle = 1;
-+		/* cs->inbuf[0].inputstate |= INS_command | INS_DLE_command; */
-+		cs->inbuf[0].inputstate &=
-+			~(INS_command | INS_DLE_command);
-+		break;
-+	case ACT_SETDLE0:
-+		cs->dle = 0;
-+		cs->inbuf[0].inputstate =
-+			(cs->inbuf[0].inputstate & ~INS_DLE_command)
-+			| INS_command;
-+		break;
-+	case ACT_CMODESET:
-+		if (atomic_read(&cs->mstate) == MS_INIT ||
-+		    atomic_read(&cs->mstate) == MS_RECOVER) {
-+			gigaset_free_channels(cs);
-+			atomic_set(&cs->mstate, MS_READY);
-+		}
-+		atomic_set(&cs->mode, M_CID);
-+		cs->cur_at_seq = SEQ_NONE;
-+		break;
-+	case ACT_UMODESET:
-+		atomic_set(&cs->mode, M_UNIMODEM);
-+		cs->cur_at_seq = SEQ_NONE;
-+		break;
-+	case ACT_FAILCMODE:
-+		cs->cur_at_seq = SEQ_NONE;
-+		if (atomic_read(&cs->mstate) == MS_INIT ||
-+		    atomic_read(&cs->mstate) == MS_RECOVER) {
-+			init_failed(cs, M_UNKNOWN);
-+			break;
-+		}
-+		if (!reinit_and_retry(cs, -1))
-+			schedule_init(cs, MS_RECOVER);
-+		break;
-+	case ACT_FAILUMODE:
-+		cs->cur_at_seq = SEQ_NONE;
-+		schedule_init(cs, MS_RECOVER);
-+		break;
-+	case ACT_HUPMODEM:
-+		/* send "+++" (hangup in unimodem mode) */
-+		cs->ops->write_cmd(cs, "+++", 3, NULL);
-+		break;
-+	case ACT_RING:
-+		/* get fresh AT state structure for new CID */
-+		at_state2 = get_free_channel(cs, ev->parameter);
-+		if (!at_state2) {
-+			dev_warn(cs->dev,
-+			"RING ignored: could not allocate channel structure\n");
-+			break;
-+		}
-+
-+		/* initialize AT state structure
-+		 * note that bcs may be NULL if no B channel is free
-+		 */
-+		at_state2->ConState = 700;
-+		kfree(at_state2->str_var[STR_NMBR]);
-+		at_state2->str_var[STR_NMBR] = NULL;
-+		kfree(at_state2->str_var[STR_ZCPN]);
-+		at_state2->str_var[STR_ZCPN] = NULL;
-+		kfree(at_state2->str_var[STR_ZBC]);
-+		at_state2->str_var[STR_ZBC] = NULL;
-+		kfree(at_state2->str_var[STR_ZHLC]);
-+		at_state2->str_var[STR_ZHLC] = NULL;
-+		at_state2->int_var[VAR_ZCTP] = -1;
-+
-+		spin_lock_irqsave(&cs->lock, flags);
-+		at_state2->timer_expires = RING_TIMEOUT;
-+		at_state2->timer_active = 1;
-+		spin_unlock_irqrestore(&cs->lock, flags);
-+		break;
-+	case ACT_ICALL:
-+		handle_icall(cs, bcs, p_at_state);
-+		at_state = *p_at_state;
-+		break;
-+	case ACT_FAILSDOWN:
-+		dev_warn(cs->dev, "Could not shut down the device.\n");
-+		/* fall through */
-+	case ACT_FAKESDOWN:
-+	case ACT_SDOWN:
-+		cs->cur_at_seq = SEQ_NONE;
-+		finish_shutdown(cs);
-+		break;
-+	case ACT_CONNECT:
-+		if (cs->onechannel) {
-+			at_state->pending_commands |= PC_DLE1;
-+			atomic_set(&cs->commands_pending, 1);
-+			break;
-+		}
-+		bcs->chstate |= CHS_D_UP;
-+		gigaset_i4l_channel_cmd(bcs, ISDN_STAT_DCONN);
-+		cs->ops->init_bchannel(bcs);
-+		break;
-+	case ACT_DLE1:
-+		cs->cur_at_seq = SEQ_NONE;
-+		bcs = cs->bcs + cs->curchannel;
-+
-+		bcs->chstate |= CHS_D_UP;
-+		gigaset_i4l_channel_cmd(bcs, ISDN_STAT_DCONN);
-+		cs->ops->init_bchannel(bcs);
-+		break;
-+	case ACT_FAKEHUP:
-+		at_state->int_var[VAR_ZSAU] = ZSAU_NULL;
-+		/* fall through */
-+	case ACT_DISCONNECT:
-+		cs->cur_at_seq = SEQ_NONE;
-+		at_state->cid = -1;
-+		if (bcs && cs->onechannel && cs->dle) {
-+			/* Check for other open channels not needed:
-+			 * DLE only used for M10x with one B channel.
-+			 */
-+			at_state->pending_commands |= PC_DLE0;
-+			atomic_set(&cs->commands_pending, 1);
-+		} else {
-+			disconnect(p_at_state);
-+			at_state = *p_at_state;
-+		}
-+		break;
-+	case ACT_FAKEDLE0:
-+		at_state->int_var[VAR_ZDLE] = 0;
-+		cs->dle = 0;
-+		/* fall through */
-+	case ACT_DLE0:
-+		cs->cur_at_seq = SEQ_NONE;
-+		at_state2 = &cs->bcs[cs->curchannel].at_state;
-+		disconnect(&at_state2);
-+		break;
-+	case ACT_ABORTHUP:
-+		cs->cur_at_seq = SEQ_NONE;
-+		dev_warn(cs->dev, "Could not hang up.\n");
-+		at_state->cid = -1;
-+		if (bcs && cs->onechannel)
-+			at_state->pending_commands |= PC_DLE0;
-+		else {
-+			disconnect(p_at_state);
-+			at_state = *p_at_state;
-+		}
-+		schedule_init(cs, MS_RECOVER);
-+		break;
-+	case ACT_FAILDLE0:
-+		cs->cur_at_seq = SEQ_NONE;
-+		dev_warn(cs->dev, "Could not leave DLE mode.\n");
-+		at_state2 = &cs->bcs[cs->curchannel].at_state;
-+		disconnect(&at_state2);
-+		schedule_init(cs, MS_RECOVER);
-+		break;
-+	case ACT_FAILDLE1:
-+		cs->cur_at_seq = SEQ_NONE;
-+		dev_warn(cs->dev,
-+			 "Could not enter DLE mode. Trying to hang up.\n");
-+		channel = cs->curchannel;
-+		cs->bcs[channel].at_state.pending_commands |= PC_HUP;
-+		atomic_set(&cs->commands_pending, 1);
-+		break;
-+
-+	case ACT_CID: /* got cid; start dialing */
-+		cs->cur_at_seq = SEQ_NONE;
-+		channel = cs->curchannel;
-+		if (ev->parameter > 0 && ev->parameter <= 65535) {
-+			cs->bcs[channel].at_state.cid = ev->parameter;
-+			cs->bcs[channel].at_state.pending_commands |=
-+				PC_DIAL;
-+			atomic_set(&cs->commands_pending, 1);
-+			break;
-+		}
-+		/* fall through */
-+	case ACT_FAILCID:
-+		cs->cur_at_seq = SEQ_NONE;
-+		channel = cs->curchannel;
-+		if (!reinit_and_retry(cs, channel)) {
-+			dev_warn(cs->dev,
-+				 "Could not get a call ID. Cannot dial.\n");
-+			at_state2 = &cs->bcs[channel].at_state;
-+			disconnect(&at_state2);
-+		}
-+		break;
-+	case ACT_ABORTCID:
-+		cs->cur_at_seq = SEQ_NONE;
-+		at_state2 = &cs->bcs[cs->curchannel].at_state;
-+		disconnect(&at_state2);
-+		break;
-+
-+	case ACT_DIALING:
-+	case ACT_ACCEPTED:
-+		cs->cur_at_seq = SEQ_NONE;
-+		break;
-+
-+	case ACT_ABORTACCEPT:	/* hangup/error/timeout during ICALL processing */
-+		disconnect(p_at_state);
-+		at_state = *p_at_state;
-+		break;
-+
-+	case ACT_ABORTDIAL:	/* error/timeout during dial preparation */
-+		cs->cur_at_seq = SEQ_NONE;
-+		at_state->pending_commands |= PC_HUP;
-+		atomic_set(&cs->commands_pending, 1);
-+		break;
-+
-+	case ACT_REMOTEREJECT:	/* DISCONNECT_IND after dialling */
-+	case ACT_CONNTIMEOUT:	/* timeout waiting for ZSAU=ACTIVE */
-+	case ACT_REMOTEHUP:	/* DISCONNECT_IND with established connection */
-+		at_state->pending_commands |= PC_HUP;
-+		atomic_set(&cs->commands_pending, 1);
-+		break;
-+	case ACT_GETSTRING: /* warning: RING, ZDLE, ...
-+			       are not handled properly anymore */
-+		at_state->getstring = 1;
-+		break;
-+	case ACT_SETVER:
-+		if (!ev->ptr) {
-+			*p_genresp = 1;
-+			*p_resp_code = RSP_ERROR;
-+			break;
-+		}
-+		s = ev->ptr;
-+
-+		if (!strcmp(s, "OK")) {
-+			*p_genresp = 1;
-+			*p_resp_code = RSP_ERROR;
-+			break;
-+		}
-+
-+		for (i = 0; i < 4; ++i) {
-+			val = simple_strtoul(s, (char **) &e, 10);
-+			if (val > INT_MAX || e == s)
-+				break;
-+			if (i == 3) {
-+				if (*e)
-+					break;
-+			} else if (*e != '.')
-+				break;
-+			else
-+				s = e + 1;
-+			cs->fwver[i] = val;
-+		}
-+		if (i != 4) {
-+			*p_genresp = 1;
-+			*p_resp_code = RSP_ERROR;
-+			break;
-+		}
-+		/*at_state->getstring = 1;*/
-+		cs->gotfwver = 0;
-+		break;
-+	case ACT_GOTVER:
-+		if (cs->gotfwver == 0) {
-+			cs->gotfwver = 1;
-+			gig_dbg(DEBUG_ANY,
-+				"firmware version %02d.%03d.%02d.%02d",
-+				cs->fwver[0], cs->fwver[1],
-+				cs->fwver[2], cs->fwver[3]);
-+			break;
-+		}
-+		/* fall through */
-+	case ACT_FAILVER:
-+		cs->gotfwver = -1;
-+		dev_err(cs->dev, "could not read firmware version.\n");
-+		break;
-+#ifdef CONFIG_GIGASET_DEBUG
-+	case ACT_ERROR:
-+		*p_genresp = 1;
-+		*p_resp_code = RSP_ERROR;
-+		break;
-+	case ACT_TEST:
-+		{
-+			static int count = 3; //2; //1;
-+			*p_genresp = 1;
-+			*p_resp_code = count ? RSP_ERROR : RSP_OK;
-+			if (count > 0)
-+				--count;
-+		}
-+		break;
-+#endif
-+	case ACT_DEBUG:
-+		gig_dbg(DEBUG_ANY, "%s: resp_code %d in ConState %d",
-+			__func__, ev->type, at_state->ConState);
-+		break;
-+	case ACT_WARN:
-+		dev_warn(cs->dev, "%s: resp_code %d in ConState %d!\n",
-+			 __func__, ev->type, at_state->ConState);
-+		break;
-+	case ACT_ZCAU:
-+		dev_warn(cs->dev, "cause code %04x in connection state %d.\n",
-+			 ev->parameter, at_state->ConState);
-+		break;
-+
-+	/* events from the LL */
-+	case ACT_DIAL:
-+		start_dial(at_state, ev->ptr, ev->parameter);
-+		break;
-+	case ACT_ACCEPT:
-+		start_accept(at_state);
-+		break;
-+	case ACT_PROTO_L2:
-+		gig_dbg(DEBUG_CMD, "set protocol to %u",
-+			(unsigned) ev->parameter);
-+		at_state->bcs->proto2 = ev->parameter;
-+		break;
-+	case ACT_HUP:
-+		at_state->pending_commands |= PC_HUP;
-+		atomic_set(&cs->commands_pending, 1);
-+		gig_dbg(DEBUG_CMD, "Scheduling PC_HUP");
-+		break;
-+
-+	/* hotplug events */
-+	case ACT_STOP:
-+		do_stop(cs);
-+		break;
-+	case ACT_START:
-+		do_start(cs);
-+		break;
-+
-+	/* events from the interface */ // FIXME without ACT_xxxx?
-+	case ACT_IF_LOCK:
-+		cs->cmd_result = ev->parameter ? do_lock(cs) : do_unlock(cs);
-+		cs->waiting = 0;
-+		wake_up(&cs->waitqueue);
-+		break;
-+	case ACT_IF_VER:
-+		if (ev->parameter != 0)
-+			cs->cmd_result = -EINVAL;
-+		else if (cs->gotfwver != 1) {
-+			cs->cmd_result = -ENOENT;
-+		} else {
-+			memcpy(ev->arg, cs->fwver, sizeof cs->fwver);
-+			cs->cmd_result = 0;
-+		}
-+		cs->waiting = 0;
-+		wake_up(&cs->waitqueue);
-+		break;
-+
-+	/* events from the proc file system */ // FIXME without ACT_xxxx?
-+	case ACT_PROC_CIDMODE:
-+		if (ev->parameter != atomic_read(&cs->cidmode)) {
-+			atomic_set(&cs->cidmode, ev->parameter);
-+			if (ev->parameter) {
-+				cs->at_state.pending_commands |= PC_CIDMODE;
-+				gig_dbg(DEBUG_CMD, "Scheduling PC_CIDMODE");
-+			} else {
-+				cs->at_state.pending_commands |= PC_UMMODE;
-+				gig_dbg(DEBUG_CMD, "Scheduling PC_UMMODE");
-+			}
-+			atomic_set(&cs->commands_pending, 1);
-+		}
-+		cs->waiting = 0;
-+		wake_up(&cs->waitqueue);
-+		break;
-+
-+	/* events from the hardware drivers */
-+	case ACT_NOTIFY_BC_DOWN:
-+		bchannel_down(bcs);
-+		break;
-+	case ACT_NOTIFY_BC_UP:
-+		bchannel_up(bcs);
-+		break;
-+	case ACT_SHUTDOWN:
-+		do_shutdown(cs);
-+		break;
-+
-+
-+	default:
-+		if (action >= ACT_CMD && action < ACT_CMD + AT_NUM) {
-+			*pp_command = at_state->bcs->commands[action - ACT_CMD];
-+			if (!*pp_command) {
-+				*p_genresp = 1;
-+				*p_resp_code = RSP_NULL;
-+			}
-+		} else
-+			dev_err(cs->dev, "%s: action==%d!\n", __func__, action);
++	if (!atomic_read(&cs->connected)) {
++		err("not connected!");
++		return -1;
 +	}
++
++	cs->control_state = TIOCM_RTS; //FIXME
++
++	r = setflags(cs, TIOCM_DTR, 200);
++	if (r < 0)
++		goto error;
++	r = setflags(cs, 0, 200);
++	if (r < 0)
++		goto error;
++	for (i = 0; i < 5; ++i) {
++		r = setflags(cs, TIOCM_RTS, 100);
++		if (r < 0)
++			goto error;
++		r = setflags(cs, 0, 100);
++		if (r < 0)
++			goto error;
++	}
++	r = setflags(cs, TIOCM_RTS|TIOCM_DTR, 800);
++	if (r < 0)
++		goto error;
++
++	return 0;
++
++error:
++	dev_err(cs->dev, "error %d on setuartbits\n", -r);
++	cs->control_state = TIOCM_RTS|TIOCM_DTR; // FIXME is this a good value?
++	cs->ops->set_modem_ctrl(cs, 0, TIOCM_RTS|TIOCM_DTR);
++
++	return -1; //r
 +}
 +
-+/* State machine to do the calling and hangup procedure */
-+static void process_event(struct cardstate *cs, struct event_t *ev)
++static int test_timeout(struct at_state_t *at_state)
 +{
-+	struct bc_state *bcs;
-+	char *p_command = NULL;
-+	struct reply_t *rep;
-+	int rcode;
-+	int genresp = 0;
-+	int resp_code = RSP_ERROR;
-+	int sendcid;
++	if (!at_state->timer_expires)
++		return 0;
++
++	if (--at_state->timer_expires) {
++		gig_dbg(DEBUG_MCMD, "decreased timer of %p to %lu",
++			at_state, at_state->timer_expires);
++		return 0;
++	}
++
++	if (!gigaset_add_event(at_state->cs, at_state, EV_TIMEOUT, NULL,
++			       atomic_read(&at_state->timer_index), NULL)) {
++		//FIXME what should we do?
++	}
++
++	return 1;
++}
++
++static void timer_tick(unsigned long data)
++{
++	struct cardstate *cs = (struct cardstate *) data;
++	unsigned long flags;
++	unsigned channel;
 +	struct at_state_t *at_state;
-+	int index;
-+	int curact;
-+	unsigned long flags;
++	int timeout = 0;
 +
-+	IFNULLRET(cs);
-+	IFNULLRET(ev);
++	spin_lock_irqsave(&cs->lock, flags);
 +
-+	if (ev->cid >= 0) {
-+		at_state = at_state_from_cid(cs, ev->cid);
-+		if (!at_state) {
-+			gigaset_add_event(cs, &cs->at_state, RSP_WRONG_CID,
-+					  NULL, 0, NULL);
-+			return;
-+		}
-+	} else {
-+		at_state = ev->at_state;
-+		if (at_state_invalid(cs, at_state)) {
-+			gig_dbg(DEBUG_ANY, "event for invalid at_state %p",
-+				at_state);
-+			return;
-+		}
-+	}
++	for (channel = 0; channel < cs->channels; ++channel)
++		if (test_timeout(&cs->bcs[channel].at_state))
++			timeout = 1;
 +
-+	gig_dbg(DEBUG_CMD, "connection state %d, event %d",
-+		at_state->ConState, ev->type);
-+
-+	bcs = at_state->bcs;
-+	sendcid = at_state->cid;
-+
-+	/* Setting the pointer to the dial array */
-+	rep = at_state->replystruct;
-+	IFNULLRET(rep);
-+
-+	if (ev->type == EV_TIMEOUT) {
-+		if (ev->parameter != atomic_read(&at_state->timer_index)
-+		    || !at_state->timer_active) {
-+			ev->type = RSP_NONE; /* old timeout */
-+			gig_dbg(DEBUG_ANY, "old timeout");
-+		} else if (!at_state->waiting)
-+			gig_dbg(DEBUG_ANY, "timeout occurred");
-+		else
-+			gig_dbg(DEBUG_ANY, "stopped waiting");
-+	}
-+
-+	/* if the response belongs to a variable in at_state->int_var[VAR_XXXX]
-+	   or at_state->str_var[STR_XXXX], set it */
-+	if (ev->type >= RSP_VAR && ev->type < RSP_VAR + VAR_NUM) {
-+		index = ev->type - RSP_VAR;
-+		at_state->int_var[index] = ev->parameter;
-+	} else if (ev->type >= RSP_STR && ev->type < RSP_STR + STR_NUM) {
-+		index = ev->type - RSP_STR;
-+		kfree(at_state->str_var[index]);
-+		at_state->str_var[index] = ev->ptr;
-+		ev->ptr = NULL; /* prevent process_events() from
-+				   deallocating ptr */
-+	}
-+
-+	if (ev->type == EV_TIMEOUT || ev->type == RSP_STRING)
-+		at_state->getstring = 0;
-+
-+	/* Search row in dial array which matches modem response and current
-+	   constate */
-+	for (;; rep++) {
-+		rcode = rep->resp_code;
-+		if (rcode == RSP_LAST) {
-+			/* found nothing...*/
-+			dev_warn(cs->dev, "%s: rcode=RSP_LAST: "
-+					"resp_code %d in ConState %d!\n",
-+				 __func__, ev->type, at_state->ConState);
-+			return;
-+		}
-+		if ((rcode == RSP_ANY || rcode == ev->type)
-+		  && ((int) at_state->ConState >= rep->min_ConState)
-+		  && (rep->max_ConState < 0
-+		      || (int) at_state->ConState <= rep->max_ConState)
-+		  && (rep->parameter < 0 || rep->parameter == ev->parameter))
-+			break;
-+	}
-+
-+	p_command = rep->command;
-+
-+	at_state->waiting = 0;
-+	for (curact = 0; curact < MAXACT; ++curact) {
-+		/* The row tells us what we should do  ..
-+		 */
-+		do_action(rep->action[curact], cs, bcs, &at_state, &p_command, &genresp, &resp_code, ev);
-+		if (!at_state)
-+			break; /* may be freed after disconnect */
-+	}
-+
-+	if (at_state) {
-+		/* Jump to the next con-state regarding the array */
-+		if (rep->new_ConState >= 0)
-+			at_state->ConState = rep->new_ConState;
-+
-+		if (genresp) {
-+			spin_lock_irqsave(&cs->lock, flags);
-+			at_state->timer_expires = 0; //FIXME
-+			at_state->timer_active = 0; //FIXME
-+			spin_unlock_irqrestore(&cs->lock, flags);
-+			gigaset_add_event(cs, at_state, resp_code, NULL, 0, NULL);
-+		} else {
-+			/* Send command to modem if not NULL... */
-+			if (p_command/*rep->command*/) {
-+				if (atomic_read(&cs->connected))
-+					send_command(cs, p_command,
-+						     sendcid, cs->dle,
-+						     GFP_ATOMIC);
-+				else
-+					gigaset_add_event(cs, at_state,
-+							  RSP_NODEV,
-+							  NULL, 0, NULL);
-+			}
-+
-+			spin_lock_irqsave(&cs->lock, flags);
-+			if (!rep->timeout) {
-+				at_state->timer_expires = 0;
-+				at_state->timer_active = 0;
-+			} else if (rep->timeout > 0) { /* new timeout */
-+				at_state->timer_expires = rep->timeout * 10;
-+				at_state->timer_active = 1;
-+				new_index(&at_state->timer_index,
-+					  MAX_TIMER_INDEX);
-+			}
-+			spin_unlock_irqrestore(&cs->lock, flags);
-+		}
-+	}
-+}
-+
-+static void schedule_sequence(struct cardstate *cs,
-+			      struct at_state_t *at_state, int sequence)
-+{
-+	cs->cur_at_seq = sequence;
-+	gigaset_add_event(cs, at_state, RSP_INIT, NULL, sequence, NULL);
-+}
-+
-+static void process_command_flags(struct cardstate *cs)
-+{
-+	struct at_state_t *at_state = NULL;
-+	struct bc_state *bcs;
-+	int i;
-+	int sequence;
-+
-+	IFNULLRET(cs);
-+
-+	atomic_set(&cs->commands_pending, 0);
-+
-+	if (cs->cur_at_seq) {
-+		gig_dbg(DEBUG_CMD, "not searching scheduled commands: busy");
-+		return;
-+	}
-+
-+	gig_dbg(DEBUG_CMD, "searching scheduled commands");
-+
-+	sequence = SEQ_NONE;
-+
-+	/* clear pending_commands and hangup channels on shutdown */
-+	if (cs->at_state.pending_commands & PC_SHUTDOWN) {
-+		cs->at_state.pending_commands &= ~PC_CIDMODE;
-+		for (i = 0; i < cs->channels; ++i) {
-+			bcs = cs->bcs + i;
-+			at_state = &bcs->at_state;
-+			at_state->pending_commands &=
-+				~(PC_DLE1 | PC_ACCEPT | PC_DIAL);
-+			if (at_state->cid > 0)
-+				at_state->pending_commands |= PC_HUP;
-+			if (at_state->pending_commands & PC_CID) {
-+				at_state->pending_commands |= PC_NOCID;
-+				at_state->pending_commands &= ~PC_CID;
-+			}
-+		}
-+	}
-+
-+	/* clear pending_commands and hangup channels on reset */
-+	if (cs->at_state.pending_commands & PC_INIT) {
-+		cs->at_state.pending_commands &= ~PC_CIDMODE;
-+		for (i = 0; i < cs->channels; ++i) {
-+			bcs = cs->bcs + i;
-+			at_state = &bcs->at_state;
-+			at_state->pending_commands &=
-+				~(PC_DLE1 | PC_ACCEPT | PC_DIAL);
-+			if (at_state->cid > 0)
-+				at_state->pending_commands |= PC_HUP;
-+			if (atomic_read(&cs->mstate) == MS_RECOVER) {
-+				if (at_state->pending_commands & PC_CID) {
-+					at_state->pending_commands |= PC_NOCID;
-+					at_state->pending_commands &= ~PC_CID;
-+				}
-+			}
-+		}
-+	}
-+
-+	/* only switch back to unimodem mode, if no commands are pending and no channels are up */
-+	if (cs->at_state.pending_commands == PC_UMMODE
-+	    && !atomic_read(&cs->cidmode)
-+	    && list_empty(&cs->temp_at_states)
-+	    && atomic_read(&cs->mode) == M_CID) {
-+		sequence = SEQ_UMMODE;
-+		at_state = &cs->at_state;
-+		for (i = 0; i < cs->channels; ++i) {
-+			bcs = cs->bcs + i;
-+			if (bcs->at_state.pending_commands ||
-+			    bcs->at_state.cid > 0) {
-+				sequence = SEQ_NONE;
-+				break;
-+			}
-+		}
-+	}
-+	cs->at_state.pending_commands &= ~PC_UMMODE;
-+	if (sequence != SEQ_NONE) {
-+		schedule_sequence(cs, at_state, sequence);
-+		return;
-+	}
-+
-+	for (i = 0; i < cs->channels; ++i) {
-+		bcs = cs->bcs + i;
-+		if (bcs->at_state.pending_commands & PC_HUP) {
-+			bcs->at_state.pending_commands &= ~PC_HUP;
-+			if (bcs->at_state.pending_commands & PC_CID) {
-+				/* not yet dialing: PC_NOCID is sufficient */
-+				bcs->at_state.pending_commands |= PC_NOCID;
-+				bcs->at_state.pending_commands &= ~PC_CID;
-+			} else {
-+				schedule_sequence(cs, &bcs->at_state, SEQ_HUP);
-+				return;
-+			}
-+		}
-+		if (bcs->at_state.pending_commands & PC_NOCID) {
-+			bcs->at_state.pending_commands &= ~PC_NOCID;
-+			cs->curchannel = bcs->channel;
-+			schedule_sequence(cs, &cs->at_state, SEQ_NOCID);
-+			return;
-+		} else if (bcs->at_state.pending_commands & PC_DLE0) {
-+			bcs->at_state.pending_commands &= ~PC_DLE0;
-+			cs->curchannel = bcs->channel;
-+			schedule_sequence(cs, &cs->at_state, SEQ_DLE0);
-+			return;
-+		}
-+	}
++	if (test_timeout(&cs->at_state))
++		timeout = 1;
 +
 +	list_for_each_entry(at_state, &cs->temp_at_states, list)
-+		if (at_state->pending_commands & PC_HUP) {
-+			at_state->pending_commands &= ~PC_HUP;
-+			schedule_sequence(cs, at_state, SEQ_HUP);
-+			return;
-+		}
++		if (test_timeout(at_state))
++			timeout = 1;
 +
-+	if (cs->at_state.pending_commands & PC_INIT) {
-+		cs->at_state.pending_commands &= ~PC_INIT;
-+		cs->dle = 0; //FIXME
-+		cs->inbuf->inputstate = INS_command;
-+		//FIXME reset card state (or -> LOCK0)?
-+		schedule_sequence(cs, &cs->at_state, SEQ_INIT);
-+		return;
-+	}
-+	if (cs->at_state.pending_commands & PC_SHUTDOWN) {
-+		cs->at_state.pending_commands &= ~PC_SHUTDOWN;
-+		schedule_sequence(cs, &cs->at_state, SEQ_SHUTDOWN);
-+		return;
-+	}
-+	if (cs->at_state.pending_commands & PC_CIDMODE) {
-+		cs->at_state.pending_commands &= ~PC_CIDMODE;
-+		if (atomic_read(&cs->mode) == M_UNIMODEM) {
-+			cs->retry_count = 1;
-+			schedule_sequence(cs, &cs->at_state, SEQ_CIDMODE);
-+			return;
++	if (atomic_read(&cs->running)) {
++		mod_timer(&cs->timer, jiffies + msecs_to_jiffies(GIG_TICK));
++		if (timeout) {
++			gig_dbg(DEBUG_CMD, "scheduling timeout");
++			tasklet_schedule(&cs->event_tasklet);
 +		}
 +	}
 +
-+	for (i = 0; i < cs->channels; ++i) {
-+		bcs = cs->bcs + i;
-+		if (bcs->at_state.pending_commands & PC_DLE1) {
-+			bcs->at_state.pending_commands &= ~PC_DLE1;
-+			cs->curchannel = bcs->channel;
-+			schedule_sequence(cs, &cs->at_state, SEQ_DLE1);
-+			return;
-+		}
-+		if (bcs->at_state.pending_commands & PC_ACCEPT) {
-+			bcs->at_state.pending_commands &= ~PC_ACCEPT;
-+			schedule_sequence(cs, &bcs->at_state, SEQ_ACCEPT);
-+			return;
-+		}
-+		if (bcs->at_state.pending_commands & PC_DIAL) {
-+			bcs->at_state.pending_commands &= ~PC_DIAL;
-+			schedule_sequence(cs, &bcs->at_state, SEQ_DIAL);
-+			return;
-+		}
-+		if (bcs->at_state.pending_commands & PC_CID) {
-+			switch (atomic_read(&cs->mode)) {
-+			case M_UNIMODEM:
-+				cs->at_state.pending_commands |= PC_CIDMODE;
-+				gig_dbg(DEBUG_CMD, "Scheduling PC_CIDMODE");
-+				atomic_set(&cs->commands_pending, 1);
-+				return;
-+#ifdef GIG_MAYINITONDIAL
-+			case M_UNKNOWN:
-+				schedule_init(cs, MS_INIT);
-+				return;
-+#endif
-+			}
-+			bcs->at_state.pending_commands &= ~PC_CID;
-+			cs->curchannel = bcs->channel;
-+#ifdef GIG_RETRYCID
-+			cs->retry_count = 2;
-+#else
-+			cs->retry_count = 1;
-+#endif
-+			schedule_sequence(cs, &cs->at_state, SEQ_CID);
-+			return;
-+		}
-+	}
++	spin_unlock_irqrestore(&cs->lock, flags);
 +}
 +
-+static void process_events(struct cardstate *cs)
++int gigaset_get_channel(struct bc_state *bcs)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&bcs->cs->lock, flags);
++	if (bcs->use_count) {
++		gig_dbg(DEBUG_ANY, "could not allocate channel %d",
++			bcs->channel);
++		spin_unlock_irqrestore(&bcs->cs->lock, flags);
++		return 0;
++	}
++	++bcs->use_count;
++	bcs->busy = 1;
++	gig_dbg(DEBUG_ANY, "allocated channel %d", bcs->channel);
++	spin_unlock_irqrestore(&bcs->cs->lock, flags);
++	return 1;
++}
++
++void gigaset_free_channel(struct bc_state *bcs)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&bcs->cs->lock, flags);
++	if (!bcs->busy) {
++		gig_dbg(DEBUG_ANY, "could not free channel %d", bcs->channel);
++		spin_unlock_irqrestore(&bcs->cs->lock, flags);
++		return;
++	}
++	--bcs->use_count;
++	bcs->busy = 0;
++	gig_dbg(DEBUG_ANY, "freed channel %d", bcs->channel);
++	spin_unlock_irqrestore(&bcs->cs->lock, flags);
++}
++
++int gigaset_get_channels(struct cardstate *cs)
++{
++	unsigned long flags;
++	int i;
++
++	spin_lock_irqsave(&cs->lock, flags);
++	for (i = 0; i < cs->channels; ++i)
++		if (cs->bcs[i].use_count) {
++			spin_unlock_irqrestore(&cs->lock, flags);
++			gig_dbg(DEBUG_ANY, "could not allocate all channels");
++			return 0;
++		}
++	for (i = 0; i < cs->channels; ++i)
++		++cs->bcs[i].use_count;
++	spin_unlock_irqrestore(&cs->lock, flags);
++
++	gig_dbg(DEBUG_ANY, "allocated all channels");
++
++	return 1;
++}
++
++void gigaset_free_channels(struct cardstate *cs)
++{
++	unsigned long flags;
++	int i;
++
++	gig_dbg(DEBUG_ANY, "unblocking all channels");
++	spin_lock_irqsave(&cs->lock, flags);
++	for (i = 0; i < cs->channels; ++i)
++		--cs->bcs[i].use_count;
++	spin_unlock_irqrestore(&cs->lock, flags);
++}
++
++void gigaset_block_channels(struct cardstate *cs)
++{
++	unsigned long flags;
++	int i;
++
++	gig_dbg(DEBUG_ANY, "blocking all channels");
++	spin_lock_irqsave(&cs->lock, flags);
++	for (i = 0; i < cs->channels; ++i)
++		++cs->bcs[i].use_count;
++	spin_unlock_irqrestore(&cs->lock, flags);
++}
++
++static void clear_events(struct cardstate *cs)
 +{
 +	struct event_t *ev;
 +	unsigned head, tail;
-+	int i;
-+	int check_flags = 0;
-+	int was_busy;
 +
-+	/* no locking needed (only one reader) */
++	/* no locking needed (no reader/writer allowed) */
++
 +	head = atomic_read(&cs->ev_head);
++	tail = atomic_read(&cs->ev_tail);
 +
-+	for (i = 0; i < 2 * MAX_EVENTS; ++i) {
-+		tail = atomic_read(&cs->ev_tail);
-+		if (tail == head) {
-+			if (!check_flags && !atomic_read(&cs->commands_pending))
-+				break;
-+			check_flags = 0;
-+			process_command_flags(cs);
-+			tail = atomic_read(&cs->ev_tail);
-+			if (tail == head) {
-+				if (!atomic_read(&cs->commands_pending))
-+					break;
-+				continue;
-+			}
-+		}
-+
++	while (tail != head) {
 +		ev = cs->events + head;
-+		was_busy = cs->cur_at_seq != SEQ_NONE;
-+		process_event(cs, ev);
 +		kfree(ev->ptr);
-+		ev->ptr = NULL;
-+		if (was_busy && cs->cur_at_seq == SEQ_NONE)
-+			check_flags = 1;
 +
 +		head = (head + 1) % MAX_EVENTS;
-+		atomic_set(&cs->ev_head, head);
 +	}
 +
-+	if (i == 2 * MAX_EVENTS) {
-+		dev_err(cs->dev,
-+			"infinite loop in process_events; aborting.\n");
-+	}
++	atomic_set(&cs->ev_head, tail);
 +}
 +
-+/* tasklet scheduled on any event received from the Gigaset device
-+ * parameter:
-+ *	data	ISDN controller state structure
-+ */
-+void gigaset_handle_event(unsigned long data)
++struct event_t *gigaset_add_event(struct cardstate *cs,
++				  struct at_state_t *at_state, int type,
++				  void *ptr, int parameter, void *arg)
 +{
-+	struct cardstate *cs = (struct cardstate *) data;
++	unsigned long flags;
++	unsigned next, tail;
++	struct event_t *event = NULL;
 +
-+	IFNULLRET(cs);
-+	IFNULLRET(cs->inbuf);
++	spin_lock_irqsave(&cs->ev_lock, flags);
 +
-+	/* handle incoming data on control/common channel */
-+	if (atomic_read(&cs->inbuf->head) != atomic_read(&cs->inbuf->tail)) {
-+		gig_dbg(DEBUG_INTR, "processing new data");
-+		cs->ops->handle_input(cs->inbuf);
++	tail = atomic_read(&cs->ev_tail);
++	next = (tail + 1) % MAX_EVENTS;
++	if (unlikely(next == atomic_read(&cs->ev_head)))
++		err("event queue full");
++	else {
++		event = cs->events + tail;
++		event->type = type;
++		event->at_state = at_state;
++		event->cid = -1;
++		event->ptr = ptr;
++		event->arg = arg;
++		event->parameter = parameter;
++		atomic_set(&cs->ev_tail, next);
 +	}
 +
-+	process_events(cs);
++	spin_unlock_irqrestore(&cs->ev_lock, flags);
++
++	return event;
 +}
++EXPORT_SYMBOL_GPL(gigaset_add_event);
++
++static void free_strings(struct at_state_t *at_state)
++{
++	int i;
++
++	for (i = 0; i < STR_NUM; ++i) {
++		kfree(at_state->str_var[i]);
++		at_state->str_var[i] = NULL;
++	}
++}
++
++static void clear_at_state(struct at_state_t *at_state)
++{
++	free_strings(at_state);
++}
++
++static void dealloc_at_states(struct cardstate *cs)
++{
++	struct at_state_t *cur, *next;
++
++	list_for_each_entry_safe(cur, next, &cs->temp_at_states, list) {
++		list_del(&cur->list);
++		free_strings(cur);
++		kfree(cur);
++	}
++}
++
++static void gigaset_freebcs(struct bc_state *bcs)
++{
++	int i;
++
++	gig_dbg(DEBUG_INIT, "freeing bcs[%d]->hw", bcs->channel);
++	if (!bcs->cs->ops->freebcshw(bcs)) {
++		gig_dbg(DEBUG_INIT, "failed");
++	}
++
++	gig_dbg(DEBUG_INIT, "clearing bcs[%d]->at_state", bcs->channel);
++	clear_at_state(&bcs->at_state);
++	gig_dbg(DEBUG_INIT, "freeing bcs[%d]->skb", bcs->channel);
++
++	if (bcs->skb)
++		dev_kfree_skb(bcs->skb);
++	for (i = 0; i < AT_NUM; ++i) {
++		kfree(bcs->commands[i]);
++		bcs->commands[i] = NULL;
++	}
++}
++
++void gigaset_freecs(struct cardstate *cs)
++{
++	int i;
++	unsigned long flags;
++
++	if (!cs)
++		return;
++
++	down(&cs->sem);
++
++	if (!cs->bcs)
++		goto f_cs;
++	if (!cs->inbuf)
++		goto f_bcs;
++
++	spin_lock_irqsave(&cs->lock, flags);
++	atomic_set(&cs->running, 0);
++	spin_unlock_irqrestore(&cs->lock, flags); /* event handler and timer are
++						     not rescheduled below */
++
++	tasklet_kill(&cs->event_tasklet);
++	del_timer_sync(&cs->timer);
++
++	switch (cs->cs_init) {
++	default:
++		gigaset_if_free(cs);
++
++		gig_dbg(DEBUG_INIT, "clearing hw");
++		cs->ops->freecshw(cs);
++
++		//FIXME cmdbuf
++
++		/* fall through */
++	case 2: /* error in initcshw */
++		/* Deregister from LL */
++		make_invalid(cs, VALID_ID);
++		gig_dbg(DEBUG_INIT, "clearing iif");
++		gigaset_i4l_cmd(cs, ISDN_STAT_UNLOAD);
++
++		/* fall through */
++	case 1: /* error when regestering to LL */
++		gig_dbg(DEBUG_INIT, "clearing at_state");
++		clear_at_state(&cs->at_state);
++		dealloc_at_states(cs);
++
++		/* fall through */
++	case 0: /* error in one call to initbcs */
++		for (i = 0; i < cs->channels; ++i) {
++			gig_dbg(DEBUG_INIT, "clearing bcs[%d]", i);
++			gigaset_freebcs(cs->bcs + i);
++		}
++
++		clear_events(cs);
++		gig_dbg(DEBUG_INIT, "freeing inbuf");
++		kfree(cs->inbuf);
++	}
++f_bcs:	gig_dbg(DEBUG_INIT, "freeing bcs[]");
++	kfree(cs->bcs);
++f_cs:	gig_dbg(DEBUG_INIT, "freeing cs");
++	up(&cs->sem);
++	free_cs(cs);
++}
++EXPORT_SYMBOL_GPL(gigaset_freecs);
++
++void gigaset_at_init(struct at_state_t *at_state, struct bc_state *bcs,
++		     struct cardstate *cs, int cid)
++{
++	int i;
++
++	INIT_LIST_HEAD(&at_state->list);
++	at_state->waiting = 0;
++	at_state->getstring = 0;
++	at_state->pending_commands = 0;
++	at_state->timer_expires = 0;
++	at_state->timer_active = 0;
++	atomic_set(&at_state->timer_index, 0);
++	atomic_set(&at_state->seq_index, 0);
++	at_state->ConState = 0;
++	for (i = 0; i < STR_NUM; ++i)
++		at_state->str_var[i] = NULL;
++	at_state->int_var[VAR_ZDLE] = 0;
++	at_state->int_var[VAR_ZCTP] = -1;
++	at_state->int_var[VAR_ZSAU] = ZSAU_NULL;
++	at_state->cs = cs;
++	at_state->bcs = bcs;
++	at_state->cid = cid;
++	if (!cid)
++		at_state->replystruct = cs->tabnocid;
++	else
++		at_state->replystruct = cs->tabcid;
++}
++
++
++static void gigaset_inbuf_init(struct inbuf_t *inbuf, struct bc_state *bcs,
++			       struct cardstate *cs, int inputstate)
++/* inbuf->read must be allocated before! */
++{
++	atomic_set(&inbuf->head, 0);
++	atomic_set(&inbuf->tail, 0);
++	inbuf->cs = cs;
++	inbuf->bcs = bcs; /*base driver: NULL*/
++	inbuf->rcvbuf = NULL; //FIXME
++	inbuf->inputstate = inputstate;
++}
++
++/* Initialize the b-channel structure */
++static struct bc_state *gigaset_initbcs(struct bc_state *bcs,
++					struct cardstate *cs, int channel)
++{
++	int i;
++
++	bcs->tx_skb = NULL; //FIXME -> hw part
++
++	skb_queue_head_init(&bcs->squeue);
++
++	bcs->corrupted = 0;
++	bcs->trans_down = 0;
++	bcs->trans_up = 0;
++
++	gig_dbg(DEBUG_INIT, "setting up bcs[%d]->at_state", channel);
++	gigaset_at_init(&bcs->at_state, bcs, cs, -1);
++
++	bcs->rcvbytes = 0;
++
++#ifdef CONFIG_GIGASET_DEBUG
++	bcs->emptycount = 0;
++#endif
++
++	gig_dbg(DEBUG_INIT, "allocating bcs[%d]->skb", channel);
++	bcs->fcs = PPP_INITFCS;
++	bcs->inputstate = 0;
++	if (cs->ignoreframes) {
++		bcs->inputstate |= INS_skip_frame;
++		bcs->skb = NULL;
++	} else if ((bcs->skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN)) != NULL)
++		skb_reserve(bcs->skb, HW_HDR_LEN);
++	else {
++		dev_warn(cs->dev, "could not allocate skb\n");
++		bcs->inputstate |= INS_skip_frame;
++	}
++
++	bcs->channel = channel;
++	bcs->cs = cs;
++
++	bcs->chstate = 0;
++	bcs->use_count = 1;
++	bcs->busy = 0;
++	bcs->ignore = cs->ignoreframes;
++
++	for (i = 0; i < AT_NUM; ++i)
++		bcs->commands[i] = NULL;
++
++	gig_dbg(DEBUG_INIT, "  setting up bcs[%d]->hw", channel);
++	if (cs->ops->initbcshw(bcs))
++		return bcs;
++
++	gig_dbg(DEBUG_INIT, "  failed");
++
++	gig_dbg(DEBUG_INIT, "  freeing bcs[%d]->skb", channel);
++	if (bcs->skb)
++		dev_kfree_skb(bcs->skb);
++
++	return NULL;
++}
++
++/* gigaset_initcs
++ * Allocate and initialize cardstate structure for Gigaset driver
++ * Calls hardware dependent gigaset_initcshw() function
++ * Calls B channel initialization function gigaset_initbcs() for each B channel
++ * parameters:
++ *	drv		hardware driver the device belongs to
++ *	channels	number of B channels supported by device
++ *	onechannel	!=0: B channel data and AT commands share one
++ *			     communication channel
++ *			==0: B channels have separate communication channels
++ *	ignoreframes	number of frames to ignore after setting up B channel
++ *	cidmode		!=0: start in CallID mode
++ *	modulename	name of driver module (used for I4L registration)
++ * return value:
++ *	pointer to cardstate structure
++ */
++struct cardstate *gigaset_initcs(struct gigaset_driver *drv, int channels,
++				 int onechannel, int ignoreframes,
++				 int cidmode, const char *modulename)
++{
++	struct cardstate *cs = NULL;
++	int i;
++
++	gig_dbg(DEBUG_INIT, "allocating cs");
++	cs = alloc_cs(drv);
++	if (!cs)
++		goto error;
++	gig_dbg(DEBUG_INIT, "allocating bcs[0..%d]", channels - 1);
++	cs->bcs = kmalloc(channels * sizeof(struct bc_state), GFP_KERNEL);
++	if (!cs->bcs)
++		goto error;
++	gig_dbg(DEBUG_INIT, "allocating inbuf");
++	cs->inbuf = kmalloc(sizeof(struct inbuf_t), GFP_KERNEL);
++	if (!cs->inbuf)
++		goto error;
++
++	cs->cs_init = 0;
++	cs->channels = channels;
++	cs->onechannel = onechannel;
++	cs->ignoreframes = ignoreframes;
++	INIT_LIST_HEAD(&cs->temp_at_states);
++	atomic_set(&cs->running, 0);
++	init_timer(&cs->timer); /* clear next & prev */
++	spin_lock_init(&cs->ev_lock);
++	atomic_set(&cs->ev_tail, 0);
++	atomic_set(&cs->ev_head, 0);
++	init_MUTEX_LOCKED(&cs->sem);
++	tasklet_init(&cs->event_tasklet, &gigaset_handle_event,
++		     (unsigned long) cs);
++	atomic_set(&cs->commands_pending, 0);
++	cs->cur_at_seq = 0;
++	cs->gotfwver = -1;
++	cs->open_count = 0;
++	cs->dev = NULL;
++	cs->tty = NULL;
++	atomic_set(&cs->cidmode, cidmode != 0);
++
++	//if(onechannel) { //FIXME
++		cs->tabnocid = gigaset_tab_nocid_m10x;
++		cs->tabcid = gigaset_tab_cid_m10x;
++	//} else {
++	//	cs->tabnocid = gigaset_tab_nocid;
++	//	cs->tabcid = gigaset_tab_cid;
++	//}
++
++	init_waitqueue_head(&cs->waitqueue);
++	cs->waiting = 0;
++
++	atomic_set(&cs->mode, M_UNKNOWN);
++	atomic_set(&cs->mstate, MS_UNINITIALIZED);
++
++	for (i = 0; i < channels; ++i) {
++		gig_dbg(DEBUG_INIT, "setting up bcs[%d].read", i);
++		if (!gigaset_initbcs(cs->bcs + i, cs, i))
++			goto error;
++	}
++
++	++cs->cs_init;
++
++	gig_dbg(DEBUG_INIT, "setting up at_state");
++	spin_lock_init(&cs->lock);
++	gigaset_at_init(&cs->at_state, NULL, cs, 0);
++	cs->dle = 0;
++	cs->cbytes = 0;
++
++	gig_dbg(DEBUG_INIT, "setting up inbuf");
++	if (onechannel) {			//FIXME distinction necessary?
++		gigaset_inbuf_init(cs->inbuf, cs->bcs, cs, INS_command);
++	} else
++		gigaset_inbuf_init(cs->inbuf, NULL,    cs, INS_command);
++
++	atomic_set(&cs->connected, 0);
++
++	gig_dbg(DEBUG_INIT, "setting up cmdbuf");
++	cs->cmdbuf = cs->lastcmdbuf = NULL;
++	spin_lock_init(&cs->cmdlock);
++	cs->curlen = 0;
++	cs->cmdbytes = 0;
++
++	gig_dbg(DEBUG_INIT, "setting up iif");
++	if (!gigaset_register_to_LL(cs, modulename)) {
++		err("register_isdn failed");
++		goto error;
++	}
++
++	make_valid(cs, VALID_ID);
++	++cs->cs_init;
++	gig_dbg(DEBUG_INIT, "setting up hw");
++	if (!cs->ops->initcshw(cs))
++		goto error;
++
++	++cs->cs_init;
++
++	gigaset_if_init(cs);
++
++	atomic_set(&cs->running, 1);
++	setup_timer(&cs->timer, timer_tick, (unsigned long) cs);
++	cs->timer.expires = jiffies + msecs_to_jiffies(GIG_TICK);
++	/* FIXME: can jiffies increase too much until the timer is added?
++	 * Same problem(?) with mod_timer() in timer_tick(). */
++	add_timer(&cs->timer);
++
++	gig_dbg(DEBUG_INIT, "cs initialized");
++	up(&cs->sem);
++	return cs;
++
++error:	if (cs)
++		up(&cs->sem);
++	gig_dbg(DEBUG_INIT, "failed");
++	gigaset_freecs(cs);
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(gigaset_initcs);
++
++/* ReInitialize the b-channel structure */
++/* e.g. called on hangup, disconnect */
++void gigaset_bcs_reinit(struct bc_state *bcs)
++{
++	struct sk_buff *skb;
++	struct cardstate *cs = bcs->cs;
++	unsigned long flags;
++
++	while ((skb = skb_dequeue(&bcs->squeue)) != NULL)
++		dev_kfree_skb(skb);
++
++	spin_lock_irqsave(&cs->lock, flags);
++	clear_at_state(&bcs->at_state);
++	bcs->at_state.ConState = 0;
++	bcs->at_state.timer_active = 0;
++	bcs->at_state.timer_expires = 0;
++	bcs->at_state.cid = -1;			/* No CID defined */
++	spin_unlock_irqrestore(&cs->lock, flags);
++
++	bcs->inputstate = 0;
++
++#ifdef CONFIG_GIGASET_DEBUG
++	bcs->emptycount = 0;
++#endif
++
++	bcs->fcs = PPP_INITFCS;
++	bcs->chstate = 0;
++
++	bcs->ignore = cs->ignoreframes;
++	if (bcs->ignore)
++		bcs->inputstate |= INS_skip_frame;
++
++
++	cs->ops->reinitbcshw(bcs);
++}
++
++static void cleanup_cs(struct cardstate *cs)
++{
++	struct cmdbuf_t *cb, *tcb;
++	int i;
++	unsigned long flags;
++
++	spin_lock_irqsave(&cs->lock, flags);
++
++	atomic_set(&cs->mode, M_UNKNOWN);
++	atomic_set(&cs->mstate, MS_UNINITIALIZED);
++
++	clear_at_state(&cs->at_state);
++	dealloc_at_states(cs);
++	free_strings(&cs->at_state);
++	gigaset_at_init(&cs->at_state, NULL, cs, 0);
++
++	kfree(cs->inbuf->rcvbuf);
++	cs->inbuf->rcvbuf = NULL;
++	cs->inbuf->inputstate = INS_command;
++	atomic_set(&cs->inbuf->head, 0);
++	atomic_set(&cs->inbuf->tail, 0);
++
++	cb = cs->cmdbuf;
++	while (cb) {
++		tcb = cb;
++		cb = cb->next;
++		kfree(tcb);
++	}
++	cs->cmdbuf = cs->lastcmdbuf = NULL;
++	cs->curlen = 0;
++	cs->cmdbytes = 0;
++	cs->gotfwver = -1;
++	cs->dle = 0;
++	cs->cur_at_seq = 0;
++	atomic_set(&cs->commands_pending, 0);
++	cs->cbytes = 0;
++
++	spin_unlock_irqrestore(&cs->lock, flags);
++
++	for (i = 0; i < cs->channels; ++i) {
++		gigaset_freebcs(cs->bcs + i);
++		if (!gigaset_initbcs(cs->bcs + i, cs, i))
++			break;			//FIXME error handling
++	}
++
++	if (cs->waiting) {
++		cs->cmd_result = -ENODEV;
++		cs->waiting = 0;
++		wake_up_interruptible(&cs->waitqueue);
++	}
++}
++
++
++int gigaset_start(struct cardstate *cs)
++{
++	if (down_interruptible(&cs->sem))
++		return 0;
++
++	atomic_set(&cs->connected, 1);
++
++	if (atomic_read(&cs->mstate) != MS_LOCKED) {
++		cs->ops->set_modem_ctrl(cs, 0, TIOCM_DTR|TIOCM_RTS);
++		cs->ops->baud_rate(cs, B115200);
++		cs->ops->set_line_ctrl(cs, CS8);
++		cs->control_state = TIOCM_DTR|TIOCM_RTS;
++	} else {
++		//FIXME use some saved values?
++	}
++
++	cs->waiting = 1;
++
++	if (!gigaset_add_event(cs, &cs->at_state, EV_START, NULL, 0, NULL)) {
++		cs->waiting = 0;
++		//FIXME what should we do?
++		goto error;
++	}
++
++	gig_dbg(DEBUG_CMD, "scheduling START");
++	gigaset_schedule_event(cs);
++
++	wait_event(cs->waitqueue, !cs->waiting);
++
++	/* set up device sysfs */
++	gigaset_init_dev_sysfs(cs);
++
++	up(&cs->sem);
++	return 1;
++
++error:
++	up(&cs->sem);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(gigaset_start);
++
++void gigaset_shutdown(struct cardstate *cs)
++{
++	down(&cs->sem);
++
++	cs->waiting = 1;
++
++	if (!gigaset_add_event(cs, &cs->at_state, EV_SHUTDOWN, NULL, 0, NULL)) {
++		//FIXME what should we do?
++		goto exit;
++	}
++
++	gig_dbg(DEBUG_CMD, "scheduling SHUTDOWN");
++	gigaset_schedule_event(cs);
++
++	if (wait_event_interruptible(cs->waitqueue, !cs->waiting)) {
++		warn("%s: aborted", __func__);
++		//FIXME
++	}
++
++	if (atomic_read(&cs->mstate) != MS_LOCKED) {
++		//FIXME?
++		//gigaset_baud_rate(cs, B115200);
++		//gigaset_set_line_ctrl(cs, CS8);
++		//gigaset_set_modem_ctrl(cs, TIOCM_DTR|TIOCM_RTS, 0);
++		//cs->control_state = 0;
++	} else {
++		//FIXME use some saved values?
++	}
++
++	cleanup_cs(cs);
++
++exit:
++	up(&cs->sem);
++}
++EXPORT_SYMBOL_GPL(gigaset_shutdown);
++
++void gigaset_stop(struct cardstate *cs)
++{
++	down(&cs->sem);
++
++	/* clear device sysfs */
++	gigaset_free_dev_sysfs(cs);
++
++	atomic_set(&cs->connected, 0);
++
++	cs->waiting = 1;
++
++	if (!gigaset_add_event(cs, &cs->at_state, EV_STOP, NULL, 0, NULL)) {
++		//FIXME what should we do?
++		goto exit;
++	}
++
++	gig_dbg(DEBUG_CMD, "scheduling STOP");
++	gigaset_schedule_event(cs);
++
++	if (wait_event_interruptible(cs->waitqueue, !cs->waiting)) {
++		warn("%s: aborted", __func__);
++		//FIXME
++	}
++
++	/* Tell the LL that the device is not available .. */
++	gigaset_i4l_cmd(cs, ISDN_STAT_STOP); // FIXME move to event layer?
++
++	cleanup_cs(cs);
++
++exit:
++	up(&cs->sem);
++}
++EXPORT_SYMBOL_GPL(gigaset_stop);
++
++static LIST_HEAD(drivers);
++static spinlock_t driver_lock = SPIN_LOCK_UNLOCKED;
++
++struct cardstate *gigaset_get_cs_by_id(int id)
++{
++	unsigned long flags;
++	static struct cardstate *ret = NULL;
++	static struct cardstate *cs;
++	struct gigaset_driver *drv;
++	unsigned i;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	list_for_each_entry(drv, &drivers, list) {
++		spin_lock(&drv->lock);
++		for (i = 0; i < drv->minors; ++i) {
++			if (drv->flags[i] & VALID_ID) {
++				cs = drv->cs + i;
++				if (cs->myid == id)
++					ret = cs;
++			}
++			if (ret)
++				break;
++		}
++		spin_unlock(&drv->lock);
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&driver_lock, flags);
++	return ret;
++}
++
++void gigaset_debugdrivers(void)
++{
++	unsigned long flags;
++	static struct cardstate *cs;
++	struct gigaset_driver *drv;
++	unsigned i;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	list_for_each_entry(drv, &drivers, list) {
++		gig_dbg(DEBUG_DRIVER, "driver %p", drv);
++		spin_lock(&drv->lock);
++		for (i = 0; i < drv->minors; ++i) {
++			gig_dbg(DEBUG_DRIVER, "  index %u", i);
++			gig_dbg(DEBUG_DRIVER, "    flags 0x%02x",
++				drv->flags[i]);
++			cs = drv->cs + i;
++			gig_dbg(DEBUG_DRIVER, "    cardstate %p", cs);
++			gig_dbg(DEBUG_DRIVER, "    minor_index %u",
++				cs->minor_index);
++			gig_dbg(DEBUG_DRIVER, "    driver %p", cs->driver);
++			gig_dbg(DEBUG_DRIVER, "    i4l id %d", cs->myid);
++		}
++		spin_unlock(&drv->lock);
++	}
++	spin_unlock_irqrestore(&driver_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gigaset_debugdrivers);
++
++struct cardstate *gigaset_get_cs_by_tty(struct tty_struct *tty)
++{
++	if (tty->index < 0 || tty->index >= tty->driver->num)
++		return NULL;
++	return gigaset_get_cs_by_minor(tty->index + tty->driver->minor_start);
++}
++
++struct cardstate *gigaset_get_cs_by_minor(unsigned minor)
++{
++	unsigned long flags;
++	static struct cardstate *ret = NULL;
++	struct gigaset_driver *drv;
++	unsigned index;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	list_for_each_entry(drv, &drivers, list) {
++		if (minor < drv->minor || minor >= drv->minor + drv->minors)
++			continue;
++		index = minor - drv->minor;
++		spin_lock(&drv->lock);
++		if (drv->flags[index] & VALID_MINOR)
++			ret = drv->cs + index;
++		spin_unlock(&drv->lock);
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&driver_lock, flags);
++	return ret;
++}
++
++void gigaset_freedriver(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	list_del(&drv->list);
++	spin_unlock_irqrestore(&driver_lock, flags);
++
++	gigaset_if_freedriver(drv);
++	module_put(drv->owner);
++
++	kfree(drv->cs);
++	kfree(drv->flags);
++	kfree(drv);
++}
++EXPORT_SYMBOL_GPL(gigaset_freedriver);
++
++/* gigaset_initdriver
++ * Allocate and initialize gigaset_driver structure. Initialize interface.
++ * parameters:
++ *	minor		First minor number
++ *	minors		Number of minors this driver can handle
++ *	procname	Name of the driver
++ *	devname		Name of the device files (prefix without minor number)
++ *	devfsname	Devfs name of the device files without %d
++ * return value:
++ *	Pointer to the gigaset_driver structure on success, NULL on failure.
++ */
++struct gigaset_driver *gigaset_initdriver(unsigned minor, unsigned minors,
++					  const char *procname,
++					  const char *devname,
++					  const char *devfsname,
++					  const struct gigaset_ops *ops,
++					  struct module *owner)
++{
++	struct gigaset_driver *drv;
++	unsigned long flags;
++	unsigned i;
++
++	drv = kmalloc(sizeof *drv, GFP_KERNEL);
++	if (!drv)
++		return NULL;
++	if (!try_module_get(owner))
++		return NULL;
++
++	drv->cs = NULL;
++	drv->have_tty = 0;
++	drv->minor = minor;
++	drv->minors = minors;
++	spin_lock_init(&drv->lock);
++	drv->blocked = 0;
++	drv->ops = ops;
++	drv->owner = owner;
++	INIT_LIST_HEAD(&drv->list);
++
++	drv->cs = kmalloc(minors * sizeof *drv->cs, GFP_KERNEL);
++	if (!drv->cs)
++		goto out1;
++	drv->flags = kmalloc(minors * sizeof *drv->flags, GFP_KERNEL);
++	if (!drv->flags)
++		goto out2;
++
++	for (i = 0; i < minors; ++i) {
++		drv->flags[i] = 0;
++		drv->cs[i].driver = drv;
++		drv->cs[i].ops = drv->ops;
++		drv->cs[i].minor_index = i;
++	}
++
++	gigaset_if_initdriver(drv, procname, devname, devfsname);
++
++	spin_lock_irqsave(&driver_lock, flags);
++	list_add(&drv->list, &drivers);
++	spin_unlock_irqrestore(&driver_lock, flags);
++
++	return drv;
++
++out2:
++	kfree(drv->cs);
++out1:
++	kfree(drv);
++	module_put(owner);
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(gigaset_initdriver);
++
++static struct cardstate *alloc_cs(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++	unsigned i;
++	static struct cardstate *ret = NULL;
++
++	spin_lock_irqsave(&drv->lock, flags);
++	for (i = 0; i < drv->minors; ++i) {
++		if (!(drv->flags[i] & VALID_MINOR)) {
++			drv->flags[i] = VALID_MINOR;
++			ret = drv->cs + i;
++		}
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&drv->lock, flags);
++	return ret;
++}
++
++static void free_cs(struct cardstate *cs)
++{
++	unsigned long flags;
++	struct gigaset_driver *drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->flags[cs->minor_index] = 0;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++
++static void make_valid(struct cardstate *cs, unsigned mask)
++{
++	unsigned long flags;
++	struct gigaset_driver *drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->flags[cs->minor_index] |= mask;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++
++static void make_invalid(struct cardstate *cs, unsigned mask)
++{
++	unsigned long flags;
++	struct gigaset_driver *drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->flags[cs->minor_index] &= ~mask;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++
++/* For drivers without fixed assignment device<->cardstate (usb) */
++struct cardstate *gigaset_getunassignedcs(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++	struct cardstate *cs = NULL;
++	unsigned i;
++
++	spin_lock_irqsave(&drv->lock, flags);
++	if (drv->blocked)
++		goto exit;
++	for (i = 0; i < drv->minors; ++i) {
++		if ((drv->flags[i] & VALID_MINOR) &&
++		    !(drv->flags[i] & ASSIGNED)) {
++			drv->flags[i] |= ASSIGNED;
++			cs = drv->cs + i;
++			break;
++		}
++	}
++exit:
++	spin_unlock_irqrestore(&drv->lock, flags);
++	return cs;
++}
++EXPORT_SYMBOL_GPL(gigaset_getunassignedcs);
++
++void gigaset_unassign(struct cardstate *cs)
++{
++	unsigned long flags;
++	unsigned *minor_flags;
++	struct gigaset_driver *drv;
++
++	if (!cs)
++		return;
++	drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	minor_flags = drv->flags + cs->minor_index;
++	if (*minor_flags & VALID_MINOR)
++		*minor_flags &= ~ASSIGNED;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++EXPORT_SYMBOL_GPL(gigaset_unassign);
++
++void gigaset_blockdriver(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->blocked = 1;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++EXPORT_SYMBOL_GPL(gigaset_blockdriver);
++
++static int __init gigaset_init_module(void)
++{
++	/* in accordance with the principle of least astonishment,
++	 * setting the 'debug' parameter to 1 activates a sensible
++	 * set of default debug levels
++	 */
++	if (gigaset_debuglevel == 1)
++		gigaset_debuglevel = DEBUG_DEFAULT;
++
++	info(DRIVER_AUTHOR);
++	info(DRIVER_DESC);
++	return 0;
++}
++
++static void __exit gigaset_exit_module(void)
++{
++}
++
++module_init(gigaset_init_module);
++module_exit(gigaset_exit_module);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++
++MODULE_LICENSE("GPL");

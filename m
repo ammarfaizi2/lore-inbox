@@ -1,114 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751690AbWB0IxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWB0Ix6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751690AbWB0IxW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 03:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751697AbWB0IxW
+	id S1751700AbWB0Ix6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 03:53:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751701AbWB0Ix5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 03:53:22 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:48305 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751689AbWB0IxV (ORCPT
+	Mon, 27 Feb 2006 03:53:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18914 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751697AbWB0Ix4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 03:53:21 -0500
-Date: Mon, 27 Feb 2006 09:52:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Patch 2/7] Add sysctl for schedstats
-Message-ID: <20060227085203.GB3241@elte.hu>
-References: <1141026996.5785.38.camel@elinux04.optonline.net> <1141027367.5785.42.camel@elinux04.optonline.net> <1141027923.5785.50.camel@elinux04.optonline.net>
+	Mon, 27 Feb 2006 03:53:56 -0500
+Subject: Re: GFS2 Filesystem [13/16]
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060224223046.GS8083@ca-server1.us.oracle.com>
+References: <1140793524.6400.734.camel@quoit.chygwyn.com>
+	 <20060222185059.GC2633@ucw.cz>
+	 <20060224223046.GS8083@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Mon, 27 Feb 2006 08:58:58 +0000
+Message-Id: <1141030738.6400.788.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141027923.5785.50.camel@elinux04.optonline.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-the principle looks OK to me, just a few minor nits:
+On Fri, 2006-02-24 at 14:30 -0800, Joel Becker wrote:
+> On Wed, Feb 22, 2006 at 06:50:59PM +0000, Pavel Machek wrote:
+> > > --- a/fs/Kconfig
+> > > +++ b/fs/Kconfig
+> > > @@ -883,8 +884,6 @@ config CONFIGFS_FS
+> > >  	  Both sysfs and configfs can and should exist together on the
+> > >  	  same system. One is not a replacement for the other.
+> > >  
+> > > -	  If unsure, say N.
+> > > -
+> > 
+> > Why? Most users probably still want configfs_fs=N.
+> 
+> 	What version is this patch against?  This line was removed from
+> mainline a while ago.
+> 	As to why it was removed, the discussion happened back then.
+> Basically, if something requires CONFIGFS_FS (eg, OCFS2) and is a
+> module, then a user is asked whether they want configfs as a module or
+> built-in.  Text saying "say N" is completely incorrect there.
+> 
+> Joel
+> 
+Checking the gfs2 git tree and Linus' tree again reveals that its not
+something that we changed. I think I must have fed the wrong command to
+git to produce the diff as the change is quite clearly there, exactly
+same in both trees,
 
->  #ifdef CONFIG_SCHEDSTATS
-> +
-> +int schedstats_sysctl = 0;		/* schedstats turned off by default */
+Steve.
 
-no need to initialize to 0.
 
-> +static DEFINE_PER_CPU(int, schedstats) = 0;
-
-ditto.
-
-> +
-> +static void schedstats_set(int val)
-> +{
-> +	int i;
-> +	static spinlock_t schedstats_lock = SPIN_LOCK_UNLOCKED;
-
-move spinlock out of the function and use DEFINE_SPINLOCK. (But ... see 
-below for suggestion to get rid of this lock altogether.)
-
-> +	spin_lock(&schedstats_lock);
-> +	schedstats_sysctl = val;
-> +	for (i = 0; i < NR_CPUS; i++)
-> +		per_cpu(schedstats, i) = val;
-> +	spin_unlock(&schedstats_lock);
-> +}
-> +
-> +static int __init schedstats_setup_enable(char *str)
-> +{
-> +	schedstats_sysctl = 1;
-> +	schedstats_set(schedstats_sysctl);
-> +	return 1;
-> +}
-> +
-> +__setup("schedstats", schedstats_setup_enable);
-> +
-> +int schedstats_sysctl_handler(ctl_table *table, int write, struct file *filp,
-> +			void __user *buffer, size_t *lenp, loff_t *ppos)
-> +{
-> +	int ret, prev = schedstats_sysctl;
-> +	struct task_struct *g, *t;
-> +
-> +	ret = proc_dointvec(table, write, filp, buffer, lenp, ppos);
-> +	if ((ret != 0) || (prev == schedstats_sysctl))
-> +		return ret;
-> +	if (schedstats_sysctl) {
-> +		read_lock(&tasklist_lock);
-> +		do_each_thread(g, t) {
-> +			memset(&t->sched_info, 0, sizeof(t->sched_info));
-> +		} while_each_thread(g, t);
-> +		read_unlock(&tasklist_lock);
-> +	}
-> +	schedstats_set(schedstats_sysctl);
-
-why not just introduce a schedstats_lock mutex, and acquire it for both 
-the 'if (schedstats_sysctl)' line and the schedstats_set() line. That 
-will make the locking meaningful: two parallel sysctl ops will be atomic 
-to each other. [right now they wont be and they can clear schedstat data 
-in parallel -> not a big problem but it makes schedstats_lock rather 
-meaningless]
-
-> -#define SCHEDSTAT_VERSION 12
-> +#define SCHEDSTAT_VERSION 13
->  
->  static int show_schedstat(struct seq_file *seq, void *v)
->  {
-> @@ -394,6 +439,10 @@ static int show_schedstat(struct seq_fil
->  
->  	seq_printf(seq, "version %d\n", SCHEDSTAT_VERSION);
->  	seq_printf(seq, "timestamp %lu\n", jiffies);
-> +	if (!schedstats_sysctl) {
-> +		seq_printf(seq, "State Off\n");
-> +		return 0;
-> +	}
-
-and show_schedstat() should then also take the schedstats_lock mutex.
-
-	Ingo

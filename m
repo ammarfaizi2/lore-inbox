@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWB0Sau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWB0Sco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWB0Sau (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 13:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWB0Sau
+	id S1751446AbWB0Sco (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 13:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWB0Sco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 13:30:50 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:3248 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751358AbWB0Sat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 13:30:49 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: [RFC][PATCH -mm 1/2] mm: make shrink_all_memory overflow-resistant
-Date: Mon, 27 Feb 2006 19:28:22 +0100
+	Mon, 27 Feb 2006 13:32:44 -0500
+Received: from mail.linicks.net ([217.204.244.146]:53916 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S1751446AbWB0Sco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 13:32:44 -0500
+From: Nick Warne <nick@linicks.net>
+To: Mark Lord <lkml@rtr.ca>
+Subject: Re: hda: irq timeout: status=0xd0 DMA question
+Date: Mon, 27 Feb 2006 18:32:22 +0000
 User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-References: <200602271926.20294.rjw@sisk.pl>
-In-Reply-To: <200602271926.20294.rjw@sisk.pl>
+Cc: Henrik Persson <root@fulhack.info>, Robert Hancock <hancockr@shaw.ca>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+References: <200602261308.47513.nick@linicks.net> <200602262110.55324.nick@linicks.net> <4402FF89.4070009@rtr.ca>
+In-Reply-To: <4402FF89.4070009@rtr.ca>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602271928.22791.rjw@sisk.pl>
+Message-Id: <200602271832.22186.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make shrink_all_memory() overflow-resistant.
+On Monday 27 February 2006 13:32, Mark Lord wrote:
+> Nick Warne wrote:
+> > As a user we know if DMA is OK on a ide device, right?  Then let user
+> > have option to set it permanent, else carry on as the code does now when
+> > idex needs a reset.
+>
+> Does "hdparm -K1 /dev/hda" solve the problem?  That's what that option was
+> for originally, but I don't know if the IDE driver still uses it correctly.
 
+Strangely, I was reading up on this at work today, and it does indeed look 
+like what is required (although my man page refers to -k for options -dmu ) - 
+so I set both -k1 -K1 options.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- include/linux/swap.h |    2 +-
- mm/vmscan.c          |    9 +++++----
- 2 files changed, 6 insertions(+), 5 deletions(-)
+Now to wait and see the drive produce the error.
 
-Index: linux-2.6.16-rc4-mm2/mm/vmscan.c
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/mm/vmscan.c
-+++ linux-2.6.16-rc4-mm2/mm/vmscan.c
-@@ -1785,18 +1785,19 @@ void wakeup_kswapd(struct zone *zone, in
-  * Try to free `nr_pages' of memory, system-wide.  Returns the number of freed
-  * pages.
-  */
--int shrink_all_memory(unsigned long nr_pages)
-+unsigned long shrink_all_memory(unsigned int nr_pages)
- {
- 	pg_data_t *pgdat;
--	unsigned long nr_to_free = nr_pages;
--	int ret = 0;
-+	long long nr_to_free = nr_pages;
-+	unsigned long ret = 0;
- 	struct reclaim_state reclaim_state = {
- 		.reclaimed_slab = 0,
- 	};
- 
- 	current->reclaim_state = &reclaim_state;
- 	for_each_pgdat(pgdat) {
--		int freed;
-+		unsigned long freed;
-+
- 		freed = balance_pgdat(pgdat, nr_to_free, 0);
- 		ret += freed;
- 		nr_to_free -= freed;
-Index: linux-2.6.16-rc4-mm2/include/linux/swap.h
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/include/linux/swap.h
-+++ linux-2.6.16-rc4-mm2/include/linux/swap.h
-@@ -173,7 +173,7 @@ extern void swap_setup(void);
- 
- /* linux/mm/vmscan.c */
- extern unsigned long try_to_free_pages(struct zone **, gfp_t);
--extern int shrink_all_memory(unsigned long nr_pages);
-+extern unsigned long shrink_all_memory(unsigned int nr_pages);
- extern int vm_swappiness;
- 
- #ifdef CONFIG_NUMA
+Thanks for help Mark,
 
+Nick
+-- 
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

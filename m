@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWB0UwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWB0Uzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbWB0UwH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 15:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWB0UwH
+	id S1751121AbWB0Uzs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 15:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbWB0Uzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 15:52:07 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:32392 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S964823AbWB0UwE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 15:52:04 -0500
-Message-ID: <44036670.7060204@namesys.com>
-Date: Mon, 27 Feb 2006 12:52:00 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+	Mon, 27 Feb 2006 15:55:48 -0500
+Received: from mta4.srv.hcvlny.cv.net ([167.206.4.199]:15684 "EHLO
+	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S1751121AbWB0Uzs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 15:55:48 -0500
+Date: Mon, 27 Feb 2006 15:55:26 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [Lse-tech] [Patch 2/7] Add sysctl for schedstats
+In-reply-to: <1141059917.23775.41.camel@serpentine.pathscale.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Message-id: <4403673E.3020208@watson.ibm.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Marr <marr@flex.com>,
-       reiserfs-dev@namesys.com
-Subject: Re: Drastic Slowdown of 'fseek()' Calls From 2.4 to 2.6 -- VMM Change?
-References: <200602241522.48725.marr@flex.com> <20060224211650.569248d0.akpm@osdl.org> <200602261407.33262.ioe-lkml@rameria.de> <4401B233.7050308@yahoo.com.au>
-In-Reply-To: <4401B233.7050308@yahoo.com.au>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+References: <1141026996.5785.38.camel@elinux04.optonline.net>
+ <1141027367.5785.42.camel@elinux04.optonline.net>
+ <1141027923.5785.50.camel@elinux04.optonline.net>
+ <1141059917.23775.41.camel@serpentine.pathscale.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds like the real problem is that glibc is doing filesystem
-optimizations without making them conditional on the filesystem type. 
-Does anyone know the email address of the glibc guy so we can ask him
-not to do that?
+Bryan O'Sullivan wrote:
 
-My entry for the ugliest thought of the day: I wonder if the kernel can
-test the glibc version and.....
-
-Hans
-
-Nick Piggin wrote:
-
+>On Mon, 2006-02-27 at 03:12 -0500, Shailabh Nagar wrote:
 >
-> Actually glibc tries to turn this pre-read off if the seek is to a page
-> aligned offset, presumably to handle this case. However a big write
-> would only have to RMW the first and last partial pages, so pre-reading
-> 128KB in this case is wrong.
+>  
 >
-> And I would also say a 4K read is wrong as well, because a big read will
-> be less efficient due to the extra syscall and small IO.
+>>Add sysctl option for controlling schedstats collection
+>>dynamically. Delay accounting leverages schedstats for
+>>cpu delay statistics.
+>>    
+>>
 >
+>Is there some reason you're using the sysctl interface, and not say
+>sysfs instead?
+>
+>	<b
+>
+No. Is /proc/sys/kernel deprecated in favor of /sys/kernel now ?
+
+--Shailabh
+
 

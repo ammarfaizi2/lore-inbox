@@ -1,111 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWB0UXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751525AbWB0UXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWB0UXT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 15:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWB0UXT
+	id S1751525AbWB0UXk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 15:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWB0UXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 15:23:19 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:23159 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751507AbWB0UXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 15:23:18 -0500
-Message-ID: <44035FF4.8070600@tmr.com>
-Date: Mon, 27 Feb 2006 15:24:20 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Mon, 27 Feb 2006 15:23:40 -0500
+Received: from mail4.sea5.speakeasy.net ([69.17.117.6]:60871 "EHLO
+	mail4.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751515AbWB0UXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 15:23:37 -0500
+Date: Mon, 27 Feb 2006 15:23:34 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] SELinux - fix hard link count for selinuxfs root directory
+Message-ID: <Pine.LNX.4.64.0602271520190.21929@excalibur.intercode>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <fa.0hPNxE1lrymMdITLfVqoa6fG+nM@ifi.uio.no> <20060218183639.GA1023444@hiwaay.net>
-In-Reply-To: <20060218183639.GA1023444@hiwaay.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Adams wrote:
-> Once upon a time, Christoph Hellwig  <hch@infradead.org> said:
->> On Fri, Feb 17, 2006 at 04:35:30PM -0500, Bill Davidsen wrote:
->>> It would be nice to have one place to go to find burners, and to have 
->>> the model information in that place.
->> /proc/sys/dev/cdrom/info
-> 
-> Which is bad, as it is incomplete and requires the kernel be updated to
-> know about every format just to document them.
+A further fix is needed for selinuxfs link count management, to ensure 
+that the count is correct for the parent directory when a subdirectory is 
+created.  This is only required for the root directory currently, but the 
+code has been updated for the general case.
 
-Document them where? In the kernel Documentation directory? I believe
-those strings come back from the drive, as long as the human or
-application can parse them the kernel operationally needs only what you
-mentioned below.
-> 
-> Problems with that file:
+Please apply.
 
-The main problem with that file is that it wasn't mentioned several
-years ago... and I hope you aren't even thinking of suggesting any
-changes to something which has been around for years and which
-applications are undoubtedly quietly using.
+Signed-off-by: James Morris <jmorris@namei.org>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-A changed version of the same information in /sys would be a better
-solution if changes other than some additions are needed.
-> 
-> - What is "drive speed" (no units); also most drives do different speeds
->   for different modes/media.
+---
 
-Presumably the max speed mechanically possible, in the units of "x"
-which are used to identify both media and burners and have been since
-"2x" was the fast burner.
-> 
-> - CD-RW really covers a range of different formats ("high speed" CD-RW
->   is different and IIRC there's also "ultra high speed" CD-RW).
-> 
-> - Several formats are missing: DVD-RW DVD+R DVD+RW DVD-DL DVD+DL (at
->   least).
-> 
-> - What is the "RAM" format (not "DVD-RAM")?  I haven't heard of that.
-> 
-> The kernel really only needs to know:
-> 
-> - how the drive can control the tray (open/close/lock/change disc)
-> 
-> - if the drive can handle rewritable formats (for UDF support)
+ security/selinux/selinuxfs.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
 
-CD-RW seems to cover that.
-> 
-> Alternately, every known format needs to be added to that file (both
-> read and write support).  It also needs to note read and write speeds
-> for each available format.
-
-Why? The mmc/scsi commands work or don't, the device returns the info in
-the capabilities page if the application can use it, so it doesn't seem
-that the kernel cares, other than the cases you mentioned.
-> 
-> Also, that is an annoying to parse format.  What if there's a really
-> long text column field like "Can write Blu-Ray HD dual layer v2"?
-> Something under /sys would be better with one value per file, so if you
-> want to burn a DVD-R, you look for /sys/block/*/cdinfo/write/dvd-r;
-
-Isn't there a problem with having the same device in multiple places?
-Someone posted that there was, but I didn't really get into the details.
-In any case, why is opening dozens of files better than opening one file
-with all of the info. Long names can be abbreviated, complexity in the
-kernel to avoid complexity in the application is bad, particularly when
-humans parse the existing format nicely.
-
-> maybe that file contains a space separated list of available speeds (so
-> "1 2 4 8").  Also, right now as far as I can see, /sys doesn't present
-> manufacturer, model, and/or serial number info.
-
-The only applications which care about speeds other than max are already
-reading the capabilities page. Use cdrecord with the "-prcap" options,
-there is a boatload of stuff there. I agree the the three text items are
-  useful, and major/minor to map the device to the name actually used in
-/dev, but that data doesn't fit the format well, and might be better
-presented in /sys. Preferably in a human readable format, like
-/proc/scsi/scsi rather than multiple file per device.
-
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
-
+diff -purN -X dontdiff linux-2.6.16-rc4-mm2.o/security/selinux/selinuxfs.c linux-2.6.16-rc4-mm2.w/security/selinux/selinuxfs.c
+--- linux-2.6.16-rc4-mm2.o/security/selinux/selinuxfs.c	2006-02-25 00:29:32.000000000 -0500
++++ linux-2.6.16-rc4-mm2.w/security/selinux/selinuxfs.c	2006-02-25 12:35:26.000000000 -0500
+@@ -1177,12 +1177,12 @@ out:
+ 	return ret;
+ }
+ 
+-static int sel_make_dir(struct super_block *sb, struct dentry *dentry)
++static int sel_make_dir(struct inode *dir, struct dentry *dentry)
+ {
+ 	int ret = 0;
+ 	struct inode *inode;
+ 
+-	inode = sel_make_inode(sb, S_IFDIR | S_IRUGO | S_IXUGO);
++	inode = sel_make_inode(dir->i_sb, S_IFDIR | S_IRUGO | S_IXUGO);
+ 	if (!inode) {
+ 		ret = -ENOMEM;
+ 		goto out;
+@@ -1192,6 +1192,8 @@ static int sel_make_dir(struct super_blo
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inode->i_nlink++;
+ 	d_add(dentry, inode);
++	/* bump link count on parent directory, too */
++	dir->i_nlink++;
+ out:
+ 	return ret;
+ }
+@@ -1200,7 +1202,7 @@ static int sel_fill_super(struct super_b
+ {
+ 	int ret;
+ 	struct dentry *dentry;
+-	struct inode *inode;
++	struct inode *inode, *root_inode;
+ 	struct inode_security_struct *isec;
+ 
+ 	static struct tree_descr selinux_files[] = {
+@@ -1223,13 +1225,15 @@ static int sel_fill_super(struct super_b
+ 	if (ret)
+ 		goto err;
+ 
++	root_inode = sb->s_root->d_inode;
++
+ 	dentry = d_alloc_name(sb->s_root, BOOL_DIR_NAME);
+ 	if (!dentry) {
+ 		ret = -ENOMEM;
+ 		goto err;
+ 	}
+ 
+-	ret = sel_make_dir(sb, dentry);
++	ret = sel_make_dir(root_inode, dentry);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -1261,7 +1265,7 @@ static int sel_fill_super(struct super_b
+ 		goto err;
+ 	}
+ 
+-	ret = sel_make_dir(sb, dentry);
++	ret = sel_make_dir(root_inode, dentry);
+ 	if (ret)
+ 		goto err;
+ 

@@ -1,95 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWB0AWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWB0A2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWB0AWh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 19:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWB0AWg
+	id S1751459AbWB0A2U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 19:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWB0A2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 19:22:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2522 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750923AbWB0AWg (ORCPT
+	Sun, 26 Feb 2006 19:28:19 -0500
+Received: from ozlabs.org ([203.10.76.45]:13270 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751440AbWB0A2T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 19:22:36 -0500
-Date: Sun, 26 Feb 2006 16:20:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: largret@gmail.com
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org, axboe@suse.de,
-       ak@muc.de
-Subject: Re: OOM-killer too aggressive?
-Message-Id: <20060226162040.cb72bc31.akpm@osdl.org>
-In-Reply-To: <1140994821.5522.9.camel@shogun.daga.dyndns.org>
-References: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
-	<20060226102152.69728696.akpm@osdl.org>
-	<1140988015.5178.15.camel@shogun.daga.dyndns.org>
-	<20060226133140.4cf05ea5.akpm@osdl.org>
-	<1140994821.5522.9.camel@shogun.daga.dyndns.org>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.12; i686-pc-linux-gnu)
+	Sun, 26 Feb 2006 19:28:19 -0500
+Date: Mon, 27 Feb 2006 11:27:42 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: Hugh Dickins <hugh@veritas.com>, "Luck, Tony" <tony.luck@intel.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] fix ia64 hugetlb_free_pgd_range
+Message-ID: <20060227002742.GC24422@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	Hugh Dickins <hugh@veritas.com>, "Luck, Tony" <tony.luck@intel.com>,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <B05667366EE6204181EABE9C1B1C0EB509C43438@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB509C43438@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Largret <largret@gmail.com> wrote:
->
-> On Sun, 2006-02-26 at 13:31 -0800, Andrew Morton wrote:
-> > > Sorry, this didn't help on my machine. I am running that latest kernel
-> > > pre-patch (2.6.16-rc4) for testing right now and had to modify the
-> > > offsets a little. If there's any output that would help, please let me
-> > > know.
-> >
-> > hm, OK.  I suppose we can hit it with the big hammer, but I'd be reluctant
-> > to merge this patch because it has the potential to hide problems, such as
-> > the as-yet-unfixed bio-uses-ZONE_DMA one.
+On Thu, Feb 23, 2006 at 10:30:39PM -0800, Chen, Kenneth W wrote:
+> David Gibson wrote on Thursday, February 23, 2006 8:06 PM
+> > But I don't see how not transforming them sometimes can be correct.
+> > Suppose 'floor' is only a little way below 'addr' - addr will be
+> > shifted down, but floor won't, so floor may now be above addr, which
+> > will cause weird results.
 > > 
-> > --- devel/mm/page_alloc.c~a	2006-02-26 13:26:56.000000000 -0800
-> > +++ devel-akpm/mm/page_alloc.c	2006-02-26 13:28:58.000000000 -0800
-> > @@ -1003,7 +1003,8 @@ rebalance:
+> > Afaict the *only* thing floor and ceiling are used for is bounds
+> > checking the address range we're examining.  How can that ever be
+> > right if one address has been scaled down, but the other hasn't.
 > 
-> I reversed the previous patch before applying this one. If they were
-> supposed to be used together, let me know.
+> The scale down isn't exactly on every address bits.  Top 3 bits of
+> virtual address are preserved.
 
-No, that's right.
+Ah.. yes.
 
-> >From the initial results it looks like the OOM Killer is not being used
-> now, Unfortunately I can't check with dmesg because right after login is
-> initiated (but before I get a chance to type anything) there is a
-> "Kernel BUG" message. This is all that is is printed when a serial
-> console is in use. If you need the rest of the information, let me know
-> and I'll see about typing it up.
+> #define htlbpage_to_page(x)    (((unsigned long) REGION_NUMBER(x) << 61)
+>                                  | (REGION_OFFSET(x) >>
+> (HPAGE_SHIFT-PAGE_SHIFT)))
 > 
-> ----------- [cut here ] --------- [please bite here ] ---------
-> Kernel BUG at mm/vmalloc.c:352
-> invalid opcode: 0000 [1] SMP 
-> CPU 1 
-> Modules linked in: snd_pcm_oss snd_mixer_oss md5 ipv6 ipt_recent
-> ipt_REJECT xt_state xt_tcpudp iptable_filter ip_tables x_tables nfs
-> lockd nfs_acl sunrpc uhci_hcd r8169 ohci1394 ieee1394 emu10k1_gp
-> gameport snd_emu10k1 snd_rawmidi snd_ac97_codec snd_ac97_bus snd_pcm
-> snd_seq_device snd_timer snd_page_alloc snd_util_mem snd_hwdep snd
-> tda9887 tuner cx8800 cx88xx video_buf ir_common tveeprom compat_ioctl32
-> v4l1_compat v4l2_common btcx_risc videodev forcedeth usblp ohci_hcd
-> i2c_nforce2 ehci_hc
+> So scaled address for a hugetlb address will never be below unscaled
+> normal page address.  That is adjusted addr will never below unchanged
+> floor.
 
-Sigh.  The floppy driver's just a jpke.  Looks like the failed allocation
-fell back to vmalloc then screwed it up.
+Ok.  So in fact it wouldn't matter whether or not addresses outside
+the region are scaled, but conceptually they probably should be.
 
-I rather doubt whether x86_64 needs to be constraining itself to the ISA
-DMA region anyway - something for Andi to look at please?
-
-You could try this one instead, although I guess I'll need to fire up the
-test box for this bug.
-
-
---- devel/include/asm-x86_64/floppy.h~b	2006-02-26 16:15:44.000000000 -0800
-+++ devel-akpm/include/asm-x86_64/floppy.h	2006-02-26 16:16:21.000000000 -0800
-@@ -40,7 +40,7 @@
- #define fd_disable_irq()        disable_irq(FLOPPY_IRQ)
- #define fd_free_irq()		free_irq(FLOPPY_IRQ, NULL)
- #define fd_get_dma_residue()    SW._get_dma_residue(FLOPPY_DMA)
--#define fd_dma_mem_alloc(size)	SW._dma_mem_alloc(size)
-+#define fd_dma_mem_alloc(size)	__alloc_pages(GFP_KERNEL|__GFP_DMA32, get_order(size))
- #define fd_dma_setup(addr, size, mode, io) SW._dma_setup(addr, size, mode, io)
- 
- #define FLOPPY_CAN_FALLBACK_ON_NODMA
-_
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

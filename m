@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWB0T0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWB0TaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWB0T0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 14:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWB0T0O
+	id S932083AbWB0TaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 14:30:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWB0TaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 14:26:14 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:12171 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751745AbWB0T0N convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 14:26:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=p5FRs1/wKNAQ1KdPkLvoipJh7LazXeQWVY7ERUVDY+UhaTh4Yr/3yOjyC+/er3jNenfZB61xqJ2AHchwuPlLXPceKg01Te9HBRlDlisQosVWHRZWHngBOWPT1qEZmSR8grO3SWOpENWL4/5iIcUfO+eqBF6gvWBj3a/7OSAD7eY=
-Message-ID: <4807377b0602271126s39285884gd0e1c51c14b5d6a7@mail.gmail.com>
-Date: Mon, 27 Feb 2006 11:26:12 -0800
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Paul Rolland" <rol@witbe.net>, "Jeff Garzik" <jgarzik@pobox.com>
-Subject: Re: [2.4.32 - 2.6.15.4] e1000 - Fix mii interface
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, cramerj@intel.com, john.ronciak@intel.com
-In-Reply-To: <01e101c63ae7$1b417990$2001a8c0@cortex>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 27 Feb 2006 14:30:08 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:18322
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751745AbWB0TaH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 14:30:07 -0500
+Date: Mon, 27 Feb 2006 11:30:09 -0800
+From: Greg KH <gregkh@suse.de>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
+Message-ID: <20060227193009.GC9690@suse.de>
+References: <20060227190150.GA9121@kroah.com> <8C0F522E-E21E-40DD-8EFA-6D1111AF4CA1@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9a8748490602260700s2e82a623mcf2d778aa109bb00@mail.gmail.com>
-	 <01e101c63ae7$1b417990$2001a8c0@cortex>
+In-Reply-To: <8C0F522E-E21E-40DD-8EFA-6D1111AF4CA1@kernel.crashing.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/26/06, Paul Rolland <rol@witbe.net> wrote:
-> Hello,
->
-> > Ok, great, I was just wondering since I would have made one if you had
-> > no plans to do so.
->
-> Well, I was just waiting to make sure it was interesting for someone ;)
->
-> Here is it, verified with tab and not spaces... but attached as my mailer
-> is likely to cripple anything I try to inline...
->
-> Signed-off-by: Paul Rolland <rol@as2917.net>
+On Mon, Feb 27, 2006 at 01:22:05PM -0600, Kumar Gala wrote:
+> It would be nice if we can come up with some way for Linus to  
+> document state changes in his release notes.
 
-I've got an issue with this, as the same function is called in
-e1000_ethtool.c.  I think the correct fix is to fix the caller in the
-mii-tool case, but I am working on verifiying my assumptions.
+The diffstat in the directories Documentation/ABI/ would give that for
+whomever wants to read it.
 
-In the meantime can you send the exact command you were having the problem with?
+thanks,
+
+greg k-h

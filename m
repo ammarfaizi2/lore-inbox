@@ -1,89 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWB0Tbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWB0Tdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751748AbWB0Tbi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 14:31:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751744AbWB0Tbi
+	id S1751749AbWB0Tdk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 14:33:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWB0Tdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 14:31:38 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:38874 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932098AbWB0Tbh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 14:31:37 -0500
-To: Greg KH <greg@kroah.com>
-Cc: gregkh@suse.de, Kay Sievers <kay.sievers@vrfy.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-References: <20060227190150.GA9121@kroah.com>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Feb 2006 20:31:28 +0100
-In-Reply-To: <20060227190150.GA9121@kroah.com>
-Message-ID: <p7364n01tv3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 27 Feb 2006 14:33:39 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:24127 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751745AbWB0Tdj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 14:33:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VnsFckcLVspVVvp5Omqj/0Hj55+QqfhZj4vOycAYS1KTz8Ls6STz2BTMOr+3C2kM9/L4zwC+oYVDG6cNONTcHTcsxxU6Z9Ofg89lZHv2S9qOVdHoV4Y6FFHtJwDEaCbP96Qf5JuUsXUMKgLEfgyduz0jX1uVp/F6CPGCRiZYpyU=
+Message-ID: <9a8748490602271133o4aa673e4x3c069c1ab08fc392@mail.gmail.com>
+Date: Mon, 27 Feb 2006 20:33:38 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Justin Piszcz" <jpiszcz@lucidpixels.com>
+Subject: Re: Question regarding call trace.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0602271411020.5678@p34>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0602271411020.5678@p34>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+On 2/27/06, Justin Piszcz <jpiszcz@lucidpixels.com> wrote:
+> I have a trace that looks like the following, my question is, are the
+> process(es) at the top of the call trace responible for the actual crash
+> of the machine?  Are they the root cause?
+>
 
-> Hi all,
-> 
-> As has been noticed recently by a lot of different people, it seems like
-> we are breaking the userspace<->kernelspace interface a lot.  Well, in
-> looking back over time, we always have been doing this, but no one seems
-> to notice (proc files changing format and location, netlink library
-> bindings, etc.)
+As a general rule, functions near the top of a trace are more likely
+to be the cause of the crash than functions near the bottom, but
+that's not always the case.
+Also sometimes when dealing with race conditions some part of the
+kernel messes up and causes a different part of the kernel to crase so
+that what you see in the trace is not what actually *caused* the
+problem but merely what was affected by a problem somewhere else.
+And if there's memory corruption going on then sometimes one part of
+the kernel can scrible on random memory and cause a different and
+completely unrelated part of the kernel to blow up.
+So you cannot always trust a call trace 100%.
 
-Ok, but how do you plan to address the basic practical problem?
-People cannot freely upgrade/downgrade kernels anymore since udev/hal
-are used widely in distributions.
 
-Does it imply you plan to change udev/hal to only use stable interfaces
-for now? I would applaud such a move, but I guess it would come
-at the cost of functionality.
+> Would this point to a bad SCSI board?
+>
+I'm sorry, I can't tell you :(
 
-If these applications are not changed then the documentation is likely useless
-because it won't help anyways - things will still break, kernel
-hackers and users will curse you all the time when they want
-to test kernels etc.
+You might want to try enable debugging symbols and frame pointers to
+get a more readable trace.
 
-> --- /dev/null
-> +++ gregkh-2.6/Documentation/ABI/stable/syscalls
-> @@ -0,0 +1,10 @@
-> +What:		The kernel syscall interface
-> +Description:
-> +	This interface matches much of the POSIX interface and is based
-> +	on it and other Unix based interfaces.  It will only be added to
-> +	over time, and not have things removed from it.
+Consider these options (in the Kernel Hacking section of menuconfig) :
+  CONFIG_DEBUG_KERNEL
+  CONFIG_DEBUG_INFO
+  CONFIG_FRAME_POINTER
+  CONFIG_UNWIND_INFO
 
-Some ioctls and socket options unfortunately don't follow this. I
-guess you will need to document them separately.
+There are other options in there as well that may help, read their
+description and decide for yourself if you think they will be needed -
+or maybe someone else who understands your dump better than me can
+advice on what specific options to enable.
 
-Could be ugly to have hundreds of files for ioctls though.
-Perhaps define core ioctls and then driver ioctls and define
-all the driver ioctls unstable by default? But that also
-would just mean the category stable would be useless
-because people always would need to use unstable interfaces
-too.
+Hope this helps you.
 
-> --- /dev/null
-> +++ gregkh-2.6/Documentation/ABI/testing/sysfs-class
-> @@ -0,0 +1,16 @@
-> +What:		/sys/class/
-> +Date:		Febuary 2006
-> +Contact:	Greg Kroah-Hartman <gregkh@suse.de>
-> +Description:
-> +		The /sys/class directory will consist of a group of
-> +		subdirectories describing individual classes of devices
-> +		in the kernel.  The individual directories will consist
-> +		of either subdirectories, or symlinks to other
-> +		directories.
-> +
-> +		All programs that use this directory tree must be able
-> +		to handle both subdirectories or symlinks in order to
-> +		work properly.
-
-What good is it if you don't say anything about the stability of its contents?
-Looks far too vague to me.
-
--Andi
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

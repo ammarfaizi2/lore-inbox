@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWB0UPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWB0UQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWB0UPU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 15:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWB0UPU
+	id S932331AbWB0UQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 15:16:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWB0UQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 15:15:20 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:44448
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932330AbWB0UPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 15:15:18 -0500
-Date: Mon, 27 Feb 2006 12:15:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060227201518.GA12262@kroah.com>
-References: <20060227190150.GA9121@kroah.com> <200602271952.08949.s0348365@sms.ed.ac.uk> <20060227195727.GA10752@suse.de> <200602272005.17470.s0348365@sms.ed.ac.uk> <20060227201214.GA12111@suse.de>
+	Mon, 27 Feb 2006 15:16:25 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:61844 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932331AbWB0UQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 15:16:24 -0500
+Date: Mon, 27 Feb 2006 12:16:05 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
+Message-Id: <20060227121605.fb41d505.pj@sgi.com>
+In-Reply-To: <p731wxo1tpr.fsf@verdi.suse.de>
+References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com>
+	<p731wxo1tpr.fsf@verdi.suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060227201214.GA12111@suse.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 12:12:14PM -0800, Greg KH wrote:
-> On Mon, Feb 27, 2006 at 08:05:17PM +0000, Alistair John Strachan wrote:
-> > But even now, devfs is still in the kernel.
-> > 
-> > Thanks for the answer anyway, I guess this is a non-issue (who will try to use 
-> > code that can't be selected via config?).
-> 
-> Heh, true.  Actually, devfs is working in the kernel,
+Andi wrote:
+> Is there a way to use it without cpumemsets? 
 
-Oops, ment to say "is not working"...
+Not that I know of.  So far as I can recall, the task->mems_allowed
+field (over which the spreading is done) is only manipulated by the
+cpuset code.  So at least what I have here requires cpusets to have
+any useful affect, yes.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

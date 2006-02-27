@@ -1,100 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWB0V7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWB0V7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbWB0V7a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 16:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWB0V7a
+	id S932345AbWB0V7c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 16:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWB0V7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 16:59:30 -0500
-Received: from smtp.enter.net ([216.193.128.24]:5643 "EHLO smtp.enter.net")
-	by vger.kernel.org with ESMTP id S932345AbWB0V73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 16:59:29 -0500
-From: "D. Hazelton" <dhazelton@enter.net>
-To: Chris Adams <cmadams@hiwaay.net>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 27 Feb 2006 16:47:48 -0500
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <fa.deNPP6WI8uOxYJJt5IRsDHJHqNc@ifi.uio.no> <20060227212141.GA1334769@hiwaay.net>
-In-Reply-To: <20060227212141.GA1334769@hiwaay.net>
+	Mon, 27 Feb 2006 16:59:32 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57299 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932345AbWB0V7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 16:59:31 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devel@openvz.org, Andrey Savochkin <saw@sawoct.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Stanislav Protassov <st@sw.ru>,
+       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
+       Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Which of the virtualization approaches is more suitable for
+ kernel?
+References: <43F9E411.1060305@sw.ru>
+	<m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
+	<1141062132.8697.161.camel@localhost.localdomain>
+	<m1ek1owllf.fsf@ebiederm.dsl.xmission.com>
+	<1141076148.10105.11.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 27 Feb 2006 14:56:37 -0700
+In-Reply-To: <1141076148.10105.11.camel@localhost.localdomain> (Dave
+ Hansen's message of "Mon, 27 Feb 2006 13:35:48 -0800")
+Message-ID: <m18xrwwjmy.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602271647.48600.dhazelton@enter.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 February 2006 16:21, Chris Adams wrote:
-> Once upon a time, Bill Davidsen  <davidsen@tmr.com> said:
-> >> Which is bad, as it is incomplete and requires the kernel be updated to
-> >> know about every format just to document them.
-> >
-> >Document them where? In the kernel Documentation directory? I believe
-> >those strings come back from the drive, as long as the human or
-> >application can parse them the kernel operationally needs only what you
-> >mentioned below.
+Dave Hansen <haveblue@us.ibm.com> writes:
+
+> On Mon, 2006-02-27 at 14:14 -0700, Eric W. Biederman wrote:
+>> I like the namespace nomenclature.  (It can be shorted to _space  or _ns).
+>> In part because it shortens well, and in part because it emphasizes that
+>> we are *just* dealing with the names.
 >
-> I wasn't aware those strings actually came from the devices.  What I
-> meant was if that file is to be the documentation of the drive
-> capabilities, it needs to be updated to list all known capabilities (and
-> be updated promptly when new capabilities are created).  It currently
-> has many missing formats.
-
-No, the strings do not come from the drive. Those capabilities, IIRC, are 
-presented as a series of bitflags packed into a 32 bit integer. This is 
-described in the MMC spec for the "capabilities mode page". The drive _does_ 
-supply the information as to what formats it understands, but in this case 
-the kernel translates it into a human readable format.
-
-> >> - What is "drive speed" (no units); also most drives do different speeds
-> >>   for different modes/media.
-> >
-> >Presumably the max speed mechanically possible, in the units of "x"
-> >which are used to identify both media and burners and have been since
-> >"2x" was the fast burner.
+> When I was looking at this, I was pretending to be just somebody looking
+> at sysv code, with no knowledge of containers or namespaces.
 >
-> I've got a burner that has the following burn speeds (from memory): 16x
-> DVD+/-R, 8x DVD+RW, 6x DVD-RW, 4x DVD+/-R DL, 48x CD-R, and 24x CD-RW.
-> I don't even remember what the max read speeds are.  Which is the "max"?
-> The 16x DVD speed or the 48x CD speed?  Why?
+> For a person like that, I think names like _space or _ns are pretty much
+> not an option, unless those terms become as integral to the kernel as
+> things like kobjects.  
 
-This value is also reported by the drive. I don't know about DVD drives, but 
-for CD drives it is a multiplier. 1x == 256K/sec transfer off the disc, 52x 
-is 13M/sec transfer off the disc. However, in the case of all discs, all 
-speeds beyond a certain cut-off value (I forget what the number is) the 
-number is "Maximum/Variable" because the polycarbonate the discs are made 
-from will deform and shatter from the centrifugal forces above a certain RPM.
+To be clear I was talking name suffixes.  So ipc_space certainly conveys
+something, and even ipc_ns may be ok.
 
-(And this I have witness three times myself with a 52x drive and old discs. 
-It's a real bitch to have to take apart a CD drive and clean out the 
-fragments of the disc.)
-
-> The "x" unit is only meaningful with an associated format (since "1x" is
-> different for different formats) and with "read" or "write" specified.
+>> You split the resolution at just ipc_msgs.  When I really think it should
+>> be everything ipcs deals with.
 >
-> Without units, the number is meaningless.
+> This was just the first patch. :)
 
-It's in units as specified by the specification. The redbook spec for CDROM 
-drives states the minimum spin speed for stable reading and that roughly 
-translates to a 256K/sec read rate.
+:) 
 
-I haven't had time to look into the DVD specification, but I'm guessing that 
-the DVD speed is about 3x what the CDROM speed is.
+Just wanted to make certain we agreed on the scope.
 
-> >> - if the drive can handle rewritable formats (for UDF support)
-> >
-> >CD-RW seems to cover that.
+>> Performing the assignment inside the tasklist_lock is not something we
+>> want to do in do_fork().
 >
-> Not for DVD+RW, DVD-RW, and DVD-RAM (which is the only one there).
-> Sometime down the road, HD-DVD and Blu-Ray versions of rewritable will
-> also exist.
+> Any particular reason why?  There seem to be a number of things done in
+> there that aren't _strictly_ needed under the tasklist_lock.  Where
+> would you do it?
 
-Exactly. And these are all covered in the file. And as more formats are added 
-the currently unused bits in the capabilities mode page will come into use. 
-It will, at some point, be used up - and then I have a feeling a new mode 
-page will be introduced so that the current one isn't changed in a way that 
-would break legacy applications.
+Well all of the other things we can share or not share are already
+outside of the tasklist_lock.
 
-DRH
+We may not be quite minimal but we actually are fairly close to minimal
+inside the tasklist_lock.
+
+>> So it looks like a good start.  There are a lot of details yet to be filled
+>> in, proc, sysctl, cleanup on namespace release.  (We can still provide
+>> the create destroy methods even if we don't hook the up).
+>
+> Yeah, I saved shm for last because it has the largest number of outside
+> interactions.  My current thoughts are that we'll need _contexts or
+> _namespaces associated with /proc mounts as well.  
+
+Yes.  I think the easy way to handle this is to have a symlink
+from /proc/sysvipc to /proc/self/sysvipc.  And then we have a per
+process reporting area.
+
+That preserves all of the old programs but enables us to get the
+information out.
+
+>> I think in this case I would put the actual namespace structure
+>> definition in util.h, and just put a struct ipc_ns in sched.h.
+>
+> Ahhh, as in
+>
+> 	struct ipc_ns;
+>
+> And just keep a pointer from the task?  Yeah, that does keep it quite
+> isolated.  
+
+Yep.
+
+Eric

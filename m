@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWB0CrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWB0DZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbWB0CrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 21:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWB0CrZ
+	id S1750876AbWB0DZx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 22:25:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWB0DZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 21:47:25 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:33926 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751267AbWB0CrY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 21:47:24 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: 2.6.16-rc4-mm2 configs
-Date: Sun, 26 Feb 2006 21:47:07 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30062E9D71@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc4-mm2 configs
-Thread-Index: AcY7Qj1Jm6O4/kHBRoKr44S+25EPfgABajCg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Feb 2006 02:47:10.0167 (UTC) FILETIME=[1AE70670:01C63B48]
+	Sun, 26 Feb 2006 22:25:53 -0500
+Received: from static-151-204-232-50.bos.east.verizon.net ([151.204.232.50]:47629
+	"EHLO mail2.sicortex.com") by vger.kernel.org with ESMTP
+	id S1750868AbWB0DZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 22:25:53 -0500
+Date: Sun, 26 Feb 2006 22:25:46 -0500
+From: Aaron Brooks <aaron.brooks@sicortex.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] scripts: namespace.pl is not CROSS_COMPILE happy
+Message-ID: <20060227032546.GQ11744@sicortex.com>
+References: <20060208184506.GS11744@sicortex.com> <20060208202251.GA9550@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060208202251.GA9550@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Using the fixed path to /usr/bin/{nm,objdump} does not allow
+CROSS_COMPILE environments to use namespace.pl. This patch causes
+namespace.pl to use $NM and $OBJDUMP if defined or fall back to the nm
+and objdump found in the path.
+
+Signed-off-by: Aaron Brooks <aaron.brooks@sicortex.com>
+---
+
+ Patch applies to current torvalds/linux-2.6.git head.
+
+ namespace.pl |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+Index: linux/scripts/namespace.pl
+===================================================================
+--- linux-2.6.15/scripts/namespace.pl  (revision 14607)
++++ linux-2.6.15/scripts/namespace.pl  (working copy)
+@@ -66,8 +66,8 @@
+ use strict;
+ use File::Find;
  
->> a.  why does SONY_ACPI default to m ?  Other similar options 
->are default n.
->
->Because I got heartily sick of losing the setting each time I 
->went back to a mainline kernel and did `make oldconfig'.
-
-IIR the recommendation from Roman on these things was
-to remove the default entirely.  If you have a favorite
-.config file with =m in it, then make oldconfig should
-preserve that choice.
-
--Len
+-my $nm = "/usr/bin/nm -p";
+-my $objdump = "/usr/bin/objdump -s -j .comment";
++my $nm = ($ENV{'NM'} || "nm") . " -p";
++my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+ my $srctree = "";
+ my $objtree = "";
+ $srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));

@@ -1,38 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWB0M3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWB0MbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWB0M3j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 07:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWB0M3j
+	id S1751833AbWB0MbF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 07:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWB0MbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 07:29:39 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:19876 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751818AbWB0M3i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 07:29:38 -0500
-Date: Mon, 27 Feb 2006 17:59:34 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [Patch 2/7] Add sysctl for schedstats
-Message-ID: <20060227122933.GE22492@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <1141026996.5785.38.camel@elinux04.optonline.net> <1141027367.5785.42.camel@elinux04.optonline.net> <1141027923.5785.50.camel@elinux04.optonline.net> <20060227085203.GB3241@elte.hu> <20060227104634.GB22492@in.ibm.com> <1141042725.2992.96.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141042725.2992.96.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.10i
+	Mon, 27 Feb 2006 07:31:05 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:33430 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751833AbWB0MbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 07:31:03 -0500
+Message-ID: <4402F04B.7080603@jp.fujitsu.com>
+Date: Mon, 27 Feb 2006 21:27:55 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+CC: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>,
+       Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       benh@kernel.crashing.org
+Subject: Re: [PATCH 2/4] PCI legacy I/O port free driver (take 3) - Update
+ Documentation/pci.txt
+References: <44028502.4000108@soft.fujitsu.com> <440285AB.20903@jp.fujitsu.com> <20060227065353.GA1762@colo.lackof.org> <4402B7E4.5050103@jp.fujitsu.com> <4402EE31.2000000@jp.fujitsu.com>
+In-Reply-To: <4402EE31.2000000@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> your sysctl functions sleep. the BKL is useless in the light of sleeping
-> code...
->
+The patch seemed to be broken by my mailer. Resending it.
+Sorry about that.
 
-But wouldn't all sysctls potentially sleep (on account of copying data from
-the user).
+Thanks,
+Kenji Kaneshige
 
-Thanks for clarifying,
-Balbir
+
+This patch adds the description about legacy I/O port free driver into
+Documentation/pci.txt.
+
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+
+ Documentation/pci.txt |   68 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 68 insertions(+)
+
+Index: linux-2.6.16-rc4/Documentation/pci.txt
+===================================================================
+--- linux-2.6.16-rc4.orig/Documentation/pci.txt	2006-02-27 18:42:39.000000000 +0900
++++ linux-2.6.16-rc4/Documentation/pci.txt	2006-02-27 18:50:54.000000000 +0900
+@@ -269,3 +269,71 @@
+ pci_find_device()		Superseded by pci_get_device()
+ pci_find_subsys()		Superseded by pci_get_subsys()
+ pci_find_slot()			Superseded by pci_get_slot()
++
++
++9. Legacy I/O port free driver
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Large servers may not be able to provide I/O port resources to all PCI
++devices. I/O Port space is only 64KB on Intel Architecture[1] and is
++likely also fragmented since the I/O base register of PCI-to-PCI
++bridge will usually be aligned to a 4KB boundary[2]. On such systems,
++pci_enable_device() and pci_request_regions() will fail when
++attempting to enable I/O Port regions that don't have I/O Port
++resources assigned.
++
++Fortunately, many PCI devices which request I/O Port resources also
++provide access to the same registers via MMIO BARs. These devices can
++be handled without using I/O port space and the drivers typically
++offer a CONFIG_ option to only use MMIO regions
++(e.g. CONFIG_TULIP_MMIO). PCI devices typically provide I/O port
++interface for legacy OSs and will work when I/O port resources are not
++assigned. The "PCI Local Bus Specification Revision 3.0" discusses
++this on p.44, "IMPLEMENTATION NOTE".
++
++If your PCI device driver doesn't need I/O port resources assigned to
++I/O Port BARs, set the no_ioport flag in struct pci_dev before calling
++pci_enable_device() and pci_request_regions(). If the no_ioport flag
++is set, generic PCI support will ignore I/O port regions for the
++corresponding devices.
++
++[1] Some systems support 64KB I/O port space per PCI segment.
++[2] Some PCI-to-PCI bridges support optional 1KB aligned I/O base.
++
++
++10. MMIO Space and "Write Posting"
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Converting a driver from using I/O Port space to using MMIO space
++often requires some additional changes. Specifically, "write posting"
++needs to be handled. Most drivers (e.g. tg3, acenic, sym53c8xx_2)
++already do. I/O Port space guarantees write transactions reach the PCI
++device before the CPU can continue. Writes to MMIO space allow to CPU
++continue before the transaction reaches the PCI device. HW weenies
++call this "Write Posting" because the write completion is "posted" to
++the CPU before the transaction has reached it's destination.
++
++Thus, timing sensitive code should add readl() where the CPU is
++expected to wait before doing other work.  The classic "bit banging"
++sequence works fine for I/O Port space:
++
++	for (i=8; --i; val >>= 1) {
++		outb(val & 1, ioport_reg);	/* write bit */
++		udelay(10);
++	}
++
++The same sequence for MMIO space should be:
++
++	for (i=8; --i; val >>= 1) {
++		writeb(val & 1, mmio_reg);	/* write bit */
++		readb(safe_mmio_reg);		/* flush posted write */
++		udelay(10);
++	}
++
++It is important that "safe_mmio_reg" not have any side effects that
++interferes with the correct operation of the device.
++
++Another case to watch out for is when resetting a PCI device. Use PCI
++Configuration space reads to flush the writel(). This will gracefully
++handle the PCI master abort on all platforms if the PCI device is
++expected to not respond to a readl().  Most x86 platforms will allow
++MMIO reads to master abort (aka "Soft Fail") and return garbage
++(e.g. ~0). But many RISC platforms will crash (aka "Hard Fail").
+
+

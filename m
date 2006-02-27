@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWB0Pce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWB0PdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWB0Pce (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 10:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWB0Pce
+	id S964774AbWB0PdM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 10:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWB0PdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 10:32:34 -0500
-Received: from a222036.upc-a.chello.nl ([62.163.222.36]:22214 "EHLO
-	laptopd505.fenrus.org") by vger.kernel.org with ESMTP
-	id S1751474AbWB0PcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 10:32:20 -0500
-Subject: [Patch 4/4] Tell GCC 4.1 to move unlikely() code to a separate
-	section
-From: Arjan van de Ven <arjan@linux.intel.com>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Cc: akpm@osdl.org, ak@suse.de
-In-Reply-To: <1141053825.2992.125.camel@laptopd505.fenrus.org>
-References: <1141053825.2992.125.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Feb 2006 16:31:24 +0100
-Message-Id: <1141054284.2992.136.camel@laptopd505.fenrus.org>
+	Mon, 27 Feb 2006 10:33:07 -0500
+Received: from ns2.tasking.nl ([195.193.207.10]:31656 "EHLO ns2.tasking.nl")
+	by vger.kernel.org with ESMTP id S964774AbWB0Pc6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 10:32:58 -0500
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@altium.nl (Dick Streefland)
+Organization: Altium BV
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <200602250042.51677.bero@arklinux.org>
+From: dick.streefland@altium.nl (Dick Streefland)
+Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works ;)
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <27d9.44031ba8.afafc@altium.nl>
+Date: Mon, 27 Feb 2006 15:32:56 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is more controversial I assume; it offers the option 
-to use the gcc 4.1 option to move unlikely() code to a separate section.
-On the con side, this means that longer byte sequences are needed to jump
-to this code, on the Pro side it means that the unlikely() code isn't sharing
-icache cachelines and tlbs anymore.
+Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+| I've just released dvdrtools 0.3.1 
+| (http://www.arklinux.org/projects/dvdrtools/). It is a fork of cdrtools that 
+| (as the name indicates) adds support for writing to DVD-R and DVD-RW disks 
+| using purely Free Software, that tries to do things the Linux way ("dvdrecord 
+| dev=/dev/cdrom whatever.iso") without suggesting to use 2.4 kernels or even 
+| other operating systems, uses a standard make system, is maintained in a 
+| public svn repository, and does away with a lot of the libc 
+| functionality-clones found in cdrtools.
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
- 
----
- arch/x86_64/Kconfig.debug |   10 ++++++++++
- arch/x86_64/Makefile      |    4 ++++
- 2 files changed, 14 insertions(+)
+Good. So, we can finally fix this:
 
-Index: linux-reorder2/arch/x86_64/Kconfig.debug
-===================================================================
---- linux-reorder2.orig/arch/x86_64/Kconfig.debug
-+++ linux-reorder2/arch/x86_64/Kconfig.debug
-@@ -12,6 +12,16 @@ config DEBUG_RODATA
- 	 of the kernel code won't be covered by a 2MB TLB anymore.
- 	 If in doubt, say "N".
- 
-+config REORDER_BLOCKS
-+	bool "Enable gcc to move unlikely() code away"
-+	depends on DEBUG_KERNEL
-+	help
-+	  This option will enable gcc 4.1 and later to reorder code that is
-+	  marked unlikely() far away from the code to the end of the kernel
-+	  image. This allows the processor to make better use of the instruction
-+	  cache, however it also makes OOPses harder to decode.
-+	  If in doubt, say "N"
-+
- config IOMMU_DEBUG
-        depends on GART_IOMMU && DEBUG_KERNEL
-        bool "Enable IOMMU debugging"
-Index: linux-reorder2/arch/x86_64/Makefile
-===================================================================
---- linux-reorder2.orig/arch/x86_64/Makefile
-+++ linux-reorder2/arch/x86_64/Makefile
-@@ -47,6 +47,10 @@ ifneq ($(CONFIG_DEBUG_INFO),y)
- # -fweb shrinks the kernel a bit, but the difference is very small
- # it also messes up debugging, so don't use it for now.
- #CFLAGS += $(call cc-option,-fweb)
-+# -freorder-blocks-and-partition moves all unlikely() code out of the
-+# way, to increase icache density of the hot codepaths.
-+# this makes oopses harder to read as well, so it's a config option
-+cflags-$(CONFIG_REORDER_BLOCKS) += $(call cc-option,-freorder-blocks-and-partition)
- endif
- # -funit-at-a-time shrinks the kernel .text considerably
- # unfortunately it makes reading oopses harder.
+diff -pu dvdrtools-0.3.1/dvdrecord/scsi_cdr.c.orig dvdrtools-0.3.1/dvdrecord/scsi_cdr.c
+--- dvdrtools-0.3.1/dvdrecord/scsi_cdr.c.orig	2006-02-15 03:47:41.000000000 +0100
++++ dvdrtools-0.3.1/dvdrecord/scsi_cdr.c	2006-02-27 16:24:10.000000000 +0100
+@@ -2196,7 +2196,7 @@ EXPORT void printinq(SCSI *scgp, FILE *f
+ 	if (inq->add_len >= 31 ||
+ 			inq->info[0] || inq->ident[0] || inq->revision[0]) {
+ 		fprintf(f, "Vendor_info    : '%.8s'\n", inq->info);
+-		fprintf(f, "Identifikation : '%.16s'\n", inq->ident);
++		fprintf(f, "Identification : '%.16s'\n", inq->ident);
+ 		fprintf(f, "Revision       : '%.4s'\n", inq->revision);
+ 	}
+ }
+
+-- 
+Dick Streefland                      ////                      Altium BV
+dick.streefland@altium.nl           (@ @)          http://www.altium.com
+--------------------------------oOO--(_)--OOo---------------------------
 

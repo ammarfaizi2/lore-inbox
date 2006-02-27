@@ -1,99 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWB0JGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWB0JKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWB0JGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 04:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWB0JGl
+	id S1750842AbWB0JKr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 04:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751706AbWB0JKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 04:06:41 -0500
-Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:11164 "EHLO
-	cinder.waste.org") by vger.kernel.org with ESMTP id S932323AbWB0JGj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 04:06:39 -0500
-Date: Mon, 27 Feb 2006 03:06:47 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
-Message-ID: <20060227090647.GQ13116@waste.org>
-References: <20060225065136.GH13116@waste.org> <20060225084955.GA27538@flint.arm.linux.org.uk> <20060225145412.GI13116@waste.org> <20060225180521.GB15276@flint.arm.linux.org.uk> <20060225210454.GL13116@waste.org> <20060225212247.GC15276@flint.arm.linux.org.uk> <20060225214704.GN13116@waste.org> <20060225215850.GD15276@flint.arm.linux.org.uk> <20060225223737.GO13116@waste.org> <20060225225748.GF15276@flint.arm.linux.org.uk>
+	Mon, 27 Feb 2006 04:10:47 -0500
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:19060 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750867AbWB0JKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 04:10:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=fHt5djqvTLEADFEfCwWPCRUOUmLCw2nPP7VxF6y/ZdgS2AUONLiCvBfR7U6UEtIo4T7covB5BTuT8X43UpaooKOddzKlBeqsSjNJKdOa/zeF6QNu/6SspnOv/VwYkGoKzWs5WwK+h3JuhjIh9WHM1YwductOl9LNcQ+mpPobJ6A=  ;
+Message-ID: <4402C217.3070401@yahoo.com.au>
+Date: Mon, 27 Feb 2006 20:10:47 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060225225748.GF15276@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: nagar@watson.ibm.com
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Patch 0/7] Per-task delay accounting
+References: <1141026996.5785.38.camel@elinux04.optonline.net>
+In-Reply-To: <1141026996.5785.38.camel@elinux04.optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 25, 2006 at 10:57:49PM +0000, Russell King wrote:
-> On Sat, Feb 25, 2006 at 04:37:37PM -0600, Matt Mackall wrote:
-> > On Sat, Feb 25, 2006 at 09:58:50PM +0000, Russell King wrote:
-> > > 1. kernel is loaded.
-> > > 2. firmware scans loaded kernel, finds gzip magic numbers (the compressed
-> > >    kernel.)
-> > > 3. firmware sets initrd pointeres to point at the compressed kernel.
-> > > 4. firmware calls kernel decompressor.
-> > > 5. kernel decompresses and self-relocates.
-> > > 6. compressed kernel image is thereby partly corrupted.
-> > > 7. kernel boots.
-> > > 8. kernel tries to decompress the compressed kernel image.
-> > > 9. decompressor gets confused and tries to gobble more data than is
-> > >    available.
-> > > 10. kernel sits there being a dumb fuck.
-> > 
-> > Why are we attempting to decompress the kernel image again? Accident?
+Shailabh Nagar wrote:
+> The following patches add accounting for the delays seen by tasks in
+> a) waiting for a CPU (while being runnable)
+> b) completion of synchronous block I/O initiated by the task
+> c) swapping in pages (i.e. capacity misses).
 > 
-> The firmware is trying to be "clever" - looking in the object it TFTP'd
-> for the gzip magic numbers and assuming that any it finds are an initrd.
-> The firmware then points the kernel at the start of that gzipped image.
+> Such delays provide feedback for a task's cpu priority, io priority and
+> rss limit values. Long delays, especially relative to other tasks, can
+> be a trigger for changing a task's cpu/io priorities and modifying its
+> rss usage (either directly through sys_getprlimit() that was proposed
+> earlier on lkml or by throttling cpu consumption or process calling
+> sys_setrlimit etc.)
 > 
-> The fact that a zImage contains the gzip magic numbers never occurred to
-> the people who implemented this misfeature in the firmware.  It is a
-> misfeature because:
-> 
-> 1. this exact problem - that a zImage contents can be mistaken for an initrd.
-> 2. an initrd doesn't have to be compressed with gzip.
-> 3. an initrd may contain gzip markers which do not relate to the start of
->    the initrd.
-> 
-> > > > In my mind, being unable to decompress init* is every bit as fatal as
-> > > > being unable to mount root.
-> > > 
-> > > It's very simple.  With fix, the kernel successfully boots on these
-> > > machines.  Without fix, the kernel hangs on these machines for _no_
-> > > good reason other than the firmware did something that was stupid.
-> > 
-> > And how does this work currently? We attempt to decompress the kernel
-> > a second time, give up and move on?
-> 
-> Yes.
-> 
-> > Assuming we can write to the compressed image (and thereby corrupt
-> > it), wouldn't it be better to just stomp on the gzip magic and spare
-> > us the overhead of decompressing it twice?
-> 
-> That's not guaranteed, so is impossible to do in the boot time
-> decompressor.
-> 
-> > > I'm sorry, I just do not see why you're being soo bloody difficult
-> > > over this.
-> > 
-> > Because it's taken this long to get close to an explanation of what
-> > the problem is.
-> 
-> $#%@%#$%#@!!!  I really think you're intentionally trying to wind me up
-> through this whole thread.
->
-> The email:
-> 
->   http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/1024.html
-> 
-> contains a full and clear explaination of the situation.  The second
-> paragraph of that email is key to understanding the problem and makes
-> it absolutely clear what is trying to be decompressed as the initrd
-> (the corrupted compressed piggy).
 
-It was neither full nor clear to me at least. But the above clarifies
-it enough that I understand what all the fuss is about, thanks. I'm
-back to the drawing board; I'll add an underflow path back in.
+Can we get an idea about the actual userspace programs and algorithms
+that use this feedback? Links, performance numbers, etc.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,87 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWB0URG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWB0UVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWB0URG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 15:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWB0URG
+	id S1751091AbWB0UVT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 15:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWB0UVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 15:17:06 -0500
-Received: from d36-15-41.home1.cgocable.net ([24.36.15.41]:10931 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932337AbWB0URE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 15:17:04 -0500
-Subject: Re: udevd is killing file write performance.
-From: John McCutchan <john@johnmccutchan.com>
-Reply-To: john@johnmccutchan.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, holt@sgi.com, linux-kernel@vger.kernel.org,
-       rml@novell.com, arnd@arndb.de, hch@lst.de,
-       Dipankar Sarma <dipankar@in.ibm.com>
-In-Reply-To: <4402D039.1050307@yahoo.com.au>
-References: <20060222134250.GE20786@lnx-holt.americas.sgi.com>
-	 <1140626903.13461.5.camel@localhost.localdomain>
-	 <20060222175030.GB30556@lnx-holt.americas.sgi.com>
-	 <1140648776.1729.5.camel@localhost.localdomain>
-	 <20060222151223.5c9061fd.akpm@osdl.org>
-	 <1140651662.2985.2.camel@localhost.localdomain>
-	 <20060223161425.4388540e.akpm@osdl.org>
-	 <20060224054724.GA8593@johnmccutchan.com>
-	 <20060223220053.2f7a977e.akpm@osdl.org>  <43FEB0BF.6080403@yahoo.com.au>
-	 <1140972918.15634.1.camel@localhost.localdomain>
-	 <4402D039.1050307@yahoo.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 27 Feb 2006 15:17:00 -0500
-Message-Id: <1141071420.3735.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Mon, 27 Feb 2006 15:21:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40878 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751091AbWB0UVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 15:21:18 -0500
+Date: Mon, 27 Feb 2006 12:20:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Benjamin LaHaise <bcrl@kvack.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, perex@suse.cz, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
+In-Reply-To: <20060227194623.GC9991@suse.de>
+Message-ID: <Pine.LNX.4.64.0602271216340.22647@g5.osdl.org>
+References: <20060227190150.GA9121@kroah.com> <20060227193654.GA12788@kvack.org>
+ <20060227194623.GC9991@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-27-02 at 21:11 +1100, Nick Piggin wrote:
-> John McCutchan wrote:
-> > On Fri, 2006-24-02 at 18:07 +1100, Nick Piggin wrote:
-> 
-> >>I saw this problem when testing my lockless pagecache a while back.
-> >>
-> >>Attached is a first implementation of what was my idea then of how
-> >>to solve it... note it is pretty rough and I never got around to doing
-> >>much testing of it.
-> >>
-> >>Basically: moves work out of inotify event time and to inotify attach
-> >>/detach time while staying out of the core VFS.
+
+
+On Mon, 27 Feb 2006, Greg KH wrote:
+
+> On Mon, Feb 27, 2006 at 02:36:54PM -0500, Benjamin LaHaise wrote:
+> > On Mon, Feb 27, 2006 at 11:01:50AM -0800, Greg KH wrote:
+> > > --- /dev/null
+> > > +++ gregkh-2.6/Documentation/ABI/private/alsa
+> > > @@ -0,0 +1,8 @@
+> > > +What:		Kernel Sound interface
+> > > +Date:		Feburary 2006
+> > > +Who:		Jaroslav Kysela <perex@suse.cz>
+> > > +Description:
+> > > +		The use of the kernel sound interface must be done
+> > > +		through the ALSA library.  For more details on this,
+> > > +		please see http://www.alsa-project.org/ and contact
+> > > +		<alsa-devel@alsa-project.org>
 > > 
-> > 
-> > 
-> > This looks really good. There might be some corner cases but it looks
-> > like it will solve this problem nicely.
-> > 
+> > How can something as widely used as sound not work from one kernel version 
+> > to the next, as seems to be implied with the "private" nature of the ABI?  
+> > This is a total cop-out and is IMHO very amateur of the developers.  If 
+> > something like this is to be the case, at the very least the alsa libraries 
+> > need to provide a stable ABI and be shipped with the kernel.
 > 
-> Thanks. You should see I sent a new version which fixes several bugs
-> and cleans up the code a bit.
-> 
+> Then I suggest you work with the ALSA developers to come up with such a
+> "stable" api that never changes.  They have been working at this for a
+> number of years, if it was a "simple" problem, it would have been done
+> already...
 
-Yeah, it looks good. I haven't had time to test it myself but nothing
-jumps out at as being wrong. I can only say that about the code that
-touches inotify -- the rest of the VFS someone else will need to comment
-on.
+I really don't much like the "private" and "unstable" subdirectories.
 
-> There might be some areas of potential problems:
-> - creating and deleting watches on directories with many entries will
->    take a long time. Is anyone likely to be creating and destroying
->    these things at a very high frequency? Probably nobody cares except
->    it might twist some real-time knickers.
-> 
+They seem to be just excuses for bad habits. And the notion of a "private" 
+interface is insane anyway, since it doesn't matter - the only thing that 
+matters is whether it breaks existing binaries or not, and being "private" 
+in no way makes any difference to that. If you need to compile or link 
+against a new library, it's broken - whether it was "private" or not makes 
+no difference.
 
-That's not a typical inotify usage pattern. Typically a watch is created
-and left until the directory is deleted, or the application closes.
+The ALSA development model is in my opinion pretty broken (the development 
+seems to try to be pretty closed-up), but it's (a) gotten better and (b) 
+the alsa people do not seem to be breaking old binaries and libraries very 
+much. At least I don't remember seeing all that many problems lately.
 
-> - concurrent operations in the same watched directory will incur the
->    same scalability penalty. I think this is basically a non-issue since
->    the sheer number of events coming out will likely be a bigger problem.
->    Doctor, it hurts when I do this.
-> 
+So I just don't see any upsides to documenting anything private or 
+unstable. I see only downsides: it's an excuse to hide behind for 
+developers.
 
-Again, Yeah, I don't think we need to worry.
-
--- 
-John McCutchan <john@johnmccutchan.com>
+		Linus

@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWB0Wki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWB0Wjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWB0Wki (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWB0Wk0
+	id S932384AbWB0Wjw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWB0Wbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:40:26 -0500
-Received: from ns2.suse.de ([195.135.220.15]:25989 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932470AbWB0Wjx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:39:53 -0500
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
-Date: Mon, 27 Feb 2006 23:39:41 +0100
-User-Agent: KMail/1.9.1
-Cc: Paul Jackson <pj@sgi.com>, dgc@sgi.com, steiner@sgi.com,
-       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
-References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com> <200602272202.34346.ak@suse.de> <Pine.LNX.4.64.0602271414290.12093@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0602271414290.12093@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602272339.42574.ak@suse.de>
+	Mon, 27 Feb 2006 17:31:52 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:5506 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932359AbWB0Wbt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:31:49 -0500
+Message-Id: <20060227223404.094845000@sorel.sous-sol.org>
+References: <20060227223200.865548000@sorel.sous-sol.org>
+Date: Mon, 27 Feb 2006 14:32:33 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Andi Kleen <ak@suse.de>, Suresh Siddha <suresh.b.siddha@intel.com>
+Subject: [patch 33/39] [PATCH] x86_64: Check for bad elf entry address
+Content-Disposition: inline; filename=x86_64-check-for-bad-elf-entry-address.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 February 2006 23:14, Christoph Lameter wrote:
-> On Mon, 27 Feb 2006, Andi Kleen wrote:
-> 
-> > On Monday 27 February 2006 21:56, Christoph Lameter wrote:
-> > > We could make the memory policy only apply if the SLAB_MEM_SPREAD option 
-> > Which memory policy? The one of the process?
-> 
-> Yes.
+-stable review patch.  If anyone has any objections, please let us know.
+------------------
 
-I don't quite get your logic here. For me it would be logical to apply
-the memory policy from the process for anything _but_ slab caches
-that have SLAB_MEM_SPREAD set. For those interleaving should be always used.
+Fixes a local DOS on Intel systems that lead to an endless
+recursive fault.  AMD machines don't seem to be affected.
 
-Why are you proposing to do it the other way round?
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+---
+ fs/binfmt_elf.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
--Andi
+--- linux-2.6.15.4.orig/fs/binfmt_elf.c
++++ linux-2.6.15.4/fs/binfmt_elf.c
+@@ -932,6 +932,11 @@ static int load_elf_binary(struct linux_
+ 		kfree(elf_interpreter);
+ 	} else {
+ 		elf_entry = loc->elf_ex.e_entry;
++		if (BAD_ADDR(elf_entry)) {
++			send_sig(SIGSEGV, current, 0);
++			retval = -ENOEXEC; /* Nobody gets to see this, but.. */
++			goto out_free_dentry;
++		}
+ 	}
+ 
+ 	kfree(elf_phdata);
 
+--

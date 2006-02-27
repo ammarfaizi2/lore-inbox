@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWB0Jlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWB0Jlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWB0Jlm (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750924AbWB0Jlm (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 27 Feb 2006 04:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWB0Jlm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWB0Jlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Mon, 27 Feb 2006 04:41:42 -0500
-Received: from pproxy.gmail.com ([64.233.166.179]:46381 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750892AbWB0Jll convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from mta9.srv.hcvlny.cv.net ([167.206.4.204]:39412 "EHLO
+	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S1750924AbWB0Jll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 27 Feb 2006 04:41:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HAOc9WzIiDV1eXrkvHFJKuGE04m1mlLhCTqgSYVWP9Ei1PxBofMWGxBOjbmKJwwgt7AEbROPCMAsmUxSEjHN+N9jitV3XAwU6hzcw4Svhi/Fh4cbQRczmLsjSxiVnLx2dmbXjx1ym6lF0J73RtQcKLOls2LfTl3KunpEFn2UGtE=
-Message-ID: <9a8748490602270141y67316c66q4be2ce64d9786eb9@mail.gmail.com>
-Date: Mon, 27 Feb 2006 10:41:40 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: prasanna@in.ibm.com
-Subject: Re: [PATCH] kprobes: kprobe_mutex is no longer a semaphore
-Cc: linux-kernel@vger.kernel.org,
-       "Ananth N Mavinakayanahalli" <ananth@in.ibm.com>,
-       "Anil S Keshavamurthy" <anil.s.keshavamurthy@intel.com>,
-       "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060227064258.GB19153@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200602251242.46408.jesper.juhl@gmail.com>
-	 <20060227064258.GB19153@in.ibm.com>
+Date: Mon, 27 Feb 2006 04:41:40 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [Patch 2/7] Add sysctl for schedstats
+In-reply-to: <4402C3BB.7010705@yahoo.com.au>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Message-id: <4402C954.2080606@watson.ibm.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+References: <1141026996.5785.38.camel@elinux04.optonline.net>
+ <1141027367.5785.42.camel@elinux04.optonline.net>
+ <1141027923.5785.50.camel@elinux04.optonline.net>
+ <4402C3BB.7010705@yahoo.com.au>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/27/06, Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
-> On Sat, Feb 25, 2006 at 12:42:46PM +0100, Jesper Juhl wrote:
-> >
-> > kprobe_mutex used to be a semaphore it is now a mutex, so calling down/up on
-> > it is wrong, we should be using mutex_lock/mutex_unlock instead.
-> >
-> > gcc was kind enough to warn about this :
-> >  arch/i386/kernel/kprobes.c: In function `arch_remove_kprobe':
-> >  arch/i386/kernel/kprobes.c:135: warning: passing arg 1 of `down' from incompatible pointer type
-> >  arch/i386/kernel/kprobes.c:137: warning: passing arg 1 of `up' from incompatible pointer type
-> >
-> >
-> > Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Nick Piggin wrote:
+
+<snip>
+
+>> +int schedstats_sysctl_handler(ctl_table *table, int write, struct 
+>> file *filp,
+>> +            void __user *buffer, size_t *lenp, loff_t *ppos)
+>> +{
+>> +    int ret, prev = schedstats_sysctl;
+>> +    struct task_struct *g, *t;
+>> +
+>> +    ret = proc_dointvec(table, write, filp, buffer, lenp, ppos);
+>> +    if ((ret != 0) || (prev == schedstats_sysctl))
+>> +        return ret;
+>> +    if (schedstats_sysctl) {
+>> +        read_lock(&tasklist_lock);
+>> +        do_each_thread(g, t) {
+>> +            memset(&t->sched_info, 0, sizeof(t->sched_info));
+>> +        } while_each_thread(g, t);
+>> +        read_unlock(&tasklist_lock);
+>> +    }
+>> +    schedstats_set(schedstats_sysctl);
 >
 >
-> Looks good, this patch depends on the sem2mutex-kprobes.patch in -mm
-> tree.
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc4/2.6.16-rc4-mm2/broken-out/sem2mutex-kprobes.patch
+> You don't clear the rq's schedstats stuff here.
+
+Good point.
+
 >
-> Acked-by : Prasanna S Panchamukhi <prasanna@in.ibm.com>
->
+> And clearing this at all is not really needed for the schedstats 
+> interface.
+> You have a timestamp and a set of accumulated values, so it is easy to 
+> work
+> out deltas. So do you need this?
 
-Thank you.
+Not clearing the stats will mean userspace has to distinguish between 
+the tasks
+that are hanging around from before the last turn off, and the ones 
+created after
+wards. Any delta taken across an interval where schedstats was turned 
+off will
+give the impression a task was sleeping during the interval (and hence 
+show it had
+a lesser average wait time than it might actually have experienced). 
 
-Are you going to merge it / push it to Andrew or Linus?
-If not I'll just queue it up with some other patches I have lying
-around and forward it with those other patches in a week or so.
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+--Shailabh

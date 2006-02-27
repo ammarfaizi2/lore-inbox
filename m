@@ -1,81 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWB0OG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWB0OSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWB0OG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 09:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWB0OG2
+	id S1751240AbWB0OSq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 09:18:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWB0OSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 09:06:28 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:35542 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751149AbWB0OG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 09:06:27 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: o_sync in vfat driver
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>, col-pepper@piments.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1141048228.2992.106.camel@laptopd505.fenrus.org>
-References: <op.s5cj47sxj68xd1@mail.piments.com>
-	 <op.s5jpqvwhui3qek@mail.piments.com> <op.s5kxhyzgfx0war@mail.piments.com>
-	 <op.s5kx7xhfj68xd1@mail.piments.com> <op.s5kya3t0j68xd1@mail.piments.com>
-	 <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com>
-	 <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com>
-	 <20060227132848.GA27601@csclub.uwaterloo.ca>
-	 <1141048228.2992.106.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Mon, 27 Feb 2006 14:06:15 +0000
-Message-Id: <1141049176.18855.4.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Feb 2006 09:18:46 -0500
+Received: from cantor.suse.de ([195.135.220.2]:56722 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751240AbWB0OSp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 09:18:45 -0500
+To: nagar@watson.ibm.com
+Cc: lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 5/7]  synchronous block I/O delays
+References: <1141026996.5785.38.camel@elinux04.optonline.net>
+	<1141028448.5785.64.camel@elinux04.optonline.net>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Feb 2006 15:18:40 +0100
+In-Reply-To: <1141028448.5785.64.camel@elinux04.optonline.net>
+Message-ID: <p73fym428cf.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 14:50 +0100, Arjan van de Ven wrote:
-> On Mon, 2006-02-27 at 08:28 -0500, Lennart Sorensen wrote:
-> > On Sun, Feb 26, 2006 at 11:50:40PM +0100, col-pepper@piments.com wrote:
-> > > Hi,
-> > > 
-> > > OMG what do I have to do to post here? 10th attempt.
-> > > {part2}
-> > > 
-> > > Here is a non-exhaustive list of typical devices types requiring fat vfat
-> > > support:
-> > > 
-> > > fd ide-hd scsi-hd usb-hd cdrom usb-hd usb-handheld (iPod, iRiver etc)
-> > > usb-flash (usbsticks, cameras, some music devices.)
-> > > 
-> > > IIRC the sync mount option for vfat is ignored for file systems >2G, this
-> > > effectively (and probably intentionally) excludes nearly all hd partitions
-> > > and iPod type devices.
-> > 
-> > I think many people wish it was ignored on smaller devices too given
-> > what it does to write performance.
+Shailabh Nagar <nagar@watson.ibm.com> writes:
+
+> delayacct-blkio.patch
 > 
-> well. If you don't want it *DO NOT USE IT AT THE MOUNT COMMAND LINE* !!!
+> Record time spent by a task waiting for completion of 
+> userspace initiated synchronous block I/O. This can help
+> determine the right I/O priority for the task.
 
-That is easy to say when you are using the command line...  Modern
-distros (as you know I am sure) mount all hot-plug devices like usb
-keys, usb hard disks, etc automatically at plug-in time and at least
-some distros use "-o sync" for everything so you don't get (too much)
-data loss when the user unplugs a device and so a umount to unplug the
-device does not take ages...
+I think it's a good idea to have such a statistic by default.
 
-Being someone who maintains a distribution based on one of the big
-distributions I can tell you that figuring out how to change that
-default behaviour is not always pretty.  Usually involves hacking files
-deep in the bowels of the hotplug framework on the system.
+Can you add a counter that is summed up in task_struct and reports
+in /proc/*/stat so that it could be displayed by top? 
 
-Best regards,
+This way it would be useful even with "normal" user space.
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+-Andi

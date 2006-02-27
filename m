@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751526AbWB0RZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751587AbWB0ReV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751526AbWB0RZA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 12:25:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWB0RZA
+	id S1751587AbWB0ReV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 12:34:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbWB0ReV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 12:25:00 -0500
-Received: from hera.kernel.org ([140.211.167.34]:60610 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1751519AbWB0RY7 (ORCPT
+	Mon, 27 Feb 2006 12:34:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15341 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751532AbWB0ReU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 12:24:59 -0500
-To: linux-kernel@vger.kernel.org
+	Mon, 27 Feb 2006 12:34:20 -0500
+Date: Mon, 27 Feb 2006 09:34:04 -0800
 From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in
- warnings
-Date: Mon, 27 Feb 2006 09:25:01 -0800
-Organization: OSDL
-Message-ID: <20060227092501.7be9b1a2@localhost.localdomain>
-References: <200602261721.17373.jesper.juhl@gmail.com>
-	<1140986578.24141.141.camel@mindpipe>
-	<87wtfh3i9z.fsf@hades.wkstn.nix>
-	<9a8748490602261349v381933b9xeb2ddeedac053910@mail.gmail.com>
-	<1140990819.24141.176.camel@mindpipe>
-	<9a8748490602261356l222c9689w8fa1d5e2395bb183@mail.gmail.com>
-	<1140991706.24141.183.camel@mindpipe>
-	<9a8748490602261412x6f610253mf0a991bd76cded89@mail.gmail.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
+       James Ketrenos <jketreno@linux.intel.com>,
+       NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       okir@suse.de
+Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
+Message-ID: <20060227093404.4020ac6a@localhost.localdomain>
+In-Reply-To: <20060227171029.GA763@infradead.org>
+References: <43FF88E6.6020603@linux.intel.com>
+	<20060225084139.GB22109@infradead.org>
+	<1140915482.23286.6.camel@localhost.localdomain>
+	<20060227171029.GA763@infradead.org>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1141061092 26977 10.8.0.54 (27 Feb 2006 17:24:52 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Mon, 27 Feb 2006 17:24:52 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Feb 2006 23:12:51 +0100
-"Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+On Mon, 27 Feb 2006 17:10:29 +0000
+Christoph Hellwig <hch@infradead.org> wrote:
 
-> On 2/26/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Sun, 2006-02-26 at 22:56 +0100, Jesper Juhl wrote:
-> > > Yeah so gcc is not perfect, but that still doesn't change that the
-> > > intention of the warning and the use of the word "might" is as I said
-> > > above.
-> >
-> > Not a very compelling case for changing the kernel rather than getting
-> > GCC fixed.
-> >
+> On Sun, Feb 26, 2006 at 12:58:02AM +0000, Alan Cox wrote:
+> > On Sad, 2006-02-25 at 08:41 +0000, Christoph Hellwig wrote:
+> > > the regualatory problems are not true.  
+> > 
+> > They are although the binary interpretation isn't AFAIK from law but
+> > from lawyers. The same is actually true in much of the EU. The actual
+> > requirement is that the transmitting device must be reasonably
+> > tamperproof. Some of the lawyers have decided that for a software radio
+> > tamperproof means "binary".
 > 
-> I think we are misunderstanding eachother. Or rather, I seem to have
-> misread what Nix wrote.
-> 
-> I saw  "(i.e., there's a reason that warning uses the word *might*.)"
-> and mistakenly read it as a question - "is there a reason that warning
-> uses the word *might*?".
-> I then proceeded to answer that question.
-> When I read your latest mail I then couldn't make sense of things any
-> longer and went back and read the previous mails again and realized my
-> mistake.
-> 
-> My bad, sorry.
+> Exactly.  There's no strong requirement, it's just over-zealous corporate
+> lawyers.  That's why we need to push Intel strongly here.
 
-I went hunting for this in the GCC bugzilla, and one bug basically said.
-"Yeah, we know the initialization checking code doesn't work right, but
- fixing it is too hard"
+It is not Intel, but the regulators that need a stronger clue. Vendors
+don't have any incentive to force change on this. They just want to sell
+as much hardware as possible.
+
+Does anyone know who the actual FCC administrators in charge of this are?

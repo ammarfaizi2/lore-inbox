@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWB0CCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWB0CYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWB0CCx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 21:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWB0CCx
+	id S1751220AbWB0CYg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 21:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWB0CYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 21:02:53 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21411 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751000AbWB0CCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 21:02:52 -0500
-Date: Mon, 27 Feb 2006 03:02:38 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jesper Juhl <jesper.juhl@gmail.com>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in warnings
-Message-ID: <20060227020238.GA1868@elf.ucw.cz>
-References: <200602261721.17373.jesper.juhl@gmail.com> <9a8748490602260835l2430e841p2bf02c1f99e55b91@mail.gmail.com> <20060226193121.GG7851@redhat.com> <200602262043.22463.jesper.juhl@gmail.com>
+	Sun, 26 Feb 2006 21:24:36 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:55211 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1750786AbWB0CYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 21:24:35 -0500
+Date: Sun, 26 Feb 2006 18:25:03 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, clameter@sgi.com,
+       manfred@colorfullife.com, mark.fasheh@oracle.com,
+       alok.kataria@calsoftinc.com
+Subject: Re: [PATCH] slab: Don't scan cache_cache
+Message-ID: <20060227022503.GC3590@localhost.localdomain>
+References: <Pine.LNX.4.58.0602240950050.16521@sbz-30.cs.Helsinki.FI> <Pine.LNX.4.64.0602240815010.20760@schroedinger.engr.sgi.com> <1140904214.11182.1.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602262043.22463.jesper.juhl@gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1140904214.11182.1.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, Feb 25, 2006 at 11:50:13PM +0200, Pekka Enberg wrote:
+> On Fri, 24 Feb 2006, Pekka J Enberg wrote:
+> > > From: Pekka Enberg <penberg@cs.helsinki.fi>
+> > 
+> > Are you really seeing any measurable regression?
+> 
+> I haven't measured it but it seems obvious enough that especially for
+> low end boxes. I don't think something more general is required because
+> other static caches should use kmalloc() instead.
+> 
 
-> rand63.log-drivers/built-in.o(.text+0x20ac6): In function `device_suspend':
-> rand63.log-drivers/base/power/suspend.c:94: undefined reference to `fg_console'
-> rand63.log-drivers/built-in.o(.text+0x20ace):drivers/base/power/suspend.c:94: undefined reference to `vc_cons'
-> rand63.log:make: *** [.tmp_vmlinux1] Error 1
+I hope all of us mean "less used and not changing in usage over time"  when we
+refer to static caches all throughout our discussion.  That said, for a
+given workload,  one set of caches maybe static while the other is not
+(networking loads may have networking slab caches grow and shrink, while the
+fs driver caches stay static etc).  So I am not sure if static caches can
+use kmalloc in general.  If scanning cache_cache is really a regression (it is
+probably 1 of 15-20 other static caches on a system), then  IMHO, similar
+treatment should be given to other static caches as well.  We could have a
+counter on cachep (per-cpu of course) which keeps tracks of cachep usage,
+and we could build logic not to scan these caches as frequently.
 
-Rafael, this one is yours (and mine). We probably need #ifdef
-CONFIG_VT or something like that around this code.
-								Pavel
+Now, it is not like cache_cache cannot grow at all or is absolutely static.
+So not scanning just cache_cache, when SLAB_NO_REAP flag is taken out
+does not make it look very good IMHO.  Sure, it was this way before, but
+we had a flag to indicate so.  And if we think this is a regression, we
+should generalize this for other less used caches too.
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Thanks,
+Kiran

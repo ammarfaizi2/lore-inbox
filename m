@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWB0WmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWB0Wmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWB0WmG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWB0Wlv
+	id S932507AbWB0Wmk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWB0WmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:41:51 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:61570 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932355AbWB0Wb2
+	Mon, 27 Feb 2006 17:42:13 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:52867 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932348AbWB0WbZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:28 -0500
-Message-Id: <20060227223402.328777000@sorel.sous-sol.org>
+	Mon, 27 Feb 2006 17:31:25 -0500
+Message-Id: <20060227223325.282784000@sorel.sous-sol.org>
 References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:30 -0800
+Date: Mon, 27 Feb 2006 14:32:06 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,70 +19,47 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: [patch 30/39] [PATCH] skge: fix NAPI/irq race
-Content-Disposition: inline; filename=skge-fix-napi-irq-race.patch
+       Hugh Dickins <hugh@veritas.com>, Don Dupuis <dondster@gmail.com>,
+       William Irwin <wli@holomorphy.com>, Adam Litke <agl@us.ibm.com>,
+       William Irwin <wli@us.ibm.com>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 06/39] [PATCH] hugetlbfs mmap ENOMEM failure
+Content-Disposition: inline; filename=hugetlbfs-mmap-enomem-failure.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Fix a race in the receive NAPI, irq handling. The interrupt clear and the
-start need to be separated.  Otherwise there is a window between the last
-frame received and the NAPI done level handling.
+2.6.15's hugepage faulting introduced huge_pages_needed accounting into
+hugetlbfs: to count how many pages are already in cache, for spot check
+on how far a new mapping may be allowed to extend the file.  But it's
+muddled: each hugepage found covers HPAGE_SIZE, not PAGE_SIZE.  Once
+pages were already in cache, it would overshoot, wrap its hugepages
+count backwards, and so fail a harmless repeat mapping with -ENOMEM.
+Fixes the problem found by Don Dupuis.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Acked-By: Adam Litke <agl@us.ibm.com>
+Acked-by: William Irwin <wli@us.ibm.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
 
- drivers/net/skge.c |   17 +++++------------
- 1 files changed, 5 insertions(+), 12 deletions(-)
+ fs/hugetlbfs/inode.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
---- linux-2.6.15.4.orig/drivers/net/skge.c
-+++ linux-2.6.15.4/drivers/net/skge.c
-@@ -2675,8 +2675,7 @@ static int skge_poll(struct net_device *
+--- linux-2.6.15.4.orig/fs/hugetlbfs/inode.c
++++ linux-2.6.15.4/fs/hugetlbfs/inode.c
+@@ -71,8 +71,8 @@ huge_pages_needed(struct address_space *
+ 	unsigned long start = vma->vm_start;
+ 	unsigned long end = vma->vm_end;
+ 	unsigned long hugepages = (end - start) >> HPAGE_SHIFT;
+-	pgoff_t next = vma->vm_pgoff;
+-	pgoff_t endpg = next + ((end - start) >> PAGE_SHIFT);
++	pgoff_t next = vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT);
++	pgoff_t endpg = next + hugepages;
  
- 	/* restart receiver */
- 	wmb();
--	skge_write8(hw, Q_ADDR(rxqaddr[skge->port], Q_CSR),
--		    CSR_START | CSR_IRQ_CL_F);
-+	skge_write8(hw, Q_ADDR(rxqaddr[skge->port], Q_CSR), CSR_START);
- 
- 	*budget -= work_done;
- 	dev->quota -= work_done;
-@@ -2853,14 +2852,6 @@ static void skge_extirq(unsigned long da
- 	local_irq_enable();
- }
- 
--static inline void skge_wakeup(struct net_device *dev)
--{
--	struct skge_port *skge = netdev_priv(dev);
--
--	prefetch(skge->rx_ring.to_clean);
--	netif_rx_schedule(dev);
--}
--
- static irqreturn_t skge_intr(int irq, void *dev_id, struct pt_regs *regs)
- {
- 	struct skge_hw *hw = dev_id;
-@@ -2871,13 +2862,15 @@ static irqreturn_t skge_intr(int irq, vo
- 
- 	status &= hw->intr_mask;
- 	if (status & IS_R1_F) {
-+		skge_write8(hw, Q_ADDR(Q_R1, Q_CSR), CSR_IRQ_CL_F);
- 		hw->intr_mask &= ~IS_R1_F;
--		skge_wakeup(hw->dev[0]);
-+		netif_rx_schedule(hw->dev[0]);
- 	}
- 
- 	if (status & IS_R2_F) {
-+		skge_write8(hw, Q_ADDR(Q_R2, Q_CSR), CSR_IRQ_CL_F);
- 		hw->intr_mask &= ~IS_R2_F;
--		skge_wakeup(hw->dev[1]);
-+		netif_rx_schedule(hw->dev[1]);
- 	}
- 
- 	if (status & IS_XA1_F)
+ 	pagevec_init(&pvec, 0);
+ 	while (next < endpg) {
 
 --

@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWB0RFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWB0RHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWB0RFX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 12:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWB0RFX
+	id S1751501AbWB0RHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 12:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWB0RHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 12:05:23 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:52176 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751499AbWB0RFW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 12:05:22 -0500
-Subject: Re: [Lse-tech] [Patch 2/7] Add sysctl for schedstats
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: nagar@watson.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <1141027923.5785.50.camel@elinux04.optonline.net>
-References: <1141026996.5785.38.camel@elinux04.optonline.net>
-	 <1141027367.5785.42.camel@elinux04.optonline.net>
-	 <1141027923.5785.50.camel@elinux04.optonline.net>
-Content-Type: text/plain
-Date: Mon, 27 Feb 2006 09:05:17 -0800
-Message-Id: <1141059917.23775.41.camel@serpentine.pathscale.com>
+	Mon, 27 Feb 2006 12:07:38 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:47068 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751501AbWB0RHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 12:07:37 -0500
+Date: Mon, 27 Feb 2006 12:08:26 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: fuse-devel@lists.sourceforge.net,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [Announce] mountlo 0.5 - Loopback mounting in userspace
+Message-ID: <20060227170826.GA5481@ccure.user-mode-linux.org>
+References: <E1FDk1G-0004S6-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1FDk1G-0004S6-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 03:12 -0500, Shailabh Nagar wrote:
+On Mon, Feb 27, 2006 at 04:10:38PM +0100, Miklos Szeredi wrote:
+> I'm proud to announce a new version of my pet project 'mountlo', a
+> utility which works similarly to 'mount -o loop', but the filesystem
+> runs entirely in userspace.
+> 
+> While arguably it is quite useless, I like it because it combines some
+> of my favorite technologies (Linux, UML and FUSE) with very little
+> additional glue code.
 
-> Add sysctl option for controlling schedstats collection
-> dynamically. Delay accounting leverages schedstats for
-> cpu delay statistics.
+Very cute.  I'm in the process of doing something similar, except I'm
+integrating a FUSE server into the UML kernel to export the UML
+filesystem to the host.  So far, I can cd and ls inside the mount -
+lookup and readdir are implemented.
 
-Is there some reason you're using the sysctl interface, and not say
-sysfs instead?
-
-	<b
-
+				Jeff

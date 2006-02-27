@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWB0Wbv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWB0WcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWB0Wbv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWB0Wbv
+	id S932403AbWB0WcK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:32:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWB0Wb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:31:51 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:33666 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932362AbWB0Wbs
+	Mon, 27 Feb 2006 17:31:59 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9345 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932464AbWB0Wb5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:48 -0500
-Message-Id: <20060227223403.585057000@sorel.sous-sol.org>
+	Mon, 27 Feb 2006 17:31:57 -0500
+Message-Id: <20060227223405.357906000@sorel.sous-sol.org>
 References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:32 -0800
+Date: Mon, 27 Feb 2006 14:32:35 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,113 +19,104 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: [patch 32/39] [PATCH] skge: fix SMP race
-Content-Disposition: inline; filename=skge-fix-smp-race.patch
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Al Viro <viro@zeniv.linux.org.uk>
+Subject: [patch 35/39] [PATCH] sd: fix memory corruption with broken mode page headers
+Content-Disposition: inline; filename=sd-fix-memory-corruption-with-broken-mode-page-headers.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-If skge is attached to a bad cable, that goes up/down.
-It exposes an SMP race with the management of IRQ mask
+There's a problem in sd where we blindly believe the length of the
+headers and block descriptors.  Some devices return insane values for
+these and cause our length to end up greater than the actual buffer
+size, so check to make sure.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+
+Also removed the buffer size magic number (512) and added DPOFUA of
+zero to the defaults
+
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+rediff for 2.6.15.x without DPOFUA bit, taken from commit
+489708007785389941a89fa06aedc5ec53303c96
+
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 ---
+fixes http://bugzilla.kernel.org/show_bug.cgi?id=6114 and
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=182005
 
- drivers/net/skge.c |   21 ++++++++++++++-------
- drivers/net/skge.h |    1 +
- 2 files changed, 15 insertions(+), 7 deletions(-)
+ drivers/scsi/sd.c |   19 ++++++++++++++++---
+ 1 files changed, 16 insertions(+), 3 deletions(-)
 
---- linux-2.6.15.4.orig/drivers/net/skge.c
-+++ linux-2.6.15.4/drivers/net/skge.c
-@@ -2182,8 +2182,10 @@ static int skge_up(struct net_device *de
- 	skge->tx_avail = skge->tx_ring.count - 1;
+--- linux-2.6.15.4.orig/drivers/scsi/sd.c
++++ linux-2.6.15.4/drivers/scsi/sd.c
+@@ -88,6 +88,11 @@
+ #define SD_MAX_RETRIES		5
+ #define SD_PASSTHROUGH_RETRIES	1
  
- 	/* Enable IRQ from port */
-+	spin_lock_irq(&hw->hw_lock);
- 	hw->intr_mask |= portirqmask[port];
- 	skge_write32(hw, B0_IMSK, hw->intr_mask);
-+	spin_unlock_irq(&hw->hw_lock);
++/*
++ * Size of the initial data buffer for mode and read capacity data
++ */
++#define SD_BUF_SIZE		512
++
+ static void scsi_disk_release(struct kref *kref);
  
- 	/* Initialize MAC */
- 	spin_lock_bh(&hw->phy_lock);
-@@ -2241,8 +2243,10 @@ static int skge_down(struct net_device *
- 	else
- 		yukon_stop(skge);
+ struct scsi_disk {
+@@ -1299,7 +1304,7 @@ sd_do_mode_sense(struct scsi_device *sdp
  
-+	spin_lock_irq(&hw->hw_lock);
- 	hw->intr_mask &= ~portirqmask[skge->port];
- 	skge_write32(hw, B0_IMSK, hw->intr_mask);
-+	spin_unlock_irq(&hw->hw_lock);
+ /*
+  * read write protect setting, if possible - called only in sd_revalidate_disk()
+- * called with buffer of length 512
++ * called with buffer of length SD_BUF_SIZE
+  */
+ static void
+ sd_read_write_protect_flag(struct scsi_disk *sdkp, char *diskname,
+@@ -1357,7 +1362,7 @@ sd_read_write_protect_flag(struct scsi_d
  
- 	/* Stop transmitter */
- 	skge_write8(hw, Q_ADDR(txqaddr[port], Q_CSR), CSR_STOP);
-@@ -2698,10 +2702,11 @@ static int skge_poll(struct net_device *
- 	if (work_done >=  to_do)
- 		return 1; /* not done */
+ /*
+  * sd_read_cache_type - called only from sd_revalidate_disk()
+- * called with buffer of length 512
++ * called with buffer of length SD_BUF_SIZE
+  */
+ static void
+ sd_read_cache_type(struct scsi_disk *sdkp, char *diskname,
+@@ -1402,6 +1407,8 @@ sd_read_cache_type(struct scsi_disk *sdk
  
--	netif_rx_complete(dev);
--	hw->intr_mask |= portirqmask[skge->port];
--	skge_write32(hw, B0_IMSK, hw->intr_mask);
--	skge_read32(hw, B0_IMSK);
-+	spin_lock_irq(&hw->hw_lock);
-+	__netif_rx_complete(dev);
-+  	hw->intr_mask |= portirqmask[skge->port];
-+  	skge_write32(hw, B0_IMSK, hw->intr_mask);
-+ 	spin_unlock_irq(&hw->hw_lock);
+ 	/* Take headers and block descriptors into account */
+ 	len += data.header_length + data.block_descriptor_length;
++	if (len > SD_BUF_SIZE)
++		goto bad_sense;
  
- 	return 0;
- }
-@@ -2861,10 +2866,10 @@ static void skge_extirq(unsigned long da
- 	}
- 	spin_unlock(&hw->phy_lock);
+ 	/* Get the data */
+ 	res = sd_do_mode_sense(sdp, dbd, modepage, buffer, len, &data, &sshdr);
+@@ -1414,6 +1421,12 @@ sd_read_cache_type(struct scsi_disk *sdk
+ 		int ct = 0;
+ 		int offset = data.header_length + data.block_descriptor_length;
  
--	local_irq_disable();
-+	spin_lock_irq(&hw->hw_lock);
- 	hw->intr_mask |= IS_EXT_REG;
- 	skge_write32(hw, B0_IMSK, hw->intr_mask);
--	local_irq_enable();
-+	spin_unlock_irq(&hw->hw_lock);
- }
++		if (offset >= SD_BUF_SIZE - 2) {
++			printk(KERN_ERR "%s: malformed MODE SENSE response",
++				diskname);
++			goto defaults;
++		}
++
+ 		if ((buffer[offset] & 0x3f) != modepage) {
+ 			printk(KERN_ERR "%s: got wrong page\n", diskname);
+ 			goto defaults;
+@@ -1472,7 +1485,7 @@ static int sd_revalidate_disk(struct gen
+ 	if (!scsi_device_online(sdp))
+ 		goto out;
  
- static irqreturn_t skge_intr(int irq, void *dev_id, struct pt_regs *regs)
-@@ -2875,7 +2880,7 @@ static irqreturn_t skge_intr(int irq, vo
- 	if (status == 0 || status == ~0) /* hotplug or shared irq */
- 		return IRQ_NONE;
- 
--	status &= hw->intr_mask;
-+	spin_lock(&hw->hw_lock);
- 	if (status & IS_R1_F) {
- 		skge_write8(hw, Q_ADDR(Q_R1, Q_CSR), CSR_IRQ_CL_F);
- 		hw->intr_mask &= ~IS_R1_F;
-@@ -2927,6 +2932,7 @@ static irqreturn_t skge_intr(int irq, vo
- 	}
- 
- 	skge_write32(hw, B0_IMSK, hw->intr_mask);
-+	spin_unlock(&hw->hw_lock);
- 
- 	return IRQ_HANDLED;
- }
-@@ -3285,6 +3291,7 @@ static int __devinit skge_probe(struct p
- 
- 	hw->pdev = pdev;
- 	spin_lock_init(&hw->phy_lock);
-+	spin_lock_init(&hw->hw_lock);
- 	tasklet_init(&hw->ext_tasklet, skge_extirq, (unsigned long) hw);
- 
- 	hw->regs = ioremap_nocache(pci_resource_start(pdev, 0), 0x4000);
---- linux-2.6.15.4.orig/drivers/net/skge.h
-+++ linux-2.6.15.4/drivers/net/skge.h
-@@ -2473,6 +2473,7 @@ struct skge_hw {
- 
- 	struct tasklet_struct ext_tasklet;
- 	spinlock_t	     phy_lock;
-+	spinlock_t	     hw_lock;
- };
- 
- enum {
+-	buffer = kmalloc(512, GFP_KERNEL | __GFP_DMA);
++	buffer = kmalloc(SD_BUF_SIZE, GFP_KERNEL | __GFP_DMA);
+ 	if (!buffer) {
+ 		printk(KERN_WARNING "(sd_revalidate_disk:) Memory allocation "
+ 		       "failure.\n");
 
 --

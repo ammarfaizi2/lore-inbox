@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWB0QbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWB0QhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWB0QbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 11:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWB0QbY
+	id S1751492AbWB0QhU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 11:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWB0QhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 11:31:24 -0500
-Received: from dslsmtp.struer.net ([62.242.36.21]:5642 "EHLO
-	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1751484AbWB0QbX
+	Mon, 27 Feb 2006 11:37:18 -0500
+Received: from natfrord.rzone.de ([81.169.145.161]:32418 "EHLO
+	natfrord.rzone.de") by vger.kernel.org with ESMTP id S1751485AbWB0QhR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 11:31:23 -0500
-Message-ID: <49447.194.237.142.21.1141057876.squirrel@194.237.142.21>
-In-Reply-To: <1141054054.2992.130.camel@laptopd505.fenrus.org>
-References: <1141053825.2992.125.camel@laptopd505.fenrus.org>
-    <1141054054.2992.130.camel@laptopd505.fenrus.org>
-Date: Mon, 27 Feb 2006 17:31:16 +0100 (CET)
-Subject: Re: [Patch 2/4] Basic reorder infrastructure
-From: sam@ravnborg.org
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org, ak@suse.de
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Mon, 27 Feb 2006 11:37:17 -0500
+From: Wolfgang Hoffmann <woho@woho.de>
+Reply-To: woho@woho.de
+To: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] Revert sky2 to 0.13a
+Date: Mon, 27 Feb 2006 17:38:38 +0100
+User-Agent: KMail/1.8
+Cc: pomac@vapor.com,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>,
+       Jeff Garzik <jeff@garzik.org>, netdev@vger.kernel.org,
+       Pavel Volkovitskiy <int@mtx.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4400FC28.1060705@gmx.net> <200602270003.46353.woho@woho.de> <20060227080042.0cf3f05d@localhost.localdomain>
+In-Reply-To: <20060227080042.0cf3f05d@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602271738.38675.woho@woho.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch puts the infrastructure in place to allow for a reordering of
-> functions based inside the vmlinux.
-
-Can we make this general instead of x86_64 only?
-Then we can use Kconfig to enable it for the architectures where we want it.
-
-
+On Monday 27 February 2006 17:00, Stephen Hemminger wrote:
+> On Mon, 27 Feb 2006 00:03:45 +0100
 >
-> Index: linux-reorder2/arch/x86_64/Makefile
-> ===================================================================
-> --- linux-reorder2.orig/arch/x86_64/Makefile
-> +++ linux-reorder2/arch/x86_64/Makefile
-> @@ -35,6 +35,7 @@ CFLAGS += -m64
->  CFLAGS += -mno-red-zone
->  CFLAGS += -mcmodel=kernel
->  CFLAGS += -pipe
-> +CFLAGS += -ffunction-sections
+> Wolfgang Hoffmann <woho@woho.de> wrote:
+> > > Bisect done:
+> > >
+> > > 4d52b48b43d0d1d5959fa722ee0046e3542e5e1b is first bad commit
+> > >     [PATCH] sky2: support msi interrupt (revised)
+> > >
+> > > Reverting this commit in git head seems to work, at least the driver
+> > > builds and loads. Is that sane?
+> > >
+> > Ok, no hangs yet.
+> >
+> > Looking at the reverted commit, I wonder if modprobing sky2 with
+> > disable_msi=1 is equivalent to reverting the commit?
+>
+> Could you try the current code with the disable_msi option?
+> 	modprobe sky2 disable_msi=1
+>
+> That will run existing code without MSI.
 
-This should go in top-level Makefile
-> Index: linux-reorder2/arch/x86_64/kernel/functionlist
-> ===================================================================
-> --- /dev/null
-> +++ linux-reorder2/arch/x86_64/kernel/functionlist
+2.6.16-rc5 with disable_msi=1 works for me, no hangs seen so far. I rsynced 80 
+GB of data, thats about 5-10 times more than I typically need to reproduce a 
+hang, so it seems to be solid. For the record: 2.6.16-rc5 with disable_msi=0 
+does hang.
 
-I would have used extension .lds - but no strong feeling for it.
+I have not seen the memory trashing others reported, with no version I tested 
+so far. Maybe my scenario is not likely to trigger this, so I can't tell.
 
-> Index: linux-reorder2/arch/x86_64/kernel/vmlinux.lds.S
-> ===================================================================
-> --- linux-reorder2.orig/arch/x86_64/kernel/vmlinux.lds.S
-> +++ linux-reorder2/arch/x86_64/kernel/vmlinux.lds.S
-> @@ -20,7 +20,12 @@ SECTIONS
->    phys_startup_64 = startup_64 - LOAD_OFFSET;
->    _text = .;			/* Text and read-only data */
->    .text :  AT(ADDR(.text) - LOAD_OFFSET) {
-> +	/* First the code that has to be first for bootstrapping */
->  	*(.bootstrap.text)
-> +	/* Then all the functions that are "hot" in profiles, to group them
-> +           onto the same hugetlb entry */
-> +	#include "functionlist"
-> +	/* Then the rest */
+Unless a fix for msi is at hand, may I suggest for 2.6.16 to revert the msi 
+commit or switch the default to disable_msi=1?
 
-And this part to go into include/asm-generaic/vmlinux.lds.h
-
->  	*(.text)
->  	SCHED_TEXT
->  	LOCK_TEXT
-
-
-   Sam
+I've updated bugzilla #6084 accordingly.
 

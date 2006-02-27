@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWB0G32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWB0Ga6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751568AbWB0G32 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 01:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751561AbWB0G32
+	id S1751570AbWB0Ga6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 01:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWB0Ga6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 01:29:28 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22291 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751562AbWB0G31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 01:29:27 -0500
-Date: Mon, 27 Feb 2006 07:29:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ross Vandegrift <ross@jose.lug.udel.edu>
-Cc: Marc Koschewski <marc@osknowledge.org>, Christian <christiand59@web.de>,
-       linux-kernel@vger.kernel.org, sfrench@samba.org
-Subject: Re: 2.6.16-rc: CIFS reproducibly freezes the computer
-Message-ID: <20060227062926.GP3674@stusta.de>
-References: <20060214135016.GC10701@stusta.de> <200602141659.40176.christiand59@web.de> <20060214164002.GC5905@stiffy.osknowledge.org> <20060214184708.GA29656@lug.udel.edu>
+	Mon, 27 Feb 2006 01:30:58 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:59024 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751562AbWB0Ga5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 01:30:57 -0500
+Message-ID: <44029C9B.10507@bigpond.net.au>
+Date: Mon, 27 Feb 2006 17:30:51 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060214184708.GA29656@lug.udel.edu>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>,
+       npiggin@suse.de, "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       John Hawkes <hawkes@sgi.com>
+Subject: [PATCH] sched: smpnice - fix average load per run queue calculations
+Content-Type: multipart/mixed;
+ boundary="------------040100040006020108040105"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 27 Feb 2006 06:30:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 14, 2006 at 01:47:08PM -0500, Ross Vandegrift wrote:
-> On Tue, Feb 14, 2006 at 05:40:03PM +0100, Marc Koschewski wrote:
-> > Is that maybe dependant on _what_ version of Samba is running on the receiving
-> > end?
-> 
-> I've seen it copying to Windows 2k3.  Only uploading large files, and
-> it's not every time.  I'd say 50% of the time, my box freezes when
-> copying something around 100MiB or larger.
-> 
-> IIRC, my workstation at the office is running 2.6.15.1 or .4.
+This is a multi-part message in MIME format.
+--------------040100040006020108040105
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Christian, Ross, my freezes are fixed in 2.6.16-rc5.
-Can you check whether 2.6.16-rc5 also fixes your freezes?
+The logical value to use for the average load per task on a run queue 
+without any runnable tasks is the "default" load for a nice==0 task. 
+Failure to do this may lead to anomalies in try_to_wake_up(), etc.
 
-> Ross Vandegrift
+Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
 
-TIA
-Adrian
-
+Peter
 -- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
 
+--------------040100040006020108040105
+Content-Type: text/plain;
+ name="fix-avg-load-per-rq"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-avg-load-per-rq"
+
+Index: MM-2.6.X/kernel/sched.c
+===================================================================
+--- MM-2.6.X.orig/kernel/sched.c	2006-02-27 17:18:12.000000000 +1100
++++ MM-2.6.X/kernel/sched.c	2006-02-27 17:19:52.000000000 +1100
+@@ -1058,7 +1058,7 @@ static inline unsigned long cpu_avg_load
+ 	runqueue_t *rq = cpu_rq(cpu);
+ 	unsigned long n = rq->nr_running;
+ 
+-	return n ?  rq->raw_weighted_load / n : rq->raw_weighted_load;
++	return n ?  rq->raw_weighted_load / n : SCHED_LOAD_SCALE;
+ }
+ 
+ /*
+
+--------------040100040006020108040105--

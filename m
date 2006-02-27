@@ -1,61 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWB0JGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWB0JGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWB0JGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 04:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751709AbWB0JGI
+	id S932323AbWB0JGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 04:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWB0JGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 04:06:08 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:49128 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751705AbWB0JGF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 04:06:05 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 27 Feb 2006 04:06:41 -0500
+Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:11164 "EHLO
+	cinder.waste.org") by vger.kernel.org with ESMTP id S932323AbWB0JGj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 04:06:39 -0500
+Date: Mon, 27 Feb 2006 03:06:47 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] inflate pt1: clean up input logic
+Message-ID: <20060227090647.GQ13116@waste.org>
+References: <20060225065136.GH13116@waste.org> <20060225084955.GA27538@flint.arm.linux.org.uk> <20060225145412.GI13116@waste.org> <20060225180521.GB15276@flint.arm.linux.org.uk> <20060225210454.GL13116@waste.org> <20060225212247.GC15276@flint.arm.linux.org.uk> <20060225214704.GN13116@waste.org> <20060225215850.GD15276@flint.arm.linux.org.uk> <20060225223737.GO13116@waste.org> <20060225225748.GF15276@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions
-Date: Mon, 27 Feb 2006 17:04:15 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B0CE273@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions
-Thread-Index: AcY7ZS1Trk11XljdTCOAEO19/ySC6AAFnnSw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: "Tom Seeley" <redhat@tomseeley.co.uk>, "Dave Jones" <davej@redhat.com>,
-       "Jiri Slaby" <jirislaby@gmail.com>, <michael@mihu.de>,
-       <mchehab@infradead.org>, <v4l-dvb-maintainer@linuxtv.org>,
-       <video4linux-list@redhat.com>, "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       <linux-usb-devel@lists.sourceforge.net>,
-       "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, <linux-ide@vger.kernel.org>,
-       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
-       <linux-input@atrey.karlin.mff.cuni.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 27 Feb 2006 09:04:16.0724 (UTC) FILETIME=[C961A140:01C63B7C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060225225748.GF15276@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Subject    : S3 sleep hangs the second time - 600X
->References : http://bugzilla.kernel.org/show_bug.cgi?id=5989
->Submitter  : Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
->Handled-By : Luming Yu <luming.yu@intel.com>
->Status     : is being debugged,
->             we might want to change the default back for 2.6.16:
->             http://lkml.org/lkml/2006/2/25/101
+On Sat, Feb 25, 2006 at 10:57:49PM +0000, Russell King wrote:
+> On Sat, Feb 25, 2006 at 04:37:37PM -0600, Matt Mackall wrote:
+> > On Sat, Feb 25, 2006 at 09:58:50PM +0000, Russell King wrote:
+> > > 1. kernel is loaded.
+> > > 2. firmware scans loaded kernel, finds gzip magic numbers (the compressed
+> > >    kernel.)
+> > > 3. firmware sets initrd pointeres to point at the compressed kernel.
+> > > 4. firmware calls kernel decompressor.
+> > > 5. kernel decompresses and self-relocates.
+> > > 6. compressed kernel image is thereby partly corrupted.
+> > > 7. kernel boots.
+> > > 8. kernel tries to decompress the compressed kernel image.
+> > > 9. decompressor gets confused and tries to gobble more data than is
+> > >    available.
+> > > 10. kernel sits there being a dumb fuck.
+> > 
+> > Why are we attempting to decompress the kernel image again? Accident?
+> 
+> The firmware is trying to be "clever" - looking in the object it TFTP'd
+> for the gzip magic numbers and assuming that any it finds are an initrd.
+> The firmware then points the kernel at the start of that gzipped image.
+> 
+> The fact that a zImage contains the gzip magic numbers never occurred to
+> the people who implemented this misfeature in the firmware.  It is a
+> misfeature because:
+> 
+> 1. this exact problem - that a zImage contents can be mistaken for an initrd.
+> 2. an initrd doesn't have to be compressed with gzip.
+> 3. an initrd may contain gzip markers which do not relate to the start of
+>    the initrd.
+> 
+> > > > In my mind, being unable to decompress init* is every bit as fatal as
+> > > > being unable to mount root.
+> > > 
+> > > It's very simple.  With fix, the kernel successfully boots on these
+> > > machines.  Without fix, the kernel hangs on these machines for _no_
+> > > good reason other than the firmware did something that was stupid.
+> > 
+> > And how does this work currently? We attempt to decompress the kernel
+> > a second time, give up and move on?
+> 
+> Yes.
+> 
+> > Assuming we can write to the compressed image (and thereby corrupt
+> > it), wouldn't it be better to just stomp on the gzip magic and spare
+> > us the overhead of decompressing it twice?
+> 
+> That's not guaranteed, so is impossible to do in the boot time
+> decompressor.
+> 
+> > > I'm sorry, I just do not see why you're being soo bloody difficult
+> > > over this.
+> > 
+> > Because it's taken this long to get close to an explanation of what
+> > the problem is.
+> 
+> $#%@%#$%#@!!!  I really think you're intentionally trying to wind me up
+> through this whole thread.
 >
+> The email:
+> 
+>   http://www.ussg.iu.edu/hypermail/linux/kernel/0312.2/1024.html
+> 
+> contains a full and clear explaination of the situation.  The second
+> paragraph of that email is key to understanding the problem and makes
+> it absolutely clear what is trying to be decompressed as the initrd
+> (the corrupted compressed piggy).
 
-Accordint to bug report, the BIOS DSDT is modified.
-I don't know how these changes affect the results
-of suspend/resume. But, it is clear this is NOT right approach 
-to fix problem. Hence, I need the testing report with 
-un-modified DSDT on TP 600X, bios 1.11.
+It was neither full nor clear to me at least. But the above clarifies
+it enough that I understand what all the fuss is about, thanks. I'm
+back to the drawing board; I'll add an underflow path back in.
 
---Luming
-
+-- 
+Mathematics is the supreme nostalgia of our time.

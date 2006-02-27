@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751846AbWB0Wut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWB0Wwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751846AbWB0Wut (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751843AbWB0Wus
+	id S932344AbWB0Wwf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWB0Wwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:50:48 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:8321 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751787AbWB0Wur
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:50:47 -0500
-Message-Id: <20060227223321.042696000@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:04 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Bernard Pidoux <pidoux@ccr.jussieu.fr>
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Horms <horms@verge.net.au>, wensong@linux-vs.org,
-       netdev@vger.kernel.org, ja@ssi.bg,
-       "David S. Miller" <davem@davemloft.net>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 04/39] [PATCH] [BRIDGE]: netfilter missing symbol has_bridge_parent
-Content-Disposition: inline; filename=netfilter-missing-symbol.patch
+	Mon, 27 Feb 2006 17:52:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12254 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932344AbWB0Wwe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:52:34 -0500
+Date: Mon, 27 Feb 2006 14:51:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: Re: Linux v2.6.16-rc5
+Message-Id: <20060227145120.0712eaac.akpm@osdl.org>
+In-Reply-To: <4403586C.2020004@keyaccess.nl>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+	<4403586C.2020004@keyaccess.nl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+Rene Herman <rene.herman@keyaccess.nl> wrote:
+>
+> Linus Torvalds wrote:
+> 
+> > Have I missed anything? Holler. And please keep reminding about any 
+> > regressions since 2.6.15.
+> 
+> This one isn't in: http://lkml.org/lkml/2006/2/21/7
+> 
+> Andrew did pick it up -- pnp-bus-type-fix.patch, named as being in the 
+> 2.6.16 queue in his 2.6.16-rc4-mm2 announce:
+> 
+> http://lkml.org/lkml/2006/2/24/66
+> 
+> so it's probably okay. The other two patches from that same thread 
+> already made it into -rc5 though, so thought I'd ping anyway. It does 
+> really want to make 2.6.16. Many ISA-PnP drivers are quite severely 
+> broken without (it's also a regression against 2.6.15).
+> 
 
-5dce971acf2ae20c80d5e9d1f6bbf17376870911 in Linus' tree,
-otherwise known as bridge-netfilter-races-on-device-removal.patch in
-2.5.15.4 removed has_bridge_parent, however this symbol is still
-called with NETFILTER_DEBUG is enabled.
+Problem is, that patch was just a "here, try this" thing which Adam slung
+onto the mailing list - I have no idea whether it was compete or final or
+whether he wants it in 2.6.16 or what.  No indication of what problem it's
+fixing, nor how, now what risk there is of breaking something else.  It's
+just a lonely little diff at present.
 
-This patch uses the already seeded realoutdev value to detect if a parent
-exists, and if so, the value of the parent.
-
-Signed-Off-By: Horms <horms@verge.net.au>
-Acked-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
-
- net/bridge/br_netfilter.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.15.4.orig/net/bridge/br_netfilter.c
-+++ linux-2.6.15.4/net/bridge/br_netfilter.c
-@@ -794,8 +794,8 @@ static unsigned int br_nf_post_routing(u
- print_error:
- 	if (skb->dev != NULL) {
- 		printk("[%s]", skb->dev->name);
--		if (has_bridge_parent(skb->dev))
--			printk("[%s]", bridge_parent(skb->dev)->name);
-+		if (realoutdev)
-+			printk("[%s]", realoutdev->name);
- 	}
- 	printk(" head:%p, raw:%p, data:%p\n", skb->head, skb->mac.raw,
- 					      skb->data);
-
---

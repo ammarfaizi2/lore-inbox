@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWB0WV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWB0WXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964839AbWB0WV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWB0WV6
+	id S964840AbWB0WXM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWB0WXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:21:58 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:2440 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S964839AbWB0WV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:21:58 -0500
-Date: Mon, 27 Feb 2006 17:21:52 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: bubshait <darkray@ic3man.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD64 X2 lost ticks on PM timer
-Message-ID: <20060227222152.GA26541@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	bubshait <darkray@ic3man.com>, linux-kernel@vger.kernel.org
-References: <200602280022.40769.darkray@ic3man.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602280022.40769.darkray@ic3man.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 27 Feb 2006 17:23:12 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:63450 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964840AbWB0WXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:23:12 -0500
+Message-ID: <44037BC6.30003@pobox.com>
+Date: Mon, 27 Feb 2006 17:23:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Andi Kleen <ak@suse.de>,
+       benh@kernel.crashing.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take 3)
+References: <44028502.4000108@soft.fujitsu.com> <44033A2D.9000902@pobox.com> <20060227214244.GA9008@colo.lackof.org>
+In-Reply-To: <20060227214244.GA9008@colo.lackof.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 12:22:40AM +0300, bubshait wrote:
-> 	Losing some ticks... checking if CPU frequency changed.
-> 	warning: many lost ticks.
-> 	Your time source seems to be instable or some driver is hogging interupts
-> 	rip __do_softirq+0x47/0xd1
+Grant Grundler wrote:
+> On Mon, Feb 27, 2006 at 12:43:09PM -0500, Jeff Garzik wrote:
 > 
-> adding report_lost_ticks only prints repeating messages like
+>>This series still leaves a lot to be desired, and creates unnecessary
+>>driver churn.
 > 
-> 	Lost 3 timer tick(s)! rip __do_softirq+0x47/0xd1
+> 
+> This is a pretty small change and is not necessary for every driver.
 
-I'm seeing tons of these on a Tyan 2895 (Nvidia CKO4) running FC4 with
-kernel-2.6.15-1.1830 (2.6.15.2) SMP: 
+The latter is decidedly false.  The change makes no sense at all unless 
+you update every conceivable driver that will be used on the target 
+platform.  You will always be patching drivers as users stick new cards 
+in the target hardware.
 
-time.c: Lost 1 timer tick(s)! rip default_idle+0x37/0x7a)
-time.c: Lost 2 timer tick(s)! rip __do_softirq+0x55/0xd4)
 
-[I've seen the same thing with earlier FC 2.6.14 kernels.]
+>>  The better solution is:
+>>
+>>1) pci_enable_device() enables what it can
+>>
+>>2) Drivers, as they already do, will fail if they cannot map the desired
+>>memory or IO resources that are needed.
+>>
+>>Thus, the PCI layer needs only to do #1, and existing driver code
+>>handles the rest of the situation as one currently expects.
+> 
+> 
+> If in #1 pci_enable_device() assigns I/O Port resources even though
+> the driver doesn't need it, PCI devices which _only_ support I/O Port
+> space will get screwed (depending on config). We are trying to avoid that.
+> Or do you have another way of avoiding unused resource allocation?
 
-On our systems the __do_softirq messages are strongly correlated with
-sata_nv interrupts, especially during our nightly tripwire-like fs
-checksum job.  Unfortunately, the log messages are not very informative.
-I'm not sure what ever happened to the following patch,
+Fix the [firmware | device load order] to allocate I/O ports first to 
+the hardware that only supports IO port accesses.  Problem solved with 
+zero kernel mods...
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm3/broken-out/report-lost-ticks.patch
+	Jeff
 
-but it was dropped.
 
-Unfortunately, I need to spend tomorrow patching kernels in search of a
-fix or workaround, as I have to start using these boxes in production,
-and they need to keep time.
-
-Regards,
-
-	Bill Rugolsky

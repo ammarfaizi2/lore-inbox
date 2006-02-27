@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWB0Acx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWB0Amr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWB0Acx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Feb 2006 19:32:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWB0Acx
+	id S1751433AbWB0Amr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Feb 2006 19:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWB0Amr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Feb 2006 19:32:53 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:63177 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750707AbWB0Acw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Feb 2006 19:32:52 -0500
-Subject: Re: old radeon latency problem still unfixed?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1140999499.3982.17.camel@localhost.localdomain>
-References: <1140917787.24141.78.camel@mindpipe>
-	 <1140945232.2934.0.camel@laptopd505.fenrus.org>
-	 <1140982513.24141.118.camel@mindpipe>
-	 <1140988293.3982.8.camel@localhost.localdomain>
-	 <1140989489.24141.159.camel@mindpipe>
-	 <1140994427.3982.11.camel@localhost.localdomain>
-	 <1140994951.24141.204.camel@mindpipe>
-	 <1140999499.3982.17.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 26 Feb 2006 19:32:50 -0500
-Message-Id: <1141000370.24141.237.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
-Content-Transfer-Encoding: 7bit
+	Sun, 26 Feb 2006 19:42:47 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:37412 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1751433AbWB0Amr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Feb 2006 19:42:47 -0500
+X-IronPort-AV: i="4.02,148,1139212800"; 
+   d="scan'208"; a="410094071:sNHT32010740"
+To: ak@suse.de, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: [PATCH] Fix x86_64 build with CONFIG_HOTPLUG_CPU=n
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sun, 26 Feb 2006 16:42:42 -0800
+Message-ID: <adar75pskcd.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 27 Feb 2006 00:42:43.0984 (UTC) FILETIME=[B8B5E900:01C63B36]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-02-27 at 11:18 +1100, Benjamin Herrenschmidt wrote:
-> On Sun, 2006-02-26 at 18:02 -0500, Lee Revell wrote:
-> > On Mon, 2006-02-27 at 09:53 +1100, Benjamin Herrenschmidt wrote:
-> > > Well... as soon as a 3d window appears, the server starts switching
-> > > all the time. there might be some spin loop in there remaining... 
-> > 
-> > But if the only lock taken in the radeon driver is the BKL, the
-> > SCHED_NORMAL X server should not be able to delay a SCHED_FIFO process
-> > right?
-> 
-> If you have preempt enabled, I suppose .... can we preempt with the BKL
-> nowadays ?
+In arch/x86_64, kernel/setup.c calls setup_additional_cpus() if
+CONFIG_SMP is defined.  However, kernel/smpboot.c only defines it if
+CONFIG_HOTPLUG_CPU is defined, so a build with SMP but not HOTPLUG_CPU
+will fail.  Fix this by testing HOTPLUG_CPU in kernel/setup.c as well.
 
-Yes.
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-This seems to have been user error - old kernel and/or broken config.
-Until I get more feedback from the user, this can probably be
-disregarded. 
-
-Lee
-
+--- a/arch/x86_64/kernel/setup.c
++++ b/arch/x86_64/kernel/setup.c
+@@ -424,7 +424,7 @@ static __init void parse_cmdline_early (
+ 			elfcorehdr_addr = memparse(from+11, &from);
+ #endif
+ 
+-#ifdef CONFIG_SMP
++#ifdef CONFIG_HOTPLUG_CPU
+ 		else if (!memcmp(from, "additional_cpus=", 16))
+ 			setup_additional_cpus(from+16);
+ #endif

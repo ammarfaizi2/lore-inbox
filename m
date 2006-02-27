@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWB0WmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWB0Wnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWB0WmI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWB0WbZ
+	id S932348AbWB0Wnp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWB0WnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:31:25 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:64642 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751772AbWB0WbG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:06 -0500
-Message-Id: <20060227223349.977521000@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:17 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, staubach@redhat.com,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 17/39] [PATCH] fix deadlock in ext2
-Content-Disposition: inline; filename=fix-deadlock-in-ext2.patch
+	Mon, 27 Feb 2006 17:43:17 -0500
+Received: from mx2.suse.de ([195.135.220.15]:44677 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932091AbWB0WnA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:43:00 -0500
+From: Neil Brown <neilb@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Date: Tue, 28 Feb 2006 09:42:09 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17411.32833.539325.449001@cse.unsw.edu.au>
+Cc: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+In-Reply-To: message from Jens Axboe on Monday February 27
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+	<20060227072844.GA15638@redhat.com>
+	<20060227112022.GK12886@suse.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+On Monday February 27, axboe@suse.de wrote:
+> On Mon, Feb 27 2006, Dave Jones wrote:
+> > On Sun, Feb 26, 2006 at 09:27:28PM -0800, Linus Torvalds wrote:
+> > 
+> >  > Have I missed anything? Holler. And please keep reminding about any 
+> >  > regressions since 2.6.15.
+> > 
+> > We seem to have a nasty bio slab leak.
+> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=183017
+> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=182970
+> > 
+> > Two seperate reports, both using raid1, sata_via and firewire
+> > Curiously, they're both on x86-64 too.
+> > 
+> > Will keep an eye open for other reports of this as they come in.
+> > 
+> > (The kernels they mention in those reports are fairly recent.
+> >  2.6.15-1.1977_FC5 is ctually based on 2.6.16rc4-git6)
+> 
+> This smells very much like a raid1 bio leak, I thought Neil had
+> diagnosed and fixed that already though - Neil?
 
-Fix a deadlock possible in the ext2 file system implementation.  This
-deadlock occurs when a file is removed from an ext2 file system which was
-mounted with the "sync" mount option.
+It certainly does smell like a raid1 bio leak, and we have had those
+before, but I've looked over the relevant code several time and cannot
+find one.  And my test machine doesn't show a leak.
 
-The problem is that ext2_xattr_delete_inode() was invoking the routine,
-sync_dirty_buffer(), using a buffer head which was previously locked via
-lock_buffer().  The first thing that sync_dirty_buffer() does is to lock
-the buffer head that it was passed.  It does this via lock_buffer().  Oops.
+There are some different code paths depending on whether the
+underlying devices support BIO_RW_BARRIER or not, so my testing isn't
+conclusive - I think my devices do support BIO_RW_BARRIER so it could
+just happen where BIO_RW_BARRIER isn't supported .... but the code
+still looks good.
 
-The solution is to unlock the buffer head in ext2_xattr_delete_inode()
-before invoking sync_dirty_buffer().  This makes the code in
-ext2_xattr_delete_inode() obey the same locking rules as all other callers
-of sync_dirty_buffer() in the ext2 file system implementation.
+There are new code paths to handle auto-correcting read errors, and
+they probably haven't been exercises as much as I would like (some,
+but not lots and lots) so maybe there is an issue there, but nobody is
+reporting disk errors along with the bio leak, and given the size of
+the leak, it would need to be lots of errors.
 
-Signed-off-by: Peter Staubach <staubach@redhat.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
+I think we need to narrow down where the problem was introduced.  The
+current:
 
- fs/ext2/xattr.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+  2.6.14.7  works,
+  2.6.16-rc4  doesn't
 
---- linux-2.6.15.4.orig/fs/ext2/xattr.c
-+++ linux-2.6.15.4/fs/ext2/xattr.c
-@@ -796,18 +796,20 @@ ext2_xattr_delete_inode(struct inode *in
- 		ext2_free_blocks(inode, EXT2_I(inode)->i_file_acl, 1);
- 		get_bh(bh);
- 		bforget(bh);
-+		unlock_buffer(bh);
- 	} else {
- 		HDR(bh)->h_refcount = cpu_to_le32(
- 			le32_to_cpu(HDR(bh)->h_refcount) - 1);
- 		if (ce)
- 			mb_cache_entry_release(ce);
-+		ea_bdebug(bh, "refcount now=%d",
-+			le32_to_cpu(HDR(bh)->h_refcount));
-+		unlock_buffer(bh);
- 		mark_buffer_dirty(bh);
- 		if (IS_SYNC(inode))
- 			sync_dirty_buffer(bh);
- 		DQUOT_FREE_BLOCK(inode, 1);
- 	}
--	ea_bdebug(bh, "refcount now=%d", le32_to_cpu(HDR(bh)->h_refcount) - 1);
--	unlock_buffer(bh);
- 	EXT2_I(inode)->i_file_acl = 0;
- 
- cleanup:
+is too broad.
 
---
+NeilBrown
+

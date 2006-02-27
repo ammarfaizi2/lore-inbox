@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751849AbWB0XST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbWB0XWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751849AbWB0XST (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 18:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWB0XST
+	id S1751564AbWB0XWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 18:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWB0XWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 18:18:19 -0500
-Received: from colo.lackof.org ([198.49.126.79]:65478 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1751849AbWB0XSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 18:18:18 -0500
-Date: Mon, 27 Feb 2006 16:28:41 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andi Kleen <ak@suse.de>,
-       benh@kernel.crashing.org,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take 3)
-Message-ID: <20060227232841.GB9008@colo.lackof.org>
-References: <44028502.4000108@soft.fujitsu.com> <44033A2D.9000902@pobox.com> <20060227214244.GA9008@colo.lackof.org> <44037BC6.30003@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44037BC6.30003@pobox.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	Mon, 27 Feb 2006 18:22:16 -0500
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:32226 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP
+	id S1750719AbWB0XWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 18:22:14 -0500
+Date: Tue, 28 Feb 2006 00:21:42 +0100
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: o_sync in vfat driver
+Cc: "Anton Altaparmakov" <aia21@cam.ac.uk>,
+       "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>,
+       linux-kernel@vger.kernel.org
+References: <op.s5cj47sxj68xd1@mail.piments.com> <op.s5jpqvwhui3qek@mail.piments.com> <op.s5kxhyzgfx0war@mail.piments.com> <op.s5kx7xhfj68xd1@mail.piments.com> <op.s5kya3t0j68xd1@mail.piments.com> <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com> <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <1141075047.2992.166.camel@laptopd505.fenrus.org>
+From: col-pepper@piments.com
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.s5nm6gaoj68xd1@mail.piments.com>
+In-Reply-To: <1141075047.2992.166.camel@laptopd505.fenrus.org>
+User-Agent: Opera M2/8.52 (Linux, build 1631)
+X-Ovh-Remote: 80.170.101.26 (d80-170-101-26.cust.tele2.fr)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|0.3|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 05:23:02PM -0500, Jeff Garzik wrote:
-> Grant Grundler wrote:
-> >On Mon, Feb 27, 2006 at 12:43:09PM -0500, Jeff Garzik wrote:
-> >
-> >>This series still leaves a lot to be desired, and creates unnecessary
-> >>driver churn.
-> >
-> >
-> >This is a pretty small change and is not necessary for every driver.
-> 
-> The latter is decidedly false.  The change makes no sense at all unless 
-> you update every conceivable driver that will be used on the target 
-> platform.  You will always be patching drivers as users stick new cards 
-> in the target hardware.
+On Mon, 27 Feb 2006 22:17:21 +0100, Arjan van de Ven <arjan@infradead.org>  
+wrote:
 
-It's sufficiently true if 90% of the cards plugged into the machine
-are covered by 3 or 4 drivers. The remaining 10% can use IO port space
-and everything will work fine.
+>
+>> Telling a user who has just burnt out a brand new 1GB usb device he  
+>> should
+>> have RTFM and modified that HAL configuration to insure it did not use
+>> sync it not likely to win much confidence in the linux kernel.
+>
+> or in HAL. really.
 
+It may unfairly reflect on HAL in the users' mind but hal still does  
+exactly what it is set up to do.
 
-> >If in #1 pci_enable_device() assigns I/O Port resources even though
-> >the driver doesn't need it, PCI devices which _only_ support I/O Port
-> >space will get screwed (depending on config). We are trying to avoid that.
-> >Or do you have another way of avoiding unused resource allocation?
-> 
-> Fix the [firmware | device load order] to allocate I/O ports first to 
-> the hardware that only supports IO port accesses.  Problem solved with 
-> zero kernel mods...
+>
+>
+> there was a very long discussion abuot kernel stability.
+> The problem is that once depending on the absence of a feature becomes
+> ABI ... there is a big problem.
+>
+>
+>
 
-After we (OS developers) have been telling firmware people to NOT
-configure every device and run it's BIOS driver at power up?
-
-OS "hotplug" now deals with resource assignment and device initialization
-in most cases on these boxes. Running the BIOS/EFI driver to configure
-each device just takes too long.
-
-grant
+It was not totally absent. If it was absent no-one would configure  
+anything to use it anyway. It seems that big problem was that it  
+functionality was fundamentlly changed but it was passed on like a minor  
+mod that no-one needed to worry about and the doc was not updated at the  
+time.

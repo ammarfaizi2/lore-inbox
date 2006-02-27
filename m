@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWB0Wd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWB0Wej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932496AbWB0Wd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWB0Wcr
+	id S932484AbWB0Wej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWB0WcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:32:47 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:28545 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932358AbWB0WcK
+	Mon, 27 Feb 2006 17:32:07 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39554 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932459AbWB0Wbz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:32:10 -0500
-Message-Id: <20060227223352.122673000@sorel.sous-sol.org>
+	Mon, 27 Feb 2006 17:31:55 -0500
+Message-Id: <20060227223406.476841000@sorel.sous-sol.org>
 References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:20 -0800
+Date: Mon, 27 Feb 2006 14:32:36 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,55 +19,50 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Jean Delvare <khali@linux-fr.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 20/39] [PATCH] hwmon it87: Probe i2c 0x2d only
-Content-Disposition: inline; filename=hwmon-it87-probe-i2c-0x2d-only.patch
+       Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [patch 36/39] [PATCH] sbp2: fix another deadlock after disconnection
+Content-Disposition: inline; filename=sbp2-fix-another-deadlock-after-disconnection.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Only scan I2C address 0x2d. This is the default address and no IT87xxF
-chip was ever seen on I2C at a different address. These chips are
-better accessed through their ISA interface anyway.
+sbp2: fix another deadlock after disconnection
 
-This fixes bug #5889, although it doesn't address the whole class
-of problems. We'd need the ability to blacklist arbitrary I2C addresses
-on systems known to contain I2C devices which behave badly when probed.
+If there were commands enqueued but not completed before an SBP-2 unit
+was unplugged (or an attempt to reconnect failed), knodemgrd or any
+process which tried to remove the device would sleep uninterruptibly
+in blk_execute_rq().  Therefore make sure that all commands are
+completed when sbp2 retreats.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
+Same as commit bf637ec3ef4159da3dd156ecf6f6987d8c8c5dae in Linus' tree.
 
- Documentation/hwmon/it87 |    2 +-
- drivers/hwmon/it87.c     |    3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/ieee1394/sbp2.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
---- linux-2.6.15.4.orig/Documentation/hwmon/it87
-+++ linux-2.6.15.4/Documentation/hwmon/it87
-@@ -9,7 +9,7 @@ Supported chips:
-                http://www.ite.com.tw/
-   * IT8712F
-     Prefix: 'it8712'
--    Addresses scanned: I2C 0x28 - 0x2f
-+    Addresses scanned: I2C 0x2d
-                        from Super I/O config space (8 I/O ports)
-     Datasheet: Publicly available at the ITE website
-                http://www.ite.com.tw/
---- linux-2.6.15.4.orig/drivers/hwmon/it87.c
-+++ linux-2.6.15.4/drivers/hwmon/it87.c
-@@ -45,8 +45,7 @@
+--- linux-2.6.15.4.orig/drivers/ieee1394/sbp2.c
++++ linux-2.6.15.4/drivers/ieee1394/sbp2.c
+@@ -650,9 +650,15 @@ static int sbp2_remove(struct device *de
+ 	if (!scsi_id)
+ 		return 0;
  
- 
- /* Addresses to scan */
--static unsigned short normal_i2c[] = { 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d,
--					0x2e, 0x2f, I2C_CLIENT_END };
-+static unsigned short normal_i2c[] = { 0x2d, I2C_CLIENT_END };
- static unsigned short isa_address;
- 
- /* Insmod parameters */
+-	/* Trigger shutdown functions in scsi's highlevel. */
+-	if (scsi_id->scsi_host)
++	if (scsi_id->scsi_host) {
++		/* Get rid of enqueued commands if there is no chance to
++		 * send them. */
++		if (!sbp2util_node_is_available(scsi_id))
++			sbp2scsi_complete_all_commands(scsi_id, DID_NO_CONNECT);
++		/* scsi_remove_device() will trigger shutdown functions of SCSI
++		 * highlevel drivers which would deadlock if blocked. */
+ 		scsi_unblock_requests(scsi_id->scsi_host);
++	}
+ 	sdev = scsi_id->sdev;
+ 	if (sdev) {
+ 		scsi_id->sdev = NULL;
 
 --

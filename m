@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWB0Wej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWB0Weo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932484AbWB0Wej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWB0WcH
+	id S932485AbWB0Weo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbWB0WcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:32:07 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:39554 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932459AbWB0Wbz
+	Mon, 27 Feb 2006 17:32:06 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:57729 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932358AbWB0Wb5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:55 -0500
-Message-Id: <20060227223406.476841000@sorel.sous-sol.org>
+	Mon, 27 Feb 2006 17:31:57 -0500
+Message-Id: <20060227223352.699835000@sorel.sous-sol.org>
 References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:36 -0800
+Date: Mon, 27 Feb 2006 14:32:21 -0800
 From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [patch 36/39] [PATCH] sbp2: fix another deadlock after disconnection
-Content-Disposition: inline; filename=sbp2-fix-another-deadlock-after-disconnection.patch
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, tiwai@suse.de, greg@kroah.com,
+       jk@blackdown.de, perex@suse.cz, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [patch 21/39] [PATCH] Fix snd-usb-audio in 32-bit compat environment
+Content-Disposition: inline; filename=fix-snd-usb-audio-in-32-bit-compat-environment.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-sbp2: fix another deadlock after disconnection
+I'm getting oopses with snd-usb-audio in 32-bit compat environments:
+control_compat.c:get_ctl_type() doesn't initialize 'info', so
+'itemlist[uinfo->value.enumerated.item]' in
+usbmixer.c:mixer_ctl_selector_info() might access random memory (The 'if
+((int)uinfo->value.enumerated.item >= cval->max)' doesn't fix all problems
+because of the unsigned -> signed conversion.)
 
-If there were commands enqueued but not completed before an SBP-2 unit
-was unplugged (or an attempt to reconnect failed), knodemgrd or any
-process which tried to remove the device would sleep uninterruptibly
-in blk_execute_rq().  Therefore make sure that all commands are
-completed when sbp2 retreats.
-
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Signed-off-by: Juergen Kreileder <jk@blackdown.de>
+Cc: Jaroslav Kysela <perex@suse.cz>
+Acked-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
-Same as commit bf637ec3ef4159da3dd156ecf6f6987d8c8c5dae in Linus' tree.
 
- drivers/ieee1394/sbp2.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ sound/core/control_compat.c |   16 +++++++++++-----
+ 1 files changed, 11 insertions(+), 5 deletions(-)
 
---- linux-2.6.15.4.orig/drivers/ieee1394/sbp2.c
-+++ linux-2.6.15.4/drivers/ieee1394/sbp2.c
-@@ -650,9 +650,15 @@ static int sbp2_remove(struct device *de
- 	if (!scsi_id)
- 		return 0;
+--- linux-2.6.15.4.orig/sound/core/control_compat.c
++++ linux-2.6.15.4/sound/core/control_compat.c
+@@ -164,7 +164,7 @@ struct sndrv_ctl_elem_value32 {
+ static int get_ctl_type(snd_card_t *card, snd_ctl_elem_id_t *id, int *countp)
+ {
+ 	snd_kcontrol_t *kctl;
+-	snd_ctl_elem_info_t info;
++	snd_ctl_elem_info_t *info;
+ 	int err;
  
--	/* Trigger shutdown functions in scsi's highlevel. */
--	if (scsi_id->scsi_host)
-+	if (scsi_id->scsi_host) {
-+		/* Get rid of enqueued commands if there is no chance to
-+		 * send them. */
-+		if (!sbp2util_node_is_available(scsi_id))
-+			sbp2scsi_complete_all_commands(scsi_id, DID_NO_CONNECT);
-+		/* scsi_remove_device() will trigger shutdown functions of SCSI
-+		 * highlevel drivers which would deadlock if blocked. */
- 		scsi_unblock_requests(scsi_id->scsi_host);
+ 	down_read(&card->controls_rwsem);
+@@ -173,13 +173,19 @@ static int get_ctl_type(snd_card_t *card
+ 		up_read(&card->controls_rwsem);
+ 		return -ENXIO;
+ 	}
+-	info.id = *id;
+-	err = kctl->info(kctl, &info);
++	info = kzalloc(sizeof(*info), GFP_KERNEL);
++	if (info == NULL) {
++		up_read(&card->controls_rwsem);
++		return -ENOMEM;
 +	}
- 	sdev = scsi_id->sdev;
- 	if (sdev) {
- 		scsi_id->sdev = NULL;
++	info->id = *id;
++	err = kctl->info(kctl, info);
+ 	up_read(&card->controls_rwsem);
+ 	if (err >= 0) {
+-		err = info.type;
+-		*countp = info.count;
++		err = info->type;
++		*countp = info->count;
+ 	}
++	kfree(info);
+ 	return err;
+ }
+ 
 
 --

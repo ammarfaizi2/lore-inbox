@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWB0TqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWB0Ttl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWB0TqW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 14:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWB0TqW
+	id S1751498AbWB0Ttl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 14:49:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWB0Ttl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 14:46:22 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:5772 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751461AbWB0TqV
+	Mon, 27 Feb 2006 14:49:41 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:3525 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751498AbWB0Ttl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 14:46:21 -0500
-Date: Mon, 27 Feb 2006 11:46:23 -0800
+	Mon, 27 Feb 2006 14:49:41 -0500
+Date: Mon, 27 Feb 2006 11:49:41 -0800
 From: Greg KH <gregkh@suse.de>
-To: Benjamin LaHaise <bcrl@kvack.org>
+To: Diego Calleja <diegocg@gmail.com>
 Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
-       Kay Sievers <kay.sievers@vrfy.org>
+       akpm@osdl.org, davej@redhat.com, perex@suse.cz, kay.sievers@vrfy.org
 Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060227194623.GC9991@suse.de>
-References: <20060227190150.GA9121@kroah.com> <20060227193654.GA12788@kvack.org>
+Message-ID: <20060227194941.GD9991@suse.de>
+References: <20060227190150.GA9121@kroah.com> <20060227203520.0df1d548.diegocg@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060227193654.GA12788@kvack.org>
+In-Reply-To: <20060227203520.0df1d548.diegocg@gmail.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 02:36:54PM -0500, Benjamin LaHaise wrote:
-> On Mon, Feb 27, 2006 at 11:01:50AM -0800, Greg KH wrote:
-> > --- /dev/null
-> > +++ gregkh-2.6/Documentation/ABI/private/alsa
-> > @@ -0,0 +1,8 @@
-> > +What:		Kernel Sound interface
-> > +Date:		Feburary 2006
-> > +Who:		Jaroslav Kysela <perex@suse.cz>
-> > +Description:
-> > +		The use of the kernel sound interface must be done
-> > +		through the ALSA library.  For more details on this,
-> > +		please see http://www.alsa-project.org/ and contact
-> > +		<alsa-devel@alsa-project.org>
+On Mon, Feb 27, 2006 at 08:35:20PM +0100, Diego Calleja wrote:
+> El Mon, 27 Feb 2006 11:01:50 -0800,
+> Greg KH <greg@kroah.com> escribi?:
 > 
-> How can something as widely used as sound not work from one kernel version 
-> to the next, as seems to be implied with the "private" nature of the ABI?  
-> This is a total cop-out and is IMHO very amateur of the developers.  If 
-> something like this is to be the case, at the very least the alsa libraries 
-> need to provide a stable ABI and be shipped with the kernel.
+> 
+> > I've sketched out a directory structure that starts in
+> > Documentation/ABI/ and has five different states, "stable", "testing",
+> > "unstable", "obsolete", and "private".  The README file describes these
+> 
+> With the current development model, does it have sense to have a "testing"
+> stage? Once the interfaces are released in the main kernel, people is going
+> to use them just like they were stable...
 
-Then I suggest you work with the ALSA developers to come up with such a
-"stable" api that never changes.  They have been working at this for a
-number of years, if it was a "simple" problem, it would have been done
-already...
+The whole point of this document is to state that they should be wary of
+doing so, and be aware that things can change.  And also that they need
+to work _with_ the kernel developers if they are relying on things that
+are "unstable" or in "testing" to be notified of future changes and just
+to help make things move to "stable" quicker and more smoothly.
 
-Anyway, netlink is in the same category, with a backing userspace
-library tie :)
+Also, if you look at other operating systems, they have this same kind
+of "levels" of stability for their interfaces, so this is nothing new.
+For us to say that our "first cut" implementation of some of these
+interfaces should instantly be marked "stable" is just folley if we
+think that we know-all about how stuff will work once it's being used by
+lots of different people.  I'm sure as hell not that smart to get
+everything right the very first time, even if you might be :)
 
-And, I have nothing against shipping userspace libraries with the kernel
-like this, if people think that's the easiest way to do it.  But even
-then, the raw interface is still "private" and you need to use the
-library to access it properly.
+An explicit example of this is the evolution that sys_futex went
+through, even after it was made a syscall...
 
 thanks,
 

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWB0RHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751503AbWB0RKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWB0RHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 12:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWB0RHi
+	id S1751503AbWB0RKe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 12:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWB0RKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 12:07:38 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:47068 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751501AbWB0RHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 12:07:37 -0500
-Date: Mon, 27 Feb 2006 12:08:26 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: fuse-devel@lists.sourceforge.net,
-       user-mode-linux-devel@lists.sourceforge.net,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [Announce] mountlo 0.5 - Loopback mounting in userspace
-Message-ID: <20060227170826.GA5481@ccure.user-mode-linux.org>
-References: <E1FDk1G-0004S6-00@dorka.pomaz.szeredi.hu>
+	Mon, 27 Feb 2006 12:10:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:63170 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751496AbWB0RKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 12:10:32 -0500
+Date: Mon, 27 Feb 2006 17:10:29 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       James Ketrenos <jketreno@linux.intel.com>,
+       NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       okir@suse.de
+Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
+Message-ID: <20060227171029.GA763@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	James Ketrenos <jketreno@linux.intel.com>,
+	NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+	okir@suse.de
+References: <43FF88E6.6020603@linux.intel.com> <20060225084139.GB22109@infradead.org> <1140915482.23286.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1FDk1G-0004S6-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <1140915482.23286.6.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 04:10:38PM +0100, Miklos Szeredi wrote:
-> I'm proud to announce a new version of my pet project 'mountlo', a
-> utility which works similarly to 'mount -o loop', but the filesystem
-> runs entirely in userspace.
+On Sun, Feb 26, 2006 at 12:58:02AM +0000, Alan Cox wrote:
+> On Sad, 2006-02-25 at 08:41 +0000, Christoph Hellwig wrote:
+> > the regualatory problems are not true.  
 > 
-> While arguably it is quite useless, I like it because it combines some
-> of my favorite technologies (Linux, UML and FUSE) with very little
-> additional glue code.
+> They are although the binary interpretation isn't AFAIK from law but
+> from lawyers. The same is actually true in much of the EU. The actual
+> requirement is that the transmitting device must be reasonably
+> tamperproof. Some of the lawyers have decided that for a software radio
+> tamperproof means "binary".
 
-Very cute.  I'm in the process of doing something similar, except I'm
-integrating a FUSE server into the UML kernel to export the UML
-filesystem to the host.  So far, I can cd and ls inside the mount -
-lookup and readdir are implemented.
+Exactly.  There's no strong requirement, it's just over-zealous corporate
+lawyers.  That's why we need to push Intel strongly here.
 
-				Jeff

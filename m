@@ -1,135 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWB0Wfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWB0WgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWB0Wfb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWB0WcE
+	id S932471AbWB0WgW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWB0WgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:32:04 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:27265 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932403AbWB0Wb6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:31:58 -0500
-Message-Id: <20060227223344.160102000@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org>
-Date: Mon, 27 Feb 2006 14:32:10 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Ashok Raj <ashok.raj@intel.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Andi Kleen <ak@suse.de>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [patch 10/39] [PATCH] i386/x86-64: Dont IPI to offline cpus on shutdown
-Content-Disposition: inline; filename=i386-x86-64-don-t-ipi-to-offline-cpus-on-shutdown.patch
+	Mon, 27 Feb 2006 17:36:22 -0500
+Received: from smtp.enter.net ([216.193.128.24]:8712 "EHLO smtp.enter.net")
+	by vger.kernel.org with ESMTP id S932470AbWB0WgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:36:14 -0500
+From: "D. Hazelton" <dhazelton@enter.net>
+To: "Peter Gordon" <codergeek42@gmail.com>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Mon, 27 Feb 2006 17:24:39 -0500
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <fa.deNPP6WI8uOxYJJt5IRsDHJHqNc@ifi.uio.no> <200602271647.48600.dhazelton@enter.net> <7e90c9180602271430m35051882jcc3e5b1608fb6be9@mail.gmail.com>
+In-Reply-To: <7e90c9180602271430m35051882jcc3e5b1608fb6be9@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602271724.39562.dhazelton@enter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
-------------------
+On Monday 27 February 2006 17:30, Peter Gordon wrote:
+> On 2/27/06, D. Hazelton <dhazelton@enter.net> wrote:
+> > This value is also reported by the drive. I don't know about DVD drives,
+> > but for CD drives it is a multiplier. 1x == 256K/sec transfer off the
+> > disc [...]
+>
+> For CDs, 1x is actually 150 KByte/sec.
 
-So why are we calling smp_send_stop from machine_halt?
+Well, I've been known to be wrong before, and this number was more based on 
+the fact that I once measured a sustained transfer rate of 1M/sec on a 4x 
+CDROM
 
-We don't.
+> > I haven't had time to look into the DVD specification, but I'm guessing
+> > that the DVD speed is about 3x what the CDROM speed is.
+>
+> According to WikiPedia, the DVD speed rating is almost 9 times that of
+> CD speeds. I.e., 1x DVD is about 1.32 MByte/sec.
 
-Looking more closely at the bug report the problem here
-is that halt -p is called which triggers not a halt but
-an attempt to power off.
+This was based on DVDx16 == CDx48 - I'm guessing someone is doing some monkey 
+work if a DVD is 9x a CD and a 16x DVD can't hit that mystical 52x of my 
+favorite CDRW drive in pure CD read mode.
 
-machine_power_off calls machine_shutdown which calls smp_send_stop.
+>
+> Just to make sure that we're all on the same page. :)
+> ~~Peter
 
-If pm_power_off is set we should never make it out machine_power_off
-to the call of do_exit.  So pm_power_off must not be set in this case.
-When pm_power_off is not set we expect machine_power_off to devolve
-into machine_halt.
+Thanks. Was just trying to dispel a few mis-statements and made some myself. 
+I'm grateful for the update to my poor memory.
 
-So how do we fix this?
-
-Playing too much with smp_send_stop is dangerous because it
-must also be safe to be called from panic.
-
-It looks like the obviously correct fix is to only call
-machine_shutdown when pm_power_off is defined.  Doing
-that will make Andi's assumption about not scheduling
-true and generally simplify what must be supported.
-
-This turns machine_power_off into a noop like machine_halt
-when pm_power_off is not defined.
-
-If the expected behavior is that sys_reboot(LINUX_REBOOT_CMD_POWER_OFF)
-becomes sys_reboot(LINUX_REBOOT_CMD_HALT) if pm_power_off is NULL
-this is not quite a comprehensive fix as we pass a different parameter
-to the reboot notifier and we set system_state to a different value
-before calling device_shutdown().
-
-Unfortunately any fix more comprehensive I can think of is not
-obviously correct.  The core problem is that there is no architecture
-independent way to detect if machine_power will become a noop, without
-calling it.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
-
- arch/i386/kernel/reboot.c   |    7 ++++---
- arch/x86_64/kernel/reboot.c |   10 ++++++----
- 2 files changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/arch/i386/kernel/reboot.c b/arch/i386/kernel/reboot.c
-index 2fa5803..d207242 100644
---- linux-2.6.15.4.orig/arch/i386/kernel/reboot.c
-+++ linux-2.6.15.4/arch/i386/kernel/reboot.c
-@@ -12,6 +12,7 @@
- #include <linux/efi.h>
- #include <linux/dmi.h>
- #include <linux/ctype.h>
-+#include <linux/pm.h>
- #include <asm/uaccess.h>
- #include <asm/apic.h>
- #include <asm/desc.h>
-@@ -355,10 +356,10 @@ void machine_halt(void)
- 
- void machine_power_off(void)
- {
--	machine_shutdown();
--
--	if (pm_power_off)
-+	if (pm_power_off) {
-+		machine_shutdown();
- 		pm_power_off();
-+	}
- }
- 
- 
---- linux-2.6.15.4.orig/arch/x86_64/kernel/reboot.c
-+++ linux-2.6.15.4/arch/x86_64/kernel/reboot.c
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/ctype.h>
- #include <linux/string.h>
-+#include <linux/pm.h>
- #include <asm/io.h>
- #include <asm/kdebug.h>
- #include <asm/delay.h>
-@@ -154,10 +155,11 @@ void machine_halt(void)
- 
- void machine_power_off(void)
- {
--	if (!reboot_force) {
--		machine_shutdown();
--	}
--	if (pm_power_off)
-+	if (pm_power_off) {
-+		if (!reboot_force) {
-+			machine_shutdown();
-+		}
- 		pm_power_off();
-+	}
- }
- 
-
---
+DRH

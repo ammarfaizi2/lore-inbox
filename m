@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWB0WXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWB0W0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWB0WXM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 17:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWB0WXM
+	id S1751253AbWB0W0E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWB0W0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 17:23:12 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:63450 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964840AbWB0WXM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 17:23:12 -0500
-Message-ID: <44037BC6.30003@pobox.com>
-Date: Mon, 27 Feb 2006 17:23:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Andi Kleen <ak@suse.de>,
-       benh@kernel.crashing.org,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take 3)
-References: <44028502.4000108@soft.fujitsu.com> <44033A2D.9000902@pobox.com> <20060227214244.GA9008@colo.lackof.org>
-In-Reply-To: <20060227214244.GA9008@colo.lackof.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 27 Feb 2006 17:26:04 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:50507 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751253AbWB0W0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:26:03 -0500
+In-Reply-To: <20060224014251.GC25787@kroah.com>
+References: <8B3A62DF-6991-4C46-A294-6DF314D24AF4@kernel.crashing.org> <Pine.LNX.4.44.0602231324110.12559-100000@gate.crashing.org> <20060224014251.GC25787@kroah.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B8F53A5C-A186-478E-A2A9-4797FE56EBE4@kernel.crashing.org>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: what's a platform device?
+Date: Mon, 27 Feb 2006 16:25:52 -0600
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> On Mon, Feb 27, 2006 at 12:43:09PM -0500, Jeff Garzik wrote:
-> 
->>This series still leaves a lot to be desired, and creates unnecessary
->>driver churn.
-> 
-> 
-> This is a pretty small change and is not necessary for every driver.
-
-The latter is decidedly false.  The change makes no sense at all unless 
-you update every conceivable driver that will be used on the target 
-platform.  You will always be patching drivers as users stick new cards 
-in the target hardware.
-
-
->>  The better solution is:
+>>> This makes sense, but you seem to be talking about hierarchy more  
+>>> the
+>>> functionality.  I agree in your description of hierarchy.
+>>>
+>>> I was looking at it from a functional point of view, maybe more from
+>>> the device view then from the bus.  I need a struct device type that
+>>> contains resources, a name, an id.  I'll do matching based on name.
+>>>  From a functional point of view platform does all this.
+>>>
+>>> Based on your description would you say that a platform_device's
+>>> parent device should always be platform_bus? [I'm getting at the  
+>>> fact
+>>> that we allow pdev->dev.parent to be set by the caller of
+>>> platform_device_add].
+>>>
+>>> Hmm, as I think about this further, I think that its more  
+>>> coincidence
+>>> that the functionality for the "kumar" bus is equivalent to that of
+>>> the "platform" bus.
+>>>
 >>
->>1) pci_enable_device() enables what it can
+>> What about a new bus_type that uses all the sematics of the  
+>> platform_bus.
+>> Doing someting like the following which would allow the caller to  
+>> specify
+>> their own bus_type.
 >>
->>2) Drivers, as they already do, will fail if they cannot map the desired
->>memory or IO resources that are needed.
->>
->>Thus, the PCI layer needs only to do #1, and existing driver code
->>handles the rest of the situation as one currently expects.
-> 
-> 
-> If in #1 pci_enable_device() assigns I/O Port resources even though
-> the driver doesn't need it, PCI devices which _only_ support I/O Port
-> space will get screwed (depending on config). We are trying to avoid that.
-> Or do you have another way of avoiding unused resource allocation?
+>> I'm just trying to avoid duplicating alot of code that already  
+>> exists in
+>> base/platform.c
+>
+> I'm ok with this patch, Russell?
 
-Fix the [firmware | device load order] to allocate I/O ports first to 
-the hardware that only supports IO port accesses.  Problem solved with 
-zero kernel mods...
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114072367307531&w=2
 
-	Jeff
+Russell, comments?
 
-
+- kumar

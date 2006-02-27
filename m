@@ -1,269 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751579AbWB0Gex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751559AbWB0GhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751579AbWB0Gex (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 01:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWB0Gex
+	id S1751559AbWB0GhW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 01:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbWB0GhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 01:34:53 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:33515 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751577AbWB0Gew (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 01:34:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=meNKPfkLnyvNz7/v7xLYz/yTa/uGCXFccbHRcXFqLGftm8mi3jKSNb0w9jNNHb785tGkV9fQg5Qo1Y1t2Eq0LTX2pXgLmdF4eCg19QfuwlECuvQEXSvcNPcnGDoOiiRt1vf3vEIT6hi0IX0e5KhoZeO6VMZkjoY+B8T+YJ2zaOk=
-Subject: Re: OOM-killer too aggressive?
-From: Chris Largret <largret@gmail.com>
-Reply-To: largret@gmail.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org, axboe@suse.de,
-       ak@muc.de
-In-Reply-To: <20060226175745.42416125.akpm@osdl.org>
-References: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
-	 <20060226102152.69728696.akpm@osdl.org>
-	 <1140988015.5178.15.camel@shogun.daga.dyndns.org>
-	 <20060226133140.4cf05ea5.akpm@osdl.org>
-	 <1140994821.5522.9.camel@shogun.daga.dyndns.org>
-	 <20060226162040.cb72bc31.akpm@osdl.org>
-	 <1141002112.17427.4.camel@shogun.daga.dyndns.org>
-	 <20060226175745.42416125.akpm@osdl.org>
+	Mon, 27 Feb 2006 01:37:22 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:45466 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751559AbWB0GhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 01:37:20 -0500
+Subject: Re: [PATCH] Enable mprotect on huge pages
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
+       "yanmin.zhang@intel.com" <yanmin.zhang@intel.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Paul Mundt <lethal@linux-sh.org>, kkojima@rr.iij4u.or.jp,
+       "Luck, Tony" <tony.luck@intel.com>
+In-Reply-To: <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
+References: <1140664780.12944.26.camel@ymzhang-perf.sh.intel.com>
+	 <20060224142844.77cbd484.akpm@osdl.org>
+	 <20060226230903.GA24422@localhost.localdomain>
+	 <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
 Content-Type: text/plain
-Date: Sun, 26 Feb 2006 22:34:47 -0800
-Message-Id: <1141022087.5637.6.camel@shogun.daga.dyndns.org>
+Message-Id: <1141022034.1256.44.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 Dropline GNOME 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 27 Feb 2006 14:33:54 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-02-26 at 17:57 -0800, Andrew Morton wrote:
-> Chris Largret <largret@gmail.com> wrote:
-> >
-> >  drivers/block/floppy.c:3245: error: too few arguments to function
-> >  `__alloc_pages'
-> 
-> doh.
-> 
-> --- devel/include/asm-x86_64/floppy.h~b	2006-02-26 16:15:44.000000000 -0800
-> +++ devel-akpm/include/asm-x86_64/floppy.h	2006-02-26 17:57:02.000000000 -0800
+On Mon, 2006-02-27 at 13:36, Zhang, Yanmin wrote:
+> On Mon, 2006-02-27 at 07:09, David Gibson wrote:
+> > On Fri, Feb 24, 2006 at 02:28:44PM -0800, Andrew Morton wrote:
+> > > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
+> > > >
+> > > > From: Zhang, Yanmin <yanmin.zhang@intel.com>
+> > > > 
+> > > > 2.6.16-rc3 uses hugetlb on-demand paging, but it doesn_t support hugetlb
+> > > > mprotect. My patch against 2.6.16-rc3 enables this capability.
 
-Earlier I said that there was a "Kernel BUG" and all processing stopped
-right after the login prompt was displayed (but before I could type
-anything). Now the kernel continues to work, but the messages are a
-little disconcerting. Here is the version with a backtrace (from dmesg):
+Based on David's comments, I worked out a new patch against 2.6.16-rc4.
+Thank David.
 
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
-Bad page state in process 'swapper'
-page:ffff810001539168 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:0
-Trying to fix it up, but a reboot is needed
-Backtrace:
+I tested it on i386/x86_64/ia64. Who could help test it on other
+platforms, such like PPC64?
 
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff8100015391a0 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
+---
 
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff8100015391d8 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
+diff -Nraup linux-2.6.16-rc4/include/linux/hugetlb.h linux-2.6.16-rc4_mprotect/include/linux/hugetlb.h
+--- linux-2.6.16-rc4/include/linux/hugetlb.h	2006-02-22 19:19:04.000000000 +0800
++++ linux-2.6.16-rc4_mprotect/include/linux/hugetlb.h	2006-02-27 20:58:33.000000000 +0800
+@@ -41,6 +41,8 @@ struct page *follow_huge_pmd(struct mm_s
+ 				pmd_t *pmd, int write);
+ int is_aligned_hugepage_range(unsigned long addr, unsigned long len);
+ int pmd_huge(pmd_t pmd);
++void hugetlb_change_protection(struct vm_area_struct *vma,
++		unsigned long address, unsigned long end, pgprot_t newprot);
+ 
+ #ifndef ARCH_HAS_HUGEPAGE_ONLY_RANGE
+ #define is_hugepage_only_range(mm, addr, len)	0
+@@ -101,6 +103,8 @@ static inline unsigned long hugetlb_tota
+ #define free_huge_page(p)			({ (void)(p); BUG(); })
+ #define hugetlb_fault(mm, vma, addr, write)	({ BUG(); 0; })
+ 
++#define hugetlb_change_protection(vma, address, end, newprot)
++
+ #ifndef HPAGE_MASK
+ #define HPAGE_MASK	PAGE_MASK		/* Keep the compiler happy */
+ #define HPAGE_SIZE	PAGE_SIZE
+diff -Nraup linux-2.6.16-rc4/mm/hugetlb.c linux-2.6.16-rc4_mprotect/mm/hugetlb.c
+--- linux-2.6.16-rc4/mm/hugetlb.c	2006-02-22 19:19:05.000000000 +0800
++++ linux-2.6.16-rc4_mprotect/mm/hugetlb.c	2006-02-27 20:57:17.000000000 +0800
+@@ -572,3 +572,32 @@ int follow_hugetlb_page(struct mm_struct
+ 
+ 	return i;
+ }
++
++void hugetlb_change_protection(struct vm_area_struct *vma,
++		unsigned long address, unsigned long end, pgprot_t newprot)
++{
++	struct mm_struct *mm = vma->vm_mm;
++	unsigned long start = address;
++	pte_t *ptep;
++	pte_t pte;
++
++	BUG_ON(address >= end);
++	flush_cache_range(vma, address, end);
++
++	spin_lock(&mm->page_table_lock);
++	for (; address < end; address += HPAGE_SIZE) {
++		ptep = huge_pte_offset(mm, address);
++		if (!ptep)
++			continue;
++		if (!pte_none(*ptep)) {
++			pte = huge_ptep_get_and_clear(mm, address, ptep);
++			pte = pte_modify(pte, newprot);
++			set_huge_pte_at(mm, addr, ptep, pte);
++			lazy_mmu_prot_update(pte);
++		}
++	}
++	spin_unlock(&mm->page_table_lock);
++
++	flush_tlb_range(vma, start, end);
++}
++
+diff -Nraup linux-2.6.16-rc4/mm/mprotect.c linux-2.6.16-rc4_mprotect/mm/mprotect.c
+--- linux-2.6.16-rc4/mm/mprotect.c	2006-02-22 19:18:21.000000000 +0800
++++ linux-2.6.16-rc4_mprotect/mm/mprotect.c	2006-02-27 20:55:10.000000000 +0800
+@@ -124,7 +124,7 @@ mprotect_fixup(struct vm_area_struct *vm
+ 	 * a MAP_NORESERVE private mapping to writable will now reserve.
+ 	 */
+ 	if (newflags & VM_WRITE) {
+-		if (!(oldflags & (VM_ACCOUNT|VM_WRITE|VM_SHARED|VM_HUGETLB))) {
++		if (!(oldflags & (VM_ACCOUNT|VM_WRITE|VM_SHARED))) {
+ 			charged = nrpages;
+ 			if (security_vm_enough_memory(charged))
+ 				return -ENOMEM;
+@@ -166,7 +166,10 @@ success:
+ 	 */
+ 	vma->vm_flags = newflags;
+ 	vma->vm_page_prot = newprot;
+-	change_protection(vma, start, end, newprot);
++	if (is_vm_hugetlb_page(vma))
++		hugetlb_change_protection(vma, start, end, newprot);
++	else
++		change_protection(vma, start, end, newprot);
+ 	vm_stat_account(mm, oldflags, vma->vm_file, -nrpages);
+ 	vm_stat_account(mm, newflags, vma->vm_file, nrpages);
+ 	return 0;
+@@ -240,11 +243,6 @@ sys_mprotect(unsigned long start, size_t
+ 
+ 		/* Here we know that  vma->vm_start <= nstart < vma->vm_end. */
+ 
+-		if (is_vm_hugetlb_page(vma)) {
+-			error = -EACCES;
+-			goto out;
+-		}
+-
+ 		newflags = vm_flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
+ 
+ 		/* newflags >> 4 shift VM_MAY% in place of VM_% */
+@@ -260,6 +258,12 @@ sys_mprotect(unsigned long start, size_t
+ 		tmp = vma->vm_end;
+ 		if (tmp > end)
+ 			tmp = end;
++		if (is_vm_hugetlb_page(vma) &&
++			is_aligned_hugepage_range(nstart, tmp - nstart)) {
++			error = -EINVAL;
++			goto out;
++		}
++
+ 		error = mprotect_fixup(vma, &prev, nstart, tmp, newflags);
+ 		if (error)
+ 			goto out;
 
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff810001539210 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
-
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff810001539248 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
-
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff810001539280 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
-
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff8100015392b8 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
-
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-Bad page state in process 'swapper'
-page:ffff8100015392f0 flags:0x4000000000000400 mapping:0000000000000000
-mapcount:0 count:1
-Trying to fix it up, but a reboot is needed
-Backtrace:
-
-Call Trace: <IRQ> <ffffffff8104f0cd>{bad_page+85}
-<ffffffff8104f419>{__free_pages_ok+179}
-       <ffffffff810500da>{__free_pages+49} <ffffffff8105015f>{free_pages
-+131}
-       <ffffffff8117db99>{_fd_dma_mem_free+43}
-<ffffffff81182ca0>{floppy_release_irq_and_dma+243}
-       <ffffffff811809fc>{set_dor+323}
-<ffffffff81183d50>{motor_off_callback+0}
-       <ffffffff81183d74>{motor_off_callback+36}
-<ffffffff81034e97>{run_timer_softirq+366}
-       <ffffffff810314e5>{__do_softirq+85}
-<ffffffff8100bec6>{call_softirq+30}
-       <ffffffff8100d92e>{do_softirq+51} <ffffffff8103162a>{irq_exit+72}
-       <ffffffff810160b8>{smp_apic_timer_interrupt+75}
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff8100b820>{apic_timer_interrupt+132} <EOI>
-<ffffffff81008d0f>{default_idle+0}
-       <ffffffff81008d3e>{default_idle+47} <ffffffff81008f44>{cpu_idle
-+103}
-       <ffffffff814390a1>{start_secondary+1189}
-
-
---
-Chris Largret <http://daga.dyndns.org>
 

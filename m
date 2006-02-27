@@ -1,105 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWB0V7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWB0WA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWB0V7c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 16:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWB0V7c
+	id S964834AbWB0WA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 17:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWB0WAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 16:59:32 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57299 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932345AbWB0V7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 16:59:31 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Rik van Riel <riel@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, Andrey Savochkin <saw@sawoct.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Stanislav Protassov <st@sw.ru>,
-       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Which of the virtualization approaches is more suitable for
- kernel?
-References: <43F9E411.1060305@sw.ru>
-	<m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
-	<1141062132.8697.161.camel@localhost.localdomain>
-	<m1ek1owllf.fsf@ebiederm.dsl.xmission.com>
-	<1141076148.10105.11.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 27 Feb 2006 14:56:37 -0700
-In-Reply-To: <1141076148.10105.11.camel@localhost.localdomain> (Dave
- Hansen's message of "Mon, 27 Feb 2006 13:35:48 -0800")
-Message-ID: <m18xrwwjmy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Mon, 27 Feb 2006 17:00:55 -0500
+Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:18631 "EHLO
+	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932347AbWB0WAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 17:00:55 -0500
+Date: Mon, 27 Feb 2006 16:57:53 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] x86_64: clean up timer messages
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Message-ID: <200602271700_MC3-1-B969-F4A4@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+Fix verbosity level for x86_64 io-apic timer messages. These appear when
+using ATI chipset systems with -rc5. Also, make exact APIC timer speed
+message depend on APIC_VERBOSE.
 
-> On Mon, 2006-02-27 at 14:14 -0700, Eric W. Biederman wrote:
->> I like the namespace nomenclature.  (It can be shorted to _space  or _ns).
->> In part because it shortens well, and in part because it emphasizes that
->> we are *just* dealing with the names.
->
-> When I was looking at this, I was pretending to be just somebody looking
-> at sysv code, with no knowledge of containers or namespaces.
->
-> For a person like that, I think names like _space or _ns are pretty much
-> not an option, unless those terms become as integral to the kernel as
-> things like kobjects.  
+Before:
+	CPU: AMD Turion(tm) 64 Mobile Technology ML-28 stepping 02
+	..MP-BIOS bug: 8254 timer not connected to IO-APIC
+	 failed.
+	 works.
+	Using local APIC timer interrupts.
+	result 12500904
+	Detected 12.500 MHz APIC timer.
 
-To be clear I was talking name suffixes.  So ipc_space certainly conveys
-something, and even ipc_ns may be ok.
+After:
+	CPU: AMD Turion(tm) 64 Mobile Technology ML-28 stepping 02
+	Using local APIC timer interrupts.
+	Detected 12.500 MHz APIC timer.
 
->> You split the resolution at just ipc_msgs.  When I really think it should
->> be everything ipcs deals with.
->
-> This was just the first patch. :)
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-:) 
+---
 
-Just wanted to make certain we agreed on the scope.
+ arch/x86_64/kernel/apic.c    |    3 +--
+ arch/x86_64/kernel/io_apic.c |   11 ++++++-----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
->> Performing the assignment inside the tasklist_lock is not something we
->> want to do in do_fork().
->
-> Any particular reason why?  There seem to be a number of things done in
-> there that aren't _strictly_ needed under the tasklist_lock.  Where
-> would you do it?
-
-Well all of the other things we can share or not share are already
-outside of the tasklist_lock.
-
-We may not be quite minimal but we actually are fairly close to minimal
-inside the tasklist_lock.
-
->> So it looks like a good start.  There are a lot of details yet to be filled
->> in, proc, sysctl, cleanup on namespace release.  (We can still provide
->> the create destroy methods even if we don't hook the up).
->
-> Yeah, I saved shm for last because it has the largest number of outside
-> interactions.  My current thoughts are that we'll need _contexts or
-> _namespaces associated with /proc mounts as well.  
-
-Yes.  I think the easy way to handle this is to have a symlink
-from /proc/sysvipc to /proc/self/sysvipc.  And then we have a per
-process reporting area.
-
-That preserves all of the old programs but enables us to get the
-information out.
-
->> I think in this case I would put the actual namespace structure
->> definition in util.h, and just put a struct ipc_ns in sched.h.
->
-> Ahhh, as in
->
-> 	struct ipc_ns;
->
-> And just keep a pointer from the task?  Yeah, that does keep it quite
-> isolated.  
-
-Yep.
-
-Eric
+--- 2.6.16-rc5-64.orig/arch/x86_64/kernel/io_apic.c
++++ 2.6.16-rc5-64/arch/x86_64/kernel/io_apic.c
+@@ -1834,8 +1834,9 @@ static inline void check_timer(void)
+ 			return;
+ 		}
+ 		clear_IO_APIC_pin(apic1, pin1);
+-		apic_printk(APIC_QUIET,KERN_ERR "..MP-BIOS bug: 8254 timer not "
+-				"connected to IO-APIC\n");
++		if (timer_over_8254 > 0)
++			apic_printk(APIC_QUIET,KERN_ERR "..MP-BIOS bug: 8254 "
++					"timer not connected to IO-APIC\n");
+ 	}
+ 
+ 	apic_printk(APIC_VERBOSE,KERN_INFO "...trying to set up timer (IRQ0) "
+@@ -1848,7 +1849,7 @@ static inline void check_timer(void)
+ 		 */
+ 		setup_ExtINT_IRQ0_pin(apic2, pin2, vector);
+ 		if (timer_irq_works()) {
+-			printk("works.\n");
++			apic_printk(APIC_VERBOSE," works.\n");
+ 			nmi_watchdog_default();
+ 			if (nmi_watchdog == NMI_IO_APIC) {
+ 				setup_nmi();
+@@ -1860,7 +1861,7 @@ static inline void check_timer(void)
+ 		 */
+ 		clear_IO_APIC_pin(apic2, pin2);
+ 	}
+-	printk(" failed.\n");
++	apic_printk(APIC_VERBOSE," failed.\n");
+ 
+ 	if (nmi_watchdog == NMI_IO_APIC) {
+ 		printk(KERN_WARNING "timer doesn't work through the IO-APIC - disabling NMI Watchdog!\n");
+@@ -1875,7 +1876,7 @@ static inline void check_timer(void)
+ 	enable_8259A_irq(0);
+ 
+ 	if (timer_irq_works()) {
+-		apic_printk(APIC_QUIET, " works.\n");
++		apic_printk(APIC_VERBOSE," works.\n");
+ 		return;
+ 	}
+ 	apic_write(APIC_LVT0, APIC_LVT_MASKED | APIC_DM_FIXED | vector);
+--- 2.6.16-rc5-64.orig/arch/x86_64/kernel/apic.c
++++ 2.6.16-rc5-64/arch/x86_64/kernel/apic.c
+@@ -786,8 +786,7 @@ static int __init calibrate_APIC_clock(v
+ 		result = (apic_start - apic) * 1000L * cpu_khz /
+ 					(tsc - tsc_start);
+ 	}
+-	printk("result %d\n", result);
+-
++	apic_printk(APIC_VERBOSE,KERN_INFO "result %d\n", result);
+ 
+ 	printk(KERN_INFO "Detected %d.%03d MHz APIC timer.\n",
+ 		result / 1000 / 1000, result / 1000 % 1000);
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

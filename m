@@ -1,71 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWB0QNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWB0QQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWB0QNF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 11:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWB0QNF
+	id S1751480AbWB0QQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 11:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751481AbWB0QQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 11:13:05 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:22316 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751477AbWB0QNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 11:13:04 -0500
-In-Reply-To: <1140986335.8697.139.camel@localhost.localdomain>
-References: <Pine.LNX.4.44.0602241054090.2981-100000@gate.crashing.org> <1140986335.8697.139.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <77448EF2-4D5F-4E7C-B1A5-6164A88E43C7@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH] powerpc: Fix mem= cmdline handling on arch/powerpc for !MULTIPLATFORM
-Date: Mon, 27 Feb 2006 10:12:44 -0600
-To: Dave Hansen <haveblue@us.ibm.com>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 27 Feb 2006 11:16:45 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:47073 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751480AbWB0QQo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 11:16:44 -0500
+Date: Mon, 27 Feb 2006 21:46:35 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [Patch 2/7] Add sysctl for schedstats
+Message-ID: <20060227161635.GF22492@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <1141026996.5785.38.camel@elinux04.optonline.net> <1141027367.5785.42.camel@elinux04.optonline.net> <1141027923.5785.50.camel@elinux04.optonline.net> <20060227085203.GB3241@elte.hu> <20060227104634.GB22492@in.ibm.com> <1141042725.2992.96.camel@laptopd505.fenrus.org> <20060227122933.GE22492@in.ibm.com> <1141045606.2992.98.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141045606.2992.98.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > But wouldn't all sysctls potentially sleep (on account of copying data from
+> > the user).
+> 
+> .. I'm not the one saying the BKL was useful... you were ;)
 
-On Feb 26, 2006, at 2:38 PM, Dave Hansen wrote:
+My tiny mind must have been confused by the presence of the code, which
+I presumed would be useful. I guess that is not the case always :-)
 
-> On Fri, 2006-02-24 at 10:54 -0600, Kumar Gala wrote:
->> +       if (strstr(cmd_line, "mem=")) {
->> +               char *p, *q;
->> +               unsigned long maxmem = 0;
->> +
->> +               for (q = cmd_line; (p = strstr(q, "mem=")) != 0; ) {
->> +                       q = p + 4;
->> +                       if (p > cmd_line && p[-1] != ' ')
->> +                               continue;
->> +                       maxmem = simple_strtoul(q, &q, 0);
->> +                       if (*q == 'k' || *q == 'K') {
->> +                               maxmem <<= 10;
->> +                               ++q;
->> +                       } else if (*q == 'm' || *q == 'M') {
->> +                               maxmem <<= 20;
->> +                               ++q;
->> +                       } else if (*q == 'g' || *q == 'G') {
->> +                               maxmem <<= 30;
->> +                               ++q;
->> +                       }
->> +               }
->> +               memory_limit = maxmem;
->> +       }
->
-> You may want to check out lib/cmdline.c's memparse() function.  I  
-> think
-> it does this for you.
-
-Yeah, found it after I sent the patch.  Since Linus applied this  
-version, I'll provide Paul a version that changes this code to use  
-memparse for post 2.6.16.
-
-- kumar
+Balbir

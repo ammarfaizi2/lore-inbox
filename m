@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWB1TlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWB1TmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWB1TlK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWB1TlK
+	id S932532AbWB1TmP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWB1TmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:41:10 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:49491 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932512AbWB1TlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:41:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=ApAxY/Sev6OrcPcjCSJM6HmVVEwOtF3JBSnadJSRDX3AmB3mDlG30/z2utNyX+RHQ5ikDaz/z+aY49qJOE4ZkMQjtMn1Omke8Lug6WUrxwzlZGkBMLwgxeT5hrbP1m4iRhxQ0bTiHWOHDJaXnXyJYajkze53sAHtH7jDBKeuR20=
-Date: Tue, 28 Feb 2006 22:40:50 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: usb usb5: Manufacturer: Linux 2.6.16-rc5-mm1 ehci_hcd
-Message-ID: <20060228194050.GA7793@mipter.zuzino.mipt.ru>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
+	Tue, 28 Feb 2006 14:42:15 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:65237 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932475AbWB1TmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:42:14 -0500
+Date: Tue, 28 Feb 2006 11:44:24 -0800
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-ide@vger.kernel.org, akpm@osdl.org, jgarzik@pobox.com,
+       james.bottomley@steeleye.com
+Subject: Re: [PATCH 12/13] ATA ACPI: use scsi_bus_shutdown for SATA/PATA
+Message-Id: <20060228114424.0fb2d495.randy_d_dunlap@linux.intel.com>
+In-Reply-To: <20060228115858.GF4081@elf.ucw.cz>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+	<20060222140608.2de3fa24.randy_d_dunlap@linux.intel.com>
+	<20060228115858.GF4081@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
+ A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
+ GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060228042439.43e6ef41.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lines like the one below puzzle me for a couple -mm's:
+On Tue, 28 Feb 2006 12:58:58 +0100
+Pavel Machek <pavel@ucw.cz> wrote:
 
-usb usb5: new device found, idVendor=0000, idProduct=0000
-usb usb5: new device strings: Mfr=3, Product=2, SerialNumber=1
-usb usb5: Product: EHCI Host Controller
-==>	usb usb5: Manufacturer: Linux 2.6.16-rc5-mm1 ehci_hcd	<==
-usb usb5: SerialNumber: 0000:00:1d.7
-usb usb5: configuration #1 chosen from 1 choice
-hub 5-0:1.0: USB hub found
-hub 5-0:1.0: 8 ports detected
+> Hi!
+> 
+> > From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+> > 
+> > Add ability for SCSI drivers to invoke a shutdown method.
+> > This allows drivers to make drives safe for shutdown/poweroff,
+> > for example.  Some drives need this to prevent possible problems.
+> > 
+> > Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+> 
+> > --- linux-2616-rc4-ata.orig/drivers/scsi/scsi_sysfs.c
+> > +++ linux-2616-rc4-ata/drivers/scsi/scsi_sysfs.c
+> > @@ -302,11 +302,27 @@ static int scsi_bus_resume(struct device
+> >  	return err;
+> >  }
+> >  
+> > +static void scsi_bus_shutdown(struct device * dev)
+> > +{
+> > +	struct scsi_device *sdev = to_scsi_device(dev);
+> > +	struct scsi_host_template *sht = sdev->host->hostt;
+> > +	int err;
+> > +
+> > +	err = scsi_device_quiesce(sdev);
+> 
+> int err = scsi_device_quiesce()?
 
-Is it supposed to contain "Intel" and "Corporation"?
+Shouldn't matter for the generated code, right?
 
-P.S.: 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
-      USB2 EHCI Controller (rev 02)
+> > +	if (err)
+> > +		printk(KERN_DEBUG "%s: error (0x%x) during shutdown\n",
+> > +			__FUNCTION__, err);
+> 
+> If you get an error, and then ignore it... that should not be DEBUG
+> message, right?
+> 
+> > +	if (sht->shutdown)
+> > +		sht->shutdown(sdev);
+> > +}
+> > +
+> >  struct bus_type scsi_bus_type = {
+> >          .name		= "scsi",
+> >          .match		= scsi_bus_match,
+> >  	.suspend	= scsi_bus_suspend,
+> >  	.resume		= scsi_bus_resume,
+> > +	.shutdown	= scsi_bus_shutdown,
+> >  };
+> 
+> Whitespace?
 
+Not a problem in my addition.  Are you requesting me to fix
+the other lines?
+
+~Randy

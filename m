@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWB1SIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWB1SJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWB1SIO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 13:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWB1SIN
+	id S932383AbWB1SJE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 13:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWB1SJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 13:08:13 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:31760 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932375AbWB1SIN convert rfc822-to-8bit (ORCPT
+	Tue, 28 Feb 2006 13:09:04 -0500
+Received: from khc.piap.pl ([195.187.100.11]:8452 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932385AbWB1SJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 13:08:13 -0500
+	Tue, 28 Feb 2006 13:09:02 -0500
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Lennart Sorensen" <lsorense@csclub.uwaterloo.ca>,
+       <col-pepper@piments.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: o_sync in vfat driver
+References: <op.s5lq2hllj68xd1@mail.piments.com>
+	<20060227132848.GA27601@csclub.uwaterloo.ca>
+	<1141048228.2992.106.camel@laptopd505.fenrus.org>
+	<1141049176.18855.4.camel@imp.csi.cam.ac.uk>
+	<1141050437.2992.111.camel@laptopd505.fenrus.org>
+	<1141051305.18855.21.camel@imp.csi.cam.ac.uk>
+	<op.s5ngtbpsj68xd1@mail.piments.com>
+	<Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com>
+	<op.s5nm6rm5j68xd1@mail.piments.com>
+	<Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
+	<20060228151856.GB27601@csclub.uwaterloo.ca>
+	<Pine.LNX.4.61.0602281110460.4497@chaos.analogic.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 28 Feb 2006 19:09:00 +0100
+In-Reply-To: <Pine.LNX.4.61.0602281110460.4497@chaos.analogic.com> (linux-os@analogic.com's
+ message of "Tue, 28 Feb 2006 11:16:30 -0500")
+Message-ID: <m3bqwr8if7.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1141149475.24103.18.camel@camp4.serpentine.com>
-x-originalarrivaltime: 28 Feb 2006 18:07:54.0390 (UTC) FILETIME=[E5703B60:01C63C91]
-Content-class: urn:content-classes:message
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-Date: Tue, 28 Feb 2006 13:07:50 -0500
-Message-ID: <Pine.LNX.4.61.0602281302080.4698@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-Thread-Index: AcY8keV34qdd1ywzSSOsfMNxB5RqGw==
-References: <1140841250.2587.33.camel@localhost.localdomain> <yq08xrvhkee.fsf@jaguar.mkp.net> <1141149475.24103.18.camel@camp4.serpentine.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: "Jes Sorensen" <jes@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Andi Kleen" <ak@suse.de>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
 
-On Tue, 28 Feb 2006, Bryan O'Sullivan wrote:
+> Here is an instrumented erase function on a driver that rewrites
+> the first sector of a BIOS ROM. Unlike the Flash DISKS, the
+> BIOS ROM has no buffering in static RAM so you can gustimate
+> the actual time to erase............
 
-> On Tue, 2006-02-28 at 05:01 -0500, Jes Sorensen wrote:
->
->> Could you explain why the current mmiowb() API won't suffice for this?
->> It seems that this is basically trying to achieve the same thing.
->
-> It's a no-op on every arch I care about:
->
-> #define mmiowb()
->
-> Which makes it useless.  Also, based on the comments in the qla driver,
-> mmiowb() seems to have inter-CPU ordering semantics that I don't want.
-> I'm thus hesitant to appropriate it for my needs.
->
-> 	<b
->
+The NOR flash is different but Samsung manual for K9F5608U0A-YCB0,
+K9F5608U0A-YIB0 32M x 8 Bit NAND Flash Memory says:
 
-When accessing PCI, you can cause any/all write combinations to
-occur and any/all pending writes to get written to the devices
-simply by executing a read. If the code requires that all previous
-writes be written NOW, then the code should not hide that in
-some macro. It should issue a read in its PCI space. Also, the
-PCI bus is a FIFO. Nothing gets reordered. Everything will
-get to the devices in the order written, but a byte or word on
-a longword boundary may be subject to write-combining if all
-the components are present in the FIFO.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+FEATURES GENERAL DESCRIPTION
+- Page Program : (512 + 16)Byte
+- Block Erase : (16K + 512)Byte
+- Program time : 200us(Typ.)
+- Block Erase Time : 2ms(Typ.)
+- Endurance : 100K Program/Erase Cycles
+- Data Retention : 10 Years
+-- 
+Krzysztof Halasa

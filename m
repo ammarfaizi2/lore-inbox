@@ -1,53 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWB1Fjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWB1Frm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWB1Fjg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 00:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWB1Fjg
+	id S1750913AbWB1Frm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 00:47:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWB1Frm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 00:39:36 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:20946 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1750863AbWB1Fjf (ORCPT
+	Tue, 28 Feb 2006 00:47:42 -0500
+Received: from ozlabs.org ([203.10.76.45]:36027 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750904AbWB1Frm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 00:39:35 -0500
-Message-ID: <4403CAE9.5020007@ums.usu.ru>
-Date: Tue, 28 Feb 2006 09:00:41 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Memory compression (again). . help?
-References: <4403A14D.4050303@comcast.net>
-In-Reply-To: <4403A14D.4050303@comcast.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.1.0; VDF: 6.33.1.33; host: usu2.usu.ru)
+	Tue, 28 Feb 2006 00:47:42 -0500
+Date: Tue, 28 Feb 2006 16:47:05 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: hugepage: Serialize hugepage allocation and instantiation
+Message-ID: <20060228054705.GG2570@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>,
+	William Lee Irwin <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I'm not quite sure what I'm doing or when I have time, but I'm looking
-> into writing in some hooks and a compression routine to manage
-> compressed memory.  I have the following considerations:
-> 
->  - Compressed memory should become "Swap."  This means the kernel would
->    report memory used for compressed storage as used swap.  At boot it
->    would reflect 0K swap; when there are 1024KiB of pages compressed in
->    memory, 1024KiB of additional "swap" is reported, all used.
->  - I need to stop the kernel when it's about to swap.  This should be
->    done when it's decided that either invalidating disk cache or
->    swapping is the best course of action, and what to do with what.  At
->    this point I'll have to be able to see what the kernel wants to swap
->    out and tell it that it's taken care of.
->  - I need to catch invalid pagefaults that look for swap, as well as the
->    disk cache mechanism.  I'll be adding stuff to compress disk cache,
->    so disk cache might need to be "swapped in" effectively.
+This patch applies on top of
+hugepage-small-fixes-to-hugepage-clear-copy-path.patch in -mm.
 
-If you are OK with using a ery old 2.4.18 kernel, look at 
-http://linuxcompressed.sourceforge.net/
+Currently, no lock or mutex is held between allocating a hugepage and
+inserting it into the pagetables / page cache.  When we do go to
+insert the page into pagetables or page cache, we recheck and may free
+the newly allocated hugepage.  However, since the number of hugepages
+in the system is strictly limited, and it's usualy to want to use all
+of them, this can still lead to spurious allocation failures.
+
+For example, suppose two processes are both mapping (MAP_SHARED) the
+same hugepage file, large enough to consume the entire available
+hugepage pool.  If they race instantiating the last page in the
+mapping, they will both attempt to allocate the last available
+hugepage.  One will fail, of course, returning OOM from the fault and
+thus causing the process to be killed, despite the fact that the
+entire mapping can, in fact, be instantiated.
+
+The patch below fixes this race by the simple method of adding a
+(sleeping) mutex to serialize the hugepage fault path between
+allocation and insertion into pagetables and/or page cache.  It would
+be possible to avoid the serialization by catching the allocation
+failures, waiting on some condition, then rechecking to see if someone
+else has instantiated the page for us.  Given the likely frequency of
+hugepage instantiations, it seems very doubtful it's worth the extra
+complexity.
+
+This patch causes no regression on the libhugetlbfs testsuite, and one
+test, which can trigger this race now passes where it previously
+failed.
+
+Actually, the test still sometimes fails, though less often and only
+as a shmat() failure, rather processes getting OOM killed by the VM.
+The dodgy heuristic tests in fs/hugetlbfs/inode.c for whether there's
+enough hugepage space aren't protected by the new mutex, and would be
+ugly to do so, so there's still a race there.  Another patch to
+replace those tests with something saner for this reason as well as
+others coming...
+
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
+
+Index: working-2.6/mm/hugetlb.c
+===================================================================
+--- working-2.6.orig/mm/hugetlb.c	2006-02-28 16:12:06.000000000 +1100
++++ working-2.6/mm/hugetlb.c	2006-02-28 16:20:36.000000000 +1100
+@@ -13,6 +13,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/mempolicy.h>
+ #include <linux/cpuset.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+@@ -54,6 +55,13 @@ static void copy_huge_page(struct page *
+  */
+ static DEFINE_SPINLOCK(hugetlb_lock);
+ 
++/*
++ * Serializes hugepage allocation and instantiation, so that we don't
++ * get spurious allocation failures if two CPUs race to instantiate
++ * the same page in the page cache.
++ */
++static DEFINE_MUTEX(hugetlb_instantiation_mutex);
++
+ static void enqueue_huge_page(struct page *page)
+ {
+ 	int nid = page_to_nid(page);
+@@ -512,9 +520,13 @@ int hugetlb_fault(struct mm_struct *mm, 
+ 	if (!ptep)
+ 		return VM_FAULT_OOM;
+ 
++	mutex_lock(&hugetlb_instantiation_mutex);
+ 	entry = *ptep;
+-	if (pte_none(entry))
+-		return hugetlb_no_page(mm, vma, address, ptep, write_access);
++	if (pte_none(entry)) {
++		ret = hugetlb_no_page(mm, vma, address, ptep, write_access);
++		mutex_unlock(&hugetlb_instantiation_mutex);
++		return ret;
++	}
+ 
+ 	ret = VM_FAULT_MINOR;
+ 
+@@ -524,6 +536,7 @@ int hugetlb_fault(struct mm_struct *mm, 
+ 		if (write_access && !pte_write(entry))
+ 			ret = hugetlb_cow(mm, vma, address, ptep, entry);
+ 	spin_unlock(&mm->page_table_lock);
++	mutex_unlock(&hugetlb_instantiation_mutex);
+ 
+ 	return ret;
+ }
 
 -- 
-Alexander E. Patrakov
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

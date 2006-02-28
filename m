@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWB1SSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWB1SUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWB1SSp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 13:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWB1SSp
+	id S932399AbWB1SUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 13:20:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWB1SUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 13:18:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27576 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932388AbWB1SSo (ORCPT
+	Tue, 28 Feb 2006 13:20:21 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:42454 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932412AbWB1SUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 13:18:44 -0500
-Date: Tue, 28 Feb 2006 10:17:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
-Message-Id: <20060228101713.6fd44027.akpm@osdl.org>
-In-Reply-To: <20060227141315.GD2429@ucw.cz>
-References: <20060226100518.GA31256@flint.arm.linux.org.uk>
-	<20060226021414.6a3db942.akpm@osdl.org>
-	<20060227141315.GD2429@ucw.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 28 Feb 2006 13:20:19 -0500
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060228175838.GD24306@kvack.org>
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	 <20060225142814.GB17844@kvack.org>
+	 <1140887517.9852.4.camel@localhost.localdomain>
+	 <20060225174134.GA18291@kvack.org>
+	 <1141149009.24103.8.camel@camp4.serpentine.com>
+	 <20060228175838.GD24306@kvack.org>
+Content-Type: text/plain
+Date: Tue, 28 Feb 2006 10:20:14 -0800
+Message-Id: <1141150814.24103.37.camel@camp4.serpentine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> wrote:
->
+On Tue, 2006-02-28 at 12:58 -0500, Benjamin LaHaise wrote:
+> On Tue, Feb 28, 2006 at 09:50:08AM -0800, Bryan O'Sullivan wrote:
+> > The last 32-bit write triggers the chip to put the packet on the wire.
+> > We make sure it happens after the earlier bulk write using a barrier.
 > 
-> On Sun 26-02-06 02:14:14, Andrew Morton wrote:
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > >
-> > > Calling serial functions to flush buffers, or try to send more data
-> > >  after the port has been closed or hung up is a bug in the code doing
-> > >  the calling, not in the serial_core driver.
-> > > 
-> > >  Make this explicitly obvious by adding BUG_ON()'s.
-> > 
-> > If we make it
-> > 
-> > 	if (!info) {
-> > 		WARN_ON(1);
-> > 		return;
-> > 	}
-> > 
-> > will that allow people's kernels to limp along until it gets fixed?
-> 
-> It will oops in hard-to-guess, place, anyway.
+> The barrier you're looking for is wmb() in asm/system.h, which is defined 
+> on both SMP and UP.
 
-Will it?   Where?  Unfixably?
+No.  We're writing to a region that we've marked as write combining, so
+the processor or north bridge will not write in program order.  It's
+free to write out the write combining store buffers in whatever order it
+feels like, unless forced to do otherwise.
 
-> BUG_ON is right.
+	<b
 
-WARN_ON+return is far better.  It keeps people's machines working until the
-bug gets fixed.

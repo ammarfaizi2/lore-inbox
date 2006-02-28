@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbWB1Ayy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWB1AzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751653AbWB1Ayy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 19:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWB1Ayy
+	id S1750952AbWB1AzP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 19:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWB1AzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 19:54:54 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13999 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751518AbWB1Ayy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 19:54:54 -0500
-Date: Mon, 27 Feb 2006 16:54:36 -0800
-From: Richard Henderson <rth@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] i386: make bitops safe
-Message-ID: <20060228005436.GA24895@redhat.com>
-References: <200602271700_MC3-1-B969-F4A5@compuserve.com> <Pine.LNX.4.64.0602271502410.22647@g5.osdl.org> <200602280047.22909.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Feb 2006 19:55:14 -0500
+Received: from pproxy.gmail.com ([64.233.166.181]:43473 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750952AbWB1AzM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 19:55:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=H0ugZLG+X+dz/bVe0+20O+g4cwSgBbmNollgMpIfwXg5l2O4YQcKOXsUWjcW3GaoabkLgfIQ7gauLQ+PRCm/tU19Uh7Y1ynnwRDll6PbCzXQ9GtfdZ/BvMcaDsHDnXAKSfoRocxfRL5K0AV7HSoChQKRphzFRoytd0jE2SkC9ic=
+Message-ID: <cbec11ac0602271655p70669d4bi99096282a5e0b86e@mail.gmail.com>
+Date: Tue, 28 Feb 2006 13:55:08 +1300
+From: "Ian McDonald" <imcdnzl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Problem making kernel with debian unstable due to make upgrade
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200602280047.22909.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 12:47:22AM +0100, Andi Kleen wrote:
-> I remember asking rth about this at some point and IIRC
-> he expressed doubts if it would actually do what expected. Richard?
+Folks,
 
-It's a bit dicey to be sure.  GCC may or may not be able to look
-through the size of the array and not kill things beyond it.  If
-one could be *sure* of some actual maximum index, this would be
-fine, but I don't think you can.
+If anybody else is banging their heads against the wall and uses
+debian unstable this seems to be due to a make bug in the current
+version.
 
-One could reasonably argue that if you used a structure with a
-flexible array member, that GCC could not look through that.  But
-again I'm not 100% positive this is handled properly.
+In particular mine happened with make going from 3.80+3.81.b4-1 to
+3.80+3.81.rc1-1
 
-I think the best argument for simply leaving things with a memory
-clobber is that these are atomic operations, and are on occasion
-used as locks, or parts of locks.
+There is a bug report at http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=354602
 
+Just to let you know as I'm sure others of you will soon be as
+frustrated as me - particularly when I have a box that takes an hour
+to compile....
 
-r~
+Ian
+--
+Ian McDonald
+Web: http://wand.net.nz/~iam4
+Blog: http://imcdnzl.blogspot.com
+WAND Network Research Group
+Department of Computer Science
+University of Waikato
+New Zealand

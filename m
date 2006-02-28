@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751883AbWB1RCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751885AbWB1RL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751883AbWB1RCy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWB1RCy
+	id S1751885AbWB1RL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:11:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751886AbWB1RL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:02:54 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:50205 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1751883AbWB1RCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:02:53 -0500
-X-IronPort-AV: i="4.02,153,1139212800"; 
-   d="scan'208"; a="1780511234:sNHT33151104"
-To: Jes Sorensen <jes@sgi.com>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-X-Message-Flag: Warning: May contain useful information
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	<yq08xrvhkee.fsf@jaguar.mkp.net> <adar75nlcar.fsf@cisco.com>
-	<44047565.3090202@sgi.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 28 Feb 2006 09:02:47 -0800
-In-Reply-To: <44047565.3090202@sgi.com> (Jes Sorensen's message of "Tue, 28
- Feb 2006 17:08:05 +0100")
-Message-ID: <adafym3l8lk.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Tue, 28 Feb 2006 12:11:27 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:21510 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751885AbWB1RL0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:11:26 -0500
+Message-ID: <440483EC.8070902@cfl.rr.com>
+Date: Tue, 28 Feb 2006 12:10:04 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 28 Feb 2006 17:02:48.0509 (UTC) FILETIME=[CD5A16D0:01C63C88]
+To: Andrew Morton <akpm@osdl.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, pavel@ucw.cz,
+       randy_d_dunlap@linux.intel.com, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com> <20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com> <20060228114500.GA4057@elf.ucw.cz> <44043B4E.30907@pobox.com> <20060228041817.6fc444d2.akpm@osdl.org>
+In-Reply-To: <20060228041817.6fc444d2.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2006 17:13:23.0151 (UTC) FILETIME=[47A0C5F0:01C63C8A]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14295.000
+X-TM-AS-Result: No--14.400000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jes> Not quite correct as far as I understand it. mmiowb() is
-    Jes> supposed to guarantee that writes to MMIO space have
-    Jes> completed before continuing.  That of course covers the
-    Jes> multi-CPU case, but it should also cover the write-combining
-    Jes> case.
+Andrew Morton wrote:
+> Except
+> 
+> - There's (presently) no way of making all the messages go away for a
+>   non-debug build.
+> 
 
-I don't believe this is correct.  mmiowb() does not guarantee that
-writes have completed -- they may still be pending in a buffer in a
-bridge somewhere.  The _only_ effect of mmiowb() is to make sure that
-writes which have been ordered between CPUs using some other mechanism
-(i.e. a lock) are properly ordered by the rest of the system.  This
-only has an effect systems like very large ia64 systems, where (as I
-understand it), writes can pass each other on the way to the PCI bus.
-In fact, mmiowb() is a NOP on essentially every architecture.
+I agree, there should be a config option to build the kernel with the 
+debug support entirely shut off, though it's a good idea to leave it on 
+if you aren't really cramped for space.
 
- - R.
+> - The code is structured as
+> 
+> 	if (ata_msg_foo(p))
+> 		printk("something");
+> 
+>   So if we later do
+> 
+> 	#define ata_msg_foo(p)	0
+> 
+>   We'll still get copies of "something" in the kernel image (may be fixed
+>   in later gcc, dunno).
+> 
+> - The new debug stuff isn't documented.  One has funble around in the
+>   source to work out how to even turn it on.  Can it be altered at runtime?
+>   Dunno - the changelogs are risible.  What effect do the various flags
+>   have?
+> 
+>   Having spent (and re-spent) time grovelling through the ALSA source
+>   working out how to enable their debug stuff during a maintainer snooze
+>   I'd prefer we didn't have to do that with libata as well.
+> 
+
+Would you prefer there not be any debug messages at all, rather than 
+ones you have to figure out how to turn on and interpret?  Documentation 
+is always a good thing, but if you are at least somewhat familiar with 
+the code, turning on the debug messages should be easy and rather helpful.
+
+BTW, didn't I see something recently in the kernel about a debug fs? 
+Sounded like that was intended for this sort of thing to provide a 
+standard interface to configuring fine grained debug message filtering.
+

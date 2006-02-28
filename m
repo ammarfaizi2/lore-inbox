@@ -1,98 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWB1Q6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWB1Q5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751881AbWB1Q6G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 11:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWB1Q6F
+	id S1751809AbWB1Q5b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 11:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWB1Q5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 11:58:05 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:12292 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751866AbWB1Q6C (ORCPT
+	Tue, 28 Feb 2006 11:57:30 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:677 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751809AbWB1Q5a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 11:58:02 -0500
-Message-ID: <440480C7.50507@cfl.rr.com>
-Date: Tue, 28 Feb 2006 11:56:39 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Xin Zhao <uszhaoxin@gmail.com>
-CC: Sam Vilain <sam@vilain.net>, "Theodore Ts'o" <tytso@mit.edu>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: question about possibility of data loss in Ext2/3 file system
-References: <4ae3c140602221356x15015171h5aa4a3d7bb6034e0@mail.gmail.com>  <1140645651.2979.79.camel@laptopd505.fenrus.org>  <4ae3c140602221434v6ec583a7yf04df5fa7a4948fc@mail.gmail.com>  <20060223045836.GC9645@thunk.org> <43FE1110.1030707@vilain.net>  <20060224162957 <4ae3c140602262338u2666319vc6401e32257b3543@mail.gmail.com>
-In-Reply-To: <4ae3c140602262338u2666319vc6401e32257b3543@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2006 16:59:58.0834 (UTC) FILETIME=[6837BD20:01C63C88]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14295.000
-X-TM-AS-Result: No--21.150000-5.000000-31
+	Tue, 28 Feb 2006 11:57:30 -0500
+Message-Id: <200602281657.k1SGvKFk026965@laptop11.inf.utfsm.cl>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 02/27] allow hard links to directories, opt-in for any filesystem 
+In-Reply-To: Message from Nick Piggin <nickpiggin@yahoo.com.au> 
+   of "Tue, 28 Feb 2006 22:52:19 +1100." <44043973.4070202@yahoo.com.au> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Tue, 28 Feb 2006 13:57:20 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 28 Feb 2006 13:57:20 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xin Zhao wrote:
-> Many thanks for above responses.
-> 
-> Sounds like Ext3 uses journal to protect the data integrity. In data
-> journal mode, ext 3 writes data to journal first, marks start to
-> commit, then marks "done with commit" after data is flushed to disk. 
-> If power failure happen during data flush, the system will redo the
-> data writes next time system is back.
-> 
-> However, how to guarantee the integrity of journal? This solution
-> works based on an assumption that the journal data has been flushed to
-> disk before file data is flushed. Otherwise, consider this scenario:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Joshua Hudson wrote:
+> > Patch seems to work, might want more testing.
+> > It probably should not be applied without a discussion, especially
+> > as no filesystem in kernel tree wants this. I am working on a fs that does.
 
-The kernel flushes the writes to the journal before it starts writing to 
-the main area of the disk, then marks the transaction as complete only 
-after the actual updates have been flushed.
+> This is backwards I think. This is not disallowed because there are
+> no filesystems that want it. Linux doesn't want it so it is disallowed
+> by the vfs.
 
-> process A wrote a data block to File F. Ext3 first writes this data
-> block into journal, put a "start to commit" notice, flags that journal
-> page as dirty. (note that the journal data is not flushed into disk
-> yet). Then ext3 starts to flag data page as dirty and wait for flush
-> daemon to write it to disk. Say just when the disk controller writes
-> 2048 out of 4096 bytes into disk, power outage happens. At this time,
-> journal data has not been flushed into disk, so no enough information
-> to support redo. The file A will end up with some junk data. So
-> flushing journal data to disk before starting to write file data to
-> disk seems to be necessary. If so, how ext3 guarantees that? Is it
-> because the dirty pages are flushed in a first come first serve
-> fashion?
-> 
-> Another concern is that the journal data mode requires twice as much
-> as data to write, this could impact performance if disk bandwidth
-> usage is over 50%. For small files, it could be rare to use 50%. But
-> how about large files?  In a real world system,  what's the probablity
-> of using over 50% disk bandwidth?
-> 
+Right.
 
-Depending on exactly what you are doing it will be anywhere from 0 to 
-100%.  It entirely depends on the hardware you have and the tasks you 
-are asking it to perform.  For most people though, the performance hit 
-is too high, and it really doesn't 100% prevent data loss because 
-programs writing to a file do not inform the kernel about when a 
-transaction should start or stop, so it has to guess.
+> You have to put forward a case for why we want it, rather than show us
+> your filesystem that "wants" it. Right?
 
-Programs that are mission critical will use their own mechanism to 
-prevent corruption of their data files rather than rely on data 
-journaling.  Usually this results in better safety and efficiency.
+Nope. The "why a FS might want it" part is pretty clear (we do have
+symlinks to directories as a poor man's substitute, after all), the "why it
+can't be allowed" part is the tricky one...
 
-> I am sorry for ask for too high integrity on data. But I think ext3 is
-> a famous stable file system, it should have some good design to
-> protect data integrity.
-> 
+- It creates the possibility of loops ==> The garbage collection of unused
+  stuff can't be done just by reference counts (as today), and gets very
+  hairy... and needs a /lot/ of memory.
+- Loop detection/breaking in a general graph /can't/ be done while it is
+  being updated, and they thake a long time (and lots of memory)
+- Can't just assume that by locking in the directory/subdirectory/... order
+  no deadlocks are possible, and traversing the filesystem for surgery gets
+  to be one operation at a time, not concurrent as today
+- A while back (in one of the recurrent ReiserFS flamewars Re: Files as
+  directories, which creates exactly the same situation when linking to a
+  file-is-a-directory) somebody (Linus? Ted T'so?) showed that certain
+  simple operations would potentially require exponential time or memory (I
+  forget which), and thus the idea was out of the question.
 
-Which is why it does.
-
-> Last question, does anyone know whether it is possible that ext3
-> creates some junk data or makes bitmap and inode inconsistent (under
-> any extreme condition) ?
-> 
-
-No.
-
-> Again, thanks for your help!
-> 
-> Xin
-> 
-
+Sure, the situations that give rise to the problems are rather clear-cut,
+and could be disallowed, but the result for the user would have seemingly
+random restrictions. IMVHO it is much better to have a restricted system
+with a simple conceptual model than a more relaxed one, but with hard to
+understand corner cases it doesn't allow.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

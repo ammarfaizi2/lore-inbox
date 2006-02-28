@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWB1RN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWB1RTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWB1RN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWB1RN4
+	id S932217AbWB1RTy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWB1RTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:13:56 -0500
-Received: from detroit.securenet-server.net ([209.51.153.26]:30101 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S932142AbWB1RN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:13:56 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Roland Dreier <rdreier@cisco.com>
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-Date: Tue, 28 Feb 2006 09:13:41 -0800
-User-Agent: KMail/1.9.1
-Cc: Jes Sorensen <jes@sgi.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <1140841250.2587.33.camel@localhost.localdomain> <44047565.3090202@sgi.com> <adafym3l8lk.fsf@cisco.com>
-In-Reply-To: <adafym3l8lk.fsf@cisco.com>
+	Tue, 28 Feb 2006 12:19:54 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:4616 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932217AbWB1RTy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:19:54 -0500
+Message-ID: <440485E7.4090702@cfl.rr.com>
+Date: Tue, 28 Feb 2006 12:18:31 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Christoph Hellwig <hch@infradead.org>,
+       Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: GFS2 Filesystem [0/16]
+References: <1140792511.6400.707.camel@quoit.chygwyn.com> <20060224213553.GA8817@infradead.org>
+In-Reply-To: <20060224213553.GA8817@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602280913.41938.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-OriginalArrivalTime: 28 Feb 2006 17:21:51.0011 (UTC) FILETIME=[76560F30:01C63C8B]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14295.000
+X-TM-AS-Result: No--4.090000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, February 28, 2006 9:02 am, Roland Dreier wrote:
->     Jes> Not quite correct as far as I understand it. mmiowb() is
->     Jes> supposed to guarantee that writes to MMIO space have
->     Jes> completed before continuing.  That of course covers the
->     Jes> multi-CPU case, but it should also cover the write-combining
->     Jes> case.
->
-> I don't believe this is correct.  mmiowb() does not guarantee that
-> writes have completed -- they may still be pending in a buffer in a
-> bridge somewhere.  The _only_ effect of mmiowb() is to make sure that
-> writes which have been ordered between CPUs using some other mechanism
-> (i.e. a lock) are properly ordered by the rest of the system.  This
-> only has an effect systems like very large ia64 systems, where (as I
-> understand it), writes can pass each other on the way to the PCI bus.
-> In fact, mmiowb() is a NOP on essentially every architecture.
+I'm a bit confused.  Why exactly is this unacceptable, and what exactly 
+do you propose instead?  Having an entirely separate mount point that is 
+sort of parallel to the main one, but with extra metadata exposed?  So 
+instead of /path/to/foo/.gfs2_admin/metafile you'd prefer having a 
+separate mount point like /proc/fs/gfs/path/to/foo/metafile?
 
-I think it could be implemented meaningfully on ppc64, mips64, and 
-perhaps some parisc systems, but I don't think their respective 
-maintainers have gotten around to that yet.
 
-Anyway, it looks like the write combine ordering Bryan is talking about 
-really is a distinct semantic.  Not sure if it's possible (or desirable) 
-to overload an existing barrier op to include the semantics he wants.
+Christoph Hellwig wrote:
+>>  b) The .gfs2_admin directory exposes the internal files that GFS uses
+>>     to store various bits of file system related information. This means
+>>     that we've been able to remove virtually all the ioctl() calls from
+>>     GFS2. There is one ioctl() call left which relates to
+>>     getting/setting GFS2 specific flags on files. The various GFS2 tools
+>>     will be updated in due course to use this new interface.
+> 
+> Without even looking at the code a strong NACK here.  This is polluting
+> the namespace which is not acceptable.  Please implement a second
+> filesystem type gfsmeta to do this kind of admin work.  Search for ext2meta
+> which did something similar.  Or use a completely different approach,
+> I'd need to look at the actual functionality provided to give a better
+> advice, but currently I'm lacking the time for that.
+> 
 
-Jesse

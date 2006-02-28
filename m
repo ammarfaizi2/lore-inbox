@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932653AbWB1Whi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWB1WjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbWB1Whi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 17:37:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbWB1Whi
+	id S932586AbWB1WjR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 17:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932668AbWB1WjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 17:37:38 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52710 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932653AbWB1Whh (ORCPT
+	Tue, 28 Feb 2006 17:39:17 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19098 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932586AbWB1WjQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 17:37:37 -0500
-Date: Tue, 28 Feb 2006 23:37:10 +0100
+	Tue, 28 Feb 2006 17:39:16 -0500
+Date: Tue, 28 Feb 2006 23:38:55 +0100
 From: Pavel Machek <pavel@suse.cz>
 To: col-pepper@piments.com
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       linux-kernel@vger.kernel.org
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: o_sync in vfat driver
-Message-ID: <20060228223710.GB5831@elf.ucw.cz>
-References: <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com> <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com>
+Message-ID: <20060228223855.GC5831@elf.ucw.cz>
+References: <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <op.s5ngtbpsj68xd1@mail.piments.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <op.s5nm6rm5j68xd1@mail.piments.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I agree completely which is why we hack the system to remove the o_sync
-> > on our distro derivative.  (-:
-> >
-> > But my point was that your solution of "don't do that then" is not much
-> > use to your average user who sits in front of such distro in graphical
-> > desktop as they are not technical enough to find and hack their hotplug
-> > system to work properly...
-> >
-> > Best regards,
-> >
-> >         Anton
+On Út 28-02-06 00:21:53, col-pepper@piments.com wrote:
+> On Mon, 27 Feb 2006 22:32:07 +0100, linux-os (Dick Johnson)  
+> <linux-os@analogic.com> wrote:
 > 
-> >> If you don't want it *DO NOT USE IT AT THE MOUNT COMMAND LINE* !!!
+> > Flash does not get zeroed to be written! It gets erased, which sets all
+> > the bits to '1', i.e., all bytes to 0xff.
 > 
-> Yeah, cleaver.
-> That is not really a constructive responce. I dont use , I do use command  
-> line mount all the time. I never was in danger of damaging my drive with  
-> this new "feature".
+> Thanks for the correction, but that does not change the discussion.
 > 
-> Telling a user who has just burnt out a brand new 1GB usb device he should  
-> have RTFM and modified that HAL configuration to insure it did not use  
-> sync it not likely to win much confidence in the linux kernel.
+> > Further, the designers of
+> > flash disks are not stupid as you assume. The direct access occurs
+> > to static RAM (read/write stuff).
+> 
+> I'm not assuming anything . Some hardware has been killed by this issue.
+> http://lkml.org/lkml/2005/5/13/144
 
-Return that 1GB usb device to manufacturer, it was broken.
-
-> The point of raising this is that the vast majority of linux users have no  
-> awareness of this. If there is a danger of this sync implementation  
-> damaging hardware it should be done differently.
-
-Fix the distribution, then.
+I have seen flash disk dead in 5 minutes, even without o-sync. Those
+devices are often crap. (I copied tar file to flash by cat foo.tar >
+/dev/sda. That was apparently enough to kill that flash. Label "Yahoo"
+should have warned me).
 								Pavel
 -- 
 Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

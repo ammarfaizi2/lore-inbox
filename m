@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWB1PS7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWB1PUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWB1PS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:18:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWB1PS7
+	id S1751065AbWB1PUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWB1PUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:18:59 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:50876 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751052AbWB1PS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:18:58 -0500
-Date: Tue, 28 Feb 2006 10:18:56 -0500
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: col-pepper@piments.com, linux-kernel@vger.kernel.org
-Subject: Re: o_sync in vfat driver
-Message-ID: <20060228151856.GB27601@csclub.uwaterloo.ca>
-References: <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com> <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
+	Tue, 28 Feb 2006 10:20:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10861 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751065AbWB1PUG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 10:20:06 -0500
+Date: Tue, 28 Feb 2006 16:19:28 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Hannes Reinecke <hare@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Fixup ahci suspend / resume
+Message-ID: <20060228151928.GC24981@suse.de>
+References: <44045FB1.5040408@suse.de> <440468DB.5060605@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <440468DB.5060605@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 08:10:44AM -0500, linux-os (Dick Johnson) wrote:
-> 
-> On Mon, 27 Feb 2006 col-pepper@piments.com wrote:
-> 
-> > On Mon, 27 Feb 2006 22:32:07 +0100, linux-os (Dick Johnson)
-> > <linux-os@analogic.com> wrote:
+On Tue, Feb 28 2006, Jeff Garzik wrote:
+> Hannes Reinecke wrote:
+> >From: Hannes Reinecke <hare@suse.de>
+> >Subject: AHCI suspend / resume fixes.
 > >
-> >> Flash does not get zeroed to be written! It gets erased, which sets all
-> >> the bits to '1', i.e., all bytes to 0xff.
+> >The current ahci driver has the problem that it doesn't resume properly.
+> >Or rather, that resuming is unstable.
+> >Reason being is that AHCI has 4 registers containing the DMA address it
+> >should write things to. Of course there is no guarantee that Linux has
+> >assigned the same address to the DMA area across reboots.
+> >So we should better re-initialize those registers after resume.
 > >
-> > Thanks for the correction, but that does not change the discussion.
+> >The patch also improves the port_start / port_stop routines to be more
+> >closely modelled after the spec. This also avoids a nasty msleep(500)
+> >during initialisation.
 > >
-> >> Further, the designers of
-> >> flash disks are not stupid as you assume. The direct access occurs
-> >> to static RAM (read/write stuff).
-> >
-> > I'm not assuming anything . Some hardware has been killed by this issue.
-> > http://lkml.org/lkml/2005/5/13/144
+> >Signed-off-by: Hannes Reinecke <hare@suse.de>
 > 
-> No. That hardware was not killed by that issue. The writer, or another
-> who had encountered the same issue, eventually repartitioned and
-> reformatted the device. The partition table had gotten corrupted by
-> some experiments and the writer assumed that the device was broken.
-> It wasn't.
 > 
-> Also, if you read other elements in this thread, you would have
-> learned about something that has become somewhat of a red herring.
+> Seems sane at first glance, but can you please regenerate this against 
+> libata-dev.git#upstream ?
 > 
-> It takes about a second to erase a 64k physical sector. This is
-> a required operation before it is written. Since the projected
-> life of these new devices is about 5 to 10 million such cycles,
-> (older NAND flash used in modems was only 100-200k) the writer
-> would have to be running that "brand new device" for at least
-> 5 million seconds. Let's see:
+> Upstream 2.6.x doesn't care at all about suspend/resume, and AHCI has 
+> seen several modifications in #upstream that are waiting for 2.6.17.
 
-How come I can write to my compact flash at about 2M/s if you claim it
-takes 1s to erase a 64k sector?  Somehow I think your number is much too
-high.  Or it can do multiple erases at the same time.
+Upstream 2.6.x certainly _does_ care about suspend/resume! To me, this
+patch seems simple enough to be included. It's little more than
+splitting the register init out form the port_stop/start functions and
+calling them on resume/suspend appropriately.
 
-Also the 5 to 10 million is a lot higher than the numbers the makers of
-the compact flash cards I use claim.
+-- 
+Jens Axboe
 
-> 60 seconds per minute
-> 3600 seconds per hour
-> 86400 seconds per day.
-> 
-> 5,000,000 / 86400 = 57 days of continuous writes to the same
-> sector. The writer surely would have a strange file because
-> he states that even a single large file can destroy the drive
-> if it is mounted with the "sync" option.
-> 
-> Also, the failure mode of NAND flash is not that it becomes
-> "destroyed". The failure mode is a slow loss of data. The
-> devices no longer retain data for a zillion years, only a
-> few hundred, eventually, only a year or so. So when somebody
-> claims that the flash has gotten destroyed, they need to have
-> written it for a few months, then waited for a few years before
-> reporting the event.
-
-Some flash devices can be "destroyed" by loosing power in the middle of
-a write, since this causes them to corrupt their table of blocks and
-only the manufacturer has the ability to reset that.  Fortunately this
-doesn't seem like too common a design.
-
-Len Sorensen

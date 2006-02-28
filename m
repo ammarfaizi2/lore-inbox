@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbWB1UsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWB1Usb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932579AbWB1UsP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 15:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWB1UsP
+	id S932479AbWB1Usb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 15:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWB1Usa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 15:48:15 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:11379 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932579AbWB1UsN convert rfc822-to-8bit
+	Tue, 28 Feb 2006 15:48:30 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:53419 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932479AbWB1Us2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 15:48:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nzm/yw/2Sede1DcANIuvZK2vanNIT5cGGR/oU14zGccx3qkNFyxQERo5F07TRdms4dUvzKlUxqz5z5hZkGXY/siBujOUqYXdjVquK6jbdR28b4IRW2zO/nNqCKBQd5oYwOCbD3q5G9aPCh/9/rHSUAYFGY3bhj1/EVQooJJ7fiI=
-Message-ID: <9a8748490602281248p6877478sa17f25dafe019d4e@mail.gmail.com>
-Date: Tue, 28 Feb 2006 21:48:12 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: Christian <christiand59@web.de>
-Subject: Re: Odd sched behaviour; It takes 5 threads or more to load 2 CPU cores during kernel build
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200602282121.11863.christiand59@web.de>
+	Tue, 28 Feb 2006 15:48:28 -0500
+Date: Tue, 28 Feb 2006 15:48:24 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] usb usb5: Manufacturer: Linux 2.6.16-rc5-mm1
+ ehci_hcd
+In-Reply-To: <20060228194050.GA7793@mipter.zuzino.mipt.ru>
+Message-ID: <Pine.LNX.4.44L0.0602281543570.5088-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490602281159u58df3397g1b6b268787146448@mail.gmail.com>
-	 <200602282121.11863.christiand59@web.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/28/06, Christian <christiand59@web.de> wrote:
-> Am Dienstag, 28. Februar 2006 20:59 schrieb Jesper Juhl:
-[snip]
-> >
-> > Do we have a scheduler problem?
-> > An io-scheduler problem?
->
-> I'm not really into this, but what happens if you simply start 5 different
-> kernel-builds in parallel? I think if it makes a difference then this would
-> mean that there's something wrong with make and you could eliminate the first
-> two possibilities?!
->
+On Tue, 28 Feb 2006, Alexey Dobriyan wrote:
 
-Well, no need for 5 kernel builds in that case.
-If I clone my source tree and then simply run
- $ make distclean ; make allnoconfig ; nice make
-in each directory in two different shells at the same time, then both
-cores get fully loaded.
+> Lines like the one below puzzle me for a couple -mm's:
+> 
+> usb usb5: new device found, idVendor=0000, idProduct=0000
+> usb usb5: new device strings: Mfr=3, Product=2, SerialNumber=1
+> usb usb5: Product: EHCI Host Controller
+> ==>	usb usb5: Manufacturer: Linux 2.6.16-rc5-mm1 ehci_hcd	<==
+> usb usb5: SerialNumber: 0000:00:1d.7
+> usb usb5: configuration #1 chosen from 1 choice
+> hub 5-0:1.0: USB hub found
+> hub 5-0:1.0: 8 ports detected
+> 
+> Is it supposed to contain "Intel" and "Corporation"?
+> 
+> P.S.: 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
+>       USB2 EHCI Controller (rev 02)
 
+The log is not supposed to say "Intel Corporation".
 
-> > Is it "make" that's being difficult?
-> > Is it something in the kernels Makefile that causes the build to
-> > behave this way?
-> > Could it be a bottleneck in my system somewhere?
-> >
-> > Anyone got a clue?
-> >
+The controller hardware does not contain a manufacturer string anywhere,
+so instead the driver makes up a name based on the current kernel version.  
+(Likewise for the serial number; the driver makes up a name based on the
+device's path.)
 
+The name you see in the lspci output actually comes from the lspci program
+itself, based on a code number embedded in the controller.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+It has always been this way, and not just in -mm.
+
+Alan Stern
+

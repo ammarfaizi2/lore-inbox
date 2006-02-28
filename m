@@ -1,274 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWB1D13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWB1D31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWB1D13 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 22:27:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWB1D13
+	id S932210AbWB1D31 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 22:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWB1D31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 22:27:29 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:41641 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932209AbWB1D12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 22:27:28 -0500
-Subject: Re: [PATCH] Enable mprotect on huge pages
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: david@gibson.dropbear.id.au,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       kenneth.w.chen@intel.com,
-       "yanmin.zhang@intel.com" <yanmin.zhang@intel.com>, davem@davemloft.net,
-       paulus@samba.org, benh@kernel.crashing.org, wli@holomorphy.com,
-       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
-       "tony.luck@intel.com" <tony.luck@intel.com>
-In-Reply-To: <20060227173449.26c79a44.akpm@osdl.org>
-References: <1140664780.12944.26.camel@ymzhang-perf.sh.intel.com>
-	 <20060224142844.77cbd484.akpm@osdl.org>
-	 <20060226230903.GA24422@localhost.localdomain>
-	 <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
-	 <1141022034.1256.44.camel@ymzhang-perf.sh.intel.com>
-	 <20060227173449.26c79a44.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-xT5BrnIf0bUySs9m124g"
-Message-Id: <1141097034.3898.10.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 28 Feb 2006 11:23:54 +0800
+	Mon, 27 Feb 2006 22:29:27 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:22458 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S932210AbWB1D30
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 22:29:26 -0500
+X-ORBL: [67.117.73.34]
+Date: Mon, 27 Feb 2006 19:29:01 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: akpm@osdl.org, heiko.carstens@de.ibm.com, johnstul@us.ibm.com,
+       rmk@arm.linux.org.uk, schwidefsky@de.ibm.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: + fix-next_timer_interrupt-for-hrtimer.patch added to -mm tree
+Message-ID: <20060228032900.GE4486@atomide.com>
+References: <200602250219.k1P2JLqY018864@shell0.pdx.osdl.net> <1140884243.5237.104.camel@localhost.localdomain> <20060225185731.GA4294@atomide.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="hOcCNbCCxyk/YU74"
+Content-Disposition: inline
+In-Reply-To: <20060225185731.GA4294@atomide.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-xT5BrnIf0bUySs9m124g
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+--hOcCNbCCxyk/YU74
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, 2006-02-28 at 09:34, Andrew Morton wrote:
-> "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
-> >
-> > > > > > 2.6.16-rc3 uses hugetlb on-demand paging, but it doesn_t support hugetlb
-> >  > > > > mprotect. My patch against 2.6.16-rc3 enables this capability.
-> > 
-> >  Based on David's comments, I worked out a new patch against 2.6.16-rc4.
-> >  Thank David.
-> > 
-> 
-> Please always send an updated changelog when sending an updated patch. 
-> Otherwise I have to go trolling back through the email thread to find it,
-> then work out what needs to be changed.
-Thanks for your kind reminder. I would do so next time.
+Hi all,
 
-> 
-> > 
-> >  I tested it on i386/x86_64/ia64. Who could help test it on other
-> >  platforms, such like PPC64?
-> 
-> I can do that - please send me your test app?
-I attach a test case. It will create directory /mnt/hugepages and delete it
-after testing automatically.
+Here's take 3 for comments and testing. It should fix the issues
+mentioned by Thomas Gleixner.
 
-To run it by user root:
-#gcc -o mprotect_testcase mprotect_testcase.c
-#echo "5">/proc/sys/vm/nr_hugepages
-#./mprotect_testcase
+I've changed ARM xtime_lock to read lock, but now there's a slight
+chance that an interrupt adds a timer after next_timer_interrupt() is
+called and before timer is reprogrammed. I believe s390 also has this
+problem.
 
-You could use gdb to step it to see the changing of the process vma maps.
+Regards,
 
-Thanks.
+Tony
 
+--hOcCNbCCxyk/YU74
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=patch-hrtimer-dyntick
 
+This patch adds support for hrtimer to next_timer_interrupt()
+and fixes current breakage.
 
---=-xT5BrnIf0bUySs9m124g
-Content-Disposition: attachment; filename=mprotect_testcase.c
-Content-Type: text/x-c; name=mprotect_testcase.c; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Function next_timer_interrupt() got broken with a recent patch
+6ba1b91213e81aa92b5cf7539f7d2a94ff54947c as sys_nanosleep() was
+moved to hrtimer. This broke things as next_timer_interrupt()
+did not check hrtimer tree for next event.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/shm.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <setjmp.h>
+Function next_timer_interrupt() is needed with dyntick
+(CONFIG_NO_IDLE_HZ, VST) implementations, as the system can
+be in idle when next hrtimer event was supposed to happen.
+At least ARM and S390 currently use next_timer_interrupt(). 
 
-#define WORK_DIR "/mnt/hugepages"
-#define MMAP_DIR "/mnt/hugepages/mmap"
-#define MMAP_FILE "/mnt/hugepages/mmap/mmap_file"
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 
-char buff[2000];
-
-int get_htlb_mem_stat(int *total_pages, int *free_pages, long *page_size)
-{
-        int fd=0;
-        int size1=0;
-        char *start=0;
-
-        buff[0] = '\0';
-        if((fd=open("/proc/meminfo", O_RDONLY)) < 0)
-        {
-                printf("Current kernel does not support Huge TLB!\n");
-                exit(-1);
-        }
-
-        size1 = pread(fd, buff, sizeof(buff), 0);
-        if(size1>=sizeof(buff))
-        {
-                size1 = sizeof(buff)-1;
-        }
-        if(size1<0)
-                size1 = 0;
-
-        buff[size1] = '\0';
-	start = buff;
-	while(*start) {
-		if(isupper(*start))
-			*start = tolower(*start);
-		start ++;
-	}
-
-	start = strstr(buff, "hugepagesize:");
-	if(start==NULL)
-	{
-                printf("Current kernel does not support Huge TLB!\n");
-                exit(-1);
-        }
-        start += sizeof("hugepagesize:");
-        if(sscanf(start,"%ld", page_size) != 1)
-        {
-                printf("Current kernel does not support Huge TLB!\n");
-                exit(-1);
-        }
-        *page_size *= 1024; /*Convert to BYTE from KB*/
-
-        close(fd);
-
-        return 0;
-}
-
-
-int mmap_open_mmap(int *fd, void **addr, size_t length, int prot, int flags)
-{
-	*fd = open(MMAP_FILE, O_CREAT|O_RDWR, 0755);
-	if (*fd < 0) {
-		/*perror("Open failed");*/
-		exit(errno);
-	}
-	*addr = mmap(NULL, length, prot, flags, *fd, 0);
-	if( *addr == (void *)-1 ) {
-		/*perror("mmap failed");*/
-		close(*fd);
-		*fd = -1;
-		return -1;
-	}
-
-	return 0;
-}
-
-int mmap_unmap(void *start, size_t length)
-{
-	int     result=0;
-
-	result = munmap(start, length);
-	if(result == -1 ) {
-		/*perror("mmap_unmap failed");*/
-		return -1;
-	}
-
-	return 0;
-}
-
-int test_mmap_mprotect()
-{
-	int result = -1;
-	void *addr=0;
-	long tt001;
-	int	fd=-1;
-
-	int	total_pages;
-	int	free_pages;
-	long	LPAGE_SIZE;
-
-	printf("Test mmap mprotect ...");
-	get_htlb_mem_stat(&total_pages, &free_pages, &LPAGE_SIZE);
-	result = mount("none", MMAP_DIR, "hugetlbfs", 0, NULL);
-	if(result != 0) {
-		perror("Mount fail:");
-		goto out1;
-	}
-
-	result = mmap_open_mmap(&fd, &addr, LPAGE_SIZE*3, PROT_READ|PROT_WRITE, MAP_SHARED);
-	if(result < 0)
-		goto out2;
-
-	munmap(addr, LPAGE_SIZE*3);
-	close(fd);
-
-	result = mmap_open_mmap(&fd, &addr, LPAGE_SIZE*3, PROT_NONE, MAP_SHARED);
-	if(result < 0)
-		goto out2;
-
-	if(mprotect(addr, LPAGE_SIZE*3, PROT_READ)) {
-		printf("fail!\n");
-		goto out2;
-	}
-
-	tt001 = ((long *)addr)[0];
-
-	if(mprotect(addr+LPAGE_SIZE, LPAGE_SIZE, PROT_READ|PROT_WRITE)) {
-		printf("fail!\n");
-		goto out2;
-	}
-	((char *)addr)[LPAGE_SIZE+100] = tt001;
-
-	if(mprotect(addr+LPAGE_SIZE, LPAGE_SIZE, PROT_READ)) {
-		printf("fail!\n");
-		goto out2;
-	}
-
-	printf("pass!\n");
-
-out3:
-	if(result < 0)
-		mmap_unmap(addr, LPAGE_SIZE*3);
-	else
-		result = mmap_unmap(addr, LPAGE_SIZE*3);
-out2:
-	close(fd);
-	if(result < 0)
-		umount(MMAP_DIR);
-	else
-		result = umount(MMAP_DIR);
-out1:
-	return result;
-}
-
-void init()
-{
-	mkdir(WORK_DIR, 0777);
-	mkdir(MMAP_DIR, 0755);
-}
-
-void uninit()
-{
-	rmdir(MMAP_DIR);
-	rmdir(WORK_DIR);
-}
-
-int main(int argc, char * argv)
-{
-	int	total_pages=0;
-	int	free_pages=0;
-	int	result=0;
-
-	init();
-
-	test_mmap_mprotect();
-
-	uninit();
-	return 0;
-}
+--- a/kernel/hrtimer.c
++++ b/kernel/hrtimer.c
+@@ -505,6 +505,106 @@
+ 	return rem;
+ }
+ 
++#ifdef CONFIG_NO_IDLE_HZ
++
++/**
++ * hrtimer_get_next_offset - get next hrtimer to expire in ktime_t from now
++ *
++ * @offset:	pointer for next event offset
++ *
++ * Note that the timer event may get removed, so the result is not guaranteed
++ * to be correct. Nanosleep hrtimers are on the stack and can go away due to
++ * a signal, and posix timers can be removed and destroyed on another CPU.
++ * For next_timer_interrupt() this should be OK, as it causes just an extra
++ * timer interrupt.
++ */
++static inline int hrtimer_get_next_offset(ktime_t *offset)
++{
++	struct hrtimer_base *bases = __get_cpu_var(hrtimer_bases);
++	unsigned long flags;
++	int i, ret = -EAGAIN;
++
++	if (bases == NULL)
++		return ret;
++
++	offset->tv64 = KTIME_MAX;
++
++	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
++		struct hrtimer_base *base;
++		struct rb_node *node;
++		struct hrtimer *timer;
++		ktime_t delta, now;
++
++		base = &bases[i];
++		now = base->get_time();
++		spin_lock_irqsave(&base->lock, flags);
++		if ((node = base->first) != NULL) {
++			timer = rb_entry(node, struct hrtimer, node);
++			delta = ktime_sub(timer->expires, now);
++
++			if (delta.tv64 <= 0) {
++				spin_unlock_irqrestore(&base->lock, flags);
++				continue;
++			}
++
++			if (delta.tv64 <= offset->tv64) {
++				offset->tv64 = delta.tv64;
++				ret = 0;
++			}
++		}
++		spin_unlock_irqrestore(&base->lock, flags);
++	}
++
++	return ret;
++}
++
++/**
++ * ktime_offset_to_jiffies - converts ktime to jiffies
++ *
++ * @offset:	ktime event offset to be converted to jiffies
++ *
++ * Note that this function should not be needed once next_timer_interrupt()
++ * is converted to return nsecs instead of jiffies.
++ */
++static inline unsigned long ktime_offset_to_jiffies(const ktime_t offset)
++{
++	unsigned long timer_jiffies;
++
++	if (offset.tv64 <= 0)
++		return jiffies + 1;
++
++	timer_jiffies = (unsigned long)(((offset.tv64 * NSEC_CONVERSION) >>
++				(NSEC_JIFFIE_SC - SEC_JIFFIE_SC)) >> SEC_JIFFIE_SC);
++
++	if (timer_jiffies < 1)
++		timer_jiffies = 1;
++
++	return jiffies + timer_jiffies;
++}
++
++/**
++ * hrtimer_next_jiffie - translates next hrtimer event into jiffies
++ *
++ * Called from next_timer_interrupt() to get the next hrtimer event.
++ * Eventually we should change next_timer_interrupt() to return
++ * results in nanoseconds instead of jiffies.
++ */
++int hrtimer_next_jiffie(unsigned long *next_jiffie)
++{
++	ktime_t offset;
++	int ret;
++
++	ret = hrtimer_get_next_offset(&offset);
++	if (ret != 0)
++		return ret;
++
++	*next_jiffie = ktime_offset_to_jiffies(offset);
++
++	return 0;
++}
++
++#endif
++
+ /**
+  * hrtimer_init - initialize a timer to the given clock
+  *
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -489,9 +489,15 @@
+ 	struct list_head *list;
+ 	struct timer_list *nte;
+ 	unsigned long expires;
++	unsigned long hr_expires = jiffies + 10 * HZ;	/* Anything far ahead */
+ 	tvec_t *varray[4];
+ 	int i, j;
+ 
++	/* Look for timer events in hrtimer. */
++	if ((hrtimer_next_jiffie(&hr_expires) == 0)
++		&& (time_before(hr_expires, jiffies + 2)))
++			return hr_expires;
++
+ 	base = &__get_cpu_var(tvec_bases);
+ 	spin_lock(&base->t_base.lock);
+ 	expires = base->timer_jiffies + (LONG_MAX >> 1);
+@@ -542,6 +548,10 @@
+ 		}
+ 	}
+ 	spin_unlock(&base->t_base.lock);
++
++	if (time_before(hr_expires, expires))
++		expires = hr_expires;
++
+ 	return expires;
+ }
+ #endif
+--- a/include/linux/hrtimer.h
++++ b/include/linux/hrtimer.h
+@@ -115,6 +115,7 @@
+ /* Query timers: */
+ extern ktime_t hrtimer_get_remaining(const struct hrtimer *timer);
+ extern int hrtimer_get_res(const clockid_t which_clock, struct timespec *tp);
++extern int hrtimer_next_jiffie(unsigned long *next_jiffie);
+ 
+ static inline int hrtimer_active(const struct hrtimer *timer)
+ {
+--- a/arch/arm/kernel/time.c
++++ b/arch/arm/kernel/time.c
+@@ -422,12 +422,14 @@
+ void timer_dyn_reprogram(void)
+ {
+ 	struct dyn_tick_timer *dyn_tick = system_timer->dyn_tick;
++	unsigned long next, seq;
+ 
+-	if (dyn_tick) {
+-		write_seqlock(&xtime_lock);
+-		if (dyn_tick->state & DYN_TICK_ENABLED)
++	if (dyn_tick && (dyn_tick->state & DYN_TICK_ENABLED)) {
++		next = next_timer_interrupt();
++		do {
++			seq = read_seqbegin(&xtime_lock);
+ 			dyn_tick->reprogram(next_timer_interrupt() - jiffies);
+-		write_sequnlock(&xtime_lock);
++		} while (read_seqretry(&xtime_lock, seq));
+ 	}
+ }
+ 
 
 
-
---=-xT5BrnIf0bUySs9m124g--
-
+--hOcCNbCCxyk/YU74--

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWB1PWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWB1P1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWB1PWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWB1PWq
+	id S932169AbWB1P1g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWB1P1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:22:46 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:8331 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751374AbWB1PWp (ORCPT
+	Tue, 28 Feb 2006 10:27:36 -0500
+Received: from xenotime.net ([66.160.160.81]:43450 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932169AbWB1P1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:22:45 -0500
-Message-ID: <44046AC2.1060002@pobox.com>
-Date: Tue, 28 Feb 2006 10:22:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 28 Feb 2006 10:27:35 -0500
+Date: Tue, 28 Feb 2006 07:27:32 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Pavel Machek <pavel@ucw.cz>, Randy Dunlap <randy_d_dunlap@linux.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 7/13] ATA ACPI: more Makefile/Kconfig
+In-Reply-To: <44043C18.2070502@pobox.com>
+Message-ID: <Pine.LNX.4.58.0602280727090.30832@shark.he.net>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+ <20060222135802.60ab42ab.randy_d_dunlap@linux.intel.com> <20060228114915.GC4081@elf.ucw.cz>
+ <44043C18.2070502@pobox.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Hannes Reinecke <hare@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Fixup ahci suspend / resume
-References: <44045FB1.5040408@suse.de> <440468DB.5060605@pobox.com> <20060228151928.GC24981@suse.de>
-In-Reply-To: <20060228151928.GC24981@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> Upstream 2.6.x certainly _does_ care about suspend/resume! To me, this
-> patch seems simple enough to be included. It's little more than
-> splitting the register init out form the port_stop/start functions and
-> calling them on resume/suspend appropriately.
+On Tue, 28 Feb 2006, Jeff Garzik wrote:
 
-Upstream _libata_ doesn't care much about suspend/resume.  Officially, 
-its a work in progress with major pieces -- your patch and ACPI -- still 
-missing.
+> Pavel Machek wrote:
+> > On St 22-02-06 13:58:02, Randy Dunlap wrote:
+> >
+> >>From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+> >>
+> >>Simplify Makefile.
+> >>Add Kconfig help.
+> >
+> >
+> > Could you fold this with patch 1 of series? Introducing too complex
+> > Makefile then fixing it makes review quite "interetsing".
+>
+> Agreed.  Patches should be folded together...
 
-Further, good improvements covering some of the changes in Hannes' patch 
-are already in #upstream.
+Agreed.  and I'll rename the config option as well....
 
-Thus, it's more work than its worth to care about the patch as-is.  It 
-should be redone against #upstream, which is where all suspend/resume 
-development is occurring.
-
-	Jeff
-
-
+-- 
+~Randy

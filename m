@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWB1SY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWB1Sdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWB1SY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 13:24:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWB1SY4
+	id S932360AbWB1Sdu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 13:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWB1Sdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 13:24:56 -0500
-Received: from zrtps0kn.nortelnetworks.com ([47.140.192.55]:35211 "EHLO
-	zrtps0kn.nortel.com") by vger.kernel.org with ESMTP id S932213AbWB1SY4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 13:24:56 -0500
-Message-ID: <44049559.80109@nortel.com>
-Date: Tue, 28 Feb 2006 12:24:25 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: "Bryan O'Sullivan" <bos@pathscale.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-References: <1140841250.2587.33.camel@localhost.localdomain> <yq08xrvhkee.fsf@jaguar.mkp.net> <1141149475.24103.18.camel@camp4.serpentine.com> <Pine.LNX.4.61.0602281302080.4698@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0602281302080.4698@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2006 18:24:27.0903 (UTC) FILETIME=[359E48F0:01C63C94]
+	Tue, 28 Feb 2006 13:33:50 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:20635 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932360AbWB1Sdt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 13:33:49 -0500
+Message-Id: <200602281833.k1SIXA0O028798@laptop11.inf.utfsm.cl>
+To: John Richard Moser <nigelenki@comcast.net>
+cc: Alexander Mieland <dma147@linux-stats.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] LiSt - Linux Statistics - www.linux-stats.org 
+In-Reply-To: Message from John Richard Moser <nigelenki@comcast.net> 
+   of "Tue, 28 Feb 2006 12:20:34 CDT." <44048662.7080208@comcast.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Tue, 28 Feb 2006 15:33:10 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 28 Feb 2006 15:33:10 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
+John Richard Moser <nigelenki@comcast.net> wrote:
 
-> Also, the
-> PCI bus is a FIFO. Nothing gets reordered.
+[Didn't see the original post, sorry]
 
-The CPU itself can reorder the write before it hits the PCI bus.  I 
-don't think x86 will do this, but others will.
+> Alexander Mieland wrote:
+> > Hello list,
 
-Chris
+> [...]
+> 
+> >  - The hostname (no fqdn or ips)
+> 
+> Everyone's is going to be Darkstar.
+> 
+> [...]
+> 
+> > All of the collected information and data is absolutly anonymous!
+> 
+> And double-submittable?
+> 
+> > Also read our privacy policy [2] to become sure that all is anonymous and 
+> > safe. Some more information on frequently asked questions can be found in 
+> > our FAQ [3].
+
+What about <http://counter.li.org>?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

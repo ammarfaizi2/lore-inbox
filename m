@@ -1,60 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWB1MnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWB1NKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWB1MnR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 07:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWB1MnR
+	id S1750747AbWB1NKt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 08:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWB1NKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 07:43:17 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:64693 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932206AbWB1MnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 07:43:16 -0500
-Date: Tue, 28 Feb 2006 12:43:15 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jejb@steeleye.com, linux-scsi@vger.kernel.org
-Subject: Re: Linux v2.6.16-rc5
-Message-ID: <20060228124314.GA4674@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	jejb@steeleye.com, linux-scsi@vger.kernel.org
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 28 Feb 2006 08:10:49 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:3856 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750747AbWB1NKs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 08:10:48 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <op.s5nm6rm5j68xd1@mail.piments.com>
+x-originalarrivaltime: 28 Feb 2006 13:10:45.0026 (UTC) FILETIME=[624F3020:01C63C68]
+Content-class: urn:content-classes:message
+Subject: Re: o_sync in vfat driver
+Date: Tue, 28 Feb 2006 08:10:44 -0500
+Message-ID: <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: o_sync in vfat driver
+Thread-Index: AcY8aGJYTphCxiy2SjmLRhVMbaTkzg==
+References: <op.s5cj47sxj68xd1@mail.piments.com> <op.s5jpqvwhui3qek@mail.piments.com> <op.s5kxhyzgfx0war@mail.piments.com> <op.s5kx7xhfj68xd1@mail.piments.com> <op.s5kya3t0j68xd1@mail.piments.com> <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com> <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: <col-pepper@piments.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 09:27:28PM -0800, Linus Torvalds wrote:
-> 
-> The tar-ball is being uploaded right now, and everything else should 
-> already be pushed out. Mirroring might take a while, of course.
-> 
-> There's not much to say about this: people have been pretty good, and it's 
-> just a random collection of fixes in various random areas. The shortlog is 
-> actually pretty short, and it really describes the updates better than 
-> anything else.
-> 
-> Have I missed anything? Holler. And please keep reminding about any 
-> regressions since 2.6.15.
 
-We still have a regression from 2.6.15 in the megaraid_sas driver.
+On Mon, 27 Feb 2006 col-pepper@piments.com wrote:
 
-We started sending down all requests as scatter/gather lists after 2.6.15,
-and the (broken) way megaraid_sas tried to hide the physical disks ceased
-to work.  Now the driver shows all physical disks which confuses installers
-to no end and could trick people to write to it which would corrupt controller
-internal state badly.
+> On Mon, 27 Feb 2006 22:32:07 +0100, linux-os (Dick Johnson)
+> <linux-os@analogic.com> wrote:
+>
+>> Flash does not get zeroed to be written! It gets erased, which sets all
+>> the bits to '1', i.e., all bytes to 0xff.
+>
+> Thanks for the correction, but that does not change the discussion.
+>
+>> Further, the designers of
+>> flash disks are not stupid as you assume. The direct access occurs
+>> to static RAM (read/write stuff).
+>
+> I'm not assuming anything . Some hardware has been killed by this issue.
+> http://lkml.org/lkml/2005/5/13/144
 
-To fix this properly the scsi midlayer needs to handle the ->slave_configure
-return value.  The patch for that is pretty trivially, but could in theory
-cause problems if an existing driver returns something bogus from
-->slave_configure.   Both the core patch and the actual megaraid_sas fix
-are in James' scsi-rc-fixes tree, so if you pull that once more we should
-be done with this.
+No. That hardware was not killed by that issue. The writer, or another
+who had encountered the same issue, eventually repartitioned and
+reformatted the device. The partition table had gotten corrupted by
+some experiments and the writer assumed that the device was broken.
+It wasn't.
+
+Also, if you read other elements in this thread, you would have
+learned about something that has become somewhat of a red herring.
+
+It takes about a second to erase a 64k physical sector. This is
+a required operation before it is written. Since the projected
+life of these new devices is about 5 to 10 million such cycles,
+(older NAND flash used in modems was only 100-200k) the writer
+would have to be running that "brand new device" for at least
+5 million seconds. Let's see:
+
+60 seconds per minute
+3600 seconds per hour
+86400 seconds per day.
+
+5,000,000 / 86400 = 57 days of continuous writes to the same
+sector. The writer surely would have a strange file because
+he states that even a single large file can destroy the drive
+if it is mounted with the "sync" option.
+
+Also, the failure mode of NAND flash is not that it becomes
+"destroyed". The failure mode is a slow loss of data. The
+devices no longer retain data for a zillion years, only a
+few hundred, eventually, only a year or so. So when somebody
+claims that the flash has gotten destroyed, they need to have
+written it for a few months, then waited for a few years before
+reporting the event.
+
+Clearly the writer is wrong.
+
+>
+> It seems that it's you making the assumption that all of these devices are
+> manufactured the same way.
+>
+> The constant dirtying of the buffer will still cause excessive use of the
+> flash block hosting the FAT. Clearly not all devices use a load spreading
+> mechanism and this can lead to premature failure.
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.53 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

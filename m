@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWB1VjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWB1Vtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWB1VjW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 16:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWB1VjW
+	id S932553AbWB1Vtc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 16:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWB1Vtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 16:39:22 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:61645 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932502AbWB1VjV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 16:39:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e0rNv7IyMCanaCAMg4/bAYAEWZGbc7kWBwd2ik9UrpUDKsCOQe8SpdMTj4hayxKCaD0Jux+FUg66XggjiA3jMSZhjgX3iwz6ipggpva7g3hsZsuL89gfoxNZo07o1DjFjDEPhtDQCNvxqgxI+kWk/aGnDOv4h544PlMKCnfX8Bo=
-Message-ID: <d120d5000602281339h777a9b73nb95bf6b6b5ee90c9@mail.gmail.com>
-Date: Tue, 28 Feb 2006 16:39:18 -0500
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: "Matt Mackall" <mpm@selenic.com>, "Dave Jones" <davej@redhat.com>,
-       "Adrian Bunk" <bunk@stusta.de>,
-       "Dmitry Torokhov" <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-       "Zwane Mwaikambo" <zwane@commfireservices.com>,
-       "Samuel Masham" <samuel.masham@gmail.com>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       cpufreq@lists.linux.org.uk, ak@suse.de
-Subject: Re: Status of X86_P4_CLOCKMOD?
-In-Reply-To: <20060228213428.GA31044@isilmar.linta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 28 Feb 2006 16:49:32 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:32450
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932553AbWB1Vtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 16:49:31 -0500
+Date: Tue, 28 Feb 2006 13:49:35 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [GIT PATCH] USB fixes for 2.6.16-rc5
+Message-ID: <20060228214935.GA27833@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060222024438.GI20204@MAIL.13thfloor.at>
-	 <200602212220.05642.dtor_core@ameritech.net>
-	 <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com>
-	 <20060228194628.GP4650@waste.org> <20060228200916.GA326@redhat.com>
-	 <20060228204720.GD13116@waste.org>
-	 <20060228205758.GA16268@isilmar.linta.de>
-	 <20060228212632.GE13116@waste.org>
-	 <20060228213428.GA31044@isilmar.linta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/28/06, Dominik Brodowski <linux@dominikbrodowski.net> wrote:
-> On Tue, Feb 28, 2006 at 03:26:32PM -0600, Matt Mackall wrote:
-> > > So even if the battery lasts longer, you don't have anything of it, 'cause
-> > > the CPU can even compute _less_ in this longer time-span. Remember that
-> > > idling doesn't count...
-> >
-> > Which is different from other power-saving modes how? If it means I
-> > can read my email longer on the plane, it's a power-saving mode.
->
-> But you can't... [*]
-...
-> [*] unless the idling algorithm is broken and does not enter C2-type idle
-> states.
+Here are some USB fixes for 2.6.16-rc5.  They fix a EHCI handoff issue,
+a few gadget issues, and add some more device ids for various drivers.
+All of these patches have been in the -mm tree for a while, except for
+one of the "add a new device id" ones.
 
-Or box does not support anything but C1.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
---
-Dmitry
+The full patches will be sent to the linux-usb-devel mailing list, if
+anyone wants to see them.
+
+thanks,
+
+greg k-h
+
+
+ drivers/usb/gadget/lh7a40x_udc.c   |    6 ++++--
+ drivers/usb/gadget/rndis.c         |   11 +++++++----
+ drivers/usb/host/pci-quirks.c      |   11 ++++++-----
+ drivers/usb/input/hid-core.c       |    2 ++
+ drivers/usb/serial/ftdi_sio.c      |    6 ++++++
+ drivers/usb/serial/ftdi_sio.h      |   10 +++++++++-
+ drivers/usb/serial/visor.c         |    3 +++
+ drivers/usb/serial/visor.h         |    3 +++
+ drivers/usb/storage/unusual_devs.h |    7 +++++++
+ 9 files changed, 47 insertions(+), 12 deletions(-)
+
+---------------
+
+Alan Stern:
+      USB: unusual_devs entry for Lyra RCA RD1080
+
+Andrew Fuller:
+      USB: Wisegroup MP-8866 Dual USB Joypad
+
+David Brownell:
+      USB: fix EHCI BIOS handshake
+
+Franck Bui-Huu:
+      USB: lh7a40x gadget driver: Fixed a dead lock
+
+Hendrik Schweppe:
+      USB: visor.c id for gspda smartphone
+
+Ian Abbott:
+      USB: ftdi_sio: new microHAM device IDs
+
+Shaun Tancheff:
+      USB: Gadget RNDIS fix alloc bug. (buffer overflow)
+

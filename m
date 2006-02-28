@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWB1Abe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751856AbWB1AeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751852AbWB1Abe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 19:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751855AbWB1Abe
+	id S1751856AbWB1AeN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 19:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751857AbWB1AeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 19:31:34 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:15143 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751850AbWB1Abd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 19:31:33 -0500
+	Mon, 27 Feb 2006 19:34:13 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:32430 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751856AbWB1AeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 19:34:12 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jinr2raobseMaGcO8c0uHiZoNJWDD6okF7ufP+6sOk4c0OZbPAJURrskyc1ZDn9xn8PAMC52CSqtPH8HkTMZwxIRPkUcL6BMz5HjsX5TQPvblgrRJ+MemNy1SdxIyh+IWDyvczzKyCRRYz5wYchjy/DnYzBQ0uFYrUeHcDyuRjI=
-Message-ID: <56a8daef0602271631y6925bdcdr7a62db920d4b1715@mail.gmail.com>
-Date: Mon, 27 Feb 2006 16:31:32 -0800
-From: "John Ronciak" <john.ronciak@gmail.com>
-To: cramerj@intel.com, john.ronciak@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, broonie@sirena.org.uk
-Subject: Re: [PATCH] e1000: Support e1000 OEMed onto Aculab cards
-In-Reply-To: <20060227220517.GA8611@sirena.org.uk>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=JT9CmAAStOYCWj/Apvb8RnOR6AVFRjhud8e6jNgj78dNx3Zv0foeFj8VNNi6x9DWIeydV/HfM9PrbfxyJlXmpaYQ3psc2aiDVgeO1d9acpbGB2y+XhVzj0MLLvkTI8OkgMmPWwAkyM9ZsP0LqsXjILC99kF5HAen8sn8RxA8R70=  ;
+Message-ID: <44039A83.4050604@yahoo.com.au>
+Date: Tue, 28 Feb 2006 11:34:11 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060227220517.GA8611@sirena.org.uk>
+To: Hans Reiser <reiser@namesys.com>
+CC: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Marr <marr@flex.com>,
+       reiserfs-dev@namesys.com
+Subject: Re: Drastic Slowdown of 'fseek()' Calls From 2.4 to 2.6 -- VMM Change?
+References: <200602241522.48725.marr@flex.com> <20060224211650.569248d0.akpm@osdl.org> <200602261407.33262.ioe-lkml@rameria.de> <4401B233.7050308@yahoo.com.au> <44036670.7060204@namesys.com>
+In-Reply-To: <44036670.7060204@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please don't apply this patch.  We have taken this offline at the
-moment to work this out with the OEM, Aculab.  They have made
-modification to how the Intel controller operates which may make it
-have problems with the normal e1000 driver.  We are in contact with
-both Mark and Aculab about this offline.  The last thing Aculab talked
-to us about was to make sure that the normal Intel e1000 drivers did
-_not_ work with their hardware, hence the device ID change.  We'll
-continue this on this thread if this turns out not to be the case.  We
-(Intel) also don't know exactly how they changed the behavior of the
-hardware which is another topic for us to talk about.
+Hans Reiser wrote:
 
-Thanks.
+>Sounds like the real problem is that glibc is doing filesystem
+>optimizations without making them conditional on the filesystem type. 
+>
+
+I'm not sure that it should even be conditional on the filesystem type...
+To me it seems silly to even bother doing it, although I guess there
+is another level of buffering involved which might mean it makes more
+sense.
+
+>Does anyone know the email address of the glibc guy so we can ask him
+>not to do that?
+>
+>
+
+Ulrich Drepper I guess. But don't tell him I sent you ;)
+
+>My entry for the ugliest thought of the day: I wonder if the kernel can
+>test the glibc version and.....
+>
+>Hans
+>
+>Nick Piggin wrote:
+>
+>
+>>Actually glibc tries to turn this pre-read off if the seek is to a page
+>>aligned offset, presumably to handle this case. However a big write
+>>would only have to RMW the first and last partial pages, so pre-reading
+>>128KB in this case is wrong.
+>>
+>>And I would also say a 4K read is wrong as well, because a big read will
+>>be less efficient due to the extra syscall and small IO.
+>>
+>>
 --
-Cheers,
-John
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

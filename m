@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWB1Tob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbWB1To6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbWB1Tob (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWB1Tob
+	id S932529AbWB1To6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:44:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbWB1To5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:44:31 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33175 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932518AbWB1Toa (ORCPT
+	Tue, 28 Feb 2006 14:44:57 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:18143 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932529AbWB1To5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:44:30 -0500
-Date: Tue, 28 Feb 2006 20:43:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rt17
-Message-ID: <20060228194313.GA23453@elte.hu>
-References: <200602282021.21052.annabellesgarden@yahoo.de>
+	Tue, 28 Feb 2006 14:44:57 -0500
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@suse.de>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200602282033.48570.ak@suse.de>
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	 <20060228190354.GE24306@kvack.org>
+	 <1141154424.20227.11.camel@serpentine.pathscale.com>
+	 <200602282033.48570.ak@suse.de>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Tue, 28 Feb 2006 11:44:51 -0800
+Message-Id: <1141155892.20227.26.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602282021.21052.annabellesgarden@yahoo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.3 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-02-28 at 20:33 +0100, Andi Kleen wrote:
 
-* Karsten Wiese <annabellesgarden@yahoo.de> wrote:
+> Are you sure you used the right instruction? Normally CLFLUSH is used
+> for such things, not a write barrier which really only changes ordering.
 
-> > the tasklet code was reworked too to be PREEMPT_RT friendly: the new PI 
-> > code unearthed a fundamental livelock scenario with PREEMPT_RT, and the 
-> > fix was to rework the tasklet code to get rid of the 'retrigger 
-> > softirqs' approach.
-> 
-> following patch re enables tasklet_hi.
-> needed by ALSA MIDI.
+Hmm.  It's possible we're just getting lucky because another write
+happens somewhere else soon after the last write we perform as part of a
+packet send.  Perhaps, for complete correctness, we should be using
+CLFLUSH instead of the last barrier.  I'll have to look into this.
 
-ahh ... this indeed explains some of the bugreports! Applied.
+Thanks,
 
-	Ingo
+	<b
+

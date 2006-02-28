@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWB1WA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWB1WBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWB1WA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 17:00:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWB1WA4
+	id S932334AbWB1WBl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 17:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWB1WBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 17:00:56 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:63400 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S932521AbWB1WAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 17:00:55 -0500
-Date: Tue, 28 Feb 2006 17:00:54 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Abdulla Bubshait <darkray@ic3man.com>
-Cc: Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: AMD64 X2 lost ticks on PM timer
-Message-ID: <20060228220054.GC23330@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Abdulla Bubshait <darkray@ic3man.com>,
-	Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org
-References: <200602280022.40769.darkray@ic3man.com> <20060227222152.GA26541@ti64.telemetry-investments.com> <Pine.LNX.4.61.0602271744270.31386@dhcp83-105.boston.redhat.com> <200602281041.27960.darkray@ic3man.com>
+	Tue, 28 Feb 2006 17:01:41 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:41732 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S932334AbWB1WBk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 17:01:40 -0500
+Date: Tue, 28 Feb 2006 22:01:28 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, rmk+lkml@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
+Message-ID: <20060228220128.GA4254@unjust.cyrius.com>
+References: <20060226100518.GA31256@flint.arm.linux.org.uk> <20060226021414.6a3db942.akpm@osdl.org> <20060227141315.GD2429@ucw.cz> <20060228101713.6fd44027.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602281041.27960.darkray@ic3man.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060228101713.6fd44027.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 10:41:27AM +0300, Abdulla Bubshait wrote:
-> Unfortunately, I can't seem to find a way to force it to use hpet. Passing 
-> 'notsc' and 'nopmtimer' I end up using PIT/TSC based timekeeping. TSC is 
-> already known to have problems with dual core. But I will sit with it for a 
-> while to see if it fairs better than the pm timer.
-> 
-> Bill, What timer do you use, and do these lost ticks persist after sata_nv 
-> interrupts stop?
+* Andrew Morton <akpm@osdl.org> [2006-02-28 10:17]:
+> > It will oops in hard-to-guess, place, anyway.
+> Will it?   Where?  Unfixably?
 
-Sorry for the late reply.  I'm using pmtimer (the default).  I
-get lost ticks reported mostly in default_idle and __do_softirq.
+http://www.linux-mips.org/archives/linux-mips/2006-02/msg00241.html is
+one example we just had on MIPS.  On SGI IP22, using the serial
+console, you'd get the following on shutdown:
 
-The machine is running PostgreSQL, so the Lost tick messages occur
-throughout the day, but they come frequently during our nightly cron
-jobs that do rsyncs, checksums, etc. So far today:
+The system is going down for reboot NOW!
+INIT: Sending processes the TERM signal
+INIT: Sending proces
 
-rugolsky@ti88: awk '/Feb 28.*Lost.*timer/{n++;sum+=$8};END{printf "%d messages, %d lost ticks\n",n,sum}' /var/log/messages
-487 messages, 588 lost ticks
+and then nothing at all.  I'd never have suspected the serial driver,
+had not users reported that the machine shutdowns properly when using
+the framebuffer.
 
-And this month:
-
-rugolsky@ti88: awk '/Feb .*Lost.*timer/{n++;sum+=$8};END{printf "%d messages, %d lost ticks\n",n,sum}' /var/log/messages*
-19051 messages, 23794 lost ticks
-
-I got another test machine up and running today, so I can start patching and
-testing tomorrow.
-
-	Bill Rugolsky
+For the record, I don't mind whether it's BUG_ON or WARN_ON, but I
+just wanted to give this as an example of an "oops in hard-to-guess,
+place".
+-- 
+Martin Michlmayr
+tbm@cyrius.com

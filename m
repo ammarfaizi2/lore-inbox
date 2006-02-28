@@ -1,57 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751899AbWB1Bro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751747AbWB1Bw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751899AbWB1Bro (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 20:47:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751747AbWB1Bro
+	id S1751747AbWB1Bw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 20:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWB1Bw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 20:47:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59034 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750724AbWB1Brn (ORCPT
+	Mon, 27 Feb 2006 20:52:56 -0500
+Received: from main.gmane.org ([80.91.229.2]:1232 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750724AbWB1Bwz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 20:47:43 -0500
-Date: Mon, 27 Feb 2006 17:46:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tejun Heo <htejun@gmail.com>
-cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       David Greaves <david@dgreaves.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <4403A84C.6010804@gmail.com>
-Message-ID: <Pine.LNX.4.64.0602271744470.22647@g5.osdl.org>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
- <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
- <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
- <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
- <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
- <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Feb 2006 20:52:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jason Lunz <lunz@falooley.org>
+Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
+Date: Tue, 28 Feb 2006 01:52:40 +0000 (UTC)
+Organization: PBR Streetgang
+Message-ID: <du0ad8$hml$1@sea.gmane.org>
+References: <20060227190150.GA9121@kroah.com> <20060227193654.GA12788@kvack.org> <20060227194623.GC9991@suse.de> <Pine.LNX.4.64.0602271216340.22647@g5.osdl.org> <20060227234525.GA21694@suse.de>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-065-013-029-145.sip.asm.bellsouth.net
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+greg@kroah.com said:
+> Ok, I don't mind the name change from something different than
+> "private".  I was looking for something to call the interface between
+> the user and kernel that almost all userspace programs should be using
+> the library instead of the "raw" kernel interface.  ALSA and netlink are
+> two examples of this, and I'm sure there's others.
 
+well, what about calling it "raw" then?
 
-On Tue, 28 Feb 2006, Tejun Heo wrote:
+Jason
 
-> Hello, Mark.
-> 
-> Mark Lord wrote:
-> > 
-> > .. hold off on 2.6.16 because of this or not?
-> > 
-> 
-> It certainly is dangerous. I guess we should turn off FUA for the time being.
-> Barrier auto-fallback was once implemented but it didn't seem like a good idea
-> as it was too complex and hides low level bug from higher level. The concensus
-> seems to be developing blacklist of drives which lie about FUA support
-> (currently only one drive). Official kernel doesn't seem to be the correct
-> place to grow the blacklist, Maybe we should do it from -mm?
-
-For 2.6.16, the only sane solution for now is to just turn it off.
-
-Somebody want to send me a patch that does that, along with an ack from 
-Mark (and whoever else sees this) that it fixes his/their problems?
-
-		Linus

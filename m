@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWB1ULD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWB1UMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbWB1ULD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 15:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWB1ULB
+	id S932548AbWB1UMA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 15:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWB1UMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 15:11:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60856 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932546AbWB1ULA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 15:11:00 -0500
-Date: Tue, 28 Feb 2006 15:09:16 -0500
-From: Dave Jones <davej@redhat.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       davej@codemonkey.org.uk, Zwane Mwaikambo <zwane@commfireservices.com>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
-Subject: Re: Status of X86_P4_CLOCKMOD?
-Message-ID: <20060228200916.GA326@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Matt Mackall <mpm@selenic.com>, Adrian Bunk <bunk@stusta.de>,
-	Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-	Zwane Mwaikambo <zwane@commfireservices.com>,
-	Samuel Masham <samuel.masham@gmail.com>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	cpufreq@lists.linux.org.uk, ak@suse.de
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <20060228194628.GP4650@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060228194628.GP4650@waste.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 28 Feb 2006 15:12:00 -0500
+Received: from bno-84-242-95-19.nat.karneval.cz ([84.242.95.19]:8935 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932548AbWB1UL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 15:11:57 -0500
+Message-ID: <4404AEB7.1040103@liberouter.org>
+Date: Tue, 28 Feb 2006 21:12:39 +0100
+From: Jiri Slaby <slaby@liberouter.org>
+User-Agent: Thunderbird 1.5 (X11/20060210)
+MIME-Version: 1.0
+To: Keith Parkins <kparkins@cs.rochester.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: newbie -- looking for 2.4->2.6 PCI example
+References: <Pine.LNX.4.44.0602281343520.30773-100000@svankmajer.cs.rochester.edu>
+In-Reply-To: <Pine.LNX.4.44.0602281343520.30773-100000@svankmajer.cs.rochester.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 01:46:29PM -0600, Matt Mackall wrote:
- > On Thu, Feb 23, 2006 at 03:41:10PM -0500, Dave Jones wrote:
- > > On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
- > > 
- > >  > > > >  config X86_P4_CLOCKMOD
- > >  > > > > 	depends on EMBEDDED
- > >  > > > 
- > >  > > > This one is an x86_64 only issue, and yes, it's wrong.
- > >  > > 
- > >  > > That's for P4, not X86_64... And since P4 clock modulation does not provide
- > >  > > almost any energy savings it was "hidden" under embedded.
- > >  > 
- > >  > But the EMBEDDED dependency is only on x86_64:
- > >  > 
- > >  > arch/i386/kernel/cpu/cpufreq/Kconfig:
- > >  > config X86_P4_CLOCKMOD
- > >  >         tristate "Intel Pentium 4 clock modulation"
- > >  >         select CPU_FREQ_TABLE
- > >  >         help
- > >  > 
- > >  > arch/x86_64/kernel/cpufreq/Kconfig:
- > >  > config X86_P4_CLOCKMOD
- > >  >         tristate "Intel Pentium 4 clock modulation"
- > >  >         depends on EMBEDDED
- > >  >         help
- > >  > 
- > >  > And if the option is mostly useless, what is it good for?
- > > 
- > > It's sometimes useful in cases where the target CPU doesn't have any better
- > > option (Speedstep/Powernow).  The big misconception is that it
- > > somehow saves power & increases battery life. Not so.
- > > All it does is 'not do work so often'.  The upside of this is
- > > that in some situations, we generate less heat this way.
- > 
- > This is perplexing. Less heat equals less power usage according to the
- > laws of thermodynamics.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-you end up taking longer to do the same amount of work, so you
-end up using the same overall power.
+Keith Parkins napsal(a):
+> Hey,
+> 
+> I am about to port a small PCI module (~500 lines) from a 2.4 to a 2.6
+> kernel. I browsed Jonathon Corbet's articles on lwn.net but didn't notice
+> any discussion on the pci differences. Could somebody point me to a small
+> straightforward driver in the 2.4 tree that has an equally straightforward
+> source in the 2.6 tree?  The existing driver has poll, ioctl, open,
+> release, probe, and remove callbacks and that's it. It also uses a mutex
+> and spin_lock for polling and ioctl when calling
+> copy_from_user/copy_to_user.
+only guessing...
+scull from ldd2 and ldd3?
 
-		Dave
+regards,
+- --
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFEBK63MsxVwznUen4RAgKPAJ4ziiJjJ1q9yVDnsy4wh8zGnmDugQCfbS33
+DwYjUIn75X9U4Q5lIyH+aEo=
+=jXdK
+-----END PGP SIGNATURE-----

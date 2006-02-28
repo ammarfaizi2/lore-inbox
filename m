@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWB1TT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWB1TUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWB1TT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWB1TT0
+	id S932447AbWB1TUa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWB1TUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:19:26 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:60119 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932441AbWB1TTZ (ORCPT
+	Tue, 28 Feb 2006 14:20:30 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:5852 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932452AbWB1TU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:19:25 -0500
-Date: Tue, 28 Feb 2006 20:19:21 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: tim tim <tictactoe.tim@gmail.com>
-cc: netfilter@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: packet-data
-In-Reply-To: <503e0f9d0602272023x4628208cv5d9845b79ed90ae5@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0602282019120.15391@yvahk01.tjqt.qr>
-References: <503e0f9d0602272023x4628208cv5d9845b79ed90ae5@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 28 Feb 2006 14:20:28 -0500
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060228190354.GE24306@kvack.org>
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	 <20060225142814.GB17844@kvack.org>
+	 <1140887517.9852.4.camel@localhost.localdomain>
+	 <20060225174134.GA18291@kvack.org>
+	 <1141149009.24103.8.camel@camp4.serpentine.com>
+	 <20060228175838.GD24306@kvack.org>
+	 <1141150814.24103.37.camel@camp4.serpentine.com>
+	 <20060228190354.GE24306@kvack.org>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Tue, 28 Feb 2006 11:20:24 -0800
+Message-Id: <1141154424.20227.11.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->hello.. i know how to capture a packet using netfilter hook.. i even
->succeeded in getting the source and destination adderss of the
->captured packet. but i was unable to retrive data from the packet .. 
->i came to know that there are pointers to access it . but can anybody
->plz show me an example to access data.. thanks in advance.
+On Tue, 2006-02-28 at 14:03 -0500, Benjamin LaHaise wrote:
 
-look at ipt_XOR, for a simple example.
+> Memory barriers are not cheap.  At least for the example you provided, 
+> it looks like things are overdone and performance is going to suck, so 
+> it needs to be avoided if at all possible.
 
+There's more to it than that :-)
 
-Jan Engelhardt
--- 
+We added the memory barrier to *improve* performance, in addition to
+helping correctness and portability.  Without it, the CPU or north
+bridge is free to hold onto the pending writes for a while; the exact
+details of how long it will wait depend on the CPU and NB
+implementation, but on AMD64 CPUs the delay is up to 16 cycles.
+
+So if we just use wmb(), we incur a 16-cycle penalty on every packet we
+send.  This has a deleterious and measurable effect on performance.
+
+	<b
+

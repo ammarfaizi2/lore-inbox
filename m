@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWB1KaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWB1Kdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWB1KaY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 05:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWB1KaX
+	id S932160AbWB1Kdq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 05:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWB1Kdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 05:30:23 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:56977 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932156AbWB1KaV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 05:30:21 -0500
-Date: Tue, 28 Feb 2006 11:30:10 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: David Greaves <david@dgreaves.com>
-cc: gcoady@gmail.com, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Building 100 kernels; we suck at dependencies and drown in
- warnings
-In-Reply-To: <4402F6E7.3050500@dgreaves.com>
-Message-ID: <Pine.LNX.4.61.0602281127480.9696@scrub.home>
-References: <200602261721.17373.jesper.juhl@gmail.com>
- <336402hq8014pc1cg8169f8tumhj302vho@4ax.com> <4402F6E7.3050500@dgreaves.com>
+	Tue, 28 Feb 2006 05:33:46 -0500
+Received: from seldon.control.lth.se ([130.235.83.40]:63128 "EHLO
+	seldon.control.lth.se") by vger.kernel.org with ESMTP
+	id S932160AbWB1Kdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 05:33:45 -0500
+Message-ID: <440426FC.6010609@control.lth.se>
+Date: Tue, 28 Feb 2006 11:33:32 +0100
+From: Martin Andersson <martin.andersson@control.lth.se>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: torvalds@osdl.org
+Subject: [Patch] task interactivity calculation (was Strange interactivity
+ behaviour)
+References: <4402E52F.6080409@control.lth.se>
+In-Reply-To: <4402E52F.6080409@control.lth.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The appended patch fixes the problem mentioned in 
+http://lkml.org/lkml/2006/2/27/104
+regarding wrong truncations in the calculation of task interactivity 
+when the nice value is negative. The problem causes the interactivity to 
+scale nonlinearly and differ from examples in the code.
 
-On Mon, 27 Feb 2006, David Greaves wrote:
+/Martin Andersson
 
-> >Welcome to the club ;)  I gave up make randconfig months ago as 
-> >there's simply too much noise in there...  There are same errors 
-> >popping up for months now without resolution, and I lack experience 
-> >to fix most things I see -- asked akpm once but not grok Andrew's 
-> >response (months ago).
-> >  
-> >
-> How about introducing an 'overlay' config that is introduced after
-> randconfig runs?
-> 
-> That gives you the ability to, for example, always set
-> 
-> CONFIG_EMBEDDED=n
+diff -uprN linux-2.6.15.4.orig/kernel/sched.c linux-2.6.15.4/kernel/sched.c
+--- linux-2.6.15.4.orig/kernel/sched.c	2006-02-10 08:22:48.000000000 +0100
++++ linux-2.6.15.4/kernel/sched.c	2006-02-28 11:10:30.000000000 +0100
+@@ -142,7 +142,7 @@
+  	(v1) * (v2_max) / (v1_max)
 
-That exists already, just put it into allrandom.config. :)
+  #define DELTA(p) \
+-	(SCALE(TASK_NICE(p), 40, MAX_BONUS) + INTERACTIVE_DELTA)
++	(SCALE(TASK_NICE(p)+20,40, MAX_BONUS)-20*MAX_BONUS/40+INTERACTIVE_DELTA)
 
-bye, Roman
+  #define TASK_INTERACTIVE(p) \
+  	((p)->prio <= (p)->static_prio - DELTA(p))

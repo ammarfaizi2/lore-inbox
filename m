@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWB1TAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWB1TEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWB1TAE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:00:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWB1TAB
+	id S932424AbWB1TEd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:04:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWB1TEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:00:01 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:59928 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932415AbWB1TAB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:00:01 -0500
-Message-ID: <44049D5A.1010806@cfl.rr.com>
-Date: Tue, 28 Feb 2006 13:58:34 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 28 Feb 2006 14:04:33 -0500
+Received: from 26.mail-out.ovh.net ([213.186.42.179]:21674 "EHLO
+	26.mail-out.ovh.net") by vger.kernel.org with ESMTP id S932424AbWB1TEc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:04:32 -0500
+Date: Tue, 28 Feb 2006 18:16:48 +0100
+From: col-pepper@piments.com
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: o_sync in vfat driver
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <op.s5cj47sxj68xd1@mail.piments.com> <op.s5jpqvwhui3qek@mail.piments.com> <op.s5kxhyzgfx0war@mail.piments.com> <op.s5kx7xhfj68xd1@mail.piments.com> <op.s5kya3t0j68xd1@mail.piments.com> <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com> <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com> <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Sam Vilain <sam@vilain.net>, Luke-Jr <luke@dashjr.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [slightly OT] dvdrecord 0.3.1 -- and yes, dev=/dev/cdrom works
- ;)
-References: <200602250042.51677.bero@arklinux.org> <200602261330.15709.luke@dashjr.org> <9a8748490602260529h3a2890bhce4112feefb7cb1f@mail.gmail.com> <200602261339.13821.luke@dashjr.org> <Pine.LNX.4.61.0602262331330.12118@yvahk01.tjqt.qr> <440240F8.3010207@vilain.net <Pine.LNX.4.61.0602271946470.13987@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602271946470.13987@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2006 19:01:55.0375 (UTC) FILETIME=[71374BF0:01C63C99]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14295.000
-X-TM-AS-Result: No--10.100000-5.000000-31
+Content-Transfer-Encoding: 7BIT
+Message-ID: <op.s5orvmevj68xd1@mail.piments.com>
+In-Reply-To: <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
+User-Agent: Opera M2/8.51 (Linux, build 1462)
+X-Ovh-Remote: 80.170.101.26 (d80-170-101-26.cust.tele2.fr)
+X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
+X-Spam-Check: fait|type 1&3|0.3|H 0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> Yes. A 650 MB *CD*-RW (DVD-RW too?) formatted in packet mode only has like
-> 500-something megabytes to allow for the sort of seeks required.
-> On DVD+RW, you get the full 4.3 GB (4.7 gB) AFAICS.
-> 
+On Tue, 28 Feb 2006 14:10:44 +0100, linux-os (Dick Johnson)  
+<linux-os@analogic.com> wrote:
 
-DVD-RAM physically is formatted like a hard disk.  It is broken up into 
-zones that hold different numbers of sectors which are individually and 
-randomly read/writable.  CD/DVD+-RW media is organized as a single long 
-groove that consists of an unbroken series of large blocks composed of 
-small blocks with user and control data interleaved and error corrected. 
-  It is for this reason that historically it could only be recorded from 
-start to finish in one pass.
+> No. That hardware was not killed by that issue. The writer, or another
+> who had encountered the same issue, eventually repartitioned and
+> reformatted the device. The partition table had gotten corrupted by
+> some experiments and the writer assumed that the device was broken.
+> It wasn't.
 
-There are two modern techniques to allow pseudo random write access for 
-all forms of CD/DVD +/- RW media.  These are packet mode, and mount 
-rainier mode.  MRW mode formats the disk into 32 KB blocks made up of 
-2048 byte sectors which are individually writable as far as the OS 
-knows, because an MRW compliant drive is required to internally handle 
-any required read/modify/write cycles to update the 32 KB blocks.  MRW 
-mode also reserves some of the disk for sector sparing which the drive 
-firmware also handles.  MRW mode is typically used on dvd+rw media. 
-IIRC, this format typically "wastes" about 10% of the capacity of the 
-medium.
+I did not get the info you posted from that thread so maybe I missed  
+something you saw. Or indeed it was someone else.
 
-The other technique is packet mode.  Packet mode formats the media into 
-packets of sectors and each packet can be randomly rewritten.  The 
-current default size is only 32 sectors per packet.  Each packet has 7 
-sectors of linking loss so around 18% of the disk space is wasted.  I 
-recently submitted a patch to pktcdvd and have some patches to the 
-udftools package to support larger packet sizes.  A packet size of 128 
-sectors reduces the waste to only 5.2%.
 
->> DVD+RW, on the other hand, I just thought was a different surface technology
->> (more expensive, higher quality) than DVD-RW.  There is nothing to help with
->> the lead-in/lead-out problem that is why you have several megabytes of lead-in
->> and lead-out per session on a multi-session disc.
->>
->> But maybe I'm wrong here... if I could use a DVD+RW like a DVD-RAM I'd be very
->> happy indeed.
->>
->> Sam.
->>
->>
-> 
-> Jan Engelhardt
+Many thanks for your comments. If this is a false alert all the better.
 
+
+> Also, the failure mode of NAND flash is not that it becomes
+> "destroyed". The failure mode is a slow loss of data. The
+> devices no longer retain data for a zillion years, only a
+> few hundred, eventually, only a year or so.
+
+There was a comment about the failure mode, no time scale was given. I see  
+no reason why the degradation would stop at a year though.
+
+> Since the projected life of these new devices is about 5 to 10million  
+> such cycles,(older NAND flash used in modems was only 100-200k)
+
+Maybe some of the cheap devices are not using the new flash memory in  
+which case it would come down to between 24 and 48hrs of constant use.  
+This would be a realistic problem.
+
+Alan Cox refered to some devices that could be damaged as "crap", so it  
+seems he is aware of some hardware differences.
+
+In conclusion it seems from Andrew Morton's posts that the way this is  
+handled is under review so I am confident that a robust and stable  
+solution will result.
+
+Thanks again for your thoughts on this.

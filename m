@@ -1,75 +1,231 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751863AbWB1BDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751872AbWB1BER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751863AbWB1BDW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 20:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWB1BDW
+	id S1751872AbWB1BER (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 20:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbWB1BER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 20:03:22 -0500
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:19849 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751863AbWB1BDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 20:03:21 -0500
-Message-ID: <4403A14D.4050303@comcast.net>
-Date: Mon, 27 Feb 2006 20:03:09 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060213)
+	Mon, 27 Feb 2006 20:04:17 -0500
+Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:40102 "EHLO
+	smtpq3.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1751872AbWB1BEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 20:04:16 -0500
+Message-ID: <4403A1CD.6030203@keyaccess.nl>
+Date: Tue, 28 Feb 2006 02:05:17 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Memory compression (again). . help?
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, ambx1@neo.rr.com
+Subject: Re: Linux v2.6.16-rc5
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>	<4403586C.2020004@keyaccess.nl> <20060227145120.0712eaac.akpm@osdl.org> <44038BFE.6090907@keyaccess.nl>
+In-Reply-To: <44038BFE.6090907@keyaccess.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Rene Herman wrote:
 
-I'm not quite sure what I'm doing or when I have time, but I'm looking
-into writing in some hooks and a compression routine to manage
-compressed memory.  I have the following considerations:
+> All ALSA ISA card drivers, not just CS4236, use the same interface to 
+> PnP (the pnp_card_driver struct) meaning they would all appear to be 
+> broken in that exact same way as well. Or rather, _any_ ISA-PnP driver 
+> using that pnp_card_driver interface (there's also drivers using the 
+> pnp_driver interface -- those appear to be okay). CS4236 isn't doing 
+> anything special...
 
- - Compressed memory should become "Swap."  This means the kernel would
-   report memory used for compressed storage as used swap.  At boot it
-   would reflect 0K swap; when there are 1024KiB of pages compressed in
-   memory, 1024KiB of additional "swap" is reported, all used.
- - I need to stop the kernel when it's about to swap.  This should be
-   done when it's decided that either invalidating disk cache or
-   swapping is the best course of action, and what to do with what.  At
-   this point I'll have to be able to see what the kernel wants to swap
-   out and tell it that it's taken care of.
- - I need to catch invalid pagefaults that look for swap, as well as the
-   disk cache mechanism.  I'll be adding stuff to compress disk cache,
-   so disk cache might need to be "swapped in" effectively.
+If it helps any, I can at least confirm that it's nothing ALSA or CS4236 
+specific. This is a minimal, skeleton, pnp_card driver:
 
-Can anyone recommend what functions I should look at modifying?  I'm
-planning on using Rodrigo Castro's WK4x4 or WKdm algorithms, as they
-worked great in his proof of concept.  32KiB blocks will be used because
-I got about a 40% reduction with those, and that was where I reached
-asymptotic growth (larger blocks did not compress much more, smaller
-blocks compressed much less).
+=== foo.c
 
-Compressed memory is great for things like LiveCDs and huge database
-servers, as well as just giving almost-but-not-quite free memory in general.
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/pnp.h>
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+MODULE_LICENSE("GPL");
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+static struct pnp_card_device_id foo_pnp_card_device_id_table[] = {
+         { .id = "CSCa836", .devs = { { "CSCa800" } } },
+         /* --- */
+         { .id = "" }
+};
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+MODULE_DEVICE_TABLE(pnp_card, foo_pnp_card_device_id_table);
 
-iD8DBQFEA6FKhDd4aOud5P8RAnGyAJ9kFbdxA5+DroHFOZS7oM4uzYhN1gCfbVa+
-rHPUYKjXjekcwLnHN+e12IE=
-=K/bw
------END PGP SIGNATURE-----
+static int foo_pnp_probe(struct pnp_card_link *pcard,
+	const struct pnp_card_device_id *pid)
+{
+         struct pnp_dev *pdev;
+
+         printk(KERN_INFO "%s\n", __FUNCTION__);
+
+         pdev = pnp_request_card_device(pcard, pid->devs[0].id, NULL);
+         if (!pdev || pnp_activate_dev(pdev) < 0)
+                 return -ENODEV;
+
+         // allocate, enable.
+
+         return 0;
+}
+
+static void foo_pnp_remove(struct pnp_card_link *pcard)
+{
+         printk(KERN_INFO "%s\n", __FUNCTION__);
+
+         // disable, deallocate.
+}
+
+static struct pnp_card_driver foo_pnp_card_driver = {
+         .name           = "foo",
+         .id_table       = foo_pnp_card_device_id_table,
+         .flags          = PNP_DRIVER_RES_DISABLE,
+         .probe          = foo_pnp_probe,
+         .remove         = foo_pnp_remove
+};
+
+int __init foo_init(void)
+{
+         return pnp_register_card_driver(&foo_pnp_card_driver);
+}
+
+void __exit foo_exit(void)
+{
+         pnp_unregister_card_driver(&foo_pnp_card_driver);
+}
+
+module_init(foo_init);
+module_exit(foo_exit);
+
+===
+
+compile with
+
+=== Makefile
+
+ifneq ($(KERNELRELEASE),)
+
+obj-m   := foo.o
+
+else
+
+default:
+         $(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(shell pwd)
+
+clean:
+         $(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) 
+clean
+
+endif
+
+===
+
+This ofcourse needs ISA-PnP support in the kernel, and actually loading 
+it requires replacing the PnP IDs with IDs actually present (these are 
+from my CS4236 soundcard).
+
+With 2.6.15.4 and with 2.6.16-rc with Adam's fix applied, an "insmod 
+foo.ko && rmmod foo" shows the following in dmesg (this needs the PnP 
+debug messages selectable in menuconfig):
+
+   pnp: the driver 'foo' has been registered
+   foo_pnp_probe
+   pnp: match found with the PnP device '01:01.00' and the driver 'foo'
+   pnp: Device 01:01.00 activated.
+   foo_pnp_remove
+   pnp: Device 01:01.00 disabled.
+   pnp: the driver 'foo' has been unregistered
+
+which is as it should be. On 2.6.16-rc without Adam's fix, both the 
+"pnp: match found with" and the "foo_pnp_remove" lines are missing:
+
+   pnp: the driver 'foo' has been registered
+   foo_pnp_probe
+   pnp: Device 01:01.00 activated.
+   pnp: Device 01:01.00 disabled.
+   pnp: the driver 'foo' has been unregistered
+
+Of course, with this skeleton driver that's not much of a problem, but 
+in real drivers it certainly is; in pnp_remove you'd deactivate and 
+deallocate anything that was allocated and activated in/through the 
+pnp_probe method -- all things associated with this instance of the 
+card, normally.
+
+I can also confirm that a driver using the "pnp_driver" interface isn't 
+affected by the bug. Same skeleton-type driver:
+
+=== bar.c
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/pnp.h>
+
+MODULE_LICENSE("GPL");
+
+static struct pnp_device_id bar_pnp_device_id_table[] = {
+         { .id = "CSCa800" },
+         /* --- */
+         { .id = "" }
+};
+
+MODULE_DEVICE_TABLE(pnp, bar_pnp_device_id_table);
+
+static int bar_pnp_probe(struct pnp_dev *pdev,
+	const struct pnp_device_id *pid)
+{
+         printk(KERN_INFO "%s\n", __FUNCTION__);
+
+         if (pnp_activate_dev(pdev) < 0)
+                 return -ENODEV;
+
+         // allocate, enable.
+
+         return 0;
+}
+
+static void bar_pnp_remove(struct pnp_dev *pdev)
+{
+         printk(KERN_INFO "%s\n", __FUNCTION__);
+
+         // disable, deallocate.
+}
+
+static struct pnp_driver bar_pnp_driver = {
+         .name           = "bar",
+         .id_table       = bar_pnp_device_id_table,
+         .flags          = PNP_DRIVER_RES_DISABLE,
+         .probe          = bar_pnp_probe,
+         .remove         = bar_pnp_remove
+};
+
+int __init bar_init(void)
+{
+         return pnp_register_driver(&bar_pnp_driver);
+}
+
+void __exit bar_exit(void)
+{
+         pnp_unregister_driver(&bar_pnp_driver);
+}
+
+module_init(bar_init);
+module_exit(bar_exit);
+
+===
+
+2.6.15.4, 2.6.16-rc with or without Adam's fix:
+
+   pnp: the driver 'bar' has been registered
+   pnp: match found with the PnP device '01:01.00' and the driver 'bar'
+   bar_pnp_probe
+   pnp: Device 01:01.00 activated.
+   bar_pnp_remove
+   pnp: Device 01:01.00 disabled.
+   pnp: the driver 'bar' has been unregistered
+
+So that's all fine. As said though, all ALSA drivers for one are using 
+the card_driver interface, and are therefore all broken currently.
+
+Rene.
 

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWB1JpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWB1Jva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWB1JpW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 04:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWB1JpW
+	id S1751013AbWB1Jva (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 04:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWB1Jva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 04:45:22 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11942 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750946AbWB1JpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 04:45:21 -0500
-Subject: Re: libata PATA patch for 2.6.16-rc5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christian Trefzer <ctrefzer@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060228003039.GA13335@zeus.uziel.local>
-References: <1141054370.3089.0.camel@localhost.localdomain>
-	 <20060228003039.GA13335@zeus.uziel.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Feb 2006 09:49:49 +0000
-Message-Id: <1141120189.3089.47.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 28 Feb 2006 04:51:30 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:53160 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751013AbWB1Jv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 04:51:29 -0500
+X-ORBL: [67.117.73.34]
+Date: Tue, 28 Feb 2006 01:51:00 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: akpm@osdl.org, heiko.carstens@de.ibm.com, johnstul@us.ibm.com,
+       rmk@arm.linux.org.uk, schwidefsky@de.ibm.com,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: + fix-next_timer_interrupt-for-hrtimer.patch added to -mm tree
+Message-ID: <20060228095100.GA31105@atomide.com>
+References: <200602250219.k1P2JLqY018864@shell0.pdx.osdl.net> <1140884243.5237.104.camel@localhost.localdomain> <20060225185731.GA4294@atomide.com> <20060228032900.GE4486@atomide.com> <1141117500.5237.112.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141117500.5237.112.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-02-28 at 01:30 +0100, Christian Trefzer wrote:
-> On Mon, Feb 27, 2006 at 03:32:50PM +0000, Alan Cox wrote:
-> > This is at
-> > 	http://zeniv.linux.org.uk/~alan/IDE
-> > 
+* Thomas Gleixner <tglx@linutronix.de> [060228 01:03]:
+> On Mon, 2006-02-27 at 19:29 -0800, Tony Lindgren wrote:
+> > I've changed ARM xtime_lock to read lock, but now there's a slight
+> > chance that an interrupt adds a timer after next_timer_interrupt() is
+> > called and before timer is reprogrammed. I believe s390 also has this
+> > problem.
 > 
-> Got this working like a charm, although I had to add the promise 20269's
-> PCI IDs to ata_generic.c to make it tick. I only regard this as an
-> interim solution, but wanted to try out getting rid of IDE altogether.
-> So far it "feels" alright, using pata_via and ata_generic. Thanks a
-> bunch!
+> This needs a more generalized solution later, but I picked up your ARM
+> change and simplified the hrtimer related bits.
 
-Thanks for the report. The PDC20268 and 2027x are driven by Albert Lee's
-Promise driver which should end up in the main tree soon, probably
-before my PATA bits. 
+Cool, after a quick test seems to work OK here. Any ideas how to fix the
+locking problem above?
 
+Maybe one option would be to just reprogram the hardware timer when a
+new hrtimer is added. That would then allow subjiffie timers too.
+
+Regards,
+
+Tony

@@ -1,172 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbWB1KjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbWB1Kl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbWB1KjU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 05:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWB1KjU
+	id S932147AbWB1Kl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 05:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWB1Kl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 05:39:20 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:41652 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S932157AbWB1KjT (ORCPT
+	Tue, 28 Feb 2006 05:41:27 -0500
+Received: from mail.gmx.de ([213.165.64.20]:13193 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932166AbWB1Kl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 05:39:19 -0500
-Message-ID: <44042863.2050703@dgreaves.com>
-Date: Tue, 28 Feb 2006 10:39:31 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <liml@rtr.ca>
-Cc: Tejun Heo <htejun@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca>
-In-Reply-To: <4403CEA9.4080603@rtr.ca>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Feb 2006 05:41:27 -0500
+X-Authenticated: #2308221
+Date: Tue, 28 Feb 2006 11:41:23 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add =?iso-8859-1?Q?pata=5Fpdc?=
+	=?iso-8859-1?Q?=5F2=DF27x_to_Kconfi?=
+	=?iso-8859-1?Q?g?= and Makefile (was: Re: libata PATA patch for 2.6.16-rc5)
+Message-ID: <20060228104123.GA13125@zeus.uziel.local>
+References: <1141054370.3089.0.camel@localhost.localdomain> <20060228003039.GA13335@zeus.uziel.local> <1141120189.3089.47.camel@localhost.localdomain> <20060228102052.GB19574@zeus.uziel.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
+In-Reply-To: <20060228102052.GB19574@zeus.uziel.local>
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
 
-> Tejun Heo wrote:
->
->> BTW, can you let me know what drive we're talking about now (model
->> name and firmware revision)?
->
->
-> David:  we need to see the output from "hdparm --Istdout /dev/sda
-> (or whichever drive it was that was failing on your system).
->
-> Cheers
->
-So here's the info for sda and sdb (see below for related log data).
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 
-/dev/sda:
- IO_support   =  0 (default 16-bit)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 24321/255/63, sectors = 390721968, start = 0
-0040 3fff c837 0010 0000 0000 003f 0000
-0000 0000 4234 3033 3852 5248 2020 2020
-2020 2020 2020 2020 0003 4000 0004 4241
-4e43 3139 3830 4d61 7874 6f72 2036 4232
-3030 4d30 2020 2020 2020 2020 2020 2020
-2020 2020 2020 2020 2020 2020 2020 8010
-0000 2f00 4000 0200 0000 0007 3fff 0010
-003f fc10 00fb 0100 ffff 0fff 0000 0007
-0003 0078 0078 0078 0078 0000 0000 0000
-0000 0000 0000 0000 0002 0000 0000 0000
-00fe 001e 7869 7d09 4043 7869 3c01 4043
-203f 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 f1b0 1749 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0113 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 d3a5
+Hi Alan,
 
-/dev/sdb:
- IO_support   =  0 (default 16-bit)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 24792/255/63, sectors = 398297088, start = 0
-0040 3fff c837 0010 0000 0000 003f 0000
-0000 0000 4234 3152 5641 3148 2020 2020
-2020 2020 2020 2020 0003 4000 0004 4241
-4e43 3142 5930 4d61 7874 6f72 2036 4232
-3030 4d30 2020 2020 2020 2020 2020 2020
-2020 2020 2020 2020 2020 2020 2020 8010
-0000 2f00 4000 0200 0000 0007 3fff 0010
-003f fc10 00fb 0100 ffff 0fff 0000 0007
-0003 0078 0078 0078 0078 0000 0000 0000
-0000 0000 0000 001f 0102 0000 0000 0000
-00fe 001e 7c6b 7f09 4063 7c69 3e01 4063
-207f 0000 0000 0000 fffe 0000 c0fe 0000
-0000 0000 0000 0000 8800 17bd 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0001 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0113 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 0000
-0000 0000 0000 0000 0000 0000 0000 d8a5
+the pata_pdc2027x driver works flawlessly AFAICT - the only weird thing about it would
+be some duplicated init messages in dmesg:
 
-The info below is from the log I saved booted with 2.6.16-rc4
-I got these errors:
-
-sd 0:0:0:0: SCSI error: return code = 0x8000002
-sda: Current: sense key: Medium Error
-    Additional sense: Unrecovered read error - auto reallocate failed
-end_request: I/O error, dev sda, sector 390716735
-raid5: Disk failure on sda1, disabling device. Operation continuing on 2
-devices
-ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
-ata2: status=0x51 { DriveReady SeekComplete Error }
-sd 1:0:0:0: SCSI error: return code = 0x8000002
-sdb: Current: sense key: Medium Error
-    Additional sense: Unrecovered read error - auto reallocate failed
-end_request: I/O error, dev sdb, sector 390716735
-raid5: Disk failure on sdb1, disabling device. Operation continuing on 1
-devices
-
-They are both attached to:
-libata version 1.20 loaded.
-sata_sil 0000:00:0a.0: version 0.9
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 16 (level, low) -> IRQ 17
-ata1: SATA max UDMA/100 cmd 0xF8804080 ctl 0xF880408A bmdma 0xF8804000
-irq 17
-ata2: SATA max UDMA/100 cmd 0xF88040C0 ctl 0xF88040CA bmdma 0xF8804008
-irq 17
-ata1: SATA link up 1.5 Gbps (SStatus 113)
-ata1: dev 0 cfg 49:2f00 82:7869 83:7d09 84:4043 85:7869 86:3c01 87:4043
-88:203f
-ata1: dev 0 ATA-7, max UDMA/100, 390721968 sectors: LBA48
-ata1: dev 0 configured for UDMA/100
-scsi0 : sata_sil
-ata2: SATA link up 1.5 Gbps (SStatus 113)
-ata2: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4063 85:7c69 86:3e01 87:4063
-88:007f
-ata2: dev 0 ATA-7, max UDMA/133, 398297088 sectors: LBA48
-ata2: dev 0 configured for UDMA/100
-scsi1 : sata_sil
-  Vendor: ATA       Model: Maxtor 6B200M0    Rev: BANC
+pata_pdc2027x 0000:00:0c.0: version 0.73
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 3
+PCI: setting IRQ 3 as level-triggered
+ACPI: PCI Interrupt 0000:00:0c.0[A] -> Link [LNKD] -> GSI 3 (level, low) -> IRQ 3
+pata_pdc2027x 0000:00:0c.0: PLL input clock 20020 kHz
+ata3: PATA max UDMA/133 cmd 0xF08217C0 ctl 0xF0821FDA bmdma 0xF0821000 irq 3
+ata4: PATA max UDMA/133 cmd 0xF08215C0 ctl 0xF0821DDA bmdma 0xF0821008 irq 3
+ata3: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3c69 86:3e01 87:4003 88:407f
+ata3: dev 0 ATA-7, max UDMA/133, 234493056 sectors: LBA48
+ata3: dev 0 configured for UDMA/133
+scsi2 : pata_pdc2027x
+ata4: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3c69 86:3e01 87:4003 88:407f
+ata4: dev 0 ATA-7, max UDMA/133, 234493056 sectors: LBA48
+ata4: dev 0 configured for UDMA/133
+scsi3 : pata_pdc2027x
+  Vendor: ATA       Model: SAMSUNG SV1203N   Rev: TQ10
   Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: Maxtor 6B200M0    Rev: BANC
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 234493056 512-byte hdwr sectors (120060 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2
+sd 2:0:0:0: Attached scsi disk sda
+  Vendor: ATA       Model: SAMSUNG SV1203N   Rev: TQ10
   Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 234493056 512-byte hdwr sectors (120060 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+ sdb: sdb1 sdb2
+sd 3:0:0:0: Attached scsi disk sdb
 
-Are there any other tests; like swapping the disks to the other
-controller (sata_via) and seeing what happens. With and without the patch?
+It appears to me that some part of drive detection is done twice - at
+least the output is generated redundantly. If this is a bug and not a
+feature, maybe one issue of the output could be trimmed in the end.
 
-David
+There have been rumours about some Promise controller having trouble
+with UDMA6 and the Linux drivers, but I am running this configuration
+for quite some time now and never had the slightest problem.
 
--- 
+
+Thanks, everyone, for the good stuff : )
+
+Chris
+
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iQIVAwUBRAQo012m8MprmeOlAQLX+hAAhl0PrQKDOVOXNn9+fmL2m+jJzuysWy+n
+K4/fvBMKwZwTzBuJr+cvVW4ewtOcjacy5+JYu6PpGzhMcE7Jff+YUfgbCLT0krOa
+RfJFZb87OxNKlgF2bvsxYp2hiJSEPB9DvDX61dnf1V/ACTAwyhBb9ZrJX/B84QX2
+SA/Vk9rUv2Uw1gtEwt9WTvmT2WDJM9ki+VcU0g/35cUXWRj8d/PKX80F1b7dGoF9
+UK0nb9pnSLsxPcBx9Co7g/bLy+57+UqfHaxr9nTeyTVHYdvQphWClm0IwnScvPkD
+r1KpXpUZeUUaaezNaS6YfNjyhNFi8LTxks6jl585zrYebVNL2LvMZv1hU7hMNaF2
+IX1OnX9n2rEkxHhzpyiIR7IB5dmkvPlZxVzw4QUV9JuKwoOGGMsvl/0i3EzkChLe
+GNQNICk8lhOaRGqsm3JbKrOe1DB9s5K/Fe4CLQ94Af569HkJmoaaDTK1AWzU9ZLh
+2/GKcTryjfnHTnEZXAQz0/RbaXYkm7CPJhz6IQzdCWm4QFVh/i0zS2oI9wUtAcmE
+/0+W1XTYF92K4guNuNQuIRcPgM/TiGFkrM1PX9RaiCi0OrVxzEDvxFjLhrg0e9ZB
+NMMX8YKvf8d2Bkv9ag7tnwdvQt/i9xrSpkXOs3LytDPCoVVAsFARrGJPgdFfWiSX
+CDpQ9sKE32U=
+=Iv2F
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--
 

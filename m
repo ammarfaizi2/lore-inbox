@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWB1O4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWB1O7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751110AbWB1O4o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 09:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWB1O4o
+	id S932099AbWB1O7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 09:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWB1O7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 09:56:44 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:61710 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751110AbWB1O4n
+	Tue, 28 Feb 2006 09:59:16 -0500
+Received: from ns2.suse.de ([195.135.220.15]:16101 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751179AbWB1O7P convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 09:56:43 -0500
-Date: Mon, 27 Feb 2006 14:09:45 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Tom Seeley <redhat@tomseeley.co.uk>, Dave Jones <davej@redhat.com>,
-       Jiri Slaby <jirislaby@gmail.com>, michael@mihu.de,
-       mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, Brian Marete <bgmarete@gmail.com>,
-       Ryan Phillips <rphillips@gentoo.org>, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net,
-       Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, Luming Yu <luming.yu@intel.com>,
-       len.brown@intel.com, linux-acpi@vger.kernel.org,
-       Mark Lord <lkml@rtr.ca>, Randy Dunlap <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       Duncan <1i5t5.duncan@cox.net>, Pavlik Vojtech <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz, Meelis Roos <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions
-Message-ID: <20060227140944.GC2429@ucw.cz>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060227061354.GO3674@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060227061354.GO3674@stusta.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 28 Feb 2006 09:59:15 -0500
+Message-ID: <44046542.9030209@suse.de>
+Date: Tue, 28 Feb 2006 15:59:14 +0100
+From: Hannes Reinecke <hare@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050727
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <liml@rtr.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Fixup ahci suspend / resume
+References: <44045FB1.5040408@suse.de> <44046222.4090008@rtr.ca>
+In-Reply-To: <44046222.4090008@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 27-02-06 07:13:54, Adrian Bunk wrote:
+Mark Lord wrote:
+> Hannes Reinecke wrote:
+>> Hi all,
+>>
+[ .. ]
+>> This patch rearranges the suspend / resume code to properly initialise
+>> those registers after a resume. It also contains some initialisation
+>> fixes to make the driver behave more spec-compliant.
+> ..
 > 
-> Subject    : S3 sleep hangs the second time - 600X
-> References : http://bugzilla.kernel.org/show_bug.cgi?id=5989
-> Submitter  : Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-> Handled-By : Luming Yu <luming.yu@intel.com>
-> Status     : is being debugged,
->              we might want to change the default back for 2.6.16:
->              http://lkml.org/lkml/2006/2/25/101
+> Is ahci the *only* interface afflicted with this problem?
+Good question.
 
-Luming's call, but ec_intr apparently fixed some machines, too.s
+Can't tell. So far this is ahci specific as the ahci requires the DMA
+addresses to be written in some register. One would have to look up the
+individual specs to check whether this is also true for other drivers.
 
-> Subject    : 2.6.16-rc[34]: resume-from-RAM unreliable (SATA)
-> References : http://lkml.org/lkml/2006/2/20/159
-> Submitter  : Mark Lord <lkml@rtr.ca>
-> Handled-By : Randy Dunlap <rdunlap@xenotime.net>
-> Status     : one of Randy's patches seems to fix it
+AFAICS the SATA spec doesn't require you to implement it this way, though.
 
-Is this really regression?
+Cheers,
 
+Hannes
 -- 
-Thanks, Sharp!
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux Products GmbH		S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
+

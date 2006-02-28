@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWB1MHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWB1MJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbWB1MHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 07:07:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWB1MHJ
+	id S932503AbWB1MJF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 07:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWB1MJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 07:07:09 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:485 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932392AbWB1MHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 07:07:08 -0500
-Message-ID: <44043CDE.6040204@comcast.net>
-Date: Tue, 28 Feb 2006 07:06:54 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060213)
-MIME-Version: 1.0
-To: Magnus Damm <magnus.damm@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory compression (again). . help?
-References: <4403A14D.4050303@comcast.net> <4403C30A.6070704@comcast.net> <aec7e5c30602272120l54a3e8c9k2db51a1c86823f7b@mail.gmail.com>
-In-Reply-To: <aec7e5c30602272120l54a3e8c9k2db51a1c86823f7b@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Feb 2006 07:09:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40323 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932503AbWB1MJC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 07:09:02 -0500
+Date: Tue, 28 Feb 2006 13:08:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Randy Dunlap <randy_d_dunlap@linux.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 10/13] ATA ACPI: do taskfile before mode commands
+Message-ID: <20060228120843.GC3695@elf.ucw.cz>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com> <20060222140140.0d9e41b7.randy_d_dunlap@linux.intel.com> <20060228115715.GE4081@elf.ucw.cz> <44043C7D.5090207@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44043C7D.5090207@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-
-Magnus Damm wrote:
-> On 2/28/06, John Richard Moser <nigelenki@comcast.net> wrote:
->> Hmm, I can't see where the kernel checks to see which pages are least
->> used. . . . anyone good with the VM can point me in the right direction?
+On Út 28-02-06 07:05:17, Jeff Garzik wrote:
+> Pavel Machek wrote:
+> >On St 22-02-06 14:01:40, Randy Dunlap wrote:
+> >
+> >>From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+> >>
+> >>Do drive/taskfile-specific commands before setting the drive mode.
+> >>This allows the taskfile to unlock the drive before trying to
+> >>set the drive mode.
+> >>
+> >>Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+> >>---
+> >>drivers/scsi/libata-core.c |   13 ++++++++++---
+> >>1 file changed, 10 insertions(+), 3 deletions(-)
+> >>
+> >>--- linux-2616-rc4-ata.orig/drivers/scsi/libata-core.c
+> >>+++ linux-2616-rc4-ata/drivers/scsi/libata-core.c
+> >>@@ -4297,13 +4297,17 @@ static int ata_start_drive(struct ata_po
+> >> */
+> >>int ata_device_resume(struct ata_port *ap, struct ata_device *dev)
+> >>{
+> >>+	printk(KERN_DEBUG "ata%d: resume device\n", ap->id);
+> >
+> >
+> >Yep, one more helpful printk. Not. Actually this is four more of them
+> >in this patch alone. Please remove your debugging code prior to merge.
 > 
-> The page reclaim code responsible for shrinking the LRUs code be found
-> in mm/vmscan.c. That file contains a lot of code, my recommendation to
-> you is to have a look at shrink_zone() which is responsible for
-> rotating and shrinking the active and inactive lists.
-> 
+> Agreed, with the modification s/remove/limit by ata_msg_xxx/
 
-Thanks, I'll take a look.
+Please, just remove them. Driver model core already has debugging that
+can be enabled and prints what is called.
 
-> Also, If you want to compress pages that normally would be swapped
-> out, then I recommend you to have a look at the functions in
-> mm/swap_state.c and see how swap space gets allocated and freed.
-> 
-
-Mm.  Ok.
-
-> If you need to know more about the Linux VM then I recommend you to
-> buy the excellent book "Understanding the Linux Virtual Memory
-> Manager" written by Mel Gorman, ISBN 0-13-145348-3. My copy of that
-> book covers Linux-2.4 and has some comments about 2.6 too.
-> 
-
-I'll shoot from the hip, my foot grows back.
-
-> / magnus
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEBDzdhDd4aOud5P8RApCXAKCASRwqJqXD/8rHh84x3tzkntC6jQCeMeqS
-9B7IgG3aCEJOOXrOsxSMp3o=
-=ZLh3
------END PGP SIGNATURE-----
+I do not think we want printk() at begining of every *_resume
+function.
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbWB1Wzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWB1XEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932681AbWB1Wzx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 17:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWB1Wzw
+	id S932603AbWB1XEv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 18:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbWB1XEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 17:55:52 -0500
-Received: from ns2.tasking.nl ([195.193.207.10]:4780 "EHLO ns2.tasking.nl")
-	by vger.kernel.org with ESMTP id S932681AbWB1Wzw (ORCPT
+	Tue, 28 Feb 2006 18:04:51 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:44219 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932603AbWB1XEu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 17:55:52 -0500
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Newsreader: knews 1.0b.1
-From: dick@streefland.net (Dick Streefland)
-Organization: none
-X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
-Subject: [PATCH] support for USB-to-serial cable from Speed Dragon Multimedia
-Content-Type: text/plain; charset=us-ascii
-NNTP-Posting-Host: 172.17.1.66
-Message-ID: <1a9a.4404d4f6.330ff@altium.nl>
-Date: Tue, 28 Feb 2006 22:55:50 -0000
+	Tue, 28 Feb 2006 18:04:50 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH -mm 2/2] mm: make shrink_all_memory try harder
+Date: Wed, 1 Mar 2006 00:04:28 +0100
+User-Agent: KMail/1.9.1
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+References: <200602271926.20294.rjw@sisk.pl> <200602281825.55355.rjw@sisk.pl> <20060228104638.2251d469.akpm@osdl.org>
+In-Reply-To: <20060228104638.2251d469.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603010004.29968.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The USB data cable for my Samsung GSM phone contains the USB-to-serial
-converter chip MS3303H from Speed Dragon Multimedia, Inc. that appears
-to be compatible with the PL2303 chip. The following patch adds support
-for this chip to the pl2303 driver.
+On Tuesday 28 February 2006 19:46, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > On Tuesday 28 February 2006 04:25, Andrew Morton wrote:
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > >
+> > > > Make shrink_all_memory() repeat the attempts to free more memory if there
+> > > > seems to be no pages to free.
+> > > > 
+> > > 
+> > > This description doesn't describe what the problem is, not how the patch
+> > > fixes it.  So I'm kinda left guessing.
+> > 
+> > I have described it in the 0/0 message, but I should have repeated that in the
+> > changelog, sorry.
+> 
+> Actually these [patch 0/n] emails are a nuisance - some poor schmuck just
+> has to copy-n-paste that text into the fist patch's changelog anwyay.
+> 
+> > > swsusp should call drop_pagecache() and then drop_slab() before trying to
+> > > use shrink_all_memory(), btw.
+> > 
+> > Well, sometimes we don't need to free a lot of memory.
+> 
+> OK.  But if clean pagecache and reclaimable slabs are left in memory,
+> they'll have to be written to swap, won't they?
 
-Signed-off-by: Dick Streefland <dick@streefland.net>
-
---- linux-2.6.16-rc5/drivers/usb/serial/pl2303.c.orig	2006-02-28 22:24:44.000000000 +0100
-+++ linux-2.6.16-rc5/drivers/usb/serial/pl2303.c	2006-02-28 22:55:54.000000000 +0100
-@@ -77,6 +77,7 @@ static struct usb_device_id id_table [] 
- 	{ USB_DEVICE(CA_42_CA42_VENDOR_ID, CA_42_CA42_PRODUCT_ID) },
- 	{ USB_DEVICE(SAGEM_VENDOR_ID, SAGEM_PRODUCT_ID) },
- 	{ USB_DEVICE(LEADTEK_VENDOR_ID, LEADTEK_9531_PRODUCT_ID) },
-+	{ USB_DEVICE(SPEEDDRAGON_VENDOR_ID, SPEEDDRAGON_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
- };
+Yes, but then we write them more or less linearly and we can also compress
+them. :-)
  
---- linux-2.6.16-rc5/drivers/usb/serial/pl2303.h.orig	2006-02-28 22:24:44.000000000 +0100
-+++ linux-2.6.16-rc5/drivers/usb/serial/pl2303.h	2006-02-28 22:57:58.000000000 +0100
-@@ -75,3 +75,7 @@
- /* Leadtek GPS 9531 (ID 0413:2101) */
- #define LEADTEK_VENDOR_ID	0x0413
- #define LEADTEK_9531_PRODUCT_ID	0x2101
-+
-+/* USB GSM cable from Speed Dragon Multimedia, Ltd */
-+#define SPEEDDRAGON_VENDOR_ID	0x0e55
-+#define SPEEDDRAGON_PRODUCT_ID	0x110b
+> It could well be more efficent to restore them from swap.  Slower suspend,
+> faster resume.
+> 
+> > > +	if (retry-- && ret < nr_pages) {
+> > > +		blk_congestion_wait(WRITE, HZ/5);
+> > > +		goto repeat;
+> > > +	}
+> > 
+> > I'd like to do this only if ret is 0.
+> 
+> Well I figured that this was a more general approach: we were _asked_ to
+> free that many pages.  If we haven't done that yet, keep trying.  Can you
+> test that code please?
 
+So far, it works just fine.  Thanks.
+
+[Tested on 2.6.16-rc4-mm2, because -rc5-mm1 crashes on my system in a
+spectacular way (already reported separately).]

@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWB1P3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWB1Pa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWB1P3M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWB1P3M
+	id S932218AbWB1Pa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWB1Pa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:29:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27909 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932207AbWB1P3L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:29:11 -0500
-Date: Tue, 28 Feb 2006 16:28:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Hannes Reinecke <hare@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Fixup ahci suspend / resume
-Message-ID: <20060228152847.GE24981@suse.de>
-References: <44045FB1.5040408@suse.de> <440468DB.5060605@pobox.com> <20060228151928.GC24981@suse.de> <44046AC2.1060002@pobox.com>
+	Tue, 28 Feb 2006 10:30:58 -0500
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:13479 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932218AbWB1Pa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 10:30:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=SN5lM9Z5ik+kaLgz9BSlQTQrIAZZdqsZY3xarXtdtJeAaAKo6yXfz2aeF5ZOyDKQxrhtnNiQY826WAt05NCOPQ1UVGW/jZPUmzZ8TwJwuVCKrXzWpQQNZDIUyhFYeDXA+uEmDCQ8ARPk7VJ0npdRzHmkWMffZmGZNDT8pCmpJH0=  ;
+Subject: Re: [2.6 patch] make UNIX a bool
+From: "James C. Georgas" <jgeorgas@rogers.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060228145217.GM19232@lug-owl.de>
+References: <20060225160150.GX3674@stusta.de>
+	 <1141078686.28136.20.camel@Rainsong.home>
+	 <20060228145217.GM19232@lug-owl.de>
+Content-Type: text/plain
+Date: Tue, 28 Feb 2006 10:30:51 -0500
+Message-Id: <1141140654.11504.25.camel@Tachyon.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44046AC2.1060002@pobox.com>
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28 2006, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >Upstream 2.6.x certainly _does_ care about suspend/resume! To me, this
-> >patch seems simple enough to be included. It's little more than
-> >splitting the register init out form the port_stop/start functions and
-> >calling them on resume/suspend appropriately.
-> 
-> Upstream _libata_ doesn't care much about suspend/resume.  Officially, 
-> its a work in progress with major pieces -- your patch and ACPI -- still 
-> missing.
+On a philosophical note, I like being able to unload a module and
+replace it at runtime, without having to reboot. I might want to play
+around with the code in a module, for educational purposes, and being
+able to reload an altered module makes a huge difference in how quickly
+I can test my changes.
 
-Eh my patch is not missing, it's been merged since the start of
-2.6.16-rc. The acpi patch is still missing, however that's not required
-on all machines. So SATA suspend should work now, at least on ata_piix
-which is the only driver that currently enables it.
+Also, I suspect that if the modular option were removed then eventually
+the code would evolve to a state where it would be impossible to
+reinstate the option (i.e. the driver would become tightly coupled to
+other kernel code). There have been drivers in the past that would not
+build as modules, because they made the assumption that their
+dependencies were built into the kernel.
 
-For 2.6.15 I agree, we don't care about suspend since it basically
-cannot work. That's not the case for 2.6.16 though.
+A good example is the old 2.4 kernel IDE stuff, where the IDE disk
+driver would barf on compilation if the IDE base driver was built as a
+module instead of compiled into the kernel.
 
-> Further, good improvements covering some of the changes in Hannes' patch 
-> are already in #upstream.
-> 
-> Thus, it's more work than its worth to care about the patch as-is.  It 
-> should be redone against #upstream, which is where all suspend/resume 
-> development is occurring.
+I guess it just gives me the creeps to think that we're setting up
+conditions that would allow tight coupling of drivers to arise once
+again.
 
-I'm sure Hannes will regenerate against upstream as well if necessary,
-however that depends on when this should be applied.
-
+Of course, I'm not an expert or anything. What /are/ the disadvantages
+to having a modular driver, as opposed to having it built in to the
+kernel?
 -- 
-Jens Axboe
+James C. Georgas <jgeorgas@rogers.com>
 

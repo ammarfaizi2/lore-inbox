@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWB1Pm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751814AbWB1P5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWB1Pm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWB1Pm5
+	id S1751814AbWB1P5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWB1P5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:42:57 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:50085 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1751255AbWB1Pm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:42:56 -0500
-X-IronPort-AV: i="4.02,153,1139212800"; 
-   d="scan'208"; a="258423117:sNHT32103872"
-To: Jes Sorensen <jes@sgi.com>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-X-Message-Flag: Warning: May contain useful information
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	<yq08xrvhkee.fsf@jaguar.mkp.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 28 Feb 2006 07:42:52 -0800
-In-Reply-To: <yq08xrvhkee.fsf@jaguar.mkp.net> (Jes Sorensen's message of "28
- Feb 2006 05:01:29 -0500")
-Message-ID: <adar75nlcar.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Tue, 28 Feb 2006 10:57:44 -0500
+Received: from cantor.suse.de ([195.135.220.2]:13471 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751493AbWB1P5n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 10:57:43 -0500
+Message-ID: <440472F6.6090905@suse.de>
+Date: Tue, 28 Feb 2006 16:57:42 +0100
+From: Hannes Reinecke <hare@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050727
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 28 Feb 2006 15:42:52.0729 (UTC) FILETIME=[A2D82290:01C63C7D]
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Fixup ahci suspend / resume
+References: <44045FB1.5040408@suse.de> <440468DB.5060605@pobox.com> <20060228151928.GC24981@suse.de> <44046AC2.1060002@pobox.com> <20060228152847.GE24981@suse.de> <44046DC3.4060508@pobox.com>
+In-Reply-To: <44046DC3.4060508@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jes> Could you explain why the current mmiowb() API won't suffice
-    Jes> for this?  It seems that this is basically trying to achieve
-    Jes> the same thing.
+Jeff Garzik wrote:
+> Jens Axboe wrote:
+>> I'm sure Hannes will regenerate against upstream as well if necessary,
+>> however that depends on when this should be applied.
+> 
+> It's far too late and too intrusive for 2.6.16-rc.
+> 
+> It's #upstream or <null>.
+> 
+Calm down. Of course I will regenerate is against #upstream.
+In fact, I've done so initially but wasn't sure what the status of
+libata-dev is. So I've diffed it against linux-git instead.
 
-I don't believe mmiowb() is at all the same thing.  mmiowb() is all
-about ordering writes between _different_ CPUs without incurring the
-cost of flushing posted writes by issuing a read on the bus.  wc_wmb()
-would just act like a true wmb(), even when using write-combining
-regions on x86 -- in other words, there would be no cross-CPU synchronization.
+Updated patch to follow.
 
- - R.
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux Products GmbH		S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de
+

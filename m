@@ -1,107 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWB1XeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbWB1Xgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932597AbWB1XeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 18:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbWB1XeA
+	id S932613AbWB1Xgk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 18:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932685AbWB1Xgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 18:34:00 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:8098 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932597AbWB1Xd7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 18:33:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RXLl1NxIxVXMT1UC/HLhZrGbmCb9QFOdP2xSIhP+9gO2DKK5msD53TJUGGQy4iNxLzZH3ClhCHklBQ7rutLxjYG0+v9YpaGTjfF0ZayRodApiR3CrzdV10HPFE+hmrm5IY7OYhbRmS0r8DMf8PHnQoQ+UAS5tWEDp014ErJum30=
-Message-ID: <9a8748490602281533s13139d50o223c220bc853c482@mail.gmail.com>
-Date: Wed, 1 Mar 2006 00:33:59 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.16-rc5-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060228151544.019aa2b4.akpm@osdl.org>
+	Tue, 28 Feb 2006 18:36:40 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:42965 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932668AbWB1Xgj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 18:36:39 -0500
+From: Neil Brown <neilb@suse.de>
+To: "matteo brancaleoni" <mbrancaleoni@gmail.com>
+Date: Wed, 1 Mar 2006 10:35:47 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	 <20060228151544.019aa2b4.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17412.56916.247822.749271@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bio & Biovec-1 increasing cache size, never freed during disk IO
+In-Reply-To: message from matteo brancaleoni on Tuesday February 28
+References: <d6fe45ba0602251245h32b9ac5dw65246ed6e1bba607@mail.gmail.com>
+	<d6fe45ba0602271238q10fea0f8tfc29f0d51c4df1c8@mail.gmail.com>
+	<17411.33114.403066.812228@cse.unsw.edu.au>
+	<d6fe45ba0602280705l6f38f1b8j3126d0be638be8fa@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/1/06, Andrew Morton <akpm@osdl.org> wrote:
-> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
-> >
-> >  Since I'm in X when the lockup happens and I don't have enough time
-> >  from clicking the eclipse icon to the box locks up to make a switch to
-> >  a text console I don't know if an Oops or similar is dumped to the
-> >  console (there's nothing in the locks after a reboot)  :-(
->
-> In a shell, do
->
->         sleep 10 ; /path-to-eclipse
->
+On Tuesday February 28, mbrancaleoni@gmail.com wrote:
+> Hi Neil,
+> 
+> seems that the patch that leads to the error is the one signed up by you:
+> commit 3795bb0fc52fe2af2749f3ad2185cb9c90871ef8
+> Author: NeilBrown <neilb@suse.de>
+> Date:   Mon Dec 12 02:39:16 2005 -0800
+> 
+>     [PATCH] md: fix a use-after-free bug in raid1
+> 
+>     Who would submit code with a FIXME like that in it !!!!
+> 
+>     Signed-off-by: Neil Brown <neilb@suse.de>
+>     Signed-off-by: Andrew Morton <akpm@osdl.org>
+>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-Yeah, I did (in a plain text console) :
+Thanks for finding this.
 
-export DISPLAY=:0.0 ; sleep 3 ; eclipse
+There are two bugs here.
+One is that if BIO_RW_BARRIER is rejected by one drive but not the
+other, then we forget to release a bio that we should have released.
 
-then switched to tty0 and got the following - written down by hand so
-I left out some bits, hope I got the important bits - a few things may
-have scrolled off the top of the screen though..
-If needed this is completely repproducible, so in a pinch I could
-reboot with a higher fb resolution + write down every little bit by
-hand, but I hope the following is enough :
+The other is that the test for "should we do barrier IO" was wrong so
+that even though one device doesn't support it, raid1 keeps trying it
+(but only on read-ahead requests....)
 
-EIP is at __wake_up_common+0x15/0x60
-...
-Process swapper (pid:0, threadinfo=c0454000 task=c03b9ae0)
-Stack: ...
-...
-Call trace:
-  show_stack_log_lvl		show_registers
-  die				do_page_fault
-  error_code			__wake_up
-  __wake_up_bit			wake_up_bit
-  unlock_buffer			end_buffer_read_sync
-  end_bio_bh_io_sync		bio_endio
-  __end_that_request_first	end_that_request_chunk
-  scsi_end_request		scsi_io_completion
-  sd_rw_intr			scsi_finish_command
-  scsi_softirq_done		blk_done_softirq
-  __do_softirq			do_softirq
-==============
-  irq_exit			do_IRQ
-  common_interrupt		cpu_idle
-  rest_init			start_kernel
-  0xc0100210
-Code: ...
-...
-Kernel panic - not syncing: Fatal exception in interrupt
-BUG: warning at arch/i386/kernel/smp.c:538/smp_call_function
-  show_trace			dump_stack
-  smp_call_function		smp_send_stop
-  panic				die
-  do_page_fault			error_code
-  __wake_up			__wake_up_bit
-  wake_up_bit			unlock_buffer
-  end_buffer_read_sync		end_bio_bh_io_sync
-  bio_endio			__end_that_request_first
-  end_that_request_chunk	scsi_end_request
-  scsi_io_completion		sd_rw_intr
-  scsi_finish_command		scsi_softirq_done
-  blk_done_softirq		__do_softirq
-  do_softirq
-===========
-  irq_exit			do_IRQ
-  common_interrupt		cpu_idle
-  rest_init			start_kernel
-  0xc0100210
+It would seem that the devices in your array are not all on the same
+controller.  Is that correct?  There isn't a problem with that, but I
+just want to check my understanding of what is happening.
 
+Could you try this patch please and see if it fixes the problem?
 
+Thanks again,
+NeilBrown
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./drivers/md/raid1.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
+--- ./drivers/md/raid1.c~current~	2006-02-27 11:52:18.000000000 +1100
++++ ./drivers/md/raid1.c	2006-03-01 10:30:43.000000000 +1100
+@@ -375,7 +375,7 @@ static int raid1_end_write_request(struc
+ 			/* Don't dec_pending yet, we want to hold
+ 			 * the reference over the retry
+ 			 */
+-			return 0;
++			goto out;
+ 		}
+ 		if (test_bit(R1BIO_BehindIO, &r1_bio->state)) {
+ 			/* free extra copy of the data pages */
+@@ -392,10 +392,11 @@ static int raid1_end_write_request(struc
+ 		raid_end_bio_io(r1_bio);
+ 	}
+ 
++	rdev_dec_pending(conf->mirrors[mirror].rdev, conf->mddev);
++ out:
+ 	if (r1_bio->bios[mirror]==NULL)
+ 		bio_put(bio);
+ 
+-	rdev_dec_pending(conf->mirrors[mirror].rdev, conf->mddev);
+ 	return 0;
+ }
+ 
+@@ -857,7 +858,7 @@ static int make_request(request_queue_t 
+ 	atomic_set(&r1_bio->remaining, 0);
+ 	atomic_set(&r1_bio->behind_remaining, 0);
+ 
+-	do_barriers = bio->bi_rw & BIO_RW_BARRIER;
++	do_barriers = bio_barrier(bio);
+ 	if (do_barriers)
+ 		set_bit(R1BIO_Barrier, &r1_bio->state);
+ 

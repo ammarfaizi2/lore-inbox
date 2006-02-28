@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752259AbWCEMAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWCEMAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752259AbWCEMAW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 07:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752257AbWCEMAP
+	id S1751496AbWCEMAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 07:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752257AbWCEMAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 07:00:15 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29447 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1752255AbWCEMAN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 5 Mar 2006 07:00:13 -0500
-Date: Sat, 4 Mar 2006 16:39:44 +0000
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28935 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751496AbWCEMAM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 07:00:12 -0500
+Date: Tue, 28 Feb 2006 21:42:44 +0000
 From: Pavel Machek <pavel@ucw.cz>
-To: Chris Leech <christopher.leech@intel.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 8/8] [I/OAT] TCP recv offload to I/OAT
-Message-ID: <20060304163943.GA2724@ucw.cz>
-References: <20060303214036.11908.10499.stgit@gitlost.site> <20060303214236.11908.98881.stgit@gitlost.site>
+To: Koen Martens <linuxarm@metro.cx>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, ben@simtec.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/14] s3c2412/s3c2413 support
+Message-ID: <20060228214244.GA2513@ucw.cz>
+References: <44082001.9090308@metro.cx> <20060303151023.GB2580@ucw.cz> <44085F31.6040705@metro.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060303214236.11908.98881.stgit@gitlost.site>
+In-Reply-To: <44085F31.6040705@metro.cx>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+HI!
 
-> --- a/net/ipv4/tcp.c
-> +++ b/net/ipv4/tcp.c
-> @@ -262,6 +262,9 @@
->  #include <net/tcp.h>
->  #include <net/xfrm.h>
->  #include <net/ip.h>
-> +#ifdef CONFIG_NET_DMA
-> +#include <net/netdma.h>
-> +#endif
->  
+> >Ahha, it is actually arm derivative. Still it would be 
+> >nice to have
+> >better name.
 
-Remove the ifdefs, move them inside .h if needed.
+> Well, we could ask samsung to rename their range, but i 
+> doubt they will do so. Actually, there are a lot of these 
+> platforms already defined, eg s3c2410, s3c2440, s3c2400, 
+> etc..
 
-> diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-> index 7625eaf..9b6290d 100644
-> --- a/net/ipv4/tcp_input.c
-> +++ b/net/ipv4/tcp_input.c
-> @@ -71,6 +71,9 @@
->  #include <net/inet_common.h>
->  #include <linux/ipsec.h>
->  #include <asm/unaligned.h>
-> +#ifdef CONFIG_NET_DMA
-> +#include <net/netdma.h>
-> +#endif
+Do they have codenames that could actually be pronounced? I doubt
+Samsung actually calls them s3c2410 internally.
 
-Here, too.
+(Support for sharp zaurus sl-5500 is called 'collie'. You can
+pronounce that, and it is code name for that machine...)
 
-> +#ifdef CONFIG_NET_DMA
-> +			if (copied_early)
-> +				__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-> +			else
-> +#endif
->  			if (eaten)
->  				__kfree_skb(skb);
->  			else
+> But now that you mention it, i could have been more clear 
+> about this, stating that it was a Samsung ARM processor. 
+> Sorry about that, i don't think the issue is worth 
+> reposting the entire patchset or am i mistaken?
 
-Could you #define copied_early to 0 and avoid ifdefs?
+No, not worth repost, thanks for info.
 
-> @@ -1091,8 +1094,18 @@ process:
->  	bh_lock_sock(sk);
->  	ret = 0;
->  	if (!sock_owned_by_user(sk)) {
-> -		if (!tcp_prequeue(sk, skb))
-> +#ifdef CONFIG_NET_DMA
-> +		struct tcp_sock *tp = tcp_sk(sk);
-> +		if (!tp->ucopy.dma_chan && tp->ucopy.locked_list)
-> +			tp->ucopy.dma_chan = get_softnet_dma();
-> +		if (tp->ucopy.dma_chan)
-> +			ret = tcp_v4_do_rcv(sk, skb);
-> +		else
-> +#endif
-> +		{
-> +			if (!tcp_prequeue(sk, skb))
->  			ret = tcp_v4_do_rcv(sk, skb);
-> +		}
->  	} else
-
-Wrong indentation...
-								Pavel
 -- 
 Thanks, Sharp!

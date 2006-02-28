@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWB1OhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWB1Oiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbWB1OhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 09:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWB1OhQ
+	id S1750996AbWB1Oiu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 09:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWB1Oiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 09:37:16 -0500
-Received: from rtr.ca ([64.26.128.89]:33936 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750757AbWB1OhO (ORCPT
+	Tue, 28 Feb 2006 09:38:50 -0500
+Received: from rtr.ca ([64.26.128.89]:63178 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750935AbWB1Oit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 09:37:14 -0500
-Message-ID: <44046013.7070503@rtr.ca>
-Date: Tue, 28 Feb 2006 09:37:07 -0500
+	Tue, 28 Feb 2006 09:38:49 -0500
+Message-ID: <44046074.4070201@rtr.ca>
+Date: Tue, 28 Feb 2006 09:38:44 -0500
 From: Mark Lord <liml@rtr.ca>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
@@ -28,70 +28,24 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 David Greaves wrote:
->
-> /dev/sda:
 ..
-> 0040 3fff c837 0010 0000 0000 003f 0000
-> 0000 0000 4234 3033 3852 5248 2020 2020
-> 2020 2020 2020 2020 0003 4000 0004 4241
-> 4e43 3139 3830 4d61 7874 6f72 2036 4232
-> 3030 4d30 2020 2020 2020 2020 2020 2020
-> 2020 2020 2020 2020 2020 2020 2020 8010
-> 0000 2f00 4000 0200 0000 0007 3fff 0010
-> 003f fc10 00fb 0100 ffff 0fff 0000 0007
-> 0003 0078 0078 0078 0078 0000 0000 0000
-> 0000 0000 0000 0000 0002 0000 0000 0000
-> 00fe 001e 7869 7d09 4043 7869 3c01 4043
-> 203f 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 f1b0 1749 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0113 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 0000
-> 0000 0000 0000 0000 0000 0000 0000 d3a5
+> sd 0:0:0:0: SCSI error: return code = 0x8000002
+> sda: Current: sense key: Medium Error
+>     Additional sense: Unrecovered read error - auto reallocate failed
+> end_request: I/O error, dev sda, sector 390716735
+> raid5: Disk failure on sda1, disabling device. Operation continuing on 2
+> devices
+> ata2: no sense translation for op=0x2a cmd=0x3d status: 0x51
+> ata2: status=0x51 { DriveReady SeekComplete Error }
+> sd 1:0:0:0: SCSI error: return code = 0x8000002
+> sdb: Current: sense key: Medium Error
+>     Additional sense: Unrecovered read error - auto reallocate failed
+> end_request: I/O error, dev sdb, sector 390716735
+> raid5: Disk failure on sdb1, disabling device. Operation continuing on 1
+> devices
 ..
-hdparm-6.4 says:
 
-         Model Number:       Maxtor 6B200M0
-         Serial Number:      B4038RRH
-         Firmware Revision:  BANC1980
-
-Commands/features:
-         Enabled Supported:
-            *    NOP cmd
-            *    READ BUFFER cmd
-            *    WRITE BUFFER cmd
-            *    Look-ahead
-            *    Write cache
-            *    Power Management feature set
-            *    SMART feature set
-            *    FLUSH_CACHE_EXT
-            *    Mandatory FLUSH_CACHE
-            *    Device Configuration Overlay feature set
-            *    48-bit Address feature set
-                 SET_MAX security extension
-                 Advanced Power Management feature set
-            *    DOWNLOAD_MICROCODE
-            *    WRITE_{DMA|MULTIPLE}_FUA_EXT
-            *    SMART self-test
-            *    SMART error logging
-
-So, yes, the drive is either lying about "* WRITE_{DMA|MULTIPLE}_FUA_EXT",
-or it didn't like the parameters it was given, or the SATA/IDE controller
-chip didn't like the command.
+The error handling still sucks, regardless of FUA.
+All of this nonsense about "Medium Error" is pure bogosity here.
 
 Cheers

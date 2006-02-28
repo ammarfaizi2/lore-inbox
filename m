@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWB1Waz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932584AbWB1WcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932576AbWB1Waz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 17:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWB1Way
+	id S932584AbWB1WcE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 17:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWB1WcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 17:30:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:40737 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932576AbWB1Way convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 17:30:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=urajpkyjWdwtJI+rVb+d8BwQA0OpFaBzXMENIGXUAhOfkUCpbznD0Hob8z+pe8nIRAImaK+NW2n1iAm3mnqSpEaZEZFR3Bl1JM1hK2QyadEiLvaxyO151EYYa1zUwxrOQULrGrsdtjegrhfmTPW2NKU3udJqLmV7ZQsOITTmYQY=
-Message-ID: <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-Date: Tue, 28 Feb 2006 23:30:45 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Jiri Slaby" <slaby@liberouter.org>
-Subject: Re: 2.6.16-rc5-mm1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4404CE39.6000109@liberouter.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 28 Feb 2006 17:32:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62926 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932657AbWB1WcC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 17:32:02 -0500
+Date: Tue, 28 Feb 2006 23:30:51 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@intel.linux.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [Patch 3/3] prepopulate/cache cleared pages
+Message-ID: <20060228223050.GA5831@elf.ucw.cz>
+References: <1140686238.2972.30.camel@laptopd505.fenrus.org> <1140686994.4672.4.camel@laptopd505.fenrus.org> <200602231041.00566.ak@suse.de> <20060223124152.GA4008@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	 <4404CE39.6000109@liberouter.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060223124152.GA4008@elte.hu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/28/06, Jiri Slaby <slaby@liberouter.org> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Jesper Juhl napsal(a):
-> > Since I'm in X when the lockup happens and I don't have enough time
-> > from clicking the eclipse icon to the box locks up to make a switch to
-> > a text console I don't know if an Oops or similar is dumped to the
-> > console (there's nothing in the locks after a reboot)  :-(
-> So why don't just run eclipse from console (DISPLAY=... eclipse), or use atd,
-> crond... (less common variants)?
->
+On Čt 23-02-06 13:41:53, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > On Thursday 23 February 2006 10:29, Arjan van de Ven wrote:
+> > > This patch adds an entry for a cleared page to the task struct. The main
+> > > purpose of this patch is to be able to pre-allocate and clear a page in a
+> > > pagefault scenario before taking any locks (esp mmap_sem),
+> > > opportunistically. Allocating+clearing a page is an very expensive 
+> > > operation that currently increases lock hold times quite bit (in a threaded 
+> > > environment that allocates/use/frees memory on a regular basis, this leads
+> > > to contention).
+> > > 
+> > > This is probably the most controversial patch of the 3, since there is
+> > > a potential to take up 1 page per thread in this cache. In practice it's
+> > > not as bad as it sounds (a large degree of the pagefaults are anonymous 
+> > > and thus immediately use up the page). One could argue "let the VM reap
+> > > these" but that has a few downsides; it increases locking needs but more,
+> > > clearing a page is relatively expensive, if the VM reaps the page again
+> > > in case it wasn't needed, the work was just wasted.
+> > 
+> > Looks like an incredible bad hack. What workload was that again where 
+> > it helps? And how much? I think before we can consider adding that 
+> > ugly code you would a far better rationale.
+> 
+> yes, the patch is controversial technologically, and Arjan pointed it 
+> out above. This is nothing new - and Arjan probably submitted this to 
+> lkml so that he can get contructive feedback.
 
-Good idea, thanks. Dunno why I didn't think of that.
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Actually, I think I have to back Andi here. This looked like patch for
+inclusion (signed-off, cc-ed Andrew). And yes, Arjan pointed out that
+it is controversial, but the way patch was worded I could imagine
+Andrew merging it...
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

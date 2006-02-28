@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWB1Q5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWB1RCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751809AbWB1Q5b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 11:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWB1Q5a
+	id S1751068AbWB1RCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:02:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWB1RCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 11:57:30 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:677 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751809AbWB1Q5a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 11:57:30 -0500
-Message-Id: <200602281657.k1SGvKFk026965@laptop11.inf.utfsm.cl>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/27] allow hard links to directories, opt-in for any filesystem 
-In-Reply-To: Message from Nick Piggin <nickpiggin@yahoo.com.au> 
-   of "Tue, 28 Feb 2006 22:52:19 +1100." <44043973.4070202@yahoo.com.au> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Tue, 28 Feb 2006 13:57:20 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 28 Feb 2006 13:57:20 -0300 (CLST)
+	Tue, 28 Feb 2006 12:02:25 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.192.83]:48794 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1751068AbWB1RCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:02:24 -0500
+Message-ID: <44048211.2070906@comcast.net>
+Date: Tue, 28 Feb 2006 12:02:09 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mail/News 1.5 (X11/20060213)
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory compression (again). . help?
+References: <4403A14D.4050303@comcast.net> <4403C30A.6070704@comcast.net> <Pine.LNX.4.63.0602281123410.15105@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0602281123410.15105@cuia.boston.redhat.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Joshua Hudson wrote:
-> > Patch seems to work, might want more testing.
-> > It probably should not be applied without a discussion, especially
-> > as no filesystem in kernel tree wants this. I am working on a fs that does.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> This is backwards I think. This is not disallowed because there are
-> no filesystems that want it. Linux doesn't want it so it is disallowed
-> by the vfs.
 
-Right.
 
-> You have to put forward a case for why we want it, rather than show us
-> your filesystem that "wants" it. Right?
+Rik van Riel wrote:
+> On Mon, 27 Feb 2006, John Richard Moser wrote:
+> 
+>> Hmm, I can't see where the kernel checks to see which pages are least
+>> used. . . . anyone good with the VM can point me in the right direction?
+> 
+> Not completely written yet, but take a look at:
+> 
+> 	http://linux-mm.org/PageOutKswapd
+> 
 
-Nope. The "why a FS might want it" part is pretty clear (we do have
-symlinks to directories as a poor man's substitute, after all), the "why it
-can't be allowed" part is the tricky one...
+Wow nice.  Confusing, but nice.
 
-- It creates the possibility of loops ==> The garbage collection of unused
-  stuff can't be done just by reference counts (as today), and gets very
-  hairy... and needs a /lot/ of memory.
-- Loop detection/breaking in a general graph /can't/ be done while it is
-  being updated, and they thake a long time (and lots of memory)
-- Can't just assume that by locking in the directory/subdirectory/... order
-  no deadlocks are possible, and traversing the filesystem for surgery gets
-  to be one operation at a time, not concurrent as today
-- A while back (in one of the recurrent ReiserFS flamewars Re: Files as
-  directories, which creates exactly the same situation when linking to a
-  file-is-a-directory) somebody (Linus? Ted T'so?) showed that certain
-  simple operations would potentially require exponential time or memory (I
-  forget which), and thus the idea was out of the question.
+I'm currently peeking around vmscan.c, though I can't seem to tell quite
+how the kernel knows what's hot and cold.  I heard somewhere that when a
+process doesn't use memory for like 5 days, the kernel knows better to
+swap that instead of something it used 10 minutes ago.  I'm not sure how
+though, I don't think the kernel debugs memory access.  My best guess is
+when the page falls out of process TLB, the kernel is notified about it
+and keeps these in order; and when it's faulted back into TLB, the
+kernel is notified and moves it up to more recently used.  Of course,
+this would mean the kernel never invalidates stuff in the process' TLB
+(working set), which doesn't make sense.  Either way the inner workings
+don't matter much to me; what I'm worried about is where it accounts for
+this and more importantly what APIs it provides to query this information.
 
-Sure, the situations that give rise to the problems are rather clear-cut,
-and could be disallowed, but the result for the user would have seemingly
-random restrictions. IMVHO it is much better to have a restricted system
-with a simple conceptual model than a more relaxed one, but with hard to
-understand corner cases it doesn't allow.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+
+    We will enslave their women, eat their children and rape their
+    cattle!
+                                     -- Evil alien overlord from Blasto
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEBIIQhDd4aOud5P8RAnxaAKCOreOPFYNokQzECFPpSAOCbzJsQgCggWav
+AIZ+oU4AMRkdMGjp62xdqP0=
+=TkEA
+-----END PGP SIGNATURE-----

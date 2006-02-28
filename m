@@ -1,103 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWB1SRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWB1SSp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWB1SRz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 13:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWB1SRz
+	id S932397AbWB1SSp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 13:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWB1SSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 13:17:55 -0500
-Received: from daemo09.udag.de ([62.146.33.133]:53989 "EHLO mail.udag.de")
-	by vger.kernel.org with ESMTP id S932312AbWB1SRy (ORCPT
+	Tue, 28 Feb 2006 13:18:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27576 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932388AbWB1SSo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 13:17:54 -0500
-From: Alexander Mieland <dma147@linux-stats.org>
-Organization: Linux Statistics
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Fwd: Re: lost answer on [ANNOUNCE] LiSt - Linux Statistics - www.linux-stats.org
-Date: Tue, 28 Feb 2006 19:17:47 +0100
-User-Agent: KMail/1.9
-X-Face: "[.(DJ7n08,b3KjixLk+L+kK%5O{[xod@~Mo/'mqsUN#[CVc-:2Bkl1K9W)=?utf-8?q?JoO=7C=2EtD=26N6y=0A=09V=3B=26ah=27=3Fox=3AmGfop=3AC=5BO=60=2E8?=
- =?utf-8?q?3Qk-vk=5FX?=@=glws(}Ts]sVCi'9Mw~Wm4nIqVQ)
- =?utf-8?q?b=27qvcxbNX=5E=7B=0A=09kG=3F=3DK=2EOy?="cn{u.05=LxYh{l^kU?Y,lu5rG?@~M_3xmKjrPm:
-X-Count: Registered Linux-User #249600
-X-ePatents: NO!!!!
-X-Motto: Give drugs no chance!
-X-Kernel: 2.6.15-ck3--r1-fb-my4 SMP
-X-Cpu: 2x Intel Pentium 2,6 GHz with HT
-X-Distribution: Gentoo 2005.1-r1
-X-Homepage: http://www.linux-stats.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1206604.VqEl2C4kKn";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 28 Feb 2006 13:18:44 -0500
+Date: Tue, 28 Feb 2006 10:17:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
+Message-Id: <20060228101713.6fd44027.akpm@osdl.org>
+In-Reply-To: <20060227141315.GD2429@ucw.cz>
+References: <20060226100518.GA31256@flint.arm.linux.org.uk>
+	<20060226021414.6a3db942.akpm@osdl.org>
+	<20060227141315.GD2429@ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602281917.51166.dma147@linux-stats.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1206604.VqEl2C4kKn
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-The following mail was lost somewhere... I've sent it 45 minutes ago...
-
-=2D---------  Weitergeleitete Nachricht  ----------
-Subject: Re: [ANNOUNCE] LiSt - Linux Statistics - www.linux-stats.org
-Date: Tuesday 28 February 2006 18:25
-=46rom: Alexander Mieland <dma147@linux-stats.org>
-To: John Richard Moser <nigelenki@comcast.net>
-
-Am Tuesday 28 February 2006 18:20 schrieben Sie:
-> Alexander Mieland wrote:
-> [...]
+Pavel Machek <pavel@suse.cz> wrote:
 >
-> > All of the collected information and data is absolutly anonymous!
->
-> And double-submittable?
+> 
+> On Sun 26-02-06 02:14:14, Andrew Morton wrote:
+> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > >
+> > > Calling serial functions to flush buffers, or try to send more data
+> > >  after the port has been closed or hung up is a bug in the code doing
+> > >  the calling, not in the serial_core driver.
+> > > 
+> > >  Make this explicitly obvious by adding BUG_ON()'s.
+> > 
+> > If we make it
+> > 
+> > 	if (!info) {
+> > 		WARN_ON(1);
+> > 		return;
+> > 	}
+> > 
+> > will that allow people's kernels to limp along until it gets fixed?
+> 
+> It will oops in hard-to-guess, place, anyway.
 
-Nope, sure not. The older system with (nearly) the same data will be
-deleted when registering a new one.
-This is controled by the cpu (vendor, model, frequency), the ram and swap,
-the hostname and some other things...
+Will it?   Where?  Unfixably?
 
-> > Also read our privacy policy [2] to become sure that all is anonymous
-> > and safe. Some more information on frequently asked questions can be
-> > found in our FAQ [3].
-> >
-> > Sincerely
-> >
-> > Alex
-> >
-> > [1] http://www.linux-stats.org
-> > [2] http://www.linux-stats.org/?c=3Dprivacy
-> > [3] http://www.linux-stats.org/?c=3Dfaq
+> BUG_ON is right.
 
-=2D-
-Alexander 'dma147' Mieland                   2.6.15-ck3-r1-fb-my4 SMP
-=46nuPG-ID: 27491179                      Registered Linux-User #249600
-http://blog.linux-stats.org                http://www.linux-stats.org
-http://www.mieland-programming.de          http://www.php-programs.de
-
-=2D------------------------------------------------------
-
-=2D-=20
-Alexander 'dma147' Mieland                          2.6.15-ck3-r1-fb-my4=20
-SMP
-=46nuPG-ID: 27491179                      Registered Linux-User #249600
-http://blog.linux-stats.org                http://www.linux-stats.org
-http://www.mieland-programming.de          http://www.php-programs.de
-
---nextPart1206604.VqEl2C4kKn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQBEBJPPCYRNlSdJEXkRAm56AJ9N0EnxZjebnT6UQzTSCGXexNkj/ACgikot
-zZ25hBqxgYRSPfvnzy2cX2w=
-=5/Vk
------END PGP SIGNATURE-----
-
---nextPart1206604.VqEl2C4kKn--
+WARN_ON+return is far better.  It keeps people's machines working until the
+bug gets fixed.

@@ -1,44 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751609AbWB1AlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWB1Ano@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751609AbWB1AlY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 19:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751859AbWB1AlY
+	id S1751521AbWB1Ano (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 19:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWB1Ann
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 19:41:24 -0500
-Received: from colin.muc.de ([193.149.48.1]:42768 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751609AbWB1AlX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 19:41:23 -0500
-Date: 28 Feb 2006 01:41:15 +0100
-Date: Tue, 28 Feb 2006 01:41:15 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, largret@gmail.com,
-       76306.1226@compuserve.com, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: OOM-killer too aggressive?
-Message-ID: <20060228004115.GA37362@muc.de>
-References: <200602260938_MC3-1-B94B-EE2B@compuserve.com> <20060226102152.69728696.akpm@osdl.org> <1140988015.5178.15.camel@shogun.daga.dyndns.org> <20060226133140.4cf05ea5.akpm@osdl.org> <20060226235142.GB91959@muc.de> <Pine.LNX.4.64.0602271429270.12204@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602271429270.12204@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 27 Feb 2006 19:43:43 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:3730 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751520AbWB1Ann (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 19:43:43 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: "Hesse, Christian" <mail@earthworm.de>
+Subject: Re: hald in status D with 2.6.16-rc4
+Date: Tue, 28 Feb 2006 10:40:38 +1000
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <200602202034.29413.mail@earthworm.de> <200602222112.09567.mail@earthworm.de> <200602272348.37288.mail@earthworm.de>
+In-Reply-To: <200602272348.37288.mail@earthworm.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2996100.gXiE0eJXLC";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602281040.44957.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 02:30:02PM -0800, Christoph Lameter wrote:
-> On Sun, 27 Feb 2006, Andi Kleen wrote:
-> 
-> > Thinking about this more I think we need a __GFP_NOOOM for other
-> > purposes too. e.g. the x86-64 IOMMU code tries to do similar
-> > fallbacks and I suspect it will be hit by the OOM killer too.
-> 
-> Isnt this also a constrained allocation? We could expand the check to also 
-> catch these types of restrictions and fail.
+--nextPart2996100.gXiE0eJXLC
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-No, it uses the full fallback zone list of the target node, not a custom
-one. Would be hard to detect without a flag.
+Hi.
 
-Maybe __GFP_NORETRY is actually good enough for this purpose. Opinions?
+On Tuesday 28 February 2006 08:48, Hesse, Christian wrote:
+> On Wednesday 22 February 2006 21:12, Hesse, Christian wrote:
+> > On Wednesday 22 February 2006 11:10, Hesse, Christian wrote:
+> > > On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
+> > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
+> > > > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > > > Hello everybody,
+> > > > > > >
+> > > > > > > since using kernel version 2.6.16-rc4 the hal daemon is in
+> > > > > > > status D after resume. I use suspend2 2.2.0.1 for 2.6.16-rc3.
+> > > > > > > Any hints what could be the problem? It worked perfectly with
+> > > > > > > 2.6.15.x and suspend2 2.2.
+> > > > > >
+> > > > > > a) Look in the logs for any oopses, other nasties
+> > > > >
+> > > > > Nothing.
+> > > > >
+> > > > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo'
+> > > > > > then find the trace for `hald' in `foo', send it to this list.
+> > > > >
+> > > > > Ok, here it is:
+> > > > >
+> > > > > [ trace snipped ]
+> > > > >
+> > > > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
+> > > >
+> > > > Hopefully suspend2 isn't involved.  People would feel more
+> > > > comfortable if you could test a vanilla mainline tree..
+> > > >
+> > > > Could the ACPI team please take a look at fixing this regression?
+> > >
+> > > I did two cycles with mainline suspend now and did not hit the
+> > > problem... I will keep an eye on it.
+> >
+> > It is independent from suspend version, hald hangs with mainline suspend
+> > as well.
+>
+> I think this is a big regression since 2.5.15. Is anybody working on it? I
+> did not get a reply for nearly a week now...
+> If anybody needs more information let me know.
 
--Andi
+I would suggest bugging the acpi guys :)
+
+Regards,
+
+Nigel
+
+--nextPart2996100.gXiE0eJXLC
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEA5wMN0y+n1M3mo0RAhDWAKC0xFVNjfcScw9Apcig8CndmoIgwwCfaNEe
+Hn87Ptchm/HcpCrioEM4W9w=
+=ZjlT
+-----END PGP SIGNATURE-----
+
+--nextPart2996100.gXiE0eJXLC--

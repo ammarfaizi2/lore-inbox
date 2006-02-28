@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbWB1RTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWB1RUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbWB1RTy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWB1RTy
+	id S932256AbWB1RUr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWB1RUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:19:54 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:4616 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932217AbWB1RTy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:19:54 -0500
-Message-ID: <440485E7.4090702@cfl.rr.com>
-Date: Tue, 28 Feb 2006 12:18:31 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 28 Feb 2006 12:20:47 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:64996 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932256AbWB1RUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:20:46 -0500
+Message-ID: <44048660.3010701@sgi.com>
+Date: Tue, 28 Feb 2006 18:20:32 +0100
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>,
-       Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: GFS2 Filesystem [0/16]
-References: <1140792511.6400.707.camel@quoit.chygwyn.com> <20060224213553.GA8817@infradead.org>
-In-Reply-To: <20060224213553.GA8817@infradead.org>
+To: Roland Dreier <rdreier@cisco.com>
+CC: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+References: <1140841250.2587.33.camel@localhost.localdomain>	<yq08xrvhkee.fsf@jaguar.mkp.net> <adar75nlcar.fsf@cisco.com>	<44047565.3090202@sgi.com> <adafym3l8lk.fsf@cisco.com>
+In-Reply-To: <adafym3l8lk.fsf@cisco.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Feb 2006 17:21:51.0011 (UTC) FILETIME=[76560F30:01C63C8B]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14295.000
-X-TM-AS-Result: No--4.090000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm a bit confused.  Why exactly is this unacceptable, and what exactly 
-do you propose instead?  Having an entirely separate mount point that is 
-sort of parallel to the main one, but with extra metadata exposed?  So 
-instead of /path/to/foo/.gfs2_admin/metafile you'd prefer having a 
-separate mount point like /proc/fs/gfs/path/to/foo/metafile?
-
-
-Christoph Hellwig wrote:
->>  b) The .gfs2_admin directory exposes the internal files that GFS uses
->>     to store various bits of file system related information. This means
->>     that we've been able to remove virtually all the ioctl() calls from
->>     GFS2. There is one ioctl() call left which relates to
->>     getting/setting GFS2 specific flags on files. The various GFS2 tools
->>     will be updated in due course to use this new interface.
+Roland Dreier wrote:
+>     Jes> Not quite correct as far as I understand it. mmiowb() is
+>     Jes> supposed to guarantee that writes to MMIO space have
+>     Jes> completed before continuing.  That of course covers the
+>     Jes> multi-CPU case, but it should also cover the write-combining
+>     Jes> case.
 > 
-> Without even looking at the code a strong NACK here.  This is polluting
-> the namespace which is not acceptable.  Please implement a second
-> filesystem type gfsmeta to do this kind of admin work.  Search for ext2meta
-> which did something similar.  Or use a completely different approach,
-> I'd need to look at the actual functionality provided to give a better
-> advice, but currently I'm lacking the time for that.
-> 
+> I don't believe this is correct.  mmiowb() does not guarantee that
+> writes have completed -- they may still be pending in a buffer in a
+> bridge somewhere.  The _only_ effect of mmiowb() is to make sure that
+> writes which have been ordered between CPUs using some other mechanism
+> (i.e. a lock) are properly ordered by the rest of the system.  This
+> only has an effect systems like very large ia64 systems, where (as I
+> understand it), writes can pass each other on the way to the PCI bus.
+> In fact, mmiowb() is a NOP on essentially every architecture.
 
+Hmmmm
+
+That could be, seems like Jesse agrees that it could all be in the
+pipeline somewhere. Considering Jesse was responsible for mmiowb() I'll
+take his word for it ;-)
+
+In any case, I'd strongly recommend that any new barrier version is
+clearly documented. The jungle is very dense already ;(
+
+Cheers,
+Jes

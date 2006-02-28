@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWB1IEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWB1ILN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWB1IEI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 03:04:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWB1IEI
+	id S1750746AbWB1ILN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 03:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWB1ILN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 03:04:08 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54586 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750704AbWB1IEG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 03:04:06 -0500
-Date: Tue, 28 Feb 2006 09:03:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tejun Heo <htejun@gmail.com>, Mark Lord <lkml@rtr.ca>,
-       Jeff Garzik <jgarzik@pobox.com>, David Greaves <david@dgreaves.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com
-Subject: Re: LibPATA code issues / 2.6.15.4
-Message-ID: <20060228080310.GP24981@suse.de>
-References: <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <Pine.LNX.4.64.0602271744470.22647@g5.osdl.org>
+	Tue, 28 Feb 2006 03:11:13 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13459 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750746AbWB1ILM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 03:11:12 -0500
+Subject: Re: [Patch 5/7]  synchronous block I/O delays
+From: Arjan van de Ven <arjan@infradead.org>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lse-tech <lse-tech@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44037897.4050709@watson.ibm.com>
+References: <1141026996.5785.38.camel@elinux04.optonline.net>
+	 <1141028448.5785.64.camel@elinux04.optonline.net>
+	 <p73fym428cf.fsf@verdi.suse.de>  <44037897.4050709@watson.ibm.com>
+Content-Type: text/plain
+Date: Tue, 28 Feb 2006 09:10:20 +0100
+Message-Id: <1141114220.2935.9.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602271744470.22647@g5.osdl.org>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27 2006, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 28 Feb 2006, Tejun Heo wrote:
-> 
-> > Hello, Mark.
-> > 
-> > Mark Lord wrote:
-> > > 
-> > > .. hold off on 2.6.16 because of this or not?
-> > > 
-> > 
-> > It certainly is dangerous. I guess we should turn off FUA for the
-> > time being.  Barrier auto-fallback was once implemented but it
-> > didn't seem like a good idea as it was too complex and hides low
-> > level bug from higher level. The concensus seems to be developing
-> > blacklist of drives which lie about FUA support (currently only one
-> > drive). Official kernel doesn't seem to be the correct place to grow
-> > the blacklist, Maybe we should do it from -mm?
-> 
-> For 2.6.16, the only sane solution for now is to just turn it off.
-> 
-> Somebody want to send me a patch that does that, along with an ack from 
-> Mark (and whoever else sees this) that it fixes his/their problems?
 
-That's the best solution right now. I guess there's no way around a
-blacklist for FUA support and we need time to grow that :-(
-And proper fallback to non-FUA writes with disabling FUA based barriers
-as well.
+> Our intent was to get an idea of user-initiated sync block I/O because
+> there is some expectation from user space that a higher I/O priority will
+> result in lower delays for such I/O. General throttling writes wouldn't 
+> fit in
+> this category though msync and O_SYNC would.
+> 
+> Are there a lot of other paths you see ? I'll root around more but if you
+> could just list a few more, it'll help.
 
-Mark, what drive model+firmware are you using?
+unmount
+-o sync mounts
+last-close kind of syncs on block devices (yes databases do this and
+care)
+fdatasync()/fsync()
+open() (does a read seek, and may even do cluster locking stuff)
+flock()
 
--- 
-Jens Axboe
+
 

@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWB1BAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751863AbWB1BDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWB1BAg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 20:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbWB1BAg
+	id S1751863AbWB1BDW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 20:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751867AbWB1BDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 20:00:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65422 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751067AbWB1BAf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 20:00:35 -0500
-Date: Mon, 27 Feb 2006 16:59:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: clameter@engr.sgi.com, largret@gmail.com, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: OOM-killer too aggressive?
-Message-Id: <20060227165921.242f6810.akpm@osdl.org>
-In-Reply-To: <20060228004115.GA37362@muc.de>
-References: <200602260938_MC3-1-B94B-EE2B@compuserve.com>
-	<20060226102152.69728696.akpm@osdl.org>
-	<1140988015.5178.15.camel@shogun.daga.dyndns.org>
-	<20060226133140.4cf05ea5.akpm@osdl.org>
-	<20060226235142.GB91959@muc.de>
-	<Pine.LNX.4.64.0602271429270.12204@schroedinger.engr.sgi.com>
-	<20060228004115.GA37362@muc.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Feb 2006 20:03:22 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:19849 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751863AbWB1BDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 20:03:21 -0500
+Message-ID: <4403A14D.4050303@comcast.net>
+Date: Mon, 27 Feb 2006 20:03:09 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mail/News 1.5 (X11/20060213)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Memory compression (again). . help?
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> wrote:
->
-> On Mon, Feb 27, 2006 at 02:30:02PM -0800, Christoph Lameter wrote:
-> > On Sun, 27 Feb 2006, Andi Kleen wrote:
-> > 
-> > > Thinking about this more I think we need a __GFP_NOOOM for other
-> > > purposes too. e.g. the x86-64 IOMMU code tries to do similar
-> > > fallbacks and I suspect it will be hit by the OOM killer too.
-> > 
-> > Isnt this also a constrained allocation? We could expand the check to also 
-> > catch these types of restrictions and fail.
-> 
-> No, it uses the full fallback zone list of the target node, not a custom
-> one. Would be hard to detect without a flag.
-> 
-> Maybe __GFP_NORETRY is actually good enough for this purpose. Opinions?
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I was thinking that your __GFP_NOOOM was a thinko.  How would it differ
-from __GFP_NORETRY?
+I'm not quite sure what I'm doing or when I have time, but I'm looking
+into writing in some hooks and a compression routine to manage
+compressed memory.  I have the following considerations:
+
+ - Compressed memory should become "Swap."  This means the kernel would
+   report memory used for compressed storage as used swap.  At boot it
+   would reflect 0K swap; when there are 1024KiB of pages compressed in
+   memory, 1024KiB of additional "swap" is reported, all used.
+ - I need to stop the kernel when it's about to swap.  This should be
+   done when it's decided that either invalidating disk cache or
+   swapping is the best course of action, and what to do with what.  At
+   this point I'll have to be able to see what the kernel wants to swap
+   out and tell it that it's taken care of.
+ - I need to catch invalid pagefaults that look for swap, as well as the
+   disk cache mechanism.  I'll be adding stuff to compress disk cache,
+   so disk cache might need to be "swapped in" effectively.
+
+Can anyone recommend what functions I should look at modifying?  I'm
+planning on using Rodrigo Castro's WK4x4 or WKdm algorithms, as they
+worked great in his proof of concept.  32KiB blocks will be used because
+I got about a 40% reduction with those, and that was where I reached
+asymptotic growth (larger blocks did not compress much more, smaller
+blocks compressed much less).
+
+Compressed memory is great for things like LiveCDs and huge database
+servers, as well as just giving almost-but-not-quite free memory in general.
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+
+    We will enslave their women, eat their children and rape their
+    cattle!
+                                     -- Evil alien overlord from Blasto
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEA6FKhDd4aOud5P8RAnGyAJ9kFbdxA5+DroHFOZS7oM4uzYhN1gCfbVa+
+rHPUYKjXjekcwLnHN+e12IE=
+=K/bw
+-----END PGP SIGNATURE-----
+

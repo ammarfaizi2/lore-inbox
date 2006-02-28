@@ -1,68 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWB1TrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbWB1TtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWB1TrR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWB1TrR
+	id S932535AbWB1TtG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWB1TtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:47:17 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:42686
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S932533AbWB1TrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:47:16 -0500
-Date: Tue, 28 Feb 2006 13:46:29 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-       Zwane Mwaikambo <zwane@commfireservices.com>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
-Subject: Re: Status of X86_P4_CLOCKMOD?
-Message-ID: <20060228194628.GP4650@waste.org>
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com>
+	Tue, 28 Feb 2006 14:49:06 -0500
+Received: from ns2.suse.de ([195.135.220.15]:57274 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932535AbWB1TtE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:49:04 -0500
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: o_sync in vfat driver
+Date: Tue, 28 Feb 2006 14:48:55 -0500
+User-Agent: KMail/1.9.1
+Cc: col-pepper@piments.com, linux-kernel@vger.kernel.org
+References: <op.s5lrw0hrj68xd1@mail.piments.com> <200602281347.46169.mason@suse.com> <20060228111032.559e849b.akpm@osdl.org>
+In-Reply-To: <20060228111032.559e849b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060223204110.GE6213@redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200602281448.56666.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 23, 2006 at 03:41:10PM -0500, Dave Jones wrote:
-> On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
-> 
->  > > > >  config X86_P4_CLOCKMOD
->  > > > > 	depends on EMBEDDED
->  > > > 
->  > > > This one is an x86_64 only issue, and yes, it's wrong.
->  > > 
->  > > That's for P4, not X86_64... And since P4 clock modulation does not provide
->  > > almost any energy savings it was "hidden" under embedded.
->  > 
->  > But the EMBEDDED dependency is only on x86_64:
->  > 
->  > arch/i386/kernel/cpu/cpufreq/Kconfig:
->  > config X86_P4_CLOCKMOD
->  >         tristate "Intel Pentium 4 clock modulation"
->  >         select CPU_FREQ_TABLE
->  >         help
->  > 
->  > arch/x86_64/kernel/cpufreq/Kconfig:
->  > config X86_P4_CLOCKMOD
->  >         tristate "Intel Pentium 4 clock modulation"
->  >         depends on EMBEDDED
->  >         help
->  > 
->  > And if the option is mostly useless, what is it good for?
-> 
-> It's sometimes useful in cases where the target CPU doesn't have any better
-> option (Speedstep/Powernow).  The big misconception is that it
-> somehow saves power & increases battery life. Not so.
-> All it does is 'not do work so often'.  The upside of this is
-> that in some situations, we generate less heat this way.
+On Tuesday 28 February 2006 14:10, Andrew Morton wrote:
 
-This is perplexing. Less heat equals less power usage according to the
-laws of thermodynamics.
+> On a single line, please.
+>
+Ack.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+> > +	if (MSDOS_SB(inode->i_sb)->options.flush) {
+>
+> Did you consider making `-o flush' a generic mount option rather than
+> msdos-only?
+
+Yes, long term I think the generic option is better.  I have three or so ideas 
+for a generic patch:
+
+1) When the block device leaves congestion, it asks for more io
+2) pdflush operation that tries to constantly keep a given block device 
+congested
+3) my current patch aggregated to other filesystems that people want -o flush 
+on.
+
+I've made a few stabs at #1, but didn't like the end result.  #2 seems like 
+the best choice so far.  If I got it working nicely I would add the generic 
+option, otherwise with option #3 it's probably best to keep it per FS.
+
+The main goal for my current patch was to find out if this functionality will 
+actually make people happy (so far the beta testers like it).  If the 
+complaints are low, it's worth the time to add something generic.
+
+>
+> I guess there isn't a lot of demand for this for other filesystems, and
+> having an ignored option like this is a bit misleading...
+>
+> > +void
+> > +writeback_inode(struct inode *inode)
+> > +{
+> > +
+> > +	struct address_space *mapping = inode->i_mapping;
+> > +	struct writeback_control wbc = {
+> > +		.sync_mode = WB_SYNC_NONE,
+> > +		.nr_to_write = 0,
+> > +	};
+> > +	sync_inode(inode, &wbc);
+> > +	filemap_fdatawrite(mapping);
+>
+> I think that filemap_fdatawrite() will be a no-op?
+
+This part is nasty, I want to write all of the file data pages and write the 
+inode without waiting on it.  The nr_to_write = 0 will make sure that 
+sync_inode only writes the inode, and WB_SYNC_NONE makes sure it does not 
+wait for that io to finish.
+
+What I really want is WB_SYNC_NONE in mpage_writepages, but I don't want to 
+trigger this code:
+
+        if (wbc->sync_mode == WB_SYNC_NONE) {
+                index = mapping->writeback_index; /* Start from prev offset */
+
+So, I use filemap_fdatawrite to make sure all of the data pages get written.  
+It's not perfect, but I was going for minimal changes outside of fat.
+
+-chris

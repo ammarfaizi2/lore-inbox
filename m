@@ -1,57 +1,210 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWB1PFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWB1PFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWB1PFo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWB1PFo
+	id S932109AbWB1PFk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:05:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWB1PFk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:05:44 -0500
-Received: from seldon.control.lth.se ([130.235.83.40]:55744 "EHLO
-	seldon.control.lth.se") by vger.kernel.org with ESMTP
-	id S932126AbWB1PFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:05:43 -0500
-Message-ID: <440466BC.8020801@control.lth.se>
-Date: Tue, 28 Feb 2006 16:05:32 +0100
-From: Martin Andersson <martin.andersson@control.lth.se>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Tue, 28 Feb 2006 10:05:40 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:30198 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932109AbWB1PFk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 10:05:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uZ6zWOQCt2Rfqvwy6u7q89fz+OouoRh5pTLFeWdVzWwfWZiawfCf5QzAA9POd746S6GG1W+Vg27QBWHMzlPRjc00p6/PtObhobQ9BVRMf50DU/9qphsVDZ6zlQngLUdJvhw4Ukp33mNQh/JEvWrMtTxxTqAFN3FvaK5AgdXfMuQ=
+Message-ID: <d6fe45ba0602280705l6f38f1b8j3126d0be638be8fa@mail.gmail.com>
+Date: Tue, 28 Feb 2006 16:05:39 +0100
+From: "matteo brancaleoni" <mbrancaleoni@gmail.com>
+To: "Neil Brown" <neilb@suse.de>
+Subject: Re: Bio & Biovec-1 increasing cache size, never freed during disk IO
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17411.33114.403066.812228@cse.unsw.edu.au>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Patch] task interactivity calculation (was Strange	interactivity
- behaviour)
-References: <4402E52F.6080409@control.lth.se>	 <440426FC.6010609@control.lth.se> <1141135669.14628.27.camel@homer>
-In-Reply-To: <1141135669.14628.27.camel@homer>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <d6fe45ba0602251245h32b9ac5dw65246ed6e1bba607@mail.gmail.com>
+	 <d6fe45ba0602271238q10fea0f8tfc29f0d51c4df1c8@mail.gmail.com>
+	 <17411.33114.403066.812228@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >On Tue, 2006-02-28 at 11:33 +0100, Martin Andersson wrote:
->>The appended patch fixes the problem mentioned in 
->>http://lkml.org/lkml/2006/2/27/104
->>regarding wrong truncations in the calculation of task interactivity 
->>when the nice value is negative. The problem causes the interactivity to 
->>scale nonlinearly and differ from examples in the code.
+Hi Neil,
 
-Hi Mike,
+seems that the patch that leads to the error is the one signed up by you:
+commit 3795bb0fc52fe2af2749f3ad2185cb9c90871ef8
+Author: NeilBrown <neilb@suse.de>
+Date:   Mon Dec 12 02:39:16 2005 -0800
 
-Point taken. Is it correct now?
+    [PATCH] md: fix a use-after-free bug in raid1
 
-/Martin
+    Who would submit code with a FIXME like that in it !!!!
 
-Signed-off-by: Martin Andersson <martin.andersson@control.lth.se>
+    Signed-off-by: Neil Brown <neilb@suse.de>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-diff -uprN linux-2.6.15.4.orig/kernel/sched.c linux-2.6.15.4/kernel/sched.c
---- linux-2.6.15.4.orig/kernel/sched.c	2006-02-10 08:22:48.000000000 +0100
-+++ linux-2.6.15.4/kernel/sched.c	2006-02-28 15:49:12.000000000 +0100
-@@ -142,7 +142,8 @@
-  	(v1) * (v2_max) / (v1_max)
+I'm by no means a kernel expert, but before the bio release was done
+everytime, after putting r1_bio->bios[mirror] to NULL ; with the patch
+is done only if
+r1_bio->bios[mirror] is NULL ... perhaps sometimes this value is not null
+and must be released anyway?
 
-  #define DELTA(p) \
--	(SCALE(TASK_NICE(p), 40, MAX_BONUS) + INTERACTIVE_DELTA)
-+	(SCALE(TASK_NICE(p) + 20, 40, MAX_BONUS) - 20 * MAX_BONUS / 40 + \
-+	INTERACTIVE_DELTA)
+Greetings, Matteo.
 
-  #define TASK_INTERACTIVE(p) \
-  	((p)->prio <= (p)->static_prio - DELTA(p))
+On 2/27/06, Neil Brown <neilb@suse.de> wrote:
+> On Monday February 27, mbrancaleoni@gmail.com wrote:
+> > FYI, this problem on 2.6.14.7 does not happens at all...
+> >
+> > anyone has any idea about?
+>
+> Apparently not.  Fingers are pointing at md/raid1 - with reasonable
+> cause - but I cannot find any error in that code, not can I reproduce
+> the problem.
+>
+> Are you able to narrow down the difference between working and
+> not-working.
+>
+> Possibly use 'git bisect' (This is the best option, but not having
+> used it myself yet, I don't feel comfortable recommending it).
+>
+> Possibly just try the various 2.6.15-rcX kernels and find the first
+> one that breaks.
+>
+> That would be a great help.
+>
+> NeilBrown
+>
+> >
+> > Greetings, Matteo.
+> >
+> > On 2/25/06, matteo brancaleoni <mbrancaleoni@gmail.com> wrote:
+> > > Hi.
+> > >
+> > > I'm experiencing a problem with 2.6.15.4 / 2.6.16-rc4, noticed during
+> > > high disk IO (copying a lot of data between 2 machines): the system
+> > > memory get filled up, until the full swap is used and the system must
+> > > be rebooted (or is unusable). Stopping the process does not free the
+> > > memory, and happens not only copying via network, but also with a
+> > > simple
+> > > cp -a dirwithmanybigfiles testdir.
+> > >
+> > > The system is running on athlon64:
+> > > Linux morgor 2.6.16-rc4 #2 SMP Sat Feb 25 19:55:36 CET 2006 x86_64
+> > > x86_64 x86_64 GNU/Linux
+> > > Same issue with 2.6.15.4
+> > >
+> > > The box has a single soft-raid1 device made by 2 sata disk on promise
+> > > controller.
+> > > Attached slabinfo dump and dmesg dump.
+> > >
+> > > Some system informations:
+> > > * This is the modules list:
+> > > Linux morgor 2.6.16-rc4 #2 SMP Sat Feb 25 19:55:36 CET 2006 x86_64
+> > > x86_64 x86_64 GNU/Linux
+> > > [root@morgor ~]# lsmod
+> > > Module                  Size  Used by
+> > > ipv6                  399008  18
+> > > ppdev                  42888  0
+> > > autofs4                55560  1
+> > > nfs                   251224  2
+> > > lockd                  97424  2 nfs
+> > > nfs_acl                37120  1 nfs
+> > > sunrpc                191944  4 nfs,lockd,nfs_acl
+> > > rfcomm                105376  0
+> > > l2cap                  92160  5 rfcomm
+> > > bluetooth             117252  4 rfcomm,l2cap
+> > > dm_mirror              54912  0
+> > > dm_mod                 90192  1 dm_mirror
+> > > video                  50952  0
+> > > button                 41120  0
+> > > battery                43912  0
+> > > ac                     38920  0
+> > > lp                     48208  0
+> > > parport_pc             63144  1
+> > > parport                74636  3 ppdev,lp,parport_pc
+> > > nvram                  42888  0
+> > > ohci1394               67272  0
+> > > ehci_hcd               65160  0
+> > > sg                     69672  0
+> > > ieee1394              392216  1 ohci1394
+> > > uhci_hcd               65952  0
+> > > snd_via82xx            63784  0
+> > > gameport               50832  1 snd_via82xx
+> > > snd_ac97_codec        136536  1 snd_via82xx
+> > > snd_ac97_bus           36224  1 snd_ac97_codec
+> > > snd_seq_dummy          37508  0
+> > > snd_seq_oss            66688  0
+> > > snd_seq_midi_event     41472  1 snd_seq_oss
+> > > snd_seq                90144  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi_event
+> > > snd_pcm_oss            85632  0
+> > > snd_mixer_oss          51328  1 snd_pcm_oss
+> > > snd_pcm               126728  3 snd_via82xx,snd_ac97_codec,snd_pcm_oss
+> > > snd_timer              59656  2 snd_seq,snd_pcm
+> > > snd_page_alloc         44816  2 snd_via82xx,snd_pcm
+> > > snd_mpu401_uart        42112  1 snd_via82xx
+> > > snd_rawmidi            61696  1 snd_mpu401_uart
+> > > snd_seq_device         43280  4 snd_seq_dummy,snd_seq_oss,snd_seq,snd_rawmidi
+> > > i2c_viapro             43160  0
+> > > snd                    97320  11
+> > > snd_via82xx,snd_ac97_codec,snd_seq_oss,snd_seq,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer,snd_mpu401_uart,snd_rawmidi,snd_seq_device
+> > > i2c_core               57728  1 i2c_viapro
+> > > skge                   72720  0
+> > > soundcore              44576  1 snd
+> > > raid1                  54912  2
+> > > ext3                  163984  2
+> > > jbd                    93480  1 ext3
+> > > sata_promise           45700  6
+> > > sata_via               42500  0
+> > > libata                 93592  2 sata_promise,sata_via
+> > > sd_mod                 50688  8
+> > > scsi_mod              180688  4 sg,sata_promise,libata,sd_mod
+> > >
+> > > * fstab
+> > > [root@morgor ~]# cat /etc/fstab
+> > > /dev/md1                /                       ext3    defaults        1 1
+> > > /dev/md0                /boot                   ext3    defaults        1 2
+> > > devpts                  /dev/pts                devpts  gid=5,mode=620  0 0
+> > > tmpfs                   /dev/shm                tmpfs   defaults        0 0
+> > > proc                    /proc                   proc    defaults        0 0
+> > > sysfs                   /sys                    sysfs   defaults        0 0
+> > > LABEL=SWAP-sda2         swap                    swap    defaults        0 0
+> > > LABEL=SWAP-sdb2         swap                    swap    defaults        0 0
+> > >
+> > > * cpuinfo
+> > > [root@morgor ~]# cat /proc/cpuinfo
+> > > processor       : 0
+> > > vendor_id       : AuthenticAMD
+> > > cpu family      : 15
+> > > model           : 47
+> > > model name      : AMD Athlon(tm) 64 Processor 3200+
+> > > stepping        : 0
+> > > cpu MHz         : 1800.000
+> > > cache size      : 512 KB
+> > > fpu             : yes
+> > > fpu_exception   : yes
+> > > cpuid level     : 1
+> > > wp              : yes
+> > > flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> > > mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext
+> > > fxsr_opt lm 3dnowext 3dnow pni lahf_lm
+> > > bogomips        : 3613.48
+> > > TLB size        : 1024 4K pages
+> > > clflush size    : 64
+> > > cache_alignment : 64
+> > > address sizes   : 40 bits physical, 48 bits virtual
+> > > power management: ts fid vid ttp tm stc
+> > >
+> > > Thanks a lot,
+> > >
+> > > Matteo Brancaleoni
+> > >
+> > >
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>

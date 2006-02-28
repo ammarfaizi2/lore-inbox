@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWB1VJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWB1VJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbWB1VJf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 16:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbWB1VJf
+	id S932439AbWB1VJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 16:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWB1VJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 16:09:35 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:23467 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932585AbWB1VJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 16:09:34 -0500
-Subject: Re: snd_intel8x0, 2.6.15.4: Alsa oss works, but pure alsa is way
-	too fast
-From: Lee Revell <rlrevell@joe-job.com>
-To: Harald Dunkel <harald.dunkel@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4404B35F.5000900@t-online.de>
-References: <4404B35F.5000900@t-online.de>
-Content-Type: text/plain
-Date: Tue, 28 Feb 2006 16:09:31 -0500
-Message-Id: <1141160971.5860.43.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+	Tue, 28 Feb 2006 16:09:11 -0500
+Received: from ns2.suse.de ([195.135.220.15]:61893 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932439AbWB1VJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 16:09:10 -0500
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] x86_64: fix orphaned bits of timer init messages
+Date: Tue, 28 Feb 2006 22:09:03 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <200602281604_MC3-1-B984-EC14@compuserve.com>
+In-Reply-To: <200602281604_MC3-1-B984-EC14@compuserve.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602282209.04347.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-28 at 21:32 +0100, Harald Dunkel wrote:
-> Hi folks,
-> 
-> Playing videos via mplayer I've got a problem: The Alsa-oss
-> emulation (mplayer -ao oss) seems to work, but for pure Alsa
-> (mplayer -ao alsa) the sound seems to be played too fast. And
-> I get a stream of error messages on the terminal saying
+On Tuesday 28 February 2006 22:01, Chuck Ebbert wrote:
+> When x86_64 timer init messages were changed to use apic verbosity
+> levels, two messages were missed and one got the wrong level. This
+> causes the last word of a suppressed message to print on a line
+> by itself.  Fix that so either the entire message prints or none
+> of it does.
 
-Sounds like an mplayer bug.  If you play a .wav file with "aplay
-file.wav" does it play at normal speed?
+Applied thanks - although I plan to kill most of check_timer soon anyways.
+So don't put too much effort into it right now.
 
-Lee
-
+-Andi

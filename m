@@ -1,54 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWB1Sdu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWB1Sgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWB1Sdu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 13:33:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWB1Sdu
+	id S932400AbWB1Sgh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 13:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWB1Sgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 13:33:50 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:20635 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932360AbWB1Sdt (ORCPT
+	Tue, 28 Feb 2006 13:36:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6590 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932400AbWB1Sgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 13:33:49 -0500
-Message-Id: <200602281833.k1SIXA0O028798@laptop11.inf.utfsm.cl>
-To: John Richard Moser <nigelenki@comcast.net>
-cc: Alexander Mieland <dma147@linux-stats.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] LiSt - Linux Statistics - www.linux-stats.org 
-In-Reply-To: Message from John Richard Moser <nigelenki@comcast.net> 
-   of "Tue, 28 Feb 2006 12:20:34 CDT." <44048662.7080208@comcast.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Tue, 28 Feb 2006 15:33:10 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 28 Feb 2006 15:33:10 -0300 (CLST)
+	Tue, 28 Feb 2006 13:36:36 -0500
+Date: Tue, 28 Feb 2006 10:35:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: pavel@ucw.cz, randy_d_dunlap@linux.intel.com, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
+Message-Id: <20060228103519.20f9b277.akpm@osdl.org>
+In-Reply-To: <440442A4.2090201@pobox.com>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+	<20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com>
+	<20060228114500.GA4057@elf.ucw.cz>
+	<44043B4E.30907@pobox.com>
+	<20060228041817.6fc444d2.akpm@osdl.org>
+	<440442A4.2090201@pobox.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser <nigelenki@comcast.net> wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Andrew Morton wrote:
+> > Jeff Garzik <jgarzik@pobox.com> wrote:
+> > 
+> >>Fine-grained 
+> >> message selection allows one to turn on only the messages needed, and 
+> >> only for the controller desired.
+> > 
+> > 
+> > Except
+> > 
+> > - There's (presently) no way of making all the messages go away for a
+> >   non-debug build.
+> 
+> They aren't supposed to go away.
+> 
 
-[Didn't see the original post, sorry]
+It is legitimate to elect to waste memory on every machine so as to make
+the system more easily debugged by remote maintainers.  But that's an
+unusual choice in the kernel context.
 
-> Alexander Mieland wrote:
-> > Hello list,
+They can still get you by setting CONFIG_PRINTK=n ;)
 
-> [...]
+> > - The code is structured as
+> > 
+> > 	if (ata_msg_foo(p))
+> > 		printk("something");
+> > 
+> >   So if we later do
+> > 
+> > 	#define ata_msg_foo(p)	0
+> > 
+> >   We'll still get copies of "something" in the kernel image (may be fixed
+> >   in later gcc, dunno).
 > 
-> >  - The hostname (no fqdn or ips)
+> We don't do that in net driver land, and I don't wish to do it for 
+> libata either.  Its just a bit test, that jumps over code if the message 
+> class isn't enabled (see link below).
 > 
-> Everyone's is going to be Darkstar.
+> We want users to be able to enable specific messages for specific 
+> controllers, without recompiling their kernel.
 > 
-> [...]
+> grep for msg_enable in various net drivers.  ethtool(8) is used to 
+> select specific controllers and messages to print.
 > 
-> > All of the collected information and data is absolutly anonymous!
-> 
-> And double-submittable?
-> 
-> > Also read our privacy policy [2] to become sure that all is anonymous and 
-> > safe. Some more information on frequently asked questions can be found in 
-> > our FAQ [3].
 
-What about <http://counter.li.org>?
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+umm, that's unrelated to my point, but whatever.
+
+> 
+> > - The new debug stuff isn't documented.  One has funble around in the
+> >   source to work out how to even turn it on.  Can it be altered at runtime?
+> >   Dunno - the changelogs are risible.  What effect do the various flags
+> >   have?
+> 
+> The model has always been documented:
+> http://www.scyld.com/pipermail/vortex/2001-November/001426.html
+> (scroll down a tad)
+
+That's useless.

@@ -1,81 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWB1Cvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWB1Cwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWB1Cvo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 21:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWB1Cvo
+	id S1751545AbWB1Cwn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 21:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWB1Cwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 21:51:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59818 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932130AbWB1Cvn (ORCPT
+	Mon, 27 Feb 2006 21:52:42 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:63203 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751128AbWB1Cwl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 21:51:43 -0500
-Date: Mon, 27 Feb 2006 18:50:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-Cc: ananth@in.ibm.com, prasanna@in.ibm.com, anil.s.keshavamurthy@intel.com,
-       hiramatu@sdl.hitachi.co.jp, systemtap@sources.redhat.com,
-       jkenisto@us.ibm.com, linux-kernel@vger.kernel.org,
-       sugita@sdl.hitachi.co.jp, soshima@redhat.com, haoki@redhat.com
-Subject: Re: [PATCH][take2][2/2] kprobe: kprobe-booster against 2.6.16-rc5
- for i386
-Message-Id: <20060227185012.037c8830.akpm@osdl.org>
-In-Reply-To: <4402E920.5080402@sdl.hitachi.co.jp>
-References: <43DE0A4D.20908@sdl.hitachi.co.jp>
-	<4402E920.5080402@sdl.hitachi.co.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 27 Feb 2006 21:52:41 -0500
+Message-ID: <4403BAEF.1000908@pobox.com>
+Date: Mon, 27 Feb 2006 21:52:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Tejun Heo <htejun@gmail.com>, Mark Lord <lkml@rtr.ca>,
+       David Greaves <david@dgreaves.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <Pine.LNX.4.64.0602271744470.22647@g5.osdl.org> <4403B04F.5090405@pobox.com> <Pine.LNX.4.64.0602271813120.22647@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602271813120.22647@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp> wrote:
->
-> Here is a patch of kprobe-booster for i386 arch against linux-2.6.16-rc5.
->  The kprobe-booster patch is also under the influence of the NX-protection
->  support patch. So, I fixed that.
+Linus Torvalds wrote:
 > 
->  Could you replace the previous patches with these patches?
+> On Mon, 27 Feb 2006, Jeff Garzik wrote:
+> 
+>>I've had this waiting in the wings, in fact...  [see attached]
+> 
+> 
+> I really hate having a _global_ variable called "fua". That's just bad 
+> taste. I would suggest calling it "atapi_forced_unit_attention_enabled", 
+> but maybe that is going a bit overboard. It's definitely better than just 
+> "fua", though.
 
-I'd prefer not to.  Once a patch has been in -mm for this long I really
-prefer to not see wholesale replacements.  When people do this to me I
-usually turn their replacements into incremental patches so we can see what
-changed.  Which is useful.
+<shrug>  It will go away when things are fixed, and only users who are 
+testing will even bother with it.
 
-Your first patch was identical to what I already have, so I dropped that.
+Looking over the module subsystem, it looks like one could use 
+module_param_named() to achieve proper namespace separation (C versus 
+module opt) -- then you could call it libata_fua -- but for a temporary 
+module option it seems like more trouble than its worth.
 
-Your second patch made these changes:
+	Jeff
 
---- devel/arch/i386/kernel/kprobes.c~kprobe-kprobe-booster-against-2616-rc5-for	2006-02-27 18:40:29.000000000 -0800
-+++ devel-akpm/arch/i386/kernel/kprobes.c	2006-02-27 18:40:57.000000000 -0800
-@@ -305,7 +305,7 @@ static int __kprobes kprobe_handler(stru
- 
- 	if (p->ainsn.boostable == 1 &&
- #ifdef CONFIG_PREEMPT
--	    !(pre_preempt_count) && /*
-+	    !(pre_preempt_count()) && /*
- 				       * This enables booster when the direct
- 				       * execution path aren't preempted.
- 				       */
-@@ -313,7 +313,7 @@ static int __kprobes kprobe_handler(stru
- 	    !p->post_handler && !p->break_handler ) {
- 		/* Boost up -- we can execute copied instructions directly */
- 		reset_current_kprobe();
--		regs->eip = (unsigned long)&p->ainsn.insn;
-+		regs->eip = (unsigned long)p->ainsn.insn;
- 		preempt_enable_no_resched();
- 		return 1;
- 	}
 
-The first hunk is surely wrong - pre_preempt_count is a local unsigned
-integer, not a function.
-
-And I'm not sure about the second hunk either - surely an `eip' should
-point at an instruction, not be assigned the value of an instruction?
-
-So I'll drop both patches.  If you have bugfixes, please make them relative
-to already-merged things.  Against most-recent -mm is best, as I do fix
-patches up, and other people send fixes which you might not have merged
-locally.  And please ensure that the changes compile and run with and
-without CONFIG_PREEMPT!
 

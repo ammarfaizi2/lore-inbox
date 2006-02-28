@@ -1,233 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWB1PIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWB1PIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWB1PIb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWB1PIb
+	id S932162AbWB1PIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWB1PIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:08:31 -0500
-Received: from krusty.pcisys.net ([216.229.32.178]:32991 "EHLO
-	krusty.pcisys.net") by vger.kernel.org with ESMTP id S932227AbWB1PIa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:08:30 -0500
-Date: Tue, 28 Feb 2006 08:08:06 -0700
-From: Brian Hall <brihall@pcisys.net>
-To: Andi Kleen <ak@suse.de>, greg@kroah.com, shemminger@osdl.org,
-       vsu@altlinux.ru, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Help: DGE-560T not recognized by Linux
-Message-Id: <20060228080806.0869d8ef.brihall@pcisys.net>
-In-Reply-To: <200602191813.59928.ak@suse.de>
-References: <20060217222720.a08a2bc1.brihall@pcisys.net>
-	<20060219010441.GA5810@kroah.com>
-	<20060219092007.e7eb6c1b.brihall@pcisys.net>
-	<200602191813.59928.ak@suse.de>
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.12; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__28_Feb_2006_08_08_06_-0700_j=3M/Ye0/YfTV9RX"
+	Tue, 28 Feb 2006 10:08:24 -0500
+Received: from ms-smtp-02-lbl.southeast.rr.com ([24.25.9.101]:12217 "EHLO
+	ms-smtp-02-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S932162AbWB1PIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 10:08:23 -0500
+Date: Tue, 28 Feb 2006 10:08:21 -0500
+From: gsmith@nc.rr.com
+Subject: Re: 2.6.16-rc5-mm1
+In-reply-to: <20060228154111.63c5d95d@gondolin.boeblingen.de.ibm.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Message-id: <c5d0e85666e1.66e1c5d0e856@southeast.rr.com>
+MIME-version: 1.0
+X-Mailer: iPlanet Messenger Express 5.2 HotFix 2.08 (built Sep 22 2005)
+Content-type: text/plain; charset=us-ascii
+Content-language: en
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Accept-Language: en
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+ <20060228154111.63c5d95d@gondolin.boeblingen.de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart=_Tue__28_Feb_2006_08_08_06_-0700_j=3M/Ye0/YfTV9RX
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
+> If neither Greg nor Martin (on cc:) object, I'd prefer this patch 
+> to be
+> replaced with the one in
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114102840429459&q=raw
+> (it has a better check of the response code).
 
-sky2 works for my card in 2.6.16-rc5:
+No objections here.  Thanks Cornelia.
 
-GSI 21 sharing vector 0x32 and IRQ 21
-ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 30 (level, low) -> IRQ 50
-PCI: Setting latency timer of device 0000:02:00.0 to 64
-sky2 v0.15 addr 0xff2fc000 irq 50 Yukon-EC (0xb6) rev 1
-sky2 eth0: addr 00:00:5a:70:86:49
-sky2 0000:02:00.0: No interrupt was generated using MSI, switching to
-INTx mode. Please report this failure to the PCI maintainer and include
-system chipset information.
-uli526x: ULi M5261/M5263 net driver, version 0.9.3 (2005-7-29)
-GSI 22 sharing vector 0x42 and IRQ 22
-ACPI: PCI Interrupt 0000:00:11.0[A] -> GSI 17 (level, low) -> IRQ 66
-eth1: ULi M5263 at pci0000:00:11.0, 00:13:8f:78:b3:32, irq 66.
-
-I do have Message Signalled Interrupts enabled, and PCIe, although MSI
-doesn't seem to work. Possibly not supported on my ULi motherboard
-(Asrock 939Dual-Sata2, M1689/M1563 chipset).
-
-dmesg and lspci attached.
-
---
-Brian Hall
-Linux Consultant
-http://pcisys.net/~brihall
-
---Multipart=_Tue__28_Feb_2006_08_08_06_-0700_j=3M/Ye0/YfTV9RX
-Content-Type: application/x-gzip;
- name="2.6.16-rc5.dmesg.gz"
-Content-Disposition: attachment;
- filename="2.6.16-rc5.dmesg.gz"
-Content-Transfer-Encoding: base64
-
-H4sICMkrA0QCAzIuNi4xNi1yYzUuZG1lc2cAzDtpc+LIkt/1KzLezMZAL8hVJQmBNnrjcdjdvDY2
-a+ie3uidcAgdoGchqSXhY379ZpYkEDb46JndeZ6xDKo8KrOy8qrqQRznrp3bEN9Aw4nXaztyIQwi
-D4IMbpf2+yhO13YIUezde877OCo/aYI+p4j9/sT1bk8y1xb4FbzQu7XzOH3v+N+bynkQbe7h1kuz
-AKGF2lF5p506BjQI8+/ZQxpE901oLB1nC6WpuooAH7woj+PiWwuyLGnLj22ushYkgdfuqqbaazbh
-JwGzyRSmV6enk+kcJkjizFuAMIH1LE2zdB0mszkIxjrKYHw5aydpfBu4ngvJ6iELHBTuqj+BtZ1Y
-CkgAryuYBezRD7Trr3q+g68am8xehF7zGGIBtYdoS1qN1Mu89NZzj6J63cc8OXsdKn88Xc33FwXq
-c9PdQu0hOgVifzgdA9nJUVznKa5fw734MjuK6j9C1SuNvyCq75uPuHJ2AJX4W3A1G02hcUtj9AJX
-/IWfJvwd2H1tRfzewmM7anNJjUMfJjAGuDydyJeEg7bGOpyh3Z3NtzR65j7FSt8lxbN+SVHUKJ7h
-2Bspii3FSf/AHPvT8fCNFLVeRRHxB/sU+5PxNb59E0WHVrikONrpEXpabyKKJ++wCoc+ji/m5yUH
-wUTnycrIH+WSfJPrAYM8zu0wsZdeZoEwuprZUQBGkz78HkeeBVpP00EOt+B8fHYJCzt3VhYrgDRR
-gglD13VxAFDjCHlR+MUClB0h9zFYribe+lmoQhHTSXserL0UxpcwjdMcoe+7rFuOnsfkpuTa2a6L
-pp3hsO95rGZA53K4YTtJcB2431BB/DcI7SRwyq/sN/Ai2v+4J6Zp7CCVOIWfGHDD0grilQ/mnaNE
-xT5Rfpgof47o+LKguiVYyvSNZJI7Gqe6zILrhZ1539hvTaXAwI8WlLxBtHaEzdaeWgoSLfgwGwNr
-C+0gW+0RW/6IrdB3fHmNr/YMX77jK/S21qsYX8yvZ1fD68svV9BYbBAY8HkdpN/x0zKMF3Yovwhw
-/ZB+my8j9uqIPQjjO8DI6+1Qr/6LwSbDKLd4gBhnnGLIU3eD4rnB3oHBmZfnQbQsljSNN/JLHu+C
-qB/aufI5kzDk8Rvkf5rgozlQfHbiyA+Wm9TOSXVB5NP+oc9KPwzRvCW96XAMqM54k6IhQZbbqXxt
-52BsHfsSAzVUIcJalDGgqQxXnnMjoRMvzTepp6qqMpx+BmZtX6HjcLsloSz43QMuujAZKDhBC2ge
-d0RAAKLhNmWwivMk3Czld2WwCcIcuNzMYZDlmfLJS/Ej1NMm648mTco4CvLADoPfaSrI+CemTMcj
-WNnZCnLaabjh8jQg36azXgcacep6qYWitIBrnJkCFy73sqYyCijcE5nb7CHDNULj2ni0aLi8EPvo
-dCAnp6PQU3UsKJZPUw2zZ+gGTD7+Dr/2z88J8MP8crRFULcYIy/3nByNReidjsp0UyIllSfAFYij
-LA5RL04c4rrClw/9f4cuuxeGMiJBHsCxnZV3UL5SnErCLgrI9K5hdioJx+Tw28cJdAxD22kIt6sh
-dNHtVujomuP0AfkwrrGufnNC5IXRuQH71g5CSavBzR6+uKmW2vVaoOkG02+gSjFaYHbYjUyPcIaG
-uEHzDnK0SFzFRVpYtuuF9gPqXe4a6eizxHMCP3DKzYTmCnpP66hokYN4GU/G0xk0wuSf71GzXa5r
-ON14E+XPSIszJ4NHr80xNg8JDlWgf4JGRy9EPiETbbZgVCr9wGBJQVT4nIkDQIWhhLuwVMgURDn6
-i02SZ6qC2tnQfjG5MDT0hVtL4aaKr6Sd7FBVZYDbgohubQf4iSgg2D1/ui34D+mXq8j6iX6Njug1
-/790N9qg0oYxeqP+ZASXCaosjhr5ugm7AMo7Bro/L0lIHiakH+MWzB4ih97MZ0PaxtK7qdVghoMr
-JIV+zZUQd0G+KmBQUDvLwQ18H784D05IacjavsfVAsPg5aumMkBlLVc5bJLSCyo4b6ngi8kY7ihl
-ceMloGuFy0+qsg6WhUO/duIsfy8wUxwhnFA1XEbcHVGuKhenc8yXvSV6TC+lqiuN8xidAfj2Oggf
-dmkBBbj8IfEgcQLcWxWCgkGh8kz7QUQC8xJ7tlmgk8sx2Uq926CoNzEfZVyYVWAj48Rp4bPKWcqR
-gniZH1DA2tpxFemqLA3j0xXaKQwwKC49+IYvMGloyFBEQUjOFZdxUUWzlZ26dzaudRG/CxD4vgnS
-G0sKifNkGJLarKv54IQ22q6MvGjbJqdEGxnLvQFUtMZo6LeBI6vzgqmOfFVWMJ6ndpQlyC3KYVHM
-sF2C4f/onmtijLciXpXBfC69ybf/uZ4NrlUSTL2eXs1/eyPOlE31H0L8OJ9f/xjH0wH/UUTxo4ja
-M4jnQXQD384vPvXRNDCdykCDdzoY0AETfQJwzI4FcB1jRfN5AoMdgQr/3ZsIDPcJvHvzDEZ1Au9+
-QITTpyIg/rvXEzj7ozP48Edn8PEggTo+vOs9T2L6CiFmQ6wbsq0bC6qAt+8CZW5NPgrJbb2THB/7
-YFfuwY29LPolh7s4vWkBZVl/Q6/6nuA9rBj+pgKBBzmsvDDBUJCg+0bs1Euw9lTsZbK0qQbdxuz+
-h2nlUQTb1gIYJT6fBzSo7nAIdJtvo5vCFHsiC/Yq86bZtrHQRvLbBHV8OZl8Vgs5Ct9q7RwXV6mW
-xsIYs3M3vrMwjsk+lqvi68npZPve94sGUBs/+PSD49Or07PT+fDjAeTD3MRjbiZRNAtq+9xExU0c
-5VbVLW2D+lUEdJir9pgrKavdPcRVq7hqPyyj8ZhbjyguDnHTK276UW520cFjbcf3npOx85irUyAd
-4GpUXI1XyEj1Nu9AhrFWFjtosrg/2H2/B1SW0UbZJhn7+7NuYt/QW7f/syjee5gwUTXdosK6Sa8L
-Ir1Cssr+seL1IuehTDixoCp3X50s5WkdvZij+XSOA76bo/n8HMXeHDX98BxN841zFPtz7B6YY02P
-3efnqO3P8Ygeu8Yb56ht5/g2POMH8TpbvDH1A731JixSzp/HLiXa2XVga0J1WrfAVQSgxuQJ004E
-enINVWphEWffwOl9Aj8/qlzShySPMWtOVliaYMKpBDFkWC24mxDnEsVxUs999wYd/3ttDBqu59tY
-YjX/YtO2syxYRtfbnPl6TV3YMyxWXZggS8dO7EUQBvlD1erxZIsTeaVE81udpoVhymPst794K/x5
-MonXyvR/vnX+PJm0mkxXHlaz1LqGIeLcwCgNbnEmtxyLfNspTwDL5KCoq3wb53fLVKpuGk4TRvat
-B/+IIy9Tvrnp+jcY7zIfwBe4xRCY9pjBsaJWMi8NYguCLtMF9D9/BcpZqEfI7jushQ8dqCnKH0F+
-GoyOQWJCkyJDDLrCYCdYexsMGUs5fr4qq0ms5tUeg58xfyMqmDPRelS+sqonM0mIyFiQ5w8zTtzG
-J5fIUfhdaBC796A1KTGyQXLq/xjS5yigFipM0AME7Snagfx62h6PTqvJ7+ZuqozZYbKyhYJVJCZp
-WbZZy16fRn2YMuWkEjVLPFQ7JZhTjNRkItl/bNvARUsBPyDk+/t7pX8+5sZXDXNPZIrFeZ7GIXkq
-nD9ZeRbGOwPnlFjJENN7GmJOa2Gw9+w+4ft7nx/eJ0IYu8k5qyDJvHzXGOC93m40wjli2vhvEKGL
-R0skkS0UNAypVbHwyEQyuc9Shc4FUXpcp8GEUtjClij9acs/ZkueU0JW7M7MgpVrWwjYwg8LKwni
-igR/QqJbkPAPkHAqEq4kUfUXSOm7HUXzopY3cYTp+enX+eUVjL6MrmD6tW1ygQT6cww4MByd4Ov2
-1eWksBOyCFZMg/skCPdN3Bya3wHq1NMG0Y/z5AVPx4JfR0P8pZz4H4M2Yx++9JlkCaPx7NOOFS9Z
-mZKVKVmZO1ZGQWxt3+N6fd94WJdQpx4zaS4+BYNiVOsxU/BeB5MVaUEZNIiv3oPJoAl3J13eI+Ci
-D9eC4cfZe6Frgp8IwzjpaC34jAptcGrHSHpFR88PN9mKzh02CW1x3M5S9/Tg9BD00JQwWNCFie0p
-kCoY2p7tUipqr5ygNFVNNmasOpw0f4R+av67DEuwZ8y/oFkPE8Zh89e0t4SJgmwVJp6K0P+Ic6Gz
-WFWenGDCQzsbS7vCFWJR+2GR0BkYh2CdhDCjVad9dIiYH9pk1R19geVn5HyHZA3oOsEJY/yYQEI5
-T7hZQ0IRQ0FVU+NTUkSboIU74ZoGztpFhmf4MxTltQFcT3DykM6GYbF217b8JE/WUB81QiGV5VhE
-RNCYzXI7p85cU8mcLGCA5QzOWckQ/HoTBnW/w3eLyVTjJS/FX+elkI84Lt/pcCvTKeuKrVijbreU
-rCChPUOCbUmMhmyPRLdOQtSVg5U9V41iWbc64lxrlpBoPtRI9peg9yyB/g9Dp2Xq3gK6mmX6HQ26
-uoWlI/416H0Puh1Lc3T8bpbvu6gn09+jh+zbndaeEC10PoYQHc5FtdctOB/09e7+TMrGcBm6Kmy5
-phzXtFrOuq5eFlT7kwXVflhQ7TWCirqgAF88LJRTS7rg4meCWzKsHLWpsw8j9NNn50CJAjrVogcx
-f0jQ2wKMghSn0e47dCRx+IpM/wJtW7at0m2mwYy/krV8U/q2jALhTqkYP9p0DINO/C7dxQ1T14wO
-hQ1Fwv+aBpT2pjE1vijhin2/GCEJ0J9GmWxpgGbTk7GnLGWkK0IK5hGS3sJ2bv6l51aM4oPTAzNn
-F7jF5H/Qz3OCd4FsjNouNwTziPbijeIsjoqzeK04i9eq+l9rbsXoJrqJKABRkAuK0yyqIEjx4lnF
-L5Q1ssC4MzsRGGPpJL/kStcQkA65BTrqJzBl7VryWoKdQoKhK45squ/qXQQCl6EJ2lyCp3bgspeh
-mQReu1WtwbA6UjWY9L9eT0bXo9MvmHIZ6OPwy2xwTSkgvjAlEgb+tZ1sY6muaj2lkKGN7xM6qtdV
-Q2XtIKa4Ramd0eaYLurNbVc885CQu267NJm/49RWdq6iBl48bhTKeCr75t4zFw80YWJuWd0bQClE
-R3Bdr+4NzIdTwMSUetcZrc8r7i70kAbrmdwQdSKYUruvuLjw9OIDIlvwcYuY1eNCoz616kYIMZJE
-C8apF8X1PlMxGaf+6sVz25chioYm3Nk3HsbZYolROAU+zudowOITfO5f0RFnz4QJPeC8fwGfZwNG
-D04PAZ8HmDHTGR89BD00KHOvRpmpZzBjgGXzTIOZDjOjKc2sv8lxr9IGpgz4qj8egZ2m9kOmymEb
-h9NNRGfZ8judaVfvRpcXp6qCJZTW9nHCa7p4QdYfoKqLUlkWwv+MNynuEXnzQ+a7qnJTvnO3t5dU
-gCHuzKDsftwivEF+J47cTPlyNiOXUpCni0G4eve5VuPUxDWx3TgKH1TlLPU8ee4SyftZ5Z2UdXWL
-hW6e+AjiKkGUbOgoZl4cCVP271ItAAKRHhaxnbpgZ3DihHaWnUjo4onFh+sSC94zepggose5w62K
-u7S6sMRRnmkaxOjQHixcGZwuWm1mYVnnpHGGH0pMqT44mxEyxZRWIT/pq9RRUQ7xp+UQFhjbcog/
-k2eLJ+UQO5hnG+wt1ZCoV0PZzYOQzSpDXvWTpbqQl51l7mww+O/NTRy1T4fQYPeLDi3XLe4Niefl
-K7p8JvFkWWDYlskszBD1XgFR52jBRVy7eXCHC7T0Ii+Vi1fcbJnMxi1ckSB3VuX1u/HF/L4wPZiG
-no3RoDjDg3yFUcu3g5CO4RAwR1dHOlzbyAJ/qUuDOg4iJ9xgRCvNumqV1O7nqQqmk4bo3FvysG+C
-H/kJPTWIELJw/61aZdTDMFD4bLNN12rkKounq6zXVlk8X03t97C5eXCVOx0FFc5309So05A4QZ1M
-i1aCa1bXt8yutdAsjQwTV7LTQUGzhROnnlWPeJF3V4U4HPazl4BWm0UhsXZA4v5OYu15iTVV+zba
-de21gxKbuuJhsXq9ctw9TAtOqWL/SIe6w21X7hgsdfOWRWuUH4MhAdEbyw7hTu4WFD1lurGCA9Fm
-vUANHCVCajZ1VHdMPktupY5P/87hGAJxpJ68dKXETopFXYhWpW7OYOQ51BzWaWVojbj16J7QTxzt
-Os48zI3SeA3yGyVHuFTA28iM9h7xohc+9cP3h7plm8MtT8NfMoEwQG1s0L/tnfwQgwnqC2ZoDPbS
-K6Ep/Lxsd+2sQFKeUClDYA1VVeJSnZZsmkM/SYOQtiAhc5XDL5eJF/3y2D6gcYnqbVYd/AZaZrl5
-9aembNQ2r/6SKe8dQB120V2xnfUepgWXh0z5COxbzPQoQzLTrnhkpi5dXCgNTLzFwMRxA9sOaY8N
-TCrKOKD1mgMxXtI6/zbYaZ0f1HqPHVQCf4PW+du0rh0jIu+xs0dad2pa196ide241rXntX7gHkGn
-Zuudl7Quvg13WheHtd49qATxBq2Lt2ldP0ZEar37SOuLmtb1t2hdP651/ajWiZFolwLRv2MoTqCI
-RJmWFbnPVgJai+qfXYgd+uumSeBam/8RbhL9ddzKPPw8XmL576wkmyvP8aSDPZiA8wpn+JBInjNc
-FiyVTgh1kMZ3GWJiPbGIqWzAdO8gFfGKkCJ7B0rxPTvBFyWBaohu999ytWMR549YPMlLqNOqxitb
-DxL9xZwocFG5r5gTAh6YEb5tE6KckajNiF5WU5DHXsUBl9C/QnXCJf/CEB8nV78WsP87HQXQ9FA2
-fHYIPBdkbKwJn1J1RpocQ55EBeYYA+I6eGag/SXQLh5SNwg0fYSlG0ROPxN3KWRqZWCOWuPiLIWQ
-OingCWxQwodP7iHLgtcxAvsTwF58Ini21EDBNwm0bjCtFLyppCAntQLIAeUn6CywQlJ+SQYXAIKD
-N31ePAAA
-
---Multipart=_Tue__28_Feb_2006_08_08_06_-0700_j=3M/Ye0/YfTV9RX
-Content-Type: application/x-gzip;
- name="lspci.txt.gz"
-Content-Disposition: attachment;
- filename="lspci.txt.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---Multipart=_Tue__28_Feb_2006_08_08_06_-0700_j=3M/Ye0/YfTV9RX--
+Greg Smith

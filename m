@@ -1,82 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWB1GHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWB1GHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751871AbWB1GHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 01:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751902AbWB1GHa
+	id S1750803AbWB1GHY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 01:07:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWB1GHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 01:07:30 -0500
-Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:38561 "EHLO
-	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751871AbWB1GH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 01:07:29 -0500
-Date: Tue, 28 Feb 2006 01:04:01 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch] i386: make bitops safe
-To: Richard Henderson <rth@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
-Message-ID: <200602280106_MC3-1-B974-9231@compuserve.com>
+	Tue, 28 Feb 2006 01:07:24 -0500
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:58514 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1750803AbWB1GHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 01:07:23 -0500
+Message-ID: <4403E894.4050300@sdl.hitachi.co.jp>
+Date: Tue, 28 Feb 2006 15:07:16 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: ananth@in.ibm.com, prasanna@in.ibm.com, anil.s.keshavamurthy@intel.com,
+       systemtap@sources.redhat.com, jkenisto@us.ibm.com,
+       linux-kernel@vger.kernel.org, sugita@sdl.hitachi.co.jp,
+       soshima@redhat.com, haoki@redhat.com
+Subject: Re: [PATCH][take2][2/2] kprobe: kprobe-booster against 2.6.16-rc5
+ for i386
+References: <43DE0A4D.20908@sdl.hitachi.co.jp>	<4402E920.5080402@sdl.hitachi.co.jp> <20060227185012.037c8830.akpm@osdl.org>
+In-Reply-To: <20060227185012.037c8830.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060228005436.GA24895@redhat.com>
+Hi, Andrew
 
-On Mon, 27 Feb 2006 at 16:54:36 -0800, Richard Henderson wrote:
-
-> On Tue, Feb 28, 2006 at 12:47:22AM +0100, Andi Kleen wrote:
-> > I remember asking rth about this at some point and IIRC
-> > he expressed doubts if it would actually do what expected. Richard?
+Andrew Morton wrote:
+> Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp> wrote:
+>> Here is a patch of kprobe-booster for i386 arch against linux-2.6.16-rc5.
+>>  The kprobe-booster patch is also under the influence of the NX-protection
+>>  support patch. So, I fixed that.
+>>
+>>  Could you replace the previous patches with these patches?
 > 
-> It's a bit dicey to be sure.  GCC may or may not be able to look
-> through the size of the array and not kill things beyond it.  If
-> one could be *sure* of some actual maximum index, this would be
-> fine, but I don't think you can.
+> I'd prefer not to.  Once a patch has been in -mm for this long I really
+> prefer to not see wholesale replacements.  When people do this to me I
+> usually turn their replacements into incremental patches so we can see what
+> changed.  Which is useful.
 > 
+> Your first patch was identical to what I already have, so I dropped that.
 
-In theory the bit offset could be from -2**31 to 2**31 - 1
 
-> One could reasonably argue that if you used a structure with a
-> flexible array member, that GCC could not look through that.  But
-> again I'm not 100% positive this is handled properly.
+Thank you for your advice. I will re-create an additional patch
+against recent -mm tree.
 
-This seems to work but causes more problems than it solves:
+> Your second patch made these changes:
+> 
+> --- devel/arch/i386/kernel/kprobes.c~kprobe-kprobe-booster-against-2616-rc5-for	2006-02-27 18:40:29.000000000 -0800
+> +++ devel-akpm/arch/i386/kernel/kprobes.c	2006-02-27 18:40:57.000000000 -0800
+> @@ -305,7 +305,7 @@ static int __kprobes kprobe_handler(stru
+>  
+>  	if (p->ainsn.boostable == 1 &&
+>  #ifdef CONFIG_PREEMPT
+> -	    !(pre_preempt_count) && /*
+> +	    !(pre_preempt_count()) && /*
+>  				       * This enables booster when the direct
+>  				       * execution path aren't preempted.
+>  				       */
+> @@ -313,7 +313,7 @@ static int __kprobes kprobe_handler(stru
+>  	    !p->post_handler && !p->break_handler ) {
+>  		/* Boost up -- we can execute copied instructions directly */
+>  		reset_current_kprobe();
+> -		regs->eip = (unsigned long)&p->ainsn.insn;
+> +		regs->eip = (unsigned long)p->ainsn.insn;
+>  		preempt_enable_no_resched();
+>  		return 1;
+>  	}
+> 
+> The first hunk is surely wrong - pre_preempt_count is a local unsigned
+> integer, not a function.
 
-#define vaddr ((volatile long *) addr)
-static inline void set_bit(int nr, volatile unsigned long * addr)
-{
-        __asm__ __volatile__( "lock ; "
-                "btsl %2,%1"
-                :"+m" (*(vaddr + (nr>>5)))
-                :"m" (*vaddr),"Ir" (nr)
-                );
-}
+I'm sorry. It's my fault. The first hunk is just a degradation.
 
-First, it generates the byte offset nr>>5 and puts it in a register
-even though it will never be used in the asm.  I can't find a constraint
-that says "I'll be accessing this address but I don't need you to generate
-it for me."  Second, the compiler thinks *vaddr will be read when it
-really won't (unless nr>>5 == 0 in which case constraint 0 takes care
-of it.)
+> And I'm not sure about the second hunk either - surely an `eip' should
+> point at an instruction, not be assigned the value of an instruction?
 
-Generated code when nr is a variable:
+This change is important. Because NX-protection support patch makes
+the ainsn.insn a pointer instead of a data structure, so now (&p->ainsn.insn)
+means just an address of the pointer -- not the instruction address.
 
-        movl nr,%edx
-        movl %edx,%eax
-        sarl $5,%eax
-        sall $2,%eax
-        lock ; btsl %edx,addr
+> So I'll drop both patches.  If you have bugfixes, please make them relative
+> to already-merged things.  Against most-recent -mm is best, as I do fix
+> patches up, and other people send fixes which you might not have merged
+> locally.  And please ensure that the changes compile and run with and
+> without CONFIG_PREEMPT!
 
-This causes a register reload afterward (assuming all regs are busy) and
-can cause a function to use more stack space.  That plus the three extra
-instructions made me go with the full memory clobber instead.
+OK. I will get the latest -mm tree and test it.
+And I will re-send the patch ASAP.
 
 -- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
+
+
 

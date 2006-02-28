@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbWB1UJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWB1ULD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbWB1UJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 15:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWB1UJu
+	id S932546AbWB1ULD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 15:11:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWB1ULB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 15:09:50 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:35240 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S932546AbWB1UJt (ORCPT
+	Tue, 28 Feb 2006 15:11:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60856 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932546AbWB1ULA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 15:09:49 -0500
-Message-ID: <4404ADFB.7080204@vilain.net>
-Date: Wed, 01 Mar 2006 09:09:31 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/27] allow hard links to directories, opt-in for any
- filesystem
-References: <bda6d13a0602272204l494e8fe7q67c2509d4e7aa0f7@mail.gmail.com> <44043973.4070202@yahoo.com.au>
-In-Reply-To: <44043973.4070202@yahoo.com.au>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Feb 2006 15:11:00 -0500
+Date: Tue, 28 Feb 2006 15:09:16 -0500
+From: Dave Jones <davej@redhat.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       davej@codemonkey.org.uk, Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
+Subject: Re: Status of X86_P4_CLOCKMOD?
+Message-ID: <20060228200916.GA326@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Matt Mackall <mpm@selenic.com>, Adrian Bunk <bunk@stusta.de>,
+	Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
+	Zwane Mwaikambo <zwane@commfireservices.com>,
+	Samuel Masham <samuel.masham@gmail.com>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	cpufreq@lists.linux.org.uk, ak@suse.de
+References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <20060228194628.GP4650@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060228194628.GP4650@waste.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
->>Patch seems to work, might want more testing.
->>It probably should not be applied without a discussion, especially
->>as no filesystem in kernel tree wants this. I am working on a fs that does.
-> This is backwards I think. This is not disallowed because there are
-> no filesystems that want it. Linux doesn't want it so it is disallowed
-> by the vfs.
- > You have to put forward a case for why we want it, rather than show us
- > your filesystem that "wants" it. Right?
+On Tue, Feb 28, 2006 at 01:46:29PM -0600, Matt Mackall wrote:
+ > On Thu, Feb 23, 2006 at 03:41:10PM -0500, Dave Jones wrote:
+ > > On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
+ > > 
+ > >  > > > >  config X86_P4_CLOCKMOD
+ > >  > > > > 	depends on EMBEDDED
+ > >  > > > 
+ > >  > > > This one is an x86_64 only issue, and yes, it's wrong.
+ > >  > > 
+ > >  > > That's for P4, not X86_64... And since P4 clock modulation does not provide
+ > >  > > almost any energy savings it was "hidden" under embedded.
+ > >  > 
+ > >  > But the EMBEDDED dependency is only on x86_64:
+ > >  > 
+ > >  > arch/i386/kernel/cpu/cpufreq/Kconfig:
+ > >  > config X86_P4_CLOCKMOD
+ > >  >         tristate "Intel Pentium 4 clock modulation"
+ > >  >         select CPU_FREQ_TABLE
+ > >  >         help
+ > >  > 
+ > >  > arch/x86_64/kernel/cpufreq/Kconfig:
+ > >  > config X86_P4_CLOCKMOD
+ > >  >         tristate "Intel Pentium 4 clock modulation"
+ > >  >         depends on EMBEDDED
+ > >  >         help
+ > >  > 
+ > >  > And if the option is mostly useless, what is it good for?
+ > > 
+ > > It's sometimes useful in cases where the target CPU doesn't have any better
+ > > option (Speedstep/Powernow).  The big misconception is that it
+ > > somehow saves power & increases battery life. Not so.
+ > > All it does is 'not do work so often'.  The upside of this is
+ > > that in some situations, we generate less heat this way.
+ > 
+ > This is perplexing. Less heat equals less power usage according to the
+ > laws of thermodynamics.
 
-Agreed.  Mostly this is because the design of unix directory semantics 
-preclude it from being possible.  You have exactly one ".." entry.  More 
-than one ".." would mean confusion (which does ".." refer to?).  A 
-different name would confuse more programs.
+you end up taking longer to do the same amount of work, so you
+end up using the same overall power.
 
-The VFS is presenting collections of arbitrary filesystems as unix 
-filesystem, it is not a generic abstraction for any kind of storage 
-system that is extended to encompass novel approaches to filesystem 
-structure.
-
-So if you wanted to access such a filesystem via Linux you would need to 
-present this non-unix idea of directory hard links through some kind of 
-ioctl etc.
-
-Besides, we already have bind mounts, which are in many ways like a 
-directory hard link (and, in many other ways, unlike one).
-
-Sam.
+		Dave

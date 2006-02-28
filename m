@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWB1MJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWB1MKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWB1MJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 07:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWB1MJz
+	id S932377AbWB1MKb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 07:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWB1MKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 07:09:55 -0500
-Received: from colin.muc.de ([193.149.48.1]:17937 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932506AbWB1MJy (ORCPT
+	Tue, 28 Feb 2006 07:10:30 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12717 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932377AbWB1MK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 07:09:54 -0500
-Date: 28 Feb 2006 13:09:47 +0100
-Date: Tue, 28 Feb 2006 13:09:47 +0100
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@engr.sgi.com, largret@gmail.com, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: OOM-killer too aggressive?
-Message-ID: <20060228120947.GA19275@muc.de>
-References: <200602260938_MC3-1-B94B-EE2B@compuserve.com> <20060226102152.69728696.akpm@osdl.org> <1140988015.5178.15.camel@shogun.daga.dyndns.org> <20060226133140.4cf05ea5.akpm@osdl.org> <20060226235142.GB91959@muc.de> <Pine.LNX.4.64.0602271429270.12204@schroedinger.engr.sgi.com> <20060228004115.GA37362@muc.de> <20060227165921.242f6810.akpm@osdl.org> <20060228012553.GA52585@muc.de> <20060227173830.5fee084f.akpm@osdl.org>
+	Tue, 28 Feb 2006 07:10:29 -0500
+Date: Tue, 28 Feb 2006 13:04:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Randy Dunlap <randy_d_dunlap@linux.intel.com>,
+       lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
+Message-ID: <20060228120418.GB3695@elf.ucw.cz>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com> <20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com> <20060228114500.GA4057@elf.ucw.cz> <44043B4E.30907@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060227173830.5fee084f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44043B4E.30907@pobox.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 05:38:30PM -0800, Andrew Morton wrote:
-> Andi Kleen <ak@muc.de> wrote:
-> >
-> > > I was thinking that your __GFP_NOOOM was a thinko.  How would it differ
-> > > from __GFP_NORETRY?
-> > 
-> > __GFP_NORETRY seems to skip at least one retry pass as far as I can see.
-> > __GFP_NOOOM wouldn't. But perhaps the additional pass only makes sense
-> > with oom killing? I'm not sure - that is why i was asking.
-> > 
+On Út 28-02-06 07:00:14, Jeff Garzik wrote:
+> Pavel Machek wrote:
+> >I hate to see debugging infrastructure like this. We already have it
+> >in ACPI and it is nasty/useless. It hides serious errors during normal
+> >run, while if you turn on the debugging, it floods logs so that
+> >it is unusable, too. I end up having to replace dprintks with
+> >printks... nasty.
 > 
-> Oh, OK.  That final get_page_from_freelist() is allegedly to see if a
-> parallel oom-killing freed some pages - we already know that
-> try_to_free_pages() didn't work.
-> 
-> I rather doubt that it'll make any difference.
+> Then you clearly don't understand what the code is doing.
+> Fine-grained 
 
-I switched over the x86-64 IOMMU code and floppy code to use
-__GFP_NORETRY now.
+No, I do not... code is so full of printk()s that it is unreadable.
 
-But perhaps it would be better to rename it to __GFP_NOOOM
-because I think that would express its meaning better.
+> message selection allows one to turn on only the messages needed, and 
+> only for the controller desired.  Otherwise, it is nearly impossible to 
+> debug one SATA controller while booting off another.
 
--Andi
+Now, maybe message selection is neccessary, but having printk at
+begining of each function is not way to go.
+								Pavel
 
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

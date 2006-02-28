@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWB1PMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbWB1POi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWB1PMn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWB1PMn
+	id S932228AbWB1POi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWB1POi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:12:43 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:49794 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751280AbWB1PMm (ORCPT
+	Tue, 28 Feb 2006 10:14:38 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:57738 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932155AbWB1POh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:12:42 -0500
-Subject: Re: LibPATA code issues / 2.6.15.4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mark Lord <liml@rtr.ca>
-Cc: David Greaves <david@dgreaves.com>, Tejun Heo <htejun@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <44046074.4070201@rtr.ca>
-References: <Pine.LNX.4.64.0602140439580.3567@p34>
-	 <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>
-	 <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com>
-	 <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>
-	 <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com>
-	 <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
-	 <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca>
-	 <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca>
-	 <44042863.2050703@dgreaves.com>  <44046074.4070201@rtr.ca>
-Content-Type: text/plain
+	Tue, 28 Feb 2006 10:14:37 -0500
+Message-ID: <440468DB.5060605@pobox.com>
+Date: Tue, 28 Feb 2006 10:14:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hannes Reinecke <hare@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
+Subject: Re: [PATCH] Fixup ahci suspend / resume
+References: <44045FB1.5040408@suse.de>
+In-Reply-To: <44045FB1.5040408@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Feb 2006 15:16:16 +0000
-Message-Id: <1141139776.3089.78.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-02-28 at 09:38 -0500, Mark Lord wrote:
+Hannes Reinecke wrote:
+> From: Hannes Reinecke <hare@suse.de>
+> Subject: AHCI suspend / resume fixes.
 > 
-> The error handling still sucks, regardless of FUA.
-> All of this nonsense about "Medium Error" is pure bogosity here.
+> The current ahci driver has the problem that it doesn't resume properly.
+> Or rather, that resuming is unstable.
+> Reason being is that AHCI has 4 registers containing the DMA address it
+> should write things to. Of course there is no guarantee that Linux has
+> assigned the same address to the DMA area across reboots.
+> So we should better re-initialize those registers after resume.
+> 
+> The patch also improves the port_start / port_stop routines to be more
+> closely modelled after the spec. This also avoids a nasty msleep(500)
+> during initialisation.
+> 
+> Signed-off-by: Hannes Reinecke <hare@suse.de>
 
-I've flipped my tree to report Aborted Command. Not sure there is a
-better scsi sense match for "it broke and I dont know why"
+
+Seems sane at first glance, but can you please regenerate this against 
+libata-dev.git#upstream ?
+
+Upstream 2.6.x doesn't care at all about suspend/resume, and AHCI has 
+seen several modifications in #upstream that are waiting for 2.6.17.
+
+	Jeff
+
 

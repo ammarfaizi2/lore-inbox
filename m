@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751891AbWB1R0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWB1RbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751891AbWB1R0l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751888AbWB1R0l
+	id S932287AbWB1RbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWB1RbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:26:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29980 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932221AbWB1R0k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:26:40 -0500
-Date: Tue, 28 Feb 2006 18:25:43 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Hannes Reinecke <hare@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Fixup ahci suspend / resume
-Message-ID: <20060228172542.GF24981@suse.de>
-References: <44045FB1.5040408@suse.de> <440468DB.5060605@pobox.com> <20060228151928.GC24981@suse.de> <44046AC2.1060002@pobox.com> <20060228152847.GE24981@suse.de> <44046DC3.4060508@pobox.com> <440472F6.6090905@suse.de>
+	Tue, 28 Feb 2006 12:31:05 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:43730 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932283AbWB1Rax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:30:53 -0500
+Subject: [GIT PATCH] SCSI bug fixes for 2.6.16-rc5
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 28 Feb 2006 11:30:47 -0600
+Message-Id: <1141147847.3258.19.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440472F6.6090905@suse.de>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28 2006, Hannes Reinecke wrote:
-> Jeff Garzik wrote:
-> > Jens Axboe wrote:
-> >> I'm sure Hannes will regenerate against upstream as well if necessary,
-> >> however that depends on when this should be applied.
-> > 
-> > It's far too late and too intrusive for 2.6.16-rc.
-> > 
-> > It's #upstream or <null>.
-> > 
-> Calm down. Of course I will regenerate is against #upstream.
-> In fact, I've done so initially but wasn't sure what the status of
-> libata-dev is. So I've diffed it against linux-git instead.
-> 
-> Updated patch to follow.
+This represents the current batch of outstanding bug fixes (mostly
+driver bug fixes, but one mid-layer update to support fixing a driver
+bug).
 
-Thanks Hannes. I wasn't so much worried about it going directly in (I
-have no problem waiting), just that there seemed to be some disagreement
-on where suspend is at and what we can "support".
+The patch is available from:
 
--- 
-Jens Axboe
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+
+The Short changelog is:
+
+Andrew Vasquez:
+  o fc_transport: stop creating duplicate rport entries
+
+Brian King:
+  o scsi: scsi command retries off by one fix
+  o sg: Remove aha1542 hack
+
+Christoph Hellwig:
+  o megaraid_sas: fix physical disk handling
+  o scsi: handle ->slave_configure return value
+
+J�gen E. Fischer:
+  o aha152x: fix variable use before initialisation and other bugs
+
+Matthew Wilcox:
+  o Fix uninitialised width and speed in sym2
+
+Ralf B�hle:
+  o Delete duplicate driver template
+
+And the diffstat:
+
+ aha152x.c               |   85 +++++++++++++++++++++++++++++-------------------
+ aha152x.h               |    2 -
+ jazz_esp.c              |   21 -----------
+ megaraid/megaraid_sas.c |   29 ++++++++--------
+ pcmcia/aha152x_stub.c   |    4 --
+ scsi_error.c            |    4 +-
+ scsi_lib.c              |    2 -
+ scsi_scan.c             |   16 +++++++--
+ scsi_transport_fc.c     |    3 -
+ sg.c                    |    2 -
+ sym53c8xx_2/sym_hipd.c  |    2 +
+ 11 files changed, 90 insertions(+), 80 deletions(-)
+
+James
+
 

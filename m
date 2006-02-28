@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWB1W0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWB1Waz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932564AbWB1W0C (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 17:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWB1W0B
+	id S932576AbWB1Waz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 17:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWB1Way
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 17:26:01 -0500
-Received: from the.earth.li ([193.201.200.66]:40135 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id S932564AbWB1W0A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 17:26:00 -0500
-Date: Tue, 28 Feb 2006 22:25:59 +0000
-From: Jonathan McDowell <noodles@earth.li>
-To: Ben Dooks <ben-mtd@fluff.org>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make nand block functions use provided byte/word helpers.
-Message-ID: <20060228222559.GC14749@earth.li>
-References: <20060228205903.GZ14749@earth.li> <20060228221243.GC25880@home.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Feb 2006 17:30:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:40737 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932576AbWB1Way convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 17:30:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=urajpkyjWdwtJI+rVb+d8BwQA0OpFaBzXMENIGXUAhOfkUCpbznD0Hob8z+pe8nIRAImaK+NW2n1iAm3mnqSpEaZEZFR3Bl1JM1hK2QyadEiLvaxyO151EYYa1zUwxrOQULrGrsdtjegrhfmTPW2NKU3udJqLmV7ZQsOITTmYQY=
+Message-ID: <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
+Date: Tue, 28 Feb 2006 23:30:45 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Jiri Slaby" <slaby@liberouter.org>
+Subject: Re: 2.6.16-rc5-mm1
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4404CE39.6000109@liberouter.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060228221243.GC25880@home.fluff.org>
-User-Agent: Mutt/1.5.9i
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
+	 <4404CE39.6000109@liberouter.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 10:12:43PM +0000, Ben Dooks wrote:
-> On Tue, Feb 28, 2006 at 08:59:03PM +0000, Jonathan McDowell wrote:
-> > I've been writing a NAND driver for the flash on the Amstrad E3. One of
-> > the peculiarities of this device is that the write & read enable lines
-> > are on a latch, rather than strobed by the act of reading/writing from
-> > the data latch. As such I've got custom read_byte/write_byte functions
-> > defined. However the nand_*_buf functions in drivers/mtd/nand/nand_base.c
-> > are all appropriate, except for the fact they call readb/writeb
-> > themselves, instead of using this->read_byte or this->write_byte. The
-> > patch below changes them to use these functions, meaning a driver just
-> > needs to define read_byte and write_byte functions and gains all the
-> > nand_*_buf functions free.
-> 
-> Why not make life easier on everyone else by over-riding the
-> functions for read/write buffer (etc) in the nand driver... less
-> intrusive into the core code!
+On 2/28/06, Jiri Slaby <slaby@liberouter.org> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Jesper Juhl napsal(a):
+> > Since I'm in X when the lockup happens and I don't have enough time
+> > from clicking the eclipse icon to the box locks up to make a switch to
+> > a text console I don't know if an Oops or similar is dumped to the
+> > console (there's nothing in the locks after a reboot)  :-(
+> So why don't just run eclipse from console (DISPLAY=... eclipse), or use atd,
+> crond... (less common variants)?
+>
 
-If the patch is deemed too intrusive then that's what I'll do; I nearly
-did so originally but when I caught myself cut and pasting the code from
-nand_base I thought my patch was the cleaner way.
+Good idea, thanks. Dunno why I didn't think of that.
 
-The patch shouldn't cause any extra work for anyone that I can see and I
-don't think it's intrusive at all; I submitted it because I figured it
-might save someone else some work down the line as well.
-
-J.
-
--- 
-noodles is fat
-This .sig brought to you by the letter M and the number  5
-Product of the Republic of HuggieTag
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

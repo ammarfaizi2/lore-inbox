@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWB1TUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWB1TTy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWB1TUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWB1TUa
+	id S932448AbWB1TTy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWB1TTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:20:30 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:5852 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932452AbWB1TU2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:20:28 -0500
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060228190354.GE24306@kvack.org>
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	 <20060225142814.GB17844@kvack.org>
-	 <1140887517.9852.4.camel@localhost.localdomain>
-	 <20060225174134.GA18291@kvack.org>
-	 <1141149009.24103.8.camel@camp4.serpentine.com>
-	 <20060228175838.GD24306@kvack.org>
-	 <1141150814.24103.37.camel@camp4.serpentine.com>
-	 <20060228190354.GE24306@kvack.org>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Tue, 28 Feb 2006 11:20:24 -0800
-Message-Id: <1141154424.20227.11.camel@serpentine.pathscale.com>
+	Tue, 28 Feb 2006 14:19:54 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:54690 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932448AbWB1TTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:19:52 -0500
+Date: Tue, 28 Feb 2006 11:22:02 -0800
+From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+To: Mark Lord <liml@rtr.ca>
+Cc: akpm@osdl.org, jgarzik@pobox.com, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
+Message-Id: <20060228112202.5355ca43.randy_d_dunlap@linux.intel.com>
+In-Reply-To: <440461AA.1090907@rtr.ca>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
+	<20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com>
+	<20060228114500.GA4057@elf.ucw.cz>
+	<44043B4E.30907@pobox.com>
+	<20060228041817.6fc444d2.akpm@osdl.org>
+	<440461AA.1090907@rtr.ca>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
+ A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
+ GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-28 at 14:03 -0500, Benjamin LaHaise wrote:
+On Tue, 28 Feb 2006 09:43:54 -0500
+Mark Lord <liml@rtr.ca> wrote:
 
-> Memory barriers are not cheap.  At least for the example you provided, 
-> it looks like things are overdone and performance is going to suck, so 
-> it needs to be avoided if at all possible.
+> Andrew Morton wrote:
+> > Jeff Garzik <jgarzik@pobox.com> wrote:
+> >> Fine-grained 
+> >>  message selection allows one to turn on only the messages needed, and 
+> >>  only for the controller desired.
+> > 
+> > Except
+> > 
+> > - There's (presently) no way of making all the messages go away for a
+> >   non-debug build.
+> 
+> Agreed.  We need a way to make them all really go away
+> for embedded builds -- memory matters there.
 
-There's more to it than that :-)
+That's a libata infrastructure issue, not an ATA-ACPI issue.
+I'll go with whatever $maintainer decides.
 
-We added the memory barrier to *improve* performance, in addition to
-helping correctness and portability.  Without it, the CPU or north
-bridge is free to hold onto the pending writes for a while; the exact
-details of how long it will wait depend on the CPU and NB
-implementation, but on AMD64 CPUs the delay is up to 16 cycles.
-
-So if we just use wmb(), we incur a 16-cycle penalty on every packet we
-send.  This has a deleterious and measurable effect on performance.
-
-	<b
-
+~Randy

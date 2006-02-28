@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWB1Gnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751613AbWB1HE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWB1Gnn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 01:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWB1Gnm
+	id S1751613AbWB1HE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 02:04:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751908AbWB1HE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 01:43:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:31582 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932079AbWB1Gnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 01:43:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=fXZx18bKLJ1b2hgR/3jJ95CI/GA3JjGW1xB46I6nYp8IEAdfEGOesZmNKZPiLsWUbgeGTW1TIxnRL0ajXdX23Vq4T/c37lAcwuSnaDKi+aHNRpRzm68eYnOTn/YwgzGgYv9ZKA0dunojyY8x4ai+nNzbcgJg8oOYe0g9UQNuxYs=
-Message-ID: <4403F119.8020509@gmail.com>
-Date: Tue, 28 Feb 2006 15:43:37 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Tue, 28 Feb 2006 02:04:28 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19673 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751613AbWB1HE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 02:04:27 -0500
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Ashok Raj <ashok.raj@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [patch 10/39] [PATCH] i386/x86-64: Dont IPI to offline cpus on
+ shutdown
+References: <20060227223200.865548000@sorel.sous-sol.org>
+	<20060227223344.160102000@sorel.sous-sol.org>
+	<200602272337.56509.ak@suse.de>
+	<20060227231814.GN3883@sorel.sous-sol.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 28 Feb 2006 00:02:01 -0700
+In-Reply-To: <20060227231814.GN3883@sorel.sous-sol.org> (Chris Wright's
+ message of "Mon, 27 Feb 2006 15:18:14 -0800")
+Message-ID: <m1r75ot192.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Ian McDonald <imcdnzl@gmail.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem making kernel with debian unstable due to make upgrade
-References: <cbec11ac0602271655p70669d4bi99096282a5e0b86e@mail.gmail.com>
-In-Reply-To: <cbec11ac0602271655p70669d4bi99096282a5e0b86e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian McDonald wrote:
-> Folks,
-> 
-> If anybody else is banging their heads against the wall and uses
-> debian unstable this seems to be due to a make bug in the current
-> version.
-> 
-> In particular mine happened with make going from 3.80+3.81.b4-1 to
-> 3.80+3.81.rc1-1
-> 
-> There is a bug report at http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=354602
-> 
-> Just to let you know as I'm sure others of you will soon be as
-> frustrated as me - particularly when I have a box that takes an hour
-> to compile....
-> 
+Chris Wright <chrisw@sous-sol.org> writes:
 
-I was scratching my head for more than three hours now. Thanks for 
-notifying. So, make it was. :-(
+> * Andi Kleen (ak@suse.de) wrote:
+>> On Monday 27 February 2006 23:32, Chris Wright wrote:
+>> > -stable review patch.  If anyone has any objections, please let us know.
+>> > ------------------
+>> > 
+>> > So why are we calling smp_send_stop from machine_halt?
+>> 
+>> I don't think that one is really suitable for stable since it's
+>> a relative obscure problem and the fix is not fully clear. Also it might
+>> have side effects. Shouldn't be merged.
+>
+> This was sent in by both Andrew and Ashok, and is upstream (although Eric
+> notes there's more to the comprehensive solution).  It allegedly solves:
+>
+> http://bugzilla.kernel.org/show_bug.cgi?id=6077
+>
+> Although the reporter seems to have gone silent.  Unless there's some
+> compelling evidence otherwise, I'm happy to drop it.
 
--- 
-tejun
+The comprehensive fix for 2.6.15.x is to remove -p from /sbin/halt
+if your machine has this problem.  I have just updated the bugzilla
+entry so we can remember this.
+
+There are no security implications to this, either since this is a crash
+when attempting to power off the machine.
+
+Eric
+

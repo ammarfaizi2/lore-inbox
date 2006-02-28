@@ -1,84 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbWB1Ur1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbWB1UsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbWB1Ur1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 15:47:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWB1Ur1
+	id S932579AbWB1UsP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 15:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWB1UsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 15:47:27 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:43693
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S932572AbWB1Ur0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 15:47:26 -0500
-Date: Tue, 28 Feb 2006 14:47:20 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
-       Zwane Mwaikambo <zwane@commfireservices.com>,
-       Samuel Masham <samuel.masham@gmail.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
-Subject: Re: Status of X86_P4_CLOCKMOD?
-Message-ID: <20060228204720.GD13116@waste.org>
-References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com> <20060228194628.GP4650@waste.org> <20060228200916.GA326@redhat.com>
+	Tue, 28 Feb 2006 15:48:15 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:11379 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932579AbWB1UsN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 15:48:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nzm/yw/2Sede1DcANIuvZK2vanNIT5cGGR/oU14zGccx3qkNFyxQERo5F07TRdms4dUvzKlUxqz5z5hZkGXY/siBujOUqYXdjVquK6jbdR28b4IRW2zO/nNqCKBQd5oYwOCbD3q5G9aPCh/9/rHSUAYFGY3bhj1/EVQooJJ7fiI=
+Message-ID: <9a8748490602281248p6877478sa17f25dafe019d4e@mail.gmail.com>
+Date: Tue, 28 Feb 2006 21:48:12 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: Christian <christiand59@web.de>
+Subject: Re: Odd sched behaviour; It takes 5 threads or more to load 2 CPU cores during kernel build
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200602282121.11863.christiand59@web.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060228200916.GA326@redhat.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <9a8748490602281159u58df3397g1b6b268787146448@mail.gmail.com>
+	 <200602282121.11863.christiand59@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 03:09:16PM -0500, Dave Jones wrote:
-> On Tue, Feb 28, 2006 at 01:46:29PM -0600, Matt Mackall wrote:
->  > On Thu, Feb 23, 2006 at 03:41:10PM -0500, Dave Jones wrote:
->  > > On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
->  > > 
->  > >  > > > >  config X86_P4_CLOCKMOD
->  > >  > > > > 	depends on EMBEDDED
->  > >  > > > 
->  > >  > > > This one is an x86_64 only issue, and yes, it's wrong.
->  > >  > > 
->  > >  > > That's for P4, not X86_64... And since P4 clock modulation does not provide
->  > >  > > almost any energy savings it was "hidden" under embedded.
->  > >  > 
->  > >  > But the EMBEDDED dependency is only on x86_64:
->  > >  > 
->  > >  > arch/i386/kernel/cpu/cpufreq/Kconfig:
->  > >  > config X86_P4_CLOCKMOD
->  > >  >         tristate "Intel Pentium 4 clock modulation"
->  > >  >         select CPU_FREQ_TABLE
->  > >  >         help
->  > >  > 
->  > >  > arch/x86_64/kernel/cpufreq/Kconfig:
->  > >  > config X86_P4_CLOCKMOD
->  > >  >         tristate "Intel Pentium 4 clock modulation"
->  > >  >         depends on EMBEDDED
->  > >  >         help
->  > >  > 
->  > >  > And if the option is mostly useless, what is it good for?
->  > > 
->  > > It's sometimes useful in cases where the target CPU doesn't have any better
->  > > option (Speedstep/Powernow).  The big misconception is that it
->  > > somehow saves power & increases battery life. Not so.
->  > > All it does is 'not do work so often'.  The upside of this is
->  > > that in some situations, we generate less heat this way.
->  > 
->  > This is perplexing. Less heat equals less power usage according to the
->  > laws of thermodynamics.
-> 
-> you end up taking longer to do the same amount of work, so you
-> end up using the same overall power.
+On 2/28/06, Christian <christiand59@web.de> wrote:
+> Am Dienstag, 28. Februar 2006 20:59 schrieb Jesper Juhl:
+[snip]
+> >
+> > Do we have a scheduler problem?
+> > An io-scheduler problem?
+>
+> I'm not really into this, but what happens if you simply start 5 different
+> kernel-builds in parallel? I think if it makes a difference then this would
+> mean that there's something wrong with make and you could eliminate the first
+> two possibilities?!
+>
 
-Doesn't make sense.
+Well, no need for 5 kernel builds in that case.
+If I clone my source tree and then simply run
+ $ make distclean ; make allnoconfig ; nice make
+in each directory in two different shells at the same time, then both
+cores get fully loaded.
 
-Power is energy consumption per unit time. Heat is energy dissipated
-per unit time (both are measured in watts). So if you're saying "we
-use the same amount of power", then conservation of energy implies "we
-generate the same amount of heat." If you're instead saying "we use
-the same amount of energy over a longer span of time", that means "we
-draw less power from the battery" which means "battery lasts longer".
 
-In short, power usage and heat production are _the same thing_.
+> > Is it "make" that's being difficult?
+> > Is it something in the kernels Makefile that causes the build to
+> > behave this way?
+> > Could it be a bottleneck in my system somewhere?
+> >
+> > Anyone got a clue?
+> >
 
--- 
-Mathematics is the supreme nostalgia of our time.
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

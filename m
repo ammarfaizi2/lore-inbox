@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWB1DlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWB1Dpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWB1DlM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 22:41:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWB1DlL
+	id S932220AbWB1Dpp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 22:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWB1Dpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 22:41:11 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:50155 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750723AbWB1DlK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 22:41:10 -0500
-Subject: Re: [PATCH] Enable mprotect on huge pages
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       kenneth.w.chen@intel.com,
-       "yanmin.zhang@intel.com" <yanmin.zhang@intel.com>, davem@davemloft.net,
-       paulus@samba.org, benh@kernel.crashing.org, wli@holomorphy.com,
-       lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
-       "tony.luck@intel.com" <tony.luck@intel.com>
-In-Reply-To: <20060228033220.GA2570@localhost.localdomain>
-References: <1140664780.12944.26.camel@ymzhang-perf.sh.intel.com>
-	 <20060224142844.77cbd484.akpm@osdl.org>
-	 <20060226230903.GA24422@localhost.localdomain>
-	 <1141018592.1256.37.camel@ymzhang-perf.sh.intel.com>
-	 <1141022034.1256.44.camel@ymzhang-perf.sh.intel.com>
-	 <20060227173449.26c79a44.akpm@osdl.org>
-	 <1141097034.3898.10.camel@ymzhang-perf.sh.intel.com>
-	 <20060228033220.GA2570@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1141097870.3898.17.camel@ymzhang-perf.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 28 Feb 2006 11:37:50 +0800
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Feb 2006 22:45:45 -0500
+Received: from pproxy.gmail.com ([64.233.166.181]:50532 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750735AbWB1Dpo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 22:45:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TrSBj2xycpm0x0T8X/51NH0Hi97djPwKiC1GW9L/vCsmOVCeNntnf/89MujsOWZX0Vb1ghq63NlmmIXzrc164WqKOf9iPhpDCeq99en85EZxmZ58SsJ7S9xYPy+y5G6kMDXppjFtzRgnRi44C1mA958w+UWjL0Yapa1a5+ICIdI=
+Message-ID: <489ecd0c0602271945g1a4963c6kb7de7c6b0df90a07@mail.gmail.com>
+Date: Tue, 28 Feb 2006 11:45:43 +0800
+From: "Luke Yang" <luke.adi@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH] Replace "vmalloc_node" with "vmalloc" for no-mmu architectures in oprofile driver
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060227193322.7a78c585.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <489ecd0c0602271920u7c0fc0b6p8a8cef0f408c6f3b@mail.gmail.com>
+	 <20060227193322.7a78c585.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-28 at 11:32, David Gibson wrote:
-> On Tue, Feb 28, 2006 at 11:23:54AM +0800, Zhang, Yanmin wrote:
-> > On Tue, 2006-02-28 at 09:34, Andrew Morton wrote:
-> > > "Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
-> > > >
-> > > > > > > > 2.6.16-rc3 uses hugetlb on-demand paging, but it doesn_t support hugetlb
-> > > >  > > > > mprotect. My patch against 2.6.16-rc3 enables this capability.
-> > > > 
+On 2/28/06, Andrew Morton <akpm@osdl.org> wrote:
 
-> If you could adapt this testcase to fit into the libhugetlbfs
-> testsuite, that would be really great (from
-> git://ozlabs.org/~dgibson/git/libhugetlbfs.git).  Otherwise I guess I
-> will..
-Frankly, I wrote a hugetlb test suite with dozens of test cases. It could
-run on i386/x86_64/ia64 and caught many hugetlb bugs effectively. I am
-not sure if I could distribute it out of intel.
+> You wanted CONFIG_MMU there.
+    Yes.
+>
+> A better fix is to provide vmalloc_node() on nommu architectures.  COuld you
+> compile-test this please?
+    Tested.  Then my patch is obsolete. Thanks!
+
+>
+> --- devel/mm/nommu.c~nommu-implement-vmalloc_node       2006-02-27 19:30:47.000000000 -0800
+> +++ devel-akpm/mm/nommu.c       2006-02-27 19:31:53.000000000 -0800
+> @@ -53,7 +53,6 @@ DECLARE_RWSEM(nommu_vma_sem);
+>  struct vm_operations_struct generic_file_vm_ops = {
+>  };
+>
+> -EXPORT_SYMBOL(vmalloc);
+>  EXPORT_SYMBOL(vfree);
+>  EXPORT_SYMBOL(vmalloc_to_page);
+>  EXPORT_SYMBOL(vmalloc_32);
+> @@ -205,6 +204,13 @@ void *vmalloc(unsigned long size)
+>  {
+>         return __vmalloc(size, GFP_KERNEL | __GFP_HIGHMEM, PAGE_KERNEL);
+>  }
+> +EXPORT_SYMBOL(vmalloc);
+> +
+> +void *vmalloc_node(unsigned long size, int node)
+> +{
+> +       return vmalloc(size);
+> +}
+> +EXPORT_SYMBOL(vmalloc_node);
+>
+>  /*
+>   *     vmalloc_32  -  allocate virtually continguos memory (32bit addressable)
+> _
+>
+>
 
 
+--
+Best regards,
+Luke Yang
+magic.yyang@gmail.com; luke.adi@gmail.com

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWB1UyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbWB1UzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWB1UyE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 15:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWB1UyE
+	id S932575AbWB1UzS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 15:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWB1UzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 15:54:04 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:37288 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S932381AbWB1UyC (ORCPT
+	Tue, 28 Feb 2006 15:55:18 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:37800 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S932393AbWB1UzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 15:54:02 -0500
-Message-ID: <4404B859.7000100@vilain.net>
-Date: Wed, 01 Mar 2006 09:53:45 +1300
+	Tue, 28 Feb 2006 15:55:16 -0500
+Message-ID: <4404B8A9.4020303@vilain.net>
+Date: Wed, 01 Mar 2006 09:55:05 +1300
 From: Sam Vilain <sam@vilain.net>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-Cc: twalberg@mindspring.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux (stirring
- up a hornets' nest))
-References: <43FDD944.nailFUE21NE9H@burner> <20060223160238.GA31520@mindspring.com> <43FDE983.nailFWR613JK4@burner> <20060223172346.GB31520@mindspring.com> <43FDF193.nailG0L117NIN@burner> <20060223175317.GD31520@mindspring.com> <43FEDB63.nailGCX2HX66G@burner> <20060225174410.GN20494@vasa.acc.umu.se> <20060228072431.GR20494@vasa.acc.umu.se> <44049ADE.nailC6L1ZUIFJ@burner> <20060228200108.GV20494@vasa.acc.umu.se>
-In-Reply-To: <20060228200108.GV20494@vasa.acc.umu.se>
+To: Tejun Heo <htejun@gmail.com>
+Cc: linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: [ANNOUNCE] quilt2git v0.2
+References: <20060228111115.GA32276@htj.dyndns.org>
+In-Reply-To: <20060228111115.GA32276@htj.dyndns.org>
 X-Enigmail-Version: 0.92.1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
->>>>12 December 2005; I wouldn't call that dead (or unmaintained).
->>>Oh, and as an update, 3.81rc1 was release on the 19th of February 2006.
->>>Yeah, very unmaintained and dead upstream...
->>None of the bugs I did report has been fixed.
-> Well, the bug you complain most about is about spewing of some
-> warnings for something completely harmless.  I know of another
-> certain set of software that spews unnecessary and annoying
-> warnings.  Those haven't been removed for despite complaints for
-> several years either.  Does this mean that cdrecord is an unmaintained
-> piece of software that's dead upstream?
+Tejun Heo wrote:
+> Hello, v0.2 of quilt2git available.  New in v0.2.
+> 
+> * handles new git HEAD file format properly (regular file storing ref: ...)
+> 
+> * makes use of mail format header from quilt patch description.  From:
+>   becomes the author, Subject: the subject of the patch.  All commit
+>   information should be maintained through git2quilt -> quilt2git now.
+> 
+> * --signoff option added.  This option is simply passed to git-commit.
+> 
+> * little fixes
+> 
+> http://home-tj.org/wiki/index.php/Misc
+> http://home-tj.org/files/misc/quilt2git-0.2
+> http://home-tj.org/files/misc/git2quilt-0.1
+> 
+> Thanks.
+> 
 
-This "cdrecord" package doesn't even support recording DVDs!  DVD 
-writers have been around for so long, and the technology is so similar 
-you would think that the author would implement the feature.  The users 
-sure must be asking for it.
+FWIW, I have a similar script to import a quilt export as an stgit patch 
+series, it's really simple but quite useful:
 
-However it still seems to be being updated but not co-operating with the 
-community or releasing new important features ... looks like we've got a 
-piece of software that's UNdead upstream.
+   http://vserver.ustl.gen.nz/scripts/import-quilt
 
 Sam.
-

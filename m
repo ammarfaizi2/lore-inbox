@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWB1TkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWB1TlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbWB1TkK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:40:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWB1TkK
+	id S932512AbWB1TlK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWB1TlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:40:10 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:45992 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932461AbWB1TkJ (ORCPT
+	Tue, 28 Feb 2006 14:41:10 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:49491 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932512AbWB1TlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:40:09 -0500
-Date: Tue, 28 Feb 2006 14:34:59 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-Message-ID: <20060228193459.GF24306@kvack.org>
-References: <1140841250.2587.33.camel@localhost.localdomain> <20060225142814.GB17844@kvack.org> <1140887517.9852.4.camel@localhost.localdomain> <20060225174134.GA18291@kvack.org> <1141149009.24103.8.camel@camp4.serpentine.com> <20060228175838.GD24306@kvack.org> <1141150814.24103.37.camel@camp4.serpentine.com> <20060228190354.GE24306@kvack.org> <1141154424.20227.11.camel@serpentine.pathscale.com>
+	Tue, 28 Feb 2006 14:41:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=ApAxY/Sev6OrcPcjCSJM6HmVVEwOtF3JBSnadJSRDX3AmB3mDlG30/z2utNyX+RHQ5ikDaz/z+aY49qJOE4ZkMQjtMn1Omke8Lug6WUrxwzlZGkBMLwgxeT5hrbP1m4iRhxQ0bTiHWOHDJaXnXyJYajkze53sAHtH7jDBKeuR20=
+Date: Tue, 28 Feb 2006 22:40:50 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: usb usb5: Manufacturer: Linux 2.6.16-rc5-mm1 ehci_hcd
+Message-ID: <20060228194050.GA7793@mipter.zuzino.mipt.ru>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1141154424.20227.11.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060228042439.43e6ef41.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 11:20:24AM -0800, Bryan O'Sullivan wrote:
-> So if we just use wmb(), we incur a 16-cycle penalty on every packet we
-> send.  This has a deleterious and measurable effect on performance.
+Lines like the one below puzzle me for a couple -mm's:
 
-sfence doesn't guarantee that the write will be flushed, especially if 
-the chipset gets involved.  The only way to do that is the same way any 
-pci write can be flushed, which is to read from a register on the device 
-in question.
+usb usb5: new device found, idVendor=0000, idProduct=0000
+usb usb5: new device strings: Mfr=3, Product=2, SerialNumber=1
+usb usb5: Product: EHCI Host Controller
+==>	usb usb5: Manufacturer: Linux 2.6.16-rc5-mm1 ehci_hcd	<==
+usb usb5: SerialNumber: 0000:00:1d.7
+usb usb5: configuration #1 chosen from 1 choice
+hub 5-0:1.0: USB hub found
+hub 5-0:1.0: 8 ports detected
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+Is it supposed to contain "Intel" and "Corporation"?
+
+P.S.: 00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R)
+      USB2 EHCI Controller (rev 02)
+

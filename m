@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWB1TEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWB1TI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWB1TEd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWB1TEd
+	id S932416AbWB1TI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbWB1TI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:04:33 -0500
-Received: from 26.mail-out.ovh.net ([213.186.42.179]:21674 "EHLO
-	26.mail-out.ovh.net") by vger.kernel.org with ESMTP id S932424AbWB1TEc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:04:32 -0500
-Date: Tue, 28 Feb 2006 18:16:48 +0100
-From: col-pepper@piments.com
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: o_sync in vfat driver
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <op.s5cj47sxj68xd1@mail.piments.com> <op.s5jpqvwhui3qek@mail.piments.com> <op.s5kxhyzgfx0war@mail.piments.com> <op.s5kx7xhfj68xd1@mail.piments.com> <op.s5kya3t0j68xd1@mail.piments.com> <op.s5ky2dbcj68xd1@mail.piments.com> <op.s5ky71nwj68xd1@mail.piments.com> <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com> <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <op.s5orvmevj68xd1@mail.piments.com>
-In-Reply-To: <Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
-User-Agent: Opera M2/8.51 (Linux, build 1462)
-X-Ovh-Remote: 80.170.101.26 (d80-170-101-26.cust.tele2.fr)
-X-Ovh-Local: 213.186.33.20 (ns0.ovh.net)
-X-Spam-Check: fait|type 1&3|0.3|H 0.5
+	Tue, 28 Feb 2006 14:08:59 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:62119 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932416AbWB1TI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:08:58 -0500
+Date: Tue, 28 Feb 2006 14:03:54 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+Message-ID: <20060228190354.GE24306@kvack.org>
+References: <1140841250.2587.33.camel@localhost.localdomain> <20060225142814.GB17844@kvack.org> <1140887517.9852.4.camel@localhost.localdomain> <20060225174134.GA18291@kvack.org> <1141149009.24103.8.camel@camp4.serpentine.com> <20060228175838.GD24306@kvack.org> <1141150814.24103.37.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141150814.24103.37.camel@camp4.serpentine.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006 14:10:44 +0100, linux-os (Dick Johnson)  
-<linux-os@analogic.com> wrote:
+On Tue, Feb 28, 2006 at 10:20:14AM -0800, Bryan O'Sullivan wrote:
+> No.  We're writing to a region that we've marked as write combining, so
+> the processor or north bridge will not write in program order.  It's
+> free to write out the write combining store buffers in whatever order it
+> feels like, unless forced to do otherwise.
 
-> No. That hardware was not killed by that issue. The writer, or another
-> who had encountered the same issue, eventually repartitioned and
-> reformatted the device. The partition table had gotten corrupted by
-> some experiments and the writer assumed that the device was broken.
-> It wasn't.
+The rules are a bit more complex than that -- write are weakly ordered, 
+but still ordered.  They maybe be delayed with respect to other stores, 
+but will never occur before other stores are visible to the cache 
+heirarchy.  In terms of how writes to the write combining region are 
+delayed, you'll have to look at the addresses of the registers you are 
+writing to.  If they map to the same write combining buffer (that is each 
+one can combine with the previous write) and are increasing in address, 
+then you don't need the explicite barrier.  Most hardware is laid out so 
+that this is possible.
 
-I did not get the info you posted from that thread so maybe I missed  
-something you saw. Or indeed it was someone else.
+The case the write combining buffers affect memory ordering in an 'unexpected' 
+way is if your writes combine and you write to registers in an order that 
+is opposite from that in which they combine.  Ie, a write to address 8 
+followed by a write to address 0 that combines will show up on the bus 
+as 0, 8 (assuming an 8 byte writes at 0).  Besides that, the write combining 
+buffers can introduce a delay of a few clocks while the cpu defers the write 
+in the hope that it will combine with another write, but that delay applies 
+to all writes that go through the write combining buffers and thus do not 
+change the memory ordering (except as previously noted).
 
+Memory barriers are not cheap.  At least for the example you provided, 
+it looks like things are overdone and performance is going to suck, so 
+it needs to be avoided if at all possible.  I really think that you 
+should be using wmb().
 
-Many thanks for your comments. If this is a false alert all the better.
-
-
-> Also, the failure mode of NAND flash is not that it becomes
-> "destroyed". The failure mode is a slow loss of data. The
-> devices no longer retain data for a zillion years, only a
-> few hundred, eventually, only a year or so.
-
-There was a comment about the failure mode, no time scale was given. I see  
-no reason why the degradation would stop at a year though.
-
-> Since the projected life of these new devices is about 5 to 10million  
-> such cycles,(older NAND flash used in modems was only 100-200k)
-
-Maybe some of the cheap devices are not using the new flash memory in  
-which case it would come down to between 24 and 48hrs of constant use.  
-This would be a realistic problem.
-
-Alan Cox refered to some devices that could be damaged as "crap", so it  
-seems he is aware of some hardware differences.
-
-In conclusion it seems from Andrew Morton's posts that the way this is  
-handled is under review so I am confident that a robust and stable  
-solution will result.
-
-Thanks again for your thoughts on this.
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

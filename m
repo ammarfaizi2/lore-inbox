@@ -1,103 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWB1U7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbWB1VEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbWB1U7G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 15:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWB1U7F
+	id S932589AbWB1VEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 16:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932587AbWB1VEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 15:59:05 -0500
-Received: from the.earth.li ([193.201.200.66]:21446 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id S932554AbWB1U7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 15:59:04 -0500
-Date: Tue, 28 Feb 2006 20:59:03 +0000
-From: Jonathan McDowell <noodles@earth.li>
-To: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Make nand block functions use provided byte/word helpers.
-Message-ID: <20060228205903.GZ14749@earth.li>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 28 Feb 2006 16:04:37 -0500
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:3261 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932589AbWB1VEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 16:04:36 -0500
+Date: Tue, 28 Feb 2006 16:01:26 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] x86_64: fix orphaned bits of timer init messages
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
+Message-ID: <200602281604_MC3-1-B984-EC14@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+When x86_64 timer init messages were changed to use apic verbosity
+levels, two messages were missed and one got the wrong level. This
+causes the last word of a suppressed message to print on a line
+by itself.  Fix that so either the entire message prints or none
+of it does.
 
-I've been writing a NAND driver for the flash on the Amstrad E3. One of
-the peculiarities of this device is that the write & read enable lines
-are on a latch, rather than strobed by the act of reading/writing from
-the data latch. As such I've got custom read_byte/write_byte functions
-defined. However the nand_*_buf functions in drivers/mtd/nand/nand_base.c
-are all appropriate, except for the fact they call readb/writeb
-themselves, instead of using this->read_byte or this->write_byte. The
-patch below changes them to use these functions, meaning a driver just
-needs to define read_byte and write_byte functions and gains all the
-nand_*_buf functions free.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-Signed-off-by: Jonathan McDowell <noodles@earth.li>
-
-
-----------
---- linux-2.6.15/drivers/mtd/nand/nand_base.c.orig	2006-02-28 20:41:54.000000000 +0000
-+++ linux-2.6.15/drivers/mtd/nand/nand_base.c	2006-02-28 20:46:44.000000000 +0000
-@@ -302,7 +302,7 @@ static void nand_write_buf(struct mtd_in
- 	struct nand_chip *this = mtd->priv;
+--- 2.6.16-rc5-64.orig/arch/x86_64/kernel/io_apic.c
++++ 2.6.16-rc5-64/arch/x86_64/kernel/io_apic.c
+@@ -1848,7 +1848,7 @@ static inline void check_timer(void)
+ 		 */
+ 		setup_ExtINT_IRQ0_pin(apic2, pin2, vector);
+ 		if (timer_irq_works()) {
+-			printk("works.\n");
++			apic_printk(APIC_VERBOSE," works.\n");
+ 			nmi_watchdog_default();
+ 			if (nmi_watchdog == NMI_IO_APIC) {
+ 				setup_nmi();
+@@ -1860,7 +1860,7 @@ static inline void check_timer(void)
+ 		 */
+ 		clear_IO_APIC_pin(apic2, pin2);
+ 	}
+-	printk(" failed.\n");
++	apic_printk(APIC_VERBOSE," failed.\n");
  
- 	for (i=0; i<len; i++)
--		writeb(buf[i], this->IO_ADDR_W);
-+		this->write_byte(mtd, buf[i]);
- }
+ 	if (nmi_watchdog == NMI_IO_APIC) {
+ 		printk(KERN_WARNING "timer doesn't work through the IO-APIC - disabling NMI Watchdog!\n");
+@@ -1875,7 +1875,7 @@ static inline void check_timer(void)
+ 	enable_8259A_irq(0);
  
- /**
-@@ -319,7 +319,7 @@ static void nand_read_buf(struct mtd_inf
- 	struct nand_chip *this = mtd->priv;
- 
- 	for (i=0; i<len; i++)
--		buf[i] = readb(this->IO_ADDR_R);
-+		buf[i] = this->read_byte(mtd);
- }
- 
- /**
-@@ -336,7 +336,7 @@ static int nand_verify_buf(struct mtd_in
- 	struct nand_chip *this = mtd->priv;
- 
- 	for (i=0; i<len; i++)
--		if (buf[i] != readb(this->IO_ADDR_R))
-+		if (buf[i] != this->read_byte(mtd))
- 			return -EFAULT;
- 
- 	return 0;
-@@ -358,7 +358,7 @@ static void nand_write_buf16(struct mtd_
- 	len >>= 1;
- 
- 	for (i=0; i<len; i++)
--		writew(p[i], this->IO_ADDR_W);
-+		this->write_word(mtd, p[i]);
- 
- }
- 
-@@ -378,7 +378,7 @@ static void nand_read_buf16(struct mtd_i
- 	len >>= 1;
- 
- 	for (i=0; i<len; i++)
--		p[i] = readw(this->IO_ADDR_R);
-+		p[i] = this->read_word(mtd);
- }
- 
- /**
-@@ -397,7 +397,7 @@ static int nand_verify_buf16(struct mtd_
- 	len >>= 1;
- 
- 	for (i=0; i<len; i++)
--		if (p[i] != readw(this->IO_ADDR_R))
-+		if (p[i] != this->read_word(mtd))
- 			return -EFAULT;
- 
- 	return 0;
-----------
-
-J.
-
+ 	if (timer_irq_works()) {
+-		apic_printk(APIC_QUIET, " works.\n");
++		apic_printk(APIC_VERBOSE," works.\n");
+ 		return;
+ 	}
+ 	apic_write(APIC_LVT0, APIC_LVT_MASKED | APIC_DM_FIXED | vector);
 -- 
- [   There are always at least two ways to program the same thing.    ]
- [ http://www.blackcatnetworks.co.uk/ - IPv6 enabled ADSL/dialup/colo ]
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert

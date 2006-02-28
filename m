@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWB1MKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWB1MMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWB1MKb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 07:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWB1MKa
+	id S932509AbWB1MMS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 07:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWB1MMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 07:10:30 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12717 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932377AbWB1MK3 (ORCPT
+	Tue, 28 Feb 2006 07:12:18 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:4808 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S932509AbWB1MMR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 07:10:29 -0500
-Date: Tue, 28 Feb 2006 13:04:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
+	Tue, 28 Feb 2006 07:12:17 -0500
+From: Michael Buesch <mbuesch@freenet.de>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Randy Dunlap <randy_d_dunlap@linux.intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
-Message-ID: <20060228120418.GB3695@elf.ucw.cz>
-References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com> <20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com> <20060228114500.GA4057@elf.ucw.cz> <44043B4E.30907@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <44043B4E.30907@pobox.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Subject: Re: [PATCH] Generic hardware RNG support
+Date: Tue, 28 Feb 2006 13:11:59 +0100
+User-Agent: KMail/1.8.3
+References: <200602281229.12887.mbuesch@freenet.de> <44043CEE.70201@pobox.com>
+In-Reply-To: <44043CEE.70201@pobox.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1224260.4fLTGaItBb";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602281311.59888.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 28-02-06 07:00:14, Jeff Garzik wrote:
-> Pavel Machek wrote:
-> >I hate to see debugging infrastructure like this. We already have it
-> >in ACPI and it is nasty/useless. It hides serious errors during normal
-> >run, while if you turn on the debugging, it floods logs so that
-> >it is unusable, too. I end up having to replace dprintks with
-> >printks... nasty.
-> 
-> Then you clearly don't understand what the code is doing.
-> Fine-grained 
+--nextPart1224260.4fLTGaItBb
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-No, I do not... code is so full of printk()s that it is unreadable.
+On Tuesday 28 February 2006 13:07, you wrote:
+> Michael Buesch wrote:
+> > Andrew, consider inclusion of the following patch into -mm
+> > for further testing, please.
+> >=20
+> > ---
+> >=20
+> > This patch adds support for generic Hardware Random Number Generator
+> > drivers. This makes the usage of the bcm43xx internal RNG through
+> > /dev/hwrandom possible.
+> >=20
+> > A patch against bcm43xx for your testing pleasure can be found at:
+> > ftp://ftp.bu3sch.de/misc/bcm43xx-d80211-hwrng.patch
+>=20
+> Please merge with Deepak Saxena's generic RNG stuff, rather than=20
+> duplicating efforts.
 
-> message selection allows one to turn on only the messages needed, and 
-> only for the controller desired.  Otherwise, it is nearly impossible to 
-> debug one SATA controller while booting off another.
+Well, I did not know that someone else already wrote something
+like this. Do you have any pointers to his stuff (patches)?
 
-Now, maybe message selection is neccessary, but having printk at
-begining of each function is not way to go.
-								Pavel
+=2D-=20
+Greetings Michael.
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+--nextPart1224260.4fLTGaItBb
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEBD4Plb09HEdWDKgRAvdBAKCVFpAIsrN4P0O/SGa3SgqjGg9P+QCaAzz4
+lK3lT4hf88Df4WeqF48HcD8=
+=fnq3
+-----END PGP SIGNATURE-----
+
+--nextPart1224260.4fLTGaItBb--

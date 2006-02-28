@@ -1,102 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWB0Xpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751772AbWB1AGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751780AbWB0Xpw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 18:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWB0Xpw
+	id S1751772AbWB1AGi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 19:06:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWB1AGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 18:45:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29317 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751780AbWB0Xpv (ORCPT
+	Mon, 27 Feb 2006 19:06:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:59565 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751772AbWB1AGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 18:45:51 -0500
-Date: Mon, 27 Feb 2006 15:45:25 -0800
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <gregkh@suse.de>, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       davej@redhat.com, perex@suse.cz, Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060227234525.GA21694@suse.de>
-References: <20060227190150.GA9121@kroah.com> <20060227193654.GA12788@kvack.org> <20060227194623.GC9991@suse.de> <Pine.LNX.4.64.0602271216340.22647@g5.osdl.org>
+	Mon, 27 Feb 2006 19:06:37 -0500
+Date: Tue, 28 Feb 2006 11:06:38 +1100
+From: Michael Neuling <mikey@neuling.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: dtor_core@ameritech.net, dmitry.torokhov@gmail.com, rth@redhat.com,
+       Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>,
+       "paulus@samba.org" <paulus@samba.org>
+Subject: [PATCH] input: pcspkr device and driver separation
+Message-Id: <20060228110638.08f97800.mikey@neuling.org>
+In-Reply-To: <d120d5000602161158x22216c4byabbe848d37ccf814@mail.gmail.com>
+References: <20060208110815.5e70e36b.mikey@neuling.org>
+	<d120d5000602101300k720ff4t5cbc279e8e9115f@mail.gmail.com>
+	<20060213150308.337c2e58.mikey@neuling.org>
+	<200602150118.53220.dtor_core@ameritech.net>
+	<20060216161258.03919e2e.mikey@neuling.org>
+	<20060216162807.f3bb15a3.mikey@neuling.org>
+	<d120d5000602161158x22216c4byabbe848d37ccf814@mail.gmail.com>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.6; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602271216340.22647@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 12:20:49PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Mon, 27 Feb 2006, Greg KH wrote:
-> 
-> > On Mon, Feb 27, 2006 at 02:36:54PM -0500, Benjamin LaHaise wrote:
-> > > On Mon, Feb 27, 2006 at 11:01:50AM -0800, Greg KH wrote:
-> > > > --- /dev/null
-> > > > +++ gregkh-2.6/Documentation/ABI/private/alsa
-> > > > @@ -0,0 +1,8 @@
-> > > > +What:		Kernel Sound interface
-> > > > +Date:		Feburary 2006
-> > > > +Who:		Jaroslav Kysela <perex@suse.cz>
-> > > > +Description:
-> > > > +		The use of the kernel sound interface must be done
-> > > > +		through the ALSA library.  For more details on this,
-> > > > +		please see http://www.alsa-project.org/ and contact
-> > > > +		<alsa-devel@alsa-project.org>
-> > > 
-> > > How can something as widely used as sound not work from one kernel version 
-> > > to the next, as seems to be implied with the "private" nature of the ABI?  
-> > > This is a total cop-out and is IMHO very amateur of the developers.  If 
-> > > something like this is to be the case, at the very least the alsa libraries 
-> > > need to provide a stable ABI and be shipped with the kernel.
-> > 
-> > Then I suggest you work with the ALSA developers to come up with such a
-> > "stable" api that never changes.  They have been working at this for a
-> > number of years, if it was a "simple" problem, it would have been done
-> > already...
-> 
-> I really don't much like the "private" and "unstable" subdirectories.
-> 
-> They seem to be just excuses for bad habits. And the notion of a "private" 
-> interface is insane anyway, since it doesn't matter - the only thing that 
-> matters is whether it breaks existing binaries or not, and being "private" 
-> in no way makes any difference to that. If you need to compile or link 
-> against a new library, it's broken - whether it was "private" or not makes 
-> no difference.
+Retransmission with updates from Ralf on MIPS.
 
-Ok, I don't mind the name change from something different than
-"private".  I was looking for something to call the interface between
-the user and kernel that almost all userspace programs should be using
-the library instead of the "raw" kernel interface.  ALSA and netlink are
-two examples of this, and I'm sure there's others.
+The current pcspkr code combines the device and driver registration.
+This patch splits these, putting the device registration in the arch
+specific code.
 
-We will probably have more of these in the future, and if they need to
-move their "library" into the kernel tree, that's fine too.
+It seems opinion is divided as how much error checking needs to be
+done when registering the device at boot.  This patch does a BUG_ON on
+any device allocation failures for all architectures touched.  The
+PowerPC guys are happy with this.
 
-> The ALSA development model is in my opinion pretty broken (the development 
-> seems to try to be pretty closed-up), but it's (a) gotten better and (b) 
-> the alsa people do not seem to be breaking old binaries and libraries very 
-> much. At least I don't remember seeing all that many problems lately.
+PowerPC and MIPS only have the pcspkr present sometimes. 
 
-Yes, ALSA has gotten a lot better.  But what about the next project that
-comes along that has the same kind of binding and it takes a year or so
-to figure out the way that the interface should work as no one has ever
-done that kind of interface before?  For the majority of things that
-people have been complaining about, this has never been done by any
-operating system before, the others don't have these problems as they
-don't even try :)
+Signed-off-by: Michael Neuling <mikey@neuling.org>
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+---
+ arch/alpha/kernel/setup.c          |   12 ++++++++++++
+ arch/i386/kernel/setup.c           |   12 ++++++++++++
+ arch/mips/Kconfig                  |    6 ++++++
+ arch/mips/kernel/Makefile          |    2 ++
+ arch/mips/kernel/i8253.c           |   23 +++++++++++++++++++++++
+ arch/powerpc/kernel/setup-common.c |   18 ++++++++++++++++++
+ drivers/input/misc/pcspkr.c        |   27 +--------------------------
+ 7 files changed, 74 insertions(+), 26 deletions(-)
 
-> So I just don't see any upsides to documenting anything private or 
-> unstable. I see only downsides: it's an excuse to hide behind for 
-> developers.
-
-So should we just not even document anything we consider "unstable"?
-The first trys at things are usually really wrong, and that only can be
-detected after we've tried it out for a while and have a few serious
-users.  Should we brand anything new as "testing" if the developer feels
-it is ready to go?
-
-thanks,
-
-greg k-h
+Index: linux-2.6-linus/arch/alpha/kernel/setup.c
+===================================================================
+--- linux-2.6-linus.orig/arch/alpha/kernel/setup.c
++++ linux-2.6-linus/arch/alpha/kernel/setup.c
+@@ -1484,3 +1484,15 @@ alpha_panic_event(struct notifier_block 
+ #endif
+         return NOTIFY_DONE;
+ }
++
++static __init int add_pcspkr(void)
++{
++	struct platform_device *pd;
++
++	pd = platform_device_alloc("pcspkr", -1);
++	BUGON(!pd);
++	BUGON(platform_device_add(pd));
++
++	return 0;
++}
++device_initcall(add_pcspkr);
+Index: linux-2.6-linus/arch/i386/kernel/setup.c
+===================================================================
+--- linux-2.6-linus.orig/arch/i386/kernel/setup.c
++++ linux-2.6-linus/arch/i386/kernel/setup.c
+@@ -1630,6 +1630,18 @@ void __init setup_arch(char **cmdline_p)
+ #endif
+ }
+ 
++static __init int add_pcspkr(void)
++{
++	struct platform_device *pd;
++
++	pd = platform_device_alloc("pcspkr", -1);
++	BUG_ON(!pd);
++	BUG_ON(platform_device_add(pd));
++
++	return 0;
++}
++device_initcall(add_pcspkr);
++
+ #include "setup_arch_post.h"
+ /*
+  * Local Variables:
+Index: linux-2.6-linus/arch/mips/Kconfig
+===================================================================
+--- linux-2.6-linus.orig/arch/mips/Kconfig
++++ linux-2.6-linus/arch/mips/Kconfig
+@@ -233,6 +233,7 @@ config MACH_JAZZ
+ 	select ARC32
+ 	select ARCH_MAY_HAVE_PC_FDC
+ 	select GENERIC_ISA_DMA
++	select I8253
+ 	select I8259
+ 	select ISA
+ 	select SYS_HAS_CPU_R4X00
+@@ -530,6 +531,7 @@ config QEMU
+ 	select DMA_COHERENT
+ 	select GENERIC_ISA_DMA
+ 	select HAVE_STD_PC_SERIAL_PORT
++	select I8253
+ 	select I8259
+ 	select ISA
+ 	select SWAP_IO_SPACE
+@@ -714,6 +716,7 @@ config SNI_RM200_PCI
+ 	select HAVE_STD_PC_SERIAL_PORT
+ 	select HW_HAS_EISA
+ 	select HW_HAS_PCI
++	select I8253
+ 	select I8259
+ 	select ISA
+ 	select SYS_HAS_CPU_R4X00
+@@ -1707,6 +1710,9 @@ config MMU
+ 	bool
+ 	default y
+ 
++config I8253
++	bool
++
+ source "drivers/pcmcia/Kconfig"
+ 
+ source "drivers/pci/hotplug/Kconfig"
+Index: linux-2.6-linus/arch/mips/kernel/Makefile
+===================================================================
+--- linux-2.6-linus.orig/arch/mips/kernel/Makefile
++++ linux-2.6-linus/arch/mips/kernel/Makefile
+@@ -59,6 +59,8 @@ obj-$(CONFIG_PROC_FS)		+= proc.o
+ 
+ obj-$(CONFIG_64BIT)		+= cpu-bugs64.o
+ 
++obj-$(CONFIG_I8253)		+= i8253.o
++
+ CFLAGS_cpu-bugs64.o	= $(shell if $(CC) $(CFLAGS) -Wa,-mdaddi -c -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-DHAVE_AS_SET_DADDI"; fi)
+ 
+ EXTRA_AFLAGS := $(CFLAGS)
+Index: linux-2.6-linus/arch/mips/kernel/i8253.c
+===================================================================
+--- /dev/null
++++ linux-2.6-linus/arch/mips/kernel/i8253.c
+@@ -0,0 +1,23 @@
++/*
++ * Copyright (C) 2006 IBM Corporation
++ *
++ * Implements device information for i8253 timer chip
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License version
++ * 2 as published by the Free Software Foundation
++ */
++
++#include <linux/platform_device.h>
++
++static __init int add_pcspkr(void)
++{
++	struct platform_device *pd;
++
++	pd = platform_device_alloc("pcspkr", -1);
++	BUG_ON(!pd);
++	BUG_ON(platform_device_add(pd));
++
++	return 0;
++}
++device_initcall(add_pcspkr);
+Index: linux-2.6-linus/arch/powerpc/kernel/setup-common.c
+===================================================================
+--- linux-2.6-linus.orig/arch/powerpc/kernel/setup-common.c
++++ linux-2.6-linus/arch/powerpc/kernel/setup-common.c
+@@ -469,3 +469,21 @@ static int __init early_xmon(char *p)
+ }
+ early_param("xmon", early_xmon);
+ #endif
++
++static __init int add_pcspkr(void)
++{
++	struct device_node *np;
++	struct platform_device *pd;
++
++	np = of_find_compatible_node(NULL, NULL, "pnpPNP,100");
++	of_node_put(np);
++	if (!np)
++		return -ENODEV;
++
++	pd = platform_device_alloc("pcspkr", -1);
++	BUG_ON(!pd);
++	BUG_ON(platform_device_add(pd));
++
++	return 0;
++}
++device_initcall(add_pcspkr);
+Index: linux-2.6-linus/drivers/input/misc/pcspkr.c
+===================================================================
+--- linux-2.6-linus.orig/drivers/input/misc/pcspkr.c
++++ linux-2.6-linus/drivers/input/misc/pcspkr.c
+@@ -24,7 +24,6 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@u
+ MODULE_DESCRIPTION("PC Speaker beeper driver");
+ MODULE_LICENSE("GPL");
+ 
+-static struct platform_device *pcspkr_platform_device;
+ static DEFINE_SPINLOCK(i8253_beep_lock);
+ 
+ static int pcspkr_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
+@@ -135,35 +134,11 @@ static struct platform_driver pcspkr_pla
+ 
+ static int __init pcspkr_init(void)
+ {
+-	int err;
+-
+-	err = platform_driver_register(&pcspkr_platform_driver);
+-	if (err)
+-		return err;
+-
+-	pcspkr_platform_device = platform_device_alloc("pcspkr", -1);
+-	if (!pcspkr_platform_device) {
+-		err = -ENOMEM;
+-		goto err_unregister_driver;
+-	}
+-
+-	err = platform_device_add(pcspkr_platform_device);
+-	if (err)
+-		goto err_free_device;
+-
+-	return 0;
+-
+- err_free_device:
+-	platform_device_put(pcspkr_platform_device);
+- err_unregister_driver:
+-	platform_driver_unregister(&pcspkr_platform_driver);
+-
+-	return err;
++	return platform_driver_register(&pcspkr_platform_driver);
+ }
+ 
+ static void __exit pcspkr_exit(void)
+ {
+-	platform_device_unregister(pcspkr_platform_device);
+ 	platform_driver_unregister(&pcspkr_platform_driver);
+ }
+ 

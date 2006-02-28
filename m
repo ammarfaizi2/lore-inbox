@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWB1RuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWB1Ru7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWB1RuL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWB1RuL
+	id S932285AbWB1Ru7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWB1Ru6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:50:11 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:42963 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751318AbWB1RuK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:50:10 -0500
+	Tue, 28 Feb 2006 12:50:58 -0500
+Received: from detroit.securenet-server.net ([209.51.153.26]:8098 "EHLO
+	detroit.securenet-server.net") by vger.kernel.org with ESMTP
+	id S932285AbWB1Ru6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:50:58 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
 Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+Date: Tue, 28 Feb 2006 09:50:53 -0800
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060225174134.GA18291@kvack.org>
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	 <20060225142814.GB17844@kvack.org>
-	 <1140887517.9852.4.camel@localhost.localdomain>
-	 <20060225174134.GA18291@kvack.org>
-Content-Type: text/plain
-Date: Tue, 28 Feb 2006 09:50:08 -0800
-Message-Id: <1141149009.24103.8.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+References: <1140841250.2587.33.camel@localhost.localdomain> <1140894083.9852.30.camel@localhost.localdomain> <200602280944.32210.jbarnes@virtuousgeek.org>
+In-Reply-To: <200602280944.32210.jbarnes@virtuousgeek.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602280950.53412.jbarnes@virtuousgeek.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - virtuousgeek.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-25 at 12:41 -0500, Benjamin LaHaise wrote:
+On Tuesday, February 28, 2006 9:44 am, Jesse Barnes wrote:
+> Something like this would be really handy.  Check out fbmem.c:fb_mmap
+> for a bad example of what can happen w/o it.
+>
+> In fact, I think it might make sense to export WC functionality via an
+> mmap flag (on an advisory basis since the platform may not support it
+> or there may be aliasing issues that prevent it); having an arch
+> independent routine to request it would make that addition easy to do
+> in generic code.  (In particular I wanted this for the sysfs PCI
+> interface. Userspace apps can map PCI resources there and it would be
+> nice if they could map them with WC semantics if requested.)
 
-> That is not the same as saying the write buffers are flushed and wholly 
-> visible to their destination, it just means that subsequent reads or 
-> writes will not be reordered prior to the sfence instruction.
+Oh, forgot to mention fallback semantics.  Instead of almost every driver 
+doing:
+	if (!(iocookie = ioremap_writecombine(addr, size)))
+		iocookie = ioremap(addr, size); /* fallback to uncached */
 
-Right.  I don't need the writes to be visible at the destination device,
-in this particular case; a write followed by a barrier just has to show
-up at the device before the next write.
+maybe it would be best to have something like
 
-Here's what a write to our chip looks like, for sending a packet:
+	iocookie = ioremap_wc_or_uc(addr, size);
 
-      * write a 64-bit control register that includes the length of the
-        segment being written
-      * do a barrier to make sure it gets to the device before any other
-        writes
-      * perform a pile of writes using __iowrite_copy32, not caring
-        about the order in which they reach the chip
-      * do another barrier
-      * perform one final 32-bit write using __raw_writel
-      * do one final barrier
+that tries write combine first but silently falls back to UC if the 
+former is impossible (or a new ioremap with flags or priority args or 
+whatever).  OTOH some drivers may want to be notified if the WC mapping 
+fails?  Just a thought...
 
-The last 32-bit write triggers the chip to put the packet on the wire.
-We make sure it happens after the earlier bulk write using a barrier.
-
-	<b
-
+Jesse

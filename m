@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWB1FNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWB1FUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWB1FNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 00:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWB1FNf
+	id S1751797AbWB1FUH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 00:20:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751805AbWB1FUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 00:13:35 -0500
-Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:45245 "EHLO
-	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
-	id S1750832AbWB1FNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 00:13:35 -0500
-Date: Tue, 28 Feb 2006 14:13:27 +0900 (JST)
-Message-Id: <20060228.141327.15247991.nemoto@toshiba-tops.co.jp>
-To: linux-kernel@vger.kernel.org
-Subject: SPI: cs_change usage
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Feb 2006 00:20:06 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:61892 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751797AbWB1FUF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 00:20:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j3jGlaP0IXQr0IbULB282DaKfzAT+jWjApJ8m7tJPw3BAJhr5MtNf6ocsLT/U7ziLQ6jZZwSn8Bw0C/KbW7u7qh8fUd23mXjYDAzQMZWFOE6g30bSXuH+zCay/59L+WEprOR0ExOrpCpHgbh1qn6TYEgdregs+L66SZyNAJ4C8o=
+Message-ID: <aec7e5c30602272120l54a3e8c9k2db51a1c86823f7b@mail.gmail.com>
+Date: Tue, 28 Feb 2006 14:20:03 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "John Richard Moser" <nigelenki@comcast.net>
+Subject: Re: Memory compression (again). . help?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4403C30A.6070704@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4403A14D.4050303@comcast.net> <4403C30A.6070704@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  Now I'm looking into new SPI subsystem and I have a question.
+On 2/28/06, John Richard Moser <nigelenki@comcast.net> wrote:
+> Hmm, I can't see where the kernel checks to see which pages are least
+> used. . . . anyone good with the VM can point me in the right direction?
 
-In spi.h, cs_change's usage is described as follows:
+The page reclaim code responsible for shrinking the LRUs code be found
+in mm/vmscan.c. That file contains a lot of code, my recommendation to
+you is to have a look at shrink_zone() which is responsible for
+rotating and shrinking the active and inactive lists.
 
-> * (i) If the transfer isn't the last one in the message, this flag is
-> * used to make the chipselect briefly go inactive in the middle of the
-> * message.  Toggling chipselect in this way may be needed to terminate
-> * a chip command, letting a single spi_message perform all of group of
-> * chip transactions together.
-> *
-> * (ii) When the transfer is the last one in the message, the chip may
-> * stay selected until the next transfer.  This is purely a performance
-> * hint; the controller driver may need to select a different device
-> * for the next message.
+Also, If you want to compress pages that normally would be swapped
+out, then I recommend you to have a look at the functions in
+mm/swap_state.c and see how swap space gets allocated and freed.
 
-I'm confused by the last paragraph.  In the last transfer, does
-"cs_change = 1" mean "keep the chipselect activated" ?  Or the
-paragraph is saying "I can set cs_change to zero to keep the
-chipselect activated after the message" ?
+If you need to know more about the Linux VM then I recommend you to
+buy the excellent book "Understanding the Linux Virtual Memory
+Manager" written by Mel Gorman, ISBN 0-13-145348-3. My copy of that
+book covers Linux-2.4 and has some comments about 2.6 too.
 
----
-Atsushi Nemoto
+/ magnus

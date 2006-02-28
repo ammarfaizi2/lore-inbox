@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWB1PBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWB1PCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWB1PBM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 10:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWB1PBM
+	id S932113AbWB1PCr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 10:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWB1PCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 10:01:12 -0500
-Received: from pproxy.gmail.com ([64.233.166.180]:6333 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932113AbWB1PBK convert rfc822-to-8bit
+	Tue, 28 Feb 2006 10:02:47 -0500
+Received: from 32.red-82-159-197.user.auna.net ([82.159.197.32]:56034 "EHLO
+	indy.cmartin.tk") by vger.kernel.org with ESMTP id S932113AbWB1PCr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 10:01:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EF7pVEfP78QLJIkz9Oby0+oTpF6t72S6mhTd09qVcQcClWNnhWm6jssSCldk7Td+a5cS+iViiG1UGJKHOKyJd2FK6gzwBS5SzidPw/Q/LZDTUj5M+dFnYJ7EPy3FZWx4fFAxVNrubPaH80UZN2+yXjVS4qFgYVrvw22tQ+Gmhwo=
-Message-ID: <6bffcb0e0602280701h1d5cbeaar@mail.gmail.com>
-Date: Tue, 28 Feb 2006 16:01:10 +0100
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.16-rc5-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060228042439.43e6ef41.akpm@osdl.org>
+	Tue, 28 Feb 2006 10:02:47 -0500
+From: Carlos =?utf-8?q?Mart=C3=ADn?= <carlos@cmartin.tk>
+To: Kurt Garloff <garloff@suse.de>
+Subject: Re: [PATCH] OOM: initialise points variable in out_of_memory()
+Date: Tue, 28 Feb 2006 16:05:03 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>
+References: <11410761851547-git-send-email-carlos@cmartin.tk> <20060228121303.GE6641@tpkurt.garloff.de>
+In-Reply-To: <20060228121303.GE6641@tpkurt.garloff.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <20060228042439.43e6ef41.akpm@osdl.org>
+Message-Id: <200602281605.03845.carlos@cmartin.tk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 28 February 2006 13:13, Kurt Garloff wrote:
+> Hi Carlos,
+> 
+> On Mon, Feb 27, 2006 at 10:36:25PM +0100, Carlos Martin wrote:
+> > We didn't initialise points, so the value reported was completely
+> > random. This doesn't affect the behaviour of the funcion.
+> 
+> Did you observe it?
 
-On 28/02/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/
->
->
-> - A large procfs rework from Eric Biederman.
->
-> - The swap prefetching patch is back.
->
-[snip]
-> +inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
-> +inotify-lock-avoidance-with-parent-watch-status-in-dentry-fix.patch
+No. GCC complained about it.
 
-I have noticed this:
-Feb 28 15:13:42 ltg01-sid kernel: BUG: warning at
-/usr/src/linux-mm/fs/inotify.c:533/inotify_d_instantiate()
-Feb 28 15:13:42 ltg01-sid kernel:  [show_trace+13/15] show_trace+0xd/0xf
-Feb 28 15:13:42 ltg01-sid kernel:  [dump_stack+21/23] dump_stack+0x15/0x17
-Feb 28 15:13:42 ltg01-sid kernel:  [inotify_d_instantiate+47/98]
-inotify_d_instantiate+0x2f/0x62
-Feb 28 15:13:42 ltg01-sid kernel:  [d_instantiate+70/114]
-d_instantiate+0x46/0x72
-Feb 28 15:13:42 ltg01-sid kernel:  [ext3_add_nondir+44/64]
-ext3_add_nondir+0x2c/0x40
-Feb 28 15:13:42 ltg01-sid kernel:  [ext3_link+163/217] ext3_link+0xa3/0xd9
-Feb 28 15:13:42 ltg01-sid kernel:  [vfs_link+292/379] vfs_link+0x124/0x17b
-Feb 28 15:13:42 ltg01-sid kernel:  [sys_linkat+157/218] sys_linkat+0x9d/0xda
-Feb 28 15:13:42 ltg01-sid kernel:  [sys_link+20/25] sys_link+0x14/0x19
-Feb 28 15:13:42 ltg01-sid kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> 
+> In the original patch, there is 
+> +static struct task_struct * select_bad_process(unsigned long *ppoints)
+>  {
+> -       unsigned long maxpoints = 0;
+>         struct task_struct *g, *p;
+>         struct task_struct *chosen = NULL;
+>         struct timespec uptime;
+> +       *ppoints = 0;
+> 
+> And this is called from out_of_memory().
+> 
+> But the constrained_alloc stuff seems to use points before 
+> select_bad_process() is called, so initializing to 0 is a
+> good idea. I don't remember having see the constrained_alloc
+> stuff, though, so I either did not look carefully enough or a 
+> merge error happened afterwards. 
 
-Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-dmesg
-Here is config http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-config
+It never used to be a problem because it was initialised when calling 
+select_bad_process().
 
-Regards,
-Michal
+I though it was your change, but I've looked again and it was Christoph 
+Lameter's commit 9b0f8b040acd8dfd23860754c0d09ff4f44e2cbc which introduced 
+the problem.
 
---
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+   cmn
+-- 
+Carlos Martín Nieto    |   http://www.cmartin.tk
+Hobbyist programmer    |

@@ -1,100 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWB1HaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751913AbWB1Hns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751910AbWB1HaL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 02:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWB1HaL
+	id S1751913AbWB1Hns (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 02:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWB1Hns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 02:30:11 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:13192 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751910AbWB1HaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 02:30:10 -0500
-Message-ID: <4403FA60.6060701@intel.com>
-Date: Tue, 28 Feb 2006 15:23:12 +0800
-From: "bibo,mao" <bibo.mao@intel.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 28 Feb 2006 02:43:48 -0500
+Received: from hoster904.com ([66.211.137.19]:47833 "EHLO hoster904.com")
+	by vger.kernel.org with ESMTP id S1751913AbWB1Hns (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 02:43:48 -0500
+From: Abdulla Bubshait <darkray@ic3man.com>
+To: Jason Baron <jbaron@redhat.com>
+Subject: Re: AMD64 X2 lost ticks on PM timer
+Date: Tue, 28 Feb 2006 10:41:27 +0300
+User-Agent: KMail/1.9.1
+Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       linux-kernel@vger.kernel.org
+References: <200602280022.40769.darkray@ic3man.com> <20060227222152.GA26541@ti64.telemetry-investments.com> <Pine.LNX.4.61.0602271744270.31386@dhcp83-105.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0602271744270.31386@dhcp83-105.boston.redhat.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org,
-       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       hiramatu@sdl.hitachi.co.jp
-Subject: [PATCH]kprobe handler discard user space trap
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602281041.27960.darkray@ic3man.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently kprobe handler traps only happen in kernel space, so function
-kprobe_exceptions_notify should skip traps which happen in user space.
-This patch modifies this, and it is based on 2.6.16-rc4.
+On Tuesday 28 February 2006 01:47, Jason Baron wrote:
+> On Mon, 27 Feb 2006, Bill Rugolsky Jr. wrote:
+> > On Tue, Feb 28, 2006 at 12:22:40AM +0300, bubshait wrote:
+> > > 	Losing some ticks... checking if CPU frequency changed.
+> > > 	warning: many lost ticks.
+> > > 	Your time source seems to be instable or some driver is hogging
+> > > interupts rip __do_softirq+0x47/0xd1
+> > >
+> > > adding report_lost_ticks only prints repeating messages like
+> > >
+> > > 	Lost 3 timer tick(s)! rip __do_softirq+0x47/0xd1
+> >
+> > I'm seeing tons of these on a Tyan 2895 (Nvidia CKO4) running FC4 with
+> > kernel-2.6.15-1.1830 (2.6.15.2) SMP:
+> >
+> > time.c: Lost 1 timer tick(s)! rip default_idle+0x37/0x7a)
+> > time.c: Lost 2 timer tick(s)! rip __do_softirq+0x55/0xd4)
+> >
+> > [I've seen the same thing with earlier FC 2.6.14 kernels.]
+> >
+> > On our systems the __do_softirq messages are strongly correlated with
+> > sata_nv interrupts, especially during our nightly tripwire-like fs
+> > checksum job.  Unfortunately, the log messages are not very informative.
+> > I'm not sure what ever happened to the following patch,
+> >
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5
+> >.64-mm3/broken-out/report-lost-ticks.patch
+> >
+> > but it was dropped.
+> >
+> > Unfortunately, I need to spend tomorrow patching kernels in search of a
+> > fix or workaround, as I have to start using these boxes in production,
+> > and they need to keep time.
+>
+> passing 'nohpet' and/or 'nopmtimer' will force the use of a different
+> timer...but this is certainly a workaround, if it helps...
 
-Signed-off-by: bibo mao <bibo.mao@intel.com>
+Unfortunately, I can't seem to find a way to force it to use hpet. Passing 
+'notsc' and 'nopmtimer' I end up using PIT/TSC based timekeeping. TSC is 
+already known to have problems with dual core. But I will sit with it for a 
+while to see if it fairs better than the pm timer.
 
-diff -Nruap a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
---- a/arch/i386/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
-+++ b/arch/i386/kernel/kprobes.c    2006-03-01 10:37:50.000000000 +0800
-@@ -463,6 +463,9 @@ int __kprobes kprobe_exceptions_notify(s
-      struct die_args *args = (struct die_args *)data;
-      int ret = NOTIFY_DONE;
-
-+    if (user_mode(args->regs))
-+        return ret;
-+
-      switch (val) {
-      case DIE_INT3:
-          if (kprobe_handler(args->regs))
-diff -Nruap a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
---- a/arch/ia64/kernel/kprobes.c    2006-02-25 17:08:53.000000000 +0800
-+++ b/arch/ia64/kernel/kprobes.c    2006-03-01 10:39:15.000000000 +0800
-@@ -740,6 +740,9 @@ int __kprobes kprobe_exceptions_notify(s
-      struct die_args *args = (struct die_args *)data;
-      int ret = NOTIFY_DONE;
-
-+    if (user_mode(args->regs))
-+        return ret;
-+
-      switch(val) {
-      case DIE_BREAK:
-          /* err is break number from ia64_bad_break() */
-diff -Nruap a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
---- a/arch/powerpc/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
-+++ b/arch/powerpc/kernel/kprobes.c    2006-03-01 10:39:53.000000000 +0800
-@@ -397,6 +397,9 @@ int __kprobes kprobe_exceptions_notify(s
-      struct die_args *args = (struct die_args *)data;
-      int ret = NOTIFY_DONE;
-
-+    if (user_mode(args->regs))
-+        return ret;
-+
-      switch (val) {
-      case DIE_BPT:
-          if (kprobe_handler(args->regs))
-diff -Nruap a/arch/sparc64/kernel/kprobes.c b/arch/sparc64/kernel/kprobes.c
---- a/arch/sparc64/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
-+++ b/arch/sparc64/kernel/kprobes.c    2006-03-01 10:40:16.000000000 +0800
-@@ -324,6 +324,9 @@ int __kprobes kprobe_exceptions_notify(s
-      struct die_args *args = (struct die_args *)data;
-      int ret = NOTIFY_DONE;
-
-+    if (user_mode(args->regs))
-+        return ret;
-+
-      switch (val) {
-      case DIE_DEBUG:
-          if (kprobe_handler(args->regs))
-diff -Nruap a/arch/x86_64/kernel/kprobes.c b/arch/x86_64/kernel/kprobes.c
---- a/arch/x86_64/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
-+++ b/arch/x86_64/kernel/kprobes.c    2006-03-01 10:38:48.000000000 +0800
-@@ -601,6 +601,9 @@ int __kprobes kprobe_exceptions_notify(s
-      struct die_args *args = (struct die_args *)data;
-      int ret = NOTIFY_DONE;
-
-+    if (user_mode(args->regs))
-+        return ret;
-+
-      switch (val) {
-      case DIE_INT3:
-          if (kprobe_handler(args->regs))
-
+Bill, What timer do you use, and do these lost ticks persist after sata_nv 
+interrupts stop?

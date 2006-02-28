@@ -1,110 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751870AbWB1GF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWB1GHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751870AbWB1GF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 01:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWB1GF7
+	id S1751871AbWB1GHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 01:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751902AbWB1GHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 01:05:59 -0500
-Received: from sls-da4p19.eicononline.com ([66.36.242.112]:63930 "HELO
-	sls-da4p19.eicononline.com") by vger.kernel.org with SMTP
-	id S1751870AbWB1GF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 01:05:58 -0500
-Message-ID: <001901c4918c$3cf37fef$13cb5247@fsq>
-Reply-To: <acecheckcash@aol.com>
-From: <advertising@4webmarketing.biz>
-To: <linux-kernel@vger.kernel.org>
-Subject: =?iso-8859-5?B?QUNFIENoZWNrIEV4cHJlc3Mg?=
-	=?iso-8859-5?B?SW5jLiBoYXMgaW1tZWRpYXRl?=
-	=?iso-8859-5?B?IHdvcmsgZm9yIEF1c3RyYWxp?=
-	=?iso-8859-5?B?YW4gYW5kIE5ldyBaZWFsYW5k?=
-	=?iso-8859-5?B?IGNpdGl6ZW5z?=
-Date: Tue, 28 Feb 2006 01:05:57 -0500
+	Tue, 28 Feb 2006 01:07:30 -0500
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:38561 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751871AbWB1GH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 01:07:29 -0500
+Date: Tue, 28 Feb 2006 01:04:01 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: make bitops safe
+To: Richard Henderson <rth@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>
+Message-ID: <200602280106_MC3-1-B974-9231@compuserve.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-        boundary="----=_NextPart_000_0012_01C45247.13CB7FEF"
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_0012_01C45247.13CB7FEF
-Content-Type: text/plain;
-        charset="iso-8859-5"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20060228005436.GA24895@redhat.com>
 
-ACE Check Express Inc. was founded in 1996 as a partner and connecting link=
- between hundreds of banks in the world engaged in e-commerce. Our speciali=
-sts from the Institute of Economic Research created the ACE Money Turnover=
-=AE - the system that ensured quality, high speed and reliability of money =
-transfer.
+On Mon, 27 Feb 2006 at 16:54:36 -0800, Richard Henderson wrote:
 
-As of today, ACE Check Express Inc. is not only a link in a big chain of th=
-e world financial flows, but also an independent segment whose services are=
- impossible to do without even for such bank as the Citibank (www.citibank.=
-com). That is why our managers, from beginners to professionals in the mone=
-y transfer, use the accounts of the Citibank for the Citibank has been our =
-customer in the field of on-line money transfer and conversion into cash se=
-rvices since 2002.
+> On Tue, Feb 28, 2006 at 12:47:22AM +0100, Andi Kleen wrote:
+> > I remember asking rth about this at some point and IIRC
+> > he expressed doubts if it would actually do what expected. Richard?
+> 
+> It's a bit dicey to be sure.  GCC may or may not be able to look
+> through the size of the array and not kill things beyond it.  If
+> one could be *sure* of some actual maximum index, this would be
+> fine, but I don't think you can.
+> 
 
-We are proud of the reliability of our system, which ensures safe money tra=
-nsfers via Internet between our clients wherever they are.
+In theory the bit offset could be from -2**31 to 2**31 - 1
 
-Dream of becoming a manager with a high salary?
+> One could reasonably argue that if you used a structure with a
+> flexible array member, that GCC could not look through that.  But
+> again I'm not 100% positive this is handled properly.
 
-We can help you fulfill your dream of having a reliable, stable profit each=
- month from working in the Internet. You may ask why. It is very simple - m=
-ost probably, you know that the World Wide Web, or the Internet develops ve=
-ry quickly and now connects billions of people around the world and the Int=
-ernet business really brings profits.
+This seems to work but causes more problems than it solves:
 
-We have arranged and organized the flows of out customers' funds into the A=
-CE Money Turnover=AE system (hereinafter referred to as the AMT=AE) whose i=
-ntegral part you may become by making very little effort. And indeed, in or=
-der to become a manager for money transfer processing you need to have an a=
-ccount with a Australian or New Zealand bank, a computer connected to the I=
-nternet and a little free time.
+#define vaddr ((volatile long *) addr)
+static inline void set_bit(int nr, volatile unsigned long * addr)
+{
+        __asm__ __volatile__( "lock ; "
+                "btsl %2,%1"
+                :"+m" (*(vaddr + (nr>>5)))
+                :"m" (*vaddr),"Ir" (nr)
+                );
+}
 
-Don't miss chance to work as our financial representative!
-Start new career with ACE Check Cashing Group, our motto - Financial stabil=
-ity for us and our partners.
+First, it generates the byte offset nr>>5 and puts it in a register
+even though it will never be used in the asm.  I can't find a constraint
+that says "I'll be accessing this address but I don't need you to generate
+it for me."  Second, the compiler thinks *vaddr will be read when it
+really won't (unless nr>>5 == 0 in which case constraint 0 takes care
+of it.)
 
-Please advise:
+Generated code when nr is a variable:
 
-The source of the information about this open position ( a person, an e-mai=
-l letter, a newspaper, an ICQ message).
-Could you describe educational background and professional experience, and =
-your current position.
+        movl nr,%edx
+        movl %edx,%eax
+        sarl $5,%eax
+        sall $2,%eax
+        lock ; btsl %edx,addr
 
+This causes a register reload afterward (assuming all regs are busy) and
+can cause a function to use more stack space.  That plus the three extra
+instructions made me go with the full memory clobber instead.
 
-Please feel free to ask us any questions you may have.
-
-
-If you would like to join our team contact us via e-mail at: acecheckcash@a=
-ol.com
-
-
-Regards,
-Julia Bordovsky
-HR recruiter
-ACE Cashing Team
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-4 Web Marketing
-Internet Advertising Agency Australia Manager
-194 The Esplanade
-Scarborough Beach
-Perth
-Western Australia 6019
-No Soliciting Business to Business Advertising
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you have questions or comments for 4 Web Marketing, please use our feedb=
-ack form.
-This email was sent from Account ID AQ72X5Y9XY8RJMQDDX and by this logged i=
-n User U8A38P5WVT2TS1YX6BF=20
-
-------=_NextPart_000_0012_01C45247.13CB7FEF--
-
+-- 
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert
 

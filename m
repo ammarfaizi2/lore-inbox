@@ -1,80 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWB1RCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751883AbWB1RCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWB1RCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:02:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWB1RCZ
+	id S1751883AbWB1RCy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWB1RCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:02:25 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.192.83]:48794 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751068AbWB1RCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:02:24 -0500
-Message-ID: <44048211.2070906@comcast.net>
-Date: Tue, 28 Feb 2006 12:02:09 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060213)
+	Tue, 28 Feb 2006 12:02:54 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:50205 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1751883AbWB1RCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:02:53 -0500
+X-IronPort-AV: i="4.02,153,1139212800"; 
+   d="scan'208"; a="1780511234:sNHT33151104"
+To: Jes Sorensen <jes@sgi.com>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+X-Message-Flag: Warning: May contain useful information
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	<yq08xrvhkee.fsf@jaguar.mkp.net> <adar75nlcar.fsf@cisco.com>
+	<44047565.3090202@sgi.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 28 Feb 2006 09:02:47 -0800
+In-Reply-To: <44047565.3090202@sgi.com> (Jes Sorensen's message of "Tue, 28
+ Feb 2006 17:08:05 +0100")
+Message-ID: <adafym3l8lk.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Memory compression (again). . help?
-References: <4403A14D.4050303@comcast.net> <4403C30A.6070704@comcast.net> <Pine.LNX.4.63.0602281123410.15105@cuia.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0602281123410.15105@cuia.boston.redhat.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 28 Feb 2006 17:02:48.0509 (UTC) FILETIME=[CD5A16D0:01C63C88]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+    Jes> Not quite correct as far as I understand it. mmiowb() is
+    Jes> supposed to guarantee that writes to MMIO space have
+    Jes> completed before continuing.  That of course covers the
+    Jes> multi-CPU case, but it should also cover the write-combining
+    Jes> case.
 
+I don't believe this is correct.  mmiowb() does not guarantee that
+writes have completed -- they may still be pending in a buffer in a
+bridge somewhere.  The _only_ effect of mmiowb() is to make sure that
+writes which have been ordered between CPUs using some other mechanism
+(i.e. a lock) are properly ordered by the rest of the system.  This
+only has an effect systems like very large ia64 systems, where (as I
+understand it), writes can pass each other on the way to the PCI bus.
+In fact, mmiowb() is a NOP on essentially every architecture.
 
-
-Rik van Riel wrote:
-> On Mon, 27 Feb 2006, John Richard Moser wrote:
-> 
->> Hmm, I can't see where the kernel checks to see which pages are least
->> used. . . . anyone good with the VM can point me in the right direction?
-> 
-> Not completely written yet, but take a look at:
-> 
-> 	http://linux-mm.org/PageOutKswapd
-> 
-
-Wow nice.  Confusing, but nice.
-
-I'm currently peeking around vmscan.c, though I can't seem to tell quite
-how the kernel knows what's hot and cold.  I heard somewhere that when a
-process doesn't use memory for like 5 days, the kernel knows better to
-swap that instead of something it used 10 minutes ago.  I'm not sure how
-though, I don't think the kernel debugs memory access.  My best guess is
-when the page falls out of process TLB, the kernel is notified about it
-and keeps these in order; and when it's faulted back into TLB, the
-kernel is notified and moves it up to more recently used.  Of course,
-this would mean the kernel never invalidates stuff in the process' TLB
-(working set), which doesn't make sense.  Either way the inner workings
-don't matter much to me; what I'm worried about is where it accounts for
-this and more importantly what APIs it provides to query this information.
-
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEBIIQhDd4aOud5P8RAnxaAKCOreOPFYNokQzECFPpSAOCbzJsQgCggWav
-AIZ+oU4AMRkdMGjp62xdqP0=
-=TkEA
------END PGP SIGNATURE-----
+ - R.

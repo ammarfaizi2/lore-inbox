@@ -1,33 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWB1EXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751792AbWB1FBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWB1EXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 23:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWB1EXQ
+	id S1751792AbWB1FBT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 00:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbWB1FBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 23:23:16 -0500
-Received: from xproxy.gmail.com ([66.249.82.201]:3524 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750742AbWB1EXP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 23:23:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=co7wotLzQS+i7v5U2qu1Xz9fAJCVc4LJRo/4koaHYNDO1HDkB3/Aik2+KHyfUAmcXAGH94q5admfAbINy2WV5hDS+it5bMCSdhwhxVfNT/unjGfIDotrjpuyxRCMklEwY9eG4L65crfYq3Td7ddhUpyNDt0DM/LKXc2/7TaGmac=
-Message-ID: <503e0f9d0602272023x4628208cv5d9845b79ed90ae5@mail.gmail.com>
-Date: Tue, 28 Feb 2006 09:53:14 +0530
-From: "tim tim" <tictactoe.tim@gmail.com>
-To: netfilter@lists.netfilter.org
-Subject: packet-data
-Cc: linux-kernel@vger.kernel.org
+	Tue, 28 Feb 2006 00:01:19 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:56208 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1750777AbWB1FBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 00:01:18 -0500
+Date: Tue, 28 Feb 2006 11:38:56 +0900
+From: Horms <horms@verge.net.au>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Bernard Pidoux <pidoux@ccr.jussieu.fr>,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       wensong@linux-vs.org, netdev@vger.kernel.org, ja@ssi.bg,
+       "David S. Miller" <davem@davemloft.net>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [patch 04/39] [PATCH] [BRIDGE]: netfilter missing symbol has_bridge_parent
+Message-ID: <20060228023853.GA30884@verge.net.au>
+References: <20060227223200.865548000@sorel.sous-sol.org> <20060227223321.042696000@sorel.sous-sol.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060227223321.042696000@sorel.sous-sol.org>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello.. i know how to capture a packet using netfilter hook.. i even
-succeeded in getting the source and destination adderss of the
-captured packet. but i was unable to retrive data from the packet .. 
-i came to know that there are pointers to access it . but can anybody
-plz show me an example to access data.. thanks in advance.
+On Mon, Feb 27, 2006 at 02:32:04PM -0800, Chris Wright wrote:
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
+> 
+> 5dce971acf2ae20c80d5e9d1f6bbf17376870911 in Linus' tree,
+> otherwise known as bridge-netfilter-races-on-device-removal.patch in
+> 2.5.15.4 removed has_bridge_parent, however this symbol is still
+> called with NETFILTER_DEBUG is enabled.
+> 
+> This patch uses the already seeded realoutdev value to detect if a parent
+> exists, and if so, the value of the parent.
+> 
+> Signed-Off-By: Horms <horms@verge.net.au>
+> Acked-by: Stephen Hemminger <shemminger@osdl.org>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> ---
+> 
+>  net/bridge/br_netfilter.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.15.4.orig/net/bridge/br_netfilter.c
+> +++ linux-2.6.15.4/net/bridge/br_netfilter.c
+> @@ -794,8 +794,8 @@ static unsigned int br_nf_post_routing(u
+>  print_error:
+>  	if (skb->dev != NULL) {
+>  		printk("[%s]", skb->dev->name);
+> -		if (has_bridge_parent(skb->dev))
+> -			printk("[%s]", bridge_parent(skb->dev)->name);
+> +		if (realoutdev)
+> +			printk("[%s]", realoutdev->name);
+>  	}
+>  	printk(" head:%p, raw:%p, data:%p\n", skb->head, skb->mac.raw,
+>  					      skb->data);
+> 
+> --
+
+I double checked, and that is the aggregate fix that was added
+to Linus' tree, it should solve the problem at hand.
+
+-- 
+Horms

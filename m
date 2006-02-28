@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWB1WPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWB1WTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWB1WPO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 17:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWB1WPN
+	id S1751090AbWB1WTM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 17:19:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWB1WTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 17:15:13 -0500
-Received: from host-84-9-202-199.bulldogdsl.com ([84.9.202.199]:2185 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750992AbWB1WPM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 17:15:12 -0500
-Date: Tue, 28 Feb 2006 22:12:43 +0000
-From: Ben Dooks <ben-mtd@fluff.org>
-To: Jonathan McDowell <noodles@earth.li>
-Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make nand block functions use provided byte/word helpers.
-Message-ID: <20060228221243.GC25880@home.fluff.org>
-References: <20060228205903.GZ14749@earth.li>
+	Tue, 28 Feb 2006 17:19:12 -0500
+Received: from mail.atl.external.lmco.com ([192.35.37.50]:13260 "EHLO
+	enterprise.atl.lmco.com") by vger.kernel.org with ESMTP
+	id S1751090AbWB1WTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 17:19:12 -0500
+Message-ID: <4404CC58.2020805@atl.lmco.com>
+Date: Tue, 28 Feb 2006 17:19:04 -0500
+From: Gautam H Thaker <gthaker@atl.lmco.com>
+Organization: Lockheed Martin -- Advanced Technology Laboratories
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+Cc: Gautam H Thaker <gautam.h.thaker@lmco.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: ~5x greater CPU load for a networked application when using 2.6.15-rt15-smp
+ vs. 2.6.12-1.1390_FC4
+References: <43FE134C.6070600@atl.lmco.com> <20060228192738.GO4650@waste.org>
+In-Reply-To: <20060228192738.GO4650@waste.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060228205903.GZ14749@earth.li>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 08:59:03PM +0000, Jonathan McDowell wrote:
-> Hi.
+Matt Mackall wrote:
+> On Thu, Feb 23, 2006 at 02:55:56PM -0500, Gautam H Thaker wrote:
 > 
-> I've been writing a NAND driver for the flash on the Amstrad E3. One of
-> the peculiarities of this device is that the write & read enable lines
-> are on a latch, rather than strobed by the act of reading/writing from
-> the data latch. As such I've got custom read_byte/write_byte functions
-> defined. However the nand_*_buf functions in drivers/mtd/nand/nand_base.c
-> are all appropriate, except for the fact they call readb/writeb
-> themselves, instead of using this->read_byte or this->write_byte. The
-> patch below changes them to use these functions, meaning a driver just
-> needs to define read_byte and write_byte functions and gains all the
-> nand_*_buf functions free.
+>>The real-time patches at the URL below do a great job of endowing Linux with
+>>real-time capabilities.
+>>
+>>http://people.redhat.com/mingo/realtime-preempt/
+>>
+>>It has been documented before (and accepted) that this patch turns Linux into
+>>a RT kernel but considerably slows down the code paths, esp. thru the I/O
+>>subsystem. I want to provide some additional measurements and seek opinions
+>>of if it might ever be possible to improve on this situation.
+> 
+> 
+> Are you using the SLAB or SLOB allocator in the -rt kernel?
 
-Why not make life easier on everyone else by over-riding the
-functions for read/write buffer (etc) in the nand driver... less
-intrusive into the core code!
+lake> grep SL config.2.6.15-rt15-smp
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_SLAB=y
+# CONFIG_SLOB is not set
+
+
+
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
 
-  'a smiley only costs 4 bytes'
+Gautam H. Thaker
+Distributed Processing Lab; Lockheed Martin Adv. Tech. Labs
+3 Executive Campus; Cherry Hill, NJ 08002
+856-792-9754, fax 856-792-9925  email: gthaker@atl.lmco.com

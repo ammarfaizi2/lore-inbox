@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWB1Cwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWB1DCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751545AbWB1Cwn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 21:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWB1Cwm
+	id S1751127AbWB1DCo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 22:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWB1DCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 21:52:42 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:63203 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751128AbWB1Cwl (ORCPT
+	Mon, 27 Feb 2006 22:02:44 -0500
+Received: from jose.lug.udel.edu ([128.175.60.112]:188 "EHLO jose.lug.udel.edu")
+	by vger.kernel.org with ESMTP id S1751127AbWB1DCn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 21:52:41 -0500
-Message-ID: <4403BAEF.1000908@pobox.com>
-Date: Mon, 27 Feb 2006 21:52:31 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 27 Feb 2006 22:02:43 -0500
+Date: Mon, 27 Feb 2006 22:02:43 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Marc Koschewski <marc@osknowledge.org>, Christian <christiand59@web.de>,
+       linux-kernel@vger.kernel.org, sfrench@samba.org
+Subject: Re: 2.6.16-rc: CIFS reproducibly freezes the computer
+Message-ID: <20060228030243.GA18507@lug.udel.edu>
+References: <20060214135016.GC10701@stusta.de> <200602141659.40176.christiand59@web.de> <20060214164002.GC5905@stiffy.osknowledge.org> <20060214184708.GA29656@lug.udel.edu> <20060227062926.GP3674@stusta.de>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Tejun Heo <htejun@gmail.com>, Mark Lord <lkml@rtr.ca>,
-       David Greaves <david@dgreaves.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <Pine.LNX.4.64.0602271744470.22647@g5.osdl.org> <4403B04F.5090405@pobox.com> <Pine.LNX.4.64.0602271813120.22647@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602271813120.22647@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060227062926.GP3674@stusta.de>
+User-Agent: Mutt/1.5.11
+From: ross@jose.lug.udel.edu (Ross Vandegrift)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 27 Feb 2006, Jeff Garzik wrote:
-> 
->>I've had this waiting in the wings, in fact...  [see attached]
-> 
-> 
-> I really hate having a _global_ variable called "fua". That's just bad 
-> taste. I would suggest calling it "atapi_forced_unit_attention_enabled", 
-> but maybe that is going a bit overboard. It's definitely better than just 
-> "fua", though.
+On Mon, Feb 27, 2006 at 07:29:26AM +0100, Adrian Bunk wrote:
+> Christian, Ross, my freezes are fixed in 2.6.16-rc5.
+> Can you check whether 2.6.16-rc5 also fixes your freezes?
 
-<shrug>  It will go away when things are fixed, and only users who are 
-testing will even bother with it.
+During the last week my workstation at the office was upgraded.  I
+haven't been able to reproduce the freeze on the new box after
+uploading a few 600MB ISO images.  This certainly would've tripped the
+old machine, but this one seems fine.
 
-Looking over the module subsystem, it looks like one could use 
-module_param_named() to achieve proper namespace separation (C versus 
-module opt) -- then you could call it libata_fua -- but for a temporary 
-module option it seems like more trouble than its worth.
+Similar kernel version, 2.6.15-1-686-smp from Debian etch.  The
+possible major difference is that the old box wasn't SMP, the new one
+is.
 
-	Jeff
+Sorry, not much help!
 
+-- 
+Ross Vandegrift
+ross@lug.udel.edu
 
-
+"The good Christian should beware of mathematicians, and all those who
+make empty prophecies. The danger already exists that the mathematicians
+have made a covenant with the devil to darken the spirit and to confine
+man in the bonds of Hell."
+	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37

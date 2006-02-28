@@ -1,37 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWB1N3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWB1OBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWB1N3h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 08:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWB1N3h
+	id S1750887AbWB1OBl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 09:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWB1OBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 08:29:37 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:62351 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750762AbWB1N3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 08:29:36 -0500
-Subject: Re: libata PATA patch for 2.6.16-rc5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Mathieu Chouquet-Stringer <ml2news@free.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <m33bi3of5m.fsf@defiant.localdomain>
-References: <1141054370.3089.0.camel@localhost.localdomain>
-	 <m3k6bgk7oi.fsf@localhost.localdomain>
-	 <1141085952.3089.23.camel@localhost.localdomain>
-	 <m33bi3of5m.fsf@defiant.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Feb 2006 13:34:22 +0000
-Message-Id: <1141133662.3089.68.camel@localhost.localdomain>
+	Tue, 28 Feb 2006 09:01:41 -0500
+Received: from main.gmane.org ([80.91.229.2]:2746 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750809AbWB1OBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 09:01:40 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sergei Organov <osv@javad.com>
+Subject: Re: o_sync in vfat driver
+Date: Tue, 28 Feb 2006 16:52:29 +0300
+Message-ID: <du1kj0$f1j$1@sea.gmane.org>
+References: <op.s5cj47sxj68xd1@mail.piments.com>
+	<op.s5jpqvwhui3qek@mail.piments.com>
+	<op.s5kxhyzgfx0war@mail.piments.com>
+	<op.s5kx7xhfj68xd1@mail.piments.com>
+	<op.s5kya3t0j68xd1@mail.piments.com>
+	<op.s5ky2dbcj68xd1@mail.piments.com>
+	<op.s5ky71nwj68xd1@mail.piments.com>
+	<op.s5kzao2jj68xd1@mail.piments.com>
+	<op.s5lq2hllj68xd1@mail.piments.com>
+	<20060227132848.GA27601@csclub.uwaterloo.ca>
+	<1141048228.2992.106.camel@laptopd505.fenrus.org>
+	<1141049176.18855.4.camel@imp.csi.cam.ac.uk>
+	<1141050437.2992.111.camel@laptopd505.fenrus.org>
+	<1141051305.18855.21.camel@imp.csi.cam.ac.uk>
+	<op.s5ngtbpsj68xd1@mail.piments.com>
+	<Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com>
+	<op.s5nm6rm5j68xd1@mail.piments.com>
+	<Pine.LNX.4.61.0602280745500.9291@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=utf-8
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 87.236.81.130
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-02-28 at 13:12 +0100, Krzysztof Halasa wrote:
-> BTW: with rc5 and patch-2.6.16-rc5-ide1.gz I get MWDMA2 (VIA EPIA-M,
-> I've sent you details with rc2-ide2 report):
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+> On Mon, 27 Feb 2006 col-pepper@piments.com wrote:
+>
+>> On Mon, 27 Feb 2006 22:32:07 +0100, linux-os (Dick Johnson)
+>> <linux-os@analogic.com> wrote:
+>>
+[...]
+> It takes about a second to erase a 64k physical sector. This is
+> a required operation before it is written.
+> Since the projected life of these new devices is about 5 to 10 million
+> such cycles, (older NAND flash used in modems was only 100-200k) the
+> writer would have to be running that "brand new device" for at least 5
+> million seconds. Let's see:
 
-Fixed in my tree. Thanks for noticing that.
+What FLASH are you talking about? I work with NAND FLASH chips directly
+in embedded projects, and for both Toshiba and Samsung NAND FLASH the
+erase time of 128Kb (64K words) block is 2 milliseconds typical. Page
+program time is 0.3 milliseconds typical, so, having 64 pages per block,
+total erase-write block cycle is about 22ms.
 
-Alan
+Those chips indeed support about 100K program/erase cycles. Well, maybe
+there are some new NAND FLASH chips that support more program/erase
+cycles (just checked Samsung but found none), but I doubt they are 1000
+times slower for block erase anyway.
+
+-- Sergei.
 

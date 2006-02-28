@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWB1Bks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751899AbWB1Bro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWB1Bks (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Feb 2006 20:40:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWB1Bks
+	id S1751899AbWB1Bro (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Feb 2006 20:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751747AbWB1Bro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Feb 2006 20:40:48 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:49077 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932117AbWB1Bkr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Feb 2006 20:40:47 -0500
-Subject: Re: [Lse-tech] Re: [Patch 2/7] Add sysctl for schedstats
-From: chandra seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Shailabh Nagar <nagar@watson.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <44039860.8090708@yahoo.com.au>
-References: <1141026996.5785.38.camel@elinux04.optonline.net>
-	 <1141027367.5785.42.camel@elinux04.optonline.net>
-	 <1141027923.5785.50.camel@elinux04.optonline.net>
-	 <4402C3BB.7010705@yahoo.com.au> <1141067382.4770.699.camel@linuxchandra>
-	 <44039860.8090708@yahoo.com.au>
-Content-Type: text/plain
-Organization: ibm
-Date: Mon, 27 Feb 2006 17:42:37 -0800
-Message-Id: <1141090957.3916.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Feb 2006 20:47:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750724AbWB1Brn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Feb 2006 20:47:43 -0500
+Date: Mon, 27 Feb 2006 17:46:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tejun Heo <htejun@gmail.com>
+cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       David Greaves <david@dgreaves.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <4403A84C.6010804@gmail.com>
+Message-ID: <Pine.LNX.4.64.0602271744470.22647@g5.osdl.org>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
+ <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
+ <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
+ <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
+ <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
+ <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-28 at 11:25 +1100, Nick Piggin wrote:
-> Chandra Seetharaman wrote:
-> 
-> >On Mon, 2006-02-27 at 20:17 +1100, Nick Piggin wrote:
-> >
-> >>> #ifdef CONFIG_SCHEDSTATS
-> >>>+
-> >>>+int schedstats_sysctl = 0;		/* schedstats turned off by default */
-> >>>
-> >>Should be read mostly.
-> >>
-> >>
-> >>>+static DEFINE_PER_CPU(int, schedstats) = 0;
-> >>>+
-> >>>
-> >>When the above is in the read mostly section, you won't need this at all.
-> >>
-> >>You don't intend to switch the sysctl with great frequency, do you?
-> >>
-> >
-> >No, it is not expected to switch often.
-> >
-> >We originally coded it as __read_mostly, but thought the variable
-> >bouncing between CPUs would be costly. Is it cheaper with
-> >__read_mostly ? or it doesn't matter ?
-> >
-> >
-> 
-> Well it will only "bounce" when the cacheline it is in is written to by
-> a different CPU. Considering this happens with your per-cpu implementation
-> _anyway_, they don't buy you anything much.
-> 
-> Putting it in __read_mostly means that you won't happen to share a cacheline
-> with a variable that is being written to frequently.
-> 
-Thanks for the clarification Nick.
 
-> Nick
-> 
-> --
-> 
-> Send instant messages to your online friends http://au.messenger.yahoo.com 
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
-> that extends applications into web and mobile media. Attend the live webcast
-> and join the prime developer group breaking into this new coding territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
 
+On Tue, 28 Feb 2006, Tejun Heo wrote:
+
+> Hello, Mark.
+> 
+> Mark Lord wrote:
+> > 
+> > .. hold off on 2.6.16 because of this or not?
+> > 
+> 
+> It certainly is dangerous. I guess we should turn off FUA for the time being.
+> Barrier auto-fallback was once implemented but it didn't seem like a good idea
+> as it was too complex and hides low level bug from higher level. The concensus
+> seems to be developing blacklist of drives which lie about FUA support
+> (currently only one drive). Official kernel doesn't seem to be the correct
+> place to grow the blacklist, Maybe we should do it from -mm?
+
+For 2.6.16, the only sane solution for now is to just turn it off.
+
+Somebody want to send me a patch that does that, along with an ack from 
+Mark (and whoever else sees this) that it fixes his/their problems?
+
+		Linus

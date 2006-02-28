@@ -1,73 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751913AbWB1Hns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWB1Hs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751913AbWB1Hns (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 02:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWB1Hns
+	id S932123AbWB1Hs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 02:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWB1Hs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 02:43:48 -0500
-Received: from hoster904.com ([66.211.137.19]:47833 "EHLO hoster904.com")
-	by vger.kernel.org with ESMTP id S1751913AbWB1Hns (ORCPT
+	Tue, 28 Feb 2006 02:48:58 -0500
+Received: from lugor.de ([212.112.242.222]:52402 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S1751914AbWB1Hs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 02:43:48 -0500
-From: Abdulla Bubshait <darkray@ic3man.com>
-To: Jason Baron <jbaron@redhat.com>
-Subject: Re: AMD64 X2 lost ticks on PM timer
-Date: Tue, 28 Feb 2006 10:41:27 +0300
+	Tue, 28 Feb 2006 02:48:57 -0500
+From: "Hesse, Christian" <mail@earthworm.de>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Subject: Re: hald in status D with 2.6.16-rc4
+Date: Tue, 28 Feb 2006 08:47:45 +0100
 User-Agent: KMail/1.9.1
-Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       linux-kernel@vger.kernel.org
-References: <200602280022.40769.darkray@ic3man.com> <20060227222152.GA26541@ti64.telemetry-investments.com> <Pine.LNX.4.61.0602271744270.31386@dhcp83-105.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0602271744270.31386@dhcp83-105.boston.redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <200602202034.29413.mail@earthworm.de> <200602272348.37288.mail@earthworm.de> <200602281040.44957.ncunningham@cyclades.com>
+In-Reply-To: <200602281040.44957.ncunningham@cyclades.com>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart6720020.FOX7EZvp2u";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602281041.27960.darkray@ic3man.com>
+Message-Id: <200602280847.51677.mail@earthworm.de>
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0 (solar.mylinuxtime.de [10.5.1.1]); Tue, 28 Feb 2006 08:47:53 +0100 (CET)
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 February 2006 01:47, Jason Baron wrote:
-> On Mon, 27 Feb 2006, Bill Rugolsky Jr. wrote:
-> > On Tue, Feb 28, 2006 at 12:22:40AM +0300, bubshait wrote:
-> > > 	Losing some ticks... checking if CPU frequency changed.
-> > > 	warning: many lost ticks.
-> > > 	Your time source seems to be instable or some driver is hogging
-> > > interupts rip __do_softirq+0x47/0xd1
+--nextPart6720020.FOX7EZvp2u
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+On Tuesday 28 February 2006 01:40, Nigel Cunningham wrote:
+> On Tuesday 28 February 2006 08:48, Hesse, Christian wrote:
+> > On Wednesday 22 February 2006 21:12, Hesse, Christian wrote:
+> > > On Wednesday 22 February 2006 11:10, Hesse, Christian wrote:
+> > > > On Tuesday 21 February 2006 23:49, Andrew Morton wrote:
+> > > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > > On Tuesday 21 February 2006 06:19, Andrew Morton wrote:
+> > > > > > > "Hesse, Christian" <mail@earthworm.de> wrote:
+> > > > > > > > Hello everybody,
+> > > > > > > >
+> > > > > > > > since using kernel version 2.6.16-rc4 the hal daemon is in
+> > > > > > > > status D after resume. I use suspend2 2.2.0.1 for 2.6.16-rc=
+3.
+> > > > > > > > Any hints what could be the problem? It worked perfectly wi=
+th
+> > > > > > > > 2.6.15.x and suspend2 2.2.
+> > > > > > >
+> > > > > > > a) Look in the logs for any oopses, other nasties
+> > > > > >
+> > > > > > Nothing.
+> > > > > >
+> > > > > > > b) Do `echo t > /proc/sysrq-trigger', `dmesg -s 1000000 > foo'
+> > > > > > > then find the trace for `hald' in `foo', send it to this list.
+> > > > > >
+> > > > > > Ok, here it is:
+> > > > > >
+> > > > > > [ trace snipped ]
+> > > > > >
+> > > > > > This is with 2.6.16-rc4-git1 + suspend2 2.2.0.1.
+> > > > >
+> > > > > Hopefully suspend2 isn't involved.  People would feel more
+> > > > > comfortable if you could test a vanilla mainline tree..
+> > > > >
+> > > > > Could the ACPI team please take a look at fixing this regression?
+> > > >
+> > > > I did two cycles with mainline suspend now and did not hit the
+> > > > problem... I will keep an eye on it.
 > > >
-> > > adding report_lost_ticks only prints repeating messages like
-> > >
-> > > 	Lost 3 timer tick(s)! rip __do_softirq+0x47/0xd1
+> > > It is independent from suspend version, hald hangs with mainline
+> > > suspend as well.
 > >
-> > I'm seeing tons of these on a Tyan 2895 (Nvidia CKO4) running FC4 with
-> > kernel-2.6.15-1.1830 (2.6.15.2) SMP:
-> >
-> > time.c: Lost 1 timer tick(s)! rip default_idle+0x37/0x7a)
-> > time.c: Lost 2 timer tick(s)! rip __do_softirq+0x55/0xd4)
-> >
-> > [I've seen the same thing with earlier FC 2.6.14 kernels.]
-> >
-> > On our systems the __do_softirq messages are strongly correlated with
-> > sata_nv interrupts, especially during our nightly tripwire-like fs
-> > checksum job.  Unfortunately, the log messages are not very informative.
-> > I'm not sure what ever happened to the following patch,
-> >
-> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5
-> >.64-mm3/broken-out/report-lost-ticks.patch
-> >
-> > but it was dropped.
-> >
-> > Unfortunately, I need to spend tomorrow patching kernels in search of a
-> > fix or workaround, as I have to start using these boxes in production,
-> > and they need to keep time.
+> > I think this is a big regression since 2.5.15. Is anybody working on it?
+> > I did not get a reply for nearly a week now...
+> > If anybody needs more information let me know.
 >
-> passing 'nohpet' and/or 'nopmtimer' will force the use of a different
-> timer...but this is certainly a workaround, if it helps...
+> I would suggest bugging the acpi guys :)
 
-Unfortunately, I can't seem to find a way to force it to use hpet. Passing 
-'notsc' and 'nopmtimer' I end up using PIT/TSC based timekeeping. TSC is 
-already known to have problems with dual core. But I will sit with it for a 
-while to see if it fairs better than the pm timer.
+They are in cc, but nobody cares. :(
+=2D-=20
+Christian
 
-Bill, What timer do you use, and do these lost ticks persist after sata_nv 
-interrupts stop?
+--nextPart6720020.FOX7EZvp2u
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.20 (GNU/Linux)
+
+iD8DBQBEBAAnlZfG2c8gdSURAjQ6AKC62G4ihhjgBhs1+eS7tV1gWjKmHwCfcz8B
+k+kka2GcdLnOaT9nk8GL/Sk=
+=A0ne
+-----END PGP SIGNATURE-----
+
+--nextPart6720020.FOX7EZvp2u--

@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWB1TK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWB1TLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbWB1TK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:10:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWB1TK1
+	id S932428AbWB1TLv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbWB1TLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:10:27 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:39855 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S932425AbWB1TK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:10:26 -0500
-Message-ID: <4404AD18.2070208@soleranetworks.com>
-Date: Tue, 28 Feb 2006 13:05:44 -0700
-From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [FREELOADER ANNOUNCE] DSFS patches for Linux-2.6.9-22 (Red Hat ES4
- and WS4) Posted
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 28 Feb 2006 14:11:51 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5065 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932428AbWB1TLu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:11:50 -0500
+Date: Tue, 28 Feb 2006 11:10:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Mason <mason@suse.com>
+Cc: col-pepper@piments.com, linux-kernel@vger.kernel.org
+Subject: Re: o_sync in vfat driver
+Message-Id: <20060228111032.559e849b.akpm@osdl.org>
+In-Reply-To: <200602281347.46169.mason@suse.com>
+References: <op.s5lrw0hrj68xd1@mail.piments.com>
+	<op.s5nkafhpj68xd1@mail.piments.com>
+	<20060227151230.695de2af.akpm@osdl.org>
+	<200602281347.46169.mason@suse.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Mason <mason@suse.com> wrote:
+>
+> On Monday 27 February 2006 18:12, Andrew Morton wrote:
+> 
+> > We don't know that the same number of same-sized write()s were happening in
+> > each case.
+> >
+> > There's been some talk about implementing fsync()-on-file-close for this
+> > problem, and some protopatches.  But nothing final yet.
+> 
+> Here's the patch I'm using in -suse right now.  What I want to do is make a 
+> much more generic -o flush, but it'll still need a few bits in individual 
+> filesystem to kick off metadata writes quickly.
+> 
+> The basic goal behind the code is to trigger writes without waiting for both
+> data and metadata.  If the user is watching the memory stick, when the 
+> little light stops flashing all the data and metadata will be on disk.
+> 
+> It also generally throttles userland a little during file release.  This 
+> could be changed to throttle for each page dirtied, but most users I 
+> asked liked the current setup better.
+> 
+> ...
+>
+> +static int
+> +fat_file_release(struct inode *inode, struct file *filp)
 
-This is a FREELOADER Release:
+On a single line, please.
 
-Patches and modified kernel tar.gz files can be downloaded from 
-ftp.soleranetworks.com. 
+> +	if (MSDOS_SB(inode->i_sb)->options.flush) {
 
-These patches are posted and provided IAW the terms of the GNU Public 
-License version 2 **ONLY**
-(Hope that one made Linus smile).
+Did you consider making `-o flush' a generic mount option rather than
+msdos-only?
 
-Several problems to report:
+I guess there isn't a lot of demand for this for other filesystems, and
+having an ignored option like this is a bit misleading...
 
-the 3w-9xxx driver reports bogus SGL list errors unles you upgrade the 
-kernel tree with
-the latest version.  It's in the patch.  There are also some receiver 
-lockup problems with
-the e1000 Ethernet driver is you cross 64K boundries during DMA.  Fixed 
-both in
-the patches.  The e1000 problem I introduced with my drivers mods.  The 
-3Ware
-9xxx problems need an updated driver. 
+> +void
+> +writeback_inode(struct inode *inode)
+> +{
+> +
+> +	struct address_space *mapping = inode->i_mapping;
+> +	struct writeback_control wbc = {
+> +		.sync_mode = WB_SYNC_NONE,
+> +		.nr_to_write = 0,
+> +	};
+> +	sync_inode(inode, &wbc);
+> +	filemap_fdatawrite(mapping);
 
-Someone needs to make certain the 3w-9xxx.c file is current.  2.6.11, 
-2.6.12, and 2.6.13
-all have this bogus error unless the driver gets updated.
-
-Jeff
-
-NOTE:
-
-"Cry me a river" (tm) is an unregistered common law trademark of Linus 
-Torvalds.
-"The Cure for Stupidity is Silence" (tm) is an unregistered common law 
-trademark of Jeff Merkey.
-
+I think that filemap_fdatawrite() will be a no-op?
 

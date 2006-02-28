@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWB1TTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWB1TWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbWB1TTy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbWB1TTy
+	id S932452AbWB1TWu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWB1TWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:19:54 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:54690 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932448AbWB1TTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:19:52 -0500
-Date: Tue, 28 Feb 2006 11:22:02 -0800
-From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-To: Mark Lord <liml@rtr.ca>
-Cc: akpm@osdl.org, jgarzik@pobox.com, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
-Message-Id: <20060228112202.5355ca43.randy_d_dunlap@linux.intel.com>
-In-Reply-To: <440461AA.1090907@rtr.ca>
-References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
-	<20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com>
-	<20060228114500.GA4057@elf.ucw.cz>
-	<44043B4E.30907@pobox.com>
-	<20060228041817.6fc444d2.akpm@osdl.org>
-	<440461AA.1090907@rtr.ca>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
- A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
- GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
+	Tue, 28 Feb 2006 14:22:50 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:40464 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932452AbWB1TWt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:22:49 -0500
+Date: Tue, 28 Feb 2006 20:22:40 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: xxxx <toxicitycom@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make dep -problem
+Message-ID: <20060228192240.GB10235@mars.ravnborg.org>
+References: <1141099751.29028.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141099751.29028.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006 09:43:54 -0500
-Mark Lord <liml@rtr.ca> wrote:
-
-> Andrew Morton wrote:
-> > Jeff Garzik <jgarzik@pobox.com> wrote:
-> >> Fine-grained 
-> >>  message selection allows one to turn on only the messages needed, and 
-> >>  only for the controller desired.
-> > 
-> > Except
-> > 
-> > - There's (presently) no way of making all the messages go away for a
-> >   non-debug build.
+On Tue, Feb 28, 2006 at 04:09:11AM +0000, xxxx wrote:
+> *** Check the top-level Makefile for additional configuration.
+> *** Next, you must run 'make dep'.
 > 
-> Agreed.  We need a way to make them all really go away
-> for embedded builds -- memory matters there.
+> make[1]: Entering directory `/home/matt/uClinux-workspace/uClinux-dist'
+> make ARCH=m68knommu CROSS_COMPILE=m68k-elf- -C linux-2.4.x menuconfig
+> make[2]: Entering directory `/home/matt/uClinux-workspace/uClinux-2.4.x'
+> rm -f include/asm
+> ( cd include ; ln -sf asm-m68knommu asm)
+> make -C scripts/lxdialog all
+> make[3]: Entering directory
+> `/home/matt/uClinux-workspace/uClinux-2.4.x/scripts/lxdialog'
+> make[3]: Leaving directory
+> `/home/matt/uClinux-workspace/uClinux-2.4.x/scripts/lxdialog'
+> /bin/sh scripts/Menuconfig arch/m68knommu/config.in
+> Using defaults found in .config
+> Preparing scripts: functions, parsing../MCmenu0: line 106: unexpected
+> EOF while looking for matching `''
+> ./MCmenu0: line 110: syntax error: unexpected end of file
+> ......................................................................done.
+> 
+> 
+> Menuconfig has encountered a possible error in one of the kernel's
+> configuration files and is unable to continue.  Here is the error
+> report:
+> 
+>  Q> scripts/Menuconfig: line 832: MCmenu0: command not found
+> 
+> Please report this to the maintainer <mec@shout.net>.  You may also
+> send a problem report to <linux-kernel@vger.kernel.org>.
+> 
+> Please indicate the kernel version you are trying to configure and
+> which menu you were trying to enter when this error occurred.
+> 
+> make[2]: *** [menuconfig] Error 1
+> make[2]: Leaving directory `/home/matt/uClinux-workspace/uClinux-2.4.x'
+> make[1]: *** [linux_menuconfig] Error 2
+> make[1]: Leaving directory `/home/matt/uClinux-workspace/uClinux-dist'
+> make: *** [menuconfig] Error 2
+> [matt@localhost uClinux-dist]$
 
-That's a libata infrastructure issue, not an ATA-ACPI issue.
-I'll go with whatever $maintainer decides.
+There is a buig in one of your Config.in files.
+It used to be ALSA that caused this.
 
-~Randy
+Try to disable stuff and see when it starts to work.
+If it is ALSA then patches was floating around a year ago or so.
+
+	Sam

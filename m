@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWB1Tqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWB1TrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932530AbWB1Tqa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWB1Tqa
+	id S932533AbWB1TrR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWB1TrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:46:30 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46050 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932530AbWB1Tq3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:46:29 -0500
-Date: Tue, 28 Feb 2006 20:45:03 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -rt] buggy UART fix
-Message-ID: <20060228194503.GB23453@elte.hu>
-References: <Pine.LNX.4.58.0602270954520.26564@gandalf.stny.rr.com>
-Mime-Version: 1.0
+	Tue, 28 Feb 2006 14:47:17 -0500
+Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:42686
+	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
+	id S932533AbWB1TrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:47:16 -0500
+Date: Tue, 28 Feb 2006 13:46:29 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Dave Jones <davej@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, davej@codemonkey.org.uk,
+       Zwane Mwaikambo <zwane@commfireservices.com>,
+       Samuel Masham <samuel.masham@gmail.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, cpufreq@lists.linux.org.uk, ak@suse.de
+Subject: Re: Status of X86_P4_CLOCKMOD?
+Message-ID: <20060228194628.GP4650@waste.org>
+References: <20060214152218.GI10701@stusta.de> <20060222024438.GI20204@MAIL.13thfloor.at> <20060222031001.GC4661@stusta.de> <200602212220.05642.dtor_core@ameritech.net> <20060223195937.GA5087@stusta.de> <20060223204110.GE6213@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0602270954520.26564@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.3
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.3 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060223204110.GE6213@redhat.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> Ingo,
+On Thu, Feb 23, 2006 at 03:41:10PM -0500, Dave Jones wrote:
+> On Thu, Feb 23, 2006 at 08:59:37PM +0100, Adrian Bunk wrote:
 > 
-> I'm not sure if this is the correct fix, but it fixes a problem on one 
-> of our boards.  The uart does't set the IIR register upon receiving an 
-> interrupt for transmit.  Thus we get processes stuck waiting to send 
-> data out.
+>  > > > >  config X86_P4_CLOCKMOD
+>  > > > > 	depends on EMBEDDED
+>  > > > 
+>  > > > This one is an x86_64 only issue, and yes, it's wrong.
+>  > > 
+>  > > That's for P4, not X86_64... And since P4 clock modulation does not provide
+>  > > almost any energy savings it was "hidden" under embedded.
+>  > 
+>  > But the EMBEDDED dependency is only on x86_64:
+>  > 
+>  > arch/i386/kernel/cpu/cpufreq/Kconfig:
+>  > config X86_P4_CLOCKMOD
+>  >         tristate "Intel Pentium 4 clock modulation"
+>  >         select CPU_FREQ_TABLE
+>  >         help
+>  > 
+>  > arch/x86_64/kernel/cpufreq/Kconfig:
+>  > config X86_P4_CLOCKMOD
+>  >         tristate "Intel Pentium 4 clock modulation"
+>  >         depends on EMBEDDED
+>  >         help
+>  > 
+>  > And if the option is mostly useless, what is it good for?
 > 
-> This doesn't seem to be a problem on vanilla, and I'm not sure why. 
-> Perhaps the scheduling doesn't ever let the transmit buffer get full? 
-> Well I haven't look too much into the vanilla side.
-> 
-> This patch forces the processing of the interrupt even if the iir 
-> doesn't show that there was an interrupt, iff the uart has been 
-> detected as buggy (which our board's uart is ) and the interrupt 
-> hasn't already handled it.
+> It's sometimes useful in cases where the target CPU doesn't have any better
+> option (Speedstep/Powernow).  The big misconception is that it
+> somehow saves power & increases battery life. Not so.
+> All it does is 'not do work so often'.  The upside of this is
+> that in some situations, we generate less heat this way.
 
-thx, applied.
+This is perplexing. Less heat equals less power usage according to the
+laws of thermodynamics.
 
-	Ingo
+-- 
+Mathematics is the supreme nostalgia of our time.

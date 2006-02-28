@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWB1KEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWB1KE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWB1KEx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 05:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWB1KEw
+	id S1750738AbWB1KE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 05:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWB1KE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 05:04:52 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20121 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750738AbWB1KEw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 05:04:52 -0500
-Date: Tue, 28 Feb 2006 02:03:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Hagervall <hager@cs.umu.se>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, garloff@suse.de
-Subject: Re: Linux v2.6.16-rc5 - regression
-Message-Id: <20060228020336.79616850.akpm@osdl.org>
-In-Reply-To: <20060228093846.GA24867@brainysmurf.cs.umu.se>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
-	<20060228093846.GA24867@brainysmurf.cs.umu.se>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 28 Feb 2006 05:04:58 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:1945
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750738AbWB1KE5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 05:04:57 -0500
+Subject: Re: + fix-next_timer_interrupt-for-hrtimer.patch added to -mm tree
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Tony Lindgren <tony@atomide.com>
+Cc: akpm@osdl.org, heiko.carstens@de.ibm.com, johnstul@us.ibm.com,
+       rmk@arm.linux.org.uk, schwidefsky@de.ibm.com,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060228095100.GA31105@atomide.com>
+References: <200602250219.k1P2JLqY018864@shell0.pdx.osdl.net>
+	 <1140884243.5237.104.camel@localhost.localdomain>
+	 <20060225185731.GA4294@atomide.com> <20060228032900.GE4486@atomide.com>
+	 <1141117500.5237.112.camel@localhost.localdomain>
+	 <20060228095100.GA31105@atomide.com>
+Content-Type: text/plain
+Date: Tue, 28 Feb 2006 11:06:31 +0100
+Message-Id: <1141121191.5237.130.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.5 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Hagervall <hager@cs.umu.se> wrote:
->
-> In -rc5 the printk timing numbers do not reset to [    0.000000] upon
->  boot.
+Tony,
 
-What numbers are you getting now?
-
-> This worked in -rc4 and so I started bisecting and git came up
->  with:
+On Tue, 2006-02-28 at 01:51 -0800, Tony Lindgren wrote:
+> Cool, after a quick test seems to work OK here. Any ideas how to fix the
+> locking problem above?
 > 
->  commit 9827b781f20828e5ceb911b879f268f78fe90815
->  Author: Kurt Garloff <garloff@suse.de>
->  Date:   Mon Feb 20 18:27:51 2006 -0800
-> 
->  	[PATCH] OOM kill: children accounting
-> 
->  I can't see why that would break the timing information, but I'll just
->  assume that git was right, and tell you guys.
+> Maybe one option would be to just reprogram the hardware timer when a
+> new hrtimer is added. That would then allow subjiffie timers too.
 
-Well yes, it'll be something else - perhaps some TSC change or something. 
-We'd need to know what architecture you're using...
+You might have a look into the high resolution timer patches on top of
+hrtimers at http://www.tglx.de/projects/hrtimers
 
-Anwyay, these numbers aren't supposed to measure anything absolute like
-uptime - they're purely for relative timing.  It would be nice to get them
-increasing monotonically from zero, but we wouldn't bust a gut to achieve
-that - it's just a debugging thing.
+The clockevents abstraction layer is a quick attempt to generalize the
+problem around event generation. I'm stuck in some other work right now,
+but I'm going to rework this layer soon. IMO John Stultz GTOD patches
+and the generalization of clock events will be a sane base for high
+resolution timers and dynamic ticks.
+
+	tglx
+
+
+
+
+

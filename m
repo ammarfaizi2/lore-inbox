@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWB1Lt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWB1Lt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751542AbWB1Lt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 06:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750882AbWB1Lt0
+	id S1750882AbWB1Lt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 06:49:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbWB1Ltz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 06:49:26 -0500
-Received: from mail.cs.umu.se ([130.239.40.25]:38346 "EHLO mail.cs.umu.se")
-	by vger.kernel.org with ESMTP id S1750895AbWB1LtZ (ORCPT
+	Tue, 28 Feb 2006 06:49:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49124 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750882AbWB1Lty (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 06:49:25 -0500
-Date: Tue, 28 Feb 2006 12:49:16 +0100
-From: Peter Hagervall <hager@cs.umu.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, garloff@suse.de
-Subject: Re: Linux v2.6.16-rc5 - regression
-Message-ID: <20060228114916.GA26352@brainysmurf.cs.umu.se>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060228093846.GA24867@brainysmurf.cs.umu.se> <20060228020336.79616850.akpm@osdl.org> <20060228114132.GA25749@brainysmurf.cs.umu.se>
+	Tue, 28 Feb 2006 06:49:54 -0500
+Date: Tue, 28 Feb 2006 12:47:33 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org,
+       akpm@osdl.org, jgarzik@pobox.com
+Subject: Re: [PATCH 5/13] ATA ACPI: use debugging macros
+Message-ID: <20060228114733.GB4081@elf.ucw.cz>
+References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com> <20060222135542.33fe242c.randy_d_dunlap@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060228114132.GA25749@brainysmurf.cs.umu.se>
+In-Reply-To: <20060222135542.33fe242c.randy_d_dunlap@linux.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Feb 28, 2006 at 02:03:36AM -0800, Andrew Morton wrote:
-> > 
-> > Well yes, it'll be something else - perhaps some TSC change or something.
+On St 22-02-06 13:55:42, Randy Dunlap wrote:
+> From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+> 
+> Add more libata-acpi debugging, plus controlled by libata.printk
+> value.
 
-Looking closer I see that CONFIG_X86_PM_TIMER defaults to y in
-2.6.16-rc5, whereas I have had it unset in earlier kernels.
-This changed silently when I ran 'make oldconfig', and is most likely
-the source of this "problem".
-
-	Peter Hagervall
+Please don't. Instead select messages so that it is not too noisy by
+default...
+								Pavel
 
 -- 
-Peter Hagervall......................email: hager@cs.umu.se
-Department of Computing Science........tel: +46(0)90 786 7018
-University of Umeå, SE-901 87 Umeå.....fax: +46(0)90 786 6126
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWB1TJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWB1TK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWB1TJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 14:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWB1TJJ
+	id S932425AbWB1TK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 14:10:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWB1TK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 14:09:09 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:51718 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932418AbWB1TJI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 14:09:08 -0500
-Date: Tue, 28 Feb 2006 20:08:43 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org, ak@suse.de
-Subject: Re: [Patch 2/4] Basic reorder infrastructure
-Message-ID: <20060228190843.GA10235@mars.ravnborg.org>
-References: <1141053825.2992.125.camel@laptopd505.fenrus.org> <1141054054.2992.130.camel@laptopd505.fenrus.org> <49447.194.237.142.21.1141057876.squirrel@194.237.142.21> <1141060775.2992.149.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141060775.2992.149.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+	Tue, 28 Feb 2006 14:10:27 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:39855 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S932425AbWB1TK0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 14:10:26 -0500
+Message-ID: <4404AD18.2070208@soleranetworks.com>
+Date: Tue, 28 Feb 2006 13:05:44 -0700
+From: "Jeff V. Merkey" <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [FREELOADER ANNOUNCE] DSFS patches for Linux-2.6.9-22 (Red Hat ES4
+ and WS4) Posted
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 06:19:34PM +0100, Arjan van de Ven wrote:
-> On Mon, 2006-02-27 at 17:31 +0100, sam@ravnborg.org wrote:
-> > > This patch puts the infrastructure in place to allow for a reordering of
-> > > functions based inside the vmlinux.
-> > 
-> > Can we make this general instead of x86_64 only?
-> > Then we can use Kconfig to enable it for the architectures where we want it.
-> 
-> Actually Linus had pretty good arguments to make this per-architecture:
-> the list will be different on each architecture.
-> 
-> (eg my first patch had it more generic; but Linus asked it to be per
-> arch, and I agree with the reasons he gave)
-The list should be per. architecture for - but I just wanted the rest to
-be shared since I assume this will soon be adopted by others.
-But on the other hand the rest is very few lines so it is not crucial.
 
-> 
-> Also I doubt it can be enabled "blindly" for all architectures; I expect
-> more to need hacks similar to the x86_64 entry.S fix before it can
-> work...
-Which is why utilising Kconfig to enable it would make sense.
+This is a FREELOADER Release:
 
-	Sam
+Patches and modified kernel tar.gz files can be downloaded from 
+ftp.soleranetworks.com. 
+
+These patches are posted and provided IAW the terms of the GNU Public 
+License version 2 **ONLY**
+(Hope that one made Linus smile).
+
+Several problems to report:
+
+the 3w-9xxx driver reports bogus SGL list errors unles you upgrade the 
+kernel tree with
+the latest version.  It's in the patch.  There are also some receiver 
+lockup problems with
+the e1000 Ethernet driver is you cross 64K boundries during DMA.  Fixed 
+both in
+the patches.  The e1000 problem I introduced with my drivers mods.  The 
+3Ware
+9xxx problems need an updated driver. 
+
+Someone needs to make certain the 3w-9xxx.c file is current.  2.6.11, 
+2.6.12, and 2.6.13
+all have this bogus error unless the driver gets updated.
+
+Jeff
+
+NOTE:
+
+"Cry me a river" (tm) is an unregistered common law trademark of Linus 
+Torvalds.
+"The Cure for Stupidity is Silence" (tm) is an unregistered common law 
+trademark of Jeff Merkey.
+
+

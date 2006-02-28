@@ -1,70 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932625AbWB1VNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbWB1VNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932625AbWB1VNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 16:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWB1VNf
+	id S932614AbWB1VNR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 16:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWB1VNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 16:13:35 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:48761 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932625AbWB1VNe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 16:13:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tLyCyFtHwQi3HLT+Ti9Y8WWkEgg653SNPhFEQGm8BDC2Dv5HnzLaiO9tniMAXC6fKcnFvbeXPIzsW1YT4doOeDAmSJxS7oVRGMTT/JWD8O/1pgo123uLgVrTQSEohvV18NFtlkSoBVHT/C1Cux7qbTrxy6ECFsKWDeMRbfVnXyU=
-Message-ID: <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-Date: Tue, 28 Feb 2006 22:13:33 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.16-rc5-mm1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060228042439.43e6ef41.akpm@osdl.org>
+	Tue, 28 Feb 2006 16:13:16 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:13326 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932614AbWB1VNQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 16:13:16 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060228042439.43e6ef41.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <200602281535.21974.jringle@vertical.com>
+x-originalarrivaltime: 28 Feb 2006 21:13:06.0720 (UTC) FILETIME=[C4E73A00:01C63CAB]
+Content-class: urn:content-classes:message
+Subject: Re: Linux running on a PCI Option device?
+Date: Tue, 28 Feb 2006 16:13:06 -0500
+Message-ID: <Pine.LNX.4.61.0602281556240.5128@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux running on a PCI Option device?
+Thread-Index: AcY8q8TwnPcYYDwoQw6hD8uTYQWImw==
+References: <43EAE4AC.6070807@snapgear.com> <200602281535.21974.jringle@vertical.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jon Ringle" <jringle@vertical.com>
+Cc: "Greg Ungerer" <gerg@snapgear.com>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/28/06, Andrew Morton <akpm@osdl.org> wrote:
+
+On Tue, 28 Feb 2006, Jon Ringle wrote:
+
+> On Thursday 09 February 2006 01:43 am, Greg Ungerer wrote:
+>> Hi Jon,
+>>
+>> Jon Ringle wrote:
+>>> I am working on a new board that will have Linux running on an xscale
+>>> processor. This board will be a PCI Option device. I currently have a
+>>> IXDP465 eval board which has a PCI Option connector that I will use for
+>>> prototyping. From what I can tell so far, Linux wants to scan the PCI bus
+>>> for devices as if it is the PCI host. Is there any provision in Linux so
+>>> that it can take on the role of a PCI option rather than a PCI host?
+>>
+>> Have a look at the code in arch/arm/mach-ixp4xx/common-pci.c, in
+>> the function ixp4xx_pci_preinit().
+>>
+>> It does a check on whether the PCI bus is configured as HOST or not.
+>> I don't know if that code support is enough for it all to work right
+>> though (I certainly haven't tried it on either the 425 or 465...)
 >
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/
+> When I have the IXDP465 in PCI Option mode, Linux still writes to pci
+> configuration space which confuses the heck out of the PCI Host (Windows
+> 2003). What do I need to do in order to have Linux work as a PCI option but
+> still not mess with the pci configuration, and leave that task to the PCI
+> Host?
 >
+> Jon
 
-Ok, something is definately broken in this kernel.
+But anything on the PCI bus will get written, at least to find out
+the length of the address space. Please read about the PCI System
+Architecture. There are several writes that are mandatory. If
+somebody is attempting to configure the PCI devices, the following
+will occur.
 
-If I launch Eclipse (http://www.eclipse.org/) while running a
-2.6.16-rc5-mm1 kernel it loads for a second or two and then the box
-just locks up solid.
+(1) The BIOS will find some available address-space and put it
+into any base-address register that has memory-space enabled
+in the command register.
 
-I then went back to my previous kernel, 2.6.16-rc4-mm2, and there's no
-problem what-so-ever when running that kernel (everything else
-identical) - eclipse loads and runs just fine.
+(2) The BIOS will find some available I/O space and put it into
+a base-address register, too.
 
-Since I'm in X when the lockup happens and I don't have enough time
-from clicking the eclipse icon to the box locks up to make a switch to
-a text console I don't know if an Oops or similar is dumped to the
-console (there's nothing in the locks after a reboot)  :-(
+This all occurs long before any OS is booted. These writes
+will occur. Then, the addresses may be re-written by any OS
+including Linux. Additional writes will occur when the
+device is enabled and when the cache-line size or the
+latency timer is written.
 
-Unfortunately I don't have a second box to use with serial console or
-netconsole, but I'll see if I can somehow get some console messages -
-perhaps by slowing down the eclipse load process somehow... I'll see
-what I can do and report back when I have more into.
-If all else fails and noone on LKML can suggest patches to try and
-revert or similar I guess I'll eventually do a git bisect, but I'd
-rather try other things first...
+If the device is a host, and you don't want the BIOS to
+hack with it, then you need to turn off writes from the
+the host-bus side. This is something your FPGA designer
+needs to provide.
 
-The version of Eclipse I'm running is 3.1.2
+Usually, option boards use a PCI interface chip such as
+a PLX PCI-9656BA. It would not normally BE a PCI device
+on the Host side. The host CPU would communicate with it
+on a local bus.
 
-The problem is completely reproducible (well, at least it occoured 6
-times in a row and that's how many times I tried).
 
-Sorry for the lack of detail, but I thought I'd better report the
-issue at once and then follow up with details later :)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

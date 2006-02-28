@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWB1R55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWB1R7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbWB1R55 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 12:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWB1R55
+	id S932314AbWB1R7n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 12:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWB1R7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 12:57:57 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:24532 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932283AbWB1R54 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 12:57:56 -0500
+	Tue, 28 Feb 2006 12:59:43 -0500
+Received: from detroit.securenet-server.net ([209.51.153.26]:36004 "EHLO
+	detroit.securenet-server.net") by vger.kernel.org with ESMTP
+	id S932314AbWB1R7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 12:59:43 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
 Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+Date: Tue, 28 Feb 2006 09:59:38 -0800
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <yq08xrvhkee.fsf@jaguar.mkp.net>
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	 <yq08xrvhkee.fsf@jaguar.mkp.net>
-Content-Type: text/plain
-Date: Tue, 28 Feb 2006 09:57:55 -0800
-Message-Id: <1141149475.24103.18.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+References: <1140841250.2587.33.camel@localhost.localdomain> <200602280944.32210.jbarnes@virtuousgeek.org> <1141149126.24103.11.camel@camp4.serpentine.com>
+In-Reply-To: <1141149126.24103.11.camel@camp4.serpentine.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602280959.38986.jbarnes@virtuousgeek.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - virtuousgeek.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-28 at 05:01 -0500, Jes Sorensen wrote:
+On Tuesday, February 28, 2006 9:52 am, Bryan O'Sullivan wrote:
+> >   (In particular I wanted this for the sysfs PCI interface.
+> > Userspace apps can map PCI resources there and it would be nice if
+> > they could map them with WC semantics if requested.)
+>
+> They already sort of can.  It just happens that most arches ignore the
+> WC parameters.
 
-> Could you explain why the current mmiowb() API won't suffice for this?
-> It seems that this is basically trying to achieve the same thing.
+Only on a per-driver basis though at this point, right?  The sysfs code 
+is generic across architectures and exports PCI resources independently 
+from the driver, so it needs some way of letting the user communicate 
+that they want WC behavior.
 
-It's a no-op on every arch I care about:
+> > I don't think it addresses the flushing issue you seem to be
+> > concerned about though.
+>
+> Yes, I think I could have made my original wording a bit clearer.  I
+> don't care if writes have hit the device, merely that they do so in an
+> order that I control.
 
-#define mmiowb()
+Ah, ok.  In that case maybe mmiowb *is* what you want.  Or at the very 
+least mmiowcb :).
 
-Which makes it useless.  Also, based on the comments in the qla driver,
-mmiowb() seems to have inter-CPU ordering semantics that I don't want.
-I'm thus hesitant to appropriate it for my needs.
-
-	<b
-
+Jesse

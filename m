@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWCAPAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWCAPB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030208AbWCAPAj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 10:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWCAPAg
+	id S1030217AbWCAPB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 10:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWCAPBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 10:00:36 -0500
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:53088 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030213AbWCAPAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 10:00:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=uk+6687T9kQY+egMbUwOkw9k9w97Jg5Zop6QAOpQ5AgN3eKbh2LK9xiHi+Z7xZpxkg+wuVu+2Ojsec6a9mxtidSXX52wqJ/MdzMvtmdG2NUtcJNf2FrpkPM7CpOQT61rXFR7ZNYaCQPMt+t3CCVRGQoohTY4mTmpMuBIsYs2BLQ=  ;
-Message-ID: <4405B700.1080607@yahoo.com.au>
-Date: Thu, 02 Mar 2006 02:00:16 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-CC: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
-Subject: Re: jiffies_64 vs. jiffies
-References: <20060301.144442.118975101.nemoto@toshiba-tops.co.jp>	<20060301.210541.30439818.nemoto@toshiba-tops.co.jp>	<44059915.3010800@yahoo.com.au> <20060301.235750.25910018.anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060301.235750.25910018.anemo@mba.ocn.ne.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 10:01:20 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53102 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030209AbWCAPBD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 10:01:03 -0500
+Date: Wed, 1 Mar 2006 16:00:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andy Chittenden <AChittenden@bluearc.com>,
+       Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, linux-kernel@vger.kernel.org, lwoodman@redhat.com,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Message-ID: <20060301150028.GY4816@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C270393C104@uk-email.terastack.bluearc.com> <200603011526.39457.ak@suse.de> <20060301143438.GX4816@suse.de> <200603011541.51812.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603011541.51812.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atsushi Nemoto wrote:
->>>>>>On Wed, 01 Mar 2006 23:52:37 +1100, Nick Piggin <nickpiggin@yahoo.com.au> said:
+On Wed, Mar 01 2006, Andi Kleen wrote:
+> On Wednesday 01 March 2006 15:34, Jens Axboe wrote:
 > 
 > 
->>>void do_timer(struct pt_regs *regs)
->>>{
->>>-	jiffies_64++;
->>>-	update_times();
->>>+	update_times(++jiffies_64);
->>> 	softlockup_tick(regs);
->>>}
+> > > It shouldn't end up with more, only with less.
+> > 
+> > Sure yes, but if that 'less' is still more than what the driver can
+> > handle, then there's a problem.
+> 
+> The driver needs to handle the full list it passed in. It's quite
+> possible that the iommu layer is unable to merge anything.
 > 
 > 
-> nick> jiffies_64 is not volatile so you should not have to obfuscate
-> nick> the code like this.
-> 
-> Well, do you mean it should be like this ?
-> 
-> 	jiffies_64++;
-> 	update_times(jiffies_64);
-> 
+> This isn't the block layer based merging where we guarantee
+> to be able to merge in advance - just lazy after the fact merging.
 
-Yeah. It makes your patch a line smaller too!
-
-> Thanks for your comments.
-
-Oh it was nothing really ;)
+Yes I realize that, I wonder if the bounce patch screwed something up
+that destroys the block layer merging/accounting. We'll know when Andy
+posts results that dump the request as well.
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Jens Axboe
+

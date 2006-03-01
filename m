@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWCAIjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWCAIqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWCAIjV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 03:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbWCAIjV
+	id S932102AbWCAIqV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 03:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbWCAIqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 03:39:21 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53926 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932279AbWCAIjU (ORCPT
+	Wed, 1 Mar 2006 03:46:21 -0500
+Received: from pat.uio.no ([129.240.130.16]:56779 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932102AbWCAIqV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 03:39:20 -0500
-Date: Wed, 1 Mar 2006 00:39:17 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060301003917.205ec5a3.pj@sgi.com>
-In-Reply-To: <20060301002631.48e3800e.akpm@osdl.org>
-References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
-	<20060228181849.faaf234e.pj@sgi.com>
-	<20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Wed, 1 Mar 2006 03:46:21 -0500
+Subject: Re: [RFC] vfs: cleanup of permission()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060228052606.GA6494@MAIL.13thfloor.at>
+References: <20060228052606.GA6494@MAIL.13thfloor.at>
+Content-Type: text/plain
+Date: Wed, 01 Mar 2006 00:45:44 -0800
+Message-Id: <1141202744.11585.20.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.491, required 12,
+	autolearn=disabled, AWL 1.51, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Did that machine run rc4-mm2?
+On Tue, 2006-02-28 at 06:26 +0100, Herbert Poetzl wrote:
+> Hi Andrew! Christoph! Al!
+> 
+> after thinking some time about the oracle words
+> (sent in reply to previous BME submissions) we 
+> (Sam and I) came to the conclusion that it would 
+> be a good idea to remove the nameidata introduced
+> in September 2003 from the inode permission()
+> checks, so that vfs_permission() can take care
+> of them ...
 
-It's twin sister ran rc4-mm2, as that is where I
-tested the last "cpuset memory spread slab file i/o"
-patch I sent you.
+Why? There may be perfectly legitimate reasons for the filesystem to
+request information about the path. I can think of server failover
+situations in NFSv4 where the client may need to look up the filehandle
+for the file on the new server before it can service the ACCESS call.
 
-> That would point at either the sysfs changes in gregkh-driver-* or acpi. 
-> There have been no changes in the acpi patch in a couple of weeks. 
+> this is in two parts, the first one does the 
+> removal and the second one fixes up nfs and fuse
+> by passing the relevant nd_flags via the mask
+> 
+> Note: this is just a suggestion, so please let
+>       us know what you think 
 
-I'll give these gregkh changes a higher weighting in my
-"biased binary search".  Thanks.
+Firstly, the fact that the lookup intent flags happen not to collide
+with MAY_* is a complete fluke, not a design. The numerical values of
+either set of flags could change tomorrow for all you know.
 
-I've got time now to do a few more slices.
+Secondly, an intent is _not_ a permissions mask by any stretch of the
+imagination.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+IOW: at the very least make that intent flag a separate parameter.
+
+Cheers,
+  Trond
+

@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWCARqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWCARuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbWCARqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 12:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWCARqE
+	id S932455AbWCARuT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWCARuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 12:46:04 -0500
-Received: from rtr.ca ([64.26.128.89]:42898 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S932155AbWCARqC (ORCPT
+	Wed, 1 Mar 2006 12:50:19 -0500
+Received: from gold.veritas.com ([143.127.12.110]:36515 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932455AbWCARuS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 12:46:02 -0500
-Message-ID: <4405DDEA.7020309@rtr.ca>
-Date: Wed, 01 Mar 2006 12:46:18 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Wed, 1 Mar 2006 12:50:18 -0500
+X-IronPort-AV: i="4.02,157,1139212800"; 
+   d="scan'208"; a="56477629:sNHT29914408"
+Date: Wed, 1 Mar 2006 17:50:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Kamran Karimi <kamrankarimi@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: why VM_SHM has been removed from mm.h?
+In-Reply-To: <BAY104-F30D83DE1A3392B1A69554DC0F40@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0603011745350.12629@goblin.wat.veritas.com>
+References: <BAY104-F30D83DE1A3392B1A69554DC0F40@phx.gbl>
 MIME-Version: 1.0
-To: David Greaves <david@dgreaves.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com>
-In-Reply-To: <4405DCAF.6030500@dgreaves.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 Mar 2006 17:50:18.0087 (UTC) FILETIME=[9A3EEF70:01C63D58]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Greaves wrote:
->
-> I actually have 3 of those drives - one runs through sata_via and
-> doesn't have the same problem.
+On Wed, 1 Mar 2006, Kamran Karimi wrote:
 > 
-> (the sata_via ones *do* have :
->  ata3: status=0x50 { DriveReady SeekComplete }
->  ata3: PIO error
-> problems with SMART)
+> > Since you're already patching base kernel source (you mention
+> > arch/xyz/mm/fault.c), why don't you just patch your own VM_SYSVSHM
+> > into include/linux/mm.h, and set it on the vma in ipc/shm.c?
+> 
+> Yes this looks like a good solution. I have changed VM_SHM in mm.h to be
+> 0x0800000 and am looking for a good place to include it in the vma->vm_flags.
 
-And once again, not enough information in the error messages
-for anyone to actually do anything about it (not David's fault).
+I already pointed out that several drivers are setting VM_SHM; and that
+we shall remove it in due course.  Your DIPC patch should use its own flag.
 
-What command do you use to get that bug to pop up?
+> shmat() looks like a good place. How can I find the vma of a SysV shm in that
+> routine?
 
-BTW:
-hdparm-6.5 is now available (sourceforge),
-and should show all of the fancy features
-of your drives for comparism between versions.
+shm_mmap would be the right place: shmat's do_mmap will call it.
 
-Cheers
+Hugh

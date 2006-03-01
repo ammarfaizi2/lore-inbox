@@ -1,80 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWCARgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWCARhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbWCARgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 12:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWCARgm
+	id S1030209AbWCARhU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWCARgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 12:36:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16080 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932409AbWCARgk (ORCPT
+	Wed, 1 Mar 2006 12:36:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18384 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932390AbWCARgm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 12:36:40 -0500
+	Wed, 1 Mar 2006 12:36:42 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/5] NFS: Abstract out namespace initialisation [try #2]
-Date: Wed, 01 Mar 2006 17:36:26 +0000
+Subject: [PATCH 4/5] NFS: Add dentry materialisation op [try #2]
+Date: Wed, 01 Mar 2006 17:36:29 +0000
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no, aviro@redhat.com
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060301173626.16639.89127.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060301173629.16639.74630.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
 References: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch abstracts out the namespace initialisation so that temporary
-namespaces can be set up elsewhere.
+The attached patch adds a new directory cache management function that prepares
+a disconnected anonymous function to be connected into the dentry tree. The
+anonymous dentry is transferred the name and parentage from another dentry.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/namespace.c            |    8 +-------
- include/linux/namespace.h |   15 +++++++++++++++
- 2 files changed, 16 insertions(+), 7 deletions(-)
+ fs/dcache.c            |   25 +++++++++++++++++++++++++
+ include/linux/dcache.h |    1 +
+ 2 files changed, 26 insertions(+), 0 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 51d3ebc..0194538 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1688,13 +1688,7 @@ static void __init init_mount_tree(void)
- 	namespace = kmalloc(sizeof(*namespace), GFP_KERNEL);
- 	if (!namespace)
- 		panic("Can't allocate initial namespace");
--	atomic_set(&namespace->count, 1);
--	INIT_LIST_HEAD(&namespace->list);
--	init_waitqueue_head(&namespace->poll);
--	namespace->event = 0;
--	list_add(&mnt->mnt_list, &namespace->list);
--	namespace->root = mnt;
--	mnt->mnt_namespace = namespace;
-+	init_namespace(namespace, mnt);
+diff --git a/fs/dcache.c b/fs/dcache.c
+index a173bba..97e1e44 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -1345,6 +1345,30 @@ already_unhashed:
+ }
  
- 	init_task.namespace = namespace;
- 	read_lock(&tasklist_lock);
-diff --git a/include/linux/namespace.h b/include/linux/namespace.h
-index 3abc8e3..ea6fd62 100644
---- a/include/linux/namespace.h
-+++ b/include/linux/namespace.h
-@@ -17,6 +17,21 @@ extern int copy_namespace(int, struct ta
- extern void __put_namespace(struct namespace *namespace);
- extern struct namespace *dup_namespace(struct task_struct *, struct fs_struct *);
- 
-+static inline void init_namespace(struct namespace *namespace,
-+				  struct vfsmount *mnt)
+ /**
++ * d_materialise_dentry - connect a disconnected dentry into the tree
++ * @dentry: dentry to replace
++ * @anon: dentry to place into the tree
++ *
++ * Prepare an anonymous dentry for life in the superblock's dentry tree as a
++ * named dentry in place of the dentry to be replaced.
++ */
++void d_materialise_dentry(struct dentry *dentry, struct dentry *anon)
 +{
-+	atomic_set(&namespace->count, 1);
-+	INIT_LIST_HEAD(&namespace->list);
-+	init_waitqueue_head(&namespace->poll);
-+	namespace->event = 0;
-+	namespace->root = mnt;
++	struct dentry *dparent, *aparent;
 +
-+	if (mnt) {
-+		list_add(&mnt->mnt_list, &namespace->list);
-+		mnt->mnt_namespace = namespace;
-+	}
++	switch_names(dentry, anon);
++	do_switch(dentry->d_name.len, anon->d_name.len);
++	do_switch(dentry->d_name.hash, anon->d_name.hash);
++
++	dparent = dentry->d_parent;
++	aparent = anon->d_parent;
++	dentry->d_parent = (aparent == anon) ? dentry : aparent;
++	anon->d_parent = (dparent == dentry) ? anon : dparent;
++
++	anon->d_flags &= ~DCACHE_DISCONNECTED;
 +}
 +
- static inline void put_namespace(struct namespace *namespace)
- {
- 	if (atomic_dec_and_lock(&namespace->count, &vfsmount_lock))
++/**
+  * d_path - return the path of a dentry
+  * @dentry: dentry to report
+  * @vfsmnt: vfsmnt to which the dentry belongs
+@@ -1755,6 +1779,7 @@ EXPORT_SYMBOL(d_instantiate);
+ EXPORT_SYMBOL(d_invalidate);
+ EXPORT_SYMBOL(d_lookup);
+ EXPORT_SYMBOL(d_move);
++EXPORT_SYMBOL_GPL(d_materialise_dentry);
+ EXPORT_SYMBOL(d_path);
+ EXPORT_SYMBOL(d_prune_aliases);
+ EXPORT_SYMBOL(d_rehash);
+diff --git a/include/linux/dcache.h b/include/linux/dcache.h
+index 4361f37..feb9d4b 100644
+--- a/include/linux/dcache.h
++++ b/include/linux/dcache.h
+@@ -208,6 +208,7 @@ static inline int dname_external(struct 
+ extern void d_instantiate(struct dentry *, struct inode *);
+ extern struct dentry * d_instantiate_unique(struct dentry *, struct inode *);
+ extern void d_delete(struct dentry *);
++extern void d_materialise_dentry(struct dentry *, struct dentry *);
+ 
+ /* allocate/de-allocate */
+ extern struct dentry * d_alloc(struct dentry *, const struct qstr *);
 

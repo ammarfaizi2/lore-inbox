@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWCAO4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWCAO56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWCAO4T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 09:56:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWCAO4T
+	id S932297AbWCAO56 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 09:57:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWCAO55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 09:56:19 -0500
-Received: from cantor.suse.de ([195.135.220.2]:2438 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932272AbWCAO4S (ORCPT
+	Wed, 1 Mar 2006 09:57:57 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:31426 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932297AbWCAO55 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 09:56:18 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Subject: Re: AMD64 X2 lost ticks on PM timer
-Date: Wed, 1 Mar 2006 15:56:09 +0100
-User-Agent: KMail/1.9.1
-Cc: Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org
-References: <200602280022.40769.darkray@ic3man.com> <p73veuzyr8p.fsf@verdi.suse.de> <20060301144641.GB20092@ti64.telemetry-investments.com>
-In-Reply-To: <20060301144641.GB20092@ti64.telemetry-investments.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 1 Mar 2006 09:57:57 -0500
+Date: Wed, 01 Mar 2006 23:57:50 +0900 (JST)
+Message-Id: <20060301.235750.25910018.anemo@mba.ocn.ne.jp>
+To: nickpiggin@yahoo.com.au
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: jiffies_64 vs. jiffies
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <44059915.3010800@yahoo.com.au>
+References: <20060301.144442.118975101.nemoto@toshiba-tops.co.jp>
+	<20060301.210541.30439818.nemoto@toshiba-tops.co.jp>
+	<44059915.3010800@yahoo.com.au>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603011556.10139.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 March 2006 15:46, Bill Rugolsky Jr. wrote:
-> On Wed, Mar 01, 2006 at 12:53:58AM +0100, Andi Kleen wrote:
-> > What chipset?
-> 
-> Thanks for the interest, Andi.
->  
-> The chipset is NVIDIA nForce Pro 2200 (CK804).  The mobo is Tyan 2895:
+>>>>> On Wed, 01 Mar 2006 23:52:37 +1100, Nick Piggin <nickpiggin@yahoo.com.au> said:
 
-I have such a system sitting next to me and it doesn't show any such symptoms.
-I normally don't let it run unrebooted over days though.
+>> void do_timer(struct pt_regs *regs)
+>> {
+>> -	jiffies_64++;
+>> -	update_times();
+>> +	update_times(++jiffies_64);
+>>  	softlockup_tick(regs);
+>> }
 
-I would suspect some driver.
-Do you use any special addin cards? What modules are you using?
+nick> jiffies_64 is not volatile so you should not have to obfuscate
+nick> the code like this.
 
->   http://www.tyan.com/products/html/thunderk8we.html
-> 
-> It's running the current 1.02 version of the BIOS.
+Well, do you mean it should be like this ?
 
-My BIOS is
+	jiffies_64++;
+	update_times(jiffies_64);
 
- Version: 2004Q3
- Release Date: 06/07/2005
-
-(which is self contradicting, but oh well) 
-
-
-> Current kernel is the FC4 errata:
-
-I don't run these kernels though - only mainline.
-
-> 1141220165:151240: rtc 464 int 0 125 (=125)
-...
-
-Looks all ok. Your timer interrupts are ticking correctly.
-
-> time.c: Lost 3 timer tick(s)! rip poll_idle+0x14/0x19)
-
-Ok then it's not C1.
-
--Andi
+Thanks for your comments.
+---
+Atsushi Nemoto

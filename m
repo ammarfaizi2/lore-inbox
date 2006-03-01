@@ -1,66 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751901AbWCAVSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751915AbWCAVTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751901AbWCAVSl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 16:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWCAVSl
+	id S1751915AbWCAVTU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 16:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWCAVTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 16:18:41 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:65192 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1751901AbWCAVSk (ORCPT
+	Wed, 1 Mar 2006 16:19:20 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28833 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751915AbWCAVTT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 16:18:40 -0500
-Message-ID: <44060FA0.2040303@vilain.net>
-Date: Thu, 02 Mar 2006 10:18:24 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tvrtko.ursulin@sophos.com
-Cc: Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@ftp.linux.org.uk>,
-       LSM <linux-security-module@mail.wirex.com>
-Subject: Re: [RFC] vfs: cleanup of permission()
-References: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
-In-Reply-To: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Wed, 1 Mar 2006 16:19:19 -0500
+Date: Wed, 1 Mar 2006 13:19:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: clameter@engr.sgi.com, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
+Message-Id: <20060301131910.beb949be.pj@sgi.com>
+In-Reply-To: <200603012159.42273.ak@suse.de>
+References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com>
+	<200603012021.59638.ak@suse.de>
+	<20060301125358.29261ad9.pj@sgi.com>
+	<200603012159.42273.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tvrtko.ursulin@sophos.com wrote:
-> Also, since you are modifying LSM interfaces, why not discuss it on the 
-> LSM mailing list?
+> > No - having a single cpuset is the fastest path.  All tasks
+> > are in that root cpuset in that case, and all nodes allowed.
 > 
-> And finally, please don't remove nameidata. Modules out there depend on it 
-> and we at Sophos are about to release a new product which needs it as 
-> well. The plan was to announce the whole thing parallel with the release, 
-> but after spotting your post I was prompted to react ahead of the 
-> schedule. However, I am very busy at the moment so the actual announcment 
-> with full details will have to wait for a week or two.
+> Faster than no cpuset?
 
-You are treating the per-FS security hooks as if they were VFS security 
-hooks.  This was an easy mistake to make, as the appearance of a (struct 
-nameidata*) sure makes it look like a VFS call.
+If CONFIG_CPUSET is enabled (which I thought was likely to become the
+norm for most distros -- though you would know better than I if this is
+likely) then:
 
-However, most functions in the kernel don't pass anything in that 
-nameidata slot.  Some (eg, syscalls that work on open FDs) can't, 
-either.  So the fact that it does not guarantee VFS context information 
-in all situations means permission() is not a VFS function.
+	There is no such case as "no cpuset" !!
 
-ie, we don't disagree with what you're trying to do, but if you want 
-path information then you should be working at the VFS layer, not the FS 
-layer.
+The minimal, fastest, case is one root cpuset holding all tasks.
 
-Perhaps you could first come up with a patch to the LSM base that adds 
-VFS hooks rather than FS hooks and make your new system use those hooks? 
-  I think that it might be more obvious where such hooks should go, 
-after applying this patch.
 
-What we're aiming for, on the permission() front, is that all system 
-calls, ioctls, etc, call either vfs_permission() or file_permission(). 
-Only those two functions should end up calling permission() directly.
+> If something is a good default it shouldn't need user space
+> configuration at all imho. Only the "weird" cases should.
 
-Sam.
+So are you just saying we got the default backwards?
+
+Well ... I left the default for memory spreading these
+inode slab caches as it was - not spread (preferring
+node local).
+
+I did that because I did not have the awareness that this default
+should be changed for most systems.  I tend to leave defaults as they
+are, unless I have good reason to change them.
+
+But for the SGI systems I care about, I'd prefer the default to be
+spreading them.
+
+If you think it would be better to change this default, now that the
+mechanism is in place to do support spreading these slabs, then I could
+certainly go along with that.
+
+Then your systems would not have to do anything in user space, unless
+they wanted to disable spreading these slabs (which of course they
+could easily do using cpusets ;).
+
+    Should we change the default to enable this spreading?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

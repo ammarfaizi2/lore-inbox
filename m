@@ -1,81 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWCAG1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWCAGaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWCAG1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 01:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbWCAG1T
+	id S932511AbWCAGaK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 01:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWCAGaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 01:27:19 -0500
-Received: from fsmlabs.com ([168.103.115.128]:2012 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932427AbWCAG1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 01:27:19 -0500
-X-ASG-Debug-ID: 1141194424-2996-64-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Tue, 28 Feb 2006 22:31:30 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Nathan Lynch <ntl@pobox.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-X-ASG-Orig-Subj: Re: i386 cpu hotplug bug - instant reboot when onlining secondary
-Subject: Re: i386 cpu hotplug bug - instant reboot when onlining secondary
-In-Reply-To: <20060301032819.GC2856@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0602282230160.28074@montezuma.fsmlabs.com>
-References: <20060219235826.GF3293@localhost.localdomain>
- <Pine.LNX.4.64.0602210800290.1579@montezuma.fsmlabs.com>
- <20060227075033.GK3293@localhost.localdomain> <Pine.LNX.4.64.0602270748240.1579@montezuma.fsmlabs.com>
- <20060228213412.GB2856@localhost.localdomain>
- <Pine.LNX.4.64.0602281412450.28074@montezuma.fsmlabs.com>
- <20060301032819.GC2856@localhost.localdomain>
+	Wed, 1 Mar 2006 01:30:09 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:10443 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932511AbWCAGaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 01:30:08 -0500
+Message-ID: <44053DC6.6060209@linux.intel.com>
+Date: Wed, 01 Mar 2006 14:23:02 +0800
+From: bibo mao <bibo_mao@linux.intel.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9306
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: prasanna@in.ibm.com
+CC: "bibo,mao" <bibo.mao@intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       hiramatu@sdl.hitachi.co.jp
+Subject: Re: [PATCH]kprobe handler discard user space trap
+References: <4403FA60.6060701@intel.com> <20060228113431.GG10512@in.ibm.com>
+In-Reply-To: <20060228113431.GG10512@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006, Nathan Lynch wrote:
+This patch removes code in kprobe_handler() function which calculates 
+user space int3 trap address in i386 architecture. And this patch is 
+based on kprobe-handler-discard-user-space-trap.patch, against 
+2.6.16-rc5-mm1.
 
+Signed-off-by: bibo mao <bibo.mao@intel.com>
+
+--- a/arch/i386/kernel/kprobes.c	2006-03-01 12:48:54.000000000 +0800
++++ b/arch/i386/kernel/kprobes.c	2006-03-01 14:08:12.000000000 +0800
+@@ -203,7 +203,7 @@ static int __kprobes kprobe_handler(stru
+  {
+  	struct kprobe *p;
+  	int ret = 0;
+-	kprobe_opcode_t *addr = NULL;
++	kprobe_opcode_t *addr = (kprobe_opcode_t *)(regs->eip - 
+sizeof(kprobe_opcode_t));
+  	unsigned long *lp;
+  	struct kprobe_ctlblk *kcb;
+  #ifdef CONFIG_PREEMPT
+@@ -217,17 +217,6 @@ static int __kprobes kprobe_handler(stru
+  	preempt_disable();
+  	kcb = get_kprobe_ctlblk();
+
+-	/* Check if the application is using LDT entry for its code segment and
+-	 * calculate the address by reading the base address from the LDT entry.
+-	 */
+-	if ((regs->xcs & 4) && (current->mm)) {
+-		lp = (unsigned long *) ((unsigned long)((regs->xcs >> 3) * 8)
+-					+ (char *) current->mm->context.ldt);
+-		addr = (kprobe_opcode_t *) (get_desc_base(lp) + regs->eip -
+-						sizeof(kprobe_opcode_t));
+-	} else {
+-		addr = (kprobe_opcode_t *)(regs->eip - sizeof(kprobe_opcode_t));
+-	}
+  	/* Check we're not actually recursing */
+  	if (kprobe_running()) {
+  		p = get_kprobe(addr);
+
+Prasanna S Panchamukhi wrote:
+> On Tue, Feb 28, 2006 at 03:23:12PM +0800, bibo,mao wrote:
+>> Currently kprobe handler traps only happen in kernel space, so function
+>> kprobe_exceptions_notify should skip traps which happen in user space.
+>> This patch modifies this, and it is based on 2.6.16-rc4.
 > 
-> [17179687.244000] CPU 1 is now offline
-> [17179693.164000] Booting processor 1/1 eip 3000
-> [17179693.216000] CPU 1 irqstacks, hard=7837f000 soft=78377000
-> [17179693.284000] Setting warm reset code and vector.
-> [17179693.340000] 1.
-> [17179693.364000] 2.
-> [17179693.388000] 3.
-> [17179693.408000] Asserting INIT.
-> [17179693.448000] Waiting for send to finish...
-> [17179693.496000] +<7>Deasserting INIT.
-> [17179693.552000] Waiting for send to finish...
-> [17179693.600000] +<7>#startup loops: 2.
-> [17179693.644000] Sending STARTUP #1.
-> [17179693.688000] After apic_write.
-> [17179693.724000] Doing apic_write_around for target chip...
-> [17179693.788000] Doing apic_write_around to kick the second...
+> You need to remove the code which calculates the
+> user space address in kprobe_handler() and also you need 
+> to remove the code that checks for VM86 in i386, since
+> your patch check if user/vm86 at the top level.
+> 
+> Thanks
+> Prasanna
+> 
+>> Signed-off-by: bibo mao <bibo.mao@intel.com>
+>>
+>> diff -Nruap a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+>> --- a/arch/i386/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>> +++ b/arch/i386/kernel/kprobes.c    2006-03-01 10:37:50.000000000 +0800
+>> @@ -463,6 +463,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>      struct die_args *args = (struct die_args *)data;
+>>      int ret = NOTIFY_DONE;
+>>
+>> +    if (user_mode(args->regs))
+>> +        return ret;
+>> +
+>>      switch (val) {
+>>      case DIE_INT3:
+>>          if (kprobe_handler(args->regs))
+>> diff -Nruap a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
+>> --- a/arch/ia64/kernel/kprobes.c    2006-02-25 17:08:53.000000000 +0800
+>> +++ b/arch/ia64/kernel/kprobes.c    2006-03-01 10:39:15.000000000 +0800
+>> @@ -740,6 +740,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>      struct die_args *args = (struct die_args *)data;
+>>      int ret = NOTIFY_DONE;
+>>
+>> +    if (user_mode(args->regs))
+>> +        return ret;
+>> +
+>>      switch(val) {
+>>      case DIE_BREAK:
+>>          /* err is break number from ia64_bad_break() */
+>> diff -Nruap a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
+>> --- a/arch/powerpc/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>> +++ b/arch/powerpc/kernel/kprobes.c    2006-03-01 10:39:53.000000000 +0800
+>> @@ -397,6 +397,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>      struct die_args *args = (struct die_args *)data;
+>>      int ret = NOTIFY_DONE;
+>>
+>> +    if (user_mode(args->regs))
+>> +        return ret;
+>> +
+>>      switch (val) {
+>>      case DIE_BPT:
+>>          if (kprobe_handler(args->regs))
+>> diff -Nruap a/arch/sparc64/kernel/kprobes.c b/arch/sparc64/kernel/kprobes.c
+>> --- a/arch/sparc64/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>> +++ b/arch/sparc64/kernel/kprobes.c    2006-03-01 10:40:16.000000000 +0800
+>> @@ -324,6 +324,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>      struct die_args *args = (struct die_args *)data;
+>>      int ret = NOTIFY_DONE;
+>>
+>> +    if (user_mode(args->regs))
+>> +        return ret;
+>> +
+>>      switch (val) {
+>>      case DIE_DEBUG:
+>>          if (kprobe_handler(args->regs))
+>> diff -Nruap a/arch/x86_64/kernel/kprobes.c b/arch/x86_64/kernel/kprobes.c
+>> --- a/arch/x86_64/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>> +++ b/arch/x86_64/kernel/kprobes.c    2006-03-01 10:38:48.000000000 +0800
+>> @@ -601,6 +601,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>      struct die_args *args = (struct die_args *)data;
+>>      int ret = NOTIFY_DONE;
+>>
+>> +    if (user_mode(args->regs))
+>> +        return ret;
+>> +
+>>      switch (val) {
+>>      case DIE_INT3:
+>>          if (kprobe_handler(args->regs))
+> 
 
-Ok, could you apply only the following patch?
-
-Index: linux-2.6.16-rc2-mm1/arch/i386/kernel/smpboot.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.16-rc2-mm1/arch/i386/kernel/smpboot.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smpboot.c
---- linux-2.6.16-rc2-mm1/arch/i386/kernel/smpboot.c	11 Feb 2006 16:55:14 -0000	1.1.1.1
-+++ linux-2.6.16-rc2-mm1/arch/i386/kernel/smpboot.c	1 Mar 2006 06:30:06 -0000
-@@ -535,9 +535,14 @@ static void __devinit start_secondary(vo
- 	 * booting is too fragile that we want to limit the
- 	 * things done here to the most necessary things.
- 	 */
-+	Dprintk("S1\n");
- 	cpu_init();
-+	Dprintk("S2\n");
- 	preempt_disable();
-+	Dprintk("S3\n");
- 	smp_callin();
-+	Dprintk("S4\n");
-+
- 	while (!cpu_isset(smp_processor_id(), smp_commenced_mask))
- 		rep_nop();
- 	setup_secondary_APIC_clock();

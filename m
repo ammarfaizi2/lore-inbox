@@ -1,77 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWCATCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932145AbWCATGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWCATCb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 14:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWCATCb
+	id S932145AbWCATGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 14:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWCATGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 14:02:31 -0500
-Received: from zeus1.kernel.org ([204.152.191.4]:52693 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S932410AbWCATCa (ORCPT
+	Wed, 1 Mar 2006 14:06:16 -0500
+Received: from lucidpixels.com ([66.45.37.187]:42884 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932096AbWCATGP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 14:02:30 -0500
+	Wed, 1 Mar 2006 14:06:15 -0500
+Date: Wed, 1 Mar 2006 14:06:14 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Mark Lord <lkml@rtr.ca>
+cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
 Subject: Re: LibPATA code issues / 2.6.15.4
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-To: edmudama@gmail.com
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-bd/DHLecUGJAzjJnvX5E"
-Organization: Adresse perso
-Date: Wed, 01 Mar 2006 20:00:16 +0100
-Message-Id: <1141239617.23202.5.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
+In-Reply-To: <4405E83D.9000906@rtr.ca>
+Message-ID: <Pine.LNX.4.64.0603011405200.3177@p34>
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
+ <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
+ <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
+ <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
+ <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
+ <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com>
+ <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca>
+ <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca>
+ <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Mar 2006, Mark Lord wrote:
 
---=-bd/DHLecUGJAzjJnvX5E
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> David Greaves wrote:
+>> 
+>> haze:/usr/src# smartctl -data -o off /dev/sdc
+>> succeeds but gives me:
+>> 
+>> ata3: status=0x50 { DriveReady SeekComplete }
+>> ata3: translated op=0x85 ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>> ata3: status=0x51 { DriveReady SeekComplete Error }
+>> ata3: error=0x04 { DriveStatusError }
+>> ata3: translated op=0x85 ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>> ata3: status=0x51 { DriveReady SeekComplete Error }
+>> ata3: error=0x04 { DriveStatusError }
+>> ata3: translated op=0x85 ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
+>> ata3: status=0x51 { DriveReady SeekComplete Error }
+>> ata3: error=0x04 { DriveStatusError }
+>
+> "DriveStatusError" is "Command Aborted" in ac-speak.
+> From the man page for smartctl, we read:
+>
+>> -o VALUE  Enables or disables SMART automatic offline test ...
+>> Note that the SMART automatic offline test command is listed as "Obsolete" 
+> in every
+>> version  of  the  ATA  and ATA/ATAPI Specifications.  It was originally part 
+> of the
+>> SFF-8035i Revision 2.0 specification, but was never part of any ATA 
+> specification.
+>
+> There's a chance that your drives simply do not fully support this feature,
+> and are rejecting attempts to use it.
+>
+> By the way, the latest 2.6.16-rc5-git4 is available,
+> and has FUA turned off by default now.  So it should
+> work with your drives, and *you* are expected to verify
+> that for us all now.
+>
+> Cheers
+>
+> -ml
+>
 
+By the way, the latest 2.6.16-rc5-git4 is available,
 
-> those drives should support all FUA opcodes properly, both queued and unq=
-ueued
->=20
-> On 2/28/06, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > Mark Lord wrote:
-> > > David Greaves wrote:
-> > >
-> > >>
-> > >> scsi1 : sata_sil
-> > >>   Vendor: ATA       Model: Maxtor 6B200M0    Rev: BANC
-> > >>   Type:   Direct-Access                      ANSI SCSI revision: 05
-> > >>   Vendor: ATA       Model: Maxtor 6B200M0    Rev: BANC
-> > >>   Type:   Direct-Access                      ANSI SCSI revision: 05
+I am using 2.6.16-rc5-git4, and after running:
 
-How about the drives that got blacklisted following :
-http://bugzilla.kernel.org/show_bug.cgi?id=3D5914 ?
-and
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D177951 ?
+# smartctl -data -o off /dev/sdc
 
-Device Model:     Maxtor 6L300S0
-Firmware Version: BANC1G10
+I get:
 
-on
+[4294785.192000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4294785.192000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4294785.192000] ata3: error=0x04 { DriveStatusError }
+[4294785.192000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4294785.192000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4294785.192000] ata3: error=0x04 { DriveStatusError }
+[4294785.192000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4294785.192000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4294785.192000] ata3: error=0x04 { DriveStatusError }
+[4294785.192000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4294785.192000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4294785.192000] ata3: error=0x04 { DriveStatusError }
+[4294785.192000] ata3: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 
+0xb/00/00
+[4294785.192000] ata3: status=0x51 { DriveReady SeekComplete Error }
+[4294785.192000] ata3: error=0x04 { DriveStatusError }
 
-Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev=
- 02)
+Did you mean you wanted us to test it like we normally do, ie, copy 
+files/md5sum them on the disk and see if we can make it occur again, or?
 
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-bd/DHLecUGJAzjJnvX5E
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iEYEABECAAYFAkQF70AACgkQI2bVKDsp8g1V2gCdHxLLMS7Dyt0YcZ4lVLS6TzH6
-1/cAoMO3bnWEIDLPAzmWcg5b2HPTC2c4
-=SwOE
------END PGP SIGNATURE-----
-
---=-bd/DHLecUGJAzjJnvX5E--
+Justin.
 

@@ -1,91 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWCARhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWCARjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030209AbWCARhU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 12:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWCARgr
+	id S932458AbWCARjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWCARjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 12:36:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18384 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932390AbWCARgm (ORCPT
+	Wed, 1 Mar 2006 12:39:08 -0500
+Received: from mail.gmx.de ([213.165.64.20]:65228 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932420AbWCARjG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 12:36:42 -0500
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 4/5] NFS: Add dentry materialisation op [try #2]
-Date: Wed, 01 Mar 2006 17:36:29 +0000
-To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, aviro@redhat.com
-Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060301173629.16639.74630.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
-References: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
+	Wed, 1 Mar 2006 12:39:06 -0500
+X-Authenticated: #428038
+Date: Wed, 1 Mar 2006 18:39:02 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: tao@acc.umu.se, twalberg@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: [OT] portable Makefiles (was: CD writing in future Linux (stirring up a hornets' nest))
+Message-ID: <20060301173902.GA5209@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	tao@acc.umu.se, twalberg@mindspring.com,
+	linux-kernel@vger.kernel.org
+References: <43FDE983.nailFWR613JK4@burner> <20060223172346.GB31520@mindspring.com> <43FDF193.nailG0L117NIN@burner> <20060223175317.GD31520@mindspring.com> <43FEDB63.nailGCX2HX66G@burner> <20060225174410.GN20494@vasa.acc.umu.se> <20060228072431.GR20494@vasa.acc.umu.se> <44049ADE.nailC6L1ZUIFJ@burner> <20060228200108.GV20494@vasa.acc.umu.se> <4405C90F.nailCS133AUDA@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4405C90F.nailCS133AUDA@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch adds a new directory cache management function that prepares
-a disconnected anonymous function to be connected into the dentry tree. The
-anonymous dentry is transferred the name and parentage from another dentry.
+Joerg Schilling schrieb am 2006-03-01:
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+> If you do not understand the diffeence between a useful warning (as with 
+> cdrecord) and a warning that is a result of a severe bug caused by incorrect
+> make file handling (as in GNU make) you are obviously  wrong here.
 
- fs/dcache.c            |   25 +++++++++++++++++++++++++
- include/linux/dcache.h |    1 +
- 2 files changed, 26 insertions(+), 0 deletions(-)
+Continued offenses, rather than substantiating your claims.
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index a173bba..97e1e44 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -1345,6 +1345,30 @@ already_unhashed:
- }
- 
- /**
-+ * d_materialise_dentry - connect a disconnected dentry into the tree
-+ * @dentry: dentry to replace
-+ * @anon: dentry to place into the tree
-+ *
-+ * Prepare an anonymous dentry for life in the superblock's dentry tree as a
-+ * named dentry in place of the dentry to be replaced.
-+ */
-+void d_materialise_dentry(struct dentry *dentry, struct dentry *anon)
-+{
-+	struct dentry *dparent, *aparent;
-+
-+	switch_names(dentry, anon);
-+	do_switch(dentry->d_name.len, anon->d_name.len);
-+	do_switch(dentry->d_name.hash, anon->d_name.hash);
-+
-+	dparent = dentry->d_parent;
-+	aparent = anon->d_parent;
-+	dentry->d_parent = (aparent == anon) ? dentry : aparent;
-+	anon->d_parent = (dparent == dentry) ? anon : dparent;
-+
-+	anon->d_flags &= ~DCACHE_DISCONNECTED;
-+}
-+
-+/**
-  * d_path - return the path of a dentry
-  * @dentry: dentry to report
-  * @vfsmnt: vfsmnt to which the dentry belongs
-@@ -1755,6 +1779,7 @@ EXPORT_SYMBOL(d_instantiate);
- EXPORT_SYMBOL(d_invalidate);
- EXPORT_SYMBOL(d_lookup);
- EXPORT_SYMBOL(d_move);
-+EXPORT_SYMBOL_GPL(d_materialise_dentry);
- EXPORT_SYMBOL(d_path);
- EXPORT_SYMBOL(d_prune_aliases);
- EXPORT_SYMBOL(d_rehash);
-diff --git a/include/linux/dcache.h b/include/linux/dcache.h
-index 4361f37..feb9d4b 100644
---- a/include/linux/dcache.h
-+++ b/include/linux/dcache.h
-@@ -208,6 +208,7 @@ static inline int dname_external(struct 
- extern void d_instantiate(struct dentry *, struct inode *);
- extern struct dentry * d_instantiate_unique(struct dentry *, struct inode *);
- extern void d_delete(struct dentry *);
-+extern void d_materialise_dentry(struct dentry *, struct dentry *);
- 
- /* allocate/de-allocate */
- extern struct dentry * d_alloc(struct dentry *, const struct qstr *);
+This cosmetic GNU make bug that you've been ranting about for years,
+which isn't a warning, has not, to my knowledge, caused any code to be
+miscompiled. If you think otherwise, then you'll need to provide the GNU
+make maintainers with such information so they are aware of the
+severity.
 
+However, until you can substantiate your claims, it's just Schilling's
+usually offensive ranting and not a make "bug". Besides that, you can
+just use "-include" to suppress the message. It even works in smake and
+BSD make ...
+
+-- 
+Matthias Andree

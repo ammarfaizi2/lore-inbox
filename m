@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWCAVyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWCAVzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWCAVyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 16:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWCAVyQ
+	id S1751276AbWCAVzK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 16:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWCAVzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 16:54:16 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:4574 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751150AbWCAVyQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 16:54:16 -0500
-Date: Wed, 1 Mar 2006 13:54:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Ren? Rebe <rene@exactcode.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Message-ID: <20060301215423.GA17825@kroah.com>
-References: <200603012116.25869.rene@exactcode.de> <20060301213223.GA17270@kroah.com> <200603012242.35633.rene@exactcode.de>
-Mime-Version: 1.0
+	Wed, 1 Mar 2006 16:55:09 -0500
+Received: from ozlabs.org ([203.10.76.45]:57778 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751276AbWCAVzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 16:55:08 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603012242.35633.rene@exactcode.de>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Message-ID: <17414.6192.426294.502401@cargo.ozlabs.ibm.com>
+Date: Thu, 2 Mar 2006 08:54:56 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Greg KH <greg@kroah.com>
+Cc: linuxppc64-dev@ozlabs.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johnrose@austin.ibm.com
+Subject: Re: fix build breakage in eeh.c in 2.6.16-rc5-git5
+In-Reply-To: <20060301214600.GA17702@kroah.com>
+References: <20060301214600.GA17702@kroah.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 10:42:35PM +0100, Ren? Rebe wrote:
-> Hi,
-> 
-> On Wednesday 01 March 2006 22:32, Greg KH wrote:
-> > On Wed, Mar 01, 2006 at 09:16:25PM +0100, Ren?? Rebe wrote:
-> > > Hi,
-> > > 
-> > > I wonder if:
-> > > 
-> > > drivers/usb/core/devio.c:86
-> > > #define MAX_USBFS_BUFFER_SIZE   16384
-> > > 
-> > > is some random, or outdated limit or if there really is some code path that could
-> > > not handle bigger URBs.
-> > > 
-> > > For performance reasons I would like to use bigger packages for an image
-> > > aquisition device.
-> > 
-> > Why not just send down 2 urbs with that size then, that would keep the
-> > pipe quite full.
-> 
-> Because that requires even more modifications to libusb and sane (i_usb) ...
+Greg KH writes:
 
-No, do it in your application I mean.
+> This patch should fixe a problem with eeh_add_device_late() not being
+> defined in the ppc64 build process, causing the build to break.
 
-> So, queing alot URBs is the recommended way to sustain the bus? Allowing
-> way bigger buffers will not be realistic?
+John Rose just sent a patch making eeh_add_device_late static and
+moving it to be defined before it is called in
+arch/powerpc/platforms/pseries/eeh.c.
 
-16Kb is "way big" in the USB scheme of things aready.  Look at the size
-of your endpoint.  It's probably _very_ small compared to that.  So no,
-larger buffer sizes is not realistic at all.
+Since he maintains this stuff, I'm more inclined to take his patch.
 
-thanks,
-
-greg k-h
+Paul.

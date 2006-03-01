@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWCABDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWCABEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWCABDB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 20:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWCABDB
+	id S1751793AbWCABEg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 20:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWCABEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 20:03:01 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:4442 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751092AbWCABDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 20:03:00 -0500
-Date: Tue, 28 Feb 2006 17:02:50 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: paulus@samba.org, johnrose@austin.ibm.com
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH] powerpc: restore eeh_add_device_late() prototype
-Message-ID: <20060301010249.GV20175@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20060301001909.GU20175@ca-server1.us.oracle.com>
+	Tue, 28 Feb 2006 20:04:35 -0500
+Received: from rtr.ca ([64.26.128.89]:48256 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751103AbWCABEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 20:04:34 -0500
+Message-ID: <4404F31D.90407@rtr.ca>
+Date: Tue, 28 Feb 2006 20:04:29 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060301001909.GU20175@ca-server1.us.oracle.com>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+To: "Eric D. Mudama" <edmudama@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, David Greaves <david@dgreaves.com>,
+       Tejun Heo <htejun@gmail.com>, Justin Piszcz <jpiszcz@lucidpixels.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <4401122A.3010908@rtr.ca>	 <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca>	 <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com>	 <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com>	 <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <311601c90602280857x3f102af5l31c9a0ac1a896b4e@mail.gmail.com>
+In-Reply-To: <311601c90602280857x3f102af5l31c9a0ac1a896b4e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh, I forgot to actually CC linuxppc-dev@ozlabs.org, and I also left off
-my signed-off-by line (added below). Sorry about that.
+Eric D. Mudama wrote:
+> those drives should support all FUA opcodes properly, both queued and unqueued
 
-On Tue, Feb 28, 2006 at 04:19:09PM -0800, Mark Fasheh wrote:
-A search on the linux-kernel, linuxppc-dev mailing lists and the git tree at
- git://git.kernel.org/pub/scm/linux/kernel/git/paulus/powerpc didn't show
-this issue fixed or reported. If I missed something please ignore :)
+His first drive (sda) does not support queued commands at all,
+but the newer firmware in his second drive (sdb) does support NCQ.
 
-I get a compile failure trying to build a powerpc kernel:
+Both drives support FUA.
 
-arch/powerpc/platforms/pseries/eeh.c: In function `eeh_add_device_tree_late':
-arch/powerpc/platforms/pseries/eeh.c:901: warning: implicit declaration of function `eeh_add_device_late'
-arch/powerpc/platforms/pseries/eeh.c: At top level:
-arch/powerpc/platforms/pseries/eeh.c:918: error: conflicting types for 'eeh_add_device_late'
-arch/powerpc/platforms/pseries/eeh.c:901: error: previous implicit declaration of 'eeh_add_device_late' was here
-make[2]: *** [arch/powerpc/platforms/pseries/eeh.o] Error 1
-
-It seems commit 827c1a6c1a5dcb2902fecfb648f9af6a532934eb removed this
-prototype from eeh.h. The following patch restores it.
-
-Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
-
-diff --git a/include/asm-powerpc/eeh.h b/include/asm-powerpc/eeh.h
-index 7dfb408..4250fa1 100644
---- a/include/asm-powerpc/eeh.h
-+++ b/include/asm-powerpc/eeh.h
-@@ -62,6 +62,7 @@ void __init pci_addr_cache_build(void);
-  */
- void eeh_add_device_early(struct device_node *);
- void eeh_add_device_tree_early(struct device_node *);
-+void eeh_add_device_late(struct pci_dev *);
- void eeh_add_device_tree_late(struct pci_bus *);
- 
- /**
-@@ -117,6 +118,8 @@ static inline void pci_addr_cache_build(
- 
- static inline void eeh_add_device_early(struct device_node *dn) { }
- 
-+static inline void eeh_add_device_late(struct pci_dev *dev) { }
-+
- static inline void eeh_remove_device(struct pci_dev *dev) { }
- 
- static inline void eeh_add_device_tree_early(struct device_node *dn) { }
+cheers

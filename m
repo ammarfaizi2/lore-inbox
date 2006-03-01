@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWCAKXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWCAKbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbWCAKXt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 05:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWCAKXt
+	id S964903AbWCAKbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 05:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWCAKbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 05:23:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48096 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964897AbWCAKXs (ORCPT
+	Wed, 1 Mar 2006 05:31:16 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10420 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964903AbWCAKbQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 05:23:48 -0500
-Date: Wed, 1 Mar 2006 02:22:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Max Kellermann <max@duempel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc[1-5]: soft lockups on Athlon64 X2
-Message-Id: <20060301022235.51f47b42.akpm@osdl.org>
-In-Reply-To: <20060301100744.GA1041@roonstrasse.net>
-References: <20060227122705.GA27141@roonstrasse.net>
-	<20060228221948.3d76f80b.akpm@osdl.org>
-	<20060301100744.GA1041@roonstrasse.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 1 Mar 2006 05:31:16 -0500
+Date: Wed, 1 Mar 2006 02:31:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
+ added to -mm tree
+Message-Id: <20060301023110.d8270056.pj@sgi.com>
+In-Reply-To: <20060301021106.4e2359eb.pj@sgi.com>
+References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
+	<20060228181849.faaf234e.pj@sgi.com>
+	<20060228183610.5253feb9.akpm@osdl.org>
+	<20060228194525.0faebaaa.pj@sgi.com>
+	<20060228201040.34a1e8f5.pj@sgi.com>
+	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
+	<20060228212501.25464659.pj@sgi.com>
+	<20060228234807.55f1b25f.pj@sgi.com>
+	<20060301002631.48e3800e.akpm@osdl.org>
+	<20060301015338.b296b7ad.pj@sgi.com>
+	<20060301021106.4e2359eb.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Kellermann <max@duempel.org> wrote:
->
-> On 2006/03/01 07:19, Andrew Morton <akpm@osdl.org> wrote:
-> > Strange.  I did remove a cond_resched() from
-> > invalidate_mapping_pages() so that it could be run under spinlock
-> > but I cannot believe that you had so many pages cached that the
-> > invalidate took more than ten seconds.
-> > 
-> > Does the machine recover and otherwise work OK?
-> 
-> The mount indeed took more than ten (wallclock) seconds during which
-> the lockups occured, and after that it seemed usable (I rebooted
-> shortly after because I feared fs corruption).  Normally, this mount
-> takes 2 seconds or so - it's a crypted 200GB XFS partition.  The same
-> goes for the "bugged" kernel with "nosmp": mount is finished quickly.
-> 
+Updated and corrected results, now including the previously untested patch:
 
-How is it encrypted?   (With which kernel encryption stuff?)
+cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch - good
+gregkh-driver-put_device-might_sleep.patch                              - special case
+gregkh-driver-empty_release_functions_are_broken.patch                  - special case
+gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch          - bad
 
-I guess it'd be useful to see where all that time is spent, if you have
-time.   Enable CONFIG_PROFILING, boot with `profile=1', do:
+where the two special cases boot with the warnings reported,
+and the bad case crashes on boot as reported.
 
-readprofile -r
-mount ...
-readprofile -n -v -m /boot/System.map | sort -n -k 3 | tail -40
+That a patch named "*might_sleep*" causes the warning:
+  Debug: sleeping function called from invalid context at drivers/base/core.c:343^M
+  in_atomic():1, irqs_disabled():0^M
+seems likely enough to me.
 
-(Make sure it's the correct System.map).
+Perhaps the problem isn't so much a mainline bug in:
+  gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch 
+but rather perhaps this patch has trouble handling this DEBUG warning ??
+
+Recall, as noted before, this crash requires some DEBUG options.
+
+If I disable CONFIG_DEBUG_SPINLOCK and CONFIG_DEBUG_SPINLOCK_SLEEP,
+then a build up through and including (and beyond) the following patches:
+
+    cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch
+    gregkh-driver-put_device-might_sleep.patch
+    gregkh-driver-empty_release_functions_are_broken.patch
+    gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch
+
+boots fine.  With these two DEBUG options, it crashes during boot
+(the "bad" above).
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

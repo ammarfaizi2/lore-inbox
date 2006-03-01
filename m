@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbWCAAv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932739AbWCAAxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932699AbWCAAv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 19:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932739AbWCAAv2
+	id S932739AbWCAAxM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 19:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWCAAxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 19:51:28 -0500
-Received: from mailhost.NMT.EDU ([129.138.4.52]:50101 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id S932699AbWCAAv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 19:51:28 -0500
-Date: Tue, 28 Feb 2006 17:51:22 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 1/3] prefetch the mmap_sem in the fault path
-Message-ID: <20060301005120.GB32219@rainbow>
+	Tue, 28 Feb 2006 19:53:12 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:27054
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932739AbWCAAxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 19:53:11 -0500
+Date: Tue, 28 Feb 2006 16:53:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [patch] pci hotplug: add common acpi functions to core
+Message-ID: <20060301005316.GA3681@kroah.com>
+References: <1141174017.28842.6.camel@whizzy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <1141174017.28842.6.camel@whizzy>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the broken threading...
+On Tue, Feb 28, 2006 at 04:46:57PM -0800, Kristen Accardi wrote:
+> shpchprm_acpi.c and pciehprm_acpi.c are nearly identical.
+> In addition, there are functions in both these files that
+> are also in acpiphp_glue.c.  This patch will remove duplicate 
+> functions from shpchp, pciehp, and acpiphp and move this 
+> functionality to pci_hotplug, as it is not hardware specific.  
+> Get rid of shpchprm* and pciehprm* files since they are no longer needed.
+> shpchprm_nonacpi.c and pciehprm_nonacpi.c are identical, as well
+> as shpchprm_legacy.c and can be replaced with a macro.
 
-On Thursday 23 February 2006 11:13:50 EST, Ray Bryant wrote:
-> On Thursday 23 February 2006 06:39, Arjan van de Ven wrote:
-> > On Thu, 2006-02-23 at 07:29 -0500, Jes Sorensen wrote:
-> > > >>>>> "Arjan" == Arjan van de Ven <arjan@xxxxxxxxxxxxxxx> writes:
-> > >
-> > > Arjan> In a micro-benchmark that stresses the pagefault path, the
-> > > Arjan> down_read_trylock on the mmap_sem showed up quite high on the
-> > > Arjan> profile. Turns out this lock is bouncing between cpus quite a
-> > > Arjan> bit and thus is cache-cold a lot. This patch prefetches the
-> > > Arjan> lock (for write) as early as possible (and before some other
-> > > Arjan> somewhat expensive operations). With this patch, the
-> > > Arjan> down_read_trylock basically fell out of the top of profile.
-> > >
-> > > Out of curiousity, how big was the box used for testing? It might be
-> > > worth investigating if anything can be done to reduce the number of
-> > > times that lock is taken in the first place.
-> > >
-> > > After all, what's a pain on a 4-way tends to be an utter nightmare on
-> > > a 16-way ;(
-> >
-> > most of it was done on a 2 way, but some tests were done on a 4-way.
-> 
-> Could you share your microbenchmark with us (or point to the source) and we
-> can give this a try on larger systems?
+Looks good, only a minor comment:
 
-I would be ecstatic to share this benchmark; however I just started
-working at Intel and did not realize how long it would take to open
-source a program written solely by an Intel employee (me).  I'm
-getting the paperwork done as fast as I can.
+> +u8 * acpi_path_name( acpi_handle	handle)
 
-A quick description of the benchmark is:
+Funky spacing here.
 
-* Allocate memory
-* Write a pattern to it
-* Spawn sufficient threads to keep your cpus busy
+> +int is_root_bridge(acpi_handle handle)
+> +{
+> +	acpi_status status;
+> +	struct acpi_device_info *info;
+> +	struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
+> +	int i;
+> +
+> +	status = acpi_get_object_info(handle, &buffer);
+> +	if (ACPI_SUCCESS(status)) {
+> +		info = buffer.pointer;
+> +		if ((info->valid & ACPI_VALID_HID) &&
+> +			!strcmp(PCI_ROOT_HID_STRING,
+> +					info->hardware_id.value)) {
+> +			acpi_os_free(buffer.pointer);
+> +			return 1;
+> +		}
+> +		if (info->valid & ACPI_VALID_CID) {
+> +			for (i=0; i < info->compatibility_id.count; i++) {
+> +				if (!strcmp(PCI_ROOT_HID_STRING,
+> +					info->compatibility_id.id[i].value)) {
+> +					acpi_os_free(buffer.pointer);
+> +					return 1;
+> +				}
+> +			}
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(is_root_bridge);
 
-Each thread does:
+The name "is_root_bridge" is pretty generic.  Especially as it wants an
+acpi handle.  "acpi_is_root_bridge" perhaps?
 
-* Allocate a little more memory and copy part of memory to it
-* Search for a key within its copy
-* Free the memory
-* Repeat
+thanks,
 
-The patches Arjan submitted make a small improvement, but the big win
-turns out to be in tuning malloc() parameters, which we are currently
-experimenting with.
-
--VAL (not subscribed to l-k as yet)
+greg k-h

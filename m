@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWCAQzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751762AbWCARDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751622AbWCAQzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 11:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWCAQzW
+	id S1751762AbWCARDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWCARDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 11:55:22 -0500
-Received: from bay104-f30.bay104.hotmail.com ([65.54.175.40]:3816 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751616AbWCAQzW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 11:55:22 -0500
-Message-ID: <BAY104-F30D83DE1A3392B1A69554DC0F40@phx.gbl>
-X-Originating-IP: [137.207.140.83]
-X-Originating-Email: [kamrankarimi@hotmail.com]
-In-Reply-To: <Pine.LNX.4.61.0603011601360.11678@goblin.wat.veritas.com>
-From: "Kamran Karimi" <kamrankarimi@hotmail.com>
-To: hugh@veritas.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why VM_SHM has been removed from mm.h?
-Date: Wed, 01 Mar 2006 10:55:21 -0600
+	Wed, 1 Mar 2006 12:03:42 -0500
+Received: from mivlgu.ru ([81.18.140.87]:28615 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S1751762AbWCARDl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 12:03:41 -0500
+Date: Wed, 1 Mar 2006 20:03:30 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: kernel.suid_dumpable or fs.suid_dumpable?
+Message-ID: <20060301170330.GR26440@master.mivlgu.local>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 01 Mar 2006 16:55:21.0876 (UTC) FILETIME=[ED8D0D40:01C63D50]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G6ArjEZjY3m60389"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's not obvious to me why the kernel would hang with an invalid pointer
->error message there: ipc_lock appears to have good safety against being
->passed a random id.  Perhaps the invalid pointer message comes from
->other code you've not shown (for example, I hope you shm_unlock(shp)
->and return 1 when shm_lock succeeds), or perhaps I'm misreading.
 
-I have put printk() statements all over the place. The hang (which is during 
-boot time) occurs within the block of code that I sent you. There is a 
-shm_unlock() statement after the code, but it is never reached.
+--G6ArjEZjY3m60389
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->Since you're already patching base kernel source (you mention
->arch/xyz/mm/fault.c), why don't you just patch your own VM_SYSVSHM
->into include/linux/mm.h, and set it on the vma in ipc/shm.c?
+Hello!
 
-Yes this looks like a good solution. I have changed VM_SHM in mm.h to be 
-0x0800000 and am looking for a good place to include it in the 
-vma->vm_flags. shmat() looks like a good place. How can I find the vma of a 
-SysV shm in that routine?
+Apparently the patch to add kernel.suid_dumpable sysctl:
 
--Kamran
+http://kernel.org/git/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3Dcomm=
+itdiff;h=3Dd6e711448137ca3301512cec41a2c2ce852b3d0a
 
+was applied wrongly - the sysctl was added under "fs" instead of "kernel".
+So currently it is fs.suid_dumpable instead of kernel.suid_dumpable, but
+the docs (Documentation/sysctl/kernel.txt) and include/linux/sysctl.h
+(KERN_SETUID_DUMPABLE) say that it should be under "kernel".
 
+Which way this should be fixed - should the sysctl definition be moved
+from fs_table to kern_table (thus moving it from fs.suid_dumpable to
+kernel.suid_dumpable, as docs say), or should docs be fixed to reflect the
+current location of sysctl (and include/linux/sysctl would need to be
+fixed too)?
+
+I have filed this as http://bugzilla.kernel.org/show_bug.cgi?id=3D6145 to
+make sure it is not forgotten completely.
+
+--=20
+Sergey Vlasov
+
+--G6ArjEZjY3m60389
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFEBdPiW82GfkQfsqIRAm+KAKCCM3aaTXDqjT0DDh1ZbSRvkuuscACfc7Lg
+bosDIYZ6JDDwtC7h1QQ+ncs=
+=dc86
+-----END PGP SIGNATURE-----
+
+--G6ArjEZjY3m60389--

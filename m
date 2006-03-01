@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWCAXXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWCAXX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWCAXXy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 18:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCAXXy
+	id S1751325AbWCAXX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 18:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCAXX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 18:23:54 -0500
-Received: from mail.goelsen.net ([195.202.170.130]:49570 "EHLO
+	Wed, 1 Mar 2006 18:23:58 -0500
+Received: from mail.goelsen.net ([195.202.170.130]:7331 "EHLO
 	power2u.goelsen.net") by vger.kernel.org with ESMTP
-	id S1751118AbWCAXXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 18:23:53 -0500
+	id S1751325AbWCAXX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 18:23:57 -0500
 From: Michael Monnerie <m.monnerie@zmi.at>
 Organization: it-management http://zmi.at
 To: linux-kernel@vger.kernel.org
-Subject: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-Date: Thu, 2 Mar 2006 00:23:21 +0100
+Subject: forcedeth driver on Asus A8N-E hangs
+Date: Thu, 2 Mar 2006 00:23:43 +0100
 User-Agent: KMail/1.9.1
-Cc: suse-linux-e@suse.com, ak@suse.de
+Cc: manfred@colorfullife.com, suse-linux-e@suse.com
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart4886431.WYnIUi4orC";
+  boundary="nextPart1340307.aQkWSuIecb";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603020023.21916@zmi.at>
+Message-Id: <200603020023.43763@zmi.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4886431.WYnIUi4orC
+--nextPart1340307.aQkWSuIecb
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hello, I use SUSE 10.0 with all updates and actual kernel 2.6.13-15.8 as=20
-provided from SUSE (just self compiled to optimize for Athlon64, SMP,=20
-and HZ=3D100), with an Asus A8N-E motherboard, and an Athlon64x2 CPU.=20
-This host is used with VMware GSX server running 6 Linux client and one=20
-Windows client host. There's a SW-RAID1 using 2 SATA HDs.
+Hello, I apologize I'm not a developer, but want to try helping in=20
+fixing a bug with the forcedeth driver. I use SUSE 10.0 with all=20
+updates and actual kernel 2.6.13-15.8 as provided from SUSE (just self=20
+compiled to optimize for Athlon64, SMP, and HZ=3D100), with an Asus A8N-E=20
+motherboard, and an Athlon64x2 CPU. The onboard network card is this:
+00:0a.0 Class 0680: 10de:0057 (rev a3)
 
-When we wanted to install a new client, and inserted a DVD into the PC,=20
-it behaved like on drugs, showing the following output=20
-in /var/log/warn:
+00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
+        Subsystem: ASUSTeK Computer Inc. K8N4-E Mainboard
+        Flags: 66MHz, fast devsel, IRQ 50
+        Memory at 00000000d3000000 (32-bit, non-prefetchable) [size=3D4K]
+        I/O ports at b000 [size=3D8]
+        Capabilities: [44] Power Management version 2
 
-=46eb 28 15:19:30 baum kernel: rtc: lost some interrupts at 256Hz.
-=46eb 28 15:19:47 baum kernel: rtc: lost some interrupts at 256Hz.
-=46eb 28 15:20:26 baum kernel: rtc: lost some interrupts at 256Hz.
-=46eb 28 15:20:45 baum kernel: PCI-DMA: Out of IOMMU space for 225280=20
-bytes at device 0000:00:08.0
-=46eb 28 15:20:45 baum kernel: end_request: I/O error, dev sda, sector=20
-12248446
-=46eb 28 15:20:45 baum kernel:    Operation continuing on 1 devices
-=46eb 28 15:20:45 baum kernel: PCI-DMA: Out of IOMMU space for 221184=20
-bytes at device 0000:00:08.0
-=46eb 28 15:20:45 baum kernel: end_request: I/O error, dev sdb, sector=20
-12248454
-=46eb 28 15:20:45 baum kernel: printk: 118 messages suppressed.
-=46eb 28 15:20:45 baum kernel: Buffer I/O error on device md0, logical=20
-block 1004928
-=46eb 28 15:20:45 baum kernel: lost page write due to I/O error on md0
-=46eb 28 15:20:45 baum kernel: Buffer I/O error on device md0, logical=20
-block 1004929
-=46eb 28 15:20:45 baum kernel: lost page write due to I/O error on md0
+and the problem is that it hangs and stops working when there is a=20
+higher load. Even before that, there seems to be a disturbance, as I/O=20
+was quite slow: Linux server, Apple client: FTP/NFS, etc all slow.
+I put a Realtek8169 into the system and now it works perfect, so its=20
+obviously a driver bug, as I have the same hardware in another place=20
+showing the same behaviour (works on very low load, stops when really=20
+used).
 
-After that, the SW RAID stopped it's work, some VMware clients crashed=20
-and so on. Not a good situation.
-
-I found this in dmesg:
-CPU 0: aperture @ b6c6000000 size 32 MB
-Aperture from northbridge cpu 0 too small (32 MB)
-No AGP bridge found
-Your BIOS doesn't leave a aperture memory hole
-Please enable the IOMMU option in the BIOS setup
-This costs you 64 MB of RAM
-Mapping aperture over 65536 KB of RAM @ 8000000
-PCI-DMA: Disabling AGP.
-PCI-DMA: aperture base @ 8000000 size 65536 KB
-PCI-DMA: Reserving 64MB of IOMMU area in the AGP aperture
-
-The problem is, it's an ASUS A8N-E, and doesn't have AGP but PCI-Express=20
-=2D and therefore no more BIOS setting for the AGP aperture size.
-
-The kernel set that IOMMU to 64MB, but it still seems to small. There's=20
-a kernel boot option "iommu=3D...", but using "iommu=3Doff" lead to a=20
-frozen system during boot, and "iommu=3D128M" didn't boot at all.
-
-I found a message from Andi Kleen of SUSE suggesting using=20
-"iommu=3Dmemaper=3D3", and that helped - at least until now. I just wanted=
-=20
-to say thank you for that, and document this fact here for others=20
-possibly running into the same problem.
+Is there a workaround?
 
 Output from the kernel source script "sh scripts/ver_linux":
 
@@ -126,15 +92,15 @@ sd_mod scsi_mod ide_disk ide_core
 // Fingerprint: EB93 ED8A 1DCD BB6C F952  F7F4 3911 B933 7054 5879
 // Keyserver: www.keyserver.net                 Key-ID: 0x70545879
 
---nextPart4886431.WYnIUi4orC
+--nextPart1340307.aQkWSuIecb
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQBEBizpORG5M3BUWHkRAnrlAKCXIleFSKrO8Gkm86io+Siy+CEM0gCghy0H
-OgpDwBgMMFTm5D+k9SOe0lk=
-=fRIa
+iD8DBQBEBiz/ORG5M3BUWHkRAgsLAJ4+bhu2dw/5TOBon4seCMpSAZ7BewCgpHLV
+go9EsXZiGYlRkn6WpcMdyMk=
+=jAiF
 -----END PGP SIGNATURE-----
 
---nextPart4886431.WYnIUi4orC--
+--nextPart1340307.aQkWSuIecb--

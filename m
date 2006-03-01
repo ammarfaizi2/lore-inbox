@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWCAWpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751930AbWCAWqt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWCAWpI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 17:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWCAWpI
+	id S1751930AbWCAWqt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 17:46:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751926AbWCAWqt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 17:45:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:59852 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751101AbWCAWpG (ORCPT
+	Wed, 1 Mar 2006 17:46:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37307 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751331AbWCAWqs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 17:45:06 -0500
-Date: Wed, 1 Mar 2006 14:41:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Olivier Galibert <galibert@pobox.com>, Ren? Rebe <rene@exactcode.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Message-ID: <20060301224123.GA10422@kroah.com>
-References: <200603012116.25869.rene@exactcode.de> <20060301213223.GA17270@kroah.com> <200603012242.35633.rene@exactcode.de> <20060301215423.GA17825@kroah.com> <20060301223430.GA9159@dspnet.fr.eu.org>
+	Wed, 1 Mar 2006 17:46:48 -0500
+Date: Wed, 1 Mar 2006 17:46:47 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org
+Subject: 2.6.16rc5 'found' an extra CPU.
+Message-ID: <20060301224647.GD1440@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060301223430.GA9159@dspnet.fr.eu.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 11:34:30PM +0100, Olivier Galibert wrote:
-> On Wed, Mar 01, 2006 at 01:54:23PM -0800, Greg KH wrote:
-> > On Wed, Mar 01, 2006 at 10:42:35PM +0100, Ren? Rebe wrote:
-> > > So, queing alot URBs is the recommended way to sustain the bus? Allowing
-> > > way bigger buffers will not be realistic?
-> > 
-> > 16Kb is "way big" in the USB scheme of things aready.  Look at the size
-> > of your endpoint.  It's probably _very_ small compared to that.  So no,
-> > larger buffer sizes is not realistic at all.
-> 
-> As a data point, I have traces of a scanner session including a
-> download of a 26Mb binary image using 524288 bytes logical blocks
-> physically transferred with 61440 bytes bulk_in frames.  Seems stable
-> enough.  IIRC the scanner-side controller chip has some advanced
-> buffering just to handle that kind of bandwidth.
+This amused me.
 
-That's impressive.  What are the endpoint sizes on the device that did
-this?
+(17:43:34:davej@nemesis:~)$ ll /proc/acpi/processor/
+total 0
+dr-xr-xr-x 2 root root 0 Mar  1 17:43 CPU1/
+dr-xr-xr-x 2 root root 0 Mar  1 17:43 CPU2/
+dr-xr-xr-x 2 root root 0 Mar  1 17:43 CPU3/
+(17:43:36:davej@nemesis:~)$
 
-thanks,
+As cool as a 3-way x86-64 sounds, it's really only got 2.
 
-greg k-h
+Two of these..
+
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 5
+model name      : AMD Opteron(tm) Processor 244
+stepping        : 8
+cpu MHz         : 1789.412
+cache size      : 1024 KB
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext 3dnow
+bogomips        : 3578.59
+TLB size        : 1024 4K pages
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 40 bits physical, 48 bits virtual
+power management: ts ttp
+
+
+(17:45:21:davej@nemesis:~)$ cat /proc/acpi/processor/CPU*/info
+processor id:            0
+acpi id:                 1
+bus mastering control:   no
+power management:        no
+throttling control:      yes
+limit interface:         yes
+processor id:            1
+acpi id:                 2
+bus mastering control:   no
+power management:        no
+throttling control:      no
+limit interface:         no
+processor id:            255
+acpi id:                 3
+bus mastering control:   no
+power management:        no
+throttling control:      no
+limit interface:         no
+
+I guess the '255' has confused something.
+
+This made my 'bug of the day' :)
+
+		Dave
+

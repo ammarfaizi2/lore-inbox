@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWCARLL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWCARN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWCARLL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 12:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCARLK
+	id S932366AbWCARN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWCARN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 12:11:10 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50960 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751286AbWCARLJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 12:11:09 -0500
-Date: Wed, 1 Mar 2006 17:10:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Michlmayr <tbm@cyrius.com>, pavel@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Convert serial_core oopses to BUG_ON
-Message-ID: <20060301171046.GA4024@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Martin Michlmayr <tbm@cyrius.com>, pavel@suse.cz,
-	linux-kernel@vger.kernel.org
-References: <20060226100518.GA31256@flint.arm.linux.org.uk> <20060226021414.6a3db942.akpm@osdl.org> <20060227141315.GD2429@ucw.cz> <20060228101713.6fd44027.akpm@osdl.org> <20060228220128.GA4254@unjust.cyrius.com> <20060228153256.64f4781d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Mar 2006 12:13:59 -0500
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:8352 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751402AbWCARN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 12:13:58 -0500
+Date: Wed, 1 Mar 2006 12:10:27 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: port ATI timer fix from x86_64 to i386
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200603011213_MC3-1-B998-965E@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060228153256.64f4781d.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 03:32:56PM -0800, Andrew Morton wrote:
-> Martin Michlmayr <tbm@cyrius.com> wrote:
-> >
-> > * Andrew Morton <akpm@osdl.org> [2006-02-28 10:17]:
-> > > > It will oops in hard-to-guess, place, anyway.
-> > > Will it?   Where?  Unfixably?
-> > 
-> > http://www.linux-mips.org/archives/linux-mips/2006-02/msg00241.html is
-> > one example we just had on MIPS.  On SGI IP22, using the serial
-> > console, you'd get the following on shutdown:
-> > 
-> > The system is going down for reboot NOW!
-> > INIT: Sending processes the TERM signal
-> > INIT: Sending proces
-> > 
-> > and then nothing at all.  I'd never have suspected the serial driver,
-> > had not users reported that the machine shutdowns properly when using
-> > the framebuffer.
-> > 
-> > For the record, I don't mind whether it's BUG_ON or WARN_ON, but I
-> > just wanted to give this as an example of an "oops in hard-to-guess,
-> > place".
-> 
-> >From my reading of the above thread, putting the proposed workaround into
-> serial core will indeed allow people's machines to keep running while
-> reminding us about the driver bugs.
+In-Reply-To: <p73psl6zbwf.fsf@verdi.suse.de>
 
-I would much rather the buggy drivers were actually fixed - is there a
-reason why the drivers can't actually be fixed (other than lazyness)?
+On 01 Mar 2006 11:40:00, Andi Kleen wrote:
 
-Once they're fixed, adding a BUG_ON then becomes practical IMHO - it'll
-stop new driver writers being confused.
+> > Wonderful, thanks.  What's the relationship (if any) between this and the
+> > recently-merged x86_64 fix?
+>
+> He just ported the x86-64 change over without any original authorship
+> attribution :/
+
+Oops, sorry about that.  Since I wrote "ported from x86_64" I assumed
+credit was implicit.
+
+> And some less functionality (only works for ACPI now)
+
+I documented that. Without ACPI there wasn't infrastructure to do the early
+PCI scan.
+
+> and some totally unrelated Documentation cleanup
+
+I added the two new boot options.  While doing that I noticed the *timer_pin_1
+docs weren't in alphabetical order so I moved them.
+
+> and a few random printk changes
+
+One printk change.  The other was an exact port of the message from x86_64.
+And the change I made wasn't random.  It might have been a bad idea but
+it wasn't random.
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Chuck
+"The sleet in Crete falls neatly in the street."
+

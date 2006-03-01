@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751805AbWCASfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWCASjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751805AbWCASfp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 13:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWCASfp
+	id S1750778AbWCASjF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 13:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbWCASjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 13:35:45 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61346 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751805AbWCASfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 13:35:44 -0500
-Subject: Re: LibPATA code issues / 2.6.15.4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Greaves <david@dgreaves.com>
-Cc: Mark Lord <liml@rtr.ca>, Tejun Heo <htejun@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <4405DADE.10206@dgreaves.com>
-References: <Pine.LNX.4.64.0602140439580.3567@p34>
-	 <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>
-	 <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com>
-	 <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>
-	 <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com>
-	 <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
-	 <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca>
-	 <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca>
-	 <44042863.2050703@dgreaves.com>  <44046074.4070201@rtr.ca>
-	 <1141139776.3089.78.camel@localhost.localdomain>
-	 <4405DADE.10206@dgreaves.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 01 Mar 2006 18:37:57 +0000
-Message-Id: <1141238277.23170.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 1 Mar 2006 13:39:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17881 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750778AbWCASjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 13:39:04 -0500
+Date: Wed, 1 Mar 2006 10:38:53 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
+In-Reply-To: <200603011934.34136.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0603011037350.29248@schroedinger.engr.sgi.com>
+References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com>
+ <200602281813.47234.ak@suse.de> <20060301102757.f2eec70e.pj@sgi.com>
+ <200603011934.34136.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-03-01 at 17:33 +0000, David Greaves wrote:
-> As a user I prefer
->   It Broke And I Dont Know Why
-> to
->   Aborted Command
+On Wed, 1 Mar 2006, Andi Kleen wrote:
 
-So whats the SCSI sense encoding for that ?
+> > No need to implement a sysctl for this.  The current cpuset facility
+> > should provide just what you want, if I am understanding correctly.
+> 
+> The main reason i'm reluctant to use this is that the cpuset fast path
+> overhead (e.g. in memory allocators etc.) is quite large and I wouldn't like 
+> to recommend people to enable all this overhead by default just to get 
+> more useful dcache/inode behaviour on small NUMA systems.
+
+Is this a gut feeling or do you have some measurements to back that up? 
+Paul worked hard on making all the overhead in critical paths as light as 
+possible and from what I can see he did a very good job.
+
+
 

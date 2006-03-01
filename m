@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWCAUZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWCAUbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbWCAUZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 15:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWCAUZ5
+	id S1751167AbWCAUbv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 15:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWCAUbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:25:57 -0500
-Received: from madness.at ([217.196.146.217]:33507 "EHLO cronos.madness.at")
-	by vger.kernel.org with ESMTP id S1751024AbWCAUZz (ORCPT
+	Wed, 1 Mar 2006 15:31:51 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:50366 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751167AbWCAUbv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 15:25:55 -0500
-Message-ID: <4406034B.9030105@madness.at>
-Date: Wed, 01 Mar 2006 21:25:47 +0100
-From: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Maxim Kozover <maximkoz@netvision.net.il>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, Andrew Vasquez <andrew.vasquez@qlogic.com>
-Subject: Re: problems with scsi_transport_fc and qla2xxx
-References: <1413265398.20060227150526@netvision.net.il>	<978150825.20060227210552@netvision.net.il> <20060228221422.282332ef.akpm@osdl.org>
-In-Reply-To: <20060228221422.282332ef.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 15:31:51 -0500
+Date: Wed, 1 Mar 2006 15:26:34 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+Message-ID: <20060301202634.GC4081@kvack.org>
+References: <1140841250.2587.33.camel@localhost.localdomain> <200603012027.55494.ak@suse.de> <1141242206.2899.109.camel@localhost.localdomain> <200603012049.32670.ak@suse.de> <1141243508.2899.126.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141243508.2899.126.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Maxim Kozover <maximkoz@netvision.net.il> wrote:
-> 
->>Hi!
-> 
-> 
-> (cc's added)
-> 
-> 
->>Most of the problem seems to be a QLogic driver problem.
->>HBAs are connected to target via FC switch.
->>
->>1. If I have several LUNs on each HBA, with QLogic only 1 directory
->>per adapter (for LUN 0) is created in /sys/class/fc_remote_ports,
->>while with Emulex a directory for every LUN is created.
->>
->>2. The situation I described occurs with QLogic only if the cable
->>connecting between HBA and switch is pulled out/in. If I
->>connect/disconnect the cable between switch and target, disks come
->>back.
+On Wed, Mar 01, 2006 at 12:05:07PM -0800, Bryan O'Sullivan wrote:
+> This section also makes it clear yet again that wmb() is absolutely not
+> sufficient to get program store order semantics in the presence of WC;
+> you *have* to use an explicit synchronising instruction of some kind.
 
-I can confirm that very problem (pulling the cable between HBA and
-switch results in only LUN 0 or nothing coming back afterward) on
-2.6.15.4 here too.
+The semantics your code seems to care about are not those of a memory 
+barrier (which deals with ordering), but of a flush of the write combining 
+buffers.  That's an important high level distinction as they are implemented 
+differently across architectures.  Please rename the macro something like 
+flush_wc() and document it as such, at which point I remove my objection.
 
-
-Stefan
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

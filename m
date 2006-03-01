@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWCASsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWCASuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWCASsk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 13:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWCASsk
+	id S1750929AbWCASuE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 13:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbWCASuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 13:48:40 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:60880 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S1750862AbWCASsj (ORCPT
+	Wed, 1 Mar 2006 13:50:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:36524 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750929AbWCASuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 13:48:39 -0500
-Message-ID: <4405EC94.2030202@dgreaves.com>
-Date: Wed, 01 Mar 2006 18:48:52 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca>
-In-Reply-To: <4405E83D.9000906@rtr.ca>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 1 Mar 2006 13:50:02 -0500
+Date: Wed, 1 Mar 2006 10:48:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: laurent.riffard@free.fr, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
+       clameter@engr.sgi.com, ebiederm@xmission.com, ashok.raj@intel.com
+Subject: Re: 2.6.16-rc5-mm1
+Message-Id: <20060301104822.622fe6c3.akpm@osdl.org>
+In-Reply-To: <20060301101419.A30674@unix-os.sc.intel.com>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
+	<4404CE39.6000109@liberouter.org>
+	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
+	<4404DA29.7070902@free.fr>
+	<20060228162157.0ed55ce6.akpm@osdl.org>
+	<4405723E.5060606@free.fr>
+	<20060301023235.735c8c47.akpm@osdl.org>
+	<20060301032527.1b79fc7c.akpm@osdl.org>
+	<20060301101419.A30674@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> On Wed, Mar 01, 2006 at 03:25:27AM -0800, Andrew Morton wrote:
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > If you have (even more) time you could test
+> > >  http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
+> > 
+> > err, don't enable CONFIG_ACPI_HOTPLUG_CPU.
+> > 
+> > Ashok, x86_64 and i386 share a lot of code.  Please always perform good
+> > regression testing against one when developing for the other.
+> > 
+> > arch/i386/kernel/acpi/boot.c: In function `acpi_unmap_lsapic':
+> > arch/i386/kernel/acpi/boot.c:583: `num_processors' undeclared (first use in this function)
+> 
+> ...
+>
+> Need to make "num_processors" non-static since we need in acpi_unmap_lsapic
+> shared function in arch/i386/kernel/acpi/boot.c. Also needs to be __cpuinitdata
+> now.
+> 
+> ...
+>
+> -static unsigned int __devinitdata num_processors;
+> +unsigned int __cpuinitdata num_processors;
 
-> By the way, the latest 2.6.16-rc5-git4 is available,
-> and has FUA turned off by default now.  So it should
-> work with your drives, and *you* are expected to verify
-> that for us all now.
-
-Yeah, I know - I've got it on the machine... but it's my wife's machine.
-I've asked nicely but she's editing a Hercule Poirot video so I'm not
-allowed to reboot it for a while...
-
-I've told her I'm not making pancakes until I've tested it so expect a
-report Real Soon Now...
-
-David
+We'll need more than that - the compile failed due to a missing declaration.
 

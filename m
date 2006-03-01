@@ -1,82 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWCAUqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWCAUq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWCAUqE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 15:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWCAUqE
+	id S1751177AbWCAUq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 15:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWCAUq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:46:04 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36993 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932443AbWCAUqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 15:46:03 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, Paul Jackson <pj@sgi.com>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: 2.6.16-rc5-mm1
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>
-	<4405723E.5060606@free.fr> <20060301023235.735c8c47.akpm@osdl.org>
-	<1141221511.7775.10.camel@homer> <4405B4AA.7090207@free.fr>
-	<1141227199.10460.2.camel@homer>
-	<20060301121218.68fb3f76.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 01 Mar 2006 13:43:53 -0700
-In-Reply-To: <20060301121218.68fb3f76.akpm@osdl.org> (Andrew Morton's
- message of "Wed, 1 Mar 2006 12:12:18 -0800")
-Message-ID: <m1wtfdnbee.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Mar 2006 15:46:29 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:57325 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1751177AbWCAUqP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 15:46:15 -0500
+Subject: Re: sg regression in 2.6.16-rc5
+From: Mike Christie <michaelc@cs.wisc.edu>
+To: dougg@torque.net
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Matthias Andree <matthias.andree@gmx.de>, Mark Rustad <mrustad@mac.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4405F6F1.9040106@torque.net>
+References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com>
+	 <4404AA2A.5010703@torque.net> <20060301083824.GA9871@merlin.emma.line.org>
+	 <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
+	 <4405F6F1.9040106@torque.net>
+Content-Type: text/plain
+Date: Wed, 01 Mar 2006 14:42:49 -0600
+Message-Id: <1141245769.9586.6.camel@max>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Wed, 2006-03-01 at 14:33 -0500, Douglas Gilbert wrote:
+> Linus Torvalds wrote:
+> > 
+> > On Wed, 1 Mar 2006, Matthias Andree wrote:
+> > 
+> >>On Tue, 28 Feb 2006, Douglas Gilbert wrote:
+> >>
+> >>
+> >>>You can stop right there with the 1 MB reads. Welcome
+> >>>to the new, blander sg driver which now shares many
+> >>>size shortcomings with the block subsystem.
+> >>
+> >>What is the reason to break user-space applications like this?
+> > 
+> > 
+> > Did you read the whole thread? It was a low-level SCSI driver issue, where 
+> > nothing broke user space, but the command was just fed to the drive 
+> > differently, which then hit a limit in the driver.
+> 
+> Linus,
+> That is an optimistic take. The maximum data carrying
+> capacity of a single SCSI command via the SG_IO ioctl
+> depends on the maximum data carrying capacity of a
+> scatter gather list. Assuming all scatter gather list
+> elements carry the same amount of data then the
+> maximum capacity is:
+> 'max_bytes_per_element * max_num_elements'
+> 
+> Only the latter figure is a "low-level SCSI driver issue"
+> whose maximum seems to be SG_ALL (255). It is the former
+> figure that has changed. The sg driver in lk 2.6.15 used
+> __get_free_pages() with the order set to get 32 KB where
+> as the generic routine used now get a single page (usually
+> 4 KB). 
 
-> Mike Galbraith <efault@gmx.de> wrote:
->>
->> On Wed, 2006-03-01 at 15:50 +0100, Laurent Riffard wrote:
->> >  
->> > 
->
-> OK, thanks guys.  Eric, could you please cook up something to make the
-> permissions appear-to-work as expected?
+The current sg driver should use alloc_pages() with an order that should
+get 32 KB. If the order being passed to alloc_pages() in sg.c is only
+getting one page by default that is bug.
 
-I'm thinking about it. Implementing it is easy.  Figuring out what the
-check for the /proc/<pid>/fd/<#> files should be is trickier.
+The generic routines now being used can turn that 32KB segment into
+multiple 4KB ones if the LLD does not support clustering.
 
-What disturbs me is that by my current reading of the code all of the
-cool file descriptor passing of unix domain sockets is unnecessary.
-You can just walk up to any process and open any file it has open.
 
-This includes sockets and pipes and the like, as well as files.
+> Kai Makisara proposed changes in the SCSI LLD
+> template that made things better in my experiments with
+> scsi_debug.
+> 
+> However today James Bottomley confirmed that relying on
+> coalescing pages that may be adjacent is not deterministic:
+> http://marc.theaimsgroup.com/?l=linux-scsi&m=114122991606658&w=2
+> 
+> That leaves a worst case scatter gather list data capacity
+> of (4 * 255) KB if the SCSI LLD (or SATA) uses SG_ALL. That
+> is still just under the 1 MB bar that started this thread.
 
-We don't bypass individual file permission checks as far as I can
-tell but we do bypass all directory permission checks.
+Actually, we will hit the SCSI_MAX_PHYS_SEGMENTS first. It is 128 by
+default so (4 * 128) KB. Here is a patch, only compile tested, to
+increase SCSI_MAX_PHYS_SEGMENTS to 256.
 
-This seems to defeat the concept of using file descriptors as
-capabilities.  Heck even plan9 makes you bind your file descriptor
-to your filesystem namespace before it was exported.
+--- linux-2.6.16-rc4/include/scsi/scsi.h.orig	2006-03-01 14:32:18.000000000 -0600
++++ linux-2.6.16-rc4/include/scsi/scsi.h	2006-03-01 14:33:32.000000000 -0600
+@@ -14,7 +14,7 @@
+  *	The maximum sg list length SCSI can cope with
+  *	(currently must be a power of 2 between 32 and 256)
+  */
+-#define SCSI_MAX_PHYS_SEGMENTS	MAX_PHYS_SEGMENTS
++#define SCSI_MAX_PHYS_SEGMENTS	256
+ 
+ 
+ /*
 
-In the presence of chroot jails and multiple namespaces this is also
-possible.
 
-Now maybe this is all fine, and since this is what we have been doing
-for years maybe it isn't a security bug, and I can just kill the
-check altogether.
-
-My gut says this is an ancient permission checking bug, and I have
-started closing the hole.
-
-So if anyone can help me wrap my head around what is expected and why.
-I would greatly appreciate it.
-
-The fuser and lsof cases seem to one aspect of it, that I had
-not looked at.
-
-Eric

@@ -1,1076 +1,407 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWCARiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWCARir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbWCARiI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 12:38:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWCARhi
+	id S932430AbWCARir (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWCARgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 12:37:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26576 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932453AbWCARgr (ORCPT
+	Wed, 1 Mar 2006 12:36:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17616 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932430AbWCARgl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 12:36:47 -0500
+	Wed, 1 Mar 2006 12:36:41 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 5/5] NFS: Unify NFS superblocks per-protocol per-server [try #2]
-Date: Wed, 01 Mar 2006 17:36:31 +0000
+Subject: [PATCH 1/5] NFS: Permit filesystem to override root dentry on mount [try #2]
+Date: Wed, 01 Mar 2006 17:36:21 +0000
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no, aviro@redhat.com
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060301173631.16639.88812.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060301173621.16639.37938.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
 References: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch makes NFS share superblocks between mounts from the same
-server over the same protocol.
+The attached patch extends the get_sb() filesystem operation to take an extra
+argument that permits the VFS to pass in the target vfsmount that defines the
+mountpoint.
 
-It does this by creating each superblock with a false root and returning the
-real root dentry through the new argument added to get_sb() in patch 1/5. The
-root dentry returned starts off as an anonymous dentry if we don't already have
-the dentry for its inode, otherwise it simply returns the dentry we already
-have.
+The filesystem is then required to manually set the superblock and root dentry
+pointers. For most filesystems, this should be done with simple_set_mnt() which
+will set the superblock pointer and then set the root dentry to the
+superblock's s_root (as per the old default behaviour).
 
-We may thus end up with several trees of dentries in the superblock, and if at
-some later point one of anonymous tree roots is discovered by normal filesystem
-activity to be located in another tree within the superblock, the anonymous
-root is named and materialises attached to the second tree at the appropriate
-point.
+This patch permits a superblock to be implicitly shared amongst several mount
+points, such as can be done with NFS to avoid potential inode aliasing (see
+patch 5/5). In such a case, simple_set_mnt() would not be called, and instead
+the mnt_root and mnt_sb would be set directly.
 
-Why modify get_sb() in this way? Why not pass an extra argument to the mount()
-syscall to indicate the subpath and then pathwalk from the server root to the
-desired directory? You can't guarantee this will work for two reasons:
-
- (1) The root and intervening nodes may not be accessible to the client.
-
-     With NFS2 and NFS3, for instance, mountd is called on the server to get
-     the filehandle for the tip of a path. mountd won't give us handles for
-     anything we don't have permission to access, and so we can't set up NFS
-     inodes for such nodes, and so can't easily set up dentries (we'd have to
-     have ghost inodes or something).
-
-     With this patch we don't actually create dentries until we get handles
-     from the server that we can use to set up their inodes, and we don't
-     actually bind them into the tree until we know for sure where they go.
-
- (2) Inaccessible symbolic links.
-
-     If we're asked to mount two exports from the server, eg:
-
-	mount warthog:/warthog/aaa/xxx /mmm
-	mount warthog:/warthog/bbb/yyy /nnn
-
-     We may not be able to access anything nearer the root than xxx and yyy,
-     but we may find out later that /mmm/www/yyy, say, is actually the same
-     directory as the one mounted on /nnn. What we might then find out, for
-     example, is that /warthog/bbb was actually a symbolic link to
-     /warthog/aaa/xxx/www, but we can't actually determine that by talking to
-     the server until /warthog is made available by NFS.
-
-     This would lead to having constructed an errneous dentry tree which we
-     can't easily fix. We can end up with a dentry marked as a directory when
-     it should actually be a symlink, or we could end up with an apparently
-     hardlinked directory.
-
-     With this patch we need not make assumptions about the type of a dentry
-     for which we can't retrieve information, nor need we assume we know its
-     place in the grand scheme of things until we actually see that place.
-
-
-This patch reduces the possibility of aliasing in the inode and page caches for
-inodes that may be accessed by more than one NFS export. It also reduces the
-number of superblocks required for NFS where there are many NFS exports being
-used from a server (home directory server + autofs for example).
-
-This in turn makes it simpler to do local caching of network filesystems, as it
-can then be guaranteed that there won't be links from multiple inodes in
-separate superblocks to the same cache file.
-
-Obviously, cache aliasing between different levels of NFS protocol is still a
-problem, but at least that gives us another key to use when indexing the cache.
-
-
-The patch also exports some functions required from the core kernel.
+This patch also changes the superblock cleanup routine to make it use
+shrink_dcache_sb() instead of shrink_dcache_parent() and shrink_dcache_anon().
+This required is because the superblock may now have multiple trees that aren't
+actually bound to s_root, but that still need to be cleaned up. The currently
+called functions assume that the whole tree is rooted at s_root, and that
+anonymous dentries are not the roots of trees which results in dentries being
+left unculled.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/namei.c                |    2 
- fs/namespace.c            |    4 +
- fs/nfs/Makefile           |    4 -
- fs/nfs/dir.c              |   65 ++++++++++++
- fs/nfs/getroot.c          |  237 +++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/inode.c            |  212 ++++++++++++++++++++--------------------
- fs/nfs/internal.h         |   30 ++++++
- fs/nfs/nfs3proc.c         |    2 
- fs/nfs/nfs4proc.c         |   61 +-----------
- fs/nfs/nfs4state.c        |    2 
- include/linux/nfs_fs_sb.h |    2 
- 11 files changed, 450 insertions(+), 171 deletions(-)
+ Documentation/filesystems/porting |    2 -
+ fs/libfs.c                        |   12 +++--
+ fs/namespace.c                    |    9 ++++
+ fs/super.c                        |   87 ++++++++++++++++++++-----------------
+ include/linux/fs.h                |   25 ++++++-----
+ 5 files changed, 77 insertions(+), 58 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 557dcf3..81bc997 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -992,6 +992,8 @@ int fastcall link_path_walk(const char *
- 	return result;
+diff --git a/Documentation/filesystems/porting b/Documentation/filesystems/porting
+index 2f38846..2de7a23 100644
+--- a/Documentation/filesystems/porting
++++ b/Documentation/filesystems/porting
+@@ -51,7 +51,7 @@ success and negative number in case of e
+ informative error value to report).  Call it foo_fill_super().  Now declare
+ 
+ struct super_block foo_get_sb(struct file_system_type *fs_type,
+-	int flags, const char *dev_name, void *data)
++	int flags, const char *dev_name, void *data, struct dentry **_root)
+ {
+ 	return get_sb_bdev(fs_type, flags, dev_name, data, ext2_fill_super);
+ }
+diff --git a/fs/libfs.c b/fs/libfs.c
+index 71fd08f..7a60a20 100644
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -194,9 +194,9 @@ struct inode_operations simple_dir_inode
+  * Common helper for pseudo-filesystems (sockfs, pipefs, bdev - stuff that
+  * will never be mountable)
+  */
+-struct super_block *
+-get_sb_pseudo(struct file_system_type *fs_type, char *name,
+-	struct super_operations *ops, unsigned long magic)
++int get_sb_pseudo(struct file_system_type *fs_type, char *name,
++	struct super_operations *ops, unsigned long magic,
++	struct vfsmount *mnt)
+ {
+ 	struct super_block *s = sget(fs_type, NULL, set_anon_super, NULL);
+ 	static struct super_operations default_ops = {.statfs = simple_statfs};
+@@ -205,7 +205,7 @@ get_sb_pseudo(struct file_system_type *f
+ 	struct qstr d_name = {.name = name, .len = strlen(name)};
+ 
+ 	if (IS_ERR(s))
+-		return s;
++		return PTR_ERR(s);
+ 
+ 	s->s_flags = MS_NOUSER;
+ 	s->s_maxbytes = ~0ULL;
+@@ -230,12 +230,12 @@ get_sb_pseudo(struct file_system_type *f
+ 	d_instantiate(dentry, root);
+ 	s->s_root = dentry;
+ 	s->s_flags |= MS_ACTIVE;
+-	return s;
++	return simple_set_mnt(mnt, s);
+ 
+ Enomem:
+ 	up_write(&s->s_umount);
+ 	deactivate_super(s);
+-	return ERR_PTR(-ENOMEM);
++	return -ENOMEM;
  }
  
-+EXPORT_SYMBOL_GPL(link_path_walk);
-+
- int fastcall path_walk(const char * name, struct nameidata *nd)
- {
- 	current->total_link_count = 0;
+ int simple_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentry)
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 0194538..01669fb 100644
+index 058a448..51d3ebc 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -86,6 +86,8 @@ struct vfsmount *alloc_vfsmnt(const char
+@@ -86,6 +86,15 @@ struct vfsmount *alloc_vfsmnt(const char
  	return mnt;
  }
  
-+EXPORT_SYMBOL_GPL(alloc_vfsmnt);
-+
- int simple_set_mnt(struct vfsmount *mnt, struct super_block *sb)
- {
- 	mnt->mnt_sb = sb;
-@@ -101,6 +103,8 @@ void free_vfsmnt(struct vfsmount *mnt)
- 	kmem_cache_free(mnt_cache, mnt);
- }
- 
-+EXPORT_SYMBOL_GPL(free_vfsmnt);
-+
- /*
-  * find the first or last mount at @dentry on vfsmount @mnt depending on
-  * @dir. If @dir is set return the first mount else return the last mount.
-diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
-index ec61fd5..43ce192 100644
---- a/fs/nfs/Makefile
-+++ b/fs/nfs/Makefile
-@@ -4,8 +4,8 @@
- 
- obj-$(CONFIG_NFS_FS) += nfs.o
- 
--nfs-y 			:= dir.o file.o inode.o nfs2xdr.o pagelist.o \
--			   proc.o read.o symlink.o unlink.o write.o
-+nfs-y 			:= dir.o file.o getroot.o inode.o nfs2xdr.o \
-+			   pagelist.o proc.o read.o symlink.o unlink.o write.o
- nfs-$(CONFIG_ROOT_NFS)	+= nfsroot.o mount_clnt.o      
- nfs-$(CONFIG_NFS_V3)	+= nfs3proc.o nfs3xdr.o
- nfs-$(CONFIG_NFS_V3_ACL)	+= nfs3acl.o
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index a1554be..16a2899 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -836,11 +836,12 @@ int nfs_is_exclusive_create(struct inode
- 
- static struct dentry *nfs_lookup(struct inode *dir, struct dentry * dentry, struct nameidata *nd)
- {
--	struct dentry *res;
-+	struct dentry *res, *anon;
- 	struct inode *inode = NULL;
- 	int error;
- 	struct nfs_fh fhandle;
- 	struct nfs_fattr fattr;
-+ 	int found_alias = 0;
- 
- 	dfprintk(VFS, "NFS: lookup(%s/%s)\n",
- 		dentry->d_parent->d_name.name, dentry->d_name.name);
-@@ -869,6 +870,30 @@ static struct dentry *nfs_lookup(struct 
- 	inode = nfs_fhget(dentry->d_sb, &fhandle, &fattr);
- 	if (!inode)
- 		goto out_unlock;
-+
-+	/* Search for directory aliases arising from multiple mounts from one server */
-+	if (S_ISDIR(inode->i_mode) && (anon = d_find_alias(inode))) {
-+		spin_lock(&anon->d_lock);
-+		/* Is this a mountpoint that we could splice into our tree? */
-+		if (IS_ROOT(anon)) {
-+			/* Yes! Convert into an ordinary dentry */
-+			d_materialise_dentry(dentry, anon);
-+			found_alias = 1;
-+		} else if (anon->d_name.len == dentry->d_name.len &&
-+			   !memcmp(anon->d_name.name, dentry->d_name.name, dentry->d_name.len) &&
-+			   dentry->d_parent == anon->d_parent)
-+			found_alias = 1;
-+		spin_unlock(&anon->d_lock);
-+		if (found_alias) {
-+			d_drop(anon);
-+			iput(inode);
-+			d_rehash(anon);
-+			return anon;
-+		}
-+		/* Doh! Server appears to be aliasing directories */
-+		dput(anon);
-+	}
-+
- no_entry:
- 	res = d_add_unique(dentry, inode);
- 	if (res != NULL)
-@@ -1061,11 +1086,49 @@ static struct dentry *nfs_readdir_lookup
- 		dput(dentry);
- 		return NULL;
- 	}
-+
-+	/* Search for directory aliases arising from multiple mounts from one server */
-+	if (S_ISDIR(inode->i_mode) && (alias = d_find_alias(inode))) {
-+		int found_alias = 0;
-+
-+		spin_lock(&alias->d_lock);
-+
-+		/* Is this a mountpoint that we could splice into our tree? */
-+		if (IS_ROOT(alias)) {
-+			/* Yes! Convert into an ordinary dentry */
-+			d_materialise_dentry(dentry, alias);
-+			found_alias = 1;
-+		} else if (alias->d_name.len == dentry->d_name.len &&
-+			   !memcmp(alias->d_name.name,
-+				   dentry->d_name.name,
-+				   dentry->d_name.len
-+				   ) &&
-+			   dentry->d_parent == alias->d_parent
-+			   ) {
-+			found_alias = 1;
-+		}
-+
-+		spin_unlock(&alias->d_lock);
-+		if (found_alias) {
-+			iput(inode);
-+			dput(dentry);
-+			d_drop(alias);
-+			d_rehash(alias);
-+			dentry = alias;
-+			goto use_extant_dentry;
-+		}
-+
-+		/* Doh! Server appears to be aliasing directories */
-+		dput(alias);
-+	}
-+
- 	alias = d_add_unique(dentry, inode);
- 	if (alias != NULL) {
- 		dput(dentry);
- 		dentry = alias;
- 	}
-+
-+use_extant_dentry:
- 	nfs_renew_times(dentry);
- 	nfs_set_verifier(dentry, nfs_save_change_attribute(dir));
- 	return dentry;
-diff --git a/fs/nfs/getroot.c b/fs/nfs/getroot.c
-new file mode 100644
-index 0000000..9b72821
---- /dev/null
-+++ b/fs/nfs/getroot.c
-@@ -0,0 +1,237 @@
-+/* getroot.c: get the root dentry for an NFS mount
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+
-+#include <linux/time.h>
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+#include <linux/string.h>
-+#include <linux/stat.h>
-+#include <linux/errno.h>
-+#include <linux/unistd.h>
-+#include <linux/sunrpc/clnt.h>
-+#include <linux/sunrpc/stats.h>
-+#include <linux/nfs_fs.h>
-+#include <linux/nfs_mount.h>
-+#include <linux/nfs4_mount.h>
-+#include <linux/lockd/bind.h>
-+#include <linux/smp_lock.h>
-+#include <linux/seq_file.h>
-+#include <linux/mount.h>
-+#include <linux/nfs_idmap.h>
-+#include <linux/vfs.h>
-+#include <linux/namei.h>
-+#include <linux/namespace.h>
-+
-+#include <asm/system.h>
-+#include <asm/uaccess.h>
-+
-+#include "nfs4_fs.h"
-+#include "delegation.h"
-+#include "internal.h"
-+
-+#define NFSDBG_FACILITY		NFSDBG_VFS
-+#define NFS_PARANOIA 1
-+
-+/*
-+ * get an NFS2/NFS3 root dentry from the root filehandle
-+ */
-+struct dentry *nfs_get_root(struct super_block *sb,
-+			    struct nfs_fh *mntfh,
-+			    nfs_set_params_func set_params)
++int simple_set_mnt(struct vfsmount *mnt, struct super_block *sb)
 +{
-+	struct nfs_server *server = NFS_SB(sb);
-+	struct nfs_fsinfo fsinfo;
-+	struct nfs_fattr fattr;
-+	struct dentry *mntroot;
-+	struct inode *inode;
-+	int error;
-+
-+	/* create a dummy root dentry with dummy inode for this superblock */
-+	if (!sb->s_root) {
-+		struct nfs_fh dummyfh;
-+		struct dentry *root;
-+		struct inode *iroot;
-+
-+		memset(&dummyfh, 0, sizeof(dummyfh));
-+		memset(&fattr, 0, sizeof(fattr));
-+		nfs_fattr_init(&fattr);
-+		fattr.valid = NFS_ATTR_FATTR;
-+		fattr.type = NFDIR;
-+		fattr.mode = S_IFDIR | S_IRUSR | S_IWUSR;
-+		fattr.nlink = 2;
-+		iroot = nfs_fhget(sb, &dummyfh, &fattr);
-+		if (!iroot)
-+			return ERR_PTR(-ENOMEM);
-+
-+		root = d_alloc_root(iroot);
-+		if (!root) {
-+			iput(iroot);
-+			return ERR_PTR(-ENOMEM);
-+		}
-+
-+		sb->s_root = root;
-+	}
-+
-+	/* get the actual root for this mount */
-+	fsinfo.fattr = &fattr;
-+
-+	error = server->rpc_ops->getroot(server, mntfh, &fsinfo);
-+	if (error < 0) {
-+		dprintk("nfs_get_root: getattr error = %d\n", -error);
-+		return ERR_PTR(error);
-+	}
-+
-+	inode = nfs_fhget(sb, mntfh, fsinfo.fattr);
-+	if (!inode) {
-+		dprintk("nfs_get_root: get root inode failed\n");
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	/* root dentries start off anonymous and get spliced in later if the
-+	 * dentry tree reaches them */
-+	mntroot = d_alloc_anon(inode);
-+	if (!mntroot) {
-+		iput(inode);
-+		dprintk("nfs_get_root: get root dentry failed\n");
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	if (!mntroot->d_op)
-+		mntroot->d_op = server->rpc_ops->dentry_ops;
-+
-+	/* make use of the fsinfo if requested */
-+	if (set_params)
-+		set_params(sb, mntfh, &fsinfo);
-+
-+	return mntroot;
-+}
-+
-+#ifdef CONFIG_NFS_V4
-+
-+/*
-+ * walk the path to the specified mountpoint on an NFS4 server
-+ */
-+struct dentry *nfs4_get_root(struct super_block *sb,
-+			     const char *mntpath,
-+			     nfs_set_params_func set_params)
-+{
-+	struct namespace *namespace = NULL;
-+	struct nameidata nd;
-+	struct fs_struct fs, *realfs;
-+	struct vfsmount *mnt = NULL;
-+	struct dentry *mntroot;
-+	struct inode *inode;
-+	int ret;
-+	int saved_link_count = current->link_count;
-+	int saved_total_link_count = current->total_link_count;
-+
-+	/* get the dentry for the "/" directory on the server */
-+	if (!sb->s_root) {
-+		struct nfs_server *server = sb->s_fs_info;
-+		struct nfs_fsinfo fsinfo;
-+		struct nfs_fattr fattr;
-+		struct nfs_fh rootfh;
-+
-+		/* need the filehandle first */
-+		nfs_fattr_init(&fattr);
-+		fsinfo.fattr = &fattr;
-+
-+		ret = server->rpc_ops->getroot(server, &rootfh, &fsinfo);
-+		if (ret < 0) {
-+			dprintk("nfs4_get_root: getroot error = %d\n", -ret);
-+			return ERR_PTR(ret);
-+		}
-+		
-+		inode = nfs_fhget(sb, &rootfh, &fattr);
-+		if (!inode) {
-+			dprintk("nfs4_get_root: get root inode failed\n");
-+			return ERR_PTR(-ENOMEM);
-+		}
-+
-+		sb->s_root = d_alloc_root(inode);
-+		if (!sb->s_root) {
-+			iput(inode);
-+			return ERR_PTR(-ENOMEM);
-+		}
-+
-+		sb->s_root->d_op = NFS_PROTO(inode)->dentry_ops;
-+
-+		/* make use of the fsinfo if requested */
-+		if (set_params)
-+			set_params(sb, &rootfh, &fsinfo);
-+	}
-+
-+	/* create a mount to represent the NFS server's FH tree */
-+	mnt = alloc_vfsmnt(NULL);
-+	if (!mnt)
-+		return ERR_PTR(-ENOMEM);
-+
 +	mnt->mnt_sb = sb;
-+	mnt->mnt_root = sb->s_root;
-+	mnt->mnt_mountpoint = sb->s_root;
-+	mnt->mnt_parent = mnt;
-+
-+	/* create a namespace through which to walk */
-+	namespace = kmalloc(sizeof(*namespace), GFP_KERNEL);
-+	if (!namespace) {
-+		kfree(mnt);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	init_namespace(namespace, mnt);
-+
-+	/* we're going to override this process's FS settings temporarily to
-+	 * prevent absolute symlinks from escaping the namespace
-+	 */
-+	memset(&fs, 0, sizeof(fs));
-+	rwlock_init(&fs.lock);
-+	fs.root = mnt->mnt_root;
-+	fs.pwd = mnt->mnt_root;
-+	fs.rootmnt = mnt;
-+	fs.pwdmnt = mnt;
-+
-+	/* set up the walk we're going to take */
-+	memset(&nd, 0, sizeof(nd));
-+	nd.last_type = LAST_ROOT;
-+	nd.flags = LOOKUP_FOLLOW | LOOKUP_DIRECTORY | LOOKUP_ACCESS;
-+	nd.depth = 0;
-+
-+	nd.mnt = mntget(namespace->root);
-+	nd.dentry = dget(nd.mnt->mnt_root);
-+
-+	/* walk the walk */
-+	current->total_link_count = 0;
-+	realfs = current->fs;
-+	current->fs = &fs;
-+	ret = link_path_walk(mntpath, &nd);
-+	current->fs = realfs;
-+	if (ret < 0) {
-+		mntroot = ERR_PTR(ret);
-+		goto error;
-+	}
-+
-+	/* we've found the directory we're going to mount */
-+	mntput(nd.mnt);
-+	mntroot = nd.dentry;
-+
-+error:
-+	free_vfsmnt(namespace->root);
-+	kfree(namespace);
-+	current->link_count = saved_link_count;
-+	current->total_link_count = saved_total_link_count;
-+	return mntroot;
++	mnt->mnt_root = dget(sb->s_root);
++	return 0;
 +}
 +
-+#endif /* CONFIG_NFS_V4 */
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 29f362c..ce8be65 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -42,6 +42,7 @@
- #include "nfs4_fs.h"
- #include "callback.h"
- #include "delegation.h"
-+#include "internal.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_VFS
- #define NFS_PARANOIA 1
-@@ -231,79 +232,48 @@ nfs_block_size(unsigned long bsize, unsi
- }
- 
- /*
-- * Obtain the root inode of the file system.
-+ * Initialise the common bits of the superblock
-  */
--static struct inode *
--nfs_get_root(struct super_block *sb, struct nfs_fh *rootfh, struct nfs_fsinfo *fsinfo)
-+static inline void nfs_initialise_sb(struct super_block *sb)
++EXPORT_SYMBOL(simple_set_mnt);
++
+ void free_vfsmnt(struct vfsmount *mnt)
  {
--	struct nfs_server	*server = NFS_SB(sb);
--	struct inode *rooti;
--	int			error;
-+	sb->s_magic = NFS_SUPER_MAGIC;
+ 	kfree(mnt->mnt_devname);
+diff --git a/fs/super.c b/fs/super.c
+index e20b558..7353011 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -230,8 +230,7 @@ void generic_shutdown_super(struct super
  
--	error = server->rpc_ops->getroot(server, rootfh, fsinfo);
--	if (error < 0) {
--		dprintk("nfs_get_root: getattr error = %d\n", -error);
--		return ERR_PTR(error);
--	}
--
--	rooti = nfs_fhget(sb, rootfh, fsinfo->fattr);
--	if (!rooti)
--		return ERR_PTR(-ENOMEM);
--	return rooti;
-+	/* We probably want something more informative here */
-+	snprintf(sb->s_id, sizeof(sb->s_id),
-+		 "%x:%x", MAJOR(sb->s_dev), MINOR(sb->s_dev));
+ 	if (root) {
+ 		sb->s_root = NULL;
+-		shrink_dcache_parent(root);
+-		shrink_dcache_anon(&sb->s_anon);
++		shrink_dcache_sb(sb);
+ 		dput(root);
+ 		fsync_super(sb);
+ 		lock_super(sb);
+@@ -676,9 +675,10 @@ static void bdev_uevent(struct block_dev
+ 	}
  }
  
- /*
-- * Do NFS version-independent mount processing, and sanity checking
-+ * Set the communications parameters
-  */
--static int
--nfs_sb_init(struct super_block *sb, rpc_authflavor_t authflavor)
-+static void nfs_set_comms_params(struct super_block *sb,
-+				 struct nfs_fh *mntfh,
-+				 struct nfs_fsinfo *fsinfo)
+-struct super_block *get_sb_bdev(struct file_system_type *fs_type,
++int get_sb_bdev(struct file_system_type *fs_type,
+ 	int flags, const char *dev_name, void *data,
+-	int (*fill_super)(struct super_block *, void *, int))
++	int (*fill_super)(struct super_block *, void *, int),
++	struct vfsmount *mnt)
  {
--	struct nfs_server	*server;
--	struct inode		*root_inode;
--	struct nfs_fattr	fattr;
--	struct nfs_fsinfo	fsinfo = {
--					.fattr = &fattr,
--				};
--	struct nfs_pathconf pathinfo = {
--			.fattr = &fattr,
--	};
--	int no_root_error = 0;
-+	struct nfs_pathconf pathinfo;
-+	struct nfs_server *server;
- 	unsigned long max_rpc_payload;
- 
--	/* We probably want something more informative here */
--	snprintf(sb->s_id, sizeof(sb->s_id), "%x:%x", MAJOR(sb->s_dev), MINOR(sb->s_dev));
--
- 	server = NFS_SB(sb);
- 
--	sb->s_magic      = NFS_SUPER_MAGIC;
-+	/* Get some general file system info */
-+	if (server->namelen == 0) {
-+		pathinfo.fattr = fsinfo->fattr; /* reuse the fsinfo's attrs */
- 
--	root_inode = nfs_get_root(sb, &server->fh, &fsinfo);
--	/* Did getting the root inode fail? */
--	if (IS_ERR(root_inode)) {
--		no_root_error = PTR_ERR(root_inode);
--		goto out_no_root;
--	}
--	sb->s_root = d_alloc_root(root_inode);
--	if (!sb->s_root) {
--		no_root_error = -ENOMEM;
--		goto out_no_root;
-+		if (server->rpc_ops->pathconf(server, mntfh, &pathinfo) >= 0)
-+			server->namelen = pathinfo.max_namelen;
- 	}
--	sb->s_root->d_op = server->rpc_ops->dentry_ops;
- 
--	/* Get some general file system info */
--	if (server->namelen == 0 &&
--	    server->rpc_ops->pathconf(server, &server->fh, &pathinfo) >= 0)
--		server->namelen = pathinfo.max_namelen;
- 	/* Work out a lot of parameters */
- 	if (server->rsize == 0)
--		server->rsize = nfs_block_size(fsinfo.rtpref, NULL);
-+		server->rsize = nfs_block_size(fsinfo->rtpref, NULL);
- 	if (server->wsize == 0)
--		server->wsize = nfs_block_size(fsinfo.wtpref, NULL);
-+		server->wsize = nfs_block_size(fsinfo->wtpref, NULL);
- 
--	if (fsinfo.rtmax >= 512 && server->rsize > fsinfo.rtmax)
--		server->rsize = nfs_block_size(fsinfo.rtmax, NULL);
--	if (fsinfo.wtmax >= 512 && server->wsize > fsinfo.wtmax)
--		server->wsize = nfs_block_size(fsinfo.wtmax, NULL);
-+	if (fsinfo->rtmax >= 512 && server->rsize > fsinfo->rtmax)
-+		server->rsize = nfs_block_size(fsinfo->rtmax, NULL);
-+	if (fsinfo->wtmax >= 512 && server->wsize > fsinfo->wtmax)
-+		server->wsize = nfs_block_size(fsinfo->wtmax, NULL);
- 
- 	max_rpc_payload = nfs_block_size(rpc_max_payload(server->client), NULL);
- 	if (server->rsize > max_rpc_payload)
-@@ -321,9 +291,9 @@ nfs_sb_init(struct super_block *sb, rpc_
- 	if (sb->s_blocksize == 0)
- 		sb->s_blocksize = nfs_block_bits(server->wsize,
- 							 &sb->s_blocksize_bits);
--	server->wtmult = nfs_block_bits(fsinfo.wtmult, NULL);
-+	server->wtmult = nfs_block_bits(fsinfo->wtmult, NULL);
- 
--	server->dtsize = nfs_block_size(fsinfo.dtpref, NULL);
-+	server->dtsize = nfs_block_size(fsinfo->dtpref, NULL);
- 	if (server->dtsize > PAGE_CACHE_SIZE)
- 		server->dtsize = PAGE_CACHE_SIZE;
- 	if (server->dtsize > server->rsize)
-@@ -336,7 +306,7 @@ nfs_sb_init(struct super_block *sb, rpc_
- 	}
- 	server->backing_dev_info.ra_pages = server->rpages * NFS_MAX_READAHEAD;
- 
--	sb->s_maxbytes = fsinfo.maxfilesize;
-+	sb->s_maxbytes = fsinfo->maxfilesize;
- 	if (sb->s_maxbytes > MAX_LFS_FILESIZE) 
- 		sb->s_maxbytes = MAX_LFS_FILESIZE; 
- 
-@@ -345,13 +315,6 @@ nfs_sb_init(struct super_block *sb, rpc_
- 
- 	/* We're airborne Set socket buffersize */
- 	rpc_setbufsize(server->client, server->wsize + 100, server->rsize + 100);
--	return 0;
--	/* Yargs. It didn't work out. */
--out_no_root:
--	dprintk("nfs_sb_init: get root inode failed: errno %d\n", -no_root_error);
--	if (!IS_ERR(root_inode))
--		iput(root_inode);
--	return no_root_error;
- }
- 
- static void nfs_init_timeout_values(struct rpc_timeout *to, int proto, unsigned int timeo, unsigned int retrans)
-@@ -520,9 +483,13 @@ nfs_fill_super(struct super_block *sb, s
- 	}
- 
- 	sb->s_op = &nfs_sops;
--	return nfs_sb_init(sb, authflavor);
-+	nfs_initialise_sb(sb);
-+	return 0;
- }
- 
-+/*
-+ * return NFS filesystem statistics to userspace
-+ */
- static int
- nfs_statfs(struct super_block *sb, struct kstatfs *buf)
- {
-@@ -1565,6 +1532,11 @@ static int nfs_update_inode(struct inode
- 
- /*
-  * File system information
-+ * - superblocks are indexed on server only - all inodes, dentries, etc. associated with a
-+ *   particular server are held in the same superblock
-+ * - NFS superblocks can have several effective roots to the dentry tree
-+ * - directory type roots are spliced into the tree when a path from one root reaches the root
-+ *   of another (see nfs_lookup())
-  */
- 
- static int nfs_set_super(struct super_block *s, void *data)
-@@ -1582,7 +1554,7 @@ static int nfs_compare_super(struct supe
- 		return 0;
- 	if (old->addr.sin_port != server->addr.sin_port)
- 		return 0;
--	return !nfs_compare_fh(&old->fh, &server->fh);
-+	return 1;
- }
- 
- static int nfs_get_sb(struct file_system_type *fs_type,
-@@ -1591,8 +1563,9 @@ static int nfs_get_sb(struct file_system
- 	int error;
- 	struct nfs_server *server = NULL;
+ 	struct block_device *bdev;
  	struct super_block *s;
--	struct nfs_fh *root;
-+	struct nfs_fh mntfh;
- 	struct nfs_mount_data *data = raw_data;
-+	struct dentry *mntroot;
+@@ -686,7 +686,7 @@ struct super_block *get_sb_bdev(struct f
  
- 	error = -EINVAL;
- 	if (data == NULL) {
-@@ -1637,25 +1610,29 @@ static int nfs_get_sb(struct file_system
- #endif /* CONFIG_NFS_V3 */
+ 	bdev = open_bdev_excl(dev_name, flags, fs_type);
+ 	if (IS_ERR(bdev))
+-		return (struct super_block *)bdev;
++		return PTR_ERR(bdev);
  
- 	error = -ENOMEM;
--	server = kmalloc(sizeof(struct nfs_server), GFP_KERNEL);
-+	server = kzalloc(sizeof(struct nfs_server), GFP_KERNEL);
- 	if (!server)
- 		goto out_err;
--	memset(server, 0, sizeof(struct nfs_server));
+ 	/*
+ 	 * once the super is inserted into the list by sget, s_umount
+@@ -697,13 +697,13 @@ struct super_block *get_sb_bdev(struct f
+ 	s = sget(fs_type, test_bdev_super, set_bdev_super, bdev);
+ 	up(&bdev->bd_mount_sem);
+ 	if (IS_ERR(s))
+-		goto out;
++		goto out_s_error;
+ 
+ 	if (s->s_root) {
+ 		if ((flags ^ s->s_flags) & MS_RDONLY) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+-			s = ERR_PTR(-EBUSY);
++			error = -EBUSY;
+ 		}
+ 		goto out;
+ 	} else {
+@@ -716,18 +716,21 @@ struct super_block *get_sb_bdev(struct f
+ 		if (error) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+-			s = ERR_PTR(error);
+-		} else {
+-			s->s_flags |= MS_ACTIVE;
+-			bdev_uevent(bdev, KOBJ_MOUNT);
++			goto error;
+ 		}
 +
- 	/* Zero out the NFS state stuff */
- 	init_nfsv4_state(server);
- 	server->client = server->client_sys = server->client_acl = ERR_PTR(-EINVAL);
- 
--	root = &server->fh;
- 	if (data->flags & NFS_MOUNT_VER3)
--		root->size = data->root.size;
-+		mntfh.size = data->root.size;
- 	else
--		root->size = NFS2_FHSIZE;
-+		mntfh.size = NFS2_FHSIZE;
-+
- 	error = -EINVAL;
--	if (root->size > sizeof(root->data)) {
-+	if (mntfh.size > sizeof(mntfh.data)) {
- 		dprintk("%s: invalid root filehandle\n", __FUNCTION__);
- 		goto out_err;
- 	}
--	memcpy(root->data, data->root.data, root->size);
-+
-+	memcpy(mntfh.data, data->root.data, mntfh.size);
-+	if (mntfh.size < sizeof(mntfh.data))
-+		memset(mntfh.data + mntfh.size, 0,
-+		       sizeof(mntfh.data) - mntfh.size);
- 
- 	/* We now require that the mount process passes the remote address */
- 	memcpy(&server->addr, &data->addr, sizeof(server->addr));
-@@ -1673,33 +1650,41 @@ static int nfs_get_sb(struct file_system
- 		goto out_err;
++		s->s_flags |= MS_ACTIVE;
++		bdev_uevent(bdev, KOBJ_MOUNT);
  	}
  
-+	/* Get a superblock - note that we may end up sharing one that already exists */
- 	s = sget(fs_type, nfs_compare_super, nfs_set_super, server);
- 	if (IS_ERR(s)) {
- 		error = PTR_ERR(s);
- 		goto out_err_rpciod;
- 	}
+-	return s;
++	return simple_set_mnt(mnt, s);
  
--	if (s->s_root) {
--		rpciod_down();
--		goto sb_already_active;
-+	if (!s->s_root) {
-+		/* initial superblock/root creation */
-+		s->s_flags = flags;
-+
-+		error = nfs_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
-+		if (error)
-+			goto error_splat_super;
- 	}
- 
--	s->s_flags = flags;
--
--	error = nfs_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
--	if (error) {
--		up_write(&s->s_umount);
--		deactivate_super(s);
--		return error;
-+	mntroot = nfs_get_root(s, &mntfh, s->s_root ? NULL : nfs_set_comms_params);
-+	if (IS_ERR(mntroot)) {
-+		error = PTR_ERR(mntroot);
-+		goto error_splat_super;
- 	}
- 	s->s_flags |= MS_ACTIVE;
--sb_already_active:
--	return simple_set_mnt(mnt, s);
-+	mnt->mnt_sb = s;
-+	mnt->mnt_root = mntroot;
-+	return 0;
- out_err_rpciod:
- 	rpciod_down();
- out_err:
- 	kfree(server);
- 	return error;
-+
-+error_splat_super:
-+	up_write(&s->s_umount);
-+	deactivate_super(s);
++out_s_error:
++	error = PTR_ERR(s);
+ out:
+ 	close_bdev_excl(bdev);
+-	return s;
++error:
 +	return error;
  }
  
- static void nfs_kill_super(struct super_block *s)
-@@ -1888,9 +1873,8 @@ static int nfs4_fill_super(struct super_
- 	sb->s_time_gran = 1;
+ EXPORT_SYMBOL(get_sb_bdev);
+@@ -744,15 +747,16 @@ void kill_block_super(struct super_block
  
- 	sb->s_op = &nfs4_sops;
--	err = nfs_sb_init(sb, authflavour);
--	if (err == 0)
--		return 0;
-+	nfs_initialise_sb(sb);
-+	return 0;
- out_fail:
- 	if (clp)
- 		nfs4_put_client(clp);
-@@ -1904,8 +1888,6 @@ static int nfs4_compare_super(struct sup
+ EXPORT_SYMBOL(kill_block_super);
  
- 	if (strcmp(server->hostname, old->hostname) != 0)
- 		return 0;
--	if (strcmp(server->mnt_path, old->mnt_path) != 0)
--		return 0;
+-struct super_block *get_sb_nodev(struct file_system_type *fs_type,
++int get_sb_nodev(struct file_system_type *fs_type,
+ 	int flags, void *data,
+-	int (*fill_super)(struct super_block *, void *, int))
++	int (*fill_super)(struct super_block *, void *, int),
++	struct vfsmount *mnt)
+ {
+ 	int error;
+ 	struct super_block *s = sget(fs_type, NULL, set_anon_super, NULL);
+ 
+ 	if (IS_ERR(s))
+-		return s;
++		return PTR_ERR(s);
+ 
+ 	s->s_flags = flags;
+ 
+@@ -760,10 +764,10 @@ struct super_block *get_sb_nodev(struct 
+ 	if (error) {
+ 		up_write(&s->s_umount);
+ 		deactivate_super(s);
+-		return ERR_PTR(error);
++		return error;
+ 	}
+ 	s->s_flags |= MS_ACTIVE;
+-	return s;
++	return simple_set_mnt(mnt, s);
+ }
+ 
+ EXPORT_SYMBOL(get_sb_nodev);
+@@ -773,28 +777,29 @@ static int compare_single(struct super_b
  	return 1;
  }
  
-@@ -1938,6 +1920,8 @@ static int nfs4_get_sb(struct file_syste
- 	struct nfs_server *server;
+-struct super_block *get_sb_single(struct file_system_type *fs_type,
++int get_sb_single(struct file_system_type *fs_type,
+ 	int flags, void *data,
+-	int (*fill_super)(struct super_block *, void *, int))
++	int (*fill_super)(struct super_block *, void *, int),
++	struct vfsmount *mnt)
+ {
  	struct super_block *s;
- 	struct nfs4_mount_data *data = raw_data;
-+	struct dentry *mntroot;
-+	char *mntpath = NULL;
- 	void *p;
+ 	int error;
  
- 	if (data == NULL) {
-@@ -1949,10 +1933,10 @@ static int nfs4_get_sb(struct file_syste
- 		return -EINVAL;
+ 	s = sget(fs_type, compare_single, set_anon_super, NULL);
+ 	if (IS_ERR(s))
+-		return s;
++		return PTR_ERR(s);
+ 	if (!s->s_root) {
+ 		s->s_flags = flags;
+ 		error = fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
+ 		if (error) {
+ 			up_write(&s->s_umount);
+ 			deactivate_super(s);
+-			return ERR_PTR(error);
++			return error;
+ 		}
+ 		s->s_flags |= MS_ACTIVE;
  	}
- 
--	server = kmalloc(sizeof(struct nfs_server), GFP_KERNEL);
-+	server = kzalloc(sizeof(struct nfs_server), GFP_KERNEL);
- 	if (!server)
- 		return -ENOMEM;
--	memset(server, 0, sizeof(struct nfs_server));
-+
- 	/* Zero out the NFS state stuff */
- 	init_nfsv4_state(server);
- 	server->client = server->client_sys = server->client_acl = ERR_PTR(-EINVAL);
-@@ -1965,7 +1949,7 @@ static int nfs4_get_sb(struct file_syste
- 	p = nfs_copy_user_string(NULL, &data->mnt_path, 1024);
- 	if (IS_ERR(p))
- 		goto out_err;
--	server->mnt_path = p;
-+	mntpath = p;
- 
- 	p = nfs_copy_user_string(server->ip_addr, &data->client_addr,
- 			sizeof(server->ip_addr) - 1);
-@@ -1997,6 +1981,7 @@ static int nfs4_get_sb(struct file_syste
- 		goto out_free;
- 	}
- 
-+	/* Get a superblock - note that we may end up sharing one that already exists */
- 	s = sget(fs_type, nfs4_compare_super, nfs_set_super, server);
- 	if (IS_ERR(s)) {
- 		error = PTR_ERR(s);
-@@ -2004,29 +1989,42 @@ static int nfs4_get_sb(struct file_syste
- 		goto out_free;
- 	}
- 
--	if (s->s_root) {
--		rpciod_down();
--		error = simple_set_mnt(mnt, s);
--		goto out_free;
-+	if (!s->s_root) {
-+		/* initial superblock/root creation */
-+		s->s_flags = flags;
-+
-+		error = nfs4_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
-+		if (error)
-+			goto error_splat_super;
-+	} else {
-+		kfree(server->hostname);
-+		kfree(server);
- 	}
- 
--	s->s_flags = flags;
--
--	error = nfs4_fill_super(s, data, flags & MS_VERBOSE ? 1 : 0);
--	if (error) {
--		up_write(&s->s_umount);
--		deactivate_super(s);
--		return error;
-+	mntroot = nfs4_get_root(s, mntpath, nfs_set_comms_params);
-+	if (IS_ERR(mntroot)) {
-+		error = PTR_ERR(mntroot);
-+		goto error_splat_super;
- 	}
-+
-+	kfree(mntpath);
- 	s->s_flags |= MS_ACTIVE;
--	return simple_set_mnt(mnt, s);
-+	mnt->mnt_sb = s;
-+	mnt->mnt_root = mntroot;
-+	return 0;
-+
- out_err:
- 	error = PTR_ERR(p);
- out_free:
--	kfree(server->mnt_path);
-+	kfree(mntpath);
- 	kfree(server->hostname);
- 	kfree(server);
- 	return error;
-+
-+error_splat_super:
-+	up_write(&s->s_umount);
-+	deactivate_super(s);
-+	return error;
+ 	do_remount_sb(s, flags, data, 0);
+-	return s;
++	return simple_set_mnt(mnt, s);
  }
  
- static void nfs4_kill_super(struct super_block *sb)
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-new file mode 100644
-index 0000000..25f554f
---- /dev/null
-+++ b/fs/nfs/internal.h
-@@ -0,0 +1,30 @@
-+/* internal.h: internal NFS definitions
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+
-+/*
-+ * getroot.c
-+ */
-+typedef void (*nfs_set_params_func)(struct super_block *sb,
-+				    struct nfs_fh *mntfh,
-+				    struct nfs_fsinfo *fsinfo);
-+
-+extern struct dentry *nfs_get_root(struct super_block *sb,
-+				   struct nfs_fh *mntfh,
-+				   nfs_set_params_func set_params);
-+
-+#ifdef CONFIG_NFS_V4
-+
-+extern struct dentry *nfs4_get_root(struct super_block *sb,
-+				    const char *mntpath,
-+				    nfs_set_params_func set_params);
-+
-+#endif
-diff --git a/fs/nfs/nfs3proc.c b/fs/nfs/nfs3proc.c
-index ed67567..0a074e2 100644
---- a/fs/nfs/nfs3proc.c
-+++ b/fs/nfs/nfs3proc.c
-@@ -86,7 +86,7 @@ do_proc_get_root(struct rpc_clnt *client
- }
- 
- /*
-- * Bare-bones access to getattr: this is for nfs_read_super.
-+ * Bare-bones access to getattr: this is for nfs_get_root/nfs_get_sb
-  */
- static int
- nfs3_proc_get_root(struct nfs_server *server, struct nfs_fh *fhandle,
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 984ca34..87fa14e 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -908,7 +908,7 @@ out_put_state_owner:
- static struct nfs4_state *nfs4_open_delegated(struct inode *inode, int flags, struct rpc_cred *cred)
+ EXPORT_SYMBOL(get_sb_single);
+@@ -803,7 +808,6 @@ struct vfsmount *
+ do_kern_mount(const char *fstype, int flags, const char *name, void *data)
  {
- 	struct nfs4_exception exception = { };
--	struct nfs4_state *res;
-+	struct nfs4_state *res = NULL;
- 	int err;
+ 	struct file_system_type *type = get_fs_type(fstype);
+-	struct super_block *sb = ERR_PTR(-ENOMEM);
+ 	struct vfsmount *mnt;
+ 	int error;
+ 	char *secdata = NULL;
+@@ -811,49 +815,50 @@ do_kern_mount(const char *fstype, int fl
+ 	if (!type)
+ 		return ERR_PTR(-ENODEV);
  
- 	do {
-@@ -1366,70 +1366,19 @@ static int nfs4_lookup_root(struct nfs_s
- 	return err;
- }
++	error = -ENOMEM;
+ 	mnt = alloc_vfsmnt(name);
+ 	if (!mnt)
+ 		goto out;
  
-+/*
-+ * get the file handle for the "/" directory on the server
-+ */
- static int nfs4_proc_get_root(struct nfs_server *server, struct nfs_fh *fhandle,
--		struct nfs_fsinfo *info)
-+			      struct nfs_fsinfo *info)
- {
--	struct nfs_fattr *	fattr = info->fattr;
--	unsigned char *		p;
--	struct qstr		q;
--	struct nfs4_lookup_arg args = {
--		.dir_fh = fhandle,
--		.name = &q,
--		.bitmask = nfs4_fattr_bitmap,
--	};
--	struct nfs4_lookup_res res = {
--		.server = server,
--		.fattr = fattr,
--		.fh = fhandle,
--	};
--	struct rpc_message msg = {
--		.rpc_proc = &nfs4_procedures[NFSPROC4_CLNT_LOOKUP],
--		.rpc_argp = &args,
--		.rpc_resp = &res,
--	};
- 	int status;
- 
--	/*
--	 * Now we do a separate LOOKUP for each component of the mount path.
--	 * The LOOKUPs are done separately so that we can conveniently
--	 * catch an ERR_WRONGSEC if it occurs along the way...
--	 */
- 	status = nfs4_lookup_root(server, fhandle, info);
--	if (status)
--		goto out;
--
--	p = server->mnt_path;
--	for (;;) {
--		struct nfs4_exception exception = { };
--
--		while (*p == '/')
--			p++;
--		if (!*p)
--			break;
--		q.name = p;
--		while (*p && (*p != '/'))
--			p++;
--		q.len = p - q.name;
--
--		do {
--			nfs_fattr_init(fattr);
--			status = nfs4_handle_exception(server,
--					rpc_call_sync(server->client, &msg, 0),
--					&exception);
--		} while (exception.retry);
--		if (status == 0)
--			continue;
--		if (status == -ENOENT) {
--			printk(KERN_NOTICE "NFS: mount path %s does not exist!\n", server->mnt_path);
--			printk(KERN_NOTICE "NFS: suggestion: try mounting '/' instead.\n");
+ 	if (data) {
+ 		secdata = alloc_secdata();
+-		if (!secdata) {
+-			sb = ERR_PTR(-ENOMEM);
++		if (!secdata)
+ 			goto out_mnt;
 -		}
--		break;
--	}
- 	if (status == 0)
- 		status = nfs4_server_capabilities(server, fhandle);
- 	if (status == 0)
- 		status = nfs4_do_fsinfo(server, fhandle, info);
--out:
- 	return status;
+ 
+ 		error = security_sb_copy_data(type, data, secdata);
+-		if (error) {
+-			sb = ERR_PTR(error);
++		if (error)
+ 			goto out_free_secdata;
+-		}
+ 	}
+ 
+-	sb = type->get_sb(type, flags, name, data);
+-	if (IS_ERR(sb))
++	error = type->get_sb(type, flags, name, data, mnt);
++	if (error < 0)
+ 		goto out_free_secdata;
+- 	error = security_sb_kern_mount(sb, secdata);
++
++	BUG_ON(!mnt->mnt_sb);
++	BUG_ON(!mnt->mnt_sb->s_root);
++	BUG_ON(!mnt->mnt_root);
++
++ 	error = security_sb_kern_mount(mnt->mnt_sb, secdata);
+  	if (error)
+  		goto out_sb;
+-	mnt->mnt_sb = sb;
+-	mnt->mnt_root = dget(sb->s_root);
+-	mnt->mnt_mountpoint = sb->s_root;
++
++	mnt->mnt_mountpoint = mnt->mnt_root;
+ 	mnt->mnt_parent = mnt;
+-	up_write(&sb->s_umount);
++	up_write(&mnt->mnt_sb->s_umount);
+ 	free_secdata(secdata);
+ 	put_filesystem(type);
+ 	return mnt;
+ out_sb:
+-	up_write(&sb->s_umount);
+-	deactivate_super(sb);
+-	sb = ERR_PTR(error);
++	dput(mnt->mnt_root);
++	up_write(&mnt->mnt_sb->s_umount);
++	deactivate_super(mnt->mnt_sb);
+ out_free_secdata:
+ 	free_secdata(secdata);
+ out_mnt:
+ 	free_vfsmnt(mnt);
+ out:
+ 	put_filesystem(type);
+-	return (struct vfsmount *)sb;
++	return ERR_PTR(error);
  }
  
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index afad025..dbe3adf 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -69,8 +69,6 @@ init_nfsv4_state(struct nfs_server *serv
- void
- destroy_nfsv4_state(struct nfs_server *server)
- {
--	kfree(server->mnt_path);
--	server->mnt_path = NULL;
- 	if (server->nfs4_state) {
- 		nfs4_put_client(server->nfs4_state);
- 		server->nfs4_state = NULL;
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 3d3a305..69465ee 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -28,14 +28,12 @@ struct nfs_server {
- 	unsigned int		acdirmax;
- 	unsigned int		namelen;
- 	char *			hostname;	/* remote hostname */
--	struct nfs_fh		fh;
- 	struct sockaddr_in	addr;
- #ifdef CONFIG_NFS_V4
- 	/* Our own IP address, as a null-terminated string.
- 	 * This is used to generate the clientid, and the callback address.
- 	 */
- 	char			ip_addr[16];
--	char *			mnt_path;
- 	struct nfs4_client *	nfs4_state;	/* all NFSv4 state starts here */
- 	struct list_head	nfs4_siblings;	/* List of other nfs_server structs
- 						 * that share the same clientid
+ EXPORT_SYMBOL_GPL(do_kern_mount);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index e059da9..4f5327a 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1239,23 +1239,26 @@ find_exported_dentry(struct super_block 
+ struct file_system_type {
+ 	const char *name;
+ 	int fs_flags;
+-	struct super_block *(*get_sb) (struct file_system_type *, int,
+-				       const char *, void *);
++	int (*get_sb) (struct file_system_type *, int,
++		       const char *, void *, struct vfsmount *);
+ 	void (*kill_sb) (struct super_block *);
+ 	struct module *owner;
+ 	struct file_system_type * next;
+ 	struct list_head fs_supers;
+ };
+ 
+-struct super_block *get_sb_bdev(struct file_system_type *fs_type,
++extern int get_sb_bdev(struct file_system_type *fs_type,
+ 	int flags, const char *dev_name, void *data,
+-	int (*fill_super)(struct super_block *, void *, int));
+-struct super_block *get_sb_single(struct file_system_type *fs_type,
++	int (*fill_super)(struct super_block *, void *, int),
++	struct vfsmount *mnt);
++extern int get_sb_single(struct file_system_type *fs_type,
+ 	int flags, void *data,
+-	int (*fill_super)(struct super_block *, void *, int));
+-struct super_block *get_sb_nodev(struct file_system_type *fs_type,
++	int (*fill_super)(struct super_block *, void *, int),
++	struct vfsmount *mnt);
++extern int get_sb_nodev(struct file_system_type *fs_type,
+ 	int flags, void *data,
+-	int (*fill_super)(struct super_block *, void *, int));
++	int (*fill_super)(struct super_block *, void *, int),
++	struct vfsmount *mnt);
+ void generic_shutdown_super(struct super_block *sb);
+ void kill_block_super(struct super_block *sb);
+ void kill_anon_super(struct super_block *sb);
+@@ -1266,8 +1269,10 @@ struct super_block *sget(struct file_sys
+ 			int (*test)(struct super_block *,void *),
+ 			int (*set)(struct super_block *,void *),
+ 			void *data);
+-struct super_block *get_sb_pseudo(struct file_system_type *, char *,
+-			struct super_operations *ops, unsigned long);
++extern int get_sb_pseudo(struct file_system_type *, char *,
++	struct super_operations *ops, unsigned long,
++	struct vfsmount *mnt);
++extern int simple_set_mnt(struct vfsmount *mnt, struct super_block *sb);
+ int __put_super(struct super_block *sb);
+ int __put_super_and_need_restart(struct super_block *sb);
+ void unnamed_dev_init(void);
 

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWCAPAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWCAO7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbWCAPAk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 10:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWCAPAj
+	id S932350AbWCAO7u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 09:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWCAO7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 10:00:39 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32932 "EHLO
+	Wed, 1 Mar 2006 09:59:49 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29092 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030208AbWCAPAO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 10:00:14 -0500
+	id S932393AbWCAO7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 09:59:48 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Adrian Bunk <bunk@stusta.de>,
+Cc: linux-dvb-maintainer@linuxtv.org, Hans Verkuil <hverkuil@xs4all.nl>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 04/13] Upstream sync - make 2 structs static
-Date: Wed, 01 Mar 2006 09:05:37 -0300
-Message-id: <20060301120537.PS78644300004@infradead.org>
+Subject: [PATCH 08/13] Fix maximum for the saturation and contrast controls.
+Date: Wed, 01 Mar 2006 09:05:39 -0300
+Message-id: <20060301120539.PS03281500008@infradead.org>
 In-Reply-To: <20060301120529.PS80375900000@infradead.org>
 References: <20060301120529.PS80375900000@infradead.org>
 Mime-Version: 1.0
@@ -28,28 +28,59 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: 1141009675 \-0300
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Date: 1141009700 \-0300
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Manu Abraham <manu@linuxtv.org>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/bt8xx/dst.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/media/video/cx25840/cx25840-core.c |    4 ++--
+ drivers/media/video/saa7115.c              |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/dvb/bt8xx/dst.c b/drivers/media/dvb/bt8xx/dst.c
-index 3a2ff1c..0310e3d 100644
---- a/drivers/media/dvb/bt8xx/dst.c
-+++ b/drivers/media/dvb/bt8xx/dst.c
-@@ -602,7 +602,7 @@ static int dst_type_print(u8 type)
- 
- */
- 
--struct dst_types dst_tlist[] = {
-+static struct dst_types dst_tlist[] = {
- 	{
- 		.device_id = "200103A",
- 		.offset = 0,
+diff --git a/drivers/media/video/cx25840/cx25840-core.c b/drivers/media/video/cx25840/cx25840-core.c
+index 08ffd1f..5588b9a 100644
+--- a/drivers/media/video/cx25840/cx25840-core.c
++++ b/drivers/media/video/cx25840/cx25840-core.c
+@@ -567,7 +567,7 @@ static struct v4l2_queryctrl cx25840_qct
+ 		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 		.name          = "Contrast",
+ 		.minimum       = 0,
+-		.maximum       = 255,
++		.maximum       = 127,
+ 		.step          = 1,
+ 		.default_value = 64,
+ 		.flags         = 0,
+@@ -576,7 +576,7 @@ static struct v4l2_queryctrl cx25840_qct
+ 		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 		.name          = "Saturation",
+ 		.minimum       = 0,
+-		.maximum       = 255,
++		.maximum       = 127,
+ 		.step          = 1,
+ 		.default_value = 64,
+ 		.flags         = 0,
+diff --git a/drivers/media/video/saa7115.c b/drivers/media/video/saa7115.c
+index 048d000..ffd87ce 100644
+--- a/drivers/media/video/saa7115.c
++++ b/drivers/media/video/saa7115.c
+@@ -1027,7 +1027,7 @@ static struct v4l2_queryctrl saa7115_qct
+ 		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 		.name          = "Contrast",
+ 		.minimum       = 0,
+-		.maximum       = 255,
++		.maximum       = 127,
+ 		.step          = 1,
+ 		.default_value = 64,
+ 		.flags         = 0,
+@@ -1036,7 +1036,7 @@ static struct v4l2_queryctrl saa7115_qct
+ 		.type          = V4L2_CTRL_TYPE_INTEGER,
+ 		.name          = "Saturation",
+ 		.minimum       = 0,
+-		.maximum       = 255,
++		.maximum       = 127,
+ 		.step          = 1,
+ 		.default_value = 64,
+ 		.flags         = 0,
 

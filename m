@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751926AbWCAWrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWCAWuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751926AbWCAWrl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 17:47:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751929AbWCAWrl
+	id S1751105AbWCAWuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 17:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751929AbWCAWuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 17:47:41 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:48001 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751926AbWCAWrk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 17:47:40 -0500
-Subject: Re: [PATCH] leave APIC code inactive by default on i386
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Michael Ellerman <michael@ellerman.id.au>, linux-kernel@vger.kernel.org,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <20060301221404.GA1440@redhat.com>
-References: <43D03AF0.3040703@us.ibm.com>
-	 <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com>
-	 <20060301043353.GJ28434@redhat.com>
-	 <1141248546.30185.44.camel@localhost.localdomain>
-	 <20060301221404.GA1440@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eu/xchPdNV4N2bsSPPCV"
-Date: Wed, 01 Mar 2006 14:47:38 -0800
-Message-Id: <1141253258.30185.60.camel@localhost.localdomain>
+	Wed, 1 Mar 2006 17:50:18 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:37850
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751105AbWCAWuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 17:50:16 -0500
+Date: Wed, 1 Mar 2006 14:50:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pj@sgi.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch added to -mm tree
+Message-ID: <20060301225013.GA20834@kroah.com>
+References: <20060228201040.34a1e8f5.pj@sgi.com> <m1irqypxf5.fsf@ebiederm.dsl.xmission.com> <20060228212501.25464659.pj@sgi.com> <20060228234807.55f1b25f.pj@sgi.com> <20060301002631.48e3800e.akpm@osdl.org> <20060301015338.b296b7ad.pj@sgi.com> <20060301192103.GA14320@kroah.com> <20060301125802.cce9ef51.pj@sgi.com> <20060301213048.GA17251@kroah.com> <20060301142631.22738f2d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060301142631.22738f2d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 01, 2006 at 02:26:31PM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > On Wed, Mar 01, 2006 at 12:58:02PM -0800, Paul Jackson wrote:
+> > > Greg wrote:
+> > > > As reported this is expected, and can be ignored safely.  It's just scsi
+> > > > being bad :)
+> > > 
+> > > Yeah - so I eventually realized.
+> > > 
+> > > > >  [<a0000001001eac90>] sysfs_create_group+0x30/0x2a0
+> > > > >                                 sp=e00002343bd97d50 bsp=e00002343bd91120
+> > > > >  [<a000000100809190>] topology_cpu_callback+0x70/0xc0
+> > > > >                                 sp=e00002343bd97d60 bsp=e00002343bd910f0
+> > > > >  [<a000000100809260>] topology_sysfs_init+0x80/0x120
+> > > > >                                 sp=e00002343bd97d60 bsp=e00002343bd910d0
+> > > > 
+> > > > This points at the sysfs cpu patches that are in -mm, which are not in
+> > > > my tree...
+> > > 
+> > > So ... what does that mean for who should be looking at this?
+> > 
+> > Hm, looks like that stuff went into mainline already, sorry I thought it
+> > was still in -mm.
+> > 
+> > Look at changeset 69dcc99199fe29b0a29471a3488d39d9d33b25fc for details.
+> 
+> But Paul bisected it down to a particular not-merged patch,
+> gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch, which I'll
+> admit doesn't look like it'll cause this.
 
---=-eu/xchPdNV4N2bsSPPCV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yeah, I realize that, it just really seems odd that this code dies, and
+I thought it was still in your tree at the time, sorry.
 
-On Wed, 2006-03-01 at 17:14 -0500, Dave Jones wrote:
+Oh, and Paul, this all works just fine with no -mm, right?
 
-> In light of Matthew's comments in this thread though, I'm also wondering
-> if we can now get by without this diff, and just enable it by default now
-> that the kernel respects that the BIOS and leaves it alone if it's been
-> disabled.
+thanks,
 
-Actually, it seems that there are Lenovo ThinkCenter P4 machines with
-buggy BIOSes that tell us that we can enable the APIC ... but doing so
-eventually causes the system to hang.  Granted, the Google-recommended
-fixes are "noapic" or "Update the BIOS", but perhaps it would be best to
-leave it off _except_ for the few cases where we know that we need it.
-
-(Then again, the correct solution in this case is to fix the BIOS...)
-
---D
-
---=-eu/xchPdNV4N2bsSPPCV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQBEBiSKa6vRYYgWQuURAkVtAJkBNLWJHVQXaHRYZkwzo0BzwIo1WACfetHX
-M4DCKYRzUONKBilZB3evd2s=
-=yVwg
------END PGP SIGNATURE-----
-
---=-eu/xchPdNV4N2bsSPPCV--
-
+greg k-h

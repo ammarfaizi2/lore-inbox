@@ -1,81 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWCAXOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWCAXPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWCAXOG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 18:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWCAXOG
+	id S1751952AbWCAXPw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 18:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWCAXPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 18:14:06 -0500
-Received: from mx.laposte.net ([81.255.54.11]:8527 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S1751116AbWCAXOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 18:14:04 -0500
-Subject: Re: LibPATA code issues / 2.6.15.4
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-To: Mark Lord <liml@rtr.ca>
-Cc: edmudama@gmail.com, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4405F471.8000602@rtr.ca>
-References: <1141239617.23202.5.camel@rousalka.dyndns.org>
-	 <4405F471.8000602@rtr.ca>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-L1x6wvIlvZb/A+XfyMMy"
-Organization: Adresse perso
-Date: Thu, 02 Mar 2006 00:12:42 +0100
-Message-Id: <1141254762.11543.10.camel@rousalka.dyndns.org>
+	Wed, 1 Mar 2006 18:15:52 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:24451 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751122AbWCAXPv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 18:15:51 -0500
+Date: Wed, 1 Mar 2006 15:19:07 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.15.5
+Message-ID: <20060301231907.GR3883@sorel.sous-sol.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 (2.5.92-1) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We (the -stable team) are announcing the release of the 2.6.15.5 kernel.
 
---=-L1x6wvIlvZb/A+XfyMMy
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+The diffstat and short summary of the fixes are below.
 
-Le mercredi 01 mars 2006 =C3=A0 14:22 -0500, Mark Lord a =C3=A9crit :
-> Nicolas Mailhot wrote:
-> >>
-> > How about the drives that got blacklisted following :
-> > http://bugzilla.kernel.org/show_bug.cgi?id=3D5914 ?
-> > and
-> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=3D177951 ?
-> >=20
-> > Device Model:     Maxtor 6L300S0
-> > Firmware Version: BANC1G10
-> >=20
-> > on Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controll=
-er (rev 02)
->=20
-> Mmm.. somebody with one of those controllers should check
-> to see if *any* drives work with FUA, and blacklist the controller
-> instead of the drives if everything is failing.
+I'll also be replying to this message with a copy of the patch between
+2.6.15.4 and 2.6.15.5, as it is small enough to do so.
 
-I'm a someone with such a controller (that's my boog here)
-But I only have these drives.
-So I can only confirm the combo it deadly.
-(I could possibly try to plug one on the nforce4 controller, not sure if
-extracting the box from the tangle of cables and hardware he's part of
-is worth it. sata_nv is rev-eng, while the siI docs are public, right?)
+The updated 2.6.15.y git tree can be found at:
+ 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.15.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
 
-I do suspect Eric D. Mudama knows if the problem is on the hard-drive
-side though
+thanks,
+-chris
 
-Regards,
+--------
 
---=20
-Nicolas Mailhot
+ Documentation/hwmon/it87               |    2 
+ Makefile                               |    2 
+ arch/i386/kernel/cpu/common.c          |   17 +++---
+ arch/ia64/ia32/ia32_signal.c           |    1 
+ arch/ppc/boot/common/util.S            |    6 +-
+ arch/s390/kernel/compat_signal.c       |    3 -
+ drivers/hwmon/it87.c                   |    6 +-
+ drivers/ieee1394/sbp2.c                |   10 +++
+ drivers/infiniband/hw/mthca/mthca_qp.c |   62 +++++++++++++-----------
+ drivers/md/dm.c                        |    8 ++-
+ drivers/mtd/chips/cfi_cmdset_0001.c    |    1 
+ drivers/net/skge.c                     |   85 ++++++++++++++++++++-------------
+ drivers/net/skge.h                     |    1 
+ drivers/scsi/sd.c                      |   19 ++++++-
+ drivers/video/Kconfig                  |    2 
+ drivers/video/gbefb.c                  |    3 +
+ fs/binfmt_elf.c                        |    5 +
+ fs/exec.c                              |    2 
+ fs/ext2/xattr.c                        |    6 +-
+ fs/hugetlbfs/inode.c                   |    4 -
+ fs/nfs/direct.c                        |    5 +
+ fs/ramfs/inode.c                       |    2 
+ fs/reiserfs/super.c                    |    2 
+ fs/xfs/linux-2.6/xfs_aops.c            |    2 
+ include/asm-s390/setup.h               |   10 ++-
+ include/linux/netlink.h                |    3 -
+ include/linux/ptrace.h                 |    1 
+ include/linux/sched.h                  |    2 
+ ipc/mqueue.c                           |    3 -
+ ipc/shm.c                              |    1 
+ kernel/ptrace.c                        |   25 +++++----
+ kernel/signal.c                        |    9 +--
+ mm/mempolicy.c                         |    2 
+ net/bridge/br_netfilter.c              |    4 -
+ net/bridge/br_stp_if.c                 |    4 -
+ net/core/datagram.c                    |   81 ++++++++++++++++++++-----------
+ net/ipv6/addrconf.c                    |    3 +
+ net/netlink/af_netlink.c               |    7 +-
+ sound/core/control_compat.c            |   16 ++++--
+ sound/drivers/opl3/opl3_oss.c          |    2 
+ 40 files changed, 277 insertions(+), 152 deletions(-)
 
---=-L1x6wvIlvZb/A+XfyMMy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+Summary of changes from v2.6.15.4 to v2.6.15.5
+==============================================
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
+Adrian Drzewiecki:
+      Fix deadlock in br_stp_disable_bridge
 
-iEYEABECAAYFAkQGKmoACgkQI2bVKDsp8g0veQCggJkweq1nQn7YNSEIobOHitk0
-QXsAn0TnHI/6LBG9nezBnS0MTskLml0W
-=s1TM
------END PGP SIGNATURE-----
+Alexey Kuznetsov:
+      Fix a severe bug
 
---=-L1x6wvIlvZb/A+XfyMMy--
+Andi Kleen:
+      i386: Move phys_proc_id/early intel workaround to correct function
+
+Andrew Morton:
+      ramfs: update dir mtime and ctime
+
+Chris Wright:
+      sys_mbind sanity checking
+      Linux 2.6.15.5
+
+Dave Jones:
+      Fix s390 build failure.
+
+David S. Miller:
+      Revert skb_copy_datagram_iovec() recursion elimination.
+
+Heiko Carstens:
+      s390: add #ifdef __KERNEL__ to asm-s390/setup.h
+
+Horms:
+      netfilter missing symbol has_bridge_parent
+
+Hugh Dickins:
+      hugetlbfs mmap ENOMEM failure
+
+Jack Morgenstein:
+      IB/mthca: max_inline_data handling tweaks
+
+Jean Delvare:
+      it87: Fix oops on removal
+      hwmon it87: Probe i2c 0x2d only
+
+Jeff Mahoney:
+      reiserfs: disable automatic enabling of reiserfs inode attributes
+
+Juergen Kreileder:
+      Fix snd-usb-audio in 32-bit compat environment
+
+Jun'ichi Nomura:
+      dm: missing bdput/thaw_bdev at removal
+      dm: free minor after unlink gendisk
+
+Kaj-Michael Lang:
+      gbefb: IP32 gbefb depth change fix
+
+KAMEZAWA Hiroyuki:
+      shmdt cannot detach not-alined shm segment cleanly.
+
+Kristian Slavov:
+      Address autoconfiguration does not work after device down/up cycle
+
+Martin Michlmayr:
+      gbefb: Set default of FB_GBE_MEM to 4 MB
+
+Mike O'Connor:
+      XFS ftruncate() bug could expose stale data (CVE-2006-0554)
+
+Oleg Nesterov:
+      sys_signal: initialize ->sa_mask
+      do_sigaction: cleanup ->sa_mask manipulation
+      fix zap_thread's ptrace related problems
+
+Peter Staubach:
+      fix deadlock in ext2
+
+Simon Vogl:
+      cfi: init wait queue in chip struct
+
+Stefan Richter:
+      sd: fix memory corruption with broken mode page headers
+      sbp2: fix another deadlock after disconnection
+
+Stephen Hemminger:
+      skge: speed setting
+      skge: fix NAPI/irq race
+      skge: genesis phy initialization fix
+      skge: fix SMP race
+
+Suresh Siddha:
+      x86_64: Check for bad elf entry address (CVE-2006-0741)
+
+Takashi Iwai:
+      alsa: fix bogus snd_device_free() in opl3-oss.c
+
+Tom Rini:
+      ppc32: Put cache flush routines back into .relocate_code section
+
+Tony Luck:
+      sys32_signal() forgets to initialize ->sa_mask
+
+Trond Myklebust:
+      Normal user can panic NFS client with direct I/O (CVE-2006-0555)
 

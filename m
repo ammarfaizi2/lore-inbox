@@ -1,78 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWCAGbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWCAHMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWCAGbq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 01:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbWCAGbq
+	id S1750915AbWCAHMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 02:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWCAHMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 01:31:46 -0500
-Received: from fsmlabs.com ([168.103.115.128]:7900 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932514AbWCAGbp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 01:31:45 -0500
-X-ASG-Debug-ID: 1141194702-2997-77-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Tue, 28 Feb 2006 22:36:09 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Dave Jones <davej@redhat.com>
-cc: Michael Ellerman <michael@ellerman.id.au>,
-       "Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Chris McDermott <lcm@us.ibm.com>
-X-ASG-Orig-Subj: Re: [PATCH] leave APIC code inactive by default on i386
-Subject: Re: [PATCH] leave APIC code inactive by default on i386
-In-Reply-To: <20060301043353.GJ28434@redhat.com>
-Message-ID: <Pine.LNX.4.64.0602282234120.28074@montezuma.fsmlabs.com>
-References: <43D03AF0.3040703@us.ibm.com> <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com>
- <20060301043353.GJ28434@redhat.com>
+	Wed, 1 Mar 2006 02:12:10 -0500
+Received: from host66-143.pool82106.interbusiness.it ([82.106.143.66]:41228
+	"HELO netscape.net") by vger.kernel.org with SMTP id S1750928AbWCAHMJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 02:12:09 -0500
+Message-ID: <E3C23425.8940BBA@netscape.net>
+Date: Wed, 01 Mar 2006 12:47:04 +0500
+From: "East-West Australia lotteries" <felicialanza@netscape.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9306
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: <linux-kernel@vger.kernel.org>
+Subject: 
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006, Dave Jones wrote:
+East-West Australia Lotteries,
+1022 Kingsway Ave., Osborne,
+Western Australia, 6018.
+Head office: Maliebaan 38-40, 3581CR,
+Utrecht, The Netherlands.
 
-> On Wed, Mar 01, 2006 at 02:57:05PM +1100, Michael Ellerman wrote:
->  > On 1/20/06, Darrick J. Wong <djwong@us.ibm.com> wrote:
->  > > Hi there,
->  > >
->  > > Some old i386 systems have flaky APIC hardware that doesn't always work
->  > > right.  Right now, enabling the APIC code in Kconfig means that the APIC
->  > > code will try to activate the APICs unless 'noapic nolapic' are passed
->  > > to force them off.  The attached patch provides a config option to
->  > > change that default to keep the APICs off unless specified otherwise,
->  > > disables get_smp_config if we are not initializing the local APIC, and
->  > > makes init_apic_mappings not init the IOAPICs if they are disabled.
->  > > Note that the current behavior is maintained if
->  > > CONFIG_X86_UP_APIC_DEFAULT_OFF=n.
->  > Did this hit the floor?
-> 
-> It's still being kicked around.  I saw one patch off-list earlier this
-> week that has some small improvements over the variant originally posted,
-> but still had 1-2 kinks.
-> 
->  > It strikes me as a pretty good solution. This
->  > is pretty nasty for newbies installing distro kernels, they get some
->  > of the way through an install and then their machine just locks - not
->  > good PR.
-> 
-> The number of systems that actually *need* APIC enabled are in the
-> vast (though growing) minority, so it's unlikely that most newbies
-> will hit this.  The problem is also the inverse of what you describe.
-> Typically the distros have DMI lists of machines that *need* APIC
-> to make it enabled by default so everything 'just works'.
-> 
-> The big problem the patch solves is allowing it to be possible
-> to build a kernel with UP APIC code, but disabled by default
-> (Because there a lot of older machines that die horribly if it
->  was enabled by default).
+Dear Sir/Madam,
 
-The current policy is off if it was disabled by the BIOS. Is the intention 
-of this patch to have it off unconditionally unless explicitely enabled by 
-kernel parameter?
+YOU WON: €1,000,000.00!euros
+With utmost joy, we are pleased to inform you of the result of the
+East-West Australia Lotteries  International programs held on the 27th of
+february 2006 drew cash Prize of €1,000,000.00. Your e-mail address
+attached
+to Code number 370011672387-290-02 with claim
+Number 12093782/42 drew these lucky numbers 894-4563-001-764-64-2911, which
+consequently won in the 2nd category. You have been approved to receive a
+cash prize of €1,000,000.00 (One Million Euros).
+Be advised that due to incessant mix up in cash prize transfer to previous
+winners, we advise that you Keep your winning information confidential
+until
+your claims is been processed and your funds (€1,000,000.00) Transferred to
+you. This security measure is important; its protocol meant to avoid double
+claims, transfer and unwarranted abuse of this program by other
+participants.
+METHOD OF SELECTING WINNERS:
+Participants were selected anonymously through a private ballot system
+(computer ballot) from over 35,000 Companies and 70,000 individual e-mail
+addresses all over the world. At the final draw your e-mail address Emerged
+as the winner of our last jackpot.This is promotional program takes place
+bi-annually, and it is promoted and sponsored Orient software Corporation
+(Orient Networks). It is met to reward some individuals and corporations
+who
+have devote Their time and resources surfing the world wide web (www) with
+their email addresses. Remember, all winning must be claimed not later than
+5 working days from today. After the expiration of that time frame, if your
+funds are unclaimed, it will be refunded to us and included in our next
+draws.We hope you will use part of your cash prize to participate in our
+next €18million draws in November 2006. Lastly, in order to avoid
+unnecessary
+delays/complications with the transfer of your funds to you, please
+Always remember to quote your Code number in all correspondence with our
+paying bank (Deutsche Bank-Amsterdam). Furthermore, should there be any
+change of your present
+address, please notify us Immediately so to make the appropriate
+adjustment.
 
-Thanks,
-	Zwane
+Congratulations from the management and staffs of East-West Australia
+Lotteries. 
+
+Kindly, immediately, contact our Paying Bank (Deutsche Bank-Amsterdam) for
+your payment advice.
+Send them following e-mail:
+I……………(your names)…….., with e-mail address………..(your e-mail address)…..,
+contact address………..(postal address)…….and code number:……….(quote your code
+number)…….is the winner of the last East-West Astralia lotteries draws,
+with a cash prize of €1,000,000.00. Kindly advise me with details of the
+process of the transfer of my cash prize.
+
+Contact details of our Paying Bank:
+Contact person:  Mr. Powell Green.
+Department of Private Banking,
+Deutsche Bank, Amsterdam, the Netherlands.
+E-mail: srvcscust@netscape.net
+Tel: 31 647-494-395
+Fax 31-84-752-0508
+Congratulations.
+Yours in sincerely
+Felicia Lanza.(Lottery Coordinator)
+Note: Participants below 21 years are automatically disqualified.
+All e-mail transmission/correspondence are 100% protected by our Secure
+Socket Layer (SSL) server.
+
+

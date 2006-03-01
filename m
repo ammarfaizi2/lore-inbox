@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751940AbWCAXfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751947AbWCAXgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751940AbWCAXfP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 18:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751943AbWCAXfO
+	id S1751947AbWCAXgW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 18:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751944AbWCAXgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 18:35:14 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10904 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751940AbWCAXfM (ORCPT
+	Wed, 1 Mar 2006 18:36:22 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:30352 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751129AbWCAXgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 18:35:12 -0500
-Date: Wed, 1 Mar 2006 15:37:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: torvalds@osdl.org, ocfs2-devel@oss.oracle.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [git patches] ocfs2 updates
-Message-Id: <20060301153714.56d20f24.akpm@osdl.org>
-In-Reply-To: <20060301231034.GZ20175@ca-server1.us.oracle.com>
-References: <20060301231034.GZ20175@ca-server1.us.oracle.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Mar 2006 18:36:21 -0500
+Message-ID: <44062FF1.4010108@pobox.com>
+Date: Wed, 01 Mar 2006 18:36:17 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux@dominikbrodowski.net,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
+References: <200603012259.k21MxBXC013582@hera.kernel.org>
+In-Reply-To: <200603012259.k21MxBXC013582@hera.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Fasheh <mark.fasheh@oracle.com> wrote:
->
-> +					    "Extent %d at e_blkno %"MLFu64" of inode %"MLFu64" goes past ip_clusters of %u\n",
+Linux Kernel Mailing List wrote:
+> commit 42935656914b813c99f91cbac421fe677a6f34ab
+> tree d37a0d20998f4d87a4bd014300f707c3852ef5f9
+> parent 82d56e6d2e616bee0e712330bad06b634f007a46
+> author David Brownell <david-b@pacbell.net> Wed, 25 Jan 2006 22:36:32 -0800
+> committer Dominik Brodowski <linux@dominikbrodowski.net> Wed, 01 Mar 2006 10:52:12 +0100
+> 
+> [PATCH] pcmcia: add another ide-cs CF card id
+> 
+> Add another CF card ID.
+> 
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+> 
+>  drivers/ide/legacy/ide-cs.c |    1 +
+>  1 files changed, 1 insertion(+)
 
-Sometime, please consider killing MLFu64 and friends.
+Why was this not CC'd to the IDE maintainer, and linux-ide?
 
-#if (BITS_PER_LONG == 32) || defined(CONFIG_X86_64) || (defined(CONFIG_UML_X86) && defined(CONFIG_64BIT))
-#define MLFi64 "lld"
-#define MLFu64 "llu"
-#define MLFx64 "llx"
-#else
-#define MLFi64 "ld"
-#define MLFu64 "lu"
-#define MLFx64 "lx"
-#endif
+	Jeff
 
-You covered most cases there, but sh64 implements u64 as `unsigned long
-long' (for example).
-
-Generally we solve this problem by just using %ll and casting the args
-appropriately.   That does have some runtime cost on 32-bit.
-
-u64 and s64 are the easy case - it gets stickier on things like sector_t
-whose size is controlled by a CONFIG_thing on 32-bit.
 

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWCAQaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWCAQeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWCAQaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 11:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCAQaQ
+	id S1751491AbWCAQeF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 11:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWCAQeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 11:30:16 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:45800 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S1751366AbWCAQaP (ORCPT
+	Wed, 1 Mar 2006 11:34:05 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:56479 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751491AbWCAQeE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 11:30:15 -0500
-Date: Wed, 1 Mar 2006 17:30:00 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Gabor Gombas <gombasg@sztaki.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060301163000.GD9183@marowsky-bree.de>
-References: <20060227190150.GA9121@kroah.com> <p7364n01tv3.fsf@verdi.suse.de> <20060227194400.GB9991@suse.de> <20060301135356.GC23159@marowsky-bree.de> <20060301141031.GC17561@boogie.lpds.sztaki.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060301141031.GC17561@boogie.lpds.sztaki.hu>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Mar 2006 11:34:04 -0500
+Message-Id: <200603011633.k21GXwXD019342@laptop11.inf.utfsm.cl>
+To: Hauke Laging <mailinglisten@hauke-laging.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS: Dynamic umask for the access rights of linked objects 
+In-Reply-To: Message from Hauke Laging <mailinglisten@hauke-laging.de> 
+   of "Wed, 01 Mar 2006 04:54:15 BST." <200603010454.15223.mailinglisten@hauke-laging.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Wed, 01 Mar 2006 13:33:58 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 01 Mar 2006 13:33:59 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-03-01T15:10:31, Gabor Gombas <gombasg@sztaki.hu> wrote:
+Hauke Laging <mailinglisten@hauke-laging.de> wrote:
+> Am Mittwoch 01 MÃ¤rz 2006 03:45 schrieb Sam Vilain:
+> > Of course this doesn't work if, like /tmp and /var/tmp are shipped as on
+> > every distribution, the directory has permissions 1777.
 
-> IMHO this is not a good example as there is really no reason to install
-> udev on such a box at all. Remember: KISS. Having a static /dev and
-> /etc/modules filled in (or even better, a monolithic kernel) is far more
-> reliable to administer.
-> 
-> On a desktop machine when you are plugging in various USB/Firewire/etc.
-> devices all the time udev works great. On a remote server there is no
-> real need for udev.
+> I had this idea after the announcement of such a security problem in an 
+> antivirus software. The rpm package was buggy and set wrong rights for the 
+> installation directory /usr/whatever. So this is a real-world problem.
 
-You can't get away that easily ;-) 
+Right, some programs are broken.
 
-First, even the enterprise distributions nowadays all use hotplug/udev
-etc - for reducing the maintenance complexity, and also enterprise
-systems do see a fair bit of hotplugging of new network cards, PCI
-adapters, drives, or even USB attachments.
+[...]
 
-Second, sometimes my desktop is the machine I'm logging into from
-remote while on the road.
+> > What problem you are trying to solve?
 
-The distinction isn't as clear as you think it is.
+> I want to prevent the case that superuser processes accidentally read or 
+> write (system) files because they have been redirected there by a symlink 
+> which has been created by a user who cannot access (or at least write) 
+> these files hinself.
 
+Don't do that then. Programs running as superuser should always be extra
+careful. Nothing (or nearly) should ever be run as "normal user" root.
 
-Sincerely,
-    Lars Marowsky-Brée
-
+Yes, root can shoot its feet at will. Always has been able to. Doing it by
+blindly following a symlink planted in her home or in /tmp by the local
+cracker-wannabe is just one (very minor) more way of doing so.
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

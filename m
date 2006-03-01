@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWCACdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWCAChA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWCACdE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 21:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWCACdD
+	id S964829AbWCAChA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 21:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWCAChA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 21:33:03 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:5295 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S964831AbWCACdB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 21:33:01 -0500
-Date: Tue, 28 Feb 2006 21:27:51 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "Li, Peng" <ringer9cs@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Thread safety for epoll/libaio
-Message-ID: <20060301022751.GA28899@kvack.org>
-References: <598a055d0602281236m7eac9c09oc60af9ce28e7e4bf@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <598a055d0602281236m7eac9c09oc60af9ce28e7e4bf@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 28 Feb 2006 21:37:00 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:62784 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964829AbWCACg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 21:36:59 -0500
+Message-ID: <440508C9.6030701@bigpond.net.au>
+Date: Wed, 01 Mar 2006 13:36:57 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>,
+       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.3.1 for  2.6.16-rc5
+References: <4404CF98.7020804@bigpond.net.au>
+In-Reply-To: <4404CF98.7020804@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 1 Mar 2006 02:36:57 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 03:36:11PM -0500, Li, Peng wrote:
-> I apologize if I should not post this on LKML, but there seems to be
-> some lack of documentation for using epoll/AIO with threads.  Are
-> these interfaces thread-safe?  Can I use them safely in the following
-> way:
+Peter Williams wrote:
+> This version updates staircase scheduler to version 14.1 (thanks Con) 
+> and includes the latest smpnice patches
+> 
+> A patch for 2.6.16-rc5 is available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.3.1-for-2.6.16-rc5.patch?download> 
+> 
 
-I can only speak for libaio, which is completely thread safe.  Having a 
-single thread read events and dispatch is likely to work quite well given 
-the way the kernel interface is structured internally.  There is still 
-room for improving the event mechanism to use a futex for waking so that 
-the library can parse multiple events from userspace, but that is pending 
-a heavier user like networking.
+and for 2.6.16-rc5-mm1 at:
 
-		-ben
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.3.1-for-2.6.16-rc5-mm1.patch?download>
+
+> 
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> ingo_ll, nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs
+> or zaphod.  If you don't change the default when you build the kernel
+> the default scheduler will be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
+
+
 -- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

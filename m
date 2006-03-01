@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWCAE0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWCAE2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751645AbWCAE0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 23:26:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbWCAE0t
+	id S1751677AbWCAE2l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 23:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751693AbWCAE2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 23:26:49 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17801 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751645AbWCAE0s (ORCPT
+	Tue, 28 Feb 2006 23:28:41 -0500
+Received: from smtpout.mac.com ([17.250.248.97]:21208 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751665AbWCAE2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 23:26:48 -0500
-Date: Tue, 28 Feb 2006 20:26:32 -0800
-From: Paul Jackson <pj@sgi.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: akpm@osdl.org, laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com
-Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060228202632.cba12ae7.pj@sgi.com>
-In-Reply-To: <m1wtfepzpu.fsf@ebiederm.dsl.xmission.com>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr>
-	<20060228162157.0ed55ce6.akpm@osdl.org>
-	<20060228190535.41a8c697.pj@sgi.com>
-	<m1wtfepzpu.fsf@ebiederm.dsl.xmission.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Feb 2006 23:28:40 -0500
+In-Reply-To: <20060228223855.GC5831@elf.ucw.cz>
+References: <op.s5kzao2jj68xd1@mail.piments.com> <op.s5lq2hllj68xd1@mail.piments.com> <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com> <20060228223855.GC5831@elf.ucw.cz>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <DF133E7F-3A98-4C01-BC5D-7AA428499C3A@mac.com>
+Cc: col-pepper@piments.com, LKML Kernel <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: o_sync in vfat driver
+Date: Tue, 28 Feb 2006 23:28:30 -0500
+To: Pavel Machek <pavel@suse.cz>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> The logic is can I access this file in some other way besides through
-> /proc.
-> 
-> When applied to /proc/<pid>/exe
-> When applied to /proc/<pid>/root
-> When applied to /proc/<pid>/cwd
+On Feb 28, 2006, at 17:38:55, Pavel Machek wrote:
+> I have seen flash disk dead in 5 minutes, even without o-sync.  
+> Those devices are often crap. (I copied tar file to flash by cat  
+> foo.tar > /dev/sda. That was apparently enough to kill that flash.  
+> Label "Yahoo" should have warned me).
 
-I can't make sense of the above.  Could you elaborate?
+Sometimes a flash device can have a temporary error condition that is  
+solved by rewriting the data.  (I've seen it triggered by buggy USB  
+hubs that don't provide the rated power).  It seems that a number of  
+flash drives have internal checks, and when those trigger it reports  
+a bad sector (even if it isn't permanently bad).  My 1GB flashdrive  
+failed in that way, and I was able to fix the error by erasing with  
+"dd if=/dev/full of=/dev/usbkey" and reformatting.  After the error  
+occurred I started md5summing every file I put on the drive, but I've  
+been using it for a month now and not a single checksum has miscomputed.
 
-And explain how any of these permission checks fail for
-a root shell?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Cheers,
+Kyle Moffett

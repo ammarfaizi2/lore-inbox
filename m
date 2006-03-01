@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWCAM7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWCANAh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWCAM7d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 07:59:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWCAM7d
+	id S932106AbWCANAh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 08:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWCANAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 07:59:33 -0500
-Received: from viking.sophos.com ([194.203.134.132]:39697 "EHLO
-	viking.sophos.com") by vger.kernel.org with ESMTP id S932086AbWCAM7c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 07:59:32 -0500
-In-Reply-To: <1141216671.3185.22.camel@laptopd505.fenrus.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [RFC] vfs: cleanup of permission()
+	Wed, 1 Mar 2006 08:00:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14571 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932106AbWCANAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 08:00:36 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, pj@sgi.com
+Subject: Re: [PATCH] proc: task_mmu bug fix.
+References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
+	<20060228181849.faaf234e.pj@sgi.com>
+	<20060228183610.5253feb9.akpm@osdl.org>
+	<20060228194525.0faebaaa.pj@sgi.com>
+	<20060228201040.34a1e8f5.pj@sgi.com>
+	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
+	<20060228212501.25464659.pj@sgi.com>
+	<m1u0aiocc1.fsf_-_@ebiederm.dsl.xmission.com>
+	<20060228234628.55ee9f76.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 01 Mar 2006 05:49:13 -0700
+In-Reply-To: <20060228234628.55ee9f76.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 28 Feb 2006 23:46:28 -0800")
+Message-ID: <m1oe0qnxdi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Release 6.5.2 June 01, 2004
-Message-ID: <OF8335F2B0.0A730216-ON80257124.0045E22D-80257124.00475BA4@sophos.com>
-From: tvrtko.ursulin@sophos.com
-Date: Wed, 1 Mar 2006 12:59:25 +0000
-X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 6.5.2|June
- 01, 2004) at 01/03/2006 12:59:25,
-	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 6.5.2|June
- 01, 2004) at 01/03/2006 12:59:25,
-	Serialize complete at 01/03/2006 12:59:25,
-	S/MIME Sign failed at 01/03/2006 12:59:25: The cryptographic key was not
- found,
-	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.5|November 30, 2005) at
- 01/03/2006 12:59:28,
-	Serialize complete at 01/03/2006 12:59:28
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote on 01/03/2006 12:37:51:
+Andrew Morton <akpm@osdl.org> writes:
 
-> > And finally, please don't remove nameidata. Modules out there depend 
-on it 
-> 
-> are those modules about to merged into the kernel? The current intent
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+>>
+>> This should fix the big bug that has been crashing kernels when
+>>  fuser is called.  At least it is the bug I observed here.  It seems
+>>  you need the right access pattern on /proc/<pid>/maps to trigger this.
+>
+> Thanks.  Do you think this is likely to fix the crashes reported by
+> Laurent, Jesper, Paul, Rafael and Martin?
 
-See third paragraph of my reply.
+So I haven't tracked down all of the bug reports yet.  But the
+few bits I have seen make it likely.  First the task_mmu change
+was one of the largest change in logic I had to make.  Second
+the ugly bug reports seem to be about an extra decrement.  Third
+it seems to be my task_ref work that is the most implicated.
 
-> infrastructure isn't fulfilling what it should do well, and from what
-> I've seen on the discussions it sounds that the best way forward is to
-> undo the current implementation and then roll out one which caters to
-> the needs of the existing users better.
+I will certainly follow and see what I can do to confirm that I have
+gotten everything.
 
-That I don't know so I can't comment at the moment. I haven't seen 
-anything on linux-security-modules recently?
- 
-> As external module, you have little say so far simply because your usage
-> isn't visible. I'd urge you to quickly submit your code so that the
-> things you need from this are better visible to the people who are
-> thinking and working on the redesign.
-
-I know all that, but it is a complicated matter to discuss. That's why I 
-was planning to make a comprehensive announcement which would discuss most 
-of the hot topics. Ideally yes, I would like to merge, but it won't happen 
-now. The first thing I would like to do is establish common ground with 
-other security vendors so that we could approach the problem together. 
-Personaly, I am not sure whether insisting that everything should be a 
-part of kernel is a right thing to do even though I think I understand all 
-the up- and down-sides of both policies.
-
-Having said all this above, I am afraid that there will be no other choice 
-but to start working on the announcement asap. :)
- 
-> > and we at Sophos are about to release a new product which needs it as 
-> > well. 
-> 
-> I assume we're talking about an open source product, or at least kernel
-> component, here?
-
-Of course. Kernel component might be known to some as Talpa and it is 
-released under GPL.
-
+Eric

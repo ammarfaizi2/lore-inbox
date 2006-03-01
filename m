@@ -1,32 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWCAAQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWCAATu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbWCAAQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 19:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWCAAQ2
+	id S932131AbWCAATu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 19:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932728AbWCAATu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 19:16:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41401 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932728AbWCAAQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 19:16:27 -0500
-Date: Tue, 28 Feb 2006 16:15:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] i386: port ATI timer fix from x86_64 to i386
-Message-Id: <20060228161512.0cdbe560.akpm@osdl.org>
-In-Reply-To: <200602281905_MC3-1-B97E-7FDC@compuserve.com>
-References: <200602281905_MC3-1-B97E-7FDC@compuserve.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Feb 2006 19:19:50 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:2554 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932131AbWCAATu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 19:19:50 -0500
+Date: Tue, 28 Feb 2006 16:19:09 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: paulus@samba.org, johnrose@austin.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] powerpc: restore eeh_add_device_late() prototype
+Message-ID: <20060301001909.GU20175@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
->
->  This fixes the "timer runs too fast" bug on ATI chipsets (bugzilla #3927).
+A search on the linux-kernel, linuxppc-dev mailing lists and the git tree at
+ git://git.kernel.org/pub/scm/linux/kernel/git/paulus/powerpc didn't show
+this issue fixed or reported. If I missed something please ignore :)
 
-Wonderful, thanks.  What's the relationship (if any) between this and the
-recently-merged x86_64 fix?
+I get a compile failure trying to build a powerpc kernel:
+
+arch/powerpc/platforms/pseries/eeh.c: In function `eeh_add_device_tree_late':
+arch/powerpc/platforms/pseries/eeh.c:901: warning: implicit declaration of function `eeh_add_device_late'
+arch/powerpc/platforms/pseries/eeh.c: At top level:
+arch/powerpc/platforms/pseries/eeh.c:918: error: conflicting types for 'eeh_add_device_late'
+arch/powerpc/platforms/pseries/eeh.c:901: error: previous implicit declaration of 'eeh_add_device_late' was here
+make[2]: *** [arch/powerpc/platforms/pseries/eeh.o] Error 1
+
+It seems commit 827c1a6c1a5dcb2902fecfb648f9af6a532934eb removed this
+prototype from eeh.h. The following patch restores it.
+	--Mark
+
+diff --git a/include/asm-powerpc/eeh.h b/include/asm-powerpc/eeh.h
+index 7dfb408..4250fa1 100644
+--- a/include/asm-powerpc/eeh.h
++++ b/include/asm-powerpc/eeh.h
+@@ -62,6 +62,7 @@ void __init pci_addr_cache_build(void);
+  */
+ void eeh_add_device_early(struct device_node *);
+ void eeh_add_device_tree_early(struct device_node *);
++void eeh_add_device_late(struct pci_dev *);
+ void eeh_add_device_tree_late(struct pci_bus *);
+ 
+ /**
+@@ -117,6 +118,8 @@ static inline void pci_addr_cache_build(
+ 
+ static inline void eeh_add_device_early(struct device_node *dn) { }
+ 
++static inline void eeh_add_device_late(struct pci_dev *dev) { }
++
+ static inline void eeh_remove_device(struct pci_dev *dev) { }
+ 
+ static inline void eeh_add_device_tree_early(struct device_node *dn) { }

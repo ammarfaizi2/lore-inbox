@@ -1,96 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWCADGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWCADKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbWCADGM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 22:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWCADGM
+	id S964852AbWCADKK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 22:10:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWCADKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 22:06:12 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:55680 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932505AbWCADGL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 22:06:11 -0500
-Date: Tue, 28 Feb 2006 19:05:35 -0800
-From: Paul Jackson <pj@sgi.com>
+	Tue, 28 Feb 2006 22:10:10 -0500
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:21097 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964852AbWCADKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 22:10:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=yzH2lDkXshsBDa+73Oze0uzxvrnncYet8A8X9bj9fsOUw9qu4A3sGKBefr1jv3R7XMrGRz/joeLVdFWlKryNjXCTSzc7wxWsUK3rhZCdQahox1c16+9Uj4LjBQQF3tf5s6v1gXmNR09K8MBHmDFrVm22fbIgjtMKC93KeA6z2Qo=  ;
+Message-ID: <4405108B.4050701@yahoo.com.au>
+Date: Wed, 01 Mar 2006 14:10:03 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-Cc: laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, ebiederm@xmission.com
+CC: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org,
+       rml@novell.com
 Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060228190535.41a8c697.pj@sgi.com>
-In-Reply-To: <20060228162157.0ed55ce6.akpm@osdl.org>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr>
-	<20060228162157.0ed55ce6.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20060228042439.43e6ef41.akpm@osdl.org>	<6bffcb0e0602280701h1d5cbeaar@mail.gmail.com>	<6bffcb0e0602280820ic87332k@mail.gmail.com>	<440503E5.1070100@yahoo.com.au> <20060228184450.dd831456.akpm@osdl.org>
+In-Reply-To: <20060228184450.dd831456.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have popped the patch stack back to including:
-> trivial-cleanup-to-proc_check_chroot.patch
-> proc-fix-the-inode-number-on-proc-pid-fd.patch
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>>>>Feb 28 15:13:42 ltg01-sid kernel: BUG: warning at
+>>>>/usr/src/linux-mm/fs/inotify.c:533/inotify_d_instantiate()
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [show_trace+13/15] show_trace+0xd/0xf
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [dump_stack+21/23] dump_stack+0x15/0x17
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [inotify_d_instantiate+47/98]
+>>>>inotify_d_instantiate+0x2f/0x62
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [d_instantiate+70/114]
+>>>>d_instantiate+0x46/0x72
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_add_nondir+44/64]
+>>>>ext3_add_nondir+0x2c/0x40
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_link+163/217] ext3_link+0xa3/0xd9
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [vfs_link+292/379] vfs_link+0x124/0x17b
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_linkat+157/218] sys_linkat+0x9d/0xda
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_link+20/25] sys_link+0x14/0x19
+>>>>Feb 28 15:13:42 ltg01-sid kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+>>>>
+>>>>Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-dmesg
+>>>>Here is config http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-config
+>>>
+>>>
+>>>This patch is causing that warning
+>>>inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
+>>>
+>>
+>>The warning is harmless really. I guess it can be removed.
+> 
+> 
+> ?    How did DCACHE_INOTIFY_PARENT_WATCHED get set on that dentry?
+> 
 
-but not past that.  It boots now, unlike before with the full patch
-stack.
+I guess it is because I don't clear it on +ve => -ve conversions.
+We _could_ do that AFAIKS, by hooking into d_delete, but it would
+have to be yet another fsnotify hook there because it will have to
+be done under lock.
 
-I will continue the hunt.
-
-Meanwhile, on the side,  I have a couple of permission problems to
-report to Eric Biederman with apps that are complaining about not being
-able to access /proc/<pid>/fd/[0-9]* files when before they could:
-
- 1) Logged in as root, running "/bin/ls -l /proc/*/fd/*"
-    causes some complaints.  For example:
-
-    # /bin/ls -l /proc/2868/fd/?
-    /bin/ls: cannot read symbolic link /proc/2868/fd/6: Permission denied
-    /bin/ls: cannot read symbolic link /proc/2868/fd/7: Permission denied
-    lr-x------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/0 -> /dev/null
-    lrwx------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/1 -> /dev/pts/10
-    lrwx------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/2 -> /dev/pts/10
-    lr-x------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/3 -> /proc/sal/cmc/event
-    lrwx------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/4 -> /proc/sal/cmc/data
-    l-wx------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/6
-    lr-x------ 1 root root 64 Feb 28 18:39 /proc/2868/fd/7
-  
-    I don't recall seeing any similar complaints before.  My first reaction
-    is "wtf - I'm root - what's this permission denied error ?!?"
-
- 2) I have an SGI specific application that runs out of init on boot
-    that spews out some 50 or so "Permission denied" errors on
-    various /proc/<pid>/fd/* files, which it never did before that
-    I can recall.
-
-    For example, this app complained:
-
-	Cannot stat file /proc/1688/fd/3: Permission denied
-	Cannot stat file /proc/1688/fd/4: Permission denied
-	Cannot stat file /proc/1688/fd/5: Permission denied
-	Cannot stat file /proc/1688/fd/6: Permission denied
-	Cannot stat file /proc/1688/fd/7: Permission denied
-	Cannot stat file /proc/2781/fd/3: Permission denied
-	Cannot stat file /proc/2802/fd/1: Permission denied
-	Cannot stat file /proc/2802/fd/3: Permission denied
-	Cannot stat file /proc/2802/fd/4: Permission denied
-	Cannot stat file /proc/2878/fd/6: Permission denied
-	Cannot stat file /proc/2878/fd/7: Permission denied
-
-    You can see it is not complaining about all the fd's of a task,
-    but just some.
-
-    I might be confused in what patches I'm running, but I believe that
-    I am getting these permission denied errors with just the patches:
-
-    > trivial-cleanup-to-proc_check_chroot.patch
-    > proc-fix-the-inode-number-on-proc-pid-fd.patch
+But there is no real gain in doing that.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

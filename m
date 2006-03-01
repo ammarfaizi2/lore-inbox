@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWCAWGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWCAWLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWCAWGq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 17:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWCAWGq
+	id S1751307AbWCAWLl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 17:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWCAWLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 17:06:46 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:45620 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751299AbWCAWGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 17:06:45 -0500
-Message-ID: <44061AEA.5040304@fr.ibm.com>
-Date: Wed, 01 Mar 2006 23:06:34 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Kirill Korotaev <dev@sw.ru>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Greg <gkurz@fr.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, Kirill Korotaev <dev@openvz.org>,
-       Andi Kleen <ak@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Jes Sorensen <jes@sgi.com>
-Subject: Re: [RFC][PATCH 04/20] pspace: Allow multiple instaces of the process
- id namespace
-References: <m1bqxkmgcv.fsf_-_@ebiederm.dsl.xmission.com> <43ECF803.8080404@sw.ru> <m1psluw1jj.fsf@ebiederm.dsl.xmission.com> <43F04FD6.5090603@sw.ru> <m1wtfytri1.fsf@ebiederm.dsl.xmission.com> <43F31972.3030902@sw.ru> <20060215133131.GD28677@MAIL.13thfloor.at> <43F9A80A.6050808@sw.ru> <20060220123427.GA17478@MAIL.13thfloor.at> <43F9CE1C.2020603@sw.ru> <20060220150811.GA18841@MAIL.13thfloor.at>
-In-Reply-To: <20060220150811.GA18841@MAIL.13thfloor.at>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 17:11:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:49337 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751307AbWCAWLk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 17:11:40 -0500
+Date: Wed, 1 Mar 2006 14:03:28 -0800
+From: Greg KH <greg@kroah.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc64-dev@ozlabs.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johnrose@austin.ibm.com
+Subject: Re: fix build breakage in eeh.c in 2.6.16-rc5-git5
+Message-ID: <20060301220328.GB7354@kroah.com>
+References: <20060301214600.GA17702@kroah.com> <17414.6192.426294.502401@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17414.6192.426294.502401@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
->>>>First of all, I don't think syscalls like
->>>>"do_something and exec" should be introduced.
->>>
->>>Linux-VServer does not have any of those syscalls
->>>and it works quite well, so why should we need such
->>>syscalls?
->>
->>My question is the same! Why?
+On Thu, Mar 02, 2006 at 08:54:56AM +1100, Paul Mackerras wrote:
+> Greg KH writes:
 > 
+> > This patch should fixe a problem with eeh_add_device_late() not being
+> > defined in the ppc64 build process, causing the build to break.
 > 
-> because we don't need them?!
+> John Rose just sent a patch making eeh_add_device_late static and
+> moving it to be defined before it is called in
+> arch/powerpc/platforms/pseries/eeh.c.
+> 
+> Since he maintains this stuff, I'm more inclined to take his patch.
 
-I think that the reason behind such syscalls is to make sure that the
-process is "clean" when it enters a new container. "clean" means that the
-process is not holding in memory an identifier, like a pid for instance,
-that doesn't make sense in the new container.
+That's fine with me, as long as it makes it into 2.6.16-final :)
 
-This is really a edge case which supposes that processes changing
-containers don't know what they are doing. This case also depends on how
-identifiers will be virtualized.
+thanks,
 
-C.
+greg k-h

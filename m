@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbWB1XYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932722AbWB1XYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbWB1XYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 18:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWB1XYN
+	id S932722AbWB1XYf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 18:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbWB1XYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 18:24:13 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:3799 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932606AbWB1XYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 18:24:16 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:45208 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932718AbWB1XYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Feb 2006 18:24:12 -0500
-Message-Id: <20060301001722.746570000@araj-sfield>
+Message-Id: <20060301001722.646596000@araj-sfield>
 References: <20060301001557.318047000@araj-sfield>
-Date: Tue, 28 Feb 2006 16:15:59 -0800
+Date: Tue, 28 Feb 2006 16:15:58 -0800
 From: Ashok Raj <ashok.raj@intel.com>
 To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Len Brown <len.brown@intel.com>,
+       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
        Ashok Raj <ashok.raj@intel.com>
-Subject: [patch 2/5] Remove unnecessary lapic definition from acpidef.h
-Content-Disposition: inline; filename=remove-unused-lapic-entry
+Subject: [patch 1/5] Remove entries in /sys/firmware/acpi for processor also.
+Content-Disposition: inline; filename=remove-processor-entries-on-eject
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dont know why this exists... just happened to trip me when i used a 
-variable name with lapic, and until i looked at the pre-processed
-output couldnt figure out we had a lame definition like this.
+Processor entries under /sys/firmware/acpi/namespace/ACPI/_SB/CPU*
+were not being removed due to acpi_bus_trim not asking for it
+just for processors. Without which a new hot-add after a remove doesnt call 
+appropriate init functions resulting in subsequent hot-add for same
+cpu failing. 
 
-Hope iam not breaking anything here..
+Not clear why we restricted that to non-processor devices.
 
 Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-------------------------------------------------
- include/asm-i386/apicdef.h   |    1 -
- include/asm-x86_64/apicdef.h |    2 --
- 2 files changed, 3 deletions(-)
+-----------------------------------------------------
+ drivers/acpi/scan.c |    5 +----
+ 1 files changed, 1 insertion(+), 4 deletions(-)
 
-Index: linux-2.6.16-rc1-mm4/include/asm-i386/apicdef.h
+Index: linux-2.6.16-rc4-mm1/drivers/acpi/scan.c
 ===================================================================
---- linux-2.6.16-rc1-mm4.orig/include/asm-i386/apicdef.h
-+++ linux-2.6.16-rc1-mm4/include/asm-i386/apicdef.h
-@@ -120,7 +120,6 @@
-  */
- #define u32 unsigned int
+--- linux-2.6.16-rc4-mm1.orig/drivers/acpi/scan.c
++++ linux-2.6.16-rc4-mm1/drivers/acpi/scan.c
+@@ -434,10 +434,7 @@ acpi_eject_store(struct acpi_device *dev
+ 	islockable = device->flags.lockable;
+ 	handle = device->handle;
  
--#define lapic ((volatile struct local_apic *)APIC_BASE)
+-	if (type == ACPI_TYPE_PROCESSOR)
+-		result = acpi_bus_trim(device, 0);
+-	else
+-		result = acpi_bus_trim(device, 1);
++	result = acpi_bus_trim(device, 1);
  
- struct local_apic {
- 
-Index: linux-2.6.16-rc1-mm4/include/asm-x86_64/apicdef.h
-===================================================================
---- linux-2.6.16-rc1-mm4.orig/include/asm-x86_64/apicdef.h
-+++ linux-2.6.16-rc1-mm4/include/asm-x86_64/apicdef.h
-@@ -136,8 +136,6 @@
-  */
- #define u32 unsigned int
- 
--#define lapic ((volatile struct local_apic *)APIC_BASE)
--
- struct local_apic {
- 
- /*000*/	struct { u32 __reserved[4]; } __reserved_01;
+ 	if (!result)
+ 		result = acpi_eject_operation(handle, islockable);
 
 --
 

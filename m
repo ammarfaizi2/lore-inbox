@@ -1,46 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWCAFGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWCAFLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932290AbWCAFGh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 00:06:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWCAFGh
+	id S932318AbWCAFLH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 00:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWCAFLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 00:06:37 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14054 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932290AbWCAFGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 00:06:36 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
-	<20060228181849.faaf234e.pj@sgi.com>
-	<20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 28 Feb 2006 22:05:18 -0700
-In-Reply-To: <20060228201040.34a1e8f5.pj@sgi.com> (Paul Jackson's message of
- "Tue, 28 Feb 2006 20:10:40 -0800")
-Message-ID: <m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 1 Mar 2006 00:11:07 -0500
+Received: from ozlabs.org ([203.10.76.45]:56207 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932318AbWCAFLE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 00:11:04 -0500
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] leave APIC code inactive by default on i386
+Date: Wed, 1 Mar 2006 16:10:26 +1100
+User-Agent: KMail/1.8.3
+Cc: "Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Chris McDermott <lcm@us.ibm.com>
+References: <43D03AF0.3040703@us.ibm.com> <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com> <20060301043353.GJ28434@redhat.com>
+In-Reply-To: <20060301043353.GJ28434@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart2433551.HS0gLVgx7B";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603011610.31090.michael@ellerman.id.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+--nextPart2433551.HS0gLVgx7B
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> With these three patches:
->     proc-dont-lock-task_structs-indefinitely.patch
->     proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
->     proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+On Wed, 1 Mar 2006 15:33, Dave Jones wrote:
+> On Wed, Mar 01, 2006 at 02:57:05PM +1100, Michael Ellerman wrote:
+>  > On 1/20/06, Darrick J. Wong <djwong@us.ibm.com> wrote:
+>  > > Hi there,
+>  > >
+>  > > Some old i386 systems have flaky APIC hardware that doesn't always
+>  > > work right.  Right now, enabling the APIC code in Kconfig means that
+>  > > the APIC code will try to activate the APICs unless 'noapic nolapic'
+>  > > are passed to force them off.  The attached patch provides a config
+>  > > option to change that default to keep the APICs off unless specified
+>  > > otherwise, disables get_smp_config if we are not initializing the
+>  > > local APIC, and makes init_apic_mappings not init the IOAPICs if they
+>  > > are disabled. Note that the current behavior is maintained if
+>  > > CONFIG_X86_UP_APIC_DEFAULT_OFF=3Dn.
+>  >
+>  > Did this hit the floor?
 >
-> the command:
->
->     /bin/fuser -n tcp 5553
+> It's still being kicked around.  I saw one patch off-list earlier this
+> week that has some small improvements over the variant originally posted,
+> but still had 1-2 kinks.
 
-I can kill a kernel this way as well.  Thanks this looks like
-a good reproducer I will see if  I can figure out why.
+Cool. Let's get ironing. I have no idea about the implementation, but the=20
+concept is double ++ good as far as I'm concerned.
 
-Eric
+> The number of systems that actually *need* APIC enabled are in the
+> vast (though growing) minority, so it's unlikely that most newbies
+> will hit this.  The problem is also the inverse of what you describe.
+> Typically the distros have DMI lists of machines that *need* APIC
+> to make it enabled by default so everything 'just works'.
+
+Ok, even more reason for it to go in. Someone might want to let the folks a=
+t=20
+Ubuntu know too, they seem to have it enabled in their installer kernel. :D
+
+cheers
+
+--nextPart2433551.HS0gLVgx7B
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEBSzHdSjSd0sB4dIRAt8JAJwOF3/xlShx1QLvr59TI9syEUbdawCgoXtI
+TZ9zEqpSv5IjyIQZtP4/U98=
+=BnAl
+-----END PGP SIGNATURE-----
+
+--nextPart2433551.HS0gLVgx7B--

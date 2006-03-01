@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWCAT2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWCAT2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWCAT2G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 14:28:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWCAT2F
+	id S1750736AbWCAT2H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 14:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWCAT2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 14:28:05 -0500
-Received: from mx1.suse.de ([195.135.220.2]:38097 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750725AbWCAT2D (ORCPT
+	Wed, 1 Mar 2006 14:28:07 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:24726 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750936AbWCAT2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Mar 2006 14:28:03 -0500
 From: Andi Kleen <ak@suse.de>
-To: Paul Jackson <pj@sgi.com>
-Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
-Date: Wed, 1 Mar 2006 20:21:58 +0100
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+Date: Wed, 1 Mar 2006 20:27:54 +0100
 User-Agent: KMail/1.9.1
-Cc: clameter@engr.sgi.com, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, clameter@sgi.com
-References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com> <200603011934.34136.ak@suse.de> <20060301105844.d5b243f2.pj@sgi.com>
-In-Reply-To: <20060301105844.d5b243f2.pj@sgi.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <1140841250.2587.33.camel@localhost.localdomain> <200602282033.48570.ak@suse.de> <1141240823.2899.84.camel@localhost.localdomain>
+In-Reply-To: <1141240823.2899.84.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603012021.59638.ak@suse.de>
+Message-Id: <200603012027.55494.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 March 2006 19:58, Paul Jackson wrote:
-> Andi wrote:
-> > The main reason i'm reluctant to use this is that the cpuset fast path
-> > overhead (e.g. in memory allocators etc.) is quite large
-> 
-> I disagree.
-> 
-> I spent much time minimizing that overhead over the last few months, as
-> a direct result of your recommendation to do so.
-
-IIRC my recommendation only optimized the case of nobody using
-cpuset if I remember correctly. 
-
-Using a single cpuset would already drop into the slow path, right?
-
-Hmm, possibly it's better now, but I remember being shocked last
-time I looked at the code in detail ow much code it executed for a normal 
-page allocation and how many cache lines it touched. This was some time
-ago admittedly.
-
-Also on a different angle I would like to make the dcache/inode spreading 
-basically default on x86-64 and I'm not sure I want to get into the business
-of explaining all the distributions how to set up cpusets and set up
-new file systems.
-For that a single switch that can be just set by default is much more
-practical.
+On Wednesday 01 March 2006 20:20, Bryan O'Sullivan wrote:
 
 > 
-> Especially in the case that all tasks are in the root cpuset (as in the
-> scenario I just suggested for setting this memory spreading policy for
-> all tasks), the overhead is practically zero. 
-
-Ok.
-
-> The key hook is an 
-> inline test done (usually) once per page allocation on an essentially
-> read only global 'number_of_cpusets' that determines it is <= 1.
+>         [...] the processor completely empties the write buffer by
+>         writing the contents to memory as a result of performing any of
+>         the following operations:
+>         
+>         SFENCE Instruction
+>         Executing a store-fence (SFENCE) instruction forces all memory
+>         writes before the SFENCE (in program order) to be written into
+>         memory before memory writes that follow the SFENCE instruction.
+>         The memory-fence (MFENCE) instruction has a similar effect, but
+>         it forces the ordering of loads in addition to stores.
+>         [...]
 > 
-> I disagree with your "quite large" characterization.
+> So in fact SFENCE is the appropriate, architecturally guaranteed, thing
+> for us to be doing on x86_64.
 
-Agreed perhaps it was somewhat exaggerated.
+I don't interpret it as being a full synchronous write. It's just a barrier
+preventing reordering.  So the writes before could be in theory stuck
+forever in some buffer - it just means they won't be later than the writes
+after the fence.
+
+Implementing the fences in the way your're suggesting would be very costly
+because it could make them potentially stall for thousands of cycles.
+
+I don't have a quote handy right now but volume 3 of the Intel/AMD manuals
+have own chapters on the memory ordering rules elaborating on this in much more
+detail.
 
 -Andi

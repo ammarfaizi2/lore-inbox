@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWCAC2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWCAC2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWCAC2r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 21:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWCAC2r
+	id S964832AbWCAC2f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 21:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964829AbWCAC2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 21:28:47 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:13768 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964825AbWCAC2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 21:28:46 -0500
-From: Hauke Laging <mailinglisten@hauke-laging.de>
-To: linux-kernel@vger.kernel.org
-Subject: VFS: Dynamic umask for the access rights of linked objects
-Date: Wed, 1 Mar 2006 03:28:41 +0100
-User-Agent: KMail/1.8.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Feb 2006 21:28:35 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:6892 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964824AbWCAC2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 21:28:34 -0500
+Date: Tue, 28 Feb 2006 21:29:44 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: fuse-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Add O_NONBLOCK support to FUSE
+Message-ID: <20060301022944.GB9624@ccure.user-mode-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603010328.42008.mailinglisten@hauke-laging.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:02bdc4d6ea016d90f9ef4145f50516b2
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This adds O_NONBLOCK support to FUSE.
+I don't like duplicating the connected and list_empty tests in
+fuse_dev_readv, but this seemed cleaner than adding the f_flags test
+to request_wait.
 
-I tried to send this to the VFS maintainer but the address I found on 
-http://www.kernelnewbies.org/maintainers/ and in 
-my /usr/src/linux/MAINTAINERS seems not to exist any more 
-(viro@parcelfarce.linux.theplanet.co.uk).
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-
-The complete version of the following text ist avaiable at 
-http://www.hauke-laging.de/ideen/symlink-umask/konzept_en.html
-
-
-the problem
-(At least) If applications store data in directories which are 
-write-accessible by other users then symlink attacks become possible. A 
-file is erased and replaced by a symlink. The (buggy) application can be 
-abused if it can read or write the linked-to file but the abusing user 
-cannot. These attacks are mostly denial of service attacks.
-
-
-Solution
-The kernel should be extended by a function (which can be enabled and 
-disabled) which would solve the problem. The access rights of a symlink 
-are ignored but its creator is stored. The kernel should do additional 
-checks when determining whether a file system object can be accessed in 
-the requested way:
-
-- Is the accessed object a symlink?
-
-- Has the creator of the symlink got the access rights which the respective 
-process is requesting?
-
-If the situation turns out to be critical then the kernel would deny the 
-respective rights. The process cannot access the file via the symlink 
-though it could have if it had tried to access it directly. The access 
-rights of the symlink creator (through the whole path, not just for the 
-file) would be used as a mask for the applications rights.
-
-
-This approach does not solve every kind of this problem but should be quite 
-easy to implement. I don't want this mail to get too long so I have left 
-out some considerations about hard links. See the URL.
-
-
-Best regards,
-
-Hauke
+Index: host-2.6.15-fuse/fs/fuse/dev.c
+===================================================================
+--- host-2.6.15-fuse.orig/fs/fuse/dev.c	2006-02-28 21:00:00.000000000 -0500
++++ host-2.6.15-fuse/fs/fuse/dev.c	2006-02-28 21:04:36.000000000 -0500
+@@ -613,6 +613,12 @@ static ssize_t fuse_dev_readv(struct fil
+ 	err = -EPERM;
+ 	if (!fc)
+ 		goto err_unlock;
++
++	err = -EAGAIN;
++	if((file->f_flags & O_NONBLOCK) && fc->connected &&
++	   list_empty(&fc->pending))
++		goto err_unlock;
++
+ 	request_wait(fc);
+ 	err = -ENODEV;
+ 	if (!fc->connected)

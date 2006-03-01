@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWCAKuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWCAKxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbWCAKuR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 05:50:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWCAKuR
+	id S964900AbWCAKxq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 05:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWCAKxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 05:50:17 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27321 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030184AbWCAKuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 05:50:15 -0500
-Message-ID: <44057B46.1010403@sgi.com>
-Date: Wed, 01 Mar 2006 11:45:26 +0100
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-References: <1140841250.2587.33.camel@localhost.localdomain>	 <yq08xrvhkee.fsf@jaguar.mkp.net> <1141149475.24103.18.camel@camp4.serpentine.com>
-In-Reply-To: <1141149475.24103.18.camel@camp4.serpentine.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 1 Mar 2006 05:53:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11496 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964900AbWCAKxp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 05:53:45 -0500
+Date: Wed, 1 Mar 2006 02:52:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386: port ATI timer fix from x86_64 to i386
+Message-Id: <20060301025219.2034924c.akpm@osdl.org>
+In-Reply-To: <p73psl6zbwf.fsf@verdi.suse.de>
+References: <200602281905_MC3-1-B97E-7FDC@compuserve.com>
+	<20060228161512.0cdbe560.akpm@osdl.org>
+	<p73psl6zbwf.fsf@verdi.suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan O'Sullivan wrote:
-> On Tue, 2006-02-28 at 05:01 -0500, Jes Sorensen wrote:
-> 
-> 
->>Could you explain why the current mmiowb() API won't suffice for this?
->>It seems that this is basically trying to achieve the same thing.
-> 
-> 
-> It's a no-op on every arch I care about:
-> 
-> #define mmiowb()
-> 
-> Which makes it useless.  Also, based on the comments in the qla driver,
-> mmiowb() seems to have inter-CPU ordering semantics that I don't want.
-> I'm thus hesitant to appropriate it for my needs.
 
-The fact that it's a no-op may simply be because nobody on a specific
-arch got to the point where it made sense to define it yet.
+(Cc: fixed.  Please send me a copy of your MUA so I can ritually disembowel
+it).
 
-Anyway, based on Jesse and Jeremy's comments, then maybe the semantics
-here are different. However I do think the name wc_wmb() isn't quite
-defining it. If it's only to be used on mmio space, something like
-mmio_wc_wmb() would probably be more descriptive.
+Andi Kleen <ak@suse.de> wrote:
+>
+> Andrew Morton <akpm@osdl.org> writes:
+> 
+> > Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > >
+> > >  This fixes the "timer runs too fast" bug on ATI chipsets (bugzilla #3927).
+> > 
+> > Wonderful, thanks.  What's the relationship (if any) between this and the
+> > recently-merged x86_64 fix?
+> 
+> He just ported the x86-64 change over without any original authorship
+> attribution :/
 
-Cheers,
-Jes
+Yup.  And he proved that I am incapable of understanding a simple email
+Subject:
+
+> And some less functionality (only works for ACPI now) and some totally
+> unrelated Documentation cleanup and a few random printk changes.
+> 
+> The ACPI only thing is probably mostly ok because the timing won't work
+> at least on the dual cores without ACPI anyways because PMtimer is needed.
+> On single cores it would be useful even without ACPI
+> (for that earlyquirk.c just would need to be moved up to run independently
+> of ACPI) 
+> 
+> Still it's probably a good idea for 2.6.16.
+> 
+
+Well..  the patch had a flagrant won't-compile if CONFIG_X86_IO_APIC=y, so
+I'd consider it a bit green.
+

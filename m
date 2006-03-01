@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWCAUfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751880AbWCAUfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWCAUfJ (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751880AbWCAUfJ (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Mar 2006 15:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWCAUfJ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWCAUfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:35:09 -0500
-Received: from 201-254-50-139.speedy.com.ar ([201.254.50.139]:26636 "EHLO
-	201-254-50-139.speedy.com.ar") by vger.kernel.org with ESMTP
-	id S1751874AbWCAUfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Mar 2006 15:35:08 -0500
-Message-ID: <003801c63d6f$9f4e2280$af02000a@kSrZi>
-From: "Galinochka" <tok@6floor.ru>
-To: "linux-kernel-owner" <linux-kernel-owner@vger.kernel.org>
-Subject: Re[4]:from Galusya
-Date: Wed, 01 Mar 2006 22:35:12 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1251"
-Content-Transfer-Encoding: 8bit
+Received: from mx.pathscale.com ([64.160.42.68]:37092 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751880AbWCAUfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 15:35:06 -0500
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060301202634.GC4081@kvack.org>
+References: <1140841250.2587.33.camel@localhost.localdomain>
+	 <200603012027.55494.ak@suse.de>
+	 <1141242206.2899.109.camel@localhost.localdomain>
+	 <200603012049.32670.ak@suse.de>
+	 <1141243508.2899.126.camel@localhost.localdomain>
+	 <20060301202634.GC4081@kvack.org>
+Content-Type: text/plain
+Date: Wed, 01 Mar 2006 12:35:20 -0800
+Message-Id: <1141245321.2899.141.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ave :)	
+On Wed, 2006-03-01 at 15:26 -0500, Benjamin LaHaise wrote:
 
-I want to start my first letter from a question: "Is it possible to be happy without LOVE?"
-I think that you will agree with me if the answer will be "NO WAY". Love is the most beautiful and exciting thing
-that may happen between man and woman! It inspires us only for doing positive things towards each other.
-One very famous writer said: "The beauty will rescue the world" i agree with his words but still i would add :
-" LOVE and Beauty will rescure the world". 
-I hope you agree with me that Love is a big notion.
-There's love to  God, to Mother, to a child to the country where you were born, and there's love that joins a man
-and woman for all their life. That is the LOVE i'm looking for! And i'm seeking for the man who is also eager to have
-this life long adventure full of surprises and new experience we can share together! Will you join me for this trip?
-I do realise that it should be very difficult to say "Yes" from the first letter having no idea about me.
-That's why i just offer to get to know each other better though correspondence that will help us to reveal many things
-about each other whether we mach perfectly or not. In addition you can look at my pictures and read some info about me here
-http://QIhu03kViVcEK.my-loving-heart.com/
-I hope you'll like what you see and read there.
-Well closing my first letter to you i just want to thank you for reading it and i really hope that you'll share
-my point of view on what i said above. I do really hope that you'll answer me soon.
+> Please rename the macro something like 
+> flush_wc() and document it as such, at which point I remove my objection.
 
-Good-bye
+Thanks.  That's a useful suggestion; I don't want to give the thing a
+misleading name.
 
-Galinochka
+	<b
 
+-- 
+Bryan O'Sullivan <bos@pathscale.com>
 

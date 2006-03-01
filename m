@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWCAIQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751727AbWCAIYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWCAIQY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 03:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWCAIQY
+	id S1751727AbWCAIYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 03:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWCAIYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 03:16:24 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:57507 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751045AbWCAIQY (ORCPT
+	Wed, 1 Mar 2006 03:24:15 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:29604 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751727AbWCAIYP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 03:16:24 -0500
-Date: Wed, 1 Mar 2006 00:16:12 -0800
+	Wed, 1 Mar 2006 03:24:15 -0500
+Date: Wed, 1 Mar 2006 00:24:05 -0800
 From: Jeremy Higdon <jeremy@sgi.com>
 To: Jes Sorensen <jes@sgi.com>
 Cc: Roland Dreier <rdreier@cisco.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
@@ -17,7 +17,7 @@ Cc: Roland Dreier <rdreier@cisco.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Jesse Barnes <jbarnes@virtuousgeek.org>
 Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-Message-ID: <20060301081612.GA289233@sgi.com>
+Message-ID: <20060301082405.GB289233@sgi.com>
 References: <1140841250.2587.33.camel@localhost.localdomain> <yq08xrvhkee.fsf@jaguar.mkp.net> <adar75nlcar.fsf@cisco.com> <44047565.3090202@sgi.com> <adafym3l8lk.fsf@cisco.com> <44048660.3010701@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -49,11 +49,20 @@ On Tue, Feb 28, 2006 at 06:20:32PM +0100, Jes Sorensen wrote:
 > That could be, seems like Jesse agrees that it could all be in the
 > pipeline somewhere. Considering Jesse was responsible for mmiowb() I'll
 > take his word for it ;-)
+> 
+> In any case, I'd strongly recommend that any new barrier version is
+> clearly documented. The jungle is very dense already ;(
 
-Right.  On the Altix, the mmiowb ensures that the write is into a
-FIFO on the destination node (node I/O device is attached to), so
-that later writes from other nodes will be ordered after it.  But
-it doesn't actually force it to the bus.  That's one reason why it's
-so much quicker than a using a read for ordering.
+
+I wonder if wc_wmb() is the best name.
+
+mmiowb expands to memory-mapped I/O write barrier which more or less
+describes what it does, whereas wc_wmb expands (I'm guessing) to
+write-combine write memory barrier.  But it's for mmio writes.
+
+Also, the wmb() does not actually "guarantee that PCI writes have been
+flushed to the bus", at least on IA64.  Even for memory transactions,
+it only guarantees ordering on IA64, much like mmiowb does for mmio
+transactions.
 
 jeremy

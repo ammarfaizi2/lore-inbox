@@ -1,94 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWCABRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWCABlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWCABRz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 20:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWCABRz
+	id S964799AbWCABlN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 20:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWCABlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 20:17:55 -0500
-Received: from sccrmhc14.comcast.net ([63.240.77.84]:19653 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751367AbWCABRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 20:17:55 -0500
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-From: Nicholas Miell <nmiell@comcast.net>
-To: Greg KH <greg@kroah.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Greg KH <gregkh@suse.de>, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       davej@redhat.com, perex@suse.cz, Kay Sievers <kay.sievers@vrfy.org>
-In-Reply-To: <20060301003452.GG23716@kroah.com>
-References: <20060227190150.GA9121@kroah.com>
-	 <20060227193654.GA12788@kvack.org> <20060227194623.GC9991@suse.de>
-	 <Pine.LNX.4.64.0602271216340.22647@g5.osdl.org>
-	 <20060227234525.GA21694@suse.de> <20060228063207.GA12502@thunk.org>
-	 <20060301003452.GG23716@kroah.com>
-Content-Type: text/plain
-Date: Tue, 28 Feb 2006 17:17:49 -0800
-Message-Id: <1141175870.2989.17.camel@entropy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
+	Tue, 28 Feb 2006 20:41:13 -0500
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:9119 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964799AbWCABlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 20:41:12 -0500
+Date: Tue, 28 Feb 2006 20:36:52 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 05/39] [PATCH] i386: Move phys_proc_id/early intel
+  workaround to corr
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-stable <stable@kernel.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+       Greg KH <greg@kroah.com>
+Message-ID: <200602282039_MC3-1-B985-4C46@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-02-28 at 16:34 -0800, Greg KH wrote:
-> On Tue, Feb 28, 2006 at 01:32:07AM -0500, Theodore Ts'o wrote:
-> > On Mon, Feb 27, 2006 at 03:45:25PM -0800, Greg KH wrote:
-> > > > So I just don't see any upsides to documenting anything private or 
-> > > > unstable. I see only downsides: it's an excuse to hide behind for 
-> > > > developers.
-> > > 
-> > > So should we just not even document anything we consider "unstable"?
-> > > The first trys at things are usually really wrong, and that only can be
-> > > detected after we've tried it out for a while and have a few serious
-> > > users.  Should we brand anything new as "testing" if the developer feels
-> > > it is ready to go?
-> > 
-> > How about "we don't let anything into mainline that we consider
-> > 'unstable' from an interface point of view"?
+In-Reply-To: <20060227223324.852289000@sorel.sous-sol.org>
+
+On Mon, 27 Feb 2006 14:32:05, Chris Wright wrote:
+
+> -stable review patch.  If anyone has any objections, please let us know.
+> ------------------
 > 
-> In a perfect world, where we are all kick-ass programmers and never get
-> anything wrong and can always anticipate exactly how people will use the
-> interfaces we create, sure we could say this.
+> early_cpu_detect only runs on the BP, but this code needs to run
+> on all CPUs. This will fix problems with the powernow-k8 driver
+> on dual core systems and general misdetection of AMD dual core.
 > 
-> But until then, there's no way this can happen :)
+> Looks like a mismerge somewhere.  Also add a warning comment.
 > 
-> For example, look at all of the gyrations that the sys_futex call went
-> through.  It took people really using the thing before the final version
-> of how it would work could be added.
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> ---
 > 
-> And another example, /proc.  How many times over the past 15 years have
-> we had to upgrade the procps package to handle the addition or change of
-> one thing or another?  We evolve over time to handle the issues that
-> come up with different architectures and needs.  That's what makes Linux
-> so great.
+>  arch/i386/kernel/cpu/common.c |   17 ++++++++++-------
+>  1 files changed, 10 insertions(+), 7 deletions(-)
+> 
+> --- linux-2.6.15.4.orig/arch/i386/kernel/cpu/common.c
+> +++ linux-2.6.15.4/arch/i386/kernel/cpu/common.c
+> @@ -207,7 +207,10 @@ static int __devinit have_cpuid_p(void)
+>  
+>  /* Do minimum CPU detection early.
+>     Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
+> -   The others are not touched to avoid unwanted side effects. */
+> +   The others are not touched to avoid unwanted side effects.
+> +
+> +   WARNING: this function is only called on the BP.  Don't add code here
+> +   that is supposed to run on all CPUs. */
+>  static void __init early_cpu_detect(void)
+>  {
+>       struct cpuinfo_x86 *c = &boot_cpu_data;
+> @@ -239,12 +242,6 @@ static void __init early_cpu_detect(void
+>               if (cap0 & (1<<19))
+>                       c->x86_cache_alignment = ((misc >> 8) & 0xff) * 8;
+>       }
+> -
+> -     early_intel_workaround(c);
 
-This is a really bad example.
-
-All the /proc related contortions are a direct result of the fact that
-the multitudes of /proc "formats" are completely undocumented,
-non-extensible, and largely unintended for programmatic usage[1]. (/sys
-was supposed to solve some of these things, but it seems to be going the
-same route, unfortunately.)
-
-Honestly, despite what the ASCII fetish crowd[2] may say, Solaris got it
-right by just exporting C structs. The parsing is certainly a hell of a
-lot easier when you're dealing with actual C datatypes instead of
-character strings and people hacking on /proc are probably less likely
-to make ABI breaking changes when they're dealing with a struct instead
-of a sprintf statement.
+==> This has been in this location since at least 2.6.9.  If it's also needed
+    in generic_identify(), fine, but it should be left here too.  I think this
+    patch in 2.6.16-rc is wrong.  The comment for this function says it really
+    needs accurate cache alignment information, presumably because it's needed
+    for early boot setup, and without this it won't be accurate.
 
 
-
-
-
-[1] Where's my EBNF?
-
-[2] "But ASCII is easily manipulated by shell tools!!!!"
- Well, then write a very small C program that spits out ASCII and stick
-it in procps.
-
+> -
+> -#ifdef CONFIG_X86_HT
+> -     phys_proc_id[smp_processor_id()] = (cpuid_ebx(1) >> 24) & 0xff;
+> -#endif
+>  }
+>  
+>  void __devinit generic_identify(struct cpuinfo_x86 * c)
+> @@ -292,6 +289,12 @@ void __devinit generic_identify(struct c
+>                               get_model_name(c); /* Default name */
+>               }
+>       }
+> +
+> +     early_intel_workaround(c);
+> +
+> +#ifdef CONFIG_X86_HT
+> +     phys_proc_id[smp_processor_id()] = (cpuid_ebx(1) >> 24) & 0xff;
+> +#endif
+>  }
+>  
+>  static void __devinit squash_the_stupid_serial_number(struct cpuinfo_x86 *c)
+>
 
 -- 
-Nicholas Miell <nmiell@comcast.net>
+Chuck
+"Equations are the Devil's sentences."  --Stephen Colbert
 

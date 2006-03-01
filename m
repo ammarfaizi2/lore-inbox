@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWCAI1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbWCAIia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWCAI1n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 03:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWCAI1n
+	id S932648AbWCAIia (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 03:38:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932626AbWCAIia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 03:27:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4292 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932186AbWCAI1m (ORCPT
+	Wed, 1 Mar 2006 03:38:30 -0500
+Received: from mail.gmx.de ([213.165.64.20]:26533 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932279AbWCAIi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 03:27:42 -0500
-Date: Wed, 1 Mar 2006 00:26:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: pj@sgi.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060301002631.48e3800e.akpm@osdl.org>
-In-Reply-To: <20060228234807.55f1b25f.pj@sgi.com>
-References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
-	<20060228181849.faaf234e.pj@sgi.com>
-	<20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 03:38:29 -0500
+X-Authenticated: #428038
+Date: Wed, 1 Mar 2006 09:38:24 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: Mark Rustad <mrustad@mac.com>, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: sg regression in 2.6.16-rc5
+Message-ID: <20060301083824.GA9871@merlin.emma.line.org>
+Mail-Followup-To: Douglas Gilbert <dougg@torque.net>,
+	Mark Rustad <mrustad@mac.com>, linux-scsi@vger.kernel.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4404AA2A.5010703@torque.net>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> > I am seeing as a separate bug the crash during boot that I reported
-> > last, when I turned on some DEBUG options. 
-> 
-> I have narrowed it down to between the following two patches
-> in *-mm (patch numbers 20 and 90 in 2.6.16-rc5-mm1, roughly):
+On Tue, 28 Feb 2006, Douglas Gilbert wrote:
 
-I hope that machine doesn't take too long to boot.
+> You can stop right there with the 1 MB reads. Welcome
+> to the new, blander sg driver which now shares many
+> size shortcomings with the block subsystem.
 
->     multiple-exports-of-strpbrk.patch == ok
->     git-drm.patch == bad
+What is the reason to break user-space applications like this?
 
-That would point at either the sysfs changes in gregkh-driver-* or acpi. 
-There have been no changes in the acpi patch in a couple of weeks.  Did
-that machine run rc4-mm2?
-
-> ip is at sysfs_create_group+0x30/0x2a0
-
-It does have a sysfsy feel.  But I don't immediately see how any of the
-patches in the driver tree can affect this.
+-- 
+Matthias Andree

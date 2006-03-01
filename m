@@ -1,95 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWCAWYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWCAWY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWCAWYM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 17:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWCAWYM
+	id S1751321AbWCAWY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 17:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWCAWY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 17:24:12 -0500
-Received: from duempel.org ([81.209.165.42]:64190 "HELO duempel.org")
-	by vger.kernel.org with SMTP id S1751323AbWCAWYL (ORCPT
+	Wed, 1 Mar 2006 17:24:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3970 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751328AbWCAWY1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 17:24:11 -0500
-Date: Wed, 1 Mar 2006 23:23:05 +0100
-From: Max Kellermann <max@duempel.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc[1-5]: soft lockups on Athlon64 X2
-Message-ID: <20060301222305.GA12138@roonstrasse.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20060227122705.GA27141@roonstrasse.net> <20060228221948.3d76f80b.akpm@osdl.org> <20060301100744.GA1041@roonstrasse.net> <20060301022235.51f47b42.akpm@osdl.org>
+	Wed, 1 Mar 2006 17:24:27 -0500
+Date: Wed, 1 Mar 2006 14:26:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: pj@sgi.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
+ added to -mm tree
+Message-Id: <20060301142631.22738f2d.akpm@osdl.org>
+In-Reply-To: <20060301213048.GA17251@kroah.com>
+References: <20060228183610.5253feb9.akpm@osdl.org>
+	<20060228194525.0faebaaa.pj@sgi.com>
+	<20060228201040.34a1e8f5.pj@sgi.com>
+	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
+	<20060228212501.25464659.pj@sgi.com>
+	<20060228234807.55f1b25f.pj@sgi.com>
+	<20060301002631.48e3800e.akpm@osdl.org>
+	<20060301015338.b296b7ad.pj@sgi.com>
+	<20060301192103.GA14320@kroah.com>
+	<20060301125802.cce9ef51.pj@sgi.com>
+	<20060301213048.GA17251@kroah.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="1yeeQ81UyVL57Vl7"
-Content-Disposition: inline
-In-Reply-To: <20060301022235.51f47b42.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On 2006/03/01 11:22, Andrew Morton <akpm@osdl.org> wrote:
-> I guess it'd be useful to see where all that time is spent, if you have
-> time.   Enable CONFIG_PROFILING, boot with `profile=1', do:
+Greg KH <greg@kroah.com> wrote:
+>
+> On Wed, Mar 01, 2006 at 12:58:02PM -0800, Paul Jackson wrote:
+> > Greg wrote:
+> > > As reported this is expected, and can be ignored safely.  It's just scsi
+> > > being bad :)
+> > 
+> > Yeah - so I eventually realized.
+> > 
+> > > >  [<a0000001001eac90>] sysfs_create_group+0x30/0x2a0
+> > > >                                 sp=e00002343bd97d50 bsp=e00002343bd91120
+> > > >  [<a000000100809190>] topology_cpu_callback+0x70/0xc0
+> > > >                                 sp=e00002343bd97d60 bsp=e00002343bd910f0
+> > > >  [<a000000100809260>] topology_sysfs_init+0x80/0x120
+> > > >                                 sp=e00002343bd97d60 bsp=e00002343bd910d0
+> > > 
+> > > This points at the sysfs cpu patches that are in -mm, which are not in
+> > > my tree...
+> > 
+> > So ... what does that mean for who should be looking at this?
 > 
-> readprofile -r
-> mount ...
-> readprofile -n -v -m /boot/System.map | sort -n -k 3 | tail -40
+> Hm, looks like that stuff went into mainline already, sorry I thought it
+> was still in -mm.
+> 
+> Look at changeset 69dcc99199fe29b0a29471a3488d39d9d33b25fc for details.
 
-Here it is.  As an explanation of the profile's scope, I have also
-sent the shell script which reproduces the problem on my machine.
+But Paul bisected it down to a particular not-merged patch,
+gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch, which I'll
+admit doesn't look like it'll cause this.
 
-The script however is not 100% reliable; sometimes, the lockup just
-won't occur.  Sounds like a timing problem to me.
+Paul, did you test
+http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz?  That has the
+sysfs-pollable patches reverted.
 
-btw. my other partitions are also reiserfs (but not encrypted).
+> I've cced Yanmin, who did that work.
 
-Max
-
-
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=profile
-
-     0 *unknown*
-ffffffff81030f20 do_syslog                                     1   0.0009
-ffffffff81041cc0 __queue_work                                  1   0.0078
-ffffffff81054540 find_get_page                                 1   0.0104
-ffffffff81062db0 __handle_mm_fault                             1   0.0004
-ffffffff8107a450 __getblk                                      1   0.0017
-ffffffff811fce50 xor_128                                       1   0.0312
-ffffffff811fd140 cbc_process_decrypt                           1   0.0035
-ffffffff8122ec60 strncpy_from_user                             1   0.0125
-ffffffff812dc9b0 scsi_dispatch_cmd                             1   0.0014
-ffffffff8101c120 do_gettimeoffset_pm                           2   0.0417
-ffffffff8101eee1 enc128                                        2   0.0010
-ffffffff810910b0 get_filesystem_list                           2   0.0139
-ffffffff8122e990 memset                                        3   0.0156
-ffffffff8105c4b0 __pagevec_lru_add_active                     12   0.0500
-ffffffff8105c790 __pagevec_release                           108   1.6875
-ffffffff8105c2c0 pagevec_lookup                              112   2.3333
-ffffffff8105c6d0 lru_add_drain                               144   1.5000
-ffffffff8105d100 invalidate_mapping_pages                    411   1.2844
-ffffffff8105c2f0 release_pages                               551   1.2299
-ffffffff810096e0 default_idle                               4194  37.4464
-ffffffff810c9b50 reiserfs_dirty_inode                      23849 165.6181
-ffffffff810545a0 find_get_pages                            24892 172.8611
-0000000000000000 total                                     54291   0.0100
-
---1yeeQ81UyVL57Vl7
-Content-Type: application/x-sh
-Content-Disposition: attachment; filename="trigger_soft_lockup.sh"
-Content-Transfer-Encoding: quoted-printable
-
-# cleanup=0Aumount ~max/dl=0Aumount ~max=0Acryptsetup remove max_home=0Acry=
-ptsetup remove data=0Aset -e=0A# mount first partition; this runs OK=0Acryp=
-tsetup --cipher=3Daes create max_home /dev/sda9=0Amount -t reiserfs /dev/ma=
-pper/max_home ~max=0A# mount second partition=0Areadprofile -r=0Acryptsetup=
- --cipher=3Daes create data /dev/sda10=0A# the lockup occurs in this mount =
-(not always)=0Amount /dev/mapper/data ~max/dl -t xfs=0Areadprofile -n -v -m=
- /boot/System.map-2.6.16-rc5-woodpecker-test |sort -n -k 3 |tail -40 |tee p=
-rofile=0A
---1yeeQ81UyVL57Vl7--
+You missed.  I've added Yanmin now.

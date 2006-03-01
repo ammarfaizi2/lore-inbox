@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWCAOuX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWCAO4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWCAOuX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 09:50:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWCAOuX
+	id S932272AbWCAO4T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 09:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWCAO4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 09:50:23 -0500
-Received: from smtp2-g19.free.fr ([212.27.42.28]:62104 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932242AbWCAOuX (ORCPT
+	Wed, 1 Mar 2006 09:56:19 -0500
+Received: from cantor.suse.de ([195.135.220.2]:2438 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932272AbWCAO4S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 09:50:23 -0500
-Message-ID: <4405B4AA.7090207@free.fr>
-Date: Wed, 01 Mar 2006 15:50:18 +0100
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050920
-X-Accept-Language: fr-fr, fr, en
+	Wed, 1 Mar 2006 09:56:18 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Subject: Re: AMD64 X2 lost ticks on PM timer
+Date: Wed, 1 Mar 2006 15:56:09 +0100
+User-Agent: KMail/1.9.1
+Cc: Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org
+References: <200602280022.40769.darkray@ic3man.com> <p73veuzyr8p.fsf@verdi.suse.de> <20060301144641.GB20092@ti64.telemetry-investments.com>
+In-Reply-To: <20060301144641.GB20092@ti64.telemetry-investments.com>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>
-CC: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, rjw@sisk.pl,
-       mbligh@mbligh.org, clameter@engr.sgi.com, ebiederm@xmission.com
-Subject: Re: 2.6.16-rc5-mm1
-References: <20060228042439.43e6ef41.akpm@osdl.org>	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>	 <4404CE39.6000109@liberouter.org>	 <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>	 <4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>	 <4405723E.5060606@free.fr>  <20060301023235.735c8c47.akpm@osdl.org> <1141221511.7775.10.camel@homer>
-In-Reply-To: <1141221511.7775.10.camel@homer>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603011556.10139.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 01 March 2006 15:46, Bill Rugolsky Jr. wrote:
+> On Wed, Mar 01, 2006 at 12:53:58AM +0100, Andi Kleen wrote:
+> > What chipset?
+> 
+> Thanks for the interest, Andi.
+>  
+> The chipset is NVIDIA nForce Pro 2200 (CK804).  The mobo is Tyan 2895:
+
+I have such a system sitting next to me and it doesn't show any such symptoms.
+I normally don't let it run unrebooted over days though.
+
+I would suspect some driver.
+Do you use any special addin cards? What modules are you using?
+
+>   http://www.tyan.com/products/html/thunderk8we.html
+> 
+> It's running the current 1.02 version of the BIOS.
+
+My BIOS is
+
+ Version: 2004Q3
+ Release Date: 06/07/2005
+
+(which is self contradicting, but oh well) 
 
 
-Le 01.03.2006 14:58, Mike Galbraith a écrit :
-> On Wed, 2006-03-01 at 02:32 -0800, Andrew Morton wrote:
-> 
->>Laurent Riffard <laurent.riffard@free.fr> wrote:
->>
->>>Le 01.03.2006 01:21, Andrew Morton a écrit :
->>> > Laurent Riffard <laurent.riffard@free.fr> wrote:
->>> > 
->>> >>BUG: unable to handle kernel NULL pointer dereference at virtual address 00000034
->>> > 
->>> > 
->>> > I booted that thing on five machines, four architectures :(
->>> > 
->>> > Could people please test a couple more patchsets, see if we can isolate it?
->>> > 
->>> > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.1.gz
->>> > 
->>> > is 2.6.16-rc5-mm1 minus:
->>> > 
->>> > proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
->>> > tref-implement-task-references.patch
->>> > proc-dont-lock-task_structs-indefinitely.patch
->>> > proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
->>> > proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
->>> > proc-optimize-proc_check_dentry_visible.patch
->>>
->>> Ok, 2.6.16-rc5-mm1.1 works for me:
->>> - I can run java from command line in runlevel 1
->>> - I can launch Mozilla in X
->>
->>Useful, thanks.  So the second batch of /proc patches are indeed the problem.
->>
->>If you have (even more) time you could test
->>http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
->>That's the latest of everything with the problematic sysfs patches reverted
->>and Eric's recent /proc fixes.
-> 
-> 
-> Seems to work OK here, with debug settings as in Paul Jackson's report.
-> No java crash, no fuser -n tcp NNNN crash.  Only thing I see so far is
-> the proc symbolic link to nirvana permissions thingie.  Box is P4 HT.
-> 
-> 	-Mike
-> 
+> Current kernel is the FC4 errata:
 
-2.6.16-rc5-mm2-pre1 works fine for me except numerous "BUG: warning at fs/inotify.c:533/inotify_d_instantiate()".
+I don't run these kernels though - only mainline.
 
-Thanks
--- 
-laurent
+> 1141220165:151240: rtc 464 int 0 125 (=125)
+...
+
+Looks all ok. Your timer interrupts are ticking correctly.
+
+> time.c: Lost 3 timer tick(s)! rip poll_idle+0x14/0x19)
+
+Ok then it's not C1.
+
+-Andi

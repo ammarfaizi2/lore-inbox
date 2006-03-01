@@ -1,76 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWCATcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWCATe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWCATcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 14:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWCATcI
+	id S1751824AbWCATe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 14:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWCATe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 14:32:08 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:57834 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750987AbWCATcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 14:32:07 -0500
-Date: Wed, 1 Mar 2006 11:31:32 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, laurent.riffard@free.fr,
-       jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, rjw@sisk.pl,
-       mbligh@mbligh.org, clameter@engr.sgi.com, ebiederm@xmission.com
-Subject: Re: 2.6.16-rc5-mm1
-Message-ID: <20060301113132.A31349@unix-os.sc.intel.com>
-References: <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com> <4404CE39.6000109@liberouter.org> <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com> <4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org> <4405723E.5060606@free.fr> <20060301023235.735c8c47.akpm@osdl.org> <20060301032527.1b79fc7c.akpm@osdl.org> <20060301101419.A30674@unix-os.sc.intel.com> <20060301104822.622fe6c3.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060301104822.622fe6c3.akpm@osdl.org>; from akpm@osdl.org on Wed, Mar 01, 2006 at 10:48:22AM -0800
+	Wed, 1 Mar 2006 14:34:28 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:27056 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1750790AbWCATe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 14:34:27 -0500
+Message-ID: <4405F6F1.9040106@torque.net>
+Date: Wed, 01 Mar 2006 14:33:05 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Matthias Andree <matthias.andree@gmx.de>, Mark Rustad <mrustad@mac.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sg regression in 2.6.16-rc5
+References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net> <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 10:48:22AM -0800, Andrew Morton wrote:
-> > -static unsigned int __devinitdata num_processors;
-> > +unsigned int __cpuinitdata num_processors;
+Linus Torvalds wrote:
 > 
-> We'll need more than that - the compile failed due to a missing declaration.
+> On Wed, 1 Mar 2006, Matthias Andree wrote:
+> 
+>>On Tue, 28 Feb 2006, Douglas Gilbert wrote:
+>>
+>>
+>>>You can stop right there with the 1 MB reads. Welcome
+>>>to the new, blander sg driver which now shares many
+>>>size shortcomings with the block subsystem.
+>>
+>>What is the reason to break user-space applications like this?
+> 
+> 
+> Did you read the whole thread? It was a low-level SCSI driver issue, where 
+> nothing broke user space, but the command was just fed to the drive 
+> differently, which then hit a limit in the driver.
 
+Linus,
+That is an optimistic take. The maximum data carrying
+capacity of a single SCSI command via the SG_IO ioctl
+depends on the maximum data carrying capacity of a
+scatter gather list. Assuming all scatter gather list
+elements carry the same amount of data then the
+maximum capacity is:
+'max_bytes_per_element * max_num_elements'
 
+Only the latter figure is a "low-level SCSI driver issue"
+whose maximum seems to be SG_ALL (255). It is the former
+figure that has changed. The sg driver in lk 2.6.15 used
+__get_free_pages() with the order set to get 32 KB where
+as the generic routine used now get a single page (usually
+4 KB). Kai Makisara proposed changes in the SCSI LLD
+template that made things better in my experiments with
+scsi_debug.
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+However today James Bottomley confirmed that relying on
+coalescing pages that may be adjacent is not deterministic:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=114122991606658&w=2
 
+That leaves a worst case scatter gather list data capacity
+of (4 * 255) KB if the SCSI LLD (or SATA) uses SG_ALL. That
+is still just under the 1 MB bar that started this thread.
 
-Need to make this non-static since we need in acpi_unmap_lsapic
-shared function in arch/i386/kernel/acpi/boot.c
+So I guess we might find out how many people do big,
+single SCSI command data, transfers when lk 2.6.16 comes
+out.
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
---------------------------------------------------------
- arch/i386/kernel/mpparse.c |    2 +-
- include/asm-i386/smp.h     |    1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.16-rc5-mm1/arch/i386/kernel/mpparse.c
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/arch/i386/kernel/mpparse.c
-+++ linux-2.6.16-rc5-mm1/arch/i386/kernel/mpparse.c
-@@ -75,7 +75,7 @@ unsigned int def_to_bigsmp = 0;
- /* Processor that is doing the boot up */
- unsigned int boot_cpu_physical_apicid = -1U;
- /* Internal processor count */
--static unsigned int __devinitdata num_processors;
-+unsigned int __cpuinitdata num_processors;
- 
- /* Bitmask of physically existing CPUs */
- physid_mask_t phys_cpu_present_map;
-Index: linux-2.6.16-rc5-mm1/include/asm-i386/smp.h
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/include/asm-i386/smp.h
-+++ linux-2.6.16-rc5-mm1/include/asm-i386/smp.h
-@@ -92,6 +92,7 @@ static __inline int logical_smp_processo
- 
- extern int __cpu_disable(void);
- extern void __cpu_die(unsigned int cpu);
-+extern unsigned int num_processors;
- #endif /* !__ASSEMBLY__ */
- 
- #else /* CONFIG_SMP */
+Doug Gilbert

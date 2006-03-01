@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWCADat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWCADgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWCADat (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 22:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWCADat
+	id S1750865AbWCADgH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 22:36:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750928AbWCADgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 22:30:49 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:49515 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750756AbWCADas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 22:30:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=mJM+3+K+YNrJeXnORcSV6YPJjPNvZnNwg7p0dU6F/zaG0hnMIBbtnY9Q2qaAGMCf+tSNLAwT0a3+9PQ3yAnlEvikEhiFH8SvB7XjJZ79vU590x9KIZzbW1FfbPICiNwjrj4mNjXJj2+xBmPP1+uzEoMaEQbvMm60ASqNxFiVCIU=  ;
-Message-ID: <44051562.8070708@yahoo.com.au>
-Date: Wed, 01 Mar 2006 14:30:42 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 28 Feb 2006 22:36:07 -0500
+Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:4500 "EHLO
+	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1750865AbWCADgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 22:36:06 -0500
+Message-ID: <44051696.7070801@cfl.rr.com>
+Date: Tue, 28 Feb 2006 22:35:50 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060213)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org,
-       rml@novell.com
-Subject: Re: 2.6.16-rc5-mm1
-References: <20060228042439.43e6ef41.akpm@osdl.org>	<6bffcb0e0602280701h1d5cbeaar@mail.gmail.com>	<6bffcb0e0602280820ic87332k@mail.gmail.com>	<440503E5.1070100@yahoo.com.au>	<20060228184450.dd831456.akpm@osdl.org>	<4405108B.4050701@yahoo.com.au> <20060228192115.473673ab.akpm@osdl.org>
-In-Reply-To: <20060228192115.473673ab.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "Li, Peng" <ringer9cs@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Thread safety for epoll/libaio
+References: <598a055d0602281236m7eac9c09oc60af9ce28e7e4bf@mail.gmail.com>
+In-Reply-To: <598a055d0602281236m7eac9c09oc60af9ce28e7e4bf@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->>Andrew Morton wrote:
->>
->>>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->>>
->>>
->>>>>>Feb 28 15:13:42 ltg01-sid kernel: BUG: warning at
->>>>>>/usr/src/linux-mm/fs/inotify.c:533/inotify_d_instantiate()
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [show_trace+13/15] show_trace+0xd/0xf
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [dump_stack+21/23] dump_stack+0x15/0x17
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [inotify_d_instantiate+47/98]
->>>>>>inotify_d_instantiate+0x2f/0x62
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [d_instantiate+70/114]
->>>>>>d_instantiate+0x46/0x72
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_add_nondir+44/64]
->>>>>>ext3_add_nondir+0x2c/0x40
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_link+163/217] ext3_link+0xa3/0xd9
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [vfs_link+292/379] vfs_link+0x124/0x17b
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_linkat+157/218] sys_linkat+0x9d/0xda
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_link+20/25] sys_link+0x14/0x19
->>>>>>Feb 28 15:13:42 ltg01-sid kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
->>>>>>
->>>>>>Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-dmesg
->>>>>>Here is config http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-config
->>>>>
->>>>>
->>>>>This patch is causing that warning
->>>>>inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
->>>>>
->>>>
->>>>The warning is harmless really. I guess it can be removed.
->>>
->>>
->>>?    How did DCACHE_INOTIFY_PARENT_WATCHED get set on that dentry?
->>>
->>
->>I guess it is because I don't clear it on +ve => -ve conversions.
->>We _could_ do that AFAIKS, by hooking into d_delete, but it would
->>have to be yet another fsnotify hook there because it will have to
->>be done under lock.
->>
-> 
-> 
-> How could a -ve dentry become the source of a link?  We should be sure we
-> know why this happened before ignoring it..
-> 
+You don't mix epoll with io_submit; they are two completely different 
+methods for doing IO.  The former is for use with bsd style non blocking 
+IO, and the latter is truly async io.  epoll will signal you whenever a 
+file can be read ( the read ahead buffer is non empty ) or written ( 
+there's memory available to buffer writes ).  io_getevents() won't 
+notify you of anything until you actually request a read or write, in 
+which case, it lets you know when that has completed.
 
-The source of a link? That wouldn't get d_instantiate called on it, would it?
-I figured this was the destination.
+The two systems are completely non interchangeable.  With the former you 
+wait first, then request some IO, which completes immediately.  With the 
+latter, you request some IO ( possibly many ), then wait for some to 
+finish.
 
-I can reproduce a similar looking oops by unlinking a PARENT_WATCHED file, then
-touching it again.
+Li, Peng wrote:
+> I apologize if I should not post this on LKML, but there seems to be
+> some lack of documentation for using epoll/AIO with threads.  Are
+> these interfaces thread-safe?  Can I use them safely in the following
+> way:
+> 
+> Thread A:  while(1) { io_getevents();  ... }
+> // wait forever until an event occurs, then handles the event and loop
+> 
+> Thread B:  while(1) { epoll_wait();  ... }
+> // same as thread A
+> 
+> Thread C:  ... io_submit(); ...
+> 
+> Thread D:  ... epoll_ctl(); ....
+> 
+> Suppose thread B calls epoll_wait and blocks before thread D calls
+> epoll_ctl.  Is it safe to do so? Will thread B be notified for the
+> event submitted by thread D?  Thread A and C pose the same question
+> for AIO.
+> 
+> I wrote a simple program to test these interfaces and they seem to
+> work without problems, but I am not sure if it is really safe to do so
+> in general.  If all of them works, it seems easy to use epoll and AIO
+> together as I can simply use another thread to harvest events from
+> thread A and B and make it look like a unified event notification
+> interface.
+> 
+> Peng
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

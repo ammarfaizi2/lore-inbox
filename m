@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWCAMiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWCAMyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWCAMiE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 07:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWCAMiD
+	id S1750888AbWCAMyH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 07:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWCAMyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 07:38:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:2495 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750768AbWCAMiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 07:38:01 -0500
-Subject: Re: [RFC] vfs: cleanup of permission()
-From: Arjan van de Ven <arjan@infradead.org>
-To: tvrtko.ursulin@sophos.com
-Cc: Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@ftp.linux.org.uk>
-In-Reply-To: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
-References: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
-Content-Type: text/plain
-Date: Wed, 01 Mar 2006 13:37:51 +0100
-Message-Id: <1141216671.3185.22.camel@laptopd505.fenrus.org>
+	Wed, 1 Mar 2006 07:54:07 -0500
+Received: from colin.muc.de ([193.149.48.1]:56590 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750888AbWCAMyG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 07:54:06 -0500
+Date: 1 Mar 2006 13:54:05 +0100
+Date: Wed, 1 Mar 2006 13:54:05 +0100
+From: Andi Kleen <ak@muc.de>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [patch 2/5] Remove unnecessary lapic definition from acpidef.h
+Message-ID: <20060301125405.GB72515@muc.de>
+References: <20060301001557.318047000@araj-sfield> <20060301001722.746570000@araj-sfield>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060301001722.746570000@araj-sfield>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 28, 2006 at 04:15:59PM -0800, Ashok Raj wrote:
+> Dont know why this exists... just happened to trip me when i used a 
+> variable name with lapic, and until i looked at the pre-processed
+> output couldnt figure out we had a lame definition like this.
+> 
+> Hope iam not breaking anything here..
+
+No, the file is a mess anyways.
 
 > 
-> And finally, please don't remove nameidata. Modules out there depend on it 
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> ------------------------------------------------
+>  include/asm-i386/apicdef.h   |    1 -
+>  include/asm-x86_64/apicdef.h |    2 --
+>  2 files changed, 3 deletions(-)
+> 
+> Index: linux-2.6.16-rc1-mm4/include/asm-i386/apicdef.h
+> ===================================================================
+> --- linux-2.6.16-rc1-mm4.orig/include/asm-i386/apicdef.h
+> +++ linux-2.6.16-rc1-mm4/include/asm-i386/apicdef.h
+> @@ -120,7 +120,6 @@
+>   */
+>  #define u32 unsigned int
 
-are those modules about to merged into the kernel? The current intent
-infrastructure isn't fulfilling what it should do well, and from what
-I've seen on the discussions it sounds that the best way forward is to
-undo the current implementation and then roll out one which caters to
-the needs of the existing users better.
+Like this should go too.
 
-As external module, you have little say so far simply because your usage
-isn't visible. I'd urge you to quickly submit your code so that the
-things you need from this are better visible to the people who are
-thinking and working on the redesign.
+>  
+> -#define lapic ((volatile struct local_apic *)APIC_BASE)
 
-> and we at Sophos are about to release a new product which needs it as 
-> well. 
+I'll take a stab at cleaning it up.
 
-I assume we're talking about an open source product, or at least kernel
-component, here?
-
-
+Thanks,
+-Andi

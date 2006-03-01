@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWCAUZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWCAUZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWCAUZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 15:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWCAUZk
+	id S1750989AbWCAUZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 15:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWCAUZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:25:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2249 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750713AbWCAUZj (ORCPT
+	Wed, 1 Mar 2006 15:25:57 -0500
+Received: from madness.at ([217.196.146.217]:33507 "EHLO cronos.madness.at")
+	by vger.kernel.org with ESMTP id S1751024AbWCAUZz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 15:25:39 -0500
-Date: Wed, 1 Mar 2006 12:19:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: efault@gmx.de, nickpiggin@yahoo.com.au, laurent.riffard@free.fr,
-       jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, rjw@sisk.pl,
-       mbligh@mbligh.org, clameter@engr.sgi.com, ebiederm@xmission.com
-Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060301121912.7d1a7376.akpm@osdl.org>
-In-Reply-To: <20060301121218.68fb3f76.akpm@osdl.org>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr>
-	<20060228162157.0ed55ce6.akpm@osdl.org>
-	<4405723E.5060606@free.fr>
-	<20060301023235.735c8c47.akpm@osdl.org>
-	<1141221511.7775.10.camel@homer>
-	<4405B4AA.7090207@free.fr>
-	<1141227199.10460.2.camel@homer>
-	<20060301121218.68fb3f76.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Mar 2006 15:25:55 -0500
+Message-ID: <4406034B.9030105@madness.at>
+Date: Wed, 01 Mar 2006 21:25:47 +0100
+From: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Maxim Kozover <maximkoz@netvision.net.il>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, Andrew Vasquez <andrew.vasquez@qlogic.com>
+Subject: Re: problems with scsi_transport_fc and qla2xxx
+References: <1413265398.20060227150526@netvision.net.il>	<978150825.20060227210552@netvision.net.il> <20060228221422.282332ef.akpm@osdl.org>
+In-Reply-To: <20060228221422.282332ef.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Nick, isn't it simply a matter of..
+Andrew Morton wrote:
+> Maxim Kozover <maximkoz@netvision.net.il> wrote:
+> 
+>>Hi!
+> 
+> 
+> (cc's added)
+> 
+> 
+>>Most of the problem seems to be a QLogic driver problem.
+>>HBAs are connected to target via FC switch.
+>>
+>>1. If I have several LUNs on each HBA, with QLogic only 1 directory
+>>per adapter (for LUN 0) is created in /sys/class/fc_remote_ports,
+>>while with Emulex a directory for every LUN is created.
+>>
+>>2. The situation I described occurs with QLogic only if the cable
+>>connecting between HBA and switch is pulled out/in. If I
+>>connect/disconnect the cable between switch and target, disks come
+>>back.
 
-err...
+I can confirm that very problem (pulling the cable between HBA and
+switch results in only LUN 0 or nothing coming back afterward) on
+2.6.15.4 here too.
 
---- devel/fs/dcache.c~inotify-lock-avoidance-with-parent-watch-status-in-dentry-fix	2006-03-01 12:16:22.000000000 -0800
-+++ devel-akpm/fs/dcache.c	2006-03-01 12:18:34.000000000 -0800
-@@ -100,6 +100,7 @@ static void dentry_iput(struct dentry * 
- 	if (inode) {
- 		dentry->d_inode = NULL;
- 		list_del_init(&dentry->d_alias);
-+		dentry->d_flags &= ~DCACHE_INOTIFY_PARENT_WATCHED;
- 		spin_unlock(&dentry->d_lock);
- 		spin_unlock(&dcache_lock);
- 		if (!inode->i_nlink)
-_
 
+Stefan

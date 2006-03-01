@@ -1,170 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWCASni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWCASsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWCASni (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 13:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWCASni
+	id S932094AbWCASsk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 13:48:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWCASsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 13:43:38 -0500
-Received: from mx1.suse.de ([195.135.220.2]:60612 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932089AbWCASnh (ORCPT
+	Wed, 1 Mar 2006 13:48:40 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:60880 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1750862AbWCASsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 13:43:37 -0500
-Date: Wed, 1 Mar 2006 19:43:35 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: akpm@osdl.org
-Cc: dev@sw.ru, linux-kernel@vger.kernel.org
-Subject: [PATCH,RESUBMIT] Fix shrink_dcache_parent() against shrink_dcache_memory() race
-Message-ID: <20060301184335.GD31712@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WplhKdTI2c8ulnbP"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Mar 2006 13:48:39 -0500
+Message-ID: <4405EC94.2030202@dgreaves.com>
+Date: Wed, 01 Mar 2006 18:48:52 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <lkml@rtr.ca>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca>
+In-Reply-To: <4405E83D.9000906@rtr.ca>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Lord wrote:
 
---WplhKdTI2c8ulnbP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> By the way, the latest 2.6.16-rc5-git4 is available,
+> and has FUA turned off by default now.  So it should
+> work with your drives, and *you* are expected to verify
+> that for us all now.
 
-Kirill Korotaev <dev@sw.ru> discovered a race between shrink_dcache_parent()
-and shrink_dcache_memory() which leads to "Busy inodes after unmount".
-When unmounting a file system shrink_dcache_parent() is racing against a
-possible shrink_dcache_memory(). This might lead to the situation that
-shrink_dcache_parent() is returning too early. In this situation the
-super_block is destroyed before shrink_dcache_memory() could put the inode.
+Yeah, I know - I've got it on the machine... but it's my wife's machine.
+I've asked nicely but she's editing a Hercule Poirot video so I'm not
+allowed to reboot it for a while...
 
-This patch fixes the problem through introducing a prunes counter which is
-incremented when a dentry is pruned but the corresponding inoded isn't put
-yet.When the prunes counter is not null, shrink_dcache_parent() is waiting and
-restarting its work.
+I've told her I'm not making pancakes until I've tested it so expect a
+report Real Soon Now...
 
-Signed-off-by: Jan Blunck <jblunck@suse.de>
+David
 
----
-
---WplhKdTI2c8ulnbP
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="umount-prune_one_dentry-fix.diff"
-
-
- fs/dcache.c        |   38 ++++++++++++++++++++++++++++++++++++++
- fs/super.c         |    4 +++-
- include/linux/fs.h |    3 +++
- 3 files changed, 44 insertions(+), 1 deletion(-)
-
-Index: linux-2.6/fs/dcache.c
-===================================================================
---- linux-2.6.orig/fs/dcache.c
-+++ linux-2.6/fs/dcache.c
-@@ -364,17 +364,21 @@ restart:
-  */
- static inline void prune_one_dentry(struct dentry * dentry)
- {
-+	struct super_block *sb = dentry->d_sb;
- 	struct dentry * parent;
- 
- 	__d_drop(dentry);
- 	list_del(&dentry->d_u.d_child);
- 	dentry_stat.nr_dentry--;	/* For d_free, below */
-+	sb->s_prunes++;
- 	dentry_iput(dentry);
- 	parent = dentry->d_parent;
- 	d_free(dentry);
- 	if (parent != dentry)
- 		dput(parent);
- 	spin_lock(&dcache_lock);
-+	sb->s_prunes--;
-+	wake_up(&sb->s_wait_prunes);
- }
- 
- /**
-@@ -623,6 +627,36 @@ out:
- 	return found;
- }
- 
-+static int wait_on_prunes(struct super_block *sb)
-+{
-+	DEFINE_WAIT(wait);
-+
-+	spin_lock(&dcache_lock);
-+	if (!sb->s_prunes) {
-+		spin_unlock(&dcache_lock);
-+		return 0;
-+	}
-+
-+#ifdef DCACHE_DEBUG
-+	printk(KERN_DEBUG "%s: waiting for %d prunes\n", __FUNCTION__,
-+	       sb->s_prunes);
-+#endif
-+
-+	while (1) {
-+		prepare_to_wait(&sb->s_wait_prunes, &wait,
-+				TASK_UNINTERRUPTIBLE);
-+		if (!sb->s_prunes)
-+			break;
-+		spin_unlock(&dcache_lock);
-+		schedule();
-+		spin_lock(&dcache_lock);
-+	}
-+
-+	finish_wait(&sb->s_wait_prunes, &wait);
-+	spin_unlock(&dcache_lock);
-+	return 1;
-+}
-+
- /**
-  * shrink_dcache_parent - prune dcache
-  * @parent: parent of entries to prune
-@@ -634,8 +668,12 @@ void shrink_dcache_parent(struct dentry 
- {
- 	int found;
- 
-+ again:
- 	while ((found = select_parent(parent)) != 0)
- 		prune_dcache(found);
-+
-+	if (wait_on_prunes(parent->d_sb))
-+		goto again;
- }
- 
- /**
-Index: linux-2.6/fs/super.c
-===================================================================
---- linux-2.6.orig/fs/super.c
-+++ linux-2.6/fs/super.c
-@@ -80,6 +80,8 @@ static struct super_block *alloc_super(v
- 		sema_init(&s->s_dquot.dqio_sem, 1);
- 		sema_init(&s->s_dquot.dqonoff_sem, 1);
- 		init_rwsem(&s->s_dquot.dqptr_sem);
-+		s->s_prunes = 0;
-+		init_waitqueue_head(&s->s_wait_prunes);
- 		init_waitqueue_head(&s->s_wait_unfrozen);
- 		s->s_maxbytes = MAX_NON_LFS;
- 		s->dq_op = sb_dquot_ops;
-@@ -230,8 +232,8 @@ void generic_shutdown_super(struct super
- 
- 	if (root) {
- 		sb->s_root = NULL;
--		shrink_dcache_parent(root);
- 		shrink_dcache_anon(&sb->s_anon);
-+		shrink_dcache_parent(root);
- 		dput(root);
- 		fsync_super(sb);
- 		lock_super(sb);
-Index: linux-2.6/include/linux/fs.h
-===================================================================
---- linux-2.6.orig/include/linux/fs.h
-+++ linux-2.6/include/linux/fs.h
-@@ -835,6 +835,9 @@ struct super_block {
- 	struct list_head	s_instances;
- 	struct quota_info	s_dquot;	/* Diskquota specific options */
- 
-+	unsigned int		s_prunes;	/* protected by dcache_lock */
-+	wait_queue_head_t	s_wait_prunes;
-+
- 	int			s_frozen;
- 	wait_queue_head_t	s_wait_unfrozen;
- 
-
---WplhKdTI2c8ulnbP--

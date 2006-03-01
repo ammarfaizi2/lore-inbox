@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752102AbWCCIBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752179AbWCCIIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752102AbWCCIBX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 03:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752177AbWCCIBX
+	id S1752179AbWCCIIi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 03:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752182AbWCCIIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 03:01:23 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:9606 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S1752102AbWCCIBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 03:01:22 -0500
-From: Marc Zyngier <maz@misterjones.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Rick Richardson <rick@remotepoint.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] EISA: tidy-up driver_register() return value
-Organization: Metropolis -- Nowhere
-References: <200603021617.55396.bjorn.helgaas@hp.com>
-X-Attribution: maz
-Reply-to: maz@misterjones.org
-Date: Fri, 03 Mar 2006 09:00:55 +0100
-Message-ID: <wrpmzg83qko.fsf@wild-wind.fr.eu.org>
-In-Reply-To: <200603021617.55396.bjorn.helgaas@hp.com> (Bjorn Helgaas's
-	message of "Thu, 2 Mar 2006 16:17:55 -0700")
+	Fri, 3 Mar 2006 03:08:38 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:30424 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1752179AbWCCIIh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 03:08:37 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
+Subject: Re: MAX_USBFS_BUFFER_SIZE
+Date: Wed, 1 Mar 2006 22:59:26 +0100
+User-Agent: KMail/1.9.1
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200603012116.25869.rene@exactcode.de> <20060301213223.GA17270@kroah.com> <200603012242.35633.rene@exactcode.de>
+In-Reply-To: <200603012242.35633.rene@exactcode.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: 192.168.70.139
-X-SA-Exim-Rcpt-To: bjorn.helgaas@hp.com, rick@remotepoint.com, linux-kernel@vger.kernel.org, akpm@osdl.org
-X-SA-Exim-Mail-From: maz@misterjones.org
-X-SA-Exim-Scanned: No (on young-lust.wild-wind.fr.eu.org); SAEximRunCond expanded to false
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603012259.26790.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Bjorn" == Bjorn Helgaas <bjorn.helgaas@hp.com> writes:
+> So, queing alot URBs is the recommended way to sustain the bus? Allowing
+> way bigger buffers will not be realistic?
 
-Bjorn> Remove the assumption that driver_register() returns the number
-Bjorn> of devices bound to the driver.  In fact, it returns zero for
-Bjorn> success or a negative error value.
+usbfs could copy the user buffer to a bunch of non-contiguous pages, and
+then fire those off in an urb using the scatter-gather stuff.  [Rather than,
+as now, allocating a bunch of contiguous pages using kmalloc].  That would
+probably make it possible to use much much bigger user-space buffers.  Plus
+the code looks rather easy to write.
 
-Bjorn> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Ciao,
 
-Looks ok to me.
-
-Acked-by: Marc Zyngier <maz@misterjones.org>
-
-	M.
--- 
-And if you don't know where you're going, any road will take you there...
+Duncan.

@@ -1,95 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWCACL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWCACQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964816AbWCACL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 21:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbWCACL6
+	id S964815AbWCACQN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 21:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWCACQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 21:11:58 -0500
-Received: from smtpout.mac.com ([17.250.248.89]:44014 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932648AbWCACL5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 21:11:57 -0500
-X-PGP-Universal: processed;
-	by AlPB on Tue, 28 Feb 2006 20:11:42 -0600
-In-Reply-To: <Pine.LNX.4.63.0602282216220.6272@kai.makisara.local>
-References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net> <Pine.LNX.4.63.0602282216220.6272@kai.makisara.local>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4DF08E5C-8503-4EEE-AD96-2F847674080D@mac.com>
-Cc: Douglas Gilbert <dougg@torque.net>, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Tue, 28 Feb 2006 21:16:13 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:1405 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964815AbWCACQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 21:16:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=MaQBC+ITHbbBxEyvZgzCD6+ogrk+y4w6Fz43D9kE6LVKDmthC50MKXRPRom3uWx9wKCkISq8jk3jaQXL8rvEnHPEpgr7beg988a+oQXY/9v54MtQpCExzEaXJdULZAFueg7Jqr7PG3NZyC5KW4SMAOkQMKNGljB1dxiXtPWWkFU=  ;
+Message-ID: <440503E5.1070100@yahoo.com.au>
+Date: Wed, 01 Mar 2006 13:16:05 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rml@novell.com
+Subject: Re: 2.6.16-rc5-mm1
+References: <20060228042439.43e6ef41.akpm@osdl.org>	 <6bffcb0e0602280701h1d5cbeaar@mail.gmail.com> <6bffcb0e0602280820ic87332k@mail.gmail.com>
+In-Reply-To: <6bffcb0e0602280820ic87332k@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: sg regression in 2.6.16-rc5
-Date: Tue, 28 Feb 2006 20:08:19 -0600
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 28, 2006, at 2:38 PM, Kai Makisara wrote:
-
-> On Tue, 28 Feb 2006, Douglas Gilbert wrote:
->
->> Mark,
->> You can stop right there with the 1 MB reads. Welcome
->> to the new, blander sg driver which now shares many
->> size shortcomings with the block subsystem.
+Michal Piotrowski wrote:
+> On 28/02/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> 
+>>Hi,
 >>
->> In lk 2.6.15 the sg driver (and the st driver) did its
->> own scatter gather list allocations. The sg driver
->> used 32 KB segments (8 times the normal page size)
->> in each scatter gather element. The maximum number
->> of scatter gather elements depends on the LLD but
->> can be no more than 256. That meant the sg driver
->> allowed a maximum single IO size of 8 MB. There was
->> also a define in sg.h (SG_SCATTER_SZ and it is still
->> there) that allowed the 32KB per segment to be increased
->> allowing larger single command transfers (then 8 MB).
->
-> This is still possible but it needs some changes to most SCSI HBA  
-> drivers.
-> The big requests are split into bios supporting 256 pages. For 4 kB  
-> pages,
-> this limits i/o to 1 MB. The scsi_execute_async() path used by st  
-> and sg
-> can chain bios and this enables large request at the ULD level. At  
-> lower
-> level, the request consists of pages and now we hit the s/g list  
-> maximum
-> length _unless_ the HBA driver enables clustering. In this case the
-> adjacent pages are coalesced and the large requests fit into the  
-> HBA s/g
-> limits. Well, now we hit another limit: the max_sectors default for  
-> SCSI
-> drivers is 1024 and this limits requests to 512 kB _unless_ the HBA  
-> driver
-> increases max_sectors.
->
-> The aic79xx driver enables clustering but does not increase  
-> max_sectors.
-> This makes the maximum request size 512 kB. If it is possible to set
->
-> 	.max_sectors = 0xFFFF,
->
-> in linux/drivers/scsi/aic7xxx/aic79xx_osm.c without breaking the  
-> driver,
-> this should enable requests up to 8 MB - 256 B. (I don't have the  
-> hardware
-> to test this.)
+>>On 28/02/06, Andrew Morton <akpm@osdl.org> wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/
+>>>
+>>>
+>>>- A large procfs rework from Eric Biederman.
+>>>
+>>>- The swap prefetching patch is back.
+>>>
+>>
+>>[snip]
+>>
+>>>+inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
+>>>+inotify-lock-avoidance-with-parent-watch-status-in-dentry-fix.patch
+>>
+>>I have noticed this:
+>>Feb 28 15:13:42 ltg01-sid kernel: BUG: warning at
+>>/usr/src/linux-mm/fs/inotify.c:533/inotify_d_instantiate()
+>>Feb 28 15:13:42 ltg01-sid kernel:  [show_trace+13/15] show_trace+0xd/0xf
+>>Feb 28 15:13:42 ltg01-sid kernel:  [dump_stack+21/23] dump_stack+0x15/0x17
+>>Feb 28 15:13:42 ltg01-sid kernel:  [inotify_d_instantiate+47/98]
+>>inotify_d_instantiate+0x2f/0x62
+>>Feb 28 15:13:42 ltg01-sid kernel:  [d_instantiate+70/114]
+>>d_instantiate+0x46/0x72
+>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_add_nondir+44/64]
+>>ext3_add_nondir+0x2c/0x40
+>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_link+163/217] ext3_link+0xa3/0xd9
+>>Feb 28 15:13:42 ltg01-sid kernel:  [vfs_link+292/379] vfs_link+0x124/0x17b
+>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_linkat+157/218] sys_linkat+0x9d/0xda
+>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_link+20/25] sys_link+0x14/0x19
+>>Feb 28 15:13:42 ltg01-sid kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+>>
+>>Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-dmesg
+>>Here is config http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-config
+> 
+> 
+> This patch is causing that warning
+> inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
+> 
 
-Indeed, this seems to work fine, at least with the hardware we have.  
-Gotta love those one-line patches.
-
-> Several SCSI HBA drivers currently have similar problems.
-
-Yes. Now that I know about this, it is no problem. I'm not allergic  
-to patches.
-
-Thanks to both of you for your responses. I would submit a patch for  
-this except that I know I don't know that it won't cause problems for  
-configurations and targets that I can't test.
+The warning is harmless really. I guess it can be removed.
 
 -- 
-Mark Rustad, MRustad@mac.com
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

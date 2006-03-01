@@ -1,80 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWCARgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWCARgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWCARgl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 12:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWCARgl
+	id S932450AbWCARgn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 12:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWCARgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 12:36:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15568 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932389AbWCARgk (ORCPT
+	Wed, 1 Mar 2006 12:36:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16080 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932409AbWCARgk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Mar 2006 12:36:40 -0500
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 0/5] Permit NFS superblock sharing [try #2]
-Date: Wed, 01 Mar 2006 17:36:17 +0000
+Subject: [PATCH 3/5] NFS: Abstract out namespace initialisation [try #2]
+Date: Wed, 01 Mar 2006 17:36:26 +0000
 To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
        trond.myklebust@fys.uio.no, aviro@redhat.com
 Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Message-Id: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060301173626.16639.89127.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
+References: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The attached patch abstracts out the namespace initialisation so that temporary
+namespaces can be set up elsewhere.
 
-These patches make it possible to share NFS superblocks between related mounts,
-where "related" means on the same server. Inodes and dentries will be shared
-where the NFS filehandles are the same (for example if two NFS3 files come from
-the same export but from different mounts, such as is not uncommon with autofs
-on /home).
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-Following discussion with Al Viro, the following changes have been made to the
-previous attempt at this set of patches:
+ fs/namespace.c            |    8 +-------
+ include/linux/namespace.h |   15 +++++++++++++++
+ 2 files changed, 16 insertions(+), 7 deletions(-)
 
- (*) The vfsmount is now passed into the get_sb() method for a filesystem
-     instead of passing a pointer to a pointer to a dentry into which get_sb()
-     could stick a root dentry if it wanted. get_sb() now instantiates the
-     superblock and root dentry pointers in the vfsmount itself.
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 51d3ebc..0194538 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1688,13 +1688,7 @@ static void __init init_mount_tree(void)
+ 	namespace = kmalloc(sizeof(*namespace), GFP_KERNEL);
+ 	if (!namespace)
+ 		panic("Can't allocate initial namespace");
+-	atomic_set(&namespace->count, 1);
+-	INIT_LIST_HEAD(&namespace->list);
+-	init_waitqueue_head(&namespace->poll);
+-	namespace->event = 0;
+-	list_add(&mnt->mnt_list, &namespace->list);
+-	namespace->root = mnt;
+-	mnt->mnt_namespace = namespace;
++	init_namespace(namespace, mnt);
+ 
+ 	init_task.namespace = namespace;
+ 	read_lock(&tasklist_lock);
+diff --git a/include/linux/namespace.h b/include/linux/namespace.h
+index 3abc8e3..ea6fd62 100644
+--- a/include/linux/namespace.h
++++ b/include/linux/namespace.h
+@@ -17,6 +17,21 @@ extern int copy_namespace(int, struct ta
+ extern void __put_namespace(struct namespace *namespace);
+ extern struct namespace *dup_namespace(struct task_struct *, struct fs_struct *);
+ 
++static inline void init_namespace(struct namespace *namespace,
++				  struct vfsmount *mnt)
++{
++	atomic_set(&namespace->count, 1);
++	INIT_LIST_HEAD(&namespace->list);
++	init_waitqueue_head(&namespace->poll);
++	namespace->event = 0;
++	namespace->root = mnt;
++
++	if (mnt) {
++		list_add(&mnt->mnt_list, &namespace->list);
++		mnt->mnt_namespace = namespace;
++	}
++}
++
+ static inline void put_namespace(struct namespace *namespace)
+ {
+ 	if (atomic_dec_and_lock(&namespace->count, &vfsmount_lock))
 
- (*) The get_sb() method now returns an integer (0 or -ve error number) rather
-     than the superblock pointer or cast error number.
-
- (*) the get_sb_*() convenience functions in the core kernel now take a
-     vfsmount pointer argument and return an integer, so most filesystems have
-     to change very little.
-
- (*) If one of the convenience function is not used, then get_sb() should
-     normally call simple_set_mnt() to instantiate the vfsmount. This will
-     always return 0, and so can be tail-called from get_sb().
-
- (*) generic_shutdown_super() now calls shrink_dcache_sb() to clean up the
-     dcache upon superblock destruction rather than shrink_dcache_parent() and
-     shrink_dcache_anon(). This is because, as far as I can tell, the current
-     code assumes that all the dentries will be linked into a tree depending
-     from sb->s_root, and that anonymous dentries won't have children.
-
-     However, with the way these patches implement NFS superblock sharing,
-     these assumptions are violated: the root of the filesystem is simply a
-     dummy dentry and inode (the real inode for '/' may well be inaccessible),
-     and all the vfsmounts are rooted on anonymous[*] dentries with child
-     trees.
-
-     [*] Anonymous until discovered from another tree.
-
- (*) d_materialise_dentry() now switches the parentage of the two nodes around
-     correctly when one or other of them is self-referential.
-
- (*) Whilst invoking link_path_walk(), the nfs4_get_root() routine now
-     temporarily overrides the FS settings of the process to prevent absolute
-     symbolic links from walking into the wrong namespace.
-
- (*) nfs*_get_sb() instantiate the supplied vfsmount directly by assigning to
-     its mnt_root and mnt_sb members.
-
- (*) nfs_readdir_lookup() creates dentries for each of the entries readdir()
-     returns; this function now attaches disconnected trees from alternate
-     roots that happen to be discovered attached to a directory being read (in
-     the same way nfs_lookup() is made to do for lookup ops).
-
- (*) Various bugs have been fixed.
-
-David

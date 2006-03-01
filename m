@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbWCAHze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWCAIQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932619AbWCAHze (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 02:55:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWCAHze
+	id S1751045AbWCAIQY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 03:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWCAIQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 02:55:34 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:59011 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932619AbWCAHzd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 02:55:33 -0500
-Date: Tue, 28 Feb 2006 23:59:15 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Hauke Laging <mailinglisten@hauke-laging.de>, linux-kernel@vger.kernel.org
-Subject: Re: VFS: Dynamic umask for the access rights of linked objects
-Message-ID: <20060301075915.GD27645@sorel.sous-sol.org>
-References: <200603010328.42008.mailinglisten@hauke-laging.de> <44050AB7.7020202@vilain.net> <200603010454.15223.mailinglisten@hauke-laging.de> <08AB14CC-2BB2-4923-BFDB-B1360B5EF405@mac.com>
+	Wed, 1 Mar 2006 03:16:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:57507 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751045AbWCAIQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 03:16:24 -0500
+Date: Wed, 1 Mar 2006 00:16:12 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Roland Dreier <rdreier@cisco.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+Message-ID: <20060301081612.GA289233@sgi.com>
+References: <1140841250.2587.33.camel@localhost.localdomain> <yq08xrvhkee.fsf@jaguar.mkp.net> <adar75nlcar.fsf@cisco.com> <44047565.3090202@sgi.com> <adafym3l8lk.fsf@cisco.com> <44048660.3010701@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <08AB14CC-2BB2-4923-BFDB-B1360B5EF405@mac.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <44048660.3010701@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kyle Moffett (mrmacman_g4@mac.com) wrote:
-> On Feb 28, 2006, at 22:54:15, Hauke Laging wrote:
-> >6) In my scenario the VFS would add a step after 4): It would check  
-> >if the symlink has been created by someone different from the  
-> >process's uid and from root. If so there is the risk of abuse and  
-> >the access check would be repeated for the symlink owner.
+On Tue, Feb 28, 2006 at 06:20:32PM +0100, Jes Sorensen wrote:
+> Roland Dreier wrote:
+> >    Jes> Not quite correct as far as I understand it. mmiowb() is
+> >    Jes> supposed to guarantee that writes to MMIO space have
+> >    Jes> completed before continuing.  That of course covers the
+> >    Jes> multi-CPU case, but it should also cover the write-combining
+> >    Jes> case.
 > >
-> >7) The VFS would find out that the symlink owner is not allowed to  
-> >write to /etc/passwd. Thus the write access is prohibited, even for  
-> >a process with superuser rights.
+> >I don't believe this is correct.  mmiowb() does not guarantee that
+> >writes have completed -- they may still be pending in a buffer in a
+> >bridge somewhere.  The _only_ effect of mmiowb() is to make sure that
+> >writes which have been ordered between CPUs using some other mechanism
+> >(i.e. a lock) are properly ordered by the rest of the system.  This
+> >only has an effect systems like very large ia64 systems, where (as I
+> >understand it), writes can pass each other on the way to the PCI bus.
+> >In fact, mmiowb() is a NOP on essentially every architecture.
 > 
-> Feel free to write an LSM to do this, but it breaks POSIX specs a bit  
-> and could cause problems with some programs, so it's not likely to  
-> become the default behavior.
+> Hmmmm
+> 
+> That could be, seems like Jesse agrees that it could all be in the
+> pipeline somewhere. Considering Jesse was responsible for mmiowb() I'll
+> take his word for it ;-)
 
-Solar Designer's Openwall Linux patch contains code for these types of
-restrictions (at least since 2.2 if not earlier).  Idea was stolen and
-made into an LSM smth like 4 or 5 years ago.  Neither of these have made
-it upstream.  Attempts have also been made to codify such restrictions
-in SELinux policy.  Polyinstantiation and per-process namespaces can be
-done effectively with code that's now in mainline, and can mitigate much
-of this risk.
+Right.  On the Altix, the mmiowb ensures that the write is into a
+FIFO on the destination node (node I/O device is attached to), so
+that later writes from other nodes will be ordered after it.  But
+it doesn't actually force it to the bus.  That's one reason why it's
+so much quicker than a using a read for ordering.
 
-thanks,
--chris
+jeremy

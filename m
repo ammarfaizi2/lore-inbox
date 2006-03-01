@@ -1,80 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWCAQHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWCAQNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWCAQHS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 11:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWCAQHS
+	id S1750711AbWCAQNL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 11:13:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWCAQNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 11:07:18 -0500
-Received: from 213-140-2-68.ip.fastwebnet.it ([213.140.2.68]:11440 "EHLO
-	aa001msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932193AbWCAQHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 11:07:16 -0500
-Date: Wed, 1 Mar 2006 17:07:18 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel BUG at mm/slab.c:2564 - 2.6.16-rc5-g7b14e3b5
-Message-ID: <20060301170718.6f97b9d8@localhost>
-In-Reply-To: <20060301160656.370e1ee0@localhost>
-References: <20060301160656.370e1ee0@localhost>
-X-Mailer: Sylpheed-Claws 2.0.0-rc4 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
+	Wed, 1 Mar 2006 11:13:11 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:60142 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1750711AbWCAQNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 11:13:10 -0500
+Date: Thu, 02 Mar 2006 01:13:04 +0900 (JST)
+Message-Id: <20060302.011304.75185944.anemo@mba.ocn.ne.jp>
+To: nickpiggin@yahoo.com.au
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: jiffies_64 vs. jiffies
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <4405B700.1080607@yahoo.com.au>
+References: <44059915.3010800@yahoo.com.au>
+	<20060301.235750.25910018.anemo@mba.ocn.ne.jp>
+	<4405B700.1080607@yahoo.com.au>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Mar 2006 16:06:56 +0100
-Paolo Ornati <ornati@fastwebnet.it> wrote:
+>>>>> On Thu, 02 Mar 2006 02:00:16 +1100, Nick Piggin <nickpiggin@yahoo.com.au> said:
 
-> I'm going to reboot ;)
+>> Well, do you mean it should be like this ?
+>> 
+>> jiffies_64++;
+>> update_times(jiffies_64);
 
-Some more info...
+nick> Yeah. It makes your patch a line smaller too!
 
-1) System
+Another solution might be simplifying update_times() like this.  It
+looks there is no point to calculate ticks in update_times().
 
-AMD Athlon64 3200+
-2 x 256MB DDR400 (Corsair Value)
-Asus A8VSE Deluxe
-
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8385 [K8T800 AGP] Host Bridge (rev 01)
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI bridge [K8T800/K8T890 South]
-0000:00:0a.0 Ethernet controller: Marvell Technology Group Ltd. 88E8001 Gigabit Ethernet Controller (rev 13)
-0000:00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-0000:00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller (rev 80)
-0000:00:0f.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 81)
-0000:00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [KT600/K8T800/K8T890 South]
-0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200 SE] (rev 01)
-0000:01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon 9200 SE] (Secondary) (rev 01)
-
-
-2) partitions:
-/	ext3
-/var	reiserfs
-
-After the reboot I've checked the reiserfs partition and found errors
-fixable only with "reiserfsck --rebuild-tree".
+diff --git a/kernel/timer.c b/kernel/timer.c
+index fe3a9a9..6188c99 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -906,14 +906,9 @@ void run_local_timers(void)
+  */
+ static inline void update_times(void)
+ {
+-	unsigned long ticks;
+-
+-	ticks = jiffies - wall_jiffies;
+-	if (ticks) {
+-		wall_jiffies += ticks;
+-		update_wall_time(ticks);
+-	}
+-	calc_load(ticks);
++	wall_jiffies++;
++	update_wall_time(1);
++	calc_load(1);
+ }
+   
+ /*
 
 
-3) memory corruption?
-With this PC I've experienced sporadically memory corruption many months
-ago... but they are gone away disabling Memory Interleaving in the BIOS
-(tested with memtest86+). Maybe it only fails less often...
+As for long term solution, using an union for jiffies and jiffies_64
+would be robust.  But it affects so many codes ...
 
-
-4) Frequency scaling: the only thing I've recently enabled is frequence
-scaling (with "ondemand" governor).
-
--- 
-	Paolo Ornati
-	Linux 2.6.16-rc5-g7b14e3b5 on x86_64
+---
+Atsushi Nemoto

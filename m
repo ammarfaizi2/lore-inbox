@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWCAT1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWCAT2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWCAT1t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 14:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWCAT1t
+	id S1750725AbWCAT2G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 14:28:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWCAT2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 14:27:49 -0500
-Received: from rtr.ca ([64.26.128.89]:13549 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750710AbWCAT1s (ORCPT
+	Wed, 1 Mar 2006 14:28:05 -0500
+Received: from mx1.suse.de ([195.135.220.2]:38097 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750725AbWCAT2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 14:27:48 -0500
-Message-ID: <4405F5C4.4070707@rtr.ca>
-Date: Wed, 01 Mar 2006 14:28:04 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Wed, 1 Mar 2006 14:28:03 -0500
+From: Andi Kleen <ak@suse.de>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
+Date: Wed, 1 Mar 2006 20:21:58 +0100
+User-Agent: KMail/1.9.1
+Cc: clameter@engr.sgi.com, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com> <200603011934.34136.ak@suse.de> <20060301105844.d5b243f2.pj@sgi.com>
+In-Reply-To: <20060301105844.d5b243f2.pj@sgi.com>
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <Pine.LNX.4.64.0603011405200.3177@p34>
-In-Reply-To: <Pine.LNX.4.64.0603011405200.3177@p34>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603012021.59638.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
->
-> I am using 2.6.16-rc5-git4, and after running:
+On Wednesday 01 March 2006 19:58, Paul Jackson wrote:
+> Andi wrote:
+> > The main reason i'm reluctant to use this is that the cpuset fast path
+> > overhead (e.g. in memory allocators etc.) is quite large
 > 
-> # smartctl -data -o off /dev/sdc
+> I disagree.
 > 
-> I get:
-> 
-> [4294785.192000] ata3: translated ATA stat/err 0x51/04 to SCSI 
-> SK/ASC/ASCQ 0xb/00/00
-> [4294785.192000] ata3: status=0x51 { DriveReady SeekComplete Error }
-> [4294785.192000] ata3: error=0x04 { DriveStatusError }
+> I spent much time minimizing that overhead over the last few months, as
+> a direct result of your recommendation to do so.
 
-That's probably just your drive reporting "unsupported sub-command".
-Nothing serious -- the man page for smartctl even mentions the possibility.
+IIRC my recommendation only optimized the case of nobody using
+cpuset if I remember correctly. 
 
-Cheers
+Using a single cpuset would already drop into the slow path, right?
+
+Hmm, possibly it's better now, but I remember being shocked last
+time I looked at the code in detail ow much code it executed for a normal 
+page allocation and how many cache lines it touched. This was some time
+ago admittedly.
+
+Also on a different angle I would like to make the dcache/inode spreading 
+basically default on x86-64 and I'm not sure I want to get into the business
+of explaining all the distributions how to set up cpusets and set up
+new file systems.
+For that a single switch that can be just set by default is much more
+practical.
+
+> 
+> Especially in the case that all tasks are in the root cpuset (as in the
+> scenario I just suggested for setting this memory spreading policy for
+> all tasks), the overhead is practically zero. 
+
+Ok.
+
+> The key hook is an 
+> inline test done (usually) once per page allocation on an essentially
+> read only global 'number_of_cpusets' that determines it is <= 1.
+> 
+> I disagree with your "quite large" characterization.
+
+Agreed perhaps it was somewhat exaggerated.
+
+-Andi

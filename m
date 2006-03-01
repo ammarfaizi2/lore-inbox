@@ -1,59 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWCACo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWCACp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbWCACo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 21:44:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWCACo4
+	id S964844AbWCACp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 21:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWCACp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 21:44:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55781 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964842AbWCACoz (ORCPT
+	Tue, 28 Feb 2006 21:45:28 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:44456 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S964844AbWCACp0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 21:44:55 -0500
-Date: Tue, 28 Feb 2006 18:44:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org,
-       rml@novell.com
-Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060228184450.dd831456.akpm@osdl.org>
-In-Reply-To: <440503E5.1070100@yahoo.com.au>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<6bffcb0e0602280701h1d5cbeaar@mail.gmail.com>
-	<6bffcb0e0602280820ic87332k@mail.gmail.com>
-	<440503E5.1070100@yahoo.com.au>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.12; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Feb 2006 21:45:26 -0500
+Message-ID: <44050AB7.7020202@vilain.net>
+Date: Wed, 01 Mar 2006 15:45:11 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hauke Laging <mailinglisten@hauke-laging.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS: Dynamic umask for the access rights of linked objects
+References: <200603010328.42008.mailinglisten@hauke-laging.de>
+In-Reply-To: <200603010328.42008.mailinglisten@hauke-laging.de>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> >>Feb 28 15:13:42 ltg01-sid kernel: BUG: warning at
-> >>/usr/src/linux-mm/fs/inotify.c:533/inotify_d_instantiate()
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [show_trace+13/15] show_trace+0xd/0xf
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [dump_stack+21/23] dump_stack+0x15/0x17
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [inotify_d_instantiate+47/98]
-> >>inotify_d_instantiate+0x2f/0x62
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [d_instantiate+70/114]
-> >>d_instantiate+0x46/0x72
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_add_nondir+44/64]
-> >>ext3_add_nondir+0x2c/0x40
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_link+163/217] ext3_link+0xa3/0xd9
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [vfs_link+292/379] vfs_link+0x124/0x17b
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [sys_linkat+157/218] sys_linkat+0x9d/0xda
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [sys_link+20/25] sys_link+0x14/0x19
-> >>Feb 28 15:13:42 ltg01-sid kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-> >>
-> >>Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-dmesg
-> >>Here is config http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-config
-> > 
-> > 
-> > This patch is causing that warning
-> > inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
-> > 
+Hauke Laging wrote:
+> I tried to send this to the VFS maintainer but the address I found on 
+> http://www.kernelnewbies.org/maintainers/ and in 
+> my /usr/src/linux/MAINTAINERS seems not to exist any more 
+> (viro@parcelfarce.linux.theplanet.co.uk).
 > 
-> The warning is harmless really. I guess it can be removed.
+> The complete version of the following text ist avaiable at 
+> http://www.hauke-laging.de/ideen/symlink-umask/konzept_en.html
+> 
+> the problem
+> (At least) If applications store data in directories which are 
+> write-accessible by other users then symlink attacks become possible. A 
+> file is erased and replaced by a symlink. The (buggy) application can be 
+> abused if it can read or write the linked-to file but the abusing user 
+> cannot. These attacks are mostly denial of service attacks.
 
-?    How did DCACHE_INOTIFY_PARENT_WATCHED get set on that dentry?
+Of course this doesn't work if, like /tmp and /var/tmp are shipped as on 
+every distribution, the directory has permissions 1777.
+
+But go on...
+
+> Solution
+> The kernel should be extended by a function (which can be enabled and 
+> disabled) which would solve the problem. The access rights of a symlink 
+> are ignored but its creator is stored. The kernel should do additional 
+> checks when determining whether a file system object can be accessed in 
+> the requested way:
+> 
+> - Is the accessed object a symlink?
+> 
+> - Has the creator of the symlink got the access rights which the respective 
+> process is requesting?
+> 
+> If the situation turns out to be critical then the kernel would deny the 
+> respective rights. The process cannot access the file via the symlink 
+> though it could have if it had tried to access it directly. The access 
+> rights of the symlink creator (through the whole path, not just for the 
+> file) would be used as a mask for the applications rights.
+
+What problem you are trying to solve?  Why does it matter what the 
+ownership of the symlink is?
+
+> This approach does not solve every kind of this problem but should be quite 
+> easy to implement. I don't want this mail to get too long so I have left 
+> out some considerations about hard links. See the URL.
+
+Reading the page, the considerations about hard links seem quite off the 
+mark.  If somebody creates a hard link to one of your files, it *is* the 
+same file, just with a different name.  So it becomes the same problem 
+as the first one.
+
+That is, if I understand what you're saying correctly.  It's not very 
+clear.  You should at least describe your envisioned scenario in a step 
+by step basis, highlighting your concerns.
+
+But frankly, see the FAQ answer to "I have discovered a huge security 
+hole in rm!"
+
+Sam.

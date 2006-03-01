@@ -1,61 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751938AbWCAW5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751946AbWCAXBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751938AbWCAW5T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 17:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWCAW5T
+	id S1751946AbWCAXBo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 18:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751945AbWCAXBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 17:57:19 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:4481 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S1751106AbWCAW5S (ORCPT
+	Wed, 1 Mar 2006 18:01:44 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:722 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751104AbWCAXBn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 17:57:18 -0500
-Message-ID: <440626BA.4070000@cs.wisc.edu>
-Date: Wed, 01 Mar 2006 16:56:58 -0600
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 1 Mar 2006 18:01:43 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: dougg@torque.net, Linus Torvalds <torvalds@osdl.org>,
-       Matthias Andree <matthias.andree@gmx.de>, Mark Rustad <mrustad@mac.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sg regression in 2.6.16-rc5
-References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com>	 <4404AA2A.5010703@torque.net> <20060301083824.GA9871@merlin.emma.line.org>	 <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>	 <4405F6F1.9040106@torque.net>  <1141245769.9586.6.camel@max> <1141252235.3276.63.camel@mulgrave.il.steeleye.com>
-In-Reply-To: <1141252235.3276.63.camel@mulgrave.il.steeleye.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16rc5 'found' an extra CPU.
+Date: Wed, 1 Mar 2006 15:01:10 -0800
+Message-ID: <971FCB6690CD0E4898387DBF7552B90E0487A1F7@orsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16rc5 'found' an extra CPU.
+Thread-Index: AcY9gznSZ3M1/5+UTO6drPqoYYBETgAAJGrg
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Dave Jones" <davej@redhat.com>, <linux-kernel@vger.kernel.org>
+Cc: <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 01 Mar 2006 23:01:11.0249 (UTC) FILETIME=[08659410:01C63D84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Wed, 2006-03-01 at 14:42 -0600, Mike Christie wrote:
-> 
->>The current sg driver should use alloc_pages() with an order that should
->>get 32 KB. If the order being passed to alloc_pages() in sg.c is only
->>getting one page by default that is bug.
-> 
-> 
->>The generic routines now being used can turn that 32KB segment into
->>multiple 4KB ones if the LLD does not support clustering.
-> 
-> 
-> To be honest, the original behaviour was a bug.  A device that doesn't
-> enable clustering is telling us it can't take anything other than
-> PAGE_SIZE chunks ... trying to give it more is likely to end in tears.
+This may be the "ACPI core", dedicated to running the ACPI interpreter.
 
-Yeah, we hit this with iscsi_tcp. iscsi_tcp does not suport clustering, 
-not due to a HW limit, but becuase that is just how it was implemented. 
-When we get clustered segments we end up with data corruption or an oops 
-depending on the operation. I think the workaround was to set the 
-default segment for sg and st to a page or just use the block layer sg_io.
+:-)
 
-> 
-> However ... I'm not sure we actually have any devices that anyone can
-> identify which truly can't enable clustering (a lot which have it
-> disabled, I suspect, are that way historically because their writers
-> didn't trust the clustering algorithm).
-> 
 
-ok, I can implement clustering for iscsi_tcp. For now it does not much 
-matter since we never supported large sg or st commands.
+
+> -----Original Message-----
+> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
+> owner@vger.kernel.org] On Behalf Of Dave Jones
+> Sent: Wednesday, March 01, 2006 2:47 PM
+> To: linux-kernel@vger.kernel.org
+> Cc: linux-acpi@vger.kernel.org
+> Subject: 2.6.16rc5 'found' an extra CPU.
+> 
+> This amused me.
+> 
+> (17:43:34:davej@nemesis:~)$ ll /proc/acpi/processor/
+> total 0
+> dr-xr-xr-x 2 root root 0 Mar  1 17:43 CPU1/
+> dr-xr-xr-x 2 root root 0 Mar  1 17:43 CPU2/
+> dr-xr-xr-x 2 root root 0 Mar  1 17:43 CPU3/
+> (17:43:36:davej@nemesis:~)$
+> 
+> As cool as a 3-way x86-64 sounds, it's really only got 2.
+> 
+> Two of these..
+> 
+> vendor_id       : AuthenticAMD
+> cpu family      : 15
+> model           : 5
+> model name      : AMD Opteron(tm) Processor 244
+> stepping        : 8
+> cpu MHz         : 1789.412
+> cache size      : 1024 KB
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 1
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca
+> cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext
+> 3dnow
+> bogomips        : 3578.59
+> TLB size        : 1024 4K pages
+> clflush size    : 64
+> cache_alignment : 64
+> address sizes   : 40 bits physical, 48 bits virtual
+> power management: ts ttp
+> 
+> 
+> (17:45:21:davej@nemesis:~)$ cat /proc/acpi/processor/CPU*/info
+> processor id:            0
+> acpi id:                 1
+> bus mastering control:   no
+> power management:        no
+> throttling control:      yes
+> limit interface:         yes
+> processor id:            1
+> acpi id:                 2
+> bus mastering control:   no
+> power management:        no
+> throttling control:      no
+> limit interface:         no
+> processor id:            255
+> acpi id:                 3
+> bus mastering control:   no
+> power management:        no
+> throttling control:      no
+> limit interface:         no
+> 
+> I guess the '255' has confused something.
+> 
+> This made my 'bug of the day' :)
+> 
+> 		Dave
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

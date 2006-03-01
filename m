@@ -1,129 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWCAM4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWCAM7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWCAM4j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 07:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWCAM4j
+	id S932086AbWCAM7d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 07:59:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWCAM7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 07:56:39 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35544 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750954AbWCAM4i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 07:56:38 -0500
-Date: Wed, 1 Mar 2006 13:54:27 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       seife@suse.de
-Subject: [patch] add s2ram pointer to suspend documentation
-Message-ID: <20060301125427.GB2054@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Mar 2006 07:59:33 -0500
+Received: from viking.sophos.com ([194.203.134.132]:39697 "EHLO
+	viking.sophos.com") by vger.kernel.org with ESMTP id S932086AbWCAM7c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 07:59:32 -0500
+In-Reply-To: <1141216671.3185.22.camel@laptopd505.fenrus.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [RFC] vfs: cleanup of permission()
+MIME-Version: 1.0
+X-Mailer: Lotus Notes Release 6.5.2 June 01, 2004
+Message-ID: <OF8335F2B0.0A730216-ON80257124.0045E22D-80257124.00475BA4@sophos.com>
+From: tvrtko.ursulin@sophos.com
+Date: Wed, 1 Mar 2006 12:59:25 +0000
+X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 6.5.2|June
+ 01, 2004) at 01/03/2006 12:59:25,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 6.5.2|June
+ 01, 2004) at 01/03/2006 12:59:25,
+	Serialize complete at 01/03/2006 12:59:25,
+	S/MIME Sign failed at 01/03/2006 12:59:25: The cryptographic key was not
+ found,
+	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.5|November 30, 2005) at
+ 01/03/2006 12:59:28,
+	Serialize complete at 01/03/2006 12:59:28
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven <arjan@infradead.org> wrote on 01/03/2006 12:37:51:
 
-Put a pointer to s2ram tool into documentation instead of shell
-scripts -- s2ram knows how to switch consoles and should work on more
-systems. Whitelist updates.
+> > And finally, please don't remove nameidata. Modules out there depend 
+on it 
+> 
+> are those modules about to merged into the kernel? The current intent
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+See third paragraph of my reply.
 
----
-commit e2b385438d8e9711729b4bf075f58db3e1279fde
-tree c1d264aaf9b476d6683a52061149540c2e46cfbe
-parent 3f517362fe48428b9a9cb4e251238c1abd2d61c2
-author <pavel@amd.ucw.cz> Wed, 01 Mar 2006 13:53:30 +0100
-committer <pavel@amd.ucw.cz> Wed, 01 Mar 2006 13:53:30 +0100
+> infrastructure isn't fulfilling what it should do well, and from what
+> I've seen on the discussions it sounds that the best way forward is to
+> undo the current implementation and then roll out one which caters to
+> the needs of the existing users better.
 
- Documentation/power/video.txt |   62 +++++++++++++++--------------------------
- 1 files changed, 22 insertions(+), 40 deletions(-)
-
-diff --git a/Documentation/power/video.txt b/Documentation/power/video.txt
-index dca46e5..9c64350 100644
---- a/Documentation/power/video.txt
-+++ b/Documentation/power/video.txt
-@@ -1,7 +1,7 @@
+That I don't know so I can't comment at the moment. I haven't seen 
+anything on linux-security-modules recently?
  
- 		Video issues with S3 resume
- 		~~~~~~~~~~~~~~~~~~~~~~~~~~~
--		  2003-2005, Pavel Machek
-+		  2003-2006, Pavel Machek
- 
- During S3 resume, hardware needs to be reinitialized. For most
- devices, this is easy, and kernel driver knows how to do
-@@ -15,6 +15,27 @@ run normally so video card is normally i
- problem for S1 standby, because hardware should retain its state over
- that.
- 
-+We either have to run video BIOS during early resume, or interpret it
-+using vbetool later, or maybe nothing is neccessary on particular
-+system because video state is preserved. Unfortunately different
-+methods work on different systems, and no known method suits all of
-+them.
-+
-+Userland application called s2ram has been developed; it contains long
-+whitelist of systems, and automatically selects working method for a
-+given system. It can be downloaded from CVS at
-+www.sf.net/projects/suspend . If you get a system that is not in the
-+whitelist, please try to find a working solution, and submit whitelist
-+entry so that work does not need to be repeated.
-+
-+Currently, VBE_SAVE method (6 below) works on most
-+systems. Unfortunately, vbetool only runs after userland is resumed,
-+so it makes debugging of early resume problems
-+hard/impossible. Methods that do not rely on userland are preferable.
-+
-+Details
-+~~~~~~~
-+
- There are a few types of systems where video works after S3 resume:
- 
- (1) systems where video state is preserved over S3.
-@@ -161,42 +182,3 @@ Asus A7V8X	    nVidia RIVA TNT2 model 64
- (***) To be tested with a newer kernel.
- 
- (****) Not with SMP kernel, UP only.
--
--VBEtool details
--~~~~~~~~~~~~~~~
--(with thanks to Carl-Daniel Hailfinger)
--
--This is not a generic solution. For some machines, you'll have better
--luck with setting parameters on kernel command line.
--
--First, boot into X and run the following script ONCE:
--#!/bin/bash
--statedir=/root/s3/state
--mkdir -p $statedir
--chvt 2
--sleep 1
--vbetool vbestate save >$statedir/vbe
--
--
--To suspend and resume properly, call the following script as root:
--#!/bin/bash
--statedir=/root/s3/state
--curcons=`fgconsole`
--fuser /dev/tty$curcons 2>/dev/null|xargs ps -o comm= -p|grep -q X && chvt 2
--cat /dev/vcsa >$statedir/vcsa
--sync
--echo 3 >/proc/acpi/sleep
--sync
--vbetool post
--vbetool vbestate restore <$statedir/vbe
--cat $statedir/vcsa >/dev/vcsa
--rckbd restart
--chvt $[curcons%6+1]
--chvt $curcons
--
--
--Unless you change your graphics card or other hardware configuration,
--the state once saved will be OK for every resume afterwards.
--NOTE: The "rckbd restart" command may be different for your
--distribution. Simply replace it with the command you would use to
--set the fonts on screen.
+> As external module, you have little say so far simply because your usage
+> isn't visible. I'd urge you to quickly submit your code so that the
+> things you need from this are better visible to the people who are
+> thinking and working on the redesign.
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+I know all that, but it is a complicated matter to discuss. That's why I 
+was planning to make a comprehensive announcement which would discuss most 
+of the hot topics. Ideally yes, I would like to merge, but it won't happen 
+now. The first thing I would like to do is establish common ground with 
+other security vendors so that we could approach the problem together. 
+Personaly, I am not sure whether insisting that everything should be a 
+part of kernel is a right thing to do even though I think I understand all 
+the up- and down-sides of both policies.
+
+Having said all this above, I am afraid that there will be no other choice 
+but to start working on the announcement asap. :)
+ 
+> > and we at Sophos are about to release a new product which needs it as 
+> > well. 
+> 
+> I assume we're talking about an open source product, or at least kernel
+> component, here?
+
+Of course. Kernel component might be known to some as Talpa and it is 
+released under GPL.
+

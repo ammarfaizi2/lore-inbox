@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWCAKkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWCAKoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964910AbWCAKkG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 05:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWCAKkG
+	id S932178AbWCAKoF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 05:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWCAKoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 05:40:06 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:9125 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964910AbWCAKkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 05:40:05 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] i386: port ATI timer fix from x86_64 to i386
-References: <200602281905_MC3-1-B97E-7FDC@compuserve.com>
-	<20060228161512.0cdbe560.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Mar 2006 11:40:00 +0100
-In-Reply-To: <20060228161512.0cdbe560.akpm@osdl.org>
-Message-ID: <p73psl6zbwf.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Mar 2006 05:44:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58341 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932178AbWCAKoE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 05:44:04 -0500
+Date: Wed, 1 Mar 2006 02:32:35 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, rjw@sisk.pl,
+       mbligh@mbligh.org, clameter@engr.sgi.com, ebiederm@xmission.com
+Subject: Re: 2.6.16-rc5-mm1
+Message-Id: <20060301023235.735c8c47.akpm@osdl.org>
+In-Reply-To: <4405723E.5060606@free.fr>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
+	<4404CE39.6000109@liberouter.org>
+	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
+	<4404DA29.7070902@free.fr>
+	<20060228162157.0ed55ce6.akpm@osdl.org>
+	<4405723E.5060606@free.fr>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> >
-> >  This fixes the "timer runs too fast" bug on ATI chipsets (bugzilla #3927).
+Laurent Riffard <laurent.riffard@free.fr> wrote:
+>
+> Le 01.03.2006 01:21, Andrew Morton a écrit :
+>  > Laurent Riffard <laurent.riffard@free.fr> wrote:
+>  > 
+>  >>BUG: unable to handle kernel NULL pointer dereference at virtual address 00000034
+>  > 
+>  > 
+>  > I booted that thing on five machines, four architectures :(
+>  > 
+>  > Could people please test a couple more patchsets, see if we can isolate it?
+>  > 
+>  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.1.gz
+>  > 
+>  > is 2.6.16-rc5-mm1 minus:
+>  > 
+>  > proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
+>  > tref-implement-task-references.patch
+>  > proc-dont-lock-task_structs-indefinitely.patch
+>  > proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
+>  > proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+>  > proc-optimize-proc_check_dentry_visible.patch
 > 
-> Wonderful, thanks.  What's the relationship (if any) between this and the
-> recently-merged x86_64 fix?
+>  Ok, 2.6.16-rc5-mm1.1 works for me:
+>  - I can run java from command line in runlevel 1
+>  - I can launch Mozilla in X
 
-He just ported the x86-64 change over without any original authorship
-attribution :/
+Useful, thanks.  So the second batch of /proc patches are indeed the problem.
 
-And some less functionality (only works for ACPI now) and some totally
-unrelated Documentation cleanup and a few random printk changes.
+If you have (even more) time you could test
+http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
+That's the latest of everything with the problematic sysfs patches reverted
+and Eric's recent /proc fixes.
 
-The ACPI only thing is probably mostly ok because the timing won't work
-at least on the dual cores without ACPI anyways because PMtimer is needed.
-On single cores it would be useful even without ACPI
-(for that earlyquirk.c just would need to be moved up to run independently
-of ACPI) 
-
-Still it's probably a good idea for 2.6.16.
-
--Andi
- 

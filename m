@@ -1,90 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWCAQix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWCAQqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbWCAQix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 11:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751493AbWCAQix
+	id S932121AbWCAQqI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 11:46:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751616AbWCAQqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 11:38:53 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62100 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751354AbWCAQiw (ORCPT
+	Wed, 1 Mar 2006 11:46:08 -0500
+Received: from lixom.net ([66.141.50.11]:45190 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S1751622AbWCAQqH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 11:38:52 -0500
-Subject: [PATCH] move eeh_add_device_tree_late()
-From: John Rose <johnrose@austin.ibm.com>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: Paul Mackerras <paulus@samba.org>, lkml <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org
-In-Reply-To: <20060301010249.GV20175@ca-server1.us.oracle.com>
-References: <20060301001909.GU20175@ca-server1.us.oracle.com>
-	 <20060301010249.GV20175@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Message-Id: <1141230954.19095.19.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Mar 2006 10:35:55 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 11:46:07 -0500
+Date: Wed, 1 Mar 2006 10:45:31 -0600
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, paulus@samba.org
+Subject: [PATCH] Fix powerpc bad_page_fault output  (Re: 2.6.16-rc5-mm1)
+Message-ID: <20060301164531.GA17755@pb15.lixom.net>
+References: <20060228042439.43e6ef41.akpm@osdl.org> <4404E328.7070807@mbligh.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4404E328.7070807@mbligh.org>
+User-Agent: Mutt/1.5.11
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good catch, Mark.
+On Tue, Feb 28, 2006 at 03:56:24PM -0800, Martin Bligh wrote:
+> Andrew Morton wrote:
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/
+> 
+> New panic on IBM power4 lpar of P690. 2.6.16-rc5-git3 is OK.
+> 
+> (config: 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/power4)
+> 
+> http://test.kernel.org/24165/debug/console.log
 
-Commit 827c1a6c1a5dcb2902fecfb648f9af6a532934eb introduced a new
-function that calls eeh_add_device_late() implicitly.  This patch
-reorders the two functions in question to fix the compile error.  This
-might be preferable to exposing eeh_add_device_late() in eeh.h.
+For what it's worth, this is a NULL pointer dereference in the RCU
+code.
 
-Apologies Paul/everyone, please don't kill me.
+Seems that the human-readible parts are printed at a differnet printk level
+(well, _at_ a level), so they fell off. Not good.
 
-Thanks-
-John
+Andrew and/or Paulus, see patch below.
 
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
 
-diff -puN arch/powerpc/platforms/pseries/eeh.c~fix_eeh_bb arch/powerpc/platforms/pseries/eeh.c
---- 2_6_linus_3/arch/powerpc/platforms/pseries/eeh.c~fix_eeh_bb	2006-03-01 10:30:52.000000000 -0600
-+++ 2_6_linus_3-johnrose/arch/powerpc/platforms/pseries/eeh.c	2006-03-01 10:31:28.000000000 -0600
-@@ -893,20 +893,6 @@ void eeh_add_device_tree_early(struct de
- }
- EXPORT_SYMBOL_GPL(eeh_add_device_tree_early);
+Thanks,
+
+Olof
+
+
+---
+
+It seems that the die() output is printk'd without any prink level,
+so some distros will log the register dumps and the human readible
+format differently.
+
+(I.e. see http://test.kernel.org/24165/debug/console.log, which lacks
+the KERN_ALERT parts)
+
+Changing the die() output to include a level will likely confuse users
+that currently rely on getting the output where they're getting it,
+so instead remove it from the bad_page_fault() output.
+
+Signed-off-by: Olof Johansson <olof@lixom.net>
+
+
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index ec4adcb..fee050a 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -389,7 +389,7 @@ void bad_page_fault(struct pt_regs *regs
  
--void eeh_add_device_tree_late(struct pci_bus *bus)
--{
--	struct pci_dev *dev;
--
--	list_for_each_entry(dev, &bus->devices, bus_list) {
-- 		eeh_add_device_late(dev);
-- 		if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
-- 			struct pci_bus *subbus = dev->subordinate;
-- 			if (subbus)
-- 				eeh_add_device_tree_late(subbus);
-- 		}
--	}
--}
--
- /**
-  * eeh_add_device_late - perform EEH initialization for the indicated pci device
-  * @dev: pci device for which to set up EEH
-@@ -935,6 +921,20 @@ void eeh_add_device_late(struct pci_dev 
- }
- EXPORT_SYMBOL_GPL(eeh_add_device_late);
+ 	/* kernel has accessed a bad area */
  
-+void eeh_add_device_tree_late(struct pci_bus *bus)
-+{
-+	struct pci_dev *dev;
-+
-+	list_for_each_entry(dev, &bus->devices, bus_list) {
-+ 		eeh_add_device_late(dev);
-+ 		if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
-+ 			struct pci_bus *subbus = dev->subordinate;
-+ 			if (subbus)
-+ 				eeh_add_device_tree_late(subbus);
-+ 		}
-+	}
-+}
-+
- /**
-  * eeh_remove_device - undo EEH setup for the indicated pci device
-  * @dev: pci device to be removed
-
-_
-
+-	printk(KERN_ALERT "Unable to handle kernel paging request for ");
++	printk("Unable to handle kernel paging request for ");
+ 	switch (regs->trap) {
+ 		case 0x300:
+ 		case 0x380:
+@@ -402,8 +402,7 @@ void bad_page_fault(struct pt_regs *regs
+ 		default:
+ 			printk("unknown fault\n");
+ 	}
+-	printk(KERN_ALERT "Faulting instruction address: 0x%08lx\n",
+-		regs->nip);
++	printk("Faulting instruction address: 0x%08lx\n", regs->nip);
+ 
+ 	die("Kernel access of bad area", regs, sig);
+ }

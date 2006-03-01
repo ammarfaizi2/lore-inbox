@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932655AbWCAKEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWCAKHD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932655AbWCAKEV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 05:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbWCAKEV
+	id S932136AbWCAKHD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 05:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWCAKHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 05:04:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21980 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932655AbWCAKEU (ORCPT
+	Wed, 1 Mar 2006 05:07:03 -0500
+Received: from smtp4-g19.free.fr ([212.27.42.30]:1736 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932136AbWCAKHB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 05:04:20 -0500
-Date: Wed, 1 Mar 2006 02:02:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060301020255.39fcc6a8.akpm@osdl.org>
-In-Reply-To: <20060301015338.b296b7ad.pj@sgi.com>
-References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
-	<20060228181849.faaf234e.pj@sgi.com>
-	<20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-	<20060301015338.b296b7ad.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 05:07:01 -0500
+Message-ID: <4405723E.5060606@free.fr>
+Date: Wed, 01 Mar 2006 11:06:54 +0100
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050920
+X-Accept-Language: fr-fr, fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Martin Bligh <mbligh@mbligh.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: 2.6.16-rc5-mm1
+References: <20060228042439.43e6ef41.akpm@osdl.org>	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>	<4404CE39.6000109@liberouter.org>	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>	<4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>
+In-Reply-To: <20060228162157.0ed55ce6.akpm@osdl.org>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> Ok - down to the patch:
+
+Le 01.03.2006 01:21, Andrew Morton a écrit :
+> Laurent Riffard <laurent.riffard@free.fr> wrote:
 > 
->  1) gregkh-driver-empty_release_functions_are_broken.patch         - good
->  2) gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch - special case
->  3) gregkh-driver-fix-up-the-sysfs-pollable-patch.patch            - bad
+>>BUG: unable to handle kernel NULL pointer dereference at virtual address 00000034
 > 
->  Up through and including (1), it all seems fine.
-
-OK, thanks.  So
-gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch is the
-problem.   Odd.
-
-<looks at sysfs_poll()>
-
-If that gets called on a top-level file in /sys, won't
-filp->f_dentry->d_parent be pointing at a non-sysfs dentry?
-
->  With (3) or more loaded, it fails to boot, with the crash
->  given before (and appended below for completeness).
 > 
->  With patchs up through (2) loaded, it boots, but complains 27
->  times during the boot
+> I booted that thing on five machines, four architectures :(
 > 
->  One of the 27 complaints for special case (2):
->  ================================= begin =================================
->  Debug: sleeping function called from invalid context at drivers/base/core.c:343^M
->  in_atomic():1, irqs_disabled():0^M
->  ^M
->  Call Trace:^M
->   [<a0000001000132c0>] show_stack+0x40/0xa0^M
->                                  sp=e00002bc3a49f9b0 bsp=e00002bc3a499558^M
->   [<a000000100013b50>] dump_stack+0x30/0x60^M
->                                  sp=e00002bc3a49fb80 bsp=e00002bc3a499540^M
->   [<a00000010008ff80>] __might_sleep+0x200/0x220^M
->                                  sp=e00002bc3a49fb80 bsp=e00002bc3a499510^M
->   [<a0000001004b58b0>] put_device+0x30/0x60^M
->                                  sp=e00002bc3a49fb90 bsp=e00002bc3a4994f0^M
->   [<a00000010051e470>] scsi_put_command+0x170/0x1a0^M
->                                  sp=e00002bc3a49fb90 bsp=e00002bc3a499498^M
->   [<a000000100528c80>] scsi_next_command+0x40/0x80^M
->                                  sp=e00002bc3a49fb90 bsp=e00002bc3a499468^M
->   [<a0000001005296a0>] scsi_end_request+0x1a0/0x1e0^M
->                                  sp=e00002bc3a49fb90 bsp=e00002bc3a499420^M
->   [<a000000100529a50>] scsi_io_completion+0x370/0x820^M
->                                  sp=e00002bc3a49fb90 bsp=e00002bc3a499388^M
+> Could people please test a couple more patchsets, see if we can isolate it?
+> 
+> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.1.gz
+> 
+> is 2.6.16-rc5-mm1 minus:
+> 
+> proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
+> tref-implement-task-references.patch
+> proc-dont-lock-task_structs-indefinitely.patch
+> proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
+> proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+> proc-optimize-proc_check_dentry_visible.patch
 
-Yeah, known problem - big messiness in scsi.  That's why -mm includes
-revert-gregkh-driver-put_device-might_sleep.patch.  Looks like I need to
-add revert-gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch too ;)
+Ok, 2.6.16-rc5-mm1.1 works for me:
+- I can run java from command line in runlevel 1
+- I can launch Mozilla in X
+
+> and http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.2.gz is
+> 2.6.16-rc5-mm1 minus:
+> 
+> trivial-cleanup-to-proc_check_chroot.patch
+> proc-fix-the-inode-number-on-proc-pid-fd.patch
+> proc-remove-useless-bkl-in-proc_pid_readlink.patch
+> proc-remove-unnecessary-and-misleading-assignments.patch
+> proc-simplify-the-ownership-rules-for-proc.patch
+> proc-replace-proc_inodetype-with-proc_inodefd.patch
+> proc-remove-bogus-proc_task_permission.patch
+> proc-kill-proc_mem_inode_operations.patch
+> proc-properly-filter-out-files-that-are-not-visible.patch
+> proc-fix-the-link-count-for-proc-pid-task.patch
+> proc-move-proc_maps_operations-into-task_mmuc.patch
+> dcache-add-helper-d_hash_and_lookup.patch
+> proc-rewrite-the-proc-dentry-flush-on-exit.patch
+> proc-close-the-race-of-a-process-dying-durning.patch
+> proc-refactor-reading-directories-of-tasks.patch
+> #
+> proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
+> tref-implement-task-references.patch
+> proc-dont-lock-task_structs-indefinitely.patch
+> proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
+> proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+> proc-optimize-proc_check_dentry_visible.patch
+> 
+> 
+> Thanks.
+
+I guess you don't need me to test 2.6.16-rc5-mm1.2 since 
+2.6.16-rc5-mm1.1 is OK.
+
+thanks
+-- 
+laurent

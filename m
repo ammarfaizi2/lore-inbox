@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWCAKrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWCAKuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWCAKrS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 05:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWCAKrR
+	id S1030183AbWCAKuR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 05:50:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWCAKuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 05:47:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48870 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964920AbWCAKrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 05:47:15 -0500
-Date: Wed, 1 Mar 2006 02:45:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: jgarzik@pobox.com, pavel@ucw.cz, randy_d_dunlap@linux.intel.com,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2/13] ATA ACPI: debugging infrastructure
-Message-Id: <20060301024559.2f36ecda.akpm@osdl.org>
-In-Reply-To: <4405778D.2030001@superbug.co.uk>
-References: <20060222133241.595a8509.randy_d_dunlap@linux.intel.com>
-	<20060222135133.3f80fbf9.randy_d_dunlap@linux.intel.com>
-	<20060228114500.GA4057@elf.ucw.cz>
-	<44043B4E.30907@pobox.com>
-	<20060228041817.6fc444d2.akpm@osdl.org>
-	<4405778D.2030001@superbug.co.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Mar 2006 05:50:17 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:27321 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030184AbWCAKuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 05:50:15 -0500
+Message-ID: <44057B46.1010403@sgi.com>
+Date: Wed, 01 Mar 2006 11:45:26 +0100
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
+References: <1140841250.2587.33.camel@localhost.localdomain>	 <yq08xrvhkee.fsf@jaguar.mkp.net> <1141149475.24103.18.camel@camp4.serpentine.com>
+In-Reply-To: <1141149475.24103.18.camel@camp4.serpentine.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Courtier-Dutton <James@superbug.co.uk> wrote:
->
-> Is there a particular debugging coding style that we should adopt for
->  all the kernel code.
-
-Err, probably.  But we'd need to have a 1000-email argument first.
-
-Right now many subsystems and often many individual drivers go and
-implement their own set of debugging macros and knobs to twiddle.  This was
-a great source of fun for me in trying to support gcc-2.95.x - each time a
-new debug macro got implemented I had to go in there (again) and apply the
-gcc-2.95.x-macro-expansion-bug-workaround to it.
-
-Yes, one common toolset with a common way of controlling it would be much
-more sensible than the present chaos.  I count 163 separate definitions of
-dprintk(), and that's excluding all the non-x86 arch and include dirs.
-
->  For example,
->  kconfig option in order to compile a module/section of core code for
->  debug work.
->  A sysfs file to then control the debug level for each module.
->  A debug module option, in the cases where a particular level of debug is
->  required at module load time, and before the sysfs entry exists.
->  If particularly fine grained debug control is needed, the module could
->  have multiple entries in the sysfs to control different classes of debug
->  output.
+Bryan O'Sullivan wrote:
+> On Tue, 2006-02-28 at 05:01 -0500, Jes Sorensen wrote:
 > 
+> 
+>>Could you explain why the current mmiowb() API won't suffice for this?
+>>It seems that this is basically trying to achieve the same thing.
+> 
+> 
+> It's a no-op on every arch I care about:
+> 
+> #define mmiowb()
+> 
+> Which makes it useless.  Also, based on the comments in the qla driver,
+> mmiowb() seems to have inter-CPU ordering semantics that I don't want.
+> I'm thus hesitant to appropriate it for my needs.
 
-Something like that..   Just don't cc me while you work it out ;)
+The fact that it's a no-op may simply be because nobody on a specific
+arch got to the point where it made sense to define it yet.
+
+Anyway, based on Jesse and Jeremy's comments, then maybe the semantics
+here are different. However I do think the name wc_wmb() isn't quite
+defining it. If it's only to be used on mmio space, something like
+mmio_wc_wmb() would probably be more descriptive.
+
+Cheers,
+Jes

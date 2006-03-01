@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbWCAEVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbWCAE0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751532AbWCAEVt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 23:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751520AbWCAEVt
+	id S1751567AbWCAE0a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 23:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWCAE0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 23:21:49 -0500
-Received: from smtpout.mac.com ([17.250.248.97]:4306 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751497AbWCAEVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 23:21:48 -0500
-In-Reply-To: <200603010454.15223.mailinglisten@hauke-laging.de>
-References: <200603010328.42008.mailinglisten@hauke-laging.de> <44050AB7.7020202@vilain.net> <200603010454.15223.mailinglisten@hauke-laging.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <08AB14CC-2BB2-4923-BFDB-B1360B5EF405@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: VFS: Dynamic umask for the access rights of linked objects
-Date: Tue, 28 Feb 2006 23:21:37 -0500
-To: Hauke Laging <mailinglisten@hauke-laging.de>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 28 Feb 2006 23:26:30 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:13977 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S1751520AbWCAE03
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 23:26:29 -0500
+Date: Wed, 1 Mar 2006 14:26:32 +1000
+From: David McCullough <david_mccullough@au.securecomputing.com>
+To: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: ocf-linux-20060301 - Asynchronous Crypto support for linux
+Message-ID: <20060301042632.GA17290@beast>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 28, 2006, at 22:54:15, Hauke Laging wrote:
-> 6) In my scenario the VFS would add a step after 4): It would check  
-> if the symlink has been created by someone different from the  
-> process's uid and from root. If so there is the risk of abuse and  
-> the access check would be repeated for the symlink owner.
->
-> 7) The VFS would find out that the symlink owner is not allowed to  
-> write to /etc/passwd. Thus the write access is prohibited, even for  
-> a process with superuser rights.
 
-Feel free to write an LSM to do this, but it breaks POSIX specs a bit  
-and could cause problems with some programs, so it's not likely to  
-become the default behavior.
+Hi all,
+
+A new release of the ocf-linux package is up:
+
+	http://ocf-linux.sourceforge.net/
+
+Mostly Openswan updates/cleanups and fixes in this release.
+
+* Well tested on 2.4.32 and 2.6.15 with OpenSwan.
+* hold locks for less time which improves
+  the cryptosoft (software driver) interaction
+  with the system.
+* fix cryptodev to handle CRIOGET requests when
+  application is chrooted.
+* Bug fixes and improvements by Ronen Shitrit
+  md5/sha processing in cryptosoft
+  other typo/ordering problems in cryptosoft
+  more error reporting to make debugging easier.
+* updated openswan patch for 2.4.5rc5
+* openswan support no longer requires any other crypto
+  code (other than OCF) to be configured in.
+* openswan code Q's state machine when in interrupt context
+  and calls immediately when not (previously compile time
+  determined)
+* openssh uses OCF appropriately now if it supports required   
+  algs
+* updated ssl patch to openssl-0.9.8a
+* no patch required for openssh anymore
+* openssl md5/sha support by Ronen Shitrit
 
 Cheers,
-Kyle Moffett
+Davidm
 
-
+-- 
+David McCullough, david_mccullough@au.securecomputing.com, Ph:+61 734352815
+Secure Computing - SnapGear  http://www.uCdot.org http://www.cyberguard.com

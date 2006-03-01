@@ -1,97 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWCAPg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWCAPnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbWCAPg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 10:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWCAPg2
+	id S932386AbWCAPnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 10:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWCAPnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 10:36:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:5773 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932280AbWCAPg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 10:36:27 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Hartmut Hackmann <hartmut.hackmann@t-online.de>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 09/13] Restore power on defaults of tda9887 after tda8290
-	probe
-Date: Wed, 01 Mar 2006 09:05:39 -0300
-Message-id: <20060301120539.PS34687000009@infradead.org>
-In-Reply-To: <20060301120529.PS80375900000@infradead.org>
-References: <20060301120529.PS80375900000@infradead.org>
+	Wed, 1 Mar 2006 10:43:16 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:45760 "EHLO
+	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S932386AbWCAPnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 10:43:15 -0500
+Date: Wed, 1 Mar 2006 10:43:13 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: AMD64 X2 lost ticks on PM timer
+Message-ID: <20060301154313.GC20092@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <200602280022.40769.darkray@ic3man.com> <p73veuzyr8p.fsf@verdi.suse.de> <20060301144641.GB20092@ti64.telemetry-investments.com> <200603011556.10139.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603011556.10139.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 01, 2006 at 03:56:09PM +0100, Andi Kleen wrote:
+> > Thanks for the interest, Andi.
+> >  
+> > The chipset is NVIDIA nForce Pro 2200 (CK804).  The mobo is Tyan 2895:
+> 
+> I have such a system sitting next to me and it doesn't show any such symptoms.
+> I normally don't let it run unrebooted over days though.
 
-From: Hartmut Hackmann <hartmut.hackmann@t\-online.de>
-Date: 1141009751 \-0300
+These lost ticks are reproducable in a few minutes with cpio.
 
-The probing code for tda8290 changes the state of the tda9887 GP ports.
-The patch assumes that if probing for tda8290 failed, this must be a 
-tda9887 and restores its power on defaults.
-This should solve the module load order issue with some pinnacle cards.
+> I would suspect some driver.
+> Do you use any special addin cards? What modules are you using?
 
-Signed-off-by: Hartmut Hackmann <hartmut.hackmann@t-online.de>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
+My guess is the sata_nv driver, as it happens during heavy local file read.
+The machines all have 2-4 SATA WD Raptors connected to the mobo.
 
- drivers/media/video/saa7134/saa7134-cards.c |    4 ++--
- drivers/media/video/tda8290.c               |    8 +++++---
- 2 files changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
-index dcffd8c..cd37880 100644
---- a/drivers/media/video/saa7134/saa7134-cards.c
-+++ b/drivers/media/video/saa7134/saa7134-cards.c
-@@ -2187,7 +2187,7 @@ struct saa7134_board saa7134_boards[] = 
- 		.radio_type     = UNSET,
- 		.tuner_addr	= 0x61,
- 		.radio_addr	= ADDR_UNSET,
--		.tda9887_conf   = TDA9887_PRESENT,
-+		.tda9887_conf   = TDA9887_PRESENT | TDA9887_PORT1_ACTIVE,
- 		.mpeg           = SAA7134_MPEG_DVB,
- 		.inputs = {{
- 			.name   = name_tv,
-@@ -2211,7 +2211,7 @@ struct saa7134_board saa7134_boards[] = 
- 		.radio_type     = UNSET,
- 		.tuner_addr	= 0x61,
- 		.radio_addr	= ADDR_UNSET,
--		.tda9887_conf   = TDA9887_PRESENT,
-+		.tda9887_conf   = TDA9887_PRESENT | TDA9887_PORT1_ACTIVE,
- 		.mpeg           = SAA7134_MPEG_DVB,
- 		.inputs = {{
- 			.name   = name_tv,
-diff --git a/drivers/media/video/tda8290.c b/drivers/media/video/tda8290.c
-index 7b4fb28..a796a4e 100644
---- a/drivers/media/video/tda8290.c
-+++ b/drivers/media/video/tda8290.c
-@@ -580,9 +580,10 @@ int tda8290_init(struct i2c_client *c)
+> I don't run these kernels though - only mainline.
  
- int tda8290_probe(struct i2c_client *c)
- {
--	unsigned char soft_reset[]  = { 0x00, 0x00 };
--	unsigned char easy_mode_b[] = { 0x01, 0x02 };
--	unsigned char easy_mode_g[] = { 0x01, 0x04 };
-+	unsigned char soft_reset[]   = { 0x00, 0x00 };
-+	unsigned char easy_mode_b[]  = { 0x01, 0x02 };
-+	unsigned char easy_mode_g[]  = { 0x01, 0x04 };
-+	unsigned char restore_9886[] = { 0x00, 0xd6, 0x30 };
- 	unsigned char addr_dto_lsb = 0x07;
- 	unsigned char data;
- 
-@@ -599,6 +600,7 @@ int tda8290_probe(struct i2c_client *c)
- 			return 0;
- 		}
- 	}
-+	i2c_master_send(c, restore_9886, 3);
- 	return -1;
- }
- 
+I wouldn't expect you to be running a Fedora kernel. :-p
+I usually roll my own, but I've been really backed up with other tasks.
 
+As I said, I'll build some mainline kernels.  I want to apply
+some of Ingo's debugging patches and give John Stultz's new timekeeping
+code a try anyway.
+
+rugolsky@ti94: cat /proc/interrupts 
+           CPU0       CPU1       
+  0:      28474     577049    IO-APIC-edge  timer
+  1:          8          0    IO-APIC-edge  i8042
+  7:          2          0    IO-APIC-edge  parport0
+  8:         40          0    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 14:         36      21506    IO-APIC-edge  ide0
+ 50:          3          0   IO-APIC-level  ohci1394
+201:          0          0   IO-APIC-level  libata, ehci_hcd:usb1
+209:       1876      15495   IO-APIC-level  libata, ohci_hcd:usb2
+217:    2483567          0   IO-APIC-level  eth0
+233:          0          0   IO-APIC-level  NVidia CK804
+NMI:         87         41 
+LOC:     605510     605486 
+ERR:          0
+MIS:          0
+
+Lots-o-modules; I'll have to whittle these down.
+
+rugolsky@ti94: lsmod
+Module                  Size  Used by
+parport_pc             65581  1 
+lp                     49025  0 
+parport                77261  2 parport_pc,lp
+nfs                   275745  4 
+lockd                 107601  2 nfs
+nfs_acl                37185  1 nfs
+sunrpc                210041  4 nfs,lockd,nfs_acl
+8021q                  57041  0 
+video                  52553  0 
+button                 41185  0 
+battery                44233  0 
+ac                     38985  0 
+ohci1394               71457  0 
+ieee1394              407641  1 ohci1394
+ohci_hcd               57565  0 
+ehci_hcd               70477  0 
+i2c_nforce2            41409  0 
+i2c_core               59457  1 i2c_nforce2
+snd_intel8x0           70889  0 
+snd_ac97_codec        146045  1 snd_intel8x0
+snd_ac97_bus           36033  1 snd_ac97_codec
+snd_seq_dummy          37445  0 
+snd_seq_oss            71973  0 
+snd_seq_midi_event     42177  1 snd_seq_oss
+snd_seq                99225  5 snd_seq_dummy,snd_seq_oss,snd_seq_midi_event
+snd_seq_device         43857  3 snd_seq_dummy,snd_seq_oss,snd_seq
+snd_pcm_oss            93297  0 
+snd_mixer_oss          52673  1 snd_pcm_oss
+snd_pcm               139593  3 snd_intel8x0,snd_ac97_codec,snd_pcm_oss
+snd_timer              62025  2 snd_seq,snd_pcm
+snd                   103073  9 snd_intel8x0,snd_ac97_codec,snd_seq_oss,snd_seq,
+snd_seq_device,snd_pcm_oss,snd_mixer_oss,snd_pcm,snd_timer
+soundcore              45025  1 snd
+snd_page_alloc         46289  2 snd_intel8x0,snd_pcm
+forcedeth              60869  0 
+floppy                107993  0 
+ext3                  179665  5 
+jbd                   100073  1 ext3
+raid1                  56385  4 
+dm_mod                 98697  4 
+sata_nv                44101  8 
+libata                 98265  1 sata_nv
+sd_mod                 53697  10 
+scsi_mod              195321  2 libata,sd_mod
+
+Thanks.
+
+	-Bill

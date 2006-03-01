@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWCAPBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWCAPAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWCAPBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 10:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWCAPAm
+	id S1030215AbWCAPAg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 10:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWCAO75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 10:00:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32420 "EHLO
+	Wed, 1 Mar 2006 09:59:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29860 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030209AbWCAPAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 10:00:12 -0500
+	id S932372AbWCAO7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 09:59:54 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Karsten Suehring <ksuehring@gmx.net>,
-       Michael Krufky <mkrufky@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@linuxtv.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 05/13] Pinnacle PCTV 40i: add filtered Composite2 input
+Subject: [PATCH 07/13] Cxusb: fix lgdt3303 naming
 Date: Wed, 01 Mar 2006 09:05:38 -0300
-Message-id: <20060301120538.PS09583300005@infradead.org>
+Message-id: <20060301120538.PS72141800007@infradead.org>
 In-Reply-To: <20060301120529.PS80375900000@infradead.org>
 References: <20060301120529.PS80375900000@infradead.org>
 Mime-Version: 1.0
@@ -29,60 +28,57 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Karsten Suehring <ksuehring@gmx.net>
-Date: 1141009688 \-0300
+From: Michael Krufky <mkrufky@linuxtv.org>
+Date: 1141009697 \-0300
 
-This patch adds another composite input to the Pinnacle PCTV 100i
-definition which filters the chrominace signal from the luma input. This
-improves video quality for Composite signals on the S-Video connector of
-the card.
-In addition the name string of the card is changed to include PCTV 40i
-and 50i since these cards are identical.
+The following are specific to lgdt3303, and are being renamed to reflect this.
+- cxusb_lgdt330x_config renamed to cxusb_lgdt3303_config.
+- cxusb_lgdt330x_frontend_attach renamed to cxusb_lgdt3303_frontend_attach.
 
-Signed-off-by: Karsten Suehring <ksuehring@gmx.net>
 Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- Documentation/video4linux/CARDLIST.saa7134  |    2 +-
- drivers/media/video/saa7134/saa7134-cards.c |    6 +++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/dvb/dvb-usb/cxusb.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/video4linux/CARDLIST.saa7134 b/Documentation/video4linux/CARDLIST.saa7134
-index 8a35259..9d48fb3 100644
---- a/Documentation/video4linux/CARDLIST.saa7134
-+++ b/Documentation/video4linux/CARDLIST.saa7134
-@@ -75,7 +75,7 @@
-  74 -> LifeView FlyTV Platinum Mini2            [14c0:1212]
-  75 -> AVerMedia AVerTVHD MCE A180              [1461:1044]
-  76 -> SKNet MonsterTV Mobile                   [1131:4ee9]
-- 77 -> Pinnacle PCTV 110i (saa7133)             [11bd:002e]
-+ 77 -> Pinnacle PCTV 40i/50i/110i (saa7133)     [11bd:002e]
-  78 -> ASUSTeK P7131 Dual                       [1043:4862]
-  79 -> Sedna/MuchTV PC TV Cardbus TV/Radio (ITO25 Rev:2B)
-  80 -> ASUS Digimatrix TV                       [1043:0210]
-diff --git a/drivers/media/video/saa7134/saa7134-cards.c b/drivers/media/video/saa7134/saa7134-cards.c
-index 5a35d3b..dcffd8c 100644
---- a/drivers/media/video/saa7134/saa7134-cards.c
-+++ b/drivers/media/video/saa7134/saa7134-cards.c
-@@ -2392,7 +2392,7 @@ struct saa7134_board saa7134_boards[] = 
- 		}},
- 	},
- 	[SAA7134_BOARD_PINNACLE_PCTV_110i] = {
--		.name           = "Pinnacle PCTV 110i (saa7133)",
-+	       .name           = "Pinnacle PCTV 40i/50i/110i (saa7133)",
- 		.audio_clock    = 0x00187de7,
- 		.tuner_type     = TUNER_PHILIPS_TDA8290,
- 		.radio_type     = UNSET,
-@@ -2407,6 +2407,10 @@ struct saa7134_board saa7134_boards[] = 
- 		},{
- 			  .name = name_comp1,
- 			  .vmux = 1,
-+			 .amux = LINE2,
-+	       },{
-+			 .name = name_comp2,
-+			 .vmux = 0,
- 			  .amux = LINE2,
- 		},{
- 			  .name = name_svideo,
+diff --git a/drivers/media/dvb/dvb-usb/cxusb.c b/drivers/media/dvb/dvb-usb/cxusb.c
+index f327fac..162f979 100644
+--- a/drivers/media/dvb/dvb-usb/cxusb.c
++++ b/drivers/media/dvb/dvb-usb/cxusb.c
+@@ -282,7 +282,7 @@ static struct cx22702_config cxusb_cx227
+ 	.pll_set  = dvb_usb_pll_set_i2c,
+ };
+ 
+-static struct lgdt330x_config cxusb_lgdt330x_config = {
++static struct lgdt330x_config cxusb_lgdt3303_config = {
+ 	.demod_address = 0x0e,
+ 	.demod_chip    = LGDT3303,
+ 	.pll_set       = dvb_usb_pll_set_i2c,
+@@ -357,14 +357,14 @@ static int cxusb_cx22702_frontend_attach
+ 	return -EIO;
+ }
+ 
+-static int cxusb_lgdt330x_frontend_attach(struct dvb_usb_device *d)
++static int cxusb_lgdt3303_frontend_attach(struct dvb_usb_device *d)
+ {
+ 	if (usb_set_interface(d->udev,0,7) < 0)
+ 		err("set interface failed");
+ 
+ 	cxusb_ctrl_msg(d,CMD_DIGITAL, NULL, 0, NULL, 0);
+ 
+-	if ((d->fe = lgdt330x_attach(&cxusb_lgdt330x_config, &d->i2c_adap)) != NULL)
++	if ((d->fe = lgdt330x_attach(&cxusb_lgdt3303_config, &d->i2c_adap)) != NULL)
+ 		return 0;
+ 
+ 	return -EIO;
+@@ -506,7 +506,7 @@ static struct dvb_usb_properties cxusb_b
+ 
+ 	.streaming_ctrl   = cxusb_streaming_ctrl,
+ 	.power_ctrl       = cxusb_power_ctrl,
+-	.frontend_attach  = cxusb_lgdt330x_frontend_attach,
++	.frontend_attach  = cxusb_lgdt3303_frontend_attach,
+ 	.tuner_attach     = cxusb_lgh064f_tuner_attach,
+ 
+ 	.i2c_algo         = &cxusb_i2c_algo,
 

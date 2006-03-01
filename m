@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWCAPXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWCAPcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWCAPXn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 10:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWCAPXn
+	id S932247AbWCAPcG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 10:32:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWCAPcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 10:23:43 -0500
-Received: from mx1.suse.de ([195.135.220.2]:28045 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932226AbWCAPXm (ORCPT
+	Wed, 1 Mar 2006 10:32:05 -0500
+Received: from mail.gmx.de ([213.165.64.20]:44458 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932247AbWCAPcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 10:23:42 -0500
-From: Chris Mason <mason@suse.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: o_sync in vfat driver
-Date: Wed, 1 Mar 2006 10:23:37 -0500
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, col-pepper@piments.com,
-       linux-kernel@vger.kernel.org
-References: <op.s5lrw0hrj68xd1@mail.piments.com> <200602281347.46169.mason@suse.com> <87u0aiw6pi.fsf@duaron.myhome.or.jp>
-In-Reply-To: <87u0aiw6pi.fsf@duaron.myhome.or.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 1 Mar 2006 10:32:05 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.16-rc5-mm1
+From: Mike Galbraith <efault@gmx.de>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
+       clameter@engr.sgi.com, ebiederm@xmission.com
+In-Reply-To: <4405B4AA.7090207@free.fr>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
+	 <4404CE39.6000109@liberouter.org>
+	 <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
+	 <4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>
+	 <4405723E.5060606@free.fr>  <20060301023235.735c8c47.akpm@osdl.org>
+	 <1141221511.7775.10.camel@homer>  <4405B4AA.7090207@free.fr>
+Content-Type: text/plain
+Date: Wed, 01 Mar 2006 16:33:19 +0100
+Message-Id: <1141227199.10460.2.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603011023.38229.mason@suse.com>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 March 2006 10:00, OGAWA Hirofumi wrote:
-> Chris Mason <mason@suse.com> writes:
-> > @@ -329,6 +330,11 @@ static int msdos_create(struct inode *di
-> >  	d_instantiate(dentry, inode);
-> >  out:
-> >  	unlock_kernel();
-> > +	if (!err && MSDOS_SB(sb)->options.flush) {
-> > +		writeback_inode(dir);
-> > +		writeback_inode(inode);
-> > +		writeback_bdev(sb);
-> > +	}
-> >  	return err;
-> >  }
->
-> If buffers is already queued for I/O, and if you don't wait anything,
-> the buffers wouldn't be (re-)submited, then those buffers will be
-> flushing by normal periodically wb_kupdate() after all.
+On Wed, 2006-03-01 at 15:50 +0100, Laurent Riffard wrote:
+>  
+> 
+> 2.6.16-rc5-mm2-pre1 works fine for me except numerous "BUG: warning at fs/inotify.c:533/inotify_d_instantiate()".
 
-Just to make sure we're using the same terms, do you mean the pages are marked 
-dirty and on the SB's dirty list, or do you mean the page has been through 
-writepage and is currently on its way to the disk?
+I feel left out.  I get none.
 
->
-> Do you have any plan to address it? Or I'm just missing something?
+	-Mike
 
-If you mean the page is just dirty, it will get written by the 
-filemap_fdatawrite calls.  If you mean the page is PG_writeback, it is 
-already on the way to the disk, so it passes the 'blinking light on the 
-memory stick' rule.
-
--chris

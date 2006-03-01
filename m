@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWCAV3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751928AbWCAVay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751918AbWCAV3K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 16:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751928AbWCAV3K
+	id S1751928AbWCAVay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 16:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751929AbWCAVay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 16:29:10 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:28896 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751918AbWCAV3J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 16:29:09 -0500
-Subject: Re: [PATCH] leave APIC code inactive by default on i386
-From: "Darrick J. Wong" <djwong@us.ibm.com>
-Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Michael Ellerman <michael@ellerman.id.au>, linux-kernel@vger.kernel.org,
-       Chris McDermott <lcm@us.ibm.com>
-In-Reply-To: <20060301043353.GJ28434@redhat.com>
-References: <43D03AF0.3040703@us.ibm.com>
-	 <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com>
-	 <20060301043353.GJ28434@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tCoX2Q3ki9OSvwgQMJtO"
-Date: Wed, 01 Mar 2006 13:29:06 -0800
-Message-Id: <1141248546.30185.44.camel@localhost.localdomain>
+	Wed, 1 Mar 2006 16:30:54 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:12185
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751928AbWCAVax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 16:30:53 -0500
+Date: Wed, 1 Mar 2006 13:30:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch added to -mm tree
+Message-ID: <20060301213048.GA17251@kroah.com>
+References: <20060228183610.5253feb9.akpm@osdl.org> <20060228194525.0faebaaa.pj@sgi.com> <20060228201040.34a1e8f5.pj@sgi.com> <m1irqypxf5.fsf@ebiederm.dsl.xmission.com> <20060228212501.25464659.pj@sgi.com> <20060228234807.55f1b25f.pj@sgi.com> <20060301002631.48e3800e.akpm@osdl.org> <20060301015338.b296b7ad.pj@sgi.com> <20060301192103.GA14320@kroah.com> <20060301125802.cce9ef51.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.91 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060301125802.cce9ef51.pj@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 01, 2006 at 12:58:02PM -0800, Paul Jackson wrote:
+> Greg wrote:
+> > As reported this is expected, and can be ignored safely.  It's just scsi
+> > being bad :)
+> 
+> Yeah - so I eventually realized.
+> 
+> > >  [<a0000001001eac90>] sysfs_create_group+0x30/0x2a0
+> > >                                 sp=e00002343bd97d50 bsp=e00002343bd91120
+> > >  [<a000000100809190>] topology_cpu_callback+0x70/0xc0
+> > >                                 sp=e00002343bd97d60 bsp=e00002343bd910f0
+> > >  [<a000000100809260>] topology_sysfs_init+0x80/0x120
+> > >                                 sp=e00002343bd97d60 bsp=e00002343bd910d0
+> > 
+> > This points at the sysfs cpu patches that are in -mm, which are not in
+> > my tree...
+> 
+> So ... what does that mean for who should be looking at this?
 
---=-tCoX2Q3ki9OSvwgQMJtO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hm, looks like that stuff went into mainline already, sorry I thought it
+was still in -mm.
 
-On Tue, 2006-02-28 at 23:33 -0500, Dave Jones wrote:
+Look at changeset 69dcc99199fe29b0a29471a3488d39d9d33b25fc for details.
+I've cced Yanmin, who did that work.
 
-> It's still being kicked around.  I saw one patch off-list earlier this
-> week that has some small improvements over the variant originally posted,
-> but still had 1-2 kinks.
+thanks,
 
-Hm... what kinks are you referring to?  Anything you want me to look at?
-
---D
-
---=-tCoX2Q3ki9OSvwgQMJtO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQBEBhIia6vRYYgWQuURAtUpAJ0QJ9TrlcKru/9E6bXxwkfE3wyE0wCfSYTW
-r8FZ2h+cPH8qoZD1NdQ9UvY=
-=t2Sx
------END PGP SIGNATURE-----
-
---=-tCoX2Q3ki9OSvwgQMJtO--
-
+greg k-h

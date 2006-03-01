@@ -1,88 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWCAP6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWCAQGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWCAP6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 10:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWCAP6Q
+	id S932406AbWCAQGM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 11:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWCAQGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 10:58:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56900 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030214AbWCAP6P (ORCPT
+	Wed, 1 Mar 2006 11:06:12 -0500
+Received: from smtp3.poczta.interia.pl ([213.25.80.233]:44440 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S932241AbWCAQGL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 10:58:15 -0500
-Date: Wed, 1 Mar 2006 16:57:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andy Chittenden <AChittenden@bluearc.com>
-Cc: Andi Kleen <ak@suse.de>, Anton Altaparmakov <aia21@cam.ac.uk>,
-       Andrew Morton <akpm@osdl.org>, davej@redhat.com,
-       linux-kernel@vger.kernel.org, lwoodman@redhat.com,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
-Message-ID: <20060301155740.GB4816@suse.de>
-References: <89E85E0168AD994693B574C80EDB9C270393C141@uk-email.terastack.bluearc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <89E85E0168AD994693B574C80EDB9C270393C141@uk-email.terastack.bluearc.com>
+	Wed, 1 Mar 2006 11:06:11 -0500
+Date: 01 Mar 2006 17:02:42 +0100
+From: alex3dg500@interia.pl
+Subject: THIS IS A COMPENSATION
+To: alex3dg500@interia.pl
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-ORIGINATE-IP: 81.91.238.43
+Organization: Poczta INTERIA.PL >>> http://poczta.interia.pl/
+Message-Id: <20060301160242.5DE93A416A@poczta.interia.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01 2006, Andy Chittenden wrote:
-> > On Wed, Mar 01 2006, Andi Kleen wrote:
-> > > On Wednesday 01 March 2006 15:34, Jens Axboe wrote:
-> > > 
-> > > 
-> > > > > It shouldn't end up with more, only with less.
-> > > > 
-> > > > Sure yes, but if that 'less' is still more than what the 
-> > driver can
-> > > > handle, then there's a problem.
-> > > 
-> > > The driver needs to handle the full list it passed in. It's quite
-> > > possible that the iommu layer is unable to merge anything.
-> > > 
-> > > 
-> > > This isn't the block layer based merging where we guarantee
-> > > to be able to merge in advance - just lazy after the fact merging.
-> > 
-> > Yes I realize that, I wonder if the bounce patch screwed something up
-> > that destroys the block layer merging/accounting. We'll know when Andy
-> > posts results that dump the request as well.
-> 
-> And here's the dmesg o/p (I had to gather it from /var/log/kern.log as
-> there was so much output):
+ Dear  Friend
 
-Thanks!
+I'm happy to inform you about my success in getting those funds transferred  under the cooperation of a new partner from paraguay. Presently i'm in Paraguay for investment projects with my own share of the  total sum. meanwhile,i didn't forget your past efforts and attempts to assist me in transferring those funds despite that it failed us some how. Now contact my secretary in Benin his name is NNA on (nna_maga@myway.com, ask him to send you the total of $800.000.00 
 
-> hda: DMA table too small
-> ide dma table, 256 entries, bounce pfn 1310720
-> sg0: dma=830e800, len=4096/0, pfn=1202633
-> sg1: dma=830f800, len=4096/0, pfn=1202590
-> sg2: dma=8310800, len=4096/0, pfn=1202548
-> sg3: dma=8311800, len=4096/0, pfn=1202506
-
-Alright Andi, take a look at this then. We have the same thing again,
-mid page start of the sg entries. The block layer has done no merging,
-it's 256 separate segments. The pci_map_sg() output is the same, except
-that the IDE driver now needs to split the entries. The corresponding rq
-entries for the first four above are:
-
-> request: phys seg 256, hw seg 256, nr_sectors 2048
->   bio0: bytes=4096, phys seg 1, hw seg 1
->     bvec0: addr=ffff8101259c9000, size=4096, off=0
->   bio1: bytes=4096, phys seg 1, hw seg 1
->     bvec0: addr=ffff81012599e000, size=4096, off=0
->   bio2: bytes=4096, phys seg 1, hw seg 1
->     bvec0: addr=ffff810125974000, size=4096, off=0
->   bio3: bytes=4096, phys seg 1, hw seg 1
->     bvec0: addr=ffff81012594a000, size=4096, off=0
-
-these here. Totally plain 4kb bios strung to the request, no funky
-offsets or anything. 256 hardware and physical segments, for a total of
-a 1MB request.
-
-So what is going wrong? Why does the pci mapping output looks so
-"strange"?
-
--- 
-Jens Axboe
+which i kept for your compensation for all the past efforts and attempts to  assist me in this matter. I appreciated your efforts at that time very much. so feel free and get in touched with my secretary Mr NNA and instruct him  where to send the amount to you. Please do let me know immediately you receive it so that we can share the  joy after all the sufferness at that time. in the moment, I'm very busy here  because of the investment projects which me and the new partner are having  at hand, finally, remember that I had forwarded instruction to the
+secretary  on your behalf to receive that money, so feel free to get in touch with
+MR NNA, he will send the amount to you without any delay.
+ 
+Regards,
+Mr ALEX.
 

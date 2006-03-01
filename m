@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWCAL0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWCALb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWCAL0s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 06:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWCAL0s
+	id S1030190AbWCALb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 06:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030187AbWCALb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 06:26:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37760 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964790AbWCAL0s (ORCPT
+	Wed, 1 Mar 2006 06:31:57 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:21952 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030190AbWCALb4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 06:26:48 -0500
-Date: Wed, 1 Mar 2006 03:25:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, ebiederm@xmission.com
-Cc: Ashok Raj <ashok.raj@intel.com>
-Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060301032527.1b79fc7c.akpm@osdl.org>
-In-Reply-To: <20060301023235.735c8c47.akpm@osdl.org>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr>
-	<20060228162157.0ed55ce6.akpm@osdl.org>
-	<4405723E.5060606@free.fr>
-	<20060301023235.735c8c47.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Mar 2006 06:31:56 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 0/4] Fix runtime device suspend/resumre interface
+Date: Wed, 1 Mar 2006 12:31:45 +0100
+User-Agent: KMail/1.9.1
+Cc: Patrick Mochel <mochel@digitalimplant.org>, akpm@osdl.org,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, linux-pm@osdl.org
+References: <Pine.LNX.4.50.0602201641380.21145-100000@monsoon.he.net> <Pine.LNX.4.50.0602271111101.28882-100000@monsoon.he.net> <20060301003810.GI23716@kroah.com>
+In-Reply-To: <20060301003810.GI23716@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603011231.46170.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> If you have (even more) time you could test
->  http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
+On Wednesday 01 March 2006 01:38, Greg KH wrote:
+> On Mon, Feb 27, 2006 at 11:18:43AM -0800, Patrick Mochel wrote:
+> > 
+> > On Tue, 21 Feb 2006, Greg KH wrote:
+> > 
+> > > On Mon, Feb 20, 2006 at 04:55:34PM -0800, Patrick Mochel wrote:
+> > > >
+> > > > Hi there,
+> > > >
+> > > > Here is an updated version of the patches to fix the sysfs interface for
+> > > > runtime device power management by restoring the file to its originally
+> > > > designed behavior - to place devices in the power state specified by the
+> > > > user process writing to the file.
+> > > >
+> > > > Recently, the interface was changed to filter out values to prevent a
+> > > > BUG() that was introduced in the PCI power management code. While a valid
+> > > > fix, it makes the driver core filter values that might otherwise be used
+> > > > by the bus/device drivers.
+> > >
+> > > Are there any existing bus/device drivers that are currently broken
+> > > because of this change?
+> > 
+> > It's difficult to tell. There are several devices that support multiple
+> > PCI power states, and several drivers that will attempt to put the device
+> > into whatever state is passed to their ->suspend() method. But, there are
+> > not many that handle D1 or D2 specially.
+> > 
+> > The point of the patches was to restore the functionality of the sysfs
+> > file to its documented interface, which had been that way since the file
+> > was created (early in 2.6). In the last year, since the conversion to the
+> > pm_message_t in driver suspend methods, it is not behaved as it was
+> > advertised to do.
+> > 
+> > One solution is to prohibit any suspend/resume commands besides "on" and
+> > "off", and to change the documented semantics of the file. But, it seems
+> > much more useful to enable the use of the intermediate states, so long as
+> > it doesn't do any serious harm. Put another way, it doesn't seem to make
+> > sense to intentionally prevent the use of intermediate power states.
+> > 
+> > What is also a bit wonky is the handling of those intermediate power
+> > states now. If someone has a PCI device that advertises D1/D2 support, and
+> > he/she knows the driver supports it (or is writing the driver support for
+> > it), a write of "1" or "2" to the device's state file is not going to
+> > provide the type of behavior that one would expect..
+> > 
+> > Does that help at all?
+> 
+> Hm, no.  As nothing can be proven to be broken right now, it's way too
+> late to get any change like this into 2.6.16-final.  Especially as your
+> patch series broke Andrew's laptop :)
 
-err, don't enable CONFIG_ACPI_HOTPLUG_CPU.
+And mine too, FWIW. ;-)
 
-Ashok, x86_64 and i386 share a lot of code.  Please always perform good
-regression testing against one when developing for the other.
-
-arch/i386/kernel/acpi/boot.c: In function `acpi_unmap_lsapic':
-arch/i386/kernel/acpi/boot.c:583: `num_processors' undeclared (first use in this function)
-
+Greetings,
+Rafael

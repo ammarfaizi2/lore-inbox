@@ -1,49 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWCADUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWCADVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750837AbWCADUu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 22:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWCADUu
+	id S1750715AbWCADVY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 22:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWCADVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 22:20:50 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:130 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750837AbWCADUt (ORCPT
+	Tue, 28 Feb 2006 22:21:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15597 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750730AbWCADVW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 22:20:49 -0500
-Date: Tue, 28 Feb 2006 19:20:38 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, ebiederm@xmission.com
+	Tue, 28 Feb 2006 22:21:22 -0500
+Date: Tue, 28 Feb 2006 19:21:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: michal.k.k.piotrowski@gmail.com, linux-kernel@vger.kernel.org,
+       rml@novell.com
 Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060228192038.38d5ec69.pj@sgi.com>
-In-Reply-To: <20060228190535.41a8c697.pj@sgi.com>
+Message-Id: <20060228192115.473673ab.akpm@osdl.org>
+In-Reply-To: <4405108B.4050701@yahoo.com.au>
 References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr>
-	<20060228162157.0ed55ce6.akpm@osdl.org>
-	<20060228190535.41a8c697.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	<6bffcb0e0602280701h1d5cbeaar@mail.gmail.com>
+	<6bffcb0e0602280820ic87332k@mail.gmail.com>
+	<440503E5.1070100@yahoo.com.au>
+	<20060228184450.dd831456.akpm@osdl.org>
+	<4405108B.4050701@yahoo.com.au>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.12; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     I might be confused in what patches I'm running, but I believe that
->     I am getting these permission denied errors with just the patches:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Andrew Morton wrote:
+> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > 
+> >>>>Feb 28 15:13:42 ltg01-sid kernel: BUG: warning at
+> >>>>/usr/src/linux-mm/fs/inotify.c:533/inotify_d_instantiate()
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [show_trace+13/15] show_trace+0xd/0xf
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [dump_stack+21/23] dump_stack+0x15/0x17
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [inotify_d_instantiate+47/98]
+> >>>>inotify_d_instantiate+0x2f/0x62
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [d_instantiate+70/114]
+> >>>>d_instantiate+0x46/0x72
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_add_nondir+44/64]
+> >>>>ext3_add_nondir+0x2c/0x40
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [ext3_link+163/217] ext3_link+0xa3/0xd9
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [vfs_link+292/379] vfs_link+0x124/0x17b
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_linkat+157/218] sys_linkat+0x9d/0xda
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [sys_link+20/25] sys_link+0x14/0x19
+> >>>>Feb 28 15:13:42 ltg01-sid kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> >>>>
+> >>>>Here is dmesg http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-dmesg
+> >>>>Here is config http://www.stardust.webpages.pl/files/mm/2.6.16-rc5-mm1/mm-config
+> >>>
+> >>>
+> >>>This patch is causing that warning
+> >>>inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
+> >>>
+> >>
+> >>The warning is harmless really. I guess it can be removed.
+> > 
+> > 
+> > ?    How did DCACHE_INOTIFY_PARENT_WATCHED get set on that dentry?
+> > 
 > 
->     > trivial-cleanup-to-proc_check_chroot.patch
->     > proc-fix-the-inode-number-on-proc-pid-fd.patch
+> I guess it is because I don't clear it on +ve => -ve conversions.
+> We _could_ do that AFAIKS, by hooking into d_delete, but it would
+> have to be yet another fsnotify hook there because it will have to
+> be done under lock.
+> 
 
-drat - I was off by one in my reporting.
-
-I'll try to get my act together before saying more.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+How could a -ve dentry become the source of a link?  We should be sure we
+know why this happened before ignoring it..

@@ -1,98 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWCAHMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWCAHSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbWCAHMK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 02:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWCAHMK
+	id S932434AbWCAHSK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 02:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbWCAHSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 02:12:10 -0500
-Received: from host66-143.pool82106.interbusiness.it ([82.106.143.66]:41228
-	"HELO netscape.net") by vger.kernel.org with SMTP id S1750928AbWCAHMJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 02:12:09 -0500
-Message-ID: <E3C23425.8940BBA@netscape.net>
-Date: Wed, 01 Mar 2006 12:47:04 +0500
-From: "East-West Australia lotteries" <felicialanza@netscape.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Subject: 
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 1 Mar 2006 02:18:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14004 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932434AbWCAHSJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 02:18:09 -0500
+Date: Tue, 28 Feb 2006 23:16:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Meyer <thomas@m3y3r.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpufreq: fix powernow-k7 smp kernel driver on up
+ machines
+Message-Id: <20060228231646.1dc4105c.akpm@osdl.org>
+In-Reply-To: <1141073259.9881.1.camel@hotzenplotz.treehouse>
+References: <1141073259.9881.1.camel@hotzenplotz.treehouse>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-East-West Australia Lotteries,
-1022 Kingsway Ave., Osborne,
-Western Australia, 6018.
-Head office: Maliebaan 38-40, 3581CR,
-Utrecht, The Netherlands.
+Thomas Meyer <thomas@m3y3r.de> wrote:
+>
+> This patch fixes the powernow-k7 cpufreq driver smp kernel on an up
+>  machine.
 
-Dear Sir/Madam,
+- It was wordwrapped.
 
-YOU WON: €1,000,000.00!euros
-With utmost joy, we are pleased to inform you of the result of the
-East-West Australia Lotteries  International programs held on the 27th of
-february 2006 drew cash Prize of €1,000,000.00. Your e-mail address
-attached
-to Code number 370011672387-290-02 with claim
-Number 12093782/42 drew these lucky numbers 894-4563-001-764-64-2911, which
-consequently won in the 2nd category. You have been approved to receive a
-cash prize of €1,000,000.00 (One Million Euros).
-Be advised that due to incessant mix up in cash prize transfer to previous
-winners, we advise that you Keep your winning information confidential
-until
-your claims is been processed and your funds (€1,000,000.00) Transferred to
-you. This security measure is important; its protocol meant to avoid double
-claims, transfer and unwarranted abuse of this program by other
-participants.
-METHOD OF SELECTING WINNERS:
-Participants were selected anonymously through a private ballot system
-(computer ballot) from over 35,000 Companies and 70,000 individual e-mail
-addresses all over the world. At the final draw your e-mail address Emerged
-as the winner of our last jackpot.This is promotional program takes place
-bi-annually, and it is promoted and sponsored Orient software Corporation
-(Orient Networks). It is met to reward some individuals and corporations
-who
-have devote Their time and resources surfing the world wide web (www) with
-their email addresses. Remember, all winning must be claimed not later than
-5 working days from today. After the expiration of that time frame, if your
-funds are unclaimed, it will be refunded to us and included in our next
-draws.We hope you will use part of your cash prize to participate in our
-next €18million draws in November 2006. Lastly, in order to avoid
-unnecessary
-delays/complications with the transfer of your funds to you, please
-Always remember to quote your Code number in all correspondence with our
-paying bank (Deutsche Bank-Amsterdam). Furthermore, should there be any
-change of your present
-address, please notify us Immediately so to make the appropriate
-adjustment.
+- Your description doesn't describe what is being fixed, nor how it was fixed.
 
-Congratulations from the management and staffs of East-West Australia
-Lotteries. 
+- That open-coded assembly-language divide should probably be converted
+  to div64().  If that's not possible we'd need to see a description of
+  why.
 
-Kindly, immediately, contact our Paying Bank (Deutsche Bank-Amsterdam) for
-your payment advice.
-Send them following e-mail:
-I……………(your names)…….., with e-mail address………..(your e-mail address)…..,
-contact address………..(postal address)…….and code number:……….(quote your code
-number)…….is the winner of the last East-West Astralia lotteries draws,
-with a cash prize of €1,000,000.00. Kindly advise me with details of the
-process of the transfer of my cash prize.
-
-Contact details of our Paying Bank:
-Contact person:  Mr. Powell Green.
-Department of Private Banking,
-Deutsche Bank, Amsterdam, the Netherlands.
-E-mail: srvcscust@netscape.net
-Tel: 31 647-494-395
-Fax 31-84-752-0508
-Congratulations.
-Yours in sincerely
-Felicia Lanza.(Lottery Coordinator)
-Note: Participants below 21 years are automatically disqualified.
-All e-mail transmission/correspondence are 100% protected by our Secure
-Socket Layer (SSL) server.
-
-
+- Please cc cpufreq@www.linux.org.uk on the next submission.

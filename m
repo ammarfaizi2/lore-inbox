@@ -1,75 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWCASUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWCAS2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWCASUS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 13:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWCASUS
+	id S1751402AbWCAS2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 13:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbWCAS2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 13:20:18 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:5299 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750734AbWCASUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 13:20:17 -0500
-Date: Wed, 1 Mar 2006 10:14:20 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, ebiederm@xmission.com,
-       Ashok Raj <ashok.raj@intel.com>
-Subject: Re: 2.6.16-rc5-mm1
-Message-ID: <20060301101419.A30674@unix-os.sc.intel.com>
-References: <20060228042439.43e6ef41.akpm@osdl.org> <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com> <4404CE39.6000109@liberouter.org> <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com> <4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org> <4405723E.5060606@free.fr> <20060301023235.735c8c47.akpm@osdl.org> <20060301032527.1b79fc7c.akpm@osdl.org>
+	Wed, 1 Mar 2006 13:28:11 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37592 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751402AbWCAS2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 13:28:11 -0500
+Date: Wed, 1 Mar 2006 10:27:57 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: clameter@engr.sgi.com, dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
+Message-Id: <20060301102757.f2eec70e.pj@sgi.com>
+In-Reply-To: <200602281813.47234.ak@suse.de>
+References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com>
+	<Pine.LNX.4.64.0602271510320.12637@schroedinger.engr.sgi.com>
+	<20060227175603.e858eade.pj@sgi.com>
+	<200602281813.47234.ak@suse.de>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060301032527.1b79fc7c.akpm@osdl.org>; from akpm@osdl.org on Wed, Mar 01, 2006 at 03:25:27AM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 03:25:27AM -0800, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > If you have (even more) time you could test
-> >  http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
+> >  1) Are you content to have such a interleave of these particular file
+> >     i/o slabs triggered by a mm/mempolicy.c option?  Or do you think
+> >     we need some sort of task external API to invoke this policy?
 > 
-> err, don't enable CONFIG_ACPI_HOTPLUG_CPU.
-> 
-> Ashok, x86_64 and i386 share a lot of code.  Please always perform good
-> regression testing against one when developing for the other.
-> 
-> arch/i386/kernel/acpi/boot.c: In function `acpi_unmap_lsapic':
-> arch/i386/kernel/acpi/boot.c:583: `num_processors' undeclared (first use in this function)
+> Task external. mempolicy.c has no good way to handle multiple policies
+> like this. I was thinking of a simple sysctl
 
-Sorry,
+No need to implement a sysctl for this.  The current cpuset facility
+should provide just what you want, if I am understanding correctly.
 
-here is one to make it non-static for i386 as well. 
+It would be really easy.  Run with a kernel that has cpusets configured
+in.  One time at boot, enable memory spreading for these slabs:
+    test -d /dev/cpuset || mkdir /dev/cpuset
+    mount -t cpuset cpuset /dev/cpuset
+    echo 1 > /dev/cpuset/memory_spread_slab	# enable system wide
+
+That's all you need to do to enable this system wide.
+
+With this, tasks will be spreading these selected slab caches,
+independently of whatever mempolicy they have.
+
+To disable this memory spreading system wide:
+    echo 0 > /dev/cpuset/memory_spread_slab	# disable system wide
+
+If you want to control which tasks have these slab spread, then
+it is just a few more lines once at boottime.  The following
+lines make a second cpuset 'spread_tasks'.  Tasks in this second
+cpuset will be spread; the other tasks in the root cpuset won't be
+spread.
+
+One time at boot:
+    test -d /dev/cpuset || mkdir /dev/cpuset
+    mount -t cpuset cpuset /dev/cpuset
+    mkdir /dev/cpuset/spread_tasks
+    cat /dev/cpuset/cpus > /dev/cpuset/spread_tasks/cpus
+    cat /dev/cpuset/mems > /dev/cpuset/spread_tasks/mems
+    echo 1 > /dev/cpuset/spread_tasks/memory_spread_slab
+
+Then during operation, for each task $pid that is to be spread:
+    echo $pid > /dev/cpuset/spread_tasks/tasks	# enable for $pid
+
+or to disable that spreading for a pid:
+    echo $pid > /dev/cpuset/tasks		# disable for $pid
+
+These echo's can be done with open/write/close system calls if you
+prefer.
+
+The first two echos above would correspond to a sysctl that applied
+system wide, enabling or disabling memory spreading on these slabs for
+all tasks.  The last two echo's correspond directly to a sysctl that
+applies to a single specified pid.
+
+Why do a new sysctl, when the existing open/write/close system calls
+can do the same thing?
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
-
-
-Need to make "num_processors" non-static since we need in acpi_unmap_lsapic
-shared function in arch/i386/kernel/acpi/boot.c. Also needs to be __cpuinitdata
-now.
-
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
---------------------------------------------------------
- arch/i386/kernel/mpparse.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.16-rc5-mm1/arch/i386/kernel/mpparse.c
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/arch/i386/kernel/mpparse.c
-+++ linux-2.6.16-rc5-mm1/arch/i386/kernel/mpparse.c
-@@ -75,7 +75,7 @@ unsigned int def_to_bigsmp = 0;
- /* Processor that is doing the boot up */
- unsigned int boot_cpu_physical_apicid = -1U;
- /* Internal processor count */
--static unsigned int __devinitdata num_processors;
-+unsigned int __cpuinitdata num_processors;
- 
- /* Bitmask of physically existing CPUs */
- physid_mask_t phys_cpu_present_map;
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

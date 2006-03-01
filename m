@@ -1,163 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbWCAJxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbWCAJyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932687AbWCAJxt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 04:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932689AbWCAJxt
+	id S932689AbWCAJyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 04:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWCAJyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 04:53:49 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:40118 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932687AbWCAJxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 04:53:48 -0500
-Date: Wed, 1 Mar 2006 01:53:38 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060301015338.b296b7ad.pj@sgi.com>
-In-Reply-To: <20060301002631.48e3800e.akpm@osdl.org>
-References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
-	<20060228181849.faaf234e.pj@sgi.com>
-	<20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Wed, 1 Mar 2006 04:54:45 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:3167 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932689AbWCAJyo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 04:54:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=HveitBCpx8e2XC4fT7NFnoAL8ApJTWtw241O/zrBzCvqI9v11evQnIIqdB7fxfG2o6N8vNWmmhnSWw6DGW/FUlOWRhN0maT6J3w5gB2Sh7g1vCEEN7WTmQKP95K/soGR22tSoLJTwWU6eYA/yyhSPB+Q6NguqxxAXA2pRGEQht0=
+Message-ID: <6d6a94c50603010154hbbcdb68n8cd7e05f7f30aba5@mail.gmail.com>
+Date: Wed, 1 Mar 2006 17:54:43 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: page allocation failure when cached memory is close to the total memory.
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok - down to the patch:
+Hi all,
 
-1) gregkh-driver-empty_release_functions_are_broken.patch         - good
-2) gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch - special case
-3) gregkh-driver-fix-up-the-sysfs-pollable-patch.patch            - bad
+I'm working on the blackfin uclinux. And the kernel version is 2.6.12.
+I have an application to malloc 0Mb memory. When cached memory is
+small, the allocation will be successful.
+But when the cached memory is close to the total memory. The
+applicaton memory allocation will fail. See below. I think the cached
+memory should be released when there is no enough free memory to
+allocate. So far no idea what's wrong. Did anyone ever run into the
+problem? Many thanks to your any suggestions and comments.
 
-Up through and including (1), it all seems fine.
+Regards,
+-Aubrey
 
-With (3) or more loaded, it fails to boot, with the crash
-given before (and appended below for completeness).
+=========================================================
+root:/mnt> cat /proc/meminfo
+MemTotal:        54600 kB
+MemFree:          6228 kB
+Buffers:          2340 kB
+Cached:          38464 kB
+SwapCached:          0 kB
+Active:          11432 kB
+Inactive:        29348 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:        54600 kB
+LowFree:          6228 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:            6904 kB
+Writeback:           0 kB
+Mapped:              0 kB
+Slab:             7292 kB
+CommitLimit:     27300 kB
+Committed_AS:        0 kB
+PageTables:          0 kB
+VmallocTotal:        0 kB
+VmallocUsed:         0 kB
+VmallocChunk:        0 kB
+root:/mnt> ../ma
+ma: page allocation failure. order:12, mode:0xd0
+Stack from 0137bddc:<0>
+       <0> 00000000<0> 00024cb0<0> 00072b88<0>
+036b8220<0> 0000000c<0> 000000d0<0>
+00000000<0> 00000000<0>
+       <0> 00000010<0> 00000000<0> 001be5ec<0>
+000270c6<0> 001bf760<0> 001bf640<0>
+001be5e0<0> 00000001<0>
+       <0> 00000000<0> 000000d0<0> 00000000<0>
+0000001f<0> 00000000<0> 00102758<0>
+0000000e<0> 00000001<0>
+       <0> 000000d0<0> 0304ca60<0> 00026e8e<0>
+00000000<0> 0270bb60<0> 00000021<0>
+0000ffff<0> 00000073<0>
+       <0> 00000000<0> 00000004<0> 00000000<0>
+0002aee0<0> 00000000<0> 0002b19c<0>
+00000003<0> 001035bc<0>
+       <0> 03576c00<0> 0000000e<0> 00000021<0>
+0368f00c<0> 009f7d54<0> 0002d460<0>
+00000004<0> 00a00000<0>
+Call Trace:<0>
+       <0> [<00003706>]<0>
+[<0002d55e>]<0> [<00006f3e>]<0>
+[<000036a4>]<0>
+       <0> [<00008000>]<0>
+[<00007cd4>]<0> [<00001004>]<0>
+Allocation of length 10485760 from process 144 failed
+DMA per-cpu: empty
+Normal per-cpu:
+cpu 0 hot: low 14, high 42, batch 7
+cpu 0 cold: low 0, high 14, batch 7
+HighMem per-cpu: empty
 
-With patchs up through (2) loaded, it boots, but complains 27
-times during the boot
-
-One of the 27 complaints for special case (2):
-================================= begin =================================
-Debug: sleeping function called from invalid context at drivers/base/core.c:343^M
-in_atomic():1, irqs_disabled():0^M
-^M
-Call Trace:^M
- [<a0000001000132c0>] show_stack+0x40/0xa0^M
-                                sp=e00002bc3a49f9b0 bsp=e00002bc3a499558^M
- [<a000000100013b50>] dump_stack+0x30/0x60^M
-                                sp=e00002bc3a49fb80 bsp=e00002bc3a499540^M
- [<a00000010008ff80>] __might_sleep+0x200/0x220^M
-                                sp=e00002bc3a49fb80 bsp=e00002bc3a499510^M
- [<a0000001004b58b0>] put_device+0x30/0x60^M
-                                sp=e00002bc3a49fb90 bsp=e00002bc3a4994f0^M
- [<a00000010051e470>] scsi_put_command+0x170/0x1a0^M
-                                sp=e00002bc3a49fb90 bsp=e00002bc3a499498^M
- [<a000000100528c80>] scsi_next_command+0x40/0x80^M
-                                sp=e00002bc3a49fb90 bsp=e00002bc3a499468^M
- [<a0000001005296a0>] scsi_end_request+0x1a0/0x1e0^M
-                                sp=e00002bc3a49fb90 bsp=e00002bc3a499420^M
- [<a000000100529a50>] scsi_io_completion+0x370/0x820^M
-                                sp=e00002bc3a49fb90 bsp=e00002bc3a499388^M
- [<a000000100529f90>] scsi_blk_pc_done+0x90/0xc0^M
-                                sp=e00002bc3a49fba0 bsp=e00002bc3a499368^M
- [<a00000010051d2b0>] scsi_finish_command+0x150/0x180^M
-                                sp=e00002bc3a49fba0 bsp=e00002bc3a499338^M
- [<a00000010052a590>] scsi_softirq_done+0x270/0x2a0^M
-                                sp=e00002bc3a49fba0 bsp=e00002bc3a499310^M
- [<a0000001003be420>] blk_done_softirq+0x1a0/0x200^M
-                                sp=e00002bc3a49fbb0 bsp=e00002bc3a4992f8^M
- [<a0000001000b0070>] __do_softirq+0xd0/0x240^M
-                                sp=e00002bc3a49fbc0 bsp=e00002bc3a499280^M
- [<a0000001000b0260>] do_softirq+0x80/0xe0^M
-                                sp=e00002bc3a49fbc0 bsp=e00002bc3a499220^M
- [<a0000001000b0340>] irq_exit+0x80/0xc0^M
-                                sp=e00002bc3a49fbc0 bsp=e00002bc3a499208^M
- [<a000000100010240>] ia64_handle_irq+0x120/0x140^M
-                                sp=e00002bc3a49fbc0 bsp=e00002bc3a4991d0^M
- [<a0000001003ebe40>] __copy_user+0x100/0x960^M
-                                sp=e00002bc3a49fd90 bsp=e00002bc3a499110^M
- [<a000000100011ac0>] default_idle+0xc0/0x160^M
-                                sp=e00002bc3a49fd90 bsp=e00002bc3a4990f0^M
- [<a000000100012a90>] cpu_idle+0x230/0x300^M
-                                sp=e00002bc3a49fe30 bsp=e00002bc3a4990c0^M
- [<a000000100055340>] start_secondary+0x340/0x360^M
-                                sp=e00002bc3a49fe30 bsp=e00002bc3a499080^M
- [<a000000100008650>] __end_ivt_text+0x330/0x360^M
-                                sp=e00002bc3a49fe30 bsp=e00002bc3a499080^M
-================================== end ==================================
-
-The boottime crash seen in case (3) and beyond:
-================================= begin =================================
-pci_hotplug: PCI Hot Plug PCI Core version: 0.5
-SGI Altix RTC Timer: v2.1, 20 MHz
-EFI Time Services Driver v0.4
-Linux agpgart interface v0.101 (c) Dave Jones
-sn_console: Console driver init
-ttySG0 at I/O 0x0 (irq = 0) is a SGI SN L1
-Unable to handle kernel NULL pointer dereference (address 0000000000000058)
-swapper[1]: Oops 8813272891392 [1]
-Modules linked in:
-
-Pid: 1, CPU 0, comm:              swapper
-psr : 0000101008026018 ifs : 800000000000040b ip  : [<a0000001001eac90>]    Not tainted
-ip is at sysfs_create_group+0x30/0x2a0
-unat: 0000000000000000 pfs : 0000000000000308 rsc : 0000000000000003
-rnat: 0000000002000027 bsps: 0000000000000002 pr  : 0000000000005649
-ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8a70433f
-csd : 0000000000000000 ssd : 0000000000000000
-b0  : a000000100809190 b6  : e000023002310080 b7  : a0000001008091e0
-f6  : 1003e0000000000000000 f7  : 1003e20c49ba5e353f7cf
-f8  : 1003e0000000000003398 f9  : 1003e000000000000007f
-f10 : 1003e0000000000000000 f11 : 1003e0000000000000000
-r1  : a000000100c70cc0 r2  : 0000000000000058 r3  : a000000100a80ef8
-r8  : 0000000000000000 r9  : a000000100c95820 r10 : ffffffffffffffff
-r11 : 0000000000000400 r12 : e00002343bd97d50 r13 : e00002343bd90000
-r14 : a000000100a83360 r15 : a000000100c95820 r16 : a000000100a80f00
-r17 : 00000000000003c0 r18 : 0000000000000001 r19 : 0000000000000002
-r20 : ffffffffffffffff r21 : 0000000000000000 r22 : 000000000000000e
-r23 : a000000100a720a8 r24 : a000000100812c40 r25 : a000000100a77698
-r26 : a000000100a88b60 r27 : a0000001008f3b88 r28 : e00002bc3a0432f0
-r29 : 0000000000000001 r30 : a0000001007d0db8 r31 : a0000001008091e0
-
-Call Trace:
- [<a0000001000132c0>] show_stack+0x40/0xa0
-                                sp=e00002343bd978e0 bsp=e00002343bd91278
- [<a000000100013af0>] show_regs+0x7d0/0x800
-                                sp=e00002343bd97ab0 bsp=e00002343bd91228
- [<a000000100036df0>] die+0x210/0x320
-                                sp=e00002343bd97ab0 bsp=e00002343bd911d8
- [<a00000010005a840>] ia64_do_page_fault+0x900/0xa80
-                                sp=e00002343bd97ad0 bsp=e00002343bd91178
- [<a00000010000bd00>] ia64_leave_kernel+0x0/0x290
-                                sp=e00002343bd97b80 bsp=e00002343bd91178
- [<a0000001001eac90>] sysfs_create_group+0x30/0x2a0
-                                sp=e00002343bd97d50 bsp=e00002343bd91120
- [<a000000100809190>] topology_cpu_callback+0x70/0xc0
-                                sp=e00002343bd97d60 bsp=e00002343bd910f0
- [<a000000100809260>] topology_sysfs_init+0x80/0x120
-                                sp=e00002343bd97d60 bsp=e00002343bd910d0
- [<a000000100009860>] init+0x580/0x8e0
-                                sp=e00002343bd97d60 bsp=e00002343bd910a8
- [<a000000100011780>] kernel_thread_helper+0xe0/0x100
-                                sp=e00002343bd97e30 bsp=e00002343bd91080
- [<a000000100009140>] start_kernel_thread+0x20/0x40
-                                sp=e00002343bd97e30 bsp=e00002343bd91080
- <0>Kernel panic - not syncing: Attempted to kill init!
-================================== end ==================================
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Free pages:        7536kB (0kB HighMem)
+Active:2794 inactive:7321 dirty:1725 writeback:1 unstable:0 free:1884
+slab:1564 mapped:0 pagetables:0
+DMA free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB
+present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 55 55
+Normal free:7536kB min:948kB low:1184kB high:1420kB active:11176kB
+inactive:29284kB present:56320kB pages_scanned:0 all_unreclaimable?
+no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB
+inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: empty
+Normal: 58*4kB 7*8kB 3*16kB 1*32kB 0*64kB 0*128kB 0*256kB 6*512kB
+4*1024kB 0*2048kB 0*4096kB 0*8192kB 0*16384kB 0*32768kB = 7536kB
+HighMem: empty
+Alloc failed
+================================================================

@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWCAUOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWCAUQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751893AbWCAUOL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 15:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCAUOK
+	id S1750710AbWCAUQn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 15:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWCAUQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:14:10 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:25295 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751874AbWCAUOJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 15:14:09 -0500
-Message-ID: <4406003A.1070606@cfl.rr.com>
-Date: Wed, 01 Mar 2006 15:12:42 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 1 Mar 2006 15:16:43 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:60103 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S1750710AbWCAUQn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 15:16:43 -0500
+From: =?utf-8?q?Ren=C3=A9_Rebe?= <rene@exactcode.de>
+Organization: ExactCODE
+To: linux-kernel@vger.kernel.org
+Subject: MAX_USBFS_BUFFER_SIZE
+Date: Wed, 1 Mar 2006 21:16:25 +0100
+User-Agent: KMail/1.9
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: David Greaves <david@dgreaves.com>, Mark Lord <liml@rtr.ca>,
-       Tejun Heo <htejun@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus@vger.kernel.org
-Subject: Re: LibPATA code issues / 2.6.15.4
-References: <Pine.LNX.4.64.0602140439580.3567@p34>  <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>  <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com>  <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>  <4400A1B <1141238277.23170.2.camel@localhost.localdomain>
-In-Reply-To: <1141238277.23170.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Mar 2006 20:15:28.0593 (UTC) FILETIME=[E21CAC10:01C63D6C]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14298.000
-X-TM-AS-Result: No--2.500000-5.000000-31
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603012116.25869.rene@exactcode.de>
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, I wonder if: drivers/usb/core/devio.c:86 #define
+	MAX_USBFS_BUFFER_SIZE 16384 [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2006-03-01 at 17:33 +0000, David Greaves wrote:
->> As a user I prefer
->>   It Broke And I Dont Know Why
->> to
->>   Aborted Command
-> 
-> So whats the SCSI sense encoding for that ?
-> 
+Hi,
 
-Wouldn't that just be 0/0/0?  IIRC the standard defines that as "NO 
-ADDITIONAL SENSE DATA" which sounds to me like another way of saying "I 
-don't know what went wrong, but that didn't work".
+I wonder if:
 
+drivers/usb/core/devio.c:86
+#define MAX_USBFS_BUFFER_SIZE   16384
 
+is some random, or outdated limit or if there really is some code path that could
+not handle bigger URBs.
+
+For performance reasons I would like to use bigger packages for an image
+aquisition device.
+
+Yours,
+
+-- 
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+            http://www.exactcode.de | http://www.t2-project.org
+            +49 (0)30  255 897 45

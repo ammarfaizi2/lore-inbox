@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWCAQqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751622AbWCAQzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWCAQqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 11:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751616AbWCAQqI
+	id S1751622AbWCAQzW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 11:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWCAQzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 11:46:08 -0500
-Received: from lixom.net ([66.141.50.11]:45190 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S1751622AbWCAQqH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 11:46:07 -0500
-Date: Wed, 1 Mar 2006 10:45:31 -0600
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, paulus@samba.org
-Subject: [PATCH] Fix powerpc bad_page_fault output  (Re: 2.6.16-rc5-mm1)
-Message-ID: <20060301164531.GA17755@pb15.lixom.net>
-References: <20060228042439.43e6ef41.akpm@osdl.org> <4404E328.7070807@mbligh.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4404E328.7070807@mbligh.org>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+	Wed, 1 Mar 2006 11:55:22 -0500
+Received: from bay104-f30.bay104.hotmail.com ([65.54.175.40]:3816 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1751616AbWCAQzW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 11:55:22 -0500
+Message-ID: <BAY104-F30D83DE1A3392B1A69554DC0F40@phx.gbl>
+X-Originating-IP: [137.207.140.83]
+X-Originating-Email: [kamrankarimi@hotmail.com]
+In-Reply-To: <Pine.LNX.4.61.0603011601360.11678@goblin.wat.veritas.com>
+From: "Kamran Karimi" <kamrankarimi@hotmail.com>
+To: hugh@veritas.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why VM_SHM has been removed from mm.h?
+Date: Wed, 01 Mar 2006 10:55:21 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 01 Mar 2006 16:55:21.0876 (UTC) FILETIME=[ED8D0D40:01C63D50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 03:56:24PM -0800, Martin Bligh wrote:
-> Andrew Morton wrote:
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/
-> 
-> New panic on IBM power4 lpar of P690. 2.6.16-rc5-git3 is OK.
-> 
-> (config: 
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/power4)
-> 
-> http://test.kernel.org/24165/debug/console.log
+>It's not obvious to me why the kernel would hang with an invalid pointer
+>error message there: ipc_lock appears to have good safety against being
+>passed a random id.  Perhaps the invalid pointer message comes from
+>other code you've not shown (for example, I hope you shm_unlock(shp)
+>and return 1 when shm_lock succeeds), or perhaps I'm misreading.
 
-For what it's worth, this is a NULL pointer dereference in the RCU
-code.
+I have put printk() statements all over the place. The hang (which is during 
+boot time) occurs within the block of code that I sent you. There is a 
+shm_unlock() statement after the code, but it is never reached.
 
-Seems that the human-readible parts are printed at a differnet printk level
-(well, _at_ a level), so they fell off. Not good.
+>Since you're already patching base kernel source (you mention
+>arch/xyz/mm/fault.c), why don't you just patch your own VM_SYSVSHM
+>into include/linux/mm.h, and set it on the vma in ipc/shm.c?
 
-Andrew and/or Paulus, see patch below.
+Yes this looks like a good solution. I have changed VM_SHM in mm.h to be 
+0x0800000 and am looking for a good place to include it in the 
+vma->vm_flags. shmat() looks like a good place. How can I find the vma of a 
+SysV shm in that routine?
 
-
-Thanks,
-
-Olof
+-Kamran
 
 
----
-
-It seems that the die() output is printk'd without any prink level,
-so some distros will log the register dumps and the human readible
-format differently.
-
-(I.e. see http://test.kernel.org/24165/debug/console.log, which lacks
-the KERN_ALERT parts)
-
-Changing the die() output to include a level will likely confuse users
-that currently rely on getting the output where they're getting it,
-so instead remove it from the bad_page_fault() output.
-
-Signed-off-by: Olof Johansson <olof@lixom.net>
-
-
-diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
-index ec4adcb..fee050a 100644
---- a/arch/powerpc/mm/fault.c
-+++ b/arch/powerpc/mm/fault.c
-@@ -389,7 +389,7 @@ void bad_page_fault(struct pt_regs *regs
- 
- 	/* kernel has accessed a bad area */
- 
--	printk(KERN_ALERT "Unable to handle kernel paging request for ");
-+	printk("Unable to handle kernel paging request for ");
- 	switch (regs->trap) {
- 		case 0x300:
- 		case 0x380:
-@@ -402,8 +402,7 @@ void bad_page_fault(struct pt_regs *regs
- 		default:
- 			printk("unknown fault\n");
- 	}
--	printk(KERN_ALERT "Faulting instruction address: 0x%08lx\n",
--		regs->nip);
-+	printk("Faulting instruction address: 0x%08lx\n", regs->nip);
- 
- 	die("Kernel access of bad area", regs, sig);
- }

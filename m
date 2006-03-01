@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932731AbWCAAW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWCAA2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932731AbWCAAW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 19:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932732AbWCAAW5
+	id S964861AbWCAA2c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 19:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWCAA2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 19:22:57 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:58340
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932731AbWCAAW4 (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 28 Feb 2006 19:22:56 -0500
-Date: Tue, 28 Feb 2006 16:23:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: gregkh@suse.de, Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060301002302.GF23716@kroah.com>
-References: <20060227190150.GA9121@kroah.com> <17412.13937.158404.935427@gargle.gargle.HOWL>
+	Tue, 28 Feb 2006 19:28:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12989 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964861AbWCAA2b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 19:28:31 -0500
+Date: Tue, 28 Feb 2006 16:21:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Martin Bligh <mbligh@mbligh.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: 2.6.16-rc5-mm1
+Message-Id: <20060228162157.0ed55ce6.akpm@osdl.org>
+In-Reply-To: <4404DA29.7070902@free.fr>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
+	<4404CE39.6000109@liberouter.org>
+	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
+	<4404DA29.7070902@free.fr>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17412.13937.158404.935427@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 28, 2006 at 02:39:29PM +0300, Nikita Danilov wrote:
-> Greg KH writes:
-> 
-> [...]
-> 
->  > +
->  > +  stable/
->  > +	This directory documents the interfaces that have determined to
->  > +	be stable.  Userspace programs are free to use these interfaces
->  > +	with no restrictions, and backward compatibility for them will
->  > +	be guaranteed for at least 2 years.  Most simple interfaces
->  > +	(like syscalls) are expected to never change and always be
->  > +	available.
-> 
-> What about separating "stable" ("guaranteed for at least 2 years") and
-> "standard" (core unix interface is not going to change ever)?
+Laurent Riffard <laurent.riffard@free.fr> wrote:
+>
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000034
 
-Why?  Would that mean that the POSIX-like syscalls would only be in
-"standard"?  What else would you think would be in that category?
+I booted that thing on five machines, four architectures :(
 
-thanks,
+Could people please test a couple more patchsets, see if we can isolate it?
 
-greg k-h
+http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.1.gz
+
+is 2.6.16-rc5-mm1 minus:
+
+proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
+tref-implement-task-references.patch
+proc-dont-lock-task_structs-indefinitely.patch
+proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
+proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+proc-optimize-proc_check_dentry_visible.patch
+
+and http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.2.gz is
+2.6.16-rc5-mm1 minus:
+
+trivial-cleanup-to-proc_check_chroot.patch
+proc-fix-the-inode-number-on-proc-pid-fd.patch
+proc-remove-useless-bkl-in-proc_pid_readlink.patch
+proc-remove-unnecessary-and-misleading-assignments.patch
+proc-simplify-the-ownership-rules-for-proc.patch
+proc-replace-proc_inodetype-with-proc_inodefd.patch
+proc-remove-bogus-proc_task_permission.patch
+proc-kill-proc_mem_inode_operations.patch
+proc-properly-filter-out-files-that-are-not-visible.patch
+proc-fix-the-link-count-for-proc-pid-task.patch
+proc-move-proc_maps_operations-into-task_mmuc.patch
+dcache-add-helper-d_hash_and_lookup.patch
+proc-rewrite-the-proc-dentry-flush-on-exit.patch
+proc-close-the-race-of-a-process-dying-durning.patch
+proc-refactor-reading-directories-of-tasks.patch
+#
+proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
+tref-implement-task-references.patch
+proc-dont-lock-task_structs-indefinitely.patch
+proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
+proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+proc-optimize-proc_check_dentry_visible.patch
+
+
+Thanks.

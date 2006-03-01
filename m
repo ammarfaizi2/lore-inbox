@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932621AbWCAHzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbWCAHze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932621AbWCAHzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 02:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWCAHzx
+	id S932619AbWCAHze (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 02:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWCAHze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 02:55:53 -0500
-Received: from gold.veritas.com ([143.127.12.110]:44383 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932621AbWCAHzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 02:55:52 -0500
-X-IronPort-AV: i="4.02,155,1139212800"; 
-   d="scan'208"; a="56448709:sNHT29119524"
-Date: Wed, 1 Mar 2006 07:56:38 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Kamran Karimi <kamrankarimi@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: why VM_SHM has been removed from mm.h?
-In-Reply-To: <BAY104-F11448E157F2C47E004A12DC0F70@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0603010741200.7184@goblin.wat.veritas.com>
-References: <BAY104-F11448E157F2C47E004A12DC0F70@phx.gbl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 01 Mar 2006 07:55:51.0459 (UTC) FILETIME=[8F476730:01C63D05]
+	Wed, 1 Mar 2006 02:55:34 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:59011 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932619AbWCAHzd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 02:55:33 -0500
+Date: Tue, 28 Feb 2006 23:59:15 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Hauke Laging <mailinglisten@hauke-laging.de>, linux-kernel@vger.kernel.org
+Subject: Re: VFS: Dynamic umask for the access rights of linked objects
+Message-ID: <20060301075915.GD27645@sorel.sous-sol.org>
+References: <200603010328.42008.mailinglisten@hauke-laging.de> <44050AB7.7020202@vilain.net> <200603010454.15223.mailinglisten@hauke-laging.de> <08AB14CC-2BB2-4923-BFDB-B1360B5EF405@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <08AB14CC-2BB2-4923-BFDB-B1360B5EF405@mac.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006, Kamran Karimi wrote:
+* Kyle Moffett (mrmacman_g4@mac.com) wrote:
+> On Feb 28, 2006, at 22:54:15, Hauke Laging wrote:
+> >6) In my scenario the VFS would add a step after 4): It would check  
+> >if the symlink has been created by someone different from the  
+> >process's uid and from root. If so there is the risk of abuse and  
+> >the access check would be repeated for the symlink owner.
+> >
+> >7) The VFS would find out that the symlink owner is not allowed to  
+> >write to /etc/passwd. Thus the write access is prohibited, even for  
+> >a process with superuser rights.
 > 
-> VM_SHM is used by DIPC to quickly recognise when we are dealing with a System
-> V IPC segment. It has been "removed" from recent kernels (set to 0).
+> Feel free to write an LSM to do this, but it breaks POSIX specs a bit  
+> and could cause problems with some programs, so it's not likely to  
+> become the default behavior.
 
-Curious: VM_SHM wasn't set on a System V IPC shm vma in any 2.4 or 2.6
-kernel that I know of; but was set on the vmas of a random collection
-of drivers.  Perhaps you've been using your own patch to set it on
-SysV IPC shm vmas, and clear it from drivers' vmas?
+Solar Designer's Openwall Linux patch contains code for these types of
+restrictions (at least since 2.2 if not earlier).  Idea was stolen and
+made into an LSM smth like 4 or 5 years ago.  Neither of these have made
+it upstream.  Attempts have also been made to codify such restrictions
+in SELinux policy.  Polyinstantiation and per-process namespaces can be
+done effectively with code that's now in mainline, and can mitigate much
+of this risk.
 
-(We'll remove VM_SHM entirely once I've trawled through those drivers.)
-
-> Is there an easy way to find out if a segment is a Sys V shm?
-
-Nothing easy and reliable springs immediately to mind - from a VM point
-of view, they're treated much the same as tmpfs files; but there
-probably is some hacky way if we think about it long enough.
-
-> if not, I suggest we re-activate it.
-
-It seems that either you've been doing the wrong thing up to now,
-and never noticed it; or that you've been using your own flag in
-your own patch, and can continue to do so.  No need for vanilla
-kernel to reinstate VM_SHM.
-
-Are you sure you need to recognize them?
-
-Hugh
+thanks,
+-chris

@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWCAMb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWCAMiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWCAMb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 07:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWCAMb2
+	id S1750768AbWCAMiE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 07:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWCAMiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 07:31:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:53099 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1030205AbWCAMb1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 07:31:27 -0500
-Date: Wed, 1 Mar 2006 13:25:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andy Chittenden <AChittenden@bluearc.com>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
-       davej@redhat.com, linux-kernel@vger.kernel.org, lwoodman@redhat.com,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
-Message-ID: <20060301122558.GM4816@suse.de>
-References: <89E85E0168AD994693B574C80EDB9C270393C0D0@uk-email.terastack.bluearc.com> <20060301121547.GI4816@suse.de> <20060301121934.GK4816@suse.de> <200603011323.34722.ak@suse.de>
+	Wed, 1 Mar 2006 07:38:03 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2495 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750768AbWCAMiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 07:38:01 -0500
+Subject: Re: [RFC] vfs: cleanup of permission()
+From: Arjan van de Ven <arjan@infradead.org>
+To: tvrtko.ursulin@sophos.com
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@ftp.linux.org.uk>
+In-Reply-To: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
+References: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
+Content-Type: text/plain
+Date: Wed, 01 Mar 2006 13:37:51 +0100
+Message-Id: <1141216671.3185.22.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603011323.34722.ak@suse.de>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01 2006, Andi Kleen wrote:
-> On Wednesday 01 March 2006 13:19, Jens Axboe wrote:
-> > On Wed, Mar 01 2006, Jens Axboe wrote:
-> > > On Wed, Mar 01 2006, Andy Chittenden wrote:
-> > > 
-> > > Some weird stuff going on here, or I'm confused. Lots of entries are not
-> > > page start aligned, yet they have a length of 4kb. The troublesome
-> > > entries are additionally:
-> > > 
-> > > > hda: DMA table too small
-> > > > ide dma table, 256 entries, bounce pfn 1310720
-> > > > sg0: dma=6e9e800, len=4096/0, pfn=1185312
-> > > > sg1: dma=6e9f800, len=4096/0, pfn=1185270
-> > > 
-> > > This one, since it'll wrap around and consume two cpu dma table entries.
-> > > Since we are already at the max of 256 already from the beginning,
-> > > there's no way we can split this one.
-> > > 
-> > > > sg2: dma=6ea0800, len=4096/0, pfn=1184892
-> > > > sg3: dma=6ea1800, len=4096/0, pfn=1185144
-> > > > sg4: dma=6ea2800, len=4096/0, pfn=1185102
-> > > > sg5: dma=6ea3800, len=4096/0, pfn=1185059
-> > > > sg6: dma=6ea4800, len=4096/0, pfn=1185017
-> > > > sg7: dma=6ea5800, len=4096/0, pfn=1184975
-> > > > sg8: dma=6ea6800, len=4096/0, pfn=1184933
-> > > > sg9: dma=6ea7800, len=4096/0, pfn=1184850
-> > > > sg10: dma=6ea8800, len=4096/0, pfn=1186142
-> > > > sg11: dma=6ea9800, len=4096/0, pfn=1186814
-> > > > sg12: dma=6eaa800, len=4096/0, pfn=1186731
-> > > > sg13: dma=6eab800, len=4096/0, pfn=1186689
-> > > > sg14: dma=6eac800, len=4096/0, pfn=1186227
-> > > > sg15: dma=6ead800, len=4096/0, pfn=1186185
-> > > > sg16: dma=6eae800, len=4096/0, pfn=1186100
-> > > > sg17: dma=6eaf800, len=4096/0, pfn=1185807
-> > > 
-> > > Ditto for that one, will also be split into two 2kb entries.
-> > > 
-> > > So this first mapping dump shows us that we start with 256 entries, that
-> > > IDE would like to map into 258 entries. The question is why these dma
-> > > address as mapped by pci_map_sg() aren't page aligned? Andi?
-> > 
-> > Oh, it's dumping ->length but should be dumping ->dma_length in my debug
-> > patch. Can you change that and reproduce again?
+
 > 
-> Also only dump upto the value map_sg returned.
+> And finally, please don't remove nameidata. Modules out there depend on it 
 
-It is dumping that far only, i and sg_nents is the value returned by
-pci_map_sg()
+are those modules about to merged into the kernel? The current intent
+infrastructure isn't fulfilling what it should do well, and from what
+I've seen on the discussions it sounds that the best way forward is to
+undo the current implementation and then roll out one which caters to
+the needs of the existing users better.
 
-> The new kernel will not do any changes to the input parts in the
-> sglist, but just merge up the dma pointers and fix up dma_length.  So
-> the mappings can be completely out of sync now.
+As external module, you have little say so far simply because your usage
+isn't visible. I'd urge you to quickly submit your code so that the
+things you need from this are better visible to the people who are
+thinking and working on the redesign.
 
-Yeah that's fine, it's my debug patch that dumps ->length (input) that
-is wrong.
+> and we at Sophos are about to release a new product which needs it as 
+> well. 
 
-It'll be interesting to see, I wonder why so many of the output dma
-address aren't aligned.
+I assume we're talking about an open source product, or at least kernel
+component, here?
 
--- 
-Jens Axboe
 

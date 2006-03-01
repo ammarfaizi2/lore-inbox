@@ -1,86 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWCAMXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWCAM2a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWCAMXl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 07:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWCAMXl
+	id S1030203AbWCAM2a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 07:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWCAM2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 07:23:41 -0500
-Received: from mail.suse.de ([195.135.220.2]:23007 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932206AbWCAMXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 07:23:40 -0500
-From: Andi Kleen <ak@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
-Date: Wed, 1 Mar 2006 13:23:33 +0100
-User-Agent: KMail/1.9.1
-Cc: Andy Chittenden <AChittenden@bluearc.com>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
-       davej@redhat.com, linux-kernel@vger.kernel.org, lwoodman@redhat.com,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-References: <89E85E0168AD994693B574C80EDB9C270393C0D0@uk-email.terastack.bluearc.com> <20060301121547.GI4816@suse.de> <20060301121934.GK4816@suse.de>
-In-Reply-To: <20060301121934.GK4816@suse.de>
+	Wed, 1 Mar 2006 07:28:30 -0500
+Received: from viking.sophos.com ([194.203.134.132]:38416 "EHLO
+	viking.sophos.com") by vger.kernel.org with ESMTP id S1030203AbWCAM23
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 07:28:29 -0500
+In-Reply-To: <1141202744.11585.20.camel@lade.trondhjem.org>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [RFC] vfs: cleanup of permission()
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603011323.34722.ak@suse.de>
+X-Mailer: Lotus Notes Release 6.5.2 June 01, 2004
+Message-ID: <OFAFEC22B7.7F7518A9-ON80257124.0043AF58-80257124.00448503@sophos.com>
+From: tvrtko.ursulin@sophos.com
+Date: Wed, 1 Mar 2006 12:28:25 +0000
+X-MIMETrack: S/MIME Sign by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 6.5.2|June
+ 01, 2004) at 01/03/2006 12:28:24,
+	Serialize by Notes Client on Tvrtko Ursulin/Dev/UK/Sophos(Release 6.5.2|June
+ 01, 2004) at 01/03/2006 12:28:24,
+	Serialize complete at 01/03/2006 12:28:24,
+	S/MIME Sign failed at 01/03/2006 12:28:24: The cryptographic key was not
+ found,
+	Serialize by Router on Mercury/Servers/Sophos(Release 6.5.5|November 30, 2005) at
+ 01/03/2006 12:28:26,
+	Serialize complete at 01/03/2006 12:28:26
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 March 2006 13:19, Jens Axboe wrote:
-> On Wed, Mar 01 2006, Jens Axboe wrote:
-> > On Wed, Mar 01 2006, Andy Chittenden wrote:
-> > 
-> > Some weird stuff going on here, or I'm confused. Lots of entries are not
-> > page start aligned, yet they have a length of 4kb. The troublesome
-> > entries are additionally:
-> > 
-> > > hda: DMA table too small
-> > > ide dma table, 256 entries, bounce pfn 1310720
-> > > sg0: dma=6e9e800, len=4096/0, pfn=1185312
-> > > sg1: dma=6e9f800, len=4096/0, pfn=1185270
-> > 
-> > This one, since it'll wrap around and consume two cpu dma table entries.
-> > Since we are already at the max of 256 already from the beginning,
-> > there's no way we can split this one.
-> > 
-> > > sg2: dma=6ea0800, len=4096/0, pfn=1184892
-> > > sg3: dma=6ea1800, len=4096/0, pfn=1185144
-> > > sg4: dma=6ea2800, len=4096/0, pfn=1185102
-> > > sg5: dma=6ea3800, len=4096/0, pfn=1185059
-> > > sg6: dma=6ea4800, len=4096/0, pfn=1185017
-> > > sg7: dma=6ea5800, len=4096/0, pfn=1184975
-> > > sg8: dma=6ea6800, len=4096/0, pfn=1184933
-> > > sg9: dma=6ea7800, len=4096/0, pfn=1184850
-> > > sg10: dma=6ea8800, len=4096/0, pfn=1186142
-> > > sg11: dma=6ea9800, len=4096/0, pfn=1186814
-> > > sg12: dma=6eaa800, len=4096/0, pfn=1186731
-> > > sg13: dma=6eab800, len=4096/0, pfn=1186689
-> > > sg14: dma=6eac800, len=4096/0, pfn=1186227
-> > > sg15: dma=6ead800, len=4096/0, pfn=1186185
-> > > sg16: dma=6eae800, len=4096/0, pfn=1186100
-> > > sg17: dma=6eaf800, len=4096/0, pfn=1185807
-> > 
-> > Ditto for that one, will also be split into two 2kb entries.
-> > 
-> > So this first mapping dump shows us that we start with 256 entries, that
-> > IDE would like to map into 258 entries. The question is why these dma
-> > address as mapped by pci_map_sg() aren't page aligned? Andi?
+> On Tue, 2006-02-28 at 06:26 +0100, Herbert Poetzl wrote:
+> Hi Andrew! Christoph! Al!
 > 
-> Oh, it's dumping ->length but should be dumping ->dma_length in my debug
-> patch. Can you change that and reproduce again?
+> after thinking some time about the oracle words
+> (sent in reply to previous BME submissions) we 
+> (Sam and I) came to the conclusion that it would 
+> be a good idea to remove the nameidata introduced
+> in September 2003 from the inode permission()
+> checks, so that vfs_permission() can take care
+> of them ...
 
-Also only dump upto the value map_sg returned.
+Could you please provide a link to that 'previous BME submissions'? 
+Thanks.
 
-The new kernel will not do any changes to the input parts in the sglist, but 
-just merge up the dma pointers and fix up dma_length.  So the mappings
-can be completely out of sync now.
+Also, since you are modifying LSM interfaces, why not discuss it on the 
+LSM mailing list?
 
-This only changed recently.
-
--Andi
-
-P.S.: There might be also still some confusion with ->dma_length vs ->length.
+And finally, please don't remove nameidata. Modules out there depend on it 
+and we at Sophos are about to release a new product which needs it as 
+well. The plan was to announce the whole thing parallel with the release, 
+but after spotting your post I was prompted to react ahead of the 
+schedule. However, I am very busy at the moment so the actual announcment 
+with full details will have to wait for a week or two.
 

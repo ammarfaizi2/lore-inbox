@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWCABIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWCABS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWCABIM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 20:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751801AbWCABIM
+	id S932457AbWCABS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 20:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWCABS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 20:08:12 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:41868 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751794AbWCABIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 20:08:10 -0500
-Date: Tue, 28 Feb 2006 19:09:33 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Max mem space per process under  2.6.13-15.7-smp
-In-reply-to: <5LmVi-6om-11@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4404F44D.1080600@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5LmVi-6om-11@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 28 Feb 2006 20:18:27 -0500
+Received: from sccrmhc14.comcast.net ([204.127.200.84]:59337 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751367AbWCABS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 20:18:26 -0500
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] i386: port ATI timer fix from x86_64 to i386
+Date: Wed, 01 Mar 2006 01:18:24 +0000
+Message-Id: <030120060118.4989.4404F660000D5FFE0000137D22070210539D0E050B9A9D0E99@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Aug  4 2005)
+X-Authenticated-Sender: d2FydWRrYXJAY29tY2FzdC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Lampka wrote:
-> Sorry to bother, 
-> but what is the maximum amount of RAM that a *single* (!) process can
-> address under a Kernel version 2.6.13-15.7-smp, with 
+
+ -------------- Original message ----------------------
+From: Andrew Morton <akpm@osdl.org>
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> >
+> >  This fixes the "timer runs too fast" bug on ATI chipsets (bugzilla #3927).
 > 
-> CONFIG_HIGHMEM64G=y
-> CONFIG_HIGHMEM=y
-> CONFIG_X86_PAE=y
-> 
-> It seems that I can not get over 3 Gig border, but i need to, to solve
-> my numerical problems :(.
 
-If you use a kernel with the 4G-4G user-kernel space split patch, you 
-can get a full 4GB. To get more than that you will need to move to 64-bit.
+At least HP has released a BIOS update[*] to cure this - It states something to the tune of "Fix system time issues when running under Linux OS".  Not sure which one is the workaround and whether one is needed if other is present! 
+Time runs correctly for me without this fix and with the BIOS update.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Parag
 
+[*] http://h10025.www1.hp.com/ewfrf/wc/softwareDownloadIndex?dlc=en&lc=en&os=228&product=461746&lang=en&cc=us&softwareitem=ob-36843-1

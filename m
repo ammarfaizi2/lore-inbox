@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWCAAiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbWCAAkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932635AbWCAAiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 19:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWCAAiF
+	id S932642AbWCAAkW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 19:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWCAAkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 19:38:05 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:28389
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932635AbWCAAiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 19:38:04 -0500
-Date: Tue, 28 Feb 2006 16:38:10 -0800
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pm@osdl.org
-Subject: Re: [PATCH 0/4] Fix runtime device suspend/resumre interface
-Message-ID: <20060301003810.GI23716@kroah.com>
-References: <Pine.LNX.4.50.0602201641380.21145-100000@monsoon.he.net> <20060221174950.GA23054@kroah.com> <Pine.LNX.4.50.0602271111101.28882-100000@monsoon.he.net>
+	Tue, 28 Feb 2006 19:40:22 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.192.81]:16631 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S932642AbWCAAkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 19:40:22 -0500
+Date: Tue, 28 Feb 2006 16:40:39 -0800
+From: Deepak Saxena <dsaxena@plexity.net>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+Subject: Re: [PATCH] Generic hardware RNG support
+Message-ID: <20060301004039.GA14229@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <200602281229.12887.mbuesch@freenet.de> <44043CEE.70201@pobox.com> <200602281311.59888.mbuesch@freenet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0602271111101.28882-100000@monsoon.he.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200602281311.59888.mbuesch@freenet.de>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 11:18:43AM -0800, Patrick Mochel wrote:
+On Feb 28 2006, at 13:11, Michael Buesch was caught saying:
+> On Tuesday 28 February 2006 13:07, you wrote:
+> > Michael Buesch wrote:
+> > > Andrew, consider inclusion of the following patch into -mm
+> > > for further testing, please.
+> > > 
+> > > ---
+> > > 
+> > > This patch adds support for generic Hardware Random Number Generator
+> > > drivers. This makes the usage of the bcm43xx internal RNG through
+> > > /dev/hwrandom possible.
+> > > 
+> > > A patch against bcm43xx for your testing pleasure can be found at:
+> > > ftp://ftp.bu3sch.de/misc/bcm43xx-d80211-hwrng.patch
+> > 
+> > Please merge with Deepak Saxena's generic RNG stuff, rather than 
+> > duplicating efforts.
 > 
-> On Tue, 21 Feb 2006, Greg KH wrote:
-> 
-> > On Mon, Feb 20, 2006 at 04:55:34PM -0800, Patrick Mochel wrote:
-> > >
-> > > Hi there,
-> > >
-> > > Here is an updated version of the patches to fix the sysfs interface for
-> > > runtime device power management by restoring the file to its originally
-> > > designed behavior - to place devices in the power state specified by the
-> > > user process writing to the file.
-> > >
-> > > Recently, the interface was changed to filter out values to prevent a
-> > > BUG() that was introduced in the PCI power management code. While a valid
-> > > fix, it makes the driver core filter values that might otherwise be used
-> > > by the bus/device drivers.
-> >
-> > Are there any existing bus/device drivers that are currently broken
-> > because of this change?
-> 
-> It's difficult to tell. There are several devices that support multiple
-> PCI power states, and several drivers that will attempt to put the device
-> into whatever state is passed to their ->suspend() method. But, there are
-> not many that handle D1 or D2 specially.
-> 
-> The point of the patches was to restore the functionality of the sysfs
-> file to its documented interface, which had been that way since the file
-> was created (early in 2.6). In the last year, since the conversion to the
-> pm_message_t in driver suspend methods, it is not behaved as it was
-> advertised to do.
-> 
-> One solution is to prohibit any suspend/resume commands besides "on" and
-> "off", and to change the documented semantics of the file. But, it seems
-> much more useful to enable the use of the intermediate states, so long as
-> it doesn't do any serious harm. Put another way, it doesn't seem to make
-> sense to intentionally prevent the use of intermediate power states.
-> 
-> What is also a bit wonky is the handling of those intermediate power
-> states now. If someone has a PCI device that advertises D1/D2 support, and
-> he/she knows the driver supports it (or is writing the driver support for
-> it), a write of "1" or "2" to the device's state file is not going to
-> provide the type of behavior that one would expect..
-> 
-> Does that help at all?
+> Well, I did not know that someone else already wrote something
+> like this. Do you have any pointers to his stuff (patches)?
 
-Hm, no.  As nothing can be proven to be broken right now, it's way too
-late to get any change like this into 2.6.16-final.  Especially as your
-patch series broke Andrew's laptop :)
+Hi, I'll email you the patchset off-list so you can look at the API
+and write the bcm43xx driver against it.  They are a few months old and 
+need updating to 2.6.latest and it is on my 2.6.18 TODO. If you search the
+archives there were a few small issues left such as separating out all the
+x86 stuff into separate amd, via, and intel code instead of having a single
+file.
 
-If you want to respin them once that problem is fixed, I'd be glad to
-take them for 2.6.17, as long as we can get some agreement here on the
-interface.
+~Deepak
 
-thanks,
+-- 
+Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
 
-greg k-h
+A starving child in Africa or you in front of your TV?
+Where's the real tragedy?

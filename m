@@ -1,83 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWCANy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWCAN5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWCANy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 08:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWCANy2
+	id S1750953AbWCAN5R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 08:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbWCAN5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 08:54:28 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:12515 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932076AbWCANy2 (ORCPT
+	Wed, 1 Mar 2006 08:57:16 -0500
+Received: from mail.gmx.net ([213.165.64.20]:53433 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750835AbWCAN5P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 08:54:28 -0500
-Date: Wed, 1 Mar 2006 14:53:56 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060301135356.GC23159@marowsky-bree.de>
-References: <20060227190150.GA9121@kroah.com> <p7364n01tv3.fsf@verdi.suse.de> <20060227194400.GB9991@suse.de>
+	Wed, 1 Mar 2006 08:57:15 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.16-rc5-mm1
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Laurent Riffard <laurent.riffard@free.fr>, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
+       clameter@engr.sgi.com, ebiederm@xmission.com
+In-Reply-To: <20060301023235.735c8c47.akpm@osdl.org>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
+	 <4404CE39.6000109@liberouter.org>
+	 <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
+	 <4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>
+	 <4405723E.5060606@free.fr>  <20060301023235.735c8c47.akpm@osdl.org>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 01 Mar 2006 14:58:31 +0100
+Message-Id: <1141221511.7775.10.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060227194400.GB9991@suse.de>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-02-27T11:44:00, Greg KH <gregkh@suse.de> wrote:
+On Wed, 2006-03-01 at 02:32 -0800, Andrew Morton wrote:
+> Laurent Riffard <laurent.riffard@free.fr> wrote:
+> >
+> > Le 01.03.2006 01:21, Andrew Morton a Ã©crit :
+> >  > Laurent Riffard <laurent.riffard@free.fr> wrote:
+> >  > 
+> >  >>BUG: unable to handle kernel NULL pointer dereference at virtual address 00000034
+> >  > 
+> >  > 
+> >  > I booted that thing on five machines, four architectures :(
+> >  > 
+> >  > Could people please test a couple more patchsets, see if we can isolate it?
+> >  > 
+> >  > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.1.gz
+> >  > 
+> >  > is 2.6.16-rc5-mm1 minus:
+> >  > 
+> >  > proc-make-proc_numbuf-the-buffer-size-for-holding-a.patch
+> >  > tref-implement-task-references.patch
+> >  > proc-dont-lock-task_structs-indefinitely.patch
+> >  > proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
+> >  > proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+> >  > proc-optimize-proc_check_dentry_visible.patch
+> > 
+> >  Ok, 2.6.16-rc5-mm1.1 works for me:
+> >  - I can run java from command line in runlevel 1
+> >  - I can launch Mozilla in X
+> 
+> Useful, thanks.  So the second batch of /proc patches are indeed the problem.
+> 
+> If you have (even more) time you could test
+> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
+> That's the latest of everything with the problematic sysfs patches reverted
+> and Eric's recent /proc fixes.
 
-> > Ok, but how do you plan to address the basic practical problem?
-> > People cannot freely upgrade/downgrade kernels anymore since udev/hal
-> > are used widely in distributions.
-> I can freely upgrade/downgrade kernels on some distros[1] if I wish to,
-> as they support such things.  Just complain to your distro maker if you
-> have this issue :)
+Seems to work OK here, with debug settings as in Paul Jackson's report.
+No java crash, no fuser -n tcp NNNN crash.  Only thing I see so far is
+the proc symbolic link to nirvana permissions thingie.  Box is P4 HT.
 
-This is a somewhat cheap excuse.
-
-The fact is that now we have user-space and kernel space tied together
-much more intimately than ever; udev & sysfs being the prime examples
-these days, and then it's not that some figure in top is wrong, but
-"oops my network no longer loads and the box is 400 miles away".
-
-I don't have any issue with that per se, and the kernel can continue to
-change as much as it wants, but for the users' sake, the user-land needs
-to be at least _backwards compatible_ for a number of kernel releases.
-
-ie, you can upgrade the kernel, and this forces you to upgrade the
-user-space - annoying, but alright -, but at least said user-space will
-support the older kernel(s) in case one has to go back (or accidentially
-doesn't boot into the new kernel at all ;-).
-
-So that a user could always be sure that if they are running udev-latest
-(for example; a number of other projects have the same issue), they can
-run almost any kernel up to that point.
-
-This isn't a policy we can dictate to user-space, but an expectation it
-should measure up to, at least for such critical components as required
-for the system to get up to the point of being able to log in
-(serial/console/ssh) again and fix anything.
-
-Interfaces in the boot path are more critical than sound or even gfx
-starting up or not, which is merely annoying ;-)
-
-
-That said, the proposal is great, as are Ted's comments. We definetely
-need to document which parts of the evolving interface are supposed to
-be stable, otherwise we're confusing the users mightily and causing much
-havoc. And users can also use this as evidence against us ("you said
-the interface was _stable_, damn it!" and we'd have to at least go
-"Oops, sorry, we had to." instead of "neener neener!" ;-) Please go
-ahead with this!
-
-
-Sincerely,
-    Lars Marowsky-Brée
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+	-Mike
 

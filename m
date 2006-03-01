@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWCAU4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751902AbWCAU6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWCAU4x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 15:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751889AbWCAU4x
+	id S1751902AbWCAU6M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 15:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751904AbWCAU6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:56:53 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:22190
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751026AbWCAU4w (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Wed, 1 Mar 2006 15:56:52 -0500
-Date: Wed, 1 Mar 2006 12:56:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Nikita Danilov <nikita@clusterfs.com>, gregkh@suse.de,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060301205647.GA16331@kroah.com>
-References: <20060227190150.GA9121@kroah.com> <17412.13937.158404.935427@gargle.gargle.HOWL> <20060301002302.GF23716@kroah.com> <1141198077.3866.5.camel@laptopd505.fenrus.org>
+	Wed, 1 Mar 2006 15:58:12 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60317 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751902AbWCAU6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 15:58:11 -0500
+Date: Wed, 1 Mar 2006 12:58:02 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
+ added to -mm tree
+Message-Id: <20060301125802.cce9ef51.pj@sgi.com>
+In-Reply-To: <20060301192103.GA14320@kroah.com>
+References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
+	<20060228181849.faaf234e.pj@sgi.com>
+	<20060228183610.5253feb9.akpm@osdl.org>
+	<20060228194525.0faebaaa.pj@sgi.com>
+	<20060228201040.34a1e8f5.pj@sgi.com>
+	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
+	<20060228212501.25464659.pj@sgi.com>
+	<20060228234807.55f1b25f.pj@sgi.com>
+	<20060301002631.48e3800e.akpm@osdl.org>
+	<20060301015338.b296b7ad.pj@sgi.com>
+	<20060301192103.GA14320@kroah.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141198077.3866.5.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 08:27:52AM +0100, Arjan van de Ven wrote:
-> On Tue, 2006-02-28 at 16:23 -0800, Greg KH wrote:
-> > On Tue, Feb 28, 2006 at 02:39:29PM +0300, Nikita Danilov wrote:
-> > > Greg KH writes:
-> > > 
-> > > [...]
-> > > 
-> > >  > +
-> > >  > +  stable/
-> > >  > +	This directory documents the interfaces that have determined to
-> > >  > +	be stable.  Userspace programs are free to use these interfaces
-> > >  > +	with no restrictions, and backward compatibility for them will
-> > >  > +	be guaranteed for at least 2 years.  Most simple interfaces
-> > >  > +	(like syscalls) are expected to never change and always be
-> > >  > +	available.
-> > > 
-> > > What about separating "stable" ("guaranteed for at least 2 years") and
-> > > "standard" (core unix interface is not going to change ever)?
-> > 
-> > Why?  Would that mean that the POSIX-like syscalls would only be in
-> > "standard"?  What else would you think would be in that category?
+Greg wrote:
+> As reported this is expected, and can be ignored safely.  It's just scsi
+> being bad :)
+
+Yeah - so I eventually realized.
+
+> >  [<a0000001001eac90>] sysfs_create_group+0x30/0x2a0
+> >                                 sp=e00002343bd97d50 bsp=e00002343bd91120
+> >  [<a000000100809190>] topology_cpu_callback+0x70/0xc0
+> >                                 sp=e00002343bd97d60 bsp=e00002343bd910f0
+> >  [<a000000100809260>] topology_sysfs_init+0x80/0x120
+> >                                 sp=e00002343bd97d60 bsp=e00002343bd910d0
 > 
-> that sounds wrong. If you want posix behavior, use glibc. Not the kernel
-> directly. It's that simple. The kernel tends to follow posix mostly, to
-> allow glibc to do this job without too much hoops, but it's glibc that
-> provides the final posix API to the application. And it should be that
-> way.
+> This points at the sysfs cpu patches that are in -mm, which are not in
+> my tree...
 
-Yes, sorry, that is much more correct.
+So ... what does that mean for who should be looking at this?
 
-greg k-h
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

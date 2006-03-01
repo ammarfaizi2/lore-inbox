@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWCAVfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWCAVhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWCAVfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 16:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWCAVfu
+	id S1751277AbWCAVhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 16:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751914AbWCAVhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 16:35:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:32415 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751215AbWCAVft (ORCPT
+	Wed, 1 Mar 2006 16:37:16 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:1449 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1751277AbWCAVhO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 16:35:49 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [PATCH] mm: implement swap prefetching (v26)
-Date: Wed, 1 Mar 2006 22:34:01 +0100
-Message-ID: <1h8uuytzsq106$.k1fw2sw35o89$.dlg@40tude.net>
-References: <200602172235.40019.kernel@kolivas.org> <3b0ffc1f0602170618u7a1ad877s337de33c0a8f44f9@mail.gmail.com> <200602180126.58519.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-220-48-150.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
-Cc: ck@vds.kolivas.org
+	Wed, 1 Mar 2006 16:37:14 -0500
+Message-ID: <440613FF.4040807@vilain.net>
+Date: Thu, 02 Mar 2006 10:37:03 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Howells <dhowells@redhat.com>
+Subject: [Fwd: [PATCH 3/5] NFS: Abstract out namespace initialisation [try
+ #2]]
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Hope I managed to keep the CC list intact ... I'm using a newsreader
-to follow LKML from gmane]
+The attached patch abstracts out the namespace initialisation so that 
+temporary namespaces can be set up elsewhere.
 
-On Sat, 18 Feb 2006 01:26:57 +1100, Con Kolivas wrote:
+Signed-Off-By: David Howells <dhowells@redhat.com>
+Acked-By: Sam Vilain <sam.vilain@catalyst.net.nz>
+---
+David,
 
-> On Saturday 18 February 2006 01:18, Kevin Radloff wrote:
->> On 2/17/06, Con Kolivas <kernel@kolivas.org> wrote:
->>> Added disabling of swap prefetching when laptop_mode is enabled.
->>
->> Why bother with this? As someone commented in a previous thread,
->> wouldn't it be better to let the laptop_mode script handle it?
-> 
-> The discussion was about what size to make the swap prefetching. Since the 
-> size is not user tunable any more that is not the case. I had an offlist 
-> discussion with Bart Samwel about it and basically if your drive spins down 
-> at 5 seconds (which is what commonly happens with laptop mode) you will never 
-> have an opportunity to prefetch. This means swap prefetch will basically 
-> always spin up the drive nullifying laptop mode. On balance if you care about 
-> power more than anything to actually set laptop mode I suspect you wont want 
-> prefetch using any more power.
+This looks sane to me, thought I'd just quickly ack it as I'm also doing 
+work in this area... it seems a lot of what you're doing is cleaning up 
+the boundaries between VFS and FS - did you get a chance to review the 
+patch Herbert Pötzl sent to the list about the permission() cleanup?
 
-Would it make any sense to just delay swap prefetch execution and/or
-analysis to "as soon as the HD is spun up/just before the HD is spun
-down", rather than completely disabling it?
+  fs/namespace.c            |    8 +-------
+  include/linux/namespace.h |   15 +++++++++++++++
+  2 files changed, 16 insertions(+), 7 deletions(-)
 
--- 
-Giuseppe "Oblomov" Bilotta
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 51d3ebc..0194538 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1688,13 +1688,7 @@ static void __init init_mount_tree(void)
+  	namespace = kmalloc(sizeof(*namespace), GFP_KERNEL);
+  	if (!namespace)
+  		panic("Can't allocate initial namespace");
+-	atomic_set(&namespace->count, 1);
+-	INIT_LIST_HEAD(&namespace->list);
+-	init_waitqueue_head(&namespace->poll);
+-	namespace->event = 0;
+-	list_add(&mnt->mnt_list, &namespace->list);
+-	namespace->root = mnt;
+-	mnt->mnt_namespace = namespace;
++	init_namespace(namespace, mnt);
 
-Hic manebimus optime
+  	init_task.namespace = namespace;
+  	read_lock(&tasklist_lock);
+diff --git a/include/linux/namespace.h b/include/linux/namespace.h
+index 3abc8e3..ea6fd62 100644
+--- a/include/linux/namespace.h
++++ b/include/linux/namespace.h
+@@ -17,6 +17,21 @@ extern int copy_namespace(int, struct ta
+  extern void __put_namespace(struct namespace *namespace);
+  extern struct namespace *dup_namespace(struct task_struct *, struct 
+fs_struct *);
+
++static inline void init_namespace(struct namespace *namespace,
++				  struct vfsmount *mnt)
++{
++	atomic_set(&namespace->count, 1);
++	INIT_LIST_HEAD(&namespace->list);
++	init_waitqueue_head(&namespace->poll);
++	namespace->event = 0;
++	namespace->root = mnt;
++
++	if (mnt) {
++		list_add(&mnt->mnt_list, &namespace->list);
++		mnt->mnt_namespace = namespace;
++	}
++}
++
+  static inline void put_namespace(struct namespace *namespace)
+  {
+  	if (atomic_dec_and_lock(&namespace->count, &vfsmount_lock))
 

@@ -1,107 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWCABlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWCABzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964799AbWCABlN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 20:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWCABlN
+	id S964803AbWCABzp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 20:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWCABzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 20:41:13 -0500
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:9119 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S964799AbWCABlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 20:41:12 -0500
-Date: Tue, 28 Feb 2006 20:36:52 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 05/39] [PATCH] i386: Move phys_proc_id/early intel
-  workaround to corr
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-stable <stable@kernel.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-       Greg KH <greg@kroah.com>
-Message-ID: <200602282039_MC3-1-B985-4C46@compuserve.com>
-MIME-Version: 1.0
+	Tue, 28 Feb 2006 20:55:45 -0500
+Received: from mail.host.bg ([87.120.40.5]:3264 "EHLO mail.host.bg")
+	by vger.kernel.org with ESMTP id S964803AbWCABzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 20:55:44 -0500
+Subject: Re: Thread safety for epoll/libaio
+From: Anton Titov <a.titov@host.bg>
+To: "Li, Peng" <ringer9cs@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <598a055d0602281236m7eac9c09oc60af9ce28e7e4bf@mail.gmail.com>
+References: <598a055d0602281236m7eac9c09oc60af9ce28e7e4bf@mail.gmail.com>
+Content-Type: text/plain
+Organization: Host.bg
+Date: Wed, 01 Mar 2006 03:55:42 +0200
+Message-Id: <1141178142.7208.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060227223324.852289000@sorel.sous-sol.org>
+On Tue, 2006-02-28 at 15:36 -0500, Li, Peng wrote:
 
-On Mon, 27 Feb 2006 14:32:05, Chris Wright wrote:
-
-> -stable review patch.  If anyone has any objections, please let us know.
-> ------------------
+> Thread B:  while(1) { epoll_wait();  ... }
+> // same as thread A
+> Thread D:  ... epoll_ctl(); ....
 > 
-> early_cpu_detect only runs on the BP, but this code needs to run
-> on all CPUs. This will fix problems with the powernow-k8 driver
-> on dual core systems and general misdetection of AMD dual core.
-> 
-> Looks like a mismerge somewhere.  Also add a warning comment.
-> 
-> Signed-off-by: Andi Kleen <ak@suse.de>
-> Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> ---
-> 
->  arch/i386/kernel/cpu/common.c |   17 ++++++++++-------
->  1 files changed, 10 insertions(+), 7 deletions(-)
-> 
-> --- linux-2.6.15.4.orig/arch/i386/kernel/cpu/common.c
-> +++ linux-2.6.15.4/arch/i386/kernel/cpu/common.c
-> @@ -207,7 +207,10 @@ static int __devinit have_cpuid_p(void)
->  
->  /* Do minimum CPU detection early.
->     Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
-> -   The others are not touched to avoid unwanted side effects. */
-> +   The others are not touched to avoid unwanted side effects.
-> +
-> +   WARNING: this function is only called on the BP.  Don't add code here
-> +   that is supposed to run on all CPUs. */
->  static void __init early_cpu_detect(void)
->  {
->       struct cpuinfo_x86 *c = &boot_cpu_data;
-> @@ -239,12 +242,6 @@ static void __init early_cpu_detect(void
->               if (cap0 & (1<<19))
->                       c->x86_cache_alignment = ((misc >> 8) & 0xff) * 8;
->       }
-> -
-> -     early_intel_workaround(c);
+> Suppose thread B calls epoll_wait and blocks before thread D calls
+> epoll_ctl.  Is it safe to do so? Will thread B be notified for the
+> event submitted by thread D? 
 
-==> This has been in this location since at least 2.6.9.  If it's also needed
-    in generic_identify(), fine, but it should be left here too.  I think this
-    patch in 2.6.16-rc is wrong.  The comment for this function says it really
-    needs accurate cache alignment information, presumably because it's needed
-    for early boot setup, and without this it won't be accurate.
+Hello,
+
+I have some (more) expirience with epoll and threads and it seem to work
+well. If you have epoll_wait() in one thread and another thread do
+epoll_ctl to add a handle, epoll_wait will wake up as soon as the handle
+is ready for operation (most of the time instantly, when operation is
+write). 
+
+epoll man page states:
+
+              Q6     Will the close of an fd cause it to be removed from
+all epoll sets automatically?
+
+              A6     Yes.
+but I was experiencing some (rare) segfaults with my application while
+benchmarking it when I just closing my descriptors. Debugging showed,
+that I'm getting events for destroyed objects (with closed descriptors).
+Adding epoll_ctl(..., EPOLL_CTL_DEL, ...) fixed this.
 
 
-> -
-> -#ifdef CONFIG_X86_HT
-> -     phys_proc_id[smp_processor_id()] = (cpuid_ebx(1) >> 24) & 0xff;
-> -#endif
->  }
->  
->  void __devinit generic_identify(struct cpuinfo_x86 * c)
-> @@ -292,6 +289,12 @@ void __devinit generic_identify(struct c
->                               get_model_name(c); /* Default name */
->               }
->       }
-> +
-> +     early_intel_workaround(c);
-> +
-> +#ifdef CONFIG_X86_HT
-> +     phys_proc_id[smp_processor_id()] = (cpuid_ebx(1) >> 24) & 0xff;
-> +#endif
->  }
->  
->  static void __devinit squash_the_stupid_serial_number(struct cpuinfo_x86 *c)
->
-
--- 
-Chuck
-"Equations are the Devil's sentences."  --Stephen Colbert
 

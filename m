@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWCAUEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWCAUOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWCAUEy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 15:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWCAUEy
+	id S1751893AbWCAUOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 15:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCAUOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 15:04:54 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:18658 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750733AbWCAUEy (ORCPT
+	Wed, 1 Mar 2006 15:14:10 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:25295 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751874AbWCAUOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 15:04:54 -0500
-Subject: Re: [PATCH] Define wc_wmb, a write barrier for PCI write combining
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200603012049.32670.ak@suse.de>
-References: <1140841250.2587.33.camel@localhost.localdomain>
-	 <200603012027.55494.ak@suse.de>
-	 <1141242206.2899.109.camel@localhost.localdomain>
-	 <200603012049.32670.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 01 Mar 2006 12:05:07 -0800
-Message-Id: <1141243508.2899.126.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
+	Wed, 1 Mar 2006 15:14:09 -0500
+Message-ID: <4406003A.1070606@cfl.rr.com>
+Date: Wed, 01 Mar 2006 15:12:42 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: David Greaves <david@dgreaves.com>, Mark Lord <liml@rtr.ca>,
+       Tejun Heo <htejun@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus@vger.kernel.org
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34>  <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34>  <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com>  <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34>  <4400A1B <1141238277.23170.2.camel@localhost.localdomain>
+In-Reply-To: <1141238277.23170.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Mar 2006 20:15:28.0593 (UTC) FILETIME=[E21CAC10:01C63D6C]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14298.000
+X-TM-AS-Result: No--2.500000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-01 at 20:49 +0100, Andi Kleen wrote:
+Alan Cox wrote:
+> On Mer, 2006-03-01 at 17:33 +0000, David Greaves wrote:
+>> As a user I prefer
+>>   It Broke And I Dont Know Why
+>> to
+>>   Aborted Command
+> 
+> So whats the SCSI sense encoding for that ?
+> 
 
-> Relying on undocumented side effects of instructions as you're trying
-> to do here is not very reliable and would likely cause breakage later.
+Wouldn't that just be 0/0/0?  IIRC the standard defines that as "NO 
+ADDITIONAL SENSE DATA" which sounds to me like another way of saying "I 
+don't know what went wrong, but that didn't work".
 
-I just quoted you the precise relevant semantics of sfence two messages
-earlier, from the AMD64 optimisation guide.  Here's the same thing from
-the EM64T optimisation guide.  See page 444 of the following PDF:
-
-        ftp://download.intel.com/design/Pentium4/manuals/25366818.pdf
-
-Here's the relevant quote:
-
-        Writes may be delayed and combined in the write combining buffer
-        (WC buffer) to reduce memory accesses. If the WC buffer is
-        partially filled, the writes may be delayed until the next
-        occurrence of a serializing event; such as, an SFENCE or MFENCE
-        instruction, [...]
-        
-If you read section 10.3.1 of the same document (page 446), you'll see
-that a CLFLUSH (as you suggested earlier) won't even work to get the WC
-buffers to flush, because they're not part of the regular cache
-hierarchy.
-
-This section also makes it clear yet again that wmb() is absolutely not
-sufficient to get program store order semantics in the presence of WC;
-you *have* to use an explicit synchronising instruction of some kind.
-
-This is pretty frustrating.  I'm quoting the manufacturer documentation
-at you, and you're handwaving back at me with complete nonsense.
-
-	<b
 

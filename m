@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWCAEiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWCAEk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWCAEiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Feb 2006 23:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751714AbWCAEiJ
+	id S932081AbWCAEk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Feb 2006 23:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWCAEk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Feb 2006 23:38:09 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58853 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751590AbWCAEiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Feb 2006 23:38:08 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-References: <200603010120.k211KqVP009559@shell0.pdx.osdl.net>
-	<20060228181849.faaf234e.pj@sgi.com>
-	<20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 28 Feb 2006 21:31:47 -0700
-In-Reply-To: <20060228194525.0faebaaa.pj@sgi.com> (Paul Jackson's message of
- "Tue, 28 Feb 2006 19:45:25 -0800")
-Message-ID: <m1slq2pyyy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 28 Feb 2006 23:40:56 -0500
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:20151 "EHLO
+	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP id S932081AbWCAEkz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Feb 2006 23:40:55 -0500
+Message-ID: <440525CD.4090505@sdl.hitachi.co.jp>
+Date: Wed, 01 Mar 2006 13:40:45 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>, ananth@in.ibm.com, prasanna@in.ibm.com,
+       anil.s.keshavamurthy@intel.com
+CC: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
+       systemtap@sources.redhat.com, jkenisto@us.ibm.com,
+       linux-kernel@vger.kernel.org, sugita@sdl.hitachi.co.jp,
+       soshima@redhat.com, haoki@redhat.com
+Subject: [PATCH] kprobe: kprobe-booster fix for NX support on i386
+References: <43DE0A4D.20908@sdl.hitachi.co.jp>	<4402E920.5080402@sdl.hitachi.co.jp> <20060227185012.037c8830.akpm@osdl.org> <4403E894.4050300@sdl.hitachi.co.jp>
+In-Reply-To: <4403E894.4050300@sdl.hitachi.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+Hi, Andrew
 
->> -rc5-mm1 appears to be a trainwreck.  It's a bit of a mystery - I've tried
->> several further configs and it all works swimmingly.
->
-> Getting closer.
->
-> Without the patches:
->
->     proc-dont-lock-task_structs-indefinitely.patch
->     proc-dont-lock-task_structs-indefinitely-git-nfs-fix.patch
->     proc-dont-lock-task_structs-indefinitely-cpuset-fix.patch
+Here is the patch to fix kprobe-booster against linux-2.6.16-rc5-mm1.
+ - Fix to assign the correct address of the instruction buffer.
+   From linux-2.6.16-rc5, the ainsn.insn on i386 arch became a pointer
+   instead of an array itself.
 
-That definitely makes sense if there is a reference counting bug
-somewhere.
+Best regards,
 
-What is also possible but scary is that I don't have a reference
-counting bug and something else is wrong with process management,
-and by holding a much lighter grasp on the tasks in /proc
-I have managed to make the bug much easier to trigger.
+-- 
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
 
-Hmm.  I think I can see at least one reference counting bug..
-Unfortunately it is in the wrong direction.
+Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
 
-> With these patches, it still boots, and looks fine ... until
-> I fire up my SGI specific application, and then it dies.
-> Once it died with some complaint (lost now) from a swap
-> daemon.  This latest time, it died with just:
->
->   Kernel panic - not syncing: Attempted to kill init!
+ kprobes.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+--- a/arch/i386/kernel/kprobes.c	2006-03-01 09:53:22.000000000 +0900
++++ b/arch/i386/kernel/kprobes.c	2006-03-01 09:56:58.000000000 +0900
+@@ -313,7 +313,7 @@ static int __kprobes kprobe_handler(stru
+ 	    !p->post_handler && !p->break_handler ) {
+ 		/* Boost up -- we can execute copied instructions directly */
+ 		reset_current_kprobe();
+-		regs->eip = (unsigned long)&p->ainsn.insn;
++		regs->eip = (unsigned long)p->ainsn.insn;
+ 		preempt_enable_no_resched();
+ 		return 1;
+ 	}
 
-Ouch.
-
-> So I think the above 3 patches make it easy for user space
-> to kill the kernel.
-
-The intent was the opposite...  But until the bugs get out...
-
-Eric

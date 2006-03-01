@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWCAWRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWCAWUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWCAWRf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 17:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWCAWRf
+	id S1750761AbWCAWUU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 17:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWCAWUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 17:17:35 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:47747 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751308AbWCAWRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 17:17:34 -0500
-Date: Wed, 1 Mar 2006 14:19:54 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Ashok Raj <ashok.raj@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [patch 10/39] [PATCH] i386/x86-64: Dont IPI to offline cpus on shutdown
-Message-ID: <20060301221954.GQ3883@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org> <20060227223344.160102000@sorel.sous-sol.org> <200602272337.56509.ak@suse.de> <20060227231814.GN3883@sorel.sous-sol.org> <m1r75ot192.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r75ot192.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 1 Mar 2006 17:20:19 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:4584 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750761AbWCAWUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 17:20:18 -0500
+Date: Wed, 1 Mar 2006 14:20:01 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Paul Jackson <pj@sgi.com>, dgc@sgi.com, steiner@sgi.com,
+       Simon.Derr@bull.net, linux-kernel@vger.kernel.org, clameter@sgi.com
+Subject: Re: [PATCH 01/02] cpuset memory spread slab cache filesys
+In-Reply-To: <200603012221.37271.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0603011411190.31997@schroedinger.engr.sgi.com>
+References: <20060227070209.1994.26823.sendpatchset@jackhammer.engr.sgi.com>
+ <200603012159.42273.ak@suse.de> <20060301131910.beb949be.pj@sgi.com>
+ <200603012221.37271.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Eric W. Biederman (ebiederm@xmission.com) wrote:
-> The comprehensive fix for 2.6.15.x is to remove -p from /sbin/halt
-> if your machine has this problem.  I have just updated the bugzilla
-> entry so we can remember this.
+On Wed, 1 Mar 2006, Andi Kleen wrote:
 
-fix...workaround... ;-)  At any rate, I've dropped this one.  Thanks
-to you and Andi for reviewing.
+> I think it's the best default for smaller systems too. I've had people
+> complaining about node inbalances that were caused by one or two
+> being filled up with d/icache. And the small latencies of accessing
+> them don't matter very much.
 
-thanks,
--chris
+But these are special situations. Placing memory on a distance node
+is not beneficial in the standard case of a single threaded process 
+churning along opening and closing files etc.
+
+Interleave is only beneficial for special applications that use a common 
+pool of data and that implement no other means of locality control. At 
+that point we sacrifice the performance benefit that comes with node locality
+in order not to overload a single node. 
+
+Kernels before 2.6.16 suffer from special overload situations that are due 
+to not having the ability to reclaim the pagecache and the slab cache. 
+This is going to change in SLES10.
+
+> > If you think it would be better to change this default, now that the
+> > mechanism is in place to do support spreading these slabs, then I could
+> > certainly go along with that.
+> 
+> Yes that would make me happy.
+
+It seems that we are trying to sacrifice the performance of many in 
+order to accomodate a few special situations. Cpusets are ideal for those 
+situations since they allow the localization of the interleaving to a 
+slice of the machine. Processes on the rest of the box can still get node 
+local memory and run at optimal performance.
+  
+> I would be in favour of it
+
+Please run performance tests with single threaded processes if you 
+do not believe me before doing any of this.

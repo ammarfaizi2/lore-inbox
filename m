@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWCBVOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751989AbWCBVZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWCBVOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 16:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWCBVOc
+	id S1751989AbWCBVZg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 16:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWCBVZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 16:14:32 -0500
-Received: from mail.linicks.net ([217.204.244.146]:29378 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S932307AbWCBVOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 16:14:31 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: [question] memory usage
-Date: Thu, 2 Mar 2006 21:14:24 +0000
-User-Agent: KMail/1.9.1
+	Thu, 2 Mar 2006 16:25:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9376 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751634AbWCBVZf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 16:25:35 -0500
+Date: Thu, 2 Mar 2006 13:25:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Douglas Gilbert <dougg@torque.net>
+cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       Matthias Andree <matthias.andree@gmx.de>, Mark Rustad <mrustad@mac.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sg regression in 2.6.16-rc5
+In-Reply-To: <44074CA1.3000007@torque.net>
+Message-ID: <Pine.LNX.4.64.0603021317520.22647@g5.osdl.org>
+References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net>
+ <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
+ <4405F6F1.9040106@torque.net> <Pine.LNX.4.63.0603012239440.5789@kai.makisara.local>
+ <44074CA1.3000007@torque.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603022114.24712.nick@linicks.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-Can anybody explain this to me please.
-
-I have 1.5GB RAM - dmesg (boot -> append="mem=1536M"):
-
-639MB HIGHMEM available.
-896MB LOWMEM available.
-
-I have 2GB swap:
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/hda1               1         244     1959898+  82  Linux swap
-
-I have no issues on this - works GREAT.  Normally, after a reboot, and over 
-night after logrotate/updatedb etc. run, I end up with about 200MB free RAM 
-that is used/reclaimed.  very rarely do I hit disk swap at all (building KDE 
-usually grabs about 100Kb, but that is infrequent).
-
-Last week I bought my first DVD player (yes, I know, I am late to the party!).  
-When I watch a DVD (Xine), memory usage hardly goes up (no swap ever used).  
-But after finishing, I then see memory usage is way down:
 
 
-nick@linuxamd:nick$ uptime; free
- 21:11:26 up 1 day,  4:57,  1 user,  load average: 0.06, 0.10, 0.26
-             total       used       free     shared    buffers     cached
-Mem:       1556216     411144    1145072          0      28408     236704
--/+ buffers/cache:     146032    1410184
-Swap:      1959888          0    1959888
+On Thu, 2 Mar 2006, Douglas Gilbert wrote:
+> 
+> As more information has come to light, the worst case
+> "big transfer" of a single SCSI command through sg (and
+> st I suspect) is 512 KB **. With full coalescing that figure
+> goes up to 4 MB **. I am also aware that some users
+> increase SG_SCATTER_SZ in the sg driver to get larger
+> "big transfer"s than sg's current limit of (8MB - 32KB) **.
+> That facility has now gone (i.e. upping SG_SCATTER_SZ will
+> have no effect) with no replacement mechanism.
+> 
+> So I'll add my vote to "revert this change before lk 2.6.16"
+> with a view to applying it after some solution to the "big
+> transfer" problem is found.
 
+Considering that the old code was apparently known-broken due to not 
+honoring the use_clustering flag, I would say that the more likely thing 
+is that very few people use sg in the first place, and we should wait and 
+see what the reaction is to actually fixing a real bug.
 
-Why is this?
+Doing more than page-sized transfers can be hard/impossible in virtualized 
+environments, for example.
 
-Thanks,
+In contrast, upping the limits should be fairly easy, I assume. Same goes 
+for if some driver disables clustering even though it shouldn't. No?
 
-Nick
-
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+		Linus

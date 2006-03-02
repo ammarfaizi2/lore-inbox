@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWCBQOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWCBQQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751572AbWCBQOw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751561AbWCBQOw
+	id S1751568AbWCBQQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751570AbWCBQQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:14:52 -0500
-Received: from mx.laposte.net ([81.255.54.11]:10516 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S1751078AbWCBQOv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:14:51 -0500
-Message-ID: <24130.192.54.193.25.1141315944.squirrel@rousalka.dyndns.org>
-In-Reply-To: <44066132.4010205@pobox.com>
-References: <1141239617.23202.5.camel@rousalka.dyndns.org>	
-    <4405F471.8000602@rtr.ca>	
-    <1141254762.11543.10.camel@rousalka.dyndns.org>	
-    <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com>	
-    <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com>	
-    <311601c90603011820u4fc89b04te1be39b9ed2ef35b@mail.gmail.com>	
-    <44065C7C.6090509@pobox.com>
-    <311601c90603011900q7fe21fbx1020e4ba4062dc24@mail.gmail.com>
-    <44066132.4010205@pobox.com>
-Date: Thu, 2 Mar 2006 17:12:24 +0100 (CET)
-Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
-From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: "Eric D. Mudama" <edmudama@gmail.com>, "Jens Axboe" <axboe@suse.de>,
-       "Tejun Heo" <htejun@gmail.com>,
-       "Nicolas Mailhot" <nicolas.mailhot@gmail.com>,
-       "Mark Lord" <liml@rtr.ca>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Carlos Pardo" <carlos.pardo@siliconimage.com>
-User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20060118.1.fc5.1.nim
+	Thu, 2 Mar 2006 11:16:57 -0500
+Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:48349 "EHLO
+	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S1751561AbWCBQQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 11:16:57 -0500
+Message-ID: <44071AC3.5070709@keyaccess.nl>
+Date: Thu, 02 Mar 2006 17:18:11 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5 OOM regression
+References: <4405F929.2030609@keyaccess.nl> <20060302022356.5fad2e08.akpm@osdl.org>
+In-Reply-To: <20060302022356.5fad2e08.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-Le Jeu 2 mars 2006 04:06, Jeff Garzik a écrit :
-> Eric D. Mudama wrote:
->> The "failing dmesg" has the plextor connected to sata_nv, and the two
->> Maxtor drives connected to sata_sil, if I read it correctly.  They're
->> ata5/ata6 ports, mapped as sda/sdb.
->>
->> Nicolas' comment in the thread "Re: LibPATA code issues / 2.6.15.4"
->> seemed to say it was the same adapter:
->>
->> http://marc.theaimsgroup.com/?l=linux-kernel&m=114123989405668&w=2
->
-> Sounds like un-blacklisting the drive, and adding ATA_FLAG_NO_FUA is the
-> way to go...
+> crap, thanks.  I would appear to have broken one of Christoph's patches for
+> him.
+> 
+> --- devel/mm/oom_kill.c~out_of_memory-locking-fix	2006-03-02 02:17:00.000000000 -0800
+> +++ devel-akpm/mm/oom_kill.c	2006-03-02 02:17:22.000000000 -0800
+> @@ -355,6 +355,7 @@ retry:
+>  	}
+>  
+>  out:
+> +	read_unlock(&tasklist_lock);
+>  	cpuset_unlock();
+>  	if (mm)
+>  		mmput(mm);
+> _
+> 
 
-Please add the ATA_FLAG_NO_FUA flag and *after* unblacklist the drive as I
-distinctly have no wish to do fsck stressing again.
+Confirmed to solve, thanks!
 
--- 
-Nicolas Mailhot
+Rene.
+
 

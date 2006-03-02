@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWCBBcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWCBBgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWCBBcS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 20:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbWCBBcR
+	id S1750981AbWCBBgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 20:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWCBBgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 20:32:17 -0500
-Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:41737
-	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
-	id S1751282AbWCBBcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 20:32:16 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: bunk@stusta.de (Adrian Bunk)
-Subject: Re: [2.6 patch] make UNIX a bool
-Cc: dtor_core@ameritech.net, jgeorgas@rogers.com, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20060301175852.GA4708@stusta.de>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1FEcfG-000486-00@gondolin.me.apana.org.au>
-Date: Thu, 02 Mar 2006 12:31:34 +1100
+	Wed, 1 Mar 2006 20:36:08 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:9897 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1750981AbWCBBgG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 20:36:06 -0500
+Message-ID: <44064BF7.9040605@vilain.net>
+Date: Thu, 02 Mar 2006 14:35:51 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] vfs: cleanup of permission()
+References: <20060228052606.GA6494@MAIL.13thfloor.at>	 <1141202744.11585.20.camel@lade.trondhjem.org>	 <20060301131149.GD26837@MAIL.13thfloor.at> <1141256563.26382.8.camel@netapplinux-10.connectathon.org>
+In-Reply-To: <1141256563.26382.8.camel@netapplinux-10.connectathon.org>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> It does also matter in the kernel image size case, since you have to put 
-> enough modules to the other medium for having a effect bigger than the
-> kernel image size increase from setting CONFIG_MODULES=y.
+Trond Myklebust wrote:
+>>the second part is actually a hack to help nfs and fuse
+>>to get the 'required' information until there is a proper
+>>interface (at the vfs not inode level) to pass relevant
+>>information (probably dentry/vfsmount/flags)
+> The nameidata _IS_ the vfs structure for storing path context
+> information. You seem to be suggesting we need yet another one. Why?
 
-That's not very difficult considering the large number of modules that's
-out there that a system may wish to use.
+Because you can't make a nameidata without a lookup, and file based 
+operations don't do a lookup.  However you still have the vfsmnt and 
+inode hanging off the file struct.
 
-Anyway, getting back to the original point if AF_UNIX is using something
-that's so under the hood that it has to be hidden, perhaps what we really
-need is a better abstraction?
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Either that or we make a dummy nameidata structure for this situation, 
+possibly a filehandle relative lookup as used by openat() et al.
+
+>>>Secondly, an intent is _not_ a permissions mask by any stretch of the
+>>>imagination.
+>>see above
+>>>IOW: at the very least make that intent flag a separate parameter.
+>>IMHO it would be good to remove them completely form the
+>>current permission() checks.
+> Vetoed!
+> Redundant RPC calls have performance costs to the client, the server and
+> the network. That intent information is there in order to allow the
+> filesystem to figure out whether or not it needs to do the permissions
+> check, or if that check is already being done by other operations.
+> Removing the intents are therefore not an option.
+
+OK, so we either make it an extra parameter or 'properly' stack them 
+into a single word.  Do you have any preferences either way there?
+
+Sam.

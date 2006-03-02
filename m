@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751975AbWCBI74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751980AbWCBJBA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751975AbWCBI74 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 03:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWCBI74
+	id S1751980AbWCBJBA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 04:01:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751979AbWCBJBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 03:59:56 -0500
-Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:62093 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751975AbWCBI7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 03:59:55 -0500
-Subject: Suspend to RAM regression retraced
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-Date: Thu, 02 Mar 2006 19:58:45 +1100
-Message-Id: <1141289925.18519.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Thu, 2 Mar 2006 04:01:00 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:43234 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1751977AbWCBJA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 04:00:59 -0500
+Date: Thu, 2 Mar 2006 10:00:57 +0100
+From: Sander <sander@humilis.net>
+To: "Eric D. Mudama" <edmudama@gmail.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>,
+       Jens Axboe <axboe@suse.de>, Tejun Heo <htejun@gmail.com>,
+       Nicolas Mailhot <nicolas.mailhot@gmail.com>, Mark Lord <liml@rtr.ca>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>
+Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
+Message-ID: <20060302090057.GC8570@favonius>
+Reply-To: sander@humilis.net
+References: <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com> <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com> <311601c90603011820u4fc89b04te1be39b9ed2ef35b@mail.gmail.com> <44065C7C.6090509@pobox.com> <311601c90603011900q7fe21fbx1020e4ba4062dc24@mail.gmail.com> <44066132.4010205@pobox.com> <44066378.1080408@rtr.ca> <44066400.6070503@pobox.com> <311601c90603012223j10aef3e0s3158567594bb9791@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <311601c90603012223j10aef3e0s3158567594bb9791@mail.gmail.com>
+X-Uptime: 08:36:57 up 3 days, 14:28, 18 users,  load average: 3.37, 2.89, 2.75
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Eric D. Mudama wrote (ao):
+> On 3/1/06, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > Mark Lord wrote:
+> > > Jeff Garzik wrote:
+> > > ..
+> > >
+> > >> Sounds like un-blacklisting the drive, and adding ATA_FLAG_NO_FUA is
+> > >> the way to go...
+> > >
+> > >
+> > > Might as well add sata_mv to that blacklist as well.
+> >
+> > Have you confirmed that it doesn't work with FUA?
+> 
+> I'll see if I can find one of these around the lab tomorrow and test
+> the raw command support. If that's fine at a basic level, it might be
+> a bug in the driver?
 
-A while ago I reported a regression (http://lkml.org/lkml/2005/9/21/290)
-in suspend to RAM that happened with kernel 2.6.12 on my Dell D600
-laptop. After several months of testing (this is my work machine and the
-bug takes time to reproduce), I have finally narrowed it down. It seems
-like to problem was introduced between 2.6.12-rc5 and 2.6.12-rc6. 
+If you tell me what to do (what to type in etc) I can save you from
+looking for one. I have a:
 
-Basically, what happens is that with 2.6.12-rc6, my machine *sometimes*
-doesn't resume when I suspend it. This happens especially when it has
-been running for a while. It almost always works when I just rebooted,
-or if I just successfully resumed. So it behaves like "something" gets
-randomly corrupted, at which point the machine still works, but will not
-resume if I suspend it. Also, I've observed the same behaviour with and
-without preemption enabled. 
+Marvell Technology Group Ltd. MV88SX6081 8-port SATA II PCI-X Controller
+(rev 09)
 
-Can someone have a look at what could cause the problem and fix it? I
-can provide more information if needed. BTW, I'm not on the list so
-please CC to me.
+I can connect a Maxtor MaXLine Pro 500, a Maxtor DiamondMax11 and a WD
+Raptor 74GB to test if necessary.
 
-Thanks,
+	Sander
 
-	Jean-Marc
-
-P.S. Machine setup is:
-Ubuntu 5.10 (but problem also observed on 5.04 and old Debian unstable)
-Dell Latitude D600 (Bios rev. A14)
-Pentium-M 1.6 GHz / 1 GB RAM
-ATI Technologies, Inc. Radeon Mobility 9000 M9 (R250 Lf)
-
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

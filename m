@@ -1,87 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWCBX3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752085AbWCBX3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWCBX3R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 18:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752088AbWCBX3Q
+	id S1752085AbWCBX3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 18:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752087AbWCBX3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 18:29:16 -0500
-Received: from ns2.suse.de ([195.135.220.15]:27862 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750720AbWCBX3P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 18:29:15 -0500
-Date: Fri, 3 Mar 2006 00:29:09 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Martin Bachem <info@colognechip.com>
-Subject: [PATCH] Add new PCI IDs for HFC-S PCI
-Message-ID: <20060302232909.GA17717@pingi.kke.suse.de>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	Martin Bachem <info@colognechip.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 18:29:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:34869 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752085AbWCBX3B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 18:29:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=koGBAWkPpsyIPP+JK+4MLTaPwp9fCltEl55w36GqQ1C/0EVOJZHVanJP+HLcWK5JZg870MH7BZpmr6SZls2HDPEqtiugyg7jqzVs3hSlKWfE2wtJ/hPPnb6f1rL4OHp+gPGUR16+6Yj8E2Xyr0YhARqBjW9uZG0M+CLrS8ZPg0o=
+Message-ID: <6bffcb0e0603021529x86f32c6h@mail.gmail.com>
+Date: Fri, 3 Mar 2006 00:29:00 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Bernhard Rosenkraenzer" <bero@arklinux.org>
+Subject: Re: 2.6.16-rc5-mm1: inotify BUG warnings
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200603022104.14073.bero@arklinux.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.13-15.7-smp x86_64
-User-Agent: Mutt/1.5.9i
+References: <200603022104.14073.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add new PCI IDs for HFC-S PCI based ISDN TA 'Primux II S0' and 'Primux II S0'
-from Gerdes AG
+Hi,
 
-Signed-off-by: Martin Bachem <info@colognechip.com>
-Signed-off-by: Karsten Keil <kkeil@suse.de>
+On 02/03/06, Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+> I'm getting a number of those when running KDE 3.5.1 on a 2.6.16-rc5-mm1 box:
+>
+> Mar  2 20:51:44 ch kernel: BUG: warning at
+> fs/inotify.c:533/inotify_d_instantiate()
+> Mar  2 20:51:44 ch kernel:  [<b0187017>] inotify_d_instantiate+0x57/0x60
+> Mar  2 20:51:44 ch kernel:  [<b0176da2>] d_instantiate+0x42/0x90
+> Mar  2 20:51:44 ch kernel:  [<b01a761c>] ext3_add_nondir+0x3c/0x60
+> Mar  2 20:51:44 ch kernel:  [<b01a8016>] ext3_link+0xa6/0xf0
+> Mar  2 20:51:44 ch kernel:  [<b016c67e>] vfs_link+0x14e/0x1b0
+> Mar  2 20:51:44 ch kernel:  [<b016fa8e>] sys_linkat+0x11e/0x140
+> Mar  2 20:51:44 ch kernel:  [<b014b2ec>] __handle_mm_fault+0x66c/0x820
+> Mar  2 20:51:44 ch kernel:  [<b0114650>] do_page_fault+0x420/0x6ce
+> Mar  2 20:51:44 ch kernel:  [<b016fadf>] sys_link+0x2f/0x40
+> Mar  2 20:51:44 ch kernel:  [<b0102e13>] sysenter_past_esp+0x54/0x75
+>
+> Other than these, the system seems to run perfectly.
 
----
+It is known issue, harmless.
 
- drivers/isdn/hisax/config.c  |    2 ++
- drivers/isdn/hisax/hfc_pci.c |    2 ++
- include/linux/pci_ids.h      |    2 ++
- 3 files changed, 6 insertions(+), 0 deletions(-)
+You can revert these patches:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/broken-out/inotify-lock-avoidance-with-parent-watch-status-in-dentry-fix.patch
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/broken-out/inotify-lock-avoidance-with-parent-watch-status-in-dentry.patch
 
-2db3ff644c0d894fc56436a73e3ce724b84bd1e9
-diff --git a/drivers/isdn/hisax/config.c b/drivers/isdn/hisax/config.c
-index 8159bce..df9d652 100644
---- a/drivers/isdn/hisax/config.c
-+++ b/drivers/isdn/hisax/config.c
-@@ -1929,6 +1929,8 @@ static struct pci_device_id hisax_pci_tb
- 	{PCI_VENDOR_ID_CCD,      PCI_DEVICE_ID_CCD_B00B,         PCI_ANY_ID, PCI_ANY_ID},
- 	{PCI_VENDOR_ID_CCD,      PCI_DEVICE_ID_CCD_B00C,         PCI_ANY_ID, PCI_ANY_ID},
- 	{PCI_VENDOR_ID_CCD,      PCI_DEVICE_ID_CCD_B100,         PCI_ANY_ID, PCI_ANY_ID},
-+	{PCI_VENDOR_ID_CCD,      PCI_DEVICE_ID_CCD_B700,         PCI_ANY_ID, PCI_ANY_ID},
-+	{PCI_VENDOR_ID_CCD,      PCI_DEVICE_ID_CCD_B701,         PCI_ANY_ID, PCI_ANY_ID},
- 	{PCI_VENDOR_ID_ABOCOM,   PCI_DEVICE_ID_ABOCOM_2BD1,      PCI_ANY_ID, PCI_ANY_ID},
- 	{PCI_VENDOR_ID_ASUSTEK,  PCI_DEVICE_ID_ASUSTEK_0675,     PCI_ANY_ID, PCI_ANY_ID},
- 	{PCI_VENDOR_ID_BERKOM,   PCI_DEVICE_ID_BERKOM_T_CONCEPT, PCI_ANY_ID, PCI_ANY_ID},
-diff --git a/drivers/isdn/hisax/hfc_pci.c b/drivers/isdn/hisax/hfc_pci.c
-index 4866fc3..91d25ac 100644
---- a/drivers/isdn/hisax/hfc_pci.c
-+++ b/drivers/isdn/hisax/hfc_pci.c
-@@ -51,6 +51,8 @@ static const PCI_ENTRY id_list[] =
- 	{PCI_VENDOR_ID_CCD, PCI_DEVICE_ID_CCD_B00B, "Billion", "B00B"},
- 	{PCI_VENDOR_ID_CCD, PCI_DEVICE_ID_CCD_B00C, "Billion", "B00C"},
- 	{PCI_VENDOR_ID_CCD, PCI_DEVICE_ID_CCD_B100, "Seyeon", "B100"},
-+	{PCI_VENDOR_ID_CCD, PCI_DEVICE_ID_CCD_B700, "Primux II S0", "B700"},
-+	{PCI_VENDOR_ID_CCD, PCI_DEVICE_ID_CCD_B701, "Primux II S0 NT", "B701"},
- 	{PCI_VENDOR_ID_ABOCOM, PCI_DEVICE_ID_ABOCOM_2BD1, "Abocom/Magitek", "2BD1"},
- 	{PCI_VENDOR_ID_ASUSTEK, PCI_DEVICE_ID_ASUSTEK_0675, "Asuscom/Askey", "675"},
- 	{PCI_VENDOR_ID_BERKOM, PCI_DEVICE_ID_BERKOM_T_CONCEPT, "German telekom", "T-Concept"},
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 82b83da..1709b50 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -1752,6 +1752,8 @@
- #define PCI_DEVICE_ID_CCD_B00B		0xb00b
- #define PCI_DEVICE_ID_CCD_B00C		0xb00c
- #define PCI_DEVICE_ID_CCD_B100		0xb100
-+#define PCI_DEVICE_ID_CCD_B700		0xb700
-+#define PCI_DEVICE_ID_CCD_B701		0xb701
- 
- #define PCI_VENDOR_ID_EXAR		0x13a8
- #define PCI_DEVICE_ID_EXAR_XR17C152	0x0152
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

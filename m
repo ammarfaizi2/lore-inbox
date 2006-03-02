@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWCBUpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWCBUvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbWCBUpD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 15:45:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbWCBUpB
+	id S932284AbWCBUvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 15:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWCBUvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 15:45:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:50725 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932284AbWCBUpA (ORCPT
+	Thu, 2 Mar 2006 15:51:12 -0500
+Received: from lug-owl.de ([195.71.106.12]:31155 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S932284AbWCBUvL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 15:45:00 -0500
-Date: Thu, 2 Mar 2006 21:44:32 +0100
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       Tejun Heo <htejun@gmail.com>, Dave Miller <davem@redhat.com>,
-       bzolnier@gmail.com, james.steward@dynamicratings.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, mattjreimer@gmail.com
-Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-Message-ID: <20060302204432.GZ4329@suse.de>
-References: <11371658562541-git-send-email-htejun@gmail.com> <1137167419.3365.5.camel@mulgrave> <20060113182035.GC25849@flint.arm.linux.org.uk> <1137177324.3365.67.camel@mulgrave> <20060113190613.GD25849@flint.arm.linux.org.uk> <20060222082732.GA24320@htj.dyndns.org> <1141325189.3238.37.camel@mulgrave.il.steeleye.com> <20060302203039.GH28895@flint.arm.linux.org.uk>
+	Thu, 2 Mar 2006 15:51:11 -0500
+Date: Thu, 2 Mar 2006 21:51:06 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] make UNIX a bool
+Message-ID: <20060302205105.GF19232@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au> <20060302173840.GB9295@stusta.de> <20060302195106.GC19232@lug-owl.de> <20060302203922.GE9295@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RjJ1HjOwPpAMVNtA"
 Content-Disposition: inline
-In-Reply-To: <20060302203039.GH28895@flint.arm.linux.org.uk>
+In-Reply-To: <20060302203922.GE9295@stusta.de>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02 2006, Russell King wrote:
-> On Thu, Mar 02, 2006 at 12:46:28PM -0600, James Bottomley wrote:
-> > On Wed, 2006-02-22 at 17:27 +0900, Tejun Heo wrote:
-> > > The objection raised by James Bottomley is that although syncing the
-> > > kernel page is the responsbility of the driver, syncing user page is
-> > > not; thus, use of flush_dcache_page() is excessive.  James suggested
-> > > use of flush_kernel_dcache_page().
-> > 
-> > The problem is that it's not only excessive, it would entangle us with
-> > mm locking.  Basically, all you want to ensure is that the underlying
-> > memory has the information after you've done (rather than the CPU
-> > cache), flush_kernel_dcache_page() will achieve this.  The block layer
-> > itself takes care of user space coherency.
-> 
-> Your understanding of the problem on ARM remains fundamentally flawed.
-> I see no way to resolve this since you don't seem to listen or accept
-> my reasoning.
-> 
-> Therefore, message I'm getting from you is that we are not allowed to
-> have an ARM system which can possibly work correctly with PIO.
-> 
-> As a result, I have no further interest in trying to resolve this issue,
-> period.  ARM people will just have to accept that PIO mode IDE drivers
-> just will not be an option.
 
-Hey Russell calm down, lets get this thing fixed in the easiest and
-least intrusive way for 2.6.17. As mentioned before, this isn't actually
-a new problem by any stretch, a 2.6.17 solution would be acceptable to
-you I hope.
+--RjJ1HjOwPpAMVNtA
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What do you think of the kmap_atomic_pio() (notoriously bad at names,
-but it should get the point across) and kunmap_atomic_pio(), the latter
-accepting a read/write flag to note if we wrote to a vm page?
+On Thu, 2006-03-02 21:39:22 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> On Thu, Mar 02, 2006 at 08:51:06PM +0100, Jan-Benedict Glaw wrote:
+> > On Thu, 2006-03-02 18:38:40 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > > On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
+> > > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > > > It does also matter in the kernel image size case, since you have=
+ to put=20
+> > > > > enough modules to the other medium for having a effect bigger tha=
+n the
+> > > > > kernel image size increase from setting CONFIG_MODULES=3Dy.
+> > > > That's not very difficult considering the large number of modules t=
+hat's
+> > > > out there that a system may wish to use.
+> > > This might be true for full-blown desktop systems - but these do not=
+=20
+> > > tend to be the systems where kernel image size matters that much.
+> > > Smaller kernel image size might be an issue e.g. for distribution=20
+> > > kernels, but in a much less pressing way.
+> > Kernel image size matters if you try to make it boot off a floppy.
+>=20
+> Sure, but the usual router-on-a-floppy cases are similar cases where=20
+> CONFIG_MODULES=3Dn brings at least as much gain as making things modular.
 
-This is basically Tejuns original patch set, just moving it out of the
-block layer so it's a generel exported property of the kmap api.
+You may want to have a chance to load modules from an initrd with is
+on a 2nd floppy.
 
--- 
-Jens Axboe
+MfG, JBG
 
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--RjJ1HjOwPpAMVNtA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEB1q5Hb1edYOZ4bsRAvtSAJ9vsPdWRVBhears1Clh2/9cyBlXNgCfeGcv
+atlCJKvOeDqn3rFaUrYgiNk=
+=btET
+-----END PGP SIGNATURE-----
+
+--RjJ1HjOwPpAMVNtA--

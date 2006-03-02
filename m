@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWCBWoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWCBXBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWCBWoX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 17:44:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWCBWoX
+	id S1750985AbWCBXBc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 18:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWCBXBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 17:44:23 -0500
-Received: from motgate4.mot.com ([144.189.100.102]:36587 "EHLO
-	motgate4.mot.com") by vger.kernel.org with ESMTP id S1750975AbWCBWoW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 17:44:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 2 Mar 2006 18:01:32 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:39324 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1750985AbWCBXBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 18:01:31 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Adam Belay <ambx1@neo.rr.com>
+Subject: [PATCH 0/9] PNP: adjust pnp_register_driver signature
+Date: Thu, 2 Mar 2006 16:01:27 -0700
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
+       Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: Memory overcommit and locked pages
-Date: Thu, 2 Mar 2006 17:44:17 -0500
-Message-ID: <2D25C6D9C1440E4E8228FC62AE286498C840D2@de01exm69.ds.mot.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Memory overcommit and locked pages
-thread-index: AcY+StalYSYI0ji6SfCsF+2QWZIEnQ==
-From: "Smarduch Mario-CMS063" <CMS063@motorola.com>
-To: <linux-kernel@vger.kernel.org>
-X-Brightmail-Tracker: AAAAAQAAAAQ=
-X-White-List-Member: TRUE
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603021601.27467.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking through the memory overcommit code, and noticed that page
-cache size
-and swap size are being taken for granted if system needs to reclaim
-memory either
-paging to disk or swap. But in reality if VMAs are locked that
-assumption is broken,
-(for anon and file backed pgs) success maybe returned even though memory
-request 
-can't be met. Is that a known fact?
- 
-- Mario
+This series of patches removes the assumption that pnp_register_driver()
+returns the number of devices claimed.  Returning the count is unreliable
+because devices may be hot-plugged in the future.  (Many devices don't
+support hot-plug, of course, but PNP in general does.)
+
+This changes the convention to "zero for success, or a negative error
+value," which matches pci_register_driver(), acpi_bus_register_driver(),
+and platform_driver_register().
+
+If drivers need to know the number of devices, they can count calls
+to their .probe() methods.

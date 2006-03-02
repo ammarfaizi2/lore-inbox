@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWCBSEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWCBSFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751647AbWCBSEN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbWCBSEN
+	id S932270AbWCBSFP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWCBSFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:04:13 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:1168 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1751647AbWCBSEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:04:13 -0500
-Date: Thu, 2 Mar 2006 13:04:52 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: fuse-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add O_NONBLOCK support to FUSE
-Message-ID: <20060302180452.GA9188@ccure.user-mode-linux.org>
-References: <20060301022944.GB9624@ccure.user-mode-linux.org> <E1FENzJ-0008S7-00@dorka.pomaz.szeredi.hu>
+	Thu, 2 Mar 2006 13:05:15 -0500
+Received: from proof.pobox.com ([207.106.133.28]:6119 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S932270AbWCBSFN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 13:05:13 -0500
+Date: Thu, 2 Mar 2006 11:05:09 -0700
+From: Paul Dickson <dickson@permanentmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS doen't uniformly copy timestamps to server
+Message-Id: <20060302110509.2ae9c5d9.dickson@permanentmail.com>
+In-Reply-To: <1141261063.26382.20.camel@netapplinux-10.connectathon.org>
+References: <20060301173554.f2d18939.dickson@permanentmail.com>
+	<1141261063.26382.20.camel@netapplinux-10.connectathon.org>
+X-Mailer: Sylpheed version 2.2.0beta7 (GTK+ 2.8.13; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1FENzJ-0008S7-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Found the BUG, patch below.  Feel free to merge it with the async
-patch even though it is signed off on its own.
+On Wed, 01 Mar 2006 16:57:43 -0800, Trond Myklebust wrote:
 
-				Jeff
+> On Wed, 2006-03-01 at 17:35 -0700, Paul Dickson wrote:
+> > Within a NFS mount directory:
+> > 	cp -a file1 file2	# Timestamp not copied
+> > 	mv file1 file2 		# Timestamp not copied
+> > 	touch -r file1 file2	# Timestamp copied
+> > 
+> > More data is at:
+> >   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=183208
+> > 
+> > This currently happens with 2.6.16rc5-git3
+> > 
+> > Is this a problem with the NFS server or am I applying the wrong options?
+> 
+> The RedHat bugzilla tracks RedHat bugs. For kernel bugs, see
+> bugzilla.kernel.org.
+> 
+> From your description, it looks very much like the issue being tracked
+> in
+> 
+>    http://bugzilla.kernel.org/show_bug.cgi?id=6127
+> 
+> Feel free to try the proposed patch.
 
-I didn't realize that kobject_put(&fc->kobj) freed fc.
+The patch solves my problem (when installed on the client side).
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+Thanks.
 
-Index: host-2.6.15-fuse/fs/fuse/dev.c
-===================================================================
---- host-2.6.15-fuse.orig/fs/fuse/dev.c	2006-03-01 14:08:40.000000000 -0500
-+++ host-2.6.15-fuse/fs/fuse/dev.c	2006-03-01 14:09:04.000000000 -0500
-@@ -919,9 +919,9 @@ static int fuse_dev_release(struct inode
- 	}
- 	spin_unlock(&fuse_lock);
- 	if (fc) {
--		kobject_put(&fc->kobj);
- 		fasync_helper(-1, file, 0, &fc->fasync);
- 		fc->fasync = NULL;
-+		kobject_put(&fc->kobj);
- 	}
- 
- 	return 0;
+	-Paul
+

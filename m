@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751985AbWCBLWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWCBLcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751985AbWCBLWv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 06:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWCBLWv
+	id S1750707AbWCBLcE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 06:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCBLcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 06:22:51 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:53172 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751985AbWCBLWu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 06:22:50 -0500
-Message-ID: <4406D588.5040900@pobox.com>
-Date: Thu, 02 Mar 2006 06:22:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bsg, block layer sg
-References: <20060302111945.GG4329@suse.de>
-In-Reply-To: <20060302111945.GG4329@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 2 Mar 2006 06:32:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52133 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750707AbWCBLcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 06:32:03 -0500
+Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4406D44A.4020101@pobox.com>
+References: <200603012259.k21MxBXC013582@hera.kernel.org>
+	 <44062FF1.4010108@pobox.com> <20060302075004.GA17789@isilmar.linta.de>
+	 <4406D44A.4020101@pobox.com>
+Content-Type: text/plain
+Date: Thu, 02 Mar 2006 12:31:56 +0100
+Message-Id: <1141299117.3206.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> Hi,
+On Thu, 2006-03-02 at 06:17 -0500, Jeff Garzik wrote:
+> Dominik Brodowski wrote:
+> > On Wed, Mar 01, 2006 at 06:36:17PM -0500, Jeff Garzik wrote:
+> >>Linux Kernel Mailing List wrote:
+> >>>commit 42935656914b813c99f91cbac421fe677a6f34ab
+> >>>tree d37a0d20998f4d87a4bd014300f707c3852ef5f9
+> >>>parent 82d56e6d2e616bee0e712330bad06b634f007a46
+> >>>author David Brownell <david-b@pacbell.net> Wed, 25 Jan 2006 22:36:32 -0800
+> >>>committer Dominik Brodowski <linux@dominikbrodowski.net> Wed, 01 Mar 2006 
 > 
-> After all that SG_IO and cdrecord talk, I decided to brush off the bsg
-> driver I wrote some time ago. Basically this is a full (aims to be at
-> least, probably still some minor bits missing) SG v3 interface. It
-> supports both SG_IO (which we just pass through for now), as well as
-> read/write and readv/writev of sg_io_hdr structures.
+> >>Why was this not CC'd to the IDE maintainer, and linux-ide?
 > 
-> What's new in this area is that the bsg character device is closely tied
-> to the block device. This relationsship is depicted in sysfs. bsg
-> devices will show up in /sys/class/bsg/<devname>, and there is a link
-> from /sys/block/<devname>/queue/bsg to that directory. With some
-> udev/hotplug magic, it should create device nodes for you automatically.
+> > For it is trivial, PCMCIA-related and my time is very limited these days.
 > 
-> TODO:
-> 
-> - Fold block/scsi_ioctl.c and block/bsg.c into one
-> - Further improve the sysfs relations between a device and bsg
-> - Test and so on
-> 
-> Probably some bugs still pending, it works for me though.
+> That's pathetic.  You couldn't even CC linux-kernel on your answer.  And 
+> this is not even the first or second time you've been asked to CC a 
+> maintainer.
 
-For my part, this gets a strong ACK.  I've been waiting for something 
-like this since an OLS discussion years ago.
+I personally don't consider that maintainers have a right to demand
+CC's. Sure it's polite and good to CC them, but that's not the same as
+having the right to demand this.
 
-Thanks Jens!
-
-	Jeff
-
-
+However I do think that the "top level" mailinglists deserve one. Eg if
+you're unsure, linux-kernel. if you know it's ide, linux-ide etc etc.
+ 
 

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWCBMdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWCBMjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWCBMdl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 07:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWCBMdl
+	id S932253AbWCBMjF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 07:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWCBMjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 07:33:41 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:44215 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932237AbWCBMdl (ORCPT
+	Thu, 2 Mar 2006 07:39:05 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:54967 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932253AbWCBMjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 07:33:41 -0500
-Message-ID: <4406E61F.80306@pobox.com>
-Date: Thu, 02 Mar 2006 07:33:35 -0500
+	Thu, 2 Mar 2006 07:39:04 -0500
+Message-ID: <4406E759.2010601@pobox.com>
+Date: Thu, 02 Mar 2006 07:38:49 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Jens Axboe <axboe@suse.de>, Michael Monnerie <m.monnerie@zmi.at>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-References: <200603020023.21916@zmi.at> <200603021316.38077.ak@suse.de> <4406E226.4050806@pobox.com> <200603021326.33220.ak@suse.de>
-In-Reply-To: <200603021326.33220.ak@suse.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Arjan van de Ven <arjan@infradead.org>, Jens Axboe <axboe@suse.de>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
+References: <200603012259.k21MxBXC013582@hera.kernel.org> <44062FF1.4010108@pobox.com> <20060302075004.GA17789@isilmar.linta.de> <4406D44A.4020101@pobox.com> <1141299117.3206.37.camel@laptopd505.fenrus.org> <20060302114220.GH4329@suse.de> <1141301225.3206.50.camel@laptopd505.fenrus.org> <4406E1C7.7020908@pobox.com> <20060302122409.GD14017@flint.arm.linux.org.uk>
+In-Reply-To: <20060302122409.GD14017@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Thursday 02 March 2006 13:16, Jeff Garzik wrote:
+Russell King wrote:
+> I think it's fairly safe and obvious to say that Dominik is the peer
+> review for these tables - he _is_ the PCMCIA maintainer, he _is_
+> arguably the maintainer for the ide-cs driver, he _is_ the person
+> who invented these tables, he _is_ the one taking patches from people
+> to add IDs, he _is_ the one reviewing such patches.
 > 
+> If you want to know what's going on in PCMCIA land, subscribe to
+> linux-pcmcia.  In the same way that if you want to know what's going
+> in in IDE land, you subscribe to linux-ide, or PCI land linux-pci,
+> SCSI land linux-scsi, network land netdev.
 > 
->>>Yes I've been thinking about adding a new sleeping interface to the IOMMU
->>>that would block for new space to handle this. If I did that - would
->>>libata be able to use it?
->>
->>No :(  We map inside a spin_lock_irqsave.
-> 
-> 
-> Would it be easily possible to change that or is it difficult?
-> 
-> Also with the blocking interface there might be possible deadlock issues 
-> because it will be essentially similar to allocating memory during IO.
-> But I think it's probably safe.
+> Using your argument (which seems to be demanding that any patch to
+> any IDE driver no matter how trivial must be on linux-ide) that a patch
+> to a PCI network device driver must be copied to linux-pci and netdev
+> even though it may not touch the PCI specific code.
 
-The SCSI layer submits stuff to libata inside spin_lock_irqsave(), and 
-from there we DMA-map and send straight to hardware.
+IDE driver -> IDE reviewers
 
-So, changing the hot path to permit sleeping would be difficult and add 
-needless complexity, IMO.
+network driver -> network reviewers
 
-I would rather pay the penalty of resubmitting if the 
-map-inside-spinlock fails, than to slow down the hot path.
+The bus associated with the driver is only a tiny detail.  Many drivers 
+(IDE!) are multi-bus, even.
+
+Linus occasionally complains about stuff hiding on non-LKML lists... 
+Even a CC to LKML would have been sufficient here.  That was not done.
 
 	Jeff
-
 
 

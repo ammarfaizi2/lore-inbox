@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752048AbWCBTfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWCBTjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752048AbWCBTfk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 14:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752049AbWCBTfj
+	id S1751682AbWCBTjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 14:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWCBTjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 14:35:39 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:23130 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1752048AbWCBTfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 14:35:39 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-	b=Gyy0zygHieBKxiWRyDvSiVKh6djOv3+yCsgIZjOc/cn6FlNCPGs82xVjTHWlZ7g32
-	xfzp3nqejAOJrLBvevO5w==
-Message-ID: <440748FD.8010806@google.com>
-Date: Thu, 02 Mar 2006 11:35:25 -0800
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 2 Mar 2006 14:39:23 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:50573 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751679AbWCBTjW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 14:39:22 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: x86_64 compile spewing hundreds of warnings - started 2.6.15-git8
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.6.16rc5 'found' an extra CPU.
+Date: Thu, 2 Mar 2006 14:37:09 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30063F908B@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16rc5 'found' an extra CPU.
+Thread-Index: AcY+MGkRoyXUradQS/yd1kOgIPxv8AAACT4w
+From: "Brown, Len" <len.brown@intel.com>
+To: "Dave Jones" <davej@redhat.com>
+Cc: "Chuck Ebbert" <76306.1226@compuserve.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "linux-acpi" <linux-acpi@vger.kernel.org>, "Andi Kleen" <ak@suse.de>
+X-OriginalArrivalTime: 02 Mar 2006 19:37:11.0821 (UTC) FILETIME=[B38AD3D0:01C63E30]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-between 2.6.15-git7 and 2.6.15-git8 we started getting hundreds of 
-compile warnings:
 
--git7: http://test.kernel.org/20295/debug/test.log.0
--git8: http://test.kernel.org/20402/debug/test.log.0
+>On Thu, Mar 02, 2006 at 02:26:24PM -0500, Brown, Len wrote:
+> > Dave,
+> > Your DSDT looks fine.
+> > I was wrong assuming there were 3 Processor entries there.
+> > 
+> > > > Did you really build a 256-CPU SMP kernel or is ACPI 
+> > > > ignoring CONFIG_NR_CPUS or something?
+> > >
+> > >Yes, it's =256.
+> > 
+> > I expect this is the root problem.
+>
+>If this is the _cause_, something needs fixing, but it's hardly
+>something we can brush off as 'the root problem'.
+>
+>It's entirely possible for such a configuration (higher
+>CONFIG_NR_CPUS than actual cpus), cf. distro kernels.
 
-Warnings look like this:
-
-include/asm/bitops.h: In function `load_elf32_binary':
-include/asm/bitops.h:30: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-register
-
-
-What do these mean? And how do we get rid of it?
-
-Presumably caused by this:
-
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=636dd2b7def5c9c72551b51d4d516a65c269de08
-
-or this:
-
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=92934bcbf96bc9dc931c40ca5f1a57685b7b813b
+I agree.
+Did Ashok's sigined-unsigned patch work?

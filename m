@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWCBHI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWCBHXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWCBHI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 02:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWCBHI3
+	id S1751412AbWCBHXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 02:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWCBHXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 02:08:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15850 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751404AbWCBHI2 (ORCPT
+	Thu, 2 Mar 2006 02:23:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29768 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751411AbWCBHXP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 02:08:28 -0500
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org
-Cc: Simon.Derr@bull.net, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Date: Wed, 01 Mar 2006 23:08:23 -0800
-Message-Id: <20060302070823.15675.73067.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] Cpuset: remove unnecessary NULL check
+	Thu, 2 Mar 2006 02:23:15 -0500
+Date: Thu, 2 Mar 2006 08:22:38 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Eric D. Mudama" <edmudama@gmail.com>, Tejun Heo <htejun@gmail.com>,
+       Nicolas Mailhot <nicolas.mailhot@gmail.com>, Mark Lord <liml@rtr.ca>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>
+Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
+Message-ID: <20060302072237.GS4816@suse.de>
+References: <1141239617.23202.5.camel@rousalka.dyndns.org> <4405F471.8000602@rtr.ca> <1141254762.11543.10.camel@rousalka.dyndns.org> <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com> <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4406512A.9080708@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Jackson <pj@sgi.com>
+On Wed, Mar 01 2006, Jeff Garzik wrote:
+> Jeff Garzik wrote:
+> >For libata, I think an ATA_FLAG_NO_FUA would be appropriate for 
+> >situations like this...  assume FUA is supported in the controller, and 
+> >set a flag where it is not.  Most chips will support FUA, either by 
+> >design or by sheer luck.  The ones that do not support FUA are the 
+> >controllers that snoop the ATA command opcode, and internally choose the 
+> >protocol based on that opcode.  For such hardware, unknown opcodes will 
+> >inevitably cause problems.
+> 
+> This also begs the question... what controller was being used, when the 
+> single Maxtor device listed in the blacklist was added?  Perhaps it was 
+> a problem with the controller, not the device.
 
-Remove a no longer needed test for NULL cpuset pointer, with
-a little comment explaining why the test isn't needed.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
----
-
- kernel/cpuset.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
-
---- 2.6.16-rc5-mm2-pre1.orig/kernel/cpuset.c	2006-03-01 20:25:52.390667963 -0800
-+++ 2.6.16-rc5-mm2-pre1/kernel/cpuset.c	2006-03-01 20:30:07.730593536 -0800
-@@ -2374,12 +2374,12 @@ void __cpuset_memory_pressure_bump(void)
-  *  - No need to task_lock(tsk) on this tsk->cpuset reference, as it
-  *    doesn't really matter if tsk->cpuset changes after we read it,
-  *    and we take manage_mutex, keeping attach_task() from changing it
-- *    anyway.
-+ *    anyway.  No need to check that tsk->cpuset != NULL, thanks to the
-+ *    cpuset_exit() Hack.
-  */
- 
- int cpuset_proc_show_path(struct seq_file *m, void *v)
- {
--	struct cpuset *cs;
- 	struct task_ref *tref;
- 	struct task_struct *tsk;
- 	char *buf;
-@@ -2398,11 +2398,8 @@ int cpuset_proc_show_path(struct seq_fil
- 
- 	retval = -EINVAL;
- 	mutex_lock(&manage_mutex);
--	cs = tsk->cpuset;
--	if (!cs)
--		goto out_unlock;
- 
--	retval = cpuset_path(cs, buf, PAGE_SIZE);
-+	retval = cpuset_path(tsk->cpuset, buf, PAGE_SIZE);
- 	if (retval < 0)
- 		goto out_unlock;
- 	seq_puts(m, buf);
+Yeah which explains it a lot better as well... The FUA drive problem
+never made much sense to me.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Jens Axboe
+

@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbWCBSMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWCBSOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751655AbWCBSMu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752030AbWCBSMu
+	id S932426AbWCBSOs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:14:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWCBSOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:12:50 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:26821 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751655AbWCBSMt (ORCPT
+	Thu, 2 Mar 2006 13:14:48 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:63754 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932426AbWCBSOs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:12:49 -0500
-Message-ID: <44073593.60703@pobox.com>
-Date: Thu, 02 Mar 2006 13:12:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 2 Mar 2006 13:14:48 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: Chris Mason <mason@suse.com>
+Cc: Andrew Morton <akpm@osdl.org>, col-pepper@piments.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: o_sync in vfat driver
+References: <op.s5lrw0hrj68xd1@mail.piments.com>
+	<200603020845.10083.mason@suse.com>
+	<87u0ahszxa.fsf@duaron.myhome.or.jp>
+	<200603021201.32653.mason@suse.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 03 Mar 2006 03:14:34 +0900
+In-Reply-To: <200603021201.32653.mason@suse.com> (Chris Mason's message of "Thu, 2 Mar 2006 12:01:31 -0500")
+Message-ID: <873bi0sohh.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Grant Grundler <grundler@parisc-linux.org>,
-       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
-References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk> <20060302172436.GC22711@colo.lackof.org> <20060302180025.GC28895@flint.arm.linux.org.uk>
-In-Reply-To: <20060302180025.GC28895@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> It's not really "I/O port resource allocation" though - the resources
-> have already been allocated and potentially programmed into the BARs
-> well before the driver gets anywhere near the device.
-[...]
-> Are you implying that somehow resources are allocated at pci_enable_device
-> time?  If so, shouldn't we be thinking of moving completely to that model
-> rather than having yet-another-pci-setup-model.
+Chris Mason <mason@suse.com> writes:
 
-Actually, that's has been the rule ever since the cardbus days: 
-resources -- bars and irqs -- should not be considered allocated until 
-after pci_enable_device().
+> Ok, I thought you were asking about the code that called filemap_fdatawrite, 
+> which does wait.  filemap_flush is used on the underlying block device.  In 
+> the case of a page that is already under IO, the io is not cancelled but 
+> allowed to continue.
+>
+> This is the desired result.  When you're doing a number of operations in 
+> sequence, each operation will start io on the block device.  If they used 
+> filemap_fdatawrite instead of filemap_flush, they would end up being 
+> synchronous.
 
-Documentation/pci.txt reflects this reality as well:
-
-> 3. Enabling and disabling devices
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->    Before you do anything with the device you've found, you need to enable
-> it by calling pci_enable_device() which enables I/O and memory regions of
-> the device, allocates an IRQ if necessary, assigns missing resources if
-> needed and wakes up the device if it was in suspended state. Please note
-> that this function can fail.
-
-Any PCI driver that presumes -anything- about resources before calling 
-pci_enable_device() is buggy, and that's been the case for many years. 
-Some platform-specific PCI drivers violate this with special knowledge, 
-but overall that's the rule.
-
-Regards,
-
-	Jeff
-
-
+Of course, I know. Let's return to beginning of this thread, do you have
+any plan to address it?
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

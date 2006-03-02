@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751972AbWCBLp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751937AbWCBLpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751972AbWCBLp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 06:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWCBLp4
+	id S1751937AbWCBLpb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 06:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWCBLpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 06:45:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11434 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751972AbWCBLpy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 06:45:54 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060301162113.774d1745.akpm@osdl.org> 
-References: <20060301162113.774d1745.akpm@osdl.org>  <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #2] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Thu, 02 Mar 2006 11:45:45 +0000
-Message-ID: <3718.1141299945@warthog.cambridge.redhat.com>
+	Thu, 2 Mar 2006 06:45:31 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:64697 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1750701AbWCBLpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 06:45:30 -0500
+Date: Thu, 2 Mar 2006 12:45:25 +0100 (CET)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org,
+       FACCINI BRUNO <Bruno.Faccini@bull.net>
+Subject: Re: Deadlock in net/sunrpc/sched.c
+In-Reply-To: <20060302105940.GA9521@silenus.home.res>
+Message-ID: <Pine.LNX.4.61.0603021242150.15393@openx3.frec.bull.fr>
+References: <Pine.LNX.4.61.0603021116030.15393@openx3.frec.bull.fr>
+ <20060302105940.GA9521@silenus.home.res>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 02/03/2006 12:46:56,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 02/03/2006 12:46:59,
+	Serialize complete at 02/03/2006 12:46:59
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Thu, 2 Mar 2006, Frederik Deweerdt wrote:
 
-> The number of rejects gets into the "I'm not confident it'll work after
-> this" territory.
-> 
-> Here's Trond's current diff:
+> On Thu, Mar 02, 2006 at 11:38:10AM +0100, Simon Derr wrote:
+> > This happened with 2.6.12 but it seems that the code has not changed and 
+> > the issue is very probably still present in the current kernels.
+> Looks like it's fixed in 2.6.16-rc5, could you check agains the current
+> tree?
 
-I assume this is you applying these patches to your -mm tree (which contains
-some of Trond's patches), rather than Linus's tree or Trond's tree.
+No, the code is still the same.
 
-Can you be more specific about which patches you've got problems with? Is it
-mainly that patch 5/5 and little bits of patch 2/5 don't apply?
+> Hmm, not sure this will even compile...
 
-There's a problem here in that your tree is incompatible with Linus's tree in
-various ways. I believe you've said before that you prefer the patches you're
-given to have been made against Linus's tree... is that right?
+oops....
 
-Also, do you yet have a git tree holding your patchset? If not, have you
-considered using stacked git (StGIT) to provide one?
-
-David
+Index: linux-2.6.12.6/net/sunrpc/sched.c
+===================================================================
+--- linux-2.6.12.6.orig/net/sunrpc/sched.c	2005-08-29 18:55:27.000000000 +0200
++++ linux-2.6.12.6/net/sunrpc/sched.c	2006-03-02 12:41:42.000000000 +0100
+@@ -400,16 +400,16 @@ __rpc_default_timer(struct rpc_task *tas
+  */
+ void rpc_wake_up_task(struct rpc_task *task)
+ {
++	struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
++	spin_lock_bh(&queue->lock);
+ 	if (rpc_start_wakeup(task)) {
+ 		if (RPC_IS_QUEUED(task)) {
+-			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
+ 
+-			spin_lock_bh(&queue->lock);
+ 			__rpc_do_wake_up_task(task);
+-			spin_unlock_bh(&queue->lock);
+ 		}
+ 		rpc_finish_wakeup(task);
+ 	}
++	spin_unlock_bh(&queue->lock);
+ }
+ 
+ /*

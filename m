@@ -1,75 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752010AbWCBRON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752006AbWCBRSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752010AbWCBRON (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752021AbWCBRON
+	id S1752006AbWCBRSd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWCBRSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:14:13 -0500
-Received: from colo.lackof.org ([198.49.126.79]:5299 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S1752010AbWCBRON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:14:13 -0500
-Date: Thu, 2 Mar 2006 10:24:36 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
-Message-ID: <20060302172436.GC22711@colo.lackof.org>
-References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 12:18:33 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:3383 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751078AbWCBRSc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:18:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G9VMW17TZVRTl2DRtDqevZpDVeEo8YE06tCdu+ymQlCvGeWqtRB84W6yXfENOSSPS7uWTZHHeYoNEYKQhSiYzSDq6EpjIzh8up3dQY9WNb4mwBEvXbyrT3pFi/3CqcqeU+wfTXoRnum5evRvHA4lWkzzNymZ8TXDGocRRVNtRAo=
+Message-ID: <cb899a660603020918j47941907xc23e94b4855d8088@mail.gmail.com>
+Date: Thu, 2 Mar 2006 18:18:30 +0100
+From: "=?ISO-8859-1?Q?Carlos_Mart=EDnez?=" <carlosm.upm@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: RTC example in Documentation/rtc.txt not working correctly
+In-Reply-To: <cb899a660603020718q5743e2e3u1b921f449ef66a3b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060302155056.GB28895@flint.arm.linux.org.uk>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+References: <cb899a660603020718q5743e2e3u1b921f449ef66a3b@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 03:50:57PM +0000, Russell King wrote:
-> I've been wondering whether this "no_ioport" flag is the correct approach,
-> or whether it's adding to complexity when it isn't really required.
+Hello all, (first post here =)
 
-I think it's the simplest solution to allowing a driver
-to indicate which resources it wants to use. It solves
-the problem of I/O Port resource allocation sufficiently
-well.
+I'm working with RTC these days and got to read the example provided by
+    Paul Gortmaker in 1996 included in Documentation/rtc.txt
 
-> In the non-Intel world, the kernel itself sets up the PCI bus mappings,
+I prepared the binary with the supplied code and everything goes
+ smoothly but something strange seems to happen when running: i will
+ restrict the code to the scope of the problem to keep things readable
+ and simple,
 
-mappings, yes. But many of the architectures depend on (or assume)
-firmware will assign appropriate resources. The problem is firmware
-runs out of I/O Port resources.
+        // open the rtc device
+        fd = open ("/dev/rtc", O_RDONLY);
 
-> and any IO bars which it can't satisfy might also need to be gracefully
-> handled.  Currently, we just go 'printk("whoops, didn't allocate
-> resource")' and leave the BAR containing whatever random junk it
-> contained before, along with the resource containing whatever random
-> junk pci_bus_alloc_resource() decided to leave in it.
-> 
-> In such cases, I would suggest that the method of signalling that IO
-> should not be used is to have the IO resource structures cleared out -
-> if the IO resources aren't valid, they should not contain something
-> which could be interpreted as valid.
+        if ( fd == -1 ) {
+                    perror("/dev/rtc");   // error printing
+                    exit(errno);            // errno holds last error code
+         }
 
-You want the arch PCI support to clobber the I/O port space resources?
-How will the arch PCI support know that a particular device's driver
-only uses MMIO resources?
+         // to start with, some periodic interrupt with 1 sec delay,
+mode RTC_UIE_ON
 
-> Maybe something like this should be done for the "legacy IO port" case
-> as well?
+        // enable interrupts (unmasking i guess)
+        retval = ioctl(fd, RTC_UIE_ON, 0);
+        if (retval == -1){
+                perror("ioctl");
+                exit(errno);
+         }
 
-Several people have already agreed the driver needs to indicate which
-resource it wants to work with. I don't see how the arch PCI support
-can provide that "knowledge".
+         fprintf(stderr,"Receiving interrupts each second .. \n");
+         fflush(stderr);
 
-hth,
-grant
+        for (i=1;i<6;i++){
+                    retval = read(fd, &data, sizeof(unsigned long));
+                    if (retval == -1){
+                            perror("read");
+                            exit(errno);
+                 }
 
-> 
-> -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 Serial core
+                 fprintf(stderr, "%d ",i);
+                 fflush(stderr);
+
+                irqs++;
+          }
+
+
+The problem appears because as soon as i press enter and run the binary
+my program gets an interruption, and that happens before the end of the
+current second comes, so i'm supposing i'm getting the former second
+interrupt which was not catched or something, could it be?
+
+I'm also thinking that because two more things happen: if i disable
+the interrupt
+before enabling then i do not get that first interruption and nor do i if i
+run the program again without a second expiring in the meantime. So, i
+would propose to update the example so that works as it was intended
+(count 5 seconds).
+
+Adding a line like this one,
+
+-[  ioctl(fd, RTC_UIE_OFF, 0);  ]-
+    ioctl(fd, RTC_UIE_ON, 0);
+
+solves the problem.
+
+I'm thinking that this fearture may be architecture dependant .. well
+i'm not an expert in this matter.
+
+---------------------------------------------------------------------------------------------------
+PD: i'm waiting for being included in the list, please CC any reply to
+me, thank you  =)
+
+--
+Carlos Martinez Belinchon
+UPM

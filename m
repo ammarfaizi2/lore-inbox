@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751995AbWCBQIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751994AbWCBQIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751995AbWCBQIW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751993AbWCBQIW
+	id S1751994AbWCBQIU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751997AbWCBQIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:08:22 -0500
-Received: from fsmlabs.com ([168.103.115.128]:19083 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751995AbWCBQIS (ORCPT
+	Thu, 2 Mar 2006 11:08:20 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:23700 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1751993AbWCBQIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:08:18 -0500
-X-ASG-Debug-ID: 1141315696-30442-40-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 2 Mar 2006 08:12:42 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Edgar Hucek <hostmaster@ed-soft.at>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-X-ASG-Orig-Subj: Re: [PATCH 1/1] EFI: Fix gdt load
-Subject: Re: [PATCH 1/1] EFI: Fix gdt load
-In-Reply-To: <4406F0C2.7090002@ed-soft.at>
-Message-ID: <Pine.LNX.4.64.0603020755090.28074@montezuma.fsmlabs.com>
-References: <4406F0C2.7090002@ed-soft.at>
+	Thu, 2 Mar 2006 11:08:15 -0500
+Message-ID: <7080.192.54.193.25.1141315404.squirrel@rousalka.dyndns.org>
+In-Reply-To: <44065C7C.6090509@pobox.com>
+References: <1141239617.23202.5.camel@rousalka.dyndns.org>	
+    <4405F471.8000602@rtr.ca>	
+    <1141254762.11543.10.camel@rousalka.dyndns.org>	
+    <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com>	
+    <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com>
+    <311601c90603011820u4fc89b04te1be39b9ed2ef35b@mail.gmail.com>
+    <44065C7C.6090509@pobox.com>
+Date: Thu, 2 Mar 2006 17:03:24 +0100 (CET)
+Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Eric D. Mudama" <edmudama@gmail.com>, "Jens Axboe" <axboe@suse.de>,
+       "Tejun Heo" <htejun@gmail.com>,
+       "Nicolas Mailhot" <nicolas.mailhot@gmail.com>,
+       "Mark Lord" <liml@rtr.ca>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Carlos Pardo" <carlos.pardo@siliconimage.com>
+User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20060118.1.fc5.1.nim
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9345
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Mar 2006, Edgar Hucek wrote:
 
-> This patch makes the kernel bootable again on ia32 EFI systems.
-> 
-> Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
-> 
+Le Jeu 2 mars 2006 03:46, Jeff Garzik a écrit :
+> Eric D. Mudama wrote:
 
- 	spin_lock(&efi_rt_lock);
- 	local_irq_save(efi_rt_eflags);
+> If its 3114 I agree un-blacklisting is the way to go... but its not
+> clear to me whether the problematic configuration included sata_sil or
+> sata_nv.  Since I'm apparently blind :) which part of the bug points
+> conclusively to sata_sil?
 
-That looks like a race, not to mention that efi_rt_eflags is a global 
-variable. The same strange ordering occurs on unlock, i presume this code 
-'works' because it's done early during boot?
+It's sata-sil
+I'm 100% sure it's how I cabled the system
+sata-nv only got a plextor drive attached
+(pata-nv has two pata drives on too)
+
+
+-- 
+Nicolas Mailhot
+

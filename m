@@ -1,291 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWCBEtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWCBEwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWCBEtx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 23:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWCBEtx
+	id S1750805AbWCBEwl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 23:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWCBEwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:49:53 -0500
-Received: from [203.144.27.9] ([203.144.27.9]:47122 "EHLO surfers.oz.agile.tv")
-	by vger.kernel.org with ESMTP id S1750794AbWCBEtw (ORCPT
+	Wed, 1 Mar 2006 23:52:41 -0500
+Received: from ozlabs.org ([203.10.76.45]:26080 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750805AbWCBEwk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:49:52 -0500
-Message-ID: <44067961.20709@agile.tv>
-Date: Thu, 02 Mar 2006 14:49:37 +1000
-From: Tony Griffiths <tonyg@agile.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, Tony Griffiths <tonyg@oz.agile.tv>
-Subject: Fixes for NFS file truncation race condition(s)
-Content-Type: multipart/mixed;
- boundary="------------000707020606090909030305"
+	Wed, 1 Mar 2006 23:52:40 -0500
+Date: Thu, 2 Mar 2006 15:52:01 +1100
+From: "'David Gibson'" <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       wlilinux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: hugepage: Fix hugepage logic in free_pgtables()
+Message-ID: <20060302045201.GA6627@localhost.localdomain>
+Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	wlilinux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000707020606090909030305
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+free_pgtables() has special logic to call hugetlb_free_pgd_range()
+instead of the normal free_pgd_range() on hugepage VMAs.  However, the
+test it uses to do so is incorrect: it calls is_hugepage_only_range on
+a hugepage sized range at the start of the vma.
+is_hugepage_only_range() will return true if the given range has any
+intersection with a hugepage address region, and in this case the
+given region need not be hugepage aligned.  So, for example, this test
+can return true if called on, say, a 4k VMA immediately preceding a
+(nicely aligned) hugepage VMA.
 
-Attached are two file, the first being a diff patch file, and the second 
-being a test program that can be used to invoke the problem and confirm 
-that it has been fixed after the patches are applied.
+At present we get away with this because the powerpc version of
+hugetlb_free_pgd_range() is just a call to free_pgd_range().  On ia64
+(the only other arch with a non-trivial is_hugepage_only_range()) we
+get away with it for a different reason; the hugepage area is not
+contiguous with the rest of the user address space, and VMAs are not
+permitted in between, so the test can't return a false positive there.
 
-Explanation of the problem:
+Nonetheless this should be fixed.  We do that in the patch below by
+replacing the is_hugepage_only_range() test with an explicit test of
+the VMA using is_vm_hugetlb_page().
 
-A number of places in the kernel appear to suffer from a race condition 
-with truncation of files on NFS-mounted filesystems when the files have 
-dirty pages in the buffer cache.  When the attached program is run on a 
-2.6.15 kernel with the -git12 patch-set applied, it can invoke the 
-problem within 10-15 minutes.  This program simulates a transactional dB 
-journaling operation which is where we first encountered the  kernel 
-bug.  This bug also occurs on a 2.6.15 kernel with the -mm4 patch-set, 
-although the diff file will probably only apply to a source tree with 
--git12 patches!  The BUG_ON() occurs in "lib/radix-tree.c" function 
-radix_tree_tag_set().
+This in turn changes behaviour for platforms where
+is_hugepage_only_range() returns false always (everything except
+powerpc and ia64).  We address this by ensuring that
+hugetlb_free_pgd_range() is defined to be identical to
+free_pgd_range() (instead of a no-op) on everything except ia64.  Even
+so, it will prevent some otherwise possible coalescing of calls down
+to free_pgd_range().  Since this only happens for hugepage VMAs,
+removing this small optimization seems unlikely to cause any trouble.
 
-Of the four files patched, the first is probably the most "suspect" in 
-whether it is necessary or fix the problem.  I strongly suspect that it 
-doesn't need to be applied but given the time required to verify the fix 
-I havn't bothered to check the 15 possible combinations to see if all 
-patches are necessary!  We currently run with all four patches applied 
-and don't see the problem after several weeks of testing on dual 3GHz 
-Xeon Dell server(s).
+This patch causes no regressions on the libhugetlbfs testsuite - ppc64
+POWER5 (8-way), ppc64 G5 (2-way) and i386 Pentium M (UP).
 
-A stack trace of the bug generated by "./breaknfs 100 /var/nfs/" follows-
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
-kernel BUG at lib/radix-tree.c:372!
-invalid opcode: 0000 [#1]
-PREEMPT SMP
-Modules linked in: nfsd exportfs parport_pc lp parport ipmi_poweroff 
-bmcsensors i2c_ipmi i2c_core ipmi_si ipmi_devintf ipmi_msghandler 
-binfmt_misc video thermal processor fan button battery ac ehci_hcd 
-usbcore hw_random ide_cd cdrom ext3 jbd dm_mod ata_piix libata sd_mod 
-scsi_mod
-CPU:    1
-EIP:    0060:[<c01e7bc8>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.15-git4)
-EIP is at radix_tree_tag_set+0x6c/0x76
-eax: 00000000   ebx: 00000001   ecx: f76a95c0   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: 00000008   esp: f656bcd0
-ds: 007b   es: 007b   ss: 0068
-Process breaknfs (pid: 5082, threadinfo=f656a000 task=f7dfea70)
-Stack: 00000000 c17f8858 f7d67bec f7d67bfc c014736a f7d67bf0 00000000 
-00000001
-      00000213 f73ff8cc f73ff914 f6770480 f73ff780 c01c2f52 c17f8858 
-00000050
-      f7dfeb98 00000001 c01332e5 00000002 00000000 00000004 f656bd4c 
-f656bd4c
-Call Trace:
-[<c014736a>] test_set_page_writeback+0xb5/0x108
-[<c01c2f52>] nfs_flush_one+0xf9/0x1f3
-[<c01332e5>] prepare_to_wait+0x12/0x4d
-[<c01c30a6>] nfs_flush_list+0x5a/0xa8
-[<c01c3ac9>] nfs_flush_inode+0x83/0xb5
-[<c01c1e72>] nfs_writepages+0x84/0x112
-[<c0146dfc>] do_writepages+0x2d/0x50
-[<c013ff03>] __filemap_fdatawrite_range+0xc1/0xcc
-[<c013ff45>] filemap_fdatawrite+0x37/0x3b
-[<c01bb1f4>] nfs_sync_mapping+0x50/0x93
-[<c01bc0e0>] nfs_revalidate_mapping+0x77/0xc4
-[<c01bbeee>] __nfs_revalidate_inode+0x14b/0x24b
-[<c01e7f4d>] radix_tree_gang_lookup_tag+0x56/0x70
-[<c01c3b41>] nfs_commit_inode+0x46/0x6e
-[<c01c3be2>] nfs_sync_inode+0x79/0x85
-[<c01b9a54>] nfs_file_flush+0xc2/0xc4
-[<c015ffdc>] filp_close+0x53/0x6e
-[<c0160060>] sys_close+0x69/0x84
-[<c0102daf>] sysenter_past_esp+0x54/0x75
-Code: 0f a3 91 04 01 00 00 19 c0 85 c0 75 07 0f ab 91 04 01 00 00 8b 74 
-96 04 85 f6 74 0f 83 ef 06 83 eb 01 75 cd 89 f0 5b 5e 5f 5d c3 <0f> 0b 
-74 01 f8 4b 35 c0 eb e7 55 31 ed 57 56 53 83 ec 44 8b 4c
-<6>note: breaknfs[5082] exited with preempt_count 1
-
-
---------------000707020606090909030305
-Content-Type: text/x-patch;
- name="atv-40011-truncate-race-fixups-2.6.15.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="atv-40011-truncate-race-fixups-2.6.15.patch"
-
-diff -urN old/fs/buffer.c new/fs/buffer.c
---- old/fs/buffer.c	2006-02-04 16:40:18.000000000 +1000
-+++ new/fs/buffer.c	2006-02-06 10:09:42.000000000 +1000
-@@ -860,7 +860,8 @@
- 	spin_unlock(&mapping->private_lock);
+Index: working-2.6/mm/memory.c
+===================================================================
+--- working-2.6.orig/mm/memory.c	2006-02-24 11:44:36.000000000 +1100
++++ working-2.6/mm/memory.c	2006-03-02 11:14:03.000000000 +1100
+@@ -277,7 +277,7 @@ void free_pgtables(struct mmu_gather **t
+ 		anon_vma_unlink(vma);
+ 		unlink_file_vma(vma);
  
- 	if (!TestSetPageDirty(page)) {
--		write_lock_irq(&mapping->tree_lock);
-+		unsigned long	flags;
-+		write_lock_irqsave(&mapping->tree_lock, flags);
- 		if (page->mapping) {	/* Race with truncate? */
- 			if (mapping_cap_account_dirty(mapping))
- 				inc_page_state(nr_dirty);
-@@ -868,7 +869,7 @@
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
- 		}
--		write_unlock_irq(&mapping->tree_lock);
-+		write_unlock_irqrestore(&mapping->tree_lock, flags);
- 		__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);
- 	}
- 	
-diff -urN old/mm/page-writeback.c new/mm/page-writeback.c
---- old/mm/page-writeback.c	2006-02-04 16:40:20.000000000 +1000
-+++ new/mm/page-writeback.c	2006-02-06 11:10:43.000000000 +1000
-@@ -712,7 +712,7 @@
+-		if (is_hugepage_only_range(vma->vm_mm, addr, HPAGE_SIZE)) {
++		if (is_vm_hugetlb_page(vma)) {
+ 			hugetlb_free_pgd_range(tlb, addr, vma->vm_end,
+ 				floor, next? next->vm_start: ceiling);
+ 		} else {
+@@ -285,8 +285,7 @@ void free_pgtables(struct mmu_gather **t
+ 			 * Optimization: gather nearby vmas into one call down
+ 			 */
+ 			while (next && next->vm_start <= vma->vm_end + PMD_SIZE
+-			  && !is_hugepage_only_range(vma->vm_mm, next->vm_start,
+-							HPAGE_SIZE)) {
++			       && !is_vm_hugetlb_page(vma)) {
+ 				vma = next;
+ 				next = vma->vm_next;
+ 				anon_vma_unlink(vma);
+Index: working-2.6/include/asm-ia64/page.h
+===================================================================
+--- working-2.6.orig/include/asm-ia64/page.h	2006-03-02 11:12:40.000000000 +1100
++++ working-2.6/include/asm-ia64/page.h	2006-03-02 11:30:26.000000000 +1100
+@@ -57,6 +57,7 @@
  
- 	if (mapping) {
- 		write_lock_irqsave(&mapping->tree_lock, flags);
--		if (TestClearPageDirty(page)) {
-+		if (TestClearPageDirty(page) && (page_mapping(page) == mapping)) { /* Race with truncate? */
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
-@@ -768,7 +768,7 @@
+ # define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
+ # define ARCH_HAS_HUGEPAGE_ONLY_RANGE
++# define ARCH_HAS_HUGETLB_FREE_PGD_RANGE
+ #endif /* CONFIG_HUGETLB_PAGE */
  
- 		write_lock_irqsave(&mapping->tree_lock, flags);
- 		ret = TestClearPageWriteback(page);
--		if (ret)
-+		if (ret && (page_mapping(page) == mapping))	/* Race with truncate? */
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_WRITEBACK);
-@@ -789,11 +789,11 @@
+ #ifdef __ASSEMBLY__
+Index: working-2.6/include/asm-powerpc/pgtable.h
+===================================================================
+--- working-2.6.orig/include/asm-powerpc/pgtable.h	2006-02-24 11:44:35.000000000 +1100
++++ working-2.6/include/asm-powerpc/pgtable.h	2006-03-02 11:29:26.000000000 +1100
+@@ -468,11 +468,6 @@ extern pgd_t swapper_pg_dir[];
  
- 		write_lock_irqsave(&mapping->tree_lock, flags);
- 		ret = TestSetPageWriteback(page);
--		if (!ret)
-+		if (!ret && (page_mapping(page) == mapping))	/* Race with truncate? */
- 			radix_tree_tag_set(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_WRITEBACK);
--		if (!PageDirty(page))
-+		if (!PageDirty(page) && (page_mapping(page) == mapping))	/* Race with truncate? */
- 			radix_tree_tag_clear(&mapping->page_tree,
- 						page_index(page),
- 						PAGECACHE_TAG_DIRTY);
-diff -urN old/mm/truncate.c new/mm/truncate.c
---- old/mm/truncate.c	2006-02-04 16:40:20.000000000 +1000
-+++ new/mm/truncate.c	2006-02-06 11:01:35.000000000 +1000
-@@ -68,7 +68,7 @@
- 		return 0;
+ extern void paging_init(void);
  
- 	write_lock_irq(&mapping->tree_lock);
--	if (PageDirty(page)) {
-+	if (PageDirty(page) || (page->mapping != mapping)) { /* Race with truncate? */
- 		write_unlock_irq(&mapping->tree_lock);
- 		return 0;
- 	}
-diff -urN old/mm/vmscan.c new/mm/vmscan.c
---- old/mm/vmscan.c	2006-02-04 16:40:20.000000000 +1000
-+++ new/mm/vmscan.c	2006-02-06 11:14:46.000000000 +1000
-@@ -380,6 +380,10 @@
+-#ifdef CONFIG_HUGETLB_PAGE
+-#define hugetlb_free_pgd_range(tlb, addr, end, floor, ceiling) \
+-	free_pgd_range(tlb, addr, end, floor, ceiling)
+-#endif
+-
+ /*
+  * This gets called at the end of handling a page fault, when
+  * the kernel has put a new PTE into the page table for the process.
+Index: working-2.6/include/linux/hugetlb.h
+===================================================================
+--- working-2.6.orig/include/linux/hugetlb.h	2006-03-02 11:12:40.000000000 +1100
++++ working-2.6/include/linux/hugetlb.h	2006-03-02 11:47:30.000000000 +1100
+@@ -43,8 +43,10 @@ void hugetlb_change_protection(struct vm
  
- 	write_lock_irq(&mapping->tree_lock);
- 
-+	if (page_mapping(page) != mapping) {	/* Race with truncate? */
-+		goto cannot_free;		/* truncate got there first! */
-+	}
+ #ifndef ARCH_HAS_HUGEPAGE_ONLY_RANGE
+ #define is_hugepage_only_range(mm, addr, len)	0
+-#define hugetlb_free_pgd_range(tlb, addr, end, floor, ceiling) \
+-						do { } while (0)
++#endif
 +
- 	/*
- 	 * The non-racy check for busy page.  It is critical to check
- 	 * PageDirty _after_ making sure that the page is freeable and
++#ifndef ARCH_HAS_HUGETLB_FREE_PGD_RANGE
++#define hugetlb_free_pgd_range	free_pgd_range
+ #endif
+ 
+ #ifndef ARCH_HAS_PREPARE_HUGEPAGE_RANGE
+@@ -93,8 +95,7 @@ static inline unsigned long hugetlb_tota
+ #define prepare_hugepage_range(addr, len)	(-EINVAL)
+ #define pmd_huge(x)	0
+ #define is_hugepage_only_range(mm, addr, len)	0
+-#define hugetlb_free_pgd_range(tlb, addr, end, floor, ceiling) \
+-						do { } while (0)
++#define hugetlb_free_pgd_range(tlb, addr, end, floor, ceiling) ({BUG(); 0; })
+ #define hugetlb_fault(mm, vma, addr, write)	({ BUG(); 0; })
+ 
+ #define hugetlb_change_protection(vma, address, end, newprot)
 
---------------000707020606090909030305
-Content-Type: text/x-csrc;
- name="breaknfs.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="breaknfs.c"
-
-// Program:  breaknfs.c
-//
-// Compile:  cc breaknfs.c -o breaknfs
-// Run:      ./breaknfs 100 [<nfs-mounted-dir>]
-//
-// Args:     arg1 = # of copies of program to run simultaneously
-//           arg2 = A directory that is on an NFS-mounted filesystem
-
-#define NFS_MOUNT	"/var/nfs"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#define BUFFER_SIZE (1*1024*1024)
-static char buffer[BUFFER_SIZE];
-
-int main(int argc, char *argv[])
-{
-	char*	nfs_dir;
-	int	count;
-	int	fd;
-	int	i;
-	int	pid;
-
-	char *files[] = {"file1", "file2", "file3", "file4", "file5"};
-
-	if (argc > 1)
-		count = atoi(argv[1]);
-	else
-		count = 1;
-	if (argc > 2)
-		nfs_dir = argv[2];
-	else
-		nfs_dir = NFS_MOUNT;
-
-	/* cd -> ... */
-	if (chdir(nfs_dir) < 0) {
-		perror(nfs_dir);
-		exit(1);
-	}
-
-	/* Fill buffer with numbers and letters, etc! */
-	for ( i = 0; i < BUFFER_SIZE; i++ ) {
-		buffer[i] = '0' + (i & 0x3f);
-		if ( i && ((i % 80) == 0) )
-			buffer[i] = '\n';
-	}
-
-	/* fork count-1 children */
-	while (count-- > 1) {
-		pid = fork();
-		if (pid == 0) {
-			/* child */
-			break;
-		} else if (pid < 0) {
-			perror("fork");
-			exit(1);
-		}
-	}
-	srandom(getpid());
-
-        /* Forever and a day ... */
-	while(1) {
-		for (i = 0; i < 5; i++) {
-			int	write_size;
-
-                        /* Write a random amount of bytes, truncating file before output */
-			write_size = (random() % BUFFER_SIZE) + 1;
-			fd = open(files[i], O_WRONLY | O_CREAT | O_TRUNC, 0600);
-			if (fd < 0) {
-				perror("open");
-				exit(1);
-			}
-			if (write(fd, buffer, write_size) < 0) {
-				perror("write");
-				exit(1);
-			}
-			close(fd);
-		}
-	}
-
-	return 0;
-}
-
---------------000707020606090909030305--
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

@@ -1,96 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWCBATY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWCBAfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbWCBATY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 19:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750829AbWCBATY
+	id S1751222AbWCBAfu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 19:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWCBAfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 19:19:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27303 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750811AbWCBATX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 19:19:23 -0500
-Date: Wed, 1 Mar 2006 16:21:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
-       aviro@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #2]
-Message-Id: <20060301162113.774d1745.akpm@osdl.org>
-In-Reply-To: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
-References: <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 1 Mar 2006 19:35:50 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:4226 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751222AbWCBAft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 19:35:49 -0500
+Date: Wed, 1 Mar 2006 16:35:39 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, greg@kroah.com, ebiederm@xmission.com,
+       linux-kernel@vger.kernel.org, yanmin.zhang@intel.com
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
+ added to -mm tree
+Message-Id: <20060301163539.bdc1e385.pj@sgi.com>
+In-Reply-To: <20060301161006.f487e982.pj@sgi.com>
+References: <20060228201040.34a1e8f5.pj@sgi.com>
+	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
+	<20060228212501.25464659.pj@sgi.com>
+	<20060228234807.55f1b25f.pj@sgi.com>
+	<20060301002631.48e3800e.akpm@osdl.org>
+	<20060301015338.b296b7ad.pj@sgi.com>
+	<20060301192103.GA14320@kroah.com>
+	<20060301125802.cce9ef51.pj@sgi.com>
+	<20060301213048.GA17251@kroah.com>
+	<20060301142631.22738f2d.akpm@osdl.org>
+	<20060301225013.GA20834@kroah.com>
+	<20060301152039.ab2c453d.pj@sgi.com>
+	<20060301154053.73d9d348.akpm@osdl.org>
+	<20060301161006.f487e982.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> These patches make it possible to share NFS superblocks between related mounts,
-> where "related" means on the same server.
+pj wrote:
+> Now I'm trying:
+>   http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz
 
-The number of rejects gets into the "I'm not confident it'll work after
-this" territory.
+That boots fine, both with and without CONFIG_DEBUG_SPINLOCK and
+CONFIG_DEBUG_SPINLOCK_SLEEP.
 
-Here's Trond's current diff:
-
- fs/lockd/clntlock.c            |  112 +---
- fs/lockd/clntproc.c            |  328 +++++---------
- fs/lockd/host.c                |   12 
- fs/lockd/mon.c                 |   11 
- fs/lockd/svc4proc.c            |  157 ++----
- fs/lockd/svclock.c             |  287 ++++++------
- fs/lockd/svcproc.c             |  151 ++----
- fs/lockd/svcsubs.c             |    2 
- fs/lockd/xdr.c                 |   17 
- fs/lockd/xdr4.c                |   21 
- fs/locks.c                     |  106 ++--
- fs/namespace.c                 |   38 +
- fs/nfs/callback_xdr.c          |   28 -
- fs/nfs/dir.c                   |  104 +++-
- fs/nfs/direct.c                |  949 +++++++++++++++++++++++------------------
- fs/nfs/file.c                  |   43 +
- fs/nfs/idmap.c                 |   47 +-
- fs/nfs/inode.c                 |  201 ++++++--
- fs/nfs/iostat.h                |  163 +++++++
- fs/nfs/mount_clnt.c            |   17 
- fs/nfs/nfs2xdr.c               |    4 
- fs/nfs/nfs3acl.c               |   16 
- fs/nfs/nfs3proc.c              |  246 +++++-----
- fs/nfs/nfs3xdr.c               |    6 
- fs/nfs/nfs4proc.c              |   96 +---
- fs/nfs/nfs4xdr.c               |    2 
- fs/nfs/pagelist.c              |   10 
- fs/nfs/proc.c                  |  156 ++++--
- fs/nfs/read.c                  |  102 +++-
- fs/nfs/unlink.c                |    3 
- fs/nfs/write.c                 |  152 +++++-
- fs/nfsd/nfs4callback.c         |    2 
- fs/nfsd/nfs4state.c            |   13 
- fs/proc/base.c                 |   39 +
- include/linux/fs.h             |    7 
- include/linux/lockd/lockd.h    |   25 -
- include/linux/lockd/xdr.h      |    1 
- include/linux/nfs_fs.h         |   88 ---
- include/linux/nfs_fs_i.h       |    8 
- include/linux/nfs_fs_sb.h      |    6 
- include/linux/nfs_xdr.h        |    5 
- include/linux/sunrpc/clnt.h    |   19 
- include/linux/sunrpc/metrics.h |   77 +++
- include/linux/sunrpc/sched.h   |    9 
- include/linux/sunrpc/xprt.h    |   13 
- net/sunrpc/auth.c              |   16 
- net/sunrpc/auth_gss/auth_gss.c |    2 
- net/sunrpc/clnt.c              |   18 
- net/sunrpc/pmap_clnt.c         |   41 +
- net/sunrpc/rpc_pipe.c          |    9 
- net/sunrpc/sched.c             |    7 
- net/sunrpc/stats.c             |  115 ++++
- net/sunrpc/xprt.c              |   26 -
- net/sunrpc/xprtsock.c          |   49 ++
- 54 files changed, 2518 insertions(+), 1664 deletions(-)
-
-Please work against that.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

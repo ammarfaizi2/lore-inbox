@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751549AbWCBPrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWCBPtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751549AbWCBPrM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 10:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWCBPrM
+	id S1751472AbWCBPtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 10:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWCBPtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 10:47:12 -0500
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:19382 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S1751549AbWCBPrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 10:47:11 -0500
-Date: Thu, 2 Mar 2006 16:47:04 +0100
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: AMD64 X2 lost ticks on PM timer
-Message-ID: <20060302154703.GE6913@boogie.lpds.sztaki.hu>
-References: <200602280022.40769.darkray@ic3man.com> <p73veuzyr8p.fsf@verdi.suse.de> <20060301144641.GB20092@ti64.telemetry-investments.com> <200603011556.10139.ak@suse.de> <20060301154313.GC20092@ti64.telemetry-investments.com>
+	Thu, 2 Mar 2006 10:49:16 -0500
+Received: from fsmlabs.com ([168.103.115.128]:1163 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751472AbWCBPtP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 10:49:15 -0500
+X-ASG-Debug-ID: 1141314552-28564-158-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Thu, 2 Mar 2006 07:53:39 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Romano Giannetti <romanol@upcomillas.es>
+cc: "Brown, Len" <len.brown@intel.com>, Dave Jones <davej@redhat.com>,
+       "Raj, Ashok" <ashok.raj@intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+X-ASG-Orig-Subj: Re: 2.6.16rc5 'found' an extra CPU.
+Subject: Re: 2.6.16rc5 'found' an extra CPU.
+In-Reply-To: <20060302093333.GB18448@pern.dea.icai.upcomillas.es>
+Message-ID: <Pine.LNX.4.64.0603020737420.28074@montezuma.fsmlabs.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30063BFB95@hdsmsx401.amr.corp.intel.com>
+ <20060302093333.GB18448@pern.dea.icai.upcomillas.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060301154313.GC20092@ti64.telemetry-investments.com>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9345
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 10:43:13AM -0500, Bill Rugolsky Jr. wrote:
+On Thu, 2 Mar 2006, Romano Giannetti wrote:
 
-> My guess is the sata_nv driver, as it happens during heavy local file read.
-> The machines all have 2-4 SATA WD Raptors connected to the mobo.
+> On Thu, Mar 02, 2006 at 12:49:53AM -0500, Brown, Len wrote:
+> > 
+> > I'm afraid that even after we get this stuff out of /proc
+> > and into sysfs where it belongs, we'll have to leave /proc/acpi around
+> > for a while b/c unfortunately people are under the impression
+> > that the path names there actually mean something and
+> > they can actually count on them -- which they can't.
+> 
+> Is it possible to obtain the same control/information with sysfs that is
+> available from /proc/acpi? For example, I use quite extensively CPU
+> throttling on my VAIO ("cool & quiet home-made mode"), and I was unable to
+> find the equivalent of /proc/acpi/processor/CPU0/throttling ...
 
-I have 4 SATA disks connected to an nForce4, being part of an md/raid5
-array. If I start bonnie on the raid5 array, I get:
-
-warning: many lost ticks.
-Your time source seems to be instable or some driver is hogging interupts
-rip __do_softirq+0x3b/0xa1
-
-So sata_nv definitely looks fishy.
-
-Gabor
-
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+I can't help thinking that that should be going through cpufreq.

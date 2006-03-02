@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWCBPtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWCBPvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751472AbWCBPtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 10:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWCBPtQ
+	id S1751973AbWCBPvL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 10:51:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbWCBPvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 10:49:16 -0500
-Received: from fsmlabs.com ([168.103.115.128]:1163 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751472AbWCBPtP (ORCPT
+	Thu, 2 Mar 2006 10:51:11 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:38140 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S1751973AbWCBPvK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 10:49:15 -0500
-X-ASG-Debug-ID: 1141314552-28564-158-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 2 Mar 2006 07:53:39 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Romano Giannetti <romanol@upcomillas.es>
-cc: "Brown, Len" <len.brown@intel.com>, Dave Jones <davej@redhat.com>,
-       "Raj, Ashok" <ashok.raj@intel.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-X-ASG-Orig-Subj: Re: 2.6.16rc5 'found' an extra CPU.
-Subject: Re: 2.6.16rc5 'found' an extra CPU.
-In-Reply-To: <20060302093333.GB18448@pern.dea.icai.upcomillas.es>
-Message-ID: <Pine.LNX.4.64.0603020737420.28074@montezuma.fsmlabs.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30063BFB95@hdsmsx401.amr.corp.intel.com>
- <20060302093333.GB18448@pern.dea.icai.upcomillas.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9345
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Thu, 2 Mar 2006 10:51:10 -0500
+Date: Fri, 03 Mar 2006 00:51:03 +0900 (JST)
+Message-Id: <20060303.005103.03976584.anemo@mba.ocn.ne.jp>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, ralf@linux-mips.org
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+ aliasing problem)
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060302.230227.25910097.anemo@mba.ocn.ne.jp>
+References: <20060302.230227.25910097.anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Mar 2006, Romano Giannetti wrote:
+>>>>> On Thu, 02 Mar 2006 23:02:27 +0900 (JST), Atsushi Nemoto <anemo@mba.ocn.ne.jp> said:
+anemo> In kernel 2.6, update_times() is called directly in timer
+anemo> interrupt, so there is no point calculating ticks here.  This
+anemo> also get rid of difference of jiffies and jiffies_64 due to
+anemo> compiler's optimization (which was reported previously with
+anemo> subject "jiffies_64 vs. jiffies").
 
-> On Thu, Mar 02, 2006 at 12:49:53AM -0500, Brown, Len wrote:
-> > 
-> > I'm afraid that even after we get this stuff out of /proc
-> > and into sysfs where it belongs, we'll have to leave /proc/acpi around
-> > for a while b/c unfortunately people are under the impression
-> > that the path names there actually mean something and
-> > they can actually count on them -- which they can't.
-> 
-> Is it possible to obtain the same control/information with sysfs that is
-> available from /proc/acpi? For example, I use quite extensively CPU
-> throttling on my VAIO ("cool & quiet home-made mode"), and I was unable to
-> find the equivalent of /proc/acpi/processor/CPU0/throttling ...
+Sorry, it seems the patch breaks lost-tick handling on x86_64.  Here
+is a revised patch including its adjustment.
 
-I can't help thinking that that should be going through cpufreq.
+
+In kernel 2.6, update_times() is called directly in timer interrupt,
+so there is no point calculating ticks here.  This also get rid of
+difference of jiffies and jiffies_64 due to compiler's optimization
+(which was reported previously with subject "jiffies_64 vs. jiffies").
+
+Also adjust x86_64 timer interrupt handler with this change.
+
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+
+diff --git a/arch/x86_64/kernel/time.c b/arch/x86_64/kernel/time.c
+index 3080f84..7a1d790 100644
+--- a/arch/x86_64/kernel/time.c
++++ b/arch/x86_64/kernel/time.c
+@@ -423,7 +423,8 @@ void main_timer_handler(struct pt_regs *
+ 
+ 	if (lost > 0) {
+ 		handle_lost_ticks(lost, regs);
+-		jiffies += lost;
++		while (lost--)
++			do_timer(regs);
+ 	}
+ 
+ /*
+diff --git a/kernel/timer.c b/kernel/timer.c
+index fe3a9a9..6188c99 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -906,14 +906,9 @@ void run_local_timers(void)
+  */
+ static inline void update_times(void)
+ {
+-	unsigned long ticks;
+-
+-	ticks = jiffies - wall_jiffies;
+-	if (ticks) {
+-		wall_jiffies += ticks;
+-		update_wall_time(ticks);
+-	}
+-	calc_load(ticks);
++	wall_jiffies++;
++	update_wall_time(1);
++	calc_load(1);
+ }
+   
+ /*

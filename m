@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751601AbWCBQ5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751996AbWCBQ6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751601AbWCBQ5b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751996AbWCBQ5b
+	id S1751996AbWCBQ6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:58:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCBQ6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:57:31 -0500
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:6416 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751601AbWCBQ5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:57:30 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: RAID5 initial rebuild slow, 2.6.16-rc4
-Date: Thu, 2 Mar 2006 16:57:22 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200603021648.21465.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200603021648.21465.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Mar 2006 11:58:19 -0500
+Received: from soundwarez.org ([217.160.171.123]:5253 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751996AbWCBQ6S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 11:58:18 -0500
+Date: Thu, 2 Mar 2006 17:58:16 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: ambx1@neo.rr.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-ID: <20060302165816.GA13127@vrfy.org>
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603021657.22345.s0348365@sms.ed.ac.uk>
+In-Reply-To: <4406AF27.9040700@drzeus.cx>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 March 2006 16:48, Alistair John Strachan wrote:
-> Hi Neil,
->
-> I recently purchased two SATA2 Western Digital WD2500KS (250GB) HDs to add
-> to a pair of Maxtor DiamondMax 10's (200GB). I planned to initialise two
-> 100GB RAID5 arrays spanning all four drives (the remaining 2x50GB on the
-> new HDs is currently used for booting).
->
-> All the drives are connected to the same controller. I'm running mdadm
-> 2.3.1, which is the latest version I believe. I created the array with the
-> following command:
->
-> mdadm --create /dev/md1 --auto=yes --chunk=64 --level=5
-> --raid-devices=4 /dev/sda3 /dev/sdb3 /dev/sdc2 /dev/sdd2
+On Thu, Mar 02, 2006 at 09:39:03AM +0100, Pierre Ossman wrote:
+> Kay Sievers wrote:
+> > On Mon, Feb 27, 2006 at 10:40:19PM +0100, Pierre Ossman wrote:
+> >> User space hardware detection need the 'modalias' attributes in the
+> >> sysfs tree. This patch adds support to the PNP bus.
+> > 
+> >> +
+> >> +	/* FIXME: modalias can only do one alias */
+> >> +	return sprintf(buf, "pnp:c%s\n", pos->id);
+> > 
+> > Without the FIXME actually "fixed", this does not make sense. You want to
+> > match always on _all_ aliases. In most cases where you have more than
+> > one, the first one is the vendor specific one which isn't interesting at
+> > all on Linux. If you have more than one entry usually the second one is the
+> > one you are looking for.
+> > 
+> > So eighter we find a way to encode _all_ id's in one modalias string which can
+> > be matched by a wildcard or keep the current solution which iterates over the
+> > sysfs "id" file and calls modprobe for every entry.
+> > 
+> 
+> That's a bit harsh. Although the FIXME is a downer, this patch is a
+> strict addition of functionality, not removal. It solves a real problem
+> for me, and it does so without removing any functionality for anyone
+> else. The fact is that most PNP devices do not have multiple id:s (at
+> least the ACPI variant which is the most common in todays machines), so
+> the problem is not near as big as you make it out to be.
 
-Okay, adding --force after --auto didn't fix it, but when I ran mkfs.xfs 
-without waiting, the restore speed jumped to 20MB/s. Expected behaviour?
+Sorry, but your patch is just incomplete and in some cases just wrong.
+On my new ThinkPad, 3 of 12 devices would not work with your patch, so this
+is far from "most common" and not acceptable. So eighter we get a fully
+working modalias or we better stay without one for PNP and handle that
+with the custom script we already use today.
 
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Kay

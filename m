@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752001AbWCBQLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751999AbWCBQLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752001AbWCBQLo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752002AbWCBQLo
+	id S1751999AbWCBQLP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752000AbWCBQLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:11:44 -0500
-Received: from twin.jikos.cz ([213.151.79.26]:60588 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1752001AbWCBQLn (ORCPT
+	Thu, 2 Mar 2006 11:11:15 -0500
+Received: from mx.laposte.net ([81.255.54.11]:25062 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S1751993AbWCBQLN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:11:43 -0500
-Date: Thu, 2 Mar 2006 17:11:32 +0100 (CET)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Chris Wright <chrisw@sous-sol.org>
-cc: Kyle Moffett <mrmacman_g4@mac.com>,
-       Hauke Laging <mailinglisten@hauke-laging.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: VFS: Dynamic umask for the access rights of linked objects
-In-Reply-To: <20060301075915.GD27645@sorel.sous-sol.org>
-Message-ID: <Pine.LNX.4.58.0603021707400.12446@twin.jikos.cz>
-References: <200603010328.42008.mailinglisten@hauke-laging.de>
- <44050AB7.7020202@vilain.net> <200603010454.15223.mailinglisten@hauke-laging.de>
- <08AB14CC-2BB2-4923-BFDB-B1360B5EF405@mac.com> <20060301075915.GD27645@sorel.sous-sol.org>
+	Thu, 2 Mar 2006 11:11:13 -0500
+Message-ID: <15004.192.54.193.25.1141315641.squirrel@rousalka.dyndns.org>
+In-Reply-To: <311601c90603011900q7fe21fbx1020e4ba4062dc24@mail.gmail.com>
+References: <1141239617.23202.5.camel@rousalka.dyndns.org> 
+    <4405F471.8000602@rtr.ca> 
+    <1141254762.11543.10.camel@rousalka.dyndns.org> 
+    <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com> 
+    <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com> 
+    <311601c90603011820u4fc89b04te1be39b9ed2ef35b@mail.gmail.com> 
+    <44065C7C.6090509@pobox.com>
+    <311601c90603011900q7fe21fbx1020e4ba4062dc24@mail.gmail.com>
+Date: Thu, 2 Mar 2006 17:07:21 +0100 (CET)
+Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: "Eric D. Mudama" <edmudama@gmail.com>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, "Jens Axboe" <axboe@suse.de>,
+       "Tejun Heo" <htejun@gmail.com>,
+       "Nicolas Mailhot" <nicolas.mailhot@gmail.com>,
+       "Mark Lord" <liml@rtr.ca>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Carlos Pardo" <carlos.pardo@siliconimage.com>
+User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20060118.1.fc5.1.nim
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006, Chris Wright wrote:
 
-> Solar Designer's Openwall Linux patch contains code for these types of
-> restrictions (at least since 2.2 if not earlier).  Idea was stolen and
-> made into an LSM smth like 4 or 5 years ago.  Neither of these have made
-> it upstream.  Attempts have also been made to codify such restrictions
-> in SELinux policy.  Polyinstantiation and per-process namespaces can be
-> done effectively with code that's now in mainline, and can mitigate much
-> of this risk.
+Le Jeu 2 mars 2006 04:00, Eric D. Mudama a écrit :
 
-Just to make the discussion complete, I point out to the paper about a 
-thing called RaceGuard, presented at USENIX some time ago - 
-http://www.usenix.org/events/sec01/full_papers/cowanbeattie/cowanbeattie.pdf
+> The "failing dmesg" has the plextor connected to sata_nv, and the two
+> Maxtor drives connected to sata_sil, if I read it correctly.  They're
+> ata5/ata6 ports, mapped as sda/sdb.
+>
+> Nicolas' comment in the thread "Re: LibPATA code issues / 2.6.15.4"
+> seemed to say it was the same adapter:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114123989405668&w=2
+
+Not only it's the same adapter model, but we're talking about the same
+physical system. I opened the original boog, posted on lkml, etc
 
 -- 
-JiKos.
+Nicolas Mailhot
+

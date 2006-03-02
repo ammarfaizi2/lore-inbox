@@ -1,143 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751674AbWCBTMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbWCBTN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751674AbWCBTMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 14:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752040AbWCBTMU
+	id S1751675AbWCBTN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 14:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWCBTN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 14:12:20 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:19650 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751674AbWCBTMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 14:12:19 -0500
-Date: Thu, 2 Mar 2006 11:12:01 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       yanmin.zhang@intel.com, neilb@cse.unsw.edu.au, steiner@sgi.com,
-       hawkes@sgi.com
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060302111201.cf61552f.pj@sgi.com>
-In-Reply-To: <20060301234215.62010fec.akpm@osdl.org>
-References: <20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-	<20060301015338.b296b7ad.pj@sgi.com>
-	<20060301192103.GA14320@kroah.com>
-	<20060301125802.cce9ef51.pj@sgi.com>
-	<20060301213048.GA17251@kroah.com>
-	<20060301142631.22738f2d.akpm@osdl.org>
-	<20060301151000.5fff8ec5.pj@sgi.com>
-	<20060301154040.a7cb2afd.pj@sgi.com>
-	<20060301202058.42975408.akpm@osdl.org>
-	<20060301221429.c61b4ae6.pj@sgi.com>
-	<20060301234215.62010fec.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Thu, 2 Mar 2006 14:13:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11539 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751675AbWCBTNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 14:13:25 -0500
+Date: Thu, 2 Mar 2006 19:13:05 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
+Message-ID: <20060302191305.GF28895@flint.arm.linux.org.uk>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Grant Grundler <grundler@parisc-linux.org>,
+	Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-pci@atrey.karlin.mff.cuni.cz
+References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk> <20060302172436.GC22711@colo.lackof.org> <20060302180025.GC28895@flint.arm.linux.org.uk> <44073593.60703@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44073593.60703@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John, Jack,
+On Thu, Mar 02, 2006 at 01:12:35PM -0500, Jeff Garzik wrote:
+> Russell King wrote:
+> >It's not really "I/O port resource allocation" though - the resources
+> >have already been allocated and potentially programmed into the BARs
+> >well before the driver gets anywhere near the device.
+> [...]
+> >Are you implying that somehow resources are allocated at pci_enable_device
+> >time?  If so, shouldn't we be thinking of moving completely to that model
+> >rather than having yet-another-pci-setup-model.
+> 
+> Actually, that's has been the rule ever since the cardbus days: 
+> resources -- bars and irqs -- should not be considered allocated until 
+> after pci_enable_device().
 
-  Adding you to this one.  We've seen this before, and
-  I wasted Andrew's and others time chasing it again.
+However, practically, cardbus have always had and continue to have their
+resources setup prior to driver probe.
 
-  I speculate at the bottom of this message that I
-  should add a panic on the kzalloc that fails if one
-  has 1024 CPUS, SPINLOCK debug, and just slightly larger
-  data structures with a new patch than we had before.
+> Documentation/pci.txt reflects this reality as well:
+> 
+> >3. Enabling and disabling devices
+> >~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> >   Before you do anything with the device you've found, you need to enable
+> >it by calling pci_enable_device() which enables I/O and memory regions of
+> >the device, allocates an IRQ if necessary, assigns missing resources if
+> >needed and wakes up the device if it was in suspended state. Please note
+> >that this function can fail.
+> 
+> Any PCI driver that presumes -anything- about resources before calling 
+> pci_enable_device() is buggy, and that's been the case for many years. 
+> Some platform-specific PCI drivers violate this with special knowledge, 
+> but overall that's the rule.
 
-  Feel free to comment on whether such a panic, or other
-  remedy would be desirable or not.
+Nevertheless, my basic point that the no_ioport solution only addresses
+one problem area, while being far too late for the other methods still
+stands.
 
-===
+Maybe the setup-* stuff needs to be rewritten (in which case cardbus
+will also convert to the "new" system automatically)?
 
-Andrew wrote:
-> OK.   This is awful.   I cannot see it.
+Given the problems of allocating resources for bridges inside cardbus
+cards, it would be nice if this could happen, so the limited IO range
+provided to cardbus could be more efficiently (and selectively) used.
 
-Crap - I should have recognized this problem a day ago.
-
-I wasted your time.  Sorry.
-
-The extra data pushed the size of our (big SN2) sysfs_cpus[] array
-past the point that it could be kzalloc'd.
-
-The initial failure is in the file:
-
-    arch/ia64/kernel/topology.c
-
-function:
-
-    topology_init
-
-line:
-
-    sysfs_cpus = kzalloc(sizeof(struct ia64_cpu) * NR_CPUS, GFP_KERNEL);
-
-With our large NR_CPUS of 1024, and the additional cost of
-the CONFIG_DEBUG_SPINLOCK* debug stuff, and the little bit of
-additional data added by this patch, that kzalloc() fails.
-
-The final collapse occurs in the file:
-
-    fs/sysfs/group.c
-
-function:
-
-    sysfs_create_group
-
-line:
-
-    BUG_ON(!kobj || !kobj->dentry);
-
-where kobj->dentry points to 0x58.
-
-The offset of dentry in struct kobject is 0x50, and the offset of that
-kobj in the containing struct sys_dev is another 0x8 bytes, resulting
-in the failed reference:
-
-    Unable to handle kernel NULL pointer dereference (address 0000000000000058)
-
-The drivers/base/cpu.c array:
-
-    static struct sys_device *cpu_sys_devices[NR_CPUS];
-
-is never filled in, as a result of the above kzalloc() failure, causing
-the routine get_cpu_sysdev() in drivers/base/cpu.c to return a NULL
-pointer (unknowingly).
-
-I should stare at the code between this point of initial failure and
-the point that the house of cards finally collapsed and see if
-something should have squeaked sooner.
-
-Though I'm not a guru in this code, so I'm saying a little prayer that
-someone else will have a more useful suggestion.
-
-I've added a couple of SGI wizards in this area to the cc list.
-
-I suspect that the short term solution is to proceed without
-prejudice to the patch that triggered this:
-
-  gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch
-
-while I look at some way, if just a stop gap measure, to complain
-earlier in the boot, closer to the scene of the original crime,
-so that others hitting this won't waste more time.
-
-Perhaps failing that first kzalloc should cause a complaint,
-if not a panic.  It would seem that the system is beyond repair
-if that kzalloc fails.  And since the system hasn't even finished
-booting yet, and is for sure trying to boot some larger than tried
-before configuration, might just as well announce ones death boldly.
+Wouldn't you think that's a sane idea?
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWCBIcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751955AbWCBIjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWCBIcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 03:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751945AbWCBIcR
+	id S1751955AbWCBIjB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 03:39:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWCBIjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 03:32:17 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26289 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751224AbWCBIcR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 03:32:17 -0500
-Date: Thu, 2 Mar 2006 09:32:01 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: col-pepper@piments.com
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: o_sync in vfat driver
-Message-ID: <20060302083200.GO1879@elf.ucw.cz>
-References: <20060227132848.GA27601@csclub.uwaterloo.ca> <1141048228.2992.106.camel@laptopd505.fenrus.org> <1141049176.18855.4.camel@imp.csi.cam.ac.uk> <1141050437.2992.111.camel@laptopd505.fenrus.org> <1141051305.18855.21.camel@imp.csi.cam.ac.uk> <op.s5ngtbpsj68xd1@mail.piments.com> <Pine.LNX.4.61.0602271610120.5739@chaos.analogic.com> <op.s5nm6rm5j68xd1@mail.piments.com> <20060228223855.GC5831@elf.ucw.cz> <op.s5r1koxmj68xd1@mail.piments.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <op.s5r1koxmj68xd1@mail.piments.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 2 Mar 2006 03:39:01 -0500
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:42629 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751955AbWCBIjA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 03:39:00 -0500
+Message-ID: <4406AF27.9040700@drzeus.cx>
+Date: Thu, 02 Mar 2006 09:39:03 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060210)
+MIME-Version: 1.0
+To: Kay Sievers <kay.sievers@vrfy.org>
+CC: ambx1@neo.rr.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org>
+In-Reply-To: <20060301194532.GB25907@vrfy.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 02-03-06 09:23:02, col-pepper@piments.com wrote:
-> On Tue, 28 Feb 2006 23:38:55 +0100, Pavel Machek <pavel@suse.cz> wrote:
+Kay Sievers wrote:
+> On Mon, Feb 27, 2006 at 10:40:19PM +0100, Pierre Ossman wrote:
+>> User space hardware detection need the 'modalias' attributes in the
+>> sysfs tree. This patch adds support to the PNP bus.
 > 
-> >On Út 28-02-06 00:21:53, col-pepper@piments.com wrote:
-> >>On Mon, 27 Feb 2006 22:32:07 +0100, linux-os (Dick Johnson)
-> >><linux-os@analogic.com> wrote:
-> >>
-> >>> Flash does not get zeroed to be written! It gets erased, which sets  
-> >>all
-> >>> the bits to '1', i.e., all bytes to 0xff.
-> >>
-> >>Thanks for the correction, but that does not change the discussion.
-> >>
-> >>> Further, the designers of
-> >>> flash disks are not stupid as you assume. The direct access occurs
-> >>> to static RAM (read/write stuff).
-> >>
-> >>I'm not assuming anything . Some hardware has been killed by this issue.
-> >>http://lkml.org/lkml/2005/5/13/144
-> >
-> >I have seen flash disk dead in 5 minutes, even without o-sync. Those
-> >devices are often crap. (I copied tar file to flash by cat foo.tar >
-> >/dev/sda. That was apparently enough to kill that flash. Label "Yahoo"
-> >should have warned me).
+>> +
+>> +	/* FIXME: modalias can only do one alias */
+>> +	return sprintf(buf, "pnp:c%s\n", pos->id);
 > 
-> If I'm not mistaken, writing to the device with cat will output that file  
-> byte by byte. This would probably be even harder on the device than using  
-> a formatted device with o_sync, since it would dirty a 64k block 64k
-> times!
+> Without the FIXME actually "fixed", this does not make sense. You want to
+> match always on _all_ aliases. In most cases where you have more than
+> one, the first one is the vendor specific one which isn't interesting at
+> all on Linux. If you have more than one entry usually the second one is the
+> one you are looking for.
+> 
+> So eighter we find a way to encode _all_ id's in one modalias string which can
+> be matched by a wildcard or keep the current solution which iterates over the
+> sysfs "id" file and calls modprobe for every entry.
+> 
 
-No.
+That's a bit harsh. Although the FIXME is a downer, this patch is a
+strict addition of functionality, not removal. It solves a real problem
+for me, and it does so without removing any functionality for anyone
+else. The fact is that most PNP devices do not have multiple id:s (at
+least the ACPI variant which is the most common in todays machines), so
+the problem is not near as big as you make it out to be.
 
-> It seems some of the less elaborate devices dont support this type of use.
-> 
-> I suspect if you had tried using dd with a suitable bs you may still own a  
-> crap Yahoo usb device.
-> 
-> Just because the linux kernel lets us use the abstract /dev devices freely  
-> does not mean everything you can do with a /dev is a good idea for all h/w  
-> that gets a device name.
-> 
-> I think that is the heart of the problem. Manufacturers are designing  
-> these devices for the windows market. They are specifically designed and  
-> supplied, preformatted with a fat fs, to be used in that way.
+That said, I agree that it would be desirable to fix this. First of all
+we would need to synchronise this with userspace. Currently I guess that
+means udev. Allowing 'modalias' to contain multiple lines should be a
+simple enough solution (provided we don't fill the available buffer space).
 
-There's USB mass storage specification, that says nothing about FAT,
-or expected use of the device... if your device is broken FAT thing
-that will break if used any other way, do not advertise it as USB mass
-storage.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+The PNP cards are also a bit of a problem, but this isn't something new.
+When matching a device to a driver, the card ID must match and also all
+device ID:s. The problem is that the device ID:s are sets, not lists.
+I.e. we compare the unordered contents of the two, with no regard to
+ordering.
+
+Rgds
+Pierre
+

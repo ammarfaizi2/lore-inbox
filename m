@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWCBRBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752016AbWCBRFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751605AbWCBRBm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWCBRBm
+	id S1752016AbWCBRFG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752015AbWCBRFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:01:42 -0500
-Received: from mail.suse.de ([195.135.220.2]:1171 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751605AbWCBRBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:01:41 -0500
-From: Chris Mason <mason@suse.com>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: o_sync in vfat driver
-Date: Thu, 2 Mar 2006 12:01:31 -0500
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, col-pepper@piments.com,
-       linux-kernel@vger.kernel.org
-References: <op.s5lrw0hrj68xd1@mail.piments.com> <200603020845.10083.mason@suse.com> <87u0ahszxa.fsf@duaron.myhome.or.jp>
-In-Reply-To: <87u0ahszxa.fsf@duaron.myhome.or.jp>
+	Thu, 2 Mar 2006 12:05:05 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:24059 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1751390AbWCBRFE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:05:04 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603021201.32653.mason@suse.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Question: how to map SCSI data DMA address to virtual address?
+Date: Thu, 2 Mar 2006 10:04:57 -0700
+Message-ID: <9738BCBE884FDB42801FAD8A7769C2651420C2@NAMAIL1.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question: how to map SCSI data DMA address to virtual address?
+Thread-index: AcY+GoF8v0SEDptDR3Oj2x6OM6fFtwAACPEg
+From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 02 Mar 2006 17:04:57.0082 (UTC) FILETIME=[6ED045A0:01C63E1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 March 2006 09:07, OGAWA Hirofumi wrote:
-> Chris Mason <mason@suse.com> writes:
-> > filemap_fdatawrite() won't redirty the page.  It will wait on the pending
-> > writeback.
->
-> Umm... I'm looking the following code.
->
-> +void
-> +writeback_bdev(struct super_block *sb)
-> +{
-> +	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
-> +	filemap_flush(mapping);
-> +	blk_run_address_space(mapping);
-> +}
-> +EXPORT_SYMBOL_GPL(writeback_bdev);
->
-> filemap_flush() is using WB_SYNC_NONE.
->
-Ok, I thought you were asking about the code that called filemap_fdatawrite, 
-which does wait.  filemap_flush is used on the underlying block device.  In 
-the case of a page that is already under IO, the io is not cancelled but 
-allowed to continue.
+Hi,
 
-This is the desired result.  When you're doing a number of operations in 
-sequence, each operation will start io on the block device.  If they used 
-filemap_fdatawrite instead of filemap_flush, they would end up being 
-synchronous.
+On Thursday, March 02, 2006 11:58 AM Arjan van de Ven wrote:
+> Why do you need to do this? It's generally bad for drivers to snoop
+> data! 
+I understood that is bad. I am trying to make sure the data written to disk drive are identical with the data from upper layer by comparing actual data in the driver.
+This is a part of debugging only not for release driver, obviously.
+So, is it completely unable to get this done?
+Any tricky solution?
 
--chris
+Thank you,
 
+> -----Original Message-----
+> From: Arjan van de Ven [mailto:arjan@infradead.org] 
+> Sent: Thursday, March 02, 2006 11:58 AM
+> To: Ju, Seokmann
+> Cc: Ju, Seokmann; linux-kernel@vger.kernel.org; 
+> linux-scsi@vger.kernel.org
+> Subject: Re: Question: how to map SCSI data DMA address to 
+> virtual address?
+> 
+> On Thu, 2006-03-02 at 09:53 -0700, Ju, Seokmann wrote:
+> > Hi,
+> > 
+> > In the 'scsi_cmnd' structure, there are two entries holding address
+> > information for data to be transferred. One is 
+> 'request_buffer' and the
+> > other one is 'buffer'.
+> > In case of 'use_sg' is non-zero, those entries indicates 
+> the address of
+> > the scatter-gather table.
+> 
+> use_sg is never non-zero so that's easy
+> 
+> > 
+> > Is there way to get virtual address (so that the data could 
+> be accessed
+> > by the driver) of the actual data in the case of 'use_sg' 
+> is non-zero?
+> 
+> not really; unless you mapped it. The physical address may 
+> already been
+> translated by the iommu... at which point there is no direct 
+> mapping to
+> kernel memory.
+> 
+> Why do you need to do this? It's generally bad for drivers to snoop
+> data! 
+> 
+> 

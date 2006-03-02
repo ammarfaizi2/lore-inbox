@@ -1,61 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752073AbWCBXO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752077AbWCBXRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752073AbWCBXO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 18:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752070AbWCBXO6
+	id S1752077AbWCBXRC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 18:17:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752080AbWCBXRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 18:14:58 -0500
-Received: from ozlabs.org ([203.10.76.45]:7316 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751729AbWCBXO5 (ORCPT
+	Thu, 2 Mar 2006 18:17:01 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:60104 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1752077AbWCBXRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 18:14:57 -0500
-Date: Fri, 3 Mar 2006 10:00:54 +1100
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Hugh Dickins'" <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       William Irwin <wli@holomorphy.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: hugepage: Fix hugepage logic in free_pgtables()
-Message-ID: <20060302230054.GA23766@localhost.localdomain>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	'Hugh Dickins' <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	William Irwin <wli@holomorphy.com>, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0603022002500.23669@goblin.wat.veritas.com> <200603022129.k22LTog14318@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 18:17:00 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Philip Blundell <philb@gnu.org>
+Subject: [PATCH] hp300: fix driver_register() return handling, remove dio_module_init()
+Date: Thu, 2 Mar 2006 16:16:56 -0700
+User-Agent: KMail/1.8.3
+Cc: Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200603022129.k22LTog14318@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200603021616.56578.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 01:29:50PM -0800, Chen, Kenneth W wrote:
-> Hugh Dickins wrote on Thursday, March 02, 2006 12:27 PM
-> > But the first part, || instead of && in is_hugepage_only_range, looks
-> > insufficient: the start and end of the range might each fall in a
-> > non-huge region, but the range still cross a huge region.
-> > 
-> > Ah, does RGN_HPAGE nestle up against the TASK_SIZE roof, so any range
-> > already tested against TASK_SIZE (as get_unmapped_area has) cannot
-> > cross RGN_HPAGE?  If so, perhaps it deserves a comment there.  And
-> > if that is so, and can be relied upon, is_hugepage_only_range need
-> > only be testing REGION_NUMBER(addr+len-1) - but it does seem fragile.
-> 
-> There are many address range check before we hit get_unmapped area.
-> ia64 can never have a vma range that crosses region boundary.  David
-> pointed out earlier that shmat and mremap can still slip through the
-> crack and he has a patch that fixed it. But yes, this patch is making
-> that assumption (or relying on checks being done properly beforehand).
+Remove the assumption that driver_register() returns the number of
+devices bound to the driver.  In fact, it returns zero for success
+or a negative error value.
 
-In fact with that other patch, which ensures that no region-crossing
-ranges get through, simply (REGION_NUMBER(addr) == RGN_HPAGE) would be
-sufficient; either both start and end are in the hugepage region, or
-they're both in the same different region.
+dio_module_init() used the device count to automatically unregister
+and unload drivers that found no devices.  That might have worked at
+one time, but has been broken for some time because dio_register_driver()
+returned either a negative error or a positive count (never zero).  So
+it could only unregister on failure, when it's not needed anyway.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+This functionality could be resurrected in individual drivers by
+counting devices in their .probe() methods.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+Index: work-mm4/drivers/dio/dio-driver.c
+===================================================================
+--- work-mm4.orig/drivers/dio/dio-driver.c	2006-03-01 15:37:15.000000000 -0700
++++ work-mm4/drivers/dio/dio-driver.c	2006-03-02 10:50:40.000000000 -0700
+@@ -71,22 +71,17 @@
+ 	 *  @drv: the driver structure to register
+ 	 *
+ 	 *  Adds the driver structure to the list of registered drivers
+-	 *  Returns the number of DIO devices which were claimed by the driver
+-	 *  during registration.  The driver remains registered even if the
+-	 *  return value is zero.
++	 *  Returns zero or a negative error value.
+ 	 */
+ 
+ int dio_register_driver(struct dio_driver *drv)
+ {
+-	int count = 0;
+-
+ 	/* initialize common driver fields */
+ 	drv->driver.name = drv->name;
+ 	drv->driver.bus = &dio_bus_type;
+ 
+ 	/* register with core */
+-	count = driver_register(&drv->driver);
+-	return count ? count : 1;
++	return driver_register(&drv->driver);
+ }
+ 
+ 
+Index: work-mm4/drivers/net/hplance.c
+===================================================================
+--- work-mm4.orig/drivers/net/hplance.c	2006-03-01 15:37:16.000000000 -0700
++++ work-mm4/drivers/net/hplance.c	2006-03-02 12:22:59.000000000 -0700
+@@ -217,7 +217,7 @@
+ 
+ int __init hplance_init_module(void)
+ {
+-	return dio_module_init(&hplance_driver);
++	return dio_register_driver(&hplance_driver);
+ }
+ 
+ void __exit hplance_cleanup_module(void)
+Index: work-mm4/drivers/serial/8250_hp300.c
+===================================================================
+--- work-mm4.orig/drivers/serial/8250_hp300.c	2006-01-02 20:21:10.000000000 -0700
++++ work-mm4/drivers/serial/8250_hp300.c	2006-03-02 12:36:23.000000000 -0700
+@@ -55,6 +55,8 @@
+ 
+ #endif
+ 
++static unsigned int num_ports;
++
+ extern int hp300_uart_scode;
+ 
+ /* Offset to UART registers from base of DCA */
+@@ -199,6 +201,8 @@
+ 	out_8(d->resource.start + DIO_VIRADDRBASE + DCA_ID, 0xff);
+ 	udelay(100);
+ 
++	num_ports++;
++
+ 	return 0;
+ }
+ #endif
+@@ -206,7 +210,6 @@
+ static int __init hp300_8250_init(void)
+ {
+ 	static int called = 0;
+-	int num_ports;
+ #ifdef CONFIG_HPAPCI
+ 	int line;
+ 	unsigned long base;
+@@ -221,11 +224,8 @@
+ 	if (!MACH_IS_HP300)
+ 		return -ENODEV;
+ 
+-	num_ports = 0;
+-
+ #ifdef CONFIG_HPDCA
+-	if (dio_module_init(&hpdca_driver) == 0)
+-		num_ports++;
++	dio_register_driver(&hpdca_driver);
+ #endif
+ #ifdef CONFIG_HPAPCI
+ 	if (hp300_model < HP_400) {
+Index: work-mm4/include/linux/dio.h
+===================================================================
+--- work-mm4.orig/include/linux/dio.h	2006-01-02 20:21:10.000000000 -0700
++++ work-mm4/include/linux/dio.h	2006-03-02 12:36:50.000000000 -0700
+@@ -276,37 +276,5 @@
+ 	dev_set_drvdata(&d->dev, data);
+ }
+ 
+-/*
+- * A helper function which helps ensure correct dio_driver
+- * setup and cleanup for commonly-encountered hotplug/modular cases
+- *
+- * This MUST stay in a header, as it checks for -DMODULE
+- */
+-static inline int dio_module_init(struct dio_driver *drv)
+-{
+-	int rc = dio_register_driver(drv);
+-
+-	if (rc > 0)
+-		return 0;
+-
+-	/* iff CONFIG_HOTPLUG and built into kernel, we should
+-	 * leave the driver around for future hotplug events.
+-	 * For the module case, a hotplug daemon of some sort
+-	 * should load a module in response to an insert event. */
+-#if defined(CONFIG_HOTPLUG) && !defined(MODULE)
+-	if (rc == 0)
+-		return 0;
+-#else
+-	if (rc == 0)
+-		rc = -ENODEV;
+-#endif
+-
+-	/* if we get here, we need to clean up DIO driver instance
+-	 * and return some sort of error */
+-	dio_unregister_driver(drv);
+-
+-	return rc;
+-}
+-
+ #endif /* __KERNEL__ */
+ #endif /* ndef _LINUX_DIO_H */
+Index: work-mm4/drivers/video/hpfb.c
+===================================================================
+--- work-mm4.orig/drivers/video/hpfb.c	2006-01-02 20:21:10.000000000 -0700
++++ work-mm4/drivers/video/hpfb.c	2006-03-02 12:33:53.000000000 -0700
+@@ -386,7 +386,9 @@
+ 	if (fb_get_options("hpfb", NULL))
+ 		return -ENODEV;
+ 
+-	dio_module_init(&hpfb_driver);
++	err = dio_register_driver(&hpfb_driver);
++	if (err)
++		return err;
+ 
+ 	fs = get_fs();
+ 	set_fs(KERNEL_DS);

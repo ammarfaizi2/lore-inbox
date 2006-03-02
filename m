@@ -1,53 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWCBLpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWCBLrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWCBLpd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 06:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWCBLpc
+	id S932440AbWCBLrx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 06:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWCBLrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 06:45:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40721 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750701AbWCBLpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 06:45:31 -0500
-Date: Thu, 2 Mar 2006 11:45:26 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to map high memory for block io
-Message-ID: <20060302114526.GC14017@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
-References: <20060129152228.GF13831@suse.de> <43DDC6F9.6070007@drzeus.cx> <20060130080930.GB4209@suse.de> <43DFAEC6.3090205@drzeus.cx> <20060301232913.GC4024@flint.arm.linux.org.uk> <44069E3A.4000907@drzeus.cx> <20060302094153.GA14017@flint.arm.linux.org.uk> <4406C044.4080201@drzeus.cx> <20060302100409.GB14017@flint.arm.linux.org.uk> <4406C845.8000603@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 06:47:53 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:31213 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932412AbWCBLrw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 06:47:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=j1Qsj/p/zgNPCUCEeNMWn8OJDAnMi2sLlWHygglEK2ou0vAeX0ccgQWvlyTamPJra5DSjWjLj+Qw6sEPYMV/g9MujaMmYPBU8IX7K68HG4aTtEKqphfOuShQGYuA1E5JtHq8t1jnRDM3DsIp/ak9jSDfR33ajSAWo7WusPZlNpI=
+Message-ID: <b6fcc0a0603020347r32567ae9l1fe4495059149449@mail.gmail.com>
+Date: Thu, 2 Mar 2006 03:47:50 -0800
+From: "Alexey Dobriyan" <adobriyan@gmail.com>
+To: "Al Viro" <viro@ftp.linux.org.uk>
+Subject: s_vfs_rename_sem and cifs (was Re: Possible deadlock in vfs layer, namei.c)
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4406C845.8000603@drzeus.cx>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 11:26:13AM +0100, Pierre Ossman wrote:
-> This I know. My beef is the readability of:
-> 
-> if (do_dma)
->     *dev->dma_mask = DEVICE_DMA_MASK;
-> else
->     *dev->dma_mask = 0;
-> 
-> I.e. we use dma_mask even though we don't do DMA.
+On Wed, Mar 01, 2006 at 06:46:42PM -0800, Joshua Hudson wrote:
+> from namei.c (function: lock_rename), rename takes:
+> 1. s_vfs_rename_sem,
 
-Not a lot we can do about the readability issue - we end up with code
-like that in some layer of the MMC.  If it's in mmc_queue, it might be:
-
-        u64 limit = BLK_BOUNCE_HIGH;
-
-        if (host->caps & MMC_CAP_DMA &&
-	    host->dev->dma_mask && *host->dev->dma_mask)
-                limit = *host->dev->dma_mask;
-
-which is equally as (un)readable as your code.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Speaking of s_vfs_rename_sem, does cifs usage of it despite explicit
+warning at fs.h
+was found to be legal?

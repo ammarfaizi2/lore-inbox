@@ -1,110 +1,291 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWCBEsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWCBEtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWCBEsq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 23:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWCBEsq
+	id S1750794AbWCBEtx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 23:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWCBEtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:48:46 -0500
-Received: from mail.gmx.net ([213.165.64.20]:60628 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750730AbWCBEsq (ORCPT
+	Wed, 1 Mar 2006 23:49:53 -0500
+Received: from [203.144.27.9] ([203.144.27.9]:47122 "EHLO surfers.oz.agile.tv")
+	by vger.kernel.org with ESMTP id S1750794AbWCBEtw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:48:46 -0500
-Date: Thu, 2 Mar 2006 05:48:44 +0100 (MET)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: janak@us.ibm.com, akpm@osdl.org, ak@muc.de, hch@lst.de, paulus@samba.org,
-       viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
-       michael.kerrisk@gmx.net
+	Wed, 1 Mar 2006 23:49:52 -0500
+Message-ID: <44067961.20709@agile.tv>
+Date: Thu, 02 Mar 2006 14:49:37 +1000
+From: Tony Griffiths <tonyg@agile.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060202 Fedora/1.7.12-1.5.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-References: <Pine.LNX.4.64.0603011959340.22647@g5.osdl.org>
-Subject: Re: unhare() interface design questions and man page
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <1101.1141274924@www008.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org, Tony Griffiths <tonyg@oz.agile.tv>
+Subject: Fixes for NFS file truncation race condition(s)
+Content-Type: multipart/mixed;
+ boundary="------------000707020606090909030305"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, 
+This is a multi-part message in MIME format.
+--------------000707020606090909030305
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Thu, 2 Mar 2006, Michael Kerrisk wrote:
-> > > >>>>>
-> > > >>>>> That is, CLONE_FS, CLONE_FILES, and CLONE_VM *reverse* the 
-> > > >>>>> effects of the clone() flags of the same name, but CLONE_NEWNS 
-> > > >>>>> *has the same meaning* as the clone() flag of the same name.
-> 
-> Well, if this is the only problem, who cares? CLONE_NEWNS itself is 
-> actually a reversal of clone flags: unlike the others, that tell to 
-> _share_ things that normally aren't shared across a fork(), CLONE_NEWNS 
-> does the opposite: it asks to unshare something that normally is shared.
-> 
-> So the fact that it then acts not as a reversal when doing "unshare()" 
-> is 
-> actually consistent with the fact that it's a already a "unshare" event 
-> for clone() itself.
+Attached are two file, the first being a diff patch file, and the second 
+being a test program that can be used to invoke the problem and confirm 
+that it has been fixed after the patches are applied.
 
-I care about this from an (kernel-userland) *interface* point 
-of view.  I see a small but steady stream of unnecessarily 
-confusing interfaces going into the kernel-userland interface; 
-the problem is that no-one (or not enough people) seem to really
-care about this.
+Explanation of the problem:
 
-The key point is this: if it looks like a duck, I expect it
-to behave like a duck.  When interfaces have the same name, 
-then users expect the interfaces to provide the same 
-behaviour.  Now with unshare() we have the situation that
-a set of flags with the same name reverses the 
-corresponding flags for clone().  From an interface design 
-point of view that might almost be okay.  But one flag
-breaks the pattern: CLONE_NEWNS, does the same thing in 
-both clone() and unshare().
+A number of places in the kernel appear to suffer from a race condition 
+with truncation of files on NFS-mounted filesystems when the files have 
+dirty pages in the buffer cache.  When the attached program is run on a 
+2.6.15 kernel with the -git12 patch-set applied, it can invoke the 
+problem within 10-15 minutes.  This program simulates a transactional dB 
+journaling operation which is where we first encountered the  kernel 
+bug.  This bug also occurs on a 2.6.15 kernel with the -mm4 patch-set, 
+although the diff file will probably only apply to a source tree with 
+-git12 patches!  The BUG_ON() occurs in "lib/radix-tree.c" function 
+radix_tree_tag_set().
 
-Inflicting this sort of messiness on userland is a recipe 
-for programmer confusion, with bugs and security holes 
-in userland programs as the possible result. If you agree
-that that is a possible result, then why not avoid the
-possibility?  It does not cost much to do so.
+Of the four files patched, the first is probably the most "suspect" in 
+whether it is necessary or fix the problem.  I strongly suspect that it 
+doesn't need to be applied but given the time required to verify the fix 
+I havn't bothered to check the 15 possible combinations to see if all 
+patches are necessary!  We currently run with all four patches applied 
+and don't see the problem after several weeks of testing on dual 3GHz 
+Xeon Dell server(s).
 
-> > Do you have any further response on this point?
-> > (There was none in your last message?)
-> 
-> I personally don't think it's worth makign UNSHARE_NEWNS just because 
-> it's
-> a flag that acts differently from the other CLONE_xxx flags.
+A stack trace of the bug generated by "./breaknfs 100 /var/nfs/" follows-
 
-See my comments above.  (And in case it wasn't clear, I meant 
-make a complete set of UNSHARE_* flags that mirror the 
-corresponding CLONE_* flags.)
+kernel BUG at lib/radix-tree.c:372!
+invalid opcode: 0000 [#1]
+PREEMPT SMP
+Modules linked in: nfsd exportfs parport_pc lp parport ipmi_poweroff 
+bmcsensors i2c_ipmi i2c_core ipmi_si ipmi_devintf ipmi_msghandler 
+binfmt_misc video thermal processor fan button battery ac ehci_hcd 
+usbcore hw_random ide_cd cdrom ext3 jbd dm_mod ata_piix libata sd_mod 
+scsi_mod
+CPU:    1
+EIP:    0060:[<c01e7bc8>]    Not tainted VLI
+EFLAGS: 00010046   (2.6.15-git4)
+EIP is at radix_tree_tag_set+0x6c/0x76
+eax: 00000000   ebx: 00000001   ecx: f76a95c0   edx: 00000000
+esi: 00000000   edi: 00000000   ebp: 00000008   esp: f656bcd0
+ds: 007b   es: 007b   ss: 0068
+Process breaknfs (pid: 5082, threadinfo=f656a000 task=f7dfea70)
+Stack: 00000000 c17f8858 f7d67bec f7d67bfc c014736a f7d67bf0 00000000 
+00000001
+      00000213 f73ff8cc f73ff914 f6770480 f73ff780 c01c2f52 c17f8858 
+00000050
+      f7dfeb98 00000001 c01332e5 00000002 00000000 00000004 f656bd4c 
+f656bd4c
+Call Trace:
+[<c014736a>] test_set_page_writeback+0xb5/0x108
+[<c01c2f52>] nfs_flush_one+0xf9/0x1f3
+[<c01332e5>] prepare_to_wait+0x12/0x4d
+[<c01c30a6>] nfs_flush_list+0x5a/0xa8
+[<c01c3ac9>] nfs_flush_inode+0x83/0xb5
+[<c01c1e72>] nfs_writepages+0x84/0x112
+[<c0146dfc>] do_writepages+0x2d/0x50
+[<c013ff03>] __filemap_fdatawrite_range+0xc1/0xcc
+[<c013ff45>] filemap_fdatawrite+0x37/0x3b
+[<c01bb1f4>] nfs_sync_mapping+0x50/0x93
+[<c01bc0e0>] nfs_revalidate_mapping+0x77/0xc4
+[<c01bbeee>] __nfs_revalidate_inode+0x14b/0x24b
+[<c01e7f4d>] radix_tree_gang_lookup_tag+0x56/0x70
+[<c01c3b41>] nfs_commit_inode+0x46/0x6e
+[<c01c3be2>] nfs_sync_inode+0x79/0x85
+[<c01b9a54>] nfs_file_flush+0xc2/0xc4
+[<c015ffdc>] filp_close+0x53/0x6e
+[<c0160060>] sys_close+0x69/0x84
+[<c0102daf>] sysenter_past_esp+0x54/0x75
+Code: 0f a3 91 04 01 00 00 19 c0 85 c0 75 07 0f ab 91 04 01 00 00 8b 74 
+96 04 85 f6 74 0f 83 ef 06 83 eb 01 75 cd 89 f0 5b 5e 5f 5d c3 <0f> 0b 
+74 01 f8 4b 35 c0 eb e7 55 31 ed 57 56 53 83 ec 44 8b 4c
+<6>note: breaknfs[5082] exited with preempt_count 1
+
+
+--------------000707020606090909030305
+Content-Type: text/x-patch;
+ name="atv-40011-truncate-race-fixups-2.6.15.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="atv-40011-truncate-race-fixups-2.6.15.patch"
+
+diff -urN old/fs/buffer.c new/fs/buffer.c
+--- old/fs/buffer.c	2006-02-04 16:40:18.000000000 +1000
++++ new/fs/buffer.c	2006-02-06 10:09:42.000000000 +1000
+@@ -860,7 +860,8 @@
+ 	spin_unlock(&mapping->private_lock);
  
-> As to whether allow or not allow unknown unshare() flags, I don't think 
-> it's a huge deal either way. Right now we don't check the flags to 
-> "clone()" either, I think.
+ 	if (!TestSetPageDirty(page)) {
+-		write_lock_irq(&mapping->tree_lock);
++		unsigned long	flags;
++		write_lock_irqsave(&mapping->tree_lock, flags);
+ 		if (page->mapping) {	/* Race with truncate? */
+ 			if (mapping_cap_account_dirty(mapping))
+ 				inc_page_state(nr_dirty);
+@@ -868,7 +869,7 @@
+ 						page_index(page),
+ 						PAGECACHE_TAG_DIRTY);
+ 		}
+-		write_unlock_irq(&mapping->tree_lock);
++		write_unlock_irqrestore(&mapping->tree_lock, flags);
+ 		__mark_inode_dirty(mapping->host, I_DIRTY_PAGES);
+ 	}
+ 	
+diff -urN old/mm/page-writeback.c new/mm/page-writeback.c
+--- old/mm/page-writeback.c	2006-02-04 16:40:20.000000000 +1000
++++ new/mm/page-writeback.c	2006-02-06 11:10:43.000000000 +1000
+@@ -712,7 +712,7 @@
+ 
+ 	if (mapping) {
+ 		write_lock_irqsave(&mapping->tree_lock, flags);
+-		if (TestClearPageDirty(page)) {
++		if (TestClearPageDirty(page) && (page_mapping(page) == mapping)) { /* Race with truncate? */
+ 			radix_tree_tag_clear(&mapping->page_tree,
+ 						page_index(page),
+ 						PAGECACHE_TAG_DIRTY);
+@@ -768,7 +768,7 @@
+ 
+ 		write_lock_irqsave(&mapping->tree_lock, flags);
+ 		ret = TestClearPageWriteback(page);
+-		if (ret)
++		if (ret && (page_mapping(page) == mapping))	/* Race with truncate? */
+ 			radix_tree_tag_clear(&mapping->page_tree,
+ 						page_index(page),
+ 						PAGECACHE_TAG_WRITEBACK);
+@@ -789,11 +789,11 @@
+ 
+ 		write_lock_irqsave(&mapping->tree_lock, flags);
+ 		ret = TestSetPageWriteback(page);
+-		if (!ret)
++		if (!ret && (page_mapping(page) == mapping))	/* Race with truncate? */
+ 			radix_tree_tag_set(&mapping->page_tree,
+ 						page_index(page),
+ 						PAGECACHE_TAG_WRITEBACK);
+-		if (!PageDirty(page))
++		if (!PageDirty(page) && (page_mapping(page) == mapping))	/* Race with truncate? */
+ 			radix_tree_tag_clear(&mapping->page_tree,
+ 						page_index(page),
+ 						PAGECACHE_TAG_DIRTY);
+diff -urN old/mm/truncate.c new/mm/truncate.c
+--- old/mm/truncate.c	2006-02-04 16:40:20.000000000 +1000
++++ new/mm/truncate.c	2006-02-06 11:01:35.000000000 +1000
+@@ -68,7 +68,7 @@
+ 		return 0;
+ 
+ 	write_lock_irq(&mapping->tree_lock);
+-	if (PageDirty(page)) {
++	if (PageDirty(page) || (page->mapping != mapping)) { /* Race with truncate? */
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		return 0;
+ 	}
+diff -urN old/mm/vmscan.c new/mm/vmscan.c
+--- old/mm/vmscan.c	2006-02-04 16:40:20.000000000 +1000
++++ new/mm/vmscan.c	2006-02-06 11:14:46.000000000 +1000
+@@ -380,6 +380,10 @@
+ 
+ 	write_lock_irq(&mapping->tree_lock);
+ 
++	if (page_mapping(page) != mapping) {	/* Race with truncate? */
++		goto cannot_free;		/* truncate got there first! */
++	}
++
+ 	/*
+ 	 * The non-racy check for busy page.  It is critical to check
+ 	 * PageDirty _after_ making sure that the page is freeable and
 
-No checking in clone() was probably a mistake (now difficult 
-to rectify because it could break bad userland apps).
-Is that past mistake a rationale for making the same
-mistake in future interfaces?  Without checks such as I've 
-described, the kernel is not providing ABI stability (i.e.,
-if some bit that was meaningless in the past acquires a meaning
-in later kernels, then (older) application behaviour arbitrarily
-and unexpectedly changes.  Why does that possibility not matter?
-Making the change I suggest would help userland programmers.
-What is the cost of making it?  (i.e., is there some good reason
-not to do it?)
+--------------000707020606090909030305
+Content-Type: text/x-csrc;
+ name="breaknfs.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="breaknfs.c"
 
-Cheers,
+// Program:  breaknfs.c
+//
+// Compile:  cc breaknfs.c -o breaknfs
+// Run:      ./breaknfs 100 [<nfs-mounted-dir>]
+//
+// Args:     arg1 = # of copies of program to run simultaneously
+//           arg2 = A directory that is on an NFS-mounted filesystem
 
-Michael
+#define NFS_MOUNT	"/var/nfs"
 
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+#define BUFFER_SIZE (1*1024*1024)
+static char buffer[BUFFER_SIZE];
+
+int main(int argc, char *argv[])
+{
+	char*	nfs_dir;
+	int	count;
+	int	fd;
+	int	i;
+	int	pid;
+
+	char *files[] = {"file1", "file2", "file3", "file4", "file5"};
+
+	if (argc > 1)
+		count = atoi(argv[1]);
+	else
+		count = 1;
+	if (argc > 2)
+		nfs_dir = argv[2];
+	else
+		nfs_dir = NFS_MOUNT;
+
+	/* cd -> ... */
+	if (chdir(nfs_dir) < 0) {
+		perror(nfs_dir);
+		exit(1);
+	}
+
+	/* Fill buffer with numbers and letters, etc! */
+	for ( i = 0; i < BUFFER_SIZE; i++ ) {
+		buffer[i] = '0' + (i & 0x3f);
+		if ( i && ((i % 80) == 0) )
+			buffer[i] = '\n';
+	}
+
+	/* fork count-1 children */
+	while (count-- > 1) {
+		pid = fork();
+		if (pid == 0) {
+			/* child */
+			break;
+		} else if (pid < 0) {
+			perror("fork");
+			exit(1);
+		}
+	}
+	srandom(getpid());
+
+        /* Forever and a day ... */
+	while(1) {
+		for (i = 0; i < 5; i++) {
+			int	write_size;
+
+                        /* Write a random amount of bytes, truncating file before output */
+			write_size = (random() % BUFFER_SIZE) + 1;
+			fd = open(files[i], O_WRONLY | O_CREAT | O_TRUNC, 0600);
+			if (fd < 0) {
+				perror("open");
+				exit(1);
+			}
+			if (write(fd, buffer, write_size) < 0) {
+				perror("write");
+				exit(1);
+			}
+			close(fd);
+		}
+	}
+
+	return 0;
+}
+
+--------------000707020606090909030305--

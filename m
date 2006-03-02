@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWCBV2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWCBVaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751634AbWCBV2I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 16:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWCBV2I
+	id S932304AbWCBVaj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 16:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWCBVai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 16:28:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12562 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751634AbWCBV2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 16:28:06 -0500
-Date: Thu, 2 Mar 2006 22:28:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] make UNIX a bool
-Message-ID: <20060302212805.GG9295@stusta.de>
-References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au> <20060302173840.GB9295@stusta.de> <20060302195106.GC19232@lug-owl.de> <20060302203922.GE9295@stusta.de> <20060302205105.GF19232@lug-owl.de>
+	Thu, 2 Mar 2006 16:30:38 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:60581 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932304AbWCBVah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 16:30:37 -0500
+Message-Id: <200603022129.k22LTog14318@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hugh Dickins'" <hugh@veritas.com>
+Cc: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       "Andrew Morton" <akpm@osdl.org>, "William Irwin" <wli@holomorphy.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: hugepage: Fix hugepage logic in free_pgtables()
+Date: Thu, 2 Mar 2006 13:29:50 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060302205105.GF19232@lug-owl.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcY+N+3utHUkdqfTTF+P1eLzZilw/gABg47w
+In-Reply-To: <Pine.LNX.4.61.0603022002500.23669@goblin.wat.veritas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 09:51:06PM +0100, Jan-Benedict Glaw wrote:
-> On Thu, 2006-03-02 21:39:22 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> > On Thu, Mar 02, 2006 at 08:51:06PM +0100, Jan-Benedict Glaw wrote:
-> > > On Thu, 2006-03-02 18:38:40 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> > > > On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
-> > > > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > > > > It does also matter in the kernel image size case, since you have to put 
-> > > > > > enough modules to the other medium for having a effect bigger than the
-> > > > > > kernel image size increase from setting CONFIG_MODULES=y.
-> > > > > That's not very difficult considering the large number of modules that's
-> > > > > out there that a system may wish to use.
-> > > > This might be true for full-blown desktop systems - but these do not 
-> > > > tend to be the systems where kernel image size matters that much.
-> > > > Smaller kernel image size might be an issue e.g. for distribution 
-> > > > kernels, but in a much less pressing way.
-> > > Kernel image size matters if you try to make it boot off a floppy.
-> > 
-> > Sure, but the usual router-on-a-floppy cases are similar cases where 
-> > CONFIG_MODULES=n brings at least as much gain as making things modular.
+Hugh Dickins wrote on Thursday, March 02, 2006 12:27 PM
+> But the first part, || instead of && in is_hugepage_only_range, looks
+> insufficient: the start and end of the range might each fall in a
+> non-huge region, but the range still cross a huge region.
 > 
-> You may want to have a chance to load modules from an initrd with is
-> on a 2nd floppy.
+> Ah, does RGN_HPAGE nestle up against the TASK_SIZE roof, so any range
+> already tested against TASK_SIZE (as get_unmapped_area has) cannot
+> cross RGN_HPAGE?  If so, perhaps it deserves a comment there.  And
+> if that is so, and can be relied upon, is_hugepage_only_range need
+> only be testing REGION_NUMBER(addr+len-1) - but it does seem fragile.
 
-In these cases, CONFIG_UNIX shouldn't make the difference between the 
-kernel fitting on the first floppy and the kernel not fitting on the 
-first floppy.
+There are many address range check before we hit get_unmapped area.
+ia64 can never have a vma range that crosses region boundary.  David
+pointed out earlier that shmat and mremap can still slip through the
+crack and he has a patch that fixed it. But yes, this patch is making
+that assumption (or relying on checks being done properly beforehand).
 
-> MfG, JBG
-
-cu
-Adrian
-
-BTW: Don't remove people from the Cc when replying to linux-kernel
-     (my MUA honors your Mail-Followup-To, but there was no reason
-      for you to not send me a copy of your email).
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+- Ken
 

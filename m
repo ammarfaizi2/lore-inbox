@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWCBNwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWCBOAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWCBNwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 08:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWCBNwt
+	id S1751324AbWCBOAy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 09:00:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWCBOAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 08:52:49 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:9053 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750771AbWCBNwt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 08:52:49 -0500
-Date: Thu, 2 Mar 2006 14:49:18 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Michael Monnerie <m.monnerie@zmi.at>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-Message-ID: <20060302134918.GR4329@suse.de>
-References: <200603020023.21916@zmi.at> <200603021433.17235.ak@suse.de> <20060302133322.GQ4329@suse.de> <200603021446.46352.ak@suse.de>
+	Thu, 2 Mar 2006 09:00:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26016 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751200AbWCBOAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 09:00:52 -0500
+Subject: Re: [v4l-dvb-maintainer] 2.6.16-rc5: known regressions
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       video4linux-list@redhat.com, Jiri Slaby <jirislaby@gmail.com>,
+       Ryan Phillips <rphillips@gentoo.org>, linux-ide@vger.kernel.org,
+       Randy Dunlap <rdunlap@xenotime.net>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       linux-usb-devel@lists.sourceforge.net, Meelis Roos <mroos@linux.ee>,
+       Luming Yu <luming.yu@intel.com>, linux-acpi@vger.kernel.org,
+       Pavlik Vojtech <vojtech@suse.cz>,
+       Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>, jgarzik@pobox.com,
+       len.brown@intel.com, Brian Marete <bgmarete@gmail.com>,
+       Dave Jones <davej@redhat.com>, v4l-dvb-maintainer@linuxtv.org,
+       Duncan <1i5t5.duncan@cox.net>, Tom Seeley <redhat@tomseeley.co.uk>,
+       michael@mihu.de, gregkh@suse.de, Mark Lord <lkml@rtr.ca>
+In-Reply-To: <20060227061354.GO3674@stusta.de>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+	 <20060227061354.GO3674@stusta.de>
+Content-Type: text/plain
+Date: Thu, 02 Mar 2006 11:00:11 -0300
+Message-Id: <1141308011.5884.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603021446.46352.ak@suse.de>
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02 2006, Andi Kleen wrote:
-> On Thursday 02 March 2006 14:33, Jens Axboe wrote:
-> 
-> > Hmm I would have guessed the first is way more common, the device/driver
-> > consuming lots of iommu space would be the most likely to run into
-> > IOMMU-OOM.
-> 
-> e.g. consider a simple RAID-1. It will always map the requests twice so the 
-> normal case is 2 times as much IOMMU space needed. Or even more with bigger 
-> raids.
-> 
-> But you're right of course that only waiting for one user would be likely
-> sufficient. e.g. even if it misses some freeing events the "current" device
-> should eventually free some space too.
-> 
-> On the other hand it would seem cleaner to me to solve it globally
-> instead of trying to hack around it in the higher layers.
 
-But I don't think that's really possible. As Jeff points out, SCSI can't
-do this right now because of the way we map requests. And it would be a
-shame to change the hot path because of the error case. And then you
-have things like networking and other block drivers - it would be a big
-audit/fixup to make that work.
+> Subject    : Oops in Kernel 2.6.16-rc4 on Modprobe of saa7134.ko
+> References : http://lkml.org/lkml/2006/2/20/122
+> Submitter  : Brian Marete <bgmarete@gmail.com>
+> Status     : unknown
 
-It's much easier to extend the dma mapping api to have an error
-fallback.
+This is not a regression, since the user is not configuring saa7134 with
+the right card. 
 
-> > I was thinking just a global one, we are in soft error handling anyways
-> > so should be ok. I don't think you would need to dirty any global cache
-> > line unless you actually need to wake waiters.
-> 
-> __wake_up takes the spinlock even when nobody waits.
-
-I would not want to call wake_up() unless I have to. Would a
-
-        smp_mb();
-        if (waitqueue_active(&iommu_wq))
-                ...
-
-not be sufficient?
-
--- 
-Jens Axboe
+Cheers, 
+Mauro.
 

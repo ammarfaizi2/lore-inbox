@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWCBVxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752000AbWCBVyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbWCBVxU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 16:53:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWCBVxU
+	id S1752000AbWCBVyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 16:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751997AbWCBVyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 16:53:20 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:62889 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S1750864AbWCBVxT (ORCPT
+	Thu, 2 Mar 2006 16:54:16 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:59878 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1752000AbWCBVyP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 16:53:19 -0500
-Message-ID: <4407693E.6000108@vilain.net>
-Date: Fri, 03 Mar 2006 10:53:02 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Thu, 2 Mar 2006 16:54:15 -0500
+Date: Thu, 2 Mar 2006 22:53:30 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
+       jgeorgas@rogers.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] make UNIX a bool
+In-Reply-To: <20060302214055.GH9295@stusta.de>
+Message-ID: <Pine.LNX.4.61.0603022251270.13101@yvahk01.tjqt.qr>
+References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au>
+ <20060302173840.GB9295@stusta.de> <9a8748490603021228k7ad1fb5gd931d9778307ca58@mail.gmail.com>
+ <20060302203245.GD9295@stusta.de> <9a8748490603021240t31f58ea4ycafae4ee8a12095c@mail.gmail.com>
+ <20060302214055.GH9295@stusta.de>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: [PATCH 3/5] NFS: Abstract out namespace initialisation
- [try #2]]
-References: <44074CFD.7050708@vilain.net>  <20060302084448.GA21902@infradead.org> <440613FF.4040807@vilain.net> <3254.1141299348@warthog.cambridge.redhat.com> <5923.1141333943@warthog.cambridge.redhat.com>
-In-Reply-To: <5923.1141333943@warthog.cambridge.redhat.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
+>
+>Can anyone bring real life examples for this pretended harm?
+>
+>All examples I have heard until now fall under one of the following:
+>- CONFIG_MODULES=n wouldn't be worse
+>- if you want your kernel to fit on a floppy, CONFIG_UNIX shouldn't be 
+>  the thing making the difference between the kernel fitting on the
+>  floppy and the kernel not fitting on the floppy
+>
+Well, not directly topic'ed to CONFIG_UNIX, but if the IPv4 stack was modular
+(like IPv6), we'd probably gain some 100 KB and would not have to worry about
+CONFIG_UNIX for a while.
 
->>AIUI, each patch must stand on its own in every regard.  I guess you 
->>need to make it inline in the later patch - or not at all given the 
->>marginal speed difference vs. core size increase.
->>    
->>
->
->No. It has to be permissable to make a series of patches that depend one upon
->another for at least three reasons:
->
-> (1) Patches can be unmanageably large in one lump, so splitting them up is a
->     sensible option, even through the individual patches won't work or even
->     compile independently.
->
-> (2) It may make sense to place linked changes to two logically separate units
->     in two separate patches, for instance I'm changing the core kernel to add
->     an extra argument to get_sb() and the get_sb_*() convenience functions in
->     one patch and then supplying another patch to change all the filesystems.
->
->     This makes it much easier for a reviewer to see what's going on. They know
->     the patches are interdependent, but they can see the main core of the
->     changes separated out from the massively repetative but basically less
->     interesting changes that are a side effect of the main change.
->
-> (3) A series of patches may form a set of logical steps (for instance my
->     patches 1-2 are the first step and patches 3-5 the second). It may be (and
->     it is in my case) that each step will build and run, provided all the
->     previous steps are applied; but that a step won't build or run without the
->     preceding steps.
->
->Remember: one of the main reasons for splitting patches is to make it easier
->for other people to appreciate just how sublimely terrific your work is:-)
->  
->
 
-Interesting.  I've just seen patches slammed by subsystem maintainers 
-before for doing things "the wrong way around" within a patchset.
-
-I don't remember seeing this covered in TPP, am I missing having read a 
-guide document or is this grey area?
-
-Sam.
-
+Jan Engelhardt
+-- 

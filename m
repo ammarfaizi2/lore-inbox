@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751970AbWCBIxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751968AbWCBIwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751970AbWCBIxB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 03:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751971AbWCBIxB
+	id S1751968AbWCBIwz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 03:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWCBIwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 03:53:01 -0500
-Received: from mail.charite.de ([160.45.207.131]:22242 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1751970AbWCBIxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 03:53:00 -0500
-Date: Thu, 2 Mar 2006 09:52:53 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.15.5
-Message-ID: <20060302085253.GA2548@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060301231907.GR3883@sorel.sous-sol.org>
+	Thu, 2 Mar 2006 03:52:55 -0500
+Received: from 213-140-2-71.ip.fastwebnet.it ([213.140.2.71]:8412 "EHLO
+	aa004msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751968AbWCBIwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 03:52:55 -0500
+Date: Thu, 2 Mar 2006 09:53:10 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel BUG at mm/slab.c:2564 - 2.6.16-rc5-g7b14e3b5
+Message-ID: <20060302095310.1fadb05d@localhost>
+In-Reply-To: <20060301170718.6f97b9d8@localhost>
+References: <20060301160656.370e1ee0@localhost>
+	<20060301170718.6f97b9d8@localhost>
+X-Mailer: Sylpheed-Claws 2.0.0-rc4 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060301231907.GR3883@sorel.sous-sol.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Wright <chrisw@sous-sol.org>:
+On Wed, 1 Mar 2006 17:07:18 +0100
+Paolo Ornati <ornati@fastwebnet.it> wrote:
 
-> Alexey Kuznetsov:
->       Fix a severe bug
+> Asus A8VSE Deluxe
 
-Ah, a plethora of details!
+small correction "A8V" --> "K8V"
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+	Paolo Ornati
+	Linux 2.6.16-rc5-g800d1142 on x86_64

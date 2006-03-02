@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWCBKEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWCBK1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWCBKEi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 05:04:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWCBKEi
+	id S1751428AbWCBK1R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 05:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWCBK1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 05:04:38 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42509 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932395AbWCBKEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 05:04:37 -0500
-Date: Thu, 2 Mar 2006 10:04:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to map high memory for block io
-Message-ID: <20060302100409.GB14017@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
-References: <20060128191759.GC9750@suse.de> <43DBC6E2.4000305@drzeus.cx> <20060129152228.GF13831@suse.de> <43DDC6F9.6070007@drzeus.cx> <20060130080930.GB4209@suse.de> <43DFAEC6.3090205@drzeus.cx> <20060301232913.GC4024@flint.arm.linux.org.uk> <44069E3A.4000907@drzeus.cx> <20060302094153.GA14017@flint.arm.linux.org.uk> <4406C044.4080201@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4406C044.4080201@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Thu, 2 Mar 2006 05:27:17 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:40095 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751428AbWCBK1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 05:27:16 -0500
+Message-ID: <4406C881.3060400@bigpond.net.au>
+Date: Thu, 02 Mar 2006 21:27:13 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       John Hawkes <hawkes@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       npiggin@suse.de, "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: 2.6.16-rc5-mm1 -- strange load balancing problems
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+In-Reply-To: <20060228042439.43e6ef41.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 2 Mar 2006 10:27:13 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 10:52:04AM +0100, Pierre Ossman wrote:
-> Russell King wrote:
-> > I think you're asking Jens that question - I know of no way to tell
-> > the block layer that clustering is fine for normal but not highmem.
-> 
-> That wasn't what I meant. What I was referring to was disabling highmem
-> altogether, the way that is done now through looking at the dma mask.
+I'm seeing some strange load balancing problems with this kernel.  I 
+don't think that they're due to the smpnice patches as I've applied them 
+on a standard 2.6.15-rc5 kernel and the problem doesn't happen there.
 
-You need to set your struct device's dma_mask appropriately:
+The problem is (as I say) quite strange and (for me) very reproducible. 
+  I have two programs (aspin and gsmiley) which I use to produce CPU 
+hard spinners for testing purposes.  What I'm finding is that when I 
+start several copies of aspin load balancing goes as expected but when I 
+launch several copies of gsmiley they all go to the one CPU and stick 
+there like glue.  (The most obvious difference between the two programs 
+is that aspin is just a command line tool while gsmiley is an X windows 
+program that spins a simley face and reports its own assessment of the 
+percentage of CPU it's getting.)  The machine that I've seen this 
+problem is a hyper threading Pentium 4 and I suspect that it may be due 
+to the SCHED_MC changes which overlap SCHED_SMT a bit.
 
-        u64 limit = BLK_BOUNCE_HIGH;
+I'm trying to test this on a non hyper threading machine but the machine 
+has crashed (different kernel) while doing the build.  I'll resume this 
+effort tomorrow but I thought that I should report the problem so that 
+others could comment.
 
-        if (host->dev->dma_mask && *host->dev->dma_mask)
-                limit = *host->dev->dma_mask;
-
-        blk_queue_bounce_limit(mq->queue, limit);
-
-Hence, if dma_mask is a NULL pointer or zero, highmem will be bounced.
-Neither PNP nor your platform device sets dma_mask, so highmem will
-always be bounced in the case of wbsd - which from what you write above
-is what you require anyway.
-
-Note: The host can't reach the queue itself because the queues are
-created dynamically - it doesn't know when the queue is created or
-destroyed or which request comes from which queue.  I'd also guess that
-randomly changing the bounce limit will probably end up with a random
-selection of requests which have been bounced and those which haven't
-hitting the driver.
-
+Peter
+PS SCHED_MC was configured in but I'll try it without tomorrow and 
+report the results.
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,38 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWCBSdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWCBSoh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbWCBSdd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:33:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWCBSdd
+	id S1751662AbWCBSoh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:44:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWCBSog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:33:33 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:42953 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750976AbWCBSdd (ORCPT
+	Thu, 2 Mar 2006 13:44:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64159 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751660AbWCBSof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:33:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=AcM9gQDumbLtjcGu3f4BXLym2xqHnjDpSxqAh6x7mP4VWu6EhFqB5wwm5TczlBc/i6bNUN+qFjafY3bhUBRPMwOAYDmRwLpHDJU9Ib0yNQsBQsOHSuyZ2HParsfK7l+MoaspEHIxZWogZC4Rt93zkBu1qyT7bQ6plPOHyqa9CHE=
-Date: Thu, 2 Mar 2006 19:33:25 +0100
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Trond Myklebust <Trond.Myklebust@netapp.com>
-Cc: Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org,
-       FACCINI BRUNO <Bruno.Faccini@bull.net>
-Subject: Re: Deadlock in net/sunrpc/sched.c
-Message-ID: <20060302183325.GB12335@silenus.home.res>
-References: <Pine.LNX.4.61.0603021116030.15393@openx3.frec.bull.fr> <20060302105940.GA9521@silenus.home.res> <Pine.LNX.4.61.0603021242150.15393@openx3.frec.bull.fr> <Pine.LNX.4.61.0603021306540.15393@openx3.frec.bull.fr> <20060302175126.GA12335@silenus.home.res> <1141322282.10398.22.camel@netapplinux-10.connectathon.org>
-MIME-Version: 1.0
+	Thu, 2 Mar 2006 13:44:35 -0500
+Date: Thu, 2 Mar 2006 13:44:28 -0500
+From: Dave Jones <davej@redhat.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: 2.6.16rc5 'found' an extra CPU.
+Message-ID: <20060302184428.GB7304@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ashok Raj <ashok.raj@intel.com>, "Brown, Len" <len.brown@intel.com>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+	linux-acpi@vger.kernel.org
+References: <F7DC2337C7631D4386A2DF6E8FB22B30063BFB95@hdsmsx401.amr.corp.intel.com> <20060302083038.A11407@unix-os.sc.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1141322282.10398.22.camel@netapplinux-10.connectathon.org>
-User-Agent: mutt-ng/devel-r781 (Linux)
+In-Reply-To: <20060302083038.A11407@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 09:58:02AM -0800, Trond Myklebust wrote:
-> You need a list_for_each_entry_safe() here, since __rpc_wake_up_task()
-> will cause the task to be removed from the list. See the patch I sent
-> out 1/2 hour ago.
-> 
-Indeed, I missed it. Thanks,
-Frederik
+On Thu, Mar 02, 2006 at 08:30:38AM -0800, Ashok Raj wrote:
+
+
+ > Could you see what comes out of the /proc/acpi/processor/CPUx/info for all the
+ > 3 listed in your system?
+
+I thought I already posted that..
+
+(13:43:44:davej@nemesis:~)$ cat /proc/acpi/processor/CPU*/info
+processor id:            0
+acpi id:                 1
+bus mastering control:   no
+power management:        no
+throttling control:      yes
+limit interface:         yes
+processor id:            1
+acpi id:                 2
+bus mastering control:   no
+power management:        no
+throttling control:      no
+limit interface:         no
+processor id:            255
+acpi id:                 3
+bus mastering control:   no
+power management:        no
+throttling control:      no
+limit interface:         no
+
+
+ > Also if you can send DSDT dump just to look over.
+
+http://people.redhat.com/davej/dsdt
+
+		Dave
+

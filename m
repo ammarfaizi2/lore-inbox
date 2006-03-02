@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWCBTuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752055AbWCBTvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWCBTuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 14:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752058AbWCBTuG
+	id S1752055AbWCBTvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 14:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752059AbWCBTvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 14:50:06 -0500
-Received: from ns2.suse.de ([195.135.220.15]:65215 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751687AbWCBTuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 14:50:05 -0500
-From: Andi Kleen <ak@suse.de>
-To: Martin Bligh <mbligh@google.com>
-Subject: Re: x86_64 compile spewing hundreds of warnings - started 2.6.15-git8
-Date: Thu, 2 Mar 2006 20:49:57 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <440748FD.8010806@google.com>
-In-Reply-To: <440748FD.8010806@google.com>
+	Thu, 2 Mar 2006 14:51:09 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:18529 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1752055AbWCBTvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 14:51:08 -0500
+X-IronPort-AV: i="4.02,160,1139212800"; 
+   d="scan'208"; a="1781391318:sNHT104165404"
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
+X-Message-Flag: Warning: May contain useful information
+References: <44070B62.3070608@jp.fujitsu.com>
+	<20060302155056.GB28895@flint.arm.linux.org.uk>
+	<20060302172436.GC22711@colo.lackof.org>
+	<20060302193441.GG28895@flint.arm.linux.org.uk>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 02 Mar 2006 11:50:59 -0800
+In-Reply-To: <20060302193441.GG28895@flint.arm.linux.org.uk> (Russell King's message of "Thu, 2 Mar 2006 19:34:41 +0000")
+Message-ID: <adalkvswrq4.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603022049.57969.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 02 Mar 2006 19:51:00.0637 (UTC) FILETIME=[A18E1CD0:01C63E32]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 March 2006 20:35, Martin Bligh wrote:
+    Russell> Why isn't pci_enable_device_bars() sufficient - why do we
+    Russell> have to have another interface to say "we don't want BARs
+    Russell> XXX" ?
 
-> include/asm/bitops.h:65: warning: read-write constraint does not allow a 
-> register
-> 
-> 
-> What do these mean?
+That's an excellent point.  It does look like fixing
+pci_enable_device_bars() would be a reasonable interface as well.
+Currently, pci_enable_device() calls pci_enable_device_bars() on all
+resources, and then does two more things:
 
-They mean you have a buggy compiler.
+    - It calls pci_fixup_device() on the device
+    - It sets dev->is_enabled
 
+Both of these things look like they could just be moved into
+pci_enable_device_bars(), leaving pci_enable_device() as a
+compatibility wrapper.
 
-> And how do we get rid of it? 
-> 
-> Presumably caused by this:
-> 
-> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=636dd2b7def5c9c72551b51d4d516a65c269de08
-> 
-> or this:
-> 
-> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=92934bcbf96bc9dc931c40ca5f1a57685b7b813b
+Along with a fix for pci_request_regions(), the legacy-free patch
+would just modify drivers for devices that know they don't need a
+particular BAR, without adding an extra flag to the pci device struct.
 
-It was the bitops.h constrain change.
-
-The problem is that reverting them would be readding the problem. Maybe we need to 
-#ifdef it.
-
--Andi
-
-
+ - R.

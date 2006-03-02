@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWCBBta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWCBBtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWCBBta (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 20:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWCBBt3
+	id S1751359AbWCBBtj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 20:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWCBBtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 20:49:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:57275 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751349AbWCBBt3 (ORCPT
+	Wed, 1 Mar 2006 20:49:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59835 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751359AbWCBBti (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 20:49:29 -0500
-Date: Wed, 1 Mar 2006 17:51:35 -0800
+	Wed, 1 Mar 2006 20:49:38 -0500
+Date: Wed, 1 Mar 2006 17:51:48 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Badari Pulavarty <pbadari@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/4] change buffer_head.b_size to size_t
-Message-Id: <20060301175135.4cd0a74e.akpm@osdl.org>
+Message-Id: <20060301175148.2250b36e.akpm@osdl.org>
 In-Reply-To: <1141075361.10542.21.camel@dyn9047017100.beaverton.ibm.com>
 References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
 	<1141075361.10542.21.camel@dyn9047017100.beaverton.ibm.com>
@@ -27,29 +27,15 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Badari Pulavarty <pbadari@us.ibm.com> wrote:
 >
-> +	size_t b_size;			/* size of mapping */
-> +	char *b_data;			/* pointer to data within the page */
->  
->  	struct block_device *b_bdev;
->  	bh_end_io_t *b_end_io;		/* I/O completion */
->   	void *b_private;		/* reserved for b_end_io */
->  	struct list_head b_assoc_buffers; /* associated with another mapping */
-> +	atomic_t b_count;		/* users using this buffer_head */
->  };
->  
->  /*
-> Index: linux-2.6.16-rc5/fs/buffer.c
-> ===================================================================
-> --- linux-2.6.16-rc5.orig/fs/buffer.c	2006-02-26 21:09:35.000000000 -0800
-> +++ linux-2.6.16-rc5/fs/buffer.c	2006-02-27 08:22:37.000000000 -0800
-> @@ -432,7 +432,8 @@ __find_get_block_slow(struct block_devic
->  		printk("__find_get_block_slow() failed. "
->  			"block=%llu, b_blocknr=%llu\n",
->  			(unsigned long long)block, (unsigned long long)bh->b_blocknr);
-> -		printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
-> +		printk("b_state=0x%08lx, b_size=%lu\n", bh->b_state,
-> +				(unsigned long)bh->b_size);
+> + * Historically, a buffer_head was used to map a single block
+> + * within a page, and of course as the unit of I/O through the
+> + * filesystem and block layers.  Nowadays the basic I/O unit
+> + * is the bio, and buffer_heads are used for extracting block
+> + * mappings (via a get_block_t call), for tracking state within
+> + * a page (via a page_mapping) and for wrapping bio submission
+> + * for backward compatibility reasons (e.g. submit_bh).
 
-We print size_t with `%z'.  Hence the cast isn't needed.
+Well kinda.  A buffer_head remains the kernel's basic abstraction for a
+"disk block".  We cannot replace that with `struct page' (size isn't
+flexible) nor of course with `struct bio'.
 
-(I'll edit the diff..)

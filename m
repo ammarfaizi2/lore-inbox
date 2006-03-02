@@ -1,258 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbWCBQj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751574AbWCBQll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751562AbWCBQj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751586AbWCBQj2
+	id S1751574AbWCBQll (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWCBQll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:39:28 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35469 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751559AbWCBQj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:39:27 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mike Galbraith <efault@gmx.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, Paul Jackson <pj@sgi.com>
-Subject: [PATCH] proc: Use sane permission checks on the /proc/<pid>/fd/
- symlinks.
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>
-	<4405723E.5060606@free.fr> <20060301023235.735c8c47.akpm@osdl.org>
-	<1141221511.7775.10.camel@homer> <4405B4AA.7090207@free.fr>
-	<1141227199.10460.2.camel@homer>
-	<20060301121218.68fb3f76.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 02 Mar 2006 09:37:34 -0700
-In-Reply-To: <20060301121218.68fb3f76.akpm@osdl.org> (Andrew Morton's
- message of "Wed, 1 Mar 2006 12:12:18 -0800")
-Message-ID: <m1u0agkdkh.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 2 Mar 2006 11:41:41 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:4283 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751085AbWCBQlk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 11:41:40 -0500
+Date: Thu, 2 Mar 2006 08:41:17 -0800
+From: Greg KH <greg@kroah.com>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
+Message-ID: <20060302164117.GA30767@kroah.com>
+References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk> <44071C17.8050801@jp.fujitsu.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44071C17.8050801@jp.fujitsu.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 03, 2006 at 01:23:51AM +0900, Kenji Kaneshige wrote:
+> Hi,
+> 
+> It seems we need a little more discussion.
+> Please don't apply my patches >> Andrew, Greg
 
-Since 2.2 we have been doing a chroot check to see if it is appropriate
-to return a read or follow one of these magic symlinks.  The chroot
-check was asking a question about the visibility of files to the
-calling process and it was actually checking the destination process,
-and not the files themselves.  That test was clearly bogus.
+Don't worry, once all of the discussion settles down, I'll add this to
+my tree, and then Andrew will pick it up from there :)
 
-In my first pass through I simply fixed the test to check the visibility
-of the files themselves.  That naive approach to fixing the permissions
-was too strict and resulted in cases where a task could not even see
-all of it's file descriptors.
+thanks,
 
-What has disturbed me about relaxing this check is that file descriptors are
-per-process private things, and they are occasionaly used a user space
-capability tokens.  Looking a little farther into the symlink path on
-/proc I did find userid checks and a check for capability (CAP_DAC_OVERRIDE)
-so there were permissions checking this.
-
-But I was still concerned about privacy.  Besides /proc there is only one
-other way to find out this kind of information, and that is ptrace.  ptrace
-has been around for a long time and it has a well established security
-model.
-
-So after thinking about it I finally realized that the permission checks
-that make sense are the permission checks applied to ptrace_attach.
-The checks are simple per process, and won't cause nasty surprises for
-people coming from less capable unices.
-
-Unfortunately there is one case that the current ptrace_attach test
-does not cover: Zombies and kernel threads.  Single stepping those
-kinds of processes is impossible.  Being able to see which file
-descriptors are open on these tasks is important to lsof, fuser and
-friends.  So for these special processes I made the rule you can't
-find out unless you have CAP_SYS_PTRACE.
-
-These proc permission checks should now conform to the principle of
-least surprise.  As well as using much less code to implement :)
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
-
----
-
- fs/proc/base.c |  123 ++++++++++++--------------------------------------------
- 1 files changed, 27 insertions(+), 96 deletions(-)
-
-64ea648d12af9f8bc0556ec118b27fbfcbe17722
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 6a26847..d9be807 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -508,44 +508,33 @@ static int proc_oom_score(struct task_st
- /************************************************************************/
- 
- /* permission checks */
--
--/* If the process being read is separated by chroot from the reading process,
-- * don't let the reader access the threads.
-- */
--static int proc_check_chroot(struct dentry *de, struct vfsmount *mnt)
-+static int proc_fd_access_allowed(struct inode *inode)
- {
--	struct dentry *base;
--	struct vfsmount *our_vfsmnt;
--	int res = 0;
--
--	read_lock(&current->fs->lock);
--	our_vfsmnt = mntget(current->fs->rootmnt);
--	base = dget(current->fs->root);
--	read_unlock(&current->fs->lock);
--
--	spin_lock(&vfsmount_lock);
--
--	while (mnt != our_vfsmnt) {
--		if (mnt == mnt->mnt_parent)
--			goto out;
--		de = mnt->mnt_mountpoint;
--		mnt = mnt->mnt_parent;
-+	struct task_struct *task;
-+	int allowed = 0;
-+	/* Allow access to a task's file descriptors if either we may
-+	 * use ptrace attach to the process and find out that
-+	 * information, or if the task cannot possibly be ptraced
-+	 * allow access if we have the proper capability.
-+	 */
-+	task = get_proc_task(inode);
-+	if (task) {
-+		int alive;
-+		task_lock(task);
-+		alive = !!task->mm;
-+		task_unlock(task);
-+		if (alive)
-+			/* For a living task obey ptrace_may_attach */
-+			allowed = ptrace_may_attach(task);
-+		else 
-+			/* For a special task simply check the capability */
-+			allowed = capable(CAP_SYS_PTRACE);
- 	}
--
--	if (!is_subdir(de, base))
--		goto out;
--	spin_unlock(&vfsmount_lock);
--
--exit:
--	dput(base);
--	mntput(our_vfsmnt);
--	return res;
--out:
--	spin_unlock(&vfsmount_lock);
--	res = -EACCES;
--	goto exit;
-+	put_task_struct(task);
-+	return allowed;
- }
- 
-+
- extern struct seq_operations mounts_op;
- struct proc_mounts {
- 	struct seq_file m;
-@@ -1001,52 +990,6 @@ static struct file_operations proc_secco
- };
- #endif /* CONFIG_SECCOMP */
- 
--static int proc_check_dentry_visible(struct inode *inode,
--	struct dentry *dentry, struct vfsmount *mnt)
--{
--	/* Verify that the current process can already see the
--	 * file pointed at by the file descriptor.
--	 * This prevents /proc from being an accidental information leak.
--	 * 
--	 * This prevents access to files that are not visible do to
--	 * being on the otherside of a chroot, in a different
--	 * namespace, or are simply process local (like pipes).
--	 */
--	struct task_struct *task;
--	int error = -EACCES;
--
--	/* See if the the two tasks share a commone set of 
--	 * file descriptors.  If so everything is visible.
--	 */
--	rcu_read_lock();
--	task = tref_task(proc_tref(inode));
--	if (task) {
--		struct files_struct *task_files, *files;
--		/* This test answeres the question:
--		 * Is there a point in time since we looked up the
--		 * file descriptor where the two tasks share the
--		 * same files struct?
--		 */
--		rmb();
--		files = current->files;
--		task_files = task->files;
--		if (files && (files == task_files))
--			error = 0;
--	}
--	rcu_read_unlock();
--	if (!error)
--		goto out;
--
--	/* If the two tasks don't share a common set of file
--	 * descriptors see if the destination dentry is already
--	 * visible in the current tasks filesystem namespace.
--	 */
--	error = proc_check_chroot(dentry, mnt);
--out:
--	return error;
--
--}
--
- static void *proc_pid_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct inode *inode = dentry->d_inode;
-@@ -1055,18 +998,12 @@ static void *proc_pid_follow_link(struct
- 	/* We don't need a base pointer in the /proc filesystem */
- 	path_release(nd);
- 
--	if (current->fsuid != inode->i_uid && !capable(CAP_DAC_OVERRIDE))
-+	/* Are we allowed to snoop on the tasks file descriptors? */
-+	if (!proc_fd_access_allowed(inode))
- 		goto out;
- 
- 	error = PROC_I(inode)->op.proc_get_link(inode, &nd->dentry, &nd->mnt);
- 	nd->last_type = LAST_BIND;
--	if (error)
--		goto out;
--
--	/* Only return files this task can already see */
--	error = proc_check_dentry_visible(inode, nd->dentry, nd->mnt);
--	if (error)
--		path_release(nd);
- out:
- 	return ERR_PTR(error);
- }
-@@ -1104,21 +1041,15 @@ static int proc_pid_readlink(struct dent
- 	struct dentry *de;
- 	struct vfsmount *mnt = NULL;
- 
--
--	if (current->fsuid != inode->i_uid && !capable(CAP_DAC_OVERRIDE))
-+	/* Are we allowed to snoop on the tasks file descriptors? */
-+	if (!proc_fd_access_allowed(inode))
- 		goto out;
- 
- 	error = PROC_I(inode)->op.proc_get_link(inode, &de, &mnt);
- 	if (error)
- 		goto out;
- 
--	/* Only return files this task can already see */
--	error = proc_check_dentry_visible(inode, de, mnt);
--	if (error)
--		goto out_put;
--
- 	error = do_proc_readlink(de, mnt, buffer, buflen);
--out_put:
- 	dput(de);
- 	mntput(mnt);
- out:
--- 
-1.2.2.g709a-dirty
-
+greg k-h

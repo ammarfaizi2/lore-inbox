@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWCBCXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWCBCXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWCBCXn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 21:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWCBCXn
+	id S1751352AbWCBCXF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 21:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWCBCXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 21:23:43 -0500
-Received: from lixom.net ([66.141.50.11]:22667 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S932175AbWCBCXm (ORCPT
+	Wed, 1 Mar 2006 21:23:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56264 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751352AbWCBCXD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 21:23:42 -0500
-Date: Wed, 1 Mar 2006 20:22:44 -0600
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Paul Mackerras <paulus@samba.org>, Olof Johansson <olof@lixom.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] Fix powerpc bad_page_fault output  (Re: 2.6.16-rc5-mm1)
-Message-ID: <20060302022244.GB17755@pb15.lixom.net>
-References: <20060228042439.43e6ef41.akpm@osdl.org> <4404E328.7070807@mbligh.org> <20060301164531.GA17755@pb15.lixom.net> <17414.15814.146349.883153@cargo.ozlabs.ibm.com> <440646ED.2030108@mbligh.org>
-MIME-Version: 1.0
+	Wed, 1 Mar 2006 21:23:03 -0500
+Date: Thu, 2 Mar 2006 13:22:32 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] change buffer_head.b_size to size_t
+Message-ID: <20060302132232.C88229@wobbly.melbourne.sgi.com>
+References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com> <1141075361.10542.21.camel@dyn9047017100.beaverton.ibm.com> <20060301175148.2250b36e.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <440646ED.2030108@mbligh.org>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060301175148.2250b36e.akpm@osdl.org>; from akpm@osdl.org on Wed, Mar 01, 2006 at 05:51:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 05:14:21PM -0800, Martin Bligh wrote:
-
-> He's removing KERN_ALERT ... I guess it could get switched from 
-> KERN_ALERT to KERN_ERR, but ...
+On Wed, Mar 01, 2006 at 05:51:48PM -0800, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > + * Historically, a buffer_head was used to map a single block
+> > + * within a page, and of course as the unit of I/O through the
+> > + * filesystem and block layers.  Nowadays the basic I/O unit
+> > + * is the bio, and buffer_heads are used for extracting block
+> > + * mappings (via a get_block_t call), for tracking state within
+> > + * a page (via a page_mapping) and for wrapping bio submission
+> > + * for backward compatibility reasons (e.g. submit_bh).
 > 
-> Either way, KERN_ALERT seems way too low to me. I object to getting
-> half the oops, and not the other half ;-)
+> Well kinda.  A buffer_head remains the kernel's basic abstraction for a
+> "disk block".
 
-Right. The new printk's were added recently, and I took the KERN_ALERT
-level from the x86 code then without double-checking what die() uses. I
-guess I could move the die() output over instead, or move them both to
-KERN_ERR.
+Thats what I said (meant to say) with
+"buffer_heads are used for extracting block mappings".
 
+I think by "disk block" you mean what I'm thinking of as a
+"block mapping" (series of contiguous blocks).  I'd think
+of a sector_t as a "disk block", but maybe I'm just wierd
+that way... a better wordsmith should jump in and update
+the comment I guess.
 
--Olof
+>  We cannot replace that with `struct page' (size isn't
+> flexible) nor of course with `struct bio'.
+
+Indeed.
+
+-- 
+Nathan

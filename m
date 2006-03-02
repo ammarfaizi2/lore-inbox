@@ -1,47 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWCBEPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWCBERT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWCBEPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 23:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWCBEPP
+	id S1751125AbWCBERT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 23:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWCBERT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:15:15 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:45603 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750870AbWCBEPN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:15:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EucXKG+SoWsWBzZqNGY4/FNdCSyYBt18wYD/+VjthzXr3by7ktGgx0IoROTS9Zu71G1mqFQEc5Hpab5v+k4IVpG3fStgeDupi+Pv7GiUhynhGuOS+56lgdhb8Y5YIyYbDQ2zWk0jQYZMd9dGOGmzwV+m92hOmpe4KOmgnmc1wS0=
-Message-ID: <12c511ca0603012015g7a5bfa8dw4295c59f5dace4f9@mail.gmail.com>
-Date: Wed, 1 Mar 2006 20:15:12 -0800
-From: "Tony Luck" <tony.luck@intel.com>
-To: "Zou Nan hai" <nanhai.zou@intel.com>
-Subject: Re: [Patch] Move swiotlb_init early on X86_64
-Cc: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Andi Kleen" <ak@suse.de>,
-       "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
-In-Reply-To: <1141175458.2642.78.camel@linux-znh>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 1 Mar 2006 23:17:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17357 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751125AbWCBERS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 23:17:18 -0500
+Date: Wed, 1 Mar 2006 23:10:31 -0500
+From: Dave Jones <davej@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [patch 18/39] [PATCH] sys_mbind sanity checking
+Message-ID: <20060302041031.GF19755@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Andi Kleen <ak@suse.de>,
+	Greg Kroah-Hartman <gregkh@suse.de>
+References: <20060227223200.865548000@sorel.sous-sol.org> <20060227223350.609924000@sorel.sous-sol.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1141175458.2642.78.camel@linux-znh>
+In-Reply-To: <20060227223350.609924000@sorel.sous-sol.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Mar 2006 09:10:58 +0800, Zou Nan hai <nanhai.zou@intel.com> wrote:
-> on X86_64, swiotlb buffer is allocated in mem_init, after memmap and vfs cache allocation.
->
-> On platforms with huge physical memory,
-> large memmap and vfs cache may eat up all usable system memory
-> under 4G.
->
-> Move swiotlb_init early before memmap is allocated can
-> solve this issue.
+On Mon, Feb 27, 2006 at 02:32:18PM -0800, Chris Wright wrote:
+ > -stable review patch.  If anyone has any objections, please let us know.
+ > ------------------
+ > 
+ > Make sure maxnodes is safe size before calculating nlongs in
+ > get_nodes().
+ > 
+ > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+ > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+ > [chrisw: fix units, pointed out by Andi]
+ > Cc: Andi Kleen <ak@suse.de>
+ > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+ > ---
+ > 
+ >  mm/mempolicy.c |    2 ++
+ >  1 files changed, 2 insertions(+)
+ > 
+ > --- linux-2.6.15.4.orig/mm/mempolicy.c
+ > +++ linux-2.6.15.4/mm/mempolicy.c
+ > @@ -524,6 +524,8 @@ static int get_nodes(nodemask_t *nodes, 
+ >  	nodes_clear(*nodes);
+ >  	if (maxnode == 0 || !nmask)
+ >  		return 0;
+ > +	if (maxnode > PAGE_SIZE*BITS_PER_BYTE)
+ > +		return -EINVAL;
+ >  
+ >  	nlongs = BITS_TO_LONGS(maxnode);
+ >  	if ((maxnode % BITS_PER_LONG) == 0)
 
-Shouldn't memmap be allocated from memory above 4G (if available)? Using
-up lots of <4G memory on something that doesn't need to be below 4G
-sounds like a poor use of resources.
+Gar..
 
--Tony
+mm/mempolicy.c: In function 'get_nodes':
+mm/mempolicy.c:527: error: 'BITS_PER_BYTE' undeclared (first use in this function)
+mm/mempolicy.c:527: error: (Each undeclared identifier is reported only once
+mm/mempolicy.c:527: error: for each function it appears in.)
+
+About to retry a build with the below patch which should do the trick.
+(How did this *ever* build?)
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.15/include/linux/types.h~	2006-03-01 23:05:24.000000000 -0500
++++ linux-2.6.15/include/linux/types.h	2006-03-01 23:05:57.000000000 -0500
+@@ -8,6 +8,7 @@
+ 	(((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
+ #define DECLARE_BITMAP(name,bits) \
+ 	unsigned long name[BITS_TO_LONGS(bits)]
++#define BITS_PER_BYTE 8
+ #endif
+ 
+ #include <linux/posix_types.h>

@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWCBMq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWCBNCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWCBMq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 07:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWCBMq1
+	id S1750984AbWCBNCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 08:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWCBNCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 07:46:27 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:53212 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751390AbWCBMq1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 07:46:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kZBpn7eIA7m+F7/8Ma8ugMnTWSGbl4qn2OflxehaPGOCWKW13nT5NjomHWV86m2UzNInG05//6HwtEUw3OfaumcJ34aFQXzWTrXGAY9HborUwCyKY15EbaKr4+StoPqWW4Q5p02onnA2sIBBDmKEJxNsAci19T/GWt7v0MpNZHo=
-Message-ID: <42c5b570603020446g1a1884c8ga3a2c9f70083243e@mail.gmail.com>
-Date: Thu, 2 Mar 2006 18:16:24 +0530
-From: "Prosenjit Kundu" <pkundu.kernel@gmail.com>
-To: "Arijit Das" <Arijit.Das@synopsys.com>
-Subject: Re: Getting CPU Usage of a running child process
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7EC22963812B4F40AE780CF2F140AFE9596587@IN01WEMBX1.internal.synopsys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <7EC22963812B4F40AE780CF2F140AFE9596587@IN01WEMBX1.internal.synopsys.com>
+	Thu, 2 Mar 2006 08:02:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14466 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750739AbWCBNCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 08:02:54 -0500
+Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Jens Axboe <axboe@suse.de>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4406E759.2010601@pobox.com>
+References: <200603012259.k21MxBXC013582@hera.kernel.org>
+	 <44062FF1.4010108@pobox.com> <20060302075004.GA17789@isilmar.linta.de>
+	 <4406D44A.4020101@pobox.com>
+	 <1141299117.3206.37.camel@laptopd505.fenrus.org>
+	 <20060302114220.GH4329@suse.de>
+	 <1141301225.3206.50.camel@laptopd505.fenrus.org>
+	 <4406E1C7.7020908@pobox.com>
+	 <20060302122409.GD14017@flint.arm.linux.org.uk>
+	 <4406E759.2010601@pobox.com>
+Content-Type: text/plain
+Date: Thu, 02 Mar 2006 14:02:22 +0100
+Message-Id: <1141304543.3206.60.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try to get the info from "top"
+On Thu, 2006-03-02 at 07:38 -0500, Jeff Garzik wrote:
+> Russell King wrote:
+> > I think it's fairly safe and obvious to say that Dominik is the peer
+> > review for these tables - he _is_ the PCMCIA maintainer, he _is_
+> > arguably the maintainer for the ide-cs driver, he _is_ the person
+> > who invented these tables, he _is_ the one taking patches from people
+> > to add IDs, he _is_ the one reviewing such patches.
+> > 
+> > If you want to know what's going on in PCMCIA land, subscribe to
+> > linux-pcmcia.  In the same way that if you want to know what's going
+> > in in IDE land, you subscribe to linux-ide, or PCI land linux-pci,
+> > SCSI land linux-scsi, network land netdev.
+> > 
+> > Using your argument (which seems to be demanding that any patch to
+> > any IDE driver no matter how trivial must be on linux-ide) that a patch
+> > to a PCI network device driver must be copied to linux-pci and netdev
+> > even though it may not touch the PCI specific code.
+> 
+> IDE driver -> IDE reviewers
+> 
+> network driver -> network reviewers
 
-PK
+I would turn this around
 
-On 3/2/06, Arijit Das <Arijit.Das@synopsys.com> wrote:
-> The times() function gets me the system/user CPU usage of me (invoking
-> process) and all my terminated/waited children.
->
-> Is there any User Space API/way for me (a process) to get the
-> system/user CPU usage of one of my currently running child process? Am
-> looking for a portable solution...not sure if there is any
->
-> Thanks,
-> Arijit
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+IDE impacting change -> IDE reviewers
+
+network driver impacting change -> network reviewers
+
+the reason for the review is because of the impact, not because a file
+happens to live in a certain directory.
 
 
---
-Regards,
-Prosenjit Kundu

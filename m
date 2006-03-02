@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWCBKAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWCBKEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWCBKAY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 05:00:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWCBKAY
+	id S932395AbWCBKEi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 05:04:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWCBKEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 05:00:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25102 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932302AbWCBKAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 05:00:23 -0500
-Date: Thu, 2 Mar 2006 10:59:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Michael Monnerie <m.monnerie@zmi.at>, linux-kernel@vger.kernel.org,
-       suse-linux-e@suse.com, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-Message-ID: <20060302095959.GD4329@suse.de>
-References: <200603020023.21916@zmi.at> <200603020203.49128.ak@suse.de>
+	Thu, 2 Mar 2006 05:04:38 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:42509 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932395AbWCBKEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 05:04:37 -0500
+Date: Thu, 2 Mar 2006 10:04:09 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+Message-ID: <20060302100409.GB14017@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+References: <20060128191759.GC9750@suse.de> <43DBC6E2.4000305@drzeus.cx> <20060129152228.GF13831@suse.de> <43DDC6F9.6070007@drzeus.cx> <20060130080930.GB4209@suse.de> <43DFAEC6.3090205@drzeus.cx> <20060301232913.GC4024@flint.arm.linux.org.uk> <44069E3A.4000907@drzeus.cx> <20060302094153.GA14017@flint.arm.linux.org.uk> <4406C044.4080201@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603020203.49128.ak@suse.de>
+In-Reply-To: <4406C044.4080201@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02 2006, Andi Kleen wrote:
-> On Thursday 02 March 2006 00:23, Michael Monnerie wrote:
-> > Hello, I use SUSE 10.0 with all updates and actual kernel 2.6.13-15.8 as
-> > provided from SUSE (just self compiled to optimize for Athlon64, SMP,
-> > and HZ=100), with an Asus A8N-E motherboard, and an Athlon64x2 CPU.
-> > This host is used with VMware GSX server running 6 Linux client and one
-> > Windows client host. There's a SW-RAID1 using 2 SATA HDs.
+On Thu, Mar 02, 2006 at 10:52:04AM +0100, Pierre Ossman wrote:
+> Russell King wrote:
+> > I think you're asking Jens that question - I know of no way to tell
+> > the block layer that clustering is fine for normal but not highmem.
 > 
-> Nvidia hardware SATA cannot directly DMA to > 4GB, so it 
-> has to go through the IOMMU. And in that kernel the Nforce
-> ethernet driver also didn't do >4GB access, although the ethernet HW 
-> is theoretically capable.
-> 
-> Maybe VMware pins unusually much IO memory in flight (e.g. by using
-> a lot of O_DIRECT). That could potentially cause the IOMMU to fill up.
-> The RAID-1 probably also makes it worse because it will double the IO
-> mapping requirements.
-> 
-> Or you have a leak in some driver, but if the problem goes away
-> after enlarging the IOMMU that's unlikely.
-> 
-> What would probably help is to get a new SATA controller that can 
-> access >4GB natively and at some point update to a newer kernel
-> with newer forcedeth driver. Or just run with the enlarged IOMMU.
+> That wasn't what I meant. What I was referring to was disabling highmem
+> altogether, the way that is done now through looking at the dma mask.
 
-libata should also handle this case better. Usually we just need to
-defer command handling if the dma_map_sg() fails. Changing
-ata_qc_issue() to return nsegments for success, 0 for defer failure, and
--1 for permanent failure should be enough. The SCSI path is easy at
-least, as we can just ask for a defer there. The internal qc_issue is a
-little more tricky.
+You need to set your struct device's dma_mask appropriately:
 
-The NCQ patches have logic to handle this, although for other reasons
-(to avoid overlap between NCQ and non-NCQ commands). It could easily be
-reused for this as well.
+        u64 limit = BLK_BOUNCE_HIGH;
+
+        if (host->dev->dma_mask && *host->dev->dma_mask)
+                limit = *host->dev->dma_mask;
+
+        blk_queue_bounce_limit(mq->queue, limit);
+
+Hence, if dma_mask is a NULL pointer or zero, highmem will be bounced.
+Neither PNP nor your platform device sets dma_mask, so highmem will
+always be bounced in the case of wbsd - which from what you write above
+is what you require anyway.
+
+Note: The host can't reach the queue itself because the queues are
+created dynamically - it doesn't know when the queue is created or
+destroyed or which request comes from which queue.  I'd also guess that
+randomly changing the bounce limit will probably end up with a random
+selection of requests which have been bounced and those which haven't
+hitting the driver.
 
 -- 
-Jens Axboe
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

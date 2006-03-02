@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWCBA5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWCBBB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751028AbWCBA5q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 19:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWCBA5q
+	id S1751246AbWCBBB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 20:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCBBB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 19:57:46 -0500
-Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:4789 "EHLO
-	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750981AbWCBA5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 19:57:45 -0500
-Date: Wed, 1 Mar 2006 19:55:25 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.16rc5 'found' an extra CPU.
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-acpi <linux-acpi@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Message-ID: <200603011957_MC3-1-B99B-8FFE@compuserve.com>
+	Wed, 1 Mar 2006 20:01:57 -0500
+Received: from mx2.suse.de ([195.135.220.15]:51899 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751246AbWCBBBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 20:01:54 -0500
+From: Andi Kleen <ak@suse.de>
+To: Michael Monnerie <m.monnerie@zmi.at>
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Date: Thu, 2 Mar 2006 02:03:48 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, suse-linux-e@suse.com
+References: <200603020023.21916@zmi.at>
+In-Reply-To: <200603020023.21916@zmi.at>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200603020203.49128.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060301230317.GF1440@redhat.com>
+On Thursday 02 March 2006 00:23, Michael Monnerie wrote:
+> Hello, I use SUSE 10.0 with all updates and actual kernel 2.6.13-15.8 as
+> provided from SUSE (just self compiled to optimize for Athlon64, SMP,
+> and HZ=100), with an Asus A8N-E motherboard, and an Athlon64x2 CPU.
+> This host is used with VMware GSX server running 6 Linux client and one
+> Windows client host. There's a SW-RAID1 using 2 SATA HDs.
 
-On Wed, 1 Mar 2006 18:03:17, Dave Jones wrote:
+Nvidia hardware SATA cannot directly DMA to > 4GB, so it 
+has to go through the IOMMU. And in that kernel the Nforce
+ethernet driver also didn't do >4GB access, although the ethernet HW 
+is theoretically capable.
 
-> (17:59:38:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu0/topology/core_siblings
-> 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
-> (17:59:47:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu1/topology/core_siblings
-> 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000002
-> 
-> Neither of these CPUs are HT / dual-core, so shouldn't these be the same ?
+Maybe VMware pins unusually much IO memory in flight (e.g. by using
+a lot of O_DIRECT). That could potentially cause the IOMMU to fill up.
+The RAID-1 probably also makes it worse because it will double the IO
+mapping requirements.
 
-Those are bitmaps. 1 => only bit 0 is set => CPU 0 is all alone.
+Or you have a leak in some driver, but if the problem goes away
+after enlarging the IOMMU that's unlikely.
 
-Did you really build a 256-CPU SMP kernel or is ACPI ignoring CONFIG_NR_CPUS
-or something?
+What would probably help is to get a new SATA controller that can 
+access >4GB natively and at some point update to a newer kernel
+with newer forcedeth driver. Or just run with the enlarged IOMMU.
 
-
--- 
-Chuck
-"The sleet in Crete falls neatly in the street."
-
+-Andi

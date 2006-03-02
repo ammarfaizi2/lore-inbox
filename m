@@ -1,55 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWCBBOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWCBBTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbWCBBOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 20:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCBBOZ
+	id S1751275AbWCBBTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 20:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWCBBTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 20:14:25 -0500
-Received: from dvhart.com ([64.146.134.43]:38571 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751248AbWCBBOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 20:14:25 -0500
-Message-ID: <440646ED.2030108@mbligh.org>
-Date: Wed, 01 Mar 2006 17:14:21 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 1 Mar 2006 20:19:32 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:1351 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751275AbWCBBTb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 20:19:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ERSnCFKJmalphYJRwFY6SzgB+eQqs9ZqMGOPWY5+EyPCxR2mBJ0f+i10Zod40E6S8Txwluog3fxhJI5cd3T7y8MfeR+PATtqqiNGV0QcySC+ZQM6NUKM/W4owvEVNVlBuxHqYQSZ+2AOJrnw88mFGGRJDGxZm+rrsHlQVzZVjsE=
+Message-ID: <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com>
+Date: Wed, 1 Mar 2006 18:19:30 -0700
+From: "Eric D. Mudama" <edmudama@gmail.com>
+To: "Nicolas Mailhot" <nicolas.mailhot@gmail.com>
+Subject: Re: LibPATA code issues / 2.6.15.4
+Cc: "Mark Lord" <liml@rtr.ca>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1141254762.11543.10.camel@rousalka.dyndns.org>
 MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-Cc: Olof Johansson <olof@lixom.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] Fix powerpc bad_page_fault output  (Re: 2.6.16-rc5-mm1)
-References: <20060228042439.43e6ef41.akpm@osdl.org>	<4404E328.7070807@mbligh.org>	<20060301164531.GA17755@pb15.lixom.net> <17414.15814.146349.883153@cargo.ozlabs.ibm.com>
-In-Reply-To: <17414.15814.146349.883153@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <1141239617.23202.5.camel@rousalka.dyndns.org>
+	 <4405F471.8000602@rtr.ca>
+	 <1141254762.11543.10.camel@rousalka.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
-> Olof Johansson writes:
-> 
-> 
->>Seems that the human-readible parts are printed at a differnet printk level
->>(well, _at_ a level), so they fell off. Not good.
-> 
-> 
-> My understanding was that printk lines without a level are considered
-> to be at KERN_ERR or so.  Is that wrong?
-> 
-> 
->>Andrew and/or Paulus, see patch below.
-> 
-> 
-> It really seems strange to be *removing* printk level tags.  I'd like
-> to nack this until I understand why it will improve things.  At the
-> very least it needs a big fat comment so some janitor doesn't come
-> along and put the tags back in.
+On 3/1/06, Nicolas Mailhot <nicolas.mailhot@gmail.com> wrote:
+> Le mercredi 01 mars 2006 à 14:22 -0500, Mark Lord a écrit :
+> > Nicolas Mailhot wrote:
+> > >>
+> > > How about the drives that got blacklisted following :
+> > > http://bugzilla.kernel.org/show_bug.cgi?id=5914 ?
+> > > and
+> > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177951 ?
+> > >
+> > > Device Model:     Maxtor 6L300S0
+> > > Firmware Version: BANC1G10
+> > >
+> > > on Silicon Image, Inc. SiI 3114 [SATALink/SATARaid] Serial ATA Controller (rev 02)
+> >
+> > Mmm.. somebody with one of those controllers should check
+> > to see if *any* drives work with FUA, and blacklist the controller
+> > instead of the drives if everything is failing.
+>
+> I'm a someone with such a controller (that's my boog here)
+> But I only have these drives.
+> So I can only confirm the combo it deadly.
+> (I could possibly try to plug one on the nforce4 controller, not sure if
+> extracting the box from the tangle of cables and hardware he's part of
+> is worth it. sata_nv is rev-eng, while the siI docs are public, right?)
+>
+> I do suspect Eric D. Mudama knows if the problem is on the hard-drive
+> side though
+>
+> Regards,
+>
+> --
+> Nicolas Mailhot
+>
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.2.1 (GNU/Linux)
+>
+> iEYEABECAAYFAkQGKmoACgkQI2bVKDsp8g0veQCggJkweq1nQn7YNSEIobOHitk0
+> QXsAn0TnHI/6LBG9nezBnS0MTskLml0W
+> =s1TM
+> -----END PGP SIGNATURE-----
+>
 
-He's removing KERN_ALERT ... I guess it could get switched from 
-KERN_ALERT to KERN_ERR, but ...
 
-Either way, KERN_ALERT seems way too low to me. I object to getting
-half the oops, and not the other half ;-)
+I didn't know offhand so we plugged in a bus analzyer and took a look
+here in the lab... We didn't have a 3114 lying around, but issuing the
+Write DMA FUA (0x3D) opcode on a 3112 resulted in a D0h soft hang.  I
+think they're related (4-port vs 2-port).
 
-M.
+Looking at the bus trace, the command is issued on the SATA bus, the
+drive generates a DMA Activate FIS which is accepted by the 3112, and
+then the 3112 generates a Data Payload FIS (46h) with no contents.
+
+The first DWORD of the payload is a HOLD primitive, to which the
+device promptly responds with HOLDA, and the two are in a soft bus
+lock and will sit forever.  No data is ever generated by the host
+(stopped capture after 4 seconds).
+
+I believe this core should not be part of the FUA whitelist.  If I
+remember correctly, there are other implementations out there with
+similar limitations to opcodes this "new" to ATA.
+
+--eric

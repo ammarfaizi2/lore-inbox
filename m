@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWCBBKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbWCBBOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbWCBBKU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 20:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCBBKU
+	id S1751248AbWCBBOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 20:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCBBOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 20:10:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:5562 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750799AbWCBBKT (ORCPT
+	Wed, 1 Mar 2006 20:14:25 -0500
+Received: from dvhart.com ([64.146.134.43]:38571 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751248AbWCBBOZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 20:10:19 -0500
-Date: Wed, 1 Mar 2006 20:09:53 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-acpi <linux-acpi@vger.kernel.org>, Andi Kleen <ak@suse.de>
-Subject: Re: 2.6.16rc5 'found' an extra CPU.
-Message-ID: <20060302010953.GA19755@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-acpi <linux-acpi@vger.kernel.org>, Andi Kleen <ak@suse.de>
-References: <200603011957_MC3-1-B99B-8FFE@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603011957_MC3-1-B99B-8FFE@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 1 Mar 2006 20:14:25 -0500
+Message-ID: <440646ED.2030108@mbligh.org>
+Date: Wed, 01 Mar 2006 17:14:21 -0800
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Mackerras <paulus@samba.org>
+Cc: Olof Johansson <olof@lixom.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Fix powerpc bad_page_fault output  (Re: 2.6.16-rc5-mm1)
+References: <20060228042439.43e6ef41.akpm@osdl.org>	<4404E328.7070807@mbligh.org>	<20060301164531.GA17755@pb15.lixom.net> <17414.15814.146349.883153@cargo.ozlabs.ibm.com>
+In-Reply-To: <17414.15814.146349.883153@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 07:55:25PM -0500, Chuck Ebbert wrote:
- > In-Reply-To: <20060301230317.GF1440@redhat.com>
- > 
- > On Wed, 1 Mar 2006 18:03:17, Dave Jones wrote:
- > 
- > > (17:59:38:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu0/topology/core_siblings
- > > 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
- > > (17:59:47:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu1/topology/core_siblings
- > > 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000002
- > > 
- > > Neither of these CPUs are HT / dual-core, so shouldn't these be the same ?
- > 
- > Those are bitmaps. 1 => only bit 0 is set => CPU 0 is all alone.
- > 
- > Did you really build a 256-CPU SMP kernel or is ACPI ignoring CONFIG_NR_CPUS
- > or something?
+Paul Mackerras wrote:
+> Olof Johansson writes:
+> 
+> 
+>>Seems that the human-readible parts are printed at a differnet printk level
+>>(well, _at_ a level), so they fell off. Not good.
+> 
+> 
+> My understanding was that printk lines without a level are considered
+> to be at KERN_ERR or so.  Is that wrong?
+> 
+> 
+>>Andrew and/or Paulus, see patch below.
+> 
+> 
+> It really seems strange to be *removing* printk level tags.  I'd like
+> to nack this until I understand why it will improve things.  At the
+> very least it needs a big fat comment so some janitor doesn't come
+> along and put the tags back in.
 
-Yes, it's =256.
+He's removing KERN_ALERT ... I guess it could get switched from 
+KERN_ALERT to KERN_ERR, but ...
 
-		Dave
+Either way, KERN_ALERT seems way too low to me. I object to getting
+half the oops, and not the other half ;-)
 
+M.

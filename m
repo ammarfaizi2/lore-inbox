@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752055AbWCBTvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752059AbWCBTvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752055AbWCBTvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 14:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752059AbWCBTvJ
+	id S1752059AbWCBTvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 14:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752058AbWCBTvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 14:51:09 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:18529 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1752055AbWCBTvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 14:51:08 -0500
-X-IronPort-AV: i="4.02,160,1139212800"; 
-   d="scan'208"; a="1781391318:sNHT104165404"
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
-X-Message-Flag: Warning: May contain useful information
-References: <44070B62.3070608@jp.fujitsu.com>
-	<20060302155056.GB28895@flint.arm.linux.org.uk>
-	<20060302172436.GC22711@colo.lackof.org>
-	<20060302193441.GG28895@flint.arm.linux.org.uk>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 02 Mar 2006 11:50:59 -0800
-In-Reply-To: <20060302193441.GG28895@flint.arm.linux.org.uk> (Russell King's message of "Thu, 2 Mar 2006 19:34:41 +0000")
-Message-ID: <adalkvswrq4.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Mar 2006 19:51:00.0637 (UTC) FILETIME=[A18E1CD0:01C63E32]
+	Thu, 2 Mar 2006 14:51:11 -0500
+Received: from lug-owl.de ([195.71.106.12]:3536 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1752060AbWCBTvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 14:51:10 -0500
+Date: Thu, 2 Mar 2006 20:51:06 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
+       jgeorgas@rogers.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] make UNIX a bool
+Message-ID: <20060302195106.GC19232@lug-owl.de>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
+	jgeorgas@rogers.com, linux-kernel@vger.kernel.org
+References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au> <20060302173840.GB9295@stusta.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8iFlQzmQn37S6Xy7"
+Content-Disposition: inline
+In-Reply-To: <20060302173840.GB9295@stusta.de>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Russell> Why isn't pci_enable_device_bars() sufficient - why do we
-    Russell> have to have another interface to say "we don't want BARs
-    Russell> XXX" ?
 
-That's an excellent point.  It does look like fixing
-pci_enable_device_bars() would be a reasonable interface as well.
-Currently, pci_enable_device() calls pci_enable_device_bars() on all
-resources, and then does two more things:
+--8iFlQzmQn37S6Xy7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-    - It calls pci_fixup_device() on the device
-    - It sets dev->is_enabled
+On Thu, 2006-03-02 18:38:40 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > > It does also matter in the kernel image size case, since you have to =
+put=20
+> > > enough modules to the other medium for having a effect bigger than the
+> > > kernel image size increase from setting CONFIG_MODULES=3Dy.
+> > That's not very difficult considering the large number of modules that's
+> > out there that a system may wish to use.
+> This might be true for full-blown desktop systems - but these do not=20
+> tend to be the systems where kernel image size matters that much.
+> Smaller kernel image size might be an issue e.g. for distribution=20
+> kernels, but in a much less pressing way.
 
-Both of these things look like they could just be moved into
-pci_enable_device_bars(), leaving pci_enable_device() as a
-compatibility wrapper.
+Kernel image size matters if you try to make it boot off a floppy.
 
-Along with a fix for pci_request_regions(), the legacy-free patch
-would just modify drivers for devices that know they don't need a
-particular BAR, without adding an extra flag to the pci device struct.
+MfG, JBG
 
- - R.
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--8iFlQzmQn37S6Xy7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEB0yqHb1edYOZ4bsRAg9rAJ47nAPgKB9rfYvPtsbwW6uVRMXAcwCcC1Do
+hicvpwd4XXk2HXaFE5iSwPA=
+=Sx7H
+-----END PGP SIGNATURE-----
+
+--8iFlQzmQn37S6Xy7--

@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWCBHnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWCBIMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWCBHnl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 02:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWCBHnl
+	id S1751303AbWCBIMT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 03:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWCBIMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 02:43:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6039 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750980AbWCBHnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 02:43:40 -0500
-Date: Wed, 1 Mar 2006 23:42:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: greg@kroah.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       yanmin.zhang@intel.com, neilb@cse.unsw.edu.au
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060301234215.62010fec.akpm@osdl.org>
-In-Reply-To: <20060301221429.c61b4ae6.pj@sgi.com>
-References: <20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-	<20060301015338.b296b7ad.pj@sgi.com>
-	<20060301192103.GA14320@kroah.com>
-	<20060301125802.cce9ef51.pj@sgi.com>
-	<20060301213048.GA17251@kroah.com>
-	<20060301142631.22738f2d.akpm@osdl.org>
-	<20060301151000.5fff8ec5.pj@sgi.com>
-	<20060301154040.a7cb2afd.pj@sgi.com>
-	<20060301202058.42975408.akpm@osdl.org>
-	<20060301221429.c61b4ae6.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 2 Mar 2006 03:12:18 -0500
+Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:22459 "EHLO
+	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751303AbWCBIMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 03:12:18 -0500
+Date: Thu, 2 Mar 2006 09:07:28 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Dean Roe <roe@sgi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel BUG at mm/slab.c:2564 - 2.6.16-rc5-g7b14e3b5
+Message-ID: <20060302090728.2fee8f3c@localhost>
+In-Reply-To: <20060301173636.GA20861@sgi.com>
+References: <20060301160656.370e1ee0@localhost>
+	<20060301173636.GA20861@sgi.com>
+X-Mailer: Sylpheed-Claws 2.0.0-rc4 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> > It'd be interesting to see if just the data structure expansion:
-> 
-> Nice guess.
-> 
-> It still crashes on boot.
-> 
+On Wed, 1 Mar 2006 11:36:36 -0600
+Dean Roe <roe@sgi.com> wrote:
 
-OK.   This is awful.   I cannot see it.
+> I might have hit something similar about a month ago running 2.6.16-rc1.
+> At the time I had written this off as a hardware problem since I was using
+> a questionable system, but maybe there is a hard-to-hit bug in the anon_vma
+> or slab code?
 
-If someone passes get_cpu_sysdev() a -ve cpu number then ugly things will
-happen, but it's unlikely to be that.  Pretty sad coding though.
+Something is happened again here!
 
-> Unable to handle kernel NULL pointer dereference (address 0000000000000058)
-> ...
-> ip is at sysfs_create_group+0x30/0x2a0
 
-Are you able to determine which pointer deref this is faulting at?  I
-couldn't find any fields which look like they're 0x58 bytes into anything.
+Slab corruption: start=ffff81000d0ffb30, len=104
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8015caac>](end_bio_bh_io_sync+0x35/0x39)
+000: 6b 6b 6b 2b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=ffff81000d0ffab0, len=104
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<ffffffff80141b05>](mempool_alloc+0x44/0xdf)
+000: 3e db d8 05 00 00 00 00 00 00 00 00 00 00 00 00
+010: 58 a6 f1 1f 00 81 ff ff 09 00 00 00 00 00 00 00
+Next obj: start=ffff81000d0ffbb0, len=104
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8015caac>](end_bio_bh_io_sync+0x35/0x39)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Slab corruption: start=ffff81000d0ffb30, len=104
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8015caac>](end_bio_bh_io_sync+0x35/0x39)
+000: 6b 6b 6b 2b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=ffff81000d0ffab0, len=104
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8015caac>](end_bio_bh_io_sync+0x35/0x39)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Next obj: start=ffff81000d0ffbb0, len=104
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<ffffffff8015caac>](end_bio_bh_io_sync+0x35/0x39)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
 
-Thanks for persisting with this.
+
+Mmmm... I'm going to disable CPU freq scaling, it's the only thing I've
+recently enabled, maybe it's causing some kind of instability ?!
+
+-- 
+	Paolo Ornati
+	Linux 2.6.16-rc5-g800d1142 on x86_64

@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWCBRdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWCBRe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWCBRdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbWCBRdR
+	id S932266AbWCBRe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWCBRe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:33:17 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33983 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932273AbWCBRdQ (ORCPT
+	Thu, 2 Mar 2006 12:34:28 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:46776 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932266AbWCBRe1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:33:16 -0500
-Date: Thu, 2 Mar 2006 09:31:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: dhowells@redhat.com, torvalds@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #2]
-Message-Id: <20060302093133.46618419.akpm@osdl.org>
-In-Reply-To: <1706.1141297446@warthog.cambridge.redhat.com>
-References: <20060301162113.774d1745.akpm@osdl.org>
-	<20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
-	<1706.1141297446@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Thu, 2 Mar 2006 12:34:27 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.6.16rc5 'found' an extra CPU.
+Date: Thu, 2 Mar 2006 12:34:02 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30063F8D72@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16rc5 'found' an extra CPU.
+Thread-Index: AcY+Fq1MbJWu1+xORdqMSEc7i8B47wACJuvw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Raj, Ashok" <ashok.raj@intel.com>
+Cc: "Dave Jones" <davej@redhat.com>, "Raj, Ashok" <ashok.raj@intel.com>,
+       "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
+       <linux-acpi@vger.kernel.org>
+X-OriginalArrivalTime: 02 Mar 2006 17:34:04.0760 (UTC) FILETIME=[8082C580:01C63E1F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
+
+>I have a dual core + HT platform. I disabled HT to have the 
+>same situation as Dave.
 >
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Here's Trond's current diff:
-> 
-> Where?
-> 
+>ACPI DSDT dump shows 4 objects in \_PR scope as below.
+>
+>    Scope (\_PR)
+>    {
+>        Processor (CPU0, 0x01, 0x00000410, 0x06) {}
+>        Processor (CPU1, 0x02, 0x00000410, 0x06) {}
+>        Processor (CPU2, 0x03, 0x00000410, 0x06) {}
+>        Processor (CPU3, 0x04, 0x00000410, 0x06) {}
+>    }
+>
+>Only 2 are marked enabled in the ACPI MADT..
+>
+>From boot log
+>
+>ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+>Processor #0 15:4 APIC version 20
+>ACPI: LAPIC (acpi_id[0x03] lapic_id[0x02] enabled)
+>Processor #2 15:4 APIC version 20
+>ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] disabled)
+>ACPI: LAPIC (acpi_id[0x04] lapic_id[0x03] disabled)
+>
+>But proc/acpi/processor also lists just 2 entries.
 
-Each git tree in -mm has the origin at the start of the patch.  So the
-first line of
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm1/broken-out/git-nfs.patch
-is
+We were certainly on safer ground when we used
+to completely ignore disabled entries.
 
-GIT 1e28855867c31925e2ffa3a8acf16bb3ad8b634c git://git.linux-nfs.org/pub/linux/nfs-2.6.git
-
-That's "GIT commit-id URL".
+-Len

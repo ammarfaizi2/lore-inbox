@@ -1,98 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752068AbWCBWKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWCBWVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752068AbWCBWKo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 17:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752069AbWCBWKo
+	id S1750763AbWCBWVS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 17:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWCBWVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 17:10:44 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:11099 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1752068AbWCBWKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 17:10:43 -0500
-Date: Thu, 02 Mar 2006 17:07:01 -0500
-From: Jon Ringle <jringle@vertical.com>
-Subject: Re: Linux running on a PCI Option device?
-In-reply-to: <Pine.LNX.4.61.0602281556240.5128@chaos.analogic.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Greg Ungerer" <gerg@snapgear.com>, linux-kernel@vger.kernel.org
-Message-id: <200603021707.01190.jringle@vertical.com>
-Organization: Vertical
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <43EAE4AC.6070807@snapgear.com>
- <200602281535.21974.jringle@vertical.com>
- <Pine.LNX.4.61.0602281556240.5128@chaos.analogic.com>
-User-Agent: KMail/1.8.3
+	Thu, 2 Mar 2006 17:21:18 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5265 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750763AbWCBWVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 17:21:17 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/23] tref: Implement task references.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+	<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+	<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
+	<44074479.15D306EB@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 02 Mar 2006 15:19:27 -0700
+In-Reply-To: <44074479.15D306EB@tv-sign.ru> (Oleg Nesterov's message of
+ "Thu, 02 Mar 2006 22:16:09 +0300")
+Message-ID: <m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 28 February 2006 04:13 pm, linux-os (Dick Johnson) wrote:
-> On Tue, 28 Feb 2006, Jon Ringle wrote:
-> > When I have the IXDP465 in PCI Option mode, Linux still writes to pci
-> > configuration space which confuses the heck out of the PCI Host (Windows
-> > 2003). What do I need to do in order to have Linux work as a PCI option
-> > but still not mess with the pci configuration, and leave that task to the
-> > PCI Host?
-> >
-> > Jon
+Oleg Nesterov <oleg@tv-sign.ru> writes:
+
+> Eric W. Biederman wrote:
+>>
+>> Holding a reference to a task_struct pins about 10K of low memory even after
+>> that task has exited.  Which seems to be at 1 or 2 orders of mangnitude more
+>> memory than any other data structure in the kernel.  Not holding a reference
+>> to a task_struct and you risk problems with pid wrap around.
 >
-> But anything on the PCI bus will get written, at least to find out
-> the length of the address space. Please read about the PCI System
-> Architecture. There are several writes that are mandatory. If
-> somebody is attempting to configure the PCI devices, the following
-> will occur.
+> I think there is another, much simpler solution. We can make a "reference" to
+> the
+> pid itself to protect it against free_pidmap(), so that this pid can't be
+> reused.
 
-Thanks for the book reference. I am reading it.
+I kind of like the idea of not releasing the pid when someone is using it.
+However with my trivial hostile program I can with 32 or 33 living processes
+each with 1000 references to dead processes I can completely saturate the
+default pid map.  And it won't be obvious why alloc_pidmap is failing.
 
-> (1) The BIOS will find some available address-space and put it
-> into any base-address register that has memory-space enabled
-> in the command register.
->
-> (2) The BIOS will find some available I/O space and put it into
-> a base-address register, too.
->
-> This all occurs long before any OS is booted. These writes
-> will occur.
+Your resource consumption with the extra hash table is higher than
+mine at until very high process counts.
 
-That's all well and fine. However, I think I need to explain a bit better the 
-hardware topology here.
+In addition it doesn't really help with the problem that inspired
+this work.  That of having multiple pid spaces.  I could make it work
+by throwing a pspace reference in struct pid_ref, but without some
+fancy footwork it would prevent cleanup until all of the outside
+references are gone.
 
-             +--------------------+
-             |     POST/BIOS      |
-             |    Windows 2003    |
-             |       Pentium      |
-             |      PCI Host      |
-             |      PCI Arbiter   |
-             +--------------------+
-                       |
-<-------- PCI bus ---------------------------------->
-    |                       |
-+---------+           +---------------------------+    
-| Various |           | IXDP465 (PCI option mode) |
-|  other  |           |         Redboot           |
-|   PCI   |           |      Linux 2.6.16-rc5     |
-| Devices |           +---------------------------+
-+---------+
+> What do you think?
 
-When power is applied to the system, several things are happening 
-simultaneously, as I understand it:
+So I kind of like it but I don't feel it does as good a job solving
+the problems I am solving.  
 
-1) The POST/BIOS code executes on the Pentium side that should do the actions 
-you describe above.
-2) The PCI devices are configuring themselves.
-3) The IXDP465 is executing Redboot bootloader, which hands off control to 
-Linux.
+In this instance I'm not at all certain I like having NULL ref
+pointers.  It increases the number of cases you have to deal with when
+reading back the pid, but that is minor and something task_refs suffer
+from more than pid_refs.
 
-As it turns out, Linux completes it's bootup before Windows bootup even 
-begins, and it seems that Linux changes the configuration of the various 
-other PCI devices that happen to be on the system as well. I need to get 
-Linux to leave the configuration of other PCI devices it finds alone. It 
-should only mess with it's own configuration. Why should Linux need to change 
-the configuration of other PCI devices when it is fulfilling the role of a 
-PCI device itself?
-
-Thanks,
-
-Jon
+Eric

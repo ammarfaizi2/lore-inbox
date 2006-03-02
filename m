@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751974AbWCBI6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751975AbWCBI74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751974AbWCBI6T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 03:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751972AbWCBI6T
+	id S1751975AbWCBI74 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 03:59:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWCBI74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 03:58:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:53387 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751974AbWCBI6T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 03:58:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UzIFwBjzd6/Af72XWaPCTZ4FTCmzElqOi1EnlJ1izBiDBTL25LtbkWnP3iIsOAtMN3klLiOiiFkuH2NKn70WTFViAqdKEOqS5QMedDHFLYsaC0MYMzlFOvPCeLOgoB8puTcj38VXBw0HyL1cAqcIoV8ZSV7CdVx8eNREsOuT8SM=
-Message-ID: <d6fe45ba0603020058h55e68bcy39ae4b9d234ed6cc@mail.gmail.com>
-Date: Thu, 2 Mar 2006 09:58:17 +0100
-From: "matteo brancaleoni" <mbrancaleoni@gmail.com>
-To: "Neil Brown" <neilb@suse.de>
-Subject: Re: Bio & Biovec-1 increasing cache size, never freed during disk IO
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d6fe45ba0603020019td998ba5we1cb2b689d459e1a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d6fe45ba0602251245h32b9ac5dw65246ed6e1bba607@mail.gmail.com>
-	 <d6fe45ba0602271238q10fea0f8tfc29f0d51c4df1c8@mail.gmail.com>
-	 <17411.33114.403066.812228@cse.unsw.edu.au>
-	 <d6fe45ba0602280705l6f38f1b8j3126d0be638be8fa@mail.gmail.com>
-	 <17412.56916.247822.749271@cse.unsw.edu.au>
-	 <d6fe45ba0603010246j15132126x3cb233092319c772@mail.gmail.com>
-	 <17414.36065.898271.383401@cse.unsw.edu.au>
-	 <d6fe45ba0603020019td998ba5we1cb2b689d459e1a@mail.gmail.com>
+	Thu, 2 Mar 2006 03:59:56 -0500
+Received: from 142.163.233.220.exetel.com.au ([220.233.163.142]:62093 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751975AbWCBI7z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 03:59:55 -0500
+Subject: Suspend to RAM regression retraced
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+Date: Thu, 02 Mar 2006 19:58:45 +1100
+Message-Id: <1141289925.18519.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Neil,
+Hi,
 
-I can confirm that the latest patch works nice on 2.6.16-rc5 !
+A while ago I reported a regression (http://lkml.org/lkml/2005/9/21/290)
+in suspend to RAM that happened with kernel 2.6.12 on my Dell D600
+laptop. After several months of testing (this is my work machine and the
+bug takes time to reproduce), I have finally narrowed it down. It seems
+like to problem was introduced between 2.6.12-rc5 and 2.6.12-rc6. 
 
-Thanks a lot for the support!
+Basically, what happens is that with 2.6.12-rc6, my machine *sometimes*
+doesn't resume when I suspend it. This happens especially when it has
+been running for a while. It almost always works when I just rebooted,
+or if I just successfully resumed. So it behaves like "something" gets
+randomly corrupted, at which point the machine still works, but will not
+resume if I suspend it. Also, I've observed the same behaviour with and
+without preemption enabled. 
 
-Greetings, Matteo.
+Can someone have a look at what could cause the problem and fix it? I
+can provide more information if needed. BTW, I'm not on the list so
+please CC to me.
 
-P.S. if you need some more details/tests/info I'm here to help.
+Thanks,
+
+	Jean-Marc
+
+P.S. Machine setup is:
+Ubuntu 5.10 (but problem also observed on 5.04 and old Debian unstable)
+Dell Latitude D600 (Bios rev. A14)
+Pentium-M 1.6 GHz / 1 GB RAM
+ATI Technologies, Inc. Radeon Mobility 9000 M9 (R250 Lf)
+

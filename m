@@ -1,52 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWCBK7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751984AbWCBLEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWCBK7u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 05:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWCBK7u
+	id S1751984AbWCBLEa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 06:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWCBLEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 05:59:50 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:7605 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751438AbWCBK7t (ORCPT
+	Thu, 2 Mar 2006 06:04:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2699 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751427AbWCBLE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 05:59:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=qSRtM31v/Ot8GsT7n5ld+DoTikqM7P/5khuxuyRRjLecSpA5ZWK5M3gkslhzX42U9dvsr5d5FBFh+OMy1tnyqrh2ae9htzvQp8/eWJ4yG2O0eM3KCs90Cn2eXGOC4rKj5KGooABa0MiZfE3gcSMJM5aANsK3N0vwEpkhEGAKBAo=
-Date: Thu, 2 Mar 2006 11:59:40 +0100
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: linux-kernel@vger.kernel.org, FACCINI BRUNO <Bruno.Faccini@bull.net>
-Subject: Re: Deadlock in net/sunrpc/sched.c
-Message-ID: <20060302105940.GA9521@silenus.home.res>
-References: <Pine.LNX.4.61.0603021116030.15393@openx3.frec.bull.fr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603021116030.15393@openx3.frec.bull.fr>
-User-Agent: mutt-ng/devel-r781 (Linux)
+	Thu, 2 Mar 2006 06:04:29 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060301162113.774d1745.akpm@osdl.org> 
+References: <20060301162113.774d1745.akpm@osdl.org>  <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #2] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 02 Mar 2006 11:04:06 +0000
+Message-ID: <1706.1141297446@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 11:38:10AM +0100, Simon Derr wrote:
-> This happened with 2.6.12 but it seems that the code has not changed and 
-> the issue is very probably still present in the current kernels.
-Looks like it's fixed in 2.6.16-rc5, could you check agains the current
-tree?
+Andrew Morton <akpm@osdl.org> wrote:
 
-> +	spin_lock_bh(&queue->lock);
->  	if (rpc_start_wakeup(task)) {
->  		if (RPC_IS_QUEUED(task)) {
->  			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
->  
-> -			spin_lock_bh(&queue->lock);
->  			__rpc_do_wake_up_task(task);
-> -			spin_unlock_bh(&queue->lock);
->  		}
->  		rpc_finish_wakeup(task);
->  	}
-> +	spin_unlock_bh(&queue->lock);
+> Here's Trond's current diff:
 
-Hmm, not sure this will even compile...
-Regards,
-Frederik
+Where?
+
+David

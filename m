@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWCBDLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWCBDMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWCBDLI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 22:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWCBDLH
+	id S1751392AbWCBDMK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 22:12:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWCBDMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 22:11:07 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:48522 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751305AbWCBDLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 22:11:06 -0500
-Date: Wed, 1 Mar 2006 19:10:29 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: laurent.riffard@free.fr, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, rjw@sisk.pl, mbligh@mbligh.org,
-       clameter@engr.sgi.com, ebiederm@xmission.com
-Subject: Re: 2.6.16-rc5-mm1
-Message-Id: <20060301191029.108be72e.pj@sgi.com>
-In-Reply-To: <20060301023235.735c8c47.akpm@osdl.org>
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	<9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	<4404CE39.6000109@liberouter.org>
-	<9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	<4404DA29.7070902@free.fr>
-	<20060228162157.0ed55ce6.akpm@osdl.org>
-	<4405723E.5060606@free.fr>
-	<20060301023235.735c8c47.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Mar 2006 22:12:09 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:2239 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751392AbWCBDMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 22:12:08 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: "Mark L. Fugate" <mark.fugate@comcast.net>
+Subject: Re: 2.6.15.5 Compile error
+Date: Thu, 2 Mar 2006 14:12:40 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <4405B468.9050908@comcast.net>
+In-Reply-To: <4405B468.9050908@comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603021412.40757.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> If you have (even more) time you could test
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz. 
-> That's the latest of everything with the problematic sysfs patches reverted
-> and Eric's recent /proc fixes.
+On Thu, 2 Mar 2006 01:49 am, Mark L. Fugate wrote:
+> To whom it may concern:
+>
+> I received the following compile error while compiling the 2.6.15.5
+> kernel. My .config is attached.
 
-I tested both the fuser command that had been crashing the earlier
-kernels with Eric's /proc patches, and my "SGI internal software
-management" application, on which I first saw these kernels fail.
+That looks like a silly oversight.
 
-With this 2.6.16-rc5-mm2-pre1 kernel, they both work - no more crash.
+Try this patch.
 
-Good.
+Cheers,
+Con
+---
+Build fix for direct.c
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
+
+ fs/nfs/direct.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: linux-2.6.15-ck5/fs/nfs/direct.c
+===================================================================
+--- linux-2.6.15-ck5.orig/fs/nfs/direct.c	2006-03-02 13:06:57.000000000 +1100
++++ linux-2.6.15-ck5/fs/nfs/direct.c	2006-03-02 13:55:28.000000000 +1100
+@@ -73,6 +73,8 @@ struct nfs_direct_req {
+ 				error;		/* any reported error */
+ };
+ 
++static void
++nfs_free_user_pages(struct page **pages, int npages, int do_dirty);
+ 
+ /**
+  * nfs_get_user_pages - find and set up pages underlying user's buffer

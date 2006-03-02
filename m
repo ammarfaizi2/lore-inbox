@@ -1,71 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWCBKZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWCBKdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750983AbWCBKZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 05:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCBKZQ
+	id S1751431AbWCBKdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 05:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWCBKdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 05:25:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10175 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750983AbWCBKZP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 05:25:15 -0500
-Date: Thu, 2 Mar 2006 02:23:56 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5 OOM regression
-Message-Id: <20060302022356.5fad2e08.akpm@osdl.org>
-In-Reply-To: <4405F929.2030609@keyaccess.nl>
-References: <4405F929.2030609@keyaccess.nl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Thu, 2 Mar 2006 05:33:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:18042 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751431AbWCBKdH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 05:33:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Pz5R3f86DRF38/hP/AT5AcbWraBJnRbnL1nPm2uTnBXYvlFahUoRwvYArK9n82qJl+BGeQN0Bw7ADXdf/Np19HShK0OCHNPj7hgciEUYOELtZCYKOI4mxaArYl+Du7IIFODkiUiEmvm/jGq7iwXyIWx+q25bdqosNeKExMvpn6Q=
+Message-ID: <7c3341450603020232ocd76820y@mail.gmail.com>
+Date: Thu, 2 Mar 2006 10:32:59 +0000
+From: "Nick Warne" <nick@linicks.net>
+Reply-To: "Nick Warne" <nick@linicks.net>
+To: "Mark Lord" <lkml@rtr.ca>
+Subject: Re: hda: irq timeout: status=0xd0 DMA question
+Cc: "Henrik Persson" <root@fulhack.info>, "Robert Hancock" <hancockr@shaw.ca>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200602271832.22186.nick@linicks.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200602261308.47513.nick@linicks.net>
+	 <200602262110.55324.nick@linicks.net> <4402FF89.4070009@rtr.ca>
+	 <200602271832.22186.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman <rene.herman@keyaccess.nl> wrote:
->
-> I was playing with "slabtop" (a /proc/slabinfo display tool) while 
->  running a little memory-eater app in a different xterm:
-> 
->  === pig.c
-> 
->  #include <stdlib.h>
-> 
->  int main(void)
->  {
->  	unsigned char *p;
-> 
->  	while ((p = malloc(4096)))
->  		*p = 0;
->  	return 0;
->  }
-> 
->  ===
-> 
->  I was expecting the oom-killer but instead had X freeze on me entirely. 
->    No keyboard or mouse, and while the machine does still ping in this 
->  state, also no rlogins. This does not happen in 2.6.15.4 -- there the 
->  oom-killer will kill the eater app (sometimes including the xterm it's 
->  in, sometimes not, but not a problem).
-> 
->  The 2.6.16-rc5 freeze is "highly repeatable", meaning not always, but 
->  very often. It seems that having for example Firefox loaded increases 
->  the chances of a full freeze, but that might just be chance as well.
+> Now to wait and see the drive produce the error.
 
-crap, thanks.  I would appear to have broken one of Christoph's patches for
-him.
 
---- devel/mm/oom_kill.c~out_of_memory-locking-fix	2006-03-02 02:17:00.000000000 -0800
-+++ devel-akpm/mm/oom_kill.c	2006-03-02 02:17:22.000000000 -0800
-@@ -355,6 +355,7 @@ retry:
- 	}
- 
- out:
-+	read_unlock(&tasklist_lock);
- 	cpuset_unlock();
- 	if (mm)
- 		mmput(mm);
-_
+OK, that doesn't work - it appears all get reset anyway.  Both drives
+here had -K1 and -k1 set with hdparm:
 
+
+Mar  2 10:28:29 website2 kernel: blk: queue c033da3c, I/O limit 4095Mb
+(mask 0xffffffff)
+Mar  2 10:28:29 website2 kernel: hda: status error: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Mar  2 10:28:29 website2 kernel:
+Mar  2 10:28:29 website2 kernel: hda: drive not ready for command
+Mar  2 10:28:29 website2 kernel: hda: status timeout: status=0xd0 { Busy }
+Mar  2 10:28:29 website2 kernel:
+Mar  2 10:28:29 website2 kernel: hda: DMA disabled
+Mar  2 10:28:29 website2 kernel: hdb: DMA disabled
+Mar  2 10:28:29 website2 kernel: hda: drive not ready for command
+Mar  2 10:28:29 website2 kernel: ide0: reset: success
+
+
+[nick@website2 nick]$ sudo /sbin/hdparm /dev/hda
+
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+ keepsettings =  1 (on)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 784/255/63, sectors = 12594960, start = 0
+
+
+[nick@website2 nick]$ sudo /sbin/hdparm /dev/hdb
+
+/dev/hdb:
+ multcount    =  0 (off)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+ keepsettings =  1 (on)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 525/255/63, sectors = 8439184, start = 0
+
+
+
+Nick

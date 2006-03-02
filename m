@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751652AbWCBSIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752032AbWCBSKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751652AbWCBSIE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752028AbWCBSID
+	id S1752032AbWCBSKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752031AbWCBSKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:08:03 -0500
-Received: from wp051.webpack.hosteurope.de ([80.237.132.58]:54253 "EHLO
-	wp051.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S1751652AbWCBSIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:08:01 -0500
-Message-ID: <4407347F.1000209@steffenweber.net>
-Date: Thu, 02 Mar 2006 19:07:59 +0100
-From: Steffen Weber <email@steffenweber.net>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Another compile problem with 2.6.15.5 on AMD64
-References: <44071AF3.1010400@steffenweber.net> <9a8748490603020935h4936ae0eob4bcf107cc75c923@mail.gmail.com> <44073037.2090709@steffenweber.net> <200603021859.29728.jesper.juhl@gmail.com>
-In-Reply-To: <200603021859.29728.jesper.juhl@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Mar 2006 13:10:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4556 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752029AbWCBSKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 13:10:07 -0500
+Date: Thu, 2 Mar 2006 10:08:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: dhowells@redhat.com, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #2]
+Message-Id: <20060302100838.63bc8741.akpm@osdl.org>
+In-Reply-To: <13560.1141322238@warthog.cambridge.redhat.com>
+References: <20060302092854.2818e98c.akpm@osdl.org>
+	<20060301162113.774d1745.akpm@osdl.org>
+	<20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com>
+	<3718.1141299945@warthog.cambridge.redhat.com>
+	<13560.1141322238@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On Thursday 02 March 2006 18:49, Steffen Weber wrote:
->> Jesper Juhl wrote:
->>> On 3/2/06, Steffen Weber <email@steffenweber.net> wrote:
->>>> Jesper Juhl wrote:
->>>>> On Thursday 02 March 2006 17:18, Steffen Weber wrote:
->>>>>> I´m getting a compile error with 2.6.15.5 on x86_64 using GCC 3.4.4
->>>>>> (does not seem to be related to the NFS one):
->>>>>>
->>>>>>    CC      mm/mempolicy.o
->>>>>> mm/mempolicy.c: In function `get_nodes':
->>>>>> mm/mempolicy.c:527: error: `BITS_PER_BYTE' undeclared (first use in
->>>>>> this function)
->>>>>> mm/mempolicy.c:527: error: (Each undeclared identifier is reported only
->>>>>> once
->>>>>> mm/mempolicy.c:527: error: for each function it appears in.)
->>>>>>
->>>>> Try the following (untested patch).
->>>> Thanks for your reply, but this patch does not solve the problem (same
->>>> error message). I´ve appended my .config in case that might help.
->>>>
->>> Hmm, types.h contains the
->>>
->>> #define BITS_PER_BYTE 8
->>>
->>> that mmpolicy.c needs, so including that header should do the trick... odd..
->>> I'll look at the code a bit more.
->> There is no BITS_PER_BYTE in include/types.h. I´ve grepped through the 
->> kernel source (2.6.15 and 2.6.15.5) and found that BITS_PER_BYTE is 
->> defined only in arch/i386/mach-voyager/voyager_cat.c
->>
+David Howells <dhowells@redhat.com> wrote:
+>
+> > nfs-apply-mount-root-dentry-override-to-filesystems:
+>  > 3 out of 10 hunks FAILED -- saving rejects to file fs/nfs/inode.c.rej
 > 
-> Whoops, I was looking here : http://sosdg.org/~coywolf/lxr/source/include/linux/types.h#L11
-> 
-> Try this patch instead : 
-This patch solves the problem! :-) I have not yet rebooted the machine 
-(it´s a busy webserver), but in case I do not reply again within one day 
-you can assume that it works fine. Thank you very much!
+>  Would it help you if I split the NFS bits out of patch 2 into a separate patch?
 
-Steffen
+I wouldn't worry about splitting patches to make their application easier -
+the main thing is to ensure that they're logical units from the
+design/implementation POV.  And that the kernel should compile (and
+hopefully run) at each stage of the series.
+
+And don't worry about the -mm-only patches - I'll sort them out.  Unless
+people are working against functionality which is only in -mm, they should
+work against mainline.
+
+But in the case where you're hitting hard on a particular subsystem, the
+best tree to work against is that subsystem's tree.  Which is a bit of a
+pain if you want to put your feature out to external testers, because then
+you need to also make a snapshot of the subsystem tree available as well. 
+That's just a cost of doing business, really.  It ends up being extremely
+simple if one is using quilt.
+

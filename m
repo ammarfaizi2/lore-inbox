@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWCBDMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751962AbWCBDOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751392AbWCBDMK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 22:12:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWCBDMJ
+	id S1751962AbWCBDOH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 22:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWCBDOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 22:12:09 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:2239 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751392AbWCBDMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 22:12:08 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Mark L. Fugate" <mark.fugate@comcast.net>
-Subject: Re: 2.6.15.5 Compile error
-Date: Thu, 2 Mar 2006 14:12:40 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <4405B468.9050908@comcast.net>
-In-Reply-To: <4405B468.9050908@comcast.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Mar 2006 22:14:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751958AbWCBDOC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 22:14:02 -0500
+Date: Wed, 1 Mar 2006 22:13:48 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       Ashok Raj <ashok.raj@intel.com>
+Subject: Re: 2.6.16rc5 'found' an extra CPU.
+Message-ID: <20060302031348.GE19755@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+	Ashok Raj <ashok.raj@intel.com>
+References: <20060301224647.GD1440@redhat.com> <200603020155.46534.ak@suse.de> <20060302011959.GC19755@redhat.com> <200603020238.31639.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603021412.40757.kernel@kolivas.org>
+In-Reply-To: <200603020238.31639.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Mar 2006 01:49 am, Mark L. Fugate wrote:
-> To whom it may concern:
->
-> I received the following compile error while compiling the 2.6.15.5
-> kernel. My .config is attached.
+On Thu, Mar 02, 2006 at 02:38:31AM +0100, Andi Kleen wrote:
+ > 
+ > > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+ > > Processor #0 15:5 APIC version 16
+ > > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+ > > Processor #1 15:5 APIC version 16
+ > > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x82] disabled)
+ > > ACPI: LAPIC (acpi_id[0x04] lapic_id[0x83] disabled)
+ > 
+ > It's because of the two disabled CPUs. We decreed at some point
+ > that disabled CPUs mean hotpluggable CPUs. But it's doing
+ > this for some time so you probably only noticed now.
 
-That looks like a silly oversight.
+*boggle*, there really are only two single-core CPUs in there,
+with no empty sockets. It's an early stepping of the motherboard
+too that supposedly doesn't support dual-core.  So why these are present
+at all, let alone 'disabled' is a mystery to me.
 
-Try this patch.
+logrotate ate the old logs, so I don't have any old bootlogs
+to grep through, but I'll take your word for it :)
 
-Cheers,
-Con
----
-Build fix for direct.c
+Why ACPI decides to create 3 processor entries is still odd though.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+		Dave
 
- fs/nfs/direct.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-Index: linux-2.6.15-ck5/fs/nfs/direct.c
-===================================================================
---- linux-2.6.15-ck5.orig/fs/nfs/direct.c	2006-03-02 13:06:57.000000000 +1100
-+++ linux-2.6.15-ck5/fs/nfs/direct.c	2006-03-02 13:55:28.000000000 +1100
-@@ -73,6 +73,8 @@ struct nfs_direct_req {
- 				error;		/* any reported error */
- };
- 
-+static void
-+nfs_free_user_pages(struct page **pages, int npages, int do_dirty);
- 
- /**
-  * nfs_get_user_pages - find and set up pages underlying user's buffer

@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWCBOYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWCBOft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWCBOYS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 09:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCBOYS
+	id S1750921AbWCBOft (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 09:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWCBOft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 09:24:18 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15265 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751257AbWCBOYS (ORCPT
+	Thu, 2 Mar 2006 09:35:49 -0500
+Received: from ns2.suse.de ([195.135.220.15]:12697 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750828AbWCBOfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 09:24:18 -0500
-Date: Thu, 2 Mar 2006 06:23:59 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: akpm@osdl.org, Simon.Derr@bull.net, linux-kernel@vger.kernel.org,
-       ebiederm@xmission.com
-Subject: Re: [PATCH] Proc: move proc fs hooks from cpuset.c to
- proc/fs/base.c
-Message-Id: <20060302062359.5940ff7f.pj@sgi.com>
-In-Reply-To: <20060302084739.GC21902@infradead.org>
-References: <20060302070812.15674.50176.sendpatchset@jackhammer.engr.sgi.com>
-	<20060302084739.GC21902@infradead.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 2 Mar 2006 09:35:48 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Date: Thu, 2 Mar 2006 15:35:35 +0100
+User-Agent: KMail/1.9.1
+Cc: Michael Monnerie <m.monnerie@zmi.at>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+References: <200603020023.21916@zmi.at> <200603021458.02934.ak@suse.de> <20060302141412.GT4329@suse.de>
+In-Reply-To: <20060302141412.GT4329@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603021535.36549.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Seems pointless.  This just increases #ifdef churn for no gain.
+On Thursday 02 March 2006 15:14, Jens Axboe wrote:
 
-Take a look at fs/proc/base.c.  That's how pretty much all the
-other proc hooks are done, with ifdef's around their proc hooks.
+[...]
 
-ifdef minimization is a good goal, yes.
+Ok great we agree on everything then.
 
-But uniformity of practice is another good goal.
+> > > 
+> > > I would not want to call wake_up() unless I have to. Would a
+> > > 
+> > >         smp_mb();
+> > >         if (waitqueue_active(&iommu_wq))
+> > >                 ...
+> > > 
+> > > not be sufficient?
+> > 
+> > Probably, but one would need to be careful to not miss events this way.
+> 
+> Definitely, as far as I can see the above should be enough...
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Ok - you just need to give me a wait queue then and I would be happy
+to add the wakeups to the low level code
+
+(or you can just do it yourself	if you prefer, shouldn't be very difficult ... - just
+needs to be done for both swiotlb and GART iommu. The other architectures
+can follow then. At the beginning using an ARCH_HAS_* ifdef might be a good
+idea for easier transition for everybody) 
+
+-Andi

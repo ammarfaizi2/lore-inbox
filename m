@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWCBK0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbWCBKZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbWCBK0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 05:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWCBK0Q
+	id S1750983AbWCBKZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 05:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCBKZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 05:26:16 -0500
-Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:45189 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751107AbWCBK0P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 05:26:15 -0500
-Message-ID: <4406C845.8000603@drzeus.cx>
-Date: Thu, 02 Mar 2006 11:26:13 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060210)
-MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>, Jens Axboe <axboe@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to map high memory for block io
-References: <20060128191759.GC9750@suse.de> <43DBC6E2.4000305@drzeus.cx> <20060129152228.GF13831@suse.de> <43DDC6F9.6070007@drzeus.cx> <20060130080930.GB4209@suse.de> <43DFAEC6.3090205@drzeus.cx> <20060301232913.GC4024@flint.arm.linux.org.uk> <44069E3A.4000907@drzeus.cx> <20060302094153.GA14017@flint.arm.linux.org.uk> <4406C044.4080201@drzeus.cx> <20060302100409.GB14017@flint.arm.linux.org.uk>
-In-Reply-To: <20060302100409.GB14017@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 2 Mar 2006 05:25:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:10175 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750983AbWCBKZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 05:25:15 -0500
+Date: Thu, 2 Mar 2006 02:23:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5 OOM regression
+Message-Id: <20060302022356.5fad2e08.akpm@osdl.org>
+In-Reply-To: <4405F929.2030609@keyaccess.nl>
+References: <4405F929.2030609@keyaccess.nl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Thu, Mar 02, 2006 at 10:52:04AM +0100, Pierre Ossman wrote:
->   
->> Russell King wrote:
->>     
->>> I think you're asking Jens that question - I know of no way to tell
->>> the block layer that clustering is fine for normal but not highmem.
->>>       
->> That wasn't what I meant. What I was referring to was disabling highmem
->> altogether, the way that is done now through looking at the dma mask.
->>     
+Rene Herman <rene.herman@keyaccess.nl> wrote:
 >
-> You need to set your struct device's dma_mask appropriately:
->
->         u64 limit = BLK_BOUNCE_HIGH;
->
->         if (host->dev->dma_mask && *host->dev->dma_mask)
->                 limit = *host->dev->dma_mask;
->
->         blk_queue_bounce_limit(mq->queue, limit);
->
-> Hence, if dma_mask is a NULL pointer or zero, highmem will be bounced.
->   
+> I was playing with "slabtop" (a /proc/slabinfo display tool) while 
+>  running a little memory-eater app in a different xterm:
+> 
+>  === pig.c
+> 
+>  #include <stdlib.h>
+> 
+>  int main(void)
+>  {
+>  	unsigned char *p;
+> 
+>  	while ((p = malloc(4096)))
+>  		*p = 0;
+>  	return 0;
+>  }
+> 
+>  ===
+> 
+>  I was expecting the oom-killer but instead had X freeze on me entirely. 
+>    No keyboard or mouse, and while the machine does still ping in this 
+>  state, also no rlogins. This does not happen in 2.6.15.4 -- there the 
+>  oom-killer will kill the eater app (sometimes including the xterm it's 
+>  in, sometimes not, but not a problem).
+> 
+>  The 2.6.16-rc5 freeze is "highly repeatable", meaning not always, but 
+>  very often. It seems that having for example Firefox loaded increases 
+>  the chances of a full freeze, but that might just be chance as well.
 
-This I know. My beef is the readability of:
+crap, thanks.  I would appear to have broken one of Christoph's patches for
+him.
 
-if (do_dma)
-    *dev->dma_mask = DEVICE_DMA_MASK;
-else
-    *dev->dma_mask = 0;
-
-I.e. we use dma_mask even though we don't do DMA.
-
-> Neither PNP nor your platform device sets dma_mask, so highmem will
-> always be bounced in the case of wbsd - which from what you write above
-> is what you require anyway.
->
->   
-
-wbsd isn't the issue, sdhci is. PCI sets a 32-bit mask by default so I
-end up with highmem pages even when I'm not doing DMA.
-
-Rgds
-Pierre
+--- devel/mm/oom_kill.c~out_of_memory-locking-fix	2006-03-02 02:17:00.000000000 -0800
++++ devel-akpm/mm/oom_kill.c	2006-03-02 02:17:22.000000000 -0800
+@@ -355,6 +355,7 @@ retry:
+ 	}
+ 
+ out:
++	read_unlock(&tasklist_lock);
+ 	cpuset_unlock();
+ 	if (mm)
+ 		mmput(mm);
+_
 

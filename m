@@ -1,42 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWCBEqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWCBEsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWCBEqW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 23:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWCBEqV
+	id S1750730AbWCBEsq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 23:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWCBEsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:46:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21732 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750781AbWCBEqV (ORCPT
+	Wed, 1 Mar 2006 23:48:46 -0500
+Received: from mail.gmx.net ([213.165.64.20]:60628 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750730AbWCBEsq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:46:21 -0500
-Date: Wed, 1 Mar 2006 20:45:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] map multiple blocks for mpage_readpages()
-Message-Id: <20060301204502.63330347.akpm@osdl.org>
-In-Reply-To: <1141075456.10542.25.camel@dyn9047017100.beaverton.ibm.com>
-References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
-	<1141075456.10542.25.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Mar 2006 23:48:46 -0500
+Date: Thu, 2 Mar 2006 05:48:44 +0100 (MET)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: janak@us.ibm.com, akpm@osdl.org, ak@muc.de, hch@lst.de, paulus@samba.org,
+       viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
+       michael.kerrisk@gmx.net
+MIME-Version: 1.0
+References: <Pine.LNX.4.64.0603011959340.22647@g5.osdl.org>
+Subject: Re: unhare() interface design questions and man page
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <1101.1141274924@www008.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
->  do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
->  -			sector_t *last_block_in_bio, get_block_t get_block)
->  +			sector_t *last_block_in_bio, struct buffer_head *map_bh,
->  +			unsigned long *first_logical_block, int *map_valid,
->  +			get_block_t get_block)
+Linus, 
 
-I wonder if we really need that map_valid pointer there.  The normal way of
-communicating the validity of a bh is via buffer_uptodate().  I _think_
-that's an appropriate thing to use here.  With appropriate comments, of
-course..
+> On Thu, 2 Mar 2006, Michael Kerrisk wrote:
+> > > >>>>>
+> > > >>>>> That is, CLONE_FS, CLONE_FILES, and CLONE_VM *reverse* the 
+> > > >>>>> effects of the clone() flags of the same name, but CLONE_NEWNS 
+> > > >>>>> *has the same meaning* as the clone() flag of the same name.
+> 
+> Well, if this is the only problem, who cares? CLONE_NEWNS itself is 
+> actually a reversal of clone flags: unlike the others, that tell to 
+> _share_ things that normally aren't shared across a fork(), CLONE_NEWNS 
+> does the opposite: it asks to unshare something that normally is shared.
+> 
+> So the fact that it then acts not as a reversal when doing "unshare()" 
+> is 
+> actually consistent with the fact that it's a already a "unshare" event 
+> for clone() itself.
 
-If those options are not a sufficiently good fit then we can easily create
-a new buffer-head.state bit for this purpose - there are lots to spare.
+I care about this from an (kernel-userland) *interface* point 
+of view.  I see a small but steady stream of unnecessarily 
+confusing interfaces going into the kernel-userland interface; 
+the problem is that no-one (or not enough people) seem to really
+care about this.
+
+The key point is this: if it looks like a duck, I expect it
+to behave like a duck.  When interfaces have the same name, 
+then users expect the interfaces to provide the same 
+behaviour.  Now with unshare() we have the situation that
+a set of flags with the same name reverses the 
+corresponding flags for clone().  From an interface design 
+point of view that might almost be okay.  But one flag
+breaks the pattern: CLONE_NEWNS, does the same thing in 
+both clone() and unshare().
+
+Inflicting this sort of messiness on userland is a recipe 
+for programmer confusion, with bugs and security holes 
+in userland programs as the possible result. If you agree
+that that is a possible result, then why not avoid the
+possibility?  It does not cost much to do so.
+
+> > Do you have any further response on this point?
+> > (There was none in your last message?)
+> 
+> I personally don't think it's worth makign UNSHARE_NEWNS just because 
+> it's
+> a flag that acts differently from the other CLONE_xxx flags.
+
+See my comments above.  (And in case it wasn't clear, I meant 
+make a complete set of UNSHARE_* flags that mirror the 
+corresponding CLONE_* flags.)
+ 
+> As to whether allow or not allow unknown unshare() flags, I don't think 
+> it's a huge deal either way. Right now we don't check the flags to 
+> "clone()" either, I think.
+
+No checking in clone() was probably a mistake (now difficult 
+to rectify because it could break bad userland apps).
+Is that past mistake a rationale for making the same
+mistake in future interfaces?  Without checks such as I've 
+described, the kernel is not providing ABI stability (i.e.,
+if some bit that was meaningless in the past acquires a meaning
+in later kernels, then (older) application behaviour arbitrarily
+and unexpectedly changes.  Why does that possibility not matter?
+Making the change I suggest would help userland programmers.
+What is the cost of making it?  (i.e., is there some good reason
+not to do it?)
+
+Cheers,
+
+Michael
+
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

@@ -1,55 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWCBDbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWCBDf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWCBDbp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 22:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWCBDbo
+	id S932190AbWCBDf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 22:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWCBDf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 22:31:44 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:64151 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932201AbWCBDbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 22:31:43 -0500
-Message-ID: <4406671C.2060209@pobox.com>
-Date: Wed, 01 Mar 2006 22:31:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 1 Mar 2006 22:35:26 -0500
+Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:65432 "EHLO
+	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932190AbWCBDfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 22:35:25 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+Subject: 2.6.15-ck5
+Date: Thu, 2 Mar 2006 14:35:57 +1100
+User-Agent: KMail/1.9
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Mark Lord <liml@rtr.ca>, jeff@garzik.org, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: libata queue contents
-References: <20060301203901.GA6915@havoc.gtf.org>	<44063E09.1060303@rtr.ca> <20060301192740.1172e579.rdunlap@xenotime.net>
-In-Reply-To: <20060301192740.1172e579.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Length: 2932
+Message-Id: <200603021435.58041.kernel@kolivas.org>
+Content-Type: multipart/signed;
+  boundary="nextPart2021555.9QLidMVvyk";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On Wed, 01 Mar 2006 19:36:25 -0500 Mark Lord wrote:
-> 
-> 
->>Jeff Garzik wrote:
->>
->>>Here's the stuff that's pending for 2.6.17, in the
->>>libata-dev.git#upstream branch.  These changes are also auto-propagated
->>>to Andrew Morton's -mm via the #ALL meta-branch.
->>
->>Where are Randy's ACPI patches ?
-> 
-> 
-> I haven't generated them against #upstream.  I'll try to do that
-> in the next couple of days (assuming that I can git along with git).
-> or can I use the git-rollup patch in -mm to diff against?
+--nextPart2021555.9QLidMVvyk
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-git-libata-all.patch in -mm is #upstream plus other stuff.  For the time 
-being, for testing and current deployment, diffing against 
-git-libata-all.patch, and sending the result to akpm, is probably the 
-best route, and will get you quite close to #upstream.
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck patch is aimed at the=
+=20
+desktop and cks is available with more emphasis on serverspace.
 
-	Jeff
+This includes all patches from 2.6.15.5 so use 2.6.15 as your base.
+
+Apply to 2.6.15
+http://ck.kolivas.org/patches/2.6/2.6.15/2.6.15-ck5/patch-2.6.15-ck5.bz2
+
+or server version
+http://ck.kolivas.org/patches/cks/patch-2.6.15-cks5.bz2
+
+web:
+http://kernel.kolivas.org
+
+all patches:
+http://ck.kolivas.org/patches/
+
+Split patches available.
 
 
+Changes
+=2D------
+Added:
+ +mm-highmem_fix_background_scan.patch
+The background scanning when used with a very small amount of highmem (eg 1=
+GB)=20
+was continually clearing out page cache inappropriately. This patch correct=
+s=20
+it by not background scanning if highmem is below watermarks.
 
+ +sched-staircase13.4_13.5.patch
+Increase rr intervals to 6ms for slightly better cache utilisation while st=
+ill=20
+staying below human perceptible jitter levels.
+
+ +nfs-fix_build.patch
+The 2.6.15.5 stable patch includes a build error; this fixes it.
+
+
+Modified:
+ -mm-swap_prefetch-19.patch
+ +mm-swap_prefetch-28.patch
+Update to the latest prefetch as included in 2.6.15-rc5-mm1
+
+ -2.6.15-dynticks-060101.patch
+ +2.6.15-dynticks-060227.patch
+Update to the latest dynticks code which fixes some bugs
+
+ -patch-2.6.15.4.bz2
+ +patch-2.6.15.5.bz2
+Update to the latest stable patch
+
+ -2615ck4-version.patch
+ +2615ck5-version.patch
+Version update
+
+
+Removed:
+ -dynticks-i386_only_config.patch
+Part of the latest dynticks patch already so unnecessary.
+
+
+=46ull patchlist:
+sched-staircase13.2.patch
+sched-staircase13.2_13.3.patch
+schedrange-1.diff
+schedbatch-2.11.diff
+sched-iso3.3.patch
+vmsplit-config_options.patch
+defaultcfq.diff
+isobatch_ionice2.diff
+rt_ionice.diff
+pdflush-tweaks.patch
+hz-default_values.patch
+hz-no_default_250.patch
+mm-swap_prefetch-28.patch
+vm-mapped.diff
+vm-lots_watermark.diff
+vm-background_scan-1.diff
+mm-highmem_fix_background_scan.patch
+mm-kswapd_inherit_prio-1.patch
+mm-prio_dependant_scan.patch
+mm-batch_prio.patch
+2.6.15-dynticks-060227.patch
+dynticks-disable_smp_config.patch
+sched-staircase13.3_13.4.patch
+sched-staircase13.4_13.5.patch
+patch-2.6.15.5.bz2
+nfs-fix_build.patch
+2615ck5-version.patch
+
+
+Cheers,
+Con
+
+--nextPart2021555.9QLidMVvyk
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBEBmgeZUg7+tp6mRURAoO0AJ9Xahmr/BhwWqNT17D/ThQZ48lQwACgiHiS
+O2EOzHxAAptqcHCduioMYWA=
+=kqrg
+-----END PGP SIGNATURE-----
+
+--nextPart2021555.9QLidMVvyk--

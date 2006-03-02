@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752023AbWCBRWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWCBR0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752023AbWCBRWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752027AbWCBRWX
+	id S1751360AbWCBR0w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWCBR0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:22:23 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:35249 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751593AbWCBRWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:22:21 -0500
-Subject: Re: Question: how to map SCSI data DMA address to virtual address?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "Ju, Seokmann" <Seokmann.Ju@lsil.com>,
-       "Ju, Seokmann" <Seokmann.Ju@engenio.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20060302170915.GA31316@infradead.org>
-References: <9738BCBE884FDB42801FAD8A7769C2651420C1@NAMAIL1.ad.lsil.com>
-	 <20060302170915.GA31316@infradead.org>
-Content-Type: text/plain
-Date: Thu, 02 Mar 2006 11:22:12 -0600
-Message-Id: <1141320132.3238.20.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Mar 2006 12:26:52 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17038 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750993AbWCBR0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:26:51 -0500
+To: Paul Jackson <pj@sgi.com>
+Cc: hch@infradead.org, akpm@osdl.org, Simon.Derr@bull.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Proc: move proc fs hooks from cpuset.c to
+ proc/fs/base.c
+References: <20060302070812.15674.50176.sendpatchset@jackhammer.engr.sgi.com>
+	<20060302084739.GC21902@infradead.org>
+	<20060302062359.5940ff7f.pj@sgi.com>
+	<m1y7zskdsi.fsf@ebiederm.dsl.xmission.com>
+	<20060302085217.8ec38ebe.pj@sgi.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 02 Mar 2006 10:09:43 -0700
+In-Reply-To: <20060302085217.8ec38ebe.pj@sgi.com> (Paul Jackson's message of
+ "Thu, 2 Mar 2006 08:52:17 -0800")
+Message-ID: <m1lkvskc2w.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-02 at 17:09 +0000, Christoph Hellwig wrote:
-> For each sg list entry do something like:
-> 
-> 	buffer = kmap_atomic(sg->page, KM_USER0) + sg->offset;
-> 	<access buffer>
-> 	kunmap_atomic(buffer - sg->offset, KM_USER0);
+Paul Jackson <pj@sgi.com> writes:
 
-Remember too that the data might not necessarily be valid without a
-flush depending on where it has come from (or where it is going).  See
-the dma_sync_sg_for_device/cpu.
+>> Agreed.  However the direction I am gradually moving fs/proc/base.c
+>> is the opposite.
+>
+> Oh - ok fine.
+>
+> I had seen something from Andrew a couple of days ago
+> that led me to a different understanding in this particular
+> case.
 
-James
+As we increase the number of namespaces that we allow multiple instances
+of in linux.  More of the files that are in /proc need to become
+per process, like /proc/mounts did.
 
+I mentioned that to Andrew and I think the message got a little
+garbled.
 
+Eric

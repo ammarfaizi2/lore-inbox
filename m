@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752011AbWCBRLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752010AbWCBRON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752011AbWCBRLc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752021AbWCBRLc
+	id S1752010AbWCBRON (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752021AbWCBRON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:11:32 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:56784 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752011AbWCBRLb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:11:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=X8VqR75tpUtyxwdQNj6JbWm0KtIl2laCEGums89EBJvlUBtYY06tFRE1gg0HhLfB7KDF0XXytzACuR0K/j7bPy7TsDRdsM0pMKjMwarm5qGw9mbOgNCRf65zsk5CGMFxzd/8oTbXWX6LWNqOUnXcYrrr1VSFlAzIYmwjqT92ZA0=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Steffen Weber <email@steffenweber.net>
-Subject: Re: Another compile problem with 2.6.15.5 on AMD64
-Date: Thu, 2 Mar 2006 18:11:50 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <44071AF3.1010400@steffenweber.net>
-In-Reply-To: <44071AF3.1010400@steffenweber.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Mar 2006 12:14:13 -0500
+Received: from colo.lackof.org ([198.49.126.79]:5299 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S1752010AbWCBRON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:14:13 -0500
+Date: Thu, 2 Mar 2006 10:24:36 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
+Message-ID: <20060302172436.GC22711@colo.lackof.org>
+References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603021811.50765.jesper.juhl@gmail.com>
+In-Reply-To: <20060302155056.GB28895@flint.arm.linux.org.uk>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 March 2006 17:18, Steffen Weber wrote:
-> I´m getting a compile error with 2.6.15.5 on x86_64 using GCC 3.4.4 
-> (does not seem to be related to the NFS one):
+On Thu, Mar 02, 2006 at 03:50:57PM +0000, Russell King wrote:
+> I've been wondering whether this "no_ioport" flag is the correct approach,
+> or whether it's adding to complexity when it isn't really required.
+
+I think it's the simplest solution to allowing a driver
+to indicate which resources it wants to use. It solves
+the problem of I/O Port resource allocation sufficiently
+well.
+
+> In the non-Intel world, the kernel itself sets up the PCI bus mappings,
+
+mappings, yes. But many of the architectures depend on (or assume)
+firmware will assign appropriate resources. The problem is firmware
+runs out of I/O Port resources.
+
+> and any IO bars which it can't satisfy might also need to be gracefully
+> handled.  Currently, we just go 'printk("whoops, didn't allocate
+> resource")' and leave the BAR containing whatever random junk it
+> contained before, along with the resource containing whatever random
+> junk pci_bus_alloc_resource() decided to leave in it.
 > 
->    CC      mm/mempolicy.o
-> mm/mempolicy.c: In function `get_nodes':
-> mm/mempolicy.c:527: error: `BITS_PER_BYTE' undeclared (first use in
-> this function)
-> mm/mempolicy.c:527: error: (Each undeclared identifier is reported only
-> once
-> mm/mempolicy.c:527: error: for each function it appears in.)
+> In such cases, I would suggest that the method of signalling that IO
+> should not be used is to have the IO resource structures cleared out -
+> if the IO resources aren't valid, they should not contain something
+> which could be interpreted as valid.
+
+You want the arch PCI support to clobber the I/O port space resources?
+How will the arch PCI support know that a particular device's driver
+only uses MMIO resources?
+
+> Maybe something like this should be done for the "legacy IO port" case
+> as well?
+
+Several people have already agreed the driver needs to indicate which
+resource it wants to work with. I don't see how the arch PCI support
+can provide that "knowledge".
+
+hth,
+grant
+
 > 
-
-Try the following (untested patch).
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- mm/mempolicy.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.15.5/mm/mempolicy.c~	2006-03-02 18:05:18.000000000 +0100
-+++ linux-2.6.15.5/mm/mempolicy.c	2006-03-02 18:05:18.000000000 +0100
-@@ -82,7 +82,7 @@
- #include <linux/interrupt.h>
- #include <linux/init.h>
- #include <linux/compat.h>
--#include <linux/mempolicy.h>
-+#include <linux/types.h>
- #include <asm/tlbflush.h>
- #include <asm/uaccess.h>
- 
-
-
-
+> -- 
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core

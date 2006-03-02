@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWCBXJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWCBXKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751684AbWCBXJz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 18:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWCBXJi
+	id S1751195AbWCBXKS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 18:10:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWCBXKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 18:09:38 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:23471 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751195AbWCBXJe (ORCPT
+	Thu, 2 Mar 2006 18:10:00 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:60591 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751203AbWCBXJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 18:09:34 -0500
+	Thu, 2 Mar 2006 18:09:44 -0500
 From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 To: Adam Belay <ambx1@neo.rr.com>
-Subject: [PATCH 4/9] opl3sa2: adjust pnp_register_driver signature
-Date: Thu, 2 Mar 2006 16:09:32 -0700
+Subject: [PATCH 6/9] i8042: adjust pnp_register_driver signature
+Date: Thu, 2 Mar 2006 16:09:42 -0700
 User-Agent: KMail/1.8.3
 Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
        Matthieu Castet <castet.matthieu@free.fr>,
        Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-sound@vger.kernel.org
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-input@atrey.karlin.mff.cuni.cz
 References: <200603021601.27467.bjorn.helgaas@hp.com>
 In-Reply-To: <200603021601.27467.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
@@ -25,7 +26,7 @@ Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603021609.32770.bjorn.helgaas@hp.com>
+Message-Id: <200603021609.42272.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,68 +35,92 @@ devices claimed.
 
 Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-Index: work-mm4/sound/isa/opl3sa2.c
+Index: work-mm4/drivers/input/serio/i8042-x86ia64io.h
 ===================================================================
---- work-mm4.orig/sound/isa/opl3sa2.c	2006-02-01 16:24:54.000000000 -0700
-+++ work-mm4/sound/isa/opl3sa2.c	2006-02-15 10:11:17.000000000 -0700
-@@ -95,6 +95,7 @@
- static int pnp_registered;
- static int pnpc_registered;
- #endif
-+static unsigned int snd_opl3sa2_devices;
+--- work-mm4.orig/drivers/input/serio/i8042-x86ia64io.h	2006-03-02 12:40:45.000000000 -0700
++++ work-mm4/drivers/input/serio/i8042-x86ia64io.h	2006-03-02 12:45:21.000000000 -0700
+@@ -192,7 +192,9 @@
+ #include <linux/pnp.h>
  
- /* control ports */
- #define OPL3SA2_PM_CTRL		0x01
-@@ -760,6 +761,7 @@
+ static int i8042_pnp_kbd_registered;
++static unsigned int i8042_pnp_kbd_devices;
+ static int i8042_pnp_aux_registered;
++static unsigned int i8042_pnp_aux_devices;
+ 
+ static int i8042_pnp_command_reg;
+ static int i8042_pnp_data_reg;
+@@ -219,6 +221,7 @@
+ 		strncat(i8042_pnp_kbd_name, pnp_dev_name(dev), sizeof(i8042_pnp_kbd_name));
  	}
- 	pnp_set_drvdata(pdev, card);
- 	dev++;
-+	snd_opl3sa2_devices++;
+ 
++	i8042_pnp_kbd_devices++;
  	return 0;
  }
  
-@@ -826,6 +828,7 @@
+@@ -239,6 +242,7 @@
+ 		strncat(i8042_pnp_aux_name, pnp_dev_name(dev), sizeof(i8042_pnp_aux_name));
  	}
- 	pnp_set_card_drvdata(pcard, card);
- 	dev++;
-+	snd_opl3sa2_devices++;
+ 
++	i8042_pnp_aux_devices++;
  	return 0;
  }
  
-@@ -944,7 +947,7 @@
+@@ -287,21 +291,23 @@
  
- static int __init alsa_card_opl3sa2_init(void)
+ static int __init i8042_pnp_init(void)
  {
--	int i, err, cards = 0;
-+	int i, err;
+-	int result_kbd = 0, result_aux = 0;
+ 	char kbd_irq_str[4] = { 0 }, aux_irq_str[4] = { 0 };
++	int err;
  
- 	if ((err = platform_driver_register(&snd_opl3sa2_nonpnp_driver)) < 0)
- 		return err;
-@@ -962,23 +965,19 @@
- 			goto errout;
- 		}
- 		platform_devices[i] = device;
--		cards++;
-+		snd_opl3sa2_devices++;
+ 	if (i8042_nopnp) {
+ 		printk(KERN_INFO "i8042: PNP detection disabled\n");
+ 		return 0;
  	}
  
- #ifdef CONFIG_PNP
- 	err = pnp_register_driver(&opl3sa2_pnp_driver);
--	if (err >= 0) {
+-	if ((result_kbd = pnp_register_driver(&i8042_pnp_kbd_driver)) >= 0)
++	err = pnp_register_driver(&i8042_pnp_kbd_driver);
 +	if (!err)
- 		pnp_registered = 1;
--		cards += err;
--	}
- 	err = pnp_register_card_driver(&opl3sa2_pnpc_driver);
--	if (err >= 0) {
+ 		i8042_pnp_kbd_registered = 1;
+ 
+-	if ((result_aux = pnp_register_driver(&i8042_pnp_aux_driver)) >= 0)
++	err = pnp_register_driver(&i8042_pnp_aux_driver);
 +	if (!err)
- 		pnpc_registered = 1;
--		cards += err;
--	}
+ 		i8042_pnp_aux_registered = 1;
+ 
+-	if (result_kbd <= 0 && result_aux <= 0) {
++	if (!i8042_pnp_kbd_devices && !i8042_pnp_aux_devices) {
+ 		i8042_pnp_exit();
+ #if defined(__ia64__)
+ 		return -ENODEV;
+@@ -311,24 +317,24 @@
+ #endif
+ 	}
+ 
+-	if (result_kbd > 0)
++	if (i8042_pnp_kbd_devices)
+ 		snprintf(kbd_irq_str, sizeof(kbd_irq_str),
+ 			"%d", i8042_pnp_kbd_irq);
+-	if (result_aux > 0)
++	if (i8042_pnp_aux_devices)
+ 		snprintf(aux_irq_str, sizeof(aux_irq_str),
+ 			"%d", i8042_pnp_aux_irq);
+ 
+ 	printk(KERN_INFO "PNP: PS/2 Controller [%s%s%s] at %#x,%#x irq %s%s%s\n",
+-		i8042_pnp_kbd_name, (result_kbd > 0 && result_aux > 0) ? "," : "",
++		i8042_pnp_kbd_name, (i8042_pnp_kbd_devices && i8042_pnp_aux_devices) ? "," : "",
+ 		i8042_pnp_aux_name,
+ 		i8042_pnp_data_reg, i8042_pnp_command_reg,
+-		kbd_irq_str, (result_kbd > 0 && result_aux > 0) ? "," : "",
++		kbd_irq_str, (i8042_pnp_kbd_devices && i8042_pnp_aux_devices) ? "," : "",
+ 		aux_irq_str);
+ 
+ #if defined(__ia64__)
+-	if (result_kbd <= 0)
++	if (!i8042_pnp_kbd_devices)
+ 		i8042_nokbd = 1;
+-	if (result_aux <= 0)
++	if (!i8042_pnp_aux_devices)
+ 		i8042_noaux = 1;
  #endif
  
--	if (!cards) {
-+	if (!snd_opl3sa2_devices) {
- #ifdef MODULE
- 		snd_printk(KERN_ERR "Yamaha OPL3-SA soundcard not found or device busy\n");
- #endif

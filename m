@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751702AbWCBXL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751728AbWCBXOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751702AbWCBXL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 18:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWCBXJ6
+	id S1751728AbWCBXOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 18:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751729AbWCBXOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 18:09:58 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:23984 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1751290AbWCBXJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 18:09:48 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Adam Belay <ambx1@neo.rr.com>
-Subject: [PATCH 7/9] IRDA: adjust pnp_register_driver signature
-Date: Thu, 2 Mar 2006 16:09:46 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
-       Matthieu Castet <castet.matthieu@free.fr>,
-       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Jean Tourrilhes <jt@hpl.hp.com>, irda-users@lists.sourceforge.net
-References: <200603021601.27467.bjorn.helgaas@hp.com>
-In-Reply-To: <200603021601.27467.bjorn.helgaas@hp.com>
+	Thu, 2 Mar 2006 18:14:25 -0500
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:56549
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1751717AbWCBXOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 18:14:24 -0500
+Message-ID: <44077C56.6000506@ed-soft.at>
+Date: Fri, 03 Mar 2006 00:14:30 +0100
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Mail/News 1.5 (X11/20060206)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: PATA: New patch (2.6.16rc5-ide2)
+References: <1141242515.23170.6.camel@localhost.localdomain> <44064FBF.2010408@comcast.net>
+In-Reply-To: <44064FBF.2010408@comcast.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603021609.46954.bjorn.helgaas@hp.com>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the assumption that pnp_register_driver() returns the number of
-devices claimed.
+I added { 0x8086, 0x25a2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, esb2_pata } to
+drivers/scsi/ata_piix.c.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+When i try to play a dvd i get the following errors in dmesg :
 
-Index: work-mm4/drivers/net/irda/nsc-ircc.c
-===================================================================
---- work-mm4.orig/drivers/net/irda/nsc-ircc.c	2006-02-22 09:55:50.000000000 -0700
-+++ work-mm4/drivers/net/irda/nsc-ircc.c	2006-02-22 10:06:53.000000000 -0700
-@@ -207,7 +207,7 @@
-  	/* Register with PnP subsystem to detect disable ports */
- 	ret = pnp_register_driver(&nsc_ircc_pnp_driver);
- 
-- 	if (ret >= 0)
-+ 	if (!ret)
-  		pnp_registered = 1;
- 
- 	ret = -ENODEV;
+end_request: I/O error, dev sr0, sector 1411168
+Buffer I/O error on device sr0, logical block 176396
+Buffer I/O error on device sr0, logical block 176397
+Buffer I/O error on device sr0, logical block 176398
+Buffer I/O error on device sr0, logical block 176399
+Buffer I/O error on device sr0, logical block 176400
+Buffer I/O error on device sr0, logical block 176401
+Buffer I/O error on device sr0, logical block 176402
+Buffer I/O error on device sr0, logical block 176403
+end_request: I/O error, dev sr0, sector 1411232
+Buffer I/O error on device sr0, logical block 176404
+Buffer I/O error on device sr0, logical block 176405
+end_request: I/O error, dev sr0, sector 1411432
+end_request: I/O error, dev sr0, sector 1411616
+end_request: I/O error, dev sr0, sector 1411168
+
+I know the DVD is ok. How can i help to make it work ?
+
+cu
+
+Edgar (gimli) Hucek

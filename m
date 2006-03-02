@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWCBQrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWCBQsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751168AbWCBQrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWCBQrw
+	id S1751000AbWCBQsf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWCBQsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:47:52 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:9197 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751200AbWCBQrv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:47:51 -0500
-Date: Thu, 2 Mar 2006 08:47:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Ren? Rebe <rene@exactcode.de>
+	Thu, 2 Mar 2006 11:48:35 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:32785 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751000AbWCBQse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 11:48:34 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Neil Brown <neilb@suse.de>
+Subject: RAID5 initial rebuild slow, 2.6.16-rc4
+Date: Thu, 2 Mar 2006 16:48:21 +0000
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Message-ID: <20060302164745.GB31076@kroah.com>
-References: <200603012116.25869.rene@exactcode.de> <200603012242.35633.rene@exactcode.de> <20060301215423.GA17825@kroah.com> <200603021004.21232.rene@exactcode.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200603021004.21232.rene@exactcode.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200603021648.21465.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 10:04:21AM +0100, Ren? Rebe wrote:
-> Hi,
-> 
-> On Wednesday 01 March 2006 22:54, Greg KH wrote:
-> 
-> > > > Why not just send down 2 urbs with that size then, that would keep the
-> > > > pipe quite full.
-> > > 
-> > > Because that requires even more modifications to libusb and sane (i_usb) ...
-> > 
-> > No, do it in your application I mean.
-> 
-> ? The driver is a SANE backend and forced to use sanei_usb over libusb. Thus
-> I have to modifiy them all to allow asynchon URB queuing - or have I missed
-> something?
+Hi Neil,
 
-I really don't know the SANE backend design, sorry.
+I recently purchased two SATA2 Western Digital WD2500KS (250GB) HDs to add to 
+a pair of Maxtor DiamondMax 10's (200GB). I planned to initialise two 100GB 
+RAID5 arrays spanning all four drives (the remaining 2x50GB on the new HDs is 
+currently used for booting).
 
-greg k-h
+All the drives are connected to the same controller. I'm running mdadm 2.3.1, 
+which is the latest version I believe. I created the array with the following 
+command:
+
+mdadm --create /dev/md1 --auto=yes --chunk=64 --level=5 
+--raid-devices=4 /dev/sda3 /dev/sdb3 /dev/sdc2 /dev/sdd2
+
+A few seconds later the array completed and I got the following 
+in /proc/mdstat:
+
+[root] 16:45 [~] cat /proc/mdstat
+Personalities : [raid0] [raid5] [raid4] [multipath]
+md2 : active raid0 sdb1[1] sda1[0]
+      195318016 blocks 32k chunks
+
+md1 : active raid5 sdd2[4] sdc2[2] sdb3[1] sda3[0]
+      298736448 blocks level 5, 64k chunk, algorithm 2 [4/3] [UUU_]
+      [>....................]  recovery =  0.5% (501376/99578816) 
+finish=1646.2min speed=1000K/sec
+
+I've not yet attempted to put a filesystem on the device, because I planned to 
+wait until the (presumably pointless) recovery process completed. However, 
+this rebuild seems to be extremely slow (the speed never exceeds the 
+"minimum" recovery speed). CPU usage is almost nill.
+
+This machine is an Athlon64 X2 3800+, with 2GB RAM, running an x86_64 kernel. 
+Is there any reason for this poor performance?
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

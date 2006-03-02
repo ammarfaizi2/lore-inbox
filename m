@@ -1,84 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752059AbWCBTvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752060AbWCBTwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752059AbWCBTvM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 14:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752058AbWCBTvL
+	id S1752060AbWCBTwR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 14:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWCBTwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 14:51:11 -0500
-Received: from lug-owl.de ([195.71.106.12]:3536 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1752060AbWCBTvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 14:51:10 -0500
-Date: Thu, 2 Mar 2006 20:51:06 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
-       jgeorgas@rogers.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] make UNIX a bool
-Message-ID: <20060302195106.GC19232@lug-owl.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
-	jgeorgas@rogers.com, linux-kernel@vger.kernel.org
-References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au> <20060302173840.GB9295@stusta.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8iFlQzmQn37S6Xy7"
-Content-Disposition: inline
-In-Reply-To: <20060302173840.GB9295@stusta.de>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Thu, 2 Mar 2006 14:52:16 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:8341 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S1752058AbWCBTwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 14:52:15 -0500
+Message-ID: <44074CA1.3000007@torque.net>
+Date: Thu, 02 Mar 2006 14:50:57 -0500
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Matthias Andree <matthias.andree@gmx.de>, Mark Rustad <mrustad@mac.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sg regression in 2.6.16-rc5
+References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net> <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org> <4405F6F1.9040106@torque.net> <Pine.LNX.4.63.0603012239440.5789@kai.makisara.local>
+In-Reply-To: <Pine.LNX.4.63.0603012239440.5789@kai.makisara.local>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kai Makisara wrote:
+> On Wed, 1 Mar 2006, Douglas Gilbert wrote:
+> 
+> 
+>>Linus Torvalds wrote:
+>>
+>>>On Wed, 1 Mar 2006, Matthias Andree wrote:
+>>>
+>>>
+>>>>On Tue, 28 Feb 2006, Douglas Gilbert wrote:
+>>>>
+>>>>
+>>>>
+>>>>>You can stop right there with the 1 MB reads. Welcome
+>>>>>to the new, blander sg driver which now shares many
+>>>>>size shortcomings with the block subsystem.
+>>>>
+>>>>What is the reason to break user-space applications like this?
+>>>
+>>>
+>>>Did you read the whole thread? It was a low-level SCSI driver issue, where 
+>>>nothing broke user space, but the command was just fed to the drive 
+>>>differently, which then hit a limit in the driver.
+>>
+>>Linus,
+>>That is an optimistic take. The maximum data carrying
+>>capacity of a single SCSI command via the SG_IO ioctl
+>>depends on the maximum data carrying capacity of a
+>>scatter gather list. Assuming all scatter gather list
+>>elements carry the same amount of data then the
+>>maximum capacity is:
+>>'max_bytes_per_element * max_num_elements'
+>>
+>>Only the latter figure is a "low-level SCSI driver issue"
+>>whose maximum seems to be SG_ALL (255). It is the former
+>>figure that has changed. The sg driver in lk 2.6.15 used
+>>__get_free_pages() with the order set to get 32 KB where
+>>as the generic routine used now get a single page (usually
+>>4 KB). Kai Makisara proposed changes in the SCSI LLD
+>>template that made things better in my experiments with
+>>scsi_debug.
+>>
+>>However today James Bottomley confirmed that relying on
+>>coalescing pages that may be adjacent is not deterministic:
+>>http://marc.theaimsgroup.com/?l=linux-scsi&m=114122991606658&w=2
+>>
+> 
+> If this is James's final opininion, then the changes to st for 2.6.16 
+> to use scsi_execute_async _must be reverted_ before final 2.6.16. They 
+> cause user-visible regression.
+> 
+> I don't think relying on coalescing in this case is non-deterministic: we 
+> know that enough pages are adjacent to coalesce. This is because the pages 
+> have been split into bios from larger kernel space buffers. (Conceptually 
+> I don't like this splitting and re-merging but it works provided the HBA 
+> parameters are good.)
 
---8iFlQzmQn37S6Xy7
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+As more information has come to light, the worst case
+"big transfer" of a single SCSI command through sg (and
+st I suspect) is 512 KB **. With full coalescing that figure
+goes up to 4 MB **. I am also aware that some users
+increase SG_SCATTER_SZ in the sg driver to get larger
+"big transfer"s than sg's current limit of (8MB - 32KB) **.
+That facility has now gone (i.e. upping SG_SCATTER_SZ will
+have no effect) with no replacement mechanism.
 
-On Thu, 2006-03-02 18:38:40 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > > It does also matter in the kernel image size case, since you have to =
-put=20
-> > > enough modules to the other medium for having a effect bigger than the
-> > > kernel image size increase from setting CONFIG_MODULES=3Dy.
-> > That's not very difficult considering the large number of modules that's
-> > out there that a system may wish to use.
-> This might be true for full-blown desktop systems - but these do not=20
-> tend to be the systems where kernel image size matters that much.
-> Smaller kernel image size might be an issue e.g. for distribution=20
-> kernels, but in a much less pressing way.
+So I'll add my vote to "revert this change before lk 2.6.16"
+with a view to applying it after some solution to the "big
+transfer" problem is found.
 
-Kernel image size matters if you try to make it boot off a floppy.
+In 8 years of maintaining the sg driver I cannot remember
+anybody contacting me regarding the way the sg driver ignored
+the DISABLE_CLUSTERING flag; that was until Mike Christie raised
+it yesterday with regard to iscsi_tcp ***. Gerard's post from
+2000 implied clustering was not a problem with U160 (SPI-3)
+so perhaps it was for SPI-2 (1998) or SPI (1995) or SCSI-2 (1993).
+If so those are pretty old symbios controllers. Why would any
+storage manufacturer make a DMA element that was restricted
+to Intel's i386 page size per transfer?
 
-MfG, JBG
+I suspect there are a small number of high power users
+that need "big transfers" and they will get a surprise
+in lk 2.6.16 if things stay as they are.
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+> I am a little frustrated with this whole thing. Several people have talked 
+> about switching st to use the block layer. Mike Christie finally did the 
+> work and the details were discussed on linux-scsi. I thought that 
+> everybody agreed on the details and I tested that the code works for st. 
+> Now it seems that there was no agreement!
+> 
+> 
+>>That leaves a worst case scatter gather list data capacity
+>>of (4 * 255) KB if the SCSI LLD (or SATA) uses SG_ALL. That
+>>is still just under the 1 MB bar that started this thread.
+>>
+> 
+> This is not acceptable.
+> 
+> 
+>>So I guess we might find out how many people do big,
+>>single SCSI command data, transfers when lk 2.6.16 comes
+>>out.
+>>
+> 
+> Learn the hard way ;-( I know that there are applications that read and 
+> write large tape blocks but I think they will hit the problems much later. 
+> These are production systems that are probably not updated frequently. 
+> When they find out this, they probably have to move away from Linux.
+> 
+> I have talked about st but I think the same arguments apply mostly to sg. 
 
---8iFlQzmQn37S6Xy7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I believe the sg and st drivers share these problems as would
+osst and ch if they tried to send a lot of data in one command.
+Firmware loading comes to mind.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFEB0yqHb1edYOZ4bsRAg9rAJ47nAPgKB9rfYvPtsbwW6uVRMXAcwCcC1Do
-hicvpwd4XXk2HXaFE5iSwPA=
-=Sx7H
------END PGP SIGNATURE-----
+** these figures assume ".sg_tablesize" in the corresponding low level
+driver is at least 128. If not, scale those figures down proportionally.
 
---8iFlQzmQn37S6Xy7--
+*** I believe the iscsi_tcp driver is emulating DMA and Mike
+Christie said yesterday that code could be added to that driver
+to support "clustering" (i.e. scatter gather element sizes larger
+than page size).
+
+Doug Gilbert

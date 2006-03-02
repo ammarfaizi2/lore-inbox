@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751671AbWCBSt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752034AbWCBSwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751671AbWCBSt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752030AbWCBSt3
+	id S1752034AbWCBSwp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752035AbWCBSwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:49:29 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58378 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751671AbWCBSt2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:49:28 -0500
-Date: Thu, 2 Mar 2006 19:49:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Ju, Seokmann" <Seokmann.Ju@lsil.com>,
-       "Ju, Seokmann" <Seokmann.Ju@engenio.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: Question: how to map SCSI data DMA address to virtual address?
-Message-ID: <20060302184902.GW4329@suse.de>
-References: <9738BCBE884FDB42801FAD8A7769C2651420C1@NAMAIL1.ad.lsil.com> <Pine.LNX.4.61.0603021203280.14257@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 13:52:44 -0500
+Received: from pproxy.gmail.com ([64.233.166.179]:8737 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752034AbWCBSwn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 13:52:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B9/cm5VB6/c/hPge3VrXtsWA8sRm1RhPvhlcFWvLrkTNP29eOW1sLOVXHDkkCKgX/51ysfSh3mShL+lZ4/eu/454f+f+PzYfGweB9g2VJPpwLm4i2pAPPMgxecmavzRBisBP8Qs+wdy7U/a0spm8RAJmdAGSiazVS7uMxflfMy8=
+Message-ID: <7c3341450603021052l39773247q@mail.gmail.com>
+Date: Thu, 2 Mar 2006 18:52:21 +0000
+From: "Nick Warne" <nick@linicks.net>
+Reply-To: "Nick Warne" <nick@linicks.net>
+To: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Re: Compenstating for clock drift
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e4733910603020759m10545cd1va3ef67398f1f38ea@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603021203280.14257@chaos.analogic.com>
+References: <9e4733910603020759m10545cd1va3ef67398f1f38ea@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02 2006, linux-os (Dick Johnson) wrote:
-> 
-> On Thu, 2 Mar 2006, Ju, Seokmann wrote:
-> 
-> > Hi,
-> >
-> > In the 'scsi_cmnd' structure, there are two entries holding address
-> > information for data to be transferred. One is 'request_buffer' and the
-> > other one is 'buffer'.
-> > In case of 'use_sg' is non-zero, those entries indicates the address of
-> > the scatter-gather table.
-> >
-> > Is there way to get virtual address (so that the data could be accessed
-> > by the driver) of the actual data in the case of 'use_sg' is non-zero?
-> >
-> > Any comments would be appreciated.
-> >
-> >
-> > Thank you,
-> >
-> > Seokmann
-> > -
-> 
-> There is a macro for this purpose. However, for experiments, in
-> the kernel, you can add PAGE_OFFSET (0xC00000000) to get the virtual
-> address. The macro is __va(a), its inverse is __pa(a).
-> 
-> Careful. These things can change.
+On 02/03/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> From my logs I can see that my system clock is consistently drifting
+> about 3 seconds every 24hrs and ntp is faithfully correcting it.  Can
+> the kernel track long term data like this and insert/remove a few
+> extra ticks to minimize the size of the ntp drift corrections?
 
-Bzzt no, this wont work if an iommu is involved. It also wont work if
-the page doesn't have a virtual address mapping (think highmem).
+ntp should do that anyway - check you have a drift file defined in ntp.conf
 
--- 
-Jens Axboe
+# Drift file.  Put this in a directory which the daemon can write to.
+# No symbolic links allowed, either, since the daemon updates the file
+# by creating a temporary in the same directory and then rename()'ing
+# it to the file.
+#
+driftfile /etc/ntp/drift
 
+Over time it will adjust to suit and step the changes gracefully.
+
+Nick

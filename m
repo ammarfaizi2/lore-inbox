@@ -1,138 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWCBXDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWCBXDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWCBXDU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 18:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWCBXDT
+	id S1751032AbWCBXDz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 18:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWCBXDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 18:03:19 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:31401 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750988AbWCBXDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 18:03:19 -0500
-X-Sasl-enc: 0G9Rxh7Q/uKOZUC2/cdN54mIqu1tBDokSSQ4wvcCe2jX 1141340594
-Message-ID: <440779AF.5060202@imap.cc>
-Date: Fri, 03 Mar 2006 00:03:11 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Thu, 2 Mar 2006 18:03:55 -0500
+Received: from sdcrelbas03.europe.hp.net ([15.203.169.189]:30678 "EHLO
+	sdcrelbas03.sdc.hp.com") by vger.kernel.org with ESMTP
+	id S1751032AbWCBXDx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 18:03:53 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Hansjoerg Lipp <hjlipp@web.de>, Karsten Keil <kkeil@suse.de>,
-       i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 0/7] isdn4linux: add drivers for Siemens Gigaset ISDN
- DECT PABX
-References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de> <1141032577.2992.83.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141032577.2992.83.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig9A19A8853C5E94D55B1C4B13"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: sg regression in 2.6.16-rc5
+Date: Thu, 2 Mar 2006 23:04:08 -0000
+Message-ID: <085C28F775E1B74F82122EF0975E6E76045F0360@sdcexc02.emea.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: sg regression in 2.6.16-rc5
+Thread-Index: AcY+P+rG2FpZIMiGTkaD+9QveqLOEQACchCA
+From: "Falkinder, David Malcolm" <david.falkinder@hp.com>
+To: "Linus Torvalds" <torvalds@osdl.org>, "Douglas Gilbert" <dougg@torque.net>
+Cc: "Kai Makisara" <Kai.Makisara@kolumbus.fi>,
+       "Matthias Andree" <matthias.andree@gmx.de>,
+       "Mark Rustad" <mrustad@mac.com>, <linux-scsi@vger.kernel.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Dewar, Charles David" <dave.dewar@hp.com>
+X-OriginalArrivalTime: 02 Mar 2006 23:03:47.0698 (UTC) FILETIME=[900F8D20:01C63E4D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9A19A8853C5E94D55B1C4B13
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Linus,
 
-Thank you very much, Arjan, for your review of our code and your
-extensive comments. We are working on taking them into account for the
-next attempt at submitting the driver. Most of them are quite clear and
-don't need discussing. Just a few remarks and questions:
+I contacted Doug off-list, and he asked me to express my concerns here.
 
-On 27.02.2006, Arjan van de Ven wrote:
-> as a general review remark: you seem to use a LOT of atomic variables.
-> This I think is not too good an approach in general, because you get
-> into all kinds of race situations if you need to access multiple (and
-> you do).
+Whilst a Linux advocate, I work cross platform, and have but a shallow
+knowledge of the kernel, so apologies in advance for any technical
+inaccuracies, or misunderstandings ...
 
-I see. We'll try to reduce our atomic consumption. :-)
+Essentially what I conveyed to Doug was :
 
-> In addition I've seen a lot of your code using 2 or more
-> atomics in the same function, at which point it's most likely cheaper t=
-o
-> just have a spinlock instead... (yes a single atomic is same cost as a
-> spinlock, but once you do multiple in the same function the price is
-> thus higher than a spinlock ;)
+I guess, I'm not fully aware of the implications of what is being
+discussed as there appears to essentially be two implementations of the
+SG_IO IOCtl - namely the one in the sg driver, and the one in the block
+layer.
 
-So you are saying that, for example
+One of the key drivers for us using Linux is the ability to do a 16Mb
+contiguous single transfer.
+i.e. WRITE(6) with 0xFF 0xFF 0xFF as the transfer length. Often we use
+patterns like (2^n)-1, 2^n, (2^n)+1, to thoroughly test the SCSI bus, so
+ALL transfer sizes are needed.
 
-	spin_lock_irqsave(&cs->ev_lock, flags);
-	head =3D cs->ev_head;
-	tail =3D cs->ev_tail;
-	spin_unlock_irqrestore(&cs->ev_lock, flags);
+Certainly a 1Mb limit would be useless, as would 4Mb.
 
-is (mutatis mutandis) actually cheaper than
+To achieve our goal of 16Mb all we've had to do to date is recompile the
+kernel having set SG_SCATTER_SZ to (64 * 4096).
 
-	head =3D atomic_read(&cs->ev_head);
-	tail =3D atomic_read(&cs->ev_tail);
+Whilst it would be great to just use a vanilla kernel, this is a
+relatively trivial patch to meet our needs. I'd hate to think at any
+point anything would be done to move away from this. Certainly we'd have
+to either find another proprietary solution, or freeze our Linux
+implementation indefinitely. Neither a particularly attractive solution.
 
-? That's interesting. I wouldn't have expected that after reading
-Documentation/atomic_ops.txt and Documentation/spinlock.txt.
+-------
 
->>+#define IFNULL(a) \
->>+       if (unlikely(!(a)))
->=20
-> please please get rid of this!
-> (same goes for the variants of this just below this)
+I (obviously) support your wish to fix broken code. In my technical
+naivety in this area, I obviously can't comment on the ramifications of
+a fix/non fix situation other than pertaining directly to the large
+transfer situation. However it's obvious we ( and I'm sure others ) are
+at the moment exploiting this "defect". I guess I feel to be hearing a
+lot of discussion regarding the fix, so it's obviously contentious, and
+it's agreed it will effectively reduce large transfer functionality of
+the kernel; what I am not hearing is a timeline for restoring that
+functionality. Personally I'd be happy to "miss out" on a couple of
+kernel releases, if I was confident functionality would be restored.
+What does worry me is the potential for this fix to be applied, and the
+functionality I need not be restored. For example the SG_IO IoCtl in the
+block layer was obviously a laudable project, yet to date does not
+provide all the features offered by the SG driver [ that I need at least
+].
 
-Ok, these were mainly debugging aids. We'll just drop them and let the
-oops mechanism catch the (hopefully non-existent) remaining cases of
-pointers being unexpectedly NULL.
+Can I request therefore, that unless the fix can be extended to retain
+the large transfer functionality, or a suitable timeline for it's
+restoration be resolved; that the patch not be applied.
 
->> +void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *m=
-sg,
->> +			size_t len, const unsigned char *buf, int from_user)
->=20
-> such "from_user" parameter is highly evil, and also breaks sparse and
-> friends.. (btw please run sparse on the code and fix all warnings)
+Many thanks,
 
-Are you referring to anything in particular? We do run sparse regularly,
-and it did not emit any warnings for the submitted version, not even for
-this function. (But heaps of them for other parts of the kernel, if you
-pardon the remark.)
+	Best Wishes,
 
->> +       spin_lock_irqsave(&cs->lock, flags);
->> +       ret =3D kmalloc(sizeof(struct at_state_t), GFP_ATOMIC);
->> +       if (ret) {
->> +               gigaset_at_init(ret, NULL, cs, cid);
->=20
-> if you move the kmalloc one line up, can it use GFP_KERNEL ?
-
-Sorry but no - this is executed within a tasklet.
-
-> (GFP_ATOMIC is evil in the sense that spurious use of it gives trouble
-> for the VM)
-
-Does that mean that every function doing kmalloc() and which may be
-called from both interrupt and non-interrupt context needs a gfp_t flags
-argument?
-
-Thanks again for your time and effort
-Tilman
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+	|\
+	|/ave
 
 
---------------enig9A19A8853C5E94D55B1C4B13
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFEB3m3MdB4Whm86/kRAvrLAJ43AfnRZhQZj0ELZwZDYRphwTUaFQCfYCt3
-gZjKP8znZpgRzIKJUSL9Fv4=
-=vfFe
------END PGP SIGNATURE-----
+-----Original Message-----
+From: linux-scsi-owner@vger.kernel.org
+[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Linus Torvalds
+Sent: 02 March 2006 21:25
+To: Douglas Gilbert
+Cc: Kai Makisara; Matthias Andree; Mark Rustad;
+linux-scsi@vger.kernel.org; Linux Kernel Mailing List
+Subject: Re: sg regression in 2.6.16-rc5
 
---------------enig9A19A8853C5E94D55B1C4B13--
+
+
+On Thu, 2 Mar 2006, Douglas Gilbert wrote:
+> 
+> As more information has come to light, the worst case "big transfer" 
+> of a single SCSI command through sg (and st I suspect) is 512 KB **. 
+> With full coalescing that figure goes up to 4 MB **. I am also aware 
+> that some users increase SG_SCATTER_SZ in the sg driver to get larger 
+> "big transfer"s than sg's current limit of (8MB - 32KB) **.
+> That facility has now gone (i.e. upping SG_SCATTER_SZ will have no 
+> effect) with no replacement mechanism.
+> 
+> So I'll add my vote to "revert this change before lk 2.6.16"
+> with a view to applying it after some solution to the "big transfer" 
+> problem is found.
+
+Considering that the old code was apparently known-broken due to not
+honoring the use_clustering flag, I would say that the more likely thing
+is that very few people use sg in the first place, and we should wait
+and see what the reaction is to actually fixing a real bug.
+
+Doing more than page-sized transfers can be hard/impossible in
+virtualized environments, for example.
+
+In contrast, upping the limits should be fairly easy, I assume. Same
+goes for if some driver disables clustering even though it shouldn't.
+No?
+
+		Linus
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org More majordomo info
+at  http://vger.kernel.org/majordomo-info.html

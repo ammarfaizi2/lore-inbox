@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWCBVFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWCBVJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932537AbWCBVFp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 16:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWCBVFp
+	id S932540AbWCBVJu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 16:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbWCBVJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 16:05:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26802 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932537AbWCBVFo (ORCPT
+	Thu, 2 Mar 2006 16:09:50 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1974 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932540AbWCBVJt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 16:05:44 -0500
-Date: Thu, 2 Mar 2006 13:05:19 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: =?UTF-8?B?UmVuw6k=?= Rebe <rene@exactcode.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Message-Id: <20060302130519.588b18a2.zaitcev@redhat.com>
-In-Reply-To: <mailman.1141249502.22706.linux-kernel2news@redhat.com>
-References: <200603012116.25869.rene@exactcode.de>
-	<20060301213223.GA17270@kroah.com>
-	<mailman.1141249502.22706.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.12; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Mar 2006 16:09:49 -0500
+Message-ID: <44075F1C.6030201@redhat.com>
+Date: Thu, 02 Mar 2006 16:09:48 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ramfs needs to update directory m/ctime on symlink
+Content-Type: multipart/mixed;
+ boundary="------------030205000206040600080702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Mar 2006 22:42:35 +0100, René Rebe <rene@exactcode.de> wrote:
+This is a multi-part message in MIME format.
+--------------030205000206040600080702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > > drivers/usb/core/devio.c:86
-> > > #define MAX_USBFS_BUFFER_SIZE   16384
+Hi.
 
-> So, queing alot URBs is the recommended way to sustain the bus? Allowing
-> way bigger buffers will not be realistic?
+Attached is a patch which addresses a problem in ramfs where it neglects
+to update the directory mtime and ctime fields when creating a new symbolic
+link.  Ramfs was modified in 2.6.15 to update these fields when other types
+of entries are created.  The symlink support is separate from that other
+support, so that change did not cover quite all of the possibilities.
 
-Have you ever considered how many TDs have to be allocated to transfer
-a data buffer this big? No, seriously. If your application cannot deliver
-the tranfer speeds with 16KB URBs, we ought to consider if the combination
-of our USB stack, usbfs, libusb and the application ought to get serious
-performance enhancing surgery. The problem is obviously in the software
-overhead.
+All of the directory content manipulation entry points now seem to be
+covered with respect to these time field updates.
 
--- Pete
+    Thanx...
+
+       ps
+
+Signed-off-by: Peter Staubach <staubach@redhat.com>
+
+--------------030205000206040600080702
+Content-Type: text/plain;
+ name="ramfs.devel"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ramfs.devel"
+
+--- linux-2.6.15.x86_64/fs/ramfs/inode.c.org
++++ linux-2.6.15.x86_64/fs/ramfs/inode.c
+@@ -137,6 +137,7 @@ static int ramfs_symlink(struct inode * 
+ 				inode->i_gid = dir->i_gid;
+ 			d_instantiate(dentry, inode);
+ 			dget(dentry);
++			dir->i_mtime = dir->i_ctime = CURRENT_TIME;
+ 		} else
+ 			iput(inode);
+ 	}
+
+--------------030205000206040600080702--

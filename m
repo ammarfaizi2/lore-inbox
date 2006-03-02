@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751612AbWCBSAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWCBSEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751612AbWCBSAl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751631AbWCBSAl
+	id S1751647AbWCBSEN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbWCBSEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:00:41 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2835 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751592AbWCBSAk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:00:40 -0500
-Date: Thu, 2 Mar 2006 18:00:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
-Message-ID: <20060302180025.GC28895@flint.arm.linux.org.uk>
-Mail-Followup-To: Grant Grundler <grundler@parisc-linux.org>,
-	Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-	Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-pci@atrey.karlin.mff.cuni.cz
-References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk> <20060302172436.GC22711@colo.lackof.org>
+	Thu, 2 Mar 2006 13:04:13 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:1168 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751647AbWCBSEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 13:04:13 -0500
+Date: Thu, 2 Mar 2006 13:04:52 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: fuse-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add O_NONBLOCK support to FUSE
+Message-ID: <20060302180452.GA9188@ccure.user-mode-linux.org>
+References: <20060301022944.GB9624@ccure.user-mode-linux.org> <E1FENzJ-0008S7-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060302172436.GC22711@colo.lackof.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1FENzJ-0008S7-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 10:24:36AM -0700, Grant Grundler wrote:
-> On Thu, Mar 02, 2006 at 03:50:57PM +0000, Russell King wrote:
-> > I've been wondering whether this "no_ioport" flag is the correct approach,
-> > or whether it's adding to complexity when it isn't really required.
-> 
-> I think it's the simplest solution to allowing a driver
-> to indicate which resources it wants to use. It solves
-> the problem of I/O Port resource allocation sufficiently
-> well.
+Found the BUG, patch below.  Feel free to merge it with the async
+patch even though it is signed off on its own.
 
-It's not really "I/O port resource allocation" though - the resources
-have already been allocated and potentially programmed into the BARs
-well before the driver gets anywhere near the device.
+				Jeff
 
-> > In the non-Intel world, the kernel itself sets up the PCI bus mappings,
-> 
-> mappings, yes. But many of the architectures depend on (or assume)
-> firmware will assign appropriate resources. The problem is firmware
-> runs out of I/O Port resources.
+I didn't realize that kobject_put(&fc->kobj) freed fc.
 
-Are you implying that somehow resources are allocated at pci_enable_device
-time?  If so, shouldn't we be thinking of moving completely to that model
-rather than having yet-another-pci-setup-model.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Let's see - we have the i386 method, the drivers/pci/setup-* method, and
-it sounds like some pci_enable_device() method now.
-
-The problem is that the "no_ioport" method is completely useless for the
-drivers/pci/setup-* method since that information from the drivers comes
-well after the PCI setup code has been run.
-
-> Several people have already agreed the driver needs to indicate which
-> resource it wants to work with. I don't see how the arch PCI support
-> can provide that "knowledge".
-
-What I'm saying is that we need to unify this stuff, rather than keep
-bluring and overloading the interfaces.  Otherwise we'll end up with
-drivers developed on one platform which have one expectation from the
-PCI API, which could potentially be different from drivers developed
-on some other platform.
-
-Let's have some uniformity - and a solution which can fit everyone -
-that's all I'm asking.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Index: host-2.6.15-fuse/fs/fuse/dev.c
+===================================================================
+--- host-2.6.15-fuse.orig/fs/fuse/dev.c	2006-03-01 14:08:40.000000000 -0500
++++ host-2.6.15-fuse/fs/fuse/dev.c	2006-03-01 14:09:04.000000000 -0500
+@@ -919,9 +919,9 @@ static int fuse_dev_release(struct inode
+ 	}
+ 	spin_unlock(&fuse_lock);
+ 	if (fc) {
+-		kobject_put(&fc->kobj);
+ 		fasync_helper(-1, file, 0, &fc->fasync);
+ 		fc->fasync = NULL;
++		kobject_put(&fc->kobj);
+ 	}
+ 
+ 	return 0;

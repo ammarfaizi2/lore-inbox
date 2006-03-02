@@ -1,132 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWCBRp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWCBRqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWCBRp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWCBRp6
+	id S932451AbWCBRqe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWCBRqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:45:58 -0500
-Received: from newmail.sw.starentnetworks.com ([12.33.234.78]:18950 "EHLO
-	mail.sw.starentnetworks.com") by vger.kernel.org with ESMTP
-	id S1751442AbWCBRp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:45:57 -0500
-From: Dave Johnson <djohnson@sw.starentnetworks.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 12:46:34 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:44895 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S932257AbWCBRqd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:46:33 -0500
+Subject: Re: using usblp with ppdev?
+From: Thomas Sailer <sailer@sailer.dynip.lugs.ch>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, wixor <wixorpeek@gmail.com>
+In-Reply-To: <20060302165557.GA31247@kroah.com>
+References: <c43b2e150603020732m42195b0dkf33d68fe64bc4a57@mail.gmail.com>
+	 <20060302165557.GA31247@kroah.com>
+Content-Type: text/plain
+Organization: private
+Date: Thu, 02 Mar 2006 18:46:16 +0100
+Message-Id: <1141321576.31089.14.camel@playstation2.hb9jnx.ampr.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17415.12115.309050.248989@zeus.sw.starentnetworks.com>
-Date: Thu, 2 Mar 2006 12:45:55 -0500
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Olaf Hering <olh@suse.de>, mason@suse.com, agruen@suse.de
-Subject: [PATCH] Re: cramfs mounts provide corrupted content since 2.6.15
-In-Reply-To: <20060302093216.67b90533.akpm@osdl.org>
-References: <20060225110844.GA18221@suse.de>
-	<20060225220130.GA2748@suse.de>
-	<17411.10591.927433.619327@zeus.sw.starentnetworks.com>
-	<200602281414.57084.mason@suse.com>
-	<20060301155813.245d71ff.akpm@osdl.org>
-	<20060301235858.GA6792@suse.de>
-	<17414.16541.260439.712849@zeus.sw.starentnetworks.com>
-	<20060302115446.GA9708@suse.de>
-	<20060302093216.67b90533.akpm@osdl.org>
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+X-DCC-spamcheck-01.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 32700;
+	Body=3 Fuz1=3 Fuz2=3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-03-02 at 08:55 -0800, Greg KH wrote:
 
-Fix handling of cramfs images created by util-linux containing empty regular
-files.  Images created by cramfstools 1.x were ok.
+> Anyway, no, the usblp driver is not what you want, you probably want the
+> uss720 driver, which does register with parport.
 
-Fill out inode contents in cramfs_iget5_set() instead of get_cramfs_inode() to
-prevent issues if cramfs_iget5_test() is called with I_LOCK|I_NEW still set.
+That's actually the reason for the existence of the uss720 driver. I'm
+using it occasionally to program PIC microcontrollers.
 
+This method is quite slow compared to a southbridge parport. But there
+have been huge improvements to the speed and reliability in the last
+couple of years. Kudos to Greg KH, Alan Stern, David Brownell et al.!
 
-Signed-off-by: Dave Johnson <djohnson+linux-kernel@sw.starentnetworks.com>
+Tom
 
-diff -Naur linux-2.6.15.4.orig/fs/cramfs/inode.c linux-2.6.15.4/fs/cramfs/inode.c
---- linux-2.6.15.4.orig/fs/cramfs/inode.c	2006-02-10 07:22:48.000000000 +0000
-+++ linux-2.6.15.4/fs/cramfs/inode.c	2006-03-02 17:38:05.000000000 +0000
-@@ -36,7 +36,7 @@
- 
- /* These two macros may change in future, to provide better st_ino
-    semantics. */
--#define CRAMINO(x)	((x)->offset?(x)->offset<<2:1)
-+#define CRAMINO(x)	(((x)->offset && (x)->size)?(x)->offset<<2:1)
- #define OFFSET(x)	((x)->i_ino)
- 
- 
-@@ -66,8 +66,36 @@
- 
- static int cramfs_iget5_set(struct inode *inode, void *opaque)
- {
-+	static struct timespec zerotime;
- 	struct cramfs_inode *cramfs_inode = opaque;
-+	inode->i_mode = cramfs_inode->mode;
-+	inode->i_uid = cramfs_inode->uid;
-+	inode->i_size = cramfs_inode->size;
-+	inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
-+	inode->i_blksize = PAGE_CACHE_SIZE;
-+	inode->i_gid = cramfs_inode->gid;
-+	/* Struct copy intentional */
-+	inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
- 	inode->i_ino = CRAMINO(cramfs_inode);
-+	/* inode->i_nlink is left 1 - arguably wrong for directories,
-+	   but it's the best we can do without reading the directory
-+           contents.  1 yields the right result in GNU find, even
-+	   without -noleaf option. */
-+	if (S_ISREG(inode->i_mode)) {
-+		inode->i_fop = &generic_ro_fops;
-+		inode->i_data.a_ops = &cramfs_aops;
-+	} else if (S_ISDIR(inode->i_mode)) {
-+		inode->i_op = &cramfs_dir_inode_operations;
-+		inode->i_fop = &cramfs_directory_operations;
-+	} else if (S_ISLNK(inode->i_mode)) {
-+		inode->i_op = &page_symlink_inode_operations;
-+		inode->i_data.a_ops = &cramfs_aops;
-+	} else {
-+		inode->i_size = 0;
-+		inode->i_blocks = 0;
-+		init_special_inode(inode, inode->i_mode,
-+			old_decode_dev(cramfs_inode->size));
-+	}
- 	return 0;
- }
- 
-@@ -77,37 +105,7 @@
- 	struct inode *inode = iget5_locked(sb, CRAMINO(cramfs_inode),
- 					    cramfs_iget5_test, cramfs_iget5_set,
- 					    cramfs_inode);
--	static struct timespec zerotime;
--
- 	if (inode && (inode->i_state & I_NEW)) {
--		inode->i_mode = cramfs_inode->mode;
--		inode->i_uid = cramfs_inode->uid;
--		inode->i_size = cramfs_inode->size;
--		inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
--		inode->i_blksize = PAGE_CACHE_SIZE;
--		inode->i_gid = cramfs_inode->gid;
--		/* Struct copy intentional */
--		inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
--		inode->i_ino = CRAMINO(cramfs_inode);
--		/* inode->i_nlink is left 1 - arguably wrong for directories,
--		   but it's the best we can do without reading the directory
--	           contents.  1 yields the right result in GNU find, even
--		   without -noleaf option. */
--		if (S_ISREG(inode->i_mode)) {
--			inode->i_fop = &generic_ro_fops;
--			inode->i_data.a_ops = &cramfs_aops;
--		} else if (S_ISDIR(inode->i_mode)) {
--			inode->i_op = &cramfs_dir_inode_operations;
--			inode->i_fop = &cramfs_directory_operations;
--		} else if (S_ISLNK(inode->i_mode)) {
--			inode->i_op = &page_symlink_inode_operations;
--			inode->i_data.a_ops = &cramfs_aops;
--		} else {
--			inode->i_size = 0;
--			inode->i_blocks = 0;
--			init_special_inode(inode, inode->i_mode,
--				old_decode_dev(cramfs_inode->size));
--		}
- 		unlock_new_inode(inode);
- 	}
- 	return inode;
 

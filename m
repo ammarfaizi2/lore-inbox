@@ -1,86 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWCBHgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWCBHnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWCBHgE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 02:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWCBHgD
+	id S1751190AbWCBHnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 02:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWCBHnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 02:36:03 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45442 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750950AbWCBHgC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 02:36:02 -0500
-Date: Wed, 1 Mar 2006 23:25:40 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@sous-sol.org>,
-       linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Mike OConnor <mjo@dojo.mi.org>,
-       trond.myklebust@netapp.com, Greg Banks <gnb@melbourne.sgi.com>
-Subject: Re: [stable] Re: [patch 38/39] Normal user can panic NFS client with direct I/O (CVE-2006-0555)
-Message-ID: <20060302072540.GY3883@sorel.sous-sol.org>
-References: <20060227223200.865548000@sorel.sous-sol.org> <20060227223407.671256000@sorel.sous-sol.org> <20060302043323.GC31863@redhat.com>
+	Thu, 2 Mar 2006 02:43:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6039 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750980AbWCBHnk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 02:43:40 -0500
+Date: Wed, 1 Mar 2006 23:42:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: greg@kroah.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
+       yanmin.zhang@intel.com, neilb@cse.unsw.edu.au
+Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
+ added to -mm tree
+Message-Id: <20060301234215.62010fec.akpm@osdl.org>
+In-Reply-To: <20060301221429.c61b4ae6.pj@sgi.com>
+References: <20060228183610.5253feb9.akpm@osdl.org>
+	<20060228194525.0faebaaa.pj@sgi.com>
+	<20060228201040.34a1e8f5.pj@sgi.com>
+	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
+	<20060228212501.25464659.pj@sgi.com>
+	<20060228234807.55f1b25f.pj@sgi.com>
+	<20060301002631.48e3800e.akpm@osdl.org>
+	<20060301015338.b296b7ad.pj@sgi.com>
+	<20060301192103.GA14320@kroah.com>
+	<20060301125802.cce9ef51.pj@sgi.com>
+	<20060301213048.GA17251@kroah.com>
+	<20060301142631.22738f2d.akpm@osdl.org>
+	<20060301151000.5fff8ec5.pj@sgi.com>
+	<20060301154040.a7cb2afd.pj@sgi.com>
+	<20060301202058.42975408.akpm@osdl.org>
+	<20060301221429.c61b4ae6.pj@sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060302043323.GC31863@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones (davej@redhat.com) wrote:
-> Also broken in 2.6.15.5 it seems :-/
+Paul Jackson <pj@sgi.com> wrote:
+>
+> > It'd be interesting to see if just the data structure expansion:
+> 
+> Nice guess.
+> 
+> It still crashes on boot.
+> 
 
-Indeed, the diff below effectively replaces what's in 2.6.15.5 with
-what Trond had sent me.  Should fix the compile error and keep in sync
-with what's going upstream.
---
+OK.   This is awful.   I cannot see it.
 
-Compile fix:
+If someone passes get_cpu_sysdev() a -ve cpu number then ugly things will
+happen, but it's unlikely to be that.  Pretty sad coding though.
 
-fs/nfs/direct.c: In function 'nfs_get_user_pages':
-fs/nfs/direct.c:110: warning: implicit declaration of function 'nfs_free_user_pages'
-fs/nfs/direct.c: At top level:
-fs/nfs/direct.c:127: warning: conflicting types for 'nfs_free_user_pages'
-fs/nfs/direct.c:127: error: static declaration of 'nfs_free_user_pages' follows non-static declaration
-fs/nfs/direct.c:110: error: previous implicit declaration of 'nfs_free_user_pages' was here
+> Unable to handle kernel NULL pointer dereference (address 0000000000000058)
+> ...
+> ip is at sysfs_create_group+0x30/0x2a0
 
-This should now be the same as fix that's going upstream.
+Are you able to determine which pointer deref this is faulting at?  I
+couldn't find any fields which look like they're 0x58 bytes into anything.
 
-Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
----
-
- fs/nfs/direct.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
-
---- linux-2.6.15.5.orig/fs/nfs/direct.c
-+++ linux-2.6.15.5/fs/nfs/direct.c
-@@ -57,6 +57,7 @@
- #define NFSDBG_FACILITY		NFSDBG_VFS
- #define MAX_DIRECTIO_SIZE	(4096UL << PAGE_SHIFT)
- 
-+static void nfs_free_user_pages(struct page **pages, int npages, int do_dirty);
- static kmem_cache_t *nfs_direct_cachep;
- 
- /*
-@@ -106,12 +107,16 @@ nfs_get_user_pages(int rw, unsigned long
- 		result = get_user_pages(current, current->mm, user_addr,
- 					page_count, (rw == READ), 0,
- 					*pages, NULL);
-+		up_read(&current->mm->mmap_sem);
-+		/*
-+		 * If we got fewer pages than expected from get_user_pages(),
-+		 * the user buffer runs off the end of a mapping; return EFAULT.
-+		 */
- 		if (result >= 0 && result < page_count) {
- 			nfs_free_user_pages(*pages, result, 0);
- 			*pages = NULL;
- 			result = -EFAULT;
- 		}
--		up_read(&current->mm->mmap_sem);
- 	}
- 	return result;
- }
+Thanks for persisting with this.

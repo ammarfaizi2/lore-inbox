@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWCBH2P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWCBHgE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751419AbWCBH2P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 02:28:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWCBH2P
+	id S1750950AbWCBHgE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 02:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWCBHgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 02:28:15 -0500
-Received: from pproxy.gmail.com ([64.233.166.183]:56583 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751419AbWCBH2O convert rfc822-to-8bit
+	Thu, 2 Mar 2006 02:36:03 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:45442 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750950AbWCBHgC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 02:28:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XIVx3WwVlg/yWBazJ9ZmJJROqsJ/uFyTdE+HBZfbJTtY5ET74+oFqJW7Wr5ncCOanRZgKMHxjZ6XNox9HsG4WbnEQQQCeB3qa+0wKwXAybSSyh4hELwG+kU6eWp6ZLo1KPC4DQfhuMEVnv4MI9L71rk3uWbDJci9lZEED5I4bLA=
-Message-ID: <6bffcb0e0603012328kc3e63bfn@mail.gmail.com>
-Date: Thu, 2 Mar 2006 08:28:13 +0100
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Lars Marowsky-Bree" <lmb@suse.de>
-Subject: Re: [ANNOUNCE] LiSt - Linux Statistics - www.linux-stats.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060301135916.GD23159@marowsky-bree.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Mar 2006 02:36:02 -0500
+Date: Wed, 1 Mar 2006 23:25:40 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Dave Jones <davej@redhat.com>, Chris Wright <chrisw@sous-sol.org>,
+       linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Mike OConnor <mjo@dojo.mi.org>,
+       trond.myklebust@netapp.com, Greg Banks <gnb@melbourne.sgi.com>
+Subject: Re: [stable] Re: [patch 38/39] Normal user can panic NFS client with direct I/O (CVE-2006-0555)
+Message-ID: <20060302072540.GY3883@sorel.sous-sol.org>
+References: <20060227223200.865548000@sorel.sous-sol.org> <20060227223407.671256000@sorel.sous-sol.org> <20060302043323.GC31863@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200602281812.42318.dma147@linux-stats.org>
-	 <20060301135916.GD23159@marowsky-bree.de>
+In-Reply-To: <20060302043323.GC31863@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+* Dave Jones (davej@redhat.com) wrote:
+> Also broken in 2.6.15.5 it seems :-/
 
-On 01/03/06, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> On 2006-02-28T18:12:37, Alexander Mieland <dma147@linux-stats.org> wrote:
->
-> >  - The installation date of your distribution
-> >  - The hostname (no fqdn or ips)
-> >  - The architecture (x86/i586/i686, ppc, and so on)
-> >  - CPU information: vendor, model, number of cpus, frequencies
-> >  - RAM
-> >  - Swap
-> >  - Timezone
-> >  - user defined locales
-> >  - Windowmanager
-> >  - Kernel version
-> >  - Uptime information
-> >  - The size of mounted partitions (no shares)
-> >  - the used filesystems
-> >  - The hardware-IDs of used ISA/PCI/AGP and USB hardware
->
-> This is very useful to focus development, eventually. It would be nice
-> if you could also come up with a way to provide feedback on the kernel
-> modules used (loaded will do, but used would be cuter ;-).
->
->
-> Sincerely,
->     Lars Marowsky-Brée
-
-Something like http://klive.cpushare.com/ ?
-
-Regards,
-Michal
-
+Indeed, the diff below effectively replaces what's in 2.6.15.5 with
+what Trond had sent me.  Should fix the compile error and keep in sync
+with what's going upstream.
 --
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/wiki/)
+
+Compile fix:
+
+fs/nfs/direct.c: In function 'nfs_get_user_pages':
+fs/nfs/direct.c:110: warning: implicit declaration of function 'nfs_free_user_pages'
+fs/nfs/direct.c: At top level:
+fs/nfs/direct.c:127: warning: conflicting types for 'nfs_free_user_pages'
+fs/nfs/direct.c:127: error: static declaration of 'nfs_free_user_pages' follows non-static declaration
+fs/nfs/direct.c:110: error: previous implicit declaration of 'nfs_free_user_pages' was here
+
+This should now be the same as fix that's going upstream.
+
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+---
+
+ fs/nfs/direct.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+--- linux-2.6.15.5.orig/fs/nfs/direct.c
++++ linux-2.6.15.5/fs/nfs/direct.c
+@@ -57,6 +57,7 @@
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+ #define MAX_DIRECTIO_SIZE	(4096UL << PAGE_SHIFT)
+ 
++static void nfs_free_user_pages(struct page **pages, int npages, int do_dirty);
+ static kmem_cache_t *nfs_direct_cachep;
+ 
+ /*
+@@ -106,12 +107,16 @@ nfs_get_user_pages(int rw, unsigned long
+ 		result = get_user_pages(current, current->mm, user_addr,
+ 					page_count, (rw == READ), 0,
+ 					*pages, NULL);
++		up_read(&current->mm->mmap_sem);
++		/*
++		 * If we got fewer pages than expected from get_user_pages(),
++		 * the user buffer runs off the end of a mapping; return EFAULT.
++		 */
+ 		if (result >= 0 && result < page_count) {
+ 			nfs_free_user_pages(*pages, result, 0);
+ 			*pages = NULL;
+ 			result = -EFAULT;
+ 		}
+-		up_read(&current->mm->mmap_sem);
+ 	}
+ 	return result;
+ }

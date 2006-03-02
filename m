@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWCBHXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWCBHVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWCBHXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 02:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWCBHXQ
+	id S1751408AbWCBHVv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 02:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWCBHVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 02:23:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:29768 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751411AbWCBHXP (ORCPT
+	Thu, 2 Mar 2006 02:21:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:12359 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751408AbWCBHVu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 02:23:15 -0500
-Date: Thu, 2 Mar 2006 08:22:38 +0100
+	Thu, 2 Mar 2006 02:21:50 -0500
+Date: Thu, 2 Mar 2006 08:21:29 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Eric D. Mudama" <edmudama@gmail.com>, Tejun Heo <htejun@gmail.com>,
-       Nicolas Mailhot <nicolas.mailhot@gmail.com>, Mark Lord <liml@rtr.ca>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Carlos Pardo <Carlos.Pardo@siliconimage.com>
-Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
-Message-ID: <20060302072237.GS4816@suse.de>
-References: <1141239617.23202.5.camel@rousalka.dyndns.org> <4405F471.8000602@rtr.ca> <1141254762.11543.10.camel@rousalka.dyndns.org> <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com> <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+Message-ID: <20060302072128.GQ4816@suse.de>
+References: <43DA84B2.8010501@drzeus.cx> <43DA97A3.4080408@drzeus.cx> <20060127225428.GD2767@flint.arm.linux.org.uk> <20060128191759.GC9750@suse.de> <43DBC6E2.4000305@drzeus.cx> <20060129152228.GF13831@suse.de> <43DDC6F9.6070007@drzeus.cx> <20060130080930.GB4209@suse.de> <43DFAEC6.3090205@drzeus.cx> <20060301232913.GC4024@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4406512A.9080708@pobox.com>
+In-Reply-To: <20060301232913.GC4024@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01 2006, Jeff Garzik wrote:
-> Jeff Garzik wrote:
-> >For libata, I think an ATA_FLAG_NO_FUA would be appropriate for 
-> >situations like this...  assume FUA is supported in the controller, and 
-> >set a flag where it is not.  Most chips will support FUA, either by 
-> >design or by sheer luck.  The ones that do not support FUA are the 
-> >controllers that snoop the ATA command opcode, and internally choose the 
-> >protocol based on that opcode.  For such hardware, unknown opcodes will 
-> >inevitably cause problems.
+On Wed, Mar 01 2006, Russell King wrote:
+> On Tue, Jan 31, 2006 at 07:39:02PM +0100, Pierre Ossman wrote:
+> > Jens Axboe wrote:
+> > > On Mon, Jan 30 2006, Pierre Ossman wrote:
+> > >   
+> > >> Jens Axboe wrote:
+> > >>     
+> > >>>
+> > >>> Ah, you need to disable clustering to prevent that from happening! I was
+> > >>> confused there for a while.
+> > >>>
+> > >>>   
+> > >>>       
+> > >> And which is the lesser evil, highmem bounce buffers or disabling
+> > >> clustering? I'd probably vote for the former since the MMC overhead can
+> > >> be quite large.
+> > >>     
+> > >
+> > > Disabling clustering is by far the least expensive way to accomplish it.
+> > >
+> > >   
+> > 
+> > Russell, what's your view on this? And how should we handle it with
+> > regard to MMC drivers?
 > 
-> This also begs the question... what controller was being used, when the 
-> single Maxtor device listed in the blacklist was added?  Perhaps it was 
-> a problem with the controller, not the device.
+> Okay, I've hit this same problem (but in a slightly different way) with
+> mmci.c.  The way I'm proposing to fix this for mmci is to introduce a
+> new capability which says "clustering is supported by this driver."
+> 
+> I'm unconvinced that we can safely fiddle with the queue's flags once
+> the queue is in use, hence why I've gone for the init-time only solution.
+> Maybe Jens can comment on that?
 
-Yeah which explains it a lot better as well... The FUA drive problem
-never made much sense to me.
+You can set it anytime, basically, provided you use the atomic bit
+operations on it. Of course you may be left with clustered and
+non-clustered requests in the queue until everything has drained out,
+but I doubt that would be a problem :-)
 
 -- 
 Jens Axboe

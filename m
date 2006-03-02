@@ -1,115 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWCBEb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWCBEia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWCBEb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 23:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWCBEb1
+	id S1750784AbWCBEia (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 23:38:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWCBEia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:31:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61921 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751163AbWCBEb0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:31:26 -0500
-Date: Wed, 1 Mar 2006 20:20:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: pj@sgi.com, greg@kroah.com, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org, yanmin.zhang@intel.com,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060301202058.42975408.akpm@osdl.org>
-In-Reply-To: <20060301154040.a7cb2afd.pj@sgi.com>
-References: <20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-	<20060301015338.b296b7ad.pj@sgi.com>
-	<20060301192103.GA14320@kroah.com>
-	<20060301125802.cce9ef51.pj@sgi.com>
-	<20060301213048.GA17251@kroah.com>
-	<20060301142631.22738f2d.akpm@osdl.org>
-	<20060301151000.5fff8ec5.pj@sgi.com>
-	<20060301154040.a7cb2afd.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 1 Mar 2006 23:38:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39130 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750784AbWCBEi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 23:38:29 -0500
+Date: Wed, 1 Mar 2006 23:33:23 -0500
+From: Dave Jones <davej@redhat.com>
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, Mike OConnor <mjo@dojo.mi.org>,
+       trond.myklebust@netapp.com, Greg Banks <gnb@melbourne.sgi.com>
+Subject: Re: [patch 38/39] Normal user can panic NFS client with direct I/O (CVE-2006-0555)
+Message-ID: <20060302043323.GC31863@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
+	stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Theodore Ts'o <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+	Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+	akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+	Mike OConnor <mjo@dojo.mi.org>, trond.myklebust@netapp.com,
+	Greg Banks <gnb@melbourne.sgi.com>
+References: <20060227223200.865548000@sorel.sous-sol.org> <20060227223407.671256000@sorel.sous-sol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060227223407.671256000@sorel.sous-sol.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> Andrew wrote:
->  > But Paul bisected it down to a particular not-merged patch,
->  > gregkh-driver-allow-sysfs-attribute-files-to-be-pollable.patch, which I'll
->  > admit doesn't look like it'll cause this.
-> 
->  Verified.
+On Mon, Feb 27, 2006 at 02:32:38PM -0800, Chris Wright wrote:
+ > -stable review patch.  If anyone has any objections, please let us know.
+ > ------------------
+ > 
+ > This is CVE-2006-0555 and SGI bug 946529.  A normal user can panic an
+ > NFS client and cause a local DoS with 'judicious'(?) use of O_DIRECT.
+ > 
+ > Signed-off-by: Chris Wright <chrisw@sous-sol.org>
+ > ---
+ > 
+ >  fs/nfs/direct.c |    5 +++++
+ >  1 files changed, 5 insertions(+)
+ > 
+ > --- linux-2.6.15.4.orig/fs/nfs/direct.c
+ > +++ linux-2.6.15.4/fs/nfs/direct.c
+ > @@ -106,6 +106,11 @@ nfs_get_user_pages(int rw, unsigned long
+ >  		result = get_user_pages(current, current->mm, user_addr,
+ >  					page_count, (rw == READ), 0,
+ >  					*pages, NULL);
+ > +		if (result >= 0 && result < page_count) {
+ > +			nfs_free_user_pages(*pages, result, 0);
+ > +			*pages = NULL;
+ > +			result = -EFAULT;
+ > +		}
+ >  		up_read(&current->mm->mmap_sem);
+ >  	}
+ >  	return result;
 
-All very strange.  afaict that patch is a no-op.  The changelog claims that
-"This patch also uses sysfs_notify to allow /sys/block/md*/md/sync_action
-to be pollable", except that part is AWOL.
+Also broken in 2.6.15.5 it seems :-/
 
-It'd be interesting to see if just the data structure expansion:
+fs/nfs/direct.c: In function 'nfs_get_user_pages':
+fs/nfs/direct.c:110: warning: implicit declaration of function 'nfs_free_user_pages'
+fs/nfs/direct.c: At top level:
+fs/nfs/direct.c:127: warning: conflicting types for 'nfs_free_user_pages'
+fs/nfs/direct.c:127: error: static declaration of 'nfs_free_user_pages' follows non-static declaration
+fs/nfs/direct.c:110: error: previous implicit declaration of 'nfs_free_user_pages' was here
 
---- gregkh-2.6.orig/fs/sysfs/file.c
-+++ gregkh-2.6/fs/sysfs/file.c
-@@ -6,6 +6,7 @@
- #include <linux/fsnotify.h>
- #include <linux/kobject.h>
- #include <linux/namei.h>
-+#include <linux/poll.h>
- #include <asm/uaccess.h>
- #include <asm/semaphore.h>
- 
-@@ -57,6 +58,7 @@ struct sysfs_buffer {
- 	struct sysfs_ops	* ops;
- 	struct semaphore	sem;
- 	int			needs_read_fill;
-+	int			event;
+Some function juggling should do the trick.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.15/fs/nfs/direct.c~	2006-03-01 23:31:37.000000000 -0500
++++ linux-2.6.15/fs/nfs/direct.c	2006-03-01 23:32:01.000000000 -0500
+@@ -73,6 +73,23 @@ struct nfs_direct_req {
+ 				error;		/* any reported error */
  };
  
++/**
++ * nfs_free_user_pages - tear down page struct array
++ * @pages: array of page struct pointers underlying target buffer
++ * @npages: number of pages in the array
++ * @do_dirty: dirty the pages as we release them
++ */
++static void
++nfs_free_user_pages(struct page **pages, int npages, int do_dirty)
++{
++	int i;
++	for (i = 0; i < npages; i++) {
++		if (do_dirty)
++			set_page_dirty_lock(pages[i]);
++		page_cache_release(pages[i]);
++	}
++	kfree(pages);
++}
  
---- gregkh-2.6.orig/include/linux/kobject.h
-+++ gregkh-2.6/include/linux/kobject.h
-@@ -24,6 +24,7 @@
- #include <linux/rwsem.h>
- #include <linux/kref.h>
- #include <linux/kernel.h>
-+#include <linux/wait.h>
- #include <asm/atomic.h>
+ /**
+  * nfs_get_user_pages - find and set up pages underlying user's buffer
+@@ -117,24 +134,6 @@ nfs_get_user_pages(int rw, unsigned long
+ }
  
- #define KOBJ_NAME_LEN			20
-@@ -56,6 +57,7 @@ struct kobject {
- 	struct kset		* kset;
- 	struct kobj_type	* ktype;
- 	struct dentry		* dentry;
-+	wait_queue_head_t	poll;
- };
- 
- extern int kobject_set_name(struct kobject *, const char *, ...)
---- gregkh-2.6.orig/include/linux/sysfs.h
-+++ gregkh-2.6/include/linux/sysfs.h
-@@ -74,6 +74,7 @@ struct sysfs_dirent {
- 	umode_t			s_mode;
- 	struct dentry		* s_dentry;
- 	struct iattr		* s_iattr;
-+	atomic_t		s_event;
- };
- 
- #define SYSFS_ROOT		0x0001
-
-
-is sufficient to break it.
-
-
-Somewhat OT, but why is that patch dinking around with the attribute's
-parent directory?  Why not just poll the attribute's sysfs file directly? 
-<xenuflects>.  Possibly because we want the poller to be woken when an
-attribute actually gets instantiated within the directory??  Dunno.
-
-And it's a bit sad that poll() on an unpollable attribute will just hang. 
-One would expect poll() to come back with -EINVAL.
+ /**
+- * nfs_free_user_pages - tear down page struct array
+- * @pages: array of page struct pointers underlying target buffer
+- * @npages: number of pages in the array
+- * @do_dirty: dirty the pages as we release them
+- */
+-static void
+-nfs_free_user_pages(struct page **pages, int npages, int do_dirty)
+-{
+-	int i;
+-	for (i = 0; i < npages; i++) {
+-		if (do_dirty)
+-			set_page_dirty_lock(pages[i]);
+-		page_cache_release(pages[i]);
+-	}
+-	kfree(pages);
+-}
+-
+-/**
+  * nfs_direct_req_release - release  nfs_direct_req structure for direct read
+  * @kref: kref object embedded in an nfs_direct_req structure
+  *

@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWCBEME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWCBEPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWCBEME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 23:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWCBEME
+	id S1750870AbWCBEPP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 23:15:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWCBEPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:12:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3018 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751136AbWCBEMB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:12:01 -0500
-Date: Wed, 1 Mar 2006 23:11:54 -0500
-From: Dave Jones <davej@redhat.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-Subject: Re: 2.6.16rc5 'found' an extra CPU.
-Message-ID: <20060302041154.GA31863@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <20060301224647.GD1440@redhat.com> <200603020155.46534.ak@suse.de> <20060302011959.GC19755@redhat.com> <200603020238.31639.ak@suse.de> <20060301195218.A3539@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Mar 2006 23:15:15 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:45603 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750870AbWCBEPN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 23:15:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EucXKG+SoWsWBzZqNGY4/FNdCSyYBt18wYD/+VjthzXr3by7ktGgx0IoROTS9Zu71G1mqFQEc5Hpab5v+k4IVpG3fStgeDupi+Pv7GiUhynhGuOS+56lgdhb8Y5YIyYbDQ2zWk0jQYZMd9dGOGmzwV+m92hOmpe4KOmgnmc1wS0=
+Message-ID: <12c511ca0603012015g7a5bfa8dw4295c59f5dace4f9@mail.gmail.com>
+Date: Wed, 1 Mar 2006 20:15:12 -0800
+From: "Tony Luck" <tony.luck@intel.com>
+To: "Zou Nan hai" <nanhai.zou@intel.com>
+Subject: Re: [Patch] Move swiotlb_init early on X86_64
+Cc: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Andi Kleen" <ak@suse.de>,
+       "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
+In-Reply-To: <1141175458.2642.78.camel@linux-znh>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060301195218.A3539@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
+References: <1141175458.2642.78.camel@linux-znh>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 01, 2006 at 07:52:19PM -0800, Ashok Raj wrote:
- > On Thu, Mar 02, 2006 at 02:38:31AM +0100, Andi Kleen wrote:
- > > 
- > > > ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
- > > > Processor #0 15:5 APIC version 16
- > > > ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
- > > > Processor #1 15:5 APIC version 16
- > > > ACPI: LAPIC (acpi_id[0x03] lapic_id[0x82] disabled)
- > > > ACPI: LAPIC (acpi_id[0x04] lapic_id[0x83] disabled)
- > > 
- > > It's because of the two disabled CPUs. We decreed at some point
- > > that disabled CPUs mean hotpluggable CPUs. But it's doing
- > > this for some time so you probably only noticed now.
- > > 
- > > All is ok. Sorry for blaming you wrongly, Ashok.
- > 
- > 
- > Phew!..
- > 
- > The ACPI hotplug code isnt in 2.6.15-rc* yet. It should be in the next
- > -mm when Andrew rolls the next mm.
- > 
- > But the 3 entries seem weird, we should only see 2 sysfs entries in 
- > /sys/devices/system/cpu and just 2 entries in proc/acpi/processor as well.
+On 01 Mar 2006 09:10:58 +0800, Zou Nan hai <nanhai.zou@intel.com> wrote:
+> on X86_64, swiotlb buffer is allocated in mem_init, after memmap and vfs cache allocation.
+>
+> On platforms with huge physical memory,
+> large memmap and vfs cache may eat up all usable system memory
+> under 4G.
+>
+> Move swiotlb_init early before memmap is allocated can
+> solve this issue.
 
-sysfs gets it right.
+Shouldn't memmap be allocated from memory above 4G (if available)? Using
+up lots of <4G memory on something that doesn't need to be below 4G
+sounds like a poor use of resources.
 
-(23:11:01:davej@nemesis:~)$ ls /sys/devices/system/cpu/
-cpu0/  cpu1/
-(23:11:07:davej@nemesis:~)$ ls /proc/acpi/processor/
-CPU1/  CPU2/  CPU3/
-(23:11:11:davej@nemesis:~)$
-
-		Dave
-
+-Tony

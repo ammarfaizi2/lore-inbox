@@ -1,105 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWCBFFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWCBFQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWCBFFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 00:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWCBFFZ
+	id S1750916AbWCBFQo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 00:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbWCBFQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 00:05:25 -0500
-Received: from mail.gmx.de ([213.165.64.20]:47594 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750866AbWCBFFY (ORCPT
+	Thu, 2 Mar 2006 00:16:44 -0500
+Received: from ozlabs.org ([203.10.76.45]:6113 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1750861AbWCBFQo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 00:05:24 -0500
-X-Authenticated: #342784
-From: jensmh@gmx.de
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc5 'lost' cpu
-Date: Thu, 2 Mar 2006 05:05:10 +0000
-User-Agent: KMail/1.9.1
+	Thu, 2 Mar 2006 00:16:44 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603020505.13108.jensmh@gmx.de>
-X-Y-GMX-Trusted: 0
+Message-ID: <17414.32686.589133.160989@cargo.ozlabs.ibm.com>
+Date: Thu, 2 Mar 2006 16:16:30 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Olof Johansson <olof@lixom.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Fix powerpc bad_page_fault output  (Re: 2.6.16-rc5-mm1)
+In-Reply-To: <440646ED.2030108@mbligh.org>
+References: <20060228042439.43e6ef41.akpm@osdl.org>
+	<4404E328.7070807@mbligh.org>
+	<20060301164531.GA17755@pb15.lixom.net>
+	<17414.15814.146349.883153@cargo.ozlabs.ibm.com>
+	<440646ED.2030108@mbligh.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a dual xeon system with hyper threading enabled, so there should
-be 4 cpus
+Martin Bligh writes:
 
-jm@voyager ~ $ ll /proc/acpi/processor/
-total 0
-dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU0
-dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU1
-dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU3
+> He's removing KERN_ALERT ... I guess it could get switched from 
+> KERN_ALERT to KERN_ERR, but ...
+> 
+> Either way, KERN_ALERT seems way too low to me. I object to getting
+> half the oops, and not the other half ;-)
 
-jm@voyager ~ $ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 9
-cpu MHz         : 2792.148
-cache size      : 512 KB
-physical id     : 0
-siblings        : 1
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 5588.74
+KERN_ALERT is two steps higher in priority (lower number) than
+KERN_ERR.  Why on earth would we see KERN_ERR messages but not
+KERN_ALERT messages?
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 9
-cpu MHz         : 2799.930
-cache size      : 512 KB
-physical id     : 3
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 5581.39
+In fact die() should probably be using KERN_EMERG.
 
-processor       : 2
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Xeon(TM) CPU 2.80GHz
-stepping        : 9
-cpu MHz         : 2799.930
-cache size      : 512 KB
-physical id     : 3
-siblings        : 2
-core id         : 0
-cpu cores       : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 5581.34
+Messages without a loglevel are by default logged at KERN_WARNING
+level, one step lower in priority than KERN_ERR.
+
+This all sounds to me like there is something wacky going on
+somewhere, and we need to get to the bottom of it rather than just
+remove printk tags.
+
+Paul.
+
+

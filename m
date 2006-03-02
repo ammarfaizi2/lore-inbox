@@ -1,144 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWCBDf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWCBDhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWCBDf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 22:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWCBDf0
+	id S932202AbWCBDhb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 22:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWCBDhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 22:35:26 -0500
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:65432 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932190AbWCBDfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 22:35:25 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck list <ck@vds.kolivas.org>
-Subject: 2.6.15-ck5
-Date: Thu, 2 Mar 2006 14:35:57 +1100
-User-Agent: KMail/1.9
+	Wed, 1 Mar 2006 22:37:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:17023 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932202AbWCBDha convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 22:37:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Xil/mz0EQiRULfqQs4hkvATJmE6Fy+dpQZZqJw8HMmhMs6EpYxmGd26YL/0quhB3ovyXefYawTDxsRadlLwWrAeQKY0yH5yYpZXefcUfMPsbh/cOU/rgP94pDZCNMjoSRPPvTLa0maDJFQv0nL8XFU039gUSEJToOSjGY0AvAPA=
+Message-ID: <6d6a94c50603011937p61bea6ddl691ee1cdb309d14d@mail.gmail.com>
+Date: Thu, 2 Mar 2006 11:37:30 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: page allocation failure when cached memory is close to the total memory.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060301023604.76ce5658.akpm@osdl.org>
 MIME-Version: 1.0
-X-Length: 2932
-Message-Id: <200603021435.58041.kernel@kolivas.org>
-Content-Type: multipart/signed;
-  boundary="nextPart2021555.9QLidMVvyk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <6d6a94c50603010154hbbcdb68n8cd7e05f7f30aba5@mail.gmail.com>
+	 <20060301023604.76ce5658.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2021555.9QLidMVvyk
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 3/1/06, Andrew Morton <akpm@osdl.org> wrote:
+> You mean 10MB.
+Sorry for the typo.
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck patch is aimed at the=
-=20
-desktop and cks is available with more emphasis on serverspace.
+> The chances of finding 10MB of contiguous free pages are basically nil, so
+> the page allocator doesn't even try to free up pages to attempt to satisfy
+> such a large request.  If it can't find the 10MB of free memory
+> immediately, it just gives up.
 
-This includes all patches from 2.6.15.5 so use 2.6.15 as your base.
+Nope. I've tested the case on the host. See below. The allocation for
+300MB was sucessful when the cached memory was close to the total
+memory.
 
-Apply to 2.6.15
-http://ck.kolivas.org/patches/2.6/2.6.15/2.6.15-ck5/patch-2.6.15-ck5.bz2
+Any thoughts why?
 
-or server version
-http://ck.kolivas.org/patches/cks/patch-2.6.15-cks5.bz2
-
-web:
-http://kernel.kolivas.org
-
-all patches:
-http://ck.kolivas.org/patches/
-
-Split patches available.
+Thanks,
+-Aubrey
 
 
-Changes
-=2D------
-Added:
- +mm-highmem_fix_background_scan.patch
-The background scanning when used with a very small amount of highmem (eg 1=
-GB)=20
-was continually clearing out page cache inappropriately. This patch correct=
-s=20
-it by not background scanning if highmem is below watermarks.
-
- +sched-staircase13.4_13.5.patch
-Increase rr intervals to 6ms for slightly better cache utilisation while st=
-ill=20
-staying below human perceptible jitter levels.
-
- +nfs-fix_build.patch
-The 2.6.15.5 stable patch includes a build error; this fixes it.
-
-
-Modified:
- -mm-swap_prefetch-19.patch
- +mm-swap_prefetch-28.patch
-Update to the latest prefetch as included in 2.6.15-rc5-mm1
-
- -2.6.15-dynticks-060101.patch
- +2.6.15-dynticks-060227.patch
-Update to the latest dynticks code which fixes some bugs
-
- -patch-2.6.15.4.bz2
- +patch-2.6.15.5.bz2
-Update to the latest stable patch
-
- -2615ck4-version.patch
- +2615ck5-version.patch
-Version update
-
-
-Removed:
- -dynticks-i386_only_config.patch
-Part of the latest dynticks patch already so unnecessary.
-
-
-=46ull patchlist:
-sched-staircase13.2.patch
-sched-staircase13.2_13.3.patch
-schedrange-1.diff
-schedbatch-2.11.diff
-sched-iso3.3.patch
-vmsplit-config_options.patch
-defaultcfq.diff
-isobatch_ionice2.diff
-rt_ionice.diff
-pdflush-tweaks.patch
-hz-default_values.patch
-hz-no_default_250.patch
-mm-swap_prefetch-28.patch
-vm-mapped.diff
-vm-lots_watermark.diff
-vm-background_scan-1.diff
-mm-highmem_fix_background_scan.patch
-mm-kswapd_inherit_prio-1.patch
-mm-prio_dependant_scan.patch
-mm-batch_prio.patch
-2.6.15-dynticks-060227.patch
-dynticks-disable_smp_config.patch
-sched-staircase13.3_13.4.patch
-sched-staircase13.4_13.5.patch
-patch-2.6.15.5.bz2
-nfs-fix_build.patch
-2615ck5-version.patch
-
-
-Cheers,
-Con
-
---nextPart2021555.9QLidMVvyk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBEBmgeZUg7+tp6mRURAoO0AJ9Xahmr/BhwWqNT17D/ThQZ48lQwACgiHiS
-O2EOzHxAAptqcHCduioMYWA=
-=kqrg
------END PGP SIGNATURE-----
-
---nextPart2021555.9QLidMVvyk--
+=============================================================
+aubrey@linux:~/cvs/kernel/uClinux-dist> cat /proc/meminfo
+MemTotal:      1034848 kB
+MemFree:         15424 kB
+Buffers:          2368 kB
+Cached:         751104 kB
+SwapCached:          0 kB
+Active:         306116 kB
+Inactive:       650060 kB
+HighTotal:      129560 kB
+HighFree:          120 kB
+LowTotal:       905288 kB
+LowFree:         15304 kB
+SwapTotal:     1558296 kB
+SwapFree:      1557268 kB
+Dirty:          140032 kB
+Writeback:           0 kB
+Mapped:         265188 kB
+Slab:            53556 kB
+CommitLimit:   2075720 kB
+Committed_AS:   290860 kB
+PageTables:       1968 kB
+VmallocTotal:   114680 kB
+VmallocUsed:     14940 kB
+VmallocChunk:    96880 kB
+HugePages_Total:     0
+HugePages_Free:      0
+Hugepagesize:     4096 kB
+aubrey@linux:~/cvs/kernel/uClinux-dist> ./ma
+Alloc 300 MB !
+alloc successful
+===============================================================

@@ -1,88 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752099AbWCCHZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752108AbWCCHcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752099AbWCCHZS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 02:25:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWCCHZS
+	id S1752108AbWCCHcP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 02:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752111AbWCCHcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 02:25:18 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:41350 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S1752099AbWCCHZQ convert rfc822-to-8bit
+	Fri, 3 Mar 2006 02:32:15 -0500
+Received: from www.starshine.org ([216.240.40.167]:11189 "EHLO
+	mx.starshine.org") by vger.kernel.org with ESMTP id S1752108AbWCCHcP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 02:25:16 -0500
-From: =?utf-8?q?Ren=C3=A9_Rebe?= <rene@exactcode.de>
-Organization: ExactCODE
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Date: Fri, 3 Mar 2006 08:27:45 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <200603012116.25869.rene@exactcode.de> <mailman.1141249502.22706.linux-kernel2news@redhat.com> <20060302130519.588b18a2.zaitcev@redhat.com>
-In-Reply-To: <20060302130519.588b18a2.zaitcev@redhat.com>
+	Fri, 3 Mar 2006 02:32:15 -0500
+Date: Thu, 2 Mar 2006 13:49:29 -0800
+To: linux-kernel@vger.kernel.org
+Subject: SEEK_HOLE and SEEK_DATA support?
+Message-ID: <20060302214929.GA16523@starshine.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603030827.46003.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Thursday 02 March 2006 22:05, Pete Zaitcev wrote:
-	> On Wed, 1 Mar 2006 22:42:35 +0100,  =?ISO-8859-1?Q?=20Ren=C3=A9?= Rebe <rene@exactcode.de>
-	wrote: > > > > > drivers/usb/core/devio.c:86 > > > > #define
-	MAX_USBFS_BUFFER_SIZE 16384 > > > So, queing alot URBs is the
-	recommended way to sustain the bus? Allowing > > way bigger buffers will
-	not be realistic? > > Have you ever considered how many TDs have to be
-	allocated to transfer > a data buffer this big? No, seriously. If your
-	application cannot deliver > the tranfer speeds with 16KB URBs, we ought
-	to consider if the combination > of our USB stack, usbfs, libusb and the
-	application ought to get serious > performance enhancing surgery. The
-	problem is obviously in the software > overhead. [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+User-Agent: Mutt/1.5.11+cvs20060126
+From: jimd@starshine.org (Jim Dennis)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thursday 02 March 2006 22:05, Pete Zaitcev wrote:
-> On Wed, 1 Mar 2006 22:42:35 +0100, René Rebe <rene@exactcode.de> wrote:
-> 
-> > > > drivers/usb/core/devio.c:86
-> > > > #define MAX_USBFS_BUFFER_SIZE   16384
-> 
-> > So, queing alot URBs is the recommended way to sustain the bus? Allowing
-> > way bigger buffers will not be realistic?
-> 
-> Have you ever considered how many TDs have to be allocated to transfer
-> a data buffer this big? No, seriously. If your application cannot deliver
-> the tranfer speeds with 16KB URBs, we ought to consider if the combination
-> of our USB stack, usbfs, libusb and the application ought to get serious
-> performance enhancing surgery. The problem is obviously in the software
-> overhead.
+ All,
 
-As I already wrote, queing multiple URBs in parallel solved the problem for me.
-I'll post the libusb patch later. So the problem just was time of no pending
-URBs wasted a lot of time slots where no URB was exchanged with the scanner.
+ Has there been any thought about adding SEEK_HOLE and SEEK_DATA (*)
+ support to Linux?  
 
-Queueing N = size / 16k URBs in parallel gets the maximal possible thruput with
-the scanner - a 2x speedup. The driver is now even slightly faster than the
-vendor Windows one by about 20%.
+ I ask primarily because of the interplay between 64-bit systems and
+ things like /var/log/lastlog (which appears as a 1.2TiB file due to
+ the nfsnobody UID of 4294967294).
 
-For even further improvements a _async interface would be needed in libusb
-(and sanei_usb) so I can queue the prologue and epilogue URBs of the protocol
-of communication into the kernel and thus elleminate some more wasted time
-slots. I estimate that the driver would then be over 30% faster compared with
-the Windows one.
+ (I'm realize that adding support for these additional seek() flags
+ wouldn't solve the problem ... archiving tools would still have to
+ implement it.  And I can also hear the argument that Red Hat and other
+ distributions should re-implement lastlog handling to use a more modern
+ and efficient hashing/index format and perhaps that they should set
+ nfsnobody to "-1" ... I'd be curious if those details are driven by
+ some published standard or if they are artifacts of porting.  I'd also
+ be curious what's happened with other 64-bit UNIX ports and whether
+ this issue ever came up in Linux ports to the Alpha or other 64-bit
+ processors).
 
-Yours,
+ As a stray data point I just did a quick experiment and just doing
+ a time cat /var/log/lastlog > /dev/null took about:
+
+ 36.33user 2453.99system 41:35.90elapsed 99%CPU 
+    (0avgtext+0avgdata 0maxresident)k
+    0inputs+0outputs (133major+15minor)pagefaults 0swaps
+
+
+ On an otherwise idle 2GHz dual Opteron (yes, of course the extra
+ CPU is wasted for this job), reading SCSI disk hanging off a Fusion MPT 
+ controller.
+
+ From what I hear our Networker processes pore over these NULs for about
+ two hours any time someone fails to exclude /var/log/lastlog from their
+ backup list.
+
+ * (see http://blogs.sun.com/roller/page/bonwick?entry=seek_hole_and_seek_data
+    for details)
+
+
+ (Please feel free to cc me on any responses, or I'll pick them up via
+ the archives and KT ... my account dropped off LKML years ago and I
+ don't want to punish my poor old IDSL line with the traffic now)
 
 -- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-            http://www.exactcode.de | http://www.t2-project.org
-            +49 (0)30  255 897 45
+Jim Dennis

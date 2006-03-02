@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWCBA5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751028AbWCBA5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWCBA5x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 19:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWCBA5x
+	id S1751028AbWCBA5q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 19:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWCBA5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 19:57:53 -0500
-Received: from pat.uio.no ([129.240.130.16]:41659 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751218AbWCBA5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 19:57:52 -0500
-Subject: Re: NFS doen't uniformly copy timestamps to server
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Paul Dickson <dickson@permanentmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060301173554.f2d18939.dickson@permanentmail.com>
-References: <20060301173554.f2d18939.dickson@permanentmail.com>
-Content-Type: text/plain
-Date: Wed, 01 Mar 2006 16:57:43 -0800
-Message-Id: <1141261063.26382.20.camel@netapplinux-10.connectathon.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 1 Mar 2006 19:57:46 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:4789 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750981AbWCBA5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 19:57:45 -0500
+Date: Wed, 1 Mar 2006 19:55:25 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.16rc5 'found' an extra CPU.
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-acpi <linux-acpi@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Message-ID: <200603011957_MC3-1-B99B-8FFE@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.7, required 12,
-	autolearn=disabled, AWL 1.25, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-01 at 17:35 -0700, Paul Dickson wrote:
-> I think I first noticed this problem in late December (I wrote a script
-> to get around it then).  If I attempt to copy the mtime with a file, it
-> won't get transfered.  But I can set it later.
-> 
-> Within a NFS mount directory:
-> 	cp -a file1 file2	# Timestamp not copied
-> 	mv file1 file2 		# Timestamp not copied
-> 	touch -r file1 file2	# Timestamp copied
-> 
-> I've looked through the man files for mount, exportfs, and exports and I
-> don't see an option I'm over looking.  An ethereal dump shows the mtime
-> being sent to the server and the server replying with NFS3_OK and the
-> correct mtime, but the resulting file does not have the mtime applied.
-> 
-> More data is at:
->   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=183208
-> 
-> This currently happens with 2.6.16rc5-git3
-> 
-> Is this a problem with the NFS server or am I applying the wrong options?
+In-Reply-To: <20060301230317.GF1440@redhat.com>
 
-The RedHat bugzilla tracks RedHat bugs. For kernel bugs, see
-bugzilla.kernel.org.
+On Wed, 1 Mar 2006 18:03:17, Dave Jones wrote:
 
->From your description, it looks very much like the issue being tracked
-in
+> (17:59:38:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu0/topology/core_siblings
+> 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+> (17:59:47:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu1/topology/core_siblings
+> 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000002
+> 
+> Neither of these CPUs are HT / dual-core, so shouldn't these be the same ?
 
-   http://bugzilla.kernel.org/show_bug.cgi?id=6127
+Those are bitmaps. 1 => only bit 0 is set => CPU 0 is all alone.
 
-Feel free to try the proposed patch.
+Did you really build a 256-CPU SMP kernel or is ACPI ignoring CONFIG_NR_CPUS
+or something?
 
-Cheers,
-  Trond
+
+-- 
+Chuck
+"The sleet in Crete falls neatly in the street."
 

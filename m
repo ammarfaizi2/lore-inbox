@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751388AbWCBM12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWCBMbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751388AbWCBM12 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 07:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWCBM11
+	id S932231AbWCBMbq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 07:31:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWCBMbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 07:27:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36037 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751388AbWCBM11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 07:27:27 -0500
-Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jens Axboe <axboe@suse.de>, Dominik Brodowski <linux@dominikbrodowski.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4406E1C7.7020908@pobox.com>
-References: <200603012259.k21MxBXC013582@hera.kernel.org>
-	 <44062FF1.4010108@pobox.com> <20060302075004.GA17789@isilmar.linta.de>
-	 <4406D44A.4020101@pobox.com>
-	 <1141299117.3206.37.camel@laptopd505.fenrus.org>
-	 <20060302114220.GH4329@suse.de>
-	 <1141301225.3206.50.camel@laptopd505.fenrus.org>
-	 <4406E1C7.7020908@pobox.com>
-Content-Type: text/plain
-Date: Thu, 02 Mar 2006 13:27:22 +0100
-Message-Id: <1141302442.3206.53.camel@laptopd505.fenrus.org>
+	Thu, 2 Mar 2006 07:31:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57693 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932231AbWCBMbq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 07:31:46 -0500
+Date: Thu, 2 Mar 2006 13:31:26 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Michael Monnerie <m.monnerie@zmi.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Message-ID: <20060302123125.GM4329@suse.de>
+References: <200603020023.21916@zmi.at> <200603021316.38077.ak@suse.de> <4406E226.4050806@pobox.com> <200603021326.33220.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603021326.33220.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 02 2006, Andi Kleen wrote:
+> On Thursday 02 March 2006 13:16, Jeff Garzik wrote:
+> 
+> > > Yes I've been thinking about adding a new sleeping interface to the IOMMU
+> > > that would block for new space to handle this. If I did that - would
+> > > libata be able to use it?
+> >
+> > No :(  We map inside a spin_lock_irqsave.
+> 
+> Would it be easily possible to change that or is it difficult?
+> 
+> Also with the blocking interface there might be possible deadlock issues 
+> because it will be essentially similar to allocating memory during IO.
+> But I think it's probably safe.
 
-> About a quarter of the time when non-netdev maintainers add IDs, through 
-> the magic of merges, we've wound up with duplicate IDs in the driver. 
-> I've snipped several duplicate IDs from tulip and other net drivers over 
-> the years.
+For most cases, perhaps. But it's a nasty interface. It works for eg
+mempools because of the way they are designed, but you simply have to
+allow the caller the option of doing something in case we cannot map.
 
-sure. But in this case Dominik IS the maintainer
-
-> Further, in the past Brodo has _already_ been asked to CC relevant 
-> maintainers and lists -- or at least LKML -- with his patches.
-
-he mailed the relevant list, linux-pcmcia ... whats wrong?
-
-Maybe you are right about the pattern, but this time it's not that...
-maybe you should apologize and flame Dominik the next time instead ;)
+-- 
+Jens Axboe
 

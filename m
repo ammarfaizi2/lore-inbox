@@ -1,115 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWCBGYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWCBGhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWCBGYe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 01:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWCBGYe
+	id S1751407AbWCBGhO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 01:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWCBGhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 01:24:34 -0500
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:49899 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S1751398AbWCBGYd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 01:24:33 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.2.4
-cc: linux-kernel@vger.kernel.org
-Date: Wed, 01 Mar 2006 22:24:30 -0800
-Message-ID: <7vslq19xep.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Thu, 2 Mar 2006 01:37:14 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:27552 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751407AbWCBGhM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 01:37:12 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH]kprobe handler discard user space trap
+Date: Thu, 2 Mar 2006 14:36:56 +0800
+Message-ID: <117E3EB5059E4E48ADFF2822933287A441C7DC@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]kprobe handler discard user space trap
+Thread-Index: AcY8+egvVtNDijP0T5G4g4vNxfXCwwAyL17Q
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "bibo mao" <bibo_mao@linux.intel.com>, <prasanna@in.ibm.com>
+Cc: "Mao, Bibo" <bibo.mao@intel.com>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>,
+       "Ananth N Mavinakayanahalli" <ananth@in.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
+       <hiramatu@sdl.hitachi.co.jp>
+X-OriginalArrivalTime: 02 Mar 2006 06:36:57.0964 (UTC) FILETIME=[B44F22C0:01C63DC3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.2.4 is available at the
-usual places:
+>>-----Original Message-----
+>>From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of bibo mao
+>>Sent: 2006Äê3ÔÂ1ÈÕ 14:23
+>>To: prasanna@in.ibm.com
+>>Cc: Mao, Bibo; Andrew Morton; linux-kernel@vger.kernel.org; Ananth N Mavinakayanahalli; Keshavamurthy, Anil S;
+>>hiramatu@sdl.hitachi.co.jp
+>>Subject: Re: [PATCH]kprobe handler discard user space trap
+>>
+>>This patch removes code in kprobe_handler() function which calculates
+>>user space int3 trap address in i386 architecture. And this patch is
+>>based on kprobe-handler-discard-user-space-trap.patch, against
+>>2.6.16-rc5-mm1.
+>>
+>>Signed-off-by: bibo mao <bibo.mao@intel.com>
+>>
+>>--- a/arch/i386/kernel/kprobes.c	2006-03-01 12:48:54.000000000 +0800
+>>+++ b/arch/i386/kernel/kprobes.c	2006-03-01 14:08:12.000000000 +0800
+>>@@ -203,7 +203,7 @@ static int __kprobes kprobe_handler(stru
+>>  {
+>>  	struct kprobe *p;
+>>  	int ret = 0;
+>>-	kprobe_opcode_t *addr = NULL;
+>>+	kprobe_opcode_t *addr = (kprobe_opcode_t *)(regs->eip -
+>>sizeof(kprobe_opcode_t));
+>>  	unsigned long *lp;
+>>  	struct kprobe_ctlblk *kcb;
+>>  #ifdef CONFIG_PREEMPT
+>>@@ -217,17 +217,6 @@ static int __kprobes kprobe_handler(stru
+>>  	preempt_disable();
+>>  	kcb = get_kprobe_ctlblk();
+>>
+>>-	/* Check if the application is using LDT entry for its code segment and
+>>-	 * calculate the address by reading the base address from the LDT entry.
+>>-	 */
+>>-	if ((regs->xcs & 4) && (current->mm)) {
+>>-		lp = (unsigned long *) ((unsigned long)((regs->xcs >> 3) * 8)
+>>-					+ (char *) current->mm->context.ldt);
+>>-		addr = (kprobe_opcode_t *) (get_desc_base(lp) + regs->eip -
+>>-						sizeof(kprobe_opcode_t));
+>>-	} else {
+>>-		addr = (kprobe_opcode_t *)(regs->eip - sizeof(kprobe_opcode_t));
+>>-	}
+>>  	/* Check we're not actually recursing */
+>>  	if (kprobe_running()) {
+>>  		p = get_kprobe(addr);
+>>
+>>Prasanna S Panchamukhi wrote:
+>>> On Tue, Feb 28, 2006 at 03:23:12PM +0800, bibo,mao wrote:
+>>>> Currently kprobe handler traps only happen in kernel space, so function
+>>>> kprobe_exceptions_notify should skip traps which happen in user space.
+>>>> This patch modifies this, and it is based on 2.6.16-rc4.
+>>>
+>>> You need to remove the code which calculates the
+>>> user space address in kprobe_handler() and also you need
+>>> to remove the code that checks for VM86 in i386, since
+>>> your patch check if user/vm86 at the top level.
+>>>
+>>> Thanks
+>>> Prasanna
+>>>
+>>>> Signed-off-by: bibo mao <bibo.mao@intel.com>
+>>>>
+>>>> diff -Nruap a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+>>>> --- a/arch/i386/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>>>> +++ b/arch/i386/kernel/kprobes.c    2006-03-01 10:37:50.000000000 +0800
+>>>> @@ -463,6 +463,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>>>      struct die_args *args = (struct die_args *)data;
+>>>>      int ret = NOTIFY_DONE;
+>>>>
+>>>> +    if (user_mode(args->regs))
+>>>> +        return ret;
+>>>> +
+>>>>      switch (val) {
+>>>>      case DIE_INT3:
+>>>>          if (kprobe_handler(args->regs))
+>>>> diff -Nruap a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
+>>>> --- a/arch/ia64/kernel/kprobes.c    2006-02-25 17:08:53.000000000 +0800
+>>>> +++ b/arch/ia64/kernel/kprobes.c    2006-03-01 10:39:15.000000000 +0800
+>>>> @@ -740,6 +740,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>>>      struct die_args *args = (struct die_args *)data;
+>>>>      int ret = NOTIFY_DONE;
+>>>>
+>>>> +    if (user_mode(args->regs))
+>>>> +        return ret;
+>>>> +
+>>>>      switch(val) {
+>>>>      case DIE_BREAK:
+>>>>          /* err is break number from ia64_bad_break() */
+>>>> diff -Nruap a/arch/powerpc/kernel/kprobes.c b/arch/powerpc/kernel/kprobes.c
+>>>> --- a/arch/powerpc/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>>>> +++ b/arch/powerpc/kernel/kprobes.c    2006-03-01 10:39:53.000000000 +0800
+>>>> @@ -397,6 +397,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>>>      struct die_args *args = (struct die_args *)data;
+>>>>      int ret = NOTIFY_DONE;
+>>>>
+>>>> +    if (user_mode(args->regs))
+>>>> +        return ret;
+>>>> +
+>>>>      switch (val) {
+>>>>      case DIE_BPT:
+>>>>          if (kprobe_handler(args->regs))
+>>>> diff -Nruap a/arch/sparc64/kernel/kprobes.c b/arch/sparc64/kernel/kprobes.c
+>>>> --- a/arch/sparc64/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>>>> +++ b/arch/sparc64/kernel/kprobes.c    2006-03-01 10:40:16.000000000 +0800
+>>>> @@ -324,6 +324,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>>>      struct die_args *args = (struct die_args *)data;
+>>>>      int ret = NOTIFY_DONE;
+>>>>
+>>>> +    if (user_mode(args->regs))
+>>>> +        return ret;
+>>>> +
+>>>>      switch (val) {
+>>>>      case DIE_DEBUG:
+>>>>          if (kprobe_handler(args->regs))
+>>>> diff -Nruap a/arch/x86_64/kernel/kprobes.c b/arch/x86_64/kernel/kprobes.c
+>>>> --- a/arch/x86_64/kernel/kprobes.c    2006-02-25 17:08:52.000000000 +0800
+>>>> +++ b/arch/x86_64/kernel/kprobes.c    2006-03-01 10:38:48.000000000 +0800
+>>>> @@ -601,6 +601,9 @@ int __kprobes kprobe_exceptions_notify(s
+>>>>      struct die_args *args = (struct die_args *)data;
+>>>>      int ret = NOTIFY_DONE;
+>>>>
+>>>> +    if (user_mode(args->regs))
+>>>> +        return ret;
+>>>> +
+>>>>      switch (val) {
+>>>>      case DIE_INT3:
+>>>>          if (kprobe_handler(args->regs))
+>>>
+When my ia64 box reboots with kernel 2.6.16-rc5-mm1, kernel hanged in kprobe_exceptions_notify.
+args->regs doesn't always point to a valid address. It might be NULL. machine_restart calls notify_die 
+with parameter regs=NULL. Pls. check args->regs before using user_mode.
 
-	http://www.kernel.org/pub/software/scm/git/
-
-	git-1.2.4.tar.{gz,bz2}			(tarball)
-	RPMS/$arch/git-*-1.2.4-1.$arch.rpm	(RPM)
-
-Among some fixes, there is one feature item: war on whitespace.
-
-This was done in response to Andrew Morten's request, and
-backported from the primary development track.
-
-When you apply an e-mailed patch with git-am (or git-applymbox),
-if the patch introduces new trailing whitespaces, you will get
-warning messages by default.  This behaviour can be tweaked by
-setting the configuration item "apply.whitespace" to various
-values.
-
-For kernel subsystem maintainers, the earlier Andrew's requests
-translate to setting it to either "error" or "strip".
-
-E.g.
-
-	$ git repo-config apply.whitespace error
-
-What are the available choices, and which one is for you?
-
- * If you are a busy top echelon person who cares about tree
-   cleanliness, apply.whitespace=error is a good choice.  This
-   stops after giving a handful error messages, and refuses to
-   apply a patch that introduces trailing whitespaces.  After
-   the failed patch, you should return the patch to the
-   submitter; your tree remains clean.
-
- * apply.whitespace=error-all is a better choice for you, if you
-   are willing to clean up other peoples' mess.  You will get
-   all errors, and the patch is not applied.  You can go through
-   with your editor (e.g. Emacs users can use C-x `; I hope vim
-   users have similar macros) and fix things in .dotest/patch.
-   After fixing them up, "git am" without flags (or "-i" for
-   "interactive" if you want) to apply it.  Do not forget to
-   tell the person who wasted your time doing this to be more
-   careful next time.
-
- * If you do not care much about new trailing whitespaces, there
-   is apply.whitespace=warn, which is the default.  This shows
-   warning messages and applies the patch.  Make a mental note
-   to scold the patch submitter to be careful the next time.
-
- * If you care about cleanliness, want to be nice to the
-   submitters by not forcing them to resubmit solely on
-   whitespace basis, but not nice enough to educate them,
-   apply.whitespace=strip is for you.  This applies the patch
-   after stripping the trailing whitespaces it introduces.
-
- * If you do not care about whitespace errors at all,
-   apply.whitespace=nowarn is for you.  No warnings, no errors.
-
-----------------------------------------------------------------
-
-Changes since v1.2.3 are as follows:
-
-Alex Riesen:
-      fix t5600-clone-fail-cleanup.sh on windows
-
-Josef Weidendorfer:
-      git-mv: Allow -h without repo & fix error message
-      git-mv: fixes for path handling
-
-Junio C Hamano:
-      checkout - eye candy.
-      Give no terminating LF to error() function.
-      diffcore-rename: plug memory leak.
-      git-am: do not allow empty commits by mistake.
-      sample hooks template.
-      apply --whitespace fixes and enhancements.
-      apply: squelch excessive errors and --whitespace=error-all
-      apply --whitespace: configuration option.
-      git-apply --whitespace=nowarn
-      git-apply: war on whitespace -- finishing touches.
-      git-am: --whitespace=x option.
-      diffcore-break: micro-optimize by avoiding delta between identical files.
-      Allow git-mv to accept ./ in paths.
-
-Linus Torvalds:
-      The war on trailing whitespace
-
-Mark Wooding:
-      combine-diff: Honour --full-index.
-      combine-diff: Honour -z option correctly.
+Pls. also check if other archs have the same problem.
 

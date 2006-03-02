@@ -1,59 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWCBKgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751981AbWCBKiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751437AbWCBKgP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 05:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWCBKgP
+	id S1751981AbWCBKiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 05:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751982AbWCBKiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 05:36:15 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:46233 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751437AbWCBKgP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 05:36:15 -0500
-Date: Thu, 2 Mar 2006 10:36:03 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Steven Whitehouse <steve@chygwyn.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Christoph Hellwig <hch@infradead.org>,
-       Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: GFS2 Filesystem [0/16]
-Message-ID: <20060302103603.GX27946@ftp.linux.org.uk>
-References: <1140792511.6400.707.camel@quoit.chygwyn.com> <20060224213553.GA8817@infradead.org> <440485E7.4090702@cfl.rr.com> <20060302101219.GA22243@souterrain.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060302101219.GA22243@souterrain.chygwyn.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 2 Mar 2006 05:38:14 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:60901 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S1751981AbWCBKiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 05:38:13 -0500
+Date: Thu, 2 Mar 2006 11:38:10 +0100 (CET)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: linux-kernel@vger.kernel.org
+Cc: FACCINI BRUNO <Bruno.Faccini@bull.net>
+Subject: Deadlock in net/sunrpc/sched.c
+Message-ID: <Pine.LNX.4.61.0603021116030.15393@openx3.frec.bull.fr>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 02/03/2006 11:39:40,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 02/03/2006 11:39:42,
+	Serialize complete at 02/03/2006 11:39:42
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 10:12:19AM +0000, Steven Whitehouse wrote:
-> Hi,
-> 
-> On Tue, Feb 28, 2006 at 12:18:31PM -0500, Phillip Susi wrote:
-> > I'm a bit confused.  Why exactly is this unacceptable, and what exactly 
-> > do you propose instead?  Having an entirely separate mount point that is 
-> > sort of parallel to the main one, but with extra metadata exposed?  So 
-> > instead of /path/to/foo/.gfs2_admin/metafile you'd prefer having a 
-> > separate mount point like /proc/fs/gfs/path/to/foo/metafile?
-> >
-> I believe that is what Christoph is proposing. It does simplify certain
-> things, not least preventing someone from moving the .gfs2_admin directory
-> to somewhere other than the root directory of the filesystem or even
-> removing it completely which would otherwise need to be added as special
-> cases.
-> 
-> On the otherhand, its not clear to me at the moment, exactly how to
-> implement this bearing in mind that both the "normal" filesystem and
-> the metadata filesystem are really one and the same as far as journaling
-> and locking are concerned. Perhaps what's needed is one fs with two
-> different roots. I'm still looking into the best way to do this,
 
-Two superblocks, one keeping a reference to another.  Filesystem driver is,
-of course, the single piece of code, with common locking.  There's no need
-to have the common struct super_block for that and no benefit in doing so -
-only extra complications.  You can easily register two filesystem types
-in the same driver and have ->get_sb() for your metadata fs parse its
-arguments in any way it likes.  E.g. by doing pathname lookup on what would
-normally be a device name and seeing if its on a filesystem of the primary
-type; if it is - grab a reference to struct super_block of that fs
-and work with it.
+Hi,
+
+My colleague Bruno Faccini has found a deadlock in the rpc wake up code.
+This happened with 2.6.12 but it seems that the code has not changed and 
+the issue is very probably still present in the current kernels.
+
+I think what happens is this:
+
+One process (A) enters rpc_wake_up_task().
+   It enters rpc_start_wakeup() and sets the RPC_TASK_WAKEUP bit.
+
+#define rpc_start_wakeup(t) \
+        (test_and_set_bit(RPC_TASK_WAKEUP, &(t)->tk_runstate) == 0)
+
+void rpc_wake_up_task(struct rpc_task *task)
+{
+        if (rpc_start_wakeup(task)) {
+                if (RPC_IS_QUEUED(task)) {
+                        struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
+
+                        spin_lock_bh(&queue->lock);
+                        __rpc_do_wake_up_task(task);
+                        spin_unlock_bh(&queue->lock);
+                }
+                rpc_finish_wakeup(task);
+        }
+}
+
+
+Now an interrupt has occured on another CPU and process (B) enters 
+rpc_wake_up(). It takes the queue spinlock, and enters this `while' loop:
+
+void rpc_wake_up(struct rpc_wait_queue *queue)
+{
+        struct rpc_task *task;
+
+        struct list_head *head;
+        spin_lock_bh(&queue->lock);
+        head = &queue->tasks[queue->maxpriority];
+        for (;;) {
+                while (!list_empty(head)) {
+                        task = list_entry(head->next, struct rpc_task, u.tk_wait.list);
+                        __rpc_wake_up_task(task);
+                }
+                if (head == &queue->tasks[0])
+                        break;
+                head--;
+        }
+        spin_unlock_bh(&queue->lock);
+}
+
+static void __rpc_wake_up_task(struct rpc_task *task)
+{
+        if (rpc_start_wakeup(task)) {
+                if (RPC_IS_QUEUED(task))
+                        __rpc_do_wake_up_task(task);
+                rpc_finish_wakeup(task);
+        }
+}
+
+
+Now to exit this loop, B needs to reach __rpc_do_wake_up_task() where a 
+list_del will occur. But for this the RPC_TASK_WAKEUP must be released by 
+process A, and this won't happen until process B releases the queue 
+spinlock. --> deadlock.
+
+
+A possible fix would be to take the spinlock earlier in rpc_wake_up_task():
+
+
+
+Signed-off-by: Simon.Derr@bull.net
+Signed-off-by: Bruno.Faccini@bull.net
+
+Index: linux-2.6.12.6/net/sunrpc/sched.c
+===================================================================
+--- linux-2.6.12.6.orig/net/sunrpc/sched.c	2005-08-29 18:55:27.000000000 +0200
++++ linux-2.6.12.6/net/sunrpc/sched.c	2006-03-02 11:10:38.000000000 +0100
+@@ -400,16 +400,16 @@ __rpc_default_timer(struct rpc_task *tas
+  */
+ void rpc_wake_up_task(struct rpc_task *task)
+ {
++	spin_lock_bh(&queue->lock);
+ 	if (rpc_start_wakeup(task)) {
+ 		if (RPC_IS_QUEUED(task)) {
+ 			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
+ 
+-			spin_lock_bh(&queue->lock);
+ 			__rpc_do_wake_up_task(task);
+-			spin_unlock_bh(&queue->lock);
+ 		}
+ 		rpc_finish_wakeup(task);
+ 	}
++	spin_unlock_bh(&queue->lock);
+ }
+ 
+ /*

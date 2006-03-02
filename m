@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751955AbWCBIjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751960AbWCBIlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751955AbWCBIjB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 03:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWCBIjB
+	id S1751960AbWCBIlm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 03:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751961AbWCBIlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 03:39:01 -0500
-Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:42629 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751955AbWCBIjA
+	Thu, 2 Mar 2006 03:41:42 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:56008 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751960AbWCBIll convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 03:39:00 -0500
-Message-ID: <4406AF27.9040700@drzeus.cx>
-Date: Thu, 02 Mar 2006 09:39:03 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060210)
+	Thu, 2 Mar 2006 03:41:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=uOgvpyT8uOMqYSWGL6+w9wHcSno3uVW218AC+HFHAReO7Ln8aYYHkWQSfyTzMwuhtLzTNNkNy0B9XJ2NJTkXZ44ocoEG/Py9A0sJTZUxW1kA1O8CEgtT1okT76YhnfGwAhIEpCPf9/cuJIrTDeIIBVCTeObwJCNqYa6bd0C8uhY=
+Message-ID: <c38b25e50603020041w405c5f93i611dcb7954dfbbef@mail.gmail.com>
+Date: Thu, 2 Mar 2006 00:41:40 -0800
+From: "Anush Elangovan" <anush.e@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Define BITS_PER_BYTE to fix compilation error in 2.6.15.5
+Cc: chrisw@sous-sol.org, gregkh@suse.de
 MIME-Version: 1.0
-To: Kay Sievers <kay.sievers@vrfy.org>
-CC: ambx1@neo.rr.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org>
-In-Reply-To: <20060301194532.GB25907@vrfy.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers wrote:
-> On Mon, Feb 27, 2006 at 10:40:19PM +0100, Pierre Ossman wrote:
->> User space hardware detection need the 'modalias' attributes in the
->> sysfs tree. This patch adds support to the PNP bus.
-> 
->> +
->> +	/* FIXME: modalias can only do one alias */
->> +	return sprintf(buf, "pnp:c%s\n", pos->id);
-> 
-> Without the FIXME actually "fixed", this does not make sense. You want to
-> match always on _all_ aliases. In most cases where you have more than
-> one, the first one is the vendor specific one which isn't interesting at
-> all on Linux. If you have more than one entry usually the second one is the
-> one you are looking for.
-> 
-> So eighter we find a way to encode _all_ id's in one modalias string which can
-> be matched by a wildcard or keep the current solution which iterates over the
-> sysfs "id" file and calls modprobe for every entry.
-> 
+Looks like mm/mempolicy.c requires BITS_PER_BYTE, which is not defined
+in 2.6.15.5. Patch below fixes the issue. 2.6.16rc5 seems to have the
+#define
 
-That's a bit harsh. Although the FIXME is a downer, this patch is a
-strict addition of functionality, not removal. It solves a real problem
-for me, and it does so without removing any functionality for anyone
-else. The fact is that most PNP devices do not have multiple id:s (at
-least the ACPI variant which is the most common in todays machines), so
-the problem is not near as big as you make it out to be.
+Signed-off-by: Anush Elangovan (anush.e@gmail.com)
 
-That said, I agree that it would be desirable to fix this. First of all
-we would need to synchronise this with userspace. Currently I guess that
-means udev. Allowing 'modalias' to contain multiple lines should be a
-simple enough solution (provided we don't fill the available buffer space).
+diff -rup linux-2.6.15.5/include/linux/types.h
+linux-2.6.15.5_fix/include/linux/types.h
+--- linux-2.6.15.5/include/linux/types.h        2006-03-01
+14:37:27.000000000 -0800
++++ linux-2.6.15.5_fix/include/linux/types.h    2006-03-01
+23:39:43.000000000 -0800
+@@ -8,6 +8,8 @@
+        (((bits)+BITS_PER_LONG-1)/BITS_PER_LONG)
+ #define DECLARE_BITMAP(name,bits) \
+        unsigned long name[BITS_TO_LONGS(bits)]
++
++#define BITS_PER_BYTE 8
+ #endif
 
-The PNP cards are also a bit of a problem, but this isn't something new.
-When matching a device to a driver, the card ID must match and also all
-device ID:s. The problem is that the device ID:s are sets, not lists.
-I.e. we compare the unordered contents of the two, with no regard to
-ordering.
-
-Rgds
-Pierre
-
+ #include <linux/posix_types.h>

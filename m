@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWCBJ6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWCBKAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWCBJ6B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 04:58:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWCBJ6B
+	id S932302AbWCBKAY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 05:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWCBKAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 04:58:01 -0500
-Received: from souterrain.chygwyn.com ([194.39.143.233]:28098 "EHLO
-	souterrain.chygwyn.com") by vger.kernel.org with ESMTP
-	id S932232AbWCBJ6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 04:58:00 -0500
-Date: Thu, 2 Mar 2006 10:12:19 +0000
-From: Steven Whitehouse <steve@chygwyn.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Steven Whitehouse <swhiteho@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: GFS2 Filesystem [0/16]
-Message-ID: <20060302101219.GA22243@souterrain.chygwyn.com>
-References: <1140792511.6400.707.camel@quoit.chygwyn.com> <20060224213553.GA8817@infradead.org> <440485E7.4090702@cfl.rr.com>
+	Thu, 2 Mar 2006 05:00:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25102 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932302AbWCBKAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 05:00:23 -0500
+Date: Thu, 2 Mar 2006 10:59:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Michael Monnerie <m.monnerie@zmi.at>, linux-kernel@vger.kernel.org,
+       suse-linux-e@suse.com, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Message-ID: <20060302095959.GD4329@suse.de>
+References: <200603020023.21916@zmi.at> <200603020203.49128.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <440485E7.4090702@cfl.rr.com>
-User-Agent: Mutt/1.4.1i
-Organization: ChyGwyn Limited
+In-Reply-To: <200603020203.49128.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Feb 28, 2006 at 12:18:31PM -0500, Phillip Susi wrote:
-> I'm a bit confused.  Why exactly is this unacceptable, and what exactly 
-> do you propose instead?  Having an entirely separate mount point that is 
-> sort of parallel to the main one, but with extra metadata exposed?  So 
-> instead of /path/to/foo/.gfs2_admin/metafile you'd prefer having a 
-> separate mount point like /proc/fs/gfs/path/to/foo/metafile?
->
-I believe that is what Christoph is proposing. It does simplify certain
-things, not least preventing someone from moving the .gfs2_admin directory
-to somewhere other than the root directory of the filesystem or even
-removing it completely which would otherwise need to be added as special
-cases.
-
-On the otherhand, its not clear to me at the moment, exactly how to
-implement this bearing in mind that both the "normal" filesystem and
-the metadata filesystem are really one and the same as far as journaling
-and locking are concerned. Perhaps what's needed is one fs with two
-different roots. I'm still looking into the best way to do this,
-
-Steve.
- 
+On Thu, Mar 02 2006, Andi Kleen wrote:
+> On Thursday 02 March 2006 00:23, Michael Monnerie wrote:
+> > Hello, I use SUSE 10.0 with all updates and actual kernel 2.6.13-15.8 as
+> > provided from SUSE (just self compiled to optimize for Athlon64, SMP,
+> > and HZ=100), with an Asus A8N-E motherboard, and an Athlon64x2 CPU.
+> > This host is used with VMware GSX server running 6 Linux client and one
+> > Windows client host. There's a SW-RAID1 using 2 SATA HDs.
 > 
-> Christoph Hellwig wrote:
-> >> b) The .gfs2_admin directory exposes the internal files that GFS uses
-> >>    to store various bits of file system related information. This means
-> >>    that we've been able to remove virtually all the ioctl() calls from
-> >>    GFS2. There is one ioctl() call left which relates to
-> >>    getting/setting GFS2 specific flags on files. The various GFS2 tools
-> >>    will be updated in due course to use this new interface.
-> >
-> >Without even looking at the code a strong NACK here.  This is polluting
-> >the namespace which is not acceptable.  Please implement a second
-> >filesystem type gfsmeta to do this kind of admin work.  Search for ext2meta
-> >which did something similar.  Or use a completely different approach,
-> >I'd need to look at the actual functionality provided to give a better
-> >advice, but currently I'm lacking the time for that.
-> >
+> Nvidia hardware SATA cannot directly DMA to > 4GB, so it 
+> has to go through the IOMMU. And in that kernel the Nforce
+> ethernet driver also didn't do >4GB access, although the ethernet HW 
+> is theoretically capable.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Maybe VMware pins unusually much IO memory in flight (e.g. by using
+> a lot of O_DIRECT). That could potentially cause the IOMMU to fill up.
+> The RAID-1 probably also makes it worse because it will double the IO
+> mapping requirements.
+> 
+> Or you have a leak in some driver, but if the problem goes away
+> after enlarging the IOMMU that's unlikely.
+> 
+> What would probably help is to get a new SATA controller that can 
+> access >4GB natively and at some point update to a newer kernel
+> with newer forcedeth driver. Or just run with the enlarged IOMMU.
+
+libata should also handle this case better. Usually we just need to
+defer command handling if the dma_map_sg() fails. Changing
+ata_qc_issue() to return nsegments for success, 0 for defer failure, and
+-1 for permanent failure should be enough. The SCSI path is easy at
+least, as we can just ask for a defer there. The internal qc_issue is a
+little more tricky.
+
+The NCQ patches have logic to handle this, although for other reasons
+(to avoid overlap between NCQ and non-NCQ commands). It could easily be
+reused for this as well.
+
+-- 
+Jens Axboe
+

@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWCBU2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWCBUa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWCBU2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 15:28:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWCBU2R
+	id S932527AbWCBUa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 15:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWCBUa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 15:28:17 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:26412 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751429AbWCBU2Q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 15:28:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZW6VkQ6/EztLJnAvJIsOViMSrLH67V4YXncW9cewtbLiTRJQkv6vCsCC5Iby9ovVTj6T17xIAyQN5vZGABA2/JNonhqTWoie1CMyTgviUY7+gCyhyaX7ihXGJr/cDGrNwMYEORVbMGM/00gKA1jgbF5YefGkKwsleb0/NZGSEf8=
-Message-ID: <9a8748490603021228k7ad1fb5gd931d9778307ca58@mail.gmail.com>
-Date: Thu, 2 Mar 2006 21:28:15 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [2.6 patch] make UNIX a bool
-Cc: "Herbert Xu" <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
-       jgeorgas@rogers.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060302173840.GB9295@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 2 Mar 2006 15:30:56 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28687 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932527AbWCBUa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 15:30:56 -0500
+Date: Thu, 2 Mar 2006 20:30:39 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Tejun Heo <htejun@gmail.com>, Dave Miller <davem@redhat.com>,
+       axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org, mattjreimer@gmail.com
+Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
+Message-ID: <20060302203039.GH28895@flint.arm.linux.org.uk>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	Tejun Heo <htejun@gmail.com>, Dave Miller <davem@redhat.com>,
+	axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
+	jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+	mattjreimer@gmail.com
+References: <11371658562541-git-send-email-htejun@gmail.com> <1137167419.3365.5.camel@mulgrave> <20060113182035.GC25849@flint.arm.linux.org.uk> <1137177324.3365.67.camel@mulgrave> <20060113190613.GD25849@flint.arm.linux.org.uk> <20060222082732.GA24320@htj.dyndns.org> <1141325189.3238.37.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060301175852.GA4708@stusta.de>
-	 <E1FEcfG-000486-00@gondolin.me.apana.org.au>
-	 <20060302173840.GB9295@stusta.de>
+In-Reply-To: <1141325189.3238.37.camel@mulgrave.il.steeleye.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/2/06, Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> > >
-> > > It does also matter in the kernel image size case, since you have to put
-> > > enough modules to the other medium for having a effect bigger than the
-> > > kernel image size increase from setting CONFIG_MODULES=y.
-> >
-> > That's not very difficult considering the large number of modules that's
-> > out there that a system may wish to use.
-> >...
->
-> This might be true for full-blown desktop systems - but these do not
-> tend to be the systems where kernel image size matters that much.
-> Smaller kernel image size might be an issue e.g. for distribution
-> kernels, but in a much less pressing way.
->
-> The systems where kernel image size really matters are systems with few
-> modules where you know in advance which modules you might need. I played
-> a bit with the ARM defconfigs, and if you consider that you can't build
-> the filesystem for accessing your modules modular I haven't found any
-> where making everything modular would have given a real kernel image
-> size gain compared to the CONFIG_MODULES=n case.
->
+On Thu, Mar 02, 2006 at 12:46:28PM -0600, James Bottomley wrote:
+> On Wed, 2006-02-22 at 17:27 +0900, Tejun Heo wrote:
+> > The objection raised by James Bottomley is that although syncing the
+> > kernel page is the responsbility of the driver, syncing user page is
+> > not; thus, use of flush_dcache_page() is excessive.  James suggested
+> > use of flush_kernel_dcache_page().
+> 
+> The problem is that it's not only excessive, it would entangle us with
+> mm locking.  Basically, all you want to ensure is that the underlying
+> memory has the information after you've done (rather than the CPU
+> cache), flush_kernel_dcache_page() will achieve this.  The block layer
+> itself takes care of user space coherency.
 
-I believe the basic question is this: What do we win by making
-CONFIG_UNIX a bool?
+Your understanding of the problem on ARM remains fundamentally flawed.
+I see no way to resolve this since you don't seem to listen or accept
+my reasoning.
 
-As it is now eople have the option of building it in, building a
-module or not build it at all - I don't see why that's a bad thing.
-For people who want a small core kernel (for whatever reason) and then
-load additional capabilities as modules, the current situation is
-good. If we remove the modular option who will bennefit?
-Why not just leave it as it is?
+Therefore, message I'm getting from you is that we are not allowed to
+have an ARM system which can possibly work correctly with PIO.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+As a result, I have no further interest in trying to resolve this issue,
+period.  ARM people will just have to accept that PIO mode IDE drivers
+just will not be an option.
+
+Thanks.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

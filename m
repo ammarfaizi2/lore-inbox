@@ -1,126 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWCBSYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWCBSZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWCBSYv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 13:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWCBSYv
+	id S964791AbWCBSZd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 13:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964796AbWCBSZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 13:24:51 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:17026 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S964782AbWCBSYu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 13:24:50 -0500
-Message-ID: <4407386D.4070008@namesys.com>
-Date: Thu, 02 Mar 2006 10:24:45 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@namesys.com>,
-       Oleg Drokin <green@linuxhacker.ru>
-Subject: [Fwd: Re: [PATCH] reiserfs: use balance_dirty_pages_ratelimited_nr
- in reiserfs_file_write]
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------000301000207050207010304"
+	Thu, 2 Mar 2006 13:25:33 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:23574 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S964791AbWCBSZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 13:25:32 -0500
+Date: Thu, 2 Mar 2006 13:25:26 -0500
+From: Jeff Mahoney <jeffm@suse.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: ReiserFS List <reiserfs-list@namesys.com>
+Subject: [PATCH] reiserfs: fix unaligned bitmap usage
+Message-ID: <20060302182525.GA9558@locomotive.unixthugs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.5-7.201-smp (i686)
+X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
+X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000301000207050207010304
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+ The bitmaps associated with generation numbers for directory entries
+ are declared as an array of ints. On some platforms, this causes alignment
+ exceptions.
 
-I suspect that when someone did the search and replace when creating
-balance_dirty_pages_ratelimited_nr they failed to read the code and
-realize this code path was already effectively ratelimited.  The result
-is they made it excessively infrequent (every 1MB if ratelimit is 8) in
-its calling balance_dirty_pages.
+ The following patch uses the standard bitmap declaration macros to
+ declare the bitmaps, fixing the problem.
 
-If anyone has ever seen this as an actual problem on a real system, I
-would be curious to hear of it.
+ Originally from Takashi Iwai.
 
-Hans
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Jeff Mahoney <jeffm@suse.com>
 
---------------000301000207050207010304
-Content-Type: message/rfc822;
- name="Re: [PATCH] reiserfs: use balance_dirty_pages_ratelimited_nr in reiserfs_file_write"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: [PATCH] reiserfs: use balance_dirty_pages_ratelimited_nr in reiserfs_file_write"
-
-Return-Path: <zam@namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 20789 invoked by uid 85); 2 Mar 2006 06:21:20 -0000
-Received: from zam@namesys.com by thebsh.namesys.com by uid 82 with qmail-scanner-1.15 
- (spamassassin: 2.43-cvs.  Clear:SA:0(0.0/2.0 tests=none autolearn=no version=2.60):. 
- Processed in 0.384252 secs); 02 Mar 2006 06:21:20 -0000
-Received: from pc050.trc-odintsovo.ru (HELO rogue.namesys.com) (212.15.96.50)
-  by thebsh.namesys.com with SMTP; 2 Mar 2006 06:21:20 -0000
-Received: by rogue.namesys.com (Postfix, from userid 1000)
-	id 3424E10EE88; Thu,  2 Mar 2006 09:21:19 +0300 (MSK)
-From: Alexander Zarochentsev <zam@namesys.com>
-Organization: namesys
-To: reiserfs-dev@namesys.com
-Subject: Re: [PATCH] reiserfs: use balance_dirty_pages_ratelimited_nr in reiserfs_file_write
-Date: Thu, 2 Mar 2006 09:21:18 +0300
-User-Agent: KMail/1.8.2
-Cc: Hans Reiser <reiser@namesys.com>
-References: <200602282040.16294.zam@namesys.com> <4404A0E1.3040706@namesys.com> <4404A18A.1000805@namesys.com>
-In-Reply-To: <4404A18A.1000805@namesys.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_e7oBE3SAVQFeFqO"
-Message-Id: <200603020921.18680.zam@namesys.com>
-X-Spam-Checker-Version: SpamAssassin 2.60 (1.212-2003-09-23-exp) on 
-	thebsh.namesys.com
-X-Spam-DCC: : 
-X-Spam-Status: No, hits=0.0 required=2.0 tests=none autolearn=no version=2.60
-
---Boundary-00=_e7oBE3SAVQFeFqO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hans, 
-
-The patch works, however its effect is not visible.
-Would you please forward it?
-
-On Tuesday 28 February 2006 22:16, E.Gryaznova wrote:
-> Zam said me about this patch, it is in my todo list for tomorrow.
->
-> Thanks,
-> Lena
->
-
---Boundary-00=_e7oBE3SAVQFeFqO
-Content-Type: application/x-trash;
-  name="reiserfs-reiserfs_file_write-use-balance_dirty_pages_ratelimited_nr.diff~"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="reiserfs-reiserfs_file_write-use-balance_dirty_pages_ratelimited_nr.diff~"
-
-Use balance_dirty_pages_ratelimited_nr in reiserfs "largeio" 
-file write.
-Index: linux-2.6.16-rc4-mm2/fs/reiserfs/file.c
-===================================================================
---- linux-2.6.16-rc4-mm2.orig/fs/reiserfs/file.c
-+++ linux-2.6.16-rc4-mm2/fs/reiserfs/file.c
-@@ -1532,7 +1532,7 @@ static ssize_t reiserfs_file_write(struc
- 		buf += write_bytes;
- 		*ppos = pos += write_bytes;
- 		count -= write_bytes;
--		balance_dirty_pages_ratelimited(inode->i_mapping);
-+		balance_dirty_pages_ratelimited_nr(inode->i_mapping, num_pages);
+--- linux-2.6.15/fs/reiserfs/namei.c	2006-02-14 18:57:32.000000000 +0100
++++ linux-2.6.15/fs/reiserfs/namei.c	2006-02-14 18:58:24.000000000 +0100
+@@ -247,7 +247,7 @@ static int linear_search_in_dir_item(str
+ 		/* mark, that this generation number is used */
+ 		if (de->de_gen_number_bit_string)
+ 			set_bit(GET_GENERATION_NUMBER(deh_offset(deh)),
+-				(unsigned long *)de->de_gen_number_bit_string);
++				de->de_gen_number_bit_string);
+ 
+ 		// calculate pointer to name and namelen
+ 		de->de_entry_num = i;
+@@ -431,7 +431,7 @@ static int reiserfs_add_entry(struct rei
+ 	struct reiserfs_de_head *deh;
+ 	INITIALIZE_PATH(path);
+ 	struct reiserfs_dir_entry de;
+-	int bit_string[MAX_GENERATION_NUMBER / (sizeof(int) * 8) + 1];
++	DECLARE_BITMAP(bit_string, MAX_GENERATION_NUMBER + 1);
+ 	int gen_number;
+ 	char small_buf[32 + DEH_SIZE];	/* 48 bytes now and we avoid kmalloc
+ 					   if we create file with short name */
+@@ -486,7 +486,7 @@ static int reiserfs_add_entry(struct rei
+ 
+ 	/* find the proper place for the new entry */
+ 	memset(bit_string, 0, sizeof(bit_string));
+-	de.de_gen_number_bit_string = (char *)bit_string;
++	de.de_gen_number_bit_string = bit_string;
+ 	retval = reiserfs_find_entry(dir, name, namelen, &path, &de);
+ 	if (retval != NAME_NOT_FOUND) {
+ 		if (buffer != small_buf)
+@@ -508,7 +508,7 @@ static int reiserfs_add_entry(struct rei
  	}
  
- 	/* this is only true on error */
-
---Boundary-00=_e7oBE3SAVQFeFqO--
-
-
-
---------------000301000207050207010304--
+ 	gen_number =
+-	    find_first_zero_bit((unsigned long *)bit_string,
++	    find_first_zero_bit(bit_string,
+ 				MAX_GENERATION_NUMBER + 1);
+ 	if (gen_number > MAX_GENERATION_NUMBER) {
+ 		/* there is no free generation number */
+--- linux-2.6.15/include/linux/reiserfs_fs.h	2006-02-14 18:57:10.000000000 +0100
++++ linux-2.6.15/include/linux/reiserfs_fs.h	2006-02-14 18:57:22.000000000 +0100
+@@ -1052,7 +1052,7 @@ struct reiserfs_dir_entry {
+ 	int de_entrylen;
+ 	int de_namelen;
+ 	char *de_name;
+-	char *de_gen_number_bit_string;
++	unsigned long *de_gen_number_bit_string;
+ 
+ 	__u32 de_dir_id;
+ 	__u32 de_objectid;
+-- 
+Jeff Mahoney
+SuSE Labs

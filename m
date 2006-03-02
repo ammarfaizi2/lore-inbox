@@ -1,63 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWCBRfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWCBRit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932409AbWCBRfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 12:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWCBRfu
+	id S932437AbWCBRit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWCBRit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 12:35:50 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:41854 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932294AbWCBRft convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 12:35:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gTTsSFlIeJ876n2ZgKJ/6ron76GypWGabZIXLxxtKSJXsxr1jirQnvNyr/GXPwrDvtnT3AAWoepkvQsNpdOLo9eJPx50tg+/w1hNsIF+mQBnmL8gPWHtXz5IsFezgtrZyf0KBv1Im8gfH/JGloAQb60umBybALMbwh2sGT1S7k0=
-Message-ID: <9a8748490603020935h4936ae0eob4bcf107cc75c923@mail.gmail.com>
-Date: Thu, 2 Mar 2006 18:35:48 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Steffen Weber" <email@steffenweber.net>
-Subject: Re: Another compile problem with 2.6.15.5 on AMD64
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44072B88.1020406@steffenweber.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Mar 2006 12:38:49 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:59880 "EHLO avexch02.qlogic.com")
+	by vger.kernel.org with ESMTP id S932408AbWCBRis (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:38:48 -0500
+Date: Thu, 2 Mar 2006 09:38:46 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Maxim Kozover <maximkoz@netvision.net.il>
+Cc: Stefan Kaltenbrunner <mm-mailinglist@madness.at>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Re:Re: problems with scsi_transport_fc and qla2xxx
+Message-ID: <20060302173846.GF498@andrew-vasquezs-powerbook-g4-15.local>
+References: <1413265398.20060227150526@netvision.net.il> <978150825.20060227210552@netvision.net.il> <20060228221422.282332ef.akpm@osdl.org> <4406034B.9030105@madness.at> <20060301210802.GA7288@spe2> <957728045.20060302193248@netvision.net.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <44071AF3.1010400@steffenweber.net>
-	 <200603021811.50765.jesper.juhl@gmail.com>
-	 <44072B88.1020406@steffenweber.net>
+In-Reply-To: <957728045.20060302193248@netvision.net.il>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 02 Mar 2006 17:38:47.0912 (UTC) FILETIME=[29485680:01C63E20]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/2/06, Steffen Weber <email@steffenweber.net> wrote:
-> Jesper Juhl wrote:
-> > On Thursday 02 March 2006 17:18, Steffen Weber wrote:
-> >> I´m getting a compile error with 2.6.15.5 on x86_64 using GCC 3.4.4
-> >> (does not seem to be related to the NFS one):
-> >>
-> >>    CC      mm/mempolicy.o
-> >> mm/mempolicy.c: In function `get_nodes':
-> >> mm/mempolicy.c:527: error: `BITS_PER_BYTE' undeclared (first use in
-> >> this function)
-> >> mm/mempolicy.c:527: error: (Each undeclared identifier is reported only
-> >> once
-> >> mm/mempolicy.c:527: error: for each function it appears in.)
-> >>
-> >
-> > Try the following (untested patch).
-> Thanks for your reply, but this patch does not solve the problem (same
-> error message). I´ve appended my .config in case that might help.
->
+On Thu, 02 Mar 2006, Maxim Kozover wrote:
 
-Hmm, types.h contains the
+> Today I tested disconnecting QLogic port.
+> Adapter 4 is connected via switch to a storage and 3 LUNs are seen via
+> the adapter.
+> Only 1 rport is created (for FCP Target) while in Emulex case there
+> were 3: (Fabric Port, Directory Server and FCP Target, FCP Initiator).
 
-#define BITS_PER_BYTE 8
+That's correct, we currently don't make an upcall for the SNS server
+port nor the switch fabric port.
 
-that mmpolicy.c needs, so including that header should do the trick... odd..
-I'll look at the code a bit more.
+> # ls /sys/class/fc_remote_ports/
+> rport-4:0-0
+> # cat /sys/class/fc_remote_ports/*/roles
+> FCP Target
+> 
+> Default dev_loss_tmo is 6 (1+5) while in Emulex case the default was 35.
+> 
+> After disconnecting the cable between the HBA and the switch
+> qla2xxx 0000:03:01.0: LOOP DOWN detected (2).
+>  rport-4:0-0: blocked FC remote port time out: removing target and saving binding
+> 
+> # ls /sys/class/fc_remote_ports/
+> rport-4:0-0
+> # cat /sys/class/fc_remote_ports/*/roles
+> unknown
+> 
+> Relevant scsi devices are removed from /proc/scsi/scsi.
+> 
+> After reconnecting the cable
+> qla2xxx 0000:03:01.0: LIP reset occured (f7f7).
+> qla2xxx 0000:03:01.0: LOOP UP detected (2 Gbps).
+> 
+> # ls /sys/class/fc_remote_ports/
+> rport-4:0-0
+> # cat /sys/class/fc_remote_ports/*/roles
+> FCP Target
+> 
+> However, scsi devices don't reappear in /proc/scsi/scsi.
+> When I issue rescan, the command is stuck
+> echo - - - > /sys/class/scsi_host/host4/scan
+> 
+> Please advise.
+
+Could you add the enable-debug patch I sent you earlier and retry the
+test?  Again forward the relevent snippets from var/log/messages.
+
+Here's the patch again.
 
 --
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+av
+
+---
+
+diff --git a/drivers/scsi/qla2xxx/qla_dbg.h b/drivers/scsi/qla2xxx/qla_dbg.h
+index 935a59a..632f653 100644
+--- a/drivers/scsi/qla2xxx/qla_dbg.h
++++ b/drivers/scsi/qla2xxx/qla_dbg.h
+@@ -9,6 +9,7 @@
+  */
+ /* #define QL_DEBUG_LEVEL_1  */ /* Output register accesses to COM1 */
+ /* #define QL_DEBUG_LEVEL_2  */ /* Output error msgs to COM1 */
++#define QL_DEBUG_LEVEL_2   /* Output error msgs to COM1 */
+ /* #define QL_DEBUG_LEVEL_3  */ /* Output function trace msgs to COM1 */
+ /* #define QL_DEBUG_LEVEL_4  */ /* Output NVRAM trace msgs to COM1 */
+ /* #define QL_DEBUG_LEVEL_5  */ /* Output ring trace msgs to COM1 */
+diff --git a/drivers/scsi/qla2xxx/qla_settings.h b/drivers/scsi/qla2xxx/qla_settings.h
+index 363205c..b2e22b0 100644
+--- a/drivers/scsi/qla2xxx/qla_settings.h
++++ b/drivers/scsi/qla2xxx/qla_settings.h
+@@ -8,7 +8,7 @@
+  * Compile time Options:
+  *     0 - Disable and 1 - Enable
+  */
+-#define DEBUG_QLA2100		0	/* For Debug of qla2x00 */
++#define DEBUG_QLA2100		1	/* For Debug of qla2x00 */
+ 
+ #define USE_ABORT_TGT		1	/* Use Abort Target mbx cmd */
+ 
+
+

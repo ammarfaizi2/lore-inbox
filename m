@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWCBCqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWCBCq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWCBCqo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Mar 2006 21:46:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWCBCqo
+	id S1751227AbWCBCq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Mar 2006 21:46:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWCBCq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 21:46:44 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:43832 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750972AbWCBCqn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 21:46:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=S37tkBZjD3MkViPnkKZKcEx2ZAqkEfX8WpNThJRH1rN59RwKwakI+EFzTlGbHyAkNxTzm5LlZw+ueFYGNntpswU93CxKKiPz0OreaWGukeGz4/cl+QFyDc2P5GQDZhh+yeUR5tdtPKDs/Kff44n3pRbjo8np1D0LrWo0EVZlYcQ=
-Message-ID: <bda6d13a0603011846s6bfed498ha9fb78c4ba74963c@mail.gmail.com>
-Date: Wed, 1 Mar 2006 18:46:42 -0800
-From: "Joshua Hudson" <joshudson@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Possible deadlock in vfs layer, namei.c
+	Wed, 1 Mar 2006 21:46:28 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:5270 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750870AbWCBCq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Mar 2006 21:46:27 -0500
+Message-ID: <44065C7C.6090509@pobox.com>
+Date: Wed, 01 Mar 2006 21:46:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: "Eric D. Mudama" <edmudama@gmail.com>
+CC: Jens Axboe <axboe@suse.de>, Tejun Heo <htejun@gmail.com>,
+       Nicolas Mailhot <nicolas.mailhot@gmail.com>, Mark Lord <liml@rtr.ca>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlos Pardo <Carlos.Pardo@siliconimage.com>
+Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
+References: <1141239617.23202.5.camel@rousalka.dyndns.org>	 <4405F471.8000602@rtr.ca>	 <1141254762.11543.10.camel@rousalka.dyndns.org>	 <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com>	 <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com> <311601c90603011820u4fc89b04te1be39b9ed2ef35b@mail.gmail.com>
+In-Reply-To: <311601c90603011820u4fc89b04te1be39b9ed2ef35b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been hunting down various deadlocks caused by hard links to directories.
-I found one that can happen *without* such things.
+Eric D. Mudama wrote:
+> On 3/1/06, Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+>>This also begs the question... what controller was being used, when the
+>>single Maxtor device listed in the blacklist was added?  Perhaps it was
+>>a problem with the controller, not the device.
+>>
+>>        Jeff
+> 
+> 
+> As reported here:
+> 
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177951
+> 
+> the controller was a 3114, and the bug was "fixed" by blacklisting his
+> Maxtor drive's FUA support.  I'd like Maxtor drives to be
+> un-blacklisted if possible.
 
-Consider this:
+If its 3114 I agree un-blacklisting is the way to go... but its not 
+clear to me whether the problematic configuration included sata_sil or 
+sata_nv.  Since I'm apparently blind :) which part of the bug points 
+conclusively to sata_sil?
 
-17 3 drwxr-xr-x root sys 4096 dir
-18 2 drwxr-xr-x root sys 4096 dir/subdir
-19 1 -rwxr-xr-x root sys 1733 dir/subdir/file
+	Jeff
 
-process 1 does: rename("dir/subdir/file", "dir/file")
-process 2 does: rmdir("dir/subdir")
 
-from namei.c (function: lock_rename), rename takes:
-1. s_vfs_rename_sem,
-2. dir/subdir: p1->d_inode->i_sem
-3. dir: p2->d_inode->i_sem
 
-rmdir takes (multiple functions):
-1. dir  (sys_rename)
-2. dir/subdir (vfs_rename)
-
-Suppose this happends:
-[proc 1] s_vfs_rename_sem
-[proc 1] dir/subdir
-*task switch*
-[proc 2] dir
-[proc 2] dir/subdir ->deadlock
-
-preempt_disable() won't help here. Could also be triggered on a SMP
-machine w/o preempt.
-Am studying situation, doesn't look promising.

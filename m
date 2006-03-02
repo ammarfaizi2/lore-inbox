@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWCBLos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751972AbWCBLp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWCBLos (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 06:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWCBLos
+	id S1751972AbWCBLp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 06:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbWCBLp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 06:44:48 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:36021 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751777AbWCBLor (ORCPT
+	Thu, 2 Mar 2006 06:45:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11434 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751972AbWCBLpy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 06:44:47 -0500
-Message-ID: <4406DAAA.80806@pobox.com>
-Date: Thu, 02 Mar 2006 06:44:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
-References: <200603012259.k21MxBXC013582@hera.kernel.org>	 <44062FF1.4010108@pobox.com> <20060302075004.GA17789@isilmar.linta.de>	 <4406D44A.4020101@pobox.com> <1141299117.3206.37.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141299117.3206.37.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 2 Mar 2006 06:45:54 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060301162113.774d1745.akpm@osdl.org> 
+References: <20060301162113.774d1745.akpm@osdl.org>  <20060301173617.16639.83553.stgit@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #2] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 02 Mar 2006 11:45:45 +0000
+Message-ID: <3718.1141299945@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> I personally don't consider that maintainers have a right to demand
-> CC's. Sure it's polite and good to CC them, but that's not the same as
-> having the right to demand this.
+Andrew Morton <akpm@osdl.org> wrote:
+
+> The number of rejects gets into the "I'm not confident it'll work after
+> this" territory.
 > 
-> However I do think that the "top level" mailinglists deserve one. Eg if
-> you're unsure, linux-kernel. if you know it's ide, linux-ide etc etc.
+> Here's Trond's current diff:
 
-Agreed.  I should have said "maintainer or list".  Brodo CC'd neither.
+I assume this is you applying these patches to your -mm tree (which contains
+some of Trond's patches), rather than Linus's tree or Trond's tree.
 
-	Jeff
+Can you be more specific about which patches you've got problems with? Is it
+mainly that patch 5/5 and little bits of patch 2/5 don't apply?
 
+There's a problem here in that your tree is incompatible with Linus's tree in
+various ways. I believe you've said before that you prefer the patches you're
+given to have been made against Linus's tree... is that right?
 
+Also, do you yet have a git tree holding your patchset? If not, have you
+considered using stacked git (StGIT) to provide one?
+
+David

@@ -1,89 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWCBMR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWCBMTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbWCBMR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 07:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWCBMR6
+	id S1751216AbWCBMTL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 07:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWCBMTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 07:17:58 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:64996 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751134AbWCBMR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 07:17:58 -0500
-Date: Thu, 2 Mar 2006 13:17:52 +0100 (CET)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org,
-       FACCINI BRUNO <Bruno.Faccini@bull.net>
-Subject: Re: Deadlock in net/sunrpc/sched.c
-In-Reply-To: <Pine.LNX.4.61.0603021242150.15393@openx3.frec.bull.fr>
-Message-ID: <Pine.LNX.4.61.0603021306540.15393@openx3.frec.bull.fr>
-References: <Pine.LNX.4.61.0603021116030.15393@openx3.frec.bull.fr>
- <20060302105940.GA9521@silenus.home.res> <Pine.LNX.4.61.0603021242150.15393@openx3.frec.bull.fr>
+	Thu, 2 Mar 2006 07:19:11 -0500
+Received: from mail.suse.de ([195.135.220.2]:11989 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751216AbWCBMTK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 07:19:10 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Date: Thu, 2 Mar 2006 13:21:08 +0100
+User-Agent: KMail/1.9.1
+Cc: Andy Chittenden <AChittenden@bluearc.com>,
+       Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
+       davej@redhat.com, linux-kernel@vger.kernel.org, lwoodman@redhat.com,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+References: <89E85E0168AD994693B574C80EDB9C270393C1BF@uk-email.terastack.bluearc.com> <20060302111046.GF4329@suse.de>
+In-Reply-To: <20060302111046.GF4329@suse.de>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 02/03/2006 13:19:23,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 02/03/2006 13:19:26,
-	Serialize complete at 02/03/2006 13:19:26
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603021321.09082.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Mar 2006, Simon Derr wrote:
+On Thursday 02 March 2006 12:10, Jens Axboe wrote:
 
-> Index: linux-2.6.12.6/net/sunrpc/sched.c
-> ===================================================================
-> --- linux-2.6.12.6.orig/net/sunrpc/sched.c	2005-08-29 18:55:27.000000000 +0200
-> +++ linux-2.6.12.6/net/sunrpc/sched.c	2006-03-02 12:41:42.000000000 +0100
-> @@ -400,16 +400,16 @@ __rpc_default_timer(struct rpc_task *tas
->   */
->  void rpc_wake_up_task(struct rpc_task *task)
->  {
-> +	struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
-> +	spin_lock_bh(&queue->lock);
->  	if (rpc_start_wakeup(task)) {
->  		if (RPC_IS_QUEUED(task)) {
-> -			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
->  
-> -			spin_lock_bh(&queue->lock);
->  			__rpc_do_wake_up_task(task);
-> -			spin_unlock_bh(&queue->lock);
->  		}
->  		rpc_finish_wakeup(task);
->  	}
-> +	spin_unlock_bh(&queue->lock);
->  }
+> I'm waiting for Andi to render an opinion on the problem. It should have
+> no corruption implications, the PIO path will handle arbitrarily large
+> requests. I'm assuming the mapped sg table is correct, just odd looking
+> for some reason.
 
-Hmm, this is just to show how to reverse the locking order.
-I'm not too familiar with the rpc_tasks, and 
-task->u.tk_wait.rpc_waitq might not be valid.
+I was waiting for feedback if iommu=nomerge changes anything. With that option
+the IOMMU code will never touch the layout of the sg list, just rewrite
+->dma_address
 
-Maybe this would be better:
-
-
-
---- linux-2.6.12.6.orig/net/sunrpc/sched.c	2006-03-02 13:11:51.000000000 +0100
-+++ linux-2.6.12.6/net/sunrpc/sched.c	2006-03-02 13:16:19.000000000 +0100
-@@ -400,15 +400,14 @@ __rpc_default_timer(struct rpc_task *tas
-  */
- void rpc_wake_up_task(struct rpc_task *task)
- {
--	if (rpc_start_wakeup(task)) {
--		if (RPC_IS_QUEUED(task)) {
--			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
--
--			spin_lock_bh(&queue->lock);
-+	if (RPC_IS_QUEUED(task)) {
-+		struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
-+		spin_lock_bh(&queue->lock);
-+		if (rpc_start_wakeup(task))  {
- 			__rpc_do_wake_up_task(task);
--			spin_unlock_bh(&queue->lock);
-+			rpc_finish_wakeup(task);
- 		}
--		rpc_finish_wakeup(task);
-+		spin_unlock_bh(&queue->lock);
- 	}
- }
- 
+-Andi

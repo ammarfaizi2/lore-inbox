@@ -1,106 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWCBUlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWCBUof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWCBUlY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 15:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932534AbWCBUlY
+	id S932531AbWCBUof (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 15:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWCBUof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 15:41:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49954 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932281AbWCBUlX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 15:41:23 -0500
-Date: Thu, 2 Mar 2006 21:40:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Dave Miller <davem@redhat.com>, bzolnier@gmail.com,
-       james.steward@dynamicratings.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, mattjreimer@gmail.com,
-       rmk+lkml@arm.linux.org.uk
+	Thu, 2 Mar 2006 15:44:35 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:49078 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932531AbWCBUoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 15:44:34 -0500
 Subject: Re: [PATCHSET] block: fix PIO cache coherency bug
-Message-ID: <20060302204037.GY4329@suse.de>
-References: <11371658562541-git-send-email-htejun@gmail.com> <1137167419.3365.5.camel@mulgrave> <20060113182035.GC25849@flint.arm.linux.org.uk> <1137177324.3365.67.camel@mulgrave> <20060113190613.GD25849@flint.arm.linux.org.uk> <20060222082732.GA24320@htj.dyndns.org>
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Tejun Heo <htejun@gmail.com>, Dave Miller <davem@redhat.com>,
+       axboe@suse.de, bzolnier@gmail.com, james.steward@dynamicratings.com,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org, mattjreimer@gmail.com
+In-Reply-To: <20060302203039.GH28895@flint.arm.linux.org.uk>
+References: <11371658562541-git-send-email-htejun@gmail.com>
+	 <1137167419.3365.5.camel@mulgrave>
+	 <20060113182035.GC25849@flint.arm.linux.org.uk>
+	 <1137177324.3365.67.camel@mulgrave>
+	 <20060113190613.GD25849@flint.arm.linux.org.uk>
+	 <20060222082732.GA24320@htj.dyndns.org>
+	 <1141325189.3238.37.camel@mulgrave.il.steeleye.com>
+	 <20060302203039.GH28895@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Thu, 02 Mar 2006 14:43:59 -0600
+Message-Id: <1141332239.3238.59.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060222082732.GA24320@htj.dyndns.org>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 22 2006, Tejun Heo wrote:
-> On Fri, Jan 13, 2006 at 07:06:14PM +0000, Russell King wrote:
-> > On Fri, Jan 13, 2006 at 12:35:24PM -0600, James Bottomley wrote:
-> > > Perhaps we should take this to linux-arch ... the audience there is well
-> > > versed in these arcane problems?
-> > 
-> > I think you need to wait for Dave Miller to reply and give a definitive
-> > statement on how his cache coherency model is supposed to work in this
-> > regard.
-> > 
-> 
-> Hello, all.
-> 
-> This thread has been dead for quite some time mainly because I didn't
-> know what to do.  As it is a real outstanding bug bugging people and
-> Matt Reimer thankfully reminded me[1], I'm giving another shot at
-> resolving this.
-> 
-> People seem to agree that it is the responsibility of the driver to
-> make sure read data gets to the page cache page (or whatever kernel
-> page).  Only driver knows how and when.
-> 
-> The objection raised by James Bottomley is that although syncing the
-> kernel page is the responsbility of the driver, syncing user page is
-> not; thus, use of flush_dcache_page() is excessive.  James suggested
-> use of flush_kernel_dcache_page().
-> 
-> I also asked similar question[2] on lkml and Russell replied that
-> depending on arch implementation it shouldn't be much of a problem[3].
-> Another thing to consider is that all other drivers which currently
-> manage cache coherency use flush_dcache_page().
-> 
-> So, the questions are...
-> 
-> q1. James, besides from the use of flush_dcache_page(), do you agree
->     with the block layer kmap/kunmap API?
-> 
-> 2. Is flush_kernel_dcache_page() the correct one?
-> 
-> Whether or not flush_kernel_dcache_page() is the one or not, I think
-> we should first go with flush_dcache_page() as that's what drivers
-> have been doing upto this point.  Switching from flush_dcache_page()
-> to flush_kernel_dcache_page() is very easy and should be done in a
-> separate patch anyway.  No?
+On Thu, 2006-03-02 at 20:30 +0000, Russell King wrote:
+> Your understanding of the problem on ARM remains fundamentally flawed.
+> I see no way to resolve this since you don't seem to listen or accept
+> my reasoning.
 
-Fully agree. The API is the right one in my opinion, just simple
-wrapping of the mapping and flushing when appropriate.
+You have advanced no reason for using flush_dcache_page() instead of
+flush_kernel_dcache_page() except this:
 
-> Another thing mind is that this problem is not limited block drivers.
-> All the codes that perform writes to kmap'ed pages take care of
-> synchronization themselves and the popular choice seems to be
-> flush_dcache_page().
+>    ISTR davem recommended flush_dcache_page() be used for this.
 
-It's probably not widely seen outside of IDE, I would guess.
+and this:
 
-> IMHO, kmap API should have a flag or something to tell it how the page
-> is being used such that kmap API can take care of synchronization like
-> dma mapping API does rather than scattering sync code all over the
-> kernel.  And if that's the right thing to do, some of blk kmap
-> wrappers can/should be removed.
+
+> 2. (this is my own)  The cachetlb document specifies quite clearly
+> what
+>    is required whenever a page cache page is written to - that is
+>    flush_dcache_page() is called.  The situation when a driver uses
+> PIO
+>    quote clearly violates the requirements set out in that document.
 > 
-> What do you guys think?
 
-Might be even better. Shove regular eg kmap_atomic() into
-__kmap_atomic() and add kmap_atomic() just calling that and
-kmap_atomic_io() with an added flag for direction. Or an even easier
-'hack' - use a separate KM type for these types of mappings and flush
-always. Might need both IRQ and non-IRQ version, so probably not the
-best idea. I'm inclined to vote for the first suggestion.
+Your problem, as you state:
 
-The point of it all is that there's no point in making this too fancy or
-optimized, it would be a waste of time for an utterly slow and CPU
-intensive path anyways.
 
--- 
-Jens Axboe
+>    However, in the PIO case, there is the possibility that the data
+> read
+>    from the device into the kernel mapping results in cache lines
+>    associated with the page.  Moreover, if the cache is
+> write-allocate,
+>    you _will_ have cache lines.
+> 
+>    Therefore, you have two completely differing system states
+> depending
+>    on how the driver decided to transfer data from the device to the
+> page
+>    cache.
+
+It is my contention that flush_kernel_dcache_page() ejects the cache
+lines that may be dirty in the kernel mapping and makes the underlying
+memory coherent again.  This is the same net effect as a DMA transfer
+(data in memory but not in kernel cache).
+
+> Therefore, message I'm getting from you is that we are not allowed to
+> have an ARM system which can possibly work correctly with PIO.
+> 
+> As a result, I have no further interest in trying to resolve this issue,
+> period.  ARM people will just have to accept that PIO mode IDE drivers
+> just will not be an option.
+
+Could you actually address the argument instead of getting all huffy?
+
+James
+
 

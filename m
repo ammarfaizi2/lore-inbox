@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWCBL4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWCBMHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWCBL4t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 06:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWCBL4s
+	id S1751093AbWCBMHM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 07:07:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWCBMHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 06:56:48 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10469 "EHLO
+	Thu, 2 Mar 2006 07:07:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8903 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750873AbWCBL4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 06:56:48 -0500
+	id S1751093AbWCBMHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 07:07:10 -0500
 Subject: Re: [PATCH] pcmcia: add another ide-cs CF card id
 From: Arjan van de Ven <arjan@infradead.org>
 To: Jens Axboe <axboe@suse.de>
@@ -22,8 +22,8 @@ References: <200603012259.k21MxBXC013582@hera.kernel.org>
 	 <1141299117.3206.37.camel@laptopd505.fenrus.org>
 	 <20060302114220.GH4329@suse.de>
 Content-Type: text/plain
-Date: Thu, 02 Mar 2006 12:56:42 +0100
-Message-Id: <1141300602.3206.44.camel@laptopd505.fenrus.org>
+Date: Thu, 02 Mar 2006 13:07:05 +0100
+Message-Id: <1141301225.3206.50.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -57,12 +57,24 @@ On Thu, 2006-03-02 at 12:42 +0100, Jens Axboe wrote:
 > > having the right to demand this.
 > 
 > How do you expect the patch to be picked up, if you don't cc the
-> maintainer? 
+> maintainer? Looking up the maintainer is trivial. We can't always rely
+> on akpm forwarding patches, seems a lot saner to put the onus on the
+> submitter to make sure it gets to the right place.
 
-in this case brodo IS the ide-cs maintainer arguably ;)
 
-but if you do a kernel wide change (say add a parameter to a function)
-being forced to look up 5000 different maintainers is nonsense.
-sure sending it to lkml and some bigger lists is good for that, but
-still.
+ok so this was adding a PCMCIA ID to a PCMCIA IDE driver. The patch was
+mailed first to the pcmcia mailing list.
+
+This is one of those drivers that hits multiple maintainers, arguable
+Dominik is the primary maintainer of this driver. The patch doesn't do
+ANYTHING structural to the driver, all it does it adds a device ID.
+there is therefore zero IDE related change in it.
+
+Sure I can it being nice to CC linux-ide ANYWAY, but, to be honest,
+while I see that is important for changes to the driver that change the
+structure of it and how it interacts with the IDE layer, I fail to see
+the hard required reason for that for just adding a *PCMCIA* ID.
+
+I think Jeff is a bit overreacting in this case.
+
 

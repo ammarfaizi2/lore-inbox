@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751989AbWCBVZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWCBV2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751989AbWCBVZg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 16:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWCBVZg
+	id S1751634AbWCBV2I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 16:28:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWCBV2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 16:25:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9376 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751634AbWCBVZf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 16:25:35 -0500
-Date: Thu, 2 Mar 2006 13:25:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Douglas Gilbert <dougg@torque.net>
-cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       Matthias Andree <matthias.andree@gmx.de>, Mark Rustad <mrustad@mac.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sg regression in 2.6.16-rc5
-In-Reply-To: <44074CA1.3000007@torque.net>
-Message-ID: <Pine.LNX.4.64.0603021317520.22647@g5.osdl.org>
-References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net>
- <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
- <4405F6F1.9040106@torque.net> <Pine.LNX.4.63.0603012239440.5789@kai.makisara.local>
- <44074CA1.3000007@torque.net>
+	Thu, 2 Mar 2006 16:28:08 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12562 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751634AbWCBV2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 16:28:06 -0500
+Date: Thu, 2 Mar 2006 22:28:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] make UNIX a bool
+Message-ID: <20060302212805.GG9295@stusta.de>
+References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au> <20060302173840.GB9295@stusta.de> <20060302195106.GC19232@lug-owl.de> <20060302203922.GE9295@stusta.de> <20060302205105.GF19232@lug-owl.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060302205105.GF19232@lug-owl.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 2 Mar 2006, Douglas Gilbert wrote:
+On Thu, Mar 02, 2006 at 09:51:06PM +0100, Jan-Benedict Glaw wrote:
+> On Thu, 2006-03-02 21:39:22 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > On Thu, Mar 02, 2006 at 08:51:06PM +0100, Jan-Benedict Glaw wrote:
+> > > On Thu, 2006-03-02 18:38:40 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > > > On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
+> > > > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > > > > It does also matter in the kernel image size case, since you have to put 
+> > > > > > enough modules to the other medium for having a effect bigger than the
+> > > > > > kernel image size increase from setting CONFIG_MODULES=y.
+> > > > > That's not very difficult considering the large number of modules that's
+> > > > > out there that a system may wish to use.
+> > > > This might be true for full-blown desktop systems - but these do not 
+> > > > tend to be the systems where kernel image size matters that much.
+> > > > Smaller kernel image size might be an issue e.g. for distribution 
+> > > > kernels, but in a much less pressing way.
+> > > Kernel image size matters if you try to make it boot off a floppy.
+> > 
+> > Sure, but the usual router-on-a-floppy cases are similar cases where 
+> > CONFIG_MODULES=n brings at least as much gain as making things modular.
 > 
-> As more information has come to light, the worst case
-> "big transfer" of a single SCSI command through sg (and
-> st I suspect) is 512 KB **. With full coalescing that figure
-> goes up to 4 MB **. I am also aware that some users
-> increase SG_SCATTER_SZ in the sg driver to get larger
-> "big transfer"s than sg's current limit of (8MB - 32KB) **.
-> That facility has now gone (i.e. upping SG_SCATTER_SZ will
-> have no effect) with no replacement mechanism.
-> 
-> So I'll add my vote to "revert this change before lk 2.6.16"
-> with a view to applying it after some solution to the "big
-> transfer" problem is found.
+> You may want to have a chance to load modules from an initrd with is
+> on a 2nd floppy.
 
-Considering that the old code was apparently known-broken due to not 
-honoring the use_clustering flag, I would say that the more likely thing 
-is that very few people use sg in the first place, and we should wait and 
-see what the reaction is to actually fixing a real bug.
+In these cases, CONFIG_UNIX shouldn't make the difference between the 
+kernel fitting on the first floppy and the kernel not fitting on the 
+first floppy.
 
-Doing more than page-sized transfers can be hard/impossible in virtualized 
-environments, for example.
+> MfG, JBG
 
-In contrast, upping the limits should be fairly easy, I assume. Same goes 
-for if some driver disables clustering even though it shouldn't. No?
+cu
+Adrian
 
-		Linus
+BTW: Don't remove people from the Cc when replying to linux-kernel
+     (my MUA honors your Mail-Followup-To, but there was no reason
+      for you to not send me a copy of your email).
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

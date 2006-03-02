@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752012AbWCBQ6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWCBRBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752012AbWCBQ6U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCBQ6U
+	id S1751605AbWCBRBm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 12:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWCBRBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:58:20 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:11739 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752011AbWCBQ6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:58:19 -0500
-Subject: Re: Question: how to map SCSI data DMA address to virtual address?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-Cc: "Ju, Seokmann" <Seokmann.Ju@engenio.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <9738BCBE884FDB42801FAD8A7769C2651420C1@NAMAIL1.ad.lsil.com>
-References: <9738BCBE884FDB42801FAD8A7769C2651420C1@NAMAIL1.ad.lsil.com>
-Content-Type: text/plain
-Date: Thu, 02 Mar 2006 17:58:11 +0100
-Message-Id: <1141318691.3206.87.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 2 Mar 2006 12:01:42 -0500
+Received: from mail.suse.de ([195.135.220.2]:1171 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751605AbWCBRBl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 12:01:41 -0500
+From: Chris Mason <mason@suse.com>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: o_sync in vfat driver
+Date: Thu, 2 Mar 2006 12:01:31 -0500
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, col-pepper@piments.com,
+       linux-kernel@vger.kernel.org
+References: <op.s5lrw0hrj68xd1@mail.piments.com> <200603020845.10083.mason@suse.com> <87u0ahszxa.fsf@duaron.myhome.or.jp>
+In-Reply-To: <87u0ahszxa.fsf@duaron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200603021201.32653.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-02 at 09:53 -0700, Ju, Seokmann wrote:
-> Hi,
-> 
-> In the 'scsi_cmnd' structure, there are two entries holding address
-> information for data to be transferred. One is 'request_buffer' and the
-> other one is 'buffer'.
-> In case of 'use_sg' is non-zero, those entries indicates the address of
-> the scatter-gather table.
+On Thursday 02 March 2006 09:07, OGAWA Hirofumi wrote:
+> Chris Mason <mason@suse.com> writes:
+> > filemap_fdatawrite() won't redirty the page.  It will wait on the pending
+> > writeback.
+>
+> Umm... I'm looking the following code.
+>
+> +void
+> +writeback_bdev(struct super_block *sb)
+> +{
+> +	struct address_space *mapping = sb->s_bdev->bd_inode->i_mapping;
+> +	filemap_flush(mapping);
+> +	blk_run_address_space(mapping);
+> +}
+> +EXPORT_SYMBOL_GPL(writeback_bdev);
+>
+> filemap_flush() is using WB_SYNC_NONE.
+>
+Ok, I thought you were asking about the code that called filemap_fdatawrite, 
+which does wait.  filemap_flush is used on the underlying block device.  In 
+the case of a page that is already under IO, the io is not cancelled but 
+allowed to continue.
 
-use_sg is never non-zero so that's easy
+This is the desired result.  When you're doing a number of operations in 
+sequence, each operation will start io on the block device.  If they used 
+filemap_fdatawrite instead of filemap_flush, they would end up being 
+synchronous.
 
-> 
-> Is there way to get virtual address (so that the data could be accessed
-> by the driver) of the actual data in the case of 'use_sg' is non-zero?
-
-not really; unless you mapped it. The physical address may already been
-translated by the iommu... at which point there is no direct mapping to
-kernel memory.
-
-Why do you need to do this? It's generally bad for drivers to snoop
-data! 
+-chris
 

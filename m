@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751585AbWCBQfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751993AbWCBQiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751585AbWCBQfK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 11:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCBQfK
+	id S1751993AbWCBQiA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 11:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751562AbWCBQiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 11:35:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:29581 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751585AbWCBQfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 11:35:08 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Proc: move proc fs hooks from cpuset.c to
- proc/fs/base.c
-References: <20060302070812.15674.50176.sendpatchset@jackhammer.engr.sgi.com>
-	<20060302084739.GC21902@infradead.org>
-	<20060302062359.5940ff7f.pj@sgi.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 02 Mar 2006 09:32:45 -0700
-In-Reply-To: <20060302062359.5940ff7f.pj@sgi.com> (Paul Jackson's message of
- "Thu, 2 Mar 2006 06:23:59 -0800")
-Message-ID: <m1y7zskdsi.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 2 Mar 2006 11:38:00 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:57024 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751078AbWCBQh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 11:37:59 -0500
+Message-ID: <44071F5A.6050104@pobox.com>
+Date: Thu, 02 Mar 2006 11:37:46 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+CC: Jens Axboe <axboe@suse.de>, "Eric D. Mudama" <edmudama@gmail.com>,
+       Tejun Heo <htejun@gmail.com>,
+       Nicolas Mailhot <nicolas.mailhot@gmail.com>, Mark Lord <liml@rtr.ca>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Carlos Pardo <carlos.pardo@siliconimage.com>
+Subject: Re: FUA and 311x (was Re: LibPATA code issues / 2.6.15.4)
+References: <1141239617.23202.5.camel@rousalka.dyndns.org>	    <4405F471.8000602@rtr.ca>	    <1141254762.11543.10.camel@rousalka.dyndns.org>    <311601c90603011719k43af0fbbg889f47d798e22839@mail.gmail.com>    <440650BC.5090501@pobox.com> <4406512A.9080708@pobox.com> <65320.192.54.193.25.1141315183.squirrel@rousalka.dyndns.org>
+In-Reply-To: <65320.192.54.193.25.1141315183.squirrel@rousalka.dyndns.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+Nicolas Mailhot wrote:
+> The controller in the bugzilla entry ie a SiI 3114.
+> It was a quick fix and I did expect more thorough investigation later
+> (probably 2.6.17 frame). Though it seems FUA-related problems are so
+> numerous FUA itself will be blacklisted for 2.6.16, so the limited
+> blacklist is no longer needed.
 
->> Seems pointless.  This just increases #ifdef churn for no gain.
->
-> Take a look at fs/proc/base.c.  That's how pretty much all the
-> other proc hooks are done, with ifdef's around their proc hooks.
->
-> ifdef minimization is a good goal, yes.
->
-> But uniformity of practice is another good goal.
+Well, we're looking for a long term solution :)
 
-Agreed.  However the direction I am gradually moving fs/proc/base.c
-is the opposite.  Moving things out of it as much as is reasonably
-possible.
+Disabling FUA by default in 2.6.16 is a temporary solution.
 
-I already moved out all of the /proc/<pid>/?maps code into
-fs/proc/task_mmu.c
+	Jeff
 
-I think the more important piece of uniform practice is to put all of
-the operations structures and methods together in one file so that it
-is easier to look between them, when making modifications especially
-since cpuset_open and proc_cpuset_show are interdependent.
 
-Eric

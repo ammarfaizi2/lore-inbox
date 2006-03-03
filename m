@@ -1,82 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWCCQD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWCCQHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWCCQD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:03:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWCCQD4
+	id S1030228AbWCCQHz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWCCQHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:03:56 -0500
-Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:14014 "EHLO
-	zoot.lnxi.com") by vger.kernel.org with ESMTP id S1030223AbWCCQD4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:03:56 -0500
-Message-Id: <4408050A0200003600000CC8@zoot.lnxi.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Fri, 03 Mar 2006 08:57:46 -0700
-From: "Doug Thompson" <dthompson@lnxi.com>
-To: <arjan@infradead.org>
-Cc: <bluesmoke-devel@lists.sourceforge.net>, <dsp@llnl.gov>, <hch@lst.de>,
-       <alan@lxorguk.ukuu.org.uk>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/15] EDAC: switch to kthread_ API
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	Fri, 3 Mar 2006 11:07:54 -0500
+Received: from natblindhugh.rzone.de ([81.169.145.175]:43516 "EHLO
+	natblindhugh.rzone.de") by vger.kernel.org with ESMTP
+	id S1030228AbWCCQHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 11:07:54 -0500
+To: linux-kernel@vger.kernel.org
+From: jfock@abas-projektierung.de
+Subject: Re-2: oom-killer: gfp_mask=0xd1  with 2.6.12 on EM64T
+Date: 03 Mar 2006 16:03:04 UT
+X-Priority: 3 (Normal)
+Importance: normal
+X-Mailer: DvISE by Tobit Software, Germany (0224.434647444B47474D4E51)
+X-David-Sym: 0
+X-David-Flags: 0
+Message-ID: <000702D2.440876C7@192.168.222.27>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset="iso-8859-1"
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Originally we used a timeout, but when I added the PCI Parity scanning,
-that broke while trying to get a PCI spinlock (via a PCI API call)
-during the timer interrupt time. I then added the current kernel thread
-model and a first attempt. We subsequently received input for the
-kthread_* model which is were this patch came from.
 
-Currently the timer event code performs two operations: 
-
-  1) ECC polling and 
-  2) PCI parity polling. 
-
-I want to split those from each other, so each can have a seperate cycle
-rate (also adding a sysfs cycle control for the PCI parity timing in
-addition to the existing ECC cycle control).
-
-One of the thoughts I have had in this refactoring is to utilize worker
-queue processing to do the work (and bypass the spinlock issue) which is
-triggered by the timer event for PCI parity polling and thus also the
-ECC polling for uniformity.
-
-Thoughts are welcome
-
-doug thompson
+I have The same Problem with a Maxdata Server 5220l with 8GB memory 2 Intel Xeon Processors und an Intel Raidcontroler
+Since im Using Linux-2.6.15.4 from Kernel.org my System is OK
+Johann
+Abas Projektierung GmbH
 
 
 
-On Fri, 2006-03-03 at 09:16 +0000, Arjan van de Ven  wrote:
-> On Thu, 2006-03-02 at 18:30 -0800, Andrew Morton wrote:
-> > Dave Peterson <dsp@llnl.gov> wrote:
-> > >
-> > >   		schedule_timeout((HZ * poll_msec) / 1000);
-> > >   		try_to_freeze();
-> > >  +		__set_current_state(TASK_RUNNING);
-> > 
-> > schedule() and schedule_timeout*() always return in state TASK_RUNNING, so
-> > I'll take that out of there.
-> > 
-> > We might as well use schedule_timeout_interruptible(), too.  As a bonus, we
-> > get to delete that spelling mistake ;)
+-------- Original Message --------
+Subject: Re: oom-killer: gfp_mask=0xd1  with 2.6.12 on EM64T (03-Mrz-2006 16:50)
+From:    jmce@artenumerica.com
+To:      jfock@abas-projektierung.de
+
+> Andrew Morton wrote:
+> > That's quite an old kernel.  If this is the notorious bio-uses-GFP_DMA bug
+> > then I'd have expected this kernel to be useless from day one.  Did you
+> > install it recently?
 > 
+> On this double Xeon, yes.  I had no problems before with 2.6.12 and the
+> same "heavy" software on dual Opteron and dual dual core Opteron
+> machines, and this is my first installation on a EM64T.
+> At first it seemed everything was ok with 2.6.12 here too, but in a
+> couple of days we started gettings some of those oom killings when
+> running some Gaussian jobs. In at least a pair of cases the system froze
+> completely.
 > 
-> or even msleep variant ;)
+> > If you're feeling keen you could add this patch which would confirm it:
 > 
+> Added it and already got output for a similar "killing". Since I'm not
+> sure what could be most relevant among those messages, I refrained from
+> attaching them all here, and instead put them at
+> http://jmce.artenumerica.org/tmp/linux-2.6.12-oom_killings/EM64T-kern.log
 > 
+> > And if it's that bug then I'm afraid you'll have to sit tight until 2.6.16.
+> > We shouldn't release 2.6.16 until this thing is fixed.
 > 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
-> that extends applications into web and mobile media. Attend the live webcast
-> and join the prime developer group breaking into this new coding territory!
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
-> _______________________________________________
-> bluesmoke-devel mailing list
-> bluesmoke-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/bluesmoke-devel
+> Do those call traces suggest that uncorrected bug you mention?
+> (And if yes, is there any known way to mitigate the problem? Could it
+> depend on BIOS settings?)
+> I'll also be able to try a 2.6.15 kernel (eventually with any suggested
+> patches) later today...
+> 
+> Thanks again and best regards
+> 
+>                     J Esteves
+> -- 
+> +351 939838775   Skype:jmcerqueira   http://del.icio.us/jmce
+> 
+
+
+To: jmce@artenumerica.com
+    linux-kernel@vger.kernel.org
+Cc: support@artenumerica.com
+    ngalamba@fc.ul.pt
 

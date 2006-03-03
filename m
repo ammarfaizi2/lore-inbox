@@ -1,103 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWCCQES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWCCQD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbWCCQES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWCCQES
+	id S1030223AbWCCQD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWCCQD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:04:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52382 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030224AbWCCQEP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:04:15 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, jblunck@suse.de,
-       bcrl@linux.intel.com, matthew@wil.cx
-cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Memory barriers and spin_unlock safety
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Fri, 03 Mar 2006 16:03:00 +0000
-Message-ID: <32518.1141401780@warthog.cambridge.redhat.com>
+	Fri, 3 Mar 2006 11:03:56 -0500
+Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:14014 "EHLO
+	zoot.lnxi.com") by vger.kernel.org with ESMTP id S1030223AbWCCQD4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 11:03:56 -0500
+Message-Id: <4408050A0200003600000CC8@zoot.lnxi.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 03 Mar 2006 08:57:46 -0700
+From: "Doug Thompson" <dthompson@lnxi.com>
+To: <arjan@infradead.org>
+Cc: <bluesmoke-devel@lists.sourceforge.net>, <dsp@llnl.gov>, <hch@lst.de>,
+       <alan@lxorguk.ukuu.org.uk>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/15] EDAC: switch to kthread_ API
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Originally we used a timeout, but when I added the PCI Parity scanning,
+that broke while trying to get a PCI spinlock (via a PCI API call)
+during the timer interrupt time. I then added the current kernel thread
+model and a first attempt. We subsequently received input for the
+kthread_* model which is were this patch came from.
 
-Hi,
+Currently the timer event code performs two operations: 
 
-We've just had an interesting discussion on IRC and this has come up with two
-unanswered questions:
+  1) ECC polling and 
+  2) PCI parity polling. 
 
-(1) Is spin_unlock() is entirely safe on Pentium3+ and x86_64 where ?FENCE
-    instructions are available?
+I want to split those from each other, so each can have a seperate cycle
+rate (also adding a sysfs cycle control for the PCI parity timing in
+addition to the existing ECC cycle control).
 
-    Consider the following case, where you want to do two reads effectively
-    atomically, and so wrap them in a spinlock:
+One of the thoughts I have had in this refactoring is to utilize worker
+queue processing to do the work (and bypass the spinlock issue) which is
+triggered by the timer event for PCI parity polling and thus also the
+ECC polling for uniformity.
 
-	spin_lock(&mtx);
-	a = *A;
-	b = *B;
-	spin_unlock(&mtx);
+Thoughts are welcome
 
-    On x86 Pentium3+ and x86_64, what's to stop you from getting the reads
-    done after the unlock since there's no LFENCE instruction there to stop
-    you?
-
-    What you'd expect is:
-
-	LOCK WRITE mtx
-	--> implies MFENCE
-	READ *A		} which may be reordered
-	READ *B		}
-	WRITE mtx
-
-    But what you might get instead is this:
-
-	LOCK WRITE mtx
-	--> implies MFENCE
-	WRITE mtx
-	--> implies SFENCE
-	READ *A		} which may be reordered
-	READ *B		}
-
-    There doesn't seem to be anything that says that the reads can't leak
-    outside of the locked section; at least, there doesn't in the AMD's system
-    programming manual for Amd64 (book 2, section 7.1).
-
-    Writes on the other hand may not happen out of order, so changing things
-    inside a critical section would seem to be okay.
-
-    On PowerPC, on the other hand, the barriers have to be made explicit
-    because they're not implied by LWARX/STWCX or by ordinary stores:
-
-	LWARX mtx
-	STWCX mtx
-	ISYNC
-	READ *A		} which may be reordered
-	READ *B		}
-	LWSYNC
-	WRITE mtx
-
-	So, should the spin_unlock() on i386 and x86_64 be doing an LFENCE
-	instruction before unlocking?
+doug thompson
 
 
-(2) What is the minimum functionality that can be expected of a memory
-    barriers? I was of the opinion that all we could expect is for the CPU
-    executing one them to force the instructions it is executing to be
-    complete up to a point - depending on the type of barrier - before
-    continuing past it.
 
-    On pentiums, x86_64, and frv this seems to be exactly what you get for a
-    barrier; there doesn't seem to be any external evidence of it that appears
-    on the bus, other than the CPU does a load of memory transactions.
+On Fri, 2006-03-03 at 09:16 +0000, Arjan van de Ven  wrote:
+> On Thu, 2006-03-02 at 18:30 -0800, Andrew Morton wrote:
+> > Dave Peterson <dsp@llnl.gov> wrote:
+> > >
+> > >   		schedule_timeout((HZ * poll_msec) / 1000);
+> > >   		try_to_freeze();
+> > >  +		__set_current_state(TASK_RUNNING);
+> > 
+> > schedule() and schedule_timeout*() always return in state TASK_RUNNING, so
+> > I'll take that out of there.
+> > 
+> > We might as well use schedule_timeout_interruptible(), too.  As a bonus, we
+> > get to delete that spelling mistake ;)
+> 
+> 
+> or even msleep variant ;)
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by xPML, a groundbreaking scripting language
+> that extends applications into web and mobile media. Attend the live webcast
+> and join the prime developer group breaking into this new coding territory!
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=110944&bid=241720&dat=121642
+> _______________________________________________
+> bluesmoke-devel mailing list
+> bluesmoke-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/bluesmoke-devel
 
-    However, on ppc/ppc64, it seems to be more thorough than that, and there
-    seems to be some special interaction between the CPU processing the
-    instruction and the other CPUs in the system. It's not entirely obvious
-    from the manual just what this does.
-
-    As I understand it, Andrew Morton is of the opinion that issuing a read
-    barrier on one CPU will cause the other CPUs in the system to sync up, but
-    that doesn't look likely on all archs.
-
-David

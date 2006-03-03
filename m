@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWCCUtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWCCU6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWCCUtd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 15:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWCCUtd
+	id S932141AbWCCU6D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 15:58:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWCCU6C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 15:49:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:44169 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932387AbWCCUtd (ORCPT
+	Fri, 3 Mar 2006 15:58:02 -0500
+Received: from mail.kroah.org ([69.55.234.183]:14474 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932141AbWCCU6A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 15:49:33 -0500
-Date: Fri, 3 Mar 2006 12:48:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net
-Subject: Re: [PATCH 10/15] EDAC: edac_mc_add_mc() fix [1/2]
-Message-Id: <20060303124802.1c7fb95d.akpm@osdl.org>
-In-Reply-To: <200603031103.08105.dsp@llnl.gov>
-References: <200603021748.07381.dsp@llnl.gov>
-	<20060302183143.6730d255.akpm@osdl.org>
-	<200603031103.08105.dsp@llnl.gov>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Mar 2006 15:58:00 -0500
+Date: Fri, 3 Mar 2006 12:32:26 -0800
+From: Greg KH <greg@kroah.com>
+To: Ren?? Rebe <rene@exactcode.de>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: MAX_USBFS_BUFFER_SIZE
+Message-ID: <20060303203226.GA20250@kroah.com>
+References: <200603012116.25869.rene@exactcode.de> <mailman.1141249502.22706.linux-kernel2news@redhat.com> <20060302130519.588b18a2.zaitcev@redhat.com> <200603030827.46003.rene@exactcode.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603030827.46003.rene@exactcode.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Peterson <dsp@llnl.gov> wrote:
->
-> On Thursday 02 March 2006 18:31, Andrew Morton wrote:
-> > Dave Peterson <dsp@llnl.gov> wrote:
-> > >  This is part 1 of a 2-part patch set.  The code changes are split into
-> > >  two parts to make the patches more readable.
-> >
-> > Will the code compile and run with just #1-of-2 applied?
-> 
-> It should compile.  Assuming that it does, would it still have been
-> preferable to just combine the two into a single patch?
+On Fri, Mar 03, 2006 at 08:27:45AM +0100, Ren?? Rebe wrote:
+> Queueing N = size / 16k URBs in parallel gets the maximal possible thruput with
+> the scanner - a 2x speedup. The driver is now even slightly faster than the
+> vendor Windows one by about 20%.
 
-It's better as you had it.  First patch moves the functions without
-changing them, the second patch changes them.  The mantra is "one concept
-per patch".
+That's great.  It's also another data point in the many success storys
+saying that Linux's USB stack is faster than Windows, even when driven
+by userspace programs :)
 
+> For even further improvements a _async interface would be needed in libusb
+> (and sanei_usb) so I can queue the prologue and epilogue URBs of the protocol
+> of communication into the kernel and thus elleminate some more wasted time
+> slots. I estimate that the driver would then be over 30% faster compared with
+> the Windows one.
 
+I'm currently working on a "usbfs2" that will be async-io driven.  That
+should allow you to get that added speed you need.
+
+thanks,
+
+greg k-h

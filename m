@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWCCXdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWCCXkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbWCCXdx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWCCXdx
+	id S1751046AbWCCXkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWCCXkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:33:53 -0500
-Received: from xenotime.net ([66.160.160.81]:55997 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751033AbWCCXdw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:33:52 -0500
-Date: Fri, 3 Mar 2006 15:35:17 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Robert Hancock <hancockr@shaw.ca>, albertcc@tw.ibm.com,
-       jtreubig@hotmail.com
-Cc: linux-kernel@vger.kernel.org, scsi <linux-scsi@vger.kernel.org>
-Subject: Re: CDROM support for Promise 20269
-Message-Id: <20060303153517.0e10f5d7.rdunlap@xenotime.net>
-In-Reply-To: <4408D082.2070203@shaw.ca>
-References: <5Mquh-2mT-97@gated-at.bofh.it>
-	<4408D082.2070203@shaw.ca>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Mar 2006 18:40:24 -0500
+Received: from tomts25.bellnexxia.net ([209.226.175.188]:59818 "EHLO
+	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751046AbWCCXkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:40:24 -0500
+Date: Fri, 3 Mar 2006 18:40:18 -0500 (EST)
+From: Scott Murray <scott@spiteful.org>
+X-X-Sender: scottm@godzilla.spiteful.org
+To: Greg KH <greg@kroah.com>
+cc: Kumar Gala <galak@kernel.crashing.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: proper way to assign fixed PCI resources to a "hotplug" device
+In-Reply-To: <20060303232739.GA11796@kroah.com>
+Message-ID: <Pine.LNX.4.58.0603031836570.31840@godzilla.spiteful.org>
+References: <9D653F4D-A375-4D2C-8A5A-063A0BBD962B@kernel.crashing.org>
+ <20060303220741.GA22298@kroah.com> <A9483AAD-670C-4D03-9996-6AE89F6FD4FB@kernel.crashing.org>
+ <20060303232739.GA11796@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Mar 2006 17:25:54 -0600 Robert Hancock wrote:
+On Fri, 3 Mar 2006, Greg KH wrote:
 
-> John Treubig wrote:
-> > I've been working on a problem with Promise 20269 PATA adapter under 
-> > LibATA that if I attach a CDROM drive, I can not see the drive.  The 
-> > message log reports that the driver sees the device, but when I'm fully 
-> > booted, there's no device available.
+> On Fri, Mar 03, 2006 at 05:13:55PM -0600, Kumar Gala wrote:
+> > I found cpqhp_configure_device(), but I dont see anything about how  
+> > to handle assigned a fixed address to the BAR.
 > 
-> ..
-> 
-> > [  118.621489] scsi4 : pata_pdc2027x
-> > [  118.643926] ata1(1): WARNING: ATAPI is disabled, device ignored.
-> 
-> Sounds like your problem there.. need to enable ATAPI in your 
-> libata/PATA kernel configuration?
+> I don't know either, try asking on the pci hotplug mailing list and CC:
+> Scott, the author of that driver for how his devices work around that.
 
-Please don't drop cc's etc.  Just use reply-to-all.
+Heh, I'm the Compact PCI hotplug guy, not the Compaq PCI hotplug guy. :)
 
-For John:  this means that you need to load libata with this option:
-atapi_enabled=1
-So if you build it into the kernel image, add this to the boot option:
-  libata.atapi_enabled=1
-or if you load it as a module, just add:  atapi_enabled=1
-or you can edit the source file and change the variable to 1,
-but that's the least preferable way IMO.
+Scott
 
----
-~Randy
+
+-- 
+==============================================================================
+Scott Murray, scott@spiteful.org
+
+     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"

@@ -1,65 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751578AbWCCVwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751609AbWCCVwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751578AbWCCVwe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 16:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWCCVwe
+	id S1751609AbWCCVwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 16:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751620AbWCCVwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 16:52:34 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22250
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751526AbWCCVwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 16:52:33 -0500
-Date: Fri, 03 Mar 2006 13:52:17 -0800 (PST)
-Message-Id: <20060303.135217.65983538.davem@davemloft.net>
-To: hollisb@us.ibm.com
-Cc: linuxppc64-dev@ozlabs.org, benh@kernel.crashing.org, torvalds@osdl.org,
-       akpm@osdl.org, linux-arch@vger.kernel.org, bcrl@linux.intel.com,
-       matthew@wil.cx, linux-kernel@vger.kernel.org, mingo@redhat.com,
-       jblunck@suse.de
-Subject: Re: Memory barriers and spin_unlock safety
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200603031518.15806.hollisb@us.ibm.com>
-References: <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
-	<1141419966.3888.67.camel@localhost.localdomain>
-	<200603031518.15806.hollisb@us.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 3 Mar 2006 16:52:36 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:20381 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751609AbWCCVwf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 16:52:35 -0500
+Subject: Re: [PATCH 0/4] map multiple blocks in get_block() and
+	mpage_readpages()
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, mcao@us.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060303123222.2fff68cf.akpm@osdl.org>
+References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060301175230.4b96e9ad.akpm@osdl.org>
+	 <1141405539.10542.68.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060303123222.2fff68cf.akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-rY/tcN/cA7H7QQuWjbFi"
+Date: Fri, 03 Mar 2006 13:54:02 -0800
+Message-Id: <1141422842.10542.90.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Date: Fri, 3 Mar 2006 15:18:13 -0600
 
-> On Friday 03 March 2006 15:06, Benjamin Herrenschmidt wrote:
-> > The main problem I've had in the past with the ppc barriers is more a
-> > subtle thing in the spec that unfortunately was taken to the word by
-> > implementors, and is that the simple write barrier (eieio) will only
-> > order within the same storage space, that is will not order between
-> > cacheable and non-cacheable storage.
+--=-rY/tcN/cA7H7QQuWjbFi
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Fri, 2006-03-03 at 12:32 -0800, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > On Wed, 2006-03-01 at 17:52 -0800, Andrew Morton wrote:
+> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > >
+> > > > I noticed decent improvements (reduced sys time) on JFS, XFS and ext3.
+> > > > (on simple "dd" read tests).
+> > > > 
+> > > >          (rc3.mm1)      (rc3.mm1 + patches)
+> > > > real    0m18.814s       0m18.482s
+> > > > user    0m0.000s        0m0.004s
+> > > > sys     0m3.240s        0m2.912s
+> > > 
+> > > With which filesystem?  XFS and JFS implement a larger-than-b_size
+> > > ->get_block, but ext3 doesn't.  I'd expect ext3 system time to increase a
+> > > bit, if anything?
+> > 
+> > These numbers are on JFS. With the current ext3 (mainline) - I did
+> > find not-really-noticible increase in sys time (due to code overhead).
+> > 
+> > I tested on ext3 with Mingming's ext3 getblocks() support in -mm also,
+> > which showed reduction in sys time.
+> > 
 > 
-> I've heard Sparc has the same issue... in which case it may not be a "chip 
-> designer was too literal" thing, but rather it really simplifies chip 
-> implementation to do it that way.
+> OK, no surprises there.  Things will improve when someone gets around to
+> doing multi-block get_block for ext3.
 
-There is a "membar #MemIssue" that is meant to deal with this should
-it ever matter, but for most sparc64 chips it doesn't which is why we
-don't use that memory barrier type at all in the Linux kernel.
+Well, I already did this when I tested Mingming's multiblock work for
+ext3. (-mm only patch)
 
-For UltraSPARC-I and II it technically could matter in Relaxed Memory
-Ordering (RMO) mode which is what we run the kernel and 64-bit
-userspace in, but I've never seen an issue resulting from it.
+Thanks,
+Badari
 
-For UltraSPARC-III and later, the chip only implements the Total Store
-Ordering (TSO) memory model and the manual explicitly states that
-cacheable and non-cacheable memory operations are ordered, even using
-language such as "there is an implicit 'membar #MemIssue' between
-them".  It further goes on to say:
 
-	The UltraSPARCIII Cu processor maintains ordering between
-	cacheable and non-cacheable accesses.  The UltraSPARC III Cu
-	processor maintains TSO ordering between memory references
-	regardless of their cacheability.
 
-Niagara behaves almost identically to UltraSPARC-III in this area.
+--=-rY/tcN/cA7H7QQuWjbFi
+Content-Disposition: attachment; filename=ext3-getblocks.patch
+Content-Type: text/x-patch; name=ext3-getblocks.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Mingming Cao recently added multi-block allocation support
+for ext3, currently used only by DIO. I added support to map 
+multiple blocks for mpage_readpages(). This patch add support 
+for ext3_get_block() to deal with multi-block mapping.
+Basically it renames ext3_direct_io_get_blocks() as ext3_get_block().
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+
+Index: linux-2.6.16-rc5-mm2/fs/ext3/inode.c
+===================================================================
+--- linux-2.6.16-rc5-mm2.orig/fs/ext3/inode.c	2006-03-03 13:46:22.000000000 -0800
++++ linux-2.6.16-rc5-mm2/fs/ext3/inode.c	2006-03-03 13:52:15.000000000 -0800
+@@ -936,9 +936,8 @@ out:
+ 
+ #define DIO_CREDITS (EXT3_RESERVE_TRANS_BLOCKS + 32)
+ 
+-static int
+-ext3_direct_io_get_blocks(struct inode *inode, sector_t iblock,
+-		struct buffer_head *bh_result, int create)
++static int ext3_get_block(struct inode *inode, sector_t iblock,
++			struct buffer_head *bh_result, int create)
+ {
+ 	handle_t *handle = journal_current_handle();
+ 	int ret = 0;
+@@ -987,12 +986,6 @@ get_block:
+ 	return ret;
+ }
+ 
+-static int ext3_get_block(struct inode *inode, sector_t iblock,
+-			struct buffer_head *bh_result, int create)
+-{
+-	return ext3_direct_io_get_blocks(inode, iblock, bh_result, create);
+-}
+-
+ /*
+  * `handle' can be NULL if create is zero
+  */
+@@ -1645,10 +1638,10 @@ static ssize_t ext3_direct_IO(int rw, st
+ 
+ 	ret = blockdev_direct_IO(rw, iocb, inode, inode->i_sb->s_bdev, iov, 
+ 				 offset, nr_segs,
+-				 ext3_direct_io_get_blocks, NULL);
++				 ext3_get_block, NULL);
+ 
+ 	/*
+-	 * Reacquire the handle: ext3_direct_io_get_block() can restart the
++	 * Reacquire the handle: ext3_get_block() can restart the
+ 	 * transaction
+ 	 */
+ 	handle = journal_current_handle();
+
+--=-rY/tcN/cA7H7QQuWjbFi--
+

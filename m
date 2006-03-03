@@ -1,61 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWCCSzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWCCS6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWCCSzS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 13:55:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWCCSzS
+	id S1750952AbWCCS6n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 13:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWCCS6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 13:55:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51415 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750952AbWCCSzQ (ORCPT
+	Fri, 3 Mar 2006 13:58:43 -0500
+Received: from guru.webcon.ca ([216.194.67.26]:9136 "EHLO guru.webcon.ca")
+	by vger.kernel.org with ESMTP id S1750952AbWCCS6n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 13:55:16 -0500
-Date: Fri, 3 Mar 2006 10:55:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Steve Byan <smb@egenera.com>
-cc: Mark Lord <lkml@rtr.ca>, Matthias Andree <matthias.andree@gmx.de>,
-       Douglas Gilbert <dougg@torque.net>, Mark Rustad <mrustad@mac.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sg regression in 2.6.16-rc5
-In-Reply-To: <CF493E39-B369-46D8-85EE-013F2484F1C6@egenera.com>
-Message-ID: <Pine.LNX.4.64.0603031035140.22647@g5.osdl.org>
-References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net>
- <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
- <4405E8AA.1090803@rtr.ca> <Pine.LNX.4.64.0603011036110.22647@g5.osdl.org>
- <CF493E39-B369-46D8-85EE-013F2484F1C6@egenera.com>
+	Fri, 3 Mar 2006 13:58:43 -0500
+Date: Fri, 3 Mar 2006 13:58:40 -0500 (EST)
+From: "Ian E. Morgan" <imorgan@webcon.ca>
+X-X-Sender: imorgan@light.int.webcon.net
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Setkeycodes w/ keycode >= 0x100 ?
+In-Reply-To: <Pine.LNX.4.61.0603031322410.18198@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0603031343270.15776@light.int.webcon.net>
+References: <Pine.LNX.4.64.0603031241130.15776@light.int.webcon.net>
+ <Pine.LNX.4.61.0603031322410.18198@chaos.analogic.com>
+Organization: Webcon, Inc
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Assp-Spam-Prob: 0.00000
+X-Assp-Whitelisted: Yes
+X-Assp-Envelope-From: imorgan@webcon.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Mar 2006, linux-os (Dick Johnson) wrote:
 
-
-On Fri, 3 Mar 2006, Steve Byan wrote:
 > 
-> On Mar 1, 2006, at 1:42 PM, Linus Torvalds wrote:
-> > 
-> > I wouldn't expect it to. Most people use ATA for that, and it tends to
-> > have lower limits than most SCSI HBA's (well, at least the old PATA), so
-> > the change - if any - should at most change some of the sg.c limits to be
-> > no less than what SG_IO has had on ATA forever.
-> > 
-> > Not that I expect people to have a SCSI CD/DVD drive anyway in this day
-> > and age, so the sg.c changes probably won't show up at all.
+> On Fri, 3 Mar 2006, Ian E. Morgan wrote:
 > 
-> CD-ROM support is a frequently-requested feature on the iSCSI Enterprise
-> Target (iet) email list. It won't be long before iSCSI CD and DVD devices
-> start showing up, although the underlying hardware will be ATAPI or else
-> missing entirely (i.e. ISO image file).
+> > Since my HP notebook has some unrecognized keys, I have to use setkeycodes to
+> > make the kernel recognise them. However, many of the basic (<=255) KEY's from
+> > input.h are not suitable, but newer ones (>=0x100) woule be perfect.
+> >
+> > Any idea how to map scancodes to keycodes >=0x100 when setkeycodes won't
+> > accept hex input nor anything greater than 255?
+> >
+> > Regards,
+> > Ian Morgan
+> 
+> The keyboard controller generates scan-codes from 0 to 255. It reads the
+> scan-code information from a byte-wide port (so-called PORT_A in the
+> PC/AT), so it can't be any larger than a byte. The controller provides a
+> code when the key is pressed and another code when the key is released.
+> The only difference between these codes is a single bit. This limits the
+> number of possible different scan codes to 127.
+> 
+> The scan-codes are translated, based upon the Caps Lock, the Ctrl key, the
+> Alt key, and the Shift key so, in principle, you could have almost 4 times
+> as many keyboard symbols as scan-codes. However, you would have to rewrite
+> a lot of keyboard code to take advantage of this.
 
-Yes, but the point that the ATA limits tend to be on the low side still 
-stands.
+Perhaps my question was unclear. Here is an example of what I do now:
 
-For example, I think the IDE driver defaults to a maximum transfer of 256 
-sectors, and the same number of max scatter-gather entries. Some 
-controllers will actually lower that, due to silly hw problems.
+	#KEY_COFFEE
+	setkeycodes e00a 152
 
-The point being that it has worked fine for IDE, and if a SCSI controller 
-has noticeably lower limits than that, there's something really strange 
-going on, like a real bug.
+This works, but is an illogical arbitrary assignment. I want to do this:
 
-			Linus
+	#KEY_POWER2
+	setkeycodes e00a 356
+
+(or some other such thing with a keycode >256). But it fails with:
+
+KDSETKEYCODE: Invalid argument
+failed to set scancode 8a to keycode 356
+
+In drivers/char/keyboard.c, there are three cases in which it can return
+-EINVAL, but I can't see obviously which one is being hit.
+
+Is the answer simply that we cannot bind scancodes to keycodes greater than
+256? If so, then why are there newer KEY's defined in input.h >256, and how does
+one ever use them?
+
+Regards,
+Ian Morgan
+
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
+    *  Customized Linux Network Solutions for your Business  *
+-------------------------------------------------------------------

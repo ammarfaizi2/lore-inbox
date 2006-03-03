@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWCCJRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752219AbWCCJ00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWCCJRF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 04:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCCJRF
+	id S1752219AbWCCJ00 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 04:26:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752220AbWCCJ00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 04:17:05 -0500
-Received: from usmimesweeper.bluearc.com ([63.203.197.133]:26629 "EHLO
-	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S1750831AbWCCJRD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 04:17:03 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
-Date: Fri, 3 Mar 2006 09:16:55 -0000
-Message-ID: <89E85E0168AD994693B574C80EDB9C270393C2A6@uk-email.terastack.bluearc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
-Thread-Index: AcY99Ivg52RYxdwzQe+CKKzPavN3ZwArNTzg
-From: "Andy Chittenden" <AChittenden@bluearc.com>
-To: "Jens Axboe" <axboe@suse.de>, "Andi Kleen" <ak@suse.de>
-Cc: "Anton Altaparmakov" <aia21@cam.ac.uk>, "Andrew Morton" <akpm@osdl.org>,
-       <davej@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <lwoodman@redhat.com>, "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+	Fri, 3 Mar 2006 04:26:26 -0500
+Received: from smtp103.biz.mail.mud.yahoo.com ([68.142.200.238]:11412 "HELO
+	smtp103.biz.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752219AbWCCJ0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 04:26:25 -0500
+Subject: [PATCH] smbfs: Fix debug logging-only compilation error
+From: Kirk True <kernel@kirkandsheila.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 03 Mar 2006 01:24:38 -0800
+Message-Id: <1141377878.8331.17.camel@itchy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Mar 02 2006, Andi Kleen wrote:
-> > On Thursday 02 March 2006 12:10, Jens Axboe wrote:
-> > 
-> > > I'm waiting for Andi to render an opinion on the problem. 
-> It should have
-> > > no corruption implications, the PIO path will handle 
-> arbitrarily large
-> > > requests. I'm assuming the mapped sg table is correct, 
-> just odd looking
-> > > for some reason.
-> > 
-> > I was waiting for feedback if iommu=nomerge changes 
-> anything. With that option
-> > the IOMMU code will never touch the layout of the sg list, 
-> just rewrite
-> > ->dma_address
-> 
-> Andy already reported that it didn't change anything. The 
-> output doesn't
-> looked merged anyways in most of the cases, it's the offsetting that
-> looks odd.
-> 
+Version: 2.6.16-rc5
 
-Indeed I did: <http://lkml.org/lkml/2006/3/1/109>
+When SMBFS_DEBUG_VERBOSE is #define-d, the compile breaks:
 
--- 
-Andy, BlueArc Engineering
- 
+    fs/smbfs/inode.c:217: error: aggregate value used where an integer was expected
+
+This is a simple matter of using the .tv_sec attribute of struct time_spec.
+
+        Signed-off-by: Kirk True <kernel@kirkandsheila.com>
+
+--- linux-2.6.16-rc5-orig/fs/smbfs/inode.c      2006-03-02 23:52:17.000000000 -0800
++++ linux-2.6.16-rc5/fs/smbfs/inode.c   2006-03-02 23:12:34.000000000 -0800
+@@ -216,7 +216,7 @@
+        if (inode->i_mtime.tv_sec != last_time || inode->i_size != last_sz) {
+                VERBOSE("%ld changed, old=%ld, new=%ld, oz=%ld, nz=%ld\n",
+                        inode->i_ino,
+-                       (long) last_time, (long) inode->i_mtime,
++                       (long) last_time, (long) inode->i_mtime.tv_sec,
+                        (long) last_sz, (long) inode->i_size);
+
+                if (!S_ISDIR(inode->i_mode))
+
+

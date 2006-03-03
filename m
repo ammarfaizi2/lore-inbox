@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWCCXnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbWCCXn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWCCXnj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWCCXnj
+	id S932562AbWCCXn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWCCXnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:43:39 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:49825 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S1751202AbWCCXnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:43:37 -0500
-Date: Fri, 3 Mar 2006 18:43:30 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
-       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: AMD64 X2 lost ticks on PM timer
-Message-ID: <20060303234330.GA14401@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Jeff Garzik <jeff@garzik.org>, Lee Revell <rlrevell@joe-job.com>,
-	Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
-	linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>,
-	Ingo Molnar <mingo@elte.hu>
-References: <200602280022.40769.darkray@ic3man.com> <200603011647.34516.ak@suse.de> <20060301180714.GD20092@ti64.telemetry-investments.com> <200603011929.59307.ak@suse.de> <1141240611.5860.176.camel@mindpipe> <20060303191822.GE32407@ti64.telemetry-investments.com> <1141421204.3042.139.camel@mindpipe> <4408BEB5.7000407@garzik.org>
-Mime-Version: 1.0
+	Fri, 3 Mar 2006 18:43:25 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25101 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932562AbWCCXnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:43:24 -0500
+Date: Sat, 4 Mar 2006 00:43:23 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, geert@linux-m68k.org, zippel@linux-m68k.org,
+       linux-m68k@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.16-rc regression: m68k CONFIG_RMW_INSNS=n compile broken
+Message-ID: <20060303234323.GF9295@stusta.de>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060303230149.GB9295@stusta.de> <Pine.LNX.4.64.0603031515321.22647@g5.osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4408BEB5.7000407@garzik.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64.0603031515321.22647@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 05:09:57PM -0500, Jeff Garzik wrote:
-> Or sata_nv/libata is to blame.
- 
-In case you are coming late to the thread:
+On Fri, Mar 03, 2006 at 03:22:42PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 4 Mar 2006, Adrian Bunk wrote:
+> > 
+> > It seems the problem is that in the CONFIG_RMW_INSNS=n case, there's no 
+> > cmpxchg #define in include/asm-m68k/system.h required for the 
+> > atomic_add_unless #define in include/asm-m68k/atomic.h.
+> 
+> Hmm. It seems like it never has been there.. Do you know what brought this 
+> on? Was it Nick's RCU changes from "rcuref_dec_and_test()" to 
+> "atomic_dec_and_test()" and friends? 
 
-The lost ticks are closely correlated with sata_nv disk activity on
-multiple disks, and the problem is easily reproducable with "find /usr |
-cpio -o >/dev/null" on an MD RAID1 -- but not on a single disk.
+It was Nick's commit 8426e1f6af0fd7f44d040af7263750c5a52f3cc3 that added 
+atomic_inc_not_zero(), and Nick's patch that changed fs/file_table.c 
+from rcuref_dec_and_test() to atomic_dec_and_test() exposed this 
+problem.
 
-Andi suggested:
+> Judging by your error messages, I _think_ it's the "atomic_inc_not_zero()" 
+> that gets expanded to a cmpxchg() that simply doesn't exist on m68k and 
+> never has.
 
-   Yes, I bet something forgets to turn on interrupts again and it's
-   picked up by (and blamed on) the next guy who does an unconditional
-   sti, which happens to be __do_sofitrq or idle.
+Exactly, that's what I wanted to say in my report.
 
-That sounds right to me.
+> I guess we've never depended on cmpxchg before. Or am I missing something?
 
-I built 2.6.16-rc5-git6 yesterday, and it still suffers from the same
-issue.
+It seems this is the case.
 
-	-Bill
+And as far as I can see, m68k is the only architecture where cmpxchg 
+isn't always available.
+
+> 		Linus
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

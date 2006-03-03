@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWCCXkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWCCXkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbWCCXkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWCCXkY
+	id S932152AbWCCXkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:40:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbWCCXkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:40:24 -0500
-Received: from tomts25.bellnexxia.net ([209.226.175.188]:59818 "EHLO
-	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751046AbWCCXkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:40:24 -0500
-Date: Fri, 3 Mar 2006 18:40:18 -0500 (EST)
-From: Scott Murray <scott@spiteful.org>
-X-X-Sender: scottm@godzilla.spiteful.org
-To: Greg KH <greg@kroah.com>
-cc: Kumar Gala <galak@kernel.crashing.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: proper way to assign fixed PCI resources to a "hotplug" device
-In-Reply-To: <20060303232739.GA11796@kroah.com>
-Message-ID: <Pine.LNX.4.58.0603031836570.31840@godzilla.spiteful.org>
-References: <9D653F4D-A375-4D2C-8A5A-063A0BBD962B@kernel.crashing.org>
- <20060303220741.GA22298@kroah.com> <A9483AAD-670C-4D03-9996-6AE89F6FD4FB@kernel.crashing.org>
- <20060303232739.GA11796@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Mar 2006 18:40:31 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:41098 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751050AbWCCXka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:40:30 -0500
+Subject: Re: Realtime Kernel Slows My Clock
+From: Lee Revell <rlrevell@joe-job.com>
+To: Chuck Martin <v4b1bze02@sneakemail.com>
+Cc: linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <28925-53282@sneakemail.com>
+References: <28925-53282@sneakemail.com>
+Content-Type: text/plain
+Date: Fri, 03 Mar 2006 18:40:27 -0500
+Message-Id: <1141429228.3042.155.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Mar 2006, Greg KH wrote:
+On Fri, 2006-03-03 at 18:12 -0500, Chuck Martin wrote:
+> I've recently been trying to compile a realtime kernel for audio
+> work, and am having a problem.  The clock seems to run very slow,
+> causing my time to be off.  Commands with a delay are also slowed
+> from 10 to 30 times what they should be.  For example, "sleep 1"
+> will sometimes take up to thirty seconds. 
 
-> On Fri, Mar 03, 2006 at 05:13:55PM -0600, Kumar Gala wrote:
-> > I found cpqhp_configure_device(), but I dont see anything about how  
-> > to handle assigned a fixed address to the BAR.
-> 
-> I don't know either, try asking on the pci hotplug mailing list and CC:
-> Scott, the author of that driver for how his devices work around that.
+Please post your kernel .config.  Is this a dual core AMD?
 
-Heh, I'm the Compact PCI hotplug guy, not the Compaq PCI hotplug guy. :)
+Lee
 
-Scott
-
-
--- 
-==============================================================================
-Scott Murray, scott@spiteful.org
-
-     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"

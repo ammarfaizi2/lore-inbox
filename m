@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWCCH5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWCCH5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751672AbWCCH5h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 02:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752111AbWCCH5Z
+	id S1751076AbWCCH5E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 02:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752143AbWCCH5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 02:57:25 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:19586 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751672AbWCCH5N
+	Fri, 3 Mar 2006 02:57:03 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:640 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1751076AbWCCH5D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 02:57:13 -0500
-Message-Id: <20060303075735.613512000@sorel.sous-sol.org>
+	Fri, 3 Mar 2006 02:57:03 -0500
+Message-Id: <20060303075734.954369000@sorel.sous-sol.org>
 References: <20060303075542.659414000@sorel.sous-sol.org>
-Date: Thu, 02 Mar 2006 23:55:45 -0800
+Date: Thu, 02 Mar 2006 23:55:44 -0800
 From: Chris Wright <chrisw@sous-sol.org>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -19,60 +19,38 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: [PATCH 3/4] [PATCH] fs/nfs/direct.c compile fix
-Content-Disposition: inline; filename=normal-user-can-panic-nfs-client-with-direct-i-o-fix.patch
+       Tony Luck <tony.luck@intel.com>
+Subject: [PATCH 2/4] [PATCH] [IA64] die_if_kernel() can return (CVE-2006-0742)
+Content-Disposition: inline; filename=die_if_kernel-can-return.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -stable review patch.  If anyone has any objections, please let us know.
 ------------------
 
-Compile fix:
+arch/ia64/kernel/unaligned.c erroneously marked die_if_kernel()
+with a "noreturn" attribute ... which is silly (it returns whenever
+the argument regs say that the fault happened in user mode, as one
+might expect given the "if_kernel" part of its name!).  Thanks to
+Alan and Gareth for pointing this out.
 
-fs/nfs/direct.c: In function 'nfs_get_user_pages':
-fs/nfs/direct.c:110: warning: implicit declaration of function 'nfs_free_user_pages'
-fs/nfs/direct.c: At top level:
-fs/nfs/direct.c:127: warning: conflicting types for 'nfs_free_user_pages'
-fs/nfs/direct.c:127: error: static declaration of 'nfs_free_user_pages' follows non-static declaration
-fs/nfs/direct.c:110: error: previous implicit declaration of 'nfs_free_user_pages' was here
-
-This should now be the same as fix that's going upstream.
-
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
 ---
 
- fs/nfs/direct.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+ arch/ia64/kernel/unaligned.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.15.5.orig/fs/nfs/direct.c
-+++ linux-2.6.15.5/fs/nfs/direct.c
-@@ -57,6 +57,7 @@
- #define NFSDBG_FACILITY		NFSDBG_VFS
- #define MAX_DIRECTIO_SIZE	(4096UL << PAGE_SHIFT)
+--- linux-2.6.15.5.orig/arch/ia64/kernel/unaligned.c
++++ linux-2.6.15.5/arch/ia64/kernel/unaligned.c
+@@ -24,7 +24,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/unaligned.h>
  
-+static void nfs_free_user_pages(struct page **pages, int npages, int do_dirty);
- static kmem_cache_t *nfs_direct_cachep;
+-extern void die_if_kernel(char *str, struct pt_regs *regs, long err) __attribute__ ((noreturn));
++extern void die_if_kernel(char *str, struct pt_regs *regs, long err);
  
- /*
-@@ -106,12 +107,16 @@ nfs_get_user_pages(int rw, unsigned long
- 		result = get_user_pages(current, current->mm, user_addr,
- 					page_count, (rw == READ), 0,
- 					*pages, NULL);
-+		up_read(&current->mm->mmap_sem);
-+		/*
-+		 * If we got fewer pages than expected from get_user_pages(),
-+		 * the user buffer runs off the end of a mapping; return EFAULT.
-+		 */
- 		if (result >= 0 && result < page_count) {
- 			nfs_free_user_pages(*pages, result, 0);
- 			*pages = NULL;
- 			result = -EFAULT;
- 		}
--		up_read(&current->mm->mmap_sem);
- 	}
- 	return result;
- }
+ #undef DEBUG_UNALIGNED_TRAP
+ 
 
 --

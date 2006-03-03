@@ -1,411 +1,776 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWCCVl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751539AbWCCVkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751599AbWCCVl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 16:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWCCVl4
+	id S1751539AbWCCVkW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 16:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWCCVkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 16:41:56 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:53764 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751528AbWCCVk2 (ORCPT
+	Fri, 3 Mar 2006 16:40:20 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:48388 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751510AbWCCVkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 16:40:28 -0500
+	Fri, 3 Mar 2006 16:40:17 -0500
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 8/8] [I/OAT] TCP recv offload to I/OAT
-Date: Fri, 03 Mar 2006 13:42:36 -0800
+Subject: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+Date: Fri, 03 Mar 2006 13:42:20 -0800
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060303214236.11908.98881.stgit@gitlost.site>
+Message-Id: <20060303214220.11908.75517.stgit@gitlost.site>
 In-Reply-To: <20060303214036.11908.10499.stgit@gitlost.site>
 References: <20060303214036.11908.10499.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Locks down user pages and sets up for DMA in tcp_recvmsg, then calls
-dma_async_try_early_copy in tcp_v4_do_rcv
+Provides an API for offloading memory copies to DMA devices
 
 Signed-off-by: Chris Leech <christopher.leech@intel.com>
 ---
 
- include/net/netdma.h |    1 
- net/ipv4/tcp.c       |  111 +++++++++++++++++++++++++++++++++++++++++++++-----
- net/ipv4/tcp_input.c |   78 ++++++++++++++++++++++++++++++++---
- net/ipv4/tcp_ipv4.c  |   20 +++++++++
- net/ipv6/tcp_ipv6.c  |   12 +++++
- 5 files changed, 201 insertions(+), 21 deletions(-)
+ drivers/Kconfig           |    2 
+ drivers/Makefile          |    1 
+ drivers/dma/Kconfig       |   13 ++
+ drivers/dma/Makefile      |    1 
+ drivers/dma/dmaengine.c   |  361 +++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/dmaengine.h |  322 ++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 700 insertions(+), 0 deletions(-)
 
-diff --git a/include/net/netdma.h b/include/net/netdma.h
-index 415d74c..2d829e1 100644
---- a/include/net/netdma.h
-+++ b/include/net/netdma.h
-@@ -37,5 +37,6 @@ static inline struct dma_chan *get_softn
- int dma_skb_copy_datagram_iovec(struct dma_chan* chan,
- 		const struct sk_buff *skb, int offset, struct iovec *to,
- 		size_t len, struct dma_locked_list *locked_list);
-+int dma_async_try_early_copy(struct sock *sk, struct sk_buff *skb, int hlen);
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index bddf431..ce7ffa7 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -70,4 +70,6 @@ source "drivers/sn/Kconfig"
  
- #endif /* NETDMA_H */
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 13abfa2..b792048 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -262,6 +262,9 @@
- #include <net/tcp.h>
- #include <net/xfrm.h>
- #include <net/ip.h>
-+#ifdef CONFIG_NET_DMA
-+#include <net/netdma.h>
-+#endif
+ source "drivers/edac/Kconfig"
  
- 
- #include <asm/uaccess.h>
-@@ -1109,6 +1112,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 	int target;		/* Read at least this many bytes */
- 	long timeo;
- 	struct task_struct *user_recv = NULL;
-+	int copied_early = 0;
- 
- 	lock_sock(sk);
- 
-@@ -1132,6 +1136,12 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 
- 	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
- 
-+#ifdef CONFIG_NET_DMA
-+	tp->ucopy.dma_chan = NULL;
-+	if ((len > sysctl_tcp_dma_copybreak) && !(flags & MSG_PEEK) && !sysctl_tcp_low_latency && __get_cpu_var(softnet_data.net_dma))
-+		dma_lock_iovec_pages(msg->msg_iov, len, &tp->ucopy.locked_list);
-+#endif
++source "drivers/dma/Kconfig"
 +
- 	do {
- 		struct sk_buff *skb;
- 		u32 offset;
-@@ -1273,6 +1283,10 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 		} else
- 			sk_wait_data(sk, &timeo);
- 
-+#ifdef CONFIG_NET_DMA
-+		tp->ucopy.wakeup = 0;
-+#endif
+ endmenu
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 5c69b86..516ba5e 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -73,3 +73,4 @@ obj-$(CONFIG_SGI_SN)		+= sn/
+ obj-y				+= firmware/
+ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/
++obj-$(CONFIG_DMA_ENGINE)	+= dma/
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+new file mode 100644
+index 0000000..f9ac4bc
+--- /dev/null
++++ b/drivers/dma/Kconfig
+@@ -0,0 +1,13 @@
++#
++# DMA engine configuration
++#
 +
- 		if (user_recv) {
- 			int chunk;
- 
-@@ -1328,13 +1342,39 @@ do_prequeue:
- 		}
- 
- 		if (!(flags & MSG_TRUNC)) {
--			err = skb_copy_datagram_iovec(skb, offset,
--						      msg->msg_iov, used);
--			if (err) {
--				/* Exception. Bailout! */
--				if (!copied)
--					copied = -EFAULT;
--				break;
-+#ifdef CONFIG_NET_DMA
-+			if (!tp->ucopy.dma_chan && tp->ucopy.locked_list)
-+				tp->ucopy.dma_chan = get_softnet_dma();
++menu "DMA Engine support"
 +
-+			if (tp->ucopy.dma_chan) {
-+				tp->ucopy.dma_cookie = dma_skb_copy_datagram_iovec(
-+					tp->ucopy.dma_chan, skb, offset,
-+					msg->msg_iov, used,
-+					tp->ucopy.locked_list);
++config DMA_ENGINE
++	bool "Support for DMA engines"
++	---help---
++	  DMA engines offload copy operations from the CPU to dedicated
++	  hardware, allowing the copies to happen asynchronously.
 +
-+				if (tp->ucopy.dma_cookie < 0) {
++endmenu
+diff --git a/drivers/dma/Makefile b/drivers/dma/Makefile
+new file mode 100644
+index 0000000..10b7391
+--- /dev/null
++++ b/drivers/dma/Makefile
+@@ -0,0 +1 @@
++obj-y += dmaengine.o
+diff --git a/drivers/dma/dmaengine.c b/drivers/dma/dmaengine.c
+new file mode 100644
+index 0000000..77cfcb3
+--- /dev/null
++++ b/drivers/dma/dmaengine.c
+@@ -0,0 +1,361 @@
++/*****************************************************************************
++Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
 +
-+					printk(KERN_ALERT "dma_cookie < 0\n");
++This program is free software; you can redistribute it and/or modify it
++under the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 2 of the License, or (at your option)
++any later version.
 +
-+					/* Exception. Bailout! */
-+					if (!copied)
-+						copied = -EFAULT;
-+					break;
-+				}
-+				if ((offset + used) == skb->len)
-+					copied_early = 1;
++This program is distributed in the hope that it will be useful, but WITHOUT
++ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++more details.
 +
-+			} else
-+#endif
-+			{
-+				err = skb_copy_datagram_iovec(skb, offset,
-+						msg->msg_iov, used);
-+				if (err) {
-+					/* Exception. Bailout! */
-+					if (!copied)
-+						copied = -EFAULT;
-+					break;
-+				}
- 			}
- 		}
- 
-@@ -1354,15 +1394,33 @@ skip_copy:
- 
- 		if (skb->h.th->fin)
- 			goto found_fin_ok;
--		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+		if (!(flags & MSG_PEEK)) {
-+			if (!copied_early)
-+				sk_eat_skb(sk, skb);
-+#ifdef CONFIG_NET_DMA
-+			else {
-+				__skb_unlink(skb, &sk->sk_receive_queue);
-+				__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-+				copied_early = 0;
-+			}
-+#endif
-+		}
- 		continue;
- 
- 	found_fin_ok:
- 		/* Process the FIN. */
- 		++*seq;
--		if (!(flags & MSG_PEEK))
--			sk_eat_skb(sk, skb);
-+		if (!(flags & MSG_PEEK)) {
-+			if (!copied_early)
-+				sk_eat_skb(sk, skb);
-+#ifdef CONFIG_NET_DMA
-+			else {
-+				__skb_unlink(skb, &sk->sk_receive_queue);
-+				__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-+				copied_early = 0;
-+			}
-+#endif
-+		}
- 		break;
- 	} while (len > 0);
- 
-@@ -1385,6 +1443,34 @@ skip_copy:
- 		tp->ucopy.len = 0;
- 	}
- 
-+#ifdef CONFIG_NET_DMA
-+	if (tp->ucopy.dma_chan) {
-+		struct sk_buff *skb;
-+		dma_cookie_t done, used;
++You should have received a copy of the GNU General Public License along with
++this program; if not, write to the Free Software Foundation, Inc., 59
++Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 +
-+		dma_async_memcpy_issue_pending(tp->ucopy.dma_chan);
++The full GNU General Public License is included in this distribution in the
++file called LICENSE.
++*****************************************************************************/
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/dmaengine.h>
++#include <linux/hardirq.h>
++#include <linux/spinlock.h>
++#include <linux/percpu.h>
++#include <linux/rcupdate.h>
 +
-+		while (dma_async_memcpy_complete(tp->ucopy.dma_chan,
-+		                                 tp->ucopy.dma_cookie, &done,
-+		                                 &used) == DMA_IN_PROGRESS) {
-+			/* do partial cleanup of sk_async_wait_queue */
-+			while ((skb = skb_peek(&sk->sk_async_wait_queue)) &&
-+			       (dma_async_is_complete(skb->dma_cookie, done,
-+			                              used) == DMA_SUCCESS)) {
-+				__skb_dequeue(&sk->sk_async_wait_queue);
-+				kfree_skb(skb);
-+			}
-+		}
++static spinlock_t dma_list_lock;
++static LIST_HEAD(dma_device_list);
++static LIST_HEAD(dma_client_list);
 +
-+		/* Safe to free early-copied skbs now */
-+		__skb_queue_purge(&sk->sk_async_wait_queue);
-+		dma_unlock_iovec_pages(tp->ucopy.locked_list);
-+		dma_chan_put(tp->ucopy.dma_chan);
-+		tp->ucopy.dma_chan = NULL;
-+		tp->ucopy.locked_list = NULL;
-+	}
-+#endif
++/* --- sysfs implementation --- */
 +
- 	/* According to UNIX98, msg_name/msg_namelen are ignored
- 	 * on connected socket. I was just happy when found this 8) --ANK
- 	 */
-@@ -1652,6 +1738,9 @@ int tcp_disconnect(struct sock *sk, int 
- 	__skb_queue_purge(&sk->sk_receive_queue);
- 	sk_stream_writequeue_purge(sk);
- 	__skb_queue_purge(&tp->out_of_order_queue);
-+#ifdef CONFIG_NET_DMA
-+	__skb_queue_purge(&sk->sk_async_wait_queue);
-+#endif
- 
- 	inet->dport = 0;
- 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 7625eaf..9b6290d 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -71,6 +71,9 @@
- #include <net/inet_common.h>
- #include <linux/ipsec.h>
- #include <asm/unaligned.h>
-+#ifdef CONFIG_NET_DMA
-+#include <net/netdma.h>
-+#endif
- 
- int sysctl_tcp_timestamps = 1;
- int sysctl_tcp_window_scaling = 1;
-@@ -3901,14 +3904,23 @@ int tcp_rcv_established(struct sock *sk,
- 			}
- 		} else {
- 			int eaten = 0;
-+			int copied_early = 0;
- 
--			if (tp->ucopy.task == current &&
--			    tp->copied_seq == tp->rcv_nxt &&
--			    len - tcp_header_len <= tp->ucopy.len &&
--			    sock_owned_by_user(sk)) {
--				__set_current_state(TASK_RUNNING);
-+			if (tp->copied_seq == tp->rcv_nxt &&
-+			    len - tcp_header_len <= tp->ucopy.len) {
-+#ifdef CONFIG_NET_DMA
-+				if (dma_async_try_early_copy(sk, skb, tcp_header_len)) {
-+					copied_early = 1;
-+					eaten = 1;
-+				}
-+#endif
-+				if (tp->ucopy.task == current && sock_owned_by_user(sk) && !copied_early) {
-+					__set_current_state(TASK_RUNNING);
- 
--				if (!tcp_copy_to_iovec(sk, skb, tcp_header_len)) {
-+					if (!tcp_copy_to_iovec(sk, skb, tcp_header_len))
-+						eaten = 1;
-+				}
-+				if (eaten) {
- 					/* Predicted packet is in window by definition.
- 					 * seq == rcv_nxt and rcv_wup <= rcv_nxt.
- 					 * Hence, check seq<=rcv_wup reduces to:
-@@ -3924,8 +3936,9 @@ int tcp_rcv_established(struct sock *sk,
- 					__skb_pull(skb, tcp_header_len);
- 					tp->rcv_nxt = TCP_SKB_CB(skb)->end_seq;
- 					NET_INC_STATS_BH(LINUX_MIB_TCPHPHITSTOUSER);
--					eaten = 1;
- 				}
-+				if (copied_early)
-+					tcp_cleanup_rbuf(sk, skb->len);
- 			}
- 			if (!eaten) {
- 				if (tcp_checksum_complete_user(sk, skb))
-@@ -3966,6 +3979,11 @@ int tcp_rcv_established(struct sock *sk,
- 
- 			__tcp_ack_snd_check(sk, 0);
- no_ack:
-+#ifdef CONFIG_NET_DMA
-+			if (copied_early)
-+				__skb_queue_tail(&sk->sk_async_wait_queue, skb);
-+			else
-+#endif
- 			if (eaten)
- 				__kfree_skb(skb);
- 			else
-@@ -4049,6 +4067,52 @@ discard:
- 	return 0;
- }
- 
-+#ifdef CONFIG_NET_DMA
-+int dma_async_try_early_copy(struct sock *sk, struct sk_buff *skb, int hlen)
++static ssize_t show_memcpy_count(struct class_device *cd, char *buf)
 +{
-+	struct tcp_sock *tp = tcp_sk(sk);
-+	int chunk = skb->len - hlen;
-+	int dma_cookie;
-+	int copied_early = 0;
++	struct dma_chan *chan = container_of(cd, struct dma_chan, class_dev);
++	unsigned long count = 0;
++	int i;
 +
-+	if (tp->ucopy.wakeup)
-+          	goto out;
++	for_each_cpu(i)
++		count += per_cpu_ptr(chan->local, i)->memcpy_count;
 +
-+	if (!tp->ucopy.dma_chan && tp->ucopy.locked_list)
-+		tp->ucopy.dma_chan = get_softnet_dma();
-+
-+	if (tp->ucopy.dma_chan && skb->ip_summed == CHECKSUM_UNNECESSARY) {
-+
-+		dma_cookie = dma_skb_copy_datagram_iovec(tp->ucopy.dma_chan,
-+			skb, hlen, tp->ucopy.iov, chunk, tp->ucopy.locked_list);
-+
-+		if (dma_cookie < 0)
-+			goto out;
-+
-+		tp->ucopy.dma_cookie = dma_cookie;
-+		copied_early = 1;
-+
-+		tp->ucopy.len -= chunk;
-+		tp->copied_seq += chunk;
-+		tcp_rcv_space_adjust(sk);
-+
-+		if ((tp->ucopy.len == 0) ||
-+		    (tcp_flag_word(skb->h.th) & TCP_FLAG_PSH) ||
-+		    (atomic_read(&sk->sk_rmem_alloc) > (sk->sk_rcvbuf >> 1))) {
-+			tp->ucopy.wakeup = 1;
-+			sk->sk_data_ready(sk, 0);
-+		}
-+	} else if (chunk > 0) {
-+		tp->ucopy.wakeup = 1;
-+		sk->sk_data_ready(sk, 0);
-+	}
-+out:
-+	return copied_early;
++	sprintf(buf, "%lu\n", count);
++	return strlen(buf) + 1;
 +}
 +
-+EXPORT_SYMBOL(dma_async_try_early_copy);
-+#endif /* CONFIG_NET_DMA */
++static ssize_t show_bytes_transferred(struct class_device *cd, char *buf)
++{
++	struct dma_chan *chan = container_of(cd, struct dma_chan, class_dev);
++	unsigned long count = 0;
++	int i;
 +
- static int tcp_rcv_synsent_state_process(struct sock *sk, struct sk_buff *skb,
- 					 struct tcphdr *th, unsigned len)
- {
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 4eb903d..fecc022 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -71,6 +71,9 @@
- #include <net/inet_common.h>
- #include <net/timewait_sock.h>
- #include <net/xfrm.h>
-+#ifdef CONFIG_NET_DMA
-+#include <net/netdma.h>
-+#endif
- 
- #include <linux/inet.h>
- #include <linux/ipv6.h>
-@@ -1091,8 +1094,18 @@ process:
- 	bh_lock_sock(sk);
- 	ret = 0;
- 	if (!sock_owned_by_user(sk)) {
--		if (!tcp_prequeue(sk, skb))
-+#ifdef CONFIG_NET_DMA
-+		struct tcp_sock *tp = tcp_sk(sk);
-+		if (!tp->ucopy.dma_chan && tp->ucopy.locked_list)
-+			tp->ucopy.dma_chan = get_softnet_dma();
-+		if (tp->ucopy.dma_chan)
-+			ret = tcp_v4_do_rcv(sk, skb);
-+		else
-+#endif
-+		{
-+			if (!tcp_prequeue(sk, skb))
- 			ret = tcp_v4_do_rcv(sk, skb);
-+		}
- 	} else
- 		sk_add_backlog(sk, skb);
- 	bh_unlock_sock(sk);
-@@ -1292,6 +1305,11 @@ int tcp_v4_destroy_sock(struct sock *sk)
- 	/* Cleans up our, hopefully empty, out_of_order_queue. */
-   	__skb_queue_purge(&tp->out_of_order_queue);
- 
-+#ifdef CONFIG_NET_DMA
-+	/* Cleans up our sk_async_wait_queue */
-+  	__skb_queue_purge(&sk->sk_async_wait_queue);
-+#endif
++	for_each_cpu(i)
++		count += per_cpu_ptr(chan->local, i)->bytes_transferred;
 +
- 	/* Clean prequeue, it must be empty really */
- 	__skb_queue_purge(&tp->ucopy.prequeue);
- 
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index af6a0c6..acf798c 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1218,8 +1218,16 @@ process:
- 	bh_lock_sock(sk);
- 	ret = 0;
- 	if (!sock_owned_by_user(sk)) {
--		if (!tcp_prequeue(sk, skb))
--			ret = tcp_v6_do_rcv(sk, skb);
-+#ifdef CONFIG_NET_DMA
-+                struct tcp_sock *tp = tcp_sk(sk);
-+                if (tp->ucopy.dma_chan)
-+                        ret = tcp_v6_do_rcv(sk, skb);
-+                else
-+#endif
-+		{
-+			if (!tcp_prequeue(sk, skb))
-+				ret = tcp_v6_do_rcv(sk, skb);
++	sprintf(buf, "%lu\n", count);
++	return strlen(buf) + 1;
++}
++
++static ssize_t show_in_use(struct class_device *cd, char *buf)
++{
++	struct dma_chan *chan = container_of(cd, struct dma_chan, class_dev);
++
++	sprintf(buf, "%d\n", (chan->client ? 1 : 0));
++	return strlen(buf) + 1;
++}
++
++static struct class_device_attribute dma_class_attrs[] = {
++	__ATTR(memcpy_count, S_IRUGO, show_memcpy_count, NULL),
++	__ATTR(bytes_transferred, S_IRUGO, show_bytes_transferred, NULL),
++	__ATTR(in_use, S_IRUGO, show_in_use, NULL),
++	__ATTR_NULL
++};
++
++static void dma_async_device_cleanup(struct kref *kref);
++
++static void dma_class_dev_release(struct class_device *cd)
++{
++	struct dma_chan *chan = container_of(cd, struct dma_chan, class_dev);
++	kref_put(&chan->device->refcount, dma_async_device_cleanup);
++}
++
++static struct class dma_devclass = {
++	.name            = "dma",
++	.class_dev_attrs = dma_class_attrs,
++	.release = dma_class_dev_release,
++};
++
++/* --- client and device registration --- */
++
++/**
++ * dma_client_chan_alloc - try to allocate a channel to a client
++ * @client: &dma_client
++ *
++ * Called with dma_list_lock held.
++ */
++static struct dma_chan * dma_client_chan_alloc(struct dma_client *client)
++{
++	struct dma_device *device;
++	struct dma_chan *chan;
++	unsigned long flags;
++
++	/* Find a channel, any DMA engine will do */
++	list_for_each_entry(device, &dma_device_list, global_node) {
++		list_for_each_entry(chan, &device->channels, device_node) {
++			if (chan->client)
++				continue;
++
++			if (chan->device->device_alloc_chan_resources(chan) >= 0) {
++				kref_get(&device->refcount);
++				kref_init(&chan->refcount);
++				chan->slow_ref = 0;
++				INIT_RCU_HEAD(&chan->rcu);
++				chan->client = client;
++				spin_lock_irqsave(&client->lock, flags);
++				list_add_tail_rcu(&chan->client_node, &client->channels);
++				spin_unlock_irqrestore(&client->lock, flags);
++				return chan;
++			}
 +		}
- 	} else
- 		sk_add_backlog(sk, skb);
- 	bh_unlock_sock(sk);
++	}
++
++	return NULL;
++}
++
++/**
++ * dma_client_chan_free - release a DMA channel
++ * @chan: &dma_chan
++ */
++void dma_async_device_cleanup(struct kref *kref);
++void dma_chan_cleanup(struct kref *kref)
++{
++	struct dma_chan *chan = container_of(kref, struct dma_chan, refcount);
++	chan->device->device_free_chan_resources(chan);
++	chan->client = NULL;
++	kref_put(&chan->device->refcount, dma_async_device_cleanup);
++}
++
++static void dma_chan_free_rcu(struct rcu_head *rcu) {
++	struct dma_chan *chan = container_of(rcu, struct dma_chan, rcu);
++	int bias = 0x7FFFFFFF;
++	int i;
++	for_each_cpu(i)
++		bias -= local_read(&per_cpu_ptr(chan->local, i)->refcount);
++	atomic_sub(bias, &chan->refcount.refcount);
++	kref_put(&chan->refcount, dma_chan_cleanup);
++}
++
++static void dma_client_chan_free(struct dma_chan *chan)
++{
++	atomic_add(0x7FFFFFFF, &chan->refcount.refcount);
++	chan->slow_ref = 1;
++	call_rcu(&chan->rcu, dma_chan_free_rcu);
++}
++
++/**
++ * dma_chans_rebalance - reallocate channels to clients
++ *
++ * When the number of DMA channel in the system changes,
++ * channels need to be rebalanced among clients
++ */
++static void dma_chans_rebalance(void)
++{
++	struct dma_client *client;
++	struct dma_chan *chan;
++	unsigned long flags;
++
++	spin_lock(&dma_list_lock);
++	list_for_each_entry(client, &dma_client_list, global_node) {
++
++		while (client->chans_desired > client->chan_count) {
++			chan = dma_client_chan_alloc(client);
++			if (!chan)
++				break;
++
++			client->chan_count++;
++			client->event_callback(client, chan, DMA_RESOURCE_ADDED);
++		}
++
++		while (client->chans_desired < client->chan_count) {
++			spin_lock_irqsave(&client->lock, flags);
++			chan = list_entry(client->channels.next, struct dma_chan, client_node);
++			list_del_rcu(&chan->client_node);
++			spin_unlock_irqrestore(&client->lock, flags);
++			client->chan_count--;
++			client->event_callback(client, chan, DMA_RESOURCE_REMOVED);
++			dma_client_chan_free(chan);
++		}
++	}
++	spin_unlock(&dma_list_lock);
++}
++
++/**
++ * dma_async_client_register - allocate and register a &dma_client
++ * @event_callback: callback for notification of channel addition/removal
++ */
++struct dma_client * dma_async_client_register(dma_event_callback event_callback)
++{
++	struct dma_client *client;
++
++	client = kzalloc(sizeof(*client), GFP_KERNEL);
++	if (!client)
++		return NULL;
++
++	INIT_LIST_HEAD(&client->channels);
++	spin_lock_init(&client->lock);
++
++	client->chans_desired = 0;
++	client->chan_count = 0;
++	client->event_callback = event_callback;
++
++	spin_lock(&dma_list_lock);
++	list_add_tail(&client->global_node, &dma_client_list);
++	spin_unlock(&dma_list_lock);
++
++	return client;
++}
++
++/**
++ * dma_async_client_unregister - unregister a client and free the &dma_client
++ * @client:
++ *
++ * Force frees any allocated DMA channels, frees the &dma_client memory
++ */
++void dma_async_client_unregister(struct dma_client *client)
++{
++	struct dma_chan *chan;
++
++	if (!client)
++		return;
++
++	rcu_read_lock();
++	list_for_each_entry_rcu(chan, &client->channels, client_node) {
++		dma_client_chan_free(chan);
++	}
++	rcu_read_unlock();
++
++	spin_lock(&dma_list_lock);
++	list_del(&client->global_node);
++	spin_unlock(&dma_list_lock);
++
++	kfree(client);
++	dma_chans_rebalance();
++}
++
++/**
++ * dma_async_client_chan_request - request DMA channels
++ * @client: &dma_client
++ * @number: count of DMA channels requested
++ *
++ * Clients call dma_async_client_chan_request() to specify how many
++ * DMA channels they need, 0 to free all currently allocated.
++ * The resulting allocations/frees are indicated to the client via the
++ * event callback.
++ */
++void dma_async_client_chan_request(struct dma_client *client,
++			unsigned int number)
++{
++	client->chans_desired = number;
++	dma_chans_rebalance();
++}
++
++/**
++ * dma_async_device_register -
++ * @device: &dma_device
++ */
++int dma_async_device_register(struct dma_device *device)
++{
++	static int id;
++	int chancnt = 0;
++	struct dma_chan* chan;
++
++	if (!device)
++		return -ENODEV;
++
++	init_completion(&device->done);
++	kref_init(&device->refcount);
++	device->dev_id = id++;
++
++	/* represent channels in sysfs. Probably want devs too */
++	list_for_each_entry(chan, &device->channels, device_node) {
++		chan->local = alloc_percpu(typeof(*chan->local));
++		if (chan->local == NULL)
++			continue;
++
++		chan->chan_id = chancnt++;
++		chan->class_dev.class = &dma_devclass;
++		chan->class_dev.dev = NULL;
++		snprintf(chan->class_dev.class_id, BUS_ID_SIZE, "dma%dchan%d",
++		         device->dev_id, chan->chan_id);
++
++		kref_get(&device->refcount);
++		class_device_register(&chan->class_dev);
++	}
++
++	spin_lock(&dma_list_lock);
++	list_add_tail(&device->global_node, &dma_device_list);
++	spin_unlock(&dma_list_lock);
++
++	dma_chans_rebalance();
++
++	return 0;
++}
++
++/**
++ * dma_async_device_unregister -
++ * @device: &dma_device
++ */
++static void dma_async_device_cleanup(struct kref *kref) {
++	struct dma_device *device = container_of(kref, struct dma_device, refcount);
++	complete(&device->done);
++}
++
++void dma_async_device_unregister(struct dma_device* device)
++{
++	struct dma_chan *chan;
++	unsigned long flags;
++
++	spin_lock(&dma_list_lock);
++	list_del(&device->global_node);
++	spin_unlock(&dma_list_lock);
++
++	list_for_each_entry(chan, &device->channels, device_node) {
++		if (chan->client) {
++			spin_lock_irqsave(&chan->client->lock, flags);
++			list_del(&chan->client_node);
++			chan->client->chan_count--;
++			spin_unlock_irqrestore(&chan->client->lock, flags);
++			chan->client->event_callback(chan->client, chan, DMA_RESOURCE_REMOVED);
++			dma_client_chan_free(chan);
++		}
++		class_device_unregister(&chan->class_dev);
++	}
++
++	dma_chans_rebalance();
++
++	kref_put(&device->refcount, dma_async_device_cleanup);
++	wait_for_completion(&device->done);
++}
++
++static int __init dma_bus_init(void)
++{
++	spin_lock_init(&dma_list_lock);
++
++	return class_register(&dma_devclass);
++}
++
++subsys_initcall(dma_bus_init);
++
++EXPORT_SYMBOL(dma_async_client_register);
++EXPORT_SYMBOL(dma_async_client_unregister);
++EXPORT_SYMBOL(dma_async_client_chan_request);
++EXPORT_SYMBOL(dma_async_memcpy_buf_to_buf);
++EXPORT_SYMBOL(dma_async_memcpy_buf_to_pg);
++EXPORT_SYMBOL(dma_async_memcpy_pg_to_pg);
++EXPORT_SYMBOL(dma_async_memcpy_complete);
++EXPORT_SYMBOL(dma_async_memcpy_issue_pending);
++EXPORT_SYMBOL(dma_async_device_register);
++EXPORT_SYMBOL(dma_async_device_unregister);
+diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
+new file mode 100644
+index 0000000..f8a77ab
+--- /dev/null
++++ b/include/linux/dmaengine.h
+@@ -0,0 +1,322 @@
++/*****************************************************************************
++Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
++
++This program is free software; you can redistribute it and/or modify it
++under the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 2 of the License, or (at your option)
++any later version.
++
++This program is distributed in the hope that it will be useful, but WITHOUT
++ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++more details.
++
++You should have received a copy of the GNU General Public License along with
++this program; if not, write to the Free Software Foundation, Inc., 59
++Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++The full GNU General Public License is included in this distribution in the
++file called LICENSE.
++*****************************************************************************/
++#ifndef DMAENGINE_H
++#define DMAENGINE_H
++
++#include <linux/device.h>
++#include <linux/uio.h>
++#include <linux/kref.h>
++#include <linux/completion.h>
++#include <linux/rcupdate.h>
++
++/**
++ * enum dma_event - resource PNP/power managment events
++ * @DMA_RESOURCE_SUSPEND: DMA device going into low power state
++ * @DMA_RESOURCE_RESUME: DMA device returning to full power
++ * @DMA_RESOURCE_ADDED: DMA device added to the system
++ * @DMA_RESOURCE_REMOVED: DMA device removed from the system
++ */
++enum dma_event {
++	DMA_RESOURCE_SUSPEND,
++	DMA_RESOURCE_RESUME,
++	DMA_RESOURCE_ADDED,
++	DMA_RESOURCE_REMOVED,
++};
++
++/**
++ * typedef dma_cookie_t
++ *
++ * if dma_cookie_t is >0 it's a DMA request cookie, <0 it's an error code
++ */
++typedef s32 dma_cookie_t;
++
++#define dma_submit_error(cookie) ((cookie) < 0 ? 1 : 0)
++
++/**
++ * enum dma_status - DMA transaction status
++ * @DMA_SUCCESS: transaction completed successfully
++ * @DMA_IN_PROGRESS: transaction not yet processed
++ * @DMA_ERROR: transaction failed
++ */
++enum dma_status {
++	DMA_SUCCESS,
++	DMA_IN_PROGRESS,
++	DMA_ERROR,
++};
++
++struct dma_chan_percpu
++{
++	local_t refcount;
++	/* stats */
++	unsigned long memcpy_count;
++	unsigned long bytes_transferred;
++};
++
++/**
++ * struct dma_chan - devices supply DMA channels, clients use them
++ * @client: ptr to the client user of this chan, will be NULL when unused
++ * @device: ptr to the dma device who supplies this channel, always !NULL
++ * @cookie: last cookie value returned to client
++ * @chan_id:
++ * @class_dev:
++ * @client_node: used to add this to the client chan list
++ * @device_node: used to add this to the device chan list
++ */
++struct dma_chan
++{
++	struct dma_client *client;
++	struct dma_device *device;
++	dma_cookie_t cookie;
++
++	/* sysfs */
++	int chan_id;
++	struct class_device class_dev;
++
++	struct kref refcount;
++	int slow_ref;
++	struct rcu_head rcu;
++
++	struct list_head client_node;
++	struct list_head device_node;
++	struct dma_chan_percpu *local;
++};
++
++void dma_chan_cleanup(struct kref *kref);
++
++static inline void dma_chan_get(struct dma_chan *chan)
++{
++	if (unlikely(chan->slow_ref))
++		kref_get(&chan->refcount);
++	else {
++		local_inc(&(per_cpu_ptr(chan->local, get_cpu())->refcount));
++		put_cpu();
++	}
++}
++
++static inline void dma_chan_put(struct dma_chan *chan)
++{
++	if (unlikely(chan->slow_ref))
++		kref_put(&chan->refcount, dma_chan_cleanup);
++	else {
++		local_dec(&(per_cpu_ptr(chan->local, get_cpu())->refcount));
++		put_cpu();
++	}
++}
++
++/*
++ * typedef dma_event_callback - function pointer to a DMA event callback
++ */
++typedef void (*dma_event_callback) (struct dma_client *client,
++		struct dma_chan *chan, enum dma_event event);
++
++/**
++ * struct dma_client - info on the entity making use of DMA services
++ * @event_callback: func ptr to call when something happens
++ * @chan_count: number of chans allocated
++ * @chans_desired: number of chans requested. Can be +/- chan_count
++ * @lock: protects access to the channels list
++ * @channels: the list of DMA channels allocated
++ * @global_node: list_head for global dma_client_list
++ */
++struct dma_client {
++	dma_event_callback	event_callback;
++	unsigned int		chan_count;
++	unsigned int		chans_desired;
++
++	spinlock_t		lock;
++	struct list_head	channels;
++	struct list_head	global_node;
++};
++
++/**
++ * struct dma_device - info on the entity supplying DMA services
++ * @chancnt: how many DMA channels are supported
++ * @channels: the list of struct dma_chan
++ * @global_node: list_head for global dma_device_list
++ * @dev_id:
++ * Other func ptrs: used to make use of this device's capabilities
++ */
++struct dma_device {
++
++	unsigned int chancnt;
++	struct list_head channels;
++	struct list_head global_node;
++
++	struct kref refcount;
++	struct completion done;
++
++	int dev_id;
++
++	int (*device_alloc_chan_resources)(struct dma_chan *chan);
++	void (*device_free_chan_resources)(struct dma_chan *chan);
++	dma_cookie_t (*device_memcpy_buf_to_buf)(struct dma_chan *chan,
++			void *dest, void *src, size_t len);
++	dma_cookie_t (*device_memcpy_buf_to_pg)(struct dma_chan *chan,
++			struct page *page, unsigned int offset, void *kdata,
++			size_t len);
++	dma_cookie_t (*device_memcpy_pg_to_pg)(struct dma_chan *chan,
++			struct page *dest_pg, unsigned int dest_off,
++			struct page *src_pg, unsigned int src_off, size_t len);
++	enum dma_status (*device_memcpy_complete)(struct dma_chan *chan,
++			dma_cookie_t cookie, dma_cookie_t *last,
++			dma_cookie_t *used);
++	void (*device_memcpy_issue_pending)(struct dma_chan *chan);
++};
++
++/* --- public DMA engine API --- */
++
++struct dma_client *dma_async_client_register(dma_event_callback event_callback);
++void dma_async_client_unregister(struct dma_client *client);
++void dma_async_client_chan_request(struct dma_client *client,
++		unsigned int number);
++
++/**
++ * dma_async_memcpy_buf_to_buf - offloaded copy between virtual addresses
++ * @chan: DMA channel to offload copy to
++ * @dest: destination address (virtual)
++ * @src: source address (virtual)
++ * @len: length
++ *
++ * Both @dest and @src must be mappable to a bus address according to the
++ * DMA mapping API rules for streaming mappings.
++ * Both @dest and @src must stay memory resident (kernel memory or locked
++ * user space pages)
++ */
++static inline dma_cookie_t dma_async_memcpy_buf_to_buf(struct dma_chan *chan,
++	void *dest, void *src, size_t len)
++{
++	int cpu = get_cpu();
++	per_cpu_ptr(chan->local, cpu)->bytes_transferred += len;
++	per_cpu_ptr(chan->local, cpu)->memcpy_count++;
++	put_cpu();
++
++	return chan->device->device_memcpy_buf_to_buf(chan, dest, src, len);
++}
++
++/**
++ * dma_async_memcpy_buf_to_pg - offloaded copy
++ * @chan: DMA channel to offload copy to
++ * @page: destination page
++ * @offset: offset in page to copy to
++ * @kdata: source address (virtual)
++ * @len: length
++ *
++ * Both @page/@offset and @kdata must be mappable to a bus address according
++ * to the DMA mapping API rules for streaming mappings.
++ * Both @page/@offset and @kdata must stay memory resident (kernel memory or
++ * locked user space pages)
++ */
++static inline dma_cookie_t dma_async_memcpy_buf_to_pg(struct dma_chan *chan,
++	struct page *page, unsigned int offset, void *kdata, size_t len)
++{
++	int cpu = get_cpu();
++	per_cpu_ptr(chan->local, cpu)->bytes_transferred += len;
++	per_cpu_ptr(chan->local, cpu)->memcpy_count++;
++	put_cpu();
++
++	return chan->device->device_memcpy_buf_to_pg(chan, page, offset,
++	                                             kdata, len);
++}
++
++/**
++ * dma_async_memcpy_buf_to_pg - offloaded copy
++ * @chan: DMA channel to offload copy to
++ * @dest_page: destination page
++ * @dest_off: offset in page to copy to
++ * @src_page: source page
++ * @src_off: offset in page to copy from
++ * @len: length
++ *
++ * Both @dest_page/@dest_off and @src_page/@src_off must be mappable to a bus
++ * address according to the DMA mapping API rules for streaming mappings.
++ * Both @dest_page/@dest_off and @src_page/@src_off must stay memory resident
++ * (kernel memory or locked user space pages)
++ */
++static inline dma_cookie_t dma_async_memcpy_pg_to_pg(struct dma_chan *chan,
++	struct page *dest_pg, unsigned int dest_off, struct page *src_pg,
++	unsigned int src_off, size_t len)
++{
++	int cpu = get_cpu();
++	per_cpu_ptr(chan->local, cpu)->bytes_transferred += len;
++	per_cpu_ptr(chan->local, cpu)->memcpy_count++;
++	put_cpu();
++
++	return chan->device->device_memcpy_pg_to_pg(chan, dest_pg, dest_off,
++	                                            src_pg, src_off, len);
++}
++
++/**
++ * dma_async_memcpy_issue_pending - flush pending copies to HW
++ * @chan:
++ *
++ * This allows drivers to push copies to HW in batches,
++ * reducing MMIO writes where possible.
++ */
++static inline void dma_async_memcpy_issue_pending(struct dma_chan *chan)
++{
++	return chan->device->device_memcpy_issue_pending(chan);
++}
++
++/**
++ * dma_async_memcpy_complete - poll for transaction completion
++ * @chan: DMA channel
++ * @cookie: transaction identifier to check status of
++ * @last: returns last completed cookie, can be NULL
++ * @used: returns last issued cookie, can be NULL
++ *
++ * If @last and @used are passed in, upon return they reflect the driver
++ * internal state and can be used with dma_async_is_complete() to check
++ * the status of multiple cookies without re-checking hardware state.
++ */
++static inline enum dma_status dma_async_memcpy_complete(struct dma_chan *chan,
++	dma_cookie_t cookie, dma_cookie_t *last, dma_cookie_t *used)
++{
++	return chan->device->device_memcpy_complete(chan, cookie, last, used);
++}
++
++/**
++ * dma_async_is_complete - test a cookie against chan state
++ * @cookie: transaction identifier to test status of
++ * @last_complete: last know completed transaction
++ * @last_used: last cookie value handed out
++ *
++ * dma_async_is_complete() is used in dma_async_memcpy_complete()
++ * the test logic is seperated for lightweight testing of multiple cookies
++ */
++static inline enum dma_status dma_async_is_complete(dma_cookie_t cookie,
++			dma_cookie_t last_complete, dma_cookie_t last_used) {
++	if (last_complete <= last_used) {
++		if ((cookie <= last_complete) || (cookie > last_used))
++			return DMA_SUCCESS;
++	} else {
++		if ((cookie <= last_complete) && (cookie > last_used))
++			return DMA_SUCCESS;
++	}
++	return DMA_IN_PROGRESS;
++}
++
++
++/* --- DMA device --- */
++
++int dma_async_device_register(struct dma_device *device);
++void dma_async_device_unregister(struct dma_device *device);
++
++#endif /* DMAENGINE_H */
 

@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752140AbWCCB7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752137AbWCCCFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752140AbWCCB7X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 20:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752141AbWCCB7W
+	id S1752137AbWCCCFY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 21:05:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752141AbWCCCFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 20:59:22 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:46309 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1752140AbWCCB7W convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 20:59:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 2 Mar 2006 21:05:24 -0500
+Received: from relay2.es.uci.edu ([128.200.80.28]:43198 "EHLO
+	relay2.es.uci.edu") by vger.kernel.org with ESMTP id S1752137AbWCCCFX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 21:05:23 -0500
+X-UCInetID: fkruggel
+Message-ID: <4407A45C.8010307@uci.edu>
+Date: Thu, 02 Mar 2006 18:05:16 -0800
+From: Frithjof Kruggel <fkruggel@uci.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; rv:1.7.12) Gecko/20060207 Debian/1.7.12-1.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Patch] Move swiotlb_init early on X86_64
-Date: Thu, 2 Mar 2006 17:59:10 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB60076C30F4@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] Move swiotlb_init early on X86_64
-Thread-Index: AcY+YtYT2hXESft7TBWbnHtnkLJolAAApQiQ
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andi Kleen" <ak@suse.de>, "Zou, Nanhai" <nanhai.zou@intel.com>
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>,
-       "LKML" <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 03 Mar 2006 01:59:11.0748 (UTC) FILETIME=[10E22440:01C63E66]
+To: linux-kernel@vger.kernel.org, fkruggel@uci.edu
+Subject: Bug in aic79xx_osm.c: synchronous mode not negotiated
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
 
->-----Original Message-----
->From: Andi Kleen [mailto:ak@suse.de] 
->Sent: Thursday, March 02, 2006 5:32 PM
->To: Zou, Nanhai
->Cc: Zhang, Yanmin; Luck, Tony; LKML; Andrew Morton; Pallipadi, 
->Venkatesh
->Subject: Re: [Patch] Move swiotlb_init early on X86_64
->
->On Friday 03 March 2006 00:35, Zou Nan hai wrote:
->
->> This patch modify the bootmem allocator,
->> let normal bootmem allocation on 64 bit system first go above 4G
->> address.
->
->That's very ugly and likely to break some architectures. Sorry
->but #ifdefs is the wrong way to do this.
->
->Passing a limit parameter is better and use that in the swiotlb
->allocation. If you're worried about changing too many callers
->you could add a new entry point.
->
+Hi,
 
-Another potential issue with this approach:
-On a 64 bit system with less than 4G phys memory, we will fail
-to get any memory above 4G and fall back to start from '0'.
-This is different from original behaviour, where goal was 
-MAX_DMA_ADDRESS (16M) and we would allocate memory starting 
-from 16M. As a result, we will now eat up memory in 0-16M range 
-and may break some legacy drivers as they will not get any memory.
+I have an HP tape library attached to an Adaptec
+29320A Ultra320 SCSI card. While upgrading the
+kernel from version 2.6.13.5 to 2.6.15.5, I found
+that writing tapes slowed down from 24 MB/s to
+4.5 MB/s.
 
-If we go this way, then we should fallback to original goal if we 
-are not able to get greater than 4G memory.
+Switching on debug mode in the driver revealed
+that for both the tape drive and the autochanger,
+asynchronous mode is negotiated with the new kernel.
 
-Thanks,
-Venki
+After playing around with the code, I found that
+there is a problem with function ahd_send_async()
+in file aic79xx_osm.c.
+
+Reverting a piece of code in this function back
+to version 2.6.13.5 solved the problem (specifically,
+replacing lines 1609-1632 of aic79xx_osm.c in
+version 2.6.15.5 with lines 4240-4263 in version
+2.6.13.5). Synchronous mode is now negiotiated
+for both targets.
+
+Of course, I have no idea about any potential
+side effects of this change, so I would rather
+give this problem back to the maintainers of this
+code. Feel free to contact me if you need more
+information. Please, cc: to the address above,
+as I am not a regular subscriber to this list.
+
+Best wishes,
+
+Frithjof Kruggel
+
+
+

@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751732AbWCCW0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751734AbWCCW1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751732AbWCCW0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 17:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWCCW0T
+	id S1751734AbWCCW1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 17:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWCCW1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 17:26:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56076 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751725AbWCCW0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 17:26:18 -0500
-Date: Fri, 3 Mar 2006 23:26:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.16-rc4-mm2: drivers/rtc/utils.c should become part of a generic implementation
-Message-ID: <20060303222617.GA9295@stusta.de>
-References: <20060224031002.0f7ff92a.akpm@osdl.org> <20060225033118.GF3674@stusta.de> <20060225054619.149db264@inspiron> <20060225131025.GK3674@stusta.de> <20060226194116.50f7ad2e@inspiron> <20060226185518.GM3674@stusta.de> <20060226200212.GD31256@flint.arm.linux.org.uk>
+	Fri, 3 Mar 2006 17:27:25 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:43158 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751698AbWCCW1Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 17:27:24 -0500
+Message-ID: <4408C2CA.5010909@garzik.org>
+Date: Fri, 03 Mar 2006 17:27:22 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060226200212.GD31256@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Chris Leech <christopher.leech@intel.com>
+CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+References: <20060303214036.11908.10499.stgit@gitlost.site>
+In-Reply-To: <20060303214036.11908.10499.stgit@gitlost.site>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 08:02:12PM +0000, Russell King wrote:
-> On Sun, Feb 26, 2006 at 07:55:18PM +0100, Adrian Bunk wrote:
-> > On Sun, Feb 26, 2006 at 07:41:16PM +0100, Alessandro Zummo wrote:
-> > > On Sat, 25 Feb 2006 14:10:25 +0100
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > 
-> > > > 
-> > > > Sounds good, but for generic functions, two adjustments are required:
-> > > > - move the code to lib/
-> > > > - remove rtc_ prefixes from the functions
-> > > 
-> > >  Moved. I'm not sure about renaming them.. 
-> > > 
-> > >  the functions are:
-> > > 
-> > > rtc_month_days
-> > > rtc_time_to_tm
-> > > rtc_valid_tm
-> > > rtc_tm_to_time
-> > > 
-> > >  I think they make more sense with the rtc prefix
-> > 
-> > None of these functions is in any way specicific to RTC drivers.
+Chris Leech wrote:
+> This patch series is the first full release of the Intel(R) I/O
+> Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
+> for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
+> engine, and changes to the TCP stack to offload copies of received
+> networking data to application space.
 > 
-> Doesn't having them take a struct rtc_time (which is different from
-> struct tm) make them rather RTC specific?
+> These changes apply to DaveM's net-2.6.17 tree as of commit
+> 2bd84a93d8bb7192ad8c23ef41008502be1cb603 ([IRDA]: TOIM3232 dongle support)
+> 
+> They are available to pull from
+> 	git://198.78.49.142/~cleech/linux-2.6 ioat-2.6.17
+> 
+> There are 8 patches in the series:
+> 	1) The memcpy offload APIs and class code
+> 	2) The Intel I/OAT DMA driver (ioatdma)
 
-You are right, it seems I was a bit blind...
+Patch #2 didn't make it.  Too big for the list?
 
-But in this case, it seems we don't need to build them unconditionally 
-no matter whether RTC support is enabled in the kernel.
+	Jeff
 
-> Russell King
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

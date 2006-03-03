@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWCCU0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWCCU2f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWCCU0g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 15:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWCCU0g
+	id S932339AbWCCU2f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 15:28:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWCCU2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 15:26:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:826 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932196AbWCCU0f convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 15:26:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z05RdtJITqjtO0lb+m0DKXnAGRM05xOp55l5hiAdRStJ0yZe/ydhjjxvIcNozWCeECJk6lfu0SOOPKuS+CtWKZ6oOv8LJ+br/CkcQqSMdFtCXG8VeAekizL9toXtejb5Jr8r5acHkH3pTxLonKsWuscJGWEykxZxkw2vpB4sNas=
-Message-ID: <7c3341450603031226o55f6c77ah@mail.gmail.com>
-Date: Fri, 3 Mar 2006 20:26:33 +0000
-From: "Nick Warne" <nick@linicks.net>
-Reply-To: "Nick Warne" <nick@linicks.net>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [2.4 patch] Corrected faulty syntax in drivers/input/Config.in
-Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, "Stefan-W. Hahn" <stefan.hahn@s-hahn.de>,
-       "Willy Tarreau" <willy@w.ods.org>
-In-Reply-To: <20060303180100.GV9295@stusta.de>
+	Fri, 3 Mar 2006 15:28:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25730 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932339AbWCCU2e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 15:28:34 -0500
+Message-ID: <4408A6EA.70501@redhat.com>
+Date: Fri, 03 Mar 2006 15:28:26 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060303180100.GV9295@stusta.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] possible DoS attack using nfsservctl()
+Content-Type: multipart/mixed;
+ boundary="------------050706040409010305050702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If statement in drivers/input/Config.in for "make xconfig" corrected.
->
->
-> Signed-off-by: Stefan-W. Hahn <stefan.hahn@s-hahn.de>
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> ---
->
-> This patch was sent by Stefan-W. Hahn on:
-> - 26 Feb 2006
->
-> --- a/drivers/input/Config.in
-> +++ b/drivers/input/Config.in
-> @@ -8,7 +8,7 @@ comment 'Input core support'
->  tristate 'Input core support' CONFIG_INPUT
->  dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
->
-> -if [ "$CONFIG_INPUT_KEYBDEV" == "n" ]; then
-> +if [ "$CONFIG_INPUT_KEYBDEV" = "n" ]; then
->         bool '  Use dummy keyboard driver' CONFIG_DUMMY_KEYB $CONFIG_INPUT
->  fi
+This is a multi-part message in MIME format.
+--------------050706040409010305050702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This was my patch, and after I saw that a bit later (Duh!), I did ask:
+Hi.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112966037407189&w=2
+Attached is a patch which addresses a possible DoS attack using the
+nfsservctl() system call.  A user can use this system call to fill
+up the file system which stores kernel messages, thus causing potential
+problems and/or hiding more valuable messages.
 
-But got no feedback, and it was accepted, so I presumed all was OK.
+This can happen because the arguments to the nfsservctl() system call
+are versioned.  This is a good thing.  However, when a bad version is
+detected, the kernel prints a message and then returns an error.  I
+presume that this message was meant to be used to help to detect mis-
+matches between the kernel and nfs-utils, but the message does not
+really contain enough information to be useful in this fashion.
 
-So it looks like breaks in xconfig, and not menuconfig (what I use).
+The solution is to remove the message and just return the error.  A
+mis-match between the kernel and nfs-utils can be determined in other
+ways, ways that don't lead to DoS attacks.
 
-Nick
+While I was there, I corrected some error handling on the compat
+version of the nfsservctl() system.  It was detecting errors while
+copying in the arguments from user space, but then attempting to use
+the arguments anyway.  This didn't seem so good.
+
+    Thanx...
+
+       ps
+
+Signed-off-by: Peter Staubach <staubach@redhat.com>
+
+--------------050706040409010305050702
+Content-Type: text/plain;
+ name="nfsservctl.devel"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nfsservctl.devel"
+
+--- linux-2.6.15.x86_64/fs/nfsctl.c.org
++++ linux-2.6.15.x86_64/fs/nfsctl.c
+@@ -98,10 +98,8 @@ asmlinkage sys_nfsservctl(int cmd, struc
+ 	if (copy_from_user(&version, &arg->ca_version, sizeof(int)))
+ 		return -EFAULT;
+ 
+-	if (version != NFSCTL_VERSION) {
+-		printk(KERN_WARNING "nfsd: incompatible version in syscall.\n");
++	if (version != NFSCTL_VERSION)
+ 		return -EINVAL;
+-	}
+ 
+ 	if (cmd < 0 || cmd >= sizeof(map)/sizeof(map[0]) || !map[cmd].name)
+ 		return -EINVAL;
+--- linux-2.6.15.x86_64/fs/compat.c.org
++++ linux-2.6.15.x86_64/fs/compat.c
+@@ -2168,9 +2168,12 @@ asmlinkage long compat_sys_nfsservctl(in
+ 
+ 	default:
+ 		err = -EINVAL;
+-		goto done;
++		break;
+ 	}
+ 
++	if (err)
++		goto done;
++
+ 	oldfs = get_fs();
+ 	set_fs(KERNEL_DS);
+ 	/* The __user pointer casts are valid because of the set_fs() */
+
+--------------050706040409010305050702--

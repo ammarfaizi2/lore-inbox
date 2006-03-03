@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWCCTmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWCCTwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbWCCTmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 14:42:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWCCTmy
+	id S1751381AbWCCTwg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 14:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWCCTwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 14:42:54 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:63888 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751326AbWCCTmy (ORCPT
+	Fri, 3 Mar 2006 14:52:36 -0500
+Received: from guru.webcon.ca ([216.194.67.26]:34282 "EHLO guru.webcon.ca")
+	by vger.kernel.org with ESMTP id S1751381AbWCCTwg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 14:42:54 -0500
-Message-ID: <44089C34.2030604@garzik.org>
-Date: Fri, 03 Mar 2006 14:42:44 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 3 Mar 2006 14:52:36 -0500
+Date: Fri, 3 Mar 2006 14:52:33 -0500 (EST)
+From: "Ian E. Morgan" <imorgan@webcon.ca>
+X-X-Sender: imorgan@light.int.webcon.net
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Setkeycodes w/ keycode >= 0x100 ?
+In-Reply-To: <Pine.LNX.4.61.0603031418530.4130@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0603031448170.26582@light.int.webcon.net>
+References: <Pine.LNX.4.64.0603031241130.15776@light.int.webcon.net>
+ <Pine.LNX.4.61.0603031322410.18198@chaos.analogic.com>
+ <Pine.LNX.4.64.0603031343270.15776@light.int.webcon.net>
+ <Pine.LNX.4.61.0603031418530.4130@chaos.analogic.com>
+Organization: Webcon, Inc
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Steve Byan <smb@egenera.com>, Mark Lord <lkml@rtr.ca>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Douglas Gilbert <dougg@torque.net>, Mark Rustad <mrustad@mac.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sg regression in 2.6.16-rc5
-References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net> <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org> <4405E8AA.1090803@rtr.ca> <Pine.LNX.4.64.0603011036110.22647@g5.osdl.org> <CF493E39-B369-46D8-85EE-013F2484F1C6@egenera.com> <Pine.LNX.4.64.0603031035140.22647@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603031035140.22647@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Assp-Spam-Prob: 0.00000
+X-Assp-Whitelisted: Yes
+X-Assp-Envelope-From: imorgan@webcon.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> For example, I think the IDE driver defaults to a maximum transfer of 256 
-> sectors, and the same number of max scatter-gather entries. Some 
-> controllers will actually lower that, due to silly hw problems.
+On Fri, 3 Mar 2006, linux-os (Dick Johnson) wrote:
 
-Yep.  Just to be specific:
+> Well the input.h in the distribution I use, has the highest key-code
+> as KEY_UNKNOWN and that is number 200. Perhaps you are trying to
+> use BTN_0 through BTN_N as key codes? Or perhaps there is some
+> unfinished business in your version of headers?
 
-256 max sectors IDE driver, 200 max sectors libata (due to driver not 
-hardware).
+Irrespective of distro, recent kernel (2.6.15.5) headers have KEY_MAX as
+0x1ff (511). Incidentally, my glibc headers have the same thing.
 
-256 max s/g entries hardware limit, but due to a IOMMU merging worst 
-case libata (IDE driver too?) winds up with a 128 entry practical limit.
+You must have very old headers, as here KEY_PLAYCD=200, KEY_UNKNOWN=240, and
+KEY_MAX=0x1ff.
 
-Newer SATA controllers eliminate the s/g entry limit and DMA boundary 
-limits, but its still 256 max-sectors for ATAPI (64k for LBA48 ATA).
+Regards,
+Ian Morgan
 
-	Jeff
-
-
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
+    *  Customized Linux Network Solutions for your Business  *
+-------------------------------------------------------------------

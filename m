@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWCCLr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWCCLw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWCCLr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 06:47:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWCCLr0
+	id S1750848AbWCCLw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 06:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWCCLw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 06:47:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34214 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750705AbWCCLrZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 06:47:25 -0500
-Date: Fri, 3 Mar 2006 03:45:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
-       aviro@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/5] Optimise d_find_alias()
-Message-Id: <20060303034552.5fcedc49.akpm@osdl.org>
-In-Reply-To: <25676.1141385408@warthog.cambridge.redhat.com>
-References: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com>
-	<25676.1141385408@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Mar 2006 06:52:57 -0500
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:27015 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750848AbWCCLw5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 06:52:57 -0500
+Message-ID: <44082E14.5010201@drzeus.cx>
+Date: Fri, 03 Mar 2006 12:52:52 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060210)
+MIME-Version: 1.0
+To: Kay Sievers <kay.sievers@vrfy.org>
+CC: ambx1@neo.rr.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org>
+In-Reply-To: <20060302165816.GA13127@vrfy.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
+Kay Sievers wrote:
 >
->  struct dentry * d_find_alias(struct inode *inode)
->   {
->  -	struct dentry *de;
->  -	spin_lock(&dcache_lock);
->  -	de = __d_find_alias(inode, 0);
->  -	spin_unlock(&dcache_lock);
->  +	struct dentry *de = NULL;
->  +	if (!list_empty(&inode->i_dentry)) {
->  +		spin_lock(&dcache_lock);
->  +		de = __d_find_alias(inode, 0);
->  +		spin_unlock(&dcache_lock);
->  +	}
->   	return de;
->   }
+> Sorry, but your patch is just incomplete and in some cases just wrong.
+> On my new ThinkPad, 3 of 12 devices would not work with your patch, so this
+> is far from "most common" and not acceptable. So eighter we get a fully
+> working modalias or we better stay without one for PNP and handle that
+> with the custom script we already use today.
+>
+>   
 
-How can we get away without a barrier?
+Well then you shouldn't have any problems with adding multi-line support
+of modalias in udev. Then I can do another patch that exports all aliases.
+
+Rgds
+Pierre
+

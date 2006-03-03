@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWCCXch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWCCXdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932593AbWCCXch (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWCCXch
+	id S932577AbWCCXdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWCCXdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:32:37 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:55868 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932591AbWCCXcg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:32:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Vc5A1LGqb+x6prQp6CHpDz5XXzZdNFFUur6xHKIwlxAL7U734EXCZZ4H4d6yulXnE0VSi+EDUuQwpUWGRlgwL5dQYsxFGZEpQ0zNAZhvCraFjn8z5dnNXEpg1khKCuJJcBsE7qofiY/JXNwLxtEjBmgqzarXkmnjRR79o3BcACU=
-Message-ID: <41b516cb0603031532n517f78efh932d452648574d2@mail.gmail.com>
-Date: Fri, 3 Mar 2006 15:32:29 -0800
-From: "Chris Leech" <chris.leech@gmail.com>
-To: "Kumar Gala" <galak@kernel.crashing.org>
-Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <54FF0817-23ED-47F1-8234-FD3079B3E403@kernel.crashing.org>
-MIME-Version: 1.0
+	Fri, 3 Mar 2006 18:33:53 -0500
+Received: from xenotime.net ([66.160.160.81]:55997 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751033AbWCCXdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:33:52 -0500
+Date: Fri, 3 Mar 2006 15:35:17 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Robert Hancock <hancockr@shaw.ca>, albertcc@tw.ibm.com,
+       jtreubig@hotmail.com
+Cc: linux-kernel@vger.kernel.org, scsi <linux-scsi@vger.kernel.org>
+Subject: Re: CDROM support for Promise 20269
+Message-Id: <20060303153517.0e10f5d7.rdunlap@xenotime.net>
+In-Reply-To: <4408D082.2070203@shaw.ca>
+References: <5Mquh-2mT-97@gated-at.bofh.it>
+	<4408D082.2070203@shaw.ca>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060303214036.11908.10499.stgit@gitlost.site>
-	 <54FF0817-23ED-47F1-8234-FD3079B3E403@kernel.crashing.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/3/06, Kumar Gala <galak@kernel.crashing.org> wrote:
->
-> How does this relate to Dan William's ADMA work?
+On Fri, 03 Mar 2006 17:25:54 -0600 Robert Hancock wrote:
 
-I only became aware of Dan's ADMA work when he posted it last month,
-and so far have not made any attempts to merge the I/OAT code with it.
- Moving forward, combining these interfaces certainly seems like the
-right way to go.  I particularly like ADMA's handling of operations
-other than just a copy (memset, compare, XOR, CRC).
+> John Treubig wrote:
+> > I've been working on a problem with Promise 20269 PATA adapter under 
+> > LibATA that if I attach a CDROM drive, I can not see the drive.  The 
+> > message log reports that the driver sees the device, but when I'm fully 
+> > booted, there's no device available.
+> 
+> ..
+> 
+> > [  118.621489] scsi4 : pata_pdc2027x
+> > [  118.643926] ata1(1): WARNING: ATAPI is disabled, device ignored.
+> 
+> Sounds like your problem there.. need to enable ATAPI in your 
+> libata/PATA kernel configuration?
 
-Chris
+Please don't drop cc's etc.  Just use reply-to-all.
+
+For John:  this means that you need to load libata with this option:
+atapi_enabled=1
+So if you build it into the kernel image, add this to the boot option:
+  libata.atapi_enabled=1
+or if you load it as a module, just add:  atapi_enabled=1
+or you can edit the source file and change the variable to 1,
+but that's the least preferable way IMO.
+
+---
+~Randy

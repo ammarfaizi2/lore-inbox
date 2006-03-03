@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWCCVeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWCCVen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWCCVeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 16:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWCCVeQ
+	id S1751395AbWCCVen (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 16:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWCCVen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 16:34:16 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33292 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751288AbWCCVeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 16:34:16 -0500
-Date: Fri, 3 Mar 2006 22:34:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] some fixups for the X86_NUMAQ dependencies
-Message-ID: <20060303213415.GX9295@stusta.de>
-References: <20060219232621.GC4971@stusta.de> <43F9EF43.3020709@mbligh.org> <20060220170827.GD4661@stusta.de> <43F9FEDA.3030205@mbligh.org>
+	Fri, 3 Mar 2006 16:34:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46742 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751314AbWCCVel (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 16:34:41 -0500
+Date: Fri, 3 Mar 2006 13:31:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: akpm@osdl.org, mingo@redhat.com, jblunck@suse.de, bcrl@linux.intel.com,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: Memory barriers and spin_unlock safety 
+In-Reply-To: <5001.1141416935@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0603031329350.22647@g5.osdl.org>
+References: <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org> 
+ <32518.1141401780@warthog.cambridge.redhat.com>  <5001.1141416935@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43F9FEDA.3030205@mbligh.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 20, 2006 at 09:39:38AM -0800, Martin J. Bligh wrote:
->...
-> >NUMAQ can't be hidden since it doesn't has any dependencies.
-> >And this isn't what this comment is talking about (note the the 
-> >comment is only shown if NUMAQ was already select'ed).
-> >
-> >NUMAQ didn't fulfill the contract that when select'ing NUMA, it has to 
-> >ensure the dependencies of NUMA are fulfilled. My patch solves this 
-> >properly instead of telling the user through a comment that he ran into 
-> >this bug.
+
+
+On Fri, 3 Mar 2006, David Howells wrote:
 > 
-> Yes, if that works, it's much cleaner. Perhaps we just had insufficient
-> config-fu to figure it out ... it looks good - I suppose I'd better test 
-> it, and make sure we don't hit the same thing we did before.
+> So in the example I gave, a read after the spin_unlock() may actually get
+> executed before the store in the spin_unlock(), but a read before the unlock
+> will not get executed after.
 
-Have you tested my patch, and if yes, is it OK?
+Yes.
 
-> m.
+> > No. Issuing a read barrier on one CPU will do absolutely _nothing_ on the 
+> > other CPU.
+> 
+> Well, I think you mean will guarantee absolutely _nothing_ on the other CPU for
+> the Linux kernel.  According to the IBM powerpc book I have, it does actually
+> do something on the other CPUs, though it doesn't say exactly what.
 
-cu
-Adrian
+Yeah, Power really does have some funky stuff in their memory ordering. 
+I'm not quite sure why, though. And it definitely isn't implied by any of 
+the Linux kernel barriers.
 
--- 
+(They also do TLB coherency in hw etc strange things).
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+		Linus

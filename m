@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWCCUKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWCCUQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWCCUKE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 15:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWCCUKE
+	id S932139AbWCCUQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 15:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWCCUQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 15:10:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22763 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932130AbWCCUKC (ORCPT
+	Fri, 3 Mar 2006 15:16:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53990 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932139AbWCCUQI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 15:10:02 -0500
-Date: Fri, 3 Mar 2006 12:09:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Steve Byan <smb@egenera.com>, Mark Lord <lkml@rtr.ca>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Douglas Gilbert <dougg@torque.net>, Mark Rustad <mrustad@mac.com>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sg regression in 2.6.16-rc5
-In-Reply-To: <44089C34.2030604@garzik.org>
-Message-ID: <Pine.LNX.4.64.0603031204370.22647@g5.osdl.org>
-References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net>
- <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
- <4405E8AA.1090803@rtr.ca> <Pine.LNX.4.64.0603011036110.22647@g5.osdl.org>
- <CF493E39-B369-46D8-85EE-013F2484F1C6@egenera.com>
- <Pine.LNX.4.64.0603031035140.22647@g5.osdl.org> <44089C34.2030604@garzik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Mar 2006 15:16:08 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org> 
+References: <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>  <32518.1141401780@warthog.cambridge.redhat.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, mingo@redhat.com,
+       jblunck@suse.de, bcrl@linux.intel.com, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: Memory barriers and spin_unlock safety 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Fri, 03 Mar 2006 20:15:35 +0000
+Message-ID: <5001.1141416935@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> wrote:
 
+> The rules are, afaik, that reads can pass buffered writes, BUT WRITES 
+> CANNOT PASS READS (aka "writes to memory are always carried out in program 
+> order").
 
-On Fri, 3 Mar 2006, Jeff Garzik wrote:
-> 
-> 256 max sectors IDE driver, 200 max sectors libata (due to driver not
-> hardware).
+So in the example I gave, a read after the spin_unlock() may actually get
+executed before the store in the spin_unlock(), but a read before the unlock
+will not get executed after.
 
-When I said "lower due to broken hw" I was more thinking about things like 
-the SiIimage driver, which actually limits the rqsize to 15 sectors due to 
-some strange hw interactions with seagate SATA devices.
+> No. Issuing a read barrier on one CPU will do absolutely _nothing_ on the 
+> other CPU.
 
-(It will then raise it back up to 128 if it's not a Seagate SATA drive. I 
-forget what the exact issue was. Some strange corruption in some limited 
-case, and not allowing big requests worked around it. There's some 
-strange IDE quirks out there...).
+Well, I think you mean will guarantee absolutely _nothing_ on the other CPU for
+the Linux kernel.  According to the IBM powerpc book I have, it does actually
+do something on the other CPUs, though it doesn't say exactly what.
 
-			Linus
+Anyway, thanks.
+
+I'll write up some documentation on barriers for inclusion in the kernel.
+
+David

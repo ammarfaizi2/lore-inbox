@@ -1,89 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWCCOsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWCCOsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWCCOsc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 09:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWCCOsc
+	id S1751133AbWCCOsI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 09:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWCCOsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 09:48:32 -0500
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:33710 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751138AbWCCOsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 09:48:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=fqZpKE6wgvC4UmeO2Vd4zOuAA9VD/ES8aGQzPtHDJfEpGpXehSwpovR+JFpa8ikwFE9Z7CecpwGUszi5HcMnb4Gfc4C/uhgZQgDS3W92/TV37b8O+B5jfJwM4jix1MP6biEIFDbVUvdG7C4eNwzTJ2GwckOUdspQ9RZ25cBwozM=  ;
-Subject: Re: [2.6 patch] make UNIX a bool
-From: "James C. Georgas" <jgeorgas@rogers.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060303114642.GO9295@stusta.de>
-References: <20060301175852.GA4708@stusta.de>
-	 <E1FEcfG-000486-00@gondolin.me.apana.org.au>
-	 <20060302173840.GB9295@stusta.de>
-	 <9a8748490603021228k7ad1fb5gd931d9778307ca58@mail.gmail.com>
-	 <20060302203245.GD9295@stusta.de> <1141335521.3582.14.camel@Rainsong.home>
-	 <20060302214423.GI9295@stusta.de> <1141361097.3582.40.camel@Rainsong.home>
-	 <20060303114642.GO9295@stusta.de>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 09:48:46 -0500
-Message-Id: <1141397326.3582.57.camel@Rainsong.home>
+	Fri, 3 Mar 2006 09:48:06 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:55468 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751133AbWCCOsF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 09:48:05 -0500
+Date: Fri, 3 Mar 2006 07:48:04 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/5] Optimise d_find_alias()
+Message-ID: <20060303144804.GJ1598@parisc-linux.org>
+References: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com> <25676.1141385408@warthog.cambridge.redhat.com> <20060303034552.5fcedc49.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060303034552.5fcedc49.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-03 at 12:46 +0100, Adrian Bunk wrote:
-> On Thu, Mar 02, 2006 at 11:44:57PM -0500, James C. Georgas wrote:
-> > On Thu, 2006-02-03 at 22:44 +0100, Adrian Bunk wrote:
-> > 
-> > > > > 
-> > > > > We do not have to export symbols we don't want to export to modules but 
-> > > > > needed by CONFIG_UNIX.
-> > > > 
-> > > > Sorry, I must just be dense, or something.
-> > > > 
-> > > > Is not the only difference between a modular driver and a built in
-> > > > driver supposed to be the initialization and cleanup functions?
-> > > > 
-> > > > I don't see why you would have to expose any additional symbols, over
-> > > > and above the existing required symbols, to load your module.
-> > > 
-> > > Every kernel symbol a module uses must be explicitely exported with 
-> > > EXPORT_SYMBOL.
-> > 
-> > Yes, I understand that I need to export symbols to define the interface
-> > to my driver. whether its a module or compiled in. This is how other
-> > systems interact with my driver, right?
+On Fri, Mar 03, 2006 at 03:45:52AM -0800, Andrew Morton wrote:
+> David Howells <dhowells@redhat.com> wrote:
+> >  struct dentry * d_find_alias(struct inode *inode)
+> >   {
+> >  -	struct dentry *de;
+> >  -	spin_lock(&dcache_lock);
+> >  -	de = __d_find_alias(inode, 0);
+> >  -	spin_unlock(&dcache_lock);
+> >  +	struct dentry *de = NULL;
+> >  +	if (!list_empty(&inode->i_dentry)) {
+> >  +		spin_lock(&dcache_lock);
+> >  +		de = __d_find_alias(inode, 0);
+> >  +		spin_unlock(&dcache_lock);
+> >  +	}
+> >   	return de;
+> >   }
 > 
-> EXPORT_SYMBOL is only required for modules.
-> 
-> > > CONFIG_UNIX uses symbols that are neither used by any other in-kernel 
-> > > modules nor should be exported.
-> > 
-> > Are you saying that AF_UNIX has to export symbols for its own private
-> > functions in order to call them? I guess I don't understand this. Why
-> > not just call them. They're in scope within the driver code, aren't
-> > they?
-> 
-> No, this is about functions defined in other parts of the kernel.
-> 
+> How can we get away without a barrier?
 
-Ok, if I understand you correctly now, there is a function defined in
-another part of the kernel, which is _called_ by AF_UNIX, and it is for
-this function that the other part of the kernel must export a symbol?
+We'd have to be synchronised higher up in order to care, I think.
 
-But you only need to do this so that modules can use the function,
-because if, instead, the driver is built in, then the function is
-directly in scope, and can be called explicitly?
+The condition we're testing is !list_empty(&inode->i_dentry)
+which will presumably be optimised by the compiler into
+inode->i_dentry.next != &inode->i_dentry -- IOW determined by a single
+load.
 
+Both false negatives and false positives are interesting, so we're
+concerned with any write from another CPU that changes inode->i_dentry.next 
+d_instantiate() looks like a good candidate for analysing races.
 
-> > James C. Georgas <jgeorgas@rogers.com>
-> 
-> cu
-> Adrian
-> 
--- 
-James C. Georgas <jgeorgas@rogers.com>
+CPU1				CPU2
 
+d_instantiate()
+spin_lock(&dcache_lock);
+				
+				d_find_alias()
+				if (!list_empty(&inode->i_dentry)) {
+list_add(&entry->d_alias, &inode->i_dentry);
+spin_unlock(&dcache_lock);
+					spin_lock(&dcache_lock);
+					__d_find_alias()
+					spin_unlock(&dcache_lock);
+				}
+
+I don't see how putting a barrier in helps determine whether the
+list_add is before or after the load for list_empty.  So I think it's
+a  benign race.  If it returns NULL, it's the same as the case where
+d_instantiate() is called after __d_find_alias() returns.  If
+list_empty() is false, grabbing the dcache_lock means we'll find the
+list really is empty after all.
+
+So it's not a correctness thing, it's a question of how many times we
+lose the race, and what the performance penalty is for doing so (and what
+the performance penalty is for ensuring we lose the race less often).
+And I don't know the answer to that.

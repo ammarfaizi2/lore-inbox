@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWCCLBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWCCLA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWCCLBO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 06:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWCCLBN
+	id S1751258AbWCCLA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 06:00:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWCCLA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 06:01:13 -0500
-Received: from mx1.sonologic.nl ([82.94.245.21]:11259 "EHLO mx1.sonologic.nl")
-	by vger.kernel.org with ESMTP id S1751243AbWCCLBM (ORCPT
+	Fri, 3 Mar 2006 06:00:58 -0500
+Received: from ns.suse.de ([195.135.220.2]:22952 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751244AbWCCLA4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 06:01:12 -0500
-Message-ID: <440821E1.8040109@metro.cx>
-Date: Fri, 03 Mar 2006 12:00:49 +0100
-From: Koen Martens <linuxarm@metro.cx>
-Organization: Sonologic
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Fri, 3 Mar 2006 06:00:56 -0500
+From: Andi Kleen <ak@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Date: Fri, 3 Mar 2006 12:00:12 +0100
+User-Agent: KMail/1.9.1
+Cc: Michael Monnerie <m.monnerie@zmi.at>, linux-kernel@vger.kernel.org,
+       suse-linux-e@suse.com
+References: <200603020023.21916@zmi.at> <200603020203.49128.ak@suse.de> <20060303081654.GA11559@taniwha.stupidest.org>
+In-Reply-To: <20060303081654.GA11559@taniwha.stupidest.org>
 MIME-Version: 1.0
-To: linux-arm-kernel@lists.arm.linux.org.uk, ben@simtec.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: [patch 3/14] s3c2412/s3c2413 support
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Helo-Milter-Authen: gmc@sonologic.nl, linuxarm@metro.cx, mx1
+Content-Disposition: inline
+Message-Id: <200603031200.13639.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added s3c2412 configuration item.
+On Friday 03 March 2006 09:16, Chris Wedgwood wrote:
+> On Thu, Mar 02, 2006 at 02:03:48AM +0100, Andi Kleen wrote:
+> 
+> > Nvidia hardware SATA cannot directly DMA to > 4GB, so it has to go
+> > through the IOMMU.
+> 
+> do you know if that is an actual hardware limitation or simply a
+> something we don't know how to do for lack of docs?
 
-Signed-off-by: Koen Martens <gmc@sonologic.nl>
+I assume that's a hardware limitation. I guess they'll move to AHCI
+at some point though - that should fix that.
 
+> 
+> > And in that kernel the Nforce ethernet driver also didn't do >4GB
+> > access, although the ethernet HW is theoretically capable.
+> 
+> hrm, again, with a lack of docs is that likely to occur anytime soon?
 
---- linux-2.6.15.4/arch/arm/mach-s3c2410/Kconfig    2006-02-10 
-08:22:48.000000000 +0100
-+++ golinux/arch/arm/mach-s3c2410/Kconfig    2006-02-27 
-16:23:34.000000000 +0100
-+config CPU_S3C2412
-+    bool
-+    depends on ARCH_S3C2410
-+    help
-+      Support for S3C2412 and S3C2413 family from the S3C24XX line
-+      of Samsung Mobile CPUs.
-+
- config CPU_S3C2440
-     bool
-     depends on ARCH_S3C2410
+That has been already fixed, just not in the kernel version Michael
+is using.
 
--- 
-K.F.J. Martens, Sonologic, http://www.sonologic.nl/
-Networking, hosting, embedded systems, unix, artificial intelligence.
-Public PGP key: http://www.metro.cx/pubkey-gmc.asc
-Wondering about the funny attachment your mail program
-can't read? Visit http://www.openpgp.org/
-
+-Andi

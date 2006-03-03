@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWCCUC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWCCUEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWCCUC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 15:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWCCUC4
+	id S932326AbWCCUEj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 15:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWCCUEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 15:02:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58753 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932080AbWCCUCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 15:02:55 -0500
-Subject: Re: Memory barriers and spin_unlock safety
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, jblunck@suse.de,
-       bcrl@linux.intel.com, matthew@wil.cx, linux-arch@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1146.1141404346@warthog.cambridge.redhat.com>
-References: <32518.1141401780@warthog.cambridge.redhat.com>
-	 <1146.1141404346@warthog.cambridge.redhat.com>
+	Fri, 3 Mar 2006 15:04:39 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:61046 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932127AbWCCUEi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 15:04:38 -0500
+Subject: Re: [Announce] Intel PRO/Wireless 3945ABG Network Connection
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Ketrenos <jketreno@linux.intel.com>,
+       NetDev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       okir@suse.de
+In-Reply-To: <20060227171029.GA763@infradead.org>
+References: <43FF88E6.6020603@linux.intel.com>
+	 <20060225084139.GB22109@infradead.org>
+	 <1140915482.23286.6.camel@localhost.localdomain>
+	 <20060227171029.GA763@infradead.org>
 Content-Type: text/plain
-Date: Fri, 03 Mar 2006 21:02:12 +0100
-Message-Id: <1141416133.10732.65.camel@laptopd505.fenrus.org>
+Date: Fri, 03 Mar 2006 21:04:27 +0100
+Message-Id: <1141416267.17837.1.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-03 at 16:45 +0000, David Howells wrote:
-> David Howells <dhowells@redhat.com> wrote:
+On Mon, 2006-02-27 at 17:10 +0000, Christoph Hellwig wrote:
+> On Sun, Feb 26, 2006 at 12:58:02AM +0000, Alan Cox wrote:
+> > On Sad, 2006-02-25 at 08:41 +0000, Christoph Hellwig wrote:
+> > > the regualatory problems are not true.  
+> > 
+> > They are although the binary interpretation isn't AFAIK from law but
+> > from lawyers. The same is actually true in much of the EU. The actual
+> > requirement is that the transmitting device must be reasonably
+> > tamperproof. Some of the lawyers have decided that for a software radio
+> > tamperproof means "binary".
 > 
-> > 	WRITE mtx
-> > 	--> implies SFENCE
+> Exactly.  There's no strong requirement, it's just over-zealous corporate
+> lawyers.  That's why we need to push Intel strongly here.
+i completely agree, besides, if this userspace binary blob just does
+something to /sys what is to prevent a user from doing that himself?
+what is to prevent someone to modify the driver slightly to smash a log
+entry every time the daemon does something?
+
+the binary userspace daemon protects against nothing.
 > 
-> Actually, I'm not sure this is true. The AMD64 Instruction Manual's writeup of
-> SFENCE implies that writes can be reordered, which sort of contradicts what
-> the AMD64 System Programming Manual says.
-
-there are 2 or 3 special instructions which do "non temporal
-stores" (movntq and movnit and maybe one more). sfense is designed for
-those. 
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

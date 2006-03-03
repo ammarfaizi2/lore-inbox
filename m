@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752187AbWCCIZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752177AbWCCIdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752187AbWCCIZE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 03:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752185AbWCCIZD
+	id S1752177AbWCCIdY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 03:33:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752178AbWCCIdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 03:25:03 -0500
-Received: from fmmailgate04.web.de ([217.72.192.242]:54717 "EHLO
-	fmmailgate04.web.de") by vger.kernel.org with ESMTP
-	id S1752177AbWCCIZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 03:25:01 -0500
-Message-ID: <043101c63e9c$86e9d710$0200000a@aldipc>
-From: "roland" <devzero@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: is there a COW inside the kernel ?
-Date: Fri, 3 Mar 2006 09:29:02 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Fri, 3 Mar 2006 03:33:24 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:2205 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1752177AbWCCIdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 03:33:23 -0500
+Subject: Re: SEEK_HOLE and SEEK_DATA support?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jim Dennis <jimd@starshine.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060302214929.GA16523@starshine.org>
+References: <20060302214929.GA16523@starshine.org>
+Content-Type: text/plain
+Date: Fri, 03 Mar 2006 03:33:16 -0500
+Message-Id: <1141374797.3042.95.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello !
+On Thu, 2006-03-02 at 13:49 -0800, Jim Dennis wrote:
+> 
+>  I ask primarily because of the interplay between 64-bit systems and
+>  things like /var/log/lastlog (which appears as a 1.2TiB file due to
+>  the nfsnobody UID of 4294967294).
+> 
+>  (I'm realize that adding support for these additional seek() flags
+>  wouldn't solve the problem ... archiving tools would still have to
+>  implement it.  And I can also hear the argument that Red Hat and other
+>  distributions should re-implement lastlog handling to use a more modern
+>  and efficient hashing/index format and perhaps that they should set
+>  nfsnobody to "-1" ... 
 
-is there an equivalent of something like
+So the presence of very high UIDs causes lastlog to be huge?  That just
+sounds like a RedHat bug.
 
-cowloop ( http://www.atconsultancy.nl/cowloop/total.html ) or md based cow 
-device ( http://www.cl.cam.ac.uk/users/br260/doc/report.pdf ),
-
-i.e. a feature called "Copy On Write Blockdevice" inside the current or the 
-near-future mainline kernel (besides UserModeLinux Arch)?
-
-i'm not sure - i think i remember having read that something like this can 
-be probably done , but i don`t remember anymore what it was.
-
-i would find this useful for several purpose, but i don`t want to patch my 
-system with 3rd party drivers or "non-standard" stuff -  or even recompile 
-the kernel.
-
-can someone help out with some information ?
-
-TIA
-
-roland k.
-system engineer 
+Lee
 

@@ -1,113 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWCCTXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWCCT0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWCCTXI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 14:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbWCCTXI
+	id S1751344AbWCCT0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 14:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWCCT0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 14:23:08 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:16396 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751500AbWCCTXH convert rfc822-to-8bit (ORCPT
+	Fri, 3 Mar 2006 14:26:12 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:27521 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751344AbWCCT0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 14:23:07 -0500
+	Fri, 3 Mar 2006 14:26:11 -0500
+Message-ID: <44089798.F004D18B@tv-sign.ru>
+Date: Fri, 03 Mar 2006 22:23:04 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <Pine.LNX.4.64.0603031343270.15776@light.int.webcon.net>
-x-originalarrivaltime: 03 Mar 2006 19:23:05.0569 (UTC) FILETIME=[E58CC510:01C63EF7]
-Content-class: urn:content-classes:message
-Subject: Re: Setkeycodes w/ keycode >= 0x100 ?
-Date: Fri, 3 Mar 2006 14:23:05 -0500
-Message-ID: <Pine.LNX.4.61.0603031418530.4130@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Setkeycodes w/ keycode >= 0x100 ?
-Thread-Index: AcY+9+WUObDb9yZiQhaawpbgjWzmgw==
-References: <Pine.LNX.4.64.0603031241130.15776@light.int.webcon.net> <Pine.LNX.4.61.0603031322410.18198@chaos.analogic.com> <Pine.LNX.4.64.0603031343270.15776@light.int.webcon.net>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Ian E. Morgan" <imorgan@webcon.ca>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/23] tref: Implement task references.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+		<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com> <m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+>
+> +++ devel-akpm/kernel/task_ref.c	2006-02-27 20:28:59.000000000 -0800
+> @@ -0,0 +1,131 @@
+> +#include <linux/sched.h>
+> +#include <linux/task_ref.h>
+> +
+> +struct task_ref init_tref = {
+> +	.count = ATOMIC_INIT(1),
+> +	.type  = PIDTYPE_PID,
+> +	.pid   = 0,
+> +	.task  = NULL,
+> +};
 
-On Fri, 3 Mar 2006, Ian E. Morgan wrote:
+Make it static? Actually, I don't understand why init_tref is better
+than NULL. Yes, NULL will add some checks into task_ref.c, but we can
+avoid some costly atoimic ops.
 
-> On Fri, 3 Mar 2006, linux-os (Dick Johnson) wrote:
->
->>
->> On Fri, 3 Mar 2006, Ian E. Morgan wrote:
->>
->>> Since my HP notebook has some unrecognized keys, I have to use setkeycodes to
->>> make the kernel recognise them. However, many of the basic (<=255) KEY's from
->>> input.h are not suitable, but newer ones (>=0x100) woule be perfect.
->>>
->>> Any idea how to map scancodes to keycodes >=0x100 when setkeycodes won't
->>> accept hex input nor anything greater than 255?
->>>
->>> Regards,
->>> Ian Morgan
->>
->> The keyboard controller generates scan-codes from 0 to 255. It reads the
->> scan-code information from a byte-wide port (so-called PORT_A in the
->> PC/AT), so it can't be any larger than a byte. The controller provides a
->> code when the key is pressed and another code when the key is released.
->> The only difference between these codes is a single bit. This limits the
->> number of possible different scan codes to 127.
->>
->> The scan-codes are translated, based upon the Caps Lock, the Ctrl key, the
->> Alt key, and the Shift key so, in principle, you could have almost 4 times
->> as many keyboard symbols as scan-codes. However, you would have to rewrite
->> a lot of keyboard code to take advantage of this.
->
-> Perhaps my question was unclear. Here is an example of what I do now:
->
-> 	#KEY_COFFEE
-> 	setkeycodes e00a 152
->
-> This works, but is an illogical arbitrary assignment. I want to do this:
->
-> 	#KEY_POWER2
-> 	setkeycodes e00a 356
->
-> (or some other such thing with a keycode >256). But it fails with:
->
-> KDSETKEYCODE: Invalid argument
-> failed to set scancode 8a to keycode 356
->
-> In drivers/char/keyboard.c, there are three cases in which it can return
-> -EINVAL, but I can't see obviously which one is being hit.
->
-> Is the answer simply that we cannot bind scancodes to keycodes greater than
-> 256? If so, then why are there newer KEY's defined in input.h >256, and how does
-> one ever use them?
->
-> Regards,
-> Ian Morgan
->
-> --
-> -------------------------------------------------------------------
-> Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
-> imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
->    *  Customized Linux Network Solutions for your Business  *
-> -------------------------------------------------------------------
->
+> +void tref_put(struct task_ref *ref)
+> +{
+> +	might_sleep();
+> +	if (atomic_dec_and_test(&ref->count)) {
+> +		struct task_struct *task;
+> +		BUG_ON(ref == &init_tref);
+> +		/* Carefully serialize against __detach_pid and tref_get_by_pid */
+> +		write_lock_irq(&tasklist_lock);
+> +		task = ref->task;
+> +		if (task)
+> +			task->pids[ref->type].ref = NULL;
+> +		write_unlock_irq(&tasklist_lock);
+> +		kfree(ref);
+> +	}
 
-Well the input.h in the distribution I use, has the highest key-code
-as KEY_UNKNOWN and that is number 200. Perhaps you are trying to
-use BTN_0 through BTN_N as key codes? Or perhaps there is some
-unfinished business in your version of headers?
+I think this is racy. Suppose ref->count == 1. What if another cpu does
+tref_get_by_task() between atomic_dec_and_test() and write_lock_irq() ?
+It takes tasklist_lock, increments ->count again, and returns the pointer
+to the memory which will be freed soon.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.47 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+> +struct task_ref *tref_get_by_pid(int pid, enum pid_type type)
+> +{
+> +	struct task_struct *task;
+> +	struct task_ref *tref;
+> +
+> +	/* Lookup the and pin the task */
+> +	read_lock(&tasklist_lock);
+> +	task = find_task_by_pid_type(type, pid);
+> +	if (task)
+> +		get_task_struct(task);
+> +	read_unlock(&tasklist_lock);
+> +
+> +	/* Now get the tref */
+> +	if (task) {
+> +		tref = tref_get_by_task(task, type);
+> +		put_task_struct(task);
+> +	}
+> +	else
+> +		tref = tref_get(&init_tref);
+> +	return tref;
+> +}
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+I beleive this could be simplified, we don't need to get/put task_struct,
 
-Thank you.
+	rcu_read_lock();
+
+	task = find_task_by_pid_type(type, pid);
+	if (task)
+		tref = tref_get_by_task(task, type);
+	else
+		tref = tref_get(&init_tref);
+
+	rcu_read_unlock();
+
+Oleg.

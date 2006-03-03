@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWCCQb7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWCCQmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWCCQb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:31:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWCCQb7
+	id S932316AbWCCQmn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWCCQmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:31:59 -0500
-Received: from mba.ocn.ne.jp ([210.190.142.172]:39379 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932241AbWCCQb6 (ORCPT
+	Fri, 3 Mar 2006 11:42:43 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:26376 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932316AbWCCQmm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:31:58 -0500
-Date: Sat, 04 Mar 2006 01:31:53 +0900 (JST)
-Message-Id: <20060304.013153.71086081.anemo@mba.ocn.ne.jp>
-To: akpm@osdl.org
-Cc: clameter@engr.sgi.com, linux-kernel@vger.kernel.org, ralf@linux-mips.org,
-       johnstul@us.ibm.com, ak@muc.de
-Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
- aliasing problem)
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060303.133125.106438890.nemoto@toshiba-tops.co.jp>
-References: <20060303.114406.64806237.nemoto@toshiba-tops.co.jp>
-	<20060302190408.1e754f12.akpm@osdl.org>
-	<20060303.133125.106438890.nemoto@toshiba-tops.co.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 3 Mar 2006 11:42:42 -0500
+Date: Fri, 3 Mar 2006 17:42:21 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Haninger <ahaning@gmail.com>
+Cc: tim tim <tictactoe.tim@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: modutils
+Message-ID: <20060303164221.GA10302@mars.ravnborg.org>
+References: <503e0f9d0603022041q717ae7cdo8539ba8f508dd681@mail.gmail.com> <105c793f0603022138u6dca326ewa3b5d476f4c4ef48@mail.gmail.com> <503e0f9d0603022141l5dc9a88ds380dd9dd2ba22c41@mail.gmail.com> <105c793f0603022145t55f25cedpd6c40efd703530f5@mail.gmail.com> <503e0f9d0603022155j2570314jffcdf84060e336f2@mail.gmail.com> <105c793f0603022205j124a9d19qab33c34e9750d5c9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <105c793f0603022205j124a9d19qab33c34e9750d5c9@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm> I'm not sure how to resolve this, really.  Worried.  Have you
-akpm> socialised those changes with architecture maintainers?  If so,
-akpm> what was the feedback?
+On Fri, Mar 03, 2006 at 01:05:19AM -0500, Andrew Haninger wrote:
+> On 3/3/06, tim tim <tictactoe.tim@gmail.com> wrote:
+> > here i am trying to install 2.6.10 kernel on the system that was fully
+> > installed RedHat EL3 (2.4.21). we followed this procedure..
+Hi Tim tim.
 
-For a short term fix, barrier() might be a safe option.
+The warnings you see is a module that references symbols that it cannot
+resolve.
+Do you have a vmlinux in the root of your kernel tree?
+Does Module.symvers include the symbols that you get warnings on?
 
+You need to do a successfully build of the kernel before you can build
+the modules.
 
-Add an optimization barrier to prevent prefetching jiffies before
-incrementing jiffies_64.
-
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-
-diff --git a/kernel/timer.c b/kernel/timer.c
-index fc6646f..fdd12a5 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -925,6 +925,7 @@ static inline void update_times(void)
- void do_timer(struct pt_regs *regs)
- {
- 	jiffies_64++;
-+	barrier();
- 	update_times();
- 	softlockup_tick(regs);
- }
+	Sam

@@ -1,502 +1,1428 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWCCRuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWCCRtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWCCRuT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 12:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWCCRuT
+	id S1030260AbWCCRtv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 12:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWCCRtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 12:50:19 -0500
-Received: from fsmlabs.com ([168.103.115.128]:10403 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1030263AbWCCRuQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 12:50:16 -0500
-X-ASG-Debug-ID: 1141408209-13727-39-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Fri, 3 Mar 2006 09:54:34 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: jensmh@gmx.de
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: 2.6.16-rc5 'lost' cpu
-Subject: Re: 2.6.16-rc5 'lost' cpu
-In-Reply-To: <200603022137.40710.jensmh@gmx.de>
-Message-ID: <Pine.LNX.4.64.0603030954230.28074@montezuma.fsmlabs.com>
-References: <200603020505.13108.jensmh@gmx.de>
- <Pine.LNX.4.64.0603020734200.28074@montezuma.fsmlabs.com>
- <200603022137.40710.jensmh@gmx.de>
+	Fri, 3 Mar 2006 12:49:51 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:65435 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030260AbWCCRtt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 12:49:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HqYmuTrnukfm2v8yHetp/cHRFQM1Fapzm3luYsHiAtmahLdc6kqjIXq4s/Hb93U0YAOoUPDJ5seniiIqCVroTao4sGYy6cEJtspi/dI1VCUE1oPWXGtETz8Uh6uh13LdS5aJo9GgGlBxSHcMIwVJdqrlS/5aWJiydQiiDQsDjS0=
+Message-ID: <48b7761d0603030949t2e8114deva373bba7433ba3b4@mail.gmail.com>
+Date: Fri, 3 Mar 2006 13:49:48 -0400
+From: "Carlos Eduardo" <carloscesa@gmail.com>
+To: "Russell King" <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [RFC] mmc: add OMAP driver
+Cc: linux-kernel@vger.kernel.org, "Tony Lindgren" <tony@atomide.com>,
+       "Pierre Ossman" <drzeus-list@drzeus.cx>, carlos.aguiar@indt.org.br,
+       carloscesa@gmail.com
+In-Reply-To: <48b7761d0603030942l53fcd2bbl249297461a54dd3c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.9380
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <43F48BCA.8010608@indt.org.br>
+	 <20060216165957.GC29443@flint.arm.linux.org.uk>
+	 <43FF3680.2070608@indt.org.br>
+	 <20060224204823.GA28855@flint.arm.linux.org.uk>
+	 <5b5833aa0603030926h5d2c357eoe203a40248796013@mail.gmail.com>
+	 <48b7761d0603030942l53fcd2bbl249297461a54dd3c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Mar 2006, jensmh@gmx.de wrote:
+Hi Russel and folks,
 
-> Zwane Mwaikambo writes:
-> > On Thu, 2 Mar 2006, jensmh@gmx.de wrote:
-> > 
-> > > This is a dual xeon system with hyper threading enabled, so there should
-> > > be 4 cpus
-> > > 
-> > > jm@voyager ~ $ ll /proc/acpi/processor/
-> > > total 0
-> > > dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU0
-> > > dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU1
-> > > dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU3
-> > 
-> > Can you try sending dmesg output too?
-> 
-> here it is, but this time all 4 cpus are detected. Later I will try some reboots
-> and check if I can reproduce the problem.
+ This patch has the following corrections:
 
-Thanks, i'll wait for those results.
+  - In function mmc_omap_probe(), some cards want at least two bits set,
+ so was used MMC_VDD_32_33|MMC_VDD_33_34 to set mmc->ocr_avail.
+  - In omap.c, there's no need to print host->id - mmc_dev(host->mmc) will
+print the platform device bus_id, which is generated from the platform device
+ name and the platform device id. Same change for the other dev_err, dev_dbg,
+ dev_warn, dev_info and printk's.
 
-> 
-> Linux version 2.6.16-rc5 (root@voyager) (gcc version 3.4.5 (Gentoo Hardened 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP PREEMPT Wed Mar 1 02:29:54 UTC 2006
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
->  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 000000007ff75000 (usable)
->  BIOS-e820: 000000007ff75000 - 000000007ff77000 (ACPI NVS)
->  BIOS-e820: 000000007ff77000 - 000000007ff98000 (ACPI data)
->  BIOS-e820: 000000007ff98000 - 0000000080000000 (reserved)
->  BIOS-e820: 00000000fec00000 - 00000000fec90000 (reserved)
->  BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
->  BIOS-e820: 00000000ffb00000 - 0000000100000000 (reserved)
-> 1151MB HIGHMEM available.
-> 896MB LOWMEM available.
-> found SMP MP-table at 000fe710
-> On node 0 totalpages: 524149
->   DMA zone: 4096 pages, LIFO batch:0
->   DMA32 zone: 0 pages, LIFO batch:0
->   Normal zone: 225280 pages, LIFO batch:31
->   HighMem zone: 294773 pages, LIFO batch:31
-> DMI 2.3 present.
-> ACPI: RSDP (v000 DELL                                  ) @ 0x000febc0
-> ACPI: RSDT (v001 DELL    WS 650  0x00000008 ASL  0x00000061) @ 0x000fd4d4
-> ACPI: FADT (v001 DELL    WS 650  0x00000008 ASL  0x00000061) @ 0x000fd50c
-> ACPI: SSDT (v001   DELL    st_ex 0x00001000 MSFT 0x0100000d) @ 0xffff373d
-> ACPI: MADT (v001 DELL    WS 650  0x00000008 ASL  0x00000061) @ 0x000fd580
-> ACPI: BOOT (v001 DELL    WS 650  0x00000008 ASL  0x00000061) @ 0x000fd604
-> ACPI: ASF! (v016 DELL    WS 650  0x00000008 ASL  0x00000061) @ 0x000fd62c
-> ACPI: DSDT (v001   DELL    dt_ex 0x00001000 MSFT 0x0100000d) @ 0x00000000
-> ACPI: PM-Timer IO Port: 0x808
-> ACPI: Local APIC address 0xfee00000
-> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-> Processor #0 15:2 APIC version 20
-> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x06] enabled)
-> Processor #6 15:2 APIC version 20
-> ACPI: LAPIC (acpi_id[0x03] lapic_id[0x01] enabled)
-> Processor #1 15:2 APIC version 20
-> ACPI: LAPIC (acpi_id[0x04] lapic_id[0x07] enabled)
-> Processor #7 15:2 APIC version 20
-> ACPI: IOAPIC (id[0x08] address[0xfec00000] gsi_base[0])
-> IOAPIC[0]: apic_id 8, version 32, address 0xfec00000, GSI 0-23
-> ACPI: IOAPIC (id[0x09] address[0xfec80000] gsi_base[24])
-> IOAPIC[1]: apic_id 9, version 32, address 0xfec80000, GSI 24-47
-> ACPI: IOAPIC (id[0x0a] address[0xfec80800] gsi_base[48])
-> IOAPIC[2]: apic_id 10, version 32, address 0xfec80800, GSI 48-71
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-> ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-> ACPI: IRQ0 used by override.
-> ACPI: IRQ2 used by override.
-> ACPI: IRQ9 used by override.
-> Enabling APIC mode:  Flat.  Using 3 I/O APICs
-> Using ACPI (MADT) for SMP configuration information
-> Allocating PCI resources starting at 88000000 (gap: 80000000:7ec00000)
-> Built 1 zonelists
-> Kernel command line: udev root=/dev/ram0 init=/linuxrc real_root=/dev/hda7 vga=ext
-> mapped APIC to ffffd000 (fee00000)
-> mapped IOAPIC to ffffc000 (fec00000)
-> mapped IOAPIC to ffffb000 (fec80000)
-> mapped IOAPIC to ffffa000 (fec80800)
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Initializing CPU#0
-> CPU 0 irqstacks, hard=c05af000 soft=c05a7000
-> PID hash table entries: 4096 (order: 12, 65536 bytes)
-> Detected 2791.896 MHz processor.
-> Using pmtmr for high-res timesource
-> Console: colour VGA+ 80x50
-> Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
-> Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
-> Memory: 2071896k/2096596k available (3030k kernel code, 23456k reserved, 1473k data, 232k init, 1179092k highmem)
-> Checking if this processor honours the WP bit even in supervisor mode... Ok.
-> Calibrating delay using timer specific routine.. 5588.75 BogoMIPS (lpj=2794375)
-> Mount-cache hash table entries: 512
-> CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
-> CPU: L2 cache: 512K
-> CPU: Physical Processor ID: 0
-> CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 00004400 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU0: Thermal monitoring enabled
-> Checking 'hlt' instruction... OK.
-> CPU0: Intel(R) Xeon(TM) CPU 2.80GHz stepping 09
-> Booting processor 1/1 eip 2000
-> CPU 1 irqstacks, hard=c05b0000 soft=c05a8000
-> Initializing CPU#1
-> Calibrating delay using timer specific routine.. 5581.18 BogoMIPS (lpj=2790590)
-> CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
-> CPU: L2 cache: 512K
-> CPU: Physical Processor ID: 0
-> CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 00004400 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#1.
-> CPU1: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU1: Thermal monitoring enabled
-> CPU1: Intel(R) Xeon(TM) CPU 2.80GHz stepping 09
-> Booting processor 2/6 eip 2000
-> CPU 2 irqstacks, hard=c05b1000 soft=c05a9000
-> Initializing CPU#2
-> Calibrating delay using timer specific routine.. 5581.31 BogoMIPS (lpj=2790659)
-> CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
-> CPU: L2 cache: 512K
-> CPU: Physical Processor ID: 3
-> CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 00004400 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#2.
-> CPU2: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU2: Thermal monitoring enabled
-> CPU2: Intel(R) Xeon(TM) CPU 2.80GHz stepping 09
-> Booting processor 3/7 eip 2000
-> CPU 3 irqstacks, hard=c05b2000 soft=c05aa000
-> Initializing CPU#3
-> Calibrating delay using timer specific routine.. 5581.34 BogoMIPS (lpj=2790673)
-> CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004400 00000000 00000000
-> CPU: Trace cache: 12K uops, L1 D cache: 8K
-> CPU: L2 cache: 512K
-> CPU: Physical Processor ID: 3
-> CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 00004400 00000000 00000000
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#3.
-> CPU3: Intel P4/Xeon Extended MCE MSRs (12) available
-> CPU3: Thermal monitoring enabled
-> CPU3: Intel(R) Xeon(TM) CPU 2.80GHz stepping 09
-> Total of 4 processors activated (22332.59 BogoMIPS).
-> ENABLING IO-APIC IRQs
-> ..TIMER: vector=0x31 apic1=0 pin1=2 apic2=-1 pin2=-1
-> checking TSC synchronization across 4 CPUs: passed.
-> Brought up 4 CPUs
-> migration_cost=1000,2000
-> checking if image is initramfs... it is
-> Freeing initrd memory: 753k freed
-> NET: Registered protocol family 16
-> ACPI: bus type pci registered
-> PCI: PCI BIOS revision 2.10 entry at 0xfbdd5, last bus=5
-> PCI: Using configuration type 1
-> ACPI: Subsystem revision 20060127
-> ACPI: Interpreter enabled
-> ACPI: Using IOAPIC for interrupt routing
-> ACPI: PCI Root Bridge [PCI0] (0000:00)
-> PCI: Probing PCI hardware (bus 00)
-> ACPI: Assume root bridge [\_SB_.PCI0] bus is 0
-> PCI quirk: region 0800-087f claimed by ICH4 ACPI/GPIO/TCO
-> PCI quirk: region 0880-08bf claimed by ICH4 GPIO
-> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-> Boot video device is 0000:01:00.0
-> PCI: Transparent bridge - 0000:00:1e.0
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1.PCI2._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1.PCI3._PRT]
-> ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI4._PRT]
-> ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-> ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-> ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 *9 10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 *10 11 12 15)
-> ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-> ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11 12 15) *0, disabled.
-> ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-> ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 9 10 *11 12 15)
-> Linux Plug and Play Support v0.97 (c) Adam Belay
-> pnp: PnP ACPI init
-> pnp: PnP ACPI: found 12 devices
-> SCSI subsystem initialized
-> PCI: Using ACPI for IRQ routing
-> PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-> pnp: 00:0b: ioport range 0x800-0x85f could not be reserved
-> pnp: 00:0b: ioport range 0xc00-0xc7f has been reserved
-> pnp: 00:0b: ioport range 0x860-0x8ff could not be reserved
-> PCI: Bridge: 0000:00:01.0
->   IO window: disabled.
->   MEM window: fc000000-fdffffff
->   PREFETCH window: f0000000-f7ffffff
-> PCI: Bridge: 0000:02:1d.0
->   IO window: e000-efff
->   MEM window: fe300000-fe4fffff
->   PREFETCH window: disabled.
-> PCI: Bridge: 0000:02:1f.0
->   IO window: disabled.
->   MEM window: disabled.
->   PREFETCH window: disabled.
-> PCI: Bridge: 0000:00:02.0
->   IO window: e000-efff
->   MEM window: fe100000-fe4fffff
->   PREFETCH window: disabled.
-> PCI: Bridge: 0000:00:1e.0
->   IO window: disabled.
->   MEM window: f9000000-fbffffff
->   PREFETCH window: disabled.
-> PCI: Setting latency timer of device 0000:00:1e.0 to 64
-> Simple Boot Flag value 0x87 read from CMOS RAM was invalid
-> Simple Boot Flag at 0x7a set to 0x1
-> Machine check exception polling timer started.
-> IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
-> highmem bounce pool size: 64 pages
-> Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-> fuse init (API version 7.6)
-> Initializing Cryptographic API
-> io scheduler noop registered
-> io scheduler anticipatory registered
-> io scheduler deadline registered
-> io scheduler cfq registered (default)
-> ACPI: Power Button (FF) [PWRF]
-> ACPI: Power Button (CM) [VBTN]
-> Using specific hotkey driver
-> lp: driver loaded but no devices found
-> Real Time Clock Driver v1.12ac
-> Linux agpgart interface v0.101 (c) Dave Jones
-> agpgart: Detected an Intel E7505 Chipset.
-> agpgart: AGP aperture is 128M @ 0xe8000000
-> [drm] Initialized drm 1.0.1 20051102
-> PNP: PS/2 Controller [PNP0303:KBD] at 0x60,0x64 irq 1
-> PNP: PS/2 controller doesn't have AUX irq; using default 12
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing enabled
-> serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-> serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-> serial8250: ttyS0 at I/O 0x3f8 (irq = 0) is a 16550A
-> serial8250: ttyS1 at I/O 0x2f8 (irq = 0) is a 16550A
-> 00:08: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-> 00:09: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-> parport: PnPBIOS parport detected.
-> parport0: PC-style at 0x378 (0x778), irq 7, using FIFO [PCSPP,TRISTATE,COMPAT,ECP]
-> lp0: using parport0 (interrupt-driven).
-> lp0: console ready
-> Floppy drive(s): fd0 is 1.44M
-> FDC 0 is a post-1991 82077
-> RAMDISK driver initialized: 16 RAM disks of 8192K size 1024 blocksize
-> loop: loaded (max 8 devices)
-> Intel(R) PRO/1000 Network Driver - version 6.3.9-k2-NAPI
-> Copyright (c) 1999-2005 Intel Corporation.
-> ACPI: PCI Interrupt 0000:03:0e.0[A] -> GSI 24 (level, low) -> IRQ 169
-> e1000: 0000:03:0e.0: e1000_probe: (PCI-X:100MHz:64-bit) 00:0d:56:09:09:fb
-> e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-> PPP generic driver version 2.4.2
-> PPP Deflate Compression module registered
-> PPP BSD Compression module registered
-> PPP MPPE Compression module registered
-> NET: Registered protocol family 24
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> ICH4: IDE controller at PCI slot 0000:00:1f.1
-> PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
-> ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 177
-> ICH4: chipset revision 1
-> ICH4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:DMA
-> Probing IDE interface ide0...
-> hda: IC35L120AVV207-1, ATA DISK drive
-> hdb: IC35L120AVV207-1, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> Probing IDE interface ide1...
-> hdc: HL-DT-STDVD-ROM GDR8162B, ATAPI CD/DVD-ROM drive
-> hdd: _NEC DVD+RW ND-1100A, ATAPI CD/DVD-ROM drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> hda: max request size: 512KiB
-> hda: 234375000 sectors (120000 MB) w/7965KiB Cache, CHS=16383/255/63, UDMA(100)
-> hda: cache flushes supported
->  hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 >
-> hdb: max request size: 512KiB
-> hdb: 234375000 sectors (120000 MB) w/7965KiB Cache, CHS=16383/255/63, UDMA(100)
-> hdb: cache flushes supported
->  hdb: hdb1 hdb2 hdb3 < hdb5 >
-> hdc: ATAPI 48X DVD-ROM drive, 256kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.20
-> hdd: ATAPI 40X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-> SCSI Media Changer driver v0.25 
-> ACPI: PCI Interrupt 0000:05:0c.0[A] -> GSI 20 (level, low) -> IRQ 185
-> ohci1394: fw-host0: OHCI-1394 1.1 (PCI): IRQ=[185]  MMIO=[fbeff800-fbefffff]  Max Packet=[2048]  IR/IT contexts=[4/8]
-> video1394: Installed video1394 module
-> ieee1394: raw1394: /dev/raw1394 device initialized
-> ieee1394: sbp2: Driver forced to serialize I/O (serialize_io=1)
-> ieee1394: sbp2: Try serialize_io=0 for better performance
-> mice: PS/2 mouse device common for all mice
-> input: AT Translated Set 2 keyboard as /class/input/input0
-> input: PC Speaker as /class/input/input1
-> I2O subsystem v1.325
-> i2o: max drivers = 8
-> I2O Configuration OSM v1.323
-> I2O Bus Adapter OSM v1.317
-> I2O Block Device OSM v1.325
-> I2O SCSI Peripheral OSM v1.316
-> I2O ProcFS OSM v1.316
-> i2c /dev entries driver
-> parport0: cannot grant exclusive access for device i2c-parport
-> i2c-parport: Unable to register with parport
->  : Detection failed at step 5
-> i2c_adapter i2c-0: Unsupported chip (man_id=0x55, chip_id=0x20).
-> i2c_adapter i2c-0: detect fail: address match, 0x2d
-> pc87360: PC8736x not detected, module not inserted.
-> md: linear personality registered for level -1
-> md: raid0 personality registered for level 0
-> md: raid1 personality registered for level 1
-> md: raid10 personality registered for level 10
-> md: raid5 personality registered for level 5
-> md: raid4 personality registered for level 4
-> raid5: automatically using best checksumming function: pIII_sse
->    pIII_sse  :  3536.000 MB/sec
-> raid5: using function: pIII_sse (3536.000 MB/sec)
-> raid6: int32x1    808 MB/s
-> raid6: int32x2    972 MB/s
-> raid6: int32x4    656 MB/s
-> raid6: int32x8    500 MB/s
-> raid6: mmxx1     1929 MB/s
-> raid6: mmxx2     2546 MB/s
-> raid6: sse1x1    1292 MB/s
-> raid6: sse1x2    2367 MB/s
-> raid6: sse2x1    3062 MB/s
-> raid6: sse2x2    2804 MB/s
-> raid6: using algorithm sse2x1 (3062 MB/s)
-> md: raid6 personality registered for level 6
-> md: faulty personality registered for level -5
-> md: md driver 0.90.3 MAX_MD_DEVS=256, MD_SB_DISKS=27
-> md: bitmap version 4.39
-> device-mapper: 4.5.0-ioctl (2005-10-04) initialised: dm-devel@redhat.com
-> MC: drivers/edac/edac_mc.c version edac_mc  Ver: 2.0.0 Mar  1 2006
-> MC: drivers/edac/edac_mc.c: edac_sysfs_memctrl_setup()
-> Registered '.../edac/mc' kobject
-> MC: drivers/edac/edac_mc.c: edac_sysfs_pci_setup()
-> Registered '.../edac/pci' kobject
-> Advanced Linux Sound Architecture Driver Version 1.0.11rc2 (Wed Jan 04 08:57:20 2006 UTC).
-> ACPI: PCI Interrupt 0000:00:1f.5[B] -> GSI 17 (level, low) -> IRQ 193
-> PCI: Setting latency timer of device 0000:00:1f.5 to 64
-> intel8x0_measure_ac97_clock: measured 50991 usecs
-> intel8x0: clocking to 48000
-> ALSA device list:
->   #0: Virtual MIDI Card 1
->   #1: Intel 82801DB-ICH4 with AD1981B at 0xfe500400, irq 193
-> NET: Registered protocol family 2
-> IP route cache hash table entries: 131072 (order: 7, 524288 bytes)
-> TCP established hash table entries: 262144 (order: 9, 3145728 bytes)
-> TCP bind hash table entries: 65536 (order: 7, 786432 bytes)
-> TCP: Hash tables configured (established 262144 bind 65536)
-> TCP reno registered
-> IPv4 over IPv4 tunneling driver
-> GRE over IPv4 tunneling driver
-> TCP bic registered
-> Initializing IPsec netlink socket
-> NET: Registered protocol family 1
-> NET: Registered protocol family 17
-> NET: Registered protocol family 15
-> 802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
-> All bugs added by David S. Miller <davem@redhat.com>
-> p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
-> Starting balanced_irq
-> Using IPI Shortcut mode
-> Freeing unused kernel memory: 232k freed
-> usbcore: registered new driver usbfs
-> usbcore: registered new driver hub
-> ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 201
-> PCI: Setting latency timer of device 0000:00:1d.7 to 64
-> ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> ehci_hcd 0000:00:1d.7: debug port 1
-> PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-> ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-> ehci_hcd 0000:00:1d.7: irq 201, io mem 0xfe500800
-> ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-> usb usb1: configuration #1 chosen from 1 choice
-> hub 1-0:1.0: USB hub found
-> hub 1-0:1.0: 6 ports detected
-> ieee1394: Host added: ID:BUS[0-00:1023]  GUID[86ffffffffffff00]
-> usb 1-2: new high speed USB device using ehci_hcd and address 2
-> usb 1-2: configuration #1 chosen from 1 choice
-> hub 1-2:1.0: USB hub found
-> hub 1-2:1.0: 4 ports detected
-> usbcore: registered new driver hiddev
-> usbcore: registered new driver usbhid
-> drivers/usb/input/hid-core.c: v2.6:USB HID core driver
-> Initializing USB Mass Storage driver...
-> usbcore: registered new driver usb-storage
-> USB Mass Storage support registered.
-> USB Universal Host Controller Interface driver v2.3
-> ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 16 (level, low) -> IRQ 209
-> PCI: Setting latency timer of device 0000:00:1d.0 to 64
-> uhci_hcd 0000:00:1d.0: UHCI Host Controller
-> uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
-> uhci_hcd 0000:00:1d.0: irq 209, io base 0x0000ff80
-> usb usb2: configuration #1 chosen from 1 choice
-> hub 2-0:1.0: USB hub found
-> hub 2-0:1.0: 2 ports detected
-> ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 19 (level, low) -> IRQ 217
-> PCI: Setting latency timer of device 0000:00:1d.1 to 64
-> uhci_hcd 0000:00:1d.1: UHCI Host Controller
-> uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
-> uhci_hcd 0000:00:1d.1: irq 217, io base 0x0000ff60
-> usb usb3: configuration #1 chosen from 1 choice
-> hub 3-0:1.0: USB hub found
-> hub 3-0:1.0: 2 ports detected
-> ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 177
-> PCI: Setting latency timer of device 0000:00:1d.2 to 64
-> uhci_hcd 0000:00:1d.2: UHCI Host Controller
-> uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
-> uhci_hcd 0000:00:1d.2: irq 177, io base 0x0000ff40
-> usb usb4: configuration #1 chosen from 1 choice
-> hub 4-0:1.0: USB hub found
-> hub 4-0:1.0: 2 ports detected
-> usb 3-1: new low speed USB device using uhci_hcd and address 2
-> usb 3-1: configuration #1 chosen from 1 choice
-> input: Logitech USB-PS/2 Optical Mouse as /class/input/input2
-> input: USB HID v1.10 Mouse [Logitech USB-PS/2 Optical Mouse] on usb-0000:00:1d.1-1
-> ReiserFS: hda7: found reiserfs format "3.6" with standard journal
-> ReiserFS: hda7: using ordered data mode
-> ReiserFS: hda7: journal params: device hda7, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> ReiserFS: hda7: checking transaction log (hda7)
-> ReiserFS: hda7: Using r5 hash to sort names
-> Linux video capture interface: v1.00
-> cx2388x v4l2 driver version 0.0.5 loaded
-> ACPI: PCI Interrupt 0000:05:0e.0[A] -> GSI 22 (level, low) -> IRQ 225
-> CORE cx88[0]: subsystem: 153b:1166, board: Conexant DVB-T reference design [card=19,insmod option]
-> TV tuner 4 at 0x1fe, Radio tuner -1 at 0x1fe
-> cx88[0]/0: found at 0000:05:0e.0, rev: 5, irq: 225, latency: 64, mmio: 0xfa000000
-> cx88[0]/0: registered device video0 [v4l2]
-> cx88[0]/0: registered device vbi0
-> set_control id=0x980900 reg=0x310110 val=0x00 (mask 0xff)
-> set_control id=0x980901 reg=0x310110 val=0x3f00 (mask 0xff00)
-> set_control id=0x980903 reg=0x310118 val=0x00 (mask 0xff)
-> set_control id=0x980902 reg=0x310114 val=0x5a7f (mask 0xffff)
-> set_control id=0x980909 reg=0x320594 val=0x40 (mask 0x40) [shadowed]
-> set_control id=0x980905 reg=0x320594 val=0x20 (mask 0x3f) [shadowed]
-> set_control id=0x980906 reg=0x320598 val=0x40 (mask 0x7f) [shadowed]
-> cx2388x dvb driver version 0.0.5 loaded
-> ACPI: PCI Interrupt 0000:05:0e.2[A] -> GSI 22 (level, low) -> IRQ 225
-> cx88[0]/2: found at 0000:05:0e.2, rev: 5, irq: 225, latency: 64, mmio: 0xf9000000
-> cx88[0]/2: cx2388x based dvb card
-> DVB: registering new adapter (cx88[0]).
-> DVB: registering frontend 0 (Conexant CX22702 DVB-T)...
-> microcode: CPU1 updated from revision 0xf to 0x2d, date = 08112004 
-> microcode: CPU3 updated from revision 0xf to 0x2d, date = 08112004 
-> microcode: CPU0 updated from revision 0xf to 0x2d, date = 08112004 
-> microcode: CPU2 updated from revision 0xf to 0x2d, date = 08112004 
-> Adding 987988k swap on /dev/mapper/swap1.  Priority:-1 extents:1 across:987988k
-> Adding 987988k swap on /dev/mapper/swap2.  Priority:-2 extents:1 across:987988k
-> e1000: eth0: e1000_watchdog_task: NIC Link is Up 100 Mbps Full Duplex
-> ReiserFS: dm-2: found reiserfs format "3.6" with standard journal
-> ReiserFS: dm-2: using ordered data mode
-> ReiserFS: dm-2: journal params: device dm-2, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-> ReiserFS: dm-2: checking transaction log (dm-2)
-> ReiserFS: dm-2: Using r5 hash to sort names
-> 
+ It' s simple because I' m outside office and returning this weekend.
+The final patch with the whole corrections I' ll send on Mon (Mar,
+06).
+
+ BR,
+
+ Carlos Aguiar
+ Instituto Nokia de Tecnologia
+
+
+ Adds OMAP MMC driver.
+
+ Signed-off-by: Juha Yrjölä <juha.yrjola@nokia.com>
+ Signed-off-by: Tony Lindgren <tony@atomide.com>
+ Signed-off-by: Carlos Aguiar <carlos.aguiar@indt.org.br>
+
+ Index: linux-2.6.16-rc5-git7/drivers/mmc/Kconfig
+ ===================================================================
+ --- linux-2.6.16-rc5-git7.orig/drivers/mmc/Kconfig    2006-03-03
+08:19:15.000000000 -0400
+ +++ linux-2.6.16-rc5-git7/drivers/mmc/Kconfig    2006-03-03
+08:20:33.000000000 -0400
+ @@ -49,6 +49,17 @@ config MMC_PXA
+
+        If unsure, say N.
+
+ +config MMC_OMAP
+ +    tristate "TI OMAP Multimedia Card Interface support"
+ +    depends on ARCH_OMAP && MMC
+ +    select TPS65010 if MACH_OMAP_H2
+ +    help
+ +      This selects the TI OMAP Multimedia card Interface.
+ +      If you have an OMAP board with a Multimedia Card slot,
+ +      say Y or M here.
+ +
+ +      If unsure, say N.
+ +
+  config MMC_WBSD
+      tristate "Winbond W83L51xD SD/MMC Card Interface support"
+      depends on MMC && ISA_DMA_API
+ Index: linux-2.6.16-rc5-git7/drivers/mmc/Makefile
+ ===================================================================
+ --- linux-2.6.16-rc5-git7.orig/drivers/mmc/Makefile    2006-03-03
+08:19:15.000000000 -0400
+ +++ linux-2.6.16-rc5-git7/drivers/mmc/Makefile    2006-03-03
+08:20:33.000000000 -0400
+ @@ -19,5 +19,6 @@ obj-$(CONFIG_MMC_ARMMMCI)    += mmci.o
+  obj-$(CONFIG_MMC_PXA)        += pxamci.o
+  obj-$(CONFIG_MMC_WBSD)        += wbsd.o
+  obj-$(CONFIG_MMC_AU1X)        += au1xmmc.o
+ +obj-$(CONFIG_MMC_OMAP)        += omap.o
+
+  mmc_core-y := mmc.o mmc_queue.o mmc_sysfs.o
+ Index: linux-2.6.16-rc5-git7/drivers/mmc/omap.c
+ ===================================================================
+ --- /dev/null    1970-01-01 00:00:00.000000000 +0000
+ +++ linux-2.6.16-rc5-git7/drivers/mmc/omap.c    2006-03-03
+08:36:17.000000000 -0400
+ @@ -0,0 +1,1235 @@
+ +/*
+ + *  linux/drivers/media/mmc/omap.c
+ + *
+ + *  Copyright (C) 2004 Nokia Corporation
+ + *  Written by Tuukka Tikkanen and Juha Yrjölä<juha.yrjola@nokia.com>
+ + *  Misc hacks here and there by Tony Lindgren <tony@atomide.com>
+ + *  Other hacks (DMA, SD, etc) by David Brownell
+ + *
+ + * This program is free software; you can redistribute it and/or modify
+ + * it under the terms of the GNU General Public License version 2 as
+ + * published by the Free Software Foundation.
+ + */
+ +
+ +#include <linux/config.h>
+ +
+ +#ifdef CONFIG_MMC_DEBUG
+ +#define DEBUG    /* for dev_dbg(), pr_debug(), etc */
+ +#endif
+ +
+ +#include <linux/module.h>
+ +#include <linux/moduleparam.h>
+ +#include <linux/init.h>
+ +#include <linux/ioport.h>
+ +#include <linux/platform_device.h>
+ +#include <linux/interrupt.h>
+ +#include <linux/dma-mapping.h>
+ +#include <linux/delay.h>
+ +#include <linux/spinlock.h>
+ +#include <linux/timer.h>
+ +#include <linux/mmc/host.h>
+ +#include <linux/mmc/protocol.h>
+ +#include <linux/mmc/card.h>
+ +#include <linux/clk.h>
+ +
+ +#include <asm/io.h>
+ +#include <asm/irq.h>
+ +#include <asm/scatterlist.h>
+ +#include <asm/mach-types.h>
+ +
+ +#include <asm/arch/board.h>
+ +#include <asm/arch/gpio.h>
+ +#include <asm/arch/dma.h>
+ +#include <asm/arch/mux.h>
+ +#include <asm/arch/fpga.h>
+ +#include <asm/arch/tps65010.h>
+ +
+ +#include "omap.h"
+ +
+ +#define DRIVER_NAME "mmci-omap"
+ +#define RSP_TYPE(x)    ((x) & ~(MMC_RSP_BUSY|MMC_RSP_OPCODE))
+ +
+ +/* Specifies how often in millisecs to poll for card status changes
+ + * when the cover switch is open */
+ +#define OMAP_MMC_SWITCH_POLL_DELAY    500
+ +
+ +static int mmc_omap_enable_poll = 1;
+ +
+ +struct mmc_omap_host {
+ +    int            initialized;
+ +    int            suspended;
+ +    struct mmc_request *    mrq;
+ +    struct mmc_command *    cmd;
+ +    struct mmc_data *    data;
+ +    struct mmc_host *    mmc;
+ +    struct device *        dev;
+ +    unsigned char        id; /* 16xx chips have 2 MMC blocks */
+ +    struct clk *        iclk;
+ +    struct clk *        fclk;
+ +    void __iomem        *base;
+ +    int            irq;
+ +    unsigned char        bus_mode;
+ +    unsigned char        hw_bus_mode;
+ +
+ +    unsigned int        sg_len;
+ +    int            sg_idx;
+ +    u16 *            buffer;
+ +    u32            buffer_bytes_left;
+ +    u32            total_bytes_left;
+ +
+ +    unsigned        use_dma:1;
+ +    unsigned        brs_received:1, dma_done:1;
+ +    unsigned        dma_is_read:1;
+ +    unsigned        dma_in_use:1;
+ +    int            dma_ch;
+ +    spinlock_t        dma_lock;
+ +    struct timer_list    dma_timer;
+ +    unsigned        dma_len;
+ +
+ +    short            power_pin;
+ +    short            wp_pin;
+ +
+ +    int            switch_pin;
+ +    struct work_struct    switch_work;
+ +    struct timer_list    switch_timer;
+ +    int            switch_last_state;
+ +};
+ +
+ +static inline int
+ +mmc_omap_cover_is_open(struct mmc_omap_host *host)
+ +{
+ +    if (host->switch_pin < 0)
+ +        return 0;
+ +    return omap_get_gpio_datain(host->switch_pin);
+ +}
+ +
+ +static ssize_t
+ +mmc_omap_show_cover_switch(struct device *dev,
+ +    struct device_attribute *attr, char *buf)
+ +{
+ +    struct mmc_omap_host *host = dev_get_drvdata(dev);
+ +
+ +    return sprintf(buf, "%s\n", mmc_omap_cover_is_open(host) ? "open" :
+ +            "closed");
+ +}
+ +
+ +static DEVICE_ATTR(cover_switch, S_IRUGO, mmc_omap_show_cover_switch, NULL);
+ +
+ +static ssize_t
+ +mmc_omap_show_enable_poll(struct device *dev,
+ +    struct device_attribute *attr, char *buf)
+ +{
+ +    return snprintf(buf, PAGE_SIZE, "%d\n", mmc_omap_enable_poll);
+ +}
+ +
+ +static ssize_t
+ +mmc_omap_store_enable_poll(struct device *dev,
+ +    struct device_attribute *attr, const char *buf,
+ +    size_t size)
+ +{
+ +    int enable_poll;
+ +
+ +    if (sscanf(buf, "%10d", &enable_poll) != 1)
+ +        return -EINVAL;
+ +
+ +    if (enable_poll != mmc_omap_enable_poll) {
+ +        struct mmc_omap_host *host = dev_get_drvdata(dev);
+ +
+ +        mmc_omap_enable_poll = enable_poll;
+ +        if (enable_poll && host->switch_pin >= 0)
+ +            schedule_work(&host->switch_work);
+ +    }
+ +    return size;
+ +}
+ +
+ +static DEVICE_ATTR(enable_poll, 0664,
+ +           mmc_omap_show_enable_poll, mmc_omap_store_enable_poll);
+ +
+ +static void
+ +mmc_omap_start_command(struct mmc_omap_host *host, struct mmc_command *cmd)
+ +{
+ +    u32 cmdreg;
+ +    u32 resptype;
+ +    u32 cmdtype;
+ +
+ +    host->cmd = cmd;
+ +
+ +    resptype = 0;
+ +    cmdtype = 0;
+ +
+ +    /* Our hardware needs to know exact type */
+ +    switch (RSP_TYPE(mmc_resp_type(cmd))) {
+ +    case RSP_TYPE(MMC_RSP_R1):
+ +        /* resp 1, resp 1b */
+ +        resptype = 1;
+ +        break;
+ +    case RSP_TYPE(MMC_RSP_R2):
+ +        resptype = 2;
+ +        break;
+ +    case RSP_TYPE(MMC_RSP_R3):
+ +        resptype = 3;
+ +        break;
+ +    default:
+ +        break;
+ +    }
+ +
+ +    if (mmc_cmd_type(cmd) == MMC_CMD_ADTC) {
+ +        cmdtype = OMAP_MMC_CMDTYPE_ADTC;
+ +    } else if (mmc_cmd_type(cmd) == MMC_CMD_BC) {
+ +        cmdtype = OMAP_MMC_CMDTYPE_BC;
+ +    } else if (mmc_cmd_type(cmd) == MMC_CMD_BCR) {
+ +        cmdtype = OMAP_MMC_CMDTYPE_BCR;
+ +    } else {
+ +        cmdtype = OMAP_MMC_CMDTYPE_AC;
+ +    }
+ +
+ +    cmdreg = cmd->opcode | (resptype << 8) | (cmdtype << 12);
+ +
+ +    if (host->bus_mode == MMC_BUSMODE_OPENDRAIN)
+ +        cmdreg |= 1 << 6;
+ +
+ +    if (cmd->flags & MMC_RSP_BUSY)
+ +        cmdreg |= 1 << 11;
+ +
+ +    if (host->data && !(host->data->flags & MMC_DATA_WRITE))
+ +        cmdreg |= 1 << 15;
+ +
+ +    clk_enable(host->fclk);
+ +
+ +    OMAP_MMC_WRITE(host->base, CTO, 200);
+ +    OMAP_MMC_WRITE(host->base, ARGL, cmd->arg & 0xffff);
+ +    OMAP_MMC_WRITE(host->base, ARGH, cmd->arg >> 16);
+ +    OMAP_MMC_WRITE(host->base, IE,
+ +               OMAP_MMC_STAT_A_EMPTY    | OMAP_MMC_STAT_A_FULL    |
+ +               OMAP_MMC_STAT_CMD_CRC    | OMAP_MMC_STAT_CMD_TOUT  |
+ +               OMAP_MMC_STAT_DATA_CRC   | OMAP_MMC_STAT_DATA_TOUT |
+ +               OMAP_MMC_STAT_END_OF_CMD | OMAP_MMC_STAT_CARD_ERR  |
+ +               OMAP_MMC_STAT_END_OF_DATA);
+ +    OMAP_MMC_WRITE(host->base, CMD, cmdreg);
+ +}
+ +
+ +static void
+ +mmc_omap_xfer_done(struct mmc_omap_host *host, struct mmc_data *data)
+ +{
+ +    if (host->dma_in_use) {
+ +        enum dma_data_direction dma_data_dir;
+ +
+ +        BUG_ON(host->dma_ch < 0);
+ +        if (data->error != MMC_ERR_NONE)
+ +            omap_stop_dma(host->dma_ch);
+ +        /* Release DMA channel lazily */
+ +        mod_timer(&host->dma_timer, jiffies + HZ);
+ +        if (data->flags & MMC_DATA_WRITE)
+ +            dma_data_dir = DMA_TO_DEVICE;
+ +        else
+ +            dma_data_dir = DMA_FROM_DEVICE;
+ +        dma_unmap_sg(mmc_dev(host->mmc), data->sg, host->sg_len,
+ +                 dma_data_dir);
+ +    }
+ +    host->data = NULL;
+ +    host->sg_len = 0;
+ +    clk_disable(host->fclk);
+ +
+ +    /* NOTE:  MMC layer will sometimes poll-wait CMD13 next, issuing
+ +     * dozens of requests until the card finishes writing data.
+ +     * It'd be cheaper to just wait till an EOFB interrupt arrives...
+ +     */
+ +
+ +    if (!data->stop) {
+ +        host->mrq = NULL;
+ +        mmc_request_done(host->mmc, data->mrq);
+ +        return;
+ +    }
+ +
+ +    mmc_omap_start_command(host, data->stop);
+ +}
+ +
+ +static void
+ +mmc_omap_end_of_data(struct mmc_omap_host *host, struct mmc_data *data)
+ +{
+ +    unsigned long flags;
+ +    int done;
+ +
+ +    if (!host->dma_in_use) {
+ +        mmc_omap_xfer_done(host, data);
+ +        return;
+ +    }
+ +    done = 0;
+ +    spin_lock_irqsave(&host->dma_lock, flags);
+ +    if (host->dma_done)
+ +        done = 1;
+ +    else
+ +        host->brs_received = 1;
+ +    spin_unlock_irqrestore(&host->dma_lock, flags);
+ +    if (done)
+ +        mmc_omap_xfer_done(host, data);
+ +}
+ +
+ +static void
+ +mmc_omap_dma_timer(unsigned long data)
+ +{
+ +    struct mmc_omap_host *host = (struct mmc_omap_host *) data;
+ +
+ +    BUG_ON(host->dma_ch < 0);
+ +    omap_free_dma(host->dma_ch);
+ +    host->dma_ch = -1;
+ +}
+ +
+ +static void
+ +mmc_omap_dma_done(struct mmc_omap_host *host, struct mmc_data *data)
+ +{
+ +    unsigned long flags;
+ +    int done;
+ +
+ +    done = 0;
+ +    spin_lock_irqsave(&host->dma_lock, flags);
+ +    if (host->brs_received)
+ +        done = 1;
+ +    else
+ +        host->dma_done = 1;
+ +    spin_unlock_irqrestore(&host->dma_lock, flags);
+ +    if (done)
+ +        mmc_omap_xfer_done(host, data);
+ +}
+ +
+ +static void
+ +mmc_omap_cmd_done(struct mmc_omap_host *host, struct mmc_command *cmd)
+ +{
+ +    host->cmd = NULL;
+ +
+ +    if (cmd->flags & MMC_RSP_PRESENT) {
+ +        if (cmd->flags & MMC_RSP_136) {
+ +            /* response type 2 */
+ +            cmd->resp[3] =
+ +                OMAP_MMC_READ(host->base, RSP0) |
+ +                (OMAP_MMC_READ(host->base, RSP1) << 16);
+ +            cmd->resp[2] =
+ +                OMAP_MMC_READ(host->base, RSP2) |
+ +                (OMAP_MMC_READ(host->base, RSP3) << 16);
+ +            cmd->resp[1] =
+ +                OMAP_MMC_READ(host->base, RSP4) |
+ +                (OMAP_MMC_READ(host->base, RSP5) << 16);
+ +            cmd->resp[0] =
+ +                OMAP_MMC_READ(host->base, RSP6) |
+
+ +                (OMAP_MMC_READ(host->base, RSP7) << 16);
+ +        } else {
+ +            /* response types 1, 1b, 3, 4, 5, 6 */
+ +            cmd->resp[0] =
+ +                OMAP_MMC_READ(host->base, RSP6) |
+
+ +                (OMAP_MMC_READ(host->base, RSP7) << 16);
+ +        }
+ +    }
+ +
+ +    if (host->data == NULL || cmd->error != MMC_ERR_NONE) {
+ +        host->mrq = NULL;
+ +        clk_disable(host->fclk);
+ +        mmc_request_done(host->mmc, cmd->mrq);
+ +    }
+ +}
+ +
+ +/* PIO only */
+ +static void
+ +mmc_omap_sg_to_buf(struct mmc_omap_host *host)
+ +{
+ +    struct scatterlist *sg;
+ +
+ +    sg = host->data->sg + host->sg_idx;
+ +    host->buffer_bytes_left = sg->length;
+ +    host->buffer = page_address(sg->page) + sg->offset;
+ +    if (host->buffer_bytes_left > host->total_bytes_left)
+ +        host->buffer_bytes_left = host->total_bytes_left;
+ +}
+
+ +
+ +/* PIO only */
+ +static void
+ +mmc_omap_xfer_data(struct mmc_omap_host *host, int write)
+ +{
+ +    int n;
+ +    void __iomem *reg;
+ +    u16 *p;
+ +
+ +    if (host->buffer_bytes_left == 0) {
+ +        host->sg_idx++;
+ +        BUG_ON(host->sg_idx == host->sg_len);
+ +        mmc_omap_sg_to_buf(host);
+ +    }
+ +    n = 64;
+ +    if (n > host->buffer_bytes_left)
+ +        n = host->buffer_bytes_left;
+ +    host->buffer_bytes_left -= n;
+ +    host->total_bytes_left -= n;
+ +    host->data->bytes_xfered += n;
+ +
+ +    /* Optimize the loop a bit by calculating the register only
+ +     * once */
+ +    reg = host->base + OMAP_MMC_REG_DATA;
+ +    p = host->buffer;
+ +    n /= 2;
+ +    if (write) {
+ +        while (n--)
+ +            __raw_writew(*p++, reg);
+ +    } else {
+ +        while (n-- > 0)
+ +            *p++ = __raw_readw(reg);
+ +    }
+ +    host->buffer = p;
+ +}
+ +
+ +static inline void mmc_omap_report_irq(u16 status)
+ +{
+ +    static const char *mmc_omap_status_bits[] = {
+ +        "EOC", "CD", "CB", "BRS", "EOFB", "DTO", "DCRC", "CTO",
+ +        "CCRC", "CRW", "AF", "AE", "OCRB", "CIRQ", "CERR"
+ +    };
+ +    int i, c = 0;
+ +
+ +    for (i = 0; i < ARRAY_SIZE(mmc_omap_status_bits); i++)
+ +        if (status & (1 << i)) {
+ +            if (c)
+ +                printk(" ");
+ +            printk("%s", mmc_omap_status_bits[i]);
+ +            c++;
+ +        }
+ +}
+ +
+
+ +static irqreturn_t mmc_omap_irq(int irq, void *dev_id, struct pt_regs *regs)
+ +{
+ +    struct mmc_omap_host * host = (struct mmc_omap_host *)dev_id;
+ +    u16 status;
+ +    int end_command;
+ +    int end_transfer;
+ +    int transfer_error;
+ +
+ +    if (host->cmd == NULL && host->data == NULL) {
+ +        status = OMAP_MMC_READ(host->base, STAT);
+ +        dev_info(mmc_dev(host->mmc),"spurious irq 0x%04x\n", status);
+ +        if (status != 0) {
+
+ +            OMAP_MMC_WRITE(host->base, STAT, status);
+ +            OMAP_MMC_WRITE(host->base, IE, 0);
+ +        }
+ +        return IRQ_HANDLED;
+ +    }
+ +
+ +    end_command = 0;
+ +    end_transfer = 0;
+ +    transfer_error = 0;
+ +
+ +    while ((status = OMAP_MMC_READ(host->base, STAT)) != 0) {
+ +        OMAP_MMC_WRITE(host->base, STAT, status);
+ +#ifdef CONFIG_MMC_DEBUG
+ +        dev_dbg(mmc_dev(host->mmc), "MMC IRQ %04x (CMD %d): ",
+
+ +            status, host->cmd != NULL ? host->cmd->opcode : -1);
+ +        mmc_omap_report_irq(status);
+ +        printk("\n");
+ +#endif
+ +        if (host->total_bytes_left) {
+ +            if ((status & OMAP_MMC_STAT_A_FULL) ||
+ +                (status & OMAP_MMC_STAT_END_OF_DATA))
+ +                mmc_omap_xfer_data(host, 0);
+ +            if (status & OMAP_MMC_STAT_A_EMPTY)
+ +                mmc_omap_xfer_data(host, 1);
+ +        }
+ +
+ +        if (status & OMAP_MMC_STAT_END_OF_DATA) {
+ +            end_transfer = 1;
+ +        }
+ +
+ +        if (status & OMAP_MMC_STAT_DATA_TOUT) {
+ +            dev_dbg(mmc_dev(host->mmc), "data timeout\n");
+
+ +            if (host->data) {
+ +                host->data->error |= MMC_ERR_TIMEOUT;
+ +                transfer_error = 1;
+ +            }
+ +        }
+ +
+ +        if (status & OMAP_MMC_STAT_DATA_CRC) {
+ +            if (host->data) {
+ +                host->data->error |= MMC_ERR_BADCRC;
+ +                dev_dbg(mmc_dev(host->mmc),
+ +                     "data CRC error, bytes left %d\n",
+
+ +                    host->total_bytes_left);
+ +                transfer_error = 1;
+ +            } else {
+ +                dev_dbg(mmc_dev(host->mmc), "data CRC error\n");
+
+ +            }
+ +        }
+ +
+ +        if (status & OMAP_MMC_STAT_CMD_TOUT) {
+ +            /* Timeouts are routine with some commands */
+ +            if (host->cmd) {
+ +                if (host->cmd->opcode != MMC_ALL_SEND_CID &&
+ +                        host->cmd->opcode !=
+ +                        MMC_SEND_OP_COND &&
+ +                        host->cmd->opcode !=
+ +                        MMC_APP_CMD &&
+ +                        !mmc_omap_cover_is_open(host))
+ +                    dev_err(mmc_dev(host->mmc),
+ +                        "command timeout, CMD %d\n",
+
+ +                        host->cmd->opcode);
+ +                host->cmd->error = MMC_ERR_TIMEOUT;
+ +                end_command = 1;
+ +            }
+ +        }
+ +
+ +        if (status & OMAP_MMC_STAT_CMD_CRC) {
+ +            if (host->cmd) {
+ +                dev_err(mmc_dev(host->mmc),
+ +                    "command CRC error (CMD%d, arg 0x%08x)\n",
+
+ +                    host->cmd->opcode, host->cmd->arg);
+ +                host->cmd->error = MMC_ERR_BADCRC;
+ +                end_command = 1;
+ +            } else
+ +                dev_err(mmc_dev(host->mmc),
+ +                    "command CRC error without cmd?\n");
+
+ +        }
+ +
+ +        if (status & OMAP_MMC_STAT_CARD_ERR) {
+ +            if (host->cmd && host->cmd->opcode == MMC_STOP_TRANSMISSION) {
+ +                u32 response = OMAP_MMC_READ(host->base, RSP6)
+ +                    | (OMAP_MMC_READ(host->base, RSP7) << 16);
+ +                /* STOP sometimes sets must-ignore bits */
+ +                if (!(response & (R1_CC_ERROR
+ +                                | R1_ILLEGAL_COMMAND
+ +                                | R1_COM_CRC_ERROR))) {
+ +                    end_command = 1;
+ +                    continue;
+ +                }
+ +            }
+ +
+ +            dev_dbg(mmc_dev(host->mmc), "card status error (CMD%d)\n",
+
+ +                host->cmd->opcode);
+ +            if (host->cmd) {
+ +                host->cmd->error = MMC_ERR_FAILED;
+ +                end_command = 1;
+ +            }
+ +            if (host->data) {
+ +                host->data->error = MMC_ERR_FAILED;
+ +                transfer_error = 1;
+ +            }
+ +        }
+ +
+ +        /*
+ +         * NOTE: On 1610 the END_OF_CMD may come too early when
+ +         * starting a write
+ +         */
+ +        if ((status & OMAP_MMC_STAT_END_OF_CMD) &&
+ +            (!(status & OMAP_MMC_STAT_A_EMPTY))) {
+ +            end_command = 1;
+ +        }
+ +    }
+ +
+ +    if (end_command) {
+ +        mmc_omap_cmd_done(host, host->cmd);
+ +    }
+ +    if (transfer_error)
+ +        mmc_omap_xfer_done(host, host->data);
+ +    else if (end_transfer)
+ +        mmc_omap_end_of_data(host, host->data);
+ +
+ +    return IRQ_HANDLED;
+ +}
+ +
+ +static irqreturn_t mmc_omap_switch_irq(int irq, void *dev_id, struct
+pt_regs *regs)
+
+ +{
+ +    struct mmc_omap_host *host = (struct mmc_omap_host *) dev_id;
+ +
+ +    schedule_work(&host->switch_work);
+ +
+ +    return IRQ_HANDLED;
+ +}
+ +
+ +static void mmc_omap_switch_timer(unsigned long arg)
+ +{
+ +    struct mmc_omap_host *host = (struct mmc_omap_host *) arg;
+ +
+ +    schedule_work(&host->switch_work);
+ +}
+ +
+ +/* FIXME: Handle card insertion and removal properly. Maybe use a mask
+ + * for MMC state? */
+ +static void mmc_omap_switch_callback(unsigned long data, u8 mmc_mask)
+ +{
+ +}
+ +
+ +static void mmc_omap_switch_handler(void *data)
+ +{
+ +    struct mmc_omap_host *host = (struct mmc_omap_host *) data;
+ +    struct mmc_card *card;
+ +    static int complained = 0;
+ +    int cards = 0, cover_open;
+ +
+ +    if (host->switch_pin == -1)
+ +        return;
+ +    cover_open = mmc_omap_cover_is_open(host);
+ +    if (cover_open != host->switch_last_state) {
+ +        kobject_uevent(&host->dev->kobj, KOBJ_CHANGE);
+ +        host->switch_last_state = cover_open;
+ +    }
+ +    mmc_detect_change(host->mmc, 0);
+ +    list_for_each_entry(card, &host->mmc->cards, node) {
+ +        if (mmc_card_present(card))
+ +            cards++;
+ +    }
+ +    if (mmc_omap_cover_is_open(host)) {
+ +        if (!complained) {
+ +            dev_info(mmc_dev(host->mmc), "cover is open");
+ +            complained = 1;
+ +        }
+ +        if (mmc_omap_enable_poll)
+ +            mod_timer(&host->switch_timer, jiffies +
+ +                msecs_to_jiffies(OMAP_MMC_SWITCH_POLL_DELAY));
+ +    } else {
+ +        complained = 0;
+ +    }
+ +}
+ +
+ +/* Prepare to transfer the next segment of a scatterlist */
+ +static void
+ +mmc_omap_prepare_dma(struct mmc_omap_host *host, struct mmc_data *data)
+ +{
+ +    int dma_ch = host->dma_ch;
+ +    unsigned long data_addr;
+ +    u16 buf, frame;
+ +    u32 count;
+ +    struct scatterlist *sg = &data->sg[host->sg_idx];
+ +    int src_port = 0;
+ +    int dst_port = 0;
+ +    int sync_dev = 0;
+ +
+ +    data_addr = io_v2p((u32) host->base) + OMAP_MMC_REG_DATA;
+ +    frame = 1 << data->blksz_bits;
+ +    count = sg_dma_len(sg);
+ +
+ +    if ((data->blocks == 1) && (count > (1 << data->blksz_bits)))
+ +        count = frame;
+ +
+ +    host->dma_len = count;
+ +
+ +    /* FIFO is 16x2 bytes on 15xx, and 32x2 bytes on 16xx and 24xx.
+ +     * Use 16 or 32 word frames when the blocksize is at least that large.
+ +     * Blocksize is usually 512 bytes; but not for some SD reads.
+ +     */
+ +    if (cpu_is_omap15xx() && frame > 32)
+ +        frame = 32;
+ +    else if (frame > 64)
+ +        frame = 64;
+ +    count /= frame;
+ +    frame >>= 1;
+ +
+ +    if (!(data->flags & MMC_DATA_WRITE)) {
+ +        buf = 0x800f | ((frame - 1) << 8);
+ +
+ +        if (cpu_class_is_omap1()) {
+ +            src_port = OMAP_DMA_PORT_TIPB;
+ +            dst_port = OMAP_DMA_PORT_EMIFF;
+ +        }
+ +        if (cpu_is_omap24xx())
+ +            sync_dev = OMAP24XX_DMA_MMC1_RX;
+ +
+ +        omap_set_dma_src_params(dma_ch, src_port,
+ +                    OMAP_DMA_AMODE_CONSTANT,
+ +                    data_addr, 0, 0);
+ +        omap_set_dma_dest_params(dma_ch, dst_port,
+ +                     OMAP_DMA_AMODE_POST_INC,
+ +                     sg_dma_address(sg), 0, 0);
+ +        omap_set_dma_dest_data_pack(dma_ch, 1);
+ +        omap_set_dma_dest_burst_mode(dma_ch, OMAP_DMA_DATA_BURST_4);
+ +    } else {
+ +        buf = 0x0f80 | ((frame - 1) << 0);
+ +
+ +        if (cpu_class_is_omap1()) {
+ +            src_port = OMAP_DMA_PORT_EMIFF;
+ +            dst_port = OMAP_DMA_PORT_TIPB;
+ +        }
+ +        if (cpu_is_omap24xx())
+ +            sync_dev = OMAP24XX_DMA_MMC1_TX;
+ +
+ +        omap_set_dma_dest_params(dma_ch, dst_port,
+ +                     OMAP_DMA_AMODE_CONSTANT,
+ +                     data_addr, 0, 0);
+ +        omap_set_dma_src_params(dma_ch, src_port,
+ +                    OMAP_DMA_AMODE_POST_INC,
+ +                    sg_dma_address(sg), 0, 0);
+ +        omap_set_dma_src_data_pack(dma_ch, 1);
+ +        omap_set_dma_src_burst_mode(dma_ch, OMAP_DMA_DATA_BURST_4);
+ +    }
+ +
+ +    /* Max limit for DMA frame count is 0xffff */
+ +    if (unlikely(count > 0xffff))
+ +        BUG();
+ +
+ +    OMAP_MMC_WRITE(host->base, BUF, buf);
+ +    omap_set_dma_transfer_params(dma_ch, OMAP_DMA_DATA_TYPE_S16,
+ +                     frame, count, OMAP_DMA_SYNC_FRAME,
+ +                     sync_dev, 0);
+ +}
+ +
+ +/* A scatterlist segment completed */
+ +static void mmc_omap_dma_cb(int lch, u16 ch_status, void *data)
+ +{
+ +    struct mmc_omap_host *host = (struct mmc_omap_host *) data;
+ +    struct mmc_data *mmcdat = host->data;
+ +
+ +    if (unlikely(host->dma_ch < 0)) {
+ +        dev_err(mmc_dev(host->mmc), "DMA callback while DMA not
+ +                enabled\n");
+ +        return;
+ +    }
+ +    /* FIXME: We really should do something to _handle_ the errors */
+ +    if (ch_status & OMAP_DMA_TOUT_IRQ) {
+ +        dev_err(mmc_dev(host->mmc),"DMA timeout\n");
+ +        return;
+ +    }
+ +    if (ch_status & OMAP_DMA_DROP_IRQ) {
+ +        dev_err(mmc_dev(host->mmc), "DMA sync error\n");
+ +        return;
+ +    }
+ +    if (!(ch_status & OMAP_DMA_BLOCK_IRQ)) {
+ +        return;
+ +    }
+ +    mmcdat->bytes_xfered += host->dma_len;
+ +    host->sg_idx++;
+ +    if (host->sg_idx < host->sg_len) {
+ +        mmc_omap_prepare_dma(host, host->data);
+ +        omap_start_dma(host->dma_ch);
+ +    } else
+ +        mmc_omap_dma_done(host, host->data);
+ +}
+ +
+ +static int mmc_omap_get_dma_channel(struct mmc_omap_host *host,
+struct mmc_data *data)
+ +{
+ +    const char *dev_name;
+ +    int sync_dev, dma_ch, is_read, r;
+ +
+ +    is_read = !(data->flags & MMC_DATA_WRITE);
+ +    del_timer_sync(&host->dma_timer);
+ +    if (host->dma_ch >= 0) {
+ +        if (is_read == host->dma_is_read)
+ +            return 0;
+ +        omap_free_dma(host->dma_ch);
+ +        host->dma_ch = -1;
+ +    }
+ +
+ +    if (is_read) {
+ +        if (host->id == 1) {
+ +            sync_dev = OMAP_DMA_MMC_RX;
+ +            dev_name = "MMC1 read";
+ +        } else {
+ +            sync_dev = OMAP_DMA_MMC2_RX;
+ +            dev_name = "MMC2 read";
+ +        }
+ +    } else {
+ +        if (host->id == 1) {
+ +            sync_dev = OMAP_DMA_MMC_TX;
+ +            dev_name = "MMC1 write";
+ +        } else {
+ +            sync_dev = OMAP_DMA_MMC2_TX;
+ +            dev_name = "MMC2 write";
+ +        }
+ +    }
+ +    r = omap_request_dma(sync_dev, dev_name, mmc_omap_dma_cb,
+ +                 host, &dma_ch);
+ +    if (r != 0) {
+ +        dev_dbg(mmc_dev(host->mmc), "omap_request_dma() failed with %d\n", r);
+ +        return r;
+ +    }
+ +    host->dma_ch = dma_ch;
+ +    host->dma_is_read = is_read;
+ +
+ +    return 0;
+ +}
+ +
+ +static inline void set_cmd_timeout(struct mmc_omap_host *host,
+struct mmc_request *req)
+ +{
+ +    u16 reg;
+ +
+ +    reg = OMAP_MMC_READ(host->base, SDIO);
+ +    reg &= ~(1 << 5);
+ +    OMAP_MMC_WRITE(host->base, SDIO, reg);
+ +    /* Set maximum timeout */
+ +    OMAP_MMC_WRITE(host->base, CTO, 0xff);
+ +}
+ +
+ +static inline void set_data_timeout(struct mmc_omap_host *host,
+struct mmc_request *req)
+ +{
+ +    int timeout;
+ +    u16 reg;
+ +
+ +    /* Convert ns to clock cycles by assuming 20MHz frequency
+ +     * 1 cycle at 20MHz = 500 ns
+ +     */
+ +    timeout = req->data->timeout_clks + req->data->timeout_ns / 500;
+ +
+ +    /* Check if we need to use timeout multiplier register */
+ +    reg = OMAP_MMC_READ(host->base, SDIO);
+ +    if (timeout > 0xffff) {
+ +        reg |= (1 << 5);
+ +        timeout /= 1024;
+ +    } else
+ +        reg &= ~(1 << 5);
+ +    OMAP_MMC_WRITE(host->base, SDIO, reg);
+ +    OMAP_MMC_WRITE(host->base, DTO, timeout);
+ +}
+ +
+ +static void
+ +mmc_omap_prepare_data(struct mmc_omap_host *host, struct mmc_request *req)
+ +{
+ +    struct mmc_data *data = req->data;
+ +    int i, use_dma, block_size;
+ +    unsigned sg_len;
+ +
+ +    host->data = data;
+ +    if (data == NULL) {
+ +        OMAP_MMC_WRITE(host->base, BLEN, 0);
+ +        OMAP_MMC_WRITE(host->base, NBLK, 0);
+ +        OMAP_MMC_WRITE(host->base, BUF, 0);
+ +        host->dma_in_use = 0;
+ +        set_cmd_timeout(host, req);
+ +        return;
+ +    }
+ +
+ +
+ +    block_size = 1 << data->blksz_bits;
+ +
+ +    OMAP_MMC_WRITE(host->base, NBLK, data->blocks - 1);
+ +    OMAP_MMC_WRITE(host->base, BLEN, block_size - 1);
+ +    set_data_timeout(host, req);
+ +
+ +    /* cope with calling layer confusion; it issues "single
+ +     * block" writes using multi-block scatterlists.
+ +     */
+ +    sg_len = (data->blocks == 1) ? 1 : data->sg_len;
+ +
+ +    /* Only do DMA for entire blocks */
+ +    use_dma = host->use_dma;
+ +    if (use_dma) {
+ +        for (i = 0; i < sg_len; i++) {
+ +            if ((data->sg[i].length % block_size) != 0) {
+ +                use_dma = 0;
+ +                break;
+ +            }
+ +        }
+ +    }
+ +
+ +    host->sg_idx = 0;
+ +    if (use_dma) {
+ +        if (mmc_omap_get_dma_channel(host, data) == 0) {
+ +            enum dma_data_direction dma_data_dir;
+ +
+ +            if (data->flags & MMC_DATA_WRITE)
+ +                dma_data_dir = DMA_TO_DEVICE;
+ +            else
+ +                dma_data_dir = DMA_FROM_DEVICE;
+ +
+ +            host->sg_len = dma_map_sg(mmc_dev(host->mmc), data->sg,
+ +                        sg_len, dma_data_dir);
+ +            host->total_bytes_left = 0;
+ +            mmc_omap_prepare_dma(host, req->data);
+ +            host->brs_received = 0;
+ +            host->dma_done = 0;
+ +            host->dma_in_use = 1;
+ +        } else
+ +            use_dma = 0;
+ +    }
+ +
+ +    /* Revert to PIO? */
+ +    if (!use_dma) {
+ +        OMAP_MMC_WRITE(host->base, BUF, 0x1f1f);
+ +        host->total_bytes_left = data->blocks * block_size;
+ +        host->sg_len = sg_len;
+
+ +        mmc_omap_sg_to_buf(host);
+ +        host->dma_in_use = 0;
+ +    }
+ +}
+ +
+ +static void mmc_omap_request(struct mmc_host *mmc, struct mmc_request *req)
+ +{
+ +    struct mmc_omap_host *host = mmc_priv(mmc);
+ +
+ +    WARN_ON(host->mrq != NULL);
+ +
+ +    host->mrq = req;
+ +
+ +    /* only touch fifo AFTER the controller readies it */
+ +    mmc_omap_prepare_data(host, req);
+ +    mmc_omap_start_command(host, req->cmd);
+ +    if (host->dma_in_use)
+ +        omap_start_dma(host->dma_ch);
+ +}
+ +
+ +static void innovator_fpga_socket_power(int on)
+ +{
+ +#if defined(CONFIG_MACH_OMAP_INNOVATOR) && defined(CONFIG_ARCH_OMAP15XX)
+ +
+ +    if (on) {
+ +        fpga_write(fpga_read(OMAP1510_FPGA_POWER) | (1 << 3),
+ +             OMAP1510_FPGA_POWER);
+ +    } else {
+ +        fpga_write(fpga_read(OMAP1510_FPGA_POWER) & ~(1 << 3),
+ +             OMAP1510_FPGA_POWER);
+ +    }
+ +#endif
+ +}
+ +
+ +/*
+ + * Turn the socket power on/off. Innovator uses FPGA, most boards
+ + * probably use GPIO.
+ + */
+ +static void mmc_omap_power(struct mmc_omap_host *host, int on)
+ +{
+ +    if (on) {
+ +        if (machine_is_omap_innovator())
+ +            innovator_fpga_socket_power(1);
+ +        else if (machine_is_omap_h2())
+ +            tps65010_set_gpio_out_value(GPIO3, HIGH);
+ +        else if (machine_is_omap_h3())
+ +            /* GPIO 4 of TPS65010 sends SD_EN signal */
+ +            tps65010_set_gpio_out_value(GPIO4, HIGH);
+ +        else if (cpu_is_omap24xx()) {
+ +            u16 reg = OMAP_MMC_READ(host->base, CON);
+ +            OMAP_MMC_WRITE(host->base, CON, reg | (1 << 11));
+ +        } else
+ +            if (host->power_pin >= 0)
+ +                omap_set_gpio_dataout(host->power_pin, 1);
+ +    } else {
+ +        if (machine_is_omap_innovator())
+ +            innovator_fpga_socket_power(0);
+ +        else if (machine_is_omap_h2())
+ +            tps65010_set_gpio_out_value(GPIO3, LOW);
+ +        else if (machine_is_omap_h3())
+ +            tps65010_set_gpio_out_value(GPIO4, LOW);
+ +        else if (cpu_is_omap24xx()) {
+ +            u16 reg = OMAP_MMC_READ(host->base, CON);
+ +            OMAP_MMC_WRITE(host->base, CON, reg & ~(1 << 11));
+ +        } else
+ +            if (host->power_pin >= 0)
+ +                omap_set_gpio_dataout(host->power_pin, 0);
+ +    }
+ +}
+ +
+ +static void mmc_omap_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ +{
+ +    struct mmc_omap_host *host = mmc_priv(mmc);
+ +    int dsor;
+ +    int realclock, i;
+ +
+ +    realclock = ios->clock;
+ +
+ +    if (ios->clock == 0)
+ +        dsor = 0;
+ +    else {
+ +        int func_clk_rate = clk_get_rate(host->fclk);
+ +
+ +        dsor = func_clk_rate / realclock;
+ +        if (dsor < 1)
+ +            dsor = 1;
+ +
+ +        if (func_clk_rate / dsor > realclock)
+ +            dsor++;
+ +
+ +        if (dsor > 250)
+ +            dsor = 250;
+ +        dsor++;
+ +
+ +        if (ios->bus_width == MMC_BUS_WIDTH_4)
+ +            dsor |= 1 << 15;
+ +    }
+ +
+ +    switch (ios->power_mode) {
+ +    case MMC_POWER_OFF:
+ +        mmc_omap_power(host, 0);
+ +        break;
+ +    case MMC_POWER_UP:
+ +    case MMC_POWER_ON:
+ +        mmc_omap_power(host, 1);
+ +        dsor |= 1<<11;
+ +        break;
+ +    }
+ +
+ +    host->bus_mode = ios->bus_mode;
+ +    host->hw_bus_mode = host->bus_mode;
+ +
+ +    clk_enable(host->fclk);
+ +
+ +    /* On insanely high arm_per frequencies something sometimes
+ +     * goes somehow out of sync, and the POW bit is not being set,
+ +     * which results in the while loop below getting stuck.
+ +     * Writing to the CON register twice seems to do the trick. */
+ +    for (i = 0; i < 2; i++)
+ +        OMAP_MMC_WRITE(host->base, CON, dsor);
+ +    if (ios->power_mode == MMC_POWER_UP) {
+ +        /* Send clock cycles, poll completion */
+ +        OMAP_MMC_WRITE(host->base, IE, 0);
+ +        OMAP_MMC_WRITE(host->base, STAT, 0xffff);
+ +        OMAP_MMC_WRITE(host->base, CMD, 1<<7);
+ +        while (0 == (OMAP_MMC_READ(host->base, STAT) & 1));
+ +        OMAP_MMC_WRITE(host->base, STAT, 1);
+ +    }
+ +    clk_disable(host->fclk);
+ +}
+ +
+ +static int mmc_omap_get_ro(struct mmc_host *mmc)
+ +{
+ +    struct mmc_omap_host *host = mmc_priv(mmc);
+ +
+ +    return host->wp_pin && omap_get_gpio_datain(host->wp_pin);
+ +}
+ +
+ +static struct mmc_host_ops mmc_omap_ops = {
+ +    .request    = mmc_omap_request,
+ +    .set_ios    = mmc_omap_set_ios,
+ +    .get_ro        = mmc_omap_get_ro,
+ +};
+
+ +
+ +static int __init mmc_omap_probe(struct platform_device *pdev)
+ +{
+ +    struct omap_mmc_conf *minfo = pdev->dev.platform_data;
+ +    struct mmc_host *mmc;
+ +    struct mmc_omap_host *host = NULL;
+ +    int ret = 0;
+ +
+ +    if (platform_get_resource(pdev, IORESOURCE_MEM, 0) ||
+ +            platform_get_irq(pdev, IORESOURCE_IRQ, 0)) {
+ +        dev_err(&pdev->dev, "mmc_omap_probe: invalid resource type\n");
+ +        return -ENODEV;
+ +    }
+ +
+ +    if (!request_mem_region(pdev->resource[0].start,
+ +                pdev->resource[0].end - pdev->resource[0].start + 1,
+ +                pdev->name)) {
+ +        dev_dbg(&pdev->dev, "request_mem_region failed\n");
+ +        return -EBUSY;
+ +    }
+ +
+ +    mmc = mmc_alloc_host(sizeof(struct mmc_omap_host), &pdev->dev);
+ +    if (!mmc) {
+ +        ret = -ENOMEM;
+ +        goto out;
+ +    }
+ +
+ +    host = mmc_priv(mmc);
+ +    host->mmc = mmc;
+ +
+ +    spin_lock_init(&host->dma_lock);
+ +    init_timer(&host->dma_timer);
+ +    host->dma_timer.function = mmc_omap_dma_timer;
+ +    host->dma_timer.data = (unsigned long) host;
+ +
+ +    host->id = pdev->id;
+ +
+ +    if (cpu_is_omap24xx()) {
+ +        host->iclk = clk_get(&pdev->dev, "mmc_ick");
+ +        if (IS_ERR(host->iclk))
+ +            goto out;
+ +        clk_enable(host->iclk);
+ +    }
+ +
+ +    if (!cpu_is_omap24xx())
+ +        host->fclk = clk_get(&pdev->dev, "mmc_ck");
+ +    else
+ +        host->fclk = clk_get(&pdev->dev, "mmc_fck");
+ +
+ +    if (IS_ERR(host->fclk)) {
+ +        ret = PTR_ERR(host->fclk);
+ +        goto out;
+ +    }
+ +
+ +    /* REVISIT:
+ +     * Also, use minfo->cover to decide how to manage
+ +     * the card detect sensing.
+ +     */
+ +    host->power_pin = minfo->power_pin;
+ +    host->switch_pin = minfo->switch_pin;
+ +    host->wp_pin = minfo->wp_pin;
+ +    host->use_dma = 1;
+ +    host->dma_ch = -1;
+ +
+ +    host->irq = pdev->resource[1].start;
+ +    host->base = ioremap(pdev->res.start, SZ_4K);
+ +
+ +     if (minfo->wire4)
+
+ +         mmc->caps |= MMC_CAP_4_BIT_DATA;
+ +
+ +    mmc->ops = &mmc_omap_ops;
+ +    mmc->f_min = 400000;
+ +    mmc->f_max = 24000000;
+ +    mmc->ocr_avail = MMC_VDD_32_33|MMC_VDD_33_34;
+ +
+ +    /* Use scatterlist DMA to reduce per-transfer costs.
+ +     * NOTE max_seg_size assumption that small blocks aren't
+ +     * normally used (except e.g. for reading SD registers).
+ +     */
+ +    mmc->max_phys_segs = 32;
+ +    mmc->max_hw_segs = 32;
+ +    mmc->max_sectors = 256; /* NBLK max 11-bits, OMAP also limited by DMA */
+ +    mmc->max_seg_size = mmc->max_sectors * 512;
+ +
+ +    if (host->power_pin >= 0) {
+ +        if ((ret = omap_request_gpio(host->power_pin)) != 0) {
+ +            dev_err(mmc_dev(host->mmc), "Unable to get GPIO
+ +                    pin for MMC power\n");
+ +            goto out;
+ +        }
+ +        omap_set_gpio_direction(host->power_pin, 0);
+ +    }
+ +
+ +    ret = request_irq(host->irq, mmc_omap_irq, 0, DRIVER_NAME, host);
+ +    if (ret)
+ +        goto out;
+ +
+ +    host->dev = &pdev->dev;
+ +    platform_set_drvdata(pdev, host);
+ +
+ +    mmc_add_host(mmc);
+ +
+ +    if (host->switch_pin >= 0) {
+ +        INIT_WORK(&host->switch_work, mmc_omap_switch_handler, host);
+ +        init_timer(&host->switch_timer);
+ +        host->switch_timer.function = mmc_omap_switch_timer;
+ +        host->switch_timer.data = (unsigned long) host;
+ +        if (omap_request_gpio(host->switch_pin) != 0) {
+ +            dev_warn(mmc_dev(host->mmc), "Unable to get GPIO pin for
+MMC cover switch\n");
+ +            host->switch_pin = -1;
+ +            goto no_switch;
+ +        }
+ +
+ +        omap_set_gpio_direction(host->switch_pin, 1);
+ +        ret = request_irq(OMAP_GPIO_IRQ(host->switch_pin),
+ +                  mmc_omap_switch_irq, SA_TRIGGER_RISING, DRIVER_NAME, host);
+ +        if (ret) {
+ +            dev_warn(mmc_dev(host->mmc), "Unable to get IRQ for MMC
+cover switch\n");
+ +            omap_free_gpio(host->switch_pin);
+ +            host->switch_pin = -1;
+ +            goto no_switch;
+ +        }
+ +        ret = device_create_file(&pdev->dev, &dev_attr_cover_switch);
+ +        if (ret == 0) {
+ +            ret = device_create_file(&pdev->dev, &dev_attr_enable_poll);
+ +            if (ret != 0)
+ +                device_remove_file(&pdev->dev, &dev_attr_cover_switch);
+ +        }
+ +        if (ret) {
+ +            dev_wan(mmc_dev(host->mmc), "Unable to create sysfs
+attributes\n");
+ +            free_irq(OMAP_GPIO_IRQ(host->switch_pin), host);
+ +            omap_free_gpio(host->switch_pin);
+ +            host->switch_pin = -1;
+ +            goto no_switch;
+ +        }
+ +        if (mmc_omap_enable_poll && mmc_omap_cover_is_open(host))
+ +            schedule_work(&host->switch_work);
+ +    }
+ +
+ +no_switch:
+ +    return 0;
+ +
+ +out:
+ +    /* FIXME: Free other resources too. */
+ +    if (host) {
+ +        if (host->iclk && !IS_ERR(host->iclk))
+ +            clk_put(host->iclk);
+ +        if (host->fclk && !IS_ERR(host->fclk))
+ +            clk_put(host->fclk);
+ +        mmc_free_host(host->mmc);
+ +    }
+ +    return ret;
+ +}
+ +
+ +static int mmc_omap_remove(struct platform_device *pdev)
+ +{
+ +    struct mmc_omap_host *host = platform_get_drvdata(pdev);
+ +
+ +    platform_set_drvdata(pdev, NULL);
+ +
+ +    if (host) {
+ +        mmc_remove_host(host->mmc);
+ +        free_irq(host->irq, host);
+ +
+ +        if (host->power_pin >= 0)
+ +            omap_free_gpio(host->power_pin);
+ +        if (host->switch_pin >= 0) {
+ +            device_remove_file(&pdev->dev, &dev_attr_enable_poll);
+ +            device_remove_file(&pdev->dev, &dev_attr_cover_switch);
+ +            free_irq(OMAP_GPIO_IRQ(host->switch_pin), host);
+ +            omap_free_gpio(host->switch_pin);
+ +            host->switch_pin = -1;
+ +            del_timer_sync(&host->switch_timer);
+ +            flush_scheduled_work();
+ +        }
+ +        if (host->iclk && !IS_ERR(host->iclk))
+ +            clk_put(host->iclk);
+ +        if (host->fclk && !IS_ERR(host->fclk))
+ +            clk_put(host->fclk);
+ +        mmc_free_host(host->mmc);
+ +    }
+ +
+ +    release_mem_region(pdev->resource[0].start,
+ +            pdev->resource[0].end - pdev->resource[0].start + 1);
+ +
+ +    return 0;
+ +}
+ +
+ +#ifdef CONFIG_PM
+ +static int mmc_omap_suspend(struct platform_device *pdev, pm_message_t mesg)
+ +{
+ +    int ret = 0;
+ +    struct mmc_omap_host *host = platform_get_drvdata(pdev);
+ +
+ +    if (host && host->suspended)
+ +        return 0;
+ +
+ +    if (host) {
+ +        ret = mmc_suspend_host(host->mmc, mesg);
+ +        if (ret == 0)
+ +            host->suspended = 1;
+ +    }
+ +    return ret;
+ +}
+ +
+ +static int mmc_omap_resume(struct platform_device *pdev)
+ +{
+ +    int ret = 0;
+ +    struct mmc_omap_host *host = platform_get_drvdata(pdev);
+ +
+ +    if (host && !host->suspended)
+ +        return 0;
+ +
+ +    if (host) {
+ +        ret = mmc_resume_host(host->mmc);
+ +        if (ret == 0)
+ +            host->suspended = 0;
+ +    }
+ +
+ +    return ret;
+ +}
+ +#else
+ +#define mmc_omap_suspend    NULL
+ +#define mmc_omap_resume        NULL
+ +#endif
+ +
+ +static struct platform_driver mmc_omap_driver = {
+ +    .probe        = mmc_omap_probe,
+ +    .remove        = mmc_omap_remove,
+ +    .suspend    = mmc_omap_suspend,
+ +    .resume        = mmc_omap_resume,
+ +    .driver        = {
+ +        .name    = DRIVER_NAME,
+ +    },
+ +};
+ +
+ +static int __init mmc_omap_init(void)
+ +{
+ +    return platform_driver_register(&mmc_omap_driver);
+ +}
+ +
+ +static void __exit mmc_omap_exit(void)
+ +{
+ +    platform_driver_unregister(&mmc_omap_driver);
+ +}
+ +
+ +module_init(mmc_omap_init);
+ +module_exit(mmc_omap_exit);
+ +
+ +MODULE_DESCRIPTION("OMAP Multimedia Card driver");
+ +MODULE_LICENSE("GPL");
+ +MODULE_ALIAS(DRIVER_NAME);
+ +MODULE_AUTHOR("Juha Yrjölä");
+ Index: linux-2.6.16-rc5-git7/drivers/mmc/omap.h
+ ===================================================================
+ --- /dev/null    1970-01-01 00:00:00.000000000 +0000
+ +++ linux-2.6.16-rc5-git7/drivers/mmc/omap.h    2006-03-03
+08:20:33.000000000 -0400
+ @@ -0,0 +1,55 @@
+ +#ifndef    DRIVERS_MEDIA_MMC_OMAP_H
+ +#define    DRIVERS_MEDIA_MMC_OMAP_H
+ +
+ +#define    OMAP_MMC_REG_CMD    0x00
+ +#define    OMAP_MMC_REG_ARGL    0x04
+ +#define    OMAP_MMC_REG_ARGH    0x08
+ +#define    OMAP_MMC_REG_CON    0x0c
+ +#define    OMAP_MMC_REG_STAT    0x10
+ +#define    OMAP_MMC_REG_IE        0x14
+ +#define    OMAP_MMC_REG_CTO    0x18
+ +#define    OMAP_MMC_REG_DTO    0x1c
+ +#define    OMAP_MMC_REG_DATA    0x20
+ +#define    OMAP_MMC_REG_BLEN    0x24
+ +#define    OMAP_MMC_REG_NBLK    0x28
+ +#define    OMAP_MMC_REG_BUF    0x2c
+ +#define OMAP_MMC_REG_SDIO    0x34
+ +#define    OMAP_MMC_REG_REV    0x3c
+ +#define    OMAP_MMC_REG_RSP0    0x40
+ +#define    OMAP_MMC_REG_RSP1    0x44
+ +#define    OMAP_MMC_REG_RSP2    0x48
+ +#define    OMAP_MMC_REG_RSP3    0x4c
+ +#define    OMAP_MMC_REG_RSP4    0x50
+ +#define    OMAP_MMC_REG_RSP5    0x54
+ +#define    OMAP_MMC_REG_RSP6    0x58
+ +#define    OMAP_MMC_REG_RSP7    0x5c
+ +#define    OMAP_MMC_REG_IOSR    0x60
+ +#define    OMAP_MMC_REG_SYSC    0x64
+ +#define    OMAP_MMC_REG_SYSS    0x68
+ +
+ +#define    OMAP_MMC_STAT_CARD_ERR        (1 << 14)
+ +#define    OMAP_MMC_STAT_CARD_IRQ        (1 << 13)
+ +#define    OMAP_MMC_STAT_OCR_BUSY        (1 << 12)
+ +#define    OMAP_MMC_STAT_A_EMPTY        (1 << 11)
+ +#define    OMAP_MMC_STAT_A_FULL        (1 << 10)
+ +#define    OMAP_MMC_STAT_CMD_CRC        (1 <<  8)
+ +#define    OMAP_MMC_STAT_CMD_TOUT        (1 <<  7)
+ +#define    OMAP_MMC_STAT_DATA_CRC        (1 <<  6)
+ +#define    OMAP_MMC_STAT_DATA_TOUT        (1 <<  5)
+ +#define    OMAP_MMC_STAT_END_BUSY        (1 <<  4)
+ +#define    OMAP_MMC_STAT_END_OF_DATA    (1 <<  3)
+ +#define    OMAP_MMC_STAT_CARD_BUSY        (1 <<  2)
+ +#define    OMAP_MMC_STAT_END_OF_CMD    (1 <<  0)
+ +
+ +#define OMAP_MMC_READ(base, reg)    __raw_readw((base) + OMAP_MMC_REG_##reg)
+ +#define OMAP_MMC_WRITE(base, reg, val)    __raw_writew((val), (base)
++ OMAP_MMC_REG_##reg)
+ +
+ +/*
+ + * Command types
+ + */
+ +#define OMAP_MMC_CMDTYPE_BC    0
+ +#define OMAP_MMC_CMDTYPE_BCR    1
+ +#define OMAP_MMC_CMDTYPE_AC    2
+ +#define OMAP_MMC_CMDTYPE_ADTC    3
+ +
+ +#endif

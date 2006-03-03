@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWCCQu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWCCQw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030179AbWCCQu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWCCQu3
+	id S932101AbWCCQw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWCCQw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:50:29 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:16301 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030179AbWCCQu2
+	Fri, 3 Mar 2006 11:52:56 -0500
+Received: from mail.fieldses.org ([66.93.2.214]:29872 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S932101AbWCCQwz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:50:28 -0500
-Subject: Re: [PATCH 3/4] map multiple blocks for mpage_readpages()
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060301204502.63330347.akpm@osdl.org>
-References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
-	 <1141075456.10542.25.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060301204502.63330347.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 08:51:54 -0800
-Message-Id: <1141404714.10542.62.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Mar 2006 11:52:55 -0500
+Date: Fri, 3 Mar 2006 11:52:51 -0500
+To: David Howells <dhowells@redhat.com>
+Cc: Sam Vilain <sam@vilain.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: [PATCH 3/5] NFS: Abstract out namespace initialisation [try #2]]
+Message-ID: <20060303165251.GE32552@fieldses.org>
+References: <44074CFD.7050708@vilain.net> <20060302084448.GA21902@infradead.org> <440613FF.4040807@vilain.net> <3254.1141299348@warthog.cambridge.redhat.com> <5923.1141333943@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5923.1141333943@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-01 at 20:45 -0800, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> >  do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
-> >  -			sector_t *last_block_in_bio, get_block_t get_block)
-> >  +			sector_t *last_block_in_bio, struct buffer_head *map_bh,
-> >  +			unsigned long *first_logical_block, int *map_valid,
-> >  +			get_block_t get_block)
+On Thu, Mar 02, 2006 at 09:12:23PM +0000, David Howells wrote:
+> No. It has to be permissable to make a series of patches that depend one upon
+> another for at least three reasons:
 > 
-> I wonder if we really need that map_valid pointer there.  The normal way of
-> communicating the validity of a bh is via buffer_uptodate().  I _think_
-> that's an appropriate thing to use here.  With appropriate comments, of
-> course..
+>  (1) Patches can be unmanageably large in one lump, so splitting them up is a
+>      sensible option, even through the individual patches won't work or even
+>      compile independently.
+
+That breaks git-bisect.
+
+>  (2) It may make sense to place linked changes to two logically separate units
+>      in two separate patches, for instance I'm changing the core kernel to add
+>      an extra argument to get_sb() and the get_sb_*() convenience functions in
+>      one patch and then supplying another patch to change all the filesystems.
 > 
-> If those options are not a sufficiently good fit then we can easily create
-> a new buffer-head.state bit for this purpose - there are lots to spare.
+>      This makes it much easier for a reviewer to see what's going on. They know
+>      the patches are interdependent, but they can see the main core of the
+>      changes separated out from the massively repetative but basically less
+>      interesting changes that are a side effect of the main change.
 
-Yep. Can be done. I will take a pass at it.
+It's also much easier to read a series of patches if each patch depends
+only on the previous patches.  Then if I want to verify that they don't
+break anything, I just need to read them through in order and verify
+that each one is correct.
 
-Thanks,
-Badari
+If earlier patches depend on later patches, then I may not be able to
+verify correctness until I've read and understand the whole series,
+which defeats somewhat the purpose of splitting up the patches.  Though
+the above example wouldn't really be a problem.
 
+And of course it seems rather silly to complain about splitting out a
+function before adding the new caller.
+
+--b.

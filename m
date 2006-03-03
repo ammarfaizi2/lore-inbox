@@ -1,93 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWCCQKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWCCQRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWCCQKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCCQKF
+	id S932212AbWCCQRx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWCCQRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:10:05 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:27653 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S932083AbWCCQKC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:10:02 -0500
-Message-ID: <44086A4F.1040403@arcom.com>
-Date: Fri, 03 Mar 2006 16:09:51 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jayakumar.alsa@gmail.com
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH] ALSA: CS5535: shorter delays when accessing AC'97 codec registers
-Content-Type: multipart/mixed;
- boundary="------------060803090207050707030804"
-X-OriginalArrivalTime: 03 Mar 2006 16:09:56.0171 (UTC) FILETIME=[E9BAF9B0:01C63EDC]
+	Fri, 3 Mar 2006 11:17:53 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:9470 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932107AbWCCQRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 11:17:52 -0500
+Date: Sat, 04 Mar 2006 01:17:47 +0900 (JST)
+Message-Id: <20060304.011747.07644094.anemo@mba.ocn.ne.jp>
+To: tbm@cyrius.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jbowler@acm.org
+Subject: Re: [RFC] [PATCH 1/2] Driver to remember ethernet MAC values:
+ maclist
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060220010113.GA19309@deprecation.cyrius.com>
+References: <20060220010113.GA19309@deprecation.cyrius.com>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060803090207050707030804
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+>>>>> On Mon, 20 Feb 2006 01:01:13 +0000, Martin Michlmayr <tbm@cyrius.com> said:
 
-The 10 ms sleeps while waiting for AC'97 codec register reads/writes to
-complete are excessive given the maxmium time is one AC'97 frame (~21 us).
+tbm> Some Ethernet hardware implementations have no built-in storage
+tbm> for allocated MAC values - an example is the Intel IXP420 chip
+tbm> which has support for Ethernet but no defined way of storing
+tbm> allocated MAC values.  With such hardware different board level
+tbm> implementations store the allocated MAC (or MACs) in different
+tbm> ways.  Rather than put board level code into a specific Ethernet
+tbm> driver this driver provides a generally accessible repository for
+tbm> the MACs which can be written by board level code and read by the
+tbm> driver.
 
-With AC'97 codecs with integrated touchscreens (like the UCB1400) this
-improves the interactive performance of the touchscreen.
+Slow response:
 
-David Vrabel
--- 
-David Vrabel, Design Engineer
+It can be done with register_netdevice_notifier().  You can catch
+NETDEV_REGISTER event, check the device is what you expected by
+looking dev->irq or something, and initialize dev->dev_addr.  Whole
+these can be implemented in your board level code.
 
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
-
---------------060803090207050707030804
-Content-Type: text/plain;
- name="alsa-cs5535-quicker-ac97-register-accesses"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="alsa-cs5535-quicker-ac97-register-accesses"
-
-ALSA: CS5535: shorter delays when accessing AC'97 codec registers
-
-The 10 ms sleeps while waiting for AC'97 codec register reads/writes to
-complete are excessive given the maxmium time is one AC'97 frame (~21 us).
-
-With AC'97 codecs with integrated touchscreens (like the UCB1400) this
-improves the interactive performance of the touchscreen.
-
-Signed-off-by: David Vrabel <dvrabel@arcom.com>
-
-Index: linux-2.6-working/sound/pci/cs5535audio/cs5535audio.c
-===================================================================
---- linux-2.6-working.orig/sound/pci/cs5535audio/cs5535audio.c	2006-03-02 16:12:52.000000000 +0000
-+++ linux-2.6-working/sound/pci/cs5535audio/cs5535audio.c	2006-03-03 15:47:30.000000000 +0000
-@@ -62,7 +62,7 @@
- 		tmp = cs_readl(cs5535au, ACC_CODEC_CNTL);
- 		if (!(tmp & CMD_NEW))
- 			break;
--		msleep(10);
-+		udelay(1);
- 	} while (--timeout);
- 	if (!timeout)
- 		snd_printk(KERN_ERR "Failure writing to cs5535 codec\n");
-@@ -80,14 +80,14 @@
- 	regdata |= CMD_NEW;
- 
- 	cs_writel(cs5535au, ACC_CODEC_CNTL, regdata);
--	wait_till_cmd_acked(cs5535au, 500);
-+	wait_till_cmd_acked(cs5535au, 50);
- 
- 	timeout = 50;
- 	do {
- 		val = cs_readl(cs5535au, ACC_CODEC_STATUS);
- 		if ((val & STS_NEW) && reg == (val >> 24))
- 			break;
--		msleep(10);
-+		udelay(1);
- 	} while (--timeout);
- 	if (!timeout)
- 		snd_printk(KERN_ERR "Failure reading cs5535 codec\n");
-
---------------060803090207050707030804--
+---
+Atsushi Nemoto

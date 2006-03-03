@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752093AbWCCDuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752105AbWCCEAf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752093AbWCCDuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 22:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752103AbWCCDuF
+	id S1752105AbWCCEAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 23:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752081AbWCCEAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 22:50:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:3740 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752093AbWCCDuE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 22:50:04 -0500
-Date: Thu, 2 Mar 2006 19:48:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: ram.gupta5@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix potential jiffies overflow
-Message-Id: <20060302194841.20737363.akpm@osdl.org>
-In-Reply-To: <20060303.123110.32501622.nemoto@toshiba-tops.co.jp>
-References: <728201270603020843s4feacb1cv3a8acc620e636ffa@mail.gmail.com>
-	<20060303.113246.01208537.nemoto@toshiba-tops.co.jp>
-	<20060302184502.5177c9db.akpm@osdl.org>
-	<20060303.123110.32501622.nemoto@toshiba-tops.co.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Mar 2006 23:00:35 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53908 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1752105AbWCCEAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 23:00:34 -0500
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com, mm-commits@vger.kernel.org
+Subject: Re: + pnp-mpu401-adjust-pnp_register_driver-signature.patch added 
+ to -mm tree
+References: <200603022340.k22Neq0o014875@shell0.pdx.osdl.net>
+	<m1veuwgxd8.fsf@ebiederm.dsl.xmission.com>
+	<1084.24.9.204.52.1141357193.squirrel@mail.atl.hp.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 02 Mar 2006 20:57:37 -0700
+In-Reply-To: <1084.24.9.204.52.1141357193.squirrel@mail.atl.hp.com> (Bjorn
+ Helgaas's message of "Thu, 2 Mar 2006 20:39:53 -0700 (MST)")
+Message-ID: <m1irqwgoy6.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+"Bjorn Helgaas" <bjorn.helgaas@hp.com> writes:
+
+>>> This series of patches removes the assumption that pnp_register_driver()
+>>> returns the number of devices claimed.  Returning the count is
+>>> unreliable
+>>> because devices may be hot-plugged in the future.  (Many devices don't
+>>> support
+>>> hot-plug, of course, but PNP in general does.)
+>>
+>> Huh?
+>>
+>> How do onboard devices or ISA plug and play devices support hot-plug?
+>>
+>> Or what devices supported by the pnp subsystem support hot-plug?
 >
-> >>>>> On Thu, 2 Mar 2006 18:45:02 -0800, Andrew Morton <akpm@osdl.org> said:
-> akpm> Thanks, that looks like 2.6.16 material.
-> 
-> akpm> What happens if the machine slept for more than 49.7 days?
-> 
-> Well, jiffies will lose 49.7 days...  Then, how about this?  We can
-> sleep 136 years.
-> 
-> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-> 
-> diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
-> index a14d594..be5d079 100644
-> --- a/arch/i386/kernel/time.c
-> +++ b/arch/i386/kernel/time.c
-> @@ -400,7 +400,7 @@ static int timer_resume(struct sys_devic
->  {
->  	unsigned long flags;
->  	unsigned long sec;
-> -	unsigned long sleep_length;
-> +	u64 sleep_length;
->  
->  #ifdef CONFIG_HPET_TIMER
->  	if (is_hpet_enabled())
-> @@ -408,7 +408,7 @@ static int timer_resume(struct sys_devic
->  #endif
->  	setup_pit_timer();
->  	sec = get_cmos_time() + clock_cmos_diff;
-> -	sleep_length = (get_cmos_time() - sleep_start) * HZ;
-> +	sleep_length = (u64)(get_cmos_time() - sleep_start) * HZ;
->  	write_seqlock_irqsave(&xtime_lock, flags);
->  	xtime.tv_sec = sec;
->  	xtime.tv_nsec = 0;
+> I don't know for sure whether ISAPNP or PNPBIOS support hot-plug,
+> but ACPI does, and ACPI devices are being integrated into the
+> PNP subsystem via PNPACPI.
+>
+> One example is HP sx2000 hardware that supports hot-plug of cells.
+> Each cell contains CPUs, memory, I/O bridges, and some miscellaneous
+> hardware like on-board serial devices.  All this stuff is described
+> by ACPI, and we'd like to use PNP drivers like 8250_pnp.c when we can.
 
-but...
+Ok, hot plug of motherboards.  The pieces fall together now for me.
 
-	wall_jiffies += sleep_length;
+Most things controlled by isapnp are either cold plug or not even
+pluggable (like most serial ports).  So imaging them in a hot-plug
+situation takes some effort.  But node/cell based NUMA systems
+where you plug and unplug motherboards.  That make sense.
 
-wall_jiffies is 32-bit.
+Eric
+

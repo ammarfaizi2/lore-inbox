@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWCCPY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWCCP0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbWCCPY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 10:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCCPY0
+	id S1751463AbWCCP0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 10:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWCCP0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 10:24:26 -0500
-Received: from [198.99.130.12] ([198.99.130.12]:4249 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932100AbWCCPYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 10:24:25 -0500
-Date: Fri, 3 Mar 2006 10:25:27 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: roland <devzero@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: is there a COW inside the kernel ?
-Message-ID: <20060303152527.GA3536@ccure.user-mode-linux.org>
-References: <043101c63e9c$86e9d710$0200000a@aldipc>
-Mime-Version: 1.0
+	Fri, 3 Mar 2006 10:26:43 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48905 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750716AbWCCP0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 10:26:42 -0500
+Date: Fri, 3 Mar 2006 16:26:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Andreas Happe <andreashappe@snikt.net>
+Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com, jgarzik@pobox.com,
+       netdev@vger.kernel.org
+Subject: 2.6.16-rc5-mm2: IPW_QOS: two remarks
+Message-ID: <20060303152641.GR9295@stusta.de>
+References: <20060303045651.1f3b55ec.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <043101c63e9c$86e9d710$0200000a@aldipc>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060303045651.1f3b55ec.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 09:29:02AM +0100, roland wrote:
-> hello !
-> 
-> is there an equivalent of something like
-> 
-> cowloop ( http://www.atconsultancy.nl/cowloop/total.html ) or md based cow 
-> device ( http://www.cl.cam.ac.uk/users/br260/doc/report.pdf ),
-> 
-> i.e. a feature called "Copy On Write Blockdevice" inside the current or the 
-> near-future mainline kernel (besides UserModeLinux Arch)?
-> can someone help out with some information ?
+On Fri, Mar 03, 2006 at 04:56:51AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc5-mm1:
+>...
+>  git-netdev-all.patch
+>...
+>  git trees
+>...
 
-Miklos Szeredi announced mountlo a few days ago - this uses a UML to
-export a filesystem to the host through FUSE.  It's intended to allow
-non-privileged loopback mounting of normal file system images, but
-presumably will export a COW block device as well.
+Two remarks regarding the new IPW_QOS option:
+- it should be named IPW2200_QOS (similar to the other IPW2200_* 
+  options)
+- please add a help text
 
-I'm doing something similar, and using FUSE to export the entire UML
-filesystem to the host.
+cu
+Adrian
 
-These aren't specifically COW drivers, but they have the same effect
-as long as you have a UML with your COW device mounted.
+-- 
 
-				Jeff
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

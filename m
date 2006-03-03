@@ -1,205 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752028AbWCCHAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752086AbWCCHQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752028AbWCCHAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 02:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752061AbWCCHAi
+	id S1752086AbWCCHQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 02:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752083AbWCCHQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 02:00:38 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:58601 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1752028AbWCCHAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 02:00:37 -0500
-Message-ID: <4407E936.3070606@jp.fujitsu.com>
-Date: Fri, 03 Mar 2006 15:59:02 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Grant Grundler <grundler@parisc-linux.org>
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
-References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk> <20060302172436.GC22711@colo.lackof.org> <20060302193441.GG28895@flint.arm.linux.org.uk> <4407B564.7000303@jp.fujitsu.com>
-In-Reply-To: <4407B564.7000303@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 3 Mar 2006 02:16:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3542 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752072AbWCCHQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 02:16:23 -0500
+Date: Thu, 2 Mar 2006 23:14:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: davej@redhat.com, ashok.raj@intel.com, len.brown@intel.com, ak@suse.de,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: 2.6.16rc5 'found' an extra CPU.
+Message-Id: <20060302231452.440a91c8.akpm@osdl.org>
+In-Reply-To: <20060302112119.A13035@unix-os.sc.intel.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B30063BFB95@hdsmsx401.amr.corp.intel.com>
+	<20060302083038.A11407@unix-os.sc.intel.com>
+	<20060302184428.GB7304@redhat.com>
+	<20060302112119.A13035@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenji Kaneshige wrote:
-> Russell King wrote:
-
-(snip.)
-
->>
->> (a) should PCI remember that only BAR 1 has been requested to be enabled,
->>     and as such shouldn't pci_request_regions() ignore BAR 0?
->>
->> (b) should the PCI driver pass into pci_request_regions() (or even
->>     pci_request_regions_bars()) a bitmask of the BARs it wants to have
->>     requested, and similarly for pci_release_regions().
->>
->> Basically, if BAR0 hasn't been enabled, has pci_request_regions() got
->> any business requesting it from the resource tree?
->>
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> Local apic entries are only 8 bits, but it seemed to not be caught with 
+> u8 return value result in the check
 > 
-
-(snip.)
-
+> cpu_index >= NR_CPUS becomming always false.
 > 
-> The (a) option doesn't have this kind of problem. But it looks a little
-> strange to me that we use pci_enable_device_bars() at probe time while
-> we use pci_enable_device() at resume time, though I might be too anxious.
+> drivers/acpi/processor_core.c: In function `acpi_processor_get_info':
+> drivers/acpi/processor_core.c:483: warning: comparison is always false due to limited range of data type
 > 
+> 
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> -----------------------------------------------------
+>  drivers/acpi/processor_core.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> Index: linux-2.6.16-rc5-mm1/drivers/acpi/processor_core.c
+> ===================================================================
+> --- linux-2.6.16-rc5-mm1.orig/drivers/acpi/processor_core.c
+> +++ linux-2.6.16-rc5-mm1/drivers/acpi/processor_core.c
+> @@ -395,7 +395,7 @@ static int acpi_processor_remove_fs(stru
+>  #define ARCH_BAD_APICID		(0xff)
+>  #endif
+>  
+> -static u8 convert_acpiid_to_cpu(u8 acpi_id)
+> +static int convert_acpiid_to_cpu(u8 acpi_id)
+>  {
+>  	u16 apic_id;
+>  	int i;
+> @@ -421,7 +421,7 @@ static int acpi_processor_get_info(struc
+>  	acpi_status status = 0;
+>  	union acpi_object object = { 0 };
+>  	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
+> -	u8 cpu_index;
+> +	int cpu_index;
+>  	static int cpu0_initialized;
+>  
+>  	ACPI_FUNCTION_TRACE("acpi_processor_get_info");
+> @@ -466,7 +466,7 @@ static int acpi_processor_get_info(struc
+>  	cpu_index = convert_acpiid_to_cpu(pr->acpi_id);
+>  
+>  	/* Handle UP system running SMP kernel, with no LAPIC in MADT */
+> -	if (!cpu0_initialized && (cpu_index == 0xff) &&
+> +	if (!cpu0_initialized && (cpu_index == -1) &&
+>  	    (num_online_cpus() == 1)) {
+>  		cpu_index = 0;
+>  	}
+> @@ -480,7 +480,7 @@ static int acpi_processor_get_info(struc
+>  	 *  less than the max # of CPUs. They should be ignored _iff
+>  	 *  they are physically not present.
+>  	 */
+> -	if (cpu_index >= NR_CPUS) {
+> +	if (cpu_index == -1) {
+>  		if (ACPI_FAILURE
+>  		    (acpi_processor_hotadd_init(pr->handle, &pr->id))) {
+>  			ACPI_ERROR((AE_INFO,
 
-I noticed this is not a problem. All we need to do is just replacing
-pci_enable_device() with pci_enable_device_bars() in pci_default_resume().
-Sorry for the noise.
+On a uniprocessor build this causes a crash in acpi_processor_start():
 
-BTW, I'm attaching the sample patch which implements option (a), though
-I've not tested it at all. It looks good to me. How does it looks?
+	BUG_ON((pr->id >= NR_CPUS) || (pr->id < 0));
 
-Thanks,
-Kenji Kaneshige
+pr->id is 255.
 
+I could bodge around this in various ways, but the semantics of cpu IDs in
+there seem to be a bit opaque, and I suspect some more thought needs to go
+into it all.
 
----
- drivers/pci/pci-driver.c |    3 ++-
- drivers/pci/pci.c        |   30 +++++++++++++++++++++++-------
- include/linux/pci.h      |   12 ++++++++++++
- 3 files changed, 37 insertions(+), 8 deletions(-)
+As well as uniprocessor testing ;)
 
-Index: linux-2.6.16-rc5-mm1/drivers/pci/pci-driver.c
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/drivers/pci/pci-driver.c	2006-03-01 13:56:04.000000000 +0900
-+++ linux-2.6.16-rc5-mm1/drivers/pci/pci-driver.c	2006-03-03 14:39:57.000000000 +0900
-@@ -294,7 +294,8 @@
- 	pci_restore_state(pci_dev);
- 	/* if the device was enabled before suspend, reenable */
- 	if (pci_dev->is_enabled)
--		retval = pci_enable_device(pci_dev);
-+		retval = pci_enable_device_bars(pci_dev,
-+						pci_dev->bars_enabled);
- 	/* if the device was busmaster before the suspend, make it busmaster again */
- 	if (pci_dev->is_busmaster)
- 		pci_set_master(pci_dev);
-Index: linux-2.6.16-rc5-mm1/drivers/pci/pci.c
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/drivers/pci/pci.c	2006-03-01 13:56:04.000000000 +0900
-+++ linux-2.6.16-rc5-mm1/drivers/pci/pci.c	2006-03-03 15:46:12.000000000 +0900
-@@ -493,6 +493,9 @@
- 	err = pcibios_enable_device(dev, bars);
- 	if (err < 0)
- 		return err;
-+	pci_fixup_device(pci_fixup_enable, dev);
-+	dev->is_enabled = 1;
-+	dev->bars_enabled = bars;
- 	return 0;
- }
- 
-@@ -510,8 +513,6 @@
- 	int err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
- 	if (err)
- 		return err;
--	pci_fixup_device(pci_fixup_enable, dev);
--	dev->is_enabled = 1;
- 	return 0;
- }
- 
-@@ -546,6 +547,7 @@
- 
- 	pcibios_disable_device(dev);
- 	dev->is_enabled = 0;
-+	dev->bars_enabled = 0;
- }
- 
- /**
-@@ -628,6 +630,12 @@
- {
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return;
-+	if (pdev->bars_enabled & (1 << bar)) {
-+		dev_warn(&pdev->dev,
-+			 "Trying to release region #%d that is not enabled\n",
-+			 bar);
-+		return;
-+	}
- 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO)
- 		release_region(pci_resource_start(pdev, bar),
- 				pci_resource_len(pdev, bar));
-@@ -654,7 +662,12 @@
- {
- 	if (pci_resource_len(pdev, bar) == 0)
- 		return 0;
--		
-+	if (pdev->bars_enabled & (1 << bar)) {
-+		dev_warn(&pdev->dev,
-+			 "Trying to request region #%d that is not enabled\n",
-+			 bar);
-+		goto err_out;
-+	}
- 	if (pci_resource_flags(pdev, bar) & IORESOURCE_IO) {
- 		if (!request_region(pci_resource_start(pdev, bar),
- 			    pci_resource_len(pdev, bar), res_name))
-@@ -692,7 +705,8 @@
- 	int i;
- 	
- 	for (i = 0; i < 6; i++)
--		pci_release_region(pdev, i);
-+		if (pdev->bars_enabled & (1 << i))
-+			pci_release_region(pdev, i);
- }
- 
- /**
-@@ -713,13 +727,15 @@
- 	int i;
- 	
- 	for (i = 0; i < 6; i++)
--		if(pci_request_region(pdev, i, res_name))
--			goto err_out;
-+		if (pdev->bars_enabled & (1 << i))
-+			if(pci_request_region(pdev, i, res_name))
-+				goto err_out;
- 	return 0;
- 
- err_out:
- 	while(--i >= 0)
--		pci_release_region(pdev, i);
-+		if (pdev->bars_enabled & (1 << i))
-+			pci_release_region(pdev, i);
- 		
- 	return -EBUSY;
- }
-Index: linux-2.6.16-rc5-mm1/include/linux/pci.h
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/include/linux/pci.h	2006-03-01 13:56:06.000000000 +0900
-+++ linux-2.6.16-rc5-mm1/include/linux/pci.h	2006-03-03 15:31:58.000000000 +0900
-@@ -169,6 +169,7 @@
- 	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
-+	int	bars_enabled;		/* BARs enabled */
- };
- 
- #define pci_dev_g(n) list_entry(n, struct pci_dev, global_list)
-@@ -732,6 +733,17 @@
- }
- #endif /* HAVE_ARCH_PCI_RESOURCE_TO_USER */
- 
-+/*
-+ * This helper routine makes bar mask from the type of resource.
-+ */
-+static inline int pci_select_bars(struct pci_dev *dev, unsigned long flags)
-+{
-+	int i, bars = 0;
-+	for (i = 0; i < PCI_NUM_RESOURCES; i++)
-+		if (pci_resource_flags(dev, i) & flags)
-+			bars |= (1 << i);
-+	return bars;
-+}
- 
- /*
-  *  The world is not perfect and supplies us with broken PCI devices.

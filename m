@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWCCXZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCCX0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWCCXZE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWCCXZE
+	id S1751049AbWCCX0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWCCX0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:25:04 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:25322 "EHLO
-	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751004AbWCCXZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:25:02 -0500
-Date: Fri, 03 Mar 2006 17:25:54 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: CDROM support for Promise 20269
-In-reply-to: <5Mquh-2mT-97@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4408D082.2070203@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5Mquh-2mT-97@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 3 Mar 2006 18:26:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38580 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751033AbWCCX0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:26:02 -0500
+Date: Fri, 3 Mar 2006 15:22:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, ".geert"@linux-m68k.org,
+       zippel@linux-m68k.org, linux-m68k@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.16-rc regression: m68k CONFIG_RMW_INSNS=n compile broken
+In-Reply-To: <20060303230149.GB9295@stusta.de>
+Message-ID: <Pine.LNX.4.64.0603031515321.22647@g5.osdl.org>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+ <20060303230149.GB9295@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Treubig wrote:
-> I've been working on a problem with Promise 20269 PATA adapter under 
-> LibATA that if I attach a CDROM drive, I can not see the drive.  The 
-> message log reports that the driver sees the device, but when I'm fully 
-> booted, there's no device available.
 
-..
 
-> [  118.621489] scsi4 : pata_pdc2027x
-> [  118.643926] ata1(1): WARNING: ATAPI is disabled, device ignored.
+On Sat, 4 Mar 2006, Adrian Bunk wrote:
+> 
+> It seems the problem is that in the CONFIG_RMW_INSNS=n case, there's no 
+> cmpxchg #define in include/asm-m68k/system.h required for the 
+> atomic_add_unless #define in include/asm-m68k/atomic.h.
 
-Sounds like your problem there.. need to enable ATAPI in your 
-libata/PATA kernel configuration?
+Hmm. It seems like it never has been there.. Do you know what brought this 
+on? Was it Nick's RCU changes from "rcuref_dec_and_test()" to 
+"atomic_dec_and_test()" and friends? 
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Judging by your error messages, I _think_ it's the "atomic_inc_not_zero()" 
+that gets expanded to a cmpxchg() that simply doesn't exist on m68k and 
+never has.
 
+I guess we've never depended on cmpxchg before. Or am I missing something?
+
+		Linus

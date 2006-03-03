@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWCCK3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWCCKcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWCCK3S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 05:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWCCK3R
+	id S1751170AbWCCKcM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 05:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWCCKcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 05:29:17 -0500
-Received: from mx03.kontent.de ([81.88.34.122]:36028 "EHLO MX03.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1751184AbWCCK3R convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 05:29:17 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Date: Fri, 3 Mar 2006 11:29:00 +0100
-User-Agent: KMail/1.8
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-       =?utf-8?q?Ren=C3=A9_Rebe?= <rene@exactcode.de>,
-       linux-kernel@vger.kernel.org
-References: <200603012116.25869.rene@exactcode.de> <20060302130519.588b18a2.zaitcev@redhat.com> <200603030912.11622.duncan.sands@math.u-psud.fr>
-In-Reply-To: <200603030912.11622.duncan.sands@math.u-psud.fr>
+	Fri, 3 Mar 2006 05:32:12 -0500
+Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:38020
+	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
+	id S1751170AbWCCKcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 05:32:12 -0500
+Message-ID: <44081B32.5000408@ed-soft.at>
+Date: Fri, 03 Mar 2006 11:32:18 +0100
+From: Edgar Hucek <hostmaster@ed-soft.at>
+User-Agent: Mail/News 1.5 (X11/20060206)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603031129.00619.oliver@neukum.org>
+To: Edgar Hucek <hostmaster@ed-soft.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] EFI: Fix gdt load
+References: <4406F0C2.7090002@ed-soft.at>
+In-Reply-To: <4406F0C2.7090002@ed-soft.at>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 3. März 2006 09:12 schrieb Duncan Sands:
-> > Have you ever considered how many TDs have to be allocated to transfer
-> > a data buffer this big? No, seriously. If your application cannot deliver
-> > the tranfer speeds with 16KB URBs, we ought to consider if the combination
-> > of our USB stack, usbfs, libusb and the application ought to get serious
-> > performance enhancing surgery. The problem is obviously in the software
-> > overhead.
+Edgar Hucek wrote:
+> This patch makes the kernel bootable again on ia32 EFI systems.
 > 
-> If you queue a large number of 16KB urbs, rather than one jumbo urb,
-> does that make any difference to the number of TDs allocated?  I thought
-> TDs were allocated for all queued urbs at the moment they are queued...
+> Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -uNr linux-2.6.16-rc5/arch/i386/kernel/efi.c linux-2.6.16-rc5.efi/arch/i386/kernel/efi.c
+> --- linux-2.6.16-rc5/arch/i386/kernel/efi.c	2006-03-02 14:08:06.000000000 +0100
+> +++ linux-2.6.16-rc5.efi/arch/i386/kernel/efi.c	2006-03-02 14:04:44.000000000 +0100
+> @@ -70,7 +70,8 @@
+>  {
+>  	unsigned long cr4;
+>  	unsigned long temp;
+> -
+> +	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, 0);
+> +	
+>  	spin_lock(&efi_rt_lock);
+>  	local_irq_save(efi_rt_eflags);
+>  
+> @@ -103,18 +104,17 @@
+>  	 */
+>  	local_flush_tlb();
+>  
+> -	per_cpu(cpu_gdt_descr, 0).address =
+> -				 __pa(per_cpu(cpu_gdt_descr, 0).address);
+> -	load_gdt((struct Xgt_desc_struct *)__pa(&per_cpu(cpu_gdt_descr, 0)));
+> +	cpu_gdt_descr->address = __pa(cpu_gdt_descr->address);
+> +	load_gdt(cpu_gdt_descr);
+>  }
+>  
+>  static void efi_call_phys_epilog(void)
+>  {
+>  	unsigned long cr4;
+> +	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, 0);
+>  
+> -	per_cpu(cpu_gdt_descr, 0).address =
+> -			(unsigned long)__va(per_cpu(cpu_gdt_descr, 0).address);
+> -	load_gdt((struct Xgt_desc_struct *)__va(&per_cpu(cpu_gdt_descr, 0)));
+> +	cpu_gdt_descr->address = __va(cpu_gdt_descr->address);
+> +	load_gdt(cpu_gdt_descr);
+>  
+>  	cr4 = read_cr4();
+>  
 
-It changes the time the TDs are allocated. TDs allocated while an URB is
-in flight don't hurt bandwidth. If your throughput is low because there
-is too much delay between URBs, allocating many TDs makes matters worse.
+I don't know if it is a race condition. At least it makes the kernel bootable agin on my box.
+Any idea what i could try to make a better patch ?
 
-	Regards
-		Oliver
+cu
+
+Edgar (gimli) Hucek

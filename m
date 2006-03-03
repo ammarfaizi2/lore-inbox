@@ -1,76 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWCCRDV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWCCREd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWCCRDV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 12:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWCCRDV
+	id S1030245AbWCCREd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 12:04:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWCCREd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 12:03:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9647 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030240AbWCCRDU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 12:03:20 -0500
-Date: Fri, 3 Mar 2006 09:03:05 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, mingo@redhat.com, jblunck@suse.de, bcrl@linux.intel.com,
-       matthew@wil.cx, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Memory barriers and spin_unlock safety 
-In-Reply-To: <1146.1141404346@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0603030856260.22647@g5.osdl.org>
-References: <32518.1141401780@warthog.cambridge.redhat.com> 
- <1146.1141404346@warthog.cambridge.redhat.com>
+	Fri, 3 Mar 2006 12:04:33 -0500
+Received: from www.starshine.org ([216.240.40.167]:18102 "EHLO
+	mx.starshine.org") by vger.kernel.org with ESMTP id S1030246AbWCCREc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 12:04:32 -0500
+Date: Fri, 3 Mar 2006 09:04:17 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Re: SEEK_HOLE and SEEK_DATA support?
+Message-ID: <20060303170417.GA26909@starshine.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
+From: jimd@starshine.org (Jim Dennis)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Fri, 03 Mar 2006 10:15:05 +0100 Arjan van de Ven Wrote:
 
-On Fri, 3 Mar 2006, David Howells wrote:
+> On Fri, 2006-03-03 at 03:33 -0500, Lee Revell wrote:
+>> On Thu, 2006-03-02 at 13:49 -0800, Jim Dennis wrote:
 
-> David Howells <dhowells@redhat.com> wrote:
-> 
-> > 	WRITE mtx
-> > 	--> implies SFENCE
-> 
-> Actually, I'm not sure this is true. The AMD64 Instruction Manual's writeup of
-> SFENCE implies that writes can be reordered, which sort of contradicts what
-> the AMD64 System Programming Manual says.
+>>>  I ask primarily because of the interplay between 64-bit systems and
+>>>  things like /var/log/lastlog (which appears as a 1.2TiB file due to
+>>>  the nfsnobody UID of 4294967294).
 
-Note that _normal_ writes never need an SFENCE, because they are ordered 
-by the core.
+>>>  (I'm realize that adding support for these additional seek() flags
+>>>  wouldn't solve the problem ... archiving tools would still have to
+>>>  implement it.  And I can also hear the argument that Red Hat and
+>>>  other
+>>>  distributions should re-implement lastlog handling to use a more
+>>>  modern
+>>>  and efficient hashing/index format and perhaps that they should set
+                                                                    ^^- NOT
+>>>  nfsnobody to "-1" ... 
 
-The reason to use SFENCE is because of _special_ writes.
+    [correction: they should NOT set ...]
 
-For example, if you use a non-temporal store, then the write buffer 
-ordering goes away, because there is no write buffer involved (the store 
-goes directly to the L2 or outside the bus).
+>> So the presence of very high UIDs causes lastlog to be huge?  That
+>> just
+>> sounds like a RedHat bug.
 
-Or when you talk to weakly ordered memory (ie a frame buffer that isn't 
-cached, and where the MTRR memory ordering bits say that writes be done 
-speculatively), you may want to say "I'm going to do the store that starts 
-the graphics pipeline, all my previous stores need to be done now". 
+> it causes it to be a sparse file
 
-THAT is when you need to use SFENCE.
+> lastlog is an array based file format ;) but sparse
 
-So SFENCE really isn't about the "smp_wmb()" kind of fencing at all. It's 
-about the much weaker ordering that is allowed by the special IO memory 
-types and nontemporal instructions.
+ Perhaps I should have been a bit more clear.  /var/log/lastlog has
+ been a sparse file in most implementation for ... well ... forever.
 
-(Actually, I think one special case of non-temporal instruction is the 
-"repeat movs/stos" thing: I think you should _not_ use a "repeat stos" to 
-unlock a spinlock, exactly because those stores are not ordered wrt each 
-other, and they can bypass the write queue. Of course, doing that would 
-be insane anyway, so no harm done ;^).
+ The example issue is that the support for large UIDs and the convention
+ of setting nfsnobody to -1 (4294967294) combine to create a file whose
+ size is very large.  The du of the file is (in my case) only about
+ 100KiB.  So there's a small cluster of used blocks for the valid
+ corporate UIDs that have ever accessed this machine ... then a huge
+ allocate hole, and then one block storing the lastlog timestamp for
+ nfsnobody.
 
-> If this isn't true, then x86_64 at least should do MFENCE before the store in
-> spin_unlock() or change the store to be LOCK'ed. The same may also apply for
-> Pentium3+ class CPUs with the i386 arch.
+ However, this message was not intended to dwell on the cause of that
+ huge sparse file ... but rather to inquire as to the core issue; 
+ how do we efficiently handle skipping over (potentially huge)
+ allocation holes in a portable fashion that might be adopted by
+ archiving and other tools?  I provided this example simply to point
+ out that it does happen, in the real world and has a significant
+ cost (40 minutes to scan through NULs with which the filesystem fills
+ the hole for read()s).
 
-No. But if you want to make sure, you can always check with Intel 
-engineers. I'm pretty sure I have this right, though, because Intel 
-engineers have certainly looked at Linux sources and locking, and nobody 
-has ever said that we'd need an SFENCE.
+ OpenSolaris has implemented a mechanism for doing this and it sounds
+ reasonable from my admittedly superficial perspective.
 
-		Linus
+-- 
+Jim Dennis

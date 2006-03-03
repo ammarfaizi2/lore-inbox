@@ -1,83 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWCCQHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWCCQKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWCCQHz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWCCQHy
+	id S932083AbWCCQKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCCQKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:07:54 -0500
-Received: from natblindhugh.rzone.de ([81.169.145.175]:43516 "EHLO
-	natblindhugh.rzone.de") by vger.kernel.org with ESMTP
-	id S1030228AbWCCQHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:07:54 -0500
-To: linux-kernel@vger.kernel.org
-From: jfock@abas-projektierung.de
-Subject: Re-2: oom-killer: gfp_mask=0xd1  with 2.6.12 on EM64T
-Date: 03 Mar 2006 16:03:04 UT
-X-Priority: 3 (Normal)
-Importance: normal
-X-Mailer: DvISE by Tobit Software, Germany (0224.434647444B47474D4E51)
-X-David-Sym: 0
-X-David-Flags: 0
-Message-ID: <000702D2.440876C7@192.168.222.27>
+	Fri, 3 Mar 2006 11:10:05 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:27653 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S932083AbWCCQKC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 11:10:02 -0500
+Message-ID: <44086A4F.1040403@arcom.com>
+Date: Fri, 03 Mar 2006 16:09:51 +0000
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset="iso-8859-1"
-Content-Transfer-Encoding: 7Bit
+To: jayakumar.alsa@gmail.com
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH] ALSA: CS5535: shorter delays when accessing AC'97 codec registers
+Content-Type: multipart/mixed;
+ boundary="------------060803090207050707030804"
+X-OriginalArrivalTime: 03 Mar 2006 16:09:56.0171 (UTC) FILETIME=[E9BAF9B0:01C63EDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060803090207050707030804
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I have The same Problem with a Maxdata Server 5220l with 8GB memory 2 Intel Xeon Processors und an Intel Raidcontroler
-Since im Using Linux-2.6.15.4 from Kernel.org my System is OK
-Johann
-Abas Projektierung GmbH
+The 10 ms sleeps while waiting for AC'97 codec register reads/writes to
+complete are excessive given the maxmium time is one AC'97 frame (~21 us).
 
+With AC'97 codecs with integrated touchscreens (like the UCB1400) this
+improves the interactive performance of the touchscreen.
 
+David Vrabel
+-- 
+David Vrabel, Design Engineer
 
--------- Original Message --------
-Subject: Re: oom-killer: gfp_mask=0xd1  with 2.6.12 on EM64T (03-Mrz-2006 16:50)
-From:    jmce@artenumerica.com
-To:      jfock@abas-projektierung.de
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
 
-> Andrew Morton wrote:
-> > That's quite an old kernel.  If this is the notorious bio-uses-GFP_DMA bug
-> > then I'd have expected this kernel to be useless from day one.  Did you
-> > install it recently?
-> 
-> On this double Xeon, yes.  I had no problems before with 2.6.12 and the
-> same "heavy" software on dual Opteron and dual dual core Opteron
-> machines, and this is my first installation on a EM64T.
-> At first it seemed everything was ok with 2.6.12 here too, but in a
-> couple of days we started gettings some of those oom killings when
-> running some Gaussian jobs. In at least a pair of cases the system froze
-> completely.
-> 
-> > If you're feeling keen you could add this patch which would confirm it:
-> 
-> Added it and already got output for a similar "killing". Since I'm not
-> sure what could be most relevant among those messages, I refrained from
-> attaching them all here, and instead put them at
-> http://jmce.artenumerica.org/tmp/linux-2.6.12-oom_killings/EM64T-kern.log
-> 
-> > And if it's that bug then I'm afraid you'll have to sit tight until 2.6.16.
-> > We shouldn't release 2.6.16 until this thing is fixed.
-> 
-> Do those call traces suggest that uncorrected bug you mention?
-> (And if yes, is there any known way to mitigate the problem? Could it
-> depend on BIOS settings?)
-> I'll also be able to try a 2.6.15 kernel (eventually with any suggested
-> patches) later today...
-> 
-> Thanks again and best regards
-> 
->                     J Esteves
-> -- 
-> +351 939838775   Skype:jmcerqueira   http://del.icio.us/jmce
-> 
+--------------060803090207050707030804
+Content-Type: text/plain;
+ name="alsa-cs5535-quicker-ac97-register-accesses"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="alsa-cs5535-quicker-ac97-register-accesses"
 
+ALSA: CS5535: shorter delays when accessing AC'97 codec registers
 
-To: jmce@artenumerica.com
-    linux-kernel@vger.kernel.org
-Cc: support@artenumerica.com
-    ngalamba@fc.ul.pt
+The 10 ms sleeps while waiting for AC'97 codec register reads/writes to
+complete are excessive given the maxmium time is one AC'97 frame (~21 us).
 
+With AC'97 codecs with integrated touchscreens (like the UCB1400) this
+improves the interactive performance of the touchscreen.
+
+Signed-off-by: David Vrabel <dvrabel@arcom.com>
+
+Index: linux-2.6-working/sound/pci/cs5535audio/cs5535audio.c
+===================================================================
+--- linux-2.6-working.orig/sound/pci/cs5535audio/cs5535audio.c	2006-03-02 16:12:52.000000000 +0000
++++ linux-2.6-working/sound/pci/cs5535audio/cs5535audio.c	2006-03-03 15:47:30.000000000 +0000
+@@ -62,7 +62,7 @@
+ 		tmp = cs_readl(cs5535au, ACC_CODEC_CNTL);
+ 		if (!(tmp & CMD_NEW))
+ 			break;
+-		msleep(10);
++		udelay(1);
+ 	} while (--timeout);
+ 	if (!timeout)
+ 		snd_printk(KERN_ERR "Failure writing to cs5535 codec\n");
+@@ -80,14 +80,14 @@
+ 	regdata |= CMD_NEW;
+ 
+ 	cs_writel(cs5535au, ACC_CODEC_CNTL, regdata);
+-	wait_till_cmd_acked(cs5535au, 500);
++	wait_till_cmd_acked(cs5535au, 50);
+ 
+ 	timeout = 50;
+ 	do {
+ 		val = cs_readl(cs5535au, ACC_CODEC_STATUS);
+ 		if ((val & STS_NEW) && reg == (val >> 24))
+ 			break;
+-		msleep(10);
++		udelay(1);
+ 	} while (--timeout);
+ 	if (!timeout)
+ 		snd_printk(KERN_ERR "Failure reading cs5535 codec\n");
+
+--------------060803090207050707030804--

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWCCPW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWCCPY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWCCPW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 10:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWCCPW5
+	id S932100AbWCCPY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 10:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWCCPY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 10:22:57 -0500
-Received: from mx1.sonologic.nl ([82.94.245.21]:11740 "EHLO mx1.sonologic.nl")
-	by vger.kernel.org with ESMTP id S932084AbWCCPW4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 10:22:56 -0500
-Message-ID: <44085F31.6040705@metro.cx>
-Date: Fri, 03 Mar 2006 16:22:25 +0100
-From: Koen Martens <linuxarm@metro.cx>
-Organization: Sonologic
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-arm-kernel@lists.arm.linux.org.uk, ben@simtec.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/14] s3c2412/s3c2413 support
-References: <44082001.9090308@metro.cx> <20060303151023.GB2580@ucw.cz>
-In-Reply-To: <20060303151023.GB2580@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Helo-Milter-Authen: gmc@sonologic.nl, linuxarm@metro.cx, mx1
+	Fri, 3 Mar 2006 10:24:26 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:4249 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932100AbWCCPYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 10:24:25 -0500
+Date: Fri, 3 Mar 2006 10:25:27 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: roland <devzero@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: is there a COW inside the kernel ?
+Message-ID: <20060303152527.GA3536@ccure.user-mode-linux.org>
+References: <043101c63e9c$86e9d710$0200000a@aldipc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <043101c63e9c$86e9d710$0200000a@aldipc>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Fri, Mar 03, 2006 at 09:29:02AM +0100, roland wrote:
+> hello !
+> 
+> is there an equivalent of something like
+> 
+> cowloop ( http://www.atconsultancy.nl/cowloop/total.html ) or md based cow 
+> device ( http://www.cl.cam.ac.uk/users/br260/doc/report.pdf ),
+> 
+> i.e. a feature called "Copy On Write Blockdevice" inside the current or the 
+> near-future mainline kernel (besides UserModeLinux Arch)?
+> can someone help out with some information ?
 
->On Fri 03-03-06 11:52:49, Koen Martens wrote:
->  
->
->>This patchset adds various defines and bits for the 
->>s3c2412 and s3c2413
->>processors, as well as adding detection of this cpu to 
->>platform setup and
->>uncompress boot stage.
->>The changes should not disturb current s3c24xx 
->>implementations. The
->>patchset is preliminary, in that the final datasheet is 
->>not yet available. We
->>did some testing of these new registers and bits outside 
->>of the linux
->>kernel.
->>    
->>
->
->Ahha, it is actually arm derivative. Still it would be nice to have
->better name.
->  
->
-Well, we could ask samsung to rename their range, but i doubt they will 
-do so. Actually, there are a lot of these platforms already defined, eg 
-s3c2410, s3c2440, s3c2400, etc..
+Miklos Szeredi announced mountlo a few days ago - this uses a UML to
+export a filesystem to the host through FUSE.  It's intended to allow
+non-privileged loopback mounting of normal file system images, but
+presumably will export a COW block device as well.
 
-But now that you mention it, i could have been more clear about this, 
-stating that it was a Samsung ARM processor. Sorry about that, i don't 
-think the issue is worth reposting the entire patchset or am i mistaken?
+I'm doing something similar, and using FUSE to export the entire UML
+filesystem to the host.
 
-Best,
+These aren't specifically COW drivers, but they have the same effect
+as long as you have a UML with your COW device mounted.
 
-Koen
-
--- 
-K.F.J. Martens, Sonologic, http://www.sonologic.nl/
-Networking, hosting, embedded systems, unix, artificial intelligence.
-Public PGP key: http://www.metro.cx/pubkey-gmc.asc
-Wondering about the funny attachment your mail program
-can't read? Visit http://www.openpgp.org/
-
+				Jeff

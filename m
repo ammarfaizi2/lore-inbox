@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWCCOXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWCCOau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWCCOXh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 09:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWCCOXh
+	id S1750883AbWCCOau (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 09:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWCCOau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 09:23:37 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:60627 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751172AbWCCOXh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 09:23:37 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-Organization: IBM
-To: linux-kernel@vger.kernel.org
-Subject: Re: is there a COW inside the kernel ?
-Date: Fri, 3 Mar 2006 08:28:59 -0600
-User-Agent: KMail/1.8.3
-Cc: "roland" <devzero@web.de>
-References: <043101c63e9c$86e9d710$0200000a@aldipc>
-In-Reply-To: <043101c63e9c$86e9d710$0200000a@aldipc>
+	Fri, 3 Mar 2006 09:30:50 -0500
+Received: from zaz.kom.auc.dk ([130.225.51.10]:27016 "EHLO zaz.kom.auc.dk")
+	by vger.kernel.org with ESMTP id S1750883AbWCCOat (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 09:30:49 -0500
+Message-ID: <44085311.4000508@kom.aau.dk>
+Date: Fri, 03 Mar 2006 15:30:41 +0100
+From: Oumer Teyeb <oumer@kom.aau.dk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: TCP control block interdependence
+References: <44081B7B.5060104@kom.aau.dk> <p73d5h3d4oo.fsf@verdi.suse.de>
+In-Reply-To: <p73d5h3d4oo.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603030828.59567.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri March 3 2006 2:29 am, roland wrote:
-> hello !
+Thanks a lot Andi!
+I checked ant the tcp_no_metrics_save is not available...
+and it seems I am in luck, as the admins promised to provide me soon 
+with a 2.6.12 server to play with...
+
+Have a nice weekend,
+Oumer
+
+I checked, and on my laptop 2.4.28 kernel it is, but on 2.4.25 machines I
+
+Andi Kleen wrote:
+
+>Oumer Teyeb <oumer@kom.aau.dk> writes:
+> 
+>  
 >
-> is there an equivalent of something like
+>> From these I conclude that there is some TCP congestion control and
+>>retransmission parameter caching, that is also time dependant....
+>>and I want to disable it completley...
+>>    
+>>
 >
-> cowloop ( http://www.atconsultancy.nl/cowloop/total.html ) or md based cow
-> device ( http://www.cl.cam.ac.uk/users/br260/doc/report.pdf ),
+>There is yes.
+> 
+>  
 >
-> i.e. a feature called "Copy On Write Blockdevice" inside the current or the
-> near-future mainline kernel (besides UserModeLinux Arch)?
+>>So in short do you know how to disable this control block
+>>interdepence? 
+>>    
+>>
+>
+>echo 1 > /proc/sys/net/ipv4/tcp_no_metrics_save
+>
+>  
+>
+>>by the way I am using debian linux distribution and "uname -a" gives me
+>>Linux 2.4.25-std #1 SMP Mon Mar 22 10:25:51 CET 2004 i686 unknown
+>>    
+>>
+>
+>I don't know if that sysctl was already in 2.4 and it's unclear
+>if it makes sense to do any tests on such an old codebase anyways.
+>Better use a 2.6 kernel.
+>
+>-Andi
+>  
+>
 
-Device-Mapper has a snapshot module, which is used by LVM and EVMS. You can 
-also use dmsetup if you want lower-level access than provided by the volume 
-managers. To do the equivalent of the cowloop driver that you linked to 
-above, you could do something like this:
-
-Say you have a read-only block-device (say a cd-rom) at /dev/hdc. And you have 
-a small disk partition, /dev/hdb1, that you want to use for your "COW file". 
-Run:
-
-cow_size=`blockdev --getsize /dev/hdc`
-chunk_size=64   # Size of each copied-on-write chunk, in 512 byte sectors
-cow_name="my_cow_dev"
-echo "0 $cow_size snapshot /dev/hdc /dev/hdb1 p $chunk_size" | \
-   dmsetup create $cow_name
-
-This will give you a device called /dev/mapper/$cow_name. Presuming /dev/hdc 
-has a filesystem on it, you can mount /dev/mapper/$cow_name and get a 
-read-write version of the filesystem on /dev/hdc, where updates to the 
-filesystem will be stored on /dev/hdb1. The size of /dev/hdb1 can be 
-significantly smaller than /dev/hdc, depending on the amount of writes you 
-expect to happen on /dev/mapper/$cow_name. While this device is active, don't 
-try to mount /dev/hdc read-write (assuming that's possible), or it will 
-corrupt the view of /dev/mapper/$cow_name. If you need read-write access to 
-both devices simultaneously, you'll probably just want to use LVM or EVMS and 
-create snapshot volumes, since manually activating that kind of setup with 
-dmsetup is incredibly tricky.
-
-Use "dmsetup remove $cow_name" to deactivate the device.
-
-> i would find this useful for several purpose, but i don`t want to patch my
-> system with 3rd party drivers or "non-standard" stuff -  or even recompile
-> the kernel.
-
-This should work with any recent 2.6 kernel. You'll also need to have the 
-device-mapper package installed, which should be available with any recent 
-Linux distro.
-
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://www.ibm.com/linux/
-http://evms.sourceforge.net/

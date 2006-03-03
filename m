@@ -1,128 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWCCQz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWCCQ7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWCCQz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 11:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWCCQz6
+	id S932337AbWCCQ7g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 11:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWCCQ7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 11:55:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38828 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932326AbWCCQz5 (ORCPT
+	Fri, 3 Mar 2006 11:59:36 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:32984 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932337AbWCCQ7f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 11:55:57 -0500
-Date: Fri, 3 Mar 2006 08:55:35 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: akpm@osdl.org, mingo@redhat.com, jblunck@suse.de, bcrl@linux.intel.com,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: Memory barriers and spin_unlock safety
-In-Reply-To: <32518.1141401780@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
-References: <32518.1141401780@warthog.cambridge.redhat.com>
+	Fri, 3 Mar 2006 11:59:35 -0500
+Message-ID: <4408753B.52E3B003@tv-sign.ru>
+Date: Fri, 03 Mar 2006 19:56:27 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/23] tref: Implement task references.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+		<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+		<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
+		<44074479.15D306EB@tv-sign.ru> <m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric W. Biederman wrote:
+>
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+>
+> > I think there is another, much simpler solution. We can make a "reference" to
+> > the
+> > pid itself to protect it against free_pidmap(), so that this pid can't be
+> > reused.
+>
+> However with my trivial hostile program I can with 32 or 33 living processes
+> each with 1000 references to dead processes I can completely saturate the
+> default pid map.  And it won't be obvious why alloc_pidmap is failing.
 
+Yes, this is a problem. Please see the new version below. Instead of delaying
+pid releasing, free_pidmap() just invalidates pid_ref. The code becomes even
+simpler.
 
-On Fri, 3 Mar 2006, David Howells wrote:
-> 
-> We've just had an interesting discussion on IRC and this has come up with two
-> unanswered questions:
-> 
-> (1) Is spin_unlock() is entirely safe on Pentium3+ and x86_64 where ?FENCE
->     instructions are available?
-> 
->     Consider the following case, where you want to do two reads effectively
->     atomically, and so wrap them in a spinlock:
-> 
-> 	spin_lock(&mtx);
-> 	a = *A;
-> 	b = *B;
-> 	spin_unlock(&mtx);
-> 
->     On x86 Pentium3+ and x86_64, what's to stop you from getting the reads
->     done after the unlock since there's no LFENCE instruction there to stop
->     you?
+> Your resource consumption with the extra hash table is higher than
+> mine at until very high process counts.
 
-The rules are, afaik, that reads can pass buffered writes, BUT WRITES 
-CANNOT PASS READS (aka "writes to memory are always carried out in program 
-order").
+The size of ref_array[] could be arbitrary low (we can't use pid_hashfn() in
+this case, of course). And tref adds 4 * sizeof(void*) to every task, and it
+is much more complicated.
 
-IOW, reads can bubble up, but writes cannot. 
+> In addition it doesn't really help with the problem that inspired
+> this work.  That of having multiple pid spaces.  I could make it work
+> by throwing a pspace reference in struct pid_ref, but without some
+> fancy footwork it would prevent cleanup until all of the outside
+> references are gone.
+>
+> So I kind of like it but I don't feel it does as good a job solving
+> the problems I am solving.
 
-So the way I read the Intel rules is that "passing" is always about being 
-done earlier than otherwise allowed, not about being done later.
+Ok. I missed the virtualization/pspace discussion completely, so you are
+very probably right.
 
-(You only "pass" somebody in traffic when you go ahead of them. If you 
-fall behind them, you don't "pass" them, _they_ pass you).
+Oleg.
 
-Now, this is not so much meant to be a semantic argument (the meaning of 
-the word "pass") as to an explanation of what I believe Intel meant, since 
-we know from Intel designers that the simple non-atomic write is 
-supposedly a perfectly fine unlock instruction.
+struct pid_ref
+{
+	pid_t			pid;
+	int			count;
+	struct hlist_node	chain;
+};
 
-So when Intel says "reads can be carried out speculatively and in any 
-order", that just says that reads are not ordered wrt other _reads_. They 
-_are_ ordered wrt other writes, but only one way: they can pass an earlier 
-write, but they can't fall back behind a later one.
+// allocated in pidhash_init()
+static struct hlist_head *ref_hash;
 
-This is consistent with
- (a) optimization (you want to do reads _early_, not late)
- (b) behaviour (we've been told that a single write is sufficient, with 
-     the exception of an early P6 core revision)
- (c) at least one way of reading the documentation.
+static struct pid_ref *find_pid_ref(pid_t pid)
+{
+	struct hlist_node *elem;
+	struct pid_ref *ref;
 
-And I claim that (a) and (b) are the important parts, and that (c) is just 
-the rationale.
+	hlist_for_each_entry(ref, elem, &ref_hash[pid_hashfn(pid)], chain)
+		if (ref->pid == pid)
+			return ref;
 
-> (2) What is the minimum functionality that can be expected of a memory
->     barriers? I was of the opinion that all we could expect is for the CPU
->     executing one them to force the instructions it is executing to be
->     complete up to a point - depending on the type of barrier - before
->     continuing past it.
+	return NULL;
+}
 
-Well, no. You should expect even _less_.
+// This is the only function modified.
+fastcall void free_pidmap(int pid)
+{
+	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+	int offset = pid & BITS_PER_PAGE_MASK;
+	struct pid_ref *ref;
 
-The core can continue doing things past a barrier. For example, a write 
-barrier may not actually serialize anything at all: the sane way of doing 
-write barriers is to just put a note in the write-queue, and that note 
-just disallows write queue entries from being moved around it. So you 
-might have a write barrier with two writes on either side, and the writes 
-might _both_ be outstanding wrt the core despite the barrier.
+	clear_bit(offset, map->page);
+	atomic_inc(&map->nr_free);
 
-So there's not necessarily any synchronization at all on a execution core 
-level, just a partial ordering between the resulting actions of the core. 
+	ref = find_pid_ref(pid);
+	if (unlikely(ref != NULL)) {
+		hlist_del_init(&ref->chain);
+		ref->pid = 0;
+	}
+}
 
->     However, on ppc/ppc64, it seems to be more thorough than that, and there
->     seems to be some special interaction between the CPU processing the
->     instruction and the other CPUs in the system. It's not entirely obvious
->     from the manual just what this does.
+static inline int pid_inuse(pid_t pid)
+{
+	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+	int offset = pid & BITS_PER_PAGE_MASK;
 
-PPC has an absolutely _horrible_ memory ordering implementation, as far as 
-I can tell. The thing is broken. I think it's just implementation 
-breakage, not anything really fundamental, but the fact that their write 
-barriers are expensive is a big sign that they are doing something bad. 
+	return test_bit(offset, map->page);
+}
 
-For example, their write buffers may not have a way to serialize in the 
-buffers, and at that point from an _implementation_ standpoint, you just 
-have to serialize the whole core to make sure that writes don't pass each 
-other. 
+struct pid_ref *alloc_pid_ref(pid_t pid)
+{
+	struct pid_ref *ref;
 
->     As I understand it, Andrew Morton is of the opinion that issuing a read
->     barrier on one CPU will cause the other CPUs in the system to sync up, but
->     that doesn't look likely on all archs.
+	write_lock_irq(&tasklist_lock);
+	ref = find_pid_ref(pid);
+	if (ref)
+		ref->count++;
+	else if (pid_inuse(pid)) {
+		ref = kmalloc(sizeof(*ref), GFP_ATOMIC);
+		if (ref) {
+			ref->pid = pid;
+			ref->count = 1;
+			hlist_add_head(&ref->chain,
+				&ref_hash[pid_hashfn(pid)]);
+		}
+	}
+	write_unlock_irq(&tasklist_lock);
 
-No. Issuing a read barrier on one CPU will do absolutely _nothing_ on the 
-other CPU. All barriers are purely local to one CPU, and do not generate 
-any bus traffic what-so-ever. They only potentially affect the order of 
-bus traffic due to the instructions around them (obviously).
+	return ref;
+}
 
-So a read barrier on one CPU _has_ to be paired with a write barrier on 
-the other side in order to make sense (although the write barrier can 
-obviously be of the implied kind, ie a lock/unlock event, or just 
-architecture-specific knowledge of write behaviour, ie for example knowing 
-that writes are always seen in-order on x86).
+void free_pid_ref(struct pid_ref *ref)
+{
+	if (!ref)
+		return;
 
-		Linus
+	write_lock_irq(&tasklist_lock);
+	if (!--ref->count) {
+		hlist_del_init(&ref->chain);
+		kfree(ref);
+	}
+	write_unlock_irq(&tasklist_lock);
+}

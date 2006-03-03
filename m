@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752233AbWCCJom@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752235AbWCCJst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752233AbWCCJom (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 04:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752234AbWCCJol
+	id S1752235AbWCCJst (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 04:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752236AbWCCJst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 04:44:41 -0500
-Received: from ns2.suse.de ([195.135.220.15]:61859 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752230AbWCCJol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 04:44:41 -0500
-Date: Fri, 3 Mar 2006 10:44:30 +0100
-From: Karsten Keil <kkeil@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>,
-       i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [PATCH 0/7] isdn4linux: add drivers for Siemens Gigaset ISDN DECT PABX
-Message-ID: <20060303094430.GB31772@pingi.kke.suse.de>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>,
-	i4ldeveloper@listserv.isdn4linux.de,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@suse.de>
-References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de> <1141032577.2992.83.camel@laptopd505.fenrus.org> <440779AF.5060202@imap.cc> <1141368808.2883.16.camel@laptopd505.fenrus.org>
+	Fri, 3 Mar 2006 04:48:49 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:30994
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1752234AbWCCJst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 04:48:49 -0500
+Message-Id: <44081F19.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 03 Mar 2006 10:48:57 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386: cleanup after cpu_gdt_descr conversion to
+	per-cpu data
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1141368808.2883.16.camel@laptopd505.fenrus.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.13-15.7-smp x86_64
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 07:53:28AM +0100, Arjan van de Ven wrote:
-> On Fri, 2006-03-03 at 00:03 +0100, Tilman Schmidt wrote:
-...
-> 
-> > >>+#define IFNULL(a) \
-> > >>+       if (unlikely(!(a)))
-> > > 
-> > > please please get rid of this!
-> > > (same goes for the variants of this just below this)
-> > 
-> > Ok, these were mainly debugging aids. We'll just drop them and let the
-> > oops mechanism catch the (hopefully non-existent) remaining cases of
-> > pointers being unexpectedly NULL.
-> 
-> you can also use WARN_ON() and BUG_ON() for that, you then get a more
-> readable oops message (with filename and line information)
-> 
+With cpu_gdt_descr having been converted to per-CPU data, the old object (in
+head.S) no longer needs to reserve space for each CPU's instance.
+With cpu_gdt_table not being used for CPU 0 anymore, it doesn't seem to need
+page alignment (or if in fact there is a need for it to retain that alignment,
+the whole object should go into .data.page_align).
 
-Yes, but please only WARN_ON(), BUG_ON should be only used, if here is no
-way to recover or if continue will cause major data corruption, I do not
-think thats the case anywhere in the driver.
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/head.S	2006-02-28 08:38:38.000000000 +0100
++++ 2.6.16-rc5-i386-cpu_gdt_descr-cleanup/arch/i386/kernel/head.S	2006-01-25 11:15:51.000000000 +0100
+@@ -450,7 +450,6 @@ int_msg:
+ 
+ .globl boot_gdt_descr
+ .globl idt_descr
+-.globl cpu_gdt_descr
+ 
+ 	ALIGN
+ # early boot GDT descriptor (must use 1:1 address mapping)
+@@ -470,8 +469,6 @@ cpu_gdt_descr:
+ 	.word GDT_ENTRIES*8-1
+ 	.long cpu_gdt_table
+ 
+-	.fill NR_CPUS-1,8,0		# space for the other GDT descriptors
+-
+ /*
+  * The boot_gdt_table must mirror the equivalent in setup.S and is
+  * used only for booting.
+@@ -485,7 +482,7 @@ ENTRY(boot_gdt_table)
+ /*
+  * The Global Descriptor Table contains 28 quadwords, per-CPU.
+  */
+-	.align PAGE_SIZE_asm
++	.align L1_CACHE_BYTES
+ ENTRY(cpu_gdt_table)
+ 	.quad 0x0000000000000000	/* NULL descriptor */
+ 	.quad 0x0000000000000000	/* 0x0b reserved */
+

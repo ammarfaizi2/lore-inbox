@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWCCJQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWCCJRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWCCJQY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 04:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCCJQY
+	id S1750831AbWCCJRF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 04:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCCJRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 04:16:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50563 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932115AbWCCJQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 04:16:24 -0500
-Subject: Re: [PATCH 1/15] EDAC: switch to kthread_ API
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Peterson <dsp@llnl.gov>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
-       hch@lst.de
-In-Reply-To: <20060302183035.6a15a1fc.akpm@osdl.org>
-References: <200603021747.47515.dsp@llnl.gov>
-	 <20060302183035.6a15a1fc.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 10:16:18 +0100
-Message-Id: <1141377378.2883.24.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 3 Mar 2006 04:17:05 -0500
+Received: from usmimesweeper.bluearc.com ([63.203.197.133]:26629 "EHLO
+	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
+	id S1750831AbWCCJRD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 04:17:03 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Date: Fri, 3 Mar 2006 09:16:55 -0000
+Message-ID: <89E85E0168AD994693B574C80EDB9C270393C2A6@uk-email.terastack.bluearc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Thread-Index: AcY99Ivg52RYxdwzQe+CKKzPavN3ZwArNTzg
+From: "Andy Chittenden" <AChittenden@bluearc.com>
+To: "Jens Axboe" <axboe@suse.de>, "Andi Kleen" <ak@suse.de>
+Cc: "Anton Altaparmakov" <aia21@cam.ac.uk>, "Andrew Morton" <akpm@osdl.org>,
+       <davej@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <lwoodman@redhat.com>, "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-02 at 18:30 -0800, Andrew Morton wrote:
-> Dave Peterson <dsp@llnl.gov> wrote:
-> >
-> >   		schedule_timeout((HZ * poll_msec) / 1000);
-> >   		try_to_freeze();
-> >  +		__set_current_state(TASK_RUNNING);
+> On Thu, Mar 02 2006, Andi Kleen wrote:
+> > On Thursday 02 March 2006 12:10, Jens Axboe wrote:
+> > 
+> > > I'm waiting for Andi to render an opinion on the problem. 
+> It should have
+> > > no corruption implications, the PIO path will handle 
+> arbitrarily large
+> > > requests. I'm assuming the mapped sg table is correct, 
+> just odd looking
+> > > for some reason.
+> > 
+> > I was waiting for feedback if iommu=nomerge changes 
+> anything. With that option
+> > the IOMMU code will never touch the layout of the sg list, 
+> just rewrite
+> > ->dma_address
 > 
-> schedule() and schedule_timeout*() always return in state TASK_RUNNING, so
-> I'll take that out of there.
+> Andy already reported that it didn't change anything. The 
+> output doesn't
+> looked merged anyways in most of the cases, it's the offsetting that
+> looks odd.
 > 
-> We might as well use schedule_timeout_interruptible(), too.  As a bonus, we
-> get to delete that spelling mistake ;)
 
+Indeed I did: <http://lkml.org/lkml/2006/3/1/109>
 
-or even msleep variant ;)
-
+-- 
+Andy, BlueArc Engineering
+ 

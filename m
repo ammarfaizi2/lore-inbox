@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWCCURj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWCCU0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWCCURj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 15:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWCCURj
+	id S932196AbWCCU0g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 15:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWCCU0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 15:17:39 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:13293 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932148AbWCCURi
+	Fri, 3 Mar 2006 15:26:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:826 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932196AbWCCU0f convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 15:17:38 -0500
-Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
-	aliasing problem)
-From: john stultz <johnstul@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-       clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
-       ralf@linux-mips.org, Andi Kleen <ak@muc.de>
-In-Reply-To: <20060302190408.1e754f12.akpm@osdl.org>
-References: <20060302.230227.25910097.anemo@mba.ocn.ne.jp>
-	 <Pine.LNX.4.64.0603021108220.5829@schroedinger.engr.sgi.com>
-	 <20060303.114406.64806237.nemoto@toshiba-tops.co.jp>
-	 <20060302190408.1e754f12.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 12:17:28 -0800
-Message-Id: <1141417048.9727.60.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Mar 2006 15:26:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Z05RdtJITqjtO0lb+m0DKXnAGRM05xOp55l5hiAdRStJ0yZe/ydhjjxvIcNozWCeECJk6lfu0SOOPKuS+CtWKZ6oOv8LJ+br/CkcQqSMdFtCXG8VeAekizL9toXtejb5Jr8r5acHkH3pTxLonKsWuscJGWEykxZxkw2vpB4sNas=
+Message-ID: <7c3341450603031226o55f6c77ah@mail.gmail.com>
+Date: Fri, 3 Mar 2006 20:26:33 +0000
+From: "Nick Warne" <nick@linicks.net>
+Reply-To: "Nick Warne" <nick@linicks.net>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: [2.4 patch] Corrected faulty syntax in drivers/input/Config.in
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, "Stefan-W. Hahn" <stefan.hahn@s-hahn.de>,
+       "Willy Tarreau" <willy@w.ods.org>
+In-Reply-To: <20060303180100.GV9295@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060303180100.GV9295@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-02 at 19:04 -0800, Andrew Morton wrote:
-> I'm actually creaking under the load of timer patches over here.  A lot of
-> the above code has been heavily redone in John's time patches.  I guess the
-> above optimisation is still relevant after John's work (?) but we need to
-> decide what to do.   Now is as good a time as any.
-> 
-> John, that timer stuff is so fundamental and hits on code which has
-> historically been so fragile that I'm not sure it's even 2.6.17 material. 
-> In which case we should sneak patches like the above underneath it all.
+> If statement in drivers/input/Config.in for "make xconfig" corrected.
 >
-> Or we decide to take your work into 2.6.17, in which case the above needs
-> to be redone for that context.
+>
+> Signed-off-by: Stefan-W. Hahn <stefan.hahn@s-hahn.de>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> ---
+>
+> This patch was sent by Stefan-W. Hahn on:
+> - 26 Feb 2006
+>
+> --- a/drivers/input/Config.in
+> +++ b/drivers/input/Config.in
+> @@ -8,7 +8,7 @@ comment 'Input core support'
+>  tristate 'Input core support' CONFIG_INPUT
+>  dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
+>
+> -if [ "$CONFIG_INPUT_KEYBDEV" == "n" ]; then
+> +if [ "$CONFIG_INPUT_KEYBDEV" = "n" ]; then
+>         bool '  Use dummy keyboard driver' CONFIG_DUMMY_KEYB $CONFIG_INPUT
+>  fi
 
-I'm not opposed to queuing it up as it seems like a logical cleanup. I'd
-be fine with it going in before my patch, however it still needs to
-address i386 lost tick compensation.  I worry that addressing that issue
-before my patchset (which makes the lost tick compensation unnecessary)
-might be a bit more complex. I think it would be easier going in after
-my patch. I do think the barrier fix (with a comment) is a good short
-term fix.
+This was my patch, and after I saw that a bit later (Duh!), I did ask:
 
-Atsushi: Your thoughts? 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=112966037407189&w=2
 
+But got no feedback, and it was accepted, so I presumed all was OK.
 
-> I'm not sure how to resolve this, really.  Worried.  Have you socialised
-> those changes with architecture maintainers?  If so, what was the feedback?
+So it looks like breaks in xconfig, and not menuconfig (what I use).
 
-As to the larger issue of if my patch set is 2.6.17 ready, I'd like to
-think it is. There are some optimizations I'm working on that Roman has
-suggested that should improve some of the periodic_hook overhead and the
-NTP accuracy, but so far I've not noticed the changes helping or hurting
-much (also I haven't gotten any feedback on my last attempt). I plan on
-continuing that work, but I feel the benefits (as in the number of real
-problems that it would resolve) for pushing the patchset that is in -mm
-without the finer performance tuning is large enough for it to be
-considered.
-
-But again, you're concerns are valid, there appears to be a lack of
-enthusiasm in the community both for and against the changes. And I
-understand, as I've got lots of other things I need to do as well, and
-reviewing a large change like this can take some time that I'm sure
-folks are short on.
-
-Maybe I should work on selling it more, I just have been at it for so
-long with this patch set that I feel I'm boring folks with the constant
-and repetitive "provides robust behavior in the face of lost ticks and
-enables other development like high-res timers and realtime" schtick.
-
-But I guess I'll try to ping some folks individually see if I can't stir
-up some discussion and get some additional feedback on the issue.
-
-thanks
--john
-
-
+Nick

@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752145AbWCCEGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752173AbWCCEGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752145AbWCCEGn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 23:06:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752173AbWCCEGn
+	id S1752173AbWCCEGq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 23:06:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752174AbWCCEGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 23:06:43 -0500
-Received: from ozlabs.org ([203.10.76.45]:58282 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1752145AbWCCEGm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 23:06:42 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Mar 2006 23:06:46 -0500
+Received: from smtp108.rog.mail.re2.yahoo.com ([68.142.225.206]:63054 "HELO
+	smtp108.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1752173AbWCCEGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 23:06:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=Wp04CBFXh6Pmb85e9Yap3aCTKUsEG5pUSeh75yGpwiyOWjdTCFrlcCCSL7keoPLQgKMQaV3bBr3OivkMyFOoQ7popuFjMCYqcCOTT0vSaTwj9t8PnQcl3NP8ToJIOrW6CL8/e5fOn1nls8GRxGDWHuo0HGyQzftBE7m0ZNCPdPs=  ;
+Subject: [Fwd: Re: [2.6 patch] make UNIX a bool]
+From: "James C. Georgas" <jgeorgas@rogers.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Thu, 02 Mar 2006 23:06:56 -0500
+Message-Id: <1141358816.3582.18.camel@Rainsong.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17415.49336.31224.641069@cargo.ozlabs.ibm.com>
-Date: Fri, 3 Mar 2006 15:06:16 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, akpm@osdl.org
-Subject: Re: jiffies_64 vs. jiffies
-In-Reply-To: <20060301.144442.118975101.nemoto@toshiba-tops.co.jp>
-References: <20060301.144442.118975101.nemoto@toshiba-tops.co.jp>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atsushi Nemoto writes:
-
-> Hi.  I noticed that the 'jiffies' variable has 'wall_jiffies + 1'
-> value in most of time.  I'm using MIPS platform but I think this is
-> same for other platforms.
+On Thu, 2006-02-03 at 21:32 +0100, Adrian Bunk wrote:
+> On Thu, Mar 02, 2006 at 09:28:15PM +0100, Jesper Juhl wrote:
+> > On 3/2/06, Adrian Bunk <bunk@stusta.de> wrote:
+> > > On Thu, Mar 02, 2006 at 12:31:34PM +1100, Herbert Xu wrote:
+> > > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > > >
+> > > > > It does also matter in the kernel image size case, since you
+have to put
+> > > > > enough modules to the other medium for having a effect bigger
+than the
+> > > > > kernel image size increase from setting CONFIG_MODULES=y.
+> > > >
+> > > > That's not very difficult considering the large number of
+modules that's
+> > > > out there that a system may wish to use.
+> > > >...
+> > >
+> > > This might be true for full-blown desktop systems - but these do
+not
+> > > tend to be the systems where kernel image size matters that much.
+> > > Smaller kernel image size might be an issue e.g. for distribution
+> > > kernels, but in a much less pressing way.
+> > >
+> > > The systems where kernel image size really matters are systems
+with few
+> > > modules where you know in advance which modules you might need. I
+played
+> > > a bit with the ARM defconfigs, and if you consider that you can't
+build
+> > > the filesystem for accessing your modules modular I haven't found
+any
+> > > where making everything modular would have given a real kernel
+image
+> > > size gain compared to the CONFIG_MODULES=n case.
+> > >
+> > 
+> > I believe the basic question is this: What do we win by making
+> > CONFIG_UNIX a bool?
+> >...
 > 
-> I suppose this is due to gcc does not know that jiffies_64 and jiffies
-> share same place.
+> We do not have to export symbols we don't want to export to modules
+but 
+> needed by CONFIG_UNIX.
 
-I can confirm that the same thing happens on powerpc, both 32-bit and
-64-bit.  The compiler loads up jiffies, jiffies_64 and wall_jiffies
-into registers before storing back the incremented value into
-jiffies_64 and then updating wall_jiffies.
+Sorry, I must just be dense, or something.
 
-Thanks for finding that, it explains some other strange things that I
-have seen happen.
+Is not the only difference between a modular driver and a built in
+driver supposed to be the initialization and cleanup functions?
 
-Paul.
+I don't see why you would have to expose any additional symbols, over
+and above the existing required symbols, to load your module.
+
+-- 
+James C. Georgas <jgeorgas@rogers.com>
+

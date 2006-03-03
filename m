@@ -1,93 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWCCVkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWCCVkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751558AbWCCVkq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 16:40:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751523AbWCCVkc
+	id S1751522AbWCCVkr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 16:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWCCVkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 16:40:32 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:52228 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751510AbWCCVkY (ORCPT
+	Fri, 3 Mar 2006 16:40:31 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:52996 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751522AbWCCVk0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 16:40:24 -0500
+	Fri, 3 Mar 2006 16:40:26 -0500
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 6/8] [I/OAT] Rename cleanup_rbuf to tcp_cleanup_rbuf and make non-static
-Date: Fri, 03 Mar 2006 13:42:32 -0800
+Subject: [PATCH 7/8] [I/OAT] Add a sysctl for tuning the I/OAT offloaded I/O threshold
+Date: Fri, 03 Mar 2006 13:42:34 -0800
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060303214231.11908.41047.stgit@gitlost.site>
+Message-Id: <20060303214234.11908.99495.stgit@gitlost.site>
 In-Reply-To: <20060303214036.11908.10499.stgit@gitlost.site>
 References: <20060303214036.11908.10499.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Needed to be able to call tcp_cleanup_rbuf in tcp_input.c for I/OAT
+Any socket recv of less than this ammount will not be offloaded
 
 Signed-off-by: Chris Leech <christopher.leech@intel.com>
 ---
 
- include/net/tcp.h |    2 ++
- net/ipv4/tcp.c    |   10 +++++-----
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ include/linux/sysctl.h     |    1 +
+ include/net/tcp.h          |    1 +
+ net/core/user_dma.c        |    4 ++++
+ net/ipv4/sysctl_net_ipv4.c |   10 ++++++++++
+ 4 files changed, 16 insertions(+), 0 deletions(-)
 
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index dfcf449..f532f1e 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -402,6 +402,7 @@ enum
+ 	NET_IPV4_IPFRAG_MAX_DIST=112,
+  	NET_TCP_MTU_PROBING=113,
+ 	NET_TCP_BASE_MSS=114,
++	NET_TCP_DMA_COPYBREAK=115,
+ };
+ 
+ enum {
 diff --git a/include/net/tcp.h b/include/net/tcp.h
-index fd7c3e4..2fc7f05 100644
+index 2fc7f05..0740f32 100644
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
-@@ -295,6 +295,8 @@ extern int			tcp_rcv_established(struct 
+@@ -221,6 +221,7 @@ extern int sysctl_tcp_adv_win_scale;
+ extern int sysctl_tcp_tw_reuse;
+ extern int sysctl_tcp_frto;
+ extern int sysctl_tcp_low_latency;
++extern int sysctl_tcp_dma_copybreak;
+ extern int sysctl_tcp_nometrics_save;
+ extern int sysctl_tcp_moderate_rcvbuf;
+ extern int sysctl_tcp_tso_win_divisor;
+diff --git a/net/core/user_dma.c b/net/core/user_dma.c
+index 1e1aae5..dd259f0 100644
+--- a/net/core/user_dma.c
++++ b/net/core/user_dma.c
+@@ -33,6 +33,10 @@ file called LICENSE.
  
- extern void			tcp_rcv_space_adjust(struct sock *sk);
+ #ifdef CONFIG_NET_DMA
  
-+extern void			tcp_cleanup_rbuf(struct sock *sk, int copied);
++#define NET_DMA_DEFAULT_COPYBREAK 1024
 +
- extern int			tcp_twsk_unique(struct sock *sk,
- 						struct sock *sktw, void *twp);
++int sysctl_tcp_dma_copybreak = NET_DMA_DEFAULT_COPYBREAK;
++
+ /**
+  *	dma_skb_copy_datagram_iovec - Copy a datagram to an iovec.
+  *	@skb - buffer to copy
+diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
+index ebf2e0b..f7bd9c2 100644
+--- a/net/ipv4/sysctl_net_ipv4.c
++++ b/net/ipv4/sysctl_net_ipv4.c
+@@ -680,6 +680,16 @@ ctl_table ipv4_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++#ifdef CONFIG_NET_DMA
++	{
++		.ctl_name	= NET_TCP_DMA_COPYBREAK,
++		.procname	= "tcp_dma_copybreak",
++		.data		= &sysctl_tcp_dma_copybreak,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec
++	},
++#endif
  
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 00aa80e..13abfa2 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -936,7 +936,7 @@ static int tcp_recv_urg(struct sock *sk,
-  * calculation of whether or not we must ACK for the sake of
-  * a window update.
-  */
--static void cleanup_rbuf(struct sock *sk, int copied)
-+void tcp_cleanup_rbuf(struct sock *sk, int copied)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	int time_to_ack = 0;
-@@ -1085,7 +1085,7 @@ int tcp_read_sock(struct sock *sk, read_
- 
- 	/* Clean up data we have read: This will do ACK frames. */
- 	if (copied)
--		cleanup_rbuf(sk, copied);
-+		tcp_cleanup_rbuf(sk, copied);
- 	return copied;
- }
- 
-@@ -1219,7 +1219,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 			}
- 		}
- 
--		cleanup_rbuf(sk, copied);
-+		tcp_cleanup_rbuf(sk, copied);
- 
- 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
- 			/* Install new reader */
-@@ -1390,7 +1390,7 @@ skip_copy:
- 	 */
- 
- 	/* Clean up data we have read: This will do ACK frames. */
--	cleanup_rbuf(sk, copied);
-+	tcp_cleanup_rbuf(sk, copied);
- 
- 	TCP_CHECK_TIMER(sk);
- 	release_sock(sk);
-@@ -1856,7 +1856,7 @@ int tcp_setsockopt(struct sock *sk, int 
- 			    (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT) &&
- 			    inet_csk_ack_scheduled(sk)) {
- 				icsk->icsk_ack.pending |= ICSK_ACK_PUSHED;
--				cleanup_rbuf(sk, 1);
-+				tcp_cleanup_rbuf(sk, 1);
- 				if (!(val & 1))
- 					icsk->icsk_ack.pingpong = 1;
- 			}
+ 	{ .ctl_name = 0 }
+ };
 

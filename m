@@ -1,70 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752003AbWCCGp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752056AbWCCGxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752003AbWCCGp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 01:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752028AbWCCGp5
+	id S1752056AbWCCGxv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 01:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752061AbWCCGxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 01:45:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28362 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752003AbWCCGp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 01:45:56 -0500
-Date: Thu, 2 Mar 2006 22:44:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: greg@kroah.com, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       yanmin.zhang@intel.com, neilb@cse.unsw.edu.au, steiner@sgi.com,
-       hawkes@sgi.com
-Subject: Re: + proc-dont-lock-task_structs-indefinitely-cpuset-fix-2.patch
- added to -mm tree
-Message-Id: <20060302224428.66eb29af.akpm@osdl.org>
-In-Reply-To: <20060302223348.56f661ad.pj@sgi.com>
-References: <20060228183610.5253feb9.akpm@osdl.org>
-	<20060228194525.0faebaaa.pj@sgi.com>
-	<20060228201040.34a1e8f5.pj@sgi.com>
-	<m1irqypxf5.fsf@ebiederm.dsl.xmission.com>
-	<20060228212501.25464659.pj@sgi.com>
-	<20060228234807.55f1b25f.pj@sgi.com>
-	<20060301002631.48e3800e.akpm@osdl.org>
-	<20060301015338.b296b7ad.pj@sgi.com>
-	<20060301192103.GA14320@kroah.com>
-	<20060301125802.cce9ef51.pj@sgi.com>
-	<20060301213048.GA17251@kroah.com>
-	<20060301142631.22738f2d.akpm@osdl.org>
-	<20060301151000.5fff8ec5.pj@sgi.com>
-	<20060301154040.a7cb2afd.pj@sgi.com>
-	<20060301202058.42975408.akpm@osdl.org>
-	<20060301221429.c61b4ae6.pj@sgi.com>
-	<20060301234215.62010fec.akpm@osdl.org>
-	<20060302111201.cf61552f.pj@sgi.com>
-	<20060302135227.012134f9.akpm@osdl.org>
-	<20060302223348.56f661ad.pj@sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Mar 2006 01:53:51 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60888 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752056AbWCCGxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 01:53:51 -0500
+Subject: Re: [PATCH 0/7] isdn4linux: add drivers for Siemens Gigaset ISDN
+	DECT PABX
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: Hansjoerg Lipp <hjlipp@web.de>, Karsten Keil <kkeil@suse.de>,
+       i4ldeveloper@listserv.isdn4linux.de,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Greg Kroah-Hartman <gregkh@suse.de>
+In-Reply-To: <440779AF.5060202@imap.cc>
+References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>
+	 <1141032577.2992.83.camel@laptopd505.fenrus.org> <440779AF.5060202@imap.cc>
+Content-Type: text/plain
+Date: Fri, 03 Mar 2006 07:53:28 +0100
+Message-Id: <1141368808.2883.16.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> Andrew wrote:
->  > From: Andrew Morton <akpm@osdl.org>
->  > 
->  > We presently ignore the return values from initcalls.  But that can carry
->  > useful debugging information.  So print it out if it's non-zero.
->  > 
->  > Also make that warning message more friendly by printing the name of the
->  > initcall function.
+On Fri, 2006-03-03 at 00:03 +0100, Tilman Schmidt wrote:
+> Thank you very much, Arjan, for your review of our code and your
+> extensive comments. We are working on taking them into account for the
+> next attempt at submitting the driver. Most of them are quite clear and
+> don't need discussing. Just a few remarks and questions:
 > 
->  I tried this patch on my sicko kernel, and the following
->  additional line came out, as expected:
+> On 27.02.2006, Arjan van de Ven wrote:
+> > as a general review remark: you seem to use a LOT of atomic variables.
+> > This I think is not too good an approach in general, because you get
+> > into all kinds of race situations if you need to access multiple (and
+> > you do).
 > 
->    initcall at 0xa0000001007cc4c0: topology_init+0x0/0x280(): returned with error code -12
+> I see. We'll try to reduce our atomic consumption. :-)
+> 
+> > In addition I've seen a lot of your code using 2 or more
+> > atomics in the same function, at which point it's most likely cheaper to
+> > just have a spinlock instead... (yes a single atomic is same cost as a
+> > spinlock, but once you do multiple in the same function the price is
+> > thus higher than a spinlock ;)
+> 
+> So you are saying that, for example
+> 
+> 	spin_lock_irqsave(&cs->ev_lock, flags);
+> 	head = cs->ev_head;
+> 	tail = cs->ev_tail;
+> 	spin_unlock_irqrestore(&cs->ev_lock, flags);
+> 
+> is (mutatis mutandis) actually cheaper than
+> 
+> 	head = atomic_read(&cs->ev_head);
+> 	tail = atomic_read(&cs->ev_tail);
 
-Yes, I've just been looking at the output.  There are quite a few ENODEV's
-of course.  But it's pretty obvious what's going on from the name of the
-function.  It does remind you that you have drivers in vmlinux which aren't
-doing anything useful.
 
-We'll see how it goes.
+atomic_read is special since it's not actually an atomic operation ;)
+but.. think about it: you do 2 atomic reads, however there is ZERO
+guarantee that the reads are atomic with respect to eachother; eg your
+head and tail are not an atomic "snapshot" of these 2 variables!
+
+
+
+> >>+#define IFNULL(a) \
+> >>+       if (unlikely(!(a)))
+> > 
+> > please please get rid of this!
+> > (same goes for the variants of this just below this)
+> 
+> Ok, these were mainly debugging aids. We'll just drop them and let the
+> oops mechanism catch the (hopefully non-existent) remaining cases of
+> pointers being unexpectedly NULL.
+
+you can also use WARN_ON() and BUG_ON() for that, you then get a more
+readable oops message (with filename and line information)
+
+
+> 
+> >> +void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *msg,
+> >> +			size_t len, const unsigned char *buf, int from_user)
+> > 
+> > such "from_user" parameter is highly evil, and also breaks sparse and
+> > friends.. (btw please run sparse on the code and fix all warnings)
+> 
+> Are you referring to anything in particular? We do run sparse regularly,
+> and it did not emit any warnings for the submitted version, not even for
+> this function. (But heaps of them for other parts of the kernel, if you
+> pardon the remark.)
+
+msg should have the __user atribute here since it can be in userspace...
+sometimes. It is the "sometimes" that is the bad idea!
+
+
+> 
+> >> +       spin_lock_irqsave(&cs->lock, flags);
+> >> +       ret = kmalloc(sizeof(struct at_state_t), GFP_ATOMIC);
+> >> +       if (ret) {
+> >> +               gigaset_at_init(ret, NULL, cs, cid);
+> > 
+> > if you move the kmalloc one line up, can it use GFP_KERNEL ?
+> 
+> Sorry but no - this is executed within a tasklet.
+
+ok fair enough ;)
+
+> 
+> > (GFP_ATOMIC is evil in the sense that spurious use of it gives trouble
+> > for the VM)
+> 
+> Does that mean that every function doing kmalloc() and which may be
+> called from both interrupt and non-interrupt context needs a gfp_t flags
+> argument?
+
+well that's the other extreme. But if it's going to be a major source of
+memory allocations, yes. If it's only sometimes, or "a few", then no.
+For example if your tasklet function allocates one, and then frees it
+before being done, I don't see a problem. It becomes a problem when
+there will be many of these, and when they have longer lifetimes,
+because then the vm can become starved of memory before it has a chance
+to do correct the memory imbalance.
+(GFP_ATOMIC is like borrowing from the VM, the VM will be in slight
+imbalance afterwards. With GFP_KERNEL you allow the kernel to fix this
+imbalance. A slight imbalance is fine and not a problem. Especially if
+you give it the memory back soon. But if the imbalance can accumulate,
+for example because you keep allocating and free the memory much later,
+it can become a problem)
+
+

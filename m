@@ -1,76 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWCCVG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWCCVLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWCCVG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 16:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWCCVG5
+	id S1750731AbWCCVLU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 16:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWCCVLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 16:06:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:9639 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932465AbWCCVG4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 16:06:56 -0500
-Subject: Re: Memory barriers and spin_unlock safety
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, mingo@redhat.com,
-       jblunck@suse.de, bcrl@linux.intel.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-In-Reply-To: <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
-References: <32518.1141401780@warthog.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
+	Fri, 3 Mar 2006 16:11:20 -0500
+Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:20838 "HELO
+	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750731AbWCCVLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 16:11:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=A4nL15v143Rdea34pS2BVQWD5aRBnMZmLGv28R7tS6M4dcAJXCZ3gHrIcugwpqRpZXSzgtw2Zb1x6OpHsjKlP2gfHcg2MTDp3UxtkLH5XuhdFyvZEcfwcdWDDr8Q2iMeg4pWZctqgwBPpGC6FjAdAEVH+fEYO4rZ5hzJv/i0/bg=  ;
+Subject: Re: [2.6 patch] make UNIX a bool
+From: "James C. Georgas" <jgeorgas@rogers.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060303175542.GT9295@stusta.de>
+References: <20060302173840.GB9295@stusta.de>
+	 <9a8748490603021228k7ad1fb5gd931d9778307ca58@mail.gmail.com>
+	 <20060302203245.GD9295@stusta.de> <1141335521.3582.14.camel@Rainsong.home>
+	 <20060302214423.GI9295@stusta.de> <1141361097.3582.40.camel@Rainsong.home>
+	 <20060303114642.GO9295@stusta.de> <1141397326.3582.57.camel@Rainsong.home>
+	 <20060303151026.GQ9295@stusta.de> <1141408251.11092.4.camel@Rainsong.home>
+	 <20060303175542.GT9295@stusta.de>
 Content-Type: text/plain
-Date: Sat, 04 Mar 2006 08:06:05 +1100
-Message-Id: <1141419966.3888.67.camel@localhost.localdomain>
+Date: Fri, 03 Mar 2006 16:11:18 -0500
+Message-Id: <1141420278.11092.56.camel@Rainsong.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> PPC has an absolutely _horrible_ memory ordering implementation, as far as 
-> I can tell. The thing is broken. I think it's just implementation 
-> breakage, not anything really fundamental, but the fact that their write 
-> barriers are expensive is a big sign that they are doing something bad. 
-
-Are they ? read barriers and full barriers are, write barriers should be
-fairly cheap (but then, I haven't measured).
-
-> For example, their write buffers may not have a way to serialize in the 
-> buffers, and at that point from an _implementation_ standpoint, you just 
-> have to serialize the whole core to make sure that writes don't pass each 
-> other. 
-
-The main problem I've had in the past with the ppc barriers is more a
-subtle thing in the spec that unfortunately was taken to the word by
-implementors, and is that the simple write barrier (eieio) will only
-order within the same storage space, that is will not order between
-cacheable and non-cacheable storage. That means IOs could leak out of
-locks etc... Which is why we use expensive barriers in MMIO wrappers for
-now (though we might investigate the use of mmioXb instead in the
-future).
-
-> No. Issuing a read barrier on one CPU will do absolutely _nothing_ on the 
-> other CPU. All barriers are purely local to one CPU, and do not generate 
-> any bus traffic what-so-ever. They only potentially affect the order of 
-> bus traffic due to the instructions around them (obviously).
-
-Actually, the ppc's full barrier (sync) will generate bus traffic, and I
-think in some case eieio barriers can propagate to the chipset to
-enforce ordering there too depending on some voodoo settings and wether
-the storage space is cacheable or not.
-
-> So a read barrier on one CPU _has_ to be paired with a write barrier on 
-> the other side in order to make sense (although the write barrier can 
-> obviously be of the implied kind, ie a lock/unlock event, or just 
-> architecture-specific knowledge of write behaviour, ie for example knowing 
-> that writes are always seen in-order on x86).
+On Fri, 2006-03-03 at 18:55 +0100, Adrian Bunk wrote:
+> On Fri, Mar 03, 2006 at 12:50:51PM -0500, James C. Georgas wrote:
+> > On Fri, 2006-03-03 at 16:10 +0100, Adrian Bunk wrote:
+> > > On Fri, Mar 03, 2006 at 09:48:46AM -0500, James C. Georgas wrote:
+> > > > 
+> > > > Ok, if I understand you correctly now, there is a function defined in
+> > > > another part of the kernel, which is _called_ by AF_UNIX, and it is for
+> > > > this function that the other part of the kernel must export a symbol?
+> > > > 
+> > > > But you only need to do this so that modules can use the function,
+> > > > because if, instead, the driver is built in, then the function is
+> > > > directly in scope, and can be called explicitly?
+> > > 
+> > > Correct.
+> > 
+> > Ok, I understand.
+> > 
+> > What are the exported symbols, and where are they defined?
+> > 
+> > I read the post you linked to earlier, but I got nothing when I grepped
+> > for "get_max_files", which was mentioned.
 > 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> You must look at the latest -mm.
+
+OK, I see. It's a wrapper function for files_stat.max_files, which was
+the current exported symbol in the mainline kernel.
+
+It's used here, basically, to cap the number of sockets in existence, to
+prevent rogue processes from chewing up all your memory.
+
+If I understand your position correctly, you believe that it is
+inappropriate for this symbol to be publicly visible to a subsystem that
+is dynamically linked, but that it is OK for it to be publicly visible
+to the same subsystem, when it is statically linked instead.
+
+Did I misunderstand you?
+
+-- 
+James C. Georgas <jgeorgas@rogers.com>
 

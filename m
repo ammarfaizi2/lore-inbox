@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWCCLHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWCCLJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWCCLHX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 06:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWCCLHX
+	id S1751371AbWCCLJS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 06:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWCCLJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 06:07:23 -0500
-Received: from mx1.sonologic.nl ([82.94.245.21]:48849 "EHLO mx1.sonologic.nl")
-	by vger.kernel.org with ESMTP id S1751284AbWCCLHW (ORCPT
+	Fri, 3 Mar 2006 06:09:18 -0500
+Received: from mx1.sonologic.nl ([82.94.245.21]:61174 "EHLO mx1.sonologic.nl")
+	by vger.kernel.org with ESMTP id S1751371AbWCCLJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 06:07:22 -0500
-Message-ID: <44082320.3030804@metro.cx>
-Date: Fri, 03 Mar 2006 12:06:08 +0100
+	Fri, 3 Mar 2006 06:09:18 -0500
+Message-ID: <4408235E.4090406@metro.cx>
+Date: Fri, 03 Mar 2006 12:07:10 +0100
 From: Koen Martens <linuxarm@metro.cx>
 Organization: Sonologic
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
@@ -18,50 +18,83 @@ X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-arm-kernel@lists.arm.linux.org.uk, ben@simtec.co.uk,
        linux-kernel@vger.kernel.org
-Subject: [patch 10/14] s3c2412/s3c2413 support
+Subject: [patch 12/14] s3c2412/s3c2413 support
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Helo-Milter-Authen: gmc@sonologic.nl, linuxarm@metro.cx, mx1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Added TICNT0/TICNT1 for s3c2412.
+Start of s3c2412 dsc support.
 
 Signed-off-by: Koen Martens <gmc@sonologic.nl>
 
 
---- linux-2.6.15.4/include/asm-arm/arch-s3c2410/regs-rtc.h    2006-02-10 
-08:22:48.000000000 +0100
-+++ golinux/include/asm-arm/arch-s3c2410/regs-rtc.h    2006-03-03 
-11:18:40.000000000 +0100
-@@ -13,6 +13,7 @@
-  *    19-06-2003     BJD     Created file
-  *    12-03-2004     BJD     Updated include protection
-  *    15-01-2005     LCVR    Changed S3C2410_VA to S3C24XX_VA (s3c2400 
-support)
-+ *    17-02-2006     KM      Added S3C2412 / S3C2413 registers
- */
- 
- #ifndef __ASM_ARCH_REGS_RTC_H
-@@ -62,5 +63,18 @@
- #define S3C2410_RTCMON          S3C2410_RTCREG(0x84)
- #define S3C2410_RTCYEAR          S3C2410_RTCREG(0x88)
- 
-+#ifdef CONFIG_CPU_S3C2412
+--- linux-2.6.15.4/arch/arm/mach-s3c2410/s3c2412-dsc.c    1970-01-01 
+01:00:00.000000000 +0100
++++ golinux/arch/arm/mach-s3c2410/s3c2412-dsc.c    2006-02-27 
+17:12:40.000000000 +0100
+@@ -0,0 +1,60 @@
++/* linux/arch/arm/mach-s3c2410/s3c2440-dsc.c
++ *
++ * Copyright (c) 2004-2005 Simtec Electronics
++ *   Ben Dooks <ben@simtec.co.uk>
++ *
++ * Samsung S3C2412 Drive Strength Control support
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * Modifications:
++ *     29-Aug-2004 BJD  Start of drive-strength control
++ *     09-Nov-2004 BJD  Added symbol export
++ *     11-Jan-2005 BJD  Include fix
++ *     27-Feb-2006 KM   Start of S3C2412 support
++*/
 +
-+#define S3C2412_RTCCON_TICSEL (1<<4)
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/interrupt.h>
++#include <linux/init.h>
++#include <linux/module.h>
 +
-+#define S3C2412_TICNT0        S3C2410_RTCREG(0x44)
-+#define S3C2412_TICNT0_ENABLE (1<<7)
++#include <asm/mach/arch.h>
++#include <asm/mach/map.h>
++#include <asm/mach/irq.h>
 +
-+#define S3C2412_TICNT1        S3C2410_RTCREG(0x4C)
-+#define S3C2412_TICNT1_ENABLE (1<<7)
++#include <asm/hardware.h>
++#include <asm/io.h>
++#include <asm/irq.h>
 +
-+#define S3C2412_RTCALM_XTBSEL (1<<7)
++#include <asm/arch/regs-gpio.h>
++#include <asm/arch/regs-dsc.h>
 +
-+#endif /* CONFIG_CPU_S3C2412 */
- 
- #endif /* __ASM_ARCH_REGS_RTC_H */
++#include "cpu.h"
++#include "s3c2412.h"
++
++int s3c2412_set_dsc(unsigned int pin, unsigned int value)
++{
++    void __iomem *base;
++    unsigned long val;
++    unsigned long flags;
++    unsigned long mask;
++
++    base = (pin & S3C2412_SELECT_DSC1) ? S3C2412_DSC1 : S3C2412_DSC0;
++    mask = 3 << S3C2440_DSC_GETSHIFT(pin);
++
++    local_irq_save(flags);
++
++    val = __raw_readl(base);
++    val &= ~mask;
++    val |= value & mask;
++    __raw_writel(val, base);
++
++    local_irq_restore(flags);
++    return 0;
++}
++
++EXPORT_SYMBOL(s3c2412_set_dsc);
 
 -- 
 K.F.J. Martens, Sonologic, http://www.sonologic.nl/

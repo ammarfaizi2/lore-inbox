@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWCCWEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWCCWHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbWCCWEl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 17:04:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWCCWEl
+	id S1750810AbWCCWHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 17:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWCCWHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 17:04:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:38815 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750746AbWCCWEk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 17:04:40 -0500
-Date: Fri, 3 Mar 2006 14:04:21 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, mingo@redhat.com,
-       jblunck@suse.de, bcrl@linux.intel.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: Memory barriers and spin_unlock safety
-In-Reply-To: <1141419966.3888.67.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0603031357110.22647@g5.osdl.org>
-References: <32518.1141401780@warthog.cambridge.redhat.com> 
- <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org> <1141419966.3888.67.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Mar 2006 17:07:48 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:39608
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750810AbWCCWHr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 17:07:47 -0500
+Date: Fri, 3 Mar 2006 14:07:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: proper way to assign fixed PCI resources to a "hotplug" device
+Message-ID: <20060303220741.GA22298@kroah.com>
+References: <9D653F4D-A375-4D2C-8A5A-063A0BBD962B@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9D653F4D-A375-4D2C-8A5A-063A0BBD962B@kernel.crashing.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 03, 2006 at 11:42:03AM -0600, Kumar Gala wrote:
+> I was wondering what the proper way to assign and setup a single PCI  
+> device that comes into existence after the system has booted.  I have  
+> an FPGA that we load from user space at which time it shows up on the  
+> PCI bus.
 
+Idealy your BIOS would set up this information :)
 
-On Sat, 4 Mar 2006, Benjamin Herrenschmidt wrote:
+> It has a single BAR and I need to assign it at a fixed address in PCI  
+> MMIO space.
 > 
-> The main problem I've had in the past with the ppc barriers is more a
-> subtle thing in the spec that unfortunately was taken to the word by
-> implementors, and is that the simple write barrier (eieio) will only
-> order within the same storage space, that is will not order between
-> cacheable and non-cacheable storage.
+> All of the exported interfaces I see have to do with having the  
+> kernel assign the BAR automatically for me.
+> 
+> the following looks like what I want to do:
+> 
+> bus = pci_find_bus(0, 3);
+> dev = pci_scan_single_device(bus, devfn);
+> pci_bus_alloc_resource(...);
+> pci_update_resource(dev, dev->resource[0], 0);
+> pci_bus_add_devices(bus);
+> 
+> However, pci_update_resource() is not an exported symbol, so I could  
+> replace that code with the need updates to the actual BAR.
+> 
+> Is this the "right" way to go about this or is there a better  
+> mechanism to do this.
 
-If so, a simple write barrier should be sufficient. That's exactly what 
-the x86 write barriers do too, ie stores to magic IO space are _not_ 
-ordered wrt a normal [smp_]wmb() (or, as per how this thread started, a 
-spin_unlock()) at all.
+Take a look at how the compat pci hotplug driver does this, you probably
+just need to do the same as it.
 
-On x86, we actually have this "CONFIG_X86_OOSTORE" configuration option 
-that gets enable for you select a WINCHIP device, because that allows a 
-weaker memory ordering for normal memory too, and that will end up using 
-an "sfence" instruction for store buffers. But it's not normally enabled.
+thanks,
 
-So the eieio should be sufficient,then.
-
-Of course, the x86 store buffers do tend to flush out stuff after a 
-certain cycle-delay too, so there may be drivers that technically are 
-buggy on x86, but where the store buffer in practice is small and flushes 
-out quickly enough that you'll never _see_ the bug.
-
-> Actually, the ppc's full barrier (sync) will generate bus traffic, and I
-> think in some case eieio barriers can propagate to the chipset to
-> enforce ordering there too depending on some voodoo settings and wether
-> the storage space is cacheable or not.
-
-Well, the regular kernel ops definitely won't depend on that, since that's 
-not the case anywhere else.
-
-		Linus
+greg k-h

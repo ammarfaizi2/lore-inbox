@@ -1,93 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWCCVkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWCCVkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751522AbWCCVkr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 16:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWCCVkb
+	id S1751517AbWCCVkR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 16:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWCCVkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 16:40:31 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:52996 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1751522AbWCCVk0 (ORCPT
+	Fri, 3 Mar 2006 16:40:17 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:47620 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1751506AbWCCVkP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 16:40:26 -0500
+	Fri, 3 Mar 2006 16:40:15 -0500
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 7/8] [I/OAT] Add a sysctl for tuning the I/OAT offloaded I/O threshold
-Date: Fri, 03 Mar 2006 13:42:34 -0800
+Subject: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Date: Fri, 03 Mar 2006 13:40:36 -0800
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060303214234.11908.99495.stgit@gitlost.site>
-In-Reply-To: <20060303214036.11908.10499.stgit@gitlost.site>
-References: <20060303214036.11908.10499.stgit@gitlost.site>
+Message-Id: <20060303214036.11908.10499.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any socket recv of less than this ammount will not be offloaded
+This patch series is the first full release of the Intel(R) I/O
+Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
+for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
+engine, and changes to the TCP stack to offload copies of received
+networking data to application space.
 
-Signed-off-by: Chris Leech <christopher.leech@intel.com>
----
+These changes apply to DaveM's net-2.6.17 tree as of commit
+2bd84a93d8bb7192ad8c23ef41008502be1cb603 ([IRDA]: TOIM3232 dongle support)
 
- include/linux/sysctl.h     |    1 +
- include/net/tcp.h          |    1 +
- net/core/user_dma.c        |    4 ++++
- net/ipv4/sysctl_net_ipv4.c |   10 ++++++++++
- 4 files changed, 16 insertions(+), 0 deletions(-)
+They are available to pull from
+	git://198.78.49.142/~cleech/linux-2.6 ioat-2.6.17
 
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index dfcf449..f532f1e 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -402,6 +402,7 @@ enum
- 	NET_IPV4_IPFRAG_MAX_DIST=112,
-  	NET_TCP_MTU_PROBING=113,
- 	NET_TCP_BASE_MSS=114,
-+	NET_TCP_DMA_COPYBREAK=115,
- };
- 
- enum {
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 2fc7f05..0740f32 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -221,6 +221,7 @@ extern int sysctl_tcp_adv_win_scale;
- extern int sysctl_tcp_tw_reuse;
- extern int sysctl_tcp_frto;
- extern int sysctl_tcp_low_latency;
-+extern int sysctl_tcp_dma_copybreak;
- extern int sysctl_tcp_nometrics_save;
- extern int sysctl_tcp_moderate_rcvbuf;
- extern int sysctl_tcp_tso_win_divisor;
-diff --git a/net/core/user_dma.c b/net/core/user_dma.c
-index 1e1aae5..dd259f0 100644
---- a/net/core/user_dma.c
-+++ b/net/core/user_dma.c
-@@ -33,6 +33,10 @@ file called LICENSE.
- 
- #ifdef CONFIG_NET_DMA
- 
-+#define NET_DMA_DEFAULT_COPYBREAK 1024
-+
-+int sysctl_tcp_dma_copybreak = NET_DMA_DEFAULT_COPYBREAK;
-+
- /**
-  *	dma_skb_copy_datagram_iovec - Copy a datagram to an iovec.
-  *	@skb - buffer to copy
-diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
-index ebf2e0b..f7bd9c2 100644
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -680,6 +680,16 @@ ctl_table ipv4_table[] = {
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
- 	},
-+#ifdef CONFIG_NET_DMA
-+	{
-+		.ctl_name	= NET_TCP_DMA_COPYBREAK,
-+		.procname	= "tcp_dma_copybreak",
-+		.data		= &sysctl_tcp_dma_copybreak,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec
-+	},
-+#endif
- 
- 	{ .ctl_name = 0 }
- };
+There are 8 patches in the series:
+	1) The memcpy offload APIs and class code
+	2) The Intel I/OAT DMA driver (ioatdma)
+	3) Core networking code to setup networking as a DMA memcpy client
+	4) Utility functions for sk_buff to iovec offloaded copy
+	5) Structure changes needed for TCP receive offload
+	6) Rename cleanup_rbuf to tcp_cleanup_rbuf
+	7) Add a sysctl to tune the minimum offloaded I/O size for TCP
+	8) The main TCP receive offload changes
 
+--
+Chris Leech <christopher.leech@intel.com>
+I/O Acceleration Technology Software Development
+LAN Access Division / Digital Enterprise Group 

@@ -1,253 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWCCGDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751917AbWCCGFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751822AbWCCGDd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 01:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWCCGDd
+	id S1751917AbWCCGFV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 01:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752056AbWCCGFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 01:03:33 -0500
-Received: from gate.crashing.org ([63.228.1.57]:40860 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751822AbWCCGDd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 01:03:33 -0500
-Subject: [PATCH] powerpc: Fix old g5 issues with windfarm
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 17:03:21 +1100
-Message-Id: <1141365801.3888.44.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Mar 2006 01:05:21 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:46440 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751917AbWCCGFU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 01:05:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MRXNCqgyGY17jpe9m9envvriTO2jOvHVCBAmutz/KtRITDxnXBG/GSCsA6r9KxxZrPtfYl5cwjXc6zjs8cWTS2W9Gqo7LqK1Hncx/JezU9Hhw0jUpTrtYiPCBIqnZs9k3WrVDBFz17Tpn0fmP3r5puEgOzLkESp7u1sG0aBK21k=
+Message-ID: <105c793f0603022205j124a9d19qab33c34e9750d5c9@mail.gmail.com>
+Date: Fri, 3 Mar 2006 01:05:19 -0500
+From: "Andrew Haninger" <ahaning@gmail.com>
+To: "tim tim" <tictactoe.tim@gmail.com>
+Subject: Re: modutils
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <503e0f9d0603022155j2570314jffcdf84060e336f2@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <503e0f9d0603022041q717ae7cdo8539ba8f508dd681@mail.gmail.com>
+	 <105c793f0603022138u6dca326ewa3b5d476f4c4ef48@mail.gmail.com>
+	 <503e0f9d0603022141l5dc9a88ds380dd9dd2ba22c41@mail.gmail.com>
+	 <105c793f0603022145t55f25cedpd6c40efd703530f5@mail.gmail.com>
+	 <503e0f9d0603022155j2570314jffcdf84060e336f2@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some of the windfarm sensor modules can initialize on old machines that
-don't have full windfarm support like non-dual core desktop G5s.
-Unfortunately, by doing so, they would trigger a bug in their matching
-algorithm causing them to attach to the wrong bus, thus triggering
-issues with the i2c core and breaking the thermal driver.
+On 3/3/06, tim tim <tictactoe.tim@gmail.com> wrote:
+> here i am trying to install 2.6.10 kernel on the system that was fully
+> installed RedHat EL3 (2.4.21). we followed this procedure..
+I suspect that you might need to install a copy of mod-init-tools, the
+latest version of which is 3.2.2.
 
-This patch fixes the probing issue (so that they will work when a
-windfarm port is done to these machines) and also prevents for now
-windfarm to load at all on these machines that still use therm_pm72 to
-avoid wasting resources.
+> to install a kernel .. is it necessary to have a fully installed
+> system..
+I'm not sure what you mean. At least one system will need a compiler
+and other libraries necessary to build the kernel. However, you could
+configure and build a kernel on one machine and then copy it and its
+related modules to another machine that does not have a compiler and
+install the kernel there. In that way, you wouldn't need a
+fully-installed system in order to install a kernel.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> and whether the kernel 2.6.10 can be installed on Fedora Core
+> 3..
+After a few searches, I think FC3 comes with a modified 2.6.9, so
+moving to 2.6.10 should be possible. If not, then FC4 is out and
+probably comes with a kernel newer than 2.6.10.
 
-Index: linux-work/drivers/macintosh/windfarm_lm75_sensor.c
-===================================================================
---- linux-work.orig/drivers/macintosh/windfarm_lm75_sensor.c	2006-03-03 16:02:56.000000000 +1100
-+++ linux-work/drivers/macintosh/windfarm_lm75_sensor.c	2006-03-03 16:41:01.000000000 +1100
-@@ -25,9 +25,9 @@
- 
- #include "windfarm.h"
- 
--#define VERSION "0.1"
-+#define VERSION "0.2"
- 
--#define DEBUG
-+#undef DEBUG
- 
- #ifdef DEBUG
- #define DBG(args...)	printk(args)
-@@ -113,6 +113,7 @@ static struct wf_lm75_sensor *wf_lm75_cr
- 					     const char *loc)
- {
- 	struct wf_lm75_sensor *lm;
-+	int rc;
- 
- 	DBG("wf_lm75: creating  %s device at address 0x%02x\n",
- 	    ds1775 ? "ds1775" : "lm75", addr);
-@@ -139,9 +140,11 @@ static struct wf_lm75_sensor *wf_lm75_cr
- 	lm->i2c.driver = &wf_lm75_driver;
- 	strncpy(lm->i2c.name, lm->sens.name, I2C_NAME_SIZE-1);
- 
--	if (i2c_attach_client(&lm->i2c)) {
--		printk(KERN_ERR "windfarm: failed to attach %s %s to i2c\n",
--		       ds1775 ? "ds1775" : "lm75", lm->i2c.name);
-+	rc = i2c_attach_client(&lm->i2c);
-+	if (rc) {
-+		printk(KERN_ERR "windfarm: failed to attach %s %s to i2c,"
-+		       " err %d\n", ds1775 ? "ds1775" : "lm75",
-+		       lm->i2c.name, rc);
- 		goto fail;
- 	}
- 
-@@ -175,16 +178,22 @@ static int wf_lm75_attach(struct i2c_ada
- 	     (dev = of_get_next_child(busnode, dev)) != NULL;) {
- 		const char *loc =
- 			get_property(dev, "hwsensor-location", NULL);
--		u32 *reg = (u32 *)get_property(dev, "reg", NULL);
--		DBG(" dev: %s... (loc: %p, reg: %p)\n", dev->name, loc, reg);
--		if (loc == NULL || reg == NULL)
-+		u8 addr;
-+
-+		/* We must re-match the adapter in order to properly check
-+		 * the channel on multibus setups
-+		 */
-+		if (!pmac_i2c_match_adapter(dev, adapter))
-+			continue;
-+		addr = pmac_i2c_get_dev_addr(dev);
-+		if (loc == NULL || addr == 0)
- 			continue;
- 		/* real lm75 */
- 		if (device_is_compatible(dev, "lm75"))
--			wf_lm75_create(adapter, *reg, 0, loc);
-+			wf_lm75_create(adapter, addr, 0, loc);
- 		/* ds1775 (compatible, better resolution */
- 		else if (device_is_compatible(dev, "ds1775"))
--			wf_lm75_create(adapter, *reg, 1, loc);
-+			wf_lm75_create(adapter, addr, 1, loc);
- 	}
- 	return 0;
- }
-@@ -206,6 +215,11 @@ static int wf_lm75_detach(struct i2c_cli
- 
- static int __init wf_lm75_sensor_init(void)
- {
-+	/* Don't register on old machines that use therm_pm72 for now */
-+	if (machine_is_compatible("PowerMac7,2") ||
-+	    machine_is_compatible("PowerMac7,3") ||
-+	    machine_is_compatible("RackMac3,1"))
-+		return -ENODEV;
- 	return i2c_add_driver(&wf_lm75_driver);
- }
- 
-Index: linux-work/drivers/macintosh/windfarm_max6690_sensor.c
-===================================================================
---- linux-work.orig/drivers/macintosh/windfarm_max6690_sensor.c	2006-02-17 14:38:40.000000000 +1100
-+++ linux-work/drivers/macintosh/windfarm_max6690_sensor.c	2006-03-03 16:40:05.000000000 +1100
-@@ -17,7 +17,7 @@
- 
- #include "windfarm.h"
- 
--#define VERSION "0.1"
-+#define VERSION "0.2"
- 
- /* This currently only exports the external temperature sensor,
-    since that's all the control loops need. */
-@@ -81,7 +81,7 @@ static struct wf_sensor_ops wf_max6690_o
- static void wf_max6690_create(struct i2c_adapter *adapter, u8 addr)
- {
- 	struct wf_6690_sensor *max;
--	char *name = "u4-temp";
-+	char *name = "backside-temp";
- 
- 	max = kzalloc(sizeof(struct wf_6690_sensor), GFP_KERNEL);
- 	if (max == NULL) {
-@@ -118,7 +118,6 @@ static int wf_max6690_attach(struct i2c_
- 	struct device_node *busnode, *dev = NULL;
- 	struct pmac_i2c_bus *bus;
- 	const char *loc;
--	u32 *reg;
- 
- 	bus = pmac_i2c_adapter_to_bus(adapter);
- 	if (bus == NULL)
-@@ -126,16 +125,23 @@ static int wf_max6690_attach(struct i2c_
- 	busnode = pmac_i2c_get_bus_node(bus);
- 
- 	while ((dev = of_get_next_child(busnode, dev)) != NULL) {
-+		u8 addr;
-+
-+		/* We must re-match the adapter in order to properly check
-+		 * the channel on multibus setups
-+		 */
-+		if (!pmac_i2c_match_adapter(dev, adapter))
-+			continue;
- 		if (!device_is_compatible(dev, "max6690"))
- 			continue;
-+		addr = pmac_i2c_get_dev_addr(dev);
- 		loc = get_property(dev, "hwsensor-location", NULL);
--		reg = (u32 *) get_property(dev, "reg", NULL);
--		if (!loc || !reg)
-+		if (loc == NULL || addr == 0)
- 			continue;
--		printk("found max6690, loc=%s reg=%x\n", loc, *reg);
-+		printk("found max6690, loc=%s addr=0x%02x\n", loc, addr);
- 		if (strcmp(loc, "BACKSIDE"))
- 			continue;
--		wf_max6690_create(adapter, *reg);
-+		wf_max6690_create(adapter, addr);
- 	}
- 
- 	return 0;
-@@ -153,6 +159,11 @@ static int wf_max6690_detach(struct i2c_
- 
- static int __init wf_max6690_sensor_init(void)
- {
-+	/* Don't register on old machines that use therm_pm72 for now */
-+	if (machine_is_compatible("PowerMac7,2") ||
-+	    machine_is_compatible("PowerMac7,3") ||
-+	    machine_is_compatible("RackMac3,1"))
-+		return -ENODEV;
- 	return i2c_add_driver(&wf_max6690_driver);
- }
- 
-Index: linux-work/drivers/macintosh/windfarm_pm112.c
-===================================================================
---- linux-work.orig/drivers/macintosh/windfarm_pm112.c	2006-02-17 14:38:40.000000000 +1100
-+++ linux-work/drivers/macintosh/windfarm_pm112.c	2006-03-03 16:24:44.000000000 +1100
-@@ -613,7 +613,7 @@ static void pm112_new_sensor(struct wf_s
- 	} else if (!strcmp(sr->name, "slots-power")) {
- 		if (slots_power == NULL && wf_get_sensor(sr) == 0)
- 			slots_power = sr;
--	} else if (!strcmp(sr->name, "u4-temp")) {
-+	} else if (!strcmp(sr->name, "backside-temp")) {
- 		if (u4_temp == NULL && wf_get_sensor(sr) == 0)
- 			u4_temp = sr;
- 	} else
-Index: linux-work/drivers/macintosh/windfarm_cpufreq_clamp.c
-===================================================================
---- linux-work.orig/drivers/macintosh/windfarm_cpufreq_clamp.c	2005-11-09 11:49:03.000000000 +1100
-+++ linux-work/drivers/macintosh/windfarm_cpufreq_clamp.c	2006-03-03 16:42:36.000000000 +1100
-@@ -8,6 +8,8 @@
- #include <linux/wait.h>
- #include <linux/cpufreq.h>
- 
-+#include <asm/prom.h>
-+
- #include "windfarm.h"
- 
- #define VERSION "0.3"
-@@ -74,6 +76,12 @@ static int __init wf_cpufreq_clamp_init(
- {
- 	struct wf_control *clamp;
- 
-+	/* Don't register on old machines that use therm_pm72 for now */
-+	if (machine_is_compatible("PowerMac7,2") ||
-+	    machine_is_compatible("PowerMac7,3") ||
-+	    machine_is_compatible("RackMac3,1"))
-+		return -ENODEV;
-+
- 	clamp = kmalloc(sizeof(struct wf_control), GFP_KERNEL);
- 	if (clamp == NULL)
- 		return -ENOMEM;
-Index: linux-work/drivers/macintosh/windfarm_core.c
-===================================================================
---- linux-work.orig/drivers/macintosh/windfarm_core.c	2006-02-17 14:38:40.000000000 +1100
-+++ linux-work/drivers/macintosh/windfarm_core.c	2006-03-03 16:43:06.000000000 +1100
-@@ -35,6 +35,8 @@
- #include <linux/platform_device.h>
- #include <linux/mutex.h>
- 
-+#include <asm/prom.h>
-+
- #include "windfarm.h"
- 
- #define VERSION "0.2"
-@@ -465,6 +467,11 @@ static int __init windfarm_core_init(voi
- {
- 	DBG("wf: core loaded\n");
- 
-+	/* Don't register on old machines that use therm_pm72 for now */
-+	if (machine_is_compatible("PowerMac7,2") ||
-+	    machine_is_compatible("PowerMac7,3") ||
-+	    machine_is_compatible("RackMac3,1"))
-+		return -ENODEV;
- 	platform_device_register(&wf_platform_device);
- 	return 0;
- }
+Hope this helps.
 
-
+-Andy

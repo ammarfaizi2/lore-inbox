@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWCCOFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWCCONM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750940AbWCCOFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 09:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWCCOFU
+	id S1751112AbWCCONM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 09:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWCCONL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 09:05:20 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:4226 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750940AbWCCOFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 09:05:19 -0500
-Date: Fri, 3 Mar 2006 09:04:59 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Alexander Mieland <dma147@linux-stats.org>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: how to find out which module was built by which .config variables?
-In-Reply-To: <200603031439.24367.dma147@linux-stats.org>
-Message-ID: <Pine.LNX.4.58.0603030902160.15978@gandalf.stny.rr.com>
-References: <200603031420.46801.dma147@linux-stats.org>
- <Pine.LNX.4.61.0603031434520.2581@yvahk01.tjqt.qr> <200603031439.24367.dma147@linux-stats.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Mar 2006 09:13:11 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:8859 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751112AbWCCONK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 09:13:10 -0500
+Date: Fri, 03 Mar 2006 09:09:28 -0500
+From: Jon Ringle <jringle@vertical.com>
+Subject: Re: Linux running on a PCI Option device?
+In-reply-to: <1141377188.8912.25.camel@localhost.localdomain>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Greg Ungerer <gerg@snapgear.com>, linux-kernel@vger.kernel.org
+Message-id: <200603030909.28640.jringle@vertical.com>
+Organization: Vertical
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <43EAE4AC.6070807@snapgear.com>
+ <200603021707.01190.jringle@vertical.com>
+ <1141377188.8912.25.camel@localhost.localdomain>
+User-Agent: KMail/1.8.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 3 Mar 2006, Alexander Mieland wrote:
-
-> Am Friday 03 March 2006 14:35 schrieben Sie:
-> > >Hello,
-> > >
-> > >I need to create a database with configuration options (the ones
-> > >in .config) and the resulting kernel modules.
-> >
-> > Let's pick 8139too.ko for example.
-> > Find /usr/src/linux -name 8139too.ko
-> > In that same directory, look at the Makefile:
-> > obj-$(CONFIG_8139TOO) += 8139too.o
+On Friday 03 March 2006 04:13 am, Adrian Cox wrote:
+> On Thu, 2006-03-02 at 17:07 -0500, Jon Ringle wrote:
+> > As it turns out, Linux completes it's bootup before Windows bootup even
+> > begins, and it seems that Linux changes the configuration of the various
+> > other PCI devices that happen to be on the system as well. I need to get
+> > Linux to leave the configuration of other PCI devices it finds alone. It
+> > should only mess with it's own configuration. Why should Linux need to
+> > change the configuration of other PCI devices when it is fulfilling the
+> > role of a PCI device itself?
 >
-> Ahh, great, this helps much more!
-> Thanks. ;)
+> Have you disabled CONFIG_PCI?
 >
+> CONFIG_PCI is the configuration option for a PCI host, just as
+> CONFIG_USB is the configuration option for a USB host. Linux contains
+> code for CONFIG_USB_GADGET, but what you need is the non-existent
+> CONFIG_PCI_GADGET.
+>
+> If you're running on a PCI option device (unless using a 21555
+> non-transparent bridge), you need to disable CONFIG_PCI and write your
+> own driver for the PCI option device functionality.
 
-I have a perl script that reads the current modules, Kconfigs and
-makefiles that I use to trim the .config to a minimum.  I does do what you
-ask.  Basically find the options that match the modules.
+Another requirement that I have that makes it difficult for me to disable 
+CONFIG_PCI is that the hardware component that is running Windows (and 
+therefore the PCI host) is optional hardware. If the Windows part is not 
+present, then the IXP will be configured (via hardware means) as a PCI host. 
+So, I need to detect at run time whether the IXP is in PCI option or PCI host 
+mode. If it is in PCI host mode then the code encapuslated by CONFIG_PCI must 
+be available.
 
-It's here:
+I can see now that I also have a need to have a "CONFIG_PCI_GADGET".
 
-http://www.kihontech.com/code/streamline_config.pl
-
--- Steve
+Jon

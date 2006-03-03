@@ -1,29 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752173AbWCCEGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWCCEO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752173AbWCCEGq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 23:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752174AbWCCEGq
+	id S1750874AbWCCEO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 23:14:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWCCEO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 23:06:46 -0500
-Received: from smtp108.rog.mail.re2.yahoo.com ([68.142.225.206]:63054 "HELO
-	smtp108.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1752173AbWCCEGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 23:06:45 -0500
+	Thu, 2 Mar 2006 23:14:26 -0500
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:9150 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750874AbWCCEOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Mar 2006 23:14:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=rogers.com;
-  h=Received:Subject:From:To:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=Wp04CBFXh6Pmb85e9Yap3aCTKUsEG5pUSeh75yGpwiyOWjdTCFrlcCCSL7keoPLQgKMQaV3bBr3OivkMyFOoQ7popuFjMCYqcCOTT0vSaTwj9t8PnQcl3NP8ToJIOrW6CL8/e5fOn1nls8GRxGDWHuo0HGyQzftBE7m0ZNCPdPs=  ;
-Subject: [Fwd: Re: [2.6 patch] make UNIX a bool]
+  h=Received:Subject:From:To:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=Q6cvnIpDODck3VzHcfqXV5YbKNoXog9AiNIhZhEs7IZyiJHY8cEpIvE9i+jPgn+sQ0MvpLWt+Q07PBtIBG4sOohMu2/bzCPm2MOk9Loe9pOXIGDJRBC0rSQVRklXVV35TwjnhsAGNWzecFo27oHGpBoRqU8KApKrmtSrq+ojC3k=  ;
+Subject: Re: [2.6 patch] make UNIX a bool
 From: "James C. Georgas" <jgeorgas@rogers.com>
 To: linux-kernel@vger.kernel.org
+In-Reply-To: <1141358816.3582.18.camel@Rainsong.home>
+References: <1141358816.3582.18.camel@Rainsong.home>
 Content-Type: text/plain
-Date: Thu, 02 Mar 2006 23:06:56 -0500
-Message-Id: <1141358816.3582.18.camel@Rainsong.home>
+Date: Thu, 02 Mar 2006 23:14:38 -0500
+Message-Id: <1141359278.3582.22.camel@Rainsong.home>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
 
 On Thu, 2006-02-03 at 21:32 +0100, Adrian Bunk wrote:
 > On Thu, Mar 02, 2006 at 09:28:15PM +0100, Jesper Juhl wrote:

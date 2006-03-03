@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWCCX3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbWCCXch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbWCCX3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:29:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbWCCX3k
+	id S932593AbWCCXch (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbWCCXch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:29:40 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18189 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932573AbWCCX3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:29:39 -0500
-Date: Sat, 4 Mar 2006 00:29:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: chris@zankel.net, uclinux-v850@lsi.nec.co.jp, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] add missing pm_power_off's
-Message-ID: <20060303232938.GE9295@stusta.de>
+	Fri, 3 Mar 2006 18:32:37 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:55868 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932591AbWCCXcg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:32:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Vc5A1LGqb+x6prQp6CHpDz5XXzZdNFFUur6xHKIwlxAL7U734EXCZZ4H4d6yulXnE0VSi+EDUuQwpUWGRlgwL5dQYsxFGZEpQ0zNAZhvCraFjn8z5dnNXEpg1khKCuJJcBsE7qofiY/JXNwLxtEjBmgqzarXkmnjRR79o3BcACU=
+Message-ID: <41b516cb0603031532n517f78efh932d452648574d2@mail.gmail.com>
+Date: Fri, 3 Mar 2006 15:32:29 -0800
+From: "Chris Leech" <chris.leech@gmail.com>
+To: "Kumar Gala" <galak@kernel.crashing.org>
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <54FF0817-23ED-47F1-8234-FD3079B3E403@kernel.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <20060303214036.11908.10499.stgit@gitlost.site>
+	 <54FF0817-23ED-47F1-8234-FD3079B3E403@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This untested patch adds the missing pm_power_off's for the h8300, v850 
-and xtensa architectures.
+On 3/3/06, Kumar Gala <galak@kernel.crashing.org> wrote:
+>
+> How does this relate to Dan William's ADMA work?
 
+I only became aware of Dan's ADMA work when he posted it last month,
+and so far have not made any attempts to merge the I/OAT code with it.
+ Moving forward, combining these interfaces certainly seems like the
+right way to go.  I particularly like ADMA's handling of operations
+other than just a copy (memset, compare, XOR, CRC).
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-@Andrew:
-Please apply for the next -mm.
-The build on these architectures is anyway broken due to this issue, and 
-I'll check at http://l4x.org/k/ whether this patch really fixes it.
-
- arch/h8300/kernel/process.c  |    3 +++
- arch/v850/kernel/process.c   |    3 +++
- arch/xtensa/kernel/process.c |    3 +++
- 3 files changed, 9 insertions(+)
-
---- linux-2.6.16-rc5-mm2-full/arch/h8300/kernel/process.c.old	2006-03-04 00:24:12.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/arch/h8300/kernel/process.c	2006-03-04 00:24:59.000000000 +0100
-@@ -45,6 +45,9 @@
- #include <asm/setup.h>
- #include <asm/pgtable.h>
- 
-+void (*pm_power_off)(void) = NULL;
-+EXPORT_SYMBOL(pm_power_off);
-+
- asmlinkage void ret_from_fork(void);
- 
- /*
---- linux-2.6.16-rc5-mm2-full/arch/v850/kernel/process.c.old	2006-03-04 00:25:16.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/arch/v850/kernel/process.c	2006-03-04 00:25:30.000000000 +0100
-@@ -30,6 +30,9 @@
- #include <asm/system.h>
- #include <asm/pgtable.h>
- 
-+void (*pm_power_off)(void) = NULL;
-+EXPORT_SYMBOL(pm_power_off);
-+
- extern void ret_from_fork (void);
- 
- 
---- linux-2.6.16-rc5-mm2-full/arch/xtensa/kernel/process.c.old	2006-03-04 00:25:43.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/arch/xtensa/kernel/process.c	2006-03-04 00:26:02.000000000 +0100
-@@ -64,6 +64,9 @@
- 
- struct task_struct *current_set[NR_CPUS] = {&init_task, };
- 
-+void (*pm_power_off)(void) = NULL;
-+EXPORT_SYMBOL(pm_power_off);
-+
- 
- #if XCHAL_CP_NUM > 0
- 
-
+Chris

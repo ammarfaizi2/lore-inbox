@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWCCWn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWCCWpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWCCWn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 17:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWCCWn7
+	id S932079AbWCCWpr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 17:45:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbWCCWpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 17:43:59 -0500
-Received: from web81007.mail.mud.yahoo.com ([68.142.199.87]:54445 "HELO
-	web81007.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750727AbWCCWn7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 17:43:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:X-RocketYMMF:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Sc4aNjxd6oZz5iXQW/gR2rNwIRdpl7IGvKckqXQvaPSTwWFeoUZxGALLMRioZjAK0PAlSxSK6jW2c86azNPq57pg+gUrqniYVlc/KXuRDg9iA/DXQ55nH6PNuVQYNwF8jpv+4BLUO3EEvJw/c9lxlss/Kr4kDnOt4hLUvTCyoaY=  ;
-Message-ID: <20060303224358.62126.qmail@web81007.mail.mud.yahoo.com>
-X-RocketYMMF: dafox2@sbcglobal.net
-Date: Fri, 3 Mar 2006 14:43:58 -0800 (PST)
-From: Jerry Fox <spblaguard-linux@yahoo.com>
-Reply-To: spblaguard-linux@yahoo.com
-Subject: Ability to change MSS using TCP_MAXSEG
-To: linux-kernel@vger.kernel.org
+	Fri, 3 Mar 2006 17:45:47 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:13725 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S932079AbWCCWpp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 17:45:45 -0500
+Message-ID: <4408C729.50401@dgreaves.com>
+Date: Fri, 03 Mar 2006 22:46:01 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com> <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603031437370.9331@p34>
+In-Reply-To: <Pine.LNX.4.64.0603031437370.9331@p34>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello-
+Just FYI - I'm away (in Canada) for 2 weeks so can't do any additional
+testing until I return.
 
-I'll post this time with mentioning "advertised" MSS
-in the subject  :-)
+David
 
-I have a question about the advertised MSS and the
-TCP_MAXSEG setsock option.   Note: I am using the
-Stevens sock code (http://www.unpbook.com/src.html) to
-do testing.  
-
-I set the TCP_MAXSEG via –X to 256 (yes, I
-intentionally want poor performance), and used gdb to
-verify that setsockopt gets called before the
-connect() call, as described in the tcp (7) manpage. 
-However, Ethereal shows the advmss is still 1460.  
-Looking in the kernel
-(net/ipv4/tcp_output.c::tcp_connect_init), I can see
-the mss_clamp gets the user_mss, but the advmss is
-still calculated based on dst_metric.  Host route MTU
-settings and interface MTU settings work as expected,
-but is there a way to advertise a different MSS per
-session/socket? 
-
-For ref, I see the same behavior on:
-IA64+Debian/HPCGL+2.4.20
-X86+Fedora+2.6.15
-PPC+MontaVista+2.6.14
-
-Please cc: me personally on any replies.
-
-Thanks!
-Jerry Fox
- 
-
+-- 
 

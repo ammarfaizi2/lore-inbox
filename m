@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWCCXt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWCCXvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWCCXt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWCCXt6
+	id S1751174AbWCCXvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:51:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWCCXvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:49:58 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:22155 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751058AbWCCXt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:49:57 -0500
-Subject: Re: AMD64 X2 lost ticks on PM timer
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <4408D55F.4090105@garzik.org>
-References: <200602280022.40769.darkray@ic3man.com>
-	 <200603011647.34516.ak@suse.de>
-	 <20060301180714.GD20092@ti64.telemetry-investments.com>
-	 <200603011929.59307.ak@suse.de> <1141240611.5860.176.camel@mindpipe>
-	 <20060303191822.GE32407@ti64.telemetry-investments.com>
-	 <1141421204.3042.139.camel@mindpipe> <4408BEB5.7000407@garzik.org>
-	 <20060303234330.GA14401@ti64.telemetry-investments.com>
-	 <4408D55F.4090105@garzik.org>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 18:49:53 -0500
-Message-Id: <1141429794.3042.157.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Mar 2006 18:51:09 -0500
+Received: from smtp.sprintpcs.com ([68.28.27.84]:57527 "EHLO
+	lswsmta01.nmcc.sprintspectrum.com") by vger.kernel.org with ESMTP
+	id S1751174AbWCCXvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:51:08 -0500
+Date: Fri, 03 Mar 2006 18:49:23 -0500
+From: Chuck Martin <v4b1bze02@sneakemail.com>
+Subject: Re: Realtime Kernel Slows My Clock
+In-reply-to: <1141429228.3042.155.camel@mindpipe>
+To: "Lee Revell rlrevell-at-joe-job.com |LKML|" 
+	<1otmivksfq0t@sneakemail.com>
+Cc: Chuck Martin <v4b1bze02@sneakemail.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Message-id: <20060303234923.GN5458@eta>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.4.2.1i
+References: <28925-53282@sneakemail.com> <1141429228.3042.155.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-03 at 18:46 -0500, Jeff Garzik wrote:
-> > In case you are coming late to the thread:
+On Fri, Mar 03, 2006 at 06:40:27PM -0500, Lee Revell rlrevell-at-joe-job.com |LKML| wrote:
+> On Fri, 2006-03-03 at 18:12 -0500, Chuck Martin wrote:
+> > I've recently been trying to compile a realtime kernel for audio
+> > work, and am having a problem.  The clock seems to run very slow,
+> > causing my time to be off.  Commands with a delay are also slowed
+> > from 10 to 30 times what they should be.  For example, "sleep 1"
+> > will sometimes take up to thirty seconds. 
 > 
-> I'm not.  Thus my comments refuting Lee's silly speculation.
-> 
+> Please post your kernel .config.  Is this a dual core AMD?
 
-I did not engage in any speculation at all, I only said the timing in
-that latency trace was screwed up which is obvious.
+No, it's a pentium III.  Which kernel would you like the .config from?
+I have them for 2.6.13, 2.6.14, and 2.6.15 (patched, of course).
 
-Lee
+Chuck
 

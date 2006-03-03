@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752182AbWCCIMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752186AbWCCIQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752182AbWCCIMM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 03:12:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752184AbWCCIMM
+	id S1752186AbWCCIQI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 03:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752187AbWCCIQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 03:12:12 -0500
-Received: from smtp1-g19.free.fr ([212.27.42.27]:18597 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1752182AbWCCIML (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 03:12:11 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: MAX_USBFS_BUFFER_SIZE
-Date: Fri, 3 Mar 2006 09:12:11 +0100
-User-Agent: KMail/1.9.1
-Cc: =?utf-8?q?Ren=C3=A9_Rebe?= <rene@exactcode.de>,
-       linux-kernel@vger.kernel.org
-References: <200603012116.25869.rene@exactcode.de> <mailman.1141249502.22706.linux-kernel2news@redhat.com> <20060302130519.588b18a2.zaitcev@redhat.com>
-In-Reply-To: <20060302130519.588b18a2.zaitcev@redhat.com>
+	Fri, 3 Mar 2006 03:16:08 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:43923 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752186AbWCCIQG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 03:16:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=arOGUVLoBQBXNPrqeuDWk3Ht6vTtWXFRd4Q04hEllAAgL+vA1Pz3ugNwK1szlUN4e+O+vdDsW7G2lxLfGId/R4Rj0saB3IyW4z45TallEKMhTlTGHrmMivkPWa1AxL97E9WDAf8zu5L9BLSVc0Q5XS7owL4BRJYmqfszORJmuHU=
+Message-ID: <756b48450603030016r36940139m4d64da5c23156d00@mail.gmail.com>
+Date: Fri, 3 Mar 2006 16:16:05 +0800
+From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+To: "Yu, Luming" <luming.yu@intel.com>
+Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840AFD4B93@pdsmsx403>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200603030912.11622.duncan.sands@math.u-psud.fr>
+References: <AcY1+QTZumb9d6e3RHms9ocp4LswwgAtmORQ>
+	 <3ACA40606221794F80A5670F0AF15F840AFD4B93@pdsmsx403>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Have you ever considered how many TDs have to be allocated to transfer
-> a data buffer this big? No, seriously. If your application cannot deliver
-> the tranfer speeds with 16KB URBs, we ought to consider if the combination
-> of our USB stack, usbfs, libusb and the application ought to get serious
-> performance enhancing surgery. The problem is obviously in the software
-> overhead.
+On 2/21/06, Yu, Luming <luming.yu@intel.com> wrote:
+> It would be better if you can merge this stuff with acpi video driver.
+> If you look at video.c, there is NO HID definition for video device.
+> we rely on acpi_video_bus_match to recoginize video device in ACPI
+> namespace.
 
-If you queue a large number of 16KB urbs, rather than one jumbo urb,
-does that make any difference to the number of TDs allocated?  I thought
-TDs were allocated for all queued urbs at the moment they are queued...
+I took a quick look and I think Atlas might be ugly. The current acpi
+video driver, as you pointed out, looks for well known required nodes,
+specifically _DOD,_DOS,_ROM,.... None of these nodes are provided on
+Atlas. From looking at the DSDT, all I see are _BCL and _BCM. It
+doesn't even have _BQC. So, from a quick look at the existing video
+driver, I see a couple of problems that I need advice on:
 
-Ciao,
+- is it ok if I add a _BCM check in acpi_video_bus_match. i think this
+is not a problem.
+- acpi_video_bus_check fails out if no _DOS,_ROM,_GPD,_SPD,_VPO. this
+check fails on Atlas because it doesn't have any of those
+capabilities. The video driver does check for _BCM in
+video_device_find_cap but that's at a much later stage. Do you want me
+to do something like if (acpi_video_bus_check() &&
+acpi_video_output_device_exceptions_detect() )... or do you want me to
+do something cleaner and move the whole _BCM detection earlier in the
+process?
+- acpi_video_bus_get_devices will only call video_bus_get_one_device
+if the device node has children. In Atlas, the "Video Bus", (ie: LCD
+device in the DSDT I pasted before) has no children, at least as found
+by scan.c, so we won't get to get_one_device(). What do you think I
+should do about this?
 
-Duncan.
+I have a suspicion that for boards like this where ACPI support isn't
+so complete, we should just use board specific drivers rather than
+mangling the mainstream video driver code. What do you think?
+
+Thanks,
+jayakumar

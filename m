@@ -1,101 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWCCRJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbWCCRQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbWCCRJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 12:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWCCRJ0
+	id S1030250AbWCCRQf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 12:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWCCRQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 12:09:26 -0500
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:10124 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1030249AbWCCRJZ
+	Fri, 3 Mar 2006 12:16:35 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:36269 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030250AbWCCRQe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 12:09:25 -0500
-Date: Fri, 3 Mar 2006 18:08:53 +0100
-From: Benoit Boissinot <bboissin@gmail.com>
+	Fri, 3 Mar 2006 12:16:34 -0500
+Subject: Re: [PATCH 2/4] pass b_size to ->get_block()
+From: Badari Pulavarty <pbadari@us.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm2
-Message-ID: <20060303170852.GA17018@ens-lyon.fr>
-References: <20060303045651.1f3b55ec.akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060301175218.6360cf7f.akpm@osdl.org>
+References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
+	 <1141075413.10542.23.camel@dyn9047017100.beaverton.ibm.com>
+	 <20060301175218.6360cf7f.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 03 Mar 2006 09:17:55 -0800
+Message-Id: <1141406280.10542.77.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060303045651.1f3b55ec.akpm@osdl.org>
-X-Sieve: CMU Sieve 2.2
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/3/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/
->
->
-> - Should be a bit better than 2.6.16-rc5-mm1, but I still had to fix a ton
->   of things to get this to compile and boot.  We're not being careful enough.
->
-> - The procfs rework is getting there, but some problems probably still remain.
->
-> - There will be a number of new warnings at boot time when initcalls fail.
->   Generally that's OK: it usually indicates that you linked something into
->   vmlinux which you're not actually using.  But sometimes it can indicate
->   kernel bugs.
->
-> - The (much-shrunk) audit git tree is back.
->
+On Wed, 2006-03-01 at 17:52 -0800, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > Pass amount of disk needs to be mapped to get_block().
+> > This way one can modify the fs ->get_block() functions 
+> > to map multiple blocks at the same time.
+> 
+> I can't say I terribly like this patch.  Initialising b_size all over the
+> place seems fragile.
 
-I have the following warning:
+I went through all the in-kernel places where we call ->getblock()
+and initialized b_size correctly.
 
-drivers/rtc/interface.c: In function 'rtc_set_mmss':
-drivers/rtc/interface.c:91: warning: 'old.tm_hour' is used uninitialized in this function
-drivers/rtc/interface.c:91: warning: 'old.tm_min' is used uninitialized in this function
+> 
+> We're _already_ setting bh.b_size to the right thing in
+> alloc_page_buffers(), and for a bh which is attached to
+> pagecache_page->private, there's no reason why b_size would ever change.
 
-The following patch fixes it (maybe using goto would be better and avoid
-having lines > 80 chars).
+Good point.
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
+> So what I think I'll do is to convert those places where you're needlessly
+> assigning to b_size into temporary WARN_ON(b_size != blocksize).
 
-Index: linux/drivers/rtc/interface.c
-===================================================================
---- linux.orig/drivers/rtc/interface.c
-+++ linux/drivers/rtc/interface.c
-@@ -76,21 +76,25 @@ int rtc_set_mmss(struct class_device *cl
- 		if (rtc->ops->read_time && rtc->ops->set_time) {
- 		        struct rtc_time new, old;
- 
--		        new.tm_sec  = secs % 60;
--		        secs /= 60;
--		        new.tm_min  = secs % 60;
--		        secs /= 60;
--		        new.tm_hour = secs % 24;
--
--		       /*
--		        * avoid writing when we're going to change the day
--		        * of the month.  We will retry in the next minute.
--		        * This basically means that if the RTC must not drift
--		        * by more than 1 minute in 11 minutes.
--		        */
--			if (!((old.tm_hour == 23 && old.tm_min == 59) ||
--		            (new.tm_hour == 23 && new.tm_min == 59)))
--				err = rtc->ops->set_time(class_dev->dev, &new);
-+			err = rtc->ops->read_time(class_dev->dev, &old);
-+			if (!err) {
-+
-+				new.tm_sec  = secs % 60;
-+				secs /= 60;
-+				new.tm_min  = secs % 60;
-+				secs /= 60;
-+				new.tm_hour = secs % 24;
-+
-+			       /*
-+				* avoid writing when we're going to change the day
-+				* of the month.  We will retry in the next minute.
-+				* This basically means that if the RTC must not drift
-+				* by more than 1 minute in 11 minutes.
-+				*/
-+				if (!((old.tm_hour == 23 && old.tm_min == 59) ||
-+				    (new.tm_hour == 23 && new.tm_min == 59)))
-+					err = rtc->ops->set_time(class_dev->dev, &new);
-+			}
- 		}
- 		else
- 			err = -EINVAL;
+Yep. 
+
+
+> The only place where we need to initialise b_size is where we've got a
+> non-pagecache bh allocated on the stack.
+> 
+> We need to be sure that no ->get_block() implementations write garbage into
+> bh->b_size if something goes wrong.  b_size on a pagecache-based
+> buffer_head must remain inviolate.
+
+Good news is, filesystems that allocate a single block currently don't
+care about b_size anyway.
+
+I guess to be paranoid, we should add WARN_ON() or BUG_ON() in jfs, xfs,
+ext3 (in -mm) ->getblock() to check for a valid b_size, before using it
+(not being negitive, multiple of blocksize, not-a-huge-number type
+checks ?).
+
+Thanks,
+Badari
+

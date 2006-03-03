@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWCCSrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161029AbWCCSz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161026AbWCCSrp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 13:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161027AbWCCSrp
+	id S1161029AbWCCSz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 13:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWCCSz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 13:47:45 -0500
-Received: from smtp-1.llnl.gov ([128.115.3.81]:45771 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id S1161026AbWCCSrp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 13:47:45 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 7/15] EDAC: i82875p cleanup
-Date: Fri, 3 Mar 2006 10:47:01 -0800
-User-Agent: KMail/1.5.3
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       bluesmoke-devel@lists.sourceforge.net, thayne@realmsys.com,
-       zhenyu.z.wang@intel.com
-References: <200603021748.01132.dsp@llnl.gov> <20060302183044.459ddb13.akpm@osdl.org>
-In-Reply-To: <20060302183044.459ddb13.akpm@osdl.org>
+	Fri, 3 Mar 2006 13:55:26 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:30843 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161029AbWCCSzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 13:55:23 -0500
+Date: Fri, 3 Mar 2006 19:55:31 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, jblunck@suse.de, linux-kernel@vger.kernel.org
+Subject: [patch 2/2] s390: fix compile with VIRT_CPU_ACCOUNTING=n.
+Message-ID: <20060303185531.GB16574@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603031047.01445.dsp@llnl.gov>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 March 2006 18:30, Andrew Morton wrote:
-> Dave Peterson <dsp@llnl.gov> wrote:
-> >  +#ifdef CORRECT_BIOS
-> >  +fail0:
-> >  +#endif
->
-> What is CORRECT_BIOS?  Is the fact that it's never defined some sort of
-> commentary?  ;)
+From: Jan Blunck <jblunck@suse.de>
 
-I'm not sure about this.  I'm cc'ing Thayne Harbaugh and Wang Zhenyu since
-their names are in the credits for the i82875p module.  Maybe they can
-provide some info.
+[patch 2/2] s390: fix compile with VIRT_CPU_ACCOUNTING=n.
+
+When CONFIG_VIRT_CPU_ACCOUNTING is not defined compiling fails with an
+undefined reference to account_vtime().
+
+Signed-off-by: Jan Blunck <jblunck@suse.de>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ include/asm-s390/system.h |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -urpN linux-2.6/include/asm-s390/system.h linux-2.6-patched/include/asm-s390/system.h
+--- linux-2.6/include/asm-s390/system.h	2006-03-03 18:52:32.000000000 +0100
++++ linux-2.6-patched/include/asm-s390/system.h	2006-03-03 18:53:21.000000000 +0100
+@@ -118,6 +118,8 @@ static inline void sched_cacheflush(void
+ extern void account_vtime(struct task_struct *);
+ extern void account_tick_vtime(struct task_struct *);
+ extern void account_system_vtime(struct task_struct *);
++#else
++#define account_vtime(x) do { /* empty */ } while (0)
+ #endif
+ 
+ #define finish_arch_switch(prev) do {					     \

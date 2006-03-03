@@ -1,114 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWCCRmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWCCRoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbWCCRmB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 12:42:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWCCRmB
+	id S1030258AbWCCRoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 12:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030259AbWCCRoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 12:42:01 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:10423 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751346AbWCCRmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 12:42:00 -0500
-Date: Fri, 3 Mar 2006 09:41:37 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, davej@redhat.com, len.brown@intel.com,
-       ak@suse.de, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-Subject: Re: 2.6.16rc5 'found' an extra CPU.
-Message-ID: <20060303094137.A26387@unix-os.sc.intel.com>
-References: <F7DC2337C7631D4386A2DF6E8FB22B30063BFB95@hdsmsx401.amr.corp.intel.com> <20060302083038.A11407@unix-os.sc.intel.com> <20060302184428.GB7304@redhat.com> <20060302112119.A13035@unix-os.sc.intel.com> <20060302231452.440a91c8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060302231452.440a91c8.akpm@osdl.org>; from akpm@osdl.org on Thu, Mar 02, 2006 at 11:14:52PM -0800
+	Fri, 3 Mar 2006 12:44:25 -0500
+Received: from mx1.sonologic.nl ([82.94.245.21]:3539 "EHLO mx1.sonologic.nl")
+	by vger.kernel.org with ESMTP id S1030258AbWCCRoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 12:44:24 -0500
+Message-ID: <440880CD.10008@metro.cx>
+Date: Fri, 03 Mar 2006 18:45:49 +0100
+From: Koen Martens <linuxarm@metro.cx>
+Organization: Sonologic
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050317 Thunderbird/1.0.2 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben Dooks <ben-linux-arm@fluff.org>
+CC: Koen Martens <linuxarm@metro.cx>, Pavel Machek <pavel@ucw.cz>,
+       ben@simtec.co.uk, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/14] s3c2412/s3c2413 support
+References: <44082001.9090308@metro.cx> <20060303151023.GB2580@ucw.cz> <44085F31.6040705@metro.cx> <20060303155759.GA16278@trinity.fluff.org>
+In-Reply-To: <20060303155759.GA16278@trinity.fluff.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Helo-Milter-Authen: gmc@sonologic.nl, linuxarm@metro.cx, mx1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 11:14:52PM -0800, Andrew Morton wrote:
-> On a uniprocessor build this causes a crash in acpi_processor_start():
+Ben Dooks wrote:
+> On Fri, Mar 03, 2006 at 04:22:25PM +0100, Koen Martens wrote:
 > 
-> 	BUG_ON((pr->id >= NR_CPUS) || (pr->id < 0));
+>>Pavel Machek wrote:
+>>
+>>
+>>>Ahha, it is actually arm derivative. Still it would be nice to have
+>>>better name.
 > 
-> pr->id is 255.
 > 
-> I could bodge around this in various ways, but the semantics of cpu IDs in
-> there seem to be a bit opaque, and I suspect some more thought needs to go
-> into it all.
+> Limiting it to linux-arm-kernel may have been a better
+> idea, since it is to do with items under arch/arm, the
+> intended audience should all be subscribed to the list.
 > 
-> As well as uniprocessor testing ;)
 
-The UP definition of convert_acpiid_to_cpu() was left as (0xff), i should
-have converted that to (-1) now that its an "int".
+In hind-sight, that appears correct. I was just following this line
+in section 5 of Documentation/SubmittingPatches:
 
-Here is the updated one, this time i also testbooted the UP kernel. :-)
+Unless you have a reason NOT to do so, CC linux-kernel@vger.kernel.org.
+
+Won't happen again, sorry! Just finding my way through the rites.
+
+Koen
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
-
-
-Local apic entries are only 8 bits, but it seemed to not be caught with 
-u8 return value result in the check
-
-cpu_index >= NR_CPUS becomming always false.
-
-drivers/acpi/processor_core.c: In function `acpi_processor_get_info':
-drivers/acpi/processor_core.c:483: warning: comparison is always false due to limited range of data type
-
-
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
------------------------------------------------------
- drivers/acpi/processor_core.c |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
-
-Index: linux-2.6.16-rc5-mm1/drivers/acpi/processor_core.c
-===================================================================
---- linux-2.6.16-rc5-mm1.orig/drivers/acpi/processor_core.c
-+++ linux-2.6.16-rc5-mm1/drivers/acpi/processor_core.c
-@@ -382,7 +382,7 @@ static int acpi_processor_remove_fs(stru
- 
- /* Use the acpiid in MADT to map cpus in case of SMP */
- #ifndef CONFIG_SMP
--#define convert_acpiid_to_cpu(acpi_id) (0xff)
-+#define convert_acpiid_to_cpu(acpi_id) (-1)
- #else
- 
- #ifdef CONFIG_IA64
-@@ -395,7 +395,7 @@ static int acpi_processor_remove_fs(stru
- #define ARCH_BAD_APICID		(0xff)
- #endif
- 
--static u8 convert_acpiid_to_cpu(u8 acpi_id)
-+static int convert_acpiid_to_cpu(u8 acpi_id)
- {
- 	u16 apic_id;
- 	int i;
-@@ -421,7 +421,7 @@ static int acpi_processor_get_info(struc
- 	acpi_status status = 0;
- 	union acpi_object object = { 0 };
- 	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
--	u8 cpu_index;
-+	int cpu_index;
- 	static int cpu0_initialized;
- 
- 	ACPI_FUNCTION_TRACE("acpi_processor_get_info");
-@@ -466,7 +466,7 @@ static int acpi_processor_get_info(struc
- 	cpu_index = convert_acpiid_to_cpu(pr->acpi_id);
- 
- 	/* Handle UP system running SMP kernel, with no LAPIC in MADT */
--	if (!cpu0_initialized && (cpu_index == 0xff) &&
-+	if (!cpu0_initialized && (cpu_index == -1) &&
- 	    (num_online_cpus() == 1)) {
- 		cpu_index = 0;
- 	}
-@@ -480,7 +480,7 @@ static int acpi_processor_get_info(struc
- 	 *  less than the max # of CPUs. They should be ignored _iff
- 	 *  they are physically not present.
- 	 */
--	if (cpu_index >= NR_CPUS) {
-+	if (cpu_index == -1) {
- 		if (ACPI_FAILURE
- 		    (acpi_processor_hotadd_init(pr->handle, &pr->id))) {
- 			ACPI_ERROR((AE_INFO,
+K.F.J. Martens, Sonologic, http://www.sonologic.nl/
+Networking, hosting, embedded systems, unix, artificial intelligence.
+Public PGP key: http://www.metro.cx/pubkey-gmc.asc
+Wondering about the funny attachment your mail program
+can't read? Visit http://www.openpgp.org/

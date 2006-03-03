@@ -1,108 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWCCSyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWCCSzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbWCCSyr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 13:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWCCSyr
+	id S1751166AbWCCSzS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 13:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWCCSzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 13:54:47 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:17790 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161027AbWCCSyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 13:54:46 -0500
-Date: Fri, 3 Mar 2006 19:54:54 +0100
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, ehrhardt@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 1/2] s390: Increase spinlock retry code performance.
-Message-ID: <20060303185454.GA16574@skybase.boeblingen.de.ibm.com>
+	Fri, 3 Mar 2006 13:55:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51415 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750952AbWCCSzQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 13:55:16 -0500
+Date: Fri, 3 Mar 2006 10:55:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Steve Byan <smb@egenera.com>
+cc: Mark Lord <lkml@rtr.ca>, Matthias Andree <matthias.andree@gmx.de>,
+       Douglas Gilbert <dougg@torque.net>, Mark Rustad <mrustad@mac.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sg regression in 2.6.16-rc5
+In-Reply-To: <CF493E39-B369-46D8-85EE-013F2484F1C6@egenera.com>
+Message-ID: <Pine.LNX.4.64.0603031035140.22647@g5.osdl.org>
+References: <E94491DE-8378-41DC-9C01-E8C1C91B6B4E@mac.com> <4404AA2A.5010703@torque.net>
+ <20060301083824.GA9871@merlin.emma.line.org> <Pine.LNX.4.64.0603011027400.22647@g5.osdl.org>
+ <4405E8AA.1090803@rtr.ca> <Pine.LNX.4.64.0603011036110.22647@g5.osdl.org>
+ <CF493E39-B369-46D8-85EE-013F2484F1C6@egenera.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Christian Ehrhardt <ehrhardt@de.ibm.com>
 
-[patch 1/2] s390: Increase spinlock retry code performance.
 
-Currently the code tries up to spin_retry times to grab a lock using the cs
-instruction. The cs instruction has exclusive access to a memory region and
-therefore invalidates the appropiate cache line of all other cpus. If there
-is contention on a lock this leads to cache line trashing.
-This can be avoided if we first check wether a cs instruction is likely to
-succeed before the instruction gets actually executed.
+On Fri, 3 Mar 2006, Steve Byan wrote:
+> 
+> On Mar 1, 2006, at 1:42 PM, Linus Torvalds wrote:
+> > 
+> > I wouldn't expect it to. Most people use ATA for that, and it tends to
+> > have lower limits than most SCSI HBA's (well, at least the old PATA), so
+> > the change - if any - should at most change some of the sg.c limits to be
+> > no less than what SG_IO has had on ATA forever.
+> > 
+> > Not that I expect people to have a SCSI CD/DVD drive anyway in this day
+> > and age, so the sg.c changes probably won't show up at all.
+> 
+> CD-ROM support is a frequently-requested feature on the iSCSI Enterprise
+> Target (iet) email list. It won't be long before iSCSI CD and DVD devices
+> start showing up, although the underlying hardware will be ATAPI or else
+> missing entirely (i.e. ISO image file).
 
-Signed-off-by: Christian Ehrhardt <ehrhardt@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
+Yes, but the point that the ATA limits tend to be on the low side still 
+stands.
 
- arch/s390/lib/spinlock.c |   15 +++++++++++++--
- 1 files changed, 13 insertions(+), 2 deletions(-)
+For example, I think the IDE driver defaults to a maximum transfer of 256 
+sectors, and the same number of max scatter-gather entries. Some 
+controllers will actually lower that, due to silly hw problems.
 
-diff -urpN linux-2.6/arch/s390/lib/spinlock.c linux-2.6-patched/arch/s390/lib/spinlock.c
---- linux-2.6/arch/s390/lib/spinlock.c	2006-03-03 18:52:23.000000000 +0100
-+++ linux-2.6-patched/arch/s390/lib/spinlock.c	2006-03-03 18:53:20.000000000 +0100
-@@ -2,8 +2,7 @@
-  *  arch/s390/lib/spinlock.c
-  *    Out of line spinlock code.
-  *
-- *  S390 version
-- *    Copyright (C) 2004 IBM Deutschland Entwicklung GmbH, IBM Corporation
-+ *    Copyright (C) IBM Corp. 2004, 2006
-  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com)
-  */
- 
-@@ -44,6 +43,8 @@ _raw_spin_lock_wait(raw_spinlock_t *lp, 
- 			_diag44();
- 			count = spin_retry;
- 		}
-+		if (__raw_spin_is_locked(lp))
-+			continue;
- 		if (_raw_compare_and_swap(&lp->lock, 0, pc) == 0)
- 			return;
- 	}
-@@ -56,6 +57,8 @@ _raw_spin_trylock_retry(raw_spinlock_t *
- 	int count = spin_retry;
- 
- 	while (count-- > 0) {
-+		if (__raw_spin_is_locked(lp))
-+			continue;
- 		if (_raw_compare_and_swap(&lp->lock, 0, pc) == 0)
- 			return 1;
- 	}
-@@ -74,6 +77,8 @@ _raw_read_lock_wait(raw_rwlock_t *rw)
- 			_diag44();
- 			count = spin_retry;
- 		}
-+		if (!__raw_read_can_lock(rw))
-+			continue;
- 		old = rw->lock & 0x7fffffffU;
- 		if (_raw_compare_and_swap(&rw->lock, old, old + 1) == old)
- 			return;
-@@ -88,6 +93,8 @@ _raw_read_trylock_retry(raw_rwlock_t *rw
- 	int count = spin_retry;
- 
- 	while (count-- > 0) {
-+		if (!__raw_read_can_lock(rw))
-+			continue;
- 		old = rw->lock & 0x7fffffffU;
- 		if (_raw_compare_and_swap(&rw->lock, old, old + 1) == old)
- 			return 1;
-@@ -106,6 +113,8 @@ _raw_write_lock_wait(raw_rwlock_t *rw)
- 			_diag44();
- 			count = spin_retry;
- 		}
-+		if (!__raw_write_can_lock(rw))
-+			continue;
- 		if (_raw_compare_and_swap(&rw->lock, 0, 0x80000000) == 0)
- 			return;
- 	}
-@@ -118,6 +127,8 @@ _raw_write_trylock_retry(raw_rwlock_t *r
- 	int count = spin_retry;
- 
- 	while (count-- > 0) {
-+		if (!__raw_write_can_lock(rw))
-+			continue;
- 		if (_raw_compare_and_swap(&rw->lock, 0, 0x80000000) == 0)
- 			return 1;
- 	}
+The point being that it has worked fine for IDE, and if a SCSI controller 
+has noticeably lower limits than that, there's something really strange 
+going on, like a real bug.
+
+			Linus

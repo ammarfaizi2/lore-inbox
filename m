@@ -1,88 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWCCS6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWCCTDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbWCCS6n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 13:58:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWCCS6n
+	id S1751382AbWCCTDY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 14:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWCCTDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 13:58:43 -0500
-Received: from guru.webcon.ca ([216.194.67.26]:9136 "EHLO guru.webcon.ca")
-	by vger.kernel.org with ESMTP id S1750952AbWCCS6n (ORCPT
+	Fri, 3 Mar 2006 14:03:24 -0500
+Received: from smtp-1.llnl.gov ([128.115.3.81]:29913 "EHLO smtp-1.llnl.gov")
+	by vger.kernel.org with ESMTP id S1751382AbWCCTDX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 13:58:43 -0500
-Date: Fri, 3 Mar 2006 13:58:40 -0500 (EST)
-From: "Ian E. Morgan" <imorgan@webcon.ca>
-X-X-Sender: imorgan@light.int.webcon.net
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Setkeycodes w/ keycode >= 0x100 ?
-In-Reply-To: <Pine.LNX.4.61.0603031322410.18198@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.64.0603031343270.15776@light.int.webcon.net>
-References: <Pine.LNX.4.64.0603031241130.15776@light.int.webcon.net>
- <Pine.LNX.4.61.0603031322410.18198@chaos.analogic.com>
-Organization: Webcon, Inc
+	Fri, 3 Mar 2006 14:03:23 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 10/15] EDAC: edac_mc_add_mc() fix [1/2]
+Date: Fri, 3 Mar 2006 11:03:08 -0800
+User-Agent: KMail/1.5.3
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net
+References: <200603021748.07381.dsp@llnl.gov> <20060302183143.6730d255.akpm@osdl.org>
+In-Reply-To: <20060302183143.6730d255.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Assp-Spam-Prob: 0.00000
-X-Assp-Whitelisted: Yes
-X-Assp-Envelope-From: imorgan@webcon.ca
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603031103.08105.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Mar 2006, linux-os (Dick Johnson) wrote:
+On Thursday 02 March 2006 18:31, Andrew Morton wrote:
+> Dave Peterson <dsp@llnl.gov> wrote:
+> >  This is part 1 of a 2-part patch set.  The code changes are split into
+> >  two parts to make the patches more readable.
+>
+> Will the code compile and run with just #1-of-2 applied?
 
-> 
-> On Fri, 3 Mar 2006, Ian E. Morgan wrote:
-> 
-> > Since my HP notebook has some unrecognized keys, I have to use setkeycodes to
-> > make the kernel recognise them. However, many of the basic (<=255) KEY's from
-> > input.h are not suitable, but newer ones (>=0x100) woule be perfect.
-> >
-> > Any idea how to map scancodes to keycodes >=0x100 when setkeycodes won't
-> > accept hex input nor anything greater than 255?
-> >
-> > Regards,
-> > Ian Morgan
-> 
-> The keyboard controller generates scan-codes from 0 to 255. It reads the
-> scan-code information from a byte-wide port (so-called PORT_A in the
-> PC/AT), so it can't be any larger than a byte. The controller provides a
-> code when the key is pressed and another code when the key is released.
-> The only difference between these codes is a single bit. This limits the
-> number of possible different scan codes to 127.
-> 
-> The scan-codes are translated, based upon the Caps Lock, the Ctrl key, the
-> Alt key, and the Shift key so, in principle, you could have almost 4 times
-> as many keyboard symbols as scan-codes. However, you would have to rewrite
-> a lot of keyboard code to take advantage of this.
-
-Perhaps my question was unclear. Here is an example of what I do now:
-
-	#KEY_COFFEE
-	setkeycodes e00a 152
-
-This works, but is an illogical arbitrary assignment. I want to do this:
-
-	#KEY_POWER2
-	setkeycodes e00a 356
-
-(or some other such thing with a keycode >256). But it fails with:
-
-KDSETKEYCODE: Invalid argument
-failed to set scancode 8a to keycode 356
-
-In drivers/char/keyboard.c, there are three cases in which it can return
--EINVAL, but I can't see obviously which one is being hit.
-
-Is the answer simply that we cannot bind scancodes to keycodes greater than
-256? If so, then why are there newer KEY's defined in input.h >256, and how does
-one ever use them?
-
-Regards,
-Ian Morgan
-
--- 
--------------------------------------------------------------------
- Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
- imorgan at webcon dot ca       PGP: #2DA40D07       www.webcon.ca
-    *  Customized Linux Network Solutions for your Business  *
--------------------------------------------------------------------
+It should compile.  Assuming that it does, would it still have been
+preferable to just combine the two into a single patch?

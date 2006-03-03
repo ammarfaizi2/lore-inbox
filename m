@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWCCP6y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWCCP6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWCCP6y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 10:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWCCP6y
+	id S932073AbWCCP6R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 10:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWCCP6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 10:58:54 -0500
-Received: from trinity.fluff.org ([212.13.204.133]:23008 "EHLO
-	trinity.fluff.org") by vger.kernel.org with ESMTP id S1751484AbWCCP6x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 10:58:53 -0500
-Date: Fri, 3 Mar 2006 15:57:59 +0000
-From: Ben Dooks <ben-linux-arm@fluff.org>
-To: Koen Martens <linuxarm@metro.cx>
-Cc: Pavel Machek <pavel@ucw.cz>, ben@simtec.co.uk,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/14] s3c2412/s3c2413 support
-Message-ID: <20060303155759.GA16278@trinity.fluff.org>
-References: <44082001.9090308@metro.cx> <20060303151023.GB2580@ucw.cz> <44085F31.6040705@metro.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Mar 2006 10:58:16 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:65495 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751228AbWCCP6Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 10:58:16 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 5/9] ns558: adjust pnp_register_driver signature
+Date: Fri, 3 Mar 2006 08:58:12 -0700
+User-Agent: KMail/1.8.3
+Cc: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org,
+       Jaroslav Kysela <perex@suse.cz>,
+       Matthieu Castet <castet.matthieu@free.fr>,
+       Li Shaohua <shaohua.li@intel.com>, Andrew Morton <akpm@osdl.org>
+References: <200603021601.27467.bjorn.helgaas@hp.com> <200603021609.37525.bjorn.helgaas@hp.com> <20060303125543.GC11899@suse.cz>
+In-Reply-To: <20060303125543.GC11899@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <44085F31.6040705@metro.cx>
-User-Agent: Mutt/1.3.28i
-X-Disclaimer: These are my views alone.
-X-URL: http://www.fluff.org/
+Message-Id: <200603030858.12495.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 04:22:25PM +0100, Koen Martens wrote:
-> Pavel Machek wrote:
-> 
-> >On Fri 03-03-06 11:52:49, Koen Martens wrote:
+On Friday 03 March 2006 05:55, Vojtech Pavlik wrote:
+> On Thu, Mar 02, 2006 at 04:09:37PM -0700, Bjorn Helgaas wrote:
+> > Remove the assumption that pnp_register_driver() returns the number of
+> > devices claimed.
 > > 
-> >
-> >>This patchset adds various defines and bits for the 
-> >>s3c2412 and s3c2413
-> >>processors, as well as adding detection of this cpu to 
-> >>platform setup and
-> >>uncompress boot stage.
-> >>The changes should not disturb current s3c24xx 
-> >>implementations. The
-> >>patchset is preliminary, in that the final datasheet is 
-> >>not yet available. We
-> >>did some testing of these new registers and bits outside 
-> >>of the linux
-> >>kernel.
-> >>   
-> >>
-> >
-> >Ahha, it is actually arm derivative. Still it would be nice to have
-> >better name.
+> > Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> 
+> Wouldn't a diff like
+> 
+> --- a/drivers/input/gameport/ns558.c	2006-03-02 12:40:45.000000000 -0700
+> +++ b/drivers/input/gameport/ns558.c	2006-03-02 12:43:58.000000000 -0700
+> @@ -258,7 +256,7 @@
+>  {
+>  	int i = 0;
+>  
+> -	if (pnp_register_driver(&ns558_pnp_driver) >= 0)
+> +	if (!pnp_register_driver(&ns558_pnp_driver))
+>  		pnp_registered = 1;
+>   
+>   /*
+> 
+> be enough? The err variable isn't used anywhere else.
 
-Limiting it to linux-arm-kernel may have been a better
-idea, since it is to do with items under arch/arm, the
-intended audience should all be subscribed to the list.
+Yup, that'd be fine, and in fact my first version of the patch
+did just that.  I introduced "err" because most of the other
+drivers I had to touch used "err," and it seemed a bit clearer to me
+because it gives an extra hint that pnp_register_driver() returns
+only an error code.
 
--- 
-Ben
+But I don't care either way, so say the word, and I'll send
+Andrew your patch to replace mine.
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+Bjorn
 
+> > Index: work-mm4/drivers/input/gameport/ns558.c
+> > ===================================================================
+> > --- work-mm4.orig/drivers/input/gameport/ns558.c	2006-03-02 12:40:45.000000000 -0700
+> > +++ work-mm4/drivers/input/gameport/ns558.c	2006-03-02 12:43:58.000000000 -0700
+> > @@ -256,9 +256,10 @@
+> >  
+> >  static int __init ns558_init(void)
+> >  {
+> > -	int i = 0;
+> > +	int i = 0, err;
+> >  
+> > -	if (pnp_register_driver(&ns558_pnp_driver) >= 0)
+> > +	err = pnp_register_driver(&ns558_pnp_driver);
+> > +	if (!err)
+> >  		pnp_registered = 1;
+> >  
+> >  /*
+> > 
+> > 
+> 

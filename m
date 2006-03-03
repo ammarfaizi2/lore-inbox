@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932498AbWCCXVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWCCXZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932498AbWCCXVE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWCCXVE
+	id S1751004AbWCCXZE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWCCXZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:21:04 -0500
-Received: from smtp-4.llnl.gov ([128.115.41.84]:17919 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S932498AbWCCXVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:21:03 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Doug Thompson <dthompson@lnxi.com>, arjan@infradead.org
-Subject: Re: [PATCH 1/15] EDAC: switch to kthread_ API
-Date: Fri, 3 Mar 2006 15:20:29 -0800
-User-Agent: KMail/1.5.3
-Cc: bluesmoke-devel@lists.sourceforge.net, hch@lst.de,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <4408050A0200003600000CC8@zoot.lnxi.com>
-In-Reply-To: <4408050A0200003600000CC8@zoot.lnxi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603031520.29855.dsp@llnl.gov>
+	Fri, 3 Mar 2006 18:25:04 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:25322 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751004AbWCCXZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:25:02 -0500
+Date: Fri, 03 Mar 2006 17:25:54 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: CDROM support for Promise 20269
+In-reply-to: <5Mquh-2mT-97@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4408D082.2070203@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5Mquh-2mT-97@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 March 2006 07:57, Doug Thompson wrote:
-> Currently the timer event code performs two operations:
->
->   1) ECC polling and
->   2) PCI parity polling.
->
-> I want to split those from each other, so each can have a seperate cycle
-> rate (also adding a sysfs cycle control for the PCI parity timing in
-> addition to the existing ECC cycle control).
+John Treubig wrote:
+> I've been working on a problem with Promise 20269 PATA adapter under 
+> LibATA that if I attach a CDROM drive, I can not see the drive.  The 
+> message log reports that the driver sees the device, but when I'm fully 
+> booted, there's no device available.
 
-Yes, this sounds like a good idea.  Using schedule_delayed_work() to
-independently implement each polling cycle, we should be able to get
-rid of the EDAC kernel thread.
+..
+
+> [  118.621489] scsi4 : pata_pdc2027x
+> [  118.643926] ata1(1): WARNING: ATAPI is disabled, device ignored.
+
+Sounds like your problem there.. need to enable ATAPI in your 
+libata/PATA kernel configuration?
+
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

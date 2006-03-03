@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751738AbWCCWbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWCCWdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751738AbWCCWbR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 17:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWCCWbR
+	id S1750875AbWCCWdV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 17:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWCCWdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 17:31:17 -0500
-Received: from web81009.mail.mud.yahoo.com ([68.142.199.89]:28561 "HELO
-	web81009.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750753AbWCCWbR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 17:31:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:X-RocketYMMF:Date:From:Reply-To:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=XfqDfNq0F40TihkGqyToqPAELxwpi4fJRpl+0A+QHBE3nkYTZOx6XdApncP2GMmbF9lUjdJWublanIA1PHzSdfjbLDNNSiOyGjEfwu8blRrLi0/4EAp9p1Wjg2T72gZddxYZYpgXObDEs0q7LIu6q+iws6uDkEfQSYmnyZ6VBeA=  ;
-Message-ID: <20060303223116.44517.qmail@web81009.mail.mud.yahoo.com>
-X-RocketYMMF: dafox2@sbcglobal.net
-Date: Fri, 3 Mar 2006 14:31:15 -0800 (PST)
-From: Jerry Fox <spblaguard-linux@yahoo.com>
-Reply-To: spblaguard-linux@yahoo.com
-Subject: Ability to change MSS using TCP_MAXSEG
-To: linux-kernel@vger.kernel.org
+	Fri, 3 Mar 2006 17:33:21 -0500
+Received: from mx2.suse.de ([195.135.220.15]:23443 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750875AbWCCWdT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 17:33:19 -0500
+From: Andi Kleen <ak@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
+Date: Fri, 3 Mar 2006 23:32:42 +0100
+User-Agent: KMail/1.8
+Cc: Allen Martin <AMartin@nvidia.com>, Chris Wedgwood <cw@f00f.org>,
+       Michael Monnerie <m.monnerie@zmi.at>, linux-kernel@vger.kernel.org
+References: <DBFABB80F7FD3143A911F9E6CFD477B00E48CCB0@hqemmail02.nvidia.com> <200603032312.13369.ak@suse.de> <4408C1E1.7090006@pobox.com>
+In-Reply-To: <4408C1E1.7090006@pobox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603032332.43178.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello-
+On Friday 03 March 2006 23:23, Jeff Garzik wrote:
+> Andi Kleen wrote:
+> > On Friday 03 March 2006 22:27, Allen Martin wrote:
+> >>nForce4 has 64 bit (40 bit AMD64) DMA in the SATA controller.  We gave
+> >>the docs to Jeff Garzik under NDA.  He posted some non functional driver
+> >>code to linux-ide earlier this week that has the 64 bit registers and
+> >>structures although it doesn't make use of them.  Someone could pick
+> >>this up if they wanted to work on it though.
+> >
+> > Thanks for the correction. Sounds nice - hopefully we'll get a driver
+> > soon. I guess it's in good hands with Jeff for now.
+>
+> I'll happen but not soon.  Motivation is low at NV and here as well,
+> since newer NV is AHCI.  The code in question, "NV ADMA", is essentially
+> legacy at this point 
 
-I'll post this time with mentioning "advertised" MSS
-in the subject  :-)
+NForce4s are used widely in new shipping systems so I wouldn't
+exactly call them legacy.
 
-I have a question about the advertised MSS and the
-TCP_MAXSEG setsock option.   Note: I am using the
-Stevens sock code (http://www.unpbook.com/src.html) to
-do testing.  
+> -- though I certainly acknowledge the large current 
+> installed base.  Just being honest about the current state of things...
 
-I set the TCP_MAXSEG via –X to 256 (yes, I
-intentionally want poor performance), and used gdb to
-verify that setsockopt gets called before the
-connect() call, as described in the tcp (7) manpage. 
-However, Ethereal shows the advmss is still 1460.  
-Looking in the kernel
-(net/ipv4/tcp_output.c::tcp_connect_init), I can see
-the mss_clamp gets the user_mss, but the advmss is
-still calculated based on dst_metric.  Host route MTU
-settings and interface MTU settings work as expected,
-but is there a way to advertise a different MSS per
-session/socket? 
+How much work would it be to finish the prototype driver you have? 
 
-For ref, I see the same behavior on:
-IA64+Debian/HPCGL+2.4.20
-X86+Fedora+2.6.15
-PPC+MontaVista+2.6.14
-
-Please cc: me personally on any replies.
-
-Thanks!
-Jerry Fox
- 
-
-
+-Andi

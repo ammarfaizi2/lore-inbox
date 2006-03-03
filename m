@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751744AbWCCWeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbWCCWhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751744AbWCCWeh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 17:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbWCCWeh
+	id S1751748AbWCCWhA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 17:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751753AbWCCWhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 17:34:37 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:6581 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750982AbWCCWeg (ORCPT
+	Fri, 3 Mar 2006 17:37:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24231 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751748AbWCCWg7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 17:34:36 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-Organization: IBM
-To: linux-kernel@vger.kernel.org
-Subject: Re: is there a COW inside the kernel ?
-Date: Fri, 3 Mar 2006 16:39:58 -0600
-User-Agent: KMail/1.8.3
-Cc: "roland" <devzero@web.de>
-References: <043101c63e9c$86e9d710$0200000a@aldipc> <200603030828.59567.kevcorry@us.ibm.com> <04cd01c63f09$a007a930$0200000a@aldipc>
-In-Reply-To: <04cd01c63f09$a007a930$0200000a@aldipc>
+	Fri, 3 Mar 2006 17:36:59 -0500
+Date: Fri, 3 Mar 2006 14:36:34 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin LaHaise <bcrl@linux.intel.com>
+cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       ak@suse.de, mingo@redhat.com, jblunck@suse.de, matthew@wil.cx,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Memory barriers and spin_unlock safety
+In-Reply-To: <Pine.LNX.4.64.0603031415330.22647@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603031429320.22647@g5.osdl.org>
+References: <Pine.LNX.4.64.0603030856260.22647@g5.osdl.org>
+ <32518.1141401780@warthog.cambridge.redhat.com> <1146.1141404346@warthog.cambridge.redhat.com>
+ <5041.1141417027@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0603031332140.22647@g5.osdl.org>
+ <20060303215114.GA13893@linux.intel.com> <Pine.LNX.4.64.0603031415330.22647@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603031639.58616.kevcorry@us.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri March 3 2006 3:29 pm, roland wrote:
-> i think i will take a closer look on device-mapper, but i'm unsure if it`s
-> perfectly suited.
+
+
+On Fri, 3 Mar 2006, Linus Torvalds wrote:
 >
-> can i only use devices, not files for the cow?
+> I suspect you have some bug in your implementation. I think Dekker's 
+> algorithm depends on the reads and writes being ordered, and you don't 
+> seem to do that.
 
-Yes, Device-Mapper can only map to block-devices. If you need to do this with 
-files, you could use losetup to create block-device from them. However, the 
-COW device still won't "grow" automatically as you described.
+IOW, I think you need a full memory barrier after the 
+	"lock->turn = cpu ^ 1;"
+and you should have a "smp_rmb()" in between your reads of
+	"lock->flags[cpu ^ 1]"
+and
+	"lock->turn"
+to give the ordering that Dekker (or Peterson) expects.
 
-> what about merging a cow-dev/file back to the r/o-dev/file ?
+IOW, the code should be something like
 
-Device-Mapper does not directly support this, but EVMS provides a "rollback" 
-function for reverting an origin volume back to the contents of its snapshot 
-volume.
+	lock->flags[other] = 1;
+	smp_wmb();
+	lock->turn = other
+	smp_mb();
+	while (lock->turn == cpu) {
+		smp_rmb();
+		if (!lock->flags[other])
+			break;
+	}
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://www.ibm.com/linux/
-http://evms.sourceforge.net/
+where the wmb's are no-ops on x86, but the rmb's certainly are not.
+
+I _suspect_ that the fact that it starts working with an 'sfence' in there 
+somewhere is just because the sfence ends up being "serializing enough" 
+that it just happens to work, but that it has nothing to do with the 
+current kernel wmb() being wrong.
+
+		Linus

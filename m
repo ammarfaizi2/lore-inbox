@@ -1,46 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752120AbWCCBch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752142AbWCCBsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752120AbWCCBch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Mar 2006 20:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWCCBch
+	id S1752142AbWCCBsg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Mar 2006 20:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752138AbWCCBsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Mar 2006 20:32:37 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:48864 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752120AbWCCBcg (ORCPT
+	Thu, 2 Mar 2006 20:48:32 -0500
+Received: from smtp-3.llnl.gov ([128.115.41.83]:13268 "EHLO smtp-3.llnl.gov")
+	by vger.kernel.org with ESMTP id S1752133AbWCCBsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Mar 2006 20:32:36 -0500
-From: Andi Kleen <ak@suse.de>
-To: Zou Nan hai <nanhai.zou@intel.com>
-Subject: Re: [Patch] Move swiotlb_init early on X86_64
-Date: Fri, 3 Mar 2006 02:32:11 +0100
-User-Agent: KMail/1.9.1
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-References: <117E3EB5059E4E48ADFF2822933287A441C94D@pdsmsx404> <1141342529.2537.11.camel@linux-znh>
-In-Reply-To: <1141342529.2537.11.camel@linux-znh>
+	Thu, 2 Mar 2006 20:48:21 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: alan@lxorguk.ukuu.org.uk, akpm@osdl.org
+Subject: [PATCH 10/15] EDAC: edac_mc_add_mc() fix [1/2]
+Date: Thu, 2 Mar 2006 17:48:07 -0800
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603030232.12101.ak@suse.de>
+Message-Id: <200603021748.07381.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 March 2006 00:35, Zou Nan hai wrote:
+This is part 1 of a 2-part patch set.  The code changes are split into
+two parts to make the patches more readable.
 
-> This patch modify the bootmem allocator,
-> let normal bootmem allocation on 64 bit system first go above 4G
-> address.
+Move complete_mc_list_del() and del_mc_from_global_list() so we can
+call del_mc_from_global_list() from edac_mc_add_mc() without forward
+declarations.  Perhaps using forward declarations would be better?
+I'm doing things this way because the rest of the code is missing
+them.
 
-That's very ugly and likely to break some architectures. Sorry
-but #ifdefs is the wrong way to do this.
+Signed-Off-By: David S. Peterson <dsp@llnl.gov> <dave_peterson@pobox.com>
+---
 
-Passing a limit parameter is better and use that in the swiotlb
-allocation. If you're worried about changing too many callers
-you could add a new entry point.
-
--Andi
-
+Index: linux-2.6.16-rc5-edac/drivers/edac/edac_mc.c
+===================================================================
+--- linux-2.6.16-rc5-edac.orig/drivers/edac/edac_mc.c	2006-02-27 17:05:48.000000000 -0800
++++ linux-2.6.16-rc5-edac/drivers/edac/edac_mc.c	2006-02-27 17:06:17.000000000 -0800
+@@ -1405,6 +1405,24 @@ static int add_mc_to_global_list (struct
+ }
+ 
+ 
++static void complete_mc_list_del (struct rcu_head *head)
++{
++	struct mem_ctl_info *mci;
++
++	mci = container_of(head, struct mem_ctl_info, rcu);
++	INIT_LIST_HEAD(&mci->link);
++	complete(&mci->complete);
++}
++
++
++static void del_mc_from_global_list (struct mem_ctl_info *mci)
++{
++	list_del_rcu(&mci->link);
++	init_completion(&mci->complete);
++	call_rcu(&mci->rcu, complete_mc_list_del);
++	wait_for_completion(&mci->complete);
++}
++
+ 
+ EXPORT_SYMBOL(edac_mc_add_mc);
+ 
+@@ -1466,24 +1484,6 @@ finish:
+ }
+ 
+ 
+-
+-static void complete_mc_list_del (struct rcu_head *head)
+-{
+-	struct mem_ctl_info *mci;
+-
+-	mci = container_of(head, struct mem_ctl_info, rcu);
+-	INIT_LIST_HEAD(&mci->link);
+-	complete(&mci->complete);
+-}
+-
+-static void del_mc_from_global_list (struct mem_ctl_info *mci)
+-{
+-	list_del_rcu(&mci->link);
+-	init_completion(&mci->complete);
+-	call_rcu(&mci->rcu, complete_mc_list_del);
+-	wait_for_completion(&mci->complete);
+-}
+-
+ EXPORT_SYMBOL(edac_mc_del_mc);
+ 
+ /**

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWCCLJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWCCLKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWCCLJS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 06:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWCCLJS
+	id S1751413AbWCCLKp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 06:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWCCLKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 06:09:18 -0500
-Received: from mx1.sonologic.nl ([82.94.245.21]:61174 "EHLO mx1.sonologic.nl")
-	by vger.kernel.org with ESMTP id S1751371AbWCCLJS (ORCPT
+	Fri, 3 Mar 2006 06:10:44 -0500
+Received: from mx1.sonologic.nl ([82.94.245.21]:40899 "EHLO mx1.sonologic.nl")
+	by vger.kernel.org with ESMTP id S1751389AbWCCLKj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 06:09:18 -0500
-Message-ID: <4408235E.4090406@metro.cx>
-Date: Fri, 03 Mar 2006 12:07:10 +0100
+	Fri, 3 Mar 2006 06:10:39 -0500
+Message-ID: <44082389.60501@metro.cx>
+Date: Fri, 03 Mar 2006 12:07:53 +0100
 From: Koen Martens <linuxarm@metro.cx>
 Organization: Sonologic
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
@@ -18,83 +18,59 @@ X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-arm-kernel@lists.arm.linux.org.uk, ben@simtec.co.uk,
        linux-kernel@vger.kernel.org
-Subject: [patch 12/14] s3c2412/s3c2413 support
+Subject: [patch 13/14] s3c2412/s3c2413 support
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Helo-Milter-Authen: gmc@sonologic.nl, linuxarm@metro.cx, mx1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Start of s3c2412 dsc support.
+Start of s3c2412 support.
 
 Signed-off-by: Koen Martens <gmc@sonologic.nl>
 
 
---- linux-2.6.15.4/arch/arm/mach-s3c2410/s3c2412-dsc.c    1970-01-01 
+--- linux-2.6.15.4/arch/arm/mach-s3c2410/s3c2412.h    1970-01-01 
 01:00:00.000000000 +0100
-+++ golinux/arch/arm/mach-s3c2410/s3c2412-dsc.c    2006-02-27 
-17:12:40.000000000 +0100
-@@ -0,0 +1,60 @@
-+/* linux/arch/arm/mach-s3c2410/s3c2440-dsc.c
++++ golinux/arch/arm/mach-s3c2410/s3c2412.h    2006-02-27 
+17:02:10.000000000 +0100
+@@ -0,0 +1,36 @@
++/* arch/arm/mach-s3c2410/s3c2440.h
 + *
 + * Copyright (c) 2004-2005 Simtec Electronics
-+ *   Ben Dooks <ben@simtec.co.uk>
++ *    Ben Dooks <ben@simtec.co.uk>
 + *
-+ * Samsung S3C2412 Drive Strength Control support
++ * Header file for s3c2412 cpu support
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
 + * published by the Free Software Foundation.
 + *
 + * Modifications:
-+ *     29-Aug-2004 BJD  Start of drive-strength control
-+ *     09-Nov-2004 BJD  Added symbol export
-+ *     11-Jan-2005 BJD  Include fix
-+ *     27-Feb-2006 KM   Start of S3C2412 support
++ *    24-Aug-2004 BJD  Start of S3C2440 CPU support
++ *    04-Nov-2004 BJD  Added s3c2440_init_uarts()
++ *    04-Jan-2005 BJD  Moved uart init to cpu code
++ *    10-Jan-2005 BJD  Moved 2440 specific init here
++ *    14-Jan-2005 BJD  Split the clock initialisation code
++ *      27-Feb-2006 KM   Start of S3C2412 CPU support
 +*/
 +
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/interrupt.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
++#ifdef CONFIG_CPU_S3C2412
 +
-+#include <asm/mach/arch.h>
-+#include <asm/mach/map.h>
-+#include <asm/mach/irq.h>
++extern  int s3c2412_init(void);
 +
-+#include <asm/hardware.h>
-+#include <asm/io.h>
-+#include <asm/irq.h>
++extern void s3c2412_map_io(struct map_desc *mach_desc, int size);
 +
-+#include <asm/arch/regs-gpio.h>
-+#include <asm/arch/regs-dsc.h>
++extern void s3c2412_init_uarts(struct s3c2410_uartcfg *cfg, int no);
 +
-+#include "cpu.h"
-+#include "s3c2412.h"
++extern void s3c2412_init_clocks(int xtal);
 +
-+int s3c2412_set_dsc(unsigned int pin, unsigned int value)
-+{
-+    void __iomem *base;
-+    unsigned long val;
-+    unsigned long flags;
-+    unsigned long mask;
-+
-+    base = (pin & S3C2412_SELECT_DSC1) ? S3C2412_DSC1 : S3C2412_DSC0;
-+    mask = 3 << S3C2440_DSC_GETSHIFT(pin);
-+
-+    local_irq_save(flags);
-+
-+    val = __raw_readl(base);
-+    val &= ~mask;
-+    val |= value & mask;
-+    __raw_writel(val, base);
-+
-+    local_irq_restore(flags);
-+    return 0;
-+}
-+
-+EXPORT_SYMBOL(s3c2412_set_dsc);
++#else
++#define s3c2412_init_clocks NULL
++#define s3c2412_init_uarts NULL
++#define s3c2412_map_io NULL
++#define s3c2412_init NULL
++#endif
 
 -- 
 K.F.J. Martens, Sonologic, http://www.sonologic.nl/

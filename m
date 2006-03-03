@@ -1,64 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWCCF0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWCCFiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWCCF0n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 00:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWCCF0n
+	id S1750970AbWCCFiM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 00:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWCCFiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 00:26:43 -0500
-Received: from ozlabs.org ([203.10.76.45]:55985 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751274AbWCCF0m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 00:26:42 -0500
-Date: Fri, 3 Mar 2006 16:26:02 +1100
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       William Irwin <wli@holomorphy.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: hugepage: Fix hugepage logic in free_pgtables() harder
-Message-ID: <20060303052602.GL23766@localhost.localdomain>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	William Irwin <wli@holomorphy.com>, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20060303010408.GG23766@localhost.localdomain> <Pine.LNX.4.61.0603030508470.5446@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Mar 2006 00:38:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:52970 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750858AbWCCFiL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 00:38:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CYGExEokt4GYabTfN0uQGuaNd4Eg7xEYA02LKA0AaS2ny5Cit+DsHPSwEvKmYYiOYfAOcXS2KK8xzz3zPjUsnv7XGw9TGimXvvzaQOoLhT4s8Wdy1n6aFosxoAg8C0OTId5gaf6lSbFAoWa6ujxWeNsszFtqOnngZTR+yeOMicE=
+Message-ID: <105c793f0603022138u6dca326ewa3b5d476f4c4ef48@mail.gmail.com>
+Date: Fri, 3 Mar 2006 00:38:10 -0500
+From: "Andrew Haninger" <ahaning@gmail.com>
+To: "tim tim" <tictactoe.tim@gmail.com>
+Subject: Re: modutils
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <503e0f9d0603022041q717ae7cdo8539ba8f508dd681@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603030508470.5446@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
+References: <503e0f9d0603022041q717ae7cdo8539ba8f508dd681@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 05:18:51AM +0000, Hugh Dickins wrote:
-> On Fri, 3 Mar 2006, 'David Gibson' wrote:
-> 
-> > Sigh.  Turns out the hugepage logic in free_pgtables() was doubly
-> > broken.  The loop coalescing multiple normal page VMAs into one call
-> > to free_pgd_range() had an off by one error, which could mean it would
-> > coalesce one hugepage VMA into the same bundle (checking 'vma' not
-> > 'next' in the loop).  I transferred this bug into the new
-> > is_vm_hugetlb_page() based version.  Here's the fix.
-> > 
-> > This one didn't bite on powerpc previously for the same reason the
-> > is_hugepage_only_range() problem didn't: powerpc's
-> > hugetlb_free_pgd_range() is identical to free_pgd_range().  It didn't
-> > bite on ia64 because the hugepage region is distant enough from any
-> > other region that the separated PMD_SIZE distance test would always
-> > prevent coalescing the two together.
-> 
-> I agree with your patch, but not with your comment: it's just a fix
-> to your earlier patch, there's no such off-by-one in the mainline
-> free_pgtables.  Probably you were misled by my use of "vma->vm_mm"
-> rather than  "next->vm_mm", equal but admittedly confusing, when
-> looking at the "next" vma.
+On 3/2/06, tim tim <tictactoe.tim@gmail.com> wrote:
+> can somebody tell me the latest version of modutils that is available.
+ftp://ftp.kernel.org/pub/linux/utils/kernel/modutils/v2.4/LATEST-IS-2.4.27
 
-Ah, yes, indeed.  The bug's all my fault, but it's still a bug.
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+-Andy

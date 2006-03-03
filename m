@@ -1,84 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbWCCOsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWCCOzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751133AbWCCOsI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 09:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWCCOsG
+	id S1751462AbWCCOzG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 09:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWCCOzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 09:48:06 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:55468 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751133AbWCCOsF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 09:48:05 -0500
-Date: Fri, 3 Mar 2006 07:48:04 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, steved@redhat.com,
-       trond.myklebust@fys.uio.no, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/5] Optimise d_find_alias()
-Message-ID: <20060303144804.GJ1598@parisc-linux.org>
-References: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com> <25676.1141385408@warthog.cambridge.redhat.com> <20060303034552.5fcedc49.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060303034552.5fcedc49.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+	Fri, 3 Mar 2006 09:55:05 -0500
+Received: from mail.phnxsoft.com ([195.227.45.4]:62988 "EHLO
+	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
+	id S1751462AbWCCOzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 09:55:04 -0500
+Message-ID: <4408589B.2040305@imap.cc>
+Date: Fri, 03 Mar 2006 15:54:19 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
+X-Accept-Language: de, en, fr
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: Hansjoerg Lipp <hjlipp@web.de>, Karsten Keil <kkeil@suse.de>,
+       i4ldeveloper@listserv.isdn4linux.de,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: [PATCH 0/7] isdn4linux: add drivers for Siemens Gigaset ISDN
+ DECT PABX
+References: <gigaset307x.2006.02.27.001.0@hjlipp.my-fqdn.de>	 <1141032577.2992.83.camel@laptopd505.fenrus.org> <440779AF.5060202@imap.cc> <1141368808.2883.16.camel@laptopd505.fenrus.org>
+In-Reply-To: <1141368808.2883.16.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig97EA9B411286E34F6E1B6B24"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 03:45:52AM -0800, Andrew Morton wrote:
-> David Howells <dhowells@redhat.com> wrote:
-> >  struct dentry * d_find_alias(struct inode *inode)
-> >   {
-> >  -	struct dentry *de;
-> >  -	spin_lock(&dcache_lock);
-> >  -	de = __d_find_alias(inode, 0);
-> >  -	spin_unlock(&dcache_lock);
-> >  +	struct dentry *de = NULL;
-> >  +	if (!list_empty(&inode->i_dentry)) {
-> >  +		spin_lock(&dcache_lock);
-> >  +		de = __d_find_alias(inode, 0);
-> >  +		spin_unlock(&dcache_lock);
-> >  +	}
-> >   	return de;
-> >   }
-> 
-> How can we get away without a barrier?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig97EA9B411286E34F6E1B6B24
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-We'd have to be synchronised higher up in order to care, I think.
+On Fri, 03 Mar 2006 07:53:28 +0100, Arjan van de Ven wrote:
 
-The condition we're testing is !list_empty(&inode->i_dentry)
-which will presumably be optimised by the compiler into
-inode->i_dentry.next != &inode->i_dentry -- IOW determined by a single
-load.
+> On Fri, 2006-03-03 at 00:03 +0100, Tilman Schmidt wrote:
 
-Both false negatives and false positives are interesting, so we're
-concerned with any write from another CPU that changes inode->i_dentry.next 
-d_instantiate() looks like a good candidate for analysing races.
+>> So you are saying that, for example
+>>
+>> 	spin_lock_irqsave(&cs->ev_lock, flags);
+>> 	head = cs->ev_head;
+>> 	tail = cs->ev_tail;
+>> 	spin_unlock_irqrestore(&cs->ev_lock, flags);
+>>
+>> is (mutatis mutandis) actually cheaper than
+>>
+>> 	head = atomic_read(&cs->ev_head);
+>> 	tail = atomic_read(&cs->ev_tail);
+>
+> atomic_read is special since it's not actually an atomic operation ;)
+> but.. think about it: you do 2 atomic reads, however there is ZERO
+> guarantee that the reads are atomic with respect to eachother; eg your
+> head and tail are not an atomic "snapshot" of these 2 variables!
 
-CPU1				CPU2
+That's not a problem. It's a ringbuffer. It doesn't need an atomic
+snapshot of the reading and writing pointers together. Nothing breaks
+if a reader advances the read pointer while a writer is holding a
+local copy of it, or vice versa. The only thing we have to guard
+against is the result of an individual read operation being corrupted
+by a parallel write.
 
-d_instantiate()
-spin_lock(&dcache_lock);
-				
-				d_find_alias()
-				if (!list_empty(&inode->i_dentry)) {
-list_add(&entry->d_alias, &inode->i_dentry);
-spin_unlock(&dcache_lock);
-					spin_lock(&dcache_lock);
-					__d_find_alias()
-					spin_unlock(&dcache_lock);
-				}
+So what's better in that case? Should we change these from atomic to
+spinlocked or not?
 
-I don't see how putting a barrier in helps determine whether the
-list_add is before or after the load for list_empty.  So I think it's
-a  benign race.  If it returns NULL, it's the same as the case where
-d_instantiate() is called after __d_find_alias() returns.  If
-list_empty() is false, grabbing the dcache_lock means we'll find the
-list really is empty after all.
+[#define IFNULL*]
+>> Ok, these were mainly debugging aids. We'll just drop them and let the
+>> oops mechanism catch the (hopefully non-existent) remaining cases of
+>> pointers being unexpectedly NULL.
+>
+> you can also use WARN_ON() and BUG_ON() for that, you then get a more
+> readable oops message (with filename and line information)
 
-So it's not a correctness thing, it's a question of how many times we
-lose the race, and what the performance penalty is for doing so (and what
-the performance penalty is for ensuring we lose the race less often).
-And I don't know the answer to that.
+Actually, we won't. The IFNULL* macros were not only printing a message,
+but also taking evasive action in order to avoid dereferencing the NULL
+pointer. To achieve the same with WARN_ON() would require four lines of
+code for each occurrence, which IMHO is too much code clutter for a class
+of bugs which should be largely eradicated by now anyway.
+
+>> >> +void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *msg,
+>> >> +			size_t len, const unsigned char *buf, int from_user)
+>> >
+>> > such "from_user" parameter is highly evil, and also breaks sparse and
+>> > friends.. (btw please run sparse on the code and fix all warnings)
+>>
+>> Are you referring to anything in particular? We do run sparse regularly,
+>> and it did not emit any warnings for the submitted version, not even for
+>> this function. (But heaps of them for other parts of the kernel, if you
+>> pardon the remark.)
+>
+> msg should have the __user atribute here since it can be in userspace...
+> sometimes. It is the "sometimes" that is the bad idea!
+
+That's understood and will be fixed. I was just wondering whether your
+remark in parentheses was prompted by any particular sparse warnings you
+wanted us to fix and which for some reason we hadn't seen?
+
+> (GFP_ATOMIC is like borrowing from the VM, the VM will be in slight
+> imbalance afterwards. With GFP_KERNEL you allow the kernel to fix this
+> imbalance. A slight imbalance is fine and not a problem. Especially if
+> you give it the memory back soon. But if the imbalance can accumulate,
+> for example because you keep allocating and free the memory much later,
+> it can become a problem)
+
+Thanks muchly for that very lucid explanation. I see much clearer now
+in that area! :-)
+
+Regards
+Tilman
+
+--
+Tilman Schmidt                    E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
+
+--------------enig97EA9B411286E34F6E1B6B24
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFECFimMdB4Whm86/kRAmWNAJ995N7rKbV7r+rOxQSAc0Nn+b480ACfU3Ts
+i5tq/OsohHvH43u7v9fS0Xo=
+=7YcF
+-----END PGP SIGNATURE-----
+
+--------------enig97EA9B411286E34F6E1B6B24--

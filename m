@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWCCXpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWCCXqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWCCXpt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 18:45:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWCCXpt
+	id S1751202AbWCCXqq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 18:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932556AbWCCXqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 18:45:49 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27405 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751202AbWCCXps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 18:45:48 -0500
-Date: Sat, 4 Mar 2006 00:45:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: lethal@linux-sh.org, kkojima@rr.iij4u.or.jp
-Cc: linuxsh-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] arch/sh/Kconfig: don't source non-existing Kconfig files
-Message-ID: <20060303234548.GG9295@stusta.de>
+	Fri, 3 Mar 2006 18:46:46 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:14233 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751726AbWCCXqq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 18:46:46 -0500
+Message-ID: <4408D55F.4090105@garzik.org>
+Date: Fri, 03 Mar 2006 18:46:39 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+CC: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
+       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: AMD64 X2 lost ticks on PM timer
+References: <200602280022.40769.darkray@ic3man.com> <200603011647.34516.ak@suse.de> <20060301180714.GD20092@ti64.telemetry-investments.com> <200603011929.59307.ak@suse.de> <1141240611.5860.176.camel@mindpipe> <20060303191822.GE32407@ti64.telemetry-investments.com> <1141421204.3042.139.camel@mindpipe> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com>
+In-Reply-To: <20060303234330.GA14401@ti64.telemetry-investments.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/sh/Kconfig shouldn't source non-existing Kconfig files.
+Bill Rugolsky Jr. wrote:
+> On Fri, Mar 03, 2006 at 05:09:57PM -0500, Jeff Garzik wrote:
+> 
+>>Or sata_nv/libata is to blame.
+> 
+>  
+> In case you are coming late to the thread:
+
+I'm not.  Thus my comments refuting Lee's silly speculation.
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Andi suggested:
+> 
+>    Yes, I bet something forgets to turn on interrupts again and it's
+>    picked up by (and blamed on) the next guy who does an unconditional
+>    sti, which happens to be __do_sofitrq or idle.
+> 
+> That sounds right to me.
 
---- linux-2.6.16-rc5-sh/arch/sh/Kconfig.old	2006-03-04 00:34:36.000000000 +0100
-+++ linux-2.6.16-rc5-sh/arch/sh/Kconfig	2006-03-04 00:44:02.000000000 +0100
-@@ -392,9 +392,9 @@
- 
- endmenu
- 
--source "arch/sh/boards/renesas/hs7751rvoip/Kconfig"
-+#source "arch/sh/boards/renesas/hs7751rvoip/Kconfig"
- 
--source "arch/sh/boards/renesas/rts7751r2d/Kconfig"
-+#source "arch/sh/boards/renesas/rts7751r2d/Kconfig"
- 
- config SH_PCLK_FREQ
- 	int "Peripheral clock frequency (in Hz)"
+Unlikely.  More likely is a disabled interrupt period is longer than a 
+tick period, or similar.
+
+	Jeff
+
 

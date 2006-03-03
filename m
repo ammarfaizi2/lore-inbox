@@ -1,82 +1,404 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752223AbWCCJae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752224AbWCCJaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752223AbWCCJae (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 04:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752226AbWCCJae
+	id S1752224AbWCCJaX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 04:30:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752223AbWCCJaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 04:30:34 -0500
-Received: from lug-owl.de ([195.71.106.12]:15556 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1752223AbWCCJad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 04:30:33 -0500
-Date: Fri, 3 Mar 2006 10:30:29 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
-       jgeorgas@rogers.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] make UNIX a bool
-Message-ID: <20060303093029.GK19232@lug-owl.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>, dtor_core@ameritech.net,
-	jgeorgas@rogers.com, linux-kernel@vger.kernel.org
-References: <20060301175852.GA4708@stusta.de> <E1FEcfG-000486-00@gondolin.me.apana.org.au> <20060302173840.GB9295@stusta.de> <9a8748490603021228k7ad1fb5gd931d9778307ca58@mail.gmail.com> <20060302203245.GD9295@stusta.de> <9a8748490603021240t31f58ea4ycafae4ee8a12095c@mail.gmail.com> <20060302214602.GJ9295@stusta.de>
+	Fri, 3 Mar 2006 04:30:23 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:36110
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751075AbWCCJaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 04:30:22 -0500
+Message-Id: <44081ABD.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 03 Mar 2006 10:30:21 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386 double fault enhancements
+References: <200602221159.08969.jbeulich@novell.com> <20060222143212.0eea2ab0.akpm@osdl.org>
+In-Reply-To: <20060222143212.0eea2ab0.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6/x+IQ5fIyWAozL1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060302214602.GJ9295@stusta.de>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> +# ifdef CONFIG_SMP
+>
+>Please don't bother with the space after the #.  Yes, it's for nesting
+>level, but if someone later comes along and sticks more ifdefs around this
+>code, they won't go through and add the extra spaces anyway.
+>
+>Such problems can be avoided by not adding the ifdefs at all..
+>...
+>> +#define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+>
+>"EXCEPTION_STACK_SIZE", please.
 
---6/x+IQ5fIyWAozL1
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Below an updated patch.
 
-On Thu, 2006-03-02 22:46:02 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Thu, Mar 02, 2006 at 09:40:17PM +0100, Jesper Juhl wrote:
-> > On 3/2/06, Adrian Bunk <bunk@stusta.de> wrote:
-> > > We do not have to export symbols we don't want to export to modules b=
-ut
-> > > needed by CONFIG_UNIX.
-> > I'm probably exposing my ignorance here, but, what symbols would those =
-be?
->   http://lkml.org/lkml/2006/2/18/44
+Make the double fault handler use CPU-specific stacks. Add some
+abstraction to simplify future change of other exception handlers to go
+through task gates. Change the pointer validity checks in the double
+fault handler to account for the fact that both GDT and TSS aren't in
+static kernel space anymore. Add a new notification of the event
+through the die notifier chain, also providing some environmental
+adjustments so that various infrastructural things work independent of
+the fact that the fault and the callbacks are running on other then the
+normal kernel stack.
 
-That names *one* symbol.
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+Acked-By: Andi Kleen <ak@suse.de>
 
-*plonk*, JBG
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/cpu/common.c
+2.6.16-rc5-i386-doublefault/arch/i386/kernel/cpu/common.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/cpu/common.c	2006-02-28 08:38:38.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/arch/i386/kernel/cpu/common.c	2006-01-25 11:15:51.000000000 +0100
+@@ -573,6 +573,7 @@ void __init early_cpu_init(void)
+ void __devinit cpu_init(void)
+ {
+ 	int cpu = smp_processor_id();
++	unsigned i;
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+ 	struct thread_struct *thread = &current->thread;
+ 	struct desc_struct *gdt;
+@@ -645,9 +646,54 @@ void __devinit cpu_init(void)
+ 	load_TR_desc();
+ 	load_LDT(&init_mm.context);
+ 
+-#ifdef CONFIG_DOUBLEFAULT
+-	/* Set up doublefault TSS pointer in the GDT */
+-	__set_tss_desc(cpu, GDT_ENTRY_DOUBLEFAULT_TSS, &doublefault_tss);
++#ifdef N_EXCEPTION_TSS
++#if EXCEPTION_STACK_ORDER > THREAD_ORDER
++#error Assertion failed: EXCEPTION_STACK_ORDER <= THREAD_ORDER
++#endif
++	for (i = 0; i < N_EXCEPTION_TSS; ++i) {
++		unsigned long stack;
++
++		/* Set up exception handling TSS */
++		exception_tss[cpu][i].ebx = (unsigned long)&exception_tss[cpu][i];
++
++		/* Set up exception handling stacks */
++#ifdef CONFIG_SMP
++		if (cpu) {
++			stack = __get_free_pages(GFP_ATOMIC, THREAD_ORDER);
++			if (!stack)
++				panic("Cannot allocate exception stack %u %d\n",
++				      i,
++				      cpu);
++		}
++		else
++#endif
++			stack = (unsigned long)__alloc_bootmem(EXCEPTION_STACK_SIZE,
++			                                       THREAD_SIZE,
++			                                       __pa(MAX_DMA_ADDRESS));
++		stack += EXCEPTION_STACK_SIZE;
++		exception_tss[cpu][i].esp = exception_tss[cpu][i].esp0 = stack;
++#ifdef CONFIG_SMP
++		if (cpu) {
++			unsigned j;
++
++			for (j = EXCEPTION_STACK_ORDER; j < THREAD_ORDER; ++j) {
++				/* set_page_refs sets the page count only for the first
++				   page, but since we split the larger-order page here,
++				   we need to adjust the page count before freeing the
++				   pieces. */
++				struct page * page = virt_to_page((void *)stack);
++
++				BUG_ON(page_count(page));
++				set_page_count(page, 1);
++				free_pages(stack, j);
++				stack += (PAGE_SIZE << j);
++			}
++		}
++#endif
++
++		/* Set up exception handling TSS pointer in the GDT */
++		__set_tss_desc(cpu, GDT_ENTRY_EXCEPTION_TSS + i, &exception_tss[cpu][i]);
++	}
+ #endif
+ 
+ 	/* Clear %fs and %gs. */
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/doublefault.c
+2.6.16-rc5-i386-doublefault/arch/i386/kernel/doublefault.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/doublefault.c	2006-01-03 04:21:10.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/arch/i386/kernel/doublefault.c	2006-01-25 11:36:53.000000000 +0100
+@@ -8,58 +8,81 @@
+ #include <asm/pgtable.h>
+ #include <asm/processor.h>
+ #include <asm/desc.h>
++#include <asm/kdebug.h>
+ 
+-#define DOUBLEFAULT_STACKSIZE (1024)
+-static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
+-#define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
++extern unsigned long max_low_pfn;
++#define ptr_ok(x, l) ((x) >= PAGE_OFFSET \
++                      && (x) + (l) <= PAGE_OFFSET + max_low_pfn * PAGE_SIZE - 1)
+ 
+-#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x1000000)
++#define THREAD_INFO_FROM(x) ((struct thread_info *)((x) & ~(THREAD_SIZE - 1)))
+ 
+-static void doublefault_fn(void)
++register const struct tss_struct *self __asm__("ebx");
++
++void doublefault_fn(void)
+ {
+-	struct Xgt_desc_struct gdt_desc = {0, 0};
++	struct Xgt_desc_struct gdt_desc;
+ 	unsigned long gdt, tss;
+ 
+ 	store_gdt(&gdt_desc);
+ 	gdt = gdt_desc.address;
+ 
+-	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size);
++	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size + 1);
+ 
+-	if (ptr_ok(gdt)) {
++	if (ptr_ok(gdt, gdt_desc.size)) {
+ 		gdt += GDT_ENTRY_TSS << 3;
+ 		tss = *(u16 *)(gdt+2);
+ 		tss += *(u8 *)(gdt+4) << 16;
+ 		tss += *(u8 *)(gdt+7) << 24;
+ 		printk("double fault, tss at %08lx\n", tss);
+ 
+-		if (ptr_ok(tss)) {
+-			struct tss_struct *t = (struct tss_struct *)tss;
++		if (ptr_ok(tss, *(u16 *)gdt)) {
++			const struct tss_struct *t = (struct tss_struct *)tss;
++			struct {
++				struct pt_regs common;
++				struct {
++					unsigned long es;
++					unsigned long ds;
++					unsigned long fs;
++					unsigned long gs;
++				} vm86;
++			} regs;
++
++			/* for current/current_thread_info to work... */
++			*THREAD_INFO_FROM(self->esp) = *THREAD_INFO_FROM(t->esp0 - 1);
+ 
+ 			printk("eip = %08lx, esp = %08lx\n", t->eip, t->esp);
+ 
+ 			printk("eax = %08lx, ebx = %08lx, ecx = %08lx, edx = %08lx\n",
+ 				t->eax, t->ebx, t->ecx, t->edx);
+-			printk("esi = %08lx, edi = %08lx\n",
+-				t->esi, t->edi);
++			printk("esi = %08lx, edi = %08lx, ebp = %08lx\n",
++				t->esi, t->edi, t->ebp);
++
++			regs.common.ebx = t->ebx;
++			regs.common.ecx = t->ecx;
++			regs.common.edx = t->edx;
++			regs.common.esi = t->esi;
++			regs.common.edi = t->edi;
++			regs.common.ebp = t->ebp;
++			regs.common.eax = t->eax;
++			regs.common.xds = t->ds;
++			regs.common.xes = t->es;
++			regs.common.orig_eax = -1;
++			regs.common.eip = t->eip;
++			regs.common.xcs = t->cs;
++			regs.common.eflags = t->eflags;
++			regs.common.esp = t->esp;
++			regs.common.xss = t->ss;
++			if (t->eflags & X86_EFLAGS_VM) {
++				regs.common.xds = 0;
++				regs.common.xes = 0;
++				regs.vm86.es = t->es;
++				regs.vm86.ds = t->ds;
++				regs.vm86.fs = t->fs;
++				regs.vm86.gs = t->gs;
++			}
++			notify_die(DIE_DOUBLE_FAULT, "double fault", &regs.common, 0, 8, SIGKILL);
+ 		}
+ 	}
+ 
+ 	for (;;) /* nothing */;
+ }
+-
+-struct tss_struct doublefault_tss __cacheline_aligned = {
+-	.esp0		= STACK_START,
+-	.ss0		= __KERNEL_DS,
+-	.ldt		= 0,
+-	.io_bitmap_base	= INVALID_IO_BITMAP_OFFSET,
+-
+-	.eip		= (unsigned long) doublefault_fn,
+-	.eflags		= X86_EFLAGS_SF | 0x2,	/* 0x2 bit is always set */
+-	.esp		= STACK_START,
+-	.es		= __USER_DS,
+-	.cs		= __KERNEL_CS,
+-	.ss		= __KERNEL_DS,
+-	.ds		= __USER_DS,
+-
+-	.__cr3		= __pa(swapper_pg_dir)
+-};
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/head.S
+2.6.16-rc5-i386-doublefault/arch/i386/kernel/head.S
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/head.S	2006-02-28 08:38:38.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/arch/i386/kernel/head.S	2006-03-03 09:57:13.000000000 +0100
+@@ -532,5 +532,7 @@ ENTRY(cpu_gdt_table)
+ 	.quad 0x0000000000000000	/* 0xe0 - unused */
+ 	.quad 0x0000000000000000	/* 0xe8 - unused */
+ 	.quad 0x0000000000000000	/* 0xf0 - unused */
+-	.quad 0x0000000000000000	/* 0xf8 - GDT entry 31: double-fault TSS */
+ 
++	/* Remaining entries represent TSSes for handling exceptions and
++	   are run-time initialized. */
++	.fill GDT_ENTRIES - (. - cpu_gdt_table) / 8, 8, 0
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/traps.c
+2.6.16-rc5-i386-doublefault/arch/i386/kernel/traps.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/arch/i386/kernel/traps.c	2006-02-28 08:38:38.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/arch/i386/kernel/traps.c	2006-01-30 09:58:51.000000000 +0100
+@@ -61,6 +61,26 @@ asmlinkage int system_call(void);
+ struct desc_struct default_ldt[] = { { 0, 0 }, { 0, 0 }, { 0, 0 },
+ 		{ 0, 0 }, { 0, 0 } };
+ 
++void doublefault_fn(void);
++
++#ifdef N_EXCEPTION_TSS
++struct tss_struct exception_tss[NR_CPUS][N_EXCEPTION_TSS] __cacheline_aligned = {
++	[0 ... NR_CPUS-1] = {
++		[0 ... N_EXCEPTION_TSS-1] = {
++			.cs       = __KERNEL_CS,
++			.ss       = __KERNEL_DS,
++			.ss0      = __KERNEL_DS,
++			.__cr3    = __pa(swapper_pg_dir),
++			.io_bitmap_base = INVALID_IO_BITMAP_OFFSET,
++			.ds       = __USER_DS,
++			.es       = __USER_DS,
++			.eflags	  = X86_EFLAGS_SF | 0x2, /* 0x2 bit is always set */
++		},
++		[DOUBLEFAULT_TSS].eip = (unsigned long)doublefault_fn
++	}
++};
++#endif
++
+ /* Do we ignore FPU interrupts ? */
+ char ignore_fpu_irq = 0;
+ 
+@@ -1086,10 +1106,12 @@ static void __init set_system_gate(unsig
+ 	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
+ }
+ 
++#ifdef N_EXCEPTION_TSS
+ static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
+ {
+ 	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
+ }
++#endif
+ 
+ 
+ void __init trap_init(void)
+@@ -1114,7 +1136,9 @@ void __init trap_init(void)
+ 	set_trap_gate(5,&bounds);
+ 	set_trap_gate(6,&invalid_op);
+ 	set_trap_gate(7,&device_not_available);
+-	set_task_gate(8,GDT_ENTRY_DOUBLEFAULT_TSS);
++#ifdef DOUBLEFAULT_TSS
++	set_task_gate(8,GDT_ENTRY_EXCEPTION_TSS + DOUBLEFAULT_TSS);
++#endif
+ 	set_trap_gate(9,&coprocessor_segment_overrun);
+ 	set_trap_gate(10,&invalid_TSS);
+ 	set_trap_gate(11,&segment_not_present);
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/kdebug.h
+2.6.16-rc5-i386-doublefault/include/asm-i386/kdebug.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/kdebug.h	2006-01-03 04:21:10.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/include/asm-i386/kdebug.h	2006-01-27 16:29:53.000000000 +0100
+@@ -39,6 +39,7 @@ enum die_val {
+ 	DIE_CALL,
+ 	DIE_NMI_IPI,
+ 	DIE_PAGE_FAULT,
++	DIE_DOUBLE_FAULT
+ };
+ 
+ static inline int notify_die(enum die_val val, const char *str,
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/processor.h
+2.6.16-rc5-i386-doublefault/include/asm-i386/processor.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/processor.h	2006-02-28 08:40:29.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/include/asm-i386/processor.h	2006-01-25 17:08:53.000000000 +0100
+@@ -90,7 +90,9 @@ struct cpuinfo_x86 {
+ 
+ extern struct cpuinfo_x86 boot_cpu_data;
+ extern struct cpuinfo_x86 new_cpu_data;
+-extern struct tss_struct doublefault_tss;
++#ifdef N_EXCEPTION_TSS
++extern struct tss_struct exception_tss[NR_CPUS][N_EXCEPTION_TSS];
++#endif
+ DECLARE_PER_CPU(struct tss_struct, init_tss);
+ 
+ #ifdef CONFIG_SMP
+@@ -486,6 +488,9 @@ struct thread_struct {
+ 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
+ }
+ 
++#define EXCEPTION_STACK_ORDER 0
++#define EXCEPTION_STACK_SIZE (PAGE_SIZE << EXCEPTION_STACK_ORDER)
++
+ static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
+ {
+ 	tss->esp0 = thread->esp0;
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/segment.h
+2.6.16-rc5-i386-doublefault/include/asm-i386/segment.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/segment.h	2006-02-28 08:40:29.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/include/asm-i386/segment.h	2006-01-30 09:57:02.000000000 +0100
+@@ -43,7 +43,8 @@
+  *  28 - unused
+  *  29 - unused
+  *  30 - unused
+- *  31 - TSS for double fault handler
++ *  31 - TSS for first exception handler (double fault)
++ *  32+  TSSes for further exception handlers
+  */
+ #define GDT_ENTRY_TLS_ENTRIES	3
+ #define GDT_ENTRY_TLS_MIN	6
+@@ -74,12 +75,22 @@
+ #define GDT_ENTRY_ESPFIX_SS		(GDT_ENTRY_KERNEL_BASE + 14)
+ #define __ESPFIX_SS (GDT_ENTRY_ESPFIX_SS * 8)
+ 
+-#define GDT_ENTRY_DOUBLEFAULT_TSS	31
++#define GDT_ENTRY_EXCEPTION_TSS	31
++#ifdef CONFIG_DOUBLEFAULT
++#define DOUBLEFAULT_TSS 0
++#define N_EXCEPTION_TSS 1
++#else
++#undef GDT_ENTRY_EXCEPTION_TSS
++#endif
+ 
+ /*
+- * The GDT has 32 entries
++ * The GDT has 31+ entries
+  */
+-#define GDT_ENTRIES 32
++#ifdef N_EXCEPTION_TSS
++#define GDT_ENTRIES (31 + N_EXCEPTION_TSS)
++#else
++#define GDT_ENTRIES 31
++#endif
+ 
+ #define GDT_SIZE (GDT_ENTRIES * 8)
+ 
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/thread_info.h
+2.6.16-rc5-i386-doublefault/include/asm-i386/thread_info.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/include/asm-i386/thread_info.h	2006-02-28 08:40:29.000000000 +0100
++++ 2.6.16-rc5-i386-doublefault/include/asm-i386/thread_info.h	2006-01-25 10:41:49.000000000 +0100
+@@ -54,10 +54,11 @@ struct thread_info {
+ 
+ #define PREEMPT_ACTIVE		0x10000000
+ #ifdef CONFIG_4KSTACKS
+-#define THREAD_SIZE            (4096)
++#define THREAD_ORDER 0
+ #else
+-#define THREAD_SIZE		(8192)
++#define THREAD_ORDER 1
+ #endif
++#define THREAD_SIZE (4096 << THREAD_ORDER)
+ 
+ #define STACK_WARN             (THREAD_SIZE/8)
+ /*
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
 
---6/x+IQ5fIyWAozL1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFECAy1Hb1edYOZ4bsRAg/VAJsFEgSunbKSzQbPvK+hz+1hnmqr5QCfZvvQ
-awKwBgLLyMWwKOMoBj2oFmU=
-=jsLK
------END PGP SIGNATURE-----
-
---6/x+IQ5fIyWAozL1--

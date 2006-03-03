@@ -1,79 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWCCKcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWCCKdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWCCKcM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 05:32:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWCCKcM
+	id S1751266AbWCCKdh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 05:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWCCKdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 05:32:12 -0500
-Received: from 83-64-96-243.bad-voeslau.xdsl-line.inode.at ([83.64.96.243]:38020
-	"EHLO mognix.dark-green.com") by vger.kernel.org with ESMTP
-	id S1751170AbWCCKcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 05:32:12 -0500
-Message-ID: <44081B32.5000408@ed-soft.at>
-Date: Fri, 03 Mar 2006 11:32:18 +0100
-From: Edgar Hucek <hostmaster@ed-soft.at>
-User-Agent: Mail/News 1.5 (X11/20060206)
+	Fri, 3 Mar 2006 05:33:37 -0500
+Received: from zaz.kom.auc.dk ([130.225.51.10]:56008 "EHLO zaz.kom.auc.dk")
+	by vger.kernel.org with ESMTP id S1751266AbWCCKdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 05:33:36 -0500
+Message-ID: <44081B7B.5060104@kom.aau.dk>
+Date: Fri, 03 Mar 2006 11:33:31 +0100
+From: Oumer Teyeb <oumer@kom.aau.dk>
+Reply-To: Oumer Teyeb <oumer@kom.aau.dk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Edgar Hucek <hostmaster@ed-soft.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] EFI: Fix gdt load
-References: <4406F0C2.7090002@ed-soft.at>
-In-Reply-To: <4406F0C2.7090002@ed-soft.at>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: linux-kernel@vger.kernel.org
+CC: Oumer Teyeb <oumer@kom.aau.dk>
+Subject: TCP control block interdependence
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edgar Hucek wrote:
-> This patch makes the kernel bootable again on ia32 EFI systems.
-> 
-> Signed-off-by: Edgar Hucek <hostmaster@ed-soft.at>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff -uNr linux-2.6.16-rc5/arch/i386/kernel/efi.c linux-2.6.16-rc5.efi/arch/i386/kernel/efi.c
-> --- linux-2.6.16-rc5/arch/i386/kernel/efi.c	2006-03-02 14:08:06.000000000 +0100
-> +++ linux-2.6.16-rc5.efi/arch/i386/kernel/efi.c	2006-03-02 14:04:44.000000000 +0100
-> @@ -70,7 +70,8 @@
->  {
->  	unsigned long cr4;
->  	unsigned long temp;
-> -
-> +	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, 0);
-> +	
->  	spin_lock(&efi_rt_lock);
->  	local_irq_save(efi_rt_eflags);
->  
-> @@ -103,18 +104,17 @@
->  	 */
->  	local_flush_tlb();
->  
-> -	per_cpu(cpu_gdt_descr, 0).address =
-> -				 __pa(per_cpu(cpu_gdt_descr, 0).address);
-> -	load_gdt((struct Xgt_desc_struct *)__pa(&per_cpu(cpu_gdt_descr, 0)));
-> +	cpu_gdt_descr->address = __pa(cpu_gdt_descr->address);
-> +	load_gdt(cpu_gdt_descr);
->  }
->  
->  static void efi_call_phys_epilog(void)
->  {
->  	unsigned long cr4;
-> +	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, 0);
->  
-> -	per_cpu(cpu_gdt_descr, 0).address =
-> -			(unsigned long)__va(per_cpu(cpu_gdt_descr, 0).address);
-> -	load_gdt((struct Xgt_desc_struct *)__va(&per_cpu(cpu_gdt_descr, 0)));
-> +	cpu_gdt_descr->address = __va(cpu_gdt_descr->address);
-> +	load_gdt(cpu_gdt_descr);
->  
->  	cr4 = read_cr4();
->  
+Hi,
 
-I don't know if it is a race condition. At least it makes the kernel bootable agin on my box.
-Any idea what i could try to make a better patch ?
+I am not sure if it is the right place to post this but people at
+comp.protocols.tcp-ip, comp.os.linux.networking suggested it.
+Could you please cc the reply to oumer@kom.auc.dk?
 
-cu
+as a part of my studies I have to investigate some link layer protocol 
+impacts on TCP performance...so I have some emulator working on linux, 
+and I was investigating the impact of delay spikes....
 
-Edgar (gimli) Hucek
+I results I am getting are a little bit wierd and I think it is mainly 
+due to TCP control block interdependence implementation in linux....
+
+EXPERIMENT ILLUSTRATING THE PROBLEM
+=======================================
+
+I downloaded a 100K file using FTP over a 384kbps connection...and I 
+introduce a delay of 10 sec, 2 seconds after the download starts..
+
+case 1)
+I did four downloads immediatley after each other
+
+case 2)
+I did four downloads but this time, I wait ten mintues before the next 
+download
+
+results)
+Case 1) I have a lot of retransmissions in the first one (because of the 
+10sec gap)..but the rest dont seem to suffer from retransmission at all, 
+even during the 10sec gap...the rtt values confirm it ..i,e. in the 
+first case, the rtt curve shows the RTT values are mostly below 1 
+sec..while in the next three downloads, the RTTs are sometimes more than 
+10sec....showing that the RTO value used for the three cases is 
+something different than the first one
+curves can be found at :tsg=time sequence graph
+http://kom.auc.dk/~oumer/case1_1_tsg.ps
+http://kom.auc.dk/~oumer/case1_1_rtt.ps
+http://kom.auc.dk/~oumer/case1_2_tsg.ps
+http://kom.auc.dk/~oumer/case1_2_rtt.ps
+http://kom.auc.dk/~oumer/case1_3_tsg.ps
+http://kom.auc.dk/~oumer/case1_3_rtt.ps
+http://kom.auc.dk/~oumer/case1_4_tsg.ps
+http://kom.auc.dk/~oumer/case1_4_rtt.ps
+
+Case 2) There is almost no different between the four downloads
+http://kom.auc.dk/~oumer/case2_1_tsg.ps
+http://kom.auc.dk/~oumer/case2_1_rtt.ps
+http://kom.auc.dk/~oumer/case2_2_tsg.ps
+http://kom.auc.dk/~oumer/case2_2_rtt.ps
+http://kom.auc.dk/~oumer/case2_3_tsg.ps
+http://kom.auc.dk/~oumer/case2_3_rtt.ps
+http://kom.auc.dk/~oumer/case2_4_tsg.ps
+http://kom.auc.dk/~oumer/case2_4_rtt.ps
+
+ From these I conclude that there is some TCP congestion control and 
+retransmission parameter caching, that is also time dependant....
+and I want to disable it completley...
+
+So in short do you know how to disable this control block interdepence? 
+I am doing experiments related to some link layer issues, and any 
+dependancy between two consecutive connections to the same host is 
+seriously biasing my results..and to get statistical measures, I have to 
+do the runs hundrends of times, under different conditions, so I cant 
+afford to wait several minutes between consecutive runs (to make sure 
+control block interdependence is not at work)...so maybe there is a way 
+to trick linux tcp not to apply interdependence?
+
+In the Linux congestion control paper by Pasi Sarlhoti, "Congestion 
+Control in Linux TCP" it is mentioned that "the Linux destination cache 
+provides functionality similar to the RFC 2140 that proposes Control 
+Block Interdependence between the TCP connections." but there was no 
+additional details...
+
+in 
+http://www.cs.helsinki.fi/research/iwtcp/kernel-patch/README-2.4.18-frto-20020419.txt
+I found some text where there is a patch that will make it possible to 
+control the interdependence setting..but I am using some servers at our 
+university, and I dont think the admins will be willing to install 
+patches that are not stable....
+how stable is this patch? and have anyone been using it?
+Is there another simple way like setting some default values in some 
+headers and recompiling the kernel, maybe the admins will be willing to 
+do that for me in some servers (I am not that familiar the linux kernel, 
+and I have to admit I had never recompiled/"messed" with it...)
+
+by the way I am using debian linux distribution and "uname -a" gives me
+Linux 2.4.25-std #1 SMP Mon Mar 22 10:25:51 CET 2004 i686 unknown
+
+Thanks in advance,
+Oumer Teyeb

@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWCCUds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWCCUtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWCCUds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 15:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWCCUds
+	id S932387AbWCCUtd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 15:49:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbWCCUtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 15:33:48 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64900 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932348AbWCCUds (ORCPT
+	Fri, 3 Mar 2006 15:49:33 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:44169 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932387AbWCCUtd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 15:33:48 -0500
-Date: Fri, 3 Mar 2006 12:32:22 -0800
+	Fri, 3 Mar 2006 15:49:33 -0500
+Date: Fri, 3 Mar 2006 12:48:02 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/4] map multiple blocks in get_block() and
- mpage_readpages()
-Message-Id: <20060303123222.2fff68cf.akpm@osdl.org>
-In-Reply-To: <1141405539.10542.68.camel@dyn9047017100.beaverton.ibm.com>
-References: <1141075239.10542.19.camel@dyn9047017100.beaverton.ibm.com>
-	<20060301175230.4b96e9ad.akpm@osdl.org>
-	<1141405539.10542.68.camel@dyn9047017100.beaverton.ibm.com>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net
+Subject: Re: [PATCH 10/15] EDAC: edac_mc_add_mc() fix [1/2]
+Message-Id: <20060303124802.1c7fb95d.akpm@osdl.org>
+In-Reply-To: <200603031103.08105.dsp@llnl.gov>
+References: <200603021748.07381.dsp@llnl.gov>
+	<20060302183143.6730d255.akpm@osdl.org>
+	<200603031103.08105.dsp@llnl.gov>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,29 +27,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+Dave Peterson <dsp@llnl.gov> wrote:
 >
-> On Wed, 2006-03-01 at 17:52 -0800, Andrew Morton wrote:
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> > >
-> > > I noticed decent improvements (reduced sys time) on JFS, XFS and ext3.
-> > > (on simple "dd" read tests).
-> > > 
-> > >          (rc3.mm1)      (rc3.mm1 + patches)
-> > > real    0m18.814s       0m18.482s
-> > > user    0m0.000s        0m0.004s
-> > > sys     0m3.240s        0m2.912s
-> > 
-> > With which filesystem?  XFS and JFS implement a larger-than-b_size
-> > ->get_block, but ext3 doesn't.  I'd expect ext3 system time to increase a
-> > bit, if anything?
+> On Thursday 02 March 2006 18:31, Andrew Morton wrote:
+> > Dave Peterson <dsp@llnl.gov> wrote:
+> > >  This is part 1 of a 2-part patch set.  The code changes are split into
+> > >  two parts to make the patches more readable.
+> >
+> > Will the code compile and run with just #1-of-2 applied?
 > 
-> These numbers are on JFS. With the current ext3 (mainline) - I did
-> find not-really-noticible increase in sys time (due to code overhead).
-> 
-> I tested on ext3 with Mingming's ext3 getblocks() support in -mm also,
-> which showed reduction in sys time.
-> 
+> It should compile.  Assuming that it does, would it still have been
+> preferable to just combine the two into a single patch?
 
-OK, no surprises there.  Things will improve when someone gets around to
-doing multi-block get_block for ext3.
+It's better as you had it.  First patch moves the functions without
+changing them, the second patch changes them.  The mantra is "one concept
+per patch".
+
+

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbWCDMOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWCDMOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751710AbWCDMOk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 07:14:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWCDMOk
+	id S1751851AbWCDMOx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 07:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751827AbWCDMOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 07:14:40 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18960 "HELO
+	Sat, 4 Mar 2006 07:14:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22288 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751708AbWCDMO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 07:14:26 -0500
-Date: Sat, 4 Mar 2006 13:14:26 +0100
+	id S1751828AbWCDMOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 07:14:39 -0500
+Date: Sat, 4 Mar 2006 13:14:39 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
-Subject: [RFC: -mm patch] drivers/media/video/msp3400-kthreads.c: make 3 functions static
-Message-ID: <20060304121426.GL9295@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] kernel/futex.c: make futexfs_get_sb() static again
+Message-ID: <20060304121439.GP9295@stusta.de>
 References: <20060303045651.1f3b55ec.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,60 +28,30 @@ On Fri, Mar 03, 2006 at 04:56:51AM -0800, Andrew Morton wrote:
 >...
 > Changes since 2.6.16-rc5-mm1:
 >...
->  git-dvb.patch
+> +nfs-apply-mount-root-dentry-override-to-filesystems.patch
 >...
->  git trees
+>  Share nfs superblocks between mounts from the same server.
 >...
 
 
-This patch makes three needlessly global functions static.
+futexfs_get_sb() became global for no good reason.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- drivers/media/video/msp3400-kthreads.c |    6 +++---
- drivers/media/video/msp3400.h          |    1 -
- 2 files changed, 3 insertions(+), 4 deletions(-)
-
---- linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400.h.old	2006-03-03 17:40:22.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400.h	2006-03-03 17:40:41.000000000 +0100
-@@ -104,7 +104,6 @@
- 
- /* msp3400-kthreads.c */
- const char *msp_standard_std_name(int std);
--void msp_set_source(struct i2c_client *client, u16 src);
- void msp_set_audmode(struct i2c_client *client);
- void msp_detect_stereo(struct i2c_client *client);
- int msp3400c_thread(void *data);
---- linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400-kthreads.c.old	2006-03-03 17:39:29.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400-kthreads.c	2006-03-03 17:40:10.000000000 +0100
-@@ -154,7 +154,7 @@
- 	return "unknown";
+--- linux-2.6.16-rc5-mm2-full/kernel/futex.c.old	2006-03-03 18:18:09.000000000 +0100
++++ linux-2.6.16-rc5-mm2-full/kernel/futex.c	2006-03-03 18:18:27.000000000 +0100
+@@ -1057,9 +1057,9 @@
+ 			(unsigned long)uaddr2, val2, val3);
  }
  
--void msp_set_source(struct i2c_client *client, u16 src)
-+static void msp_set_source(struct i2c_client *client, u16 src)
+-int futexfs_get_sb(struct file_system_type *fs_type,
+-		   int flags, const char *dev_name, void *data,
+-		   struct vfsmount *mnt)
++static int futexfs_get_sb(struct file_system_type *fs_type,
++			  int flags, const char *dev_name, void *data,
++			  struct vfsmount *mnt)
  {
- 	struct msp_state *state = i2c_get_clientdata(client);
- 
-@@ -217,7 +217,7 @@
- 
- /* Set audio mode. Note that the pre-'G' models do not support BTSC+SAP,
-    nor do they support stereo BTSC. */
--void msp3400c_set_audmode(struct i2c_client *client)
-+static void msp3400c_set_audmode(struct i2c_client *client)
- {
- 	static char *strmode[] = { "mono", "stereo", "lang2", "lang1" };
- 	struct msp_state *state = i2c_get_clientdata(client);
-@@ -944,7 +944,7 @@
- 		status, is_stereo, is_bilingual, state->rxsubchans);
+ 	return get_sb_pseudo(fs_type, "futex", NULL, 0xBAD1DEA, mnt);
  }
- 
--void msp34xxg_set_audmode(struct i2c_client *client)
-+static void msp34xxg_set_audmode(struct i2c_client *client)
- {
- 	struct msp_state *state = i2c_get_clientdata(client);
- 	int source;
 

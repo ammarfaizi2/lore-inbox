@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWCDIfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWCDIut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWCDIfA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 03:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWCDIfA
+	id S1751643AbWCDIut (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 03:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWCDIut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 03:35:00 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:41068 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751602AbWCDIe7 (ORCPT
+	Sat, 4 Mar 2006 03:50:49 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:44416 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751318AbWCDIus (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 03:34:59 -0500
-Message-ID: <4409512F.6050802@sw.ru>
-Date: Sat, 04 Mar 2006 11:34:55 +0300
+	Sat, 4 Mar 2006 03:50:48 -0500
+Message-ID: <440954EA.90604@sw.ru>
+Date: Sat, 04 Mar 2006 11:50:50 +0300
 From: Vasily Averin <vvs@sw.ru>
 Organization: SW-soft
 User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050921
@@ -18,22 +18,26 @@ X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
 To: linux-scsi@vger.kernel.org, markus.lidel@shadowconnect.com,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Kirill Korotaev <dev@sw.ru>, devel@openvz.org
-Subject: [PATCH I2O] memory leak in i2o_exec_lct_modified
+       Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@sw.ru>,
+       devel@openvz.org
+Subject: [PATCH I2O] i2o_dump_hrt output cleanup
 X-Enigmail-Version: 0.90.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/mixed;
- boundary="------------080803050306020500010500"
+ boundary="------------040905020203040903050603"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080803050306020500010500
+--------------040905020203040903050603
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-i2o_exec_lct_modified() does not release memory allocated for work_struct.
+This patch fixes i2o_dump_hrt output
+from dmesg:
+iop0: HRT has 1 entries of 16 bytes each.
+Adapter 00000012: <7>TID 0000:[<7>H<7>P<7>C<7>*<7>]:<7>PCI 1: Bus 1 Device 22
+Function 0<7>
 
 Signed-off-by: Vasily Averin <vvs@sw.ru>
 
@@ -42,80 +46,86 @@ Thank you,
 
 SWsoft Virtuozzo/OpenVZ Linux kernel team
 
-
---------------080803050306020500010500
+--------------040905020203040903050603
 Content-Type: text/plain;
- name="diff-drv-i2o-memleak-20060304"
+ name="diff-drv-i2o-dumphrt-20060303"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diff-drv-i2o-memleak-20060304"
+ filename="diff-drv-i2o-dumphrt-20060303"
 
---- ./drivers/message/i2o/exec-osm.c.i2ml	2006-03-04 11:09:45.000000000 +0300
-+++ ./drivers/message/i2o/exec-osm.c	2006-03-04 11:09:03.000000000 +0300
-@@ -57,6 +57,11 @@ struct i2o_exec_wait {
- 	struct list_head list;	/* node in global wait list */
- };
+--- ./drivers/message/i2o/debug.c.i2dbg	2006-01-03 06:21:10.000000000 +0300
++++ ./drivers/message/i2o/debug.c	2006-03-03 17:59:03.000000000 +0300
+@@ -419,58 +419,53 @@ void i2o_dump_hrt(struct i2o_controller 
+ 		d = (u8 *) (rows + 2);
+ 		state = p[1] << 8 | p[0];
  
-+struct i2o_workqueue {
-+	struct work_struct work;
-+	struct i2o_controller *c;
-+};
-+
- /* Exec OSM class handling definition */
- static struct i2o_class_id i2o_exec_class_id[] = {
- 	{I2O_CLASS_EXECUTIVE},
-@@ -355,16 +360,19 @@ static int i2o_exec_remove(struct device
-  *	new LCT and if the buffer for the LCT was to small sends a LCT NOTIFY
-  *	again, otherwise send LCT NOTIFY to get informed on next LCT change.
-  */
--static void i2o_exec_lct_modified(struct i2o_controller *c)
-+static void i2o_exec_lct_modified(void *data)
- {
- 	u32 change_ind = 0;
-+	struct i2o_workqueue *cp;
+-		printk(KERN_DEBUG "TID %04X:[", state & 0xFFF);
++		printk("TID %04X:[", state & 0xFFF);
+ 		state >>= 12;
+ 		if (state & (1 << 0))
+-			printk(KERN_DEBUG "H");	/* Hidden */
++			printk("H");	/* Hidden */
+ 		if (state & (1 << 2)) {
+-			printk(KERN_DEBUG "P");	/* Present */
++			printk("P");	/* Present */
+ 			if (state & (1 << 1))
+-				printk(KERN_DEBUG "C");	/* Controlled */
++				printk("C");	/* Controlled */
+ 		}
+ 		if (state > 9)
+-			printk(KERN_DEBUG "*");	/* Hard */
++			printk("*");	/* Hard */
  
--	if (i2o_device_parse_lct(c) != -EAGAIN)
--		change_ind = c->lct->change_ind + 1;
-+	cp = (struct i2o_workqueue *)data;
-+	if (i2o_device_parse_lct(cp->c) != -EAGAIN)
-+		change_ind = cp->c->lct->change_ind + 1;
+-		printk(KERN_DEBUG "]:");
++		printk("]:");
  
- #ifdef CONFIG_I2O_LCT_NOTIFY_ON_CHANGES
--	i2o_exec_lct_notify(c, change_ind);
-+	i2o_exec_lct_notify(cp->c, change_ind);
- #endif
-+	kfree(cp);
- };
+ 		switch (p[3] & 0xFFFF) {
+ 		case 0:
+ 			/* Adapter private bus - easy */
+-			printk(KERN_DEBUG
+-			       "Local bus %d: I/O at 0x%04X Mem 0x%08X", p[2],
++			printk("Local bus %d: I/O at 0x%04X Mem 0x%08X", p[2],
+ 			       d[1] << 8 | d[0], *(u32 *) (d + 4));
+ 			break;
+ 		case 1:
+ 			/* ISA bus */
+-			printk(KERN_DEBUG
+-			       "ISA %d: CSN %d I/O at 0x%04X Mem 0x%08X", p[2],
++			printk("ISA %d: CSN %d I/O at 0x%04X Mem 0x%08X", p[2],
+ 			       d[2], d[1] << 8 | d[0], *(u32 *) (d + 4));
+ 			break;
  
- /**
-@@ -410,16 +418,22 @@ static int i2o_exec_reply(struct i2o_con
- 		return i2o_msg_post_wait_complete(c, m, msg, context);
+ 		case 2:	/* EISA bus */
+-			printk(KERN_DEBUG
+-			       "EISA %d: Slot %d I/O at 0x%04X Mem 0x%08X",
++			printk("EISA %d: Slot %d I/O at 0x%04X Mem 0x%08X",
+ 			       p[2], d[3], d[1] << 8 | d[0], *(u32 *) (d + 4));
+ 			break;
  
- 	if ((le32_to_cpu(msg->u.head[1]) >> 24) == I2O_CMD_LCT_NOTIFY) {
--		struct work_struct *work;
-+		struct i2o_workqueue *cp;
+ 		case 3:	/* MCA bus */
+-			printk(KERN_DEBUG
+-			       "MCA %d: Slot %d I/O at 0x%04X Mem 0x%08X", p[2],
++			printk("MCA %d: Slot %d I/O at 0x%04X Mem 0x%08X", p[2],
+ 			       d[3], d[1] << 8 | d[0], *(u32 *) (d + 4));
+ 			break;
  
- 		pr_debug("%s: LCT notify received\n", c->name);
+ 		case 4:	/* PCI bus */
+-			printk(KERN_DEBUG
+-			       "PCI %d: Bus %d Device %d Function %d", p[2],
++			printk("PCI %d: Bus %d Device %d Function %d", p[2],
+ 			       d[2], d[1], d[0]);
+ 			break;
  
--		work = kmalloc(sizeof(*work), GFP_ATOMIC);
--		if (!work)
-+		cp = kmalloc(sizeof(struct i2o_workqueue), GFP_ATOMIC);
-+		if (!cp)
- 			return -ENOMEM;
- 
--		INIT_WORK(work, (void (*)(void *))i2o_exec_lct_modified, c);
--		queue_work(i2o_exec_driver.event_queue, work);
-+		cp->c = c;
-+		INIT_WORK(&cp->work, i2o_exec_lct_modified, cp);
-+		if (!queue_work(i2o_exec_driver.event_queue, &cp->work)) {
-+			printk(KERN_DEBUG "i2o_exec_reply:"
-+				" call to queue_work() failed.\n");
-+			kfree(cp);
-+			return -EIO;
-+		}
- 		return 1;
+ 		case 0x80:	/* Other */
+ 		default:
+-			printk(KERN_DEBUG "Unsupported bus type.");
++			printk("Unsupported bus type.");
+ 			break;
+ 		}
+-		printk(KERN_DEBUG "\n");
++		printk("\n");
+ 		rows += length;
  	}
- 
+ }
 
-
---------------080803050306020500010500--
+--------------040905020203040903050603--

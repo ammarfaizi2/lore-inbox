@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751857AbWCDMSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWCDMdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751857AbWCDMSo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 07:18:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWCDMSo
+	id S932088AbWCDMdK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 07:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWCDMdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 07:18:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39631 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751210AbWCDMSm (ORCPT
+	Sat, 4 Mar 2006 07:33:10 -0500
+Received: from ozlabs.org ([203.10.76.45]:31934 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932088AbWCDMdJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 07:18:42 -0500
-Date: Sat, 4 Mar 2006 04:16:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
-       aviro@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #3]
-Message-Id: <20060304041647.6894ca62.akpm@osdl.org>
-In-Reply-To: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com>
-References: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Mar 2006 07:33:09 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17417.35072.247188.486774@cargo.ozlabs.ibm.com>
+Date: Sat, 4 Mar 2006 23:33:04 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ak@muc.de, anemo@mba.ocn.ne.jp, clameter@engr.sgi.com,
+       linux-kernel@vger.kernel.org, ralf@linux-mips.org, johnstul@us.ibm.com,
+       rth@twiddle.net
+Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
+ aliasing problem)
+In-Reply-To: <20060304034449.3fd5e2fa.akpm@osdl.org>
+References: <20060303.114406.64806237.nemoto@toshiba-tops.co.jp>
+	<20060302190408.1e754f12.akpm@osdl.org>
+	<20060303.133125.106438890.nemoto@toshiba-tops.co.jp>
+	<20060304.013153.71086081.anemo@mba.ocn.ne.jp>
+	<20060304001834.0476e8e9.akpm@osdl.org>
+	<20060304112010.GA94875@muc.de>
+	<17417.32015.6281.253814@cargo.ozlabs.ibm.com>
+	<20060304034449.3fd5e2fa.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> These patches make it possible to share NFS superblocks between related mounts,
->  where "related" means on the same server.
+Andrew Morton writes:
+> Paul Mackerras <paulus@samba.org> wrote:
+> >
+> > Andi Kleen writes:
+> > 
+> > > Also I assume Atsushi-san did the patch because he saw a real problem?
+> > 
+> > Yes, one which I also saw on PPC.  The compiler (gcc-4) emits loads
+> > for jiffies, jiffies64 and wall_jiffies before storing the incremented
+> > jiffies64 value back.
+> > 
+> 
+> What was the effect of that?
 
-On an FC1 machine during initscripts these patches give:
+The effect is that the first call to do_timer doesn't increment xtime.
+This explains why the code I have to detect disagreements between
+xtime and the time of day as computed from the timebase register was
+finding a disagreement on the first tick, which I was scratching my
+head over.
 
+There may be other effects on architectures which use wall_jiffies to
+detect lost timer ticks.  We don't have that problem on PPC and we
+don't use wall_jiffies in computing time of day.
 
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 336k freed
-Write protecting the kernel read-only data: 787k
-VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
-VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
-VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
-NFSD: Using /var/lib/nfs/v4recovery as the NFSv4 state recovery directory
-NFSD: unable to find recovery directory /var/lib/nfs/v4recovery
-NFSD: starting 90-second grace period
-VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
-
-The same happens with just #1 and #2 applied.  The .config is at
-http://www.zip.com.au/~akpm/linux/patches/stuff/config-vmm.
-
-The kernel won't compile with just patch #1 applied.  Patches shouldn't go
-into git in that manner.
+Paul.
 

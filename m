@@ -1,191 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWCDQoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWCDQpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWCDQoT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 11:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWCDQoB
+	id S932203AbWCDQpA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 11:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWCDQo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 11:44:01 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:42059 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932123AbWCDQnT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 11:43:19 -0500
-Message-Id: <20060304164248.171528000@towertech.it>
-References: <20060304164247.963655000@towertech.it>
-User-Agent: quilt/0.43-1
-Date: Sat, 04 Mar 2006 17:42:48 +0100
-From: Alessandro Zummo <a.zummo@towertech.it>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 01/13] RTC Subsystem, library functions
-Content-Disposition: inline; filename=rtc-lib.patch
+	Sat, 4 Mar 2006 11:44:58 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64216 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932159AbWCDQop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 11:44:45 -0500
+Date: Sat, 4 Mar 2006 11:44:38 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: shane Miller <gshanemiller@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How linux schedules things when interrupts occur
+In-Reply-To: <f89c9fd60603040742x1ae5ce29rbe4ccc39fb973e08@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0603041128090.15803@gandalf.stny.rr.com>
+References: <f89c9fd60603040742x1ae5ce29rbe4ccc39fb973e08@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RTC and date/time related functions. 
 
-Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
----
- drivers/Kconfig       |    2 +
- drivers/Makefile      |    1 
- drivers/rtc/Kconfig   |    6 +++
- drivers/rtc/Makefile  |    7 +++
- drivers/rtc/rtc-lib.c |   99 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/rtc.h   |    5 ++
- 6 files changed, 120 insertions(+)
+Hi Shane, this is more of a www.kernelnewbies.org question, but I have
+some free time on my hands, so I'll reply to some of your questions.
 
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-lib.c	2006-02-28 13:23:08.000000000 +0100
-@@ -0,0 +1,99 @@
-+/*
-+ * rtc and date/time utility functions
-+ *
-+ * Copyright (C) 2005-06 Tower Technologies
-+ * Author: Alessandro Zummo <a.zummo@towertech.it>
-+ *
-+ * based on arch/arm/common/rtctime.c and other bits
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/rtc.h>
-+
-+static const unsigned char rtc_days_in_month[] = {
-+	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-+};
-+
-+#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
-+#define LEAP_YEAR(year) ((!(year % 4) && (year % 100)) || !(year % 400))
-+
-+int rtc_month_days(unsigned int month, unsigned int year)
-+{
-+	return rtc_days_in_month[month] + (LEAP_YEAR(year) && month == 1);
-+}
-+EXPORT_SYMBOL(rtc_month_days);
-+
-+/*
-+ * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
-+ */
-+void rtc_time_to_tm(unsigned long time, struct rtc_time *tm)
-+{
-+	register int days, month, year;
-+
-+	days = time / 86400;
-+	time -= days * 86400;
-+
-+	/* day of the week, 1970-01-01 was a Thursday */
-+	tm->tm_wday = (days + 4) % 7;
-+
-+	year = 1970 + days / 365;
-+	days -= (year - 1970) * 365
-+	        + LEAPS_THRU_END_OF(year - 1)
-+	        - LEAPS_THRU_END_OF(1970 - 1);
-+	if (days < 0) {
-+		year -= 1;
-+		days += 365 + LEAP_YEAR(year);
-+	}
-+	tm->tm_year = year - 1900;
-+	tm->tm_yday = days + 1;
-+
-+	for (month = 0; month < 11; month++) {
-+		int newdays;
-+
-+		newdays = days - rtc_month_days(month, year);
-+		if (newdays < 0)
-+			break;
-+		days = newdays;
-+	}
-+	tm->tm_mon = month;
-+	tm->tm_mday = days + 1;
-+
-+	tm->tm_hour = time / 3600;
-+	time -= tm->tm_hour * 3600;
-+	tm->tm_min = time / 60;
-+	tm->tm_sec = time - tm->tm_min * 60;
-+}
-+EXPORT_SYMBOL(rtc_time_to_tm);
-+
-+/*
-+ * Does the rtc_time represent a valid date/time?
-+ */
-+int rtc_valid_tm(struct rtc_time *tm)
-+{
-+	if (tm->tm_year < 70 ||
-+	    tm->tm_mon >= 12 ||
-+	    tm->tm_mday < 1 ||
-+	    tm->tm_mday > rtc_month_days(tm->tm_mon, tm->tm_year + 1900) ||
-+	    tm->tm_hour >= 24 ||
-+	    tm->tm_min >= 60 ||
-+	    tm->tm_sec >= 60)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL(rtc_valid_tm);
-+
-+/*
-+ * Convert Gregorian date to seconds since 01-01-1970 00:00:00.
-+ */
-+int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time)
-+{
-+	*time = mktime(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-+		       tm->tm_hour, tm->tm_min, tm->tm_sec);
-+	return 0;
-+}
-+EXPORT_SYMBOL(rtc_tm_to_time);
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/Makefile	2006-02-28 13:16:36.000000000 +0100
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for RTC class/drivers.
-+#
-+
-+ifneq ($(CONFIG_RTC_LIB), n)
-+obj-y			+= rtc-lib.o
-+endif
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/Kconfig	2006-02-28 13:16:36.000000000 +0100
-@@ -0,0 +1,6 @@
-+#
-+# RTC class/drivers configuration
-+#
-+
-+config RTC_LIB
-+	bool
-\ No newline at end of file
---- linux-rtc.orig/drivers/Kconfig	2006-02-28 13:16:34.000000000 +0100
-+++ linux-rtc/drivers/Kconfig	2006-02-28 13:16:36.000000000 +0100
-@@ -70,4 +70,6 @@ source "drivers/sn/Kconfig"
- 
- source "drivers/edac/Kconfig"
- 
-+source "drivers/rtc/Kconfig"
-+
- endmenu
---- linux-rtc.orig/drivers/Makefile	2006-02-28 13:16:34.000000000 +0100
-+++ linux-rtc/drivers/Makefile	2006-02-28 13:16:36.000000000 +0100
-@@ -56,6 +56,7 @@ obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
- obj-$(CONFIG_GAMEPORT)		+= input/gameport/
- obj-$(CONFIG_INPUT)		+= input/
- obj-$(CONFIG_I2O)		+= message/
-+obj-y				+= rtc/
- obj-$(CONFIG_I2C)		+= i2c/
- obj-$(CONFIG_W1)		+= w1/
- obj-$(CONFIG_HWMON)		+= hwmon/
---- linux-rtc.orig/include/linux/rtc.h	2006-02-28 13:16:34.000000000 +0100
-+++ linux-rtc/include/linux/rtc.h	2006-02-28 13:16:36.000000000 +0100
-@@ -95,6 +95,11 @@ struct rtc_pll_info {
- 
- #ifdef __KERNEL__
- 
-+extern int rtc_month_days(unsigned int month, unsigned int year);
-+extern int rtc_valid_tm(struct rtc_time *tm);
-+extern int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time);
-+extern void rtc_time_to_tm(unsigned long time, struct rtc_time *tm);
-+
- typedef struct rtc_task {
- 	void (*func)(void *private_data);
- 	void *private_data;
+On Sat, 4 Mar 2006, shane Miller wrote:
 
---
+> All-
+>
+> I know what interrupts are. I read the Linux Device driver book and
+> see how to deal with them. But I don't see the full picture on how the
+> kernel deals with scheduling it's work. Bsically I am leaking for more
+> meat on this.
+
+Good book, you might also want to read:
+
+Understanding the Linux Kernel ISBN: 0596002130
+Linux Kernel Development ISBN: 0672327201
+
+>
+> Suppose Linux is running on a single CPU system. Conceptually the CPU
+> is executing a user thread/process --- whether  that be user code or
+> library code on the user's behalf --- or the CPU is in the kernel.
+>
+> When an APIC processed hardware interrupt comes and assuming the
+> interrupt is not masked off then if
+>
+> * the CPU is doing user code, the kernel arranges to block/preempt the
+> current user process/thread and jumps into the kernel and runs the
+> registered interrupt handler.
+>
+> * the CPU is in the kernel so it jumps to the interrupt handler and
+> runs it.
+>
+> Can somebody put some more meat on this? For example,
+>
+> * how does the kernel decide what to schedule once the interrupt
+> handler is done? Does it, as may be the case, resume the preempted user
+> thread or resume where it left off in the kernel? Or does it merely
+> call schedule().
+
+Basically it goes back to where it was interrupted. Now there's some other
+things that are affected by this.
+
+If the timer interrupt went off it may run update_process_times and may
+decide that the process ran enough. Or another interrupt went off and woke
+up a higher priority process.  When the current running process needs to
+be preempted, it has it's need_resched flag set (set_need_resched), so
+when leaving the interrupt if:
+1) going back to userland
+2) going back to the kernel and CONFIG_PREEMPT is set and preempt_count is
+   zero
+Then schedule is called and it will most likely schedule another process.
+If CONFIG_PREEMPT is not set, then the schedule waits till the kernel
+calls schedule directly or goes back to userspace.
+If CONFIG_PREEMPT is set but the preempt_count was active, then when
+preempt_count gets down to zero, a check of need_resched is made, and if
+set it calls schedule.
+
+> * What happens if a signal comes during this work?
+
+Signals are added to the task and are handled when going back to userland.
+
+>
+> Once I understand this I think I can deal with the case in which an
+> interrupt comes while an interrupt is already being processed.
+>
+
+That's called nested interrupts, and that will never schedule until the
+last interrupt returns.
+
+Then we have the issue of softirqs and tasklets :) but that's another
+story.
+
+
+-- Steve
+

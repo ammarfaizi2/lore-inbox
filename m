@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWCDMOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWCDMOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWCDMOT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 07:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbWCDMOT
+	id S1751642AbWCDMOX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 07:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751709AbWCDMOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 07:14:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:17168 "HELO
+	Sat, 4 Mar 2006 07:14:23 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17680 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751526AbWCDMOS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 07:14:18 -0500
-Date: Sat, 4 Mar 2006 13:14:17 +0100
+	id S1751630AbWCDMOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 07:14:22 -0500
+Date: Sat, 4 Mar 2006 13:14:21 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove dead Radeon URL
-Message-ID: <20060304121417.GJ9295@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: [-mm patch] drivers/acpi/bus.c: make struct acpi_sci_dir static
+Message-ID: <20060304121421.GK9295@stusta.de>
+References: <20060303045651.1f3b55ec.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060303045651.1f3b55ec.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes a dead Radeon URL from two Kconfig files.
+On Fri, Mar 03, 2006 at 04:56:51AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc5-mm1:
+>...
+> +enable-sci_emulate-to-manually-simulate-physical-hotplug-testing.patch
+> 
+>  x86_64 CPU hotplug
+>...
 
-This isue was noted by Reto Gantenbein <ganto82@gmx.ch> in
-Kernel Bugzilla #4446.
+
+There's no reason for struct acpi_sci_dir being global.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- drivers/char/drm/Kconfig |    4 ++--
- drivers/video/Kconfig    |    2 --
- 2 files changed, 2 insertions(+), 4 deletions(-)
-
---- linux-2.6.16-rc5-mm2-full/drivers/char/drm/Kconfig.old	2006-03-03 17:17:44.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/char/drm/Kconfig	2006-03-03 17:18:00.000000000 +0100
-@@ -37,8 +37,8 @@
- 	help
- 	  Choose this option if you have an ATI Radeon graphics card.  There
- 	  are both PCI and AGP versions.  You don't need to choose this to
--	  run the Radeon in plain VGA mode.  There is a product page at
--	  <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
-+	  run the Radeon in plain VGA mode.
-+	  
- 	  If M is selected, the module will be called radeon.
+--- linux-2.6.16-rc5-mm2-full/drivers/acpi/bus.c.old	2006-03-03 17:33:38.000000000 +0100
++++ linux-2.6.16-rc5-mm2-full/drivers/acpi/bus.c	2006-03-03 17:33:51.000000000 +0100
+@@ -47,7 +47,7 @@
+ static void acpi_sci_notify_client(char *acpi_name, u32 event);
+ static int acpi_sci_notify_write_proc(struct file *file, const char *buffer, \
+ 	unsigned long count, void *data);
+-struct proc_dir_entry 		*acpi_sci_dir;
++static struct proc_dir_entry 	*acpi_sci_dir;
  
- config DRM_I810
---- linux-2.6.16-rc5-mm2-full/drivers/video/Kconfig.old	2006-03-03 17:18:23.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/video/Kconfig	2006-03-03 17:18:33.000000000 +0100
-@@ -915,8 +915,6 @@
- 	  Choose this option if you want to use an ATI Radeon graphics card as
- 	  a framebuffer device.  There are both PCI and AGP versions.  You
- 	  don't need to choose this to run the Radeon in plain VGA mode.
--	  There is a product page at
--	  <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
- 
- config FB_RADEON
- 	tristate "ATI Radeon display support"
+ #else
+ #define acpi_init_sci_emulate()
 

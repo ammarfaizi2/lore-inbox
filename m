@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWCDRxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWCDSAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWCDRxv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 12:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWCDRxv
+	id S932274AbWCDSAd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 13:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWCDSAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 12:53:51 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29971 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932263AbWCDRxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 12:53:50 -0500
-Date: Sat, 4 Mar 2006 18:53:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Richard Knutsson <ricknu-0@student.ltu.se>,
-       Benoit Boissinot <benoit.boissinot@ens-lyon.fr>, p_gortmaker@yahoo.com
-Subject: Re: [PATCH 04/13] RTC subsystem, class
-Message-ID: <20060304175349.GL9295@stusta.de>
-References: <20060304164247.963655000@towertech.it> <20060304164248.740384000@towertech.it> <20060304170810.GE9295@stusta.de> <20060304184611.784fd939@inspiron>
-MIME-Version: 1.0
+	Sat, 4 Mar 2006 13:00:33 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:43711 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932274AbWCDSAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 13:00:33 -0500
+Date: Sat, 4 Mar 2006 18:00:18 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: mactel-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] /sys/firmware/efi/systab giving incorrect value for smbios
+Message-ID: <20060304180018.GA3695@srcf.ucam.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060304184611.784fd939@inspiron>
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 04, 2006 at 06:46:11PM +0100, Alessandro Zummo wrote:
-> On Sat, 4 Mar 2006 18:08:10 +0100
-> Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> > > +REAL TIME CLOCK (RTC) SUBSYSTEM
-> > > +P:	Alessandro Zummo
-> > > +M:	a.zummo@towertech.it
-> > > +L:	linux-kernel@vger.kernel.org
-> > > +S:	Maintained
-> > > +
-> > >...
-> > 
-> > The entry above the one you are adding is:
-> > 
-> > REAL TIME CLOCK DRIVER
-> > P:      Paul Gortmaker
-> > M:      p_gortmaker@yahoo.com
-> > L:      linux-kernel@vger.kernel.org
-> > S:      Maintained
-> > 
-> > 
-> > Two entries for the same thing only cause confusion.
-> 
->  It is not the same thing. Paul's one is the standard rtc
->  driver, which has not yet replaced by the rtc class.
+On my Intel imac, /sys/firmware/efi/systab is the following:
 
-My wording wasn't good:
-Two entries that sound as if they were for the same thing only cause 
-confusion.
+ACPI20=0x1fefd014
+ACPI=0x1fefd000
+SMBIOS=0x9fec9000
 
-The problem is that MAINTAINERS is written for people sending patches or 
-bug reports and the difference between these two entries is very subtle.
+if I have a kernel with a 2:2 user/kernel split, and
 
->  Best regards,
->  Alessandro Zummo,
+SMBIOS=0x5fec9000
 
-cu
-Adrian
+if I have a kernel with a 3:1 split. The correct value is 0x1fec9000, 
+which is what the kernel prints at boot time. The following trivial 
+patch seems to fix things.
+
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+
+diff --git a/arch/i386/kernel/efi.c b/arch/i386/kernel/efi.c
+index ecad519..6be705e 100644
+--- a/arch/i386/kernel/efi.c
++++ b/arch/i386/kernel/efi.c
+@@ -391,7 +391,7 @@ void __init efi_init(void)
+ 			printk(KERN_INFO " ACPI=0x%lx ", config_tables[i].table);
+ 		} else
+ 		    if (efi_guidcmp(config_tables[i].guid, SMBIOS_TABLE_GUID) == 0) {
+-			efi.smbios = (void *) config_tables[i].table;
++			efi.smbios = __va(config_tables[i].table);
+ 			printk(KERN_INFO " SMBIOS=0x%lx ", config_tables[i].table);
+ 		} else
+ 		    if (efi_guidcmp(config_tables[i].guid, HCDP_TABLE_GUID) == 0) {
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Matthew Garrett | mjg59@srcf.ucam.org

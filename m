@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751111AbWCDHCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWCDHR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751111AbWCDHCN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 02:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWCDHCN
+	id S1751374AbWCDHR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 02:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWCDHR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 02:02:13 -0500
-Received: from mail.gmx.de ([213.165.64.20]:56214 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751039AbWCDHCM (ORCPT
+	Sat, 4 Mar 2006 02:17:26 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:14491 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751374AbWCDHRZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 02:02:12 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task throttling
-	patch 1 of 2
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, pwil3058@bigpond.net.au,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, akpm@osdl.org
-In-Reply-To: <200603041750.21484.kernel@kolivas.org>
-References: <1140183903.14128.77.camel@homer>
-	 <200603041654.59480.kernel@kolivas.org> <1141455048.9482.13.camel@homer>
-	 <200603041750.21484.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Sat, 04 Mar 2006 08:04:00 +0100
-Message-Id: <1141455840.9482.19.camel@homer>
+	Sat, 4 Mar 2006 02:17:25 -0500
+Date: Sat, 4 Mar 2006 08:15:10 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, zippel@linux-m68k.org, rmk@arm.linux.org.uk,
+       schwidefsky@de.ibm.com, tony.luck@intel.com, davidm@hpl.hp.com,
+       clameter@sgi.com, george@mvista.com, ak@suse.de, paulus@samba.org,
+       benh@kernel.crashing.org, arnd@arndb.de
+Subject: Re: [RFC][PATCHSET] Time: Generic Timeofday Subsystem (v B20)
+Message-ID: <20060304071510.GA3893@elte.hu>
+References: <1141447396.9727.139.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141447396.9727.139.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-04 at 17:50 +1100, Con Kolivas wrote:
-> On Saturday 04 March 2006 17:50, Mike Galbraith wrote:
-> > Well Fudgecicles.  Now you guys have gotten me aaaaall confused.  Are
-> > there cpus out there (in generic linux land) that have 16 bit integers
-> > or not?  16 bit integers existing in a 32 bit cpu OS seems like an alien
-> > concept to me, but I'm not a twisted cpu designer... I'll just go with
-> > the flow ;-)
+
+* john stultz <johnstul@us.ibm.com> wrote:
+
+> Summary:
+> 	This patchset provides a generic timekeeping subsystem that is 
+> independent of the timer interrupt. This allows for robust and correct 
+> behavior in cases of late or lost ticks, avoids interpolation errors, 
+> reduces duplication in arch specific code, and allows or assists 
+> future changes such as high-res timers, dynamic ticks, or realtime 
+> preemption.  Additionally, it provides finer nanosecond resolution 
+> values to the clock_gettime functions.
 > 
-> All supported architectures on linux currently use 32bits for int. That should 
-> give you 2.1 seconds in nanoseconds. Sorry my legacy of remembering when ints 
-> were 8 bits coloured me.
+> Why do we need this?
 
-Well that's a relief.  I was getting all kinds of frazzled trying to
-imagine the kernel not exploding on such a cpu.
+i'd like to add the following to the list of reasons as well: the 
+current -hrt patch-queue (high resolution timers, which enables true 
+microsecond-level resolution for POSIX timers and nanosleep()), which is 
+working pretty well in the -rt tree and implements an important feature 
+for Linux, is based on the generic timekeeping subsystem as well.
 
-	-Mike
-
+	Ingo

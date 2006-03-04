@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWCDBeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWCDBkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbWCDBeN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 20:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWCDBeN
+	id S1750776AbWCDBkn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 20:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWCDBkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 20:34:13 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:63395 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932144AbWCDBeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 20:34:12 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm2
-Date: Sat, 04 Mar 2006 12:34:04 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <33rh02d65h18t6fo9j3reoaovd8kekjd88@4ax.com>
-References: <20060303045651.1f3b55ec.akpm@osdl.org>
-In-Reply-To: <20060303045651.1f3b55ec.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Mar 2006 20:40:42 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42660
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750882AbWCDBkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 20:40:42 -0500
+Date: Fri, 03 Mar 2006 17:40:48 -0800 (PST)
+Message-Id: <20060303.174048.14793187.davem@davemloft.net>
+To: christopher.leech@intel.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060303214220.11908.75517.stgit@gitlost.site>
+References: <20060303214036.11908.10499.stgit@gitlost.site>
+	<20060303214220.11908.75517.stgit@gitlost.site>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Mar 2006 04:56:51 -0800, Andrew Morton <akpm@osdl.org> wrote:
+From: Chris Leech <christopher.leech@intel.com>
+Date: Fri, 03 Mar 2006 13:42:20 -0800
 
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/
+> +static spinlock_t dma_list_lock;
 
-make oldconfig: some new options should default to 'N'?
+Please use DEFINE_SPINLOCK().
 
-Examples:
-Sony Laptop Extras (ACPI_SONY) [M/n/y/?] (NEW)
+> +static void dma_chan_free_rcu(struct rcu_head *rcu) {
 
-Enable firmware EDID (FB_FIRMWARE_EDID) [Y/n/?] (NEW)
+Newline before the brace please.
 
-Alsa:
-Why do I want these by default?
-OSS PCM (digital audio) API - Include plugin system (SND_PCM_OSS_PLUGINS) [Y/n/?] (NEW)
-Verbose procfs contents (SND_VERBOSE_PROCFS) [Y/n/?] (NEW)
+> +static void dma_async_device_cleanup(struct kref *kref) {
 
-RTC class (RTC_CLASS) [Y/n/m/?] (NEW) ?
+Newline before the brace please.
 
-I used a .config from 2.6.16-rc4 then make oldconfig.  In general I'd 
-expect new features to default off.  There's others too, but I'd have 
-to start from scratch to fins them all.  Not in summer time ;)
+> +struct dma_chan_percpu
+> +{
 
-Grant.
+Left brace on the same line as "struct dma_chan_percpu" please.
+
+> +struct dma_chan
+> +{
+
+Similarly.
+
+Otherwise this patch looks mostly ok.

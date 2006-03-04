@@ -1,124 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWCDLMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWCDLQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWCDLMk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 06:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWCDLMk
+	id S1751242AbWCDLQs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 06:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWCDLQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 06:12:40 -0500
-Received: from smtp17.wanadoo.fr ([193.252.23.111]:23606 "EHLO
-	smtp17.wanadoo.fr") by vger.kernel.org with ESMTP id S1751119AbWCDLMj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 06:12:39 -0500
-X-ME-UUID: 20060304111233220.055CA700008B@mwinf1703.wanadoo.fr
-Date: Sat, 4 Mar 2006 12:12:19 +0100
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: linux-alpha@vger.kernel.org, ink@jurassic.park.msu.ru,
-       Christoph Hellwig <hch@lst.de>, Richard Henderson <rth@twiddle.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Problem on Alpha with "convert to generic irq framework"
-Message-ID: <20060304111219.GA10532@localhost>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	ink@jurassic.park.msu.ru, Christoph Hellwig <hch@lst.de>,
-	Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
+	Sat, 4 Mar 2006 06:16:48 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18086 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751242AbWCDLQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 06:16:48 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/23] tref: Implement task references.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+	<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+	<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
+	<44074479.15D306EB@tv-sign.ru>
+	<m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
+	<4408753B.52E3B003@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 04 Mar 2006 04:16:19 -0700
+In-Reply-To: <4408753B.52E3B003@tv-sign.ru> (Oleg Nesterov's message of
+ "Fri, 03 Mar 2006 19:56:27 +0300")
+Message-ID: <m1mzg6cvek.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Ivan,
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-Few weeks ago, I stopped using the latest git snapshot on my alpha (an
-EV56 on a EB164/LX164 motherboard [1]) because I was experiecing nasty
-crashes when doing fairly heavy IOs (like checksumming ISO files) over a
-MD Raid 0 device built against 3 scsi disks connected to a pci Adaptec
-(2940U2W [2]) SCSI card.
+> Ok. I missed the virtualization/pspace discussion completely, so you are
+> very probably right.
 
-I can trigger the bug almost instantly and I get, more or less randomly,
-the following panic messages (without traces):
+So I think the pid_ref could is likely still short several helper functions,
+but is probably usable.  Using it is slightly more costly but I doubt the
+pid hash table has any significant performance penalties.
 
-Aiee, killing interrupt handler!
-Attempted to kill the idle task!
-Unable to handle kernel paging request at virtual address
+The important property to preserve from a maintenance standpoint is
+that the helper functions take enough information that when I go back
+and implement pid spaces I will need to at most tweak the pid_ref
+implementation, and the pid_ref helper functions and not need to
+go back through and change all of the users (again).
 
+> Oleg.
+>
+> struct pid_ref
+> {
+> 	pid_t			pid;
+> 	int			count;
+> 	struct hlist_node	chain;
+> };
+>
+> // allocated in pidhash_init()
+> static struct hlist_head *ref_hash;
+>
+> static struct pid_ref *find_pid_ref(pid_t pid)
+> {
+> 	struct hlist_node *elem;
+> 	struct pid_ref *ref;
+>
+> 	hlist_for_each_entry(ref, elem, &ref_hash[pid_hashfn(pid)], chain)
+> 		if (ref->pid == pid)
+> 			return ref;
+>
+> 	return NULL;
+> }
+>
+> // This is the only function modified.
+> fastcall void free_pidmap(int pid)
+> {
+> 	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+> 	int offset = pid & BITS_PER_PAGE_MASK;
+> 	struct pid_ref *ref;
+>
+> 	clear_bit(offset, map->page);
+> 	atomic_inc(&map->nr_free);
+>
+> 	ref = find_pid_ref(pid);
+> 	if (unlikely(ref != NULL)) {
+> 		hlist_del_init(&ref->chain);
+> 		ref->pid = 0;
+> 	}
+> }
 
-Using git, I started bisecting using 2.6.15 as the "good" release
-(because the box is rock solid with 2.6.15) and after countless hours
-(boy that thing isn't the fastest box around) and countless kernel
-compiles, I ended up with this first bad commit:
+Ouch!  I believe free_pidmap now needs the tasklist_lock so
+we can free the pid and kill the pid_ref atomically.  Otherwise
+the pid could potentially get reused before we free the pid reference.
+I think that means ensuring all of the callers take tasklist_lock.
 
+> static inline int pid_inuse(pid_t pid)
+> {
+> 	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+> 	int offset = pid & BITS_PER_PAGE_MASK;
+>
+> 	return test_bit(offset, map->page);
+> }
+>
+> struct pid_ref *alloc_pid_ref(pid_t pid)
+> {
+> 	struct pid_ref *ref;
+>
+> 	write_lock_irq(&tasklist_lock);
+> 	ref = find_pid_ref(pid);
+> 	if (ref)
+> 		ref->count++;
+> 	else if (pid_inuse(pid)) {
+> 		ref = kmalloc(sizeof(*ref), GFP_ATOMIC);
+> 		if (ref) {
+> 			ref->pid = pid;
+> 			ref->count = 1;
+> 			hlist_add_head(&ref->chain,
+> 				&ref_hash[pid_hashfn(pid)]);
+> 		}
+> 	}
+> 	write_unlock_irq(&tasklist_lock);
+>
+> 	return ref;
+> }
 
-0595bf3bca9d9932a05b06dd438f40f01d27cd33 is first bad commit
-diff-tree 0595bf3bca9d9932a05b06dd438f40f01d27cd33 (from eee45269b0f5979c70bc151c6c2f4e5f4f5ababe)
-Author: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Date:   Fri Jan 6 00:12:22 2006 -0800
+I need a helper that does this from a task structure but that
+is simple enough. 
 
-    [PATCH] Alpha: convert to generic irq framework (alpha part)
-    
-    Kconfig tweaks and tons of deletions.
-    
-    Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-    Cc: Christoph Hellwig <hch@lst.de>
-    Cc: Richard Henderson <rth@twiddle.net>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> void free_pid_ref(struct pid_ref *ref)
+> {
+> 	if (!ref)
+> 		return;
+>
+> 	write_lock_irq(&tasklist_lock);
+> 	if (!--ref->count) {
+> 		hlist_del_init(&ref->chain);
+> 		kfree(ref);
+> 	}
+> 	write_unlock_irq(&tasklist_lock);
+> }
 
-:040000 040000 ac127f16325bb65941bd38208325ab7821877f52 15d7d4d17a7c8cfb8fe53c29ded31ff9cf287534 M      arch
-:040000 040000 287f73cdf371b2b33cc48f1d876005aab29ff3de 29263093ae33ceccd6346b987870367bc8329f0a M      include
+I think calling this put_pid_ref instead of free_pid_ref
+is more accurate.  The whole alloc/free _pid_ref instead
+of the more traditional get/put kind of throws me.  Since
+an allocation/free is possible I can see where this comes from 
+but I don't feel right about those names.
 
-
-I've scanned the patch quickly but I didn't see anything obvious... ;-(
-
-Reverting this commit using:
-git revert 0595bf3bca9d9932a05b06dd438f40f01d27cd33
-
-against c499ec24c31edf270e777a868ffd0daddcfe7ebd (the latest HEAD as of
-right now) made my system usable again.
-
-As this code will make it into mainline 2.6.16, I wonder if I'm the
-online one experiencing this problem (any Alpha owners/testers
-around?)...
-
-I'll go over the patch again to learn more about the irq framework and
-I'm available to try any patches you can throw at me the goal being to
-make 2.6.16 (or latter stable version) usable (at least to me).
-
-Cheers,
-
-
-[1]
-/proc/cpuinfo:
-cpu                     : Alpha
-cpu model               : EV56
-cpu variation           : 0
-cpu revision            : 0
-cpu serial number       : Linux_is_Great!
-system type             : EB164
-system variation        : LX164
-system revision         : 0
-system serial number    : MILO-2.2-18
-cycle frequency [Hz]    : 533333333 
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 40
-max. addr. space #      : 127
-BogoMIPS                : 1059.80
-kernel unaligned acc    : 0 (pc=0,va=0)
-user unaligned acc      : 0 (pc=0,va=0)
-platform string         : N/A
-cpus detected           : 0
-L1 Icache               : 8K, 1-way, 32b line
-L1 Dcache               : 8K, 1-way, 32b line
-L2 cache                : 96K, 3-way, 64b line
-L3 cache                : 1024K, 1-way, 64b line
-
-[2]
-01:01.0 SCSI storage controller: Adaptec AHA-2940U2/U2W
-
--- 
-Mathieu Chouquet-Stringer
+Eric
 

@@ -1,237 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbWCDQo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWCDQrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbWCDQo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 11:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWCDQnw
+	id S932207AbWCDQrA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 11:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWCDQns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 11:43:52 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:44363 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932159AbWCDQna (ORCPT
+	Sat, 4 Mar 2006 11:43:48 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:36941 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932171AbWCDQnd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 11:43:30 -0500
-Message-Id: <20060304164249.441734000@towertech.it>
+	Sat, 4 Mar 2006 11:43:33 -0500
+Message-Id: <20060304164250.099102000@towertech.it>
 References: <20060304164247.963655000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 04 Mar 2006 17:42:54 +0100
+Date: Sat, 04 Mar 2006 17:42:58 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: [PATCH 07/13] RTC subsystem, proc interface
-Content-Disposition: inline; filename=rtc-intf-proc.patch
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 11/13] RTC subsystem, DS1672 driver
+Content-Disposition: inline; filename=rtc-drv-ds1672.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the proc interface to the
-RTC subsystem.
+Driver for the Dallas/Maxim DS1672 chip, found
+on the Loft (http://www.giantshoulderinc.com) .
 
-The first RTC driver which registers with
-the class will be accessible by /proc/driver/rtc .
-
-This is required for compatibility with the standard
-RTC driver and to avoid breaking any user space
-application which may erroneusly rely on this.
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>
 --
+ drivers/rtc/Kconfig      |   10 ++
+ drivers/rtc/Makefile     |    1 
+ drivers/rtc/rtc-ds1672.c |  233 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 244 insertions(+)
 
- drivers/rtc/Kconfig    |   11 +++
- drivers/rtc/Makefile   |    1 
- drivers/rtc/rtc-proc.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 174 insertions(+)
-
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-04 16:17:15.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-04 16:17:17.000000000 +0100
+@@ -85,6 +85,16 @@ config RTC_DRV_X1205
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-x1205.
+ 
++config RTC_DRV_DS1672
++	tristate "Dallas/Maxim DS1672"
++	depends on RTC_CLASS && I2C
++	help
++	  If you say yes here you get support for the
++	  Dallas/Maxim DS1672 timekeeping chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ds1672.
++
+ config RTC_DRV_TEST
+ 	tristate "Test driver/device"
+ 	depends on RTC_CLASS
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-04 16:17:15.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-04 16:17:17.000000000 +0100
+@@ -14,4 +14,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
+ 
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
++obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
+ 
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-proc.c	2006-03-04 16:17:10.000000000 +0100
-@@ -0,0 +1,162 @@
++++ linux-rtc/drivers/rtc/rtc-ds1672.c	2006-03-04 16:17:17.000000000 +0100
+@@ -0,0 +1,233 @@
 +/*
-+ * RTC subsystem, proc interface
-+ *
-+ * Copyright (C) 2005-06 Tower Technologies
-+ * Author: Alessandro Zummo <a.zummo@towertech.it>
-+ *
-+ * based on arch/arm/common/rtctime.c
++ * An rtc/i2c driver for the Dallas DS1672
++ * Copyright 2005 Alessandro Zummo
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+*/
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
 +
 +#include <linux/module.h>
++#include <linux/i2c.h>
 +#include <linux/rtc.h>
-+#include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
 +
-+static struct class_device *rtc_dev = NULL;
-+static DEFINE_MUTEX(rtc_lock);
++#define DRV_VERSION "0.2"
 +
-+static int rtc_proc_show(struct seq_file *seq, void *offset)
++/* Addresses to scan: none. This chip cannot be detected. */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++
++/* Insmod parameters */
++I2C_CLIENT_INSMOD;
++
++/* Registers */
++
++#define DS1672_REG_CNT_BASE	0
++#define DS1672_REG_CONTROL	4
++#define DS1672_REG_TRICKLE	5
++
++
++/* Prototypes */
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind);
++
++/*
++ * In the routines that deal directly with the ds1672 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
++ * Epoch is initialized as 2000. Time is set to UTC.
++ */
++static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long time;
++	unsigned char addr = DS1672_REG_CNT_BASE;
++	unsigned char buf[4];
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 1, &addr },		/* setup read ptr */
++		{ client->addr, I2C_M_RD, 4, buf },	/* read date */
++	};
++
++        /* read date registers */
++        if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++                dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++                return -EIO;
++        }
++
++	dev_dbg(&client->dev,
++		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n"
++		__FUNCTION__,
++		buf[0], buf[1], buf[2], buf[3]);
++
++	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++
++	rtc_time_to_tm(time, tm);
++
++	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	return 0;
++}
++
++static int ds1672_set_mmss(struct i2c_client *client, unsigned long secs)
++{
++	int xfer;
++	unsigned char buf[5];
++
++	buf[0] = DS1672_REG_CNT_BASE;
++	buf[1] = secs & 0x000000FF;
++	buf[2] = (secs & 0x0000FF00) >> 8;
++	buf[3] = (secs & 0x00FF0000) >> 16;
++	buf[4] = (secs & 0xFF000000) >> 24;
++
++	xfer = i2c_master_send(client, buf, 5);
++	if (xfer != 5) {
++		dev_err(&client->dev, "%s: send: %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int ds1672_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long secs;
++
++	dev_dbg(&client->dev,
++		"%s: secs=%d, mins=%d, hours=%d, ",
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	rtc_tm_to_time(tm, &secs);
++
++	return ds1672_set_mmss(client, secs);
++}
++
++static int ds1672_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_set_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_mmss(struct device *dev, unsigned long secs)
++{
++	return ds1672_set_mmss(to_i2c_client(dev), secs);
++}
++
++static struct rtc_class_ops ds1672_rtc_ops = {
++	.read_time	= ds1672_rtc_read_time,
++	.set_time	= ds1672_rtc_set_time,
++	.set_mmss	= ds1672_rtc_set_mmss,
++};
++
++static int ds1672_attach(struct i2c_adapter *adapter)
++{
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++	return i2c_probe(adapter, &addr_data, ds1672_probe);
++}
++
++static int ds1672_detach(struct i2c_client *client)
 +{
 +	int err;
-+	struct class_device *class_dev = seq->private;
-+	struct rtc_class_ops *ops = to_rtc_device(class_dev)->ops;
-+	struct rtc_wkalrm alrm;
-+	struct rtc_time tm;
++	struct rtc_device *rtc = i2c_get_clientdata(client);
 +
-+	err = rtc_read_time(class_dev, &tm);
-+	if (err == 0) {
-+		seq_printf(seq,
-+			"rtc_time\t: %02d:%02d:%02d\n"
-+			"rtc_date\t: %04d-%02d-%02d\n",
-+			tm.tm_hour, tm.tm_min, tm.tm_sec,
-+			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-+	}
++	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
 +
-+	err = rtc_read_alarm(class_dev, &alrm);
-+	if (err == 0) {
-+		seq_printf(seq, "alrm_time\t: ");
-+		if ((unsigned int)alrm.time.tm_hour <= 24)
-+			seq_printf(seq, "%02d:", alrm.time.tm_hour);
-+		else
-+			seq_printf(seq, "**:");
-+		if ((unsigned int)alrm.time.tm_min <= 59)
-+			seq_printf(seq, "%02d:", alrm.time.tm_min);
-+		else
-+			seq_printf(seq, "**:");
-+		if ((unsigned int)alrm.time.tm_sec <= 59)
-+			seq_printf(seq, "%02d\n", alrm.time.tm_sec);
-+		else
-+			seq_printf(seq, "**\n");
++ 	if (rtc)
++		rtc_device_unregister(rtc);
 +
-+		seq_printf(seq, "alrm_date\t: ");
-+		if ((unsigned int)alrm.time.tm_year <= 200)
-+			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
-+		else
-+			seq_printf(seq, "****-");
-+		if ((unsigned int)alrm.time.tm_mon <= 11)
-+			seq_printf(seq, "%02d-", alrm.time.tm_mon + 1);
-+		else
-+			seq_printf(seq, "**-");
-+		if ((unsigned int)alrm.time.tm_mday <= 31)
-+			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
-+		else
-+			seq_printf(seq, "**\n");
-+		seq_printf(seq, "alrm_wakeup\t: %s\n",
-+			     alrm.enabled ? "yes" : "no");
-+		seq_printf(seq, "alrm_pending\t: %s\n",
-+			     alrm.pending ? "yes" : "no");
-+	}
++	if ((err = i2c_detach_client(client)))
++		return err;
 +
-+	if (ops->proc)
-+		ops->proc(class_dev->dev, seq);
++	kfree(client);
 +
 +	return 0;
 +}
 +
-+static int rtc_proc_open(struct inode *inode, struct file *file)
-+{
-+	struct class_device *class_dev = PDE(inode)->data;
-+
-+	if (!try_module_get(THIS_MODULE))
-+		return -ENODEV;
-+
-+	return single_open(file, rtc_proc_show, class_dev);
-+}
-+
-+static int rtc_proc_release(struct inode *inode, struct file *file)
-+{
-+	int res = single_release(inode, file);
-+	module_put(THIS_MODULE);
-+	return res;
-+}
-+
-+static struct file_operations rtc_proc_fops = {
-+	.open		= rtc_proc_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= rtc_proc_release,
++static struct i2c_driver ds1672_driver = {
++	.driver		= {
++		.name	= "ds1672",
++	},
++	.attach_adapter = &ds1672_attach,
++	.detach_client	= &ds1672_detach,
 +};
 +
-+static int rtc_proc_add_device(struct class_device *class_dev,
-+					   struct class_interface *class_intf)
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind)
 +{
-+	mutex_lock(&rtc_lock);
-+	if (rtc_dev == NULL) {
-+		struct proc_dir_entry *ent;
++	int err = 0;
++	struct i2c_client *client;
++	struct rtc_device *rtc;
 +
-+		rtc_dev = class_dev;
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
 +
-+		ent = create_proc_entry("driver/rtc", 0, NULL);
-+		if (ent) {
-+			struct rtc_device *rtc = to_rtc_device(class_dev);
-+
-+			ent->proc_fops = &rtc_proc_fops;
-+			ent->owner = rtc->owner;
-+			ent->data = class_dev;
-+
-+			dev_info(class_dev->dev, "rtc intf: proc\n");
-+		}
-+		else
-+			rtc_dev = NULL;
++	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
++		err = -ENODEV;
++		goto exit;
 +	}
-+	mutex_unlock(&rtc_lock);
++
++	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	/* I2C client */
++	client->addr = address;
++	client->driver = &ds1672_driver;
++	client->adapter	= adapter;
++
++	strlcpy(client->name, ds1672_driver.driver.name, I2C_NAME_SIZE);
++
++	/* Inform the i2c layer */
++	if ((err = i2c_attach_client(client)))
++		goto exit_kfree;
++
++	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
++
++	rtc = rtc_device_register(ds1672_driver.driver.name, &client->dev,
++				&ds1672_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc)) {
++		err = PTR_ERR(rtc);
++		dev_err(&client->dev,
++			"unable to register the class device\n");
++		goto exit_detach;
++	}
++
++	i2c_set_clientdata(client, rtc);
 +
 +	return 0;
++
++exit_detach:
++	i2c_detach_client(client);
++
++exit_kfree:
++	kfree(client);
++
++exit:
++	return err;
 +}
 +
-+static void rtc_proc_remove_device(struct class_device *class_dev,
-+					      struct class_interface *class_intf)
++static int __init ds1672_init(void)
 +{
-+	mutex_lock(&rtc_lock);
-+	if (rtc_dev == class_dev) {
-+		remove_proc_entry("driver/rtc", NULL);
-+		rtc_dev = NULL;
-+	}
-+	mutex_unlock(&rtc_lock);
++	return i2c_add_driver(&ds1672_driver);
 +}
 +
-+static struct class_interface rtc_proc_interface = {
-+	.add = &rtc_proc_add_device,
-+	.remove = &rtc_proc_remove_device,
-+};
-+
-+static int __init rtc_proc_init(void)
++static void __exit ds1672_exit(void)
 +{
-+	return rtc_interface_register(&rtc_proc_interface);
++	i2c_del_driver(&ds1672_driver);
 +}
-+
-+static void __exit rtc_proc_exit(void)
-+{
-+	class_interface_unregister(&rtc_proc_interface);
-+}
-+
-+module_init(rtc_proc_init);
-+module_exit(rtc_proc_exit);
 +
 +MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("RTC class proc interface");
++MODULE_DESCRIPTION("Dallas/Maxim DS1672 timekeeper driver");
 +MODULE_LICENSE("GPL");
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-04 16:17:08.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-04 16:17:10.000000000 +0100
-@@ -50,6 +50,17 @@ config RTC_INTF_SYSFS
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-sysfs.
- 
-+config RTC_INTF_PROC
-+	tristate "proc"
-+	depends on RTC_CLASS && PROC_FS
-+	default RTC_CLASS
-+	help
-+	  Say yes here if you want to use your RTC using the proc
-+	  interface, /proc/driver/rtc .
++MODULE_VERSION(DRV_VERSION);
 +
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-proc.
-+
- comment "RTC drivers"
- 	depends on RTC_CLASS
- 
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-04 16:17:08.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-04 16:17:10.000000000 +0100
-@@ -9,3 +9,4 @@ obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
- obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
- rtc-core-y			:= class.o interface.o
- obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
-+obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
++module_init(ds1672_init);
++module_exit(ds1672_exit);
 
 --

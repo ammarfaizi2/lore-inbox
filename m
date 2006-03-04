@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWCDMdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWCDMe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWCDMdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 07:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWCDMdK
+	id S1751219AbWCDMe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 07:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWCDMe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 07:33:10 -0500
-Received: from ozlabs.org ([203.10.76.45]:31934 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932088AbWCDMdJ (ORCPT
+	Sat, 4 Mar 2006 07:34:27 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:16858 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751219AbWCDMe0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 07:33:09 -0500
+	Sat, 4 Mar 2006 07:34:26 -0500
+Message-ID: <4409888C.71720720@tv-sign.ru>
+Date: Sat, 04 Mar 2006 15:31:08 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/23] tref: Implement task references.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+		<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+		<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
+		<44074479.15D306EB@tv-sign.ru>
+		<m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
+		<4408753B.52E3B003@tv-sign.ru> <m1mzg6cvek.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Message-ID: <17417.35072.247188.486774@cargo.ozlabs.ibm.com>
-Date: Sat, 4 Mar 2006 23:33:04 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@muc.de, anemo@mba.ocn.ne.jp, clameter@engr.sgi.com,
-       linux-kernel@vger.kernel.org, ralf@linux-mips.org, johnstul@us.ibm.com,
-       rth@twiddle.net
-Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
- aliasing problem)
-In-Reply-To: <20060304034449.3fd5e2fa.akpm@osdl.org>
-References: <20060303.114406.64806237.nemoto@toshiba-tops.co.jp>
-	<20060302190408.1e754f12.akpm@osdl.org>
-	<20060303.133125.106438890.nemoto@toshiba-tops.co.jp>
-	<20060304.013153.71086081.anemo@mba.ocn.ne.jp>
-	<20060304001834.0476e8e9.akpm@osdl.org>
-	<20060304112010.GA94875@muc.de>
-	<17417.32015.6281.253814@cargo.ozlabs.ibm.com>
-	<20060304034449.3fd5e2fa.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
-> Paul Mackerras <paulus@samba.org> wrote:
-> >
-> > Andi Kleen writes:
-> > 
-> > > Also I assume Atsushi-san did the patch because he saw a real problem?
-> > 
-> > Yes, one which I also saw on PPC.  The compiler (gcc-4) emits loads
-> > for jiffies, jiffies64 and wall_jiffies before storing the incremented
-> > jiffies64 value back.
-> > 
+"Eric W. Biederman" wrote:
 > 
-> What was the effect of that?
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > fastcall void free_pidmap(int pid)
+> > {
+> >       pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+> >       int offset = pid & BITS_PER_PAGE_MASK;
+> >       struct pid_ref *ref;
+> >
+> >       clear_bit(offset, map->page);
+> >       atomic_inc(&map->nr_free);
+> >
+> >       ref = find_pid_ref(pid);
+> >       if (unlikely(ref != NULL)) {
+> >               hlist_del_init(&ref->chain);
+> >               ref->pid = 0;
+> >       }
+> > }
+> 
+> Ouch!  I believe free_pidmap now needs the tasklist_lock so
+> we can free the pid and kill the pid_ref atomically.  Otherwise
+> the pid could potentially get reused before we free the pid reference.
+> I think that means ensuring all of the callers take tasklist_lock.
 
-The effect is that the first call to do_timer doesn't increment xtime.
-This explains why the code I have to detect disagreements between
-xtime and the time of day as computed from the timebase register was
-finding a disagreement on the first tick, which I was scratching my
-head over.
+Yes, you are right. And do_fork() does free_pidmap() lockless in
+the error path. This path is not performance critical, so may be
+it is ok to add wrie_lock(tasklist) here.
+ 
+> > void free_pid_ref(struct pid_ref *ref)
+> > {
+> >       if (!ref)
+> >               return;
+> >
+> >       write_lock_irq(&tasklist_lock);
+> >       if (!--ref->count) {
+> >               hlist_del_init(&ref->chain);
+> >               kfree(ref);
+> >       }
+> >       write_unlock_irq(&tasklist_lock);
+> > }
+> 
+> I think calling this put_pid_ref instead of free_pid_ref
+> is more accurate.  The whole alloc/free _pid_ref instead
+> of the more traditional get/put kind of throws me.  Since
+> an allocation/free is possible I can see where this comes from
+> but I don't feel right about those names.
 
-There may be other effects on architectures which use wall_jiffies to
-detect lost timer ticks.  We don't have that problem on PPC and we
-don't use wall_jiffies in computing time of day.
+Agree.
 
-Paul.
-
+Oleg.

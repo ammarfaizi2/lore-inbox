@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWCDWcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWCDWvU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWCDWcY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 17:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWCDWcY
+	id S932296AbWCDWvU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 17:51:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWCDWvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 17:32:24 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:1417
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932249AbWCDWcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 17:32:24 -0500
-Date: Sat, 04 Mar 2006 14:32:22 -0800 (PST)
-Message-Id: <20060304.143222.01803877.davem@davemloft.net>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com
-Subject: Re: VFS nr_files accounting
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060304.142821.105572446.davem@davemloft.net>
-References: <20060304141717.GA456@in.ibm.com>
-	<20060304.142202.32211471.davem@davemloft.net>
-	<20060304.142821.105572446.davem@davemloft.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 4 Mar 2006 17:51:20 -0500
+Received: from gate.crashing.org ([63.228.1.57]:8371 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932285AbWCDWvU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 17:51:20 -0500
+Subject: Re: Memory barriers and spin_unlock safety
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, bcrl@linux.intel.com, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, mingo@redhat.com,
+       linuxppc64-dev@ozlabs.org, jblunck@suse.de
+In-Reply-To: <17417.29372.744064.211813@cargo.ozlabs.ibm.com>
+References: <32518.1141401780@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
+	 <1141419966.3888.67.camel@localhost.localdomain>
+	 <17417.29372.744064.211813@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Date: Sun, 05 Mar 2006 09:49:53 +1100
+Message-Id: <1141512594.17127.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "David S. Miller" <davem@davemloft.net>
-Date: Sat, 04 Mar 2006 14:28:21 -0800 (PST)
-
-> Sigh, this is going to take a while, because there are -mm
-> dependencies in these patches such as percpu_counter_sum().
+On Sat, 2006-03-04 at 21:58 +1100, Paul Mackerras wrote:
+> Benjamin Herrenschmidt writes:
 > 
-> I'll have to fish those out of -mm before I can start testing
-> this.
+> > Actually, the ppc's full barrier (sync) will generate bus traffic, and I
+> > think in some case eieio barriers can propagate to the chipset to
+> > enforce ordering there too depending on some voodoo settings and wether
+> > the storage space is cacheable or not.
+> 
+> Eieio has to go to the PCI host bridge because it is supposed to
+> prevent write-combining, both in the host bridge and in the CPU.
 
-And now that I've sucked in percpu_counter_sum.patch, the
-rcu-batch-tuning.patch gets a bunch of rejects.
+That can be disabled with HID bits tho ;)
 
-Sorry, I really can't test this.  Can you by chance put together a
-patch against vanilla 2.6.16-GIT?  We'll need that to put a fix
-for this bug into Linus's tree anyways.
+Ben.
 
-Thanks.
+

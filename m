@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751709AbWCDMOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751857AbWCDMSo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751709AbWCDMOy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 07:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751850AbWCDMOm
+	id S1751857AbWCDMSo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 07:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWCDMSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 07:14:42 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20496 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751808AbWCDMOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 07:14:32 -0500
-Date: Sat, 4 Mar 2006 13:14:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: yi.zhu@intel.com, jketreno@linux.intel.com
-Cc: linux-kernel@vger.kernel.org, linville@tuxdriver.com,
-       netdev@vger.kernel.org
-Subject: [2.6 patch] drivers/net/wireless/ipw2200.c: make ipw_qos_current_mode() static
-Message-ID: <20060304121431.GN9295@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 4 Mar 2006 07:18:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39631 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751210AbWCDMSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 07:18:42 -0500
+Date: Sat, 4 Mar 2006 04:16:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, steved@redhat.com, trond.myklebust@fys.uio.no,
+       aviro@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #3]
+Message-Id: <20060304041647.6894ca62.akpm@osdl.org>
+In-Reply-To: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com>
+References: <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global function ipw_qos_current_mode() 
-static.
+David Howells <dhowells@redhat.com> wrote:
+>
+> These patches make it possible to share NFS superblocks between related mounts,
+>  where "related" means on the same server.
+
+On an FC1 machine during initscripts these patches give:
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 336k freed
+Write protecting the kernel read-only data: 787k
+VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
+VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
+VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
+NFSD: Using /var/lib/nfs/v4recovery as the NFSv4 state recovery directory
+NFSD: unable to find recovery directory /var/lib/nfs/v4recovery
+NFSD: starting 90-second grace period
+VFS: Busy inodes after unmount of nfsd. Self-destruct in 5 seconds.  Have a nice day...
 
---- linux-2.6.16-rc5-mm2-full/drivers/net/wireless/ipw2200.c.old	2006-03-03 17:49:37.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/net/wireless/ipw2200.c	2006-03-03 17:50:00.000000000 +0100
-@@ -6566,7 +6566,7 @@
- * get the modulation type of the current network or
- * the card current mode
- */
--u8 ipw_qos_current_mode(struct ipw_priv * priv)
-+static u8 ipw_qos_current_mode(struct ipw_priv * priv)
- {
- 	u8 mode = 0;
- 
+The same happens with just #1 and #2 applied.  The .config is at
+http://www.zip.com.au/~akpm/linux/patches/stuff/config-vmm.
+
+The kernel won't compile with just patch #1 applied.  Patches shouldn't go
+into git in that manner.
 

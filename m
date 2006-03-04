@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751668AbWCDOoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751796AbWCDOvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751668AbWCDOoO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 09:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbWCDOoO
+	id S1751796AbWCDOvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 09:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751800AbWCDOvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 09:44:14 -0500
-Received: from zcars04e.nortel.com ([47.129.242.56]:47792 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP
-	id S1751554AbWCDOoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 09:44:13 -0500
+	Sat, 4 Mar 2006 09:51:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:63761 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751796AbWCDOvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 09:51:14 -0500
+Date: Sat, 4 Mar 2006 15:51:14 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Otavio Salvador <otavio@debian.org>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: ALSA HDA Intel stoped to work in 2.6.16-*
+Message-ID: <20060304145114.GY9295@stusta.de>
+References: <87wtfhx7rm.fsf@nurf.casa> <s5hzmkcsv38.wl%tiwai@suse.de> <87slq3x3w1.fsf@nurf.casa> <s5hu0ajrbxv.wl%tiwai@suse.de> <87fym3w7m3.fsf@nurf.casa> <s5h3bi2a26o.wl%tiwai@suse.de> <8764mxiny5.fsf@nurf.casa> <s5h4q2fo0t4.wl%tiwai@suse.de> <87zmk6eq1t.fsf@nurf.casa>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17417.42927.851653.114068@lemming.engeast.baynetworks.com>
-Date: Sat, 4 Mar 2006 09:43:59 -0500
-To: linux-kernel@vger.kernel.org
-From: psmith@gnu.org
-Reply-To: psmith@gnu.org
-Subject: kbuild: Problem with latest GNU make rc
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-OriginalArrivalTime: 04 Mar 2006 14:44:01.0887 (UTC) FILETIME=[13F366F0:01C63F9A]
+Content-Disposition: inline
+In-Reply-To: <87zmk6eq1t.fsf@nurf.casa>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all;
+On Sat, Mar 04, 2006 at 02:29:02AM -0300, Otavio Salvador wrote:
+> Takashi Iwai <tiwai@suse.de> writes:
+> 
+> > Are you sure that your device has PCI SUB-system id 8086:2668 ?
+> 
+> oh no! Sorry!
+> 
+> 0000:00:1b.0 0403: 8086:2668 (rev 04)
+>         Subsystem: 152d:0729
+>                    ^^^^^^^^^
 
-An incompatibility between kbuild and the latest GNU make 3.81 release
-candidate has been uncovered by Art Haas.  He reports that when building
-current kernels with the latest GNU make rc, everything will always be
-rebuilt every time.
+Can you make a patch with the correct id test whether it fixes your 
+problem (without model=basic)?
 
-
-I've done an analysis of the issue and reported my findings on
-Wednesday, 1 March to the kbuild-devel mailing list (which, according to
-its archives, hasn't had any messages go through since 31 Jan--is anyone
-approving them anymore?) and to the bug-make mailing list (but a
-corruption in lists.gnu.org's TMDA database last week has caused a huge
-backlog which is only now being cleared).
-
-For full details you can find an archived copy of my message here:
-
-  http://lists.gnu.org/archive/html/bug-make/2006-03/msg00003.html
-
-
-The problem is that the new behavior is (I believe) correct.  If I'm
-right then this leaves us with a bit of a tricky situation to manage.
-
-If anyone has an opinion or would like to discuss the situation, please
-follow up to my email on bug-make@gnu.org (I would prefer to hold the
-discussion there since I don't subscribe to linux-kernel).
-
-I would like to come to some kind of decision on this quickly so I can
-make an official 3.81 release soon.
-
-
-Cheers!
+TIA
+Adrian
 
 -- 
--------------------------------------------------------------------------------
- Paul D. Smith <psmith@gnu.org>          Find some GNU make tips at:
- http://www.gnu.org                      http://make.paulandlesley.org
- "Please remain calm...I may be mad, but I am a professional." --Mad Scientist
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

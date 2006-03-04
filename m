@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751533AbWCDBnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWCDBxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751533AbWCDBnn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 20:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWCDBnn
+	id S932184AbWCDBxt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 20:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWCDBxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 20:43:43 -0500
-Received: from ba.realmsys.com ([207.88.121.47]:46219 "EHLO ba.realmsys.com")
-	by vger.kernel.org with ESMTP id S1751531AbWCDBnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 20:43:42 -0500
-Subject: Re: [PATCH 7/15] EDAC: i82875p cleanup
-From: Thayne Harbaugh <thayne@realmsys.com>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: Andrew Morton <akpm@osdl.org>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
-       zhenyu.z.wang@intel.com
-In-Reply-To: <200603031047.01445.dsp@llnl.gov>
-References: <200603021748.01132.dsp@llnl.gov>
-	 <20060302183044.459ddb13.akpm@osdl.org>  <200603031047.01445.dsp@llnl.gov>
-Content-Type: text/plain
-Date: Fri, 03 Mar 2006 18:43:28 -0700
-Message-Id: <1141436608.14012.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Mar 2006 20:53:49 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:42895 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S932184AbWCDBxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Mar 2006 20:53:49 -0500
+X-IronPort-AV: i="4.02,164,1139212800"; 
+   d="scan'208"; a="259474475:sNHT30380308"
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [git pull] IB SRP fix for 2.6.16-rc5
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 03 Mar 2006 17:53:46 -0800
+Message-ID: <adapsl30yc5.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 Mar 2006 01:53:48.0283 (UTC) FILETIME=[7A7F0CB0:01C63F2E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-03 at 10:47 -0800, Dave Peterson wrote:
-> On Thursday 02 March 2006 18:30, Andrew Morton wrote:
-> > Dave Peterson <dsp@llnl.gov> wrote:
-> > >  +#ifdef CORRECT_BIOS
-> > >  +fail0:
-> > >  +#endif
-> >
-> > What is CORRECT_BIOS?  Is the fact that it's never defined some sort of
-> > commentary?  ;)
-> 
-> I'm not sure about this.  I'm cc'ing Thayne Harbaugh and Wang Zhenyu since
-> their names are in the credits for the i82875p module.  Maybe they can
-> provide some info.
+Linus, please pull from
 
-This is something that is my style - I don't care for "#if 0" or "#if
-1".  I usually drop a "#undef COMMENT_TAG" someplace with a "/* ... */"
-comment next to it so that it's not some unknown tag.
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-I haven't looked through the code yet so I can't remember if it's
-something I left and if it is, what it does.
+This tree is also available from kernel.org mirrors at:
 
-I just looked, and I don't recognize it - "cvs annotate" lists it ass
-being last touched by dsp_llnl ;^).
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+
+The pull will get the following change, which fixes a potential crash
+when a connection to an SRP storage target is lost:
+
+Roland Dreier:
+      IB/srp: Don't send task management commands after target removal
+
+ drivers/infiniband/ulp/srp/ib_srp.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
 
--- 
-A silly version!
-so I fix the stripping beat
-with bitter sleep snot.
 
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -1155,6 +1155,12 @@ static int srp_send_tsk_mgmt(struct scsi
+ 
+ 	spin_lock_irq(target->scsi_host->host_lock);
+ 
++	if (target->state == SRP_TARGET_DEAD ||
++	    target->state == SRP_TARGET_REMOVED) {
++		scmnd->result = DID_BAD_TARGET << 16;
++		goto out;
++	}
++
+ 	if (scmnd->host_scribble == (void *) -1L)
+ 		goto out;
+ 

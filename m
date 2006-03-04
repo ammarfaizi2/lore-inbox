@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751692AbWCDVoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWCDVp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751692AbWCDVoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 16:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCDVoU
+	id S1751373AbWCDVp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 16:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752015AbWCDVp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 16:44:20 -0500
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:30159 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1751692AbWCDVoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 16:44:20 -0500
-Message-ID: <440A0A31.6000404@bigpond.net.au>
-Date: Sun, 05 Mar 2006 08:44:17 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Con Kolivas <kernel@kolivas.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       kenneth.w.chen@intel.com, akpm@osdl.org
-Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task throttling	patch
- 1 of 2
-References: <1140183903.14128.77.camel@homer>	 <1141450187.7703.40.camel@homer>	 <20060303214002.f36ce0b4.rdunlap@xenotime.net>	 <200603041654.59480.kernel@kolivas.org> <1141455048.9482.13.camel@homer>
-In-Reply-To: <1141455048.9482.13.camel@homer>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 4 Mar 2006 16:45:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4552 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751373AbWCDVp4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 16:45:56 -0500
+Date: Sat, 4 Mar 2006 13:44:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] synclink: s/aviod/avoid/
+Message-Id: <20060304134425.1bfb36bb.akpm@osdl.org>
+In-Reply-To: <20060304211847.GA8332@mipter.zuzino.mipt.ru>
+References: <20060304211847.GA8332@mipter.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 4 Mar 2006 21:44:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Sat, 2006-03-04 at 16:54 +1100, Con Kolivas wrote:
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
+>
+> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> ---
 > 
->>On Saturday 04 March 2006 16:40, Randy.Dunlap wrote:
->>
->>>On Sat, 04 Mar 2006 06:29:47 +0100 Mike Galbraith wrote:
->>>
->>>>On Sat, 2006-03-04 at 16:24 +1100, Con Kolivas wrote:
->>>>
->>>>>On Saturday 04 March 2006 16:20, Mike Galbraith wrote:
->>>>>
->>>>>>On Sat, 2006-03-04 at 13:33 +1100, Peter Williams wrote:
->>>>>>
->>>>>>>> include/linux/sched.h |    3 -
->>>>>>>> kernel/sched.c        |  136
->>>>>>>>+++++++++++++++++++++++++++++--------------------- 2 files
->>>>>>>>changed, 82 insertions(+), 57 deletions(-)
->>>>>>>>
->>>>>>>>--- linux-2.6.16-rc5-mm2/include/linux/sched.h.org	2006-03-01
->>>>>>>>15:06:22.000000000 +0100 +++
->>>>>>>>linux-2.6.16-rc5-mm2/include/linux/sched.h	2006-03-02
->>>>>>>>08:33:12.000000000 +0100 @@ -720,7 +720,8 @@
->>>>>>>>
->>>>>>>> 	unsigned long policy;
->>>>>>>> 	cpumask_t cpus_allowed;
->>>>>>>>-	unsigned int time_slice, first_time_slice;
->>>>>>>>+	int time_slice;
->>>>>>>
->>>>>>>Can you guarantee that int is big enough to hold a time slice in
->>>>>>>nanoseconds on all systems?  I think that you'll need more than 16
->>>>>>>bits.
->>>>>>
->>>>>>Nope, that's a big fat bug.
->>>>>
->>>>>Most ints are 32bit anyway, but even a 32 bit unsigned int overflows
->>>>>with nanoseconds at 4.2 seconds. A signed one at about half that. Our
->>>>>timeslices are never that large, but then int isn't always 32bit
->>>>>either.
->>>>
->>>>Yup.  I just didn't realize that there were 16 bit integers out there.
->>>
->>>LDD 3rd ed. doesn't know about them either.  Same for me.
->>
->>Alright I made that up, but it might not be one day :P
+>  drivers/char/synclink.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> 
-> Well Fudgecicles.  Now you guys have gotten me aaaaall confused.  Are
-> there cpus out there (in generic linux land) that have 16 bit integers
-> or not?  16 bit integers existing in a 32 bit cpu OS seems like an alien
-> concept to me, but I'm not a twisted cpu designer... I'll just go with
-> the flow ;-)
+> --- a/drivers/char/synclink.c
+> +++ b/drivers/char/synclink.c
+> @@ -6025,7 +6025,7 @@ static void usc_set_async_mode( struct m
+>  	 * <15..8>	?		RxFIFO IRQ Request Level
+>  	 *
+>  	 * Note: For async mode the receive FIFO level must be set
+> -	 * to 0 to aviod the situation where the FIFO contains fewer bytes
+> +	 * to 0 to avoid the situation where the FIFO contains fewer bytes
+>  	 * than the trigger level and no more data is expected.
+>  	 *
+>  	 * <7>		0		Exited Hunt IA (Interrupt Arm)
 
-I'm not sure which is why I asked.  But it seems to be a convention (in 
-the kernel code) to use long or unsigned long when you want to ensure at 
-least 32 bits.  This may be a legacy from the days when there were 
-systems with 16 bit integers but it seems (to me) to be alive and well.
+One-liner spello fixes fall below my "is this worth a changeset" threshold,
+sorry.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751422AbWCDHf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWCDHhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751422AbWCDHf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 02:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWCDHf4
+	id S1751494AbWCDHhs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 02:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWCDHhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 02:35:56 -0500
-Received: from xenotime.net ([66.160.160.81]:38075 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751422AbWCDHfz (ORCPT
+	Sat, 4 Mar 2006 02:37:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21664 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751494AbWCDHhr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 02:35:55 -0500
-Date: Fri, 3 Mar 2006 23:37:16 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: hare@suse.de, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Fixup ahci suspend / resume
-Message-Id: <20060303233716.67ffaff6.rdunlap@xenotime.net>
-In-Reply-To: <20060228172542.GF24981@suse.de>
-References: <44045FB1.5040408@suse.de>
-	<440468DB.5060605@pobox.com>
-	<20060228151928.GC24981@suse.de>
-	<44046AC2.1060002@pobox.com>
-	<20060228152847.GE24981@suse.de>
-	<44046DC3.4060508@pobox.com>
-	<440472F6.6090905@suse.de>
-	<20060228172542.GF24981@suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sat, 4 Mar 2006 02:37:47 -0500
+Date: Fri, 3 Mar 2006 23:36:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Phillips <phillips@google.com>
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: Ocfs2 performance bugs of doom
+Message-Id: <20060303233617.51718c8e.akpm@osdl.org>
+In-Reply-To: <4408C2E8.4010600@google.com>
+References: <4408C2E8.4010600@google.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Feb 2006 18:25:43 +0100 Jens Axboe wrote:
-
-> On Tue, Feb 28 2006, Hannes Reinecke wrote:
-> > Jeff Garzik wrote:
-> > > Jens Axboe wrote:
-> > >> I'm sure Hannes will regenerate against upstream as well if necessary,
-> > >> however that depends on when this should be applied.
-> > > 
-> > > It's far too late and too intrusive for 2.6.16-rc.
-> > > 
-> > > It's #upstream or <null>.
-> > > 
-> > Calm down. Of course I will regenerate is against #upstream.
-> > In fact, I've done so initially but wasn't sure what the status of
-> > libata-dev is. So I've diffed it against linux-git instead.
-> > 
-> > Updated patch to follow.
+Daniel Phillips <phillips@google.com> wrote:
+>
+> @@ -103,31 +103,28 @@ struct dlm_lock_resource * __dlm_lookup_
+>    					 const char *name,
+>    					 unsigned int len)
+>    {
+>  -	unsigned int hash;
+>  -	struct hlist_node *iter;
+>  -	struct dlm_lock_resource *tmpres=NULL;
+>    	struct hlist_head *bucket;
+>  +	struct hlist_node *list;
 > 
-> Thanks Hannes. I wasn't so much worried about it going directly in (I
-> have no problem waiting), just that there seemed to be some disagreement
-> on where suspend is at and what we can "support".
+>    	mlog_entry("%.*s\n", len, name);
+> 
+>    	assert_spin_locked(&dlm->spinlock);
+>  +	bucket = dlm->lockres_hash + full_name_hash(name, len) % DLM_HASH_BUCKETS;
+> 
+>  -	hash = full_name_hash(name, len);
 
-Hi Hannes,
+err, you might want to calculate that hash outside the spinlock.
 
-Did you ever send the updated patch?  I need it to use with the
-rest of the ata-acpi objects patchset for #upstream (actually for -mm).
+Maybe have a lock per bucket, too.
 
-Thanks,
----
-~Randy
+A 1MB hashtable is verging on comical.  How may data are there in total?
+

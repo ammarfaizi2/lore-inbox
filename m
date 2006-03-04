@@ -1,34 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752002AbWCDVl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751692AbWCDVoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752002AbWCDVl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 16:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751906AbWCDVl6
+	id S1751692AbWCDVoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 16:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCDVoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 16:41:58 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:455
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751692AbWCDVl5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 16:41:57 -0500
-Date: Sat, 04 Mar 2006 13:41:44 -0800 (PST)
-Message-Id: <20060304.134144.122314124.davem@davemloft.net>
-To: jengelh@linux01.gwdg.de
-Cc: christopher.leech@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0603041945520.29991@yvahk01.tjqt.qr>
-References: <20060303214036.11908.10499.stgit@gitlost.site>
-	<Pine.LNX.4.61.0603041945520.29991@yvahk01.tjqt.qr>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 4 Mar 2006 16:44:20 -0500
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:30159 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751692AbWCDVoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 16:44:20 -0500
+Message-ID: <440A0A31.6000404@bigpond.net.au>
+Date: Sun, 05 Mar 2006 08:44:17 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Con Kolivas <kernel@kolivas.org>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task throttling	patch
+ 1 of 2
+References: <1140183903.14128.77.camel@homer>	 <1141450187.7703.40.camel@homer>	 <20060303214002.f36ce0b4.rdunlap@xenotime.net>	 <200603041654.59480.kernel@kolivas.org> <1141455048.9482.13.camel@homer>
+In-Reply-To: <1141455048.9482.13.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 4 Mar 2006 21:44:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Date: Sat, 4 Mar 2006 19:46:22 +0100 (MET)
+Mike Galbraith wrote:
+> On Sat, 2006-03-04 at 16:54 +1100, Con Kolivas wrote:
+> 
+>>On Saturday 04 March 2006 16:40, Randy.Dunlap wrote:
+>>
+>>>On Sat, 04 Mar 2006 06:29:47 +0100 Mike Galbraith wrote:
+>>>
+>>>>On Sat, 2006-03-04 at 16:24 +1100, Con Kolivas wrote:
+>>>>
+>>>>>On Saturday 04 March 2006 16:20, Mike Galbraith wrote:
+>>>>>
+>>>>>>On Sat, 2006-03-04 at 13:33 +1100, Peter Williams wrote:
+>>>>>>
+>>>>>>>> include/linux/sched.h |    3 -
+>>>>>>>> kernel/sched.c        |  136
+>>>>>>>>+++++++++++++++++++++++++++++--------------------- 2 files
+>>>>>>>>changed, 82 insertions(+), 57 deletions(-)
+>>>>>>>>
+>>>>>>>>--- linux-2.6.16-rc5-mm2/include/linux/sched.h.org	2006-03-01
+>>>>>>>>15:06:22.000000000 +0100 +++
+>>>>>>>>linux-2.6.16-rc5-mm2/include/linux/sched.h	2006-03-02
+>>>>>>>>08:33:12.000000000 +0100 @@ -720,7 +720,8 @@
+>>>>>>>>
+>>>>>>>> 	unsigned long policy;
+>>>>>>>> 	cpumask_t cpus_allowed;
+>>>>>>>>-	unsigned int time_slice, first_time_slice;
+>>>>>>>>+	int time_slice;
+>>>>>>>
+>>>>>>>Can you guarantee that int is big enough to hold a time slice in
+>>>>>>>nanoseconds on all systems?  I think that you'll need more than 16
+>>>>>>>bits.
+>>>>>>
+>>>>>>Nope, that's a big fat bug.
+>>>>>
+>>>>>Most ints are 32bit anyway, but even a 32 bit unsigned int overflows
+>>>>>with nanoseconds at 4.2 seconds. A signed one at about half that. Our
+>>>>>timeslices are never that large, but then int isn't always 32bit
+>>>>>either.
+>>>>
+>>>>Yup.  I just didn't realize that there were 16 bit integers out there.
+>>>
+>>>LDD 3rd ed. doesn't know about them either.  Same for me.
+>>
+>>Alright I made that up, but it might not be one day :P
+> 
+> 
+> Well Fudgecicles.  Now you guys have gotten me aaaaall confused.  Are
+> there cpus out there (in generic linux land) that have 16 bit integers
+> or not?  16 bit integers existing in a 32 bit cpu OS seems like an alien
+> concept to me, but I'm not a twisted cpu designer... I'll just go with
+> the flow ;-)
 
-> Does this buy the normal standard desktop user anything?
+I'm not sure which is why I asked.  But it seems to be a convention (in 
+the kernel code) to use long or unsigned long when you want to ensure at 
+least 32 bits.  This may be a legacy from the days when there were 
+systems with 16 bit integers but it seems (to me) to be alive and well.
 
-Absolutely, it optimizes end-node performance.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

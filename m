@@ -1,42 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWCDQ4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWCDQ6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWCDQ4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 11:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWCDQ43
+	id S1751341AbWCDQ6p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 11:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbWCDQ6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 11:56:29 -0500
-Received: from stinky.trash.net ([213.144.137.162]:29641 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S932188AbWCDQ43
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 11:56:29 -0500
-Message-ID: <4409C6BA.60803@trash.net>
-Date: Sat, 04 Mar 2006 17:56:26 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Sat, 4 Mar 2006 11:58:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55314 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751341AbWCDQ6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 11:58:44 -0500
+Date: Sat, 4 Mar 2006 17:58:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alessandro Zummo <a.zummo@towertech.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/13] RTC Subsystem, library functions
+Message-ID: <20060304165843.GD9295@stusta.de>
+References: <20060304164247.963655000@towertech.it> <20060304164248.171528000@towertech.it>
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] let NET_CLS_ACT no longer depend on EXPERIMENTAL
-References: <20060304160755.GB9295@stusta.de>
-In-Reply-To: <20060304160755.GB9295@stusta.de>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060304164248.171528000@towertech.it>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> This option should IMHO no longer depend on EXPERIMENTAL.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 12 Feb 2006
+On Sat, Mar 04, 2006 at 05:42:48PM +0100, Alessandro Zummo wrote:
+>...
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-rtc/drivers/rtc/Makefile	2006-02-28 13:16:36.000000000 +0100
+> @@ -0,0 +1,7 @@
+> +#
+> +# Makefile for RTC class/drivers.
+> +#
+> +
+> +ifneq ($(CONFIG_RTC_LIB), n)
+> +obj-y			+= rtc-lib.o
+> +endif
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-rtc/drivers/rtc/Kconfig	2006-02-28 13:16:36.000000000 +0100
+> @@ -0,0 +1,6 @@
+> +#
+> +# RTC class/drivers configuration
+> +#
+> +
+> +config RTC_LIB
+> +	bool
+>...
 
-Yesterday I managed to crash my machine playing around with tc actions
-within minutes. I haven't looked into it yet, but it seems it still
-needs more testing.
+What about
+
+config RTC_LIB
+        tristate
+
+and
+
+obj-$(CONFIG_RTC_LIB)   += rtc-lib.o
+
+?
+
+
+IOW:
+Is there anything besides adding a MODULE_LICENSE("GPL"); required for 
+allowing an rtc-lib module?
+
+
+> --- linux-rtc.orig/drivers/Makefile	2006-02-28 13:16:34.000000000 +0100
+> +++ linux-rtc/drivers/Makefile	2006-02-28 13:16:36.000000000 +0100
+> @@ -56,6 +56,7 @@ obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
+>  obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+>  obj-$(CONFIG_INPUT)		+= input/
+>  obj-$(CONFIG_I2O)		+= message/
+> +obj-y				+= rtc/
+>...
+
+obj-$(CONFIG_RTC_LIB)	+= rtc/
+
+should be possible since RTC_CLASS select's RTC_LIB.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

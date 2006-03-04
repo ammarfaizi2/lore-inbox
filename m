@@ -1,146 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWCDQnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWCDQoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWCDQnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 11:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWCDQnm
+	id S932130AbWCDQoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 11:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWCDQn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 11:43:42 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:44363 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932188AbWCDQnj (ORCPT
+	Sat, 4 Mar 2006 11:43:59 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:36941 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932185AbWCDQnm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 11:43:39 -0500
-Message-Id: <20060304164250.476025000@towertech.it>
+	Sat, 4 Mar 2006 11:43:42 -0500
+Message-Id: <20060304164250.288824000@towertech.it>
 References: <20060304164247.963655000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 04 Mar 2006 17:43:00 +0100
+Date: Sat, 04 Mar 2006 17:42:59 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 13/13] RTC subsystem, RS5C372 driver
-Content-Disposition: inline; filename=rtc-drv-rs5c372.patch
+Subject: [PATCH 12/13] RTC subsystem, PCF8563 driver
+Content-Disposition: inline; filename=rtc-drv-pcf8563.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RTC class aware driver for the Ricoh RS5C372
-chip used, among others, on the Synology DS101.
+An RTC class aware driver for the Philips
+PCF8563 RTC and Epson RTC8564  chips.
+
+This chip is used on the Iomega NAS100D.
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 --
- drivers/rtc/Kconfig       |   10 +
+ drivers/rtc/Kconfig       |   11 +
  drivers/rtc/Makefile      |    1 
- drivers/rtc/rtc-rs5c372.c |  295 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 306 insertions(+)
+ drivers/rtc/rtc-pcf8563.c |  355 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 367 insertions(+)
 
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-04 16:17:18.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-04 16:17:20.000000000 +0100
-@@ -106,6 +106,16 @@ config RTC_DRV_PCF8563
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-04 16:17:17.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-04 16:17:18.000000000 +0100
+@@ -95,6 +95,17 @@ config RTC_DRV_DS1672
  	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-pcf8563.
+ 	  will be called rtc-ds1672.
  
-+config RTC_DRV_RS5C372
-+	tristate "Ricoh RS5C372A/B"
++config RTC_DRV_PCF8563
++	tristate "Philips PCF8563/Epson RTC8564"
 +	depends on RTC_CLASS && I2C
 +	help
 +	  If you say yes here you get support for the
-+	  Ricoh RS5C372A and RS5C372B RTC chips.
++	  Philips PCF8563 RTC chip. The Epson RTC8564
++	  should work as well.
 +
 +	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-rs5c372.
++	  will be called rtc-pcf8563.
 +
  config RTC_DRV_TEST
  	tristate "Test driver/device"
  	depends on RTC_CLASS
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-04 16:17:18.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-04 16:17:20.000000000 +0100
-@@ -16,4 +16,5 @@ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-04 16:17:17.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-04 16:17:18.000000000 +0100
+@@ -15,4 +15,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
  obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
  obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
- obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
-+obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
++obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
  
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-rs5c372.c	2006-03-04 16:17:20.000000000 +0100
-@@ -0,0 +1,295 @@
++++ linux-rtc/drivers/rtc/rtc-pcf8563.c	2006-03-04 16:17:18.000000000 +0100
+@@ -0,0 +1,355 @@
 +/*
-+ * An I2C driver for the Ricoh RS5C372 RTC
++ * An I2C driver for the Philips PCF8563 RTC
++ * Copyright 2005-06 Tower Technologies
 + *
-+ * Copyright (C) 2005 Pavel Mironchik pmironchik@optifacio.net
-+ * Copyright (C) 2006 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ * Maintainers: http://www.nslu2-linux.org/
++ *
++ * based on the other drivers in this same directory.
++ *
++ * http://www.semiconductors.philips.com/acrobat/datasheets/PCF8563-04.pdf
 + *
 + * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
 + */
 +
 +#include <linux/i2c.h>
-+#include <linux/rtc.h>
 +#include <linux/bcd.h>
++#include <linux/rtc.h>
 +
-+#define DRV_VERSION "0.2"
++#define DRV_VERSION "0.4.2"
 +
-+/* Addresses to scan */
-+static unsigned short normal_i2c[] = { /* 0x32,*/ I2C_CLIENT_END };
++/* Addresses to scan: none
++ * This chip cannot be reliably autodetected. An empty eeprom
++ * located at 0x51 will pass the validation routine due to
++ * the way the registers are implemented.
++ */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
 +
-+/* Insmod parameters */
++/* Module parameters */
 +I2C_CLIENT_INSMOD;
 +
-+#define RS5C372_REG_SECS	0
-+#define RS5C372_REG_MINS	1
-+#define RS5C372_REG_HOURS	2
-+#define RS5C372_REG_WDAY	3
-+#define RS5C372_REG_DAY		4
-+#define RS5C372_REG_MONTH	5
-+#define RS5C372_REG_YEAR	6
-+#define RS5C372_REG_TRIM	7
++#define PCF8563_REG_ST1		0x00 /* status */
++#define PCF8563_REG_ST2		0x01
 +
-+#define RS5C372_TRIM_XSL	0x80
-+#define RS5C372_TRIM_MASK	0x7F
++#define PCF8563_REG_SC		0x02 /* datetime */
++#define PCF8563_REG_MN		0x03
++#define PCF8563_REG_HR		0x04
++#define PCF8563_REG_DM		0x05
++#define PCF8563_REG_DW		0x06
++#define PCF8563_REG_MO		0x07
++#define PCF8563_REG_YR		0x08
 +
-+#define RS5C372_REG_BASE	0
++#define PCF8563_REG_AMN		0x09 /* alarm */
++#define PCF8563_REG_AHR		0x0A
++#define PCF8563_REG_ADM		0x0B
++#define PCF8563_REG_ADW		0x0C
 +
-+static int rs5c372_attach(struct i2c_adapter *adapter);
-+static int rs5c372_detach(struct i2c_client *client);
-+static int rs5c372_probe(struct i2c_adapter *adapter, int address, int kind);
++#define PCF8563_REG_CLKO	0x0D /* clock out */
++#define PCF8563_REG_TMRC	0x0E /* timer control */
++#define PCF8563_REG_TMR		0x0F /* timer */
 +
-+static struct i2c_driver rs5c372_driver = {
++#define PCF8563_SC_LV		0x80 /* low voltage */
++#define PCF8563_MO_C		0x80 /* century */
++
++/* Prototypes */
++static int pcf8563_attach(struct i2c_adapter *adapter);
++static int pcf8563_detach(struct i2c_client *client);
++static int pcf8563_probe(struct i2c_adapter *adapter, int address, int kind);
++
++static struct i2c_driver pcf8563_driver = {
 +	.driver		= {
-+		.name	= "rs5c372",
++		.name	= "pcf8563",
 +	},
-+	.attach_adapter	= &rs5c372_attach,
-+	.detach_client	= &rs5c372_detach,
++	.attach_adapter = &pcf8563_attach,
++	.detach_client	= &pcf8563_detach,
 +};
 +
-+static int rs5c372_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++/*
++ * In the routines that deal directly with the pcf8563 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
++ */
++static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 +{
-+	unsigned char buf[7] = { RS5C372_REG_BASE };
++	unsigned char buf[13] = { PCF8563_REG_ST1 };
 +
-+	/* this implements the 1st reading method, according
-+	 * to the datasheet. buf[0] is initialized with
-+	 * address ptr and transmission format register.
-+	 */
 +	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, buf },
-+		{ client->addr, I2C_M_RD, 7, buf },
++		{ client->addr, 0, 1, buf },	/* setup read ptr */
++		{ client->addr, I2C_M_RD, 13, buf },	/* read status + date */
 +	};
 +
++	/* read registers */
 +	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
 +		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
 +		return -EIO;
 +	}
 +
-+	tm->tm_sec = BCD2BIN(buf[RS5C372_REG_SECS] & 0x7f);
-+	tm->tm_min = BCD2BIN(buf[RS5C372_REG_MINS] & 0x7f);
-+	tm->tm_hour = BCD2BIN(buf[RS5C372_REG_HOURS] & 0x3f);
-+	tm->tm_wday = BCD2BIN(buf[RS5C372_REG_WDAY] & 0x07);
-+	tm->tm_mday = BCD2BIN(buf[RS5C372_REG_DAY] & 0x3f);
++	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV)
++		dev_info(&client->dev,
++			"low voltage detected, date/time is not reliable.\n");
 +
-+	/* tm->tm_mon is zero-based */
-+	tm->tm_mon = BCD2BIN(buf[RS5C372_REG_MONTH] & 0x1f) - 1;
++	dev_dbg(&client->dev,
++		"%s: raw data is st1=%02x, st2=%02x, sec=%02x, min=%02x, hr=%02x, "
++		"mday=%02x, wday=%02x, mon=%02x, year=%02x\n",
++		__FUNCTION__,
++		buf[0], buf[1], buf[2], buf[3],
++		buf[4], buf[5], buf[6], buf[7],
++		buf[8]);
 +
-+	/* year is 1900 + tm->tm_year */
-+	tm->tm_year = BCD2BIN(buf[RS5C372_REG_YEAR]) + 100;
++
++	tm->tm_sec = BCD2BIN(buf[PCF8563_REG_SC] & 0x7F);
++	tm->tm_min = BCD2BIN(buf[PCF8563_REG_MN] & 0x7F);
++	tm->tm_hour = BCD2BIN(buf[PCF8563_REG_HR] & 0x3F); /* rtc hr 0-23 */
++	tm->tm_mday = BCD2BIN(buf[PCF8563_REG_DM] & 0x3F);
++	tm->tm_wday = buf[PCF8563_REG_DW] & 0x07;
++	tm->tm_mon = BCD2BIN(buf[PCF8563_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
++	tm->tm_year = BCD2BIN(buf[PCF8563_REG_YR])
++		+ (buf[PCF8563_REG_MO] & PCF8563_MO_C ? 100 : 0);
 +
 +	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
 +		"mday=%d, mon=%d, year=%d, wday=%d\n",
@@ -148,125 +181,153 @@ Signed-off-by: Andrew Morton <akpm@osdl.org>
 +		tm->tm_sec, tm->tm_min, tm->tm_hour,
 +		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
 +
++	/* the clock can give out invalid datetime, but we cannot return
++	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
++	 */
++	if (rtc_valid_tm(tm) < 0)
++		dev_err(&client->dev, "retrieved date/time is not valid.\n");
++
 +	return 0;
 +}
 +
-+static int rs5c372_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
 +{
-+	unsigned char buf[8] = { RS5C372_REG_BASE };
++	int i, err;
++	unsigned char buf[9];
 +
-+	dev_dbg(&client->dev,
-+		"%s: secs=%d, mins=%d, hours=%d ",
++	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
 +		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__, tm->tm_sec, tm->tm_min, tm->tm_hour,
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
 +		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
 +
-+	buf[1] = BIN2BCD(tm->tm_sec);
-+	buf[2] = BIN2BCD(tm->tm_min);
-+	buf[3] = BIN2BCD(tm->tm_hour);
-+	buf[4] = BIN2BCD(tm->tm_wday);
-+	buf[5] = BIN2BCD(tm->tm_mday);
-+	buf[6] = BIN2BCD(tm->tm_mon + 1);
-+	buf[7] = BIN2BCD(tm->tm_year - 100);
++	/* hours, minutes and seconds */
++	buf[PCF8563_REG_SC] = BIN2BCD(tm->tm_sec);
++	buf[PCF8563_REG_MN] = BIN2BCD(tm->tm_min);
++	buf[PCF8563_REG_HR] = BIN2BCD(tm->tm_hour);
 +
-+	if ((i2c_master_send(client, buf, 8)) != 8) {
-+		dev_err(&client->dev, "%s: write error\n", __FUNCTION__);
-+		return -EIO;
-+	}
++	buf[PCF8563_REG_DM] = BIN2BCD(tm->tm_mday);
 +
-+	return 0;
-+}
++	/* month, 1 - 12 */
++	buf[PCF8563_REG_MO] = BIN2BCD(tm->tm_mon + 1);
 +
-+static int rs5c372_get_trim(struct i2c_client *client, int *osc, int *trim)
-+{
-+	unsigned char buf = RS5C372_REG_TRIM;
++	/* year and century */
++	buf[PCF8563_REG_YR] = BIN2BCD(tm->tm_year % 100);
++	if (tm->tm_year / 100)
++		buf[PCF8563_REG_MO] |= PCF8563_MO_C;
 +
-+	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, &buf },
-+		{ client->addr, I2C_M_RD, 1, &buf },
++	buf[PCF8563_REG_DW] = tm->tm_wday & 0x07;
++
++	/* write register's data */
++	for (i = 0; i < 7; i++) {
++		unsigned char data[2] = { PCF8563_REG_SC + i,
++						buf[PCF8563_REG_SC + i] };
++
++		err = i2c_master_send(client, data, sizeof(data));
++		if (err != sizeof(data)) {
++			dev_err(&client->dev,
++				"%s: err=%d addr=%02x, data=%02x\n",
++				__FUNCTION__, err, data[0], data[1]);
++			return -EIO;
++		}
 +	};
 +
-+	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		return -EIO;
-+	}
-+
-+	dev_dbg(&client->dev, "%s: raw trim=%x\n", __FUNCTION__, trim);
-+
-+	if (osc)
-+		*osc = (buf & RS5C372_TRIM_XSL) ? 32000 : 32768;
-+
-+	if (trim)
-+		*trim = buf & RS5C372_TRIM_MASK;
-+
 +	return 0;
 +}
 +
-+static int rs5c372_rtc_read_time(struct device *dev, struct rtc_time *tm)
++struct pcf8563_limit
 +{
-+	return rs5c372_get_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int rs5c372_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return rs5c372_set_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int rs5c372_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	int err, osc, trim;
-+
-+	seq_printf(seq, "24hr\t\t: yes\n");
-+
-+	if ((err = rs5c372_get_trim(to_i2c_client(dev), &osc, &trim)) == 0) {
-+		seq_printf(seq, "%d.%03d KHz\n", osc / 1000, osc % 1000);
-+		seq_printf(seq, "trim\t: %d\n", trim);
-+	}
-+
-+	return 0;
-+}
-+
-+static struct rtc_class_ops rs5c372_rtc_ops = {
-+	.proc		= rs5c372_rtc_proc,
-+	.read_time	= rs5c372_rtc_read_time,
-+	.set_time	= rs5c372_rtc_set_time,
++	unsigned char reg;
++	unsigned char mask;
++	unsigned char min;
++	unsigned char max;
 +};
 +
-+static ssize_t rs5c372_sysfs_show_trim(struct device *dev,
-+				struct device_attribute *attr, char *buf)
++static int pcf8563_validate_client(struct i2c_client *client)
 +{
-+	int trim;
++	int i;
 +
-+	if (rs5c372_get_trim(to_i2c_client(dev), NULL, &trim) == 0)
-+		return sprintf(buf, "0x%2x\n", trim);
++	static const struct pcf8563_limit pattern[] = {
++		/* register, mask, min, max */
++		{ PCF8563_REG_SC,	0x7F,	0,	59	},
++		{ PCF8563_REG_MN,	0x7F,	0,	59	},
++		{ PCF8563_REG_HR,	0x3F,	0,	23	},
++		{ PCF8563_REG_DM,	0x3F,	0,	31	},
++		{ PCF8563_REG_MO,	0x1F,	0,	12	},
++	};
++
++	/* check limits (only registers with bcd values) */
++	for (i = 0; i < ARRAY_SIZE(pattern); i++) {
++		int xfer;
++		unsigned char value;
++		unsigned char buf = pattern[i].reg;
++
++		struct i2c_msg msgs[] = {
++			{ client->addr, 0, 1, &buf },
++			{ client->addr, I2C_M_RD, 1, &buf },
++		};
++
++		xfer = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
++
++		if (xfer != ARRAY_SIZE(msgs)) {
++			dev_err(&client->adapter->dev,
++				"%s: could not read register 0x%02X\n",
++				__FUNCTION__, pattern[i].reg);
++
++			return -EIO;
++		}
++
++		value = BCD2BIN(buf & pattern[i].mask);
++
++		if (value > pattern[i].max ||
++			value < pattern[i].min) {
++			dev_dbg(&client->adapter->dev,
++				"%s: pattern=%d, reg=%x, mask=0x%02x, min=%d, "
++				"max=%d, value=%d, raw=0x%02X\n",
++				__FUNCTION__, i, pattern[i].reg, pattern[i].mask,
++				pattern[i].min, pattern[i].max,
++				value, buf);
++
++			return -ENODEV;
++		}
++	}
 +
 +	return 0;
 +}
-+static DEVICE_ATTR(trim, S_IRUGO, rs5c372_sysfs_show_trim, NULL);
 +
-+static ssize_t rs5c372_sysfs_show_osc(struct device *dev,
-+				struct device_attribute *attr, char *buf)
++static int pcf8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
 +{
-+	int osc;
++	return pcf8563_get_datetime(to_i2c_client(dev), tm);
++}
 +
-+	if (rs5c372_get_trim(to_i2c_client(dev), &osc, NULL) == 0)
-+		return sprintf(buf, "%d.%03d KHz\n", osc / 1000, osc % 1000);
++static int pcf8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return pcf8563_set_datetime(to_i2c_client(dev), tm);
++}
 +
++static int pcf8563_rtc_proc(struct device *dev, struct seq_file *seq)
++{
++	seq_printf(seq, "24hr\t\t: yes\n");
 +	return 0;
 +}
-+static DEVICE_ATTR(osc, S_IRUGO, rs5c372_sysfs_show_osc, NULL);
 +
-+static int rs5c372_attach(struct i2c_adapter *adapter)
++static struct rtc_class_ops pcf8563_rtc_ops = {
++	.proc		= pcf8563_rtc_proc,
++	.read_time	= pcf8563_rtc_read_time,
++	.set_time	= pcf8563_rtc_set_time,
++};
++
++static int pcf8563_attach(struct i2c_adapter *adapter)
 +{
-+	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
-+	return i2c_probe(adapter, &addr_data, rs5c372_probe);
++	return i2c_probe(adapter, &addr_data, pcf8563_probe);
 +}
 +
-+static int rs5c372_probe(struct i2c_adapter *adapter, int address, int kind)
++static int pcf8563_probe(struct i2c_adapter *adapter, int address, int kind)
 +{
-+	int err = 0;
 +	struct i2c_client *client;
 +	struct rtc_device *rtc;
++
++	int err = 0;
 +
 +	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
 +
@@ -280,12 +341,19 @@ Signed-off-by: Andrew Morton <akpm@osdl.org>
 +		goto exit;
 +	}
 +
-+	/* I2C client */
 +	client->addr = address;
-+	client->driver = &rs5c372_driver;
-+	client->adapter = adapter;
++	client->driver = &pcf8563_driver;
++	client->adapter	= adapter;
 +
-+	strlcpy(client->name, rs5c372_driver.driver.name, I2C_NAME_SIZE);
++	strlcpy(client->name, pcf8563_driver.driver.name, I2C_NAME_SIZE);
++
++	/* Verify the chip is really an PCF8563 */
++	if (kind < 0) {
++		if (pcf8563_validate_client(client) < 0) {
++			err = -ENODEV;
++			goto exit_kfree;
++		}
++	}
 +
 +	/* Inform the i2c layer */
 +	if ((err = i2c_attach_client(client)))
@@ -293,8 +361,8 @@ Signed-off-by: Andrew Morton <akpm@osdl.org>
 +
 +	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
 +
-+	rtc = rtc_device_register(rs5c372_driver.driver.name, &client->dev,
-+				&rs5c372_rtc_ops, THIS_MODULE);
++	rtc = rtc_device_register(pcf8563_driver.driver.name, &client->dev,
++				&pcf8563_rtc_ops, THIS_MODULE);
 +
 +	if (IS_ERR(rtc)) {
 +		err = PTR_ERR(rtc);
@@ -304,9 +372,6 @@ Signed-off-by: Andrew Morton <akpm@osdl.org>
 +	}
 +
 +	i2c_set_clientdata(client, rtc);
-+
-+	device_create_file(&client->dev, &dev_attr_trim);
-+	device_create_file(&client->dev, &dev_attr_osc);
 +
 +	return 0;
 +
@@ -320,7 +385,7 @@ Signed-off-by: Andrew Morton <akpm@osdl.org>
 +	return err;
 +}
 +
-+static int rs5c372_detach(struct i2c_client *client)
++static int pcf8563_detach(struct i2c_client *client)
 +{
 +	int err;
 +	struct rtc_device *rtc = i2c_get_clientdata(client);
@@ -338,24 +403,22 @@ Signed-off-by: Andrew Morton <akpm@osdl.org>
 +	return 0;
 +}
 +
-+static __init int rs5c372_init(void)
++static int __init pcf8563_init(void)
 +{
-+	return i2c_add_driver(&rs5c372_driver);
++	return i2c_add_driver(&pcf8563_driver);
 +}
 +
-+static __exit void rs5c372_exit(void)
++static void __exit pcf8563_exit(void)
 +{
-+	i2c_del_driver(&rs5c372_driver);
++	i2c_del_driver(&pcf8563_driver);
 +}
 +
-+module_init(rs5c372_init);
-+module_exit(rs5c372_exit);
-+
-+MODULE_AUTHOR(
-+		"Pavel Mironchik <pmironchik@optifacio.net>, "
-+		"Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("Ricoh RS5C372 RTC driver");
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("Philips PCF8563/Epson RTC8564 RTC driver");
 +MODULE_LICENSE("GPL");
 +MODULE_VERSION(DRV_VERSION);
++
++module_init(pcf8563_init);
++module_exit(pcf8563_exit);
 
 --

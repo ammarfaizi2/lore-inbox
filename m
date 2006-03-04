@@ -1,479 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751939AbWCDT0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751913AbWCDTcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751939AbWCDT0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 14:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWCDT0W
+	id S1751913AbWCDTcc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 14:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751988AbWCDTcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 14:26:22 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:61535 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751939AbWCDT0V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 14:26:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:content-type:date:message-id:mime-version:x-mailer;
-        b=Ug5RAVZXF05tcsSuKXAqn62yJKH+9lemQtsKJLSq/iRgTTGKnOKJiEAVW41UUEYvuMsmDBaBIm5/g6jXKldBQoHEVyx3Cl5+A2tfvvmNspsIb8Gg8aBzq2NqMcPUbfA1VgrYgCzO9/cWPLNO4AH5JqXu+61xA9ZieKStyFFbqSU=
-Subject: BUG Report: Network Communication between "eth0" and "dhcp", only
-	last for 1 minute. On NIC Vendor: Davicom Semiconductor, Inc. Device: 21x4x
-	DEC-Tulip compatible 10/100 Ethernet. NIC Bus Type: PCI
-From: "Joel Bryan T. Juliano" <joelbryan.juliano@gmail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-L8jhi+3VNQprr0JTv4Pv"
-Date: Sun, 05 Mar 2006 03:26:09 +0800
-Message-Id: <1141500369.5874.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+	Sat, 4 Mar 2006 14:32:32 -0500
+Received: from ms-smtp-04-smtplb.tampabay.rr.com ([65.32.5.134]:22269 "EHLO
+	ms-smtp-04.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1751913AbWCDTcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 14:32:31 -0500
+Message-ID: <4409EB37.5050308@cfl.rr.com>
+Date: Sat, 04 Mar 2006 14:32:07 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060213)
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] udf: fix uid/gid options and add uid/gid=ignore and forget
+ options
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-L8jhi+3VNQprr0JTv4Pv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-My DHCP is up and running, I have no problems acquiring IP address
-during boot. I can connect to the internet, but for just under 1 minute.
-
-I had experimented with the commands for reloading the network (ifdown
-eth0, ifup eth0, /etc/init.d/networking restart, dhclient), reacquiring
-DHCP and manually bringing it up, or use static IP to connect to my DSL
-modem.
-My DSL modem is ZyXel Prestige 600 Series DSL Router. I even kill
-running dhclient, dhcbdb (NetworkManager), and NetworkManager. And route
-the gateway manually, but even without DHCP, my connection disconnects
-after 1 minute.
-
-For the first few seconds, I can ping my Gateway/Router/DHCP server,
-until 1 minute elapse, then it disconnects. Then after 1 minute elapse I
-try to run dhclient and it does not work anymore this point.
-
-To bring up the network again, I manually unplugging and re-plugging the
-network cable. Then it works again, for just 1 minute.
-
-I fixed it using mii-diag, with -r option to resets autonegotiation,
-
-This are the --help options
-
-[help]
-Usage: mii-diag [-aDfrRvVw] [-AF <speed+duplex>] [--watch] <interface>.
-
-  This program configures and monitors the transceiver management
-registers
-  for network interfaces. It uses the Media Independent Interface (MII)
-  standard with additional Linux-specific controls to communicate with
-the
-  underlying device driver. The MII registers control and report network
-  link settings and errors. Examples are link speed, duplex,
-capabilities
-  advertised to the link partner, status LED indications and link error
-  counters.
-
-   The common usage is
-      mii-diag eth0
-
-   The default interface is "eth0".
- Frequently used options are
-   -A --advertise <speed|setting>
-   -F --fixed-speed <speed>
- Speed is one of: 100baseT4, 100baseTx, 100baseTx-FD, 100baseTx-HD,
-                  10baseT, 10baseT-FD, 10baseT-HD
-   -s --status Return exit status 2 if there is no link beat.
-
- Less frequently used options are
-   -a --all-interfaces Show the status all interfaces
-              (Not recommended with options that change settings.)
-   -D --debug
-   -g --read-parameters Get driver-specific parameters.
-   -G --set-parameters PARMS Set driver-specific parameters.
-       Parameters are comma separated, missing elements retain existing
-value.
-   -M --msg-level LEVEL Set the driver message bit map.
-   -p --phy ADDR Set the PHY (MII address) to report.
-   -r --restart Restart the link autonegotiation.
-   -R --reset Reset the transceiver.
-   -v --verbose Report each action taken.
-   -V --version Emit version information.
-   -w --watch Continuously monitor the transceiver and report changes.
-
-   This command returns success (zero) if the interface information can
-be
-   read. If the --status option is passed, a zero return means that the
-   interface has link beat.
-[/help]
-
-This is my diagnostic when I am connected, without any parameters
-
-[connected]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/connected]
-
-Connected with -a (all interfaces) option.
-
-[connected-a]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0003 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/connected-a]
-
-connected with -a -D (for debug)
-
-[connected-a-D]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/connected-a-D]
-
-connected with -a -v (for verbose)
-
-[connected-a-v]
-mii-diag.c:v2.11 3/21/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-  Using the new SIOCGMIIPHY value on PHY 1 (BMCR 0x3100).
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
-   This transceiver is capable of 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-
-libmii.c:v2.11 2/28/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
- MII PHY #1 transceiver registers:
-   3100 782d 0181 b840 01e1 41e1 0001 0000
-   0000 0000 0000 0000 0000 0000 0000 0000
-   0000 8018 7800 1000 0001 0002 0000 0000
-   0000 0000 0000 0000 0000 0000 0000 0000.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- Basic mode status register 0x782d ... 782d.
-   Link status: established.
-   Capable of 100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Vendor ID is 00:60:6e:--:--:--, model 4 rev. 0.
-   Vendor/Part: Davicom (unknown type).
- I'm advertising 01e1: 100baseTx-FD 100baseTx 10baseT-FD 10baseT
-   Advertising no additional info pages.
-   IEEE 802.3 CSMA/CD protocol.
- Link partner capability is 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Negotiation completed.
-  Davicom vendor specific registers: 0x0000 0x8018 0x7800.
-[/connected-a-v]
-
-connected with -a -v -D
-
-[connected-a-v-D]
-mii-diag.c:v2.11 3/21/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-  Using the new SIOCGMIIPHY value on PHY 1 (BMCR 0x3100).
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
-   This transceiver is capable of 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-
-libmii.c:v2.11 2/28/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
- MII PHY #1 transceiver registers:
-   3100 782d 0181 b840 01e1 41e1 0001 0000
-   0000 0000 0000 0000 0000 0000 0000 0000
-   0000 8018 7800 1000 0000 0000 0000 0000
-   0000 0000 0000 0000 0000 0000 0000 0000.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- Basic mode status register 0x782d ... 782d.
-   Link status: established.
-   Capable of 100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Vendor ID is 00:60:6e:--:--:--, model 4 rev. 0.
-   Vendor/Part: Davicom (unknown type).
- I'm advertising 01e1: 100baseTx-FD 100baseTx 10baseT-FD 10baseT
-   Advertising no additional info pages.
-   IEEE 802.3 CSMA/CD protocol.
- Link partner capability is 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Negotiation completed.
-  Davicom vendor specific registers: 0x0000 0x8018 0x7800.
-[/connected-a-v-D]
-
-Connected with -s (status)
-
-[connected-s]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0003 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/connected-s]
-
-here is my diagnostic when I get disconnected
-
-without any parameters.
-
-[disconnected]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/disconnected]
-
-with -a
-
-[disconnected-a]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/disconnected-a]
-
-with -a -D
-
-[disconnected-a-D]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/disconnected-a-D]
-
-with -a -v
-
-[disconnected-a-v]
-mii-diag.c:v2.11 3/21/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-  Using the new SIOCGMIIPHY value on PHY 1 (BMCR 0x3100).
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
-   This transceiver is capable of 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-
-libmii.c:v2.11 2/28/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
- MII PHY #1 transceiver registers:
-   3100 782d 0181 b840 01e1 41e1 0001 0000
-   0000 0000 0000 0000 0000 0000 0000 0000
-   0000 8018 7800 1000 0000 0000 0000 0000
-   0000 0000 0000 0000 0000 0000 0000 0000.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- Basic mode status register 0x782d ... 782d.
-   Link status: established.
-   Capable of 100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Vendor ID is 00:60:6e:--:--:--, model 4 rev. 0.
-   Vendor/Part: Davicom (unknown type).
- I'm advertising 01e1: 100baseTx-FD 100baseTx 10baseT-FD 10baseT
-   Advertising no additional info pages.
-   IEEE 802.3 CSMA/CD protocol.
- Link partner capability is 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Negotiation completed.
-  Davicom vendor specific registers: 0x0000 0x8018 0x7800.
-[/disconnected-a-v]
-
-disconnected with -a-v-D
-
-[disconnected-a-v-D]
-mii-diag.c:v2.11 3/21/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-  Using the new SIOCGMIIPHY value on PHY 1 (BMCR 0x3100).
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
-   This transceiver is capable of 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-
-libmii.c:v2.11 2/28/2005 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
- MII PHY #1 transceiver registers:
-   3100 782d 0181 b840 01e1 41e1 0001 0000
-   0000 0000 0000 0000 0000 0000 0000 0000
-   0000 8018 7800 1000 0000 0000 0000 0000
-   0000 0000 0000 0000 0000 0000 0000 0000.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- Basic mode status register 0x782d ... 782d.
-   Link status: established.
-   Capable of 100baseTx-FD 100baseTx 10baseT-FD 10baseT.
-   Able to perform Auto-negotiation, negotiation complete.
- Vendor ID is 00:60:6e:--:--:--, model 4 rev. 0.
-   Vendor/Part: Davicom (unknown type).
- I'm advertising 01e1: 100baseTx-FD 100baseTx 10baseT-FD 10baseT
-   Advertising no additional info pages.
-   IEEE 802.3 CSMA/CD protocol.
- Link partner capability is 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   Negotiation completed.
-  Davicom vendor specific registers: 0x0000 0x8018 0x7800.
-[/disconnected-a-v-D]
-
-disconnected with -s
-
-[disconnected-s]
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-[/disconnected-s]
-
-And now the watch interface
-
-[watch-interfce]
-Using the default interface 'eth0'.
-Basic registers of MII PHY #1: 3100 782d 0181 b840 01e1 41e1 0001 0000.
- The autonegotiated capability is 01e0.
-The autonegotiated media type is 100baseTx-FD.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- You have link beat, and everything is working OK.
- Your link partner advertised 41e1: 100baseTx-FD 100baseTx 10baseT-FD
-10baseT.
-   End of basic transceiver information.
-
-Monitoring the MII transceiver status.
-02:24:10.140 Baseline value of MII BMSR (basic mode status register) is
-782d. --comment --10 seconds -- joelbryan
-02:24:28.500 MII BMSR now 7809: no link, NWay busy, No Jabber (0000).
---comment --unplugged cat45-- joelbryan
-02:24:43.212 MII BMSR now 782d: Good link, NWay done, No Jabber (41e1).
-   New link partner capability is 41e1 0003: 10/100 HD+FD switch.
---comment --replugged cat45-- joelbryan
---comment --still no link because interface being watched-- joelbryan
---comment --still no link after several seconds-- joelbryan
---comment --quitting watch session -- joelbryan
-[/watch-interface]
-
-As a solution, I use -r (Restart the link autonegotiation.) or -R (Reset
-the transceiver.)
-
-here's the difference
-
-[reset-and-restart]
-joelbryan@dhcppc0:~/devs/ethdebug$ sudo mii-diag -r
-Using the default interface 'eth0'.
-Restarting negotiation...
-Basic registers of MII PHY #1: 1000 7809 0181 b840 01e1 0000 0000 0000.
- Basic mode control register 0x1000: Auto-negotiation enabled.
- Basic mode status register 0x7809 ... 7809.
-   Link status: not established.
-   End of basic transceiver information.
-
-joelbryan@dhcppc0:~/devs/ethdebug$ ping -c 5 www.google.com
-PING www.l.google.com (66.102.7.104) 56(84) bytes of data.
-64 bytes from 66.102.7.104: icmp_seq=3D1 ttl=3D243 time=3D226 ms
-64 bytes from 66.102.7.104: icmp_seq=3D2 ttl=3D243 time=3D227 ms
-64 bytes from 66.102.7.104: icmp_seq=3D3 ttl=3D243 time=3D226 ms
-64 bytes from 66.102.7.104: icmp_seq=3D4 ttl=3D243 time=3D226 ms
-64 bytes from 66.102.7.104: icmp_seq=3D5 ttl=3D243 time=3D226 ms
-
---- www.l.google.com ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 4005ms rtt
-min/avg/max/mdev =3D 226.681/226.865/227.254/0.365 ms
-joelbryan@dhcppc0:~/devs/ethdebug$ sudo mii-diag -R
-Using the default interface 'eth0'.
-Resetting the transceiver...
-Basic registers of MII PHY #1: 3100 7809 0181 b840 01e1 0000 0000 0000.
- Basic mode control register 0x3100: Auto-negotiation enabled.
- Basic mode status register 0x7809 ... 7809.
-   Link status: not established.
-   End of basic transceiver information.
-
---comment-- wait for 1 minute to elapse -joelbryan
---comment-- disconnected -joelbryan
-
-joelbryan@dhcppc0:~/devs/ethdebug$ ping -c 5 www.google.com
-PING www.l.google.com (66.102.7.147) 56(84) bytes of data.
-64 bytes from 66.102.7.147: icmp_seq=3D1 ttl=3D243 time=3D226 ms
-64 bytes from 66.102.7.147: icmp_seq=3D2 ttl=3D243 time=3D227 ms
-64 bytes from 66.102.7.147: icmp_seq=3D3 ttl=3D243 time=3D226 ms
-64 bytes from 66.102.7.147: icmp_seq=3D4 ttl=3D243 time=3D226 ms
-64 bytes from 66.102.7.147: icmp_seq=3D5 ttl=3D243 time=3D226 ms
-
---- www.l.google.com ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 4000ms rtt
-min/avg/max/mdev =3D 226.395/226.819/227.141/0.402 ms
-joelbryan@dhcppc0:~/devs/ethdebug$
-
-[/reset-and-restart]
-
-I create a cron job to invoke "/usr/sbin/mii-diag -r" command
-recurrently every 1 minute.
-
-* * * * * /usr/sbin/mii-diag -r >/dev/null 2> &1>
-
-I hope I provide the details for reporting this bug. I believe that it's
-the tulip driver's bug, not my hardware.
-
-And I really want to get this fixed, because my university uses this
-particular NIC card (over 1 thousand computers) And I'm assigned to
-deploy Ubuntu Linux, and waiting for Dapper Drake to finalize. :-D
-
-Good Day sir!
-
---=20
-Joel Bryan T. Juliano <joelbryan.juliano@gmail.com>
-
---=-L8jhi+3VNQprr0JTv4Pv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQBECenR5tf3ds5t46cRAh5VAJ9Z0Rzwj05Vn+EUrWsfGrSe/RXPBwCfbgBq
-J0hi/ooX0cvzanzY8I4BtCA=
-=4YL4
------END PGP SIGNATURE-----
-
---=-L8jhi+3VNQprr0JTv4Pv--
+This patch fixes a bug in udf where it would write uid/gid = 0 to the
+disk for files owned by the id given with the uid=/gid= mount options.
+It also adds 4 new mount options: uid/gid=forget and uid/gid=ignore.
+Without any options the id in core and on disk always match.  Giving
+uid/gid=nnn specifies a default ID to be used in core when the on disk ID
+is -1.  uid/gid=ignore forces the in core ID to allways be used no matter
+what the on disk ID is.  uid/gid=forget forces the on disk ID to always be
+written out as -1.
+
+The use of these options allows you to override ownerships on a disk or
+disable ownwership information from being written, allowing the media
+to be used portably between different computers and possibly different users
+without permissions issues that would require root to correct.
+
+Signed-off-by: Phillip Susi <psusi@cfl.rr.com>
+
+---
+
+fs/udf/inode.c  |   14 ++++++++++----
+fs/udf/super.c  |   18 +++++++++++++++++-
+fs/udf/udf_sb.h |    4 ++++
+3 files changed, 31 insertions(+), 5 deletions(-)
+
+2428c90c6e52a317808896b6cd639199388f7ddd
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index 395e582..2f47bf6 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -1045,10 +1045,12 @@ static void udf_fill_inode(struct inode 
+	}
+
+	inode->i_uid = le32_to_cpu(fe->uid);
+-	if ( inode->i_uid == -1 ) inode->i_uid = UDF_SB(inode->i_sb)->s_uid;
++	if ( inode->i_uid == -1 || UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_UID_IGNORE) )
++	  inode->i_uid = UDF_SB(inode->i_sb)->s_uid;
+
+	inode->i_gid = le32_to_cpu(fe->gid);
+-	if ( inode->i_gid == -1 ) inode->i_gid = UDF_SB(inode->i_sb)->s_gid;
++	if ( inode->i_gid == -1 || UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_GID_IGNORE) )
++	  inode->i_gid = UDF_SB(inode->i_sb)->s_gid;
+
+	inode->i_nlink = le16_to_cpu(fe->fileLinkCount);
+	if (!inode->i_nlink)
+@@ -1335,10 +1337,14 @@ udf_update_inode(struct inode *inode, in
+		return err;
+	}
+
+-	if (inode->i_uid != UDF_SB(inode->i_sb)->s_uid)
++	if (UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_UID_FORGET))
++	  fe->uid = cpu_to_le32(-1);
++	else if (inode->i_uid != UDF_SB(inode->i_sb)->s_uid)
+		fe->uid = cpu_to_le32(inode->i_uid);
+
+-	if (inode->i_gid != UDF_SB(inode->i_sb)->s_gid)
++	if (UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_GID_FORGET))
++	  fe->gid = cpu_to_le32(-1);
++	else if (inode->i_gid != UDF_SB(inode->i_sb)->s_gid)
+		fe->gid = cpu_to_le32(inode->i_gid);
+
+	udfperms =	((inode->i_mode & S_IRWXO)     ) |
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 4a6f49a..368d8f8 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -269,7 +269,7 @@ enum {
+	Opt_gid, Opt_uid, Opt_umask, Opt_session, Opt_lastblock,
+	Opt_anchor, Opt_volume, Opt_partition, Opt_fileset,
+	Opt_rootdir, Opt_utf8, Opt_iocharset,
+-	Opt_err
++	Opt_err, Opt_uforget, Opt_uignore, Opt_gforget, Opt_gignore
+};
+
+static match_table_t tokens = {
+@@ -282,6 +282,10 @@ static match_table_t tokens = {
+	{Opt_adinicb, "adinicb"},
+	{Opt_shortad, "shortad"},
+	{Opt_longad, "longad"},
++	{Opt_uforget, "uid=forget"},
++	{Opt_uignore, "uid=ignore"},
++	{Opt_gforget, "gid=forget"},
++	{Opt_gignore, "gid=ignore"},
+	{Opt_gid, "gid=%u"},
+	{Opt_uid, "uid=%u"},
+	{Opt_umask, "umask=%o"},
+@@ -414,6 +418,18 @@ udf_parse_options(char *options, struct 
+				uopt->flags |= (1 << UDF_FLAG_NLS_MAP);
+				break;
+#endif
++			case Opt_uignore:
++				uopt->flags |= (1 << UDF_FLAG_UID_IGNORE);
++				break;
++			case Opt_uforget:
++				uopt->flags |= (1 << UDF_FLAG_UID_FORGET);
++				break;
++			case Opt_gignore:
++			    uopt->flags |= (1 << UDF_FLAG_GID_IGNORE);
++				break;
++			case Opt_gforget:
++			    uopt->flags |= (1 << UDF_FLAG_GID_FORGET);
++				break;
+			default:
+				printk(KERN_ERR "udf: bad mount option \"%s\" "
+						"or missing value\n", p);
+diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
+index 6636698..110f8d6 100644
+--- a/fs/udf/udf_sb.h
++++ b/fs/udf/udf_sb.h
+@@ -20,6 +20,10 @@
+#define UDF_FLAG_VARCONV		8
+#define UDF_FLAG_NLS_MAP		9
+#define UDF_FLAG_UTF8			10
++#define UDF_FLAG_UID_FORGET     11    /* save -1 for uid to disk */
++#define UDF_FLAG_UID_IGNORE     12    /* use sb uid instead of on disk uid */
++#define UDF_FLAG_GID_FORGET     13
++#define UDF_FLAG_GID_IGNORE     14
+
+#define UDF_PART_FLAG_UNALLOC_BITMAP	0x0001
+#define UDF_PART_FLAG_UNALLOC_TABLE	0x0002
+-- 
+1.1.3
 

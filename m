@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWCDA4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751667AbWCDA5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751448AbWCDA4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 19:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWCDA4N
+	id S1751667AbWCDA5V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 19:57:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWCDA5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 19:56:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49827 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750814AbWCDA4N (ORCPT
+	Fri, 3 Mar 2006 19:57:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14500 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751621AbWCDA5H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 19:56:13 -0500
-Message-ID: <4408E601.1040602@ce.jp.nec.com>
-Date: Fri, 03 Mar 2006 19:57:37 -0500
+	Fri, 3 Mar 2006 19:57:07 -0500
+Message-ID: <4408E638.9060704@ce.jp.nec.com>
+Date: Fri, 03 Mar 2006 19:58:32 -0500
 From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
@@ -19,127 +19,135 @@ To: Alasdair Kergon <agk@redhat.com>, Neil Brown <neilb@suse.de>,
        Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
 CC: Lars Marowsky-Bree <lmb@suse.de>, akpm@osdl.org,
        device-mapper development <dm-devel@redhat.com>
-Subject: [PATCH 2/6] add holders/slaves subdirectory to /sys/block
+Subject: [PATCH 6/6] dm to use bd_claim_by_disk
 References: <4408E33E.1080703@ce.jp.nec.com>
 In-Reply-To: <4408E33E.1080703@ce.jp.nec.com>
 Content-Type: multipart/mixed;
- boundary="------------090806000009080008060701"
+ boundary="------------020807070807010702070805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------090806000009080008060701
+--------------020807070807010702070805
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
 This patch is part of dm/md sysfs dependency tree.
 
-With this patch, "slaves" and "holders" directories are
-created in /sys/block/<disk> and
-"holders" directory is created in /sys/block/<disk>/<partition>.
+Following symlinks are created if dm-0 maps to sda:
+  /sys/block/dm-0/slaves/sda --> /sys/block/sda
+  /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
+
+This patch depends on dm-table-store-md.patch in
+http://www.kernel.org/pub/linux/kernel/people/agk/patches/2.6/editing/
 
 Thanks,
 -- 
 Jun'ichi Nomura, NEC Solutions (America), Inc.
 
---------------090806000009080008060701
+--------------020807070807010702070805
 Content-Type: text/x-patch;
- name="02-add_subdirs.patch"
+ name="06-dm_deptree.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="02-add_subdirs.patch"
+ filename="06-dm_deptree.patch"
 
-Creating "slaves" and "holders" directories in /sys/block/<disk> and
-creating "holders" directory under /sys/block/<disk>/<partition>
+Use bd_claim_by_disk.
+
+Following symlinks are created if dm-0 maps to sda:
+  /sys/block/dm-0/slaves/sda --> /sys/block/sda
+  /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
+
+This patch depends on dm-table-store-md.patch in
+http://www.kernel.org/pub/linux/kernel/people/agk/patches/2.6/editing/
 
 Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
 
- fs/partitions/check.c |   27 +++++++++++++++++++++++++++
- include/linux/genhd.h |    3 +++
- 2 files changed, 30 insertions(+)
+ drivers/md/dm-table.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
 
---- linux-2.6.16-rc5.orig/include/linux/genhd.h	2006-02-27 00:09:35.000000000 -0500
-+++ linux-2.6.16-rc5/include/linux/genhd.h	2006-03-02 10:29:55.000000000 -0500
-@@ -78,6 +78,7 @@ struct hd_struct {
- 	sector_t start_sect;
- 	sector_t nr_sects;
- 	struct kobject kobj;
-+	struct kobject *holder_dir;
- 	unsigned ios[2], sectors[2];	/* READs and WRITEs */
- 	int policy, partno;
- };
-@@ -114,6 +115,8 @@ struct gendisk {
- 	int number;			/* more of the same */
- 	struct device *driverfs_dev;
- 	struct kobject kobj;
-+	struct kobject *holder_dir;
-+	struct kobject *slave_dir;
- 
- 	struct timer_rand_state *random;
- 	int policy;
---- linux-2.6.16-rc5.orig/fs/partitions/check.c	2006-02-27 00:09:35.000000000 -0500
-+++ linux-2.6.16-rc5/fs/partitions/check.c	2006-03-02 10:29:55.000000000 -0500
-@@ -297,6 +297,25 @@ struct kobj_type ktype_part = {
- 	.sysfs_ops	= &part_sysfs_ops,
- };
- 
-+static inline void partition_sysfs_add_subdir(struct hd_struct *p)
-+{
-+	struct kobject *k;
-+
-+	k = kobject_get(&p->kobj);
-+	p->holder_dir = kobject_add_dir(k, "holders");
-+	kobject_put(k);
-+}
-+
-+static inline void disk_sysfs_add_subdirs(struct gendisk *disk)
-+{
-+	struct kobject *k;
-+
-+	k = kobject_get(&disk->kobj);
-+	disk->holder_dir = kobject_add_dir(k, "holders");
-+	disk->slave_dir = kobject_add_dir(k, "slaves");
-+	kobject_put(k);
-+}
-+
- void delete_partition(struct gendisk *disk, int part)
+--- linux-2.6.16-rc5.orig/drivers/md/dm-table.c	2006-03-02 14:55:14.000000000 -0500
++++ linux-2.6.16-rc5/drivers/md/dm-table.c	2006-03-02 14:57:01.000000000 -0500
+@@ -348,7 +348,7 @@ static struct dm_dev *find_device(struct
+ /*
+  * Open a device so we can use it as a map destination.
+  */
+-static int open_dev(struct dm_dev *d, dev_t dev)
++static int open_dev(struct dm_dev *d, dev_t dev, struct gendisk *holder)
  {
- 	struct hd_struct *p = disk->part[part-1];
-@@ -310,6 +329,8 @@ void delete_partition(struct gendisk *di
- 	p->ios[0] = p->ios[1] = 0;
- 	p->sectors[0] = p->sectors[1] = 0;
- 	devfs_remove("%s/part%d", disk->devfs_name, part);
-+	if (p->holder_dir)
-+		kobject_unregister(p->holder_dir);
- 	kobject_unregister(&p->kobj);
- }
- 
-@@ -337,6 +358,7 @@ void add_partition(struct gendisk *disk,
- 	p->kobj.parent = &disk->kobj;
- 	p->kobj.ktype = &ktype_part;
- 	kobject_register(&p->kobj);
-+	partition_sysfs_add_subdir(p);
- 	disk->part[part-1] = p;
- }
- 
-@@ -383,6 +405,7 @@ void register_disk(struct gendisk *disk)
- 	if ((err = kobject_add(&disk->kobj)))
+ 	static char *_claim_ptr = "I belong to device-mapper";
+ 	struct block_device *bdev;
+@@ -361,7 +361,7 @@ static int open_dev(struct dm_dev *d, de
+ 	bdev = open_by_devnum(dev, d->mode);
+ 	if (IS_ERR(bdev))
+ 		return PTR_ERR(bdev);
+-	r = bd_claim(bdev, _claim_ptr);
++	r = bd_claim_by_disk(bdev, _claim_ptr, holder);
+ 	if (r)
+ 		blkdev_put(bdev);
+ 	else
+@@ -372,12 +372,12 @@ static int open_dev(struct dm_dev *d, de
+ /*
+  * Close a device that we've been using.
+  */
+-static void close_dev(struct dm_dev *d)
++static void close_dev(struct dm_dev *d, struct gendisk *holder)
+ {
+ 	if (!d->bdev)
  		return;
- 	disk_sysfs_symlinks(disk);
-+ 	disk_sysfs_add_subdirs(disk);
- 	kobject_uevent(&disk->kobj, KOBJ_ADD);
  
- 	/* No minors to use for partitions */
-@@ -483,6 +506,10 @@ void del_gendisk(struct gendisk *disk)
+-	bd_release(d->bdev);
++	bd_release_from_disk(d->bdev, holder);
+ 	blkdev_put(d->bdev);
+ 	d->bdev = NULL;
+ }
+@@ -398,7 +398,7 @@ static int check_device_area(struct dm_d
+  * careful to leave things as they were if we fail to reopen the
+  * device.
+  */
+-static int upgrade_mode(struct dm_dev *dd, int new_mode)
++static int upgrade_mode(struct dm_dev *dd, int new_mode, struct gendisk *holder)
+ {
+ 	int r;
+ 	struct dm_dev dd_copy;
+@@ -408,9 +408,9 @@ static int upgrade_mode(struct dm_dev *d
  
- 	devfs_remove_disk(disk);
+ 	dd->mode |= new_mode;
+ 	dd->bdev = NULL;
+-	r = open_dev(dd, dev);
++	r = open_dev(dd, dev, holder);
+ 	if (!r)
+-		close_dev(&dd_copy);
++		close_dev(&dd_copy, holder);
+ 	else
+ 		*dd = dd_copy;
  
-+	if (disk->holder_dir)
-+		kobject_unregister(disk->holder_dir);
-+	if (disk->holder_dir)
-+		kobject_unregister(disk->slave_dir);
- 	if (disk->driverfs_dev) {
- 		char *disk_name = make_block_name(disk);
- 		sysfs_remove_link(&disk->kobj, "device");
+@@ -453,7 +453,7 @@ static int __table_get_device(struct dm_
+ 		dd->mode = mode;
+ 		dd->bdev = NULL;
+ 
+-		if ((r = open_dev(dd, dev))) {
++		if ((r = open_dev(dd, dev, dm_disk(t->md)))) {
+ 			kfree(dd);
+ 			return r;
+ 		}
+@@ -464,7 +464,7 @@ static int __table_get_device(struct dm_
+ 		list_add(&dd->list, &t->devices);
+ 
+ 	} else if (dd->mode != (mode | dd->mode)) {
+-		r = upgrade_mode(dd, mode);
++		r = upgrade_mode(dd, mode, dm_disk(t->md));
+ 		if (r)
+ 			return r;
+ 	}
+@@ -539,7 +539,7 @@ int dm_get_device(struct dm_target *ti, 
+ void dm_put_device(struct dm_target *ti, struct dm_dev *dd)
+ {
+ 	if (atomic_dec_and_test(&dd->count)) {
+-		close_dev(dd);
++		close_dev(dd, dm_disk(ti->table->md));
+ 		list_del(&dd->list);
+ 		kfree(dd);
+ 	}
 
---------------090806000009080008060701--
+--------------020807070807010702070805--

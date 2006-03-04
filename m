@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751772AbWCDACk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751765AbWCDAHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751772AbWCDACk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Mar 2006 19:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWCDACk
+	id S1751765AbWCDAHt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Mar 2006 19:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWCDAHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Mar 2006 19:02:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46269 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751772AbWCDACj (ORCPT
+	Fri, 3 Mar 2006 19:07:49 -0500
+Received: from cantor.suse.de ([195.135.220.2]:17842 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751765AbWCDAHs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Mar 2006 19:02:39 -0500
-Date: Fri, 3 Mar 2006 16:03:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: dthompson@lnxi.com, arjan@infradead.org,
-       bluesmoke-devel@lists.sourceforge.net, hch@lst.de,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/15] EDAC: switch to kthread_ API
-Message-Id: <20060303160358.57197d23.akpm@osdl.org>
-In-Reply-To: <200603031520.29855.dsp@llnl.gov>
-References: <4408050A0200003600000CC8@zoot.lnxi.com>
-	<200603031520.29855.dsp@llnl.gov>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Mar 2006 19:07:48 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Subject: Re: AMD64 X2 lost ticks on PM timer
+Date: Sat, 4 Mar 2006 01:07:26 +0100
+User-Agent: KMail/1.8
+Cc: Jeff Garzik <jeff@garzik.org>, Lee Revell <rlrevell@joe-job.com>,
+       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>
+References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com>
+In-Reply-To: <20060303234330.GA14401@ti64.telemetry-investments.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603040107.27639.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Peterson <dsp@llnl.gov> wrote:
->
-> On Friday 03 March 2006 07:57, Doug Thompson wrote:
-> > Currently the timer event code performs two operations:
-> >
-> >   1) ECC polling and
-> >   2) PCI parity polling.
-> >
-> > I want to split those from each other, so each can have a seperate cycle
-> > rate (also adding a sysfs cycle control for the PCI parity timing in
-> > addition to the existing ECC cycle control).
-> 
-> Yes, this sounds like a good idea.  Using schedule_delayed_work() to
-> independently implement each polling cycle, we should be able to get
-> rid of the EDAC kernel thread.
+On Saturday 04 March 2006 00:43, Bill Rugolsky Jr. wrote:
 
-That would suit.  One needs to be quite careful about killing everything
-off in the close->rmmod side of things, especially if the delayed work
-handler re-arms itself.  We have a pending (and possibly executing) timer
-handler to worry about, then a pending (and possibly executing) keventd
-handler to worry about.
+> I built 2.6.16-rc5-git6 yesterday, and it still suffers from the same
+> issue.
 
-We've got this cancel_rearming_delayed_work() thing - I was never terribly
-happy about it, but I think it works.
+FWIW i looked over sata_nv and libata-{core,scsi} and I couldn't find
+any obviously unmatched irqsave/irqrestore. So it would need instrumentation.
 
+In theory it could be also hardware i suppose.
+
+-Andi

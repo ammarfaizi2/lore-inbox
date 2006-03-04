@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWCDSFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWCDS1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWCDSFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 13:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWCDSFZ
+	id S932283AbWCDS1R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 13:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWCDS1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 13:05:25 -0500
-Received: from mx0.towertech.it ([213.215.222.73]:48786 "HELO mx0.towertech.it")
-	by vger.kernel.org with SMTP id S932282AbWCDSFY (ORCPT
+	Sat, 4 Mar 2006 13:27:16 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:7587 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932283AbWCDS1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 13:05:24 -0500
-Date: Sat, 4 Mar 2006 19:04:52 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Richard Knutsson <ricknu-0@student.ltu.se>,
-       Benoit Boissinot <benoit.boissinot@ens-lyon.fr>, p_gortmaker@yahoo.com
-Subject: Re: [PATCH 04/13] RTC subsystem, class
-Message-ID: <20060304190452.04c5d646@inspiron>
-In-Reply-To: <20060304175349.GL9295@stusta.de>
-References: <20060304164247.963655000@towertech.it>
-	<20060304164248.740384000@towertech.it>
-	<20060304170810.GE9295@stusta.de>
-	<20060304184611.784fd939@inspiron>
-	<20060304175349.GL9295@stusta.de>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Mar 2006 13:27:16 -0500
+Date: Sat, 4 Mar 2006 19:27:03 +0100 (MET)
+Message-Id: <200603041827.k24IR3OR018829@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [patch 2.4.33-pre2] preliminary gcc-4.1 fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Mar 2006 18:53:49 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+Preliminary patches allowing gcc-4.1 to compile the 2.4 kernel
+are now available:
 
-> > > Two entries for the same thing only cause confusion.
-> > 
-> >  It is not the same thing. Paul's one is the standard rtc
-> >  driver, which has not yet replaced by the rtc class.
-> 
-> My wording wasn't good:
-> Two entries that sound as if they were for the same thing only cause 
-> confusion.
-> 
-> The problem is that MAINTAINERS is written for people sending patches or 
-> bug reports and the difference between these two entries is very subtle.
+<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc4-fixes-v14-2.4.33-pre2>
+Baseline patches for gcc-4.0.2, known to work on i386, x86_64, and ppc32.
 
- Well.. me and Paul will eventually forward some bug reports :)
+<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc41-fixes-v1-2.4.33-pre2>
+Add-on patches (on top of the gcc-4.0.2 patches) for gcc-4.1.0.
 
--- 
+The status of the gcc-4.1.0 patches right now is that:
+- gcc-4.1.0 is known to work on i386 and x86_64. i386 worked as-is,
+  but x86_64 needed -fno-strict-aliasing while compiling
+  arch/x86_64/boot/compressed/misc.c in order to avoid massive
+  memory corruption at boot. The bulk of the patches just silence
+  tons of warnings.
+- gcc-4.1.0 is known to NOT work on ppc32. The kernel compiles
+  cleanly and boots OK, but running a big 'patch' job (e.g. to
+  prepare a 2.6.16-rc5 source tree) causes a repeatable oops in
+  shrink_dcache_parent().
 
- Best regards,
+gcc-4.1.0 does generate noticeably smaller kernels than gcc-4.0.2.
 
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
-
+/Mikael

@@ -1,74 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWCDGf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWCDGtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWCDGf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 01:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWCDGf0
+	id S1751399AbWCDGtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 01:49:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWCDGtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 01:35:26 -0500
-Received: from mail.goelsen.net ([195.202.170.130]:3223 "EHLO
-	power2u.goelsen.net") by vger.kernel.org with ESMTP
-	id S1751390AbWCDGfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 01:35:25 -0500
-From: Michael Monnerie <m.monnerie@zmi.at>
-Organization: it-management http://zmi.at
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-Date: Sat, 4 Mar 2006 07:34:41 +0100
-User-Agent: KMail/1.9.1
-Cc: Andi Kleen <ak@suse.de>, Allen Martin <AMartin@nvidia.com>,
-       Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-References: <DBFABB80F7FD3143A911F9E6CFD477B00E48CCB0@hqemmail02.nvidia.com> <200603032312.13369.ak@suse.de> <4408C1E1.7090006@pobox.com>
-In-Reply-To: <4408C1E1.7090006@pobox.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3436171.g4Jq9bMaOy";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 4 Mar 2006 01:49:03 -0500
+Received: from mail.gmx.net ([213.165.64.20]:46788 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751399AbWCDGtC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 01:49:02 -0500
+X-Authenticated: #14349625
+Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task throttling
+	patch 1 of 2
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, pwil3058@bigpond.net.au,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       kenneth.w.chen@intel.com, akpm@osdl.org
+In-Reply-To: <200603041654.59480.kernel@kolivas.org>
+References: <1140183903.14128.77.camel@homer>
+	 <1141450187.7703.40.camel@homer>
+	 <20060303214002.f36ce0b4.rdunlap@xenotime.net>
+	 <200603041654.59480.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Sat, 04 Mar 2006 07:50:48 +0100
+Message-Id: <1141455048.9482.13.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603040734.46091@zmi.at>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3436171.g4Jq9bMaOy
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sat, 2006-03-04 at 16:54 +1100, Con Kolivas wrote:
+> On Saturday 04 March 2006 16:40, Randy.Dunlap wrote:
+> > On Sat, 04 Mar 2006 06:29:47 +0100 Mike Galbraith wrote:
+> > > On Sat, 2006-03-04 at 16:24 +1100, Con Kolivas wrote:
+> > > > On Saturday 04 March 2006 16:20, Mike Galbraith wrote:
+> > > > > On Sat, 2006-03-04 at 13:33 +1100, Peter Williams wrote:
+> > > > > > >  include/linux/sched.h |    3 -
+> > > > > > >  kernel/sched.c        |  136
+> > > > > > > +++++++++++++++++++++++++++++--------------------- 2 files
+> > > > > > > changed, 82 insertions(+), 57 deletions(-)
+> > > > > > >
+> > > > > > > --- linux-2.6.16-rc5-mm2/include/linux/sched.h.org	2006-03-01
+> > > > > > > 15:06:22.000000000 +0100 +++
+> > > > > > > linux-2.6.16-rc5-mm2/include/linux/sched.h	2006-03-02
+> > > > > > > 08:33:12.000000000 +0100 @@ -720,7 +720,8 @@
+> > > > > > >
+> > > > > > >  	unsigned long policy;
+> > > > > > >  	cpumask_t cpus_allowed;
+> > > > > > > -	unsigned int time_slice, first_time_slice;
+> > > > > > > +	int time_slice;
+> > > > > >
+> > > > > > Can you guarantee that int is big enough to hold a time slice in
+> > > > > > nanoseconds on all systems?  I think that you'll need more than 16
+> > > > > > bits.
+> > > > >
+> > > > > Nope, that's a big fat bug.
+> > > >
+> > > > Most ints are 32bit anyway, but even a 32 bit unsigned int overflows
+> > > > with nanoseconds at 4.2 seconds. A signed one at about half that. Our
+> > > > timeslices are never that large, but then int isn't always 32bit
+> > > > either.
+> > >
+> > > Yup.  I just didn't realize that there were 16 bit integers out there.
+> >
+> > LDD 3rd ed. doesn't know about them either.  Same for me.
+> 
+> Alright I made that up, but it might not be one day :P
 
-On Freitag, 3. M=E4rz 2006 23:23 Jeff Garzik wrote:
-> I'll happen but not soon. =A0Motivation is low at NV and here as well,
-> since newer NV is AHCI. =A0The code in question, "NV ADMA", is
-> essentially legacy at this point -- though I certainly acknowledge
-> the large current installed base. =A0Just being honest about the
-> current state of things...
+Well Fudgecicles.  Now you guys have gotten me aaaaall confused.  Are
+there cpus out there (in generic linux land) that have 16 bit integers
+or not?  16 bit integers existing in a 32 bit cpu OS seems like an alien
+concept to me, but I'm not a twisted cpu designer... I'll just go with
+the flow ;-)
 
-I'd like to raise motivation a lot because most MB sold here (central=20
-Europe) are Nforce4 with Athlon64x2 at the moment. It would be nice=20
-from vendors if they support OSS developers more, as it's their=20
-interest to have good drivers.
+	-Mike
 
-=46or the moment, I'd recommend *against* using Nforce4 because of that=20
-problems we had (and that caused us a lot of unpaid repairing work).=20
-Hopefully NV does something quick to resolve the remaining issues,=20
-especially as the 4GB "border" is hit more and more often.
-
-mfg zmi
-=2D-=20
-// Michael Monnerie, Ing.BSc  ---   it-management Michael Monnerie
-// http://zmi.at           Tel: 0660/4156531          Linux 2.6.11
-// PGP Key:   "lynx -source http://zmi.at/zmi2.asc | gpg --import"
-// Fingerprint: EB93 ED8A 1DCD BB6C F952  F7F4 3911 B933 7054 5879
-// Keyserver: www.keyserver.net                 Key-ID: 0x70545879
-
---nextPart3436171.g4Jq9bMaOy
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBECTUGORG5M3BUWHkRAvP9AJ4w/p3LjmsPOf3Eic6nZzgGP87NiwCZAWl0
-jkPCoTDYWdpdjnHC/ugdVt8=
-=CDn4
------END PGP SIGNATURE-----
-
---nextPart3436171.g4Jq9bMaOy--

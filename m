@@ -1,78 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751843AbWCDMPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751830AbWCDMPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751843AbWCDMPk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 07:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWCDMPY
+	id S1751830AbWCDMPl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 07:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751856AbWCDMPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 07:15:24 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24592 "HELO
+	Sat, 4 Mar 2006 07:15:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25104 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751843AbWCDMO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 07:14:58 -0500
-Date: Sat, 4 Mar 2006 13:14:57 +0100
+	id S1751849AbWCDMPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 07:15:02 -0500
+Date: Sat, 4 Mar 2006 13:15:02 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC: -mm patch] fs/locks.c: make posix_locks_deadlock() static
-Message-ID: <20060304121457.GS9295@stusta.de>
-References: <20060303045651.1f3b55ec.akpm@osdl.org>
+Subject: [2.6 patch] kernel/time.c: remove unused pps_* variables
+Message-ID: <20060304121502.GT9295@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060303045651.1f3b55ec.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 04:56:51AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.16-rc5-mm1:
->...
->  git-nfs.patch
->...
->  git trees
->...
-
-
-We can now make posix_locks_deadlock() static.
+AFAIR there is a patch floating around that might use these variables, 
+but this patch is still unmerged and my patch can easily be undone.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/locks.c         |    4 +---
- include/linux/fs.h |    1 -
- 2 files changed, 1 insertion(+), 4 deletions(-)
+This patch was already sent on:
+- 18 Feb 2006
 
---- linux-2.6.16-rc5-mm2-full/include/linux/fs.h.old	2006-03-03 18:15:14.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/include/linux/fs.h	2006-03-03 18:15:20.000000000 +0100
-@@ -761,7 +761,6 @@
- extern int posix_lock_file(struct file *, struct file_lock *);
- extern int posix_lock_file_wait(struct file *, struct file_lock *);
- extern int posix_unblock_lock(struct file *, struct file_lock *);
--extern int posix_locks_deadlock(struct file_lock *, struct file_lock *);
- extern int flock_lock_file_wait(struct file *filp, struct file_lock *fl);
- extern int __break_lease(struct inode *inode, unsigned int flags);
- extern void lease_get_mtime(struct inode *, struct timespec *time);
---- linux-2.6.16-rc5-mm2-full/fs/locks.c.old	2006-03-03 18:15:31.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/fs/locks.c	2006-03-03 18:15:54.000000000 +0100
-@@ -715,7 +715,7 @@
-  * from a broken NFS client. But broken NFS clients have a lot more to
-  * worry about than proper deadlock detection anyway... --okir
-  */
--int posix_locks_deadlock(struct file_lock *caller_fl,
-+static int posix_locks_deadlock(struct file_lock *caller_fl,
- 				struct file_lock *block_fl)
- {
- 	struct list_head *tmp;
-@@ -734,8 +734,6 @@
- 	return 0;
+ include/linux/timex.h |    8 --------
+ kernel/time.c         |   23 ++++++-----------------
+ 2 files changed, 6 insertions(+), 25 deletions(-)
+
+--- linux-2.6.16-rc3-mm1-full/include/linux/timex.h.old	2006-02-18 02:37:51.000000000 +0100
++++ linux-2.6.16-rc3-mm1-full/include/linux/timex.h	2006-02-18 02:40:11.000000000 +0100
+@@ -247,19 +247,11 @@
+ extern long time_next_adjust;	/* Value for time_adjust at next tick */
+ 
+ /* interface variables pps->timer interrupt */
+-extern long pps_offset;		/* pps time offset (us) */
+ extern long pps_jitter;		/* time dispersion (jitter) (us) */
+ extern long pps_freq;		/* frequency offset (scaled ppm) */
+ extern long pps_stabil;		/* frequency dispersion (scaled ppm) */
+ extern long pps_valid;		/* pps signal watchdog counter */
+ 
+-/* interface variables pps->adjtimex */
+-extern int pps_shift;		/* interval duration (s) (shift) */
+-extern long pps_jitcnt;		/* jitter limit exceeded */
+-extern long pps_calcnt;		/* calibration intervals */
+-extern long pps_errcnt;		/* calibration errors */
+-extern long pps_stbcnt;		/* stability limit exceeded */
+-
+ extern seqlock_t ntp_lock;
+ 
+ /**
+--- linux-2.6.16-rc3-mm1-full/kernel/time.c.old	2006-02-18 02:38:29.000000000 +0100
++++ linux-2.6.16-rc3-mm1-full/kernel/time.c	2006-02-18 02:41:10.000000000 +0100
+@@ -216,7 +216,6 @@
+ 	return do_sys_settimeofday(tv ? &new_ts : NULL, tz ? &new_tz : NULL);
  }
  
--EXPORT_SYMBOL(posix_locks_deadlock);
+-long pps_offset;		/* pps time offset (us) */
+ long pps_jitter = MAXTIME;	/* time dispersion (jitter) (us) */
+ 
+ long pps_freq;			/* frequency offset (scaled ppm) */
+@@ -224,16 +223,6 @@
+ 
+ long pps_valid = PPS_VALID;	/* pps signal watchdog counter */
+ 
+-int pps_shift = PPS_SHIFT;	/* interval duration (s) (shift) */
 -
- /* Try to create a FLOCK lock on filp. We always insert new FLOCK locks
-  * at the head of the list, but that's secret knowledge known only to
-  * flock_lock_file and posix_lock_file.
-
+-long pps_jitcnt;		/* jitter limit exceeded */
+-long pps_calcnt;		/* calibration intervals */
+-long pps_errcnt;		/* calibration errors */
+-long pps_stbcnt;		/* stability limit exceeded */
+-
+-/* hook for a loadable hardpps kernel module */
+-void (*hardpps_ptr)(struct timeval *);
+-
+ /* we call this to notify the arch when the clock is being
+  * controlled.  If no such arch routine, do nothing.
+  */
+@@ -331,7 +320,7 @@
+ 		else if ( time_status & (STA_PLL | STA_PPSTIME) ) {
+ 		    ltemp = (time_status & (STA_PPSTIME | STA_PPSSIGNAL)) ==
+ 		            (STA_PPSTIME | STA_PPSSIGNAL) ?
+-		            pps_offset : txc->offset;
++		            0 : txc->offset;
+ 
+ 		    /*
+ 		     * Scale the phase adjustment and
+@@ -406,12 +395,12 @@
+ 	txc->tick	   = tick_usec;
+ 	txc->ppsfreq	   = pps_freq;
+ 	txc->jitter	   = pps_jitter >> PPS_AVG;
+-	txc->shift	   = pps_shift;
++	txc->shift	   = 0;
+ 	txc->stabil	   = pps_stabil;
+-	txc->jitcnt	   = pps_jitcnt;
+-	txc->calcnt	   = pps_calcnt;
+-	txc->errcnt	   = pps_errcnt;
+-	txc->stbcnt	   = pps_stbcnt;
++	txc->jitcnt	   = 0;
++	txc->calcnt	   = 0;
++	txc->errcnt	   = 0;
++	txc->stbcnt	   = 0;
+ 	write_sequnlock(&ntp_lock);
+ 	write_sequnlock_irq(&xtime_lock);
+ 	do_gettimeofday(&txc->time);

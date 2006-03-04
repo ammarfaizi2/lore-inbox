@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752058AbWCDVSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWCDVhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752058AbWCDVSx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 16:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWCDVSw
+	id S1751544AbWCDVhw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 16:37:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751664AbWCDVhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 16:18:52 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:20086 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752058AbWCDVSw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 16:18:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=H19MPmpO71SoohI22Xnxxrx80GFPaw7uW2pyKgucigt7J5EjyLOoOPQu84BvObm50wpHC5RkB0NTqYN4bdy+qe2q7gznWSXoug2zcEzfsT0vYtulBg2uDK+LnojIHO3szxziUsMDuMXs2BfJK2RjiJBtSwumGvL/pLX27JvQDsw=
-Date: Sun, 5 Mar 2006 00:18:47 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] synclink: s/aviod/avoid/
-Message-ID: <20060304211847.GA8332@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sat, 4 Mar 2006 16:37:52 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:27752 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751543AbWCDVhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 16:37:52 -0500
+Message-ID: <440A08AD.7050101@bigpond.net.au>
+Date: Sun, 05 Mar 2006 08:37:49 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: lkml <linux-kernel@vger.kernel.org>, mingo@elte.hu, kernel@kolivas.org,
+       nickpiggin@yahoo.com.au, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task throttling	patch
+ 1 of 2
+References: <1140183903.14128.77.camel@homer>	 <1140812981.8713.35.camel@homer>  <20060224141505.41b1a627.akpm@osdl.org>	 <1140834190.7641.25.camel@homer> <1141382609.8768.57.camel@homer>	 <4408D823.50407@bigpond.net.au> <1141448075.7703.11.camel@homer>
+In-Reply-To: <1141448075.7703.11.camel@homer>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 4 Mar 2006 21:37:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Mike Galbraith wrote:
+> On Sat, 2006-03-04 at 10:58 +1100, Peter Williams wrote:
+> 
+> 
+>>If you're going to manage the time slice in nanoseconds why not do it 
+>>properly?  I presume you've held back a bit in case you break something?
+>>
+> 
+> 
+> Do you mean the < NS_TICK thing?  The spare change doesn't go away.
 
- drivers/char/synclink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Not exactly.  I mean "Why calculate time slice in jiffies and convert to 
+nanoseconds?  Why not just do the calculation in nanoseconds?"
 
---- a/drivers/char/synclink.c
-+++ b/drivers/char/synclink.c
-@@ -6025,7 +6025,7 @@ static void usc_set_async_mode( struct m
- 	 * <15..8>	?		RxFIFO IRQ Request Level
- 	 *
- 	 * Note: For async mode the receive FIFO level must be set
--	 * to 0 to aviod the situation where the FIFO contains fewer bytes
-+	 * to 0 to avoid the situation where the FIFO contains fewer bytes
- 	 * than the trigger level and no more data is expected.
- 	 *
- 	 * <7>		0		Exited Hunt IA (Interrupt Arm)
+> 
+> 
+>>If it helps, the smpnice balancing code's use of static_prio_timeslice()
+>>doesn't really care what units it's return value is in as long as 
+>>DEF_TIMESLICE is in the same units and contains the size of a time slice 
+>>allocated to a nice==0 non RT task.
+> 
+> 
+> Ok, thanks.  I wanted to make very certain I couldn't screw it up.
+> Still, it's simpler to just leave it in ticks.
+> 
+> 	-Mike
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

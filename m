@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752024AbWCDUhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWCDVU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752024AbWCDUhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 15:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752015AbWCDUhJ
+	id S932286AbWCDVU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 16:20:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWCDVU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 15:37:09 -0500
-Received: from stinky.trash.net ([213.144.137.162]:5597 "EHLO stinky.trash.net")
-	by vger.kernel.org with ESMTP id S1752024AbWCDUhH (ORCPT
+	Sat, 4 Mar 2006 16:20:29 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:4357 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1752062AbWCDVU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 15:37:07 -0500
-Message-ID: <4409FA66.7010802@trash.net>
-Date: Sat, 04 Mar 2006 21:36:54 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: hadi@cyberus.ca
-CC: Adrian Bunk <bunk@stusta.de>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] let NET_CLS_ACT no longer depend on	EXPERIMENTAL
-References: <20060304160755.GB9295@stusta.de>  <4409C6BA.60803@trash.net> <1141498341.5185.32.camel@localhost.localdomain>
-In-Reply-To: <1141498341.5185.32.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Mar 2006 16:20:28 -0500
+Date: Sat, 4 Mar 2006 22:20:15 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: psmith@gnu.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild: Problem with latest GNU make rc
+Message-ID: <20060304212015.GA1539@mars.ravnborg.org>
+References: <17417.42927.851653.114068@lemming.engeast.baynetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17417.42927.851653.114068@lemming.engeast.baynetworks.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
-> On Sat, 2006-04-03 at 17:56 +0100, Patrick McHardy wrote:
+On Sat, Mar 04, 2006 at 09:43:59AM -0500, psmith@gnu.org wrote:
+> Hi all;
 > 
->>Adrian Bunk wrote:
->>
->>>This option should IMHO no longer depend on EXPERIMENTAL.
->>>
->>
->>Yesterday I managed to crash my machine playing around with tc actions
->>within minutes. I haven't looked into it yet, but it seems it still
->>needs more testing.
+> An incompatibility between kbuild and the latest GNU make 3.81 release
+> candidate has been uncovered by Art Haas.  He reports that when building
+> current kernels with the latest GNU make rc, everything will always be
+> rebuilt every time.
 > 
 > 
-> Simple: Fix the bug and submit a patch. If you cant find the cause post
-> what you are doing. 
+> I've done an analysis of the issue and reported my findings on
+> Wednesday, 1 March to the kbuild-devel mailing list (which, according to
+> its archives, hasn't had any messages go through since 31 Jan--is anyone
+> approving them anymore?) and to the bug-make mailing list (but a
+> corruption in lists.gnu.org's TMDA database last week has caused a huge
+> backlog which is only now being cleared).
 
-I'll fix it.
+mec modrate this list and he does so very timely - on leave I guess.
 
-> What is the metric for going from experimental to non-experimental?
-> I surely hope it doesnt come to some irrational reasoning like
-> "Patrick found a bug"[1]. 
+> For full details you can find an archived copy of my message here:
+> 
+>   http://lists.gnu.org/archive/html/bug-make/2006-03/msg00003.html
+> 
+> 
+> The problem is that the new behavior is (I believe) correct.  If I'm
+> right then this leaves us with a bit of a tricky situation to manage.
+> 
+> If anyone has an opinion or would like to discuss the situation, please
+> follow up to my email on bug-make@gnu.org (I would prefer to hold the
+> discussion there since I don't subscribe to linux-kernel).
+I have the original somewhere - and I will bring the discussion on lkml.
+lkml users as a general rule keeps cc:'s
 
-I think a sane metric is "opinion of people who know the code". But
-I don't care much, I don't think many people care whether something
-is maked experimental or not.
-
-> [1]If you used half of that logic on netfilter it would still be
-> experimental or rather should be demoted to experimental.
-
-I'll take that as a compliment :)
+	Sam

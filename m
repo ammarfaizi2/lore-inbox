@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWCDRIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751879AbWCDRJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751871AbWCDRIM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 12:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWCDRIM
+	id S1751879AbWCDRJy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 12:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWCDRJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 12:08:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64018 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751871AbWCDRIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 12:08:11 -0500
-Date: Sat, 4 Mar 2006 18:08:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alessandro Zummo <a.zummo@towertech.it>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Richard Knutsson <ricknu-0@student.ltu.se>,
-       Benoit Boissinot <benoit.boissinot@ens-lyon.fr>, p_gortmaker@yahoo.com
-Subject: Re: [PATCH 04/13] RTC subsystem, class
-Message-ID: <20060304170810.GE9295@stusta.de>
-References: <20060304164247.963655000@towertech.it> <20060304164248.740384000@towertech.it>
-MIME-Version: 1.0
+	Sat, 4 Mar 2006 12:09:54 -0500
+Received: from nproxy.gmail.com ([64.233.182.195]:8130 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751879AbWCDRJx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 12:09:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=DNVFwU5um2gBgqbU/qXIQMvK8uNBiN+uA5OOqjOCCnSp7QGZwuQzlCaPvoqk/sLjMeam48BY1OyL57T52DhArNoU9RVgKVLhd/C836Ws5oZxxbINGrmUvPAE1aleRJ5DRtYkDfxyFZ36a+DgMHCc51tiYoC0zSv3ZcyGn+9+ldE=
+Date: Sat, 4 Mar 2006 20:09:09 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Change dash2underscore() return value to char
+Message-ID: <20060304170909.GB22058@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060304164248.740384000@towertech.it>
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 04, 2006 at 05:42:51PM +0100, Alessandro Zummo wrote:
->...
-> --- linux-rtc.orig/MAINTAINERS	2006-03-04 17:34:51.000000000 +0100
-> +++ linux-rtc/MAINTAINERS	2006-03-04 17:34:54.000000000 +0100
-> @@ -2193,6 +2193,12 @@ M:	p_gortmaker@yahoo.com
->  L:	linux-kernel@vger.kernel.org
->  S:	Maintained
->  
-> +REAL TIME CLOCK (RTC) SUBSYSTEM
-> +P:	Alessandro Zummo
-> +M:	a.zummo@towertech.it
-> +L:	linux-kernel@vger.kernel.org
-> +S:	Maintained
-> +
->...
+From: Eric Sesterhenn <snakebyte@gmx.de>
 
-The entry above the one you are adding is:
+Since dash2underscore() just operates and returns chars,
+I guess its safe to change the return value to a char.
+With my .config, this reduces its size by 5 bytes.
 
-REAL TIME CLOCK DRIVER
-P:      Paul Gortmaker
-M:      p_gortmaker@yahoo.com
-L:      linux-kernel@vger.kernel.org
-S:      Maintained
+   text    data     bss     dec     hex filename
+   4155     152       0    4307    10d3 params.o.orig
+   4150     152       0    4302    10ce params.o
 
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-Two entries for the same thing only cause confusion.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- a/kernel/params.c
++++ b/kernel/params.c
+@@ -31,7 +31,7 @@
+ #define DEBUGP(fmt, a...)
+ #endif
+ 
+-static inline int dash2underscore(char c)
++static inline char dash2underscore(char c)
+ {
+ 	if (c == '-')
+ 		return '_';
 

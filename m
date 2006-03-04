@@ -1,44 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWCDWWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWCDWXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWCDWWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 17:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWCDWWQ
+	id S932256AbWCDWXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 17:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWCDWXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 17:22:16 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15064
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932243AbWCDWWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 17:22:15 -0500
-Date: Sat, 04 Mar 2006 14:22:02 -0800 (PST)
-Message-Id: <20060304.142202.32211471.davem@davemloft.net>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com
-Subject: Re: VFS nr_files accounting
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060304141717.GA456@in.ibm.com>
-References: <20060304.022546.85833873.davem@davemloft.net>
-	<20060304141717.GA456@in.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 4 Mar 2006 17:23:46 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:56717 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932256AbWCDWXq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 17:23:46 -0500
+Subject: [PATCH -mm] RTC subsystem, Fix integrator namespace conflicts
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>
+Content-Type: text/plain
+Date: Sat, 04 Mar 2006 22:23:26 +0000
+Message-Id: <1141511006.10871.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dipankar Sarma <dipankar@in.ibm.com>
-Date: Sat, 4 Mar 2006 19:47:17 +0530
+Fix some namespace conflicts between the RTC subsystem and the ARM
+Integrator time functions.
 
-> Dave, there is a set of patches in -mm that may handle this
-> better -
-> 
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/rcu-batch-tuning.patch
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/fix-file-counting.patch
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/fix-file-counting-fixes.patch
-> 
-> Could you please try this in your setup ?
-> 
-> The rcu-batch tuning patch provides automatic switching to
-> process as many RCUs as possible if too many of them are queued.
-> The file counting fixes count the file structures correctly.
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Thanks, I'll give these patches a spin.
+Index: linux-2.6.15/arch/arm/mach-integrator/time.c
+===================================================================
+--- linux-2.6.15.orig/arch/arm/mach-integrator/time.c	2006-01-03 03:21:10.000000000 +0000
++++ linux-2.6.15/arch/arm/mach-integrator/time.c	2006-02-22 11:08:12.000000000 +0000
+@@ -40,13 +40,13 @@
+ 	return 1;
+ }
+ 
+-static int rtc_read_alarm(struct rtc_wkalrm *alrm)
++static int integrator_rtc_read_alarm(struct rtc_wkalrm *alrm)
+ {
+ 	rtc_time_to_tm(readl(rtc_base + RTC_MR), &alrm->time);
+ 	return 0;
+ }
+ 
+-static inline int rtc_set_alarm(struct rtc_wkalrm *alrm)
++static inline int integrator_rtc_set_alarm(struct rtc_wkalrm *alrm)
+ {
+ 	unsigned long time;
+ 	int ret;
+@@ -62,7 +62,7 @@
+ 	return ret;
+ }
+ 
+-static int rtc_read_time(struct rtc_time *tm)
++static int integrator_rtc_read_time(struct rtc_time *tm)
+ {
+ 	rtc_time_to_tm(readl(rtc_base + RTC_DR), tm);
+ 	return 0;
+@@ -76,7 +76,7 @@
+  * edge of the 1Hz clock, we must write the time one second
+  * in advance.
+  */
+-static inline int rtc_set_time(struct rtc_time *tm)
++static inline int integrator_rtc_set_time(struct rtc_time *tm)
+ {
+ 	unsigned long time;
+ 	int ret;
+@@ -90,10 +90,10 @@
+ 
+ static struct rtc_ops rtc_ops = {
+ 	.owner		= THIS_MODULE,
+-	.read_time	= rtc_read_time,
+-	.set_time	= rtc_set_time,
+-	.read_alarm	= rtc_read_alarm,
+-	.set_alarm	= rtc_set_alarm,
++	.read_time	= integrator_rtc_read_time,
++	.set_time	= integrator_rtc_set_time,
++	.read_alarm	= integrator_rtc_read_alarm,
++	.set_alarm	= integrator_rtc_set_alarm,
+ };
+ 
+ static irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+
+

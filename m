@@ -1,363 +1,693 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWCDQnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWCDQnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWCDQnS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 11:43:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWCDQnS
+	id S932162AbWCDQnm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 11:43:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWCDQnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 11:43:18 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:36941 "EHLO
-	linux") by vger.kernel.org with ESMTP id S932120AbWCDQnR (ORCPT
+	Sat, 4 Mar 2006 11:43:41 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:42059 "EHLO
+	linux") by vger.kernel.org with ESMTP id S932162AbWCDQni (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 11:43:17 -0500
-Message-Id: <20060304164248.550046000@towertech.it>
+	Sat, 4 Mar 2006 11:43:38 -0500
+Message-Id: <20060304164249.714487000@towertech.it>
 References: <20060304164247.963655000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 04 Mar 2006 17:42:50 +0100
+Date: Sat, 04 Mar 2006 17:42:56 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>,
-       Ralf Baechle <ralf@linux-mips.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 03/13] RTC subsystem, MIPS cleanup
-Content-Disposition: inline; filename=rtc-mips-cleanup.patch
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 09/13] RTC subsystem, X1205 driver
+Content-Disposition: inline; filename=rtc-drv-x1205.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix the collision of rtc function name.
+This patch is a port of the existing x1205
+driver under the new RTC subsystem.
 
-Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+It is actually under test within the NSLU2
+project (http://www.nslu2-linux.org) and
+it is working quite well.
+
+It is the first driver under this new subsystem
+and should be used as a guide to port other
+drivers.
+
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Ralf Baechle <ralf@linux-mips.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+--
 
- arch/mips/ddb5xxx/common/rtc_ds1386.c                      |    4 +-
- arch/mips/dec/time.c                                       |    4 +-
- arch/mips/ite-boards/generic/time.c                        |    4 +-
- arch/mips/jmr3927/common/rtc_ds1742.c                      |    4 +-
- arch/mips/kernel/time.c                                    |   22 ++++++-------
- arch/mips/lasat/setup.c                                    |    4 +-
- arch/mips/mips-boards/atlas/atlas_setup.c                  |    2 -
- arch/mips/mips-boards/malta/malta_setup.c                  |    2 -
- arch/mips/momentum/jaguar_atx/setup.c                      |    4 +-
- arch/mips/momentum/ocelot_3/setup.c                        |    4 +-
- arch/mips/momentum/ocelot_c/setup.c                        |    4 +-
- arch/mips/pmc-sierra/yosemite/setup.c                      |    4 +-
- arch/mips/sgi-ip22/ip22-time.c                             |    4 +-
- arch/mips/sgi-ip32/ip32-setup.c                            |    4 +-
- arch/mips/sibyte/swarm/setup.c                             |    8 ++--
- arch/mips/sni/setup.c                                      |    4 +-
- arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c |    4 +-
- arch/mips/tx4938/common/rtc_rx5c348.c                      |    4 +-
- include/asm-mips/time.h                                    |   12 +++----
- 19 files changed, 51 insertions(+), 51 deletions(-)
---- linux-rtc.orig/arch/mips/ddb5xxx/common/rtc_ds1386.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/ddb5xxx/common/rtc_ds1386.c	2006-03-03 00:15:51.000000000 +0100
-@@ -165,6 +165,6 @@ rtc_ds1386_init(unsigned long base)
- 	WRITE_RTC(0xB, byte);
+ drivers/rtc/Kconfig     |   10 
+ drivers/rtc/Makefile    |    3 
+ drivers/rtc/rtc-x1205.c |  619 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 632 insertions(+)
+
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-04 16:17:12.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-04 16:17:13.000000000 +0100
+@@ -75,4 +75,14 @@ config RTC_INTF_DEV
+ comment "RTC drivers"
+ 	depends on RTC_CLASS
  
- 	/* set the function pointers */
--	rtc_get_time = rtc_ds1386_get_time;
--	rtc_set_time = rtc_ds1386_set_time;
-+	rtc_mips_get_time = rtc_ds1386_get_time;
-+	rtc_mips_set_time = rtc_ds1386_set_time;
- }
---- linux-rtc.orig/arch/mips/dec/time.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/dec/time.c	2006-03-03 00:15:51.000000000 +0100
-@@ -193,8 +193,8 @@ static void dec_ioasic_hpt_init(unsigned
- 
- void __init dec_time_init(void)
- {
--	rtc_get_time = dec_rtc_get_time;
--	rtc_set_mmss = dec_rtc_set_mmss;
-+	rtc_mips_get_time = dec_rtc_get_time;
-+	rtc_mips_set_mmss = dec_rtc_set_mmss;
- 
- 	mips_timer_state = dec_timer_state;
- 	mips_timer_ack = dec_timer_ack;
---- linux-rtc.orig/arch/mips/ite-boards/generic/time.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/ite-boards/generic/time.c	2006-03-03 00:15:51.000000000 +0100
-@@ -227,8 +227,8 @@ void __init it8172_time_init(void)
- 
- 	local_irq_restore(flags);
- 
--	rtc_get_time = it8172_rtc_get_time;
--	rtc_set_time = it8172_rtc_set_time;
-+	rtc_mips_get_time = it8172_rtc_get_time;
-+	rtc_mips_set_time = it8172_rtc_set_time;
- }
- 
- #define ALLINTS (IE_IRQ0 | IE_IRQ1 | IE_IRQ2 | IE_IRQ3 | IE_IRQ4 | IE_IRQ5)
---- linux-rtc.orig/arch/mips/jmr3927/common/rtc_ds1742.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/jmr3927/common/rtc_ds1742.c	2006-03-03 00:15:51.000000000 +0100
-@@ -159,8 +159,8 @@ rtc_ds1742_init(unsigned long base)
- 	db_assert((rtc_base & 0xe0000000) == KSEG1);
- 
- 	/* set the function pointers */
--	rtc_get_time = rtc_ds1742_get_time;
--	rtc_set_time = rtc_ds1742_set_time;
-+	rtc_mips_get_time = rtc_ds1742_get_time;
-+	rtc_mips_set_time = rtc_ds1742_set_time;
- 
- 	/* clear oscillator stop bit */
- 	CMOS_WRITE(RTC_READ, RTC_CONTROL);
---- linux-rtc.orig/arch/mips/kernel/time.c	2006-03-03 00:15:41.000000000 +0100
-+++ linux-rtc/arch/mips/kernel/time.c	2006-03-03 00:15:51.000000000 +0100
-@@ -65,9 +65,9 @@ static int null_rtc_set_time(unsigned lo
- 	return 0;
- }
- 
--unsigned long (*rtc_get_time)(void) = null_rtc_get_time;
--int (*rtc_set_time)(unsigned long) = null_rtc_set_time;
--int (*rtc_set_mmss)(unsigned long);
-+unsigned long (*rtc_mips_get_time)(void) = null_rtc_get_time;
-+int (*rtc_mips_set_time)(unsigned long) = null_rtc_set_time;
-+int (*rtc_mips_set_mmss)(unsigned long);
- 
- 
- /* usecs per counter cycle, shifted to left by 32 bits */
-@@ -438,7 +438,7 @@ irqreturn_t timer_interrupt(int irq, voi
- 
- 	/*
- 	 * If we have an externally synchronized Linux clock, then update
--	 * CMOS clock accordingly every ~11 minutes. rtc_set_time() has to be
-+	 * CMOS clock accordingly every ~11 minutes. rtc_mips_set_time() has to be
- 	 * called as close as possible to 500 ms before the new second starts.
- 	 */
- 	write_seqlock(&xtime_lock);
-@@ -446,7 +446,7 @@ irqreturn_t timer_interrupt(int irq, voi
- 	    xtime.tv_sec > last_rtc_update + 660 &&
- 	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
- 	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) TICK_SIZE) / 2) {
--		if (rtc_set_mmss(xtime.tv_sec) == 0) {
-+		if (rtc_mips_set_mmss(xtime.tv_sec) == 0) {
- 			last_rtc_update = xtime.tv_sec;
- 		} else {
- 			/* do it again in 60 s */
-@@ -563,7 +563,7 @@ asmlinkage void ll_local_timer_interrupt
-  *      b) (optional) calibrate and set the mips_hpt_frequency
-  *	    (only needed if you intended to use fixed_rate_gettimeoffset
-  *	     or use cpu counter as timer interrupt source)
-- * 2) setup xtime based on rtc_get_time().
-+ * 2) setup xtime based on rtc_mips_get_time().
-  * 3) choose a appropriate gettimeoffset routine.
-  * 4) calculate a couple of cached variables for later usage
-  * 5) board_timer_setup() -
-@@ -631,10 +631,10 @@ void __init time_init(void)
- 	if (board_time_init)
- 		board_time_init();
- 
--	if (!rtc_set_mmss)
--		rtc_set_mmss = rtc_set_time;
-+	if (!rtc_mips_set_mmss)
-+		rtc_mips_set_mmss = rtc_mips_set_time;
- 
--	xtime.tv_sec = rtc_get_time();
-+	xtime.tv_sec = rtc_mips_get_time();
- 	xtime.tv_nsec = 0;
- 
- 	set_normalized_timespec(&wall_to_monotonic,
-@@ -770,8 +770,8 @@ void to_tm(unsigned long tim, struct rtc
- 
- EXPORT_SYMBOL(rtc_lock);
- EXPORT_SYMBOL(to_tm);
--EXPORT_SYMBOL(rtc_set_time);
--EXPORT_SYMBOL(rtc_get_time);
-+EXPORT_SYMBOL(rtc_mips_set_time);
-+EXPORT_SYMBOL(rtc_mips_get_time);
- 
- unsigned long long sched_clock(void)
- {
---- linux-rtc.orig/arch/mips/lasat/setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/lasat/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -174,8 +174,8 @@ void __init plat_setup(void)
- 
- #ifdef CONFIG_DS1603
- 	ds1603 = &ds_defs[mips_machtype];
--	rtc_get_time = ds1603_read;
--	rtc_set_time = ds1603_set;
-+	rtc_mips_get_time = ds1603_read;
-+	rtc_mips_set_time = ds1603_set;
- #endif
- 
- #ifdef DYNAMIC_SERIAL_INIT
---- linux-rtc.orig/arch/mips/mips-boards/atlas/atlas_setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/mips-boards/atlas/atlas_setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -65,7 +65,7 @@ void __init plat_setup(void)
- 
- 	board_time_init = mips_time_init;
- 	board_timer_setup = mips_timer_setup;
--	rtc_get_time = mips_rtc_get_time;
-+	rtc_mips_get_time = mips_rtc_get_time;
- }
- 
- static void __init serial_init(void)
---- linux-rtc.orig/arch/mips/mips-boards/malta/malta_setup.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/mips-boards/malta/malta_setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -225,5 +225,5 @@ void __init plat_setup(void)
- 
- 	board_time_init = mips_time_init;
- 	board_timer_setup = mips_timer_setup;
--	rtc_get_time = mips_rtc_get_time;
-+	rtc_mips_get_time = mips_rtc_get_time;
- }
---- linux-rtc.orig/arch/mips/momentum/jaguar_atx/setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/momentum/jaguar_atx/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -228,8 +228,8 @@ void momenco_time_init(void)
- 	mips_hpt_frequency = cpu_clock / 2;
- 	board_timer_setup = momenco_timer_setup;
- 
--	rtc_get_time = m48t37y_get_time;
--	rtc_set_time = m48t37y_set_time;
-+	rtc_mips_get_time = m48t37y_get_time;
-+	rtc_mips_set_time = m48t37y_set_time;
- }
- 
- static struct resource mv_pci_io_mem0_resource = {
---- linux-rtc.orig/arch/mips/momentum/ocelot_3/setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/momentum/ocelot_3/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -215,8 +215,8 @@ void momenco_time_init(void)
- 	mips_hpt_frequency = cpu_clock / 2;
- 	board_timer_setup = momenco_timer_setup;
- 
--	rtc_get_time = m48t37y_get_time;
--	rtc_set_time = m48t37y_set_time;
-+	rtc_mips_get_time = m48t37y_get_time;
-+	rtc_mips_set_time = m48t37y_set_time;
- }
- 
- /*
---- linux-rtc.orig/arch/mips/momentum/ocelot_c/setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/momentum/ocelot_c/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -226,8 +226,8 @@ void momenco_time_init(void)
- 	printk("momenco_time_init cpu_clock=%d\n", cpu_clock);
- 	board_timer_setup = momenco_timer_setup;
- 
--	rtc_get_time = m48t37y_get_time;
--	rtc_set_time = m48t37y_set_time;
-+	rtc_mips_get_time = m48t37y_get_time;
-+	rtc_mips_set_time = m48t37y_set_time;
- }
- 
- void __init plat_setup(void)
---- linux-rtc.orig/arch/mips/pmc-sierra/yosemite/setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/pmc-sierra/yosemite/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -198,8 +198,8 @@ static void __init py_rtc_setup(void)
- 	if (!m48t37_base)
- 		printk(KERN_ERR "Mapping the RTC failed\n");
- 
--	rtc_get_time = m48t37y_get_time;
--	rtc_set_time = m48t37y_set_time;
-+	rtc_mips_get_time = m48t37y_get_time;
-+	rtc_mips_set_time = m48t37y_set_time;
- 
- 	write_seqlock(&xtime_lock);
- 	xtime.tv_sec = m48t37y_get_time();
---- linux-rtc.orig/arch/mips/sgi-ip22/ip22-time.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/sgi-ip22/ip22-time.c	2006-03-03 00:15:51.000000000 +0100
-@@ -212,8 +212,8 @@ static void indy_timer_setup(struct irqa
- void __init ip22_time_init(void)
- {
- 	/* setup hookup functions */
--	rtc_get_time = indy_rtc_get_time;
--	rtc_set_time = indy_rtc_set_time;
-+	rtc_mips_get_time = indy_rtc_get_time;
-+	rtc_mips_set_time = indy_rtc_set_time;
- 
- 	board_time_init = indy_time_init;
- 	board_timer_setup = indy_timer_setup;
---- linux-rtc.orig/arch/mips/sgi-ip32/ip32-setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/sgi-ip32/ip32-setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -91,8 +91,8 @@ void __init plat_setup(void)
- {
- 	board_be_init = ip32_be_init;
- 
--	rtc_get_time = mc146818_get_cmos_time;
--	rtc_set_mmss = mc146818_set_rtc_mmss;
-+	rtc_mips_get_time = mc146818_get_cmos_time;
-+	rtc_mips_set_mmss = mc146818_set_rtc_mmss;
- 
- 	board_time_init = ip32_time_init;
- 	board_timer_setup = ip32_timer_setup;
---- linux-rtc.orig/arch/mips/sibyte/swarm/setup.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/sibyte/swarm/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -114,14 +114,14 @@ void __init plat_setup(void)
- 
- 	if (xicor_probe()) {
- 		printk("swarm setup: Xicor 1241 RTC detected.\n");
--		rtc_get_time = xicor_get_time;
--		rtc_set_time = xicor_set_time;
-+		rtc_mips_get_time = xicor_get_time;
-+		rtc_mips_set_time = xicor_set_time;
- 	}
- 
- 	if (m41t81_probe()) {
- 		printk("swarm setup: M41T81 RTC detected.\n");
--		rtc_get_time = m41t81_get_time;
--		rtc_set_time = m41t81_set_time;
-+		rtc_mips_get_time = m41t81_get_time;
-+		rtc_mips_set_time = m41t81_set_time;
- 	}
- 
- 	printk("This kernel optimized for "
---- linux-rtc.orig/arch/mips/sni/setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/sni/setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -164,8 +164,8 @@ static struct pci_controller sni_control
- 
- static inline void sni_pcimt_time_init(void)
- {
--	rtc_get_time = mc146818_get_cmos_time;
--	rtc_set_time = mc146818_set_rtc_mmss;
-+	rtc_mips_get_time = mc146818_get_cmos_time;
-+	rtc_mips_set_time = mc146818_set_rtc_mmss;
- }
- 
- void __init plat_setup(void)
---- linux-rtc.orig/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c	2006-03-03 00:15:22.000000000 +0100
-+++ linux-rtc/arch/mips/tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c	2006-03-03 00:15:51.000000000 +0100
-@@ -1036,8 +1036,8 @@ toshiba_rbtx4927_time_init(void)
- 
- #ifdef CONFIG_RTC_DS1742
- 
--	rtc_get_time = rtc_ds1742_get_time;
--	rtc_set_time = rtc_ds1742_set_time;
-+	rtc_mips_get_time = rtc_ds1742_get_time;
-+	rtc_mips_set_time = rtc_ds1742_set_time;
- 
- 	TOSHIBA_RBTX4927_SETUP_DPRINTK(TOSHIBA_RBTX4927_SETUP_TIME_INIT,
- 				       ":rtc_ds1742_init()-\n");
---- linux-rtc.orig/arch/mips/tx4938/common/rtc_rx5c348.c	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/arch/mips/tx4938/common/rtc_rx5c348.c	2006-03-03 00:15:51.000000000 +0100
-@@ -197,6 +197,6 @@ rtc_rx5c348_init(int chipid)
- 		srtc_24h = 1;
- 
- 	/* set the function pointers */
--	rtc_get_time = rtc_rx5c348_get_time;
--	rtc_set_time = rtc_rx5c348_set_time;
-+	rtc_mips_get_time = rtc_rx5c348_get_time;
-+	rtc_mips_set_time = rtc_rx5c348_set_time;
- }
---- linux-rtc.orig/include/asm-mips/time.h	2006-03-03 00:13:40.000000000 +0100
-+++ linux-rtc/include/asm-mips/time.h	2006-03-03 00:15:51.000000000 +0100
-@@ -26,14 +26,14 @@ extern spinlock_t rtc_lock;
- 
- /*
-  * RTC ops.  By default, they point to no-RTC functions.
-- *	rtc_get_time - mktime(year, mon, day, hour, min, sec) in seconds.
-- *	rtc_set_time - reverse the above translation and set time to RTC.
-- *	rtc_set_mmss - similar to rtc_set_time, but only min and sec need
-+ *	rtc_mips_get_time - mktime(year, mon, day, hour, min, sec) in seconds.
-+ *	rtc_mips_set_time - reverse the above translation and set time to RTC.
-+ *	rtc_mips_set_mmss - similar to rtc_set_time, but only min and sec need
-  *			to be set.  Used by RTC sync-up.
-  */
--extern unsigned long (*rtc_get_time)(void);
--extern int (*rtc_set_time)(unsigned long);
--extern int (*rtc_set_mmss)(unsigned long);
-+extern unsigned long (*rtc_mips_get_time)(void);
-+extern int (*rtc_mips_set_time)(unsigned long);
-+extern int (*rtc_mips_set_mmss)(unsigned long);
- 
- /*
-  * Timer interrupt functions.
++config RTC_DRV_X1205
++	tristate "Xicor/Intersil X1205 RTC chip"
++	depends on RTC_CLASS && I2C
++	help
++	  If you say yes here you get support for the
++	  Xicor/Intersil X1205 RTC chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-x1205.
++
+ endmenu
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-04 16:17:12.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-04 16:17:13.000000000 +0100
+@@ -11,3 +11,6 @@ rtc-core-y			:= class.o interface.o
+ obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
+ obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
+ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
++
++obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
++
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-x1205.c	2006-03-04 16:17:13.000000000 +0100
+@@ -0,0 +1,619 @@
++/*
++ * An i2c driver for the Xicor/Intersil X1205 RTC
++ * Copyright 2004 Karen Spearel
++ * Copyright 2005 Alessandro Zummo
++ *
++ * please send all reports to:
++ * 	Karen Spearel <kas111 at gmail dot com>
++ *	Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * based on a lot of other RTC drivers.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/i2c.h>
++#include <linux/bcd.h>
++#include <linux/rtc.h>
++#include <linux/delay.h>
++
++#define DRV_VERSION "1.0.6"
++
++/* Addresses to scan: none. This chip is located at
++ * 0x6f and uses a two bytes register addressing.
++ * Two bytes need to be written to read a single register,
++ * while most other chips just require one and take the second
++ * one as the data to be written. To prevent corrupting
++ * unknown chips, the user must explicitely set the probe parameter.
++ */
++
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++
++/* Insmod parameters */
++I2C_CLIENT_INSMOD;
++
++/* offsets into CCR area */
++
++#define CCR_SEC			0
++#define CCR_MIN			1
++#define CCR_HOUR		2
++#define CCR_MDAY		3
++#define CCR_MONTH		4
++#define CCR_YEAR		5
++#define CCR_WDAY		6
++#define CCR_Y2K			7
++
++#define X1205_REG_SR		0x3F	/* status register */
++#define X1205_REG_Y2K		0x37
++#define X1205_REG_DW		0x36
++#define X1205_REG_YR		0x35
++#define X1205_REG_MO		0x34
++#define X1205_REG_DT		0x33
++#define X1205_REG_HR		0x32
++#define X1205_REG_MN		0x31
++#define X1205_REG_SC		0x30
++#define X1205_REG_DTR		0x13
++#define X1205_REG_ATR		0x12
++#define X1205_REG_INT		0x11
++#define X1205_REG_0		0x10
++#define X1205_REG_Y2K1		0x0F
++#define X1205_REG_DWA1		0x0E
++#define X1205_REG_YRA1		0x0D
++#define X1205_REG_MOA1		0x0C
++#define X1205_REG_DTA1		0x0B
++#define X1205_REG_HRA1		0x0A
++#define X1205_REG_MNA1		0x09
++#define X1205_REG_SCA1		0x08
++#define X1205_REG_Y2K0		0x07
++#define X1205_REG_DWA0		0x06
++#define X1205_REG_YRA0		0x05
++#define X1205_REG_MOA0		0x04
++#define X1205_REG_DTA0		0x03
++#define X1205_REG_HRA0		0x02
++#define X1205_REG_MNA0		0x01
++#define X1205_REG_SCA0		0x00
++
++#define X1205_CCR_BASE		0x30	/* Base address of CCR */
++#define X1205_ALM0_BASE		0x00	/* Base address of ALARM0 */
++
++#define X1205_SR_RTCF		0x01	/* Clock failure */
++#define X1205_SR_WEL		0x02	/* Write Enable Latch */
++#define X1205_SR_RWEL		0x04	/* Register Write Enable */
++
++#define X1205_DTR_DTR0		0x01
++#define X1205_DTR_DTR1		0x02
++#define X1205_DTR_DTR2		0x04
++
++#define X1205_HR_MIL		0x80	/* Set in ccr.hour for 24 hr mode */
++
++/* Prototypes */
++static int x1205_attach(struct i2c_adapter *adapter);
++static int x1205_detach(struct i2c_client *client);
++static int x1205_probe(struct i2c_adapter *adapter, int address, int kind);
++
++static struct i2c_driver x1205_driver = {
++	.driver		= {
++		.name	= "x1205",
++	},
++	.attach_adapter = &x1205_attach,
++	.detach_client	= &x1205_detach,
++};
++
++/*
++ * In the routines that deal directly with the x1205 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
++ * Epoch is initialized as 2000. Time is set to UTC.
++ */
++static int x1205_get_datetime(struct i2c_client *client, struct rtc_time *tm,
++				unsigned char reg_base)
++{
++	unsigned char dt_addr[2] = { 0, reg_base };
++
++	unsigned char buf[8];
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 2, dt_addr },	/* setup read ptr */
++		{ client->addr, I2C_M_RD, 8, buf },	/* read date */
++	};
++
++	/* read date registers */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++		return -EIO;
++	}
++
++	dev_dbg(&client->dev,
++		"%s: raw read data - sec=%02x, min=%02x, hr=%02x, "
++		"mday=%02x, mon=%02x, year=%02x, wday=%02x, y2k=%02x\n",
++		__FUNCTION__,
++		buf[0], buf[1], buf[2], buf[3],
++		buf[4], buf[5], buf[6], buf[7]);
++
++	tm->tm_sec = BCD2BIN(buf[CCR_SEC]);
++	tm->tm_min = BCD2BIN(buf[CCR_MIN]);
++	tm->tm_hour = BCD2BIN(buf[CCR_HOUR] & 0x3F); /* hr is 0-23 */
++	tm->tm_mday = BCD2BIN(buf[CCR_MDAY]);
++	tm->tm_mon = BCD2BIN(buf[CCR_MONTH]) - 1; /* mon is 0-11 */
++	tm->tm_year = BCD2BIN(buf[CCR_YEAR])
++			+ (BCD2BIN(buf[CCR_Y2K]) * 100) - 1900;
++	tm->tm_wday = buf[CCR_WDAY];
++
++	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	return 0;
++}
++
++static int x1205_get_status(struct i2c_client *client, unsigned char *sr)
++{
++	static unsigned char sr_addr[2] = { 0, X1205_REG_SR };
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 2, sr_addr },	/* setup read ptr */
++		{ client->addr, I2C_M_RD, 1, sr },	/* read status */
++	};
++
++	/* read status register */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int x1205_set_datetime(struct i2c_client *client, struct rtc_time *tm,
++				int datetoo, u8 reg_base)
++{
++	int i, xfer;
++	unsigned char buf[8];
++
++	static const unsigned char wel[3] = { 0, X1205_REG_SR,
++						X1205_SR_WEL };
++
++	static const unsigned char rwel[3] = { 0, X1205_REG_SR,
++						X1205_SR_WEL | X1205_SR_RWEL };
++
++	static const unsigned char diswe[3] = { 0, X1205_REG_SR, 0 };
++
++	dev_dbg(&client->dev,
++		"%s: secs=%d, mins=%d, hours=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour);
++
++	buf[CCR_SEC] = BIN2BCD(tm->tm_sec);
++	buf[CCR_MIN] = BIN2BCD(tm->tm_min);
++
++	/* set hour and 24hr bit */
++	buf[CCR_HOUR] = BIN2BCD(tm->tm_hour) | X1205_HR_MIL;
++
++	/* should we also set the date? */
++	if (datetoo) {
++		dev_dbg(&client->dev,
++			"%s: mday=%d, mon=%d, year=%d, wday=%d\n",
++			__FUNCTION__,
++			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++		buf[CCR_MDAY] = BIN2BCD(tm->tm_mday);
++
++		/* month, 1 - 12 */
++		buf[CCR_MONTH] = BIN2BCD(tm->tm_mon + 1);
++
++		/* year, since the rtc epoch*/
++		buf[CCR_YEAR] = BIN2BCD(tm->tm_year % 100);
++		buf[CCR_WDAY] = tm->tm_wday & 0x07;
++		buf[CCR_Y2K] = BIN2BCD(tm->tm_year / 100);
++	}
++
++	/* this sequence is required to unlock the chip */
++	if ((xfer = i2c_master_send(client, wel, 3)) != 3) {
++		dev_err(&client->dev, "%s: wel - %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	if ((xfer = i2c_master_send(client, rwel, 3)) != 3) {
++		dev_err(&client->dev, "%s: rwel - %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	/* write register's data */
++	for (i = 0; i < (datetoo ? 8 : 3); i++) {
++		unsigned char rdata[3] = { 0, reg_base + i, buf[i] };
++
++		xfer = i2c_master_send(client, rdata, 3);
++		if (xfer != 3) {
++			dev_err(&client->dev,
++				"%s: xfer=%d addr=%02x, data=%02x\n",
++				__FUNCTION__,
++				 xfer, rdata[1], rdata[2]);
++			return -EIO;
++		}
++	};
++
++	/* disable further writes */
++	if ((xfer = i2c_master_send(client, diswe, 3)) != 3) {
++		dev_err(&client->dev, "%s: diswe - %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int x1205_fix_osc(struct i2c_client *client)
++{
++	int err;
++	struct rtc_time tm;
++
++	tm.tm_hour = tm.tm_min = tm.tm_sec = 0;
++
++	if ((err = x1205_set_datetime(client, &tm, 0, X1205_CCR_BASE)) < 0)
++		dev_err(&client->dev,
++			"unable to restart the oscillator\n");
++
++	return err;
++}
++
++static int x1205_get_dtrim(struct i2c_client *client, int *trim)
++{
++	unsigned char dtr;
++	static unsigned char dtr_addr[2] = { 0, X1205_REG_DTR };
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 2, dtr_addr },	/* setup read ptr */
++		{ client->addr, I2C_M_RD, 1, &dtr }, 	/* read dtr */
++	};
++
++	/* read dtr register */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++		return -EIO;
++	}
++
++	dev_dbg(&client->dev, "%s: raw dtr=%x\n", __FUNCTION__, dtr);
++
++	*trim = 0;
++
++	if (dtr & X1205_DTR_DTR0)
++		*trim += 20;
++
++	if (dtr & X1205_DTR_DTR1)
++		*trim += 10;
++
++	if (dtr & X1205_DTR_DTR2)
++		*trim = -*trim;
++
++	return 0;
++}
++
++static int x1205_get_atrim(struct i2c_client *client, int *trim)
++{
++	s8 atr;
++	static unsigned char atr_addr[2] = { 0, X1205_REG_ATR };
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 2, atr_addr },	/* setup read ptr */
++		{ client->addr, I2C_M_RD, 1, &atr }, 	/* read atr */
++	};
++
++	/* read atr register */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++		return -EIO;
++	}
++
++	dev_dbg(&client->dev, "%s: raw atr=%x\n", __FUNCTION__, atr);
++
++	/* atr is a two's complement value on 6 bits,
++	 * perform sign extension. The formula is
++	 * Catr = (atr * 0.25pF) + 11.00pF.
++	 */
++	if (atr & 0x20)
++		atr |= 0xC0;
++
++	dev_dbg(&client->dev, "%s: raw atr=%x (%d)\n", __FUNCTION__, atr, atr);
++
++	*trim = (atr * 250) + 11000;
++
++	dev_dbg(&client->dev, "%s: real=%d\n", __FUNCTION__, *trim);
++
++	return 0;
++}
++
++struct x1205_limit
++{
++	unsigned char reg, mask, min, max;
++};
++
++static int x1205_validate_client(struct i2c_client *client)
++{
++	int i, xfer;
++
++	/* Probe array. We will read the register at the specified
++	 * address and check if the given bits are zero.
++	 */
++	static const unsigned char probe_zero_pattern[] = {
++		/* register, mask */
++		X1205_REG_SR,	0x18,
++		X1205_REG_DTR,	0xF8,
++		X1205_REG_ATR,	0xC0,
++		X1205_REG_INT,	0x18,
++		X1205_REG_0,	0xFF,
++	};
++
++	static const struct x1205_limit probe_limits_pattern[] = {
++		/* register, mask, min, max */
++		{ X1205_REG_Y2K,	0xFF,	19,	20	},
++		{ X1205_REG_DW,		0xFF,	0,	6	},
++		{ X1205_REG_YR,		0xFF,	0,	99	},
++		{ X1205_REG_MO,		0xFF,	0,	12	},
++		{ X1205_REG_DT,		0xFF,	0,	31	},
++		{ X1205_REG_HR,		0x7F,	0,	23	},
++		{ X1205_REG_MN,		0xFF,	0,	59	},
++		{ X1205_REG_SC,		0xFF,	0,	59	},
++		{ X1205_REG_Y2K1,	0xFF,	19,	20	},
++		{ X1205_REG_Y2K0,	0xFF,	19,	20	},
++	};
++
++	/* check that registers have bits a 0 where expected */
++	for (i = 0; i < ARRAY_SIZE(probe_zero_pattern); i += 2) {
++		unsigned char buf;
++
++		unsigned char addr[2] = { 0, probe_zero_pattern[i] };
++
++		struct i2c_msg msgs[2] = {
++			{ client->addr, 0, 2, addr },
++			{ client->addr, I2C_M_RD, 1, &buf },
++		};
++
++		if ((xfer = i2c_transfer(client->adapter, msgs, 2)) != 2) {
++			dev_err(&client->adapter->dev,
++				"%s: could not read register %x\n",
++				__FUNCTION__,  probe_zero_pattern[i]);
++
++			return -EIO;
++		}
++
++		if ((buf & probe_zero_pattern[i+1]) != 0) {
++			dev_err(&client->adapter->dev,
++				"%s: register=%02x, zero pattern=%d, value=%x\n",
++				__FUNCTION__, probe_zero_pattern[i], i, buf);
++
++			return -ENODEV;
++		}
++	}
++
++	/* check limits (only registers with bcd values) */
++	for (i = 0; i < ARRAY_SIZE(probe_limits_pattern); i++) {
++		unsigned char reg, value;
++
++		unsigned char addr[2] = { 0, probe_limits_pattern[i].reg };
++
++		struct i2c_msg msgs[2] = {
++			{ client->addr, 0, 2, addr },
++			{ client->addr, I2C_M_RD, 1, &reg },
++		};
++
++		if ((xfer = i2c_transfer(client->adapter, msgs, 2)) != 2) {
++			dev_err(&client->adapter->dev,
++				"%s: could not read register %x\n",
++				__FUNCTION__, probe_limits_pattern[i].reg);
++
++			return -EIO;
++		}
++
++		value = BCD2BIN(reg & probe_limits_pattern[i].mask);
++
++		if (value > probe_limits_pattern[i].max ||
++			value < probe_limits_pattern[i].min) {
++			dev_dbg(&client->adapter->dev,
++				"%s: register=%x, lim pattern=%d, value=%d\n",
++				__FUNCTION__, probe_limits_pattern[i].reg,
++				i, value);
++
++			return -ENODEV;
++		}
++	}
++
++	return 0;
++}
++
++static int x1205_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	return x1205_get_datetime(to_i2c_client(dev),
++		&alrm->time, X1205_ALM0_BASE);
++}
++
++static int x1205_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	return x1205_set_datetime(to_i2c_client(dev),
++		&alrm->time, 1, X1205_ALM0_BASE);
++}
++
++static int x1205_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return x1205_get_datetime(to_i2c_client(dev),
++		tm, X1205_CCR_BASE);
++}
++
++static int x1205_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return x1205_set_datetime(to_i2c_client(dev),
++		tm, 1, X1205_CCR_BASE);
++}
++
++static int x1205_rtc_proc(struct device *dev, struct seq_file *seq)
++{
++	int err, dtrim, atrim;
++
++	seq_printf(seq, "24hr\t\t: yes\n");
++
++	if ((err = x1205_get_dtrim(to_i2c_client(dev), &dtrim)) == 0)
++		seq_printf(seq, "digital_trim\t: %d ppm\n", dtrim);
++
++	if ((err = x1205_get_atrim(to_i2c_client(dev), &atrim)) == 0)
++		seq_printf(seq, "analog_trim\t: %d.%02d pF\n",
++			atrim / 1000, atrim % 1000);
++	return 0;
++}
++
++static struct rtc_class_ops x1205_rtc_ops = {
++	.proc		= x1205_rtc_proc,
++	.read_time	= x1205_rtc_read_time,
++	.set_time	= x1205_rtc_set_time,
++	.read_alarm	= x1205_rtc_read_alarm,
++	.set_alarm	= x1205_rtc_set_alarm,
++};
++
++static ssize_t x1205_sysfs_show_atrim(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	int atrim;
++
++	if (x1205_get_atrim(to_i2c_client(dev), &atrim) == 0)
++		return sprintf(buf, "%d.%02d pF\n",
++			atrim / 1000, atrim % 1000);
++	return 0;
++}
++static DEVICE_ATTR(atrim, S_IRUGO, x1205_sysfs_show_atrim, NULL);
++
++static ssize_t x1205_sysfs_show_dtrim(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	int dtrim;
++
++	if (x1205_get_dtrim(to_i2c_client(dev), &dtrim) == 0)
++		return sprintf(buf, "%d ppm\n", dtrim);
++
++	return 0;
++}
++static DEVICE_ATTR(dtrim, S_IRUGO, x1205_sysfs_show_dtrim, NULL);
++
++static int x1205_attach(struct i2c_adapter *adapter)
++{
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++	return i2c_probe(adapter, &addr_data, x1205_probe);
++}
++
++static int x1205_probe(struct i2c_adapter *adapter, int address, int kind)
++{
++	int err = 0;
++	unsigned char sr;
++	struct i2c_client *client;
++	struct rtc_device *rtc;
++
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
++		err = -ENODEV;
++		goto exit;
++	}
++
++	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	/* I2C client */
++	client->addr = address;
++	client->driver = &x1205_driver;
++	client->adapter	= adapter;
++
++	strlcpy(client->name, x1205_driver.driver.name, I2C_NAME_SIZE);
++
++	/* Verify the chip is really an X1205 */
++	if (kind < 0) {
++		if (x1205_validate_client(client) < 0) {
++			err = -ENODEV;
++			goto exit_kfree;
++		}
++	}
++
++	/* Inform the i2c layer */
++	if ((err = i2c_attach_client(client)))
++		goto exit_kfree;
++
++	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
++
++	rtc = rtc_device_register(x1205_driver.driver.name, &client->dev,
++				&x1205_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc)) {
++		err = PTR_ERR(rtc);
++		dev_err(&client->dev,
++			"unable to register the class device\n");
++		goto exit_detach;
++	}
++
++	i2c_set_clientdata(client, rtc);
++
++	/* Check for power failures and eventualy enable the osc */
++	if ((err = x1205_get_status(client, &sr)) == 0) {
++		if (sr & X1205_SR_RTCF) {
++			dev_err(&client->dev,
++				"power failure detected, "
++				"please set the clock\n");
++			udelay(50);
++			x1205_fix_osc(client);
++		}
++	}
++	else
++		dev_err(&client->dev, "couldn't read status\n");
++
++	device_create_file(&client->dev, &dev_attr_atrim);
++	device_create_file(&client->dev, &dev_attr_dtrim);
++
++	return 0;
++
++exit_detach:
++	i2c_detach_client(client);
++
++exit_kfree:
++	kfree(client);
++
++exit:
++	return err;
++}
++
++static int x1205_detach(struct i2c_client *client)
++{
++	int err;
++	struct rtc_device *rtc = i2c_get_clientdata(client);
++
++	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
++
++ 	if (rtc)
++		rtc_device_unregister(rtc);
++
++	if ((err = i2c_detach_client(client)))
++		return err;
++
++	kfree(client);
++
++	return 0;
++}
++
++static int __init x1205_init(void)
++{
++	return i2c_add_driver(&x1205_driver);
++}
++
++static void __exit x1205_exit(void)
++{
++	i2c_del_driver(&x1205_driver);
++}
++
++MODULE_AUTHOR(
++	"Karen Spearel <kas111 at gmail dot com>, "
++	"Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("Xicor/Intersil X1205 RTC driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
++
++module_init(x1205_init);
++module_exit(x1205_exit);
 
 --

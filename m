@@ -1,145 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751913AbWCDTcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751524AbWCDUdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751913AbWCDTcc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 14:32:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751988AbWCDTcc
+	id S1751524AbWCDUdo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 15:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWCDUdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 14:32:32 -0500
-Received: from ms-smtp-04-smtplb.tampabay.rr.com ([65.32.5.134]:22269 "EHLO
-	ms-smtp-04.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751913AbWCDTcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 14:32:31 -0500
-Message-ID: <4409EB37.5050308@cfl.rr.com>
-Date: Sat, 04 Mar 2006 14:32:07 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060213)
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] udf: fix uid/gid options and add uid/gid=ignore and forget
- options
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 4 Mar 2006 15:33:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42171 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751516AbWCDUdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 15:33:43 -0500
+Date: Sat, 4 Mar 2006 12:28:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: zippel@linux-m68k.org, torvalds@osdl.org, bunk@stusta.de,
+       geert@linux-m68k.org, linux-m68k@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc regression: m68k CONFIG_RMW_INSNS=n compile broken
+Message-Id: <20060304122848.188430e8.akpm@osdl.org>
+In-Reply-To: <4409A05F.2090704@yahoo.com.au>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+	<20060303230149.GB9295@stusta.de>
+	<Pine.LNX.4.64.0603031515321.22647@g5.osdl.org>
+	<20060303155913.2e299736.akpm@osdl.org>
+	<Pine.LNX.4.64.0603041457070.16802@scrub.home>
+	<4409A05F.2090704@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a bug in udf where it would write uid/gid = 0 to the
-disk for files owned by the id given with the uid=/gid= mount options.
-It also adds 4 new mount options: uid/gid=forget and uid/gid=ignore.
-Without any options the id in core and on disk always match.  Giving
-uid/gid=nnn specifies a default ID to be used in core when the on disk ID
-is -1.  uid/gid=ignore forces the in core ID to allways be used no matter
-what the on disk ID is.  uid/gid=forget forces the on disk ID to always be
-written out as -1.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> Roman Zippel wrote:
+> > Hi,
+> > 
+> > On Fri, 3 Mar 2006, Andrew Morton wrote:
+> > 
+> > 
+> >>Yes, we now require cmpxchg of all architectures.
+> > 
+> > 
+> > Actually I'd prefer if we used atomic_cmpxchg() instead.
+> > The cmpxchg() emulation was never added for a good reason - to keep code 
+> > from assuming it can be used it for userspace synchronisation. Using an 
+> > atomic_t here would probably get at least some attention.
+> > 
+> 
+> Yes, I guess that's what Andrew meant. The reason we can require
+> atomic_cmpxchg of all architectures is because it is only guaranteed
+> to work on atomic_t.
+> 
+> Glad to hear it won't be a problem for you though.
+> 
 
-The use of these options allows you to override ownerships on a disk or
-disable ownwership information from being written, allowing the media
-to be used portably between different computers and possibly different users
-without permissions issues that would require root to correct.
-
-Signed-off-by: Phillip Susi <psusi@cfl.rr.com>
-
----
-
-fs/udf/inode.c  |   14 ++++++++++----
-fs/udf/super.c  |   18 +++++++++++++++++-
-fs/udf/udf_sb.h |    4 ++++
-3 files changed, 31 insertions(+), 5 deletions(-)
-
-2428c90c6e52a317808896b6cd639199388f7ddd
-diff --git a/fs/udf/inode.c b/fs/udf/inode.c
-index 395e582..2f47bf6 100644
---- a/fs/udf/inode.c
-+++ b/fs/udf/inode.c
-@@ -1045,10 +1045,12 @@ static void udf_fill_inode(struct inode 
-	}
-
-	inode->i_uid = le32_to_cpu(fe->uid);
--	if ( inode->i_uid == -1 ) inode->i_uid = UDF_SB(inode->i_sb)->s_uid;
-+	if ( inode->i_uid == -1 || UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_UID_IGNORE) )
-+	  inode->i_uid = UDF_SB(inode->i_sb)->s_uid;
-
-	inode->i_gid = le32_to_cpu(fe->gid);
--	if ( inode->i_gid == -1 ) inode->i_gid = UDF_SB(inode->i_sb)->s_gid;
-+	if ( inode->i_gid == -1 || UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_GID_IGNORE) )
-+	  inode->i_gid = UDF_SB(inode->i_sb)->s_gid;
-
-	inode->i_nlink = le16_to_cpu(fe->fileLinkCount);
-	if (!inode->i_nlink)
-@@ -1335,10 +1337,14 @@ udf_update_inode(struct inode *inode, in
-		return err;
-	}
-
--	if (inode->i_uid != UDF_SB(inode->i_sb)->s_uid)
-+	if (UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_UID_FORGET))
-+	  fe->uid = cpu_to_le32(-1);
-+	else if (inode->i_uid != UDF_SB(inode->i_sb)->s_uid)
-		fe->uid = cpu_to_le32(inode->i_uid);
-
--	if (inode->i_gid != UDF_SB(inode->i_sb)->s_gid)
-+	if (UDF_QUERY_FLAG(inode->i_sb, UDF_FLAG_GID_FORGET))
-+	  fe->gid = cpu_to_le32(-1);
-+	else if (inode->i_gid != UDF_SB(inode->i_sb)->s_gid)
-		fe->gid = cpu_to_le32(inode->i_gid);
-
-	udfperms =	((inode->i_mode & S_IRWXO)     ) |
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index 4a6f49a..368d8f8 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -269,7 +269,7 @@ enum {
-	Opt_gid, Opt_uid, Opt_umask, Opt_session, Opt_lastblock,
-	Opt_anchor, Opt_volume, Opt_partition, Opt_fileset,
-	Opt_rootdir, Opt_utf8, Opt_iocharset,
--	Opt_err
-+	Opt_err, Opt_uforget, Opt_uignore, Opt_gforget, Opt_gignore
-};
-
-static match_table_t tokens = {
-@@ -282,6 +282,10 @@ static match_table_t tokens = {
-	{Opt_adinicb, "adinicb"},
-	{Opt_shortad, "shortad"},
-	{Opt_longad, "longad"},
-+	{Opt_uforget, "uid=forget"},
-+	{Opt_uignore, "uid=ignore"},
-+	{Opt_gforget, "gid=forget"},
-+	{Opt_gignore, "gid=ignore"},
-	{Opt_gid, "gid=%u"},
-	{Opt_uid, "uid=%u"},
-	{Opt_umask, "umask=%o"},
-@@ -414,6 +418,18 @@ udf_parse_options(char *options, struct 
-				uopt->flags |= (1 << UDF_FLAG_NLS_MAP);
-				break;
-#endif
-+			case Opt_uignore:
-+				uopt->flags |= (1 << UDF_FLAG_UID_IGNORE);
-+				break;
-+			case Opt_uforget:
-+				uopt->flags |= (1 << UDF_FLAG_UID_FORGET);
-+				break;
-+			case Opt_gignore:
-+			    uopt->flags |= (1 << UDF_FLAG_GID_IGNORE);
-+				break;
-+			case Opt_gforget:
-+			    uopt->flags |= (1 << UDF_FLAG_GID_FORGET);
-+				break;
-			default:
-				printk(KERN_ERR "udf: bad mount option \"%s\" "
-						"or missing value\n", p);
-diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
-index 6636698..110f8d6 100644
---- a/fs/udf/udf_sb.h
-+++ b/fs/udf/udf_sb.h
-@@ -20,6 +20,10 @@
-#define UDF_FLAG_VARCONV		8
-#define UDF_FLAG_NLS_MAP		9
-#define UDF_FLAG_UTF8			10
-+#define UDF_FLAG_UID_FORGET     11    /* save -1 for uid to disk */
-+#define UDF_FLAG_UID_IGNORE     12    /* use sb uid instead of on disk uid */
-+#define UDF_FLAG_GID_FORGET     13
-+#define UDF_FLAG_GID_IGNORE     14
-
-#define UDF_PART_FLAG_UNALLOC_BITMAP	0x0001
-#define UDF_PART_FLAG_UNALLOC_TABLE	0x0002
--- 
-1.1.3
-
+Could someone with an m68k compiler please send the patch?

@@ -1,81 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWCDIUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751600AbWCDIbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751415AbWCDIUT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 03:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWCDIUT
+	id S1751600AbWCDIbo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 03:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWCDIbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 03:20:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40614 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751415AbWCDIUR (ORCPT
+	Sat, 4 Mar 2006 03:31:44 -0500
+Received: from smtp-out4.iol.cz ([194.228.2.92]:23247 "EHLO smtp-out4.iol.cz")
+	by vger.kernel.org with ESMTP id S1751593AbWCDIbn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 03:20:17 -0500
-Date: Sat, 4 Mar 2006 00:18:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: clameter@engr.sgi.com, linux-kernel@vger.kernel.org, ralf@linux-mips.org,
-       johnstul@us.ibm.com, ak@muc.de, Richard Henderson <rth@twiddle.net>
-Subject: Re: [PATCH] simplify update_times (avoid jiffies/jiffies_64
- aliasing problem)
-Message-Id: <20060304001834.0476e8e9.akpm@osdl.org>
-In-Reply-To: <20060304.013153.71086081.anemo@mba.ocn.ne.jp>
-References: <20060303.114406.64806237.nemoto@toshiba-tops.co.jp>
-	<20060302190408.1e754f12.akpm@osdl.org>
-	<20060303.133125.106438890.nemoto@toshiba-tops.co.jp>
-	<20060304.013153.71086081.anemo@mba.ocn.ne.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Mar 2006 03:31:43 -0500
+Message-ID: <4409506B.1050504@math.cas.cz>
+Date: Sat, 04 Mar 2006 09:31:39 +0100
+From: David Kredba <kredba@math.cas.cz>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051022)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Genius VideoWonder DVB-T PCI support
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
->
-> akpm> I'm not sure how to resolve this, really.  Worried.  Have you
-> akpm> socialised those changes with architecture maintainers?  If so,
-> akpm> what was the feedback?
-> 
-> For a short term fix, barrier() might be a safe option.
-> 
-> 
-> Add an optimization barrier to prevent prefetching jiffies before
-> incrementing jiffies_64.
-> 
-> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-> 
-> diff --git a/kernel/timer.c b/kernel/timer.c
-> index fc6646f..fdd12a5 100644
-> --- a/kernel/timer.c
-> +++ b/kernel/timer.c
-> @@ -925,6 +925,7 @@ static inline void update_times(void)
->  void do_timer(struct pt_regs *regs)
->  {
->  	jiffies_64++;
-> +	barrier();
->  	update_times();
->  	softlockup_tick(regs);
->  }
+Hello.
 
-a) Please never ever add any form of barrier without adding a comment
-   explaining why it's there.  Unless it's extremely obvious (and it rarely
-   is), it's hard for the reader to work out what on earth it's doing
-   there.
+I got PCI card Genius VideoWonder DVB-T and I am trying to get it to work.
 
-   Example?  Take a look at the smp_rmb() in ext3_get_inode_block(),
-   work out why it's there.  Time yourself.
+The card is using SAA7134H, TDA 10046HT and TDA 8274 chips.
 
-b) On 64-bit machines jiffies and jiffies_64 always have the same
-   address (don't they?) Is the compiler really going to move a read of an
-   absolute address ahead of a modification of the same address?
+My system is Gentoo (Base System version 1.6.14), kernel 2.6.15.
 
-   <looks>
+The card is, by lspci, visible as :
 
-   The address of jiffies isn't known until link time, so yup, the risk
-   is there.
+02:03.0 Multimedia controller: Philips Semiconductors SAA7134 Video 
+Broadcast Decoder (rev 01)
+         Subsystem: KYE Systems Corporation Unknown device 0301
+         Flags: bus master, medium devsel, latency 32, IRQ 19
+         Memory at ffdffc00 (32-bit, non-prefetchable) [size=1K]
+         Capabilities: [40] Power Management version 1
 
-c) jiffies is declared volatile.  In practice, if I know my gcc, it's
-   just not going to play these reordering games with a volatile.
+If I tried to load saa7134-dvb module it loads and loads all of the 
+other needed modules, but it ignores the card and the module saa7134
+reports the card as V4L2 device and not the DVB.
 
-   If that's true, and if some standard (presumably c99) says that it
-   must be true then I don't think we need the patch.
+There is /usr/lib/hotplug/firmware dvb-fe-tda10046.fw firmware.
+
+The state before saa7134-dvb loaded :
+
+Module                  Size  Used by
+w83627hf               24080  0
+hwmon_vid               2432  1 w83627hf
+i2c_isa                 3840  1 w83627hf
+snd_seq_midi            7072  0
+snd_emu10k1_synth       7040  0
+snd_emux_synth         35456  1 snd_emu10k1_synth
+snd_seq_virmidi         6272  1 snd_emux_synth
+snd_seq_midi_emul       7040  1 snd_emux_synth
+snd_pcm_oss            48800  0
+snd_mixer_oss          17280  1 snd_pcm_oss
+snd_seq_oss            33152  0
+snd_seq_midi_event      6144  3 snd_seq_midi,snd_seq_virmidi,snd_seq_oss
+snd_seq                50448  8 
+snd_seq_midi,snd_emux_synth,snd_seq_virmidi,snd_seq_midi_emul,snd_seq_oss,snd_seq_midi_event
+hci_usb                14100  5
+emu10k1_gp              3072  0
+snd_emu10k1           116388  2 snd_emu10k1_synth
+snd_rawmidi            20896  3 snd_seq_midi,snd_seq_virmidi,snd_emu10k1
+snd_seq_device          7308  7 
+snd_seq_midi,snd_emu10k1_synth,snd_emux_synth,snd_seq_oss,snd_seq,snd_emu10k1,snd_rawmidi
+snd_ac97_codec         91040  1 snd_emu10k1
+snd_pcm                80772  3 snd_pcm_oss,snd_emu10k1,snd_ac97_codec
+snd_timer              21636  3 snd_seq,snd_emu10k1,snd_pcm
+snd_ac97_bus            2176  1 snd_ac97_codec
+snd_page_alloc          8584  2 snd_emu10k1,snd_pcm
+snd_util_mem            3584  2 snd_emux_synth,snd_emu10k1
+snd_hwdep               7456  2 snd_emux_synth,snd_emu10k1
+snd                    48356  15 
+snd_emux_synth,snd_seq_virmidi,snd_pcm_oss,snd_mixer_oss,snd_seq_oss,snd_seq,snd_emu10k1,snd_rawmidi,snd_seq_device,snd_ac97_codec,snd_pcm,snd_timer,snd_hwdep
+soundcore               8032  1 snd
+video_buf              17284  0
+ir_kbd_i2c              6924  0
+ir_common               8324  1 ir_kbd_i2c
+videodev                7680  0
+i2c_i801                8076  0
+i2c_core               17536  4 w83627hf,i2c_isa,ir_kbd_i2c,i2c_i801
+intel_agp              20380  1
+agpgart                28880  1 intel_agp
+r8169                  23816  0
+
+
+The state after the saa7134-dvb loaded :
+
+saa7134_dvb            10500  0
+mt352                   6276  1 saa7134_dvb
+saa7134               108896  1 saa7134_dvb
+v4l2_common             4992  1 saa7134
+v4l1_compat            13700  1 saa7134
+video_buf_dvb           4868  1 saa7134_dvb
+dvb_core               76584  1 video_buf_dvb
+nxt200x                14724  1 saa7134_dvb
+dvb_pll                 9092  2 saa7134_dvb,nxt200x
+tda1004x               15108  1 saa7134_dvb
+firmware_class          8320  3 saa7134_dvb,nxt200x,tda1004x
+w83627hf               24080  0
+hwmon_vid               2432  1 w83627hf
+i2c_isa                 3840  1 w83627hf
+snd_seq_midi            7072  0
+snd_emu10k1_synth       7040  0
+snd_emux_synth         35456  1 snd_emu10k1_synth
+snd_seq_virmidi         6272  1 snd_emux_synth
+snd_seq_midi_emul       7040  1 snd_emux_synth
+snd_pcm_oss            48800  0
+snd_mixer_oss          17280  1 snd_pcm_oss
+snd_seq_oss            33152  0
+snd_seq_midi_event      6144  3 snd_seq_midi,snd_seq_virmidi,snd_seq_oss
+snd_seq                50448  8 
+snd_seq_midi,snd_emux_synth,snd_seq_virmidi,snd_seq_midi_emul,snd_seq_oss,snd_seq_midi_event
+hci_usb                14100  5
+emu10k1_gp              3072  0
+snd_emu10k1           116388  2 snd_emu10k1_synth
+snd_rawmidi            20896  3 snd_seq_midi,snd_seq_virmidi,snd_emu10k1
+snd_seq_device          7308  7 
+snd_seq_midi,snd_emu10k1_synth,snd_emux_synth,snd_seq_oss,snd_seq,snd_emu10k1,snd_rawmidi
+snd_ac97_codec         91040  1 snd_emu10k1
+snd_pcm                80772  3 snd_pcm_oss,snd_emu10k1,snd_ac97_codec
+snd_timer              21636  3 snd_seq,snd_emu10k1,snd_pcm
+snd_ac97_bus            2176  1 snd_ac97_codec
+snd_page_alloc          8584  2 snd_emu10k1,snd_pcm
+snd_util_mem            3584  2 snd_emux_synth,snd_emu10k1
+snd_hwdep               7456  2 snd_emux_synth,snd_emu10k1
+snd                    48356  15 
+snd_emux_synth,snd_seq_virmidi,snd_pcm_oss,snd_mixer_oss,snd_seq_oss,snd_seq,snd_emu10k1,snd_rawmidi,snd_seq_device,snd_ac97_codec,snd_pcm,snd_timer,snd_hwdep
+soundcore               8032  1 snd
+video_buf              17284  3 saa7134_dvb,saa7134,video_buf_dvb
+ir_kbd_i2c              6924  1 saa7134
+ir_common               8324  2 saa7134,ir_kbd_i2c
+videodev                7680  1 saa7134
+i2c_i801                8076  0
+i2c_core               17536  9 
+saa7134_dvb,mt352,saa7134,nxt200x,tda1004x,w83627hf,i2c_isa,ir_kbd_i2c,i2c_i801
+intel_agp              20380  1
+agpgart                28880  1 intel_agp
+r8169                  23816  0
+
+There is this and only this message, coming from saa7134, in teh 
+/var/log/messages file :
+
+saa7130/34: v4l2 driver version 0.2.14 loaded
+ACPI: PCI Interrupt 0000:02:03.0[A] -> GSI 19 (level, low) -> IRQ 19
+saa7134[0]: found at 0000:02:03.0, rev: 1, irq: 19, latency: 32, mmio: 
+0xffdffc00
+saa7134[0]: subsystem: 1489:0301, board: UNKNOWN/GENERIC 
+[card=0,autodetected]
+saa7134[0]: board init: gpio is 10000
+saa7134[0]: i2c eeprom 00: 89 14 01 03 54 20 1c 00 43 43 a9 1c 55 d2 b2 92
+saa7134[0]: i2c eeprom 10: 00 ff 86 0f ff 20 ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 20: 01 40 01 02 03 ff 01 03 08 ff 01 ec ff ff ff ff
+saa7134[0]: i2c eeprom 30: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 40: ff 1b 00 c0 ff 10 ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 50: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 60: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 70: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: registered device video0 [v4l2]
+saa7134[0]: registered device vbi0
+
+There is no support for that card at linuxtv.org site.
+
+Is there possibility to get the card working?
+
+Thank you very much, David Kredba
 

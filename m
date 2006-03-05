@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751988AbWCEGzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752083AbWCEHGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751988AbWCEGzA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 01:55:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCEGzA
+	id S1752083AbWCEHGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 02:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752122AbWCEHGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 01:55:00 -0500
-Received: from mail.gmx.de ([213.165.64.20]:52359 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751988AbWCEGy7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 01:54:59 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task
-	throttling	patch 1 of 2
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, mingo@elte.hu, kernel@kolivas.org,
-       nickpiggin@yahoo.com.au, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <440A08AD.7050101@bigpond.net.au>
-References: <1140183903.14128.77.camel@homer>
-	 <1140812981.8713.35.camel@homer>  <20060224141505.41b1a627.akpm@osdl.org>
-	 <1140834190.7641.25.camel@homer> <1141382609.8768.57.camel@homer>
-	 <4408D823.50407@bigpond.net.au> <1141448075.7703.11.camel@homer>
-	 <440A08AD.7050101@bigpond.net.au>
-Content-Type: text/plain
-Date: Sun, 05 Mar 2006 07:54:53 +0100
-Message-Id: <1141541693.8964.32.camel@homer>
+	Sun, 5 Mar 2006 02:06:55 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:63692 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752083AbWCEHGy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 02:06:54 -0500
+Date: Sun, 5 Mar 2006 12:35:38 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com
+Subject: Re: VFS nr_files accounting
+Message-ID: <20060305070537.GB21751@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060304141717.GA456@in.ibm.com> <20060304.142202.32211471.davem@davemloft.net> <20060304.142821.105572446.davem@davemloft.net> <20060304.143222.01803877.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060304.143222.01803877.davem@davemloft.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-05 at 08:37 +1100, Peter Williams wrote:
-> Mike Galbraith wrote:
-> > On Sat, 2006-03-04 at 10:58 +1100, Peter Williams wrote:
-> > 
-> > 
-> >>If you're going to manage the time slice in nanoseconds why not do it 
-> >>properly?  I presume you've held back a bit in case you break something?
-> >>
-> > 
-> > 
-> > Do you mean the < NS_TICK thing?  The spare change doesn't go away.
+On Sat, Mar 04, 2006 at 02:32:22PM -0800, David S. Miller wrote:
+> From: "David S. Miller" <davem@davemloft.net>
+> Date: Sat, 04 Mar 2006 14:28:21 -0800 (PST)
 > 
-> Not exactly.  I mean "Why calculate time slice in jiffies and convert to 
-> nanoseconds?  Why not just do the calculation in nanoseconds?"
+> And now that I've sucked in percpu_counter_sum.patch, the
+> rcu-batch-tuning.patch gets a bunch of rejects.
+> 
+> Sorry, I really can't test this.  Can you by chance put together a
+> patch against vanilla 2.6.16-GIT?  We'll need that to put a fix
+> for this bug into Linus's tree anyways.
 
-Turns out that my first instinct was right, and there is a good reason
-not to.  It doesn't improve readability nor do anything functional, it
-only adds clutter.  I much prefer the look of plain old ticks, and
-having nanoseconds only intrude where they're required.  I did change
-NS_TICK to the less obfuscated (1000000000 / HZ), with task_timeslice()
-returning a more readable ticks * NS_TICK conversion.
+Dave,
 
-	-Mike
+Can you check if the following patchset applies to the latest git ?
+These were against 2.6.16-rc3.
 
+http://www.hill9.org/linux/kernel/patches/2.6.16-rc3/rcu-batch-tuning.patch
+http://www.hill9.org/linux/kernel/patches/2.6.16-rc3/percpu-counter-sum.patch
+http://www.hill9.org/linux/kernel/patches/2.6.16-rc3/fix-file-counting.patch
+
+Thanks
+Dipankar

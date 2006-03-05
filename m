@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWCEAOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWCEAQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWCEAOL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 19:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWCEAOL
+	id S932308AbWCEAQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 19:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWCEAQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 19:14:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20447 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932305AbWCEAOK (ORCPT
+	Sat, 4 Mar 2006 19:16:57 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:224 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932308AbWCEAQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 19:14:10 -0500
-Date: Sat, 4 Mar 2006 16:12:27 -0800
+	Sat, 4 Mar 2006 19:16:56 -0500
+Date: Sat, 4 Mar 2006 16:15:19 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: J M Cerqueira Esteves <jmce@artenumerica.com>
 Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
        Jens Axboe <axboe@suse.de>
-Subject: Re: oom-killer: gfp_mask=0xd1  with 2.6.12 on EM64T
-Message-Id: <20060304161227.71b124e1.akpm@osdl.org>
-In-Reply-To: <440865A9.4000102@artenumerica.com>
+Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
+ 2.6.12]
+Message-Id: <20060304161519.6e6fbe2c.akpm@osdl.org>
+In-Reply-To: <4409B8DC.9040404@artenumerica.com>
 References: <4405D383.5070201@artenumerica.com>
 	<20060302011735.55851ca2.akpm@osdl.org>
 	<440865A9.4000102@artenumerica.com>
+	<4409B8DC.9040404@artenumerica.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,42 +31,52 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 J M Cerqueira Esteves <jmce@artenumerica.com> wrote:
 >
-
-argh.  Please always do reply-to-all.  I almost missed this one.
-
-> Andrew Morton wrote:
-> > That's quite an old kernel.  If this is the notorious bio-uses-GFP_DMA bug
-> > then I'd have expected this kernel to be useless from day one.  Did you
-> > install it recently?
+> Still on the same dual EM64T machine with a Tyan Tiger i7525 (S2672)
+>  motherboard and 4 GB RAM for which I reported 2.6.12 oom killings a few
+>  days ago:
 > 
-> On this double Xeon, yes.  I had no problems before with 2.6.12 and the
-> same "heavy" software on dual Opteron and dual dual core Opteron
-> machines, and this is my first installation on a EM64T.
-> At first it seemed everything was ok with 2.6.12 here too, but in a
-> couple of days we started gettings some of those oom killings when
-> running some Gaussian jobs. In at least a pair of cases the system froze
-> completely.
+>  I upgraded to Ubuntu Dapper and installed its latest 2.6.15 kernel,
+>  which incorporates 2.6.15.4.  Started with the original "binary"
+>  linux-image-2.6.15-16-amd64-xeon package,
+>  and got a few oom killings even without running the same large test
+>  programs as before.  Then recompiled the kernel with
+>  CONFIG_PREEMPT_NONE, CONFIG_SCHED_SMT, no CONFIG_PREEMPT_BKL,
+>  and the dump_stack() call suggested by Andrew Morton for
+>  mm/oom_kill.c [in out_of_memory()].
 > 
-> > If you're feeling keen you could add this patch which would confirm it:
+>  Repeated tests with Gaussian... and got oom-killer events similar to
+>  those found with 2.6.12.   At
+>  http://jmce.artenumerica.org/en/tmp/linux-2.6.15-oom_killings/kern.log
+>  are the kernel messages from the killing of two Gaussian runs;
+>  I just show below the beginning, until the first killing.
 > 
-> Added it and already got output for a similar "killing". Since I'm not
-> sure what could be most relevant among those messages, I refrained from
-> attaching them all here, and instead put them at
-> http://jmce.artenumerica.org/tmp/linux-2.6.12-oom_killings/EM64T-kern.log
-
-Those x86_64 backtraces are quite hard to follow.  They get much better if
-you enable CONFIG_FRAME_POINTER, and that makes very little difference to
-code quality.
-
-> > And if it's that bug then I'm afraid you'll have to sit tight until 2.6.16.
-> > We shouldn't release 2.6.16 until this thing is fixed.
+>  Any suggestions on patches or some pre-2.6.16 version I should try?
 > 
-> Do those call traces suggest that uncorrected bug you mention?
+> 
+>  Call Trace:<ffffffff8015efcb>{out_of_memory+23}
+>  <ffffffff80130465>{__wake_up+56}
+>         <ffffffff80161177>{__alloc_pages+572}
+>  <ffffffff8017fc25>{bio_copy_user+219}
+>         <ffffffff801debbf>{blk_rq_map_user+133} <ffffffff801e1b61>{sg_io+351}
+>         <ffffffff801e1ff8>{scsi_cmd_ioctl+494}
+>  <ffffffff80130465>{__wake_up+56}
+>         <ffffffff80265aac>{sock_def_readable+52}
+>  <ffffffff802c5d68>{unix_dgram_sendmsg+1085}
+>         <ffffffff88077e35>{:sd_mod:sd_ioctl+371}
+>  <ffffffff801e0058>{blkdev_driver_ioctl+93}
+>         <ffffffff801e0726>{blkdev_ioctl+1613}
+>  <ffffffff8018ce76>{do_select+1137}
+>         <ffffffff8026321e>{sys_sendto+251} <ffffffff8018c941>{__pollwait+0}
+>         <ffffffff801813d2>{block_ioctl+27} <ffffffff8018c091>{do_ioctl+33}
+>         <ffffffff8018c36c>{vfs_ioctl+643} <ffffffff8018c3e0>{sys_ioctl+91}
+>         <ffffffff8010fa46>{system_call+126}
+>  oom-killer: gfp_mask=0xd1, order=0
 
-It's hard to say what happened there.  I _think_ it went oom in
-get_sectorsize()'s GFP_KERNEL|GFP_DMA allocation.  (Jens, do we really need
-GFP_DMA in there?)
+Yup, that looks like the same bug.
 
-But that's only a 512-byte allocation.  Something else must have used up
-all the DMA zone.
+We have a candidate fix at
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
+ Could you test that?  (and don't alter the Cc: list!).  The patch is
+against 2.6.16-rc5.
 
+Thanks.

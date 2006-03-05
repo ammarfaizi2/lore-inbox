@@ -1,106 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752267AbWCEMW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752243AbWCEMhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752267AbWCEMW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 07:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752270AbWCEMW0
+	id S1752243AbWCEMhq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 07:37:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752273AbWCEMhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 07:22:26 -0500
-Received: from gecko.sbs.de ([194.138.37.40]:2643 "EHLO gecko.sbs.de")
-	by vger.kernel.org with ESMTP id S1752267AbWCEMWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 07:22:25 -0500
-Message-ID: <440AD8FE.3000900@sbs.de>
-Date: Sun, 05 Mar 2006 13:26:38 +0100
-From: Norbert Wegener <nw@sbs.de>
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, coreteam@netfilter.org
-Subject: BUG: soft lockup detected on CPU#0!
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Mar 2006 07:37:46 -0500
+Received: from smtp-vbr7.xs4all.nl ([194.109.24.27]:4623 "EHLO
+	smtp-vbr7.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1752243AbWCEMhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 07:37:46 -0500
+Date: Sun, 5 Mar 2006 13:37:41 +0100
+From: Bauke jan Douma <bjdouma@xs4all.nl>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
+Message-ID: <20060305123741.GA25460@skyscraper.unix9.prv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Disclaimer: sorry
+X-Operating-System: human brain v1.04E11
+Organization: A training zoo
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not sure, whether this bug has to do with netfilter. Therefore I 
-also  send it to  the suggested address from REPORTING-BUGS.
-I hope, this information is sufficient. I don't know, which process has 
-been 12848.
-Mar  5 12:48:15 nobbi kernel: ip_conntrack version 2.4 (3583 buckets, 
-28664 max) - 232 bytes per conntrack
-Mar  5 12:48:44 nobbi kernel: BUG: soft lockup detected on CPU#0!
-Mar  5 12:48:44 nobbi kernel:
-Mar  5 12:48:44 nobbi kernel: Pid: 12848, comm:                rmmod
-Mar  5 12:48:44 nobbi kernel: EIP: 0060:[<c011b230>] CPU: 0
-Mar  5 12:48:44 nobbi kernel: EIP is at local_bh_enable+0x1/0x5c
-Mar  5 12:48:44 nobbi kernel:  EFLAGS: 00000202    Not tainted  
-(2.6.15.1-default)
-Mar  5 12:48:44 nobbi kernel: EAX: 00000000 EBX: cdcabb10 ECX: c35dbf4c 
-EDX: cdcabb10
-Mar  5 12:48:44 nobbi kernel: ESI: c35dbf4c EDI: 00000000 EBP: dd243db0 
-DS: 007b ES: 007b
-Mar  5 12:48:44 nobbi kernel: CR0: 8005003b CR2: 0805e30c CR3: 059d5000 
-CR4: 000006d0
-Mar  5 12:48:44 nobbi kernel:  [<dd243c54>] get_next_corpse+0xc7/0xce 
-[ip_conntrack]
-Mar  5 12:48:44 nobbi kernel:  [<dd243db0>] kill_all+0x0/0x6 [ip_conntrack]
-Mar  5 12:48:44 nobbi kernel:  [<dd243cb5>] 
-ip_ct_iterate_cleanup+0x5a/0x66 [ip_conntrack]
-Mar  5 12:48:44 nobbi kernel:  [<dd243dea>] 
-ip_conntrack_cleanup+0x14/0x65 [ip_conntrack]
-Mar  5 12:48:45 nobbi kernel:  [<dd2427e9>] init_or_cleanup+0x24b/0x24f 
-[ip_conntrack]
-Mar  5 12:48:45 nobbi kernel:  [<c0129642>] sys_delete_module+0x11f/0x14f
-Mar  5 12:48:45 nobbi kernel:  [<c0140905>] do_munmap+0xd2/0xe8
-Mar  5 12:48:45 nobbi kernel:  [<c01029db>] sysenter_past_esp+0x54/0x79
+From: Bauke Jan Douma <bjdouma@xs4all.nl>
+
+On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
+and MC97 modem controller are deactivated when a second PCI soundcard
+is present.  This patch enables them.
+
+Signed-off-by: Bauke Jan Douma <bjdouma@xs4all.nl>
+
+---
+
+When a PCI soundcard is present in an Asus A8V or A8V Deluxe system, the
+BIOS will disable the onboard AC97 and MC97 devices.  This patch enables
+them.  The soundcard now works on my A8V Deluxe, shows up in lspci output,
+in /proc/asound/cards, has mixer controls, plays audio, on both 32 bits
+and 64 bits systems.
+Patch is against 2.6.16-rc3.
 
 
-Output from sh scripts/ver_linux:
-
-
-
-
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux nobbi 2.6.15.1-default #1 Sun Jan 29 12:53:41 CET 2006 i686 athlon 
-i386 GNU/Linux
-
-Gnu C                  4.0.2
-Gnu make               3.80
-binutils               2.16.91.0.2
-util-linux             2.12q
-mount                  2.12q
-module-init-tools      3.2-pre8
-e2fsprogs              1.38
-jfsutils               1.1.8
-reiserfsprogs          3.6.18
-reiser4progs           line
-xfsprogs               2.6.36
-PPP                    2.4.3
-nfs-utils              1.0.7
-Linux C Library        2.3.5
-Dynamic linker (ldd)   2.3.5
-Linux C++ Library      6.0.6
-Procps                 3.2.5
-Net-tools              1.60
-Kbd                    1.12
-Sh-utils               5.3.0
-udev                   068
-Modules Loaded         iptable_nat ip_nat ip_conntrack xfrm_user 
-xfrm4_tunnel af_key ohci_hcd usblp nls_cp850 nls_utf8 smbfs ppp_synctty 
-iptable_filter ip_tables n_hdlc ppp_generic slhc deflate zlib_deflate 
-twofish serpent blowfish sha256 crypto_null aes_i586 sha1 ipcomp esp4 
-ah4 speedstep_lib freq_table ipv6 snd_pcm_oss snd_mixer_oss snd_seq 
-snd_seq_device button battery ac usbhid edd snd_intel8x0 3c59x 
-snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore 
-snd_page_alloc i2c_sis96x i2c_core sis900 mii sis_agp agpgart ehci_hcd 
-usbcore generic shpchp pci_hotplug parport_pc lp parport dm_mod reiserfs 
-fan ide_cd cdrom thermal processor sis5513 ide_disk ide_core
-
-
-Norbert Wegener
-
-
-
-
+--- ./linux-2.6.16-rc3/drivers/pci/quirks.c.orig	2006-02-28 00:54:47.000000000 +0100
++++ ./linux-2.6.16-rc3/drivers/pci/quirks.c	2006-02-28 21:34:46.000000000 +0100
+@@ -1074,6 +1074,37 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_S
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_963,		quirk_sis_96x_smbus );
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_LPC,		quirk_sis_96x_smbus );
+ 
++/*
++ * On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
++ * and MC97 modem controller are disabled when a second PCI soundcard is
++ * present. This patch, tweaking the VT8237 ISA bridge, enables them.
++ * -- bjd
++ */
++static void __init asus_hides_ac97_lpc(struct pci_dev *dev)
++{
++	u8 val;
++	int asus_hides_ac97 = 0;
++
++	if (likely(dev->subsystem_vendor == PCI_VENDOR_ID_ASUSTEK)) {
++		if (dev->device == PCI_DEVICE_ID_VIA_8237)
++			asus_hides_ac97 = 1;
++	}
++
++	if (!asus_hides_ac97)
++		return;	
++
++	pci_read_config_byte(dev, 0x50, &val);
++	if (val & 0xc0) {
++		pci_write_config_byte(dev, 0x50, val & (~0xc0));
++		pci_read_config_byte(dev, 0x50, &val);
++		if (val & 0xc0)
++			printk(KERN_INFO "PCI: onboard AC97/MC97 devices continue to play 'hide and seek'! 0x%x\n", val);
++		else
++			printk(KERN_INFO "PCI: enabled onboard AC97/MC97 devices\n");
++	}
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8237, asus_hides_ac97_lpc );
++
+ #ifdef CONFIG_X86_IO_APIC
+ static void __init quirk_alder_ioapic(struct pci_dev *pdev)
+ {

@@ -1,75 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWCESWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbWCESX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWCESWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 13:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWCESWr
+	id S1750963AbWCESX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 13:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWCESX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 13:22:47 -0500
-Received: from lug-owl.de ([195.71.106.12]:21136 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750897AbWCESWq (ORCPT
+	Sun, 5 Mar 2006 13:23:56 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:26852 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750955AbWCESXz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 13:22:46 -0500
-Date: Sun, 5 Mar 2006 19:22:40 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Aritz Bastida <aritzbastida@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MMAP: How a driver can get called on mprotect()
-Message-ID: <20060305182240.GH19232@lug-owl.de>
-Mail-Followup-To: Aritz Bastida <aritzbastida@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <7d40d7190603051012p16ed826cx@mail.gmail.com>
+	Sun, 5 Mar 2006 13:23:55 -0500
+Subject: Re: [patch] collie: fix missing pcmcia bits
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>,
+       Russell King <rmk@arm.linux.org.uk>, linux@dominikbrodowski.net
+In-Reply-To: <20060305135351.GA16481@elf.ucw.cz>
+References: <20060305135351.GA16481@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sun, 05 Mar 2006 18:23:27 +0000
+Message-Id: <1141583008.6521.49.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="skNIaqTkWYyGFDfT"
-Content-Disposition: inline
-In-Reply-To: <7d40d7190603051012p16ed826cx@mail.gmail.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2006-03-05 at 14:53 +0100, Pavel Machek wrote: 
+> This adds missing bits of collie (sharp sl-5500) PCMCIA support.
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> diff --git a/arch/arm/mach-sa1100/collie.c b/arch/arm/mach-sa1100/collie.c
+> index f146e5e..8bd802e 100644
+> --- a/arch/arm/mach-sa1100/collie.c
+> +++ b/arch/arm/mach-sa1100/collie.c
+> @@ -76,6 +76,12 @@ static struct scoop_pcmcia_dev collie_pc
+>  },
+>  };
+>  
+> +static struct scoop_pcmcia_config collie_pcmcia_config = {
+> +	.devs         = &collie_pcmcia_scoop[0],
+> +	.num_devs     = 1,
+> +};
+> +
+> +
+>  static struct mcp_plat_data collie_mcp_data = {
+>  	.mccr0          = MCCR0_ADM,
+>  	.sclk_rate      = 11981000,
+> @@ -242,8 +249,7 @@ static void __init collie_init(void)
+>  	GPDR |= GPIO_32_768kHz;
+>  	TUCR  = TUCR_32_768kHz;
+>  
+> -	scoop_num = 1;
+> -	scoop_devs = &collie_pcmcia_scoop[0];
 
---skNIaqTkWYyGFDfT
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+These lines don't exist in mainline kernels anymore? What was this
+diffed against?
 
-On Sun, 2006-03-05 19:12:29 +0100, Aritz Bastida <aritzbastida@gmail.com> w=
-rote:
-> Hello, i have a driver which lets a region of its memory to be mmaped.
-> The memory can be read and written to from user processes, but sometimes
-> i just want to let read it, not write it.
+> +	platform_scoop_config = &collie_pcmcia_config;
 
-Well, what hardware is it for and where can we download the driver to
-have a view at it? That'd probably help suggesting something...
+This is fine (and its definition above).
 
-MfG, JBG
+>  	ret = platform_add_devices(devices, ARRAY_SIZE(devices));
+>  	if (ret) {
+> diff --git a/drivers/pcmcia/pxa2xx_sharpsl.c b/drivers/pcmcia/pxa2xx_sharpsl.c
+> index fd36473..f1363b8 100644
+> --- a/drivers/pcmcia/pxa2xx_sharpsl.c
+> +++ b/drivers/pcmcia/pxa2xx_sharpsl.c
+> @@ -22,6 +22,15 @@
+>  #include <asm/hardware.h>
+>  #include <asm/irq.h>
+>  #include <asm/hardware/scoop.h>
+> +#include <asm/mach-types.h>
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+This is needed but its already in mainline?
 
---skNIaqTkWYyGFDfT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> +#include <linux/delay.h>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+This is no longer needed (and should have been above asm anyway).
 
-iD8DBQFECyxwHb1edYOZ4bsRAhSCAJ93sPf/TXBqpVN0aR9O7R47dCZrEwCffmoA
-vbPlUHIwWJ62smAz/14+Rq0=
-=lVsR
------END PGP SIGNATURE-----
+> +
+> +#ifdef CONFIG_SA1100_COLLIE
+> +#include <asm/arch-sa1100/collie.h>
 
---skNIaqTkWYyGFDfT--
+I can't immediately see why this is needed anymore.
+
+> +#else
+> +#include <asm/arch/spitz.h>
+> +#include <asm/arch-pxa/pxa-regs.h>
+> +#endif
+
+These aren't needed.
+
+Richard
+

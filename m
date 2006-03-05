@@ -1,227 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWCEJzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWCEKID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWCEJzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 04:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752161AbWCEJzo
+	id S1751029AbWCEKID (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 05:08:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWCEKID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 04:55:44 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:7887 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750796AbWCEJzn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 04:55:43 -0500
-Subject: [patch resend] zaurus keyboard driver updates
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-       linux-input@atrey.karlin.mff.cuni.cz
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 05 Mar 2006 09:51:10 +0000
-Message-Id: <1141552270.6521.5.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Mar 2006 05:08:03 -0500
+Received: from 213-205-70-171.net.novis.pt ([213.205.70.171]:37522 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751029AbWCEKIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 05:08:01 -0500
+Message-ID: <440AB878.7070401@artenumerica.com>
+Date: Sun, 05 Mar 2006 10:07:52 +0000
+From: J M Cerqueira Esteves <jmce@artenumerica.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
+ 2.6.12]
+References: <4405D383.5070201@artenumerica.com>	<20060302011735.55851ca2.akpm@osdl.org>	<440865A9.4000102@artenumerica.com>	<4409B8DC.9040404@artenumerica.com> <20060304161519.6e6fbe2c.akpm@osdl.org> <440A531D.9050009@artenumerica.com>
+In-Reply-To: <440A531D.9050009@artenumerica.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig619B75C249E1D48F2228A98D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zaurus keyboard driver updates:
-  * Change the scan interval from 100ms to 50ms. This stops the key 
-    repeat from triggering on double letter presses.
-  * Remove unneeded stale hinge code from corgikbd
-  * Change unneeded corgi GPIO pins to inputs when suspended
-  * Add support for the headphone jack switch for both corgi and spitz
-    (as switch SW_2)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig619B75C249E1D48F2228A98D
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+J M Cerqueira Esteves wrote:
+> I'll test it in a few hours, after a short "barbaric" test
+> inspired (perhaps naively) by those call traces: running with a 2.6.15.4
+> without SCSI cd-rom support (with multiple Gaussian processes, no
+> oom-killings until now (3 hours)).
 
-Index: linux-2.6.15/drivers/input/keyboard/corgikbd.c
-===================================================================
---- linux-2.6.15.orig/drivers/input/keyboard/corgikbd.c	2006-03-04 23:08:30.000000000 +0000
-+++ linux-2.6.15/drivers/input/keyboard/corgikbd.c	2006-03-04 23:10:07.000000000 +0000
-@@ -29,11 +29,11 @@
- #define KB_COLS				12
- #define KB_ROWMASK(r)		(1 << (r))
- #define SCANCODE(r,c)		( ((r)<<4) + (c) + 1 )
--/* zero code, 124 scancodes + 3 hinge combinations */
--#define	NR_SCANCODES		( SCANCODE(KB_ROWS-1,KB_COLS-1) +1 +1 +3 )
--#define SCAN_INTERVAL		(HZ/10)
-+/* zero code, 124 scancodes */
-+#define	NR_SCANCODES		( SCANCODE(KB_ROWS-1,KB_COLS-1) +1 +1 )
- 
--#define HINGE_SCAN_INTERVAL		(HZ/4)
-+#define SCAN_INTERVAL		(50) /* ms */
-+#define HINGE_SCAN_INTERVAL	(250) /* ms */
- 
- #define CORGI_KEY_CALENDER	KEY_F1
- #define CORGI_KEY_ADDRESS	KEY_F2
-@@ -49,9 +49,6 @@
- #define CORGI_KEY_MAIL		KEY_F10
- #define CORGI_KEY_OK		KEY_F11
- #define CORGI_KEY_MENU		KEY_F12
--#define CORGI_HINGE_0		KEY_KP0
--#define CORGI_HINGE_1		KEY_KP1
--#define CORGI_HINGE_2		KEY_KP2
- 
- static unsigned char corgikbd_keycode[NR_SCANCODES] = {
- 	0,                                                                                                                /* 0 */
-@@ -63,7 +60,6 @@
- 	CORGI_KEY_MAIL, KEY_Z, KEY_X, KEY_MINUS, KEY_SPACE, KEY_COMMA, 0, KEY_UP, 0, 0, 0, CORGI_KEY_FN, 0, 0, 0, 0,            /* 81-96 */
- 	KEY_SYSRQ, CORGI_KEY_JAP1, CORGI_KEY_JAP2, CORGI_KEY_CANCEL, CORGI_KEY_OK, CORGI_KEY_MENU, KEY_LEFT, KEY_DOWN, KEY_RIGHT, 0, 0, 0, 0, 0, 0, 0,  /* 97-112 */
- 	CORGI_KEY_OFF, CORGI_KEY_EXOK, CORGI_KEY_EXCANCEL, CORGI_KEY_EXJOGDOWN, CORGI_KEY_EXJOGUP, 0, 0, 0, 0, 0, 0, 0,   /* 113-124 */
--	CORGI_HINGE_0, CORGI_HINGE_1, CORGI_HINGE_2	  /* 125-127 */
- };
- 
+And still running after 10 hours, but now I increased the load adding
+another Gaussian run (still not requiring swap) and oom-killer
+manifested itself again, although no killings were reported:
 
-@@ -187,7 +183,7 @@
- 
- 	/* if any keys are pressed, enable the timer */
- 	if (num_pressed)
--		mod_timer(&corgikbd_data->timer, jiffies + SCAN_INTERVAL);
-+		mod_timer(&corgikbd_data->timer, jiffies + msecs_to_jiffies(SCAN_INTERVAL));
- 
- 	spin_unlock_irqrestore(&corgikbd_data->lock, flags);
- }
-@@ -228,6 +224,7 @@
-  *          0x0c - Keyboard and Screen Closed
-  */
- 
-+#define READ_GPIO_BIT(x)    (GPLR(x) & GPIO_bit(x))
- #define HINGE_STABLE_COUNT 2
- static int sharpsl_hinge_state;
- static int hinge_count;
-@@ -239,6 +236,7 @@
- 	unsigned long flags;
- 
- 	gprr = read_scoop_reg(&corgiscoop_device.dev, SCOOP_GPRR) & (CORGI_SCP_SWA | CORGI_SCP_SWB);
-+	gprr |= (READ_GPIO_BIT(CORGI_GPIO_AK_INT) != 0);
- 	if (gprr != sharpsl_hinge_state) {
- 		hinge_count = 0;
- 		sharpsl_hinge_state = gprr;
-@@ -249,27 +247,38 @@
- 
- 			input_report_switch(corgikbd_data->input, SW_0, ((sharpsl_hinge_state & CORGI_SCP_SWA) != 0));
- 			input_report_switch(corgikbd_data->input, SW_1, ((sharpsl_hinge_state & CORGI_SCP_SWB) != 0));
-+			input_report_switch(corgikbd_data->input, SW_2, (READ_GPIO_BIT(CORGI_GPIO_AK_INT) != 0));
- 			input_sync(corgikbd_data->input);
- 
- 			spin_unlock_irqrestore(&corgikbd_data->lock, flags);
- 		}
- 	}
--	mod_timer(&corgikbd_data->htimer, jiffies + HINGE_SCAN_INTERVAL);
-+	mod_timer(&corgikbd_data->htimer, jiffies + msecs_to_jiffies(HINGE_SCAN_INTERVAL));
- }
- 
- #ifdef CONFIG_PM
- static int corgikbd_suspend(struct platform_device *dev, pm_message_t state)
- {
-+	int i;
- 	struct corgikbd *corgikbd = platform_get_drvdata(dev);
-+
- 	corgikbd->suspended = 1;
-+	/* strobe 0 is the power key so this can't be made an input for
-+	   powersaving therefore i = 1 */
-+	for (i = 1; i < CORGI_KEY_STROBE_NUM; i++)
-+		pxa_gpio_mode(CORGI_GPIO_KEY_STROBE(i) | GPIO_IN);
- 
- 	return 0;
- }
- 
- static int corgikbd_resume(struct platform_device *dev)
- {
-+	int i;
- 	struct corgikbd *corgikbd = platform_get_drvdata(dev);
- 
-+	for (i = 1; i < CORGI_KEY_STROBE_NUM; i++)
-+		pxa_gpio_mode(CORGI_GPIO_KEY_STROBE(i) | GPIO_OUT | GPIO_DFLT_HIGH);
-+
- 	/* Upon resume, ignore the suspend key for a short while */
- 	corgikbd->suspend_jiffies=jiffies;
- 	corgikbd->suspended = 0;
-@@ -333,10 +342,11 @@
- 	clear_bit(0, input_dev->keybit);
- 	set_bit(SW_0, input_dev->swbit);
- 	set_bit(SW_1, input_dev->swbit);
-+	set_bit(SW_2, input_dev->swbit);
- 
- 	input_register_device(corgikbd->input);
- 
--	mod_timer(&corgikbd->htimer, jiffies + HINGE_SCAN_INTERVAL);
-+	mod_timer(&corgikbd->htimer, jiffies + msecs_to_jiffies(HINGE_SCAN_INTERVAL));
- 
- 	/* Setup sense interrupts - RisingEdge Detect, sense lines as inputs */
- 	for (i = 0; i < CORGI_KEY_SENSE_NUM; i++) {
-@@ -351,6 +361,9 @@
- 	for (i = 0; i < CORGI_KEY_STROBE_NUM; i++)
- 		pxa_gpio_mode(CORGI_GPIO_KEY_STROBE(i) | GPIO_OUT | GPIO_DFLT_HIGH);
- 
-+	/* Setup the headphone jack as an input */
-+	pxa_gpio_mode(CORGI_GPIO_AK_INT | GPIO_IN);
-+
- 	return 0;
- }
- 
-Index: linux-2.6.15/drivers/input/keyboard/spitzkbd.c
-===================================================================
---- linux-2.6.15.orig/drivers/input/keyboard/spitzkbd.c	2006-03-04 23:08:30.000000000 +0000
-+++ linux-2.6.15/drivers/input/keyboard/spitzkbd.c	2006-03-04 23:09:06.000000000 +0000
-@@ -30,6 +30,7 @@
- #define SCANCODE(r,c)		(((r)<<4) + (c) + 1)
- #define	NR_SCANCODES		((KB_ROWS<<4) + 1)
- 
-+#define SCAN_INTERVAL		(50) /* ms */
- #define HINGE_SCAN_INTERVAL	(150) /* ms */
- 
- #define SPITZ_KEY_CALENDER	KEY_F1
-@@ -230,7 +231,7 @@
- 
- 	/* if any keys are pressed, enable the timer */
- 	if (num_pressed)
--		mod_timer(&spitzkbd_data->timer, jiffies + msecs_to_jiffies(100));
-+		mod_timer(&spitzkbd_data->timer, jiffies + msecs_to_jiffies(SCAN_INTERVAL));
- 
- 	spin_unlock_irqrestore(&spitzkbd_data->lock, flags);
- }
-@@ -287,6 +288,7 @@
- 	unsigned long flags;
- 
- 	state = GPLR(SPITZ_GPIO_SWA) & (GPIO_bit(SPITZ_GPIO_SWA)|GPIO_bit(SPITZ_GPIO_SWB));
-+	state |= (GPLR(SPITZ_GPIO_AK_INT) & GPIO_bit(SPITZ_GPIO_AK_INT));
- 	if (state != sharpsl_hinge_state) {
- 		hinge_count = 0;
- 		sharpsl_hinge_state = state;
-@@ -299,6 +301,7 @@
- 
- 		input_report_switch(spitzkbd_data->input, SW_0, ((GPLR(SPITZ_GPIO_SWA) & GPIO_bit(SPITZ_GPIO_SWA)) != 0));
- 		input_report_switch(spitzkbd_data->input, SW_1, ((GPLR(SPITZ_GPIO_SWB) & GPIO_bit(SPITZ_GPIO_SWB)) != 0));
-+		input_report_switch(spitzkbd_data->input, SW_2, ((GPLR(SPITZ_GPIO_AK_INT) & GPIO_bit(SPITZ_GPIO_AK_INT)) != 0));
- 		input_sync(spitzkbd_data->input);
- 
- 		spin_unlock_irqrestore(&spitzkbd_data->lock, flags);
-@@ -397,6 +400,7 @@
- 	clear_bit(0, input_dev->keybit);
- 	set_bit(SW_0, input_dev->swbit);
- 	set_bit(SW_1, input_dev->swbit);
-+	set_bit(SW_2, input_dev->swbit);
- 
- 	input_register_device(input_dev);
- 
-@@ -432,6 +436,9 @@
- 	request_irq(SPITZ_IRQ_GPIO_SWB, spitzkbd_hinge_isr,
- 		    SA_INTERRUPT | SA_TRIGGER_RISING | SA_TRIGGER_FALLING,
- 		    "Spitzkbd SWB", spitzkbd);
-+ 	request_irq(SPITZ_IRQ_GPIO_AK_INT, spitzkbd_hinge_isr,
-+		    SA_INTERRUPT | SA_TRIGGER_RISING | SA_TRIGGER_FALLING,
-+		    "Spitzkbd HP", spitzkbd);
- 
- 	printk(KERN_INFO "input: Spitz Keyboard Registered\n");
- 
-@@ -450,6 +457,7 @@
- 	free_irq(SPITZ_IRQ_GPIO_ON_KEY, spitzkbd);
- 	free_irq(SPITZ_IRQ_GPIO_SWA, spitzkbd);
- 	free_irq(SPITZ_IRQ_GPIO_SWB, spitzkbd);
-+	free_irq(SPITZ_IRQ_GPIO_AK_INT, spitzkbd);
- 
- 	del_timer_sync(&spitzkbd->htimer);
- 	del_timer_sync(&spitzkbd->timer);
+[35948.126969] Call Trace:<ffffffff8015efcb>{out_of_memory+23}
+<ffffffff80161177>{__alloc_pages+572}
+[35948.127018]        <ffffffff8017fc25>{bio_copy_user+219}
+<ffffffff801debbf>{blk_rq_map_user+133}
+[35948.127073]        <ffffffff801e1b61>{sg_io+351}
+<ffffffff801e1ff8>{scsi_cmd_ioctl+494}
+[35948.127135]        <ffffffff80130465>{__wake_up+56}
+<ffffffff80265aac>{sock_def_readable+52}
+[35948.127162]        <ffffffff802c5d68>{unix_dgram_sendmsg+1085}
+<ffffffff88077e35>{:sd_mod:sd_ioctl+371}
+[35948.127231]        <ffffffff801e0058>{blkdev_driver_ioctl+93}
+<ffffffff801e0726>{blkdev_ioctl+1613}
+[35948.127277]        <ffffffff8018ce76>{do_select+1137}
+<ffffffff8026321e>{sys_sendto+251}
+[35948.127334]        <ffffffff8018c941>{__pollwait+0}
+<ffffffff801813d2>{block_ioctl+27}
+[35948.127367]        <ffffffff8018c091>{do_ioctl+33}
+<ffffffff8018c36c>{vfs_ioctl+643}
+[35948.127383]        <ffffffff8018c3e0>{sys_ioctl+91}
+<ffffffff8010fa46>{system_call+126}
+[35948.127419]
+[35948.127453] oom-killer: gfp_mask=0xd1, order=0
+[35948.127456] Mem-info:
+[35948.127458] DMA per-cpu:
+[35948.127461] cpu 0 hot: low 0, high 0, batch 1 used:0
+[35948.127464] cpu 0 cold: low 0, high 0, batch 1 used:0
+[35948.127468] cpu 1 hot: low 0, high 0, batch 1 used:0
+[35948.127471] cpu 1 cold: low 0, high 0, batch 1 used:0
+[35948.127474] cpu 2 hot: low 0, high 0, batch 1 used:0
+[35948.127478] cpu 2 cold: low 0, high 0, batch 1 used:0
+[35948.127481] cpu 3 hot: low 0, high 0, batch 1 used:0
+[35948.127484] cpu 3 cold: low 0, high 0, batch 1 used:0
+[35948.127487] DMA32 per-cpu:
+[35948.127490] cpu 0 hot: low 0, high 186, batch 31 used:173
+[35948.127494] cpu 0 cold: low 0, high 62, batch 15 used:55
+[35948.127497] cpu 1 hot: low 0, high 186, batch 31 used:64
+[35948.127501] cpu 1 cold: low 0, high 62, batch 15 used:10
+[35948.127504] cpu 2 hot: low 0, high 186, batch 31 used:148
+[35948.127508] cpu 2 cold: low 0, high 62, batch 15 used:5
+[35948.127511] cpu 3 hot: low 0, high 186, batch 31 used:157
+[35948.127515] cpu 3 cold: low 0, high 62, batch 15 used:11
+[35948.127517] Normal per-cpu:
+[35948.127521] cpu 0 hot: low 0, high 186, batch 31 used:144
+[35948.127524] cpu 0 cold: low 0, high 62, batch 15 used:50
+[35948.127528] cpu 1 hot: low 0, high 186, batch 31 used:24
+[35948.127531] cpu 1 cold: low 0, high 62, batch 15 used:7
+[35948.127535] cpu 2 hot: low 0, high 186, batch 31 used:30
+[35948.127538] cpu 2 cold: low 0, high 62, batch 15 used:15
+[35948.127541] cpu 3 hot: low 0, high 186, batch 31 used:17
+[35948.127545] cpu 3 cold: low 0, high 62, batch 15 used:14
+[35948.127548] HighMem per-cpu: empty
+[35948.127552] Free pages:       84424kB (0kB HighMem)
+[35948.127557] Active:827765 inactive:133975 dirty:283294 writeback:0
+unstable:0 free:21106 slab:20548 mapped:432093 pagetables:1441
+[35948.127563] DMA free:20kB min:24kB low:28kB high:36kB active:0kB
+inactive:0kB present:12464kB pages_scanned:2 all_unreclaimable? yes
+[35948.127568] lowmem_reserve[]: 0 3255 4013 4013
+[35948.127576] DMA32 free:82028kB min:6564kB low:8204kB high:9844kB
+active:2587856kB inactive:511984kB present:3333792kB pages_scanned:0
+all_unreclaimable? no
+[35948.127580] lowmem_reserve[]: 0 0 757 757
+[35948.127587] Normal free:2376kB min:1528kB low:1908kB high:2292kB
+active:723204kB inactive:23916kB present:775680kB pages_scanned:0
+all_unreclaimable? no
+[35948.127592] lowmem_reserve[]: 0 0 0 0
+[35948.127598] HighMem free:0kB min:128kB low:128kB high:128kB
+active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+[35948.127602] lowmem_reserve[]: 0 0 0 0
+[35948.127606] DMA: 1*4kB 0*8kB 1*16kB 0*32kB 0*64kB 0*128kB 0*256kB
+0*512kB 0*1024kB 0*2048kB 0*4096kB = 20kB
+[35948.127619] DMA32: 931*4kB 664*8kB 216*16kB 169*32kB 94*64kB 6*128kB
+36*256kB 0*512kB 1*1024kB 19*2048kB 2*4096kB = 82028kB
+[35948.127632] Normal: 8*4kB 51*8kB 1*16kB 0*32kB 4*64kB 1*128kB 0*256kB
+1*512kB 1*1024kB 0*2048kB 0*4096kB = 2376kB
+[35948.127644] HighMem: empty
+[35948.127648] Swap cache: add 120, delete 120, find 14/25, race 0+1
+[35948.127651] Free swap  = 3517904kB
+[35948.127654] Total swap = 3518152kB
+[35948.127656] Free swap:       3517904kB
+[35948.146970] 1245184 pages of RAM
+[35948.146974] 232833 reserved pages
+[35948.146977] 424256 pages shared
+[35948.146980] 0 pages swap cached
+
+I'll now test the x86_64-mm-blk-bounce.patch (with CONFIG_FRAME_POINTER
+enabled).
+
+Best regards
+                           J Esteves
 
 
+-- 
++351 939838775   Skype:jmcerqueira   http://del.icio.us/jmce
+
+--------------enig619B75C249E1D48F2228A98D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFECrh/esWiVDEbnjYRAg8oAKDG9EDZhaQBIQNL6yKa6o3DOShI4ACdFdso
+GlxesPt0Qgk9+wAKZ1yimzA=
+=B43/
+-----END PGP SIGNATURE-----
+
+--------------enig619B75C249E1D48F2228A98D--

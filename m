@@ -1,82 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751869AbWCEV7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWCEWCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751869AbWCEV7R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 16:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751861AbWCEV7R
+	id S1751873AbWCEWCp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 17:02:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751861AbWCEWCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 16:59:17 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:32516 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751869AbWCEV7R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 16:59:17 -0500
-Date: Sun, 5 Mar 2006 22:58:53 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Keith Ownes <kaos@ocs.com.au>
-Subject: Re: kbuild - status on section mismatch warnings
-Message-ID: <20060305215853.GA14998@mars.ravnborg.org>
-References: <20060305193012.GA14838@mars.ravnborg.org> <20060305200659.GD27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Mar 2006 17:02:45 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:7392 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751873AbWCEWCo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 17:02:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GTFOqXLRolixDFHd/8oDWGV3DxUEopyK8HGeYyUvU+1hFt64DPph0srHJMVHDDMFOM3W/xRdVZUw1CEfZmi81DQIdz1Sc/hfrNiQgOAoX7xqkC5DPjN6shGJM6QmziXcl8dBSTDTTqIpkPzT3kPMrIbBAZ6x5HBJkVezni9k8Us=
+Message-ID: <35fb2e590603051402j1e6f9c92u9b0f5e83dea72678@mail.gmail.com>
+Date: Sun, 5 Mar 2006 22:02:43 +0000
+From: "Jon Masters" <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "Robin Holt" <holt@sgi.com>
+Subject: Re: [OT] inotify hack for locate
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060305215318.GA26130@lnx-holt.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060305200659.GD27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>
+	 <9a8748490603051342r64f1dd65qecf72a8016a0d520@mail.gmail.com>
+	 <20060305215318.GA26130@lnx-holt.americas.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al.
+On 3/5/06, Robin Holt <holt@sgi.com> wrote:
 
-> Now try x86 with sd.o non-modular.  And see
-> 
-> 
-> __init foo()
-> {
-> ....
-> 	switch(n) {
-> 	....
-> 	....
-> 	}
-> }
-Hmm, in my tree sd.o has no switch in the init function. But that does
-not change your point which is valid indeed.
+> I use suspend to disk on my laptop.  When I power it back up in the
+> morning, updatedb starts.
 
-> compiling essentially into
-> 
-> 	if (n < lower || n > upper)
-> 		goto Ldefault;
-> 	addr = const_array_of_labels[n - lower];
-> 	goto addr;
-> 
-> with const_array_of_labels sitting in .rodata and its contents pointing
-> inside foo(), i.e. into .init.text.  And yes, .init.text is discarded,
-> while .rodata is left intact.  Since the only reference to that array
-> disappears along with .init.text *and* section where array goes into is
-> hardwired into gcc, we
-> 	a) are actually OK and
-> 	b) can't do anything about that false positive, AFAICS.
+It just seems to me that things like Beagle are all well and good, but
+what would be really useful to /me/ :-) is a hack for locate. It's
+probably been done and I'm rambling for nothing - someone put me out
+of my misery with a link?
 
-For the same reason references to .init.text from .rodata are not warned
-upon - there are simply too many compielr generated false positives.
+Or I can look at fixing it for myself otherwise. This is something
+Microsoft almost "get right" with their fast indexing service.
 
-Following is the original comment from reference_init.pl:
-
-* Unfortunately references to read only data that referenced .init
-* sections had to be excluded. Almost all of these are false
-* positives, they are created by gcc. The downside of excluding rodata
-* is that there really are some user references from rodata to
-* init code, e.g. drivers/video/vgacon.c:
-*
-* const struct consw vga_con = {
-*        con_startup:            vgacon_startup,
-*
-* where vgacon_startup is __init.  If you want to wade through
-* the false
-* positives, take out the check for rodata.
-
-And this is unfortunate since we cannot do a full check, but we do a
-better job than before and warn for many of the trivial cases.
-Judging the amount of warnings already generated this is worth checking.
-
-	Sam
-
+Jon.

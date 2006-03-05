@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWCEUSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWCEUc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWCEUSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 15:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWCEUSn
+	id S1751176AbWCEUc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 15:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWCEUc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 15:18:43 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:23557 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1750728AbWCEUSm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 15:18:42 -0500
-Message-ID: <440B4799.7030609@ens-lyon.org>
-Date: Sun, 05 Mar 2006 15:18:33 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Aritz Bastida <aritzbastida@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: MMAP: How a driver can get called on mprotect()
-References: <7d40d7190603051012p16ed826cx@mail.gmail.com>	 <20060305182240.GH19232@lug-owl.de> <7d40d7190603051040h17da06caw@mail.gmail.com>
-In-Reply-To: <7d40d7190603051040h17da06caw@mail.gmail.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sun, 5 Mar 2006 15:32:28 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:30885 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750733AbWCEUc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 15:32:27 -0500
+Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe
+	motherboards
+From: Lee Revell <rlrevell@joe-job.com>
+To: bjd <bjdouma@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+In-Reply-To: <20060305192709.GA3789@skyscraper.unix9.prv>
+References: <20060305192709.GA3789@skyscraper.unix9.prv>
+Content-Type: text/plain
+Date: Sun, 05 Mar 2006 15:32:22 -0500
+Message-Id: <1141590742.14714.102.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aritz Bastida wrote:
+On Sun, 2006-03-05 at 20:27 +0100, bjd wrote:
+> From: Bauke Jan Douma <bjdouma@xs4all.nl>
+> 
+> On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
+> and MC97 modem controller are deactivated when a second PCI soundcard
+> is present.  This patch enables them.
 
->Nonetheless the question is the same: a char device with mmap
->implemented can get called any time a new vma is created or destroyed
->(a process creating a new mmap):  vma_open() and vma_close().
->
->But if a user process changes the mmap protections calling mprotect()?
->How can the driver know about that? Is there any way to do that?
->  
->
+Thanks for fixing this!  We get a ton of complaints about this "feature"
+on the ALSA lists.
 
-You probably want to remove VM_MAYWRITE from vma->vm_flags in the mmap
-vm_op of your char device.
-For instance, see how the DRM device mmap protection is set when you're
-not admin and the device is read-only:
-    http://sosdg.org/~coywolf/lxr/source/drivers/char/drm/drm_vm.c#L570
+Do we have any idea why ASUS would have done such a thing?  Users hate
+it.  Are they working around a hardware or Windows bug?
 
-Brice
+Lee
 

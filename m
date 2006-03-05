@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWCEExp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbWCEFLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWCEExp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 23:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWCEExp
+	id S1751693AbWCEFLU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 00:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWCEFLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 23:53:45 -0500
-Received: from mail.gmx.de ([213.165.64.20]:64151 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751532AbWCEExp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 23:53:45 -0500
-X-Authenticated: #14349625
-Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task
-	throttling	patch 1 of 2
-From: Mike Galbraith <efault@gmx.de>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: lkml <linux-kernel@vger.kernel.org>, mingo@elte.hu, kernel@kolivas.org,
-       nickpiggin@yahoo.com.au, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <440A08AD.7050101@bigpond.net.au>
-References: <1140183903.14128.77.camel@homer>
-	 <1140812981.8713.35.camel@homer>  <20060224141505.41b1a627.akpm@osdl.org>
-	 <1140834190.7641.25.camel@homer> <1141382609.8768.57.camel@homer>
-	 <4408D823.50407@bigpond.net.au> <1141448075.7703.11.camel@homer>
-	 <440A08AD.7050101@bigpond.net.au>
-Content-Type: text/plain
-Date: Sun, 05 Mar 2006 05:53:44 +0100
-Message-Id: <1141534424.7776.5.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Sun, 5 Mar 2006 00:11:19 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:64665 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751677AbWCEFLT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 00:11:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=M8nHZqsd7DJJNsIhQt2Kwb6UIW2N2kgIy2+2GWC3Xrpvazi+zgGyyBBAp9jO8aHg6pAlQuTvxgvInDyZYknPhLmDEwbvHZRYqHx1oP8Um9MeKIvxC5G4f6Z4v6UKeE+svU0Mj+HUNyK6/uuKMhH2AnKgHTBM+yXy8ika/CZzDZU=
+Message-ID: <6d6a94c50603042111j7e73de9fi7e8503e47d402bf9@mail.gmail.com>
+Date: Sun, 5 Mar 2006 13:11:18 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Quick question: What's the best way to use the existing driver code
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-05 at 08:37 +1100, Peter Williams wrote:
-> Mike Galbraith wrote:
-> > On Sat, 2006-03-04 at 10:58 +1100, Peter Williams wrote:
-> > 
-> > 
-> >>If you're going to manage the time slice in nanoseconds why not do it 
-> >>properly?  I presume you've held back a bit in case you break something?
-> >>
-> > 
-> > 
-> > Do you mean the < NS_TICK thing?  The spare change doesn't go away.
-> 
-> Not exactly.  I mean "Why calculate time slice in jiffies and convert to 
-> nanoseconds?  Why not just do the calculation in nanoseconds?"
+Hi all,
 
-Duh. Good question.  Thanks :)
+I'm writing a framebuffer driver, which should be under the folder
+"./drivers/video/mydriver.c".
+The video controller in my driver need a I2C driver to do some setting.
+I found there is already a driver which can be used under the folder
+"./drivers/media/video/adv7170.c". Another video driver also uses it.
+You see, they are in the different folder and there is no special
+configuration menu for the I2C driver "adv7170.c". So, what's the best
+way to use the existing driver? Now the easiest way is copying the
+driver to my framebuffer folder and add it to the makefile. But I
+don't think it's the best way.
+Thanks any hints,
 
-	-Mike
-
+Regards,
+-Aubrey

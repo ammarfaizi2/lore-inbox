@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWCEQeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWCEQfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWCEQeg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 11:34:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWCEQeg
+	id S932222AbWCEQfa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 11:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWCEQfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 11:34:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14268 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932178AbWCEQef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 11:34:35 -0500
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix ELF entry point (i386)
-References: <43FC4682.6050803@suse.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 05 Mar 2006 09:34:18 -0700
-In-Reply-To: <43FC4682.6050803@suse.de> (Gerd Hoffmann's message of "Wed, 22
- Feb 2006 12:09:54 +0100")
-Message-ID: <m1bqwkc0l1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 5 Mar 2006 11:35:30 -0500
+Received: from khc.piap.pl ([195.187.100.11]:12804 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932222AbWCEQf3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 11:35:29 -0500
+To: dmitrmax@rain.ifmo.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with reading DVD-RW media
+References: <200603051617.32455.dmitrmax@rain.ifmo.ru>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 05 Mar 2006 17:35:24 +0100
+In-Reply-To: <200603051617.32455.dmitrmax@rain.ifmo.ru> (Max Dmitrichenko's
+ message of "Sun, 5 Mar 2006 16:17:32 +0300")
+Message-ID: <m3zmk4g88j.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Hoffmann <kraxel@suse.de> writes:
+Max Dmitrichenko <dmitrmax@rain.ifmo.ru> writes:
 
->   Hi,
->
-> Elf entry point is virtual address, not physical ...
->
-> please apply,
+> The interest thing is that readcd still produces a valid image from this disc
+> and it has correct MD5 sum. So the problem is not in the media. Furthermore,
+> the disc can be perfectly read from Win2K in the VMWare environment when host
+> OS is my linux and independent of DMA settings.
 
-NACK
+Read-ahead + number of sectors not set I'd bet. Padding the image with
+some amount of empty sectors would probably help.
 
-We load the kernel at physical addresses and we enter
-the kernel at a physical address.  Even the entry point
-expects that.
-
-Is there some reason you think the entry point is virtual?
-
-Eric
+I.e., the discs are ok, the read procedure is faulty.
+-- 
+Krzysztof Halasa

@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWCEWCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751875AbWCEWDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751873AbWCEWCp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 17:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751861AbWCEWCp
+	id S1751875AbWCEWDx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 17:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCEWDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 17:02:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:7392 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751873AbWCEWCo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 17:02:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GTFOqXLRolixDFHd/8oDWGV3DxUEopyK8HGeYyUvU+1hFt64DPph0srHJMVHDDMFOM3W/xRdVZUw1CEfZmi81DQIdz1Sc/hfrNiQgOAoX7xqkC5DPjN6shGJM6QmziXcl8dBSTDTTqIpkPzT3kPMrIbBAZ6x5HBJkVezni9k8Us=
-Message-ID: <35fb2e590603051402j1e6f9c92u9b0f5e83dea72678@mail.gmail.com>
-Date: Sun, 5 Mar 2006 22:02:43 +0000
-From: "Jon Masters" <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "Robin Holt" <holt@sgi.com>
-Subject: Re: [OT] inotify hack for locate
-Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060305215318.GA26130@lnx-holt.americas.sgi.com>
+	Sun, 5 Mar 2006 17:03:53 -0500
+Received: from AMarseille-252-1-25-171.w83-201.abo.wanadoo.fr ([83.201.170.171]:42989
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751875AbWCEWDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 17:03:52 -0500
+To: torvalds@osdl.org (Linus Torvalds)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+From: Mathieu Chouquet-Stringer <mchouque@free.fr>
+Organization: Uh?
+Date: 05 Mar 2006 23:03:28 +0100
+In-Reply-To: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+Message-ID: <m3wtf8tuq7.fsf@localhost.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>
-	 <9a8748490603051342r64f1dd65qecf72a8016a0d520@mail.gmail.com>
-	 <20060305215318.GA26130@lnx-holt.americas.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/5/06, Robin Holt <holt@sgi.com> wrote:
+torvalds@osdl.org (Linus Torvalds) writes:
+> Have I missed anything? Holler. And please keep reminding about any 
+> regressions since 2.6.15.
 
-> I use suspend to disk on my laptop.  When I power it back up in the
-> morning, updatedb starts.
+As reported yesterday [1], the generic irq framework for alpha introduced
+in commit 0595bf3bca9d9932a05b06dd438f40f01d27cd33 kills my box under
+fairly heavy disk usage. I got a md raid 0 array stripped accross 3 scsi
+disks and any kind of relatively intensive IOs (like md5sum or sha1sum
+against iso files) kill the box immediately; either it panics in
+kernel/exit.c:do_exit - the first three "unlikely" - or in
+arch/alpha/mm/fault.c:do_page_fault "Unable to handle paging reguest at
+some address"...
 
-It just seems to me that things like Beagle are all well and good, but
-what would be really useful to /me/ :-) is a hack for locate. It's
-probably been done and I'm rambling for nothing - someone put me out
-of my misery with a link?
+Reverting it makes the box stable again (as it was under vanilla 2.6.15).
 
-Or I can look at fixing it for myself otherwise. This is something
-Microsoft almost "get right" with their fast indexing service.
+Here's the commit detail:
 
-Jon.
+0595bf3bca9d9932a05b06dd438f40f01d27cd33 is first bad commit
+diff-tree 0595bf3bca9d9932a05b06dd438f40f01d27cd33 (from eee45269b0f5979c70bc151c6c2f4e5f4f5ababe)
+Author: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Date:   Fri Jan 6 00:12:22 2006 -0800
+
+    [PATCH] Alpha: convert to generic irq framework (alpha part)
+
+    Kconfig tweaks and tons of deletions.
+
+    Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+    Cc: Christoph Hellwig <hch@lst.de>
+    Cc: Richard Henderson <rth@twiddle.net>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+:040000 040000 ac127f16325bb65941bd38208325ab7821877f52 15d7d4d17a7c8cfb8fe53c29ded31ff9cf287534 M      arch
+:040000 040000 287f73cdf371b2b33cc48f1d876005aab29ff3de 29263093ae33ceccd6346b987870367bc8329f0a M      include
+
+
+[1] Problem on Alpha with "convert to generic irq framework"
+Message-Id: <20060304111219.GA10532@localhost>
+http://lkml.org/lkml/2006/3/4/31
+
+-- 
+Mathieu Chouquet-Stringer

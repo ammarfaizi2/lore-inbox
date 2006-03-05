@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752160AbWCEJUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752167AbWCEJ7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752160AbWCEJUm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 04:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752161AbWCEJUm
+	id S1752167AbWCEJ7H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 04:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752171AbWCEJ7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 04:20:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4808 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752160AbWCEJUl (ORCPT
+	Sun, 5 Mar 2006 04:59:07 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:10191 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1752167AbWCEJ7G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 04:20:41 -0500
-Date: Sun, 5 Mar 2006 01:18:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: chris.leech@gmail.com, christopher.leech@intel.com, jeff@garzik.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Discourage duplicate symbols in the kernel? [Was: Intel I/O
- Acc...]
-Message-Id: <20060305011852.368c016e.akpm@osdl.org>
-In-Reply-To: <20060305090251.GA9116@mars.ravnborg.org>
-References: <20060303214036.11908.10499.stgit@gitlost.site>
-	<4408C2CA.5010909@garzik.org>
-	<41b516cb0603031439n13e4df4cg8e5b21b606d2b4b8@mail.gmail.com>
-	<20060305000933.2d799138.akpm@osdl.org>
-	<20060305090251.GA9116@mars.ravnborg.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 5 Mar 2006 04:59:06 -0500
+Subject: Re: [patch] zaurus keyboard driver updates
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-input@atrey.karlin.mff.cuni.cz,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060305080924.GA7145@flint.arm.linux.org.uk>
+References: <1141517165.10871.26.camel@localhost.localdomain>
+	 <20060305080924.GA7145@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 05 Mar 2006 09:47:55 +0000
+Message-Id: <1141552075.6521.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
->
-> On Sun, Mar 05, 2006 at 12:09:33AM -0800, Andrew Morton wrote:
->  > > +
->  > > +static inline u8 read_reg8(struct cb_device *device, unsigned int offset)
->  > > +{
->  > > +	return readb(device->reg_base + offset);
->  > > +}
->  > 
->  > These are fairly generic-sounding names.  In fact the as-yet-unmerged tiacx
->  > wireless driver is already using these, privately to
->  > drivers/net/wireless/tiacx/pci.c.
+On Sun, 2006-03-05 at 08:09 +0000, Russell King wrote:
+> On Sun, Mar 05, 2006 at 12:06:05AM +0000, Richard Purdie wrote:
+> > + 	request_irq(SPITZ_IRQ_GPIO_AK_INT, spitzkbd_hinge_isr,
+> > +		    SA_INTERRUPT, | SA_TRIGGER_RISING | SA_TRIGGER_FALLING,
 > 
->  Do we in general discourage duplicate symbols even if they are static?
+> This looks bogus (and unbuildable).
 
-Well, it's a bit irritating that it confuses ctags.  But in this case, one
-set is in a header file so the risk of collisions is much-increased.
+Thanks for spotting. The changes have been tested against older kernels
+(2.6.15) and the corgi changes against current git but I messed up when
+updating the spitz changes.
+
+Richard
 

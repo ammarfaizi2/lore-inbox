@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751801AbWCECE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWCECEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751801AbWCECE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 21:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWCECE6
+	id S1751855AbWCECEq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 21:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWCECEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 21:04:58 -0500
-Received: from smtpout10.uol.com.br ([200.221.4.201]:24296 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S1751801AbWCECE5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 21:04:57 -0500
-Date: Sat, 4 Mar 2006 23:04:43 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: "Marco d'Itri" <md@Linux.IT>
-Cc: debian-powerpc@lists.debian.org, debian-boot@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Debian Installer - boot floppies
-Message-ID: <20060305020443.GA514@ime.usp.br>
-Mail-Followup-To: Marco d'Itri <md@Linux.IT>,
-	debian-powerpc@lists.debian.org, debian-boot@lists.debian.org,
-	linux-kernel@vger.kernel.org
-References: <44007A0F.7080205@arach.net.au> <20060226135510.GA26166@localhost.localdomain> <20060226160034.GA16992@pants.nu> <200603032204.50904.aragorn@tiscali.nl> <20060303223035.GB25184@pants.nu> <20060304070854.GA31566@localhost.localdomain> <dudd93$frt$1@wonderland.linux.it>
+	Sat, 4 Mar 2006 21:04:46 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:13762 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1751787AbWCECEp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 21:04:45 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: Memory barriers and spin_unlock safety
+Date: Sun, 5 Mar 2006 03:04:40 +0100
+User-Agent: KMail/1.8.3
+References: <32518.1141401780@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org> <17417.29375.87604.537434@cargo.ozlabs.ibm.com>
+In-Reply-To: <17417.29375.87604.537434@cargo.ozlabs.ibm.com>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, bcrl@linux.intel.com, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, mingo@redhat.com,
+       linuxppc64-dev@ozlabs.org, jblunck@suse.de,
+       Linus Torvalds <torvalds@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <dudd93$frt$1@wonderland.linux.it>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603050304.41436.mbuesch@freenet.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1188511.K669AMxjeT";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 05 2006, Marco d'Itri wrote:
-> sven.luther@wanadoo.fr wrote:
-> >I guess we are using udev, but with a devfs-like naming scheme on
-> >top, right ?  I strongly believe that swim3.ko is not hotplug
-> >friendly, or that udev has some trouble with builtin modules, but i
-> >would go for the first case.
->
-> udev handles built-in drivers without problems, but it can create
-> devices only for drivers which use the 2.6 driver core.
+--nextPart1188511.K669AMxjeT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Nice to know that.
+On Saturday 04 March 2006 11:58, you wrote:
+> Linus Torvalds writes:
+>=20
+> > PPC has an absolutely _horrible_ memory ordering implementation, as far=
+ as=20
+> > I can tell. The thing is broken. I think it's just implementation=20
+> > breakage, not anything really fundamental, but the fact that their writ=
+e=20
+> > barriers are expensive is a big sign that they are doing something bad.=
+=20
+>=20
+> An smp_wmb() is just an eieio on PPC, which is pretty cheap.  I made
+> wmb() be a sync though, because it seemed that there were drivers that
+> expected wmb() to provide an ordering between a write to memory and a
+> write to an MMIO register.  If that is a bogus assumption then we
+> could make wmb() lighter-weight (after auditing all the drivers we're
+> interested in, of course, ...).
 
-> If they have not been fixed yet then they are unmaintained or very
-> close to this, and it's about time they are fixed or support is
-> dropped.
+In the bcm43xx driver there is code which looks like the following:
 
-It would be a real pitty to see swim3 dropped from the kernel. Speaking
-as a mere user here, that's one of the main ways that I get information
-into and from the old PowerMac 9500 that I have here.
+/* Write some coherent DMA memory */
+wmb();
+/* Write MMIO, which depends on the DMA memory
+ * write to be finished.
+ */
 
-And, I don't know if this has been reported earlier, but using mtools
-(say, mcopy and friends) makes the drive become unusable (I don't
-remember the messages literally here, because I'm not at the front of
-the computer, but I can serve as a guinea pig if needed---despite my
-lack of free time).
+Are the assumptions in this code correct? Is wmb() the correct thing
+to do here?
+I heavily tested this code on PPC UP and did not see any anormaly, yet.
 
+=2D-=20
+Greetings Michael.
 
-Thanks, Rogério Brito.
+--nextPart1188511.K669AMxjeT
+Content-Type: application/pgp-signature
 
--- 
-Rogério Brito : rbrito@ime.usp.br : http://www.ime.usp.br/~rbrito
-Homepage of the algorithms package : http://algorithms.berlios.de
-Homepage on freshmeat:  http://freshmeat.net/projects/algorithms/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBECkc5lb09HEdWDKgRApuIAJwMAakFvgtIbq37IZLzPaBIdxtugQCfbR28
+PW5W8HI7rbyYI0WT7iHd/nE=
+=xFGE
+-----END PGP SIGNATURE-----
+
+--nextPart1188511.K669AMxjeT--

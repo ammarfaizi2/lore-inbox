@@ -1,92 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWCENNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWCENPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWCENNq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 08:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWCENNp
+	id S1750798AbWCENPF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 08:15:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWCENPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 08:13:45 -0500
-Received: from smtp02.ya.com ([62.151.11.161]:61598 "EHLO smtpauth.ya.com")
-	by vger.kernel.org with ESMTP id S1750705AbWCENNp (ORCPT
+	Sun, 5 Mar 2006 08:15:05 -0500
+Received: from relay1.wplus.net ([195.131.52.143]:18444 "EHLO relay1.wplus.net")
+	by vger.kernel.org with ESMTP id S1750798AbWCENPD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 08:13:45 -0500
-Message-ID: <440AE3F3.3090404@ya.com>
-Date: Sun, 05 Mar 2006 14:13:23 +0100
-From: =?ISO-8859-1?Q?Ra=FAl_Baena?= <raul_baena@ya.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: es-es, es
+	Sun, 5 Mar 2006 08:15:03 -0500
+From: Max Dmitrichenko <dmitrmax@rain.ifmo.ru>
+Reply-To: dmitrmax@rain.ifmo.ru
+Organization: IFMO
+To: linux-kernel@vger.kernel.org
+Subject: Problems with reading DVD-RW media
+Date: Sun, 5 Mar 2006 16:17:32 +0300
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-To: jonathan@jonmasters.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Doubt about scheduler
-References: <4407584A.60301@ya.com> <35fb2e590603032233i7302162do553ba61674cc8e50@mail.gmail.com>
-In-Reply-To: <35fb2e590603032233i7302162do553ba61674cc8e50@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603051617.32455.dmitrmax@rain.ifmo.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you very much Jon. But I think I haven´t explained very well.
+Hi!
 
-I know that now the prio_array and runqueues structs aren´t accesible 
-for modules, but in the 2.6.5 version they were. I would like to know 
-the reason, why before they were accesible and now they don´t? If you 
-could answer me, it would be great. I could to write the reason in my 
-university job. (In Spain we have to make a final degree job, and mine 
-is about modules in linux (I chose this), I would like to show 
-information of the new scheduler, a scheduler monitor, and these fields 
-are indispensable for me)
-I thought in your solution (own kernel tree), but I would like to make a 
-module that worked in standard distributions. I prefer to make a module 
-that worked in 2.6.5 version instead to make one that worked in 2.6.12 
-but with my own kernel tree. So I suposse that I will do that, but 
-knowing the reason why could serve me to make a better investigation 
-document.
+I've recently bought a new DVD-RW NEC ND-4551A device. First thing I did was
+burning of two ISO images with stable Debian onto DVD-RW media. After these
+images have been burned I've checked the MD5 sums and they were correct. But
+now when I'm trying to read some files I've got Input/Output error. After I
+load the disc into the drive, kernel begins to show error message every
+second. The contents of this message is:
 
-Thank you again for your help, I will mention you in my final degree job 
-acknowledge. Please, keep helping me!!! :)
+hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
+hdc: packet command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
+ide: failed opcode was: unknown
 
+Some goggling showed that this could be DMA problem. But disabling DMA didn't
+give any results.
 
+The interest thing is that readcd still produces a valid image from this disc
+and it has correct MD5 sum. So the problem is not in the media. Furthermore,
+the disc can be perfectly read from Win2K in the VMWare environment when host
+OS is my linux and independent of DMA settings.
 
-Jon Masters escribió:
+Currently I'm running kernel 2.6.15. But this problem was noticed in 2.6.12 too.
+The mainboard has i815 chipset.
 
->On 3/2/06, Raúl Baena <raul_baena@ya.com> wrote:
->
->  
->
->>Hello!!!, I´m a student of computer science and I´m doing my final
->>degree job in linux. It is about "linux kernel modules" , I have to know
->>some things of the scheduler. The runqueue struct, and so on. The
->>problem is that in the last linux kernel version in the "sched.h" isn´t
->>defined these structs (prio_array, runqueue...), and I cann´t access to
->>runqueue or prio_array fields. I know that in the 2.6.5 kernel version
->>these fields were accessible and now don´t, could you tell me what is
->>the reason please?
->>    
->>
->
->Deliberately, these aren't available outside of the scheduler so that
->they can't be played with. Much as things like the symbol table aren't
->exported to modules, some things in the kernel aren't even available
->to other parts of the core kernel :-)
->
->  
->
->> I think that I´m going to do it (the module) in the 2.6.5 kernel
->>version and will try to explain why, and for this I need your help.
->>    
->>
->
->If you really need to play with this stuff, then why not just make
->your own kernel tree with this hacked up in the scheduler code itself?
->If it's just for you, then that'll work fine. If you would explain
->what it is that you need to do, then someone might be able to offer
->you advice on the general direction to take - see also
->http://www.kernelnewbies.org/
->
->Jon.
->
->
->
->  
->
+Any idea what's wrong? Does anybody get this error too?
 
+--
+  Maxim Dmitrichenko

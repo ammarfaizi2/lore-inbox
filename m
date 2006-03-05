@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWCENz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWCEOJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWCENz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 08:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWCENz0
+	id S932106AbWCEOJf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 09:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWCEOJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 08:55:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20624 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932086AbWCENz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 08:55:26 -0500
-Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: "David S. Miller" <davem@davemloft.net>, gene.heskett@verizononline.net,
-       gene.heskett@verizon.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0603051444130.30115@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0603041945520.29991@yvahk01.tjqt.qr>
-	 <20060304.134144.122314124.davem@davemloft.net>
-	 <200603041705.41990.gene.heskett@verizon.net>
-	 <20060304.141643.04633220.davem@davemloft.net>
-	 <Pine.LNX.4.61.0603051444130.30115@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sun, 05 Mar 2006 14:55:15 +0100
-Message-Id: <1141566915.16916.4.camel@laptopd505.fenrus.org>
+	Sun, 5 Mar 2006 09:09:35 -0500
+Received: from ns.suse.de ([195.135.220.2]:62693 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932106AbWCEOJe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 09:09:34 -0500
+Date: Sun, 5 Mar 2006 15:09:32 +0100
+From: Olaf Hering <olh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+Message-ID: <20060305140932.GA17132@suse.de>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-05 at 14:45 +0100, Jan Engelhardt wrote:
-> >> >> Does this buy the normal standard desktop user anything?
-> >> >Absolutely, it optimizes end-node performance.
-> >> Is this quantifiable?, and does it only apply to Intel?
-> >It applies to whoever has a DMA engine in their computer.
-> >
-> How do I find out?
+ On Sun, Feb 26, Linus Torvalds wrote:
 
+> Have I missed anything? Holler. And please keep reminding about any 
+> regressions since 2.6.15.
 
-if you have an off-the-shelf standard PC, today you don't have one of
-those.
+I see random memory corruption on an early G3 ibook.
+Testcase is an openSuSE 10.1 installation. 2.6.15 works ok modulo 2 bugs
+to get it booted at all, and the usual udev breakage.
 
+plain 2.6.16-rc5-git7 locks up after a few packages, no ping.
+Our SuSE kernel does not lockup, but ext2 shows access beyond end of
+device after > 200 packages, or the rpmdb gets corrupt, or both. With reiserfs
+it gets past 100 packages, then reiserfs complains about fs corruption.
+plain -rc2 shows the same reiserfs corruption.
+plain -rc1 dies after a few packages, it jumps to 0x0 in softirq.
 
-
+I'm trying to compile the git snapshots now, which is a real challenge..

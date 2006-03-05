@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751693AbWCEFLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751727AbWCEGRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751693AbWCEFLU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 00:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751696AbWCEFLT
+	id S1751727AbWCEGRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 01:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751894AbWCEGRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 00:11:19 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:64665 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751677AbWCEFLT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 00:11:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=M8nHZqsd7DJJNsIhQt2Kwb6UIW2N2kgIy2+2GWC3Xrpvazi+zgGyyBBAp9jO8aHg6pAlQuTvxgvInDyZYknPhLmDEwbvHZRYqHx1oP8Um9MeKIvxC5G4f6Z4v6UKeE+svU0Mj+HUNyK6/uuKMhH2AnKgHTBM+yXy8ika/CZzDZU=
-Message-ID: <6d6a94c50603042111j7e73de9fi7e8503e47d402bf9@mail.gmail.com>
-Date: Sun, 5 Mar 2006 13:11:18 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Quick question: What's the best way to use the existing driver code
-MIME-Version: 1.0
+	Sun, 5 Mar 2006 01:17:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51118 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751727AbWCEGRZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 01:17:25 -0500
+Date: Sat, 4 Mar 2006 22:15:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jan Beulich" <JBeulich@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adjust /dev/{kmem,mem,port} write handlers
+Message-Id: <20060304221550.6892c7ba.akpm@osdl.org>
+In-Reply-To: <44081B03.76F0.0078.0@novell.com>
+References: <44081B03.76F0.0078.0@novell.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+"Jan Beulich" <JBeulich@novell.com> wrote:
+>
+> The /dev/mem and /dev/kmem write handlers weren't fully POSIX compliant in
+> that they wouldn't always force the file pointer to be updated when returning
+> success status.
+> The /dev/port write handler was inconsistent with the /dev/mem and /dev/kmem
+> handlers in that when encountering a -EFAULT condition after already having
+> written a number of items it would return -EFAULT rather than the number of
+> bytes written.
+> 
+> ...
+>
+> @@ -514,11 +510,10 @@ static ssize_t write_kmem(struct file * 
+>  			if (len) {
+>  				written = copy_from_user(kbuf, buf, len);
+>  				if (written) {
+> -					ssize_t ret;
+> -
+> +					if (wrote + virtr)
+> +						break;
+>  					free_page((unsigned long)kbuf);
+> -					ret = wrote + virtr + (len - written);
+> -					return ret ? ret : -EFAULT;
+> +					return -EFAULT;
+>  				}
+>  			}
+>  			len = vwrite(kbuf, (char *)p, len);
 
-I'm writing a framebuffer driver, which should be under the folder
-"./drivers/video/mydriver.c".
-The video controller in my driver need a I2C driver to do some setting.
-I found there is already a driver which can be used under the folder
-"./drivers/media/video/adv7170.c". Another video driver also uses it.
-You see, they are in the different folder and there is no special
-configuration menu for the I2C driver "adv7170.c". So, what's the best
-way to use the existing driver? Now the easiest way is copying the
-driver to my framebuffer folder and add it to the makefile. But I
-don't think it's the best way.
-Thanks any hints,
 
-Regards,
--Aubrey
+I think write_kmem() still isn't quie right - it needs to update `p' (and
+hence *ppos) to account for a partial copy_from_user().  (Please double-check)
+
+
+--- devel/drivers/char/mem.c~adjust-dev-kmemmemport-write-handlers-fix	2006-03-04 22:10:55.000000000 -0800
++++ devel-akpm/drivers/char/mem.c	2006-03-04 22:15:19.000000000 -0800
+@@ -504,8 +504,11 @@ static ssize_t write_kmem(struct file * 
+ 			if (len) {
+ 				written = copy_from_user(kbuf, buf, len);
+ 				if (written) {
+-					if (wrote + virtr)
++					if (wrote + virtr) {
++						p += len - written;
++						virtr += len - written;
+ 						break;
++					}
+ 					free_page((unsigned long)kbuf);
+ 					return -EFAULT;
+ 				}
+_
+

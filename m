@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752280AbWCEXlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWCEXpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752280AbWCEXlu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 18:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752281AbWCEXlu
+	id S932239AbWCEXpy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 18:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWCEXpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 18:41:50 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:21725 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1752277AbWCEXlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 18:41:50 -0500
-To: jonathan@jonmasters.org
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] inotify hack for locate
-References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>
-From: Chris Ball <cjb@mrao.cam.ac.uk>
-Date: Sun, 05 Mar 2006 23:41:49 +0000
-In-Reply-To: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com> (Jon
- Masters's message of "Sun, 5 Mar 2006 21:36:19 +0000")
-Message-ID: <yd3bqwkbgsi.fsf@islay.ra.phy.cam.ac.uk>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Sun, 5 Mar 2006 18:45:54 -0500
+Received: from mail.tbdnetworks.com ([204.13.84.99]:20745 "EHLO
+	mail.tbdnetworks.com") by vger.kernel.org with ESMTP
+	id S932193AbWCEXpx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 18:45:53 -0500
+Date: Sun, 5 Mar 2006 15:45:43 -0800
+To: acme@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH] net: drop duplicate assignment in request_sock
+Message-ID: <20060305234543.GA22550@defiant.tbdnetworks.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
+From: nkiesel@tbdnetworks.com (Norbert Kiesel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On 5 Mar 2006 21:36:19, Jon Masters <jonmasters@gmail.com> said:
+From: Norbert Kiesel <nkiesel@tbdnetworks.com>
 
-   > I'm fed up with those finds running whenever I power on. Has
-   > anyone written an equivalent of the Microsoft indexing service to
-   > update locate's database?
+Hi,
 
-I think the reason this hasn't been done is that inotify_add_watch()es
-are non-recursive:  you'd need a watch over every directory, and you'd 
-need a crawling step (churn, churn) to enumerate the directories to
-add watches for.
+just noticed that request_sock.[ch] contain a useless assignment of
+rskq_accept_head to itself.  I assume this is a typo and the 2nd one
+was supposed to be _tail.  However, setting _tail to NULL is not
+needed, so the patch below just drops the 2nd assignment.
 
-Beagle (which only indexes home directories, by default) uses an 
-algorithm for placing watches as it crawls, such that by the end 
-of the crawl you can guarantee not to have a lost a race on new 
-directories being created while the crawl was happening:
+Best,
+  Norbert
 
-http://mail.gnome.org/archives/dashboard-hackers/2004-October/msg00022.html
+Signed-Off-By: Norbert Kiesel <nkiesel@tbdnetworks.com>
 
-- Chris.
--- 
-Chris Ball   <cjb@mrao.cam.ac.uk>    <http://www.mrao.cam.ac.uk/~cjb/>
+---
 
+diff -ru a/include/net/request_sock.h b/include/net/request_sock.h
+--- a/include/net/request_sock.h	2005-10-28 15:44:45.000000000 -0700
++++ b/include/net/request_sock.h	2006-03-05 15:22:33.000000000 -0800
+@@ -145,7 +145,7 @@
+ {
+ 	struct request_sock *req = queue->rskq_accept_head;
+ 
+-	queue->rskq_accept_head = queue->rskq_accept_head = NULL;
++	queue->rskq_accept_head = NULL;
+ 	return req;
+ }
+ 
+diff -ru a/net/core/request_sock.c b/net/core/request_sock.c
+--- a/net/core/request_sock.c	2006-03-05 14:40:50.000000000 -0800
++++ b/net/core/request_sock.c	2006-03-05 15:23:11.000000000 -0800
+@@ -51,7 +51,7 @@
+ 
+ 	get_random_bytes(&lopt->hash_rnd, sizeof(lopt->hash_rnd));
+ 	rwlock_init(&queue->syn_wait_lock);
+-	queue->rskq_accept_head = queue->rskq_accept_head = NULL;
++	queue->rskq_accept_head = NULL;
+ 	lopt->nr_table_entries = nr_table_entries;
+ 
+ 	write_lock_bh(&queue->syn_wait_lock);

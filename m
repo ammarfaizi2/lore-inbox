@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWCEPzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWCEQOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWCEPzG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 10:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWCEPzG
+	id S932110AbWCEQOf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 11:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWCEQOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 10:55:06 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:17031
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750903AbWCEPzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 10:55:05 -0500
-Date: Sun, 5 Mar 2006 07:55:03 -0800
-From: Greg KH <greg@kroah.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Message-ID: <20060305155503.GA18580@kroah.com>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <1141553885.16388.0.camel@laptopd505.fenrus.org>
+	Sun, 5 Mar 2006 11:14:35 -0500
+Received: from main.gmane.org ([80.91.229.2]:2988 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932110AbWCEQOf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 11:14:35 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Date: Sun, 05 Mar 2006 17:14:19 +0100
+Message-ID: <pan.2006.03.05.16.14.19.327190@free.fr>
+References: <Pine.LNX.4.61.0603041945520.29991@yvahk01.tjqt.qr> <20060304.134144.122314124.davem@davemloft.net> <200603041705.41990.gene.heskett@verizon.net> <20060304.141643.04633220.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141553885.16388.0.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 05, 2006 at 11:18:04AM +0100, Arjan van de Ven wrote:
+Hi,
+Le Sat, 04 Mar 2006 14:16:43 -0800, David S. Miller a écrit :
+
+> From: Gene Heskett <gene.heskett@verizon.net>
+> Date: Sat, 04 Mar 2006 17:05:41 -0500
 > 
-> > +/* Main MC kobject release() function */
-> > +static void edac_memctrl_master_release(struct kobject *kobj)
-> > +{
-> > +	debugf1("EDAC MC: " __FILE__ ": %s()\n", __func__);
-> > +}
-> > +
+>> On Saturday 04 March 2006 16:41, David S. Miller wrote:
+>> >From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+>> >Date: Sat, 4 Mar 2006 19:46:22 +0100 (MET)
+>> >
+>> >> Does this buy the normal standard desktop user anything?
+>> >
+>> >Absolutely, it optimizes end-node performance.
+>> 
+>> Is this quantifiable?, and does it only apply to Intel?
 > 
-> ehhh how on earth can this be right?
+> It applies to whoever has a DMA engine in their computer.
+> 
+But we need a special driver ?
+The IOAT driver from intel seems to expect a pci device (0x8086 0x1a38)
+and the common x86 computer have their dma in lpc/isa bridge.
 
-Ugh.  Good catch, it isn't right.  Gotta love it when people try to
-ignore the helpful messages the kernel gives you when you use an API
-wrong :(
 
-thanks,
+Matthieu
 
-greg k-h

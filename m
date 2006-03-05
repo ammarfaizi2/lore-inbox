@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWCEVgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbWCEViF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWCEVgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 16:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751824AbWCEVgV
+	id S1751824AbWCEViF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 16:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWCEViF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 16:36:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:28717 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750827AbWCEVgU convert rfc822-to-8bit
+	Sun, 5 Mar 2006 16:38:05 -0500
+Received: from pproxy.gmail.com ([64.233.166.181]:35270 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751824AbWCEViD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 16:36:20 -0500
+	Sun, 5 Mar 2006 16:38:03 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=PFeCmwvQm4FrCZ+YjI2ZdtF5lIWccP5YGSwhWlV1rV+jgx/bN+DfpGCYrXsB5RxiiAtftTui0lha9qm1wdE9BXewDKwebe/k8hNM/HclGtZd9Wpt4+ICGCG2WZCGuhzviUxElil5t4fZw5U4GjtphprZtnUOkIhOqlzQcpmvb2E=
-Message-ID: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>
-Date: Sun, 5 Mar 2006 21:36:19 +0000
-From: "Jon Masters" <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: [OT] inotify hack for locate
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G3ekL1ekpF6mWqQL4JxMADBwWdC2TpAdzYoCW2PNawv+JtS+LcyP6oSJMxZr644YADHpGoQknEvbY3IaIVCusJOozuASRZ2YRXpYTajvSmvJLL66HozG/EbNCuehytj98tPPY7MPg6pHTeda8WvIkMX2mEFPA6gNuliIhBcAcbI=
+Message-ID: <9a8748490603051338u5a182b53w4cd9c349c0ceee1b@mail.gmail.com>
+Date: Sun, 5 Mar 2006 22:38:02 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Joel Bryan T. Juliano" <joelbryan.juliano@gmail.com>
+Subject: Re: Network Communication between "eth0" and "dhcp", only last for 1 minute. On NIC Vendor: Davicom Semiconductor, Inc. Device: 21x4x DEC-Tulip compatible 10/100 Ethernet. NIC Bus Type: PCI
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1141499915.5874.2.camel@localhost>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <1141499915.5874.2.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+On 3/4/06, Joel Bryan T. Juliano <joelbryan.juliano@gmail.com> wrote:
+> My DHCP is up and running, I have no problems acquiring IP address
+> during boot. I can connect to the internet, but for just under 1 minute.
+>
+> I had experimented with the commands for reloading the network (ifdown
+> eth0, ifup eth0, /etc/init.d/networking restart, dhclient), reacquiring
+> DHCP and manually bringing it up, or use static IP to connect to my DSL
+> modem.
+> My DSL modem is ZyXel Prestige 600 Series DSL Router. I even kill
+> running dhclient, dhcbdb (NetworkManager), and NetworkManager. And route
+> the gateway manually, but even without DHCP, my connection disconnects
+> after 1 minute.
+>
+> For the first few seconds, I can ping my Gateway/Router/DHCP server,
+> until 1 minute elapse, then it disconnects. Then after 1 minute elapse I
+> try to run dhclient and it does not work anymore this point.
+>
+> To bring up the network again, I manually unplugging and re-plugging the
+> network cable. Then it works again, for just 1 minute.
+>
+> I fixed it using mii-diag, with -r option to resets autonegotiation,
+>
 
-I'm fed up with those finds running whenever I power on. Has anyone
-written an equivalent of the Microsoft indexing service to update
-locate's database?
+I've seen a lot of NIC/Switch combinations over the years that don't
+work properly with autonegotiation. Try forcing the card to 100mbit
+full-duplex and then do the same on the switch  so both ends are
+forced to the proper speed/duplex setting instead of relying on
+autoneg.
 
-I know about Beagle and friends but I'd be interested in whatever I'm
-missing that specifically solves the above problem - I'm sure it's
-been done :-)
-
-Jon.
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

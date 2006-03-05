@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWCEUHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWCEUSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751812AbWCEUHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 15:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWCEUHE
+	id S1750728AbWCEUSn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 15:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWCEUSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 15:07:04 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:29834 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751812AbWCEUHD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 15:07:03 -0500
-Date: Sun, 5 Mar 2006 20:06:59 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Keith Ownes <kaos@ocs.com.au>
-Subject: Re: kbuild - status on section mismatch warnings
-Message-ID: <20060305200659.GD27946@ftp.linux.org.uk>
-References: <20060305193012.GA14838@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060305193012.GA14838@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 5 Mar 2006 15:18:43 -0500
+Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:23557 "EHLO
+	myri.com") by vger.kernel.org with ESMTP id S1750728AbWCEUSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 15:18:42 -0500
+Message-ID: <440B4799.7030609@ens-lyon.org>
+Date: Sun, 05 Mar 2006 15:18:33 -0500
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Aritz Bastida <aritzbastida@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: MMAP: How a driver can get called on mprotect()
+References: <7d40d7190603051012p16ed826cx@mail.gmail.com>	 <20060305182240.GH19232@lug-owl.de> <7d40d7190603051040h17da06caw@mail.gmail.com>
+In-Reply-To: <7d40d7190603051040h17da06caw@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 05, 2006 at 08:30:12PM +0100, Sam Ravnborg wrote:
-> During the last weeks I have worked on improved support for section
-> mismatch checks.
-> 
-> When a function is marked __init then the implementation will be placed
-> in a section named .init.text - that section will be discarded by
-> vmlinux when the module is initialised.
-> So therefore any references to function marked __init are subject to
-> references to functions that may suddenly disappear.
- 
-Now try x86 with sd.o non-modular.  And see
+Aritz Bastida wrote:
 
+>Nonetheless the question is the same: a char device with mmap
+>implemented can get called any time a new vma is created or destroyed
+>(a process creating a new mmap):  vma_open() and vma_close().
+>
+>But if a user process changes the mmap protections calling mprotect()?
+>How can the driver know about that? Is there any way to do that?
+>  
+>
 
-__init foo()
-{
-....
-	switch(n) {
-	....
-	....
-	}
-}
+You probably want to remove VM_MAYWRITE from vma->vm_flags in the mmap
+vm_op of your char device.
+For instance, see how the DRM device mmap protection is set when you're
+not admin and the device is read-only:
+    http://sosdg.org/~coywolf/lxr/source/drivers/char/drm/drm_vm.c#L570
 
-compiling essentially into
+Brice
 
-	if (n < lower || n > upper)
-		goto Ldefault;
-	addr = const_array_of_labels[n - lower];
-	goto addr;
-
-with const_array_of_labels sitting in .rodata and its contents pointing
-inside foo(), i.e. into .init.text.  And yes, .init.text is discarded,
-while .rodata is left intact.  Since the only reference to that array
-disappears along with .init.text *and* section where array goes into is
-hardwired into gcc, we
-	a) are actually OK and
-	b) can't do anything about that false positive, AFAICS.

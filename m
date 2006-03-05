@@ -1,55 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWCES7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWCETEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWCES7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 13:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWCES7Z
+	id S1751473AbWCETEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 14:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCETEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 13:59:25 -0500
-Received: from cantor.suse.de ([195.135.220.2]:49311 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750862AbWCES7Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 13:59:24 -0500
-Date: Sun, 5 Mar 2006 19:59:23 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.16-rc5
-Message-ID: <20060305185923.GA21519@suse.de>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060305140932.GA17132@suse.de>
+	Sun, 5 Mar 2006 14:04:13 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:45506 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750725AbWCETEM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 14:04:12 -0500
+Date: Sun, 5 Mar 2006 19:59:48 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+Message-ID: <20060305185948.GA24765@electric-eye.fr.zoreil.com>
+References: <20060305180757.GA22121@deprecation.cyrius.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060305140932.GA17132@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20060305180757.GA22121@deprecation.cyrius.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Mar 05, Olaf Hering wrote:
+Martin Michlmayr <tbm@cyrius.com> :
+[...]
+> I have a system on which I can reproduce this bug 100%.  While I have
+> no idea how to fix the issue, I can provide debugging information and
+> test a fix.  However, I'm (temporarily) leaving the country in three
+> weeks and won't have access to this PC for several months, so it would
+> be great if someone could look into this soon.  Jeff?
 
->  On Sun, Feb 26, Linus Torvalds wrote:
-> 
-> > Have I missed anything? Holler. And please keep reminding about any 
-> > regressions since 2.6.15.
-> 
-> I see random memory corruption on an early G3 ibook.
-> Testcase is an openSuSE 10.1 installation. 2.6.15 works ok modulo 2 bugs
-> to get it booted at all, and the usual udev breakage.
-> 
-> plain 2.6.16-rc5-git7 locks up after a few packages, no ping.
-> Our SuSE kernel does not lockup, but ext2 shows access beyond end of
-> device after > 200 packages, or the rpmdb gets corrupt, or both. With reiserfs
-> it gets past 100 packages, then reiserfs complains about fs corruption.
-> plain -rc2 shows the same reiserfs corruption.
-> plain -rc1 dies after a few packages, it jumps to 0x0 in softirq.
+(not compile-tested)
 
--git5 works, -git7 showed reiserfs corruption. -git6 died, jumped from
-__do_softirq to 0x0, will try once again.
-
-git5->6 has the mutex changes, but also lots of powerpc changes. Lets
-see if I can narrow it down further.
-
-The ibook has 160mb, installation is done via modular nfs
-(ro,v3,rsize=32768,wsize=32768,hard,nolock,proto=tcp,addr=1.1.1.3)
-I havent seen this on a B&W G3 with 256mb, nor on other ppc32 systems.
+diff --git a/drivers/net/tulip/de2104x.c b/drivers/net/tulip/de2104x.c
+index d7fb3ff..d16a5a0 100644
+--- a/drivers/net/tulip/de2104x.c
++++ b/drivers/net/tulip/de2104x.c
+@@ -1376,18 +1376,20 @@ static int de_open (struct net_device *d
+ 		return rc;
+ 	}
+ 
+-	rc = de_init_hw(de);
+-	if (rc) {
+-		printk(KERN_ERR "%s: h/w init failure, err=%d\n",
+-		       dev->name, rc);
+-		goto err_out_free;
+-	}
++	dw32(IntrMask, 0);
+ 
+ 	rc = request_irq(dev->irq, de_interrupt, SA_SHIRQ, dev->name, dev);
+ 	if (rc) {
+ 		printk(KERN_ERR "%s: IRQ %d request failure, err=%d\n",
+ 		       dev->name, dev->irq, rc);
+-		goto err_out_hw;
++		goto err_out_free;
++	}
++
++	rc = de_init_hw(de);
++	if (rc) {
++		printk(KERN_ERR "%s: h/w init failure, err=%d\n",
++		       dev->name, rc);
++		goto err_out_free_irq;
+ 	}
+ 
+ 	netif_start_queue(dev);
+@@ -1395,11 +1397,8 @@ static int de_open (struct net_device *d
+ 
+ 	return 0;
+ 
+-err_out_hw:
+-	spin_lock_irqsave(&de->lock, flags);
+-	de_stop_hw(de);
+-	spin_unlock_irqrestore(&de->lock, flags);
+-
++err_out_free_irq:
++	free_irq(dev->irq, dev);
+ err_out_free:
+ 	de_free_rings(de);
+ 	return rc;

@@ -1,28 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWCEAgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWCEAo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbWCEAgK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 19:36:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWCEAgK
+	id S932320AbWCEAo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 19:44:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWCEAo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 19:36:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28386 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932311AbWCEAgI (ORCPT
+	Sat, 4 Mar 2006 19:44:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4579 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932312AbWCEAo0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 19:36:08 -0500
-Date: Sat, 4 Mar 2006 16:34:19 -0800
+	Sat, 4 Mar 2006 19:44:26 -0500
+Date: Sat, 4 Mar 2006 16:42:38 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Sam Vilain <sam@vilain.net>
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [PATCH 3/5] NFS: Abstract out namespace initialisation
- [try #2]]
-Message-Id: <20060304163419.5884e3e4.akpm@osdl.org>
-In-Reply-To: <4407693E.6000108@vilain.net>
-References: <44074CFD.7050708@vilain.net>
-	<20060302084448.GA21902@infradead.org>
-	<440613FF.4040807@vilain.net>
-	<3254.1141299348@warthog.cambridge.redhat.com>
-	<5923.1141333943@warthog.cambridge.redhat.com>
-	<4407693E.6000108@vilain.net>
+To: Dave Jones <davej@redhat.com>
+Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, ak@suse.de, Ashok Raj <ashok.raj@intel.com>
+Subject: Re: 2.6.16rc5 'found' an extra CPU.
+Message-Id: <20060304164238.37d2ea49.akpm@osdl.org>
+In-Reply-To: <20060302010953.GA19755@redhat.com>
+References: <200603011957_MC3-1-B99B-8FFE@compuserve.com>
+	<20060302010953.GA19755@redhat.com>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,93 +26,97 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Vilain <sam@vilain.net> wrote:
+Dave Jones <davej@redhat.com> wrote:
 >
->  >Remember: one of the main reasons for splitting patches is to make it easier
->  >for other people to appreciate just how sublimely terrific your work is:-)
->  >  
->  >
+> On Wed, Mar 01, 2006 at 07:55:25PM -0500, Chuck Ebbert wrote:
+>  > In-Reply-To: <20060301230317.GF1440@redhat.com>
+>  > 
+>  > On Wed, 1 Mar 2006 18:03:17, Dave Jones wrote:
+>  > 
+>  > > (17:59:38:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu0/topology/core_siblings
+>  > > 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+>  > > (17:59:47:davej@nemesis:~)$ cat /sys/devices/system/cpu/cpu1/topology/core_siblings
+>  > > 00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000002
+>  > > 
+>  > > Neither of these CPUs are HT / dual-core, so shouldn't these be the same ?
+>  > 
+>  > Those are bitmaps. 1 => only bit 0 is set => CPU 0 is all alone.
+>  > 
+>  > Did you really build a 256-CPU SMP kernel or is ACPI ignoring CONFIG_NR_CPUS
+>  > or something?
 > 
->  Interesting.  I've just seen patches slammed by subsystem maintainers 
->  before for doing things "the wrong way around" within a patchset.
+> Yes, it's =256.
 > 
->  I don't remember seeing this covered in TPP, am I missing having read a 
->  guide document or is this grey area?
 
-I just updated it.
+Is that the only way in which to trigger the bug?
 
---- tpp.txt	2006-03-04 16:32:28.000000000 -0800
-+++ tpp2.txt	2006-03-04 16:33:10.000000000 -0800
-@@ -1,7 +1,7 @@
+If so, I'd be inclined to hold the fix back for 2.6.17.
+
+
+From: Ashok Raj <ashok.raj@intel.com>
+
+Local apic entries are only 8 bits, but it seemed to not be caught with u8
+return value result in the check cpu_index >= NR_CPUS becomming always false.
+
+drivers/acpi/processor_core.c: In function `acpi_processor_get_info':
+drivers/acpi/processor_core.c:483: warning: comparison is always false due to limited range of data type
+
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/acpi/processor_core.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff -puN drivers/acpi/processor_core.c~acpi-signedness-fix-2 drivers/acpi/processor_core.c
+--- 25/drivers/acpi/processor_core.c~acpi-signedness-fix-2	Fri Mar  3 16:25:09 2006
++++ 25-akpm/drivers/acpi/processor_core.c	Fri Mar  3 16:25:09 2006
+@@ -382,7 +382,7 @@ static int acpi_processor_remove_fs(stru
  
- The perfect patch.
- akpm@osdl.org
--Updated 12 Jan 2006
-+Updated 4 March 2006
+ /* Use the acpiid in MADT to map cpus in case of SMP */
+ #ifndef CONFIG_SMP
+-#define convert_acpiid_to_cpu(acpi_id) (0xff)
++#define convert_acpiid_to_cpu(acpi_id) (-1)
+ #else
  
- The latest version of this document may be found at
- http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
-@@ -93,8 +93,8 @@
-    patch should contain a standalone changelog.  This implies that you need a
-    patch management system which maintains changelogs.  See below.
+ #ifdef CONFIG_IA64
+@@ -395,7 +395,7 @@ static int acpi_processor_remove_fs(stru
+ #define ARCH_BAD_APICID		(0xff)
+ #endif
  
--e) Add a Signed-off-by: line, as per the Documentation/SubmittingPatches
--   file in the kernel tree.
-+e) Add a Signed-off-by: line, as per section 11 of the
-+   Documentation/SubmittingPatches file in the kernel tree.
+-static u8 convert_acpiid_to_cpu(u8 acpi_id)
++static int convert_acpiid_to_cpu(u8 acpi_id)
+ {
+ 	u16 apic_id;
+ 	int i;
+@@ -421,7 +421,7 @@ static int acpi_processor_get_info(struc
+ 	acpi_status status = 0;
+ 	union acpi_object object = { 0 };
+ 	struct acpi_buffer buffer = { sizeof(union acpi_object), &object };
+-	u8 cpu_index;
++	int cpu_index;
+ 	static int cpu0_initialized;
  
-    Signed-off-by: implies that you had some part in the developent of the
-    patch, or that you handled it and passed it on to another developer for
-@@ -174,8 +174,49 @@
- 	done
+ 	ACPI_FUNCTION_TRACE("acpi_processor_get_info");
+@@ -466,7 +466,7 @@ static int acpi_processor_get_info(struc
+ 	cpu_index = convert_acpiid_to_cpu(pr->acpi_id);
  
- 
--6: Overall
--=========
-+6: Patch series
-+===============
-+
-+a) When sending a series of patches, number them in the Subject:s thusly:
-+
-+	[patch 1/10] ext2: block allocation: frob the globnozzle
-+	[patch 2/10] ext2: block allocation: wash the pizza
-+	etc
-+
-+b) Some people like to introduce a patch series with an introductory email
-+   which doesn't actually carry a patch, such as:
-+
-+	[patch 0/10] ext2: block allocation changes
-+
-+   Please don't do this.  There is no facility in the git tree to carry
-+   changelog-only changesets such as this (or at least, we don't do that) so
-+   the information in the introductory email will be lost.
-+
-+   So I end up copying and pasting your nice introduction into the
-+   changelog for the first patch, so it gets into git.  I'll follow it with
-+   the text
-+
-+	This patch:
-+
-+   and then I'll include the changelog for the first patch of the series.
-+
-+   It would be preferred if the patch originators were to do this.
-+
-+c) Try very hard to ensure that the kernel builds and runs correctly at
-+   every step of the patch series.  This requirement exists because of
-+   `git-bisect'.  If someone is doing a bisection search for a kernel bug and
-+   they land upon your won't-compile point partway through the exercise, they
-+   will be unhappy.
-+
-+d) If your patch series includes non-runtime-affecting things such as
-+   cleanups, whitespace fixes, file renames, moving functions around, etc then
-+   this work should be done in the initial patches in the series.  The
-+   functional changes should come later in the series.
-+
-+   This is mainly so that reversion of problematic changes becomes simpler.
-+
-+7: Overall
-+==========
- 
- a) Avoid MIME and attachements if possible.  Make sure that your email
-    client does not wordwrap your patch.  Make sure that your email client does
+ 	/* Handle UP system running SMP kernel, with no LAPIC in MADT */
+-	if (!cpu0_initialized && (cpu_index == 0xff) &&
++	if (!cpu0_initialized && (cpu_index == -1) &&
+ 	    (num_online_cpus() == 1)) {
+ 		cpu_index = 0;
+ 	}
+@@ -480,7 +480,7 @@ static int acpi_processor_get_info(struc
+ 	 *  less than the max # of CPUs. They should be ignored _iff
+ 	 *  they are physically not present.
+ 	 */
+-	if (cpu_index >= NR_CPUS) {
++	if (cpu_index == -1) {
+ 		if (ACPI_FAILURE
+ 		    (acpi_processor_hotadd_init(pr->handle, &pr->id))) {
+ 			ACPI_ERROR((AE_INFO,
+_
 

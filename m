@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752246AbWCELlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752229AbWCELkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752246AbWCELlj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 06:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752231AbWCELlj
+	id S1752229AbWCELkF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 06:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752175AbWCELkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 06:41:39 -0500
-Received: from natipslore.rzone.de ([81.169.145.179]:9145 "EHLO
-	natipslore.rzone.de") by vger.kernel.org with ESMTP
-	id S1752175AbWCELli convert rfc822-to-8bit (ORCPT
+	Sun, 5 Mar 2006 06:40:05 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:54469 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752174AbWCELkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 06:41:38 -0500
-From: Stefan Rompf <stefan@loplof.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc5-mm2
-Date: Sun, 5 Mar 2006 12:42:20 +0100
-User-Agent: KMail/1.8
-Cc: Benoit Boissinot <bboissin@gmail.com>, linux-kernel@vger.kernel.org,
-       jketreno@linux.intel.com, "John W. Linville" <linville@tuxdriver.com>,
-       Jeff Garzik <jeff@garzik.org>
-References: <20060303045651.1f3b55ec.akpm@osdl.org> <20060305081442.GH29560@ens-lyon.fr> <20060305003457.48478db0.akpm@osdl.org>
-In-Reply-To: <20060305003457.48478db0.akpm@osdl.org>
-MIME-Version: 1.0
+	Sun, 5 Mar 2006 06:40:04 -0500
+Date: Sun, 5 Mar 2006 17:08:47 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com
+Subject: Re: VFS nr_files accounting
+Message-ID: <20060305113847.GE21751@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060304.142821.105572446.davem@davemloft.net> <20060304.143222.01803877.davem@davemloft.net> <20060305070537.GB21751@in.ibm.com> <20060304.233725.49897411.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603051242.20503.stefan@loplof.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060304.233725.49897411.davem@davemloft.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 04, 2006 at 11:37:25PM -0800, David S. Miller wrote:
+> From: Dipankar Sarma <dipankar@in.ibm.com>
+> Date: Sun, 5 Mar 2006 12:35:38 +0530
+> 
+> > Can you check if the following patchset applies to the latest git ?
+> > These were against 2.6.16-rc3.
+> > 
+> > http://www.hill9.org/linux/kernel/patches/2.6.16-rc3/rcu-batch-tuning.patch
+> > http://www.hill9.org/linux/kernel/patches/2.6.16-rc3/percpu-counter-sum.patch
+> > http://www.hill9.org/linux/kernel/patches/2.6.16-rc3/fix-file-counting.patch
+> 
+> Applies with some fuzz to kernel/sysctl.c
 
-Am Sonntag 05 März 2006 09:34 schrieb Andrew Morton:
+Great. I look forward to hearing from you about the results
+with your test case.
 
-> That check was changed from
->
-> 	"If this STA doesn't use WPA and that AP does, then bale"
->
-> into
->
-> 	"If this STA does use WPA and that AP doesn't then bale".
->
-> So a theory would be that your AP isn't filling in those WPA length fields.
-> I see no reason why we should permit that to disable WEP?
-
-problem is that wpa_supplicant needs to set wpa_enabled unconditionally, so 
-with this  change it hasn't been possible to connect to non-WPA networks 
-using WPA supplicant. For the discussion on the IPW list, see 
-http://marc.theaimsgroup.com/?t=114004412300002&r=1&w=2 .
-
-1.0.12 fixes this by removing the check entirely. James: Does it makes sense 
-for you to push 1.1.0 out to netdev soon, or better just the fix for this?
-
-Stefan
+Thanks
+Dipankar

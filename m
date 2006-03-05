@@ -1,27 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWCEAQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWCEAgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWCEAQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 19:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWCEAQ5
+	id S932311AbWCEAgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 19:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWCEAgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 19:16:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932308AbWCEAQ4 (ORCPT
+	Sat, 4 Mar 2006 19:36:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28386 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932311AbWCEAgI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 19:16:56 -0500
-Date: Sat, 4 Mar 2006 16:15:19 -0800
+	Sat, 4 Mar 2006 19:36:08 -0500
+Date: Sat, 4 Mar 2006 16:34:19 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: J M Cerqueira Esteves <jmce@artenumerica.com>
-Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
- 2.6.12]
-Message-Id: <20060304161519.6e6fbe2c.akpm@osdl.org>
-In-Reply-To: <4409B8DC.9040404@artenumerica.com>
-References: <4405D383.5070201@artenumerica.com>
-	<20060302011735.55851ca2.akpm@osdl.org>
-	<440865A9.4000102@artenumerica.com>
-	<4409B8DC.9040404@artenumerica.com>
+To: Sam Vilain <sam@vilain.net>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: [PATCH 3/5] NFS: Abstract out namespace initialisation
+ [try #2]]
+Message-Id: <20060304163419.5884e3e4.akpm@osdl.org>
+In-Reply-To: <4407693E.6000108@vilain.net>
+References: <44074CFD.7050708@vilain.net>
+	<20060302084448.GA21902@infradead.org>
+	<440613FF.4040807@vilain.net>
+	<3254.1141299348@warthog.cambridge.redhat.com>
+	<5923.1141333943@warthog.cambridge.redhat.com>
+	<4407693E.6000108@vilain.net>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,54 +30,93 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J M Cerqueira Esteves <jmce@artenumerica.com> wrote:
+Sam Vilain <sam@vilain.net> wrote:
 >
-> Still on the same dual EM64T machine with a Tyan Tiger i7525 (S2672)
->  motherboard and 4 GB RAM for which I reported 2.6.12 oom killings a few
->  days ago:
+>  >Remember: one of the main reasons for splitting patches is to make it easier
+>  >for other people to appreciate just how sublimely terrific your work is:-)
+>  >  
+>  >
 > 
->  I upgraded to Ubuntu Dapper and installed its latest 2.6.15 kernel,
->  which incorporates 2.6.15.4.  Started with the original "binary"
->  linux-image-2.6.15-16-amd64-xeon package,
->  and got a few oom killings even without running the same large test
->  programs as before.  Then recompiled the kernel with
->  CONFIG_PREEMPT_NONE, CONFIG_SCHED_SMT, no CONFIG_PREEMPT_BKL,
->  and the dump_stack() call suggested by Andrew Morton for
->  mm/oom_kill.c [in out_of_memory()].
+>  Interesting.  I've just seen patches slammed by subsystem maintainers 
+>  before for doing things "the wrong way around" within a patchset.
 > 
->  Repeated tests with Gaussian... and got oom-killer events similar to
->  those found with 2.6.12.   At
->  http://jmce.artenumerica.org/en/tmp/linux-2.6.15-oom_killings/kern.log
->  are the kernel messages from the killing of two Gaussian runs;
->  I just show below the beginning, until the first killing.
-> 
->  Any suggestions on patches or some pre-2.6.16 version I should try?
-> 
-> 
->  Call Trace:<ffffffff8015efcb>{out_of_memory+23}
->  <ffffffff80130465>{__wake_up+56}
->         <ffffffff80161177>{__alloc_pages+572}
->  <ffffffff8017fc25>{bio_copy_user+219}
->         <ffffffff801debbf>{blk_rq_map_user+133} <ffffffff801e1b61>{sg_io+351}
->         <ffffffff801e1ff8>{scsi_cmd_ioctl+494}
->  <ffffffff80130465>{__wake_up+56}
->         <ffffffff80265aac>{sock_def_readable+52}
->  <ffffffff802c5d68>{unix_dgram_sendmsg+1085}
->         <ffffffff88077e35>{:sd_mod:sd_ioctl+371}
->  <ffffffff801e0058>{blkdev_driver_ioctl+93}
->         <ffffffff801e0726>{blkdev_ioctl+1613}
->  <ffffffff8018ce76>{do_select+1137}
->         <ffffffff8026321e>{sys_sendto+251} <ffffffff8018c941>{__pollwait+0}
->         <ffffffff801813d2>{block_ioctl+27} <ffffffff8018c091>{do_ioctl+33}
->         <ffffffff8018c36c>{vfs_ioctl+643} <ffffffff8018c3e0>{sys_ioctl+91}
->         <ffffffff8010fa46>{system_call+126}
->  oom-killer: gfp_mask=0xd1, order=0
+>  I don't remember seeing this covered in TPP, am I missing having read a 
+>  guide document or is this grey area?
 
-Yup, that looks like the same bug.
+I just updated it.
 
-We have a candidate fix at
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
- Could you test that?  (and don't alter the Cc: list!).  The patch is
-against 2.6.16-rc5.
+--- tpp.txt	2006-03-04 16:32:28.000000000 -0800
++++ tpp2.txt	2006-03-04 16:33:10.000000000 -0800
+@@ -1,7 +1,7 @@
+ 
+ The perfect patch.
+ akpm@osdl.org
+-Updated 12 Jan 2006
++Updated 4 March 2006
+ 
+ The latest version of this document may be found at
+ http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+@@ -93,8 +93,8 @@
+    patch should contain a standalone changelog.  This implies that you need a
+    patch management system which maintains changelogs.  See below.
+ 
+-e) Add a Signed-off-by: line, as per the Documentation/SubmittingPatches
+-   file in the kernel tree.
++e) Add a Signed-off-by: line, as per section 11 of the
++   Documentation/SubmittingPatches file in the kernel tree.
+ 
+    Signed-off-by: implies that you had some part in the developent of the
+    patch, or that you handled it and passed it on to another developer for
+@@ -174,8 +174,49 @@
+ 	done
+ 
+ 
+-6: Overall
+-=========
++6: Patch series
++===============
++
++a) When sending a series of patches, number them in the Subject:s thusly:
++
++	[patch 1/10] ext2: block allocation: frob the globnozzle
++	[patch 2/10] ext2: block allocation: wash the pizza
++	etc
++
++b) Some people like to introduce a patch series with an introductory email
++   which doesn't actually carry a patch, such as:
++
++	[patch 0/10] ext2: block allocation changes
++
++   Please don't do this.  There is no facility in the git tree to carry
++   changelog-only changesets such as this (or at least, we don't do that) so
++   the information in the introductory email will be lost.
++
++   So I end up copying and pasting your nice introduction into the
++   changelog for the first patch, so it gets into git.  I'll follow it with
++   the text
++
++	This patch:
++
++   and then I'll include the changelog for the first patch of the series.
++
++   It would be preferred if the patch originators were to do this.
++
++c) Try very hard to ensure that the kernel builds and runs correctly at
++   every step of the patch series.  This requirement exists because of
++   `git-bisect'.  If someone is doing a bisection search for a kernel bug and
++   they land upon your won't-compile point partway through the exercise, they
++   will be unhappy.
++
++d) If your patch series includes non-runtime-affecting things such as
++   cleanups, whitespace fixes, file renames, moving functions around, etc then
++   this work should be done in the initial patches in the series.  The
++   functional changes should come later in the series.
++
++   This is mainly so that reversion of problematic changes becomes simpler.
++
++7: Overall
++==========
+ 
+ a) Avoid MIME and attachements if possible.  Make sure that your email
+    client does not wordwrap your patch.  Make sure that your email client does
 
-Thanks.

@@ -1,126 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752275AbWCEMlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWCENEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752275AbWCEMlc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 07:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751712AbWCEMlc
+	id S1750943AbWCENEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 08:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWCENEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 07:41:32 -0500
-Received: from lucidpixels.com ([66.45.37.187]:64969 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750798AbWCEMlb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 07:41:31 -0500
-Date: Sun, 5 Mar 2006 07:41:29 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: David Greaves <david@dgreaves.com>
-cc: Mark Lord <lkml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>,
-       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: LibPATA code issues / 2.6.15.4
-In-Reply-To: <Pine.LNX.4.64.0603050637110.30164@p34>
-Message-ID: <Pine.LNX.4.64.0603050740500.3116@p34>
-References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com>
- <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca>
- <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca>
- <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca>
- <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com>
- <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com>
- <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca>
- <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca>
- <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com>
- <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603050637110.30164@p34>
+	Sun, 5 Mar 2006 08:04:13 -0500
+Received: from nproxy.gmail.com ([64.233.182.205]:27264 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750943AbWCENEN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 08:04:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=c+BGZVyBiQ0AI6iBqMTx2KHiESTKQCwz6yY4vHagN2zUv8cWbwEHbTCpSyZkn3oD9iWZM8+ehD61zOfciTmv0Yx0uSp1/U7OgVQl+FB/RmyC4zZ12wybsxonAaRKsZ4wynA4VU8AWEaLCu/jmd9u5waQXEQ29BTw5fChsFssSMw=
+Message-ID: <8766c4ce0603050504h24b445c5t@mail.gmail.com>
+Date: Sun, 5 Mar 2006 14:04:11 +0100
+From: "Miguel Blanco" <mblancom@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: problem mounting a jffs2 filesystem
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+ Trying to mount a jffs2 file system in my desktop PC:
+ ...
+ $ modprobe mtdram total_size=6144 erase_size=128
+ $ modprobe mtdblock
+ ...
+ $ dd if=fw.wsw of=data.jffs2 ibs=1 obs=1M count=5888K skip=6292872
+ $ jffs2dump -b -c -e data-le.jffs2 data.jffs2
+ $ dd if=data-le.jffs2 of=/dev/mtdblock0
+ $ mkdir data
+ $ mount -t jffs2 /dev/mtdblock0 data
+
+ I get a mount error:
+     "2942 Violación de segmento" (in spanish and "segment violation"
+in english :-) )
+
+ and dmesg says (relevant part I think):
+
+ divide error: 0000 [#1]
+ last sysfs file: /block/mtdblock0/dev
+ Modules linked in: jffs2 zlib_deflate mtdblock mtd_blkdevs mtdram
+mtdpart mtdcor e parport_pc lp parport autofs4 dm_mod video button
+battery ac ipv6 ohci1394 iee e1394 uhci_hcd ehci_hcd i2c_i801 i2c_core
+snd_intel8x0 snd_ac97_codec snd_ac97_b us snd_seq_dummy snd_seq_oss
+snd_seq_midi_event snd_seq snd_seq_device snd_pcm_o ss snd_mixer_oss
+snd_pcm snd_timer snd soundcore snd_page_alloc 8139cp 8139too m ii
+floppy sr_mod ext3 jbd aic7xxx scsi_transport_spi sd_mod scsi_mod
+ CPU:    0
+ EIP:    0060:[<e118deef>]    Not tainted VLI
+ EFLAGS: 00210246   (2.6.15-1.1830_FC4)
+ EIP is at jffs2_scan_medium+0xdf/0x55e [jffs2]
+ eax: 0000fff4   ebx: d2c5fa00   ecx: dffef180   edx: 00000000
+ esi: d07d24e0   edi: d07d28d0   ebp: d3c98a80   esp: d0995d80
+ ds: 007b   es: 007b   ss: 0068
+ Process mount (pid: 2942, threadinfo=d0995000 task=d311b030)
+ Stack: 00000000 d3c98a80 d0995da4 00000080 00000030 00000002 00000000 00000000
+        00600000 e0b58000 d2c5fa00 00000030 d2c5fa00 00000000 e119107a d2c5fa00
+        d3c98338 fffffff4 c0152c19 ffffffff e119611d 000000d0 00000000 d2c5fa00
+ Call Trace:
+  [<e119107a>] jffs2_build_filesystem+0x1a
+/0x306 [jffs2]     [<c0152c19>] __vmall oc+0xf/0x13
+  [<e119611d>] jffs2_sum_init+0x3d/0xbf [jffs2]     [<e1191609>]
+jffs2_do_mount_f s+0x1cc/0x233 [jffs2]
+  [<e119300c>] jffs2_do_fill_super+0xa8/0x1cb [jffs2]     [<e1193647>]
+jffs2_sb_s et+0x0/0x1d [jffs2]
+  [<e119385f>] jffs2_get_sb_mtd+0x1fb/0x22c [jffs2]     [<e11939b5>]
+jffs2_get_sb +0xe7/0x192 [jffs2]
+  [<c017502b>] alloc_vfsmnt+0x9b/0xc2     [<c0174f79>] get_fs_type+0x8d/0xa4
+  [<c0161d29>] do_kern_mount+0xaf/0x147     [<c0176437>] do_new_mount+0x6b/0x90
+  [<c0176a37>] do_mount+0x1b1/0x1cc     [<c01422e0>] __alloc_pages+0x57/0x2ed
+  [<c017683d>] copy_mount_options+0x4d/0x96     [<c0176db4>] sys_mount+0x72/0xa4
+  [<c0102e75>] syscall_call+0x7/0xb
+ Code: 8b 93 b0 00 00 00 8b 42 18 01 43 7c 8b 43 78 2b 42 18 89 43 78
+c7 42 18 00  00 00 00 8b b3 b0 00 00 00 85 f6 74 24 8b 46 20 31 d2
+<f7> b3 84 01 00 00 85 d2  74 15 01 56 1c 01 53 7c 8b 83 b0 00 00
+ Continuing in 1 seconds.
+  <6>loop: loaded (max 8 devices)
 
 
-On Sun, 5 Mar 2006, Justin Piszcz wrote:
+ this is with Fedora 4 kernel 2.6.15-1.1830 (and later kernels).
+2.6.14.1.1656 is OK!
 
-> On Wed, 1 Mar 2006, David Greaves wrote:
->
->> David Greaves wrote:
->> 
->>> Mark Lord wrote:
->>> 
->>> 
->>> 
->>>> By the way, the latest 2.6.16-rc5-git4 is available,
->>>> and has FUA turned off by default now.  So it should
->>>> work with your drives, and *you* are expected to verify
->>>> that for us all now.
->>>> 
->>>> 
->>> Yeah, I know - I've got it on the machine... but it's my wife's machine.
->>> I've asked nicely but she's editing a Hercule Poirot video so I'm not
->>> allowed to reboot it for a while...
->>> 
->>> I've told her I'm not making pancakes until I've tested it so expect a
->>> report Real Soon Now...
->>> 
->>> 
->> OK that worked (the pancakes - the kernel's not doing so well...)
->> 
->> haze:~# uname -a
->> Linux haze 2.6.16-rc5-git4 #2 PREEMPT Wed Mar 1 19:07:58 UTC 2006 i686
->> GNU/Linux
->> 
->> The boot is pretty clean.
->> I ran an xfs_repair -n on the lvm volume and got the following errors.
->> The repair reported a clean filesystem and the drive was not booted from
->> the raid so that's a big improvement.
->> 
->> I was not able to trigger similar messages on ata1 but a simple dd
->> doesn't trigger the messages on ata2 either (and for various reasons,
->> xfs_repair wouldn't run on ata1 - I thought I'd leave it and report this
->> first)
->> 
->> ata2: translated ATA stat/err 0x51/04 to SCSI SK/ASC/ASCQ 0xb/00/00
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: error=0x04 { DriveStatusError }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> ata2: no sense translation for status: 0x51
->> ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
->> ata2: status=0x51 { DriveReady SeekComplete Error }
->> 
->> David
->> 
->> -- 
->> 
->
-> Using 2.6.16-rc5-git4 and removing a directory of around 5.0GB of files while 
-> streaming a 1MB/s video stream on another (SATA disk), the I/O seemed to 
-> freeze up for a moment and I got this error:
->
-> [4342671.839000] ata1: command 0x35 timeout, stat 0x50 host_stat 0x22
->
-> Only 1 in dmesg, any idea what causes this error?
->
->
+ I know is a vendor kernel, but the 2.6.15 ChangeLog contains a lot of
+changes related
+ to mtd devices and jffs2 filesystems, so I think it could be a mainline bug.
 
-The drive it occured on was a 74GB raptor on an ICH5 controller.
+ Let me know if you need more information.
 
-[4294673.245000]   Vendor: ATA       Model: WDC WD740GD-00FL  Rev: 33.0
-0000:00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA 
-Controller (rev 02)
-
-
+ Thank you,
+ Miguel.

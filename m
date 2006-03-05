@@ -1,118 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWCEB0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWCEBnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWCEB0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 20:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWCEB0N
+	id S932334AbWCEBnl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 20:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWCEBnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 20:26:13 -0500
-Received: from mail.anathoth.gen.nz ([202.78.241.50]:47547 "EHLO
-	mail.anathoth.gen.nz") by vger.kernel.org with ESMTP
-	id S1751272AbWCEB0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 20:26:13 -0500
-Subject: PROBLEM:  rt_sigsuspend() does not return EINTR on 2.6.16-rc2+
-From: Matthew Grant <grantma@anathoth.gen.nz>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PTM5BacX+v2nqRnDPoZU"
-Organization: Matthew's UNIX Box
-Date: Sun, 05 Mar 2006 14:26:00 +1300
-Message-Id: <1141521960.7628.9.camel@localhost.localdomain>
+	Sat, 4 Mar 2006 20:43:41 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:61130 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932082AbWCEBnl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 20:43:41 -0500
+Date: Sun, 5 Mar 2006 04:43:25 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: jengelh@linux01.gwdg.de, christopher.leech@intel.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Message-ID: <20060305014324.GA20026@2ka.mipt.ru>
+References: <20060303214036.11908.10499.stgit@gitlost.site> <Pine.LNX.4.61.0603041945520.29991@yvahk01.tjqt.qr> <20060304.134144.122314124.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060304.134144.122314124.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 05 Mar 2006 04:43:26 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 04, 2006 at 01:41:44PM -0800, David S. Miller (davem@davemloft.net) wrote:
+> From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+> Date: Sat, 4 Mar 2006 19:46:22 +0100 (MET)
+> 
+> > Does this buy the normal standard desktop user anything?
+> 
+> Absolutely, it optimizes end-node performance.
 
---=-PTM5BacX+v2nqRnDPoZU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It really depends on how it is used.
+According to investigation made for kevent based FS AIO reading,
+get_user_pages() performange graph looks like sqrt() function
+with plato starting on about 64-80 pages on Xeon 2.4Ghz with 1Gb of ram,
+while memcopy() is linear, so it can be noticebly slower than
+copy_to_user() if get_user_pages() is used aggressively, so userspace
+application must reuse the same, already grabbed buffer for maximum
+performance, but Intel folks did not provide theirs usage case and any
+benchmarks as far as I know.
 
-Problem is that new sys_rt_sigsuspend in kernel/signal.c in 2.6.16-rc2+
-does not return EINTR.
-
-System:  Ubuntu i386 breezy badger.
-Arch: i386
-Kernel version: 2.6.16-rc5, gcc 3.3
-
-This break the removable media handling of nautilus on Ubuntu Breezy
-Badger, Gnome 2.12, Drives mount, but mount status tracking in GNOME is
-broken, and they are not shown as mounted.  What is going on is that
-rt_sigsuspend() gets called as part of the external call to pmount-hal
-to mount the device.  The reads of the FIFOs and sockets between hald
-and Nautilus get are not retried as rt_sigsuspend(2) does not return
-EINTR.
-
-
-Here is the strace output for 2.6.16-rc5 for nautilus when trying to
-mount a drive (problem happening):
-
-
-read(3, "\1\2m$\0\0\0\0]\0 \1\4\0\0\0\0\0\0\0$\344\1\0000\375\246"...,
-32) =3D 32
-access("/usr/bin/pmount-hal", X_OK)     =3D 0
-getuid32()                              =3D 1000
-rt_sigprocmask(SIG_SETMASK, NULL, [RTMIN], 8) =3D 0
-write(20, "`\230\217@\0\0\0\0\0\0\0\0\362\372i@\370}W\10\0\0\0\200"...,
-148) =3D 148
-rt_sigprocmask(SIG_SETMASK, NULL, [RTMIN], 8) =3D 0
-rt_sigsuspend([])                       =3D ? ERESTARTNOHAND (To be
-restarted)
---- SIGRTMIN (Unknown signal 32) @ 0 (0) ---
-sigreturn()                             =3D ? (mask now [RTMIN])
-gettimeofday({1141503088, 150962}, NULL) =3D 0
-poll([{fd=3D4, events=3DPOLLIN}, {fd=3D3, events=3DPOLLIN, revents=3DPOLLIN=
-},
-{fd=3D8, events=3DPOLLIN|POLLPRI}, {fd=3D10, events=3DPOLLIN|POLLPRI}, {fd=
-=3D14,
-events=3DPOLLIN}], 5, 0) =3D 1
-
-
-Comparitive strace output under kernel 2.6.15.4:
-
-poll([{fd=3D4, events=3DPOLLIN}, {fd=3D3, events=3DPOLLIN}, {fd=3D8,
-events=3DPOLLIN|POLLPRI}, {fd=3D10, events=3DPOLLIN|POLLPRI}, {fd=3D14,
-events=3DPOLLIN}], 5, 0) =3D 0
-gettimeofday({1141488494, 765282}, NULL) =3D 0
-access("/usr/bin/pmount-hal", X_OK)     =3D 0
-getuid32()                              =3D 1000
-rt_sigprocmask(SIG_SETMASK, NULL, [RTMIN], 8) =3D 0
-write(20, "`\230\217@\0\0\0\0\0\0\0\0\362\372i@@\2U\10\0\0\0\200\0"...,
-148) =3D 148
-rt_sigprocmask(SIG_SETMASK, NULL, [RTMIN], 8) =3D 0
-rt_sigsuspend([] <unfinished ...>
---- SIGRTMIN (Unknown signal 32) @ 0 (0) ---
-<... rt_sigsuspend resumed> )           =3D -1 EINTR (Interrupted system
-call)
-sigreturn()                             =3D ? (mask now [RTMIN])
-gettimeofday({1141488494, 778060}, NULL) =3D 0
-poll([{fd=3D4, events=3DPOLLIN}, {fd=3D3, events=3DPOLLIN}, {fd=3D8,
-events=3DPOLLIN|POLLPRI}, {fd=3D10, events=3DPOLLIN|POLLPRI}, {fd=3D14,
-events=3DPOLLIN}], 5, 0) =3D 0
-write(3, "*\2\3\0]\0 \1\344r\2\0+\0\1\0\22\0\7\0\\\0 \1\2\1\0\0\6"...,
-44) =3D 44
-ioctl(3, FIONREAD, [160])               =3D=20
-
-I think David woodhouse may be responsible for this....
-
-Regards,
-
-Matthew Grant
-
-
---=20
-Matthew Grant <grantma@anathoth.gen.nz>
-Matthew's UNIX Box
-
---=-PTM5BacX+v2nqRnDPoZU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBECj4ouk55Di7iAnARAm4nAKCobFy3yH5ttytKoU+aP+qdfi0gKwCeO/hJ
-wl2SfINy0sypVHClkTTMAS0=
-=wWpv
------END PGP SIGNATURE-----
-
---=-PTM5BacX+v2nqRnDPoZU--
-
+-- 
+	Evgeniy Polyakov

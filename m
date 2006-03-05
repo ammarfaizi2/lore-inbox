@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWCEWVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWCEWWG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWCEWVR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 17:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCEWVR
+	id S932121AbWCEWWG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 17:22:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWCEWWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 17:21:17 -0500
-Received: from zcars04e.nortel.com ([47.129.242.56]:33948 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP
-	id S1751215AbWCEWVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 17:21:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17419.25684.389269.70457@lemming.engeast.baynetworks.com>
-Date: Sun, 5 Mar 2006 17:21:08 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: bug-make@gnu.org, LKML <linux-kernel@vger.kernel.org>,
-       kbuild-devel@lists.sourceforge.net, Art Haas <ahaas@airmail.net>
-Subject: Re: kbuild: Problem with latest GNU make rc
-In-Reply-To: <20060304214026.GB1539@mars.ravnborg.org>
-References: <17413.49617.923704.35763@lemming.engeast.baynetworks.com>
-	<20060304214026.GB1539@mars.ravnborg.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-From: "Paul D. Smith" <psmith@gnu.org>
-Reply-To: "Paul D. Smith" <psmith@gnu.org>
-Organization: GNU's Not Unix!
-X-OriginalArrivalTime: 05 Mar 2006 22:21:11.0819 (UTC) FILETIME=[1BE09DB0:01C640A3]
+	Sun, 5 Mar 2006 17:22:05 -0500
+Received: from mail.suse.de ([195.135.220.2]:28088 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751901AbWCEWWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 17:22:04 -0500
+Date: Sun, 5 Mar 2006 23:22:02 +0100
+From: Olaf Hering <olh@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+Message-ID: <20060305222202.GA22450@suse.de>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060305140932.GA17132@suse.de> <20060305185923.GA21519@suse.de> <Pine.LNX.4.64.0603051147590.13139@g5.osdl.org> <20060305204231.GA22002@suse.de> <17419.23860.883220.80199@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <17419.23860.883220.80199@cargo.ozlabs.ibm.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-%% Sam Ravnborg <sam@ravnborg.org> writes:
+ On Mon, Mar 06, Paul Mackeras wrote:
 
-  sr> I foresee a lot of mails to lkml the next year or more with this
-  sr> issue if kept. People do build older kernels and continue to do so
-  sr> the next long time. Especially the embedded market seem keen to
-  sr> stay at 2.4 (wonder why), and as such we will see many systems
-  sr> that keep older kernel src but never make behaviour.
+> Olaf Hering writes:
+> 
+> > I'm now at 03929c76f3e5af919fb762e9882a9c286d361e7d, which fails as
+> > well. dmesg shows this:
+> 
+> The range from git5 to there includes David Woodhouse's syscall
+> entry/exit revamp (401d1f029bebb7153ca704997772113dc36d9527) and the
+> follow-ons which fix it for 32-bit:
+> 
+> 9687c587596b54a77f08620595f5686ea35eed97
+> 623703f620453c798b6fa3eb79ad8ea27bfd302a
+> 
+> There are also commits from Ben H that change the way we parse
+> addresses from the OF device tree.  If you can bisect a bit further
+> that would be good, although you may strike problems between the 401d
+> and 6237 commits I mentioned above.
 
-Well, this behavior doesn't exist in 2.4 kernels, since the kernel build
-in 2.4 was very different.  Nevertheless there are plenty of 2.6 kernels
-out there :-).
+I will check this tomorrow.
 
-  sr> Suggestion:
-  sr> We are now warned about an incompatibility in kbuild and we will
-  sr> fix this asap. But that you postpone this particular behaviour
-  sr> change until next make release. Maybe you add in this change as
-  sr> the first thing after the stable relase so all bleeding edge make
-  sr> users see it and can report issues.
+quick update:
 
-I am willing to postpone this change.  However, I can't say how much of
-a window this delay will give you: I can say that it's extremely
-unlikely that it will be another 3 years before GNU make 3.82 comes out.
+d4e4b3520c4df46cf1d15a56379a6fa57e267b7d, locks up, tried two times
 
-  sr> It is not acceptable that the kernel links each time we do a make.
-  sr> We keep track of a version number, we do partly jobs as root etc.
-  sr> So any updates on an otherwise build tree is a bug - and will be
-  sr> reported and has to get fixed.
 
-I've modified the kbuild system to collect .PHONY files into a variable,
-PHONY, and then used that in the if_changed* macros.
+404849bbd2bfd62e05b36f4753f6e1af6050a824 + 3 buildfixes:
 
-Using this method I've determined that the new version of GNU make works
-exactly like the old version under various tests (build from scratch,
-rebuild without any changes, rebuild with simple changes, etc.)
+31df1678d7732b94178a6e457ed6666e4431212f
+8dacaedf04467e32c50148751a96150e73323cdc
+d2dd482bc17c3bc240045f80a7c4b4d5cea5e29c
 
-I've submitted a patch to linux-kernel implementing this change, with
-an appropriate Signed-off-by line.
 
--- 
--------------------------------------------------------------------------------
- Paul D. Smith <psmith@gnu.org>          Find some GNU make tips at:
- http://www.gnu.org                      http://make.paulandlesley.org
- "Please remain calm...I may be mad, but I am a professional." --Mad Scientist
+This one has the syscall changes, but not the two fixes you mentioned.
+It gets far, but at the point where it locks up with the d4eb, it
+crashes in run_timer_softirq, branched to 0x1f4. Maybe its the result of
+the missing fixes. Will continue tomorrow.

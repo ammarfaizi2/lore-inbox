@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWCEO40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751435AbWCEPJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWCEO40 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 09:56:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCEO40
+	id S1751435AbWCEPJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 10:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCEPJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 09:56:26 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11488 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751298AbWCEO4Z (ORCPT
+	Sun, 5 Mar 2006 10:09:09 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:53927 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751435AbWCEPJJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 09:56:25 -0500
-Date: Sun, 5 Mar 2006 15:28:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [patch] fix hardcoded values in collie frontlight
-Message-ID: <20060305142859.GA21173@elf.ucw.cz>
+	Sun, 5 Mar 2006 10:09:09 -0500
+Subject: RFC: Backlight Class sysfs attribute behaviour
+From: Richard Purdie <rpurdie@rpsys.net>
+To: "Antonino A. Daplas" <adaplas@gmail.com>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Zabolotny <zap@homelink.ru>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 05 Mar 2006 15:08:53 +0000
+Message-Id: <1141571334.6521.38.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In frontlight support, we should really use values from flash-ROM
-instead of hardcoding our own.
+At present, the backlight class presents two attributes to sysfs,
+brightness and power. I'm a little confused as to whether these
+attributes are currently doing the right things.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Taking brightness, at any one time we have several different brightness
+values:
 
-diff --git a/drivers/video/backlight/locomolcd.c b/drivers/video/backlight/locomolcd.c
-index ada6e75..2bcff84 100644
---- a/drivers/video/backlight/locomolcd.c
-+++ b/drivers/video/backlight/locomolcd.c
-@@ -20,6 +20,7 @@
- 
- #include <asm/hardware/locomo.h>
- #include <asm/irq.h>
-+#include <asm/mach/sharpsl_param.h>
- 
- #ifdef CONFIG_SA1100_COLLIE
- #include <asm/arch/collie.h>
-@@ -27,7 +28,7 @@
- #include <asm/arch/poodle.h>
- #endif
- 
--extern void (*sa1100fb_lcd_power)(int on);
-+#include "../../../arch/arm/mach-sa1100/generic.h"
- 
- static struct locomo_dev *locomolcd_dev;
- 
-@@ -82,7 +83,7 @@ static void locomolcd_off(int comadj)
- 
- void locomolcd_power(int on)
- {
--	int comadj = 118;
-+	int comadj = sharpsl_param.comadj;
- 	unsigned long flags;
- 
- 	local_irq_save(flags);
-@@ -93,11 +94,13 @@ void locomolcd_power(int on)
- 	}
- 
- 	/* read comadj */
-+	if (comadj == -1) {
- #ifdef CONFIG_MACH_POODLE
--	comadj = 118;
-+		comadj = 118;
- #else
--	comadj = 128;
-+		comadj = 128;
- #endif
-+	}
- 
- 	if (on)
- 		locomolcd_on(comadj);
+* User requested brightness (echo y > /sys/class/backlight/xxx/brightness)
+* Driver determined brightness which accounts for things like FB 
+  blanking, low battery backlight limiting (an example from corgi_bl), 
+  user requested power state, device suspend/resume.
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+The solution might be to have brightness always return the user
+requested value y and have a new attribute returning the brightness as
+determined by the driver once it accounts for all the factors it needs
+to consider. Naming of such an attribute is tricky - "driver_brightness"
+perthaps?
+
+The same problem applies to the power attribute. This could easily
+confused with the other forms of power attribute in sysfs but ignoring
+that, should this report:
+
+* The last user requested power state
+* The current power state accounting for FB blanking.
+* The current power state for device suspend/resume
+
+Should the FB blanking override the user requested values? At the moment
+it only does unless a user changes an attributes whilst the display is
+blanked in which case the user's change overrides. This could be classed
+as a bug but solving it as straight forward as it sounds using only the
+existing backlight class functions.
+
+Also, at the moment this attribute reports VESA power states which can
+be confusing (0 = on, [1-3] = off).
+
+Again, the solution would appear to be to return the last user requested
+power state. The driver_brightness attribute would tell you if the
+display was blanked for any other reason (although not why).
+
+I have various patches that implement these changes but before I finish
+them, does anyone have an views on what the correct behaviour should be?
+
+Richard
+
+

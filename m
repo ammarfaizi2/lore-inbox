@@ -1,79 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751878AbWCEWVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWCEWVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751878AbWCEWVj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 17:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751896AbWCEWVj
+	id S1751215AbWCEWVR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 17:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCEWVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 17:21:39 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:6925 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751878AbWCEWVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 17:21:38 -0500
-Date: Sun, 5 Mar 2006 23:21:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: len.brown@intel.com, linux-acpi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] ACPI should depend on, not select PCI
-Message-ID: <20060305222136.GD20287@stusta.de>
+	Sun, 5 Mar 2006 17:21:17 -0500
+Received: from zcars04e.nortel.com ([47.129.242.56]:33948 "EHLO
+	zcars04e.nortel.com") by vger.kernel.org with ESMTP
+	id S1751215AbWCEWVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 17:21:16 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+Message-ID: <17419.25684.389269.70457@lemming.engeast.baynetworks.com>
+Date: Sun, 5 Mar 2006 17:21:08 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: bug-make@gnu.org, LKML <linux-kernel@vger.kernel.org>,
+       kbuild-devel@lists.sourceforge.net, Art Haas <ahaas@airmail.net>
+Subject: Re: kbuild: Problem with latest GNU make rc
+In-Reply-To: <20060304214026.GB1539@mars.ravnborg.org>
+References: <17413.49617.923704.35763@lemming.engeast.baynetworks.com>
+	<20060304214026.GB1539@mars.ravnborg.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+From: "Paul D. Smith" <psmith@gnu.org>
+Reply-To: "Paul D. Smith" <psmith@gnu.org>
+Organization: GNU's Not Unix!
+X-OriginalArrivalTime: 05 Mar 2006 22:21:11.0819 (UTC) FILETIME=[1BE09DB0:01C640A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI should depend on, not select PCI.
+%% Sam Ravnborg <sam@ravnborg.org> writes:
 
-Otherwise, illegal configurations like X86_VOYAGER=y, PCI=y are 
-possible.
+  sr> I foresee a lot of mails to lkml the next year or more with this
+  sr> issue if kept. People do build older kernels and continue to do so
+  sr> the next long time. Especially the embedded market seem keen to
+  sr> stay at 2.4 (wonder why), and as such we will see many systems
+  sr> that keep older kernel src but never make behaviour.
 
-This patch also fixes the options select'ing ACPI to also select PCI.
+Well, this behavior doesn't exist in 2.4 kernels, since the kernel build
+in 2.4 was very different.  Nevertheless there are plenty of 2.6 kernels
+out there :-).
 
+  sr> Suggestion:
+  sr> We are now warned about an incompatibility in kbuild and we will
+  sr> fix this asap. But that you postpone this particular behaviour
+  sr> change until next make release. Maybe you add in this change as
+  sr> the first thing after the stable relase so all bleeding edge make
+  sr> users see it and can report issues.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I am willing to postpone this change.  However, I can't say how much of
+a window this delay will give you: I can say that it's extremely
+unlikely that it will be another 3 years before GNU make 3.82 comes out.
 
----
+  sr> It is not acceptable that the kernel links each time we do a make.
+  sr> We keep track of a version number, we do partly jobs as root etc.
+  sr> So any updates on an otherwise build tree is a bug - and will be
+  sr> reported and has to get fixed.
 
-This patch was already sent on:
-- 16 Feb 2006
+I've modified the kbuild system to collect .PHONY files into a variable,
+PHONY, and then used that in the if_changed* macros.
 
- arch/ia64/Kconfig    |    1 +
- arch/x86_64/Kconfig  |    1 +
- drivers/acpi/Kconfig |    3 +--
- 3 files changed, 3 insertions(+), 2 deletions(-)
+Using this method I've determined that the new version of GNU make works
+exactly like the old version under various tests (build from scratch,
+rebuild without any changes, rebuild with simple changes, etc.)
 
---- linux-2.6.16-rc3-mm1-full/drivers/acpi/Kconfig.old	2006-02-16 21:21:23.000000000 +0100
-+++ linux-2.6.16-rc3-mm1-full/drivers/acpi/Kconfig	2006-02-16 21:21:42.000000000 +0100
-@@ -10,9 +10,8 @@
- config ACPI
- 	bool "ACPI Support"
- 	depends on IA64 || X86
-+	depends on PCI
- 	select PM
--	select PCI
--
- 	default y
- 	---help---
- 	  Advanced Configuration and Power Interface (ACPI) support for 
---- linux-2.6.16-rc3-mm1-full/arch/ia64/Kconfig.old	2006-02-16 21:21:52.000000000 +0100
-+++ linux-2.6.16-rc3-mm1-full/arch/ia64/Kconfig	2006-02-16 21:22:08.000000000 +0100
-@@ -73,6 +73,7 @@
- config IA64_GENERIC
- 	bool "generic"
- 	select ACPI
-+	select PCI
- 	select NUMA
- 	select ACPI_NUMA
- 	help
---- linux-2.6.16-rc3-mm1-full/arch/x86_64/Kconfig.old	2006-02-16 21:22:19.000000000 +0100
-+++ linux-2.6.16-rc3-mm1-full/arch/x86_64/Kconfig	2006-02-16 21:23:39.000000000 +0100
-@@ -285,6 +285,7 @@
-        bool "ACPI NUMA detection"
-        depends on NUMA
-        select ACPI 
-+	select PCI
-        select ACPI_NUMA
-        default y
-        help
+I've submitted a patch to linux-kernel implementing this change, with
+an appropriate Signed-off-by line.
 
+-- 
+-------------------------------------------------------------------------------
+ Paul D. Smith <psmith@gnu.org>          Find some GNU make tips at:
+ http://www.gnu.org                      http://make.paulandlesley.org
+ "Please remain calm...I may be mad, but I am a professional." --Mad Scientist

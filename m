@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWCELYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752246AbWCELlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751495AbWCELYb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 06:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752017AbWCELYb
+	id S1752246AbWCELlj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 06:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752231AbWCELlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 06:24:31 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:1452 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751495AbWCELYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 06:24:31 -0500
-Subject: Re: PROBLEM:  rt_sigsuspend() does not return EINTR on 2.6.16-rc2+
-From: David Woodhouse <dwmw2@infradead.org>
-To: Matthew Grant <grantma@anathoth.gen.nz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1141521960.7628.9.camel@localhost.localdomain>
-References: <1141521960.7628.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 05 Mar 2006 11:24:22 +0000
-Message-Id: <1141557862.3764.47.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 5 Mar 2006 06:41:39 -0500
+Received: from natipslore.rzone.de ([81.169.145.179]:9145 "EHLO
+	natipslore.rzone.de") by vger.kernel.org with ESMTP
+	id S1752175AbWCELli convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 06:41:38 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc5-mm2
+Date: Sun, 5 Mar 2006 12:42:20 +0100
+User-Agent: KMail/1.8
+Cc: Benoit Boissinot <bboissin@gmail.com>, linux-kernel@vger.kernel.org,
+       jketreno@linux.intel.com, "John W. Linville" <linville@tuxdriver.com>,
+       Jeff Garzik <jeff@garzik.org>
+References: <20060303045651.1f3b55ec.akpm@osdl.org> <20060305081442.GH29560@ens-lyon.fr> <20060305003457.48478db0.akpm@osdl.org>
+In-Reply-To: <20060305003457.48478db0.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200603051242.20503.stefan@loplof.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-05 at 14:26 +1300, Matthew Grant wrote:
-> Problem is that new sys_rt_sigsuspend in kernel/signal.c in 2.6.16-rc2+
-> does not return EINTR.
+Hi,
 
-It does for me -- try the trivial test case at
-http://david.woodhou.se/sigsusptest.c
+Am Sonntag 05 März 2006 09:34 schrieb Andrew Morton:
 
-If you strace that under old and new kernels you'll see a difference in
-the strace output, but it should be entirely cosmetic. The old code
-would incestuously call do_signal() inside sys_rt_sigsuspend(), and
-would never need to use the mechanism we have for restarting system
-calls. Either it would know it delivered a signal and it would return
--EINTR, or it would know that it _didn't_, and it would loop for itself.
-Now it behaves like all the other restartable syscalls, and ptrace will
-actually see the -ERESTARTNOHAND return code which later gets converted
-by the signal code either to -EINTR or to an actual restart, as
-appropriate.
+> That check was changed from
+>
+> 	"If this STA doesn't use WPA and that AP does, then bale"
+>
+> into
+>
+> 	"If this STA does use WPA and that AP doesn't then bale".
+>
+> So a theory would be that your AP isn't filling in those WPA length fields.
+> I see no reason why we should permit that to disable WEP?
 
-In short, I think what you've picked up on in the strace output is
-entirely cosmetic, and shouldn't affect the behaviour of the program in
-any way. In each case, it comes back from the signal and goes
-immediately into gettimeofday() and then poll() -- it _has_ come out of
-the sigsuspend(). You then find that poll() gives different results in
-each case, and I'd be inclined to suspect that the _real_ change in
-behaviour goes from that point.
+problem is that wpa_supplicant needs to set wpa_enabled unconditionally, so 
+with this  change it hasn't been possible to connect to non-WPA networks 
+using WPA supplicant. For the discussion on the IPW list, see 
+http://marc.theaimsgroup.com/?t=114004412300002&r=1&w=2 .
 
-> I think David woodhouse may be responsible for this....
+1.0.12 fixes this by removing the check entirely. James: Does it makes sense 
+for you to push 1.1.0 out to netdev soon, or better just the fix for this?
 
-I read lkml sporadically; usually better to Cc me when I'm to blame :)
-
--- 
-dwmw2
-
+Stefan

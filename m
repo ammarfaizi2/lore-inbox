@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWCEG2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751988AbWCEGzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWCEG2v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 01:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCEG2v
+	id S1751988AbWCEGzA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 01:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCEGzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 01:28:51 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5296 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751988AbWCEG2u (ORCPT
+	Sun, 5 Mar 2006 01:55:00 -0500
+Received: from mail.gmx.de ([213.165.64.20]:52359 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751988AbWCEGy7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 01:28:50 -0500
-Date: Sat, 4 Mar 2006 22:26:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: gcoady@gmail.com
-Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>,
-       Takashi Iwai <tiwai@suse.de>, Alessandro Zummo <a.zummo@towertech.it>
-Subject: Re: 2.6.16-rc5-mm2
-Message-Id: <20060304222657.0df4f7cc.akpm@osdl.org>
-In-Reply-To: <33rh02d65h18t6fo9j3reoaovd8kekjd88@4ax.com>
-References: <20060303045651.1f3b55ec.akpm@osdl.org>
-	<33rh02d65h18t6fo9j3reoaovd8kekjd88@4ax.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 5 Mar 2006 01:54:59 -0500
+X-Authenticated: #14349625
+Subject: Re: [patch 2.6.16-rc5-mm2]  sched_cleanup-V17 - task
+	throttling	patch 1 of 2
+From: Mike Galbraith <efault@gmx.de>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: lkml <linux-kernel@vger.kernel.org>, mingo@elte.hu, kernel@kolivas.org,
+       nickpiggin@yahoo.com.au, "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <440A08AD.7050101@bigpond.net.au>
+References: <1140183903.14128.77.camel@homer>
+	 <1140812981.8713.35.camel@homer>  <20060224141505.41b1a627.akpm@osdl.org>
+	 <1140834190.7641.25.camel@homer> <1141382609.8768.57.camel@homer>
+	 <4408D823.50407@bigpond.net.au> <1141448075.7703.11.camel@homer>
+	 <440A08AD.7050101@bigpond.net.au>
+Content-Type: text/plain
+Date: Sun, 05 Mar 2006 07:54:53 +0100
+Message-Id: <1141541693.8964.32.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady <gcoady@gmail.com> wrote:
->
-> On Fri, 3 Mar 2006 04:56:51 -0800, Andrew Morton <akpm@osdl.org> wrote:
+On Sun, 2006-03-05 at 08:37 +1100, Peter Williams wrote:
+> Mike Galbraith wrote:
+> > On Sat, 2006-03-04 at 10:58 +1100, Peter Williams wrote:
+> > 
+> > 
+> >>If you're going to manage the time slice in nanoseconds why not do it 
+> >>properly?  I presume you've held back a bit in case you break something?
+> >>
+> > 
+> > 
+> > Do you mean the < NS_TICK thing?  The spare change doesn't go away.
 > 
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/
-> 
-> make oldconfig: some new options should default to 'N'?
-> 
-> Examples:
-> Sony Laptop Extras (ACPI_SONY) [M/n/y/?] (NEW)
+> Not exactly.  I mean "Why calculate time slice in jiffies and convert to 
+> nanoseconds?  Why not just do the calculation in nanoseconds?"
 
-That's for mine own convenience.  If you don't like it, buy a Sony ;)
+Turns out that my first instinct was right, and there is a good reason
+not to.  It doesn't improve readability nor do anything functional, it
+only adds clutter.  I much prefer the look of plain old ticks, and
+having nanoseconds only intrude where they're required.  I did change
+NS_TICK to the less obfuscated (1000000000 / HZ), with task_timeslice()
+returning a more readable ticks * NS_TICK conversion.
 
-> Enable firmware EDID (FB_FIRMWARE_EDID) [Y/n/?] (NEW)
-
-That's deliberate - previous kernels had this functionality unconditionally
-enabled.   We newly provide a way of disabling it.
-
-> Alsa:
-> Why do I want these by default?
-> OSS PCM (digital audio) API - Include plugin system (SND_PCM_OSS_PLUGINS) [Y/n/?] (NEW)
-> Verbose procfs contents (SND_VERBOSE_PROCFS) [Y/n/?] (NEW)
-
-cc's added.
-
-> RTC class (RTC_CLASS) [Y/n/m/?] (NEW) ?
-
-Ditto.
+	-Mike
 

@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWCIUtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWCIUuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751502AbWCIUtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 15:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWCIUtO
+	id S1751506AbWCIUuj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 15:50:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWCIUuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 15:49:14 -0500
-Received: from mail.dolby.com ([204.156.147.24]:29446 "EHLO dolby.com")
-	by vger.kernel.org with ESMTP id S1751439AbWCIUtO convert rfc822-to-8bit
+	Thu, 9 Mar 2006 15:50:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25617 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751506AbWCIUui
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 15:49:14 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Subject: FW: UFS sunx86 write not functional, possible bug.
-Date: Thu, 9 Mar 2006 12:48:39 -0800
-Message-ID: <2692A548B75777458914AC89297DD7DA0EBCC1DC@bronze.dolby.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: UFS sunx86 write not functional, possible bug.
-Thread-Index: AcZDuVgkox3/7a1TSbCGcLEGcIYmWwAAJbdw
-From: "Gilbert, John" <JGG@dolby.com>
-To: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 9 Mar 2006 15:50:38 -0500
+Date: Sun, 5 Mar 2006 00:37:59 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Kasper Sandberg <lkml@metanurb.dk>
+Cc: Thomas Maier <Thomas.Maier@uni-kassel.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2-announce] Nigel's work and the future of Suspend2.
+Message-ID: <20060305003758.GA2669@ucw.cz>
+References: <200603071005.56453.nigel@suspend2.net> <1141737241.5386.28.camel@marvin.se.eecs.uni-kassel.de> <20060308122500.GB3274@elf.ucw.cz> <1141903990.1745.5.camel@localhost> <20060309114556.GE2813@elf.ucw.cz> <1141916144.1745.8.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141916144.1745.8.camel@localhost>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linux kernel folks,
+On Thu 09-03-06 15:55:44, Kasper Sandberg wrote:
+> On Thu, 2006-03-09 at 12:45 +0100, Pavel Machek wrote:
+> > > > > Mainline swsusp never worked for me and
+> > > > > so with you leaving I am tempted to leave Linux behind after more than
+> > > > > ten years and switch to that other OS that at least has working suspend
+> > > > > and resume.  
+> > > didnt work on my laptop either, or one of my friends where i tried..
+> > > however, swsusp2 does..
+> > 
+> > bugzilla IDs?
+> have none, and i know this is very bad, however i didnt feel like i had
+> any useful information to contribute, all i get is black screen, nothing
+> to syslog, i have no serial port on my laptop..
 
-Minor bug #1, Daniel Pirkl's email in Documentation/filesystems/ufs.txt
-no longer works.
-Major bug #2, mount reports UFS (rw,ufstype=sunx86), but filesystem is
-still read-only. Details below.
+printk/mdelay seems to work pretty well for swsusp debugging. As does
+trying it again with as little modules as possible.
 
-Thanks.
-John G.
-jgg ?at# dolby ?dot# com
+> > Except that suspend2 is not going to be merged, for variety of
+> > reasons. One of them is that noone is working on merging it...
+> > 
+> one of them being the operative word, afaik, nigel was unwilling to work
+> on the issues needed for merging for the reason that it wouldnt be
+> merged..
+> 
+> out of personal interrest, why is it that prevents suspend2 from being
+> merged?
 
------Original Message-----
-From: Gilbert, John 
-Sent: Thursday, March 09, 2006 12:38 PM
-To: 'daniel.pirkl@email.cz'
-Subject: UFS sunx86 write not functional, possible bug.
+Mostly doing too much stuff in kernel, see archives for details.
 
-Hello Daniel Pirkl,
-
-I have a Solaris x86 partition mounted under Linux 2.6.15.6, mount shows
-it as type ufs (rw,ufstype=sunx86), but any attempt to write to the
-partition results in a "Read-only file system" error.
-
-Do you have any ideas on what I could try to get this working?
-
-Both CONFIG_UFS_FS and CONFIG_UFS_FS_WRITE = y in the kernel config.
-"dmesg" shows "ufs_read_super: fs needs fsck", but any attempt to use
-fsck on these partitions results in
-"fsck: fsck.ufs: not found, fsck: Error 2 while executing fsck.ufs for
-/dev/sda11". A quick Google search suggests that fsck.ufs doesn't exist
-yet for Linux.
-I've booted back into Solaris 10, unmounted the partition, fscked it (it
-was clean), rebooted into Linux and still the same problem.
-I've looked though the kernel ufs code but there wasn't anything obvious
-(to me).
-The only other thing I can think of is that Solaris 10 is running in
-64-bit mode, and I'm currently working on a 32 bit Linux system.
-
-Thanks in advance for your help.
-John G.
-
------------------------------------------
-This message (including any attachments) may contain confidential
-information intended for a specific individual and purpose.  If you
-are not the intended recipient, delete this message.  If you are
-not the intended recipient, disclosing, copying, distributing, or
-taking any action based on this message is strictly prohibited.
-
+-- 
+Thanks, Sharp!

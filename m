@@ -1,38 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751903AbWCEW6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751904AbWCEW6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751903AbWCEW6E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 17:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWCEW6E
+	id S1751904AbWCEW6a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 17:58:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWCEW6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 17:58:04 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:9654 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751281AbWCEW6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 17:58:03 -0500
-Date: Sun, 5 Mar 2006 22:57:33 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: PATA failure with piix, works with libata
-Message-ID: <20060305225733.GA8578@srcf.ucam.org>
-References: <20060303183937.GA30840@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060303183937.GA30840@srcf.ucam.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Sun, 5 Mar 2006 17:58:30 -0500
+Received: from rtr.ca ([64.26.128.89]:60621 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751150AbWCEW63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 17:58:29 -0500
+Message-ID: <440B6CFE.4010503@rtr.ca>
+Date: Sun, 05 Mar 2006 17:58:06 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: David Greaves <david@dgreaves.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com> <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603050637110.30164@p34> <Pine.LNX.4.64.0603050740500.3116@p34>
+In-Reply-To: <Pine.LNX.4.64.0603050740500.3116@p34>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, it /seems/ that things are happier (though still not entirely happy) 
-if I explicitly acknowledge the interrupt by writing the dma status 
-register back again. This doesn't seem to be done anywhere in the IDE 
-interrupt routine, but is in the libata one. I'm afraid I don't 
-understand IDE well enough to have any idea what's going on here - is it 
-possible that a piix in native mode (rather than legacy mode) and 
-sharing an interrupt needs some special handling?
+Justin Piszcz wrote:
+>
+>> Using 2.6.16-rc5-git4 and removing a directory of around 5.0GB of 
+>> files while streaming a 1MB/s video stream on another (SATA disk), the 
+>> I/O seemed to freeze up for a moment and I got this error:
+>>
+>> [4342671.839000] ata1: command 0x35 timeout, stat 0x50 host_stat 0x22
+>>
+>> Only 1 in dmesg, any idea what causes this error?
+> 
+> The drive it occured on was a 74GB raptor on an ICH5 controller.
+> 
+> [4294673.245000]   Vendor: ATA       Model: WDC WD740GD-00FL  Rev: 33.0
+> 0000:00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA 
+> Controller (rev 02)
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+SCSI opcode 0x35 is SYNCHRONIZE_CACHE.
+
+Pity we don't know exactly what that got translated to by libata.
+It would have been either a FLUSH_CACHE of some kind,
+or possibly(?) one of the _FUA_ commands.
+
+Cheers
+

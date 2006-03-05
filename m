@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWCEAz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWCEBK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWCEAz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Mar 2006 19:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWCEAz1
+	id S1751798AbWCEBK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Mar 2006 20:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWCEBK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Mar 2006 19:55:27 -0500
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:15046 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932314AbWCEAz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Mar 2006 19:55:26 -0500
-From: Daniel Drake <dsd@gentoo.org>
-To: neilb@cse.unsw.edu.au
-Cc: nfs@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Cc: okir@monad.swb.de
-Subject: [PATCH] sunrpc svc: be quieter
-Message-Id: <20060305005532.5E7A0870504@zog.reactivated.net>
-Date: Sun,  5 Mar 2006 00:55:32 +0000 (GMT)
+	Sat, 4 Mar 2006 20:10:57 -0500
+Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:65239
+	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
+	id S1751798AbWCEBK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Mar 2006 20:10:56 -0500
+Date: Sat, 4 Mar 2006 19:10:44 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: akpm@osdl.org, ram.gupta5@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix potential jiffies overflow
+Message-ID: <20060305011044.GH7110@waste.org>
+References: <728201270603020843s4feacb1cv3a8acc620e636ffa@mail.gmail.com> <20060303.113246.01208537.nemoto@toshiba-tops.co.jp> <20060302184502.5177c9db.akpm@osdl.org> <20060303.123110.32501622.nemoto@toshiba-tops.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060303.123110.32501622.nemoto@toshiba-tops.co.jp>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A Gentoo user at http://bugs.gentoo.org/124884 reports that the following
-message appears in the logs over 650 times every day:
+On Fri, Mar 03, 2006 at 12:31:10PM +0900, Atsushi Nemoto wrote:
+> >>>>> On Thu, 2 Mar 2006 18:45:02 -0800, Andrew Morton <akpm@osdl.org> said:
+>  	sec = get_cmos_time() + clock_cmos_diff;
+> -	sleep_length = (get_cmos_time() - sleep_start) * HZ;
+> +	sleep_length = (u64)(get_cmos_time() - sleep_start) * HZ;
 
-	svc: unknown version (0)
+Calls to get_cmos_time() currently take an average of .5 seconds as it
+waits for a clock edge to go by. I've got some patches queueing up to
+eliminate this but it's probably worth caching the result here anyway.
 
-The system is a NFS server with many active clients.
-
-Given that this #define only controls printk output, does it make sense to
-disable it by default?
-
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
-
---- linux/net/sunrpc/svc.c.orig	2006-03-05 00:51:10.000000000 +0000
-+++ linux/net/sunrpc/svc.c	2006-03-05 00:52:40.000000000 +0000
-@@ -20,7 +20,7 @@
- #include <linux/sunrpc/clnt.h>
- 
- #define RPCDBG_FACILITY	RPCDBG_SVCDSP
--#define RPC_PARANOIA 1
-+#undef RPC_PARANOIA
- 
- /*
-  * Create an RPC service
+-- 
+Mathematics is the supreme nostalgia of our time.

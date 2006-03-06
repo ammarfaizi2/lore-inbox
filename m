@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWCFQPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWCFQRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWCFQPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 11:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWCFQPO
+	id S1751137AbWCFQRy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 11:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWCFQRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 11:15:14 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:22034 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1750868AbWCFQPN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 11:15:13 -0500
-Date: Mon, 6 Mar 2006 17:15:12 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "Hack inc." <linux-kernel@vger.kernel.org>
-Subject: Re: Is that an acceptable interface change?
-Message-ID: <20060306161512.GB23513@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Jesper Juhl <jesper.juhl@gmail.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	"Hack inc." <linux-kernel@vger.kernel.org>
-References: <20060306011757.GA21649@dspnet.fr.eu.org> <1141631568.4084.2.camel@laptopd505.fenrus.org> <20060306155021.GA23513@dspnet.fr.eu.org> <9a8748490603060755r55b3584bpf0a16451a57925b5@mail.gmail.com>
+	Mon, 6 Mar 2006 11:17:54 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:29834 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751137AbWCFQRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 11:17:53 -0500
+Date: Mon, 6 Mar 2006 17:17:50 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, heiko.carstens@de.ibm.com,
+       schwidefsky@de.ibm.com
+Subject: Re: + s390-add-modalias-to-uevent-for-ccw-devices.patch added to
+ -mm tree
+Message-ID: <20060306171750.013f011a@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20060306160234.GF19703@wavehammer.waldi.eu.org>
+References: <200603060714.k267E6gN021778@shell0.pdx.osdl.net>
+	<20060306110416.1e14933f@gondolin.boeblingen.de.ibm.com>
+	<20060306135017.GA18874@wavehammer.waldi.eu.org>
+	<20060306163950.5eb027e6@gondolin.boeblingen.de.ibm.com>
+	<20060306160234.GF19703@wavehammer.waldi.eu.org>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490603060755r55b3584bpf0a16451a57925b5@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 04:55:02PM +0100, Jesper Juhl wrote:
-> Userspace apps should not include kernel headers, period.
-> So, userspace applications really shouldn't care.
+On Mon, 6 Mar 2006 17:02:34 +0100
+Bastian Blank <bastian@waldi.eu.org> wrote:
 
-Please excuse me if I'm a little dense here, but the kernel headers
-_define_ the userspace-kernel interface.  If you don't have them or a
-sanitized copy of them you just can't talk with the kernel at all.
+> This will get fixed in my next patch, which uses add_uevent_var where
+> possible.
 
-  OG.
+Sounds good - thanks for working on this!
+
+Cornelia

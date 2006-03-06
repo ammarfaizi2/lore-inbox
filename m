@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751955AbWCFRZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750999AbWCFReG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751955AbWCFRZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 12:25:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWCFRZ2
+	id S1750999AbWCFReG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:34:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751956AbWCFReG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 12:25:28 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:6065 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751955AbWCFRZ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 12:25:27 -0500
-Date: Mon, 6 Mar 2006 09:25:32 -0800
-From: Greg KH <greg@kroah.com>
-To: wixor <wixorpeek@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: using usblp with ppdev?
-Message-ID: <20060306172532.GB8697@kroah.com>
-References: <c43b2e150603020732m42195b0dkf33d68fe64bc4a57@mail.gmail.com> <20060302165557.GA31247@kroah.com> <c43b2e150603030512l141c101va11300bcfbda4f60@mail.gmail.com> <20060303170752.GA5260@kroah.com> <c43b2e150603060631h494b920g84cf357f376d64bb@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Mar 2006 12:34:06 -0500
+Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:29363
+	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP
+	id S1750999AbWCFReF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 12:34:05 -0500
+From: "John Z. Bohach" <jzb@aexorsyst.com>
+Reply-To: jzb@aexorsyst.com
+To: "PaNiC" <panic@klippanlan.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Problem: NIC transmit timeouts
+Date: Mon, 6 Mar 2006 09:33:57 -0800
+User-Agent: KMail/1.5.2
+References: <001501c64119$6d8e7bc0$072011ac@majestix>
+In-Reply-To: <001501c64119$6d8e7bc0$072011ac@majestix>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <c43b2e150603060631h494b920g84cf357f376d64bb@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200603060933.57036.jzb@aexorsyst.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 03:31:32PM +0100, wixor wrote:
-> >
-> > What is the output of /proc/bus/usb/devices with your device plugged in?
-> >
-> T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12 MaxCh=0
-> D: Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-> P: Vendor=067b ProdID=2305 Rev= 2.02
-> S: Manufacturer=Proliftic Technology Inc.
-> D: Product=IEEE-1284 Controller
-> C:* #Ifs=1 Cfg#= 1 Atr=a0 MxPwr=100mA
-> I:  If#= 0 Alt= 0 #EPs= 1 Cls=07(print) Sub=01 Prot=01 Driver=usblp
-> E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> I: If#=0 Alt=1 #EPs=2 Cls=07(print) Sub=01 Prot=02 Driver=usblp
-> E:  Ad=01(O) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-> E:  Ad=82(I) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-> I: If#=0 Alt=2 #EPs=3 Cls=ff(vend.) Sub=00 Prot=ff Driver=usblp
-> E:  Ad=01(O) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-> E:  Ad=82(I) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-> E:  Ad=83(I) Atr=03(Int.) MaxPS=4 Ivl=1ms
+On Monday 06 March 2006 04:28, PaNiC wrote:
+> 1. The problem is that the outbound interface in a Sun Enterprise 250
+> running maquerade gets transmit timeouts frequently.
+>
+> 2. I get the error "NETDEV WATCHDOG: eth0: transmit timed out" and a
+> couple of seconds later the     interface jumps back up again. This
 
-That device says it is the USB Printer class, so odds are, it might not
-do what you are trying to do here.
+I can't say what the cause of your particular NETDEV WATCHDOG timeout may
+be, but I had the same problem, and I root-caused it to the host bus <--> PCI bridge
+configuration.  In particular, the multi-transaction timeout register in the bridge
+wasn't programmed, and heavy PCI traffic would cause aborts.  Also, the
+ICH configuration register had to be programmed according to the manufacturer's
+recommendations.
 
-But if you want to play around and verify this, try modifying the USB
-device table in the drivers/usb/misc/uss720.c file (look for the
-structure called "uss720_table" and add a new entry with the vendor and
-product id of your device there.)
+This was on Intel h/w, and the registers to which I refer are
+proprietary, so its a bit difficult to know what values to program where,
+but it might give you a place to start.  On the other hand, some people have
+reported issues with their device driver causing some timeouts, but your symptoms
+seem to more closely resemble what I was seeing than those folks who had
+s/w issues.
 
-good luck,
+Regards,
+John
 
-greg k-h

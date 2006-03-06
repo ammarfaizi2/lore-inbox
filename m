@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWCFFhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWCFFu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbWCFFhK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 00:37:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCFFhK
+	id S1751282AbWCFFu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 00:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWCFFu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 00:37:10 -0500
-Received: from ns.suse.de ([195.135.220.2]:45705 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751259AbWCFFhJ (ORCPT
+	Mon, 6 Mar 2006 00:50:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45031 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751282AbWCFFu0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 00:37:09 -0500
-From: Neil Brown <neilb@suse.de>
-To: Iain William Wiseman <bibble@paradise.net.nz>
-Date: Mon, 6 Mar 2006 16:36:08 +1100
-MIME-Version: 1.0
+	Mon, 6 Mar 2006 00:50:26 -0500
+Date: Mon, 6 Mar 2006 00:49:59 -0500
+From: Dave Jones <davej@redhat.com>
+To: Ben Chelf <ben@coverity.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Coverity Open Source Defect Scan of Linux
+Message-ID: <20060306054959.GA21445@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Ben Chelf <ben@coverity.com>, linux-kernel@vger.kernel.org
+References: <440BCA0F.50501@coverity.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17419.51784.875639.977675@cse.unsw.edu.au>
-Cc: Iain William Wiseman <iwiseman@eservglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops [NFS server crash]
-In-Reply-To: message from Iain William Wiseman on Monday March 6
-References: <440B4FE3.4000809@eservglobal.com>
-	<17419.47968.756969.377865@cse.unsw.edu.au>
-	<440BC09A.2080404@paradise.net.nz>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <440BCA0F.50501@coverity.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday March 6, bibble@paradise.net.nz wrote:
-> Hi,
-> 
-> Firstly stupid me never saw the Bugzilla link first time through. This 
-> is now logged under Bug 6172
+On Sun, Mar 05, 2006 at 09:35:11PM -0800, Ben Chelf wrote:
 
-You should be aware that bugzilla is not universally popular.  I
-hardly ever look at it myself and perfer to deal with issues simply in
-the mailing list.
+ >   Right now, we're guarding access to the actual defects that we report 
+ > for a couple of reasons: (1) We think that you, as developers of Linux, 
+ > should have the chance to look at the defects we find to patch them 
+ > before random other folks get to see what we found and (2) From a 
+ > support perspective, we want to make sure that we have the appropriate 
+ > time to engage with those who want to use the results to fix the code. 
+ > Because of this second point, I'd ask that if you are interested in 
+ > really digging into the results a bit further for your project, please 
+ > have a couple of core maintainers (or group nominated individuals) reach 
+ > out to me to request access. As this is a new process for us and still 
+ > involves a small number of packages, I want to make sure that I 
+ > personally can be involved with the activity that is generated from this 
+ > effort.
+ > 
+ >   So I'm basically asking for people who want to play around with some 
+ > cool new technology to help make source code better. If this interests 
+ > you, please feel free to reach out to me directly. And of course, if 
+ > there are other packages you care about that aren't currently on the 
+ > list, I want to know about those too.
 
-> 
-> This is a vanilla 2.6.15.4 kernel no patches.
+The last time I asked about access to your bug list, I was asked to
+sign the equivalent of a non-compete agreement.  Is this still in place?
 
-Thanks for that confirmation.  It is always best to be sure.
+		Dave
 
-> 
-> Several attempt were made to start NFS with /etc/init.d/nfs start. I 
-> understood this would start portmap. Am I wrong? Possibly my iptables 
-> provented it.  I have been experimenting with arno firewall.
-
-The functions in /etc/init.d are very dependant on distribution.  I
-gather you are using RedHat, and I know nothing about redhat's init.d.
-
-However I suspect a badly configured firewall could be an issue and
-disabling the firewall before trying again would be a good idea.
-
-> 
-> Thanks for responding and sorry for logging twice.
-
-Don't worry about that.  Twice is much better than never.  It is very
-easy to ignore a second copy of a bug report (when you read
-linux-kernel you have to get good at ignoring things:-)
-
-> 
-> Iain
-> New Zealand
-
-NeilBrown
+-- 
+http://www.codemonkey.org.uk

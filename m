@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752147AbWCFHwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWCFH4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752147AbWCFHwx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 02:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752164AbWCFHwx
+	id S1751305AbWCFH4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 02:56:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWCFH4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 02:52:53 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29659 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752147AbWCFHww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 02:52:52 -0500
-Subject: Re: Is that an acceptable interface change?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: "Hack inc." <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060306011757.GA21649@dspnet.fr.eu.org>
-References: <20060306011757.GA21649@dspnet.fr.eu.org>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 08:52:48 +0100
-Message-Id: <1141631568.4084.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 6 Mar 2006 02:56:24 -0500
+Received: from nproxy.gmail.com ([64.233.182.202]:25710 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751305AbWCFH4X convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 02:56:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gx3ctHVJEJwklCEZBMZPFtNmOeKHEHlXJ0+NK44s+OYf+YWCoBOs28JA4x4TiFXHs+41tSkACJAPkRM62LUeAdJmrRVdJ+sYQ8AnVABHqs+/Omh4OPNso43AYahJOYZFpYvnRg34K/Xv7LLoVJTa+FddTzDBPnUYKaTsiU6PR2k=
+Message-ID: <84144f020603052356r321bc78dp66263fbfc73517c6@mail.gmail.com>
+Date: Mon, 6 Mar 2006 09:56:22 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Dave Jones" <davej@redhat.com>, "Al Viro" <viro@ftp.linux.org.uk>,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       ericvh@gmail.com, rminnich@lanl.gov
+Subject: Re: 9pfs double kfree
+In-Reply-To: <20060306072823.GF21445@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060306070456.GA16478@redhat.com>
+	 <20060305.230711.06026976.davem@davemloft.net>
+	 <20060306072346.GF27946@ftp.linux.org.uk>
+	 <20060306072823.GF21445@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-06 at 02:17 +0100, Olivier Galibert wrote:
-> I'm looking at the changes in the asound.h file, and especially at
-> commit 512bbd6a85230f16389f0dd51925472e72fc8a91, and I've been
-> wondering if it's acceptable compatibility-wise.  All the structures
-> passed through ioctl (and ALSA is 100% ioctl) have been renamed from
-> sndrv_* to snd_*.  That breaks source compatibility but not binary
-> compatibility.
+On 3/6/06, Dave Jones <davej@redhat.com> wrote:
+> I wonder if we could get away with something as simple as..
+>
+> #define kfree(foo) \
+>         __kfree(foo); \
+>         foo = KFREE_POISON;
+>
+> ?
 
-only if you are "stupid" enough to use kernel headers in your userspace!
-Which you shouldn't do normally
+It's legal to call kfree() twice for NULL pointer. The above poisons
+foo unconditionally which makes that case break I think.
 
+                                Pekka

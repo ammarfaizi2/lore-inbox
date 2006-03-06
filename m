@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752291AbWCFIrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752294AbWCFIuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752291AbWCFIrf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 03:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752292AbWCFIrf
+	id S1752294AbWCFIuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 03:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752295AbWCFIuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 03:47:35 -0500
-Received: from merlin.artenumerica.net ([80.68.90.14]:24586 "EHLO
-	merlin.artenumerica.net") by vger.kernel.org with ESMTP
-	id S1752290AbWCFIre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 03:47:34 -0500
-Message-ID: <440BF718.60504@artenumerica.com>
-Date: Mon, 06 Mar 2006 08:47:20 +0000
-From: J M Cerqueira Esteves <jmce@artenumerica.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
- 2.6.12]
-References: <4405D383.5070201@artenumerica.com>	<20060302011735.55851ca2.akpm@osdl.org>	<440865A9.4000102@artenumerica.com>	<4409B8DC.9040404@artenumerica.com> <20060304161519.6e6fbe2c.akpm@osdl.org>
-In-Reply-To: <20060304161519.6e6fbe2c.akpm@osdl.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC1445DD293022CFD4BE6C565"
+	Mon, 6 Mar 2006 03:50:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63203 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752294AbWCFIuI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 03:50:08 -0500
+Date: Mon, 6 Mar 2006 03:49:51 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: tiwai@suse.de
+Subject: fix usbmixer double kfree.
+Message-ID: <20060306084951.GA15905@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, tiwai@suse.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC1445DD293022CFD4BE6C565
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+snd_ctl_add() kfree's the kcontrol already if we fail there,
+so this driver is currently doing a double kfree.
 
-Andrew Morton wrote:
-> We have a candidate fix at
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
->  Could you test that?  (and don't alter the Cc: list!).  The patch is
-> against 2.6.16-rc5.
+Coverity bug #959
 
-Testing that kernel now, with good news: the machine has been apparently
-stable, running Gaussian processes for the last 20 hours, with no
-oom-killer messages.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-A new "feature": 36 of these kernel message pairs as boot time:
-  device-mapper: dm-linear: Device lookup failed
-  device-mapper: error adding target to table
-
-Many thanks and best regards
-                              J Esteves
+--- linux-2.6/sound/usb/usbmixer.c~	2006-03-06 03:40:20.000000000 -0500
++++ linux-2.6/sound/usb/usbmixer.c	2006-03-06 03:45:03.000000000 -0500
+@@ -434,7 +434,6 @@ static int add_control_to_empty(struct m
+ 		kctl->id.index++;
+ 	if ((err = snd_ctl_add(state->chip->card, kctl)) < 0) {
+ 		snd_printd(KERN_ERR "cannot add control (err = %d)\n", err);
+-		snd_ctl_free_one(kctl);
+ 		return err;
+ 	}
+ 	cval->elem_id = &kctl->id;
 
 -- 
-+351 939838775   Skype:jmcerqueira   http://del.icio.us/jmce
-
---------------enigC1445DD293022CFD4BE6C565
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFEC/chesWiVDEbnjYRAiIJAJ9IJ3p/fqgvL66sMxRa1lppNo6/+QCgkucp
-KZ0A+AbBf8vZqKCqSDwyaRw=
-=bbex
------END PGP SIGNATURE-----
-
---------------enigC1445DD293022CFD4BE6C565--
+http://www.codemonkey.org.uk

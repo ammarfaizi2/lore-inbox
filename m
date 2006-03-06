@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWCFNP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWCFNPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWCFNP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 08:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWCFNPz
+	id S932233AbWCFNPr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 08:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWCFNPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 08:15:55 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:24796 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932214AbWCFNPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 08:15:54 -0500
-Date: Mon, 6 Mar 2006 13:15:41 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: PATA failure with piix, works with libata
-Message-ID: <20060306131540.GA11265@srcf.ucam.org>
-References: <20060303183937.GA30840@srcf.ucam.org> <20060305225733.GA8578@srcf.ucam.org> <440B770A.8090707@garzik.org> <20060306003221.GA8805@srcf.ucam.org> <440B8921.9030602@garzik.org> <20060306010333.GA8951@srcf.ucam.org> <440B8B39.8090007@garzik.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440B8B39.8090007@garzik.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Mon, 6 Mar 2006 08:15:47 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:63878 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932233AbWCFNPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 08:15:46 -0500
+Message-ID: <440C363F.8000503@suse.de>
+Date: Mon, 06 Mar 2006 14:16:47 +0100
+From: Gerd Hoffmann <kraxel@suse.de>
+User-Agent: Thunderbird 1.5 (X11/20060111)
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix ELF entry point (i386)
+References: <43FC4682.6050803@suse.de> <m1bqwkc0l1.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1bqwkc0l1.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 05, 2006 at 08:07:05PM -0500, Jeff Garzik wrote:
+Eric W. Biederman wrote:
+> 
+> We load the kernel at physical addresses and we enter
+> the kernel at a physical address.  Even the entry point
+> expects that.
+> 
+> Is there some reason you think the entry point is virtual?
 
-> Honestly I'm quite surprised that there is a difference between legacy 
-> and native mode (more joy :)).  ICH seems to want an ack to the bmdma 
-> status register even on non-DMA commands, since it directly reflects the 
-> IDE INTRQ line.  Perhaps pounding on the Status register will clear that 
-> condition, thus enabling legacy software to continue successfully 
-> without worry about this ICH-specific detail.  </speculation>
+Elf specs say so.  The paragraph in question mentions processes not OS
+kernels though ...
 
-Yeah, that seems to work. Thanks! I'll see if I can clean this up...
+cheers,
+
+  Gerd
+
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Gerd 'just married' Hoffmann <kraxel@suse.de>
+I'm the hacker formerly known as Gerd Knorr.
+http://www.suse.de/~kraxel/just-married.jpeg

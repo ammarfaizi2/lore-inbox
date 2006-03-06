@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWCFWA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWCFWCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWCFWA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWCFWA7
+	id S932366AbWCFWCs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWCFWCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:00:59 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34281 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932369AbWCFWA6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:00:58 -0500
-Date: Mon, 6 Mar 2006 23:00:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Mateusz Berezecki <mateuszb@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: memory range R/W triggered breakpoints in kernel ?
-Message-ID: <20060306220030.GC4836@elf.ucw.cz>
-References: <aec8d6fc0603050900w7aa1f93due29e9c1cf87e9316@mail.gmail.com> <20060305231654.GB20768@kvack.org> <aec8d6fc0603051531o622d04bdjf2993729b0b946ca@mail.gmail.com> <20060305233202.GD20768@kvack.org>
+	Mon, 6 Mar 2006 17:02:48 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:61625
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932366AbWCFWCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:02:48 -0500
+Date: Mon, 6 Mar 2006 14:02:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Michael Bender <Michael.Bender@Sun.COM>
+Cc: s.schmidt@avm.de, kkeil@suse.de, libusb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       opensuse-factory@opensuse.org, torvalds@osdl.org
+Subject: Re: [Libusb-devel] Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+Message-ID: <20060306220225.GA20265@kroah.com>
+References: <20060217230004.GA15492@kroah.com> <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de> <20060306170542.GB8142@kroah.com> <440CA520.8070507@sun.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060305233202.GD20768@kvack.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <440CA520.8070507@sun.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Ne 05-03-06 18:32:02, Benjamin LaHaise wrote:
-> On Mon, Mar 06, 2006 at 12:31:29AM +0100, Mateusz Berezecki wrote:
-> > Yes but again this is userspace. I was thinking about solution used
-> > back in the old days in SoftICE kernel level debugger.
-> > It had a BPR command (breakpoint on range) which could monitor
-> > up to 400000 bytes of memory range. Unfortunately for me this command
-> > works in very old versions of _that_ other OS.
+On Mon, Mar 06, 2006 at 01:09:52PM -0800, Michael Bender wrote:
+> (Since this came to me via the libusb list, and we've kind of
+> gone past libusb-specific-related discussion, I thought I'd
+> add another question to the thread).
 > 
-> If it is in userspace, then you don't need anything from the kernel.  
-> mprotect() and catch the resulting SIGSEGV.
+> What's the rationale behind the dichotomy between userspace
+> and kernel licensing models?
 
-SoftICE worked on kernel, too. Not sure how it was hacked up.
+Hm, how about starting a new thread for this?  As it's way outside the
+scope of this one, _and_ it's pretty much off-topic for all of these
+lists :)
 
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+As for the rationale, see the lkml archives for details.
+
+thanks,
+
+greg k-h

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWCFVnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWCFVo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWCFVnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWCFVnl
+	id S932375AbWCFVo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWCFVo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:43:41 -0500
-Received: from colin.muc.de ([193.149.48.1]:33807 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932370AbWCFVnk (ORCPT
+	Mon, 6 Mar 2006 16:44:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57303 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932375AbWCFVo6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:43:40 -0500
-Date: 6 Mar 2006 22:43:32 +0100
-Date: Mon, 6 Mar 2006 22:43:32 +0100
-From: Andi Kleen <ak@muc.de>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC][PATCH] kdump: x86_64 timer interrupt lockup due to pending interrupt
-Message-ID: <20060306214332.GA18529@muc.de>
-References: <20060306164034.GB10594@in.ibm.com>
+	Mon, 6 Mar 2006 16:44:58 -0500
+Date: Mon, 6 Mar 2006 22:44:26 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Zabolotny <zap@homelink.ru>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Backlight Class sysfs attribute behaviour
+Message-ID: <20060306214426.GA4701@elf.ucw.cz>
+References: <1141571334.6521.38.camel@localhost.localdomain> <440B89AB.3020203@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060306164034.GB10594@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <440B89AB.3020203@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 11:40:34AM -0500, Vivek Goyal wrote:
+On Po 06-03-06 09:00:27, Antonino A. Daplas wrote:
+> Richard Purdie wrote:
+> > At present, the backlight class presents two attributes to sysfs,
+> > brightness and power. I'm a little confused as to whether these
+> > attributes are currently doing the right things.
+> > 
+> > Taking brightness, at any one time we have several different brightness
+> > values:
+> > 
+> > * User requested brightness (echo y > /sys/class/backlight/xxx/brightness)
+> > * Driver determined brightness which accounts for things like FB 
+> >   blanking, low battery backlight limiting (an example from corgi_bl), 
+> >   user requested power state, device suspend/resume.
+> > 
+> > The solution might be to have brightness always return the user
+> > requested value y and have a new attribute returning the brightness as
+> > determined by the driver once it accounts for all the factors it needs
+> > to consider. Naming of such an attribute is tricky - "driver_brightness"
+> > perthaps?
 > 
-> o check_timer() routine fails while second kernel is booting after a crash
->   on an opetron box. Problem happens because timer vector (0x31) seems to be
->   locked.
-> 
-> o After a system crash, it is not safe to service interrupts any more, hence
->   interrupts are disabled. This leads to pending interrupts at LAPIC. LAPIC
->   sends these interrupts to the CPU during early boot of second kernel. Other
->   pending interrupts are discarded saying unexpected trap but timer interrupt
->   is serviced and CPU does not issue an LAPIC EOI because it think this
->   interrupt came from i8259 and sends ack to 8259. This leads to vector 0x31
->   locking as LAPIC does not clear respective ISR and keeps on waiting for
->   EOI.
-> 
-> o In this patch, one extra EOI is being issued in check_timer() to unlock the
->   vector. Please suggest if there is a better way to handle this situation.
+> Why not just agree on a normal range of values (ie, 0-255), and let the
+> driver "denormalize" them?  Thus, a driver that has only 2 levels of
+> brightness, will treat 0-127 as 0 and 128-255 as 1, and will return only
+> two possible values 0 and 255.
 
-Shouldn't we rather do this for all interrupts when the APIC is set up? 
-I don't see how the timer is special here.
-
--Andi
+Does not work... how do you set minimum brightness with backlight on
+(so that text is visible)?
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

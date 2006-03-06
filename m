@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWCFWJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWCFWIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWCFWJD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWCFWJD
+	id S932384AbWCFWIj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWCFWIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:09:03 -0500
-Received: from main.gmane.org ([80.91.229.2]:36787 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932386AbWCFWJA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:09:00 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [OT] inotify hack for locate
-Date: Mon, 06 Mar 2006 22:08:28 +0000
-Message-ID: <yw1xzmk39qg3.fsf@agrajag.inprovide.com>
-References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com> <1141594983.14714.121.camel@mindpipe> <20060305230821.GA20768@kvack.org> <yw1xu0acbhby.fsf@agrajag.inprovide.com> <20060306215332.GA4836@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 82.153.166.94
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
-Cancel-Lock: sha1:pcZOr8hyeCxbQH7jocHEiQnPSp8=
+	Mon, 6 Mar 2006 17:08:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:29980 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932384AbWCFWIh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:08:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bwg3EsTmHLauw9AcsNsTobNweLTjsuoIQ3UTPsGcacoq62q7Eu/f0awAeBnB2ZzcDhoKSbMnFopQ22OciPXER54NcJvsqqZoit/0LElKVx+TqRtV5QpsWyVEwJSKP0ObprPg8yConzuCQDDj/xdhNORKxJrEWK6QUgU6suY/OKY=
+Message-ID: <9a8748490603061408r5f4f7509v6d39a7e39d36ca6d@mail.gmail.com>
+Date: Mon, 6 Mar 2006 23:08:35 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, markhe@nextd.demon.co.uk,
+       andrea@suse.de, michaelc@cs.wisc.edu, James.Bottomley@steeleye.com,
+       axboe@suse.de
+In-Reply-To: <20060306140541.16a41cd2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200603060117.16484.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
+	 <200603062136.17098.jesper.juhl@gmail.com>
+	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
+	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+	 <20060306140541.16a41cd2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
-
-> On Ne 05-03-06 23:30:09, M?ns Rullg?rd wrote:
->> Benjamin LaHaise <bcrl@kvack.org> writes:
->> 
->> > On Sun, Mar 05, 2006 at 04:43:03PM -0500, Lee Revell wrote:
->> >> updatedb runs at nice 20 on most distros, and with the CFQ scheduler the
->> >> IO priority follows the nice value, so why does it still kill the
->> >> machine?
->> >
->> > Running updatedb on a laptop when you're sitting in an airplane running 
->> > off of batteries is Not Nice to the user.  I know, I've had it happen far 
->> > too many times.
->> 
->> Running updatedb only if AC powered shouldn't be too difficult.
+On 3/6/06, Andrew Morton <akpm@osdl.org> wrote:
+> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+> >
+> > Where do we go from here ?
+> >
 >
-> That makes locate useless on some machines. I have sharp zaurus C3000
-> here... It is either powered on *or* connected on AC, but very rarely
-> connected to ac while turned on. Well, its power plug located at weird
-> place and old software version that prevents charging while turned on
-> is contributory factor, but...
+> If you can test just
+>
+>         2.6.16-rc5 + linus.patch + git-scsi-misc.patch
+>
+> then we'd have a clearer idea.
+>
+Sure, I'll get right on it.
+I'll post the results in 15min or so.
 
-OK, although that surely must be an exception.  Most laptops run
-happily with AC connected, and the current power source is easily
-obtained from some file in /proc that I've forgotten the name of.
-
--- 
-Måns Rullgård
-mru@inprovide.com
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

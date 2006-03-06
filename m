@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWCFB5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWCFB45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWCFB5d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 20:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWCFB46
+	id S932082AbWCFB45 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 20:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWCFB44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 20:56:58 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:55679 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1751617AbWCFBxO (ORCPT
+	Sun, 5 Mar 2006 20:56:56 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:56447 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1751116AbWCFBxP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 20:53:14 -0500
-Message-Id: <20060306015010.442762000@towertech.it>
+	Sun, 5 Mar 2006 20:53:15 -0500
+Message-Id: <20060306015010.635187000@towertech.it>
 References: <20060306015008.858209000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Mon, 06 Mar 2006 02:50:16 +0100
+Date: Mon, 06 Mar 2006 02:50:17 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@zip.com.au, akpm@digeo.com, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-Subject: [PATCH 08/16] RTC subsystem, proc interface
-Content-Disposition: inline; filename=rtc-intf-proc.patch
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 09/16] RTC subsystem, dev interface
+Content-Disposition: inline; filename=rtc-intf-dev.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the proc interface to the
-RTC subsystem.
+This patch adds the dev interface to the RTC
+subsystem.
 
-The first RTC driver which registers with
-the class will be accessible by /proc/driver/rtc .
+Each RTC will be available under /dev/rtcX . A
+symlink from /dev/rtc0 to /dev/rtc cab be obtained
+with the following udev rule:
 
-This is required for compatibility with the standard
-RTC driver and to avoid breaking any user space
-application which may erroneusly rely on this.
+KERNEL=="rtc0", SYMLINK+="rtc"
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
 --
 
- drivers/rtc/Kconfig    |   11 +++
- drivers/rtc/Makefile   |    2 
- drivers/rtc/rtc-proc.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 174 insertions(+), 1 deletion(-)
+ drivers/rtc/Kconfig   |   11 +
+ drivers/rtc/Makefile  |    1 
+ drivers/rtc/rtc-dev.c |  382 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 394 insertions(+)
 
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-proc.c	2006-03-05 02:50:56.000000000 +0100
-@@ -0,0 +1,162 @@
++++ linux-rtc/drivers/rtc/rtc-dev.c	2006-03-05 02:51:24.000000000 +0100
+@@ -0,0 +1,382 @@
 +/*
-+ * RTC subsystem, proc interface
++ * RTC subsystem, dev interface
 + *
-+ * Copyright (C) 2005-06 Tower Technologies
++ * Copyright (C) 2005 Tower Technologies
 + * Author: Alessandro Zummo <a.zummo@towertech.it>
 + *
 + * based on arch/arm/common/rtctime.c
@@ -60,180 +59,399 @@ Cc: Greg KH <greg@kroah.com>
 +
 +#include <linux/module.h>
 +#include <linux/rtc.h>
-+#include <linux/proc_fs.h>
-+#include <linux/seq_file.h>
 +
-+static struct class_device *rtc_dev = NULL;
-+static DEFINE_MUTEX(rtc_lock);
++static struct class *rtc_dev_class;
++static dev_t rtc_devt;
 +
-+static int rtc_proc_show(struct seq_file *seq, void *offset)
++#define RTC_DEV_MAX 16 /* 16 RTCs should be enough for everyone... */
++
++static int rtc_dev_open(struct inode *inode, struct file *file)
 +{
 +	int err;
-+	struct class_device *class_dev = seq->private;
-+	struct rtc_class_ops *ops = to_rtc_device(class_dev)->ops;
-+	struct rtc_wkalrm alrm;
-+	struct rtc_time tm;
++	struct rtc_device *rtc = container_of(inode->i_cdev,
++					struct rtc_device, char_dev);
++	struct rtc_class_ops *ops = rtc->ops;
 +
-+	err = rtc_read_time(class_dev, &tm);
++	/* We keep the lock as long as the device is in use
++	 * and return immediately if busy
++	 */
++	if (!(mutex_trylock(&rtc->char_lock)))
++		return -EBUSY;
++
++	file->private_data = &rtc->class_dev;
++
++	err = ops->open ? ops->open(rtc->class_dev.dev) : 0;
 +	if (err == 0) {
-+		seq_printf(seq,
-+			"rtc_time\t: %02d:%02d:%02d\n"
-+			"rtc_date\t: %04d-%02d-%02d\n",
-+			tm.tm_hour, tm.tm_min, tm.tm_sec,
-+			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
++		spin_lock_irq(&rtc->irq_lock);
++		rtc->irq_data = 0;
++		spin_unlock_irq(&rtc->irq_lock);
++
++		return 0;
 +	}
 +
-+	err = rtc_read_alarm(class_dev, &alrm);
-+	if (err == 0) {
-+		seq_printf(seq, "alrm_time\t: ");
-+		if ((unsigned int)alrm.time.tm_hour <= 24)
-+			seq_printf(seq, "%02d:", alrm.time.tm_hour);
-+		else
-+			seq_printf(seq, "**:");
-+		if ((unsigned int)alrm.time.tm_min <= 59)
-+			seq_printf(seq, "%02d:", alrm.time.tm_min);
-+		else
-+			seq_printf(seq, "**:");
-+		if ((unsigned int)alrm.time.tm_sec <= 59)
-+			seq_printf(seq, "%02d\n", alrm.time.tm_sec);
-+		else
-+			seq_printf(seq, "**\n");
-+
-+		seq_printf(seq, "alrm_date\t: ");
-+		if ((unsigned int)alrm.time.tm_year <= 200)
-+			seq_printf(seq, "%04d-", alrm.time.tm_year + 1900);
-+		else
-+			seq_printf(seq, "****-");
-+		if ((unsigned int)alrm.time.tm_mon <= 11)
-+			seq_printf(seq, "%02d-", alrm.time.tm_mon + 1);
-+		else
-+			seq_printf(seq, "**-");
-+		if ((unsigned int)alrm.time.tm_mday <= 31)
-+			seq_printf(seq, "%02d\n", alrm.time.tm_mday);
-+		else
-+			seq_printf(seq, "**\n");
-+		seq_printf(seq, "alrm_wakeup\t: %s\n",
-+				alrm.enabled ? "yes" : "no");
-+		seq_printf(seq, "alrm_pending\t: %s\n",
-+				alrm.pending ? "yes" : "no");
-+	}
-+
-+	if (ops->proc)
-+		ops->proc(class_dev->dev, seq);
-+
-+	return 0;
++	/* something has gone wrong, release the lock */
++	mutex_unlock(&rtc->char_lock);
++	return err;
 +}
 +
-+static int rtc_proc_open(struct inode *inode, struct file *file)
++
++static ssize_t
++rtc_dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
 +{
-+	struct class_device *class_dev = PDE(inode)->data;
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
 +
-+	if (!try_module_get(THIS_MODULE))
-+		return -ENODEV;
++	DECLARE_WAITQUEUE(wait, current);
++	unsigned long data;
++	ssize_t ret;
 +
-+	return single_open(file, rtc_proc_show, class_dev);
-+}
++	if (count < sizeof(unsigned long))
++		return -EINVAL;
 +
-+static int rtc_proc_release(struct inode *inode, struct file *file)
-+{
-+	int res = single_release(inode, file);
-+	module_put(THIS_MODULE);
-+	return res;
-+}
++	add_wait_queue(&rtc->irq_queue, &wait);
++	do {
++		__set_current_state(TASK_INTERRUPTIBLE);
 +
-+static struct file_operations rtc_proc_fops = {
-+	.open		= rtc_proc_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= rtc_proc_release,
-+};
++		spin_lock_irq(&rtc->irq_lock);
++		data = rtc->irq_data;
++		rtc->irq_data = 0;
++		spin_unlock_irq(&rtc->irq_lock);
 +
-+static int rtc_proc_add_device(struct class_device *class_dev,
-+					struct class_interface *class_intf)
-+{
-+	mutex_lock(&rtc_lock);
-+	if (rtc_dev == NULL) {
-+		struct proc_dir_entry *ent;
-+
-+		rtc_dev = class_dev;
-+
-+		ent = create_proc_entry("driver/rtc", 0, NULL);
-+		if (ent) {
-+			struct rtc_device *rtc = to_rtc_device(class_dev);
-+
-+			ent->proc_fops = &rtc_proc_fops;
-+			ent->owner = rtc->owner;
-+			ent->data = class_dev;
-+
-+			dev_info(class_dev->dev, "rtc intf: proc\n");
++		if (data != 0) {
++			ret = 0;
++			break;
 +		}
-+		else
-+			rtc_dev = NULL;
-+	}
-+	mutex_unlock(&rtc_lock);
++		if (file->f_flags & O_NONBLOCK) {
++			ret = -EAGAIN;
++			break;
++		}
++		if (signal_pending(current)) {
++			ret = -ERESTARTSYS;
++			break;
++		}
++		schedule();
++	} while (1);
++	set_current_state(TASK_RUNNING);
++	remove_wait_queue(&rtc->irq_queue, &wait);
 +
++	if (ret == 0) {
++		/* Check for any data updates */
++		if (rtc->ops->read_callback)
++			data = rtc->ops->read_callback(rtc->class_dev.dev, data);
++
++		ret = put_user(data, (unsigned long __user *)buf);
++		if (ret == 0)
++			ret = sizeof(unsigned long);
++	}
++	return ret;
++}
++
++static unsigned int rtc_dev_poll(struct file *file, poll_table *wait)
++{
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++	unsigned long data;
++
++	poll_wait(file, &rtc->irq_queue, wait);
++
++	data = rtc->irq_data;
++
++	return (data != 0) ? (POLLIN | POLLRDNORM) : 0;
++}
++
++static int rtc_dev_ioctl(struct inode *inode, struct file *file,
++		unsigned int cmd, unsigned long arg)
++{
++	int err = 0;
++	struct class_device *class_dev = file->private_data;
++	struct rtc_device *rtc = to_rtc_device(class_dev);
++	struct rtc_class_ops *ops = rtc->ops;
++	struct rtc_time tm;
++	struct rtc_wkalrm alarm;
++	void __user *uarg = (void __user *) arg;
++
++	/* avoid conflicting IRQ users */
++	if (cmd == RTC_PIE_ON || cmd == RTC_PIE_OFF || cmd == RTC_IRQP_SET) {
++		spin_lock(&rtc->irq_task_lock);
++		if (rtc->irq_task)
++			err = -EBUSY;
++		spin_unlock(&rtc->irq_task_lock);
++
++		if (err < 0)
++			return err;
++	}
++
++	/* try the driver's ioctl interface */
++	if (ops->ioctl) {
++		err = ops->ioctl(class_dev->dev, cmd, arg);
++		if (err != -EINVAL)
++			return err;
++	}
++
++	/* if the driver does not provide the ioctl interface
++	 * or if that particular ioctl was not implemented
++	 * (-EINVAL), we will try to emulate here.
++	 */
++
++	switch (cmd) {
++	case RTC_ALM_READ:
++		err = rtc_read_alarm(class_dev, &alarm);
++		if (err < 0)
++			return err;
++
++		if (copy_to_user(uarg, &alarm.time, sizeof(tm)))
++			return -EFAULT;
++		break;
++
++	case RTC_ALM_SET:
++		if (copy_from_user(&alarm.time, uarg, sizeof(tm)))
++			return -EFAULT;
++
++		alarm.enabled = 0;
++		alarm.pending = 0;
++		alarm.time.tm_mday = -1;
++		alarm.time.tm_mon = -1;
++		alarm.time.tm_year = -1;
++		alarm.time.tm_wday = -1;
++		alarm.time.tm_yday = -1;
++		alarm.time.tm_isdst = -1;
++		err = rtc_set_alarm(class_dev, &alarm);
++		break;
++
++	case RTC_RD_TIME:
++		err = rtc_read_time(class_dev, &tm);
++		if (err < 0)
++			return err;
++
++		if (copy_to_user(uarg, &tm, sizeof(tm)))
++			return -EFAULT;
++		break;
++
++	case RTC_SET_TIME:
++		if (!capable(CAP_SYS_TIME))
++			return -EACCES;
++
++		if (copy_from_user(&tm, uarg, sizeof(tm)))
++			return -EFAULT;
++
++		err = rtc_set_time(class_dev, &tm);
++		break;
++#if 0
++	case RTC_EPOCH_SET:
++#ifndef rtc_epoch
++		/*
++		 * There were no RTC clocks before 1900.
++		 */
++		if (arg < 1900) {
++			err = -EINVAL;
++			break;
++		}
++		if (!capable(CAP_SYS_TIME)) {
++			err = -EACCES;
++			break;
++		}
++		rtc_epoch = arg;
++		err = 0;
++#endif
++		break;
++
++	case RTC_EPOCH_READ:
++		err = put_user(rtc_epoch, (unsigned long __user *)uarg);
++		break;
++#endif
++	case RTC_WKALM_SET:
++		if (copy_from_user(&alarm, uarg, sizeof(alarm)))
++			return -EFAULT;
++
++		err = rtc_set_alarm(class_dev, &alarm);
++		break;
++
++	case RTC_WKALM_RD:
++		err = rtc_read_alarm(class_dev, &alarm);
++		if (err < 0)
++			return err;
++
++		if (copy_to_user(uarg, &alarm, sizeof(alarm)))
++			return -EFAULT;
++		break;
++
++	default:
++		err = -EINVAL;
++		break;
++	}
++
++	return err;
++}
++
++static int rtc_dev_release(struct inode *inode, struct file *file)
++{
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++
++	if (rtc->ops->release)
++		rtc->ops->release(rtc->class_dev.dev);
++
++	mutex_unlock(&rtc->char_lock);
 +	return 0;
 +}
 +
-+static void rtc_proc_remove_device(struct class_device *class_dev,
-+					struct class_interface *class_intf)
++static int rtc_dev_fasync(int fd, struct file *file, int on)
 +{
-+	mutex_lock(&rtc_lock);
-+	if (rtc_dev == class_dev) {
-+		remove_proc_entry("driver/rtc", NULL);
-+		rtc_dev = NULL;
-+	}
-+	mutex_unlock(&rtc_lock);
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++	return fasync_helper(fd, file, on, &rtc->async_queue);
 +}
 +
-+static struct class_interface rtc_proc_interface = {
-+	.add = &rtc_proc_add_device,
-+	.remove = &rtc_proc_remove_device,
++static struct file_operations rtc_dev_fops = {
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= rtc_dev_read,
++	.poll		= rtc_dev_poll,
++	.ioctl		= rtc_dev_ioctl,
++	.open		= rtc_dev_open,
++	.release	= rtc_dev_release,
++	.fasync		= rtc_dev_fasync,
 +};
 +
-+static int __init rtc_proc_init(void)
++/* insertion/removal hooks */
++
++static int rtc_dev_add_device(struct class_device *class_dev,
++				struct class_interface *class_intf)
 +{
-+	return rtc_interface_register(&rtc_proc_interface);
++	int err = 0;
++	struct rtc_device *rtc = to_rtc_device(class_dev);
++
++	if (rtc->id >= RTC_DEV_MAX) {
++		dev_err(class_dev->dev, "too many RTCs\n");
++		return -EINVAL;
++	}
++
++	mutex_init(&rtc->char_lock);
++	spin_lock_init(&rtc->irq_lock);
++	init_waitqueue_head(&rtc->irq_queue);
++
++	cdev_init(&rtc->char_dev, &rtc_dev_fops);
++	rtc->char_dev.owner = rtc->owner;
++
++	if (cdev_add(&rtc->char_dev, MKDEV(MAJOR(rtc_devt), rtc->id), 1)) {
++		cdev_del(&rtc->char_dev);
++		dev_err(class_dev->dev,
++			"failed to add char device %d:%d\n",
++			MAJOR(rtc_devt), rtc->id);
++		return -ENODEV;
++	}
++
++	rtc->rtc_dev = class_device_create(rtc_dev_class, NULL,
++						MKDEV(MAJOR(rtc_devt), rtc->id),
++						class_dev->dev, "rtc%d", rtc->id);
++	if (IS_ERR(rtc->rtc_dev)) {
++		dev_err(class_dev->dev, "cannot create rtc_dev device\n");
++		err = PTR_ERR(rtc->rtc_dev);
++		goto err_cdev_del;
++	}
++
++	dev_info(class_dev->dev, "rtc intf: dev (%d:%d)\n",
++		MAJOR(rtc->rtc_dev->devt),
++		MINOR(rtc->rtc_dev->devt));
++
++	return 0;
++
++err_cdev_del:
++
++	cdev_del(&rtc->char_dev);
++	return err;
 +}
 +
-+static void __exit rtc_proc_exit(void)
++static void rtc_dev_remove_device(struct class_device *class_dev,
++					struct class_interface *class_intf)
 +{
-+	class_interface_unregister(&rtc_proc_interface);
++	struct rtc_device *rtc = to_rtc_device(class_dev);
++
++	if (rtc->rtc_dev) {
++		dev_dbg(class_dev->dev, "removing char %d:%d\n",
++			MAJOR(rtc->rtc_dev->devt),
++			MINOR(rtc->rtc_dev->devt));
++
++		class_device_unregister(rtc->rtc_dev);
++		cdev_del(&rtc->char_dev);
++	}
 +}
 +
-+module_init(rtc_proc_init);
-+module_exit(rtc_proc_exit);
++/* interface registration */
++
++static struct class_interface rtc_dev_interface = {
++	.add = &rtc_dev_add_device,
++	.remove = &rtc_dev_remove_device,
++};
++
++static int __init rtc_dev_init(void)
++{
++	int err;
++
++	rtc_dev_class = class_create(THIS_MODULE, "rtc-dev");
++	if (IS_ERR(rtc_dev_class))
++		return PTR_ERR(rtc_dev_class);
++
++	err = alloc_chrdev_region(&rtc_devt, 0, RTC_DEV_MAX, "rtc");
++	if (err < 0) {
++		printk(KERN_ERR "%s: failed to allocate char dev region\n",
++			__FILE__);
++		goto err_destroy_class;
++	}
++
++	err = rtc_interface_register(&rtc_dev_interface);
++	if (err < 0) {
++		printk(KERN_ERR "%s: failed to register the interface\n",
++			__FILE__);
++		goto err_unregister_chrdev;
++	}
++
++	return 0;
++
++err_unregister_chrdev:
++	unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
++
++err_destroy_class:
++	class_destroy(rtc_dev_class);
++
++	return err;
++}
++
++static void __exit rtc_dev_exit(void)
++{
++	class_interface_unregister(&rtc_dev_interface);
++	class_destroy(rtc_dev_class);
++	unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
++}
++
++module_init(rtc_dev_init);
++module_exit(rtc_dev_exit);
 +
 +MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("RTC class proc interface");
++MODULE_DESCRIPTION("RTC class dev interface");
 +MODULE_LICENSE("GPL");
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-05 02:50:20.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 02:50:28.000000000 +0100
-@@ -51,6 +51,17 @@ config RTC_INTF_SYSFS
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-05 02:50:28.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 02:51:03.000000000 +0100
+@@ -62,6 +62,17 @@ config RTC_INTF_PROC
  	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-sysfs.
+ 	  will be called rtc-proc.
  
-+config RTC_INTF_PROC
-+	tristate "proc"
-+	depends on RTC_CLASS && PROC_FS
++config RTC_INTF_DEV
++	tristate "dev"
++	depends on RTC_CLASS
 +	default RTC_CLASS
 +	help
-+	  Say yes here if you want to use your RTC using the proc
-+	  interface, /proc/driver/rtc .
++	  Say yes here if you want to use your RTC using the dev
++	  interface, /dev/rtc .
 +
 +	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-proc.
++	  will be called rtc-dev.
 +
  comment "RTC drivers"
  	depends on RTC_CLASS
  
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-05 02:50:20.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-05 02:50:28.000000000 +0100
-@@ -8,4 +8,4 @@ obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
- rtc-core-y			:= class.o interface.o
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-05 02:50:28.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-05 02:51:03.000000000 +0100
+@@ -9,3 +9,4 @@ rtc-core-y			:= class.o interface.o
  
  obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
--
-+obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
+ obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
++obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
 
 --

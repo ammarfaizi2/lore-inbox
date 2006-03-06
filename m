@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752460AbWCFWy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752461AbWCFW4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752460AbWCFWy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752462AbWCFWy5
+	id S1752461AbWCFW4K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752462AbWCFW4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:54:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33474 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752460AbWCFWy4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:54:56 -0500
-Date: Mon, 6 Mar 2006 14:54:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Jens Axboe <axboe@suse.de>, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-In-Reply-To: <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>
-References: <200603060117.16484.jesper.juhl@gmail.com> 
- <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>  <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
-  <200603062136.17098.jesper.juhl@gmail.com> 
- <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com> 
- <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com> 
- <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
- <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
- <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org> <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Mar 2006 17:56:10 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:138 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1752461AbWCFW4J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:56:09 -0500
+Date: Mon, 6 Mar 2006 14:55:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Dave Peterson <dsp@llnl.gov>, Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Message-ID: <20060306225555.GA21127@kroah.com>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061052.57188.dsp@llnl.gov> <20060306195348.GB8777@kroah.com> <200603061301.37923.dsp@llnl.gov> <20060306213203.GJ27946@ftp.linux.org.uk> <20060306215344.GB16825@kroah.com> <20060306222400.GK27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306222400.GK27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 6 Mar 2006, Linus Torvalds wrote:
+On Mon, Mar 06, 2006 at 10:24:00PM +0000, Al Viro wrote:
+> On Mon, Mar 06, 2006 at 01:53:44PM -0800, Greg KH wrote:
+> > > 	rmmod your_turd </sys/spew/from/your_turd
+> > > and there you go.  rmmod can _NOT_ wait for sysfs references to go away.
+> > 
+> > To be fair, the only part of the kernel that supports the above process,
+> > is the network stack.  And they implemented a special kind of lock to
+> > handle just this kind of thing.
+> > 
+> > That is not something that I want the rest of the kernel to have to use.
+> > If your code blocks when doing the above thing, that's fine with me.
 > 
-> Either revert it, or try this (TOTALLY UNTESTED!!!) patch..
+> One word: fail.  With -EBUSY.
+>  
+> > Note, you better have the module owner reference right for the above to
+> > not oops the kernel, deadlock is fine.
+> 
+> Never is.
 
-Don't even bother with the untested patch.
+My apologies, you are right, for some reason I thought rmmod would just
+wait for the reference count to go away.  I just tested this on a lot of
+different things in sysfs and it works properly and rmmod will return an
+error saying the module is in use at this time.
 
-> +	for (gfporder = 0 ; gfporder < MAX_GFP_ORDER; gfporder++) {
+> > There is no rule that we _have_
+> > to allow rmmod to always succeed.
+> 
+> Quite so, which means we can have it fail saying that module removal has
+> failed.  Deadlock is not the same thing.
 
-At a minimum, this "<" needs to be "<=".
+Agreed.
 
-After that, it might even work. Not that I can convince me that the test 
-for "offslab_limit" ever even triggers, so..
+thanks,
 
-		Linus
+greg k-h

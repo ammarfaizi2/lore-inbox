@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWCFHjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752122AbWCFHrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750928AbWCFHjz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 02:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751951AbWCFHjz
+	id S1752122AbWCFHrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 02:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752144AbWCFHrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 02:39:55 -0500
-Received: from xproxy.gmail.com ([66.249.82.195]:29647 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750928AbWCFHjz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 02:39:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=umM7QqQcPhWfoK5isKHiEZ0yB43PlKOPll5Gqz/MFGsIaBDymK4MADwwqOloR2XMA0/NQKUkbaE8B0//RDdFKYak45Bn2ryibNUf700y9DBlJK5PhFj2Jb8Y0bxclgj7axgygr12ikSw9CiwI1IfR3zpl2N8g3l2mRqPs0c+CaU=
-Message-ID: <661de9470603052339s42a9b72bqcef489bddb296803@mail.gmail.com>
-Date: Mon, 6 Mar 2006 13:09:54 +0530
-From: "Balbir Singh" <bsingharora@gmail.com>
-To: "Dave Jones" <davej@redhat.com>, "Balbir Singh" <bsingharora@gmail.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ericvh@gmail.com, rminnich@lanl.gov
-Subject: Re: 9pfs double kfree
-In-Reply-To: <20060306073121.GG21445@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060306070456.GA16478@redhat.com>
-	 <20060305.230711.06026976.davem@davemloft.net>
-	 <661de9470603052326i5f4a6a7q79bc370d180737b1@mail.gmail.com>
-	 <20060306073121.GG21445@redhat.com>
+	Mon, 6 Mar 2006 02:47:16 -0500
+Received: from mail.gmx.net ([213.165.64.20]:59082 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752122AbWCFHrP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 02:47:15 -0500
+X-Authenticated: #14349625
+Subject: Re: Fw: Re: oops in choose_configuration()
+From: Mike Galbraith <efault@gmx.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>
+References: <20060304121723.19fe9b4b.akpm@osdl.org>
+	 <Pine.LNX.4.64.0603041235110.22647@g5.osdl.org>
+	 <20060304213447.GA4445@kroah.com> <20060304135138.613021bd.akpm@osdl.org>
+	 <20060304221810.GA20011@kroah.com> <20060305154858.0fb0006a.akpm@osdl.org>
+	 <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 06 Mar 2006 08:47:20 +0100
+Message-Id: <1141631240.26111.11.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The vast majority of people never run with slab poisoning enabled
-> judging by the number of bugs it constantly turns up.
->
+On Sun, 2006-03-05 at 21:00 -0800, Linus Torvalds wrote:
 
-Agreed, maybe we could insist that developers enable these options and
-test their patch with debugging enabled before posting them, but I
-have a feeling that it would meet a lot of resistance :-). Doesn't
-hurt to document it in Documentation/HOWTO or somewhere more
-appropriate.
+> 
+> Is there something else I've missed?
 
->  > kfree() will ignore NULL
->  > pointer, from the comments in kfree
->
-> *nod*, poisoning the ptr would be a better idea.
->
+Maybe.  Does this add anything to the picture?  During boot,
+recalc_task_prio() is called with now < p->timestamp.  This causes quite
+a stir.  If you WARN_ON(now < p->timestamp) or printk, you'll have a
+dead box due to hundreds of gripes as things churn.  Adding...
 
-Yes, I think this is a better idea.
+if (unlikely(now < p->timestamp))
+	__sleep_time = 0ULL;
 
->  > May we could have such a variant under CONFIG_DEBUG_SLAB if we needed
->  > and also change the variant kfree to BUG_ON() a NULL pointer.
->
-> given the cost is just a ptr assignment in a slow path, I'd prefer
-> it was non-optional, otherwise it'll be as underused as the other
-> debugging options.
->
+...turns it into exactly one gripe.
 
-Yes, agreed.
+	-Mike
+

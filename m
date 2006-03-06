@@ -1,135 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWCFQgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWCFQlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbWCFQgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 11:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751934AbWCFQgJ
+	id S1751914AbWCFQlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 11:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751937AbWCFQlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 11:36:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14567 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750820AbWCFQfu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 11:35:50 -0500
-Date: Mon, 6 Mar 2006 14:23:29 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Andrew Morton <akpm@osdl.org>, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>, linux@dominikbrodowski.net
-Subject: Re: [patch] collie: fix missing pcmcia bits
-Message-ID: <20060306132329.GA1737@elf.ucw.cz>
-References: <20060305135351.GA16481@elf.ucw.cz> <1141583008.6521.49.camel@localhost.localdomain>
+	Mon, 6 Mar 2006 11:41:08 -0500
+Received: from bay101-f4.bay101.hotmail.com ([64.4.56.14]:25440 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1751934AbWCFQlF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 11:41:05 -0500
+Message-ID: <BAY101-F4F3157DFC8ECF9BA96831DFE90@phx.gbl>
+X-Originating-IP: [70.150.153.162]
+X-Originating-Email: [jtreubig@hotmail.com]
+In-Reply-To: <20060303153517.0e10f5d7.rdunlap@xenotime.net>
+From: "John Treubig" <jtreubig@hotmail.com>
+To: rdunlap@xenotime.net, hancockr@shaw.ca, albertcc@tw.ibm.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: CDROM support for Promise 20269
+Date: Mon, 06 Mar 2006 10:40:58 -0600
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141583008.6521.49.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 06 Mar 2006 16:41:02.0614 (UTC) FILETIME=[C174D360:01C6413C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thanks Randy and Robert.  Your suggestion fixed the problem.
 
-This adds missing bits of collie (sharp sl-5500) PCMCIA support and
-MFD support.
- 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Robert Hancock <hancockr@shaw.ca>, 
+albertcc@tw.ibm.com,jtreubig@hotmail.com
+CC: linux-kernel@vger.kernel.org, scsi <linux-scsi@vger.kernel.org>
+Subject: Re: CDROM support for Promise 20269
+Date: Fri, 3 Mar 2006 15:35:17 -0800
+
+On Fri, 03 Mar 2006 17:25:54 -0600 Robert Hancock wrote:
+
+ > John Treubig wrote:
+ > > I've been working on a problem with Promise 20269 PATA adapter under
+ > > LibATA that if I attach a CDROM drive, I can not see the drive.  The
+ > > message log reports that the driver sees the device, but when I'm fully
+ > > booted, there's no device available.
+ >
+ > ..
+ >
+ > > [  118.621489] scsi4 : pata_pdc2027x
+ > > [  118.643926] ata1(1): WARNING: ATAPI is disabled, device ignored.
+ >
+ > Sounds like your problem there.. need to enable ATAPI in your
+ > libata/PATA kernel configuration?
+
+Please don't drop cc's etc.  Just use reply-to-all.
+
+For John:  this means that you need to load libata with this option:
+atapi_enabled=1
+So if you build it into the kernel image, add this to the boot option:
+   libata.atapi_enabled=1
+or if you load it as a module, just add:  atapi_enabled=1
+or you can edit the source file and change the variable to 1,
+but that's the least preferable way IMO.
 
 ---
-
-> > @@ -242,8 +249,7 @@ static void __init collie_init(void)
-> >  	GPDR |= GPIO_32_768kHz;
-> >  	TUCR  = TUCR_32_768kHz;
-> >  
-> > -	scoop_num = 1;
-> > -	scoop_devs = &collie_pcmcia_scoop[0];
-> 
-> These lines don't exist in mainline kernels anymore? What was this
-> diffed against?
-
-Will check; I used old diff because new diff included too much
-additional fluff.. oops.
-
-...ahha, oops, sorry, I have some bad stuff in my "good" tree.
-
-Here's updated patch...
-
-> > +
-> > +#ifdef CONFIG_SA1100_COLLIE
-> > +#include <asm/arch-sa1100/collie.h>
-> 
-> I can't immediately see why this is needed anymore.
-
-It is not. Sorry about it and surrounding changes.
-
-diff --git a/arch/arm/mach-sa1100/collie.c b/arch/arm/mach-sa1100/collie.c
-index 6888816..ce2b479 100644
---- a/arch/arm/mach-sa1100/collie.c
-+++ b/arch/arm/mach-sa1100/collie.c
-@@ -40,6 +40,7 @@
- #include <asm/hardware/scoop.h>
- #include <asm/mach/sharpsl_param.h>
- #include <asm/hardware/locomo.h>
-+#include <asm/arch/mcp.h>
- 
- #include "generic.h"
- 
-@@ -66,6 +67,32 @@ struct platform_device colliescoop_devic
- 	.resource	= collie_scoop_resources,
- };
- 
-+static struct scoop_pcmcia_dev collie_pcmcia_scoop[] = {
-+{
-+       .dev        = &colliescoop_device.dev,
-+       .irq        = COLLIE_IRQ_GPIO_CF_IRQ,
-+       .cd_irq     = COLLIE_IRQ_GPIO_CF_CD,
-+       .cd_irq_str = "PCMCIA0 CD",
-+},
-+};
-+
-+static struct scoop_pcmcia_config collie_pcmcia_config = {
-+	.devs         = &collie_pcmcia_scoop[0],
-+	.num_devs     = 1,
-+};
-+
-+
-+static struct mcp_plat_data collie_mcp_data = {
-+	.mccr0          = MCCR0_ADM,
-+	.sclk_rate      = 11981000,
-+};
-+
-+
-+static struct sa1100_port_fns collie_port_fns __initdata = {
-+	.set_mctrl	= collie_uart_set_mctrl,
-+	.get_mctrl	= collie_uart_get_mctrl,
-+};
-+
- 
- static struct resource locomo_resources[] = {
- 	[0] = {
-@@ -153,12 +246,14 @@ static void __init collie_init(void)
- 		 PPC_LDD6 | PPC_LDD7 | PPC_L_PCLK | PPC_L_LCLK | PPC_L_FCLK | PPC_L_BIAS | \
- 	 	 PPC_TXD1 | PPC_TXD2 | PPC_RXD2 | PPC_TXD3 | PPC_TXD4 | PPC_SCLK | PPC_SFRM );
- 
- 	PSDR = ( PPC_RXD1 | PPC_RXD2 | PPC_RXD3 | PPC_RXD4 );
- 
- 	GAFR |= GPIO_32_768kHz;
- 	GPDR |= GPIO_32_768kHz;
- 	TUCR  = TUCR_32_768kHz;
- 
-+	platform_scoop_config = &collie_pcmcia_config;
-+
- 	ret = platform_add_devices(devices, ARRAY_SIZE(devices));
- 	if (ret) {
- 		printk(KERN_WARNING "collie: Unable to register LoCoMo device\n");
-@@ -166,6 +302,7 @@ static void __init collie_init(void)
- 
- 	sa11x0_set_flash_data(&collie_flash_data, collie_flash_resources,
- 			      ARRAY_SIZE(collie_flash_resources));
-+	sa11x0_set_mcp_data(&collie_mcp_data);
- 
- 	sharpsl_save_param();
- }
+~Randy
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

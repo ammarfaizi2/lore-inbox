@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWCFVWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752433AbWCFVYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751194AbWCFVWM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWCFVWL
+	id S1752433AbWCFVYP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752426AbWCFVYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:22:11 -0500
-Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:8615 "EHLO
-	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S1751194AbWCFVWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:22:11 -0500
-Message-ID: <20060306212209.qav38uffwhkwsg00@webmail04.roc.ny.frontiernet.net>
-Date: Mon, 06 Mar 2006 21:22:09 +0000
-From: "lgeek@frontiernet.net" <lgeek@frontiernet.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] IRQ: prevent enabling of previously disabled interrupt
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
+	Mon, 6 Mar 2006 16:24:15 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:60603 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751656AbWCFVYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 16:24:14 -0500
+Date: Mon, 6 Mar 2006 16:18:54 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Dan Aloni <da-x@monatomic.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Status of AIO
+Message-ID: <20060306211854.GM20768@kvack.org>
+References: <20060306062402.GA25284@localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.5-cvs)
+In-Reply-To: <20060306062402.GA25284@localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   This fix prevents re-disabling and enabling of a previously disabled 
-interrupt in 2.6.16-rc5.  On an SMP system with irq balancing enabled; 
-If an interrupt is disabled from within its own interrupt context with 
-disable_irq_nosync and is also earmarked for processor migration, the 
-interrupt is blindly moved to the other processor and enabled without 
-regard for its current "enabled" state.  If there is an interrupt  
-pending, it will unexpectedly invoke the irq handler on the new irq 
-owning processor (even though the irq was previously disabled)
+On Mon, Mar 06, 2006 at 08:24:03AM +0200, Dan Aloni wrote:
+> Hello,
+> 
+> I'm trying to assert the status of AIO under the current version 
+> of Linux 2.6. However by searching I wasn't able to find any 
+> indication about it's current state. Is there anyone using it
+> under a production environment?
 
-   The more intuitive fix would be to invoke disable_irq_nosync and 
-enable_irq, but since we already have the desc->lock from __do_IRQ, we 
-cannot call them directly.  Instead we can use the same logic to 
-disable and enable found in disable_irq_nosync and enable_irq, with 
-regards to the desc->depth.
+For O_DIRECT aio things are pretty stable (barring a patch to improve -EIO 
+handling).  The functionality is used by the various databases, so it gets 
+a fair amount of exercise.
 
-   This now prevents a disabled interrupt from being re-disabled, and 
-more importantly prevents a disabled interrupt from being incorrectly 
-enabled on a different processor.
+> I'd like to know how complete it is and whether socket AIO is
+> adaquately supported.
 
-Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
+Socket AIO is not supported yet, but it is useful to get user requests to 
+know there is demand for it.
 
---- 2.6.16-rc5/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -155,9 +155,13 @@
-	 * Being paranoid i guess!
-	 */
-	if (unlikely(!cpus_empty(tmp))) {
--		desc->handler->disable(irq);
-+		if (likely(!desc->depth++))
-+			desc->handler->disable(irq);
-+
-		desc->handler->set_affinity(irq,tmp);
--		desc->handler->enable(irq);
-+
-+		if (likely(!--desc->depth))
-+			desc->handler->enable(irq);
-	}
-	cpus_clear(pending_irq_cpumask[irq]);
-}
-
+		-ben
 -- 
-- Bryan Holty
-
+"Time is of no importance, Mr. President, only life is important."
+Don't Email: <dont@kvack.org>.

@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWCFAlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWCFA6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWCFAlO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 19:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWCFAlO
+	id S1751269AbWCFA6M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 19:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWCFA6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 19:41:14 -0500
-Received: from zrtps0kp.nortel.com ([47.140.192.56]:7899 "EHLO
-	zrtps0kp.nortel.com") by vger.kernel.org with ESMTP
-	id S1751099AbWCFAlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 19:41:13 -0500
+	Sun, 5 Mar 2006 19:58:12 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:62684 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751101AbWCFA6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 19:58:11 -0500
+Message-ID: <440B8921.9030602@garzik.org>
+Date: Sun, 05 Mar 2006 19:58:09 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PATA failure with piix, works with libata
+References: <20060303183937.GA30840@srcf.ucam.org> <20060305225733.GA8578@srcf.ucam.org> <440B770A.8090707@garzik.org> <20060306003221.GA8805@srcf.ucam.org>
+In-Reply-To: <20060306003221.GA8805@srcf.ucam.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17419.34083.172540.639486@lemming.engeast.baynetworks.com>
-Date: Sun, 5 Mar 2006 19:41:07 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] change kbuild to not rely on incorrect GNU make behavior
-In-Reply-To: <20060305231312.GA25673@mars.ravnborg.org>
-References: <E1FG1UQ-00045B-5P@fencepost.gnu.org>
-	<20060305231312.GA25673@mars.ravnborg.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-From: "Paul D. Smith" <psmith@gnu.org>
-Reply-To: "Paul D. Smith" <psmith@gnu.org>
-Organization: GNU's Not Unix!
-X-OriginalArrivalTime: 06 Mar 2006 00:41:09.0620 (UTC) FILETIME=[A95B5B40:01C640B6]
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-%% Sam Ravnborg <sam@ravnborg.org> writes:
+Matthew Garrett wrote:
+> On Sun, Mar 05, 2006 at 06:40:58PM -0500, Jeff Garzik wrote:
+> 
+>>Matthew Garrett wrote:
+>>
+>>>Ok, it /seems/ that things are happier (though still not entirely happy) 
+>>>if I explicitly acknowledge the interrupt by writing the dma status 
+>>>register back again. This doesn't seem to be done anywhere in the IDE 
+>>>interrupt routine, but is in the libata one. I'm afraid I don't 
+>>>understand IDE well enough to have any idea what's going on here - is it 
+>>>possible that a piix in native mode (rather than legacy mode) and 
+>>>sharing an interrupt needs some special handling?
+>>
+>>ICH definitely needs that irq ack...
+> 
+> 
+> Yeah, this is an ICH7. I can't find anything in drivers/ide that would 
+> result in it being done, which is why I'm kind of confused. ide_ack_intr 
+> seems to be defined to do nothing on x86 since IDE_ARCH_ACK_INTR isn't 
+> defined there?
 
-  sr> Thanks Paul.
-  sr> Adapted to -rc4 and applied to my kbuild tree which I have pushed out.
-  sr> For reference I added the applied patch below.
+This is more a piix-specific behavior than an arch-specific behavior.
 
-OK.  Note that this:
-
-  sr> -.PHONY: tar%pkg
-  sr> +PHONY += tar%pkg
-  sr>  tar%pkg:
-
-won't do what you expect.  tar%pkg is a pattern rule, but .PHONY doesn't
-take patterns so you're declaring the actual file named literally
-'tar%pkg' to be phony.
+	Jeff
 
 
-Cheers!
 
--- 
--------------------------------------------------------------------------------
- Paul D. Smith <psmith@gnu.org>          Find some GNU make tips at:
- http://www.gnu.org                      http://make.paulandlesley.org
- "Please remain calm...I may be mad, but I am a professional." --Mad Scientist

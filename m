@@ -1,51 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752355AbWCFJeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752356AbWCFJeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752355AbWCFJeH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 04:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752357AbWCFJeG
+	id S1752356AbWCFJeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752358AbWCFJeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 04:34:06 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:56499 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1752355AbWCFJeF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 04:34:05 -0500
-Date: Mon, 6 Mar 2006 09:34:01 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Kai Makisara <Kai.Makisara@kolumbus.fi>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Dave Jones <davej@redhat.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ericvh@gmail.com, rminnich@lanl.gov
-Subject: Re: 9pfs double kfree
-Message-ID: <20060306093401.GH27946@ftp.linux.org.uk>
-References: <20060306070456.GA16478@redhat.com> <20060305.230711.06026976.davem@davemloft.net> <20060306072346.GF27946@ftp.linux.org.uk> <20060306072823.GF21445@redhat.com> <84144f020603052356r321bc78dp66263fbfc73517c6@mail.gmail.com> <20060306081651.GG27946@ftp.linux.org.uk> <Pine.LNX.4.63.0603061031550.8581@kai.makisara.local>
+	Mon, 6 Mar 2006 04:34:09 -0500
+Received: from lug-owl.de ([195.71.106.12]:46014 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1752356AbWCFJeI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 04:34:08 -0500
+Date: Mon, 6 Mar 2006 10:34:02 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
+Message-ID: <20060306093402.GK19232@lug-owl.de>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	bjd <bjdouma@xs4all.nl>, linux-kernel@vger.kernel.org,
+	Dave Jones <davej@redhat.com>
+References: <20060305192709.GA3789@skyscraper.unix9.prv> <1141590742.14714.102.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h7tFVRo9JdnMyCgj"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0603061031550.8581@kai.makisara.local>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1141590742.14714.102.camel@mindpipe>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 10:40:03AM +0200, Kai Makisara wrote:
-> > Legal, but rather bad taste.  Init to NULL, possibly assign the value
-> > if kmalloc(), then kfree() unconditionally - sure, but that... almost
-> > certainly one hell of a lousy cleanup logics somewhere.
-> > 
-> I agree with you.
-> 
-> However, a few months ago it was advocated to let kfree take care of 
-> testing the pointer against NULL and a load of patches like this:
 
-That's different - that's _exactly_ the case I've mentioned above.
+--h7tFVRo9JdnMyCgj
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Moreover, that's exact match to standard behaviour of free(3):
+On Sun, 2006-03-05 15:32:22 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
+> On Sun, 2006-03-05 at 20:27 +0100, bjd wrote:
+> > From: Bauke Jan Douma <bjdouma@xs4all.nl>
+> > On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
+> > and MC97 modem controller are deactivated when a second PCI soundcard
+> > is present.  This patch enables them.
+>=20
+> Thanks for fixing this!  We get a ton of complaints about this "feature"
+> on the ALSA lists.
 
-C99 7.20.3.2(2):
-The free function causes the space pointed to by ptr to be deallocated, that
-is, made available for further allocation.  If ptr is a null pointer, no action
-occurs.  Otherwise, if the argument does not match a pointer returned by the
-calloc, malloc, or realloc function, or if the space has been deallocated by
-a call to free or realloc, the behaviour is undefined.
+On our LUG list (linux@lug-owl.de) we had such a case as well, about a
+year ago.
 
-IOW, free(NULL) is guaranteed to be no-op while double-free is nasal daemon
-country.
+> Do we have any idea why ASUS would have done such a thing?  Users hate
+> it.  Are they working around a hardware or Windows bug?
+
+The point is that most people either use the on-board stuff, _or_ they
+buy a soundcard to use that one. Vendors seem to think they shouldn't
+confuse users with always letting them choose between _two_ sound
+cards.
+
+There are two trick you can play. Either disable the card in the PCI
+config space, or (in older mainboards of i486 class with ISA) they
+used custom ASICs in between that were activated by some magic
+sequence written to some magic ISA I/O ports.
+
+In the first case, it's quite simple to figure out how to re-enable
+the card. If this is an issue somewhere, please feel free to ask for
+help. Maybe even a little helper program could be written to aid in
+finding the appropriate bits.
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--h7tFVRo9JdnMyCgj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEDAIKHb1edYOZ4bsRApjFAJ9rahydjJJd7NqmuY3a6H+VgT6fIwCeMrsd
+TAtLrLdpNoobsOq3cWLyKxM=
+=cSZw
+-----END PGP SIGNATURE-----
+
+--h7tFVRo9JdnMyCgj--

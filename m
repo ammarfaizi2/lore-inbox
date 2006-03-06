@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWCFWka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWCFWlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWCFWka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWCFWka
+	id S932427AbWCFWlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWCFWlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:40:30 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64675 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932415AbWCFWk2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:40:28 -0500
-Date: Tue, 7 Mar 2006 09:39:30 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>, christoph <hch@lst.de>,
-       mcao@us.ibm.com, akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, vs@namesys.com,
-       zam@namesys.com
-Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and mpage_readpages()
-Message-ID: <20060307093930.D219568@wobbly.melbourne.sgi.com>
-References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com> <20060222151216.GA22946@lst.de> <1140801549.22756.195.camel@dyn9047017100.beaverton.ibm.com> <20060306100321.GA27319@in.ibm.com>
-Mime-Version: 1.0
+	Mon, 6 Mar 2006 17:41:25 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:52316 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S932422AbWCFWlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:41:24 -0500
+X-IronPort-AV: i="4.02,169,1139212800"; 
+   d="scan'208"; a="259923909:sNHT30129976"
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mshefty@ichips.intel.com, sean.hefty@intel.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for RDMA connection manager
+X-Message-Flag: Warning: May contain useful information
+References: <adabqwj5j7b.fsf@cisco.com>
+	<20060306.142814.109285730.davem@davemloft.net>
+	<aday7zn432b.fsf@cisco.com>
+	<20060306.143901.26500391.davem@davemloft.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 06 Mar 2006 14:41:21 -0800
+In-Reply-To: <20060306.143901.26500391.davem@davemloft.net> (David S. Miller's message of "Mon, 06 Mar 2006 14:39:01 -0800 (PST)")
+Message-ID: <adau0ab42ni.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060306100321.GA27319@in.ibm.com>; from suparna@in.ibm.com on Mon, Mar 06, 2006 at 03:33:21PM +0530
+X-OriginalArrivalTime: 06 Mar 2006 22:41:22.0411 (UTC) FILETIME=[17DC0BB0:01C6416F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 03:33:21PM +0530, Suparna Bhattacharya wrote:
-> On Fri, Feb 24, 2006 at 09:19:08AM -0800, Badari Pulavarty wrote:
-> > 
-> > I am thinking of having a "fast path" which doesn't deal with any
-> > of those and "slow" path to deal with all that non-sense.
-> > ...
-> > slow_path is going to be slow & ugly. How important is to handle
-> > 1k, 2k filesystems efficiently ? Should I try ?
-> 
-> With 64K page size that could include 4K, 8K, 16K, 32K block size filesystems
-> as well, not sure how likely that would be ?
+    David> I wrote a test program and it looks ok:
 
-A number of architectures have a pagesize greater than 4K.  Most
-(OK, sample size of 2) mkfs programs default to using 4K blocksizes.
-So, any/all platforms not having a 4K pagesize will be disadvantaged.
-Search on the definition of PAGE_SHIFT in asm-*/page.h and for all
-platforms where its not defined to 12, this will hurt.
+Cool, thanks.
 
-cheers.
+I should look into getting some niagara machines to test with -- with
+PCIe slots they should actually be good for IB testing.
 
--- 
-Nathan
+ - R.

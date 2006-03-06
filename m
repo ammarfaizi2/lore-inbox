@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWCFT3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752415AbWCFTxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932352AbWCFT3A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWCFT3A
+	id S1752415AbWCFTxo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 14:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752419AbWCFTxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:29:00 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:40281 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932352AbWCFT27 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:28:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HLvr0ZPku8pxWVSLAP5vOZ1yiy5LE1osI0W8qS7AMCkNLPP0b4dCFUolA0RQSBhFvmhgUIzUnQHZqaNsmJwSUdSefNgbmu9jrZHMHWnxV/fkKr8paEUeMMEoPqVxg5sGKLxlPMLnXi1IfsY7ciGKRyEaRyH8Wdz7B01Ft4OzX9Q=
-Message-ID: <41b516cb0603061128x6af77a79gade442a74e44075c@mail.gmail.com>
-Date: Mon, 6 Mar 2006 11:28:39 -0800
-From: "Chris Leech" <chris.leech@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [PATCH 8/8] [I/OAT] TCP recv offload to I/OAT
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20060304231842.GA3103@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Mar 2006 14:53:44 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:29625
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1752415AbWCFTxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 14:53:42 -0500
+Date: Mon, 6 Mar 2006 11:53:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Message-ID: <20060306195348.GB8777@kroah.com>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <1141553885.16388.0.camel@laptopd505.fenrus.org> <20060305155503.GA18580@kroah.com> <200603061052.57188.dsp@llnl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060303214036.11908.10499.stgit@gitlost.site>
-	 <20060303214236.11908.98881.stgit@gitlost.site>
-	 <20060304231842.GA3103@kroah.com>
+In-Reply-To: <200603061052.57188.dsp@llnl.gov>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> #ifdef is not needed here (try not to put #ifdef in .c files.)  I think
-> a few of your other usages of #ifdef in this file can also be removed
-> with judicious use of inline functions in a .h file.
+On Mon, Mar 06, 2006 at 10:52:57AM -0800, Dave Peterson wrote:
+> On Sunday 05 March 2006 07:55, Greg KH wrote:
+> > On Sun, Mar 05, 2006 at 11:18:04AM +0100, Arjan van de Ven wrote:
+> > > > +/* Main MC kobject release() function */
+> > > > +static void edac_memctrl_master_release(struct kobject *kobj)
+> > > > +{
+> > > > +	debugf1("EDAC MC: " __FILE__ ": %s()\n", __func__);
+> > > > +}
+> > > > +
+> > >
+> > > ehhh how on earth can this be right?
+> >
+> > Ugh.  Good catch, it isn't right.  Gotta love it when people try to
+> > ignore the helpful messages the kernel gives you when you use an API
+> > wrong :(
+> 
+> Is the concern here that EDAC is not waiting for the reference count
+> on the kobject to reach 0, therefore creating the possibility of the
+> module unloading while the kobject (declared statically within the
+> module) is still in use?
 
-ACK on all the ifdef comments.  I may have gone a little ifdef crazy
-making sure I could get to a zero impact state with these patches
-applied but CONFIG_NET_DMA turned off.  I'll get these cleaned up.
+Eeek, don't statically create a kobject :(
 
-- Chris
+Anyway, yes, that is a problem, if it is static, then you need to know
+it is safe to unload.  Even if it is dynamic that is also true...
+
+thanks,
+
+greg k-h

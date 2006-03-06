@@ -1,86 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWCFBxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWCFByI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751529AbWCFBxL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 20:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWCFBxL
+	id S932135AbWCFByI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 20:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWCFBxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 20:53:11 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:58239 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1751529AbWCFBxK (ORCPT
+	Sun, 5 Mar 2006 20:53:45 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:56447 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1751640AbWCFBxQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 20:53:10 -0500
-Message-Id: <20060306015009.487349000@towertech.it>
+	Sun, 5 Mar 2006 20:53:16 -0500
+Message-Id: <20060306015011.207683000@towertech.it>
 References: <20060306015008.858209000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Mon, 06 Mar 2006 02:50:11 +0100
+Date: Mon, 06 Mar 2006 02:50:20 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, akpm@digeo.com, Richard Purdie <rpurdie@rpsys.net>
-Subject: [PATCH 03/16] RTC subsystem, ARM Integrator cleanup
-Content-Disposition: inline; filename=rtc-arm-integrator-cleanup.patch
+Cc: akpm@zip.com.au, akpm@digeo.com, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 12/16] RTC subsystem, DS1672 driver
+Content-Disposition: inline; filename=rtc-drv-ds1672.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix some namespace conflicts between the RTC subsystem and the ARM
-Integrator time functions.
+Driver for the Dallas/Maxim DS1672 chip, found
+on the Loft (http://www.giantshoulderinc.com) .
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+--
+ drivers/rtc/Kconfig      |   10 ++
+ drivers/rtc/Makefile     |    1 
+ drivers/rtc/rtc-ds1672.c |  233 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 244 insertions(+)
 
----
- arch/arm/mach-integrator/time.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
-
---- linux-rtc.orig/arch/arm/mach-integrator/time.c	2006-03-03 00:15:21.000000000 +0100
-+++ linux-rtc/arch/arm/mach-integrator/time.c	2006-03-05 01:22:45.000000000 +0100
-@@ -40,13 +40,13 @@ static int integrator_set_rtc(void)
- 	return 1;
- }
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-05 02:51:52.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 02:51:55.000000000 +0100
+@@ -86,6 +86,16 @@ config RTC_DRV_X1205
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-x1205.
  
--static int rtc_read_alarm(struct rtc_wkalrm *alrm)
-+static int integrator_rtc_read_alarm(struct rtc_wkalrm *alrm)
- {
- 	rtc_time_to_tm(readl(rtc_base + RTC_MR), &alrm->time);
- 	return 0;
- }
++config RTC_DRV_DS1672
++	tristate "Dallas/Maxim DS1672"
++	depends on RTC_CLASS && I2C
++	help
++	  If you say yes here you get support for the
++	  Dallas/Maxim DS1672 timekeeping chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ds1672.
++
+ config RTC_DRV_TEST
+ 	tristate "Test driver/device"
+ 	depends on RTC_CLASS
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-05 02:51:52.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-05 02:51:55.000000000 +0100
+@@ -13,4 +13,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
  
--static inline int rtc_set_alarm(struct rtc_wkalrm *alrm)
-+static inline int integrator_rtc_set_alarm(struct rtc_wkalrm *alrm)
- {
- 	unsigned long time;
- 	int ret;
-@@ -62,7 +62,7 @@ static inline int rtc_set_alarm(struct r
- 	return ret;
- }
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
++obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
  
--static int rtc_read_time(struct rtc_time *tm)
-+static int integrator_rtc_read_time(struct rtc_time *tm)
- {
- 	rtc_time_to_tm(readl(rtc_base + RTC_DR), tm);
- 	return 0;
-@@ -76,7 +76,7 @@ static int rtc_read_time(struct rtc_time
-  * edge of the 1Hz clock, we must write the time one second
-  * in advance.
-  */
--static inline int rtc_set_time(struct rtc_time *tm)
-+static inline int integrator_rtc_set_time(struct rtc_time *tm)
- {
- 	unsigned long time;
- 	int ret;
-@@ -90,10 +90,10 @@ static inline int rtc_set_time(struct rt
- 
- static struct rtc_ops rtc_ops = {
- 	.owner		= THIS_MODULE,
--	.read_time	= rtc_read_time,
--	.set_time	= rtc_set_time,
--	.read_alarm	= rtc_read_alarm,
--	.set_alarm	= rtc_set_alarm,
-+	.read_time	= integrator_rtc_read_time,
-+	.set_time	= integrator_rtc_set_time,
-+	.read_alarm	= integrator_rtc_read_alarm,
-+	.set_alarm	= integrator_rtc_set_alarm,
- };
- 
- static irqreturn_t arm_rtc_interrupt(int irq, void *dev_id,
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-ds1672.c	2006-03-05 02:52:19.000000000 +0100
+@@ -0,0 +1,233 @@
++/*
++ * An rtc/i2c driver for the Dallas DS1672
++ * Copyright 2005 Alessandro Zummo
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/rtc.h>
++
++#define DRV_VERSION "0.2"
++
++/* Addresses to scan: none. This chip cannot be detected. */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++
++/* Insmod parameters */
++I2C_CLIENT_INSMOD;
++
++/* Registers */
++
++#define DS1672_REG_CNT_BASE	0
++#define DS1672_REG_CONTROL	4
++#define DS1672_REG_TRICKLE	5
++
++
++/* Prototypes */
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind);
++
++/*
++ * In the routines that deal directly with the ds1672 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
++ * Epoch is initialized as 2000. Time is set to UTC.
++ */
++static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long time;
++	unsigned char addr = DS1672_REG_CNT_BASE;
++	unsigned char buf[4];
++
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 1, &addr },		/* setup read ptr */
++		{ client->addr, I2C_M_RD, 4, buf },	/* read date */
++	};
++
++	/* read date registers */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++		return -EIO;
++	}
++
++	dev_dbg(&client->dev,
++		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n"
++		__FUNCTION__,
++		buf[0], buf[1], buf[2], buf[3]);
++
++	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++
++	rtc_time_to_tm(time, tm);
++
++	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	return 0;
++}
++
++static int ds1672_set_mmss(struct i2c_client *client, unsigned long secs)
++{
++	int xfer;
++	unsigned char buf[5];
++
++	buf[0] = DS1672_REG_CNT_BASE;
++	buf[1] = secs & 0x000000FF;
++	buf[2] = (secs & 0x0000FF00) >> 8;
++	buf[3] = (secs & 0x00FF0000) >> 16;
++	buf[4] = (secs & 0xFF000000) >> 24;
++
++	xfer = i2c_master_send(client, buf, 5);
++	if (xfer != 5) {
++		dev_err(&client->dev, "%s: send: %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int ds1672_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long secs;
++
++	dev_dbg(&client->dev,
++		"%s: secs=%d, mins=%d, hours=%d, ",
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	rtc_tm_to_time(tm, &secs);
++
++	return ds1672_set_mmss(client, secs);
++}
++
++static int ds1672_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_set_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_mmss(struct device *dev, unsigned long secs)
++{
++	return ds1672_set_mmss(to_i2c_client(dev), secs);
++}
++
++static struct rtc_class_ops ds1672_rtc_ops = {
++	.read_time	= ds1672_rtc_read_time,
++	.set_time	= ds1672_rtc_set_time,
++	.set_mmss	= ds1672_rtc_set_mmss,
++};
++
++static int ds1672_attach(struct i2c_adapter *adapter)
++{
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++	return i2c_probe(adapter, &addr_data, ds1672_probe);
++}
++
++static int ds1672_detach(struct i2c_client *client)
++{
++	int err;
++	struct rtc_device *rtc = i2c_get_clientdata(client);
++
++	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
++
++ 	if (rtc)
++		rtc_device_unregister(rtc);
++
++	if ((err = i2c_detach_client(client)))
++		return err;
++
++	kfree(client);
++
++	return 0;
++}
++
++static struct i2c_driver ds1672_driver = {
++	.driver		= {
++		.name	= "ds1672",
++	},
++	.attach_adapter = &ds1672_attach,
++	.detach_client	= &ds1672_detach,
++};
++
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind)
++{
++	int err = 0;
++	struct i2c_client *client;
++	struct rtc_device *rtc;
++
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
++		err = -ENODEV;
++		goto exit;
++	}
++
++	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	/* I2C client */
++	client->addr = address;
++	client->driver = &ds1672_driver;
++	client->adapter	= adapter;
++
++	strlcpy(client->name, ds1672_driver.driver.name, I2C_NAME_SIZE);
++
++	/* Inform the i2c layer */
++	if ((err = i2c_attach_client(client)))
++		goto exit_kfree;
++
++	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
++
++	rtc = rtc_device_register(ds1672_driver.driver.name, &client->dev,
++				&ds1672_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc)) {
++		err = PTR_ERR(rtc);
++		dev_err(&client->dev,
++			"unable to register the class device\n");
++		goto exit_detach;
++	}
++
++	i2c_set_clientdata(client, rtc);
++
++	return 0;
++
++exit_detach:
++	i2c_detach_client(client);
++
++exit_kfree:
++	kfree(client);
++
++exit:
++	return err;
++}
++
++static int __init ds1672_init(void)
++{
++	return i2c_add_driver(&ds1672_driver);
++}
++
++static void __exit ds1672_exit(void)
++{
++	i2c_del_driver(&ds1672_driver);
++}
++
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("Dallas/Maxim DS1672 timekeeper driver");
++MODULE_LICENSE("GPL");
++MODULE_VERSION(DRV_VERSION);
++
++module_init(ds1672_init);
++module_exit(ds1672_exit);
 
 --

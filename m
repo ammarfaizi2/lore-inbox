@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWCFVmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWCFVmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWCFVmS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:42:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752435AbWCFVmR
+	id S932373AbWCFVmc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWCFVma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:42:17 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:47031 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752423AbWCFVmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:42:16 -0500
-Message-ID: <440CACB5.2010609@ichips.intel.com>
-Date: Mon, 06 Mar 2006 13:42:13 -0800
-From: Sean Hefty <mshefty@ichips.intel.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roland Dreier <rdreier@cisco.com>
-CC: Sean Hefty <sean.hefty@intel.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for RDMA
- connection manager
-References: <ORSMSX4011XvpFVjCRG00000009@orsmsx401.amr.corp.intel.com> <adaoe0j5kd6.fsf@cisco.com>
-In-Reply-To: <adaoe0j5kd6.fsf@cisco.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 6 Mar 2006 16:42:30 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60647
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932370AbWCFVmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 16:42:24 -0500
+Date: Mon, 06 Mar 2006 13:42:34 -0800 (PST)
+Message-Id: <20060306.134234.61724983.davem@davemloft.net>
+To: rdreier@cisco.com
+Cc: sean.hefty@intel.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 3/6] net/IB: export ip_dev_find
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <adaslpv5kh2.fsf@cisco.com>
+References: <ORSMSX4011XvpFVjCRG00000006@orsmsx401.amr.corp.intel.com>
+	<adaslpv5kh2.fsf@cisco.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
->  > +struct rdma_ucm_query_route_resp {
->  > +	__u64 node_guid;
->  > +	struct ib_user_path_rec ib_route[2];
->  > +	struct sockaddr_in6 src_addr;
->  > +	struct sockaddr_in6 dst_addr;
->  > +	__u32 num_paths;
->  > +	__u8 port_num;
->  > +	__u8 reserved[3];
->  > +};
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 06 Mar 2006 13:31:05 -0800
+
+>     Sean> Export ip_dev_find to allow locating a net_device given an
+>     Sean> IP address.
 > 
-> Is there a 32-bit/64-bit compatibility problem here?  From a quick
-> look, struct sockaddr_in6 is not 8-byte aligned.
+> My plan is to queue all of this stuff for merging in 2.6.17.
+> 
+> Is there any objection from netdev or openib-general people?
+> 
+> I just looked back, and the original "unexport ip_dev_find()" patch
+> was a de-Bunk-ing change.  Now that there is a modular user, is there
+> any problem with re-exporting it?
 
-Unless I miss counted, they should be aligned.  ib_user_path_rec is defined near 
-the end of patch 1/6.
-
-+struct ib_user_path_rec {
-+	__u8	dgid[16];
-+	__u8	sgid[16];
-+	__be16	dlid;
-+	__be16	slid;
-+	__u32	raw_traffic;
-+	__be32	flow_label;
-+	__u32	reversible;
-+	__u32	mtu;
-+	__be16	pkey;
-+	__u8	hop_limit;
-+	__u8	traffic_class;
-+	__u8	numb_path;
-+	__u8	sl;
-+	__u8	mtu_selector;
-+	__u8	rate_selector;
-+	__u8	rate;
-+	__u8	packet_life_time_selector;
-+	__u8	packet_life_time;
-+	__u8	preference;
-+};
-
-- Sean
-
+I'm fine with re-exporting it.

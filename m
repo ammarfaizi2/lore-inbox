@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752428AbWCFVJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752432AbWCFVKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752428AbWCFVJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752430AbWCFVJ0
+	id S1752432AbWCFVKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752434AbWCFVKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:09:26 -0500
-Received: from mxout1.netvision.net.il ([194.90.9.20]:17701 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S1752427AbWCFVJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:09:26 -0500
-Date: Mon, 06 Mar 2006 23:09:51 +0300
-From: Maxim Kozover <maximkoz@netvision.net.il>
-Subject: Re: Re: problems with scsi_transport_fc and qla2xxx
-In-reply-to: <170fa0d20603061200y38315a62uf143258c79659381@mail.gmail.com>
-To: Mike Snitzer <snitzer@gmail.com>
-Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
-Message-id: <1119462161.20060306230951@netvision.net.il>
+	Mon, 6 Mar 2006 16:10:09 -0500
+Received: from brmea-mail-1.Sun.COM ([192.18.98.31]:63215 "EHLO
+	brmea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S1752435AbWCFVKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 16:10:07 -0500
+Date: Mon, 06 Mar 2006 13:09:52 -0800
+From: Michael Bender <Michael.Bender@Sun.COM>
+Subject: Re: [Libusb-devel] Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL
+ / USB drivers of major vendor excluded
+In-reply-to: <20060306170542.GB8142@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: s.schmidt@avm.de, kkeil@suse.de, libusb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       opensuse-factory@opensuse.org, torvalds@osdl.org
+Reply-to: Michael.Bender@Sun.COM
+Message-id: <440CA520.8070507@sun.com>
+Organization: Sun Microsystems, Inc.
 MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
 Content-transfer-encoding: 7BIT
-X-Priority: 3 (Normal)
-References: <1413265398.20060227150526@netvision.net.il>
- <978150825.20060227210552@netvision.net.il>
- <20060228221422.282332ef.akpm@osdl.org> <4406034B.9030105@madness.at>
- <20060301210802.GA7288@spe2> <957728045.20060302193248@netvision.net.il>
- <170fa0d20603061200y38315a62uf143258c79659381@mail.gmail.com>
+X-Accept-Language: en-us, en
+References: <20060217230004.GA15492@kroah.com>
+ <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
+ <20060306170542.GB8142@kroah.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mike!
-Unfortunately I don't have the directory /proc/scsi/qla2xxx.
-However the target sees PRLI from the host again after reconnecting
-the cable between the initiator and the switch.
-Does it mean the rediscovering new devices on initiator side is
-already done?
+Greg KH wrote:
+> On Mon, Mar 06, 2006 at 01:47:43PM +0100, s.schmidt@avm.de wrote:
+>
+>>Compared to other operating systems, such as Mac OS, BeOS,
+>>Windows etc., Linux is walking a solitary path with the "user mode only"
+>>shift. One gets the impression, that legal concerns are leading Linux to a
+>>technically suboptimal/isolated solution.
+>
+> No, right now, Linux has the best latency numbers _by far_ than any
+> other operating system, so we can move stuff to userspace.
+> 
+> And again, it's your legal issues that are forcing you that way, if you
+> change that, putting everything in the kernel would be fine :)
 
-Thanks,
+(Since this came to me via the libusb list, and we've kind of
+gone past libusb-specific-related discussion, I thought I'd
+add another question to the thread).
 
-Maxim.
+What's the rationale behind the dichotomy between userspace
+and kernel licensing models?
 
-MS> Historically the qlogic driver rescan is a 2-phase process:
-MS> 1) schedule the rescan, e.g.: echo scsi-qlascan > /proc/scsi/qla2xxx/4
-MS> 2) rescan, e.g.: echo - - - > /sys/class/scsi_host/host4/scan
-
-MS> BUT, I've just used scsi-qlascan to discover _new_ devices... not
-MS> existing devices that experienced FC connection loss.  I assume the
-MS> qla driver _should_ just bring those lost devices back?  But does the
-MS> historic 2-phase rescan for new devices speak to why the qlogic driver
-MS> doesn't automagically bring the old devices back?  Or has the latest
-MS> qlogic driver in mainline advanced past this 2-phase requirement in
-MS> general?
-
-MS> regards,
-MS> Mike
-
-MS> Mike
-
-
+mike

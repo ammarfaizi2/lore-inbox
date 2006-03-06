@@ -1,36 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752374AbWCFLET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752386AbWCFLFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752374AbWCFLET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 06:04:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWCFLET
+	id S1752386AbWCFLFo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 06:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752387AbWCFLFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 06:04:19 -0500
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:47319 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S1752374AbWCFLES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 06:04:18 -0500
-Message-ID: <440C16E4.4050303@stud.feec.vutbr.cz>
-Date: Mon, 06 Mar 2006 12:03:00 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Mon, 6 Mar 2006 06:05:44 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:4811 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1752384AbWCFLFn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 06:05:43 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [PATCH] add support for PANJIT TouchSet USB Touchscreen Device
+Date: Mon, 6 Mar 2006 12:05:32 +0100
+User-Agent: KMail/1.8
+Cc: "Lanslott Gish" <lanslott.gish@gmail.com>, linux-kernel@vger.kernel.org,
+       "Greg KH" <greg@kroah.com>, "Alan Cox" <alan@redhat.com>
+References: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
+In-Reply-To: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
 MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-CC: Ben Chelf <ben@coverity.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Coverity Open Source Defect Scan of Linux
-References: <440BCA0F.50501@coverity.com>  <20060306102729.GD3974@stusta.de> <1141641832.29267.4.camel@tara.firmix.at>
-In-Reply-To: <1141641832.29267.4.camel@tara.firmix.at>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603061205.32660.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
-> > > analysis back to the developers of those projects. Linux is one of the 
->                                                        ^^^^^
->                                 should have been "The Linux kernel"
+Am Montag, 6. März 2006 10:14 schrieb Lanslott Gish:
+> hi,
+> 
+> this is the first version of the patch from a newbie :)
+> add support for PANJIT TouchSet USB touchscreen device.
+> 
 
-Why? Are you afraid of confusion with Linux the washing powder?
+> +#define TOUCHSET_DOWN			0x01
+> +#define TOUCHSET_POINT_TOUCH		0x81
+> +#define TOUCHSET_POINT_NOTOUCH		0x80
+> +
+> +#define TOUCHSET_GET_TOUCHED(dat)	((((dat)[0]) & TOUCHSET_DOWN) ? 1 : 0)
 
-Michal
+Drop the "?"
+
+> +static int touchset_open(struct input_dev *input)
+> +{
+> +	struct touchset_usb *touchset = input->private;
+> +
+> +	touchset->irq->dev = touchset->udev;
+> +
+> +	if (usb_submit_urb(touchset->irq, GFP_ATOMIC))
+
+GFP_KERNEL
+
+> +		return -EIO;
+> +
+> +	return 0;
+> +}
+> +
+> +static void touchset_close(struct input_dev *input)
+> +{
+> +	struct touchset_usb *touchset = input->private;
+> +
+> +	usb_kill_urb(touchset->irq);
+> +}
+> +
+> +static int touchset_alloc_buffers(struct usb_device *udev,
+> +				  struct touchset_usb *touchset)
+> +{
+> +	touchset->data = usb_buffer_alloc(udev, TOUCHSET_REPORT_DATA_SIZE,
+> +	                                  SLAB_ATOMIC, &touchset->data_dma);
+
+SLAB_KERNEL
+
+	Regards
+		Oliver

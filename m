@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752450AbWCFWcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752033AbWCFWed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752450AbWCFWcb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752447AbWCFWcb
+	id S1752033AbWCFWed (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752452AbWCFWec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:32:31 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:14619 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1752034AbWCFWca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:32:30 -0500
-X-IronPort-AV: i="4.02,169,1139212800"; 
-   d="scan'208"; a="259922004:sNHT31991784"
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mshefty@ichips.intel.com, sean.hefty@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for RDMA connection manager
-X-Message-Flag: Warning: May contain useful information
-References: <adaoe0j5kd6.fsf@cisco.com> <440CACB5.2010609@ichips.intel.com>
-	<adabqwj5j7b.fsf@cisco.com>
-	<20060306.142814.109285730.davem@davemloft.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 06 Mar 2006 14:32:28 -0800
-In-Reply-To: <20060306.142814.109285730.davem@davemloft.net> (David S. Miller's message of "Mon, 06 Mar 2006 14:28:14 -0800 (PST)")
-Message-ID: <aday7zn432b.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
+	Mon, 6 Mar 2006 17:34:32 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:11932 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1751673AbWCFWeb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:34:31 -0500
+Date: Tue, 7 Mar 2006 00:34:38 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: netdev@vger.kernel.org, openib-general@openib.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Matt Leininger <mlleinin@hpcn.ca.sandia.gov>
+Subject: TSO and IPoIB performance degradation
+Message-ID: <20060306223438.GA18277@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 06 Mar 2006 22:32:28.0651 (UTC) FILETIME=[D9B6BBB0:01C6416D]
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 06 Mar 2006 22:36:49.0328 (UTC) FILETIME=[7516E300:01C6416E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> Please make sure you check "x86_64 vs. x86", and then
-    David> something like "powerpc64 vs. powerpc32" or "sparc64
-    David> vs. sparc32", as those are the two different classes of ABI
-    David> layouts.
+Hello, Dave!
+As you might know, the TSO patches merged into mainline kernel
+since 2.6.11 have hurt performance for the simple (non-TSO)
+high-speed netdevice that is IPoIB driver.
 
-Yes, I tried ppc64 vs ppc and it still comes out the same.
-Unfortunately I don't have any sparc handy to try.
+This was discussed at length here
+http://openib.org/pipermail/openib-general/2005-October/012271.html
 
-The fundamental question seems to be whether things like
+I'm trying to figure out what can be done to improve the situation.
+In partucular, I'm looking at the Super TSO patch
+http://oss.sgi.com/archives/netdev/2005-05/msg00889.html
 
-	struct foo {
-		struct sockaddr_in6 src;
-		struct sockaddr_in6 dst;
-	};
+merged into mainline here
 
-and
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=314324121f9b94b2ca657a494cf2b9cb0e4a28cc
 
-	struct bar {
-		struct sockaddr_in6 a;
-		__u32 b;
-	};
+There, you said:
 
-end up being packed, even though struct sockaddr_in6 is 28 bytes in
-size.  And as far as I can tell, they always do, I guess because the
-individual fields of struct sockaddr_in6 are all <= 32 bits.
+	When we do ucopy receive (ie. copying directly to userspace
+	during tcp input processing) we attempt to delay the ACK
+	until cleanup_rbuf() is invoked.  Most of the time this
+	technique works very well, and we emit one ACK advertising
+	the largest window.
 
- - R.
+	But this explodes if the ucopy prequeue is large enough.
+	When the receiver is cpu limited and TSO frames are large,
+	the receiver is inundated with ucopy processing, such that
+	the ACK comes out very late.  Often, this is so late that
+	by the time the sender gets the ACK the window has emptied
+	too much to be kept full by the sender.
+
+	The existing TSO code mostly avoided this by keeping the
+	TSO packets no larger than 1/8 of the available window.
+	But with the new code we can get much larger TSO frames.
+
+So I'm trying to get a handle on it: could a solution be to simply
+look at the frame size, and call tcp_send_delayed_ack from
+if the frame size is no larger than 1/8?
+
+Does this make sense?
+
+Thanks,
+
+
+-- 
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751837AbWCFP5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751823AbWCFP6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751837AbWCFP5F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 10:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWCFP5F
+	id S1751823AbWCFP6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 10:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWCFP6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 10:57:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:695 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751837AbWCFP5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 10:57:03 -0500
-Date: Mon, 6 Mar 2006 15:56:50 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: Re: [PATCH 6/6] dm to use bd_claim_by_disk
-Message-ID: <20060306155649.GB25317@agk.surrey.redhat.com>
-Mail-Followup-To: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	device-mapper development <dm-devel@redhat.com>
-References: <4408E33E.1080703@ce.jp.nec.com> <4408E638.9060704@ce.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4408E638.9060704@ce.jp.nec.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 6 Mar 2006 10:58:55 -0500
+Received: from cernmx08.cern.ch ([137.138.166.172]:62288 "EHLO
+	cernmxlb.cern.ch") by vger.kernel.org with ESMTP id S1751823AbWCFP6y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 10:58:54 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
+	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding;
+	b=QNMLNRaug8+iQ3KKD2jJJjntQprdg6DZR8seY1VJg3mHL7A8d/zfzyr6i+Otk325j3RFNX8MgEOA0XeR7Amftc8AcBkxmWVFg7mfAaqEV01UviCpSE2/Tef/2K0X2BE6;
+Keywords: CERN SpamKiller Note: -51 Charset: west-latin
+X-Filter: CERNMX08 CERN MX v2.0 051012.1312 Release
+Message-ID: <440C5C41.2030409@cern.ch>
+Date: Mon, 06 Mar 2006 16:58:57 +0100
+From: Jiri Tyr <jiri.tyr@cern.ch>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060128)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+CC: linux-kernel@vger.kernel.org, mchehab@brturbo.com.br,
+       video4linux-list@redhat.com
+Subject: Re: PROBLEM: four bttv tuners in one PC crashed
+References: <440C5672.7000009@cern.ch> <200603061656.18846.duncan.sands@math.u-psud.fr>
+In-Reply-To: <200603061656.18846.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Mar 2006 15:58:46.0981 (UTC) FILETIME=[DA19EF50:01C64136]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 03, 2006 at 07:58:32PM -0500, Jun'ichi Nomura wrote:
-> This patch is part of dm/md sysfs dependency tree.
- 
-> +static int open_dev(struct dm_dev *d, dev_t dev, struct gendisk *holder)
-> +static int upgrade_mode(struct dm_dev *dd, int new_mode, struct gendisk *holder)
-> +static void close_dev(struct dm_dev *d, struct gendisk *holder)
+Duncan Sands wrote:
 
-Please pass the dm structure, struct mapped_device, around between dm functions
-internally where you can, instead of struct gendisk.  (Every time the new 
-parameter is passed it's wrapped with dm_disk(), so move the dm_disk() inside.)
+>>### [1.] One line summary of the problem:
+>>Four PCI TV tuners based on bt878 chip in one PC crashed.
+>>    
+>>
+>
+>Are you using overlay, or grabdisplay?
+>  
+>
+I'm using overlay on all tuners.
 
-Alasdair
--- 
-agk@redhat.com
+Jiri

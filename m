@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWCFKrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752373AbWCFKub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWCFKrD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 05:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752373AbWCFKrC
+	id S1752373AbWCFKub (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 05:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752374AbWCFKub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 05:47:02 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48313 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750784AbWCFKrA (ORCPT
+	Mon, 6 Mar 2006 05:50:31 -0500
+Received: from ns.firmix.at ([62.141.48.66]:52649 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1752372AbWCFKua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 05:47:00 -0500
-Date: Mon, 6 Mar 2006 02:45:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matthew Grant <grantma@anathoth.gen.nz>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:  rt_sigsuspend() does not return EINTR on 2.6.16-rc2+
-Message-Id: <20060306024512.4594b58d.akpm@osdl.org>
-In-Reply-To: <1141633685.7634.13.camel@localhost.localdomain>
-References: <1141521960.7628.9.camel@localhost.localdomain>
-	<1141557862.3764.47.camel@pmac.infradead.org>
-	<1141633685.7634.13.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 6 Mar 2006 05:50:30 -0500
+Subject: Re: Coverity Open Source Defect Scan of Linux
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Ben Chelf <ben@coverity.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060306102729.GD3974@stusta.de>
+References: <440BCA0F.50501@coverity.com>  <20060306102729.GD3974@stusta.de>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 06 Mar 2006 11:43:51 +0100
+Message-Id: <1141641832.29267.4.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Grant <grantma@anathoth.gen.nz> wrote:
->
-> OK, a major piece of software is broken for mounting removable media. A
->  kernel upgrade from 2.6.15 SHOULDn't do that.  
+Some improvements for the next press release (of Coverty, Inc.):
 
-Yes, this is a serious problem and we need to get to the bottom of it.
+On Mon, 2006-03-06 at 11:27 +0100, Adrian Bunk wrote:
+> On Sun, Mar 05, 2006 at 09:35:11PM -0800, Ben Chelf wrote:
+> > Hello Linux Developers,
+[...]
+> > analysis back to the developers of those projects. Linux is one of the 
+                                                       ^^^^^
+                                should have been "The Linux kernel"
+[...]
+> > for a couple of reasons: (1) We think that you, as developers of Linux, 
+                                                                   ^^^^^
+                                     should have been "the Linux kernel"
+[...]
+> It seems there is some internal communication problem inside your 
+> company:
 
-Could you please describe, in super-simple steps, how one should go about
-reproducing it?
+ACK.
 
-Also, the entire strace output for both good and bad kernels might be
-useful.  Am wondering what your fd #4 refers to.
+> This is far from being a "new process", you already offered this for 
+> some time at http://linuxbugsdb.coverity.com/ (with the exception that 
+> you stopped updating the results half a year ago).
+> 
+> If you as the CTO didn't know about this it is giving a very bad 
+> impression of your company.
+[...]
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-A socket, I guess.  It _might_ not be a signal or poll problem at all (but
-it probably is, given the track record of those patches).
-
-Do you have time to do a git-bisect?

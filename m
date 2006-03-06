@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWCFHql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752062AbWCFHsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751386AbWCFHql (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 02:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbWCFHql
+	id S1752062AbWCFHsP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 02:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbWCFHsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 02:46:41 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:40131 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751386AbWCFHql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 02:46:41 -0500
-Date: Mon, 6 Mar 2006 08:46:39 +0100
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Bastian Blank <bastian@waldi.eu.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH] s390 - fix match in ccw modalias
-Message-ID: <20060306084639.05bd7a9b@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20060306020024.GA25620@wavehammer.waldi.eu.org>
-References: <20060306020024.GA25620@wavehammer.waldi.eu.org>
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i486-pc-linux-gnu)
+	Mon, 6 Mar 2006 02:48:15 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47549 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752062AbWCFHsO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 02:48:14 -0500
+Date: Mon, 6 Mar 2006 08:48:12 +0100
+From: Olaf Hering <olh@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc-dev@ozlabs.org, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+Message-ID: <20060306074812.GD24869@suse.de>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060305140932.GA17132@suse.de> <20060305185923.GA21519@suse.de> <Pine.LNX.4.64.0603051147590.13139@g5.osdl.org> <20060305204231.GA22002@suse.de> <17419.23860.883220.80199@cargo.ozlabs.ibm.com> <20060305222202.GA22450@suse.de> <20060305224438.GA22580@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060305224438.GA22580@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Mar 2006 03:00:24 +0100
-Bastian Blank <bastian@waldi.eu.org> wrote:
+ On Sun, Mar 05, Olaf Hering wrote:
 
-> diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-> index be97caf..c164b23 100644
-> --- a/scripts/mod/file2alias.c
-> +++ b/scripts/mod/file2alias.c
-> @@ -246,7 +246,7 @@ static int do_ccw_entry(const char *file
->  	    id->cu_model);
->  	ADD(alias, "dt", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_TYPE,
->  	    id->dev_type);
-> -	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_TYPE,
-> +	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_MODEL,
->  	    id->dev_model);
->  	return 1;
->  }
+>  On Sun, Mar 05, Olaf Hering wrote:
+> 
+> > 404849bbd2bfd62e05b36f4753f6e1af6050a824 + 3 buildfixes:
+> > 
+> > 31df1678d7732b94178a6e457ed6666e4431212f
+> > 8dacaedf04467e32c50148751a96150e73323cdc
+> > d2dd482bc17c3bc240045f80a7c4b4d5cea5e29c
+> > 
+> > 
+> > This one has the syscall changes, but not the two fixes you mentioned.
+> > It gets far, but at the point where it locks up with the d4eb, it
+> > crashes in run_timer_softirq, branched to 0x1f4. Maybe its the result of
+> > the missing fixes. Will continue tomorrow.
+> 
+> Another try with that version, now I see the corruption before the
+> package where it locked up before (glibc-locale, rather large).
+> Will backout the syscall change and try again with 404849bbd2bfd62e05b36f4753f6e1af6050a824.
 
-Patch makes sense to me.
-
-> Martin: can you please push them through for 2.6.16? It breaks automatic
-> loading of any dasd module.
-
-I don't know whether Martin is operational this week, but I'd second an
-inclusion into 2.6.16.
-
-Cornelia
+Its not the syscall change at least. Looking further.

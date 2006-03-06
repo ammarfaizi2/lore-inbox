@@ -1,424 +1,503 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWCFByI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWCFBxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWCFByI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 20:54:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWCFBxo
+	id S932090AbWCFBxj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 20:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWCFBxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 20:53:44 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:55423 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1751591AbWCFBxR (ORCPT
+	Sun, 5 Mar 2006 20:53:38 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:56447 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1751698AbWCFBxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 20:53:17 -0500
-Message-Id: <20060306015011.398232000@towertech.it>
+	Sun, 5 Mar 2006 20:53:18 -0500
+Message-Id: <20060306015012.072509000@towertech.it>
 References: <20060306015008.858209000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Mon, 06 Mar 2006 02:50:21 +0100
+Date: Mon, 06 Mar 2006 02:50:24 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, akpm@digeo.com, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 13/16] RTC subsystem, PCF8563 driver
-Content-Disposition: inline; filename=rtc-drv-pcf8563.patch
+Cc: akpm@zip.com.au, akpm@digeo.com, Richard Purdie <rpurdie@rpsys.net>
+Subject: [PATCH 16/16] RTC subsystem, SA1100/PXA2XX driver
+Content-Disposition: inline; filename=rtc-drv-sa1000-pxa2xx.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An RTC class aware driver for the Philips
-PCF8563 RTC and Epson RTC8564  chips.
+Add an RTC subsystem driver for the ARM SA1100/PXA2XX processor RTC.
 
-This chip is used on the Iomega NAS100D.
-
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
---
- drivers/rtc/Kconfig       |   11 +
- drivers/rtc/Makefile      |    1 
- drivers/rtc/rtc-pcf8563.c |  355 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 367 insertions(+)
 
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-05 02:41:14.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 02:41:16.000000000 +0100
-@@ -96,6 +96,17 @@ config RTC_DRV_DS1672
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-ds1672.
+---
+ arch/arm/mach-pxa/generic.c    |    6 
+ arch/arm/mach-sa1100/generic.c |    6 
+ drivers/rtc/Kconfig            |   10 +
+ drivers/rtc/Makefile           |    1 
+ drivers/rtc/rtc-sa1100.c       |  392 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 415 insertions(+)
+
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-05 17:03:39.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 17:03:39.000000000 +0100
+@@ -128,6 +128,16 @@ config RTC_DRV_EP93XX
+ 	  will be called rtc-ep93xx.
  
-+config RTC_DRV_PCF8563
-+	tristate "Philips PCF8563/Epson RTC8564"
-+	depends on RTC_CLASS && I2C
+ 
++config RTC_DRV_SA1100
++	bool "SA11x0/PXA2xx RTC support"
++	depends on ARCH_SA1100 || ARCH_PXA
 +	help
-+	  If you say yes here you get support for the
-+	  Philips PCF8563 RTC chip. The Epson RTC8564
-+	  should work as well.
++	  If you say Y here you will get access to the real time clock
++	  built into your SA11x0 or PXA2xx CPU.
 +
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-pcf8563.
++	  To compile this driver as a module, choose M here: the
++	  module will be called rtc-sa1100.
 +
  config RTC_DRV_TEST
  	tristate "Test driver/device"
  	depends on RTC_CLASS
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-05 02:41:14.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-05 02:41:16.000000000 +0100
-@@ -14,4 +14,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
- obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
- obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
-+obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
- 
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-05 17:03:39.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-05 17:03:39.000000000 +0100
+@@ -17,3 +17,4 @@ obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds16
+ obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
+ obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
+ obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
++obj-$(CONFIG_RTC_DRV_SA1100)	+= rtc-sa1100.o
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-pcf8563.c	2006-03-05 02:41:16.000000000 +0100
-@@ -0,0 +1,355 @@
++++ linux-rtc/drivers/rtc/rtc-sa1100.c	2006-03-05 17:03:39.000000000 +0100
+@@ -0,0 +1,392 @@
 +/*
-+ * An I2C driver for the Philips PCF8563 RTC
-+ * Copyright 2005-06 Tower Technologies
++ * Real Time Clock interface for StrongARM SA1x00 and XScale PXA2xx
 + *
-+ * Author: Alessandro Zummo <a.zummo@towertech.it>
-+ * Maintainers: http://www.nslu2-linux.org/
++ * Copyright (c) 2000 Nils Faerber
 + *
-+ * based on the other drivers in this same directory.
++ * Based on rtc.c by Paul Gortmaker
 + *
-+ * http://www.semiconductors.philips.com/acrobat/datasheets/PCF8563-04.pdf
++ * Original Driver by Nils Faerber <nils@kernelconcepts.de>
 + *
++ * Modifications from:
++ *   CIH <cih@coventive.com>
++ *   Nicolas Pitre <nico@cam.org>
++ *   Andrew Christian <andrew.christian@hp.com>
++ *
++ * Converted to the RTC subsystem and Driver Model
++ *   by Richard Purdie <rpurdie@rpsys.net>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version. *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
 + * the Free Software Foundation; either version 2 of the License, or
 + * (at your option) any later version.
 + */
 +
-+#include <linux/i2c.h>
-+#include <linux/bcd.h>
++#include <linux/platform_device.h>
++#include <linux/module.h>
 +#include <linux/rtc.h>
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/interrupt.h>
++#include <linux/string.h>
++#include <linux/pm.h>
 +
-+#define DRV_VERSION "0.4.2"
++#include <asm/bitops.h>
++#include <asm/hardware.h>
++#include <asm/irq.h>
++#include <asm/rtc.h>
 +
-+/* Addresses to scan: none
-+ * This chip cannot be reliably autodetected. An empty eeprom
-+ * located at 0x51 will pass the validation routine due to
-+ * the way the registers are implemented.
-+ */
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++#ifdef CONFIG_ARCH_PXA
++#include <asm/arch/pxa-regs.h>
++#endif
 +
-+/* Module parameters */
-+I2C_CLIENT_INSMOD;
++#define TIMER_FREQ		CLOCK_TICK_RATE
++#define RTC_DEF_DIVIDER		32768 - 1
++#define RTC_DEF_TRIM		0
 +
-+#define PCF8563_REG_ST1		0x00 /* status */
-+#define PCF8563_REG_ST2		0x01
++static unsigned long rtc_freq = 1024;
++static struct rtc_time rtc_alarm;
++static spinlock_t sa1100_rtc_lock = SPIN_LOCK_UNLOCKED;
 +
-+#define PCF8563_REG_SC		0x02 /* datetime */
-+#define PCF8563_REG_MN		0x03
-+#define PCF8563_REG_HR		0x04
-+#define PCF8563_REG_DM		0x05
-+#define PCF8563_REG_DW		0x06
-+#define PCF8563_REG_MO		0x07
-+#define PCF8563_REG_YR		0x08
-+
-+#define PCF8563_REG_AMN		0x09 /* alarm */
-+#define PCF8563_REG_AHR		0x0A
-+#define PCF8563_REG_ADM		0x0B
-+#define PCF8563_REG_ADW		0x0C
-+
-+#define PCF8563_REG_CLKO	0x0D /* clock out */
-+#define PCF8563_REG_TMRC	0x0E /* timer control */
-+#define PCF8563_REG_TMR		0x0F /* timer */
-+
-+#define PCF8563_SC_LV		0x80 /* low voltage */
-+#define PCF8563_MO_C		0x80 /* century */
-+
-+/* Prototypes */
-+static int pcf8563_attach(struct i2c_adapter *adapter);
-+static int pcf8563_detach(struct i2c_client *client);
-+static int pcf8563_probe(struct i2c_adapter *adapter, int address, int kind);
-+
-+static struct i2c_driver pcf8563_driver = {
-+	.driver		= {
-+		.name	= "pcf8563",
-+	},
-+	.attach_adapter = &pcf8563_attach,
-+	.detach_client	= &pcf8563_detach,
-+};
-+
-+/*
-+ * In the routines that deal directly with the pcf8563 hardware, we use
-+ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch.
-+ */
-+static int pcf8563_get_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int rtc_update_alarm(struct rtc_time *alrm)
 +{
-+	unsigned char buf[13] = { PCF8563_REG_ST1 };
++	struct rtc_time alarm_tm, now_tm;
++	unsigned long now, time;
++	int ret;
 +
-+	struct i2c_msg msgs[] = {
-+		{ client->addr, 0, 1, buf },	/* setup read ptr */
-+		{ client->addr, I2C_M_RD, 13, buf },	/* read status + date */
-+	};
++	do {
++		now = RCNR;
++		rtc_time_to_tm(now, &now_tm);
++		rtc_next_alarm_time(&alarm_tm, &now_tm, alrm);
++		ret = rtc_tm_to_time(&alarm_tm, &time);
++		if (ret != 0)
++			break;
 +
-+	/* read registers */
-+	if ((i2c_transfer(client->adapter, msgs, 2)) != 2) {
-+		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
-+		return -EIO;
-+	}
++		RTSR = RTSR & (RTSR_HZE|RTSR_ALE|RTSR_AL);
++		RTAR = time;
++	} while (now != RCNR);
 +
-+	if (buf[PCF8563_REG_SC] & PCF8563_SC_LV)
-+		dev_info(&client->dev,
-+			"low voltage detected, date/time is not reliable.\n");
++	return ret;
++}
 +
-+	dev_dbg(&client->dev,
-+		"%s: raw data is st1=%02x, st2=%02x, sec=%02x, min=%02x, hr=%02x, "
-+		"mday=%02x, wday=%02x, mon=%02x, year=%02x\n",
-+		__FUNCTION__,
-+		buf[0], buf[1], buf[2], buf[3],
-+		buf[4], buf[5], buf[6], buf[7],
-+		buf[8]);
++static irqreturn_t sa1100_rtc_interrupt(int irq, void *dev_id,
++		struct pt_regs *regs)
++{
++	struct platform_device *pdev = to_platform_device(dev_id);
++	struct rtc_device *rtc = platform_get_drvdata(pdev);
++	unsigned int rtsr;
++	unsigned long events = 0;
 +
++	spin_lock(&sa1100_rtc_lock);
 +
-+	tm->tm_sec = BCD2BIN(buf[PCF8563_REG_SC] & 0x7F);
-+	tm->tm_min = BCD2BIN(buf[PCF8563_REG_MN] & 0x7F);
-+	tm->tm_hour = BCD2BIN(buf[PCF8563_REG_HR] & 0x3F); /* rtc hr 0-23 */
-+	tm->tm_mday = BCD2BIN(buf[PCF8563_REG_DM] & 0x3F);
-+	tm->tm_wday = buf[PCF8563_REG_DW] & 0x07;
-+	tm->tm_mon = BCD2BIN(buf[PCF8563_REG_MO] & 0x1F) - 1; /* rtc mn 1-12 */
-+	tm->tm_year = BCD2BIN(buf[PCF8563_REG_YR])
-+		+ (buf[PCF8563_REG_MO] & PCF8563_MO_C ? 100 : 0);
++	rtsr = RTSR;
++	/* clear interrupt sources */
++	RTSR = 0;
++	RTSR = (RTSR_AL | RTSR_HZ) & (rtsr >> 2);
 +
-+	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
-+		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++	/* clear alarm interrupt if it has occurred */
++	if (rtsr & RTSR_AL)
++		rtsr &= ~RTSR_ALE;
++	RTSR = rtsr & (RTSR_ALE | RTSR_HZE);
 +
-+	/* the clock can give out invalid datetime, but we cannot return
-+	 * -EINVAL otherwise hwclock will refuse to set the time on bootup.
++	/* update irq data & counter */
++	if (rtsr & RTSR_AL)
++		events |= RTC_AF | RTC_IRQF;
++	if (rtsr & RTSR_HZ)
++		events |= RTC_UF | RTC_IRQF;
++
++	rtc_update_irq(&rtc->class_dev, 1, events);
++
++	if (rtsr & RTSR_AL && rtc_periodic_alarm(&rtc_alarm))
++		rtc_update_alarm(&rtc_alarm);
++
++	spin_unlock(&sa1100_rtc_lock);
++
++	return IRQ_HANDLED;
++}
++
++static int rtc_timer1_count;
++
++static irqreturn_t timer1_interrupt(int irq, void *dev_id,
++		struct pt_regs *regs)
++{
++	struct platform_device *pdev = to_platform_device(dev_id);
++	struct rtc_device *rtc = platform_get_drvdata(pdev);
++
++	/*
++	 * If we match for the first time, rtc_timer1_count will be 1.
++	 * Otherwise, we wrapped around (very unlikely but
++	 * still possible) so compute the amount of missed periods.
++	 * The match reg is updated only when the data is actually retrieved
++	 * to avoid unnecessary interrupts.
 +	 */
-+	if (rtc_valid_tm(tm) < 0)
-+		dev_err(&client->dev, "retrieved date/time is not valid.\n");
++	OSSR = OSSR_M1;	/* clear match on timer1 */
 +
-+	return 0;
++	rtc_update_irq(&rtc->class_dev, rtc_timer1_count, RTC_PF | RTC_IRQF);
++
++	if (rtc_timer1_count == 1)
++		rtc_timer1_count = (rtc_freq * ((1<<30)/(TIMER_FREQ>>2)));
++
++	return IRQ_HANDLED;
 +}
 +
-+static int pcf8563_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++static int sa1100_rtc_read_callback(struct device *dev, int data)
 +{
-+	int i, err;
-+	unsigned char buf[9];
-+
-+	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
-+		"mday=%d, mon=%d, year=%d, wday=%d\n",
-+		__FUNCTION__,
-+		tm->tm_sec, tm->tm_min, tm->tm_hour,
-+		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-+
-+	/* hours, minutes and seconds */
-+	buf[PCF8563_REG_SC] = BIN2BCD(tm->tm_sec);
-+	buf[PCF8563_REG_MN] = BIN2BCD(tm->tm_min);
-+	buf[PCF8563_REG_HR] = BIN2BCD(tm->tm_hour);
-+
-+	buf[PCF8563_REG_DM] = BIN2BCD(tm->tm_mday);
-+
-+	/* month, 1 - 12 */
-+	buf[PCF8563_REG_MO] = BIN2BCD(tm->tm_mon + 1);
-+
-+	/* year and century */
-+	buf[PCF8563_REG_YR] = BIN2BCD(tm->tm_year % 100);
-+	if (tm->tm_year / 100)
-+		buf[PCF8563_REG_MO] |= PCF8563_MO_C;
-+
-+	buf[PCF8563_REG_DW] = tm->tm_wday & 0x07;
-+
-+	/* write register's data */
-+	for (i = 0; i < 7; i++) {
-+		unsigned char data[2] = { PCF8563_REG_SC + i,
-+						buf[PCF8563_REG_SC + i] };
-+
-+		err = i2c_master_send(client, data, sizeof(data));
-+		if (err != sizeof(data)) {
-+			dev_err(&client->dev,
-+				"%s: err=%d addr=%02x, data=%02x\n",
-+				__FUNCTION__, err, data[0], data[1]);
-+			return -EIO;
-+		}
-+	};
-+
-+	return 0;
-+}
-+
-+struct pcf8563_limit
-+{
-+	unsigned char reg;
-+	unsigned char mask;
-+	unsigned char min;
-+	unsigned char max;
-+};
-+
-+static int pcf8563_validate_client(struct i2c_client *client)
-+{
-+	int i;
-+
-+	static const struct pcf8563_limit pattern[] = {
-+		/* register, mask, min, max */
-+		{ PCF8563_REG_SC,	0x7F,	0,	59	},
-+		{ PCF8563_REG_MN,	0x7F,	0,	59	},
-+		{ PCF8563_REG_HR,	0x3F,	0,	23	},
-+		{ PCF8563_REG_DM,	0x3F,	0,	31	},
-+		{ PCF8563_REG_MO,	0x1F,	0,	12	},
-+	};
-+
-+	/* check limits (only registers with bcd values) */
-+	for (i = 0; i < ARRAY_SIZE(pattern); i++) {
-+		int xfer;
-+		unsigned char value;
-+		unsigned char buf = pattern[i].reg;
-+
-+		struct i2c_msg msgs[] = {
-+			{ client->addr, 0, 1, &buf },
-+			{ client->addr, I2C_M_RD, 1, &buf },
-+		};
-+
-+		xfer = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
-+
-+		if (xfer != ARRAY_SIZE(msgs)) {
-+			dev_err(&client->adapter->dev,
-+				"%s: could not read register 0x%02X\n",
-+				__FUNCTION__, pattern[i].reg);
-+
-+			return -EIO;
-+		}
-+
-+		value = BCD2BIN(buf & pattern[i].mask);
-+
-+		if (value > pattern[i].max ||
-+			value < pattern[i].min) {
-+			dev_dbg(&client->adapter->dev,
-+				"%s: pattern=%d, reg=%x, mask=0x%02x, min=%d, "
-+				"max=%d, value=%d, raw=0x%02X\n",
-+				__FUNCTION__, i, pattern[i].reg, pattern[i].mask,
-+				pattern[i].min, pattern[i].max,
-+				value, buf);
-+
-+			return -ENODEV;
++	if (data & RTC_PF) {
++		/* interpolate missed periods and set match for the next */
++		unsigned long period = TIMER_FREQ/rtc_freq;
++		unsigned long oscr = OSCR;
++		unsigned long osmr1 = OSMR1;
++		unsigned long missed = (oscr - osmr1)/period;
++		data += missed << 8;
++		OSSR = OSSR_M1;	/* clear match on timer 1 */
++		OSMR1 = osmr1 + (missed + 1)*period;
++		/* Ensure we didn't miss another match in the mean time.
++		 * Here we compare (match - OSCR) 8 instead of 0 --
++		 * see comment in pxa_timer_interrupt() for explanation.
++		 */
++		while( (signed long)((osmr1 = OSMR1) - OSCR) <= 8 ) {
++			data += 0x100;
++			OSSR = OSSR_M1;	/* clear match on timer 1 */
++			OSMR1 = osmr1 + period;
 +		}
 +	}
++	return data;
++}
++
++static int sa1100_rtc_open(struct device *dev)
++{
++	int ret;
++
++	ret = request_irq(IRQ_RTC1Hz, sa1100_rtc_interrupt, SA_INTERRUPT,
++				"rtc 1Hz", dev);
++	if (ret) {
++		printk(KERN_ERR "rtc: IRQ%d already in use.\n", IRQ_RTC1Hz);
++		goto fail_ui;
++	}
++	ret = request_irq(IRQ_RTCAlrm, sa1100_rtc_interrupt, SA_INTERRUPT,
++				"rtc Alrm", dev);
++	if (ret) {
++		printk(KERN_ERR "rtc: IRQ%d already in use.\n", IRQ_RTCAlrm);
++		goto fail_ai;
++	}
++	ret = request_irq(IRQ_OST1, timer1_interrupt, SA_INTERRUPT,
++				"rtc timer", dev);
++	if (ret) {
++		printk(KERN_ERR "rtc: IRQ%d already in use.\n", IRQ_OST1);
++		goto fail_pi;
++	}
++	return 0;
++
++ fail_pi:
++	free_irq(IRQ_RTCAlrm, NULL);
++ fail_ai:
++	free_irq(IRQ_RTC1Hz, NULL);
++ fail_ui:
++	return ret;
++}
++
++static void sa1100_rtc_release(struct device *dev)
++{
++	spin_lock_irq(&sa1100_rtc_lock);
++	RTSR = 0;
++	OIER &= ~OIER_E1;
++	OSSR = OSSR_M1;
++	spin_unlock_irq(&sa1100_rtc_lock);
++
++	free_irq(IRQ_OST1, dev);
++	free_irq(IRQ_RTCAlrm, dev);
++	free_irq(IRQ_RTC1Hz, dev);
++}
++
++
++static int sa1100_rtc_ioctl(struct device *dev, unsigned int cmd,
++		unsigned long arg)
++{
++	switch(cmd) {
++	case RTC_AIE_OFF:
++		spin_lock_irq(&sa1100_rtc_lock);
++		RTSR &= ~RTSR_ALE;
++		spin_unlock_irq(&sa1100_rtc_lock);
++		return 0;
++	case RTC_AIE_ON:
++		spin_lock_irq(&sa1100_rtc_lock);
++		RTSR |= RTSR_ALE;
++		spin_unlock_irq(&sa1100_rtc_lock);
++		return 0;
++	case RTC_UIE_OFF:
++		spin_lock_irq(&sa1100_rtc_lock);
++		RTSR &= ~RTSR_HZE;
++		spin_unlock_irq(&sa1100_rtc_lock);
++		return 0;
++	case RTC_UIE_ON:
++		spin_lock_irq(&sa1100_rtc_lock);
++		RTSR |= RTSR_HZE;
++		spin_unlock_irq(&sa1100_rtc_lock);
++		return 0;
++	case RTC_PIE_OFF:
++		spin_lock_irq(&sa1100_rtc_lock);
++		OIER &= ~OIER_E1;
++		spin_unlock_irq(&sa1100_rtc_lock);
++		return 0;
++	case RTC_PIE_ON:
++		if ((rtc_freq > 64) && !capable(CAP_SYS_RESOURCE))
++			return -EACCES;
++		spin_lock_irq(&sa1100_rtc_lock);
++		OSMR1 = TIMER_FREQ/rtc_freq + OSCR;
++		OIER |= OIER_E1;
++		rtc_timer1_count = 1;
++		spin_unlock_irq(&sa1100_rtc_lock);
++		return 0;
++	case RTC_IRQP_READ:
++		return put_user(rtc_freq, (unsigned long *)arg);
++	case RTC_IRQP_SET:
++		if (arg < 1 || arg > TIMER_FREQ)
++			return -EINVAL;
++		if ((arg > 64) && (!capable(CAP_SYS_RESOURCE)))
++			return -EACCES;
++		rtc_freq = arg;
++		return 0;
++	}
++	return -EINVAL;
++}
++
++static int sa1100_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	rtc_time_to_tm(RCNR, tm);
++	return 0;
++}
++
++static int sa1100_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	unsigned long time;
++	int ret;
++
++	ret = rtc_tm_to_time(tm, &time);
++	if (ret == 0)
++		RCNR = time;
++	return ret;
++}
++
++static int sa1100_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	memcpy(&alrm->time, &rtc_alarm, sizeof(struct rtc_time));
++	alrm->pending = RTSR & RTSR_AL ? 1 : 0;
++	return 0;
++}
++
++static int sa1100_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
++{
++	int ret;
++
++	spin_lock_irq(&sa1100_rtc_lock);
++	ret = rtc_update_alarm(&alrm->time);
++	if (ret == 0) {
++		memcpy(&rtc_alarm, &alrm->time, sizeof(struct rtc_time));
++
++		if (alrm->enabled)
++			enable_irq_wake(IRQ_RTCAlrm);
++		else
++			disable_irq_wake(IRQ_RTCAlrm);
++	}
++	spin_unlock_irq(&sa1100_rtc_lock);
++
++	return ret;
++}
++
++static int sa1100_rtc_proc(struct device *dev, struct seq_file *seq)
++{
++	seq_printf(seq, "trim/divider\t: 0x%08x\n", RTTR);
++	seq_printf(seq, "alarm_IRQ\t: %s\n",
++			(RTSR & RTSR_ALE) ? "yes" : "no" );
++	seq_printf(seq, "update_IRQ\t: %s\n",
++			(RTSR & RTSR_HZE) ? "yes" : "no");
++	seq_printf(seq, "periodic_IRQ\t: %s\n",
++			(OIER & OIER_E1) ? "yes" : "no");
++	seq_printf(seq, "periodic_freq\t: %ld\n", rtc_freq);
 +
 +	return 0;
 +}
 +
-+static int pcf8563_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return pcf8563_get_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int pcf8563_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	return pcf8563_set_datetime(to_i2c_client(dev), tm);
-+}
-+
-+static int pcf8563_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	seq_printf(seq, "24hr\t\t: yes\n");
-+	return 0;
-+}
-+
-+static struct rtc_class_ops pcf8563_rtc_ops = {
-+	.proc		= pcf8563_rtc_proc,
-+	.read_time	= pcf8563_rtc_read_time,
-+	.set_time	= pcf8563_rtc_set_time,
++static struct rtc_class_ops sa1100_rtc_ops = {
++	.open = sa1100_rtc_open,
++	.read_callback = sa1100_rtc_read_callback,
++	.release = sa1100_rtc_release,
++	.ioctl = sa1100_rtc_ioctl,
++	.read_time = sa1100_rtc_read_time,
++	.set_time = sa1100_rtc_set_time,
++	.read_alarm = sa1100_rtc_read_alarm,
++	.set_alarm = sa1100_rtc_set_alarm,
++	.proc = sa1100_rtc_proc,
 +};
 +
-+static int pcf8563_attach(struct i2c_adapter *adapter)
++static int sa1100_rtc_probe(struct platform_device *pdev)
 +{
-+	return i2c_probe(adapter, &addr_data, pcf8563_probe);
-+}
-+
-+static int pcf8563_probe(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *client;
 +	struct rtc_device *rtc;
 +
-+	int err = 0;
-+
-+	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
-+
-+	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
-+		err = -ENODEV;
-+		goto exit;
++	/*
++	 * According to the manual we should be able to let RTTR be zero
++	 * and then a default diviser for a 32.768KHz clock is used.
++	 * Apparently this doesn't work, at least for my SA1110 rev 5.
++	 * If the clock divider is uninitialized then reset it to the
++	 * default value to get the 1Hz clock.
++	 */
++	if (RTTR == 0) {
++		RTTR = RTC_DEF_DIVIDER + (RTC_DEF_TRIM << 16);
++		printk(KERN_WARNING "rtc: warning: initializing default clock divider/trim value\n");
++		/* The current RTC value probably doesn't make sense either */
++		RCNR = 0;
 +	}
 +
-+	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit;
-+	}
-+
-+	client->addr = address;
-+	client->driver = &pcf8563_driver;
-+	client->adapter	= adapter;
-+
-+	strlcpy(client->name, pcf8563_driver.driver.name, I2C_NAME_SIZE);
-+
-+	/* Verify the chip is really an PCF8563 */
-+	if (kind < 0) {
-+		if (pcf8563_validate_client(client) < 0) {
-+			err = -ENODEV;
-+			goto exit_kfree;
-+		}
-+	}
-+
-+	/* Inform the i2c layer */
-+	if ((err = i2c_attach_client(client)))
-+		goto exit_kfree;
-+
-+	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
-+
-+	rtc = rtc_device_register(pcf8563_driver.driver.name, &client->dev,
-+				&pcf8563_rtc_ops, THIS_MODULE);
++	rtc = rtc_device_register(pdev->name, &pdev->dev, &sa1100_rtc_ops,
++				THIS_MODULE);
 +
 +	if (IS_ERR(rtc)) {
-+		err = PTR_ERR(rtc);
-+		dev_err(&client->dev,
-+			"unable to register the class device\n");
-+		goto exit_detach;
++		dev_err(&pdev->dev, "Unable to register the RTC device\n");
++		return PTR_ERR(rtc);
 +	}
 +
-+	i2c_set_clientdata(client, rtc);
++	platform_set_drvdata(pdev, rtc);
++
++	dev_info(&pdev->dev, "SA11xx/PXA2xx RTC Registered\n");
 +
 +	return 0;
-+
-+exit_detach:
-+	i2c_detach_client(client);
-+
-+exit_kfree:
-+	kfree(client);
-+
-+exit:
-+	return err;
 +}
 +
-+static int pcf8563_detach(struct i2c_client *client)
++static int sa1100_rtc_remove(struct platform_device *pdev)
 +{
-+	int err;
-+	struct rtc_device *rtc = i2c_get_clientdata(client);
++	struct rtc_device *rtc = platform_get_drvdata(pdev);
 +
-+	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
-+
-+	if (rtc)
++ 	if (rtc)
 +		rtc_device_unregister(rtc);
 +
-+	if ((err = i2c_detach_client(client)))
-+		return err;
-+
-+	kfree(client);
-+
 +	return 0;
 +}
 +
-+static int __init pcf8563_init(void)
++static struct platform_driver sa1100_rtc_driver = {
++	.probe		= sa1100_rtc_probe,
++	.remove		= sa1100_rtc_remove,
++	.driver		= {
++		.name		= "sa1100-rtc",
++	},
++};
++
++static int __init sa1100_rtc_init(void)
 +{
-+	return i2c_add_driver(&pcf8563_driver);
++	return platform_driver_register(&sa1100_rtc_driver);
 +}
 +
-+static void __exit pcf8563_exit(void)
++static void __exit sa1100_rtc_exit(void)
 +{
-+	i2c_del_driver(&pcf8563_driver);
++	platform_driver_unregister(&sa1100_rtc_driver);
 +}
 +
-+MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("Philips PCF8563/Epson RTC8564 RTC driver");
++module_init(sa1100_rtc_init);
++module_exit(sa1100_rtc_exit);
++
++MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
++MODULE_DESCRIPTION("SA11x0/PXA2xx Realtime Clock Driver (RTC)");
 +MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
+--- linux-rtc.orig/arch/arm/mach-pxa/generic.c	2006-03-05 14:40:51.000000000 +0100
++++ linux-rtc/arch/arm/mach-pxa/generic.c	2006-03-05 17:03:39.000000000 +0100
+@@ -319,6 +319,11 @@ void __init pxa_set_ficp_info(struct pxa
+ 	pxaficp_device.dev.platform_data = info;
+ }
+ 
++static struct platform_device pxartc_device = {
++	.name		= "sa1100-rtc",
++	.id		= -1,
++};
 +
-+module_init(pcf8563_init);
-+module_exit(pcf8563_exit);
+ static struct platform_device *devices[] __initdata = {
+ 	&pxamci_device,
+ 	&udc_device,
+@@ -329,6 +334,7 @@ static struct platform_device *devices[]
+ 	&pxaficp_device,
+ 	&i2c_device,
+ 	&i2s_device,
++	&pxartc_device,
+ };
+ 
+ static int __init pxa_init(void)
+--- linux-rtc.orig/arch/arm/mach-sa1100/generic.c	2006-03-05 14:40:51.000000000 +0100
++++ linux-rtc/arch/arm/mach-sa1100/generic.c	2006-03-05 17:03:39.000000000 +0100
+@@ -324,6 +324,11 @@ void sa11x0_set_irda_data(struct irda_pl
+ 	sa11x0ir_device.dev.platform_data = irda;
+ }
+ 
++static struct platform_device sa11x0rtc_device = {
++	.name		= "sa1100-rtc",
++	.id		= -1,
++};
++
+ static struct platform_device *sa11x0_devices[] __initdata = {
+ 	&sa11x0udc_device,
+ 	&sa11x0uart1_device,
+@@ -333,6 +338,7 @@ static struct platform_device *sa11x0_de
+ 	&sa11x0pcmcia_device,
+ 	&sa11x0fb_device,
+ 	&sa11x0mtd_device,
++	&sa11x0rtc_device,
+ };
+ 
+ static int __init sa1100_init(void)
 
 --

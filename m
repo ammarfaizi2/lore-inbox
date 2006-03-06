@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752304AbWCFI6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751965AbWCFJEg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752304AbWCFI6o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 03:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752303AbWCFI6o
+	id S1751965AbWCFJEg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:04:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752303AbWCFJEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 03:58:44 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32232 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752302AbWCFI6n (ORCPT
+	Mon, 6 Mar 2006 04:04:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:34206 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751965AbWCFJEf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 03:58:43 -0500
-Date: Mon, 6 Mar 2006 03:58:18 -0500
-From: Dave Jones <davej@redhat.com>
-To: tiwai@suse.de
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ad1848 double free
-Message-ID: <20060306085817.GA32625@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, tiwai@suse.de,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Mon, 6 Mar 2006 04:04:35 -0500
+Date: Mon, 6 Mar 2006 01:02:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: J M Cerqueira Esteves <jmce@artenumerica.com>
+Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
+       axboe@suse.de, "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
+ 2.6.12]
+Message-Id: <20060306010241.2c230379.akpm@osdl.org>
+In-Reply-To: <440BF718.60504@artenumerica.com>
+References: <4405D383.5070201@artenumerica.com>
+	<20060302011735.55851ca2.akpm@osdl.org>
+	<440865A9.4000102@artenumerica.com>
+	<4409B8DC.9040404@artenumerica.com>
+	<20060304161519.6e6fbe2c.akpm@osdl.org>
+	<440BF718.60504@artenumerica.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same again, snd_ctl_add() already kfree's on error.
+J M Cerqueira Esteves <jmce@artenumerica.com> wrote:
+>
+> Andrew Morton wrote:
+> > We have a candidate fix at
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
+> >  Could you test that?  (and don't alter the Cc: list!).  The patch is
+> > against 2.6.16-rc5.
+> 
+> Testing that kernel now, with good news: the machine has been apparently
+> stable, running Gaussian processes for the last 20 hours, with no
+> oom-killer messages.
 
-Coverity #956
-Signed-off-by: Dave Jones <davej@redhat.com>
+OK, thanks.  The first iteration of that patch caused ia64 to go BUG, so we
+took the BUG out.  We're calling init_emergency_isa_pool() on ia64 which
+seems rather silly.  So my confidence level in that patch remains low, and
+our need for it is high.
 
---- linux-2.6/sound/isa/ad1848/ad1848_lib.c~	2006-03-06 03:57:22.000000000 -0500
-+++ linux-2.6/sound/isa/ad1848/ad1848_lib.c	2006-03-06 03:57:30.000000000 -0500
-@@ -1202,10 +1202,8 @@ int snd_ad1848_add_ctl(struct snd_ad1848
- 	strlcpy(ctl->id.name, name, sizeof(ctl->id.name));
- 	ctl->id.index = index;
- 	ctl->private_value = value;
--	if ((err = snd_ctl_add(chip->card, ctl)) < 0) {
--		snd_ctl_free_one(ctl);
-+	if ((err = snd_ctl_add(chip->card, ctl)) < 0)
- 		return err;
--	}
- 	return 0;
- }
- 
+> A new "feature": 36 of these kernel message pairs as boot time:
+>   device-mapper: dm-linear: Device lookup failed
+>   device-mapper: error adding target to table
+> 
 
--- 
-http://www.codemonkey.org.uk
+OK, there were some fairly large DM patches touching on
+dm_get_device().  Cc added ;)
+

@@ -1,90 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWCFAFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWCFAJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWCFAFo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 19:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWCFAFo
+	id S1750762AbWCFAJI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 19:09:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWCFAJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 19:05:44 -0500
-Received: from pproxy.gmail.com ([64.233.166.178]:28483 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750761AbWCFAFn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 19:05:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HyLWinepd5ubwO31tDD9/j3U3OlcablNgOYegeCisMz8GIyznNExiQFx0VGMOtCuayEW6AY3OrZZZFBKi+c5/BJSNAbPJMdhI58K9g4yKvnQAKalUMa4kT5DjKdPyd5uukHMYN/TB0jZhD5Ah9kwjQ0iTcICtna2sULpGrbFoaM=
-Message-ID: <9a8748490603051605w7a62024nf5f630451ceac443@mail.gmail.com>
-Date: Mon, 6 Mar 2006 01:05:42 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: 2.6.16-rc5-mm1
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Laurent Riffard" <laurent.riffard@free.fr>,
-       linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       "Martin Bligh" <mbligh@mbligh.org>,
-       "Christoph Lameter" <clameter@engr.sgi.com>
-In-Reply-To: <m1veuwiihi.fsf@ebiederm.dsl.xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060228042439.43e6ef41.akpm@osdl.org>
-	 <9a8748490602281313t4106dcccl982dc2966b95e0a7@mail.gmail.com>
-	 <4404CE39.6000109@liberouter.org>
-	 <9a8748490602281430x736eddf9l98e0de201b14940a@mail.gmail.com>
-	 <4404DA29.7070902@free.fr> <20060228162157.0ed55ce6.akpm@osdl.org>
-	 <9a8748490603011741o122e652ica20a9fcffed3d41@mail.gmail.com>
-	 <9a8748490603021216u344a3915g6ca0df42bb51b867@mail.gmail.com>
-	 <m1veuwiihi.fsf@ebiederm.dsl.xmission.com>
+	Sun, 5 Mar 2006 19:09:08 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:18072 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750762AbWCFAJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 19:09:07 -0500
+Subject: Re: RFC: Backlight Class sysfs attribute behaviour
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Andrew Zabolotny <zap@homelink.ru>
+Cc: adaplas@gmail.com, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060306010909.190f06fe.zap@homelink.ru>
+References: <1141571334.6521.38.camel@localhost.localdomain>
+	 <20060306010909.190f06fe.zap@homelink.ru>
+Content-Type: text/plain
+Date: Mon, 06 Mar 2006 00:08:54 +0000
+Message-Id: <1141603734.6521.85.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/2/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> "Jesper Juhl" <jesper.juhl@gmail.com> writes:
->
-> > On 3/2/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >> On 3/1/06, Andrew Morton <akpm@osdl.org> wrote:
-> >> >
-> >> > Could people please test a couple more patchsets, see if we can isolate it?
-> >> >
-> >> > http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.1.gz
-> >> >
-> >>
-> >> Haven't had time to test this one yet, and won't have time until tomorrow :(
-> >>
-> >
-> > I just tested this kernel and it builds and runs just fine. Can't
-> > crash it with my eclipse test case.
-> >
-> >>
-> >> > and http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm1.2.gz is
-> >>
-> >> I've tested this one and I can't crash it with eclipse like I could
-> >> plain old 2.6.16-rc5-mm1
-> >>
-> >
-> > With all the recent patches and proposed patches and discussions about
-> > various approaches to fix this I've lost track.
-> >
-> > What kernel with what patches applied and/or reverted would it make
-> > the most sense for me to test now, in order to provide the most useful
-> > testing?
->
-> So it looks like we have this tracked and fixed.  Andrew included my
-> fix in:
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.16-rc5-mm2-pre1.gz
->
-> So just confirming that the fixed actually worked would probably be
-> the biggest help.
->
-> The problem should be fixed unless there is something else that
-> triggers the horrible and mysterious kernel death.  So you are
-> getting the same results as everyone else.
->
+On Mon, 2006-03-06 at 01:09 +0300, Andrew Zabolotny wrote:
+> On Sun, 05 Mar 2006 15:08:53 +0000
+> Richard Purdie <rpurdie@rpsys.net> wrote:
+> 
+> > The solution might be to have brightness always return the user
+> > requested value y and have a new attribute returning the brightness as
+> > determined by the driver once it accounts for all the factors it needs
+> > to consider. Naming of such an attribute is tricky -
+> > "driver_brightness" perthaps?
+> Maybe by analogy to sound card there can be a 'master' control, and one
+> 'user' control. But it's not clear how many of these strings you will
+> need for every 'real' attribute. Why two and not three? Why three and
+> not ten?
 
-2.6.16-rc5-mm2 works fine for me. Can't crash it with eclipse.
+I'm just wondering about the name of the single attribute that reflects
+the status of the current actual brightness value that the driver has
+chosen.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> But I don't think that's a kernel-side problem. I think it would be
+> better to have some daemon controlling these attributes (and keeping
+> track of as many factors as needed) and programming the final, 'true'
+> kernel value. Then a set of user-mode tools could be provided to alter
+> them, and a simple API.
+
+If all the events that could influence the backlight were available in
+userspace, I'd agree but they're not. There might be a need for a daemon
+in userspace for various reasons depending on the application but I'm
+not concerned about that.
+
+> Well with power it's simple: LCD is either powered or it's not. After
+> resuming the LCD should be always powered on, and the program can then
+> turn it back off if it's desired. FB blanking isn't a issue with X11/
+> Qtopia, as far as I understand? And finally, the 'user' requested power
+> state has to be tracked by the program that does the blanking (say an
+> audio player or such).
+
+So the user powers down the LCD, the FB blanking then blanks and
+unblanks. What should the current LCD power status be? The LCD should
+still be off as far as I can see yet the LCD/backlight class doesn't do
+this at present.
+
+I'm beginning to favour a system where backlight drivers only provide
+two functions:
+
+int (*set_status)(struct backlight_device *, int brightness, int power, int fb_blank);
+int (*get_status)(struct backlight_device *);
+
+set_status passes the user requested brightness and power values along
+with the current fb_blanking status to the driver. The driver can then
+set the hardware up as appropriate. 
+
+get_status returns the brightness for the current configuration.
+
+The backlight core itself keeps track of the requested power and
+brightness values rather than having every backlight driver including
+the logic. This has the advantage of keeping behaviour the same and
+avoiding subtle logic bugs of which there are several at the moment.
+
+This also means that "echo 31 > brightness; cat brightness" will always
+give the expected answer of whatever brightness the user is requesting
+and the actual current driver brightness choice is available through
+"cat driver_brightness".
+
+Does this seem reasonable?
+
+Richard
+
+
+
+

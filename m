@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWCFXk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWCFXmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWCFXk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 18:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWCFXk7
+	id S932488AbWCFXmN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 18:42:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWCFXmN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 18:40:59 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:42307 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932478AbWCFXk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 18:40:58 -0500
-X-IronPort-AV: i="4.02,169,1139212800"; 
-   d="scan'208"; a="412929648:sNHT33254660"
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mshefty@ichips.intel.com, sean.hefty@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for RDMA connection manager
-X-Message-Flag: Warning: May contain useful information
-References: <aday7zn432b.fsf@cisco.com>
-	<20060306.143901.26500391.davem@davemloft.net>
-	<adau0ab42ni.fsf@cisco.com>
-	<20060306.145053.129802994.davem@davemloft.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 06 Mar 2006 15:40:56 -0800
-In-Reply-To: <20060306.145053.129802994.davem@davemloft.net> (David S. Miller's message of "Mon, 06 Mar 2006 14:50:53 -0800 (PST)")
-Message-ID: <adapskz3zw7.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 06 Mar 2006 23:40:57.0692 (UTC) FILETIME=[6AE4A1C0:01C64177]
+	Mon, 6 Mar 2006 18:42:13 -0500
+Received: from smtp107.rog.mail.re2.yahoo.com ([68.142.225.205]:11437 "HELO
+	smtp107.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932488AbWCFXmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 18:42:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=rogers.com;
+  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
+  b=eOgjYP5FzaEZ8HFuycFNDsD3hnhYu0mlaJIkBxI8NF2cSqJUXcLoU7k0MdZeilK2hF6OmHGzmtTrCn31jxHJ0etR1IcXjfSyTtDdmeladJhF0S5jH8y99mXFHqWHhC91RcMPzzNi7eu1MkY/BPC7G3YG8nlDXKJtjpfvOOjXuJA=  ;
+Subject: Re: [2.6 patch] make UNIX a bool
+From: "James C. Georgas" <jgeorgas@rogers.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <6D8D14D2-4ED3-46ED-8FB9-FF8567DC9F70@mac.com>
+References: <1141358816.3582.18.camel@Rainsong.home>
+	 <1141359278.3582.22.camel@Rainsong.home>
+	 <20060302233249.2aa918f4.mrmacman_g4@mac.com>
+	 <1141421511.11092.66.camel@Rainsong.home>
+	 <6D8D14D2-4ED3-46ED-8FB9-FF8567DC9F70@mac.com>
+Content-Type: text/plain
+Date: Mon, 06 Mar 2006 18:42:18 -0500
+Message-Id: <1141688538.19207.18.camel@Rainsong.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Roland> I should look into getting some niagara machines to test
-    Roland> with -- with PCIe slots they should actually be good for
-    Roland> IB testing.
+On Sat, 2006-04-03 at 17:57 -0500, Kyle Moffett wrote:
+> On Mar 3, 2006, at 16:31:51, James C. Georgas wrote:
+> > On Thu, 2006-02-03 at 23:32 -0500, Kyle Moffett wrote:
+> >> af_unix (IE: CONFIG_UNIX) currently uses the symbol  
+> >> get_max_files.  It is the only module that uses that symbol, and  
+> >> that symbol probably should not be exported as it's kind of an  
+> >> internal API.  Therefore if we mandate that CONFIG_UNIX != m, then  
+> >> that symbol may be properly unexported and made private, because  
+> >> nothing modular would use it.  Does that clear things up?
+> >
+> > Yes, I think I understand.
+> >
+> > However, even if you don't export the symbol, I don't see how you  
+> > can make it private (i.e. static declaration) to file_table.c,  
+> > since it has to remain extern, in order to be visible to af_unix.c.
+> 
+> You're missing some crucial information about how Linux operates.   
+> EXPORT_SYMBOL != extern.  Basically, Linux maintains a list of  
+> symbols that dynamically loaded modules are allowed to use, along  
+> with some technical usage restrictions on each  (Symbols exported  
+> with EXPORT_SYMBOL_GPL may only be used by modules that declare  
+> 'MODULE_LICENSE("GPL");'.) Exporting a symbol increases the 
+> likliehood that some module author will use it inappropriately, and  
+> bloats the kernel.  In this case, removing the EXPORT_SYMBOL() would  
+> be a good thing.
 
-    David> You'll be cpu limited until we have Van Jacobson net
-    David> channels.
+Isn't it kind of pointless to not EXPORT a symbol if the symbol is still
+declared globally in an include/linux/ header file? If the intent is to
+prevent abuse of the symbol, then this doesn't do it, because I can just
+statically compile my module into the kernel, and keep on using that
+symbol.
 
-For IPoIB maybe but not for native IB which offloads all transport to
-the HCA... I'd be surprised if the bottleneck were anywhere other than
-the bus, even on niagara.
+It makes sense to me to remove the EXPORT of geget_max_filest_max_files,
+if the intent is to eventually remove 
 
-    David> Also, since our existing Linux "generic" MSI code is so
-    David> riddled with x86'isms (it was written by an Intel person,
-    David> so this is just the status quo), it will be a while before
-    David> MSI interrupts are supported on sparc64.
 
-Yeah, I've always wanted to make the MSI stuff generic and handle the
-embedded ppc chips that have MSI, but I've never had a good enough
-reason to really work on it -- it's just been at the level of "that
-would be fun."  Now that IBM cares I hope it will get done soon.
 
-Anyway IB works fine with standard INTx interrupts -- MSI is just icing.
 
-The Niagara boxes seem like a fun toy if I can get budget for it --
-and 32 threads are probably good for flushing out SMP races.
+I was under the impression that Adrian wanted 
+> 
+> Cheers,
+> Kyle Moffett
+> 
+-- 
+James C. Georgas <jgeorgas@rogers.com>
 
- - R.

@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWCFCAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751542AbWCFCQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWCFCAb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 21:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWCFCAb
+	id S1751542AbWCFCQY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 21:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751545AbWCFCQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 21:00:31 -0500
-Received: from wavehammer.waldi.eu.org ([82.139.196.55]:36227 "EHLO
-	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
-	id S932160AbWCFCA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 21:00:29 -0500
-Date: Mon, 6 Mar 2006 03:00:24 +0100
-From: Bastian Blank <bastian@waldi.eu.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 - fix match in ccw modalias
-Message-ID: <20060306020024.GA25620@wavehammer.waldi.eu.org>
-Mail-Followup-To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
+	Sun, 5 Mar 2006 21:16:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33962 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751541AbWCFCQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 21:16:23 -0500
+Date: Sun, 5 Mar 2006 18:12:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mathieu Chouquet-Stringer <mchouque@free.fr>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Richard Henderson <rth@twiddle.net>, Christoph Hellwig <hch@lst.de>
+Subject: Re: Linux v2.6.16-rc5
+In-Reply-To: <m3wtf8tuq7.fsf@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0603051810250.13139@g5.osdl.org>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
+ <m3wtf8tuq7.fsf@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---GID0FwUMdk1T2AWN
-Content-Type: multipart/mixed; boundary="xHFwDpU9dbj6ez1V"
-Content-Disposition: inline
+Ivan, rth,
+ any ideas?
 
+		Linus
 
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi folks
-
-The attached patch fixes matching of devmodel in modaliases.
-
-Martin: can you please push them through for 2.6.16? It breaks automatic
-loading of any dasd module.
-
-Bastian
-
---=20
-The sight of death frightens them [Earthers].
-		-- Kras the Klingon, "Friday's Child", stardate 3497.2
-
---xHFwDpU9dbj6ez1V
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: attachment; filename=diff1
-
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index be97caf..c164b23 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -246,7 +246,7 @@ static int do_ccw_entry(const char *file
- 	    id->cu_model);
- 	ADD(alias, "dt", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_TYPE,
- 	    id->dev_type);
--	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_TYPE,
-+	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_MODEL,
- 	    id->dev_model);
- 	return 1;
- }
-
---xHFwDpU9dbj6ez1V--
-
---GID0FwUMdk1T2AWN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iEYEARECAAYFAkQLl7cACgkQnw66O/MvCNEokwCfYGEaaoOfKwy2HyX9tQ/dnbq4
-yfQAnjBbE8AUwe9g/jAPFY7yxid9IGSQ
-=EirE
------END PGP SIGNATURE-----
-
---GID0FwUMdk1T2AWN--
+On Sun, 5 Mar 2006, Mathieu Chouquet-Stringer wrote:
+>
+> torvalds@osdl.org (Linus Torvalds) writes:
+> > Have I missed anything? Holler. And please keep reminding about any 
+> > regressions since 2.6.15.
+> 
+> As reported yesterday [1], the generic irq framework for alpha introduced
+> in commit 0595bf3bca9d9932a05b06dd438f40f01d27cd33 kills my box under
+> fairly heavy disk usage. I got a md raid 0 array stripped accross 3 scsi
+> disks and any kind of relatively intensive IOs (like md5sum or sha1sum
+> against iso files) kill the box immediately; either it panics in
+> kernel/exit.c:do_exit - the first three "unlikely" - or in
+> arch/alpha/mm/fault.c:do_page_fault "Unable to handle paging reguest at
+> some address"...
+> 
+> Reverting it makes the box stable again (as it was under vanilla 2.6.15).
+> 
+> Here's the commit detail:
+> 
+> 0595bf3bca9d9932a05b06dd438f40f01d27cd33 is first bad commit
+> diff-tree 0595bf3bca9d9932a05b06dd438f40f01d27cd33 (from eee45269b0f5979c70bc151c6c2f4e5f4f5ababe)
+> Author: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+> Date:   Fri Jan 6 00:12:22 2006 -0800
+> 
+>     [PATCH] Alpha: convert to generic irq framework (alpha part)
+> 
+>     Kconfig tweaks and tons of deletions.
+> 
+>     Signed-off-by: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+>     Cc: Christoph Hellwig <hch@lst.de>
+>     Cc: Richard Henderson <rth@twiddle.net>
+>     Signed-off-by: Andrew Morton <akpm@osdl.org>
+>     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+> :040000 040000 ac127f16325bb65941bd38208325ab7821877f52 15d7d4d17a7c8cfb8fe53c29ded31ff9cf287534 M      arch
+> :040000 040000 287f73cdf371b2b33cc48f1d876005aab29ff3de 29263093ae33ceccd6346b987870367bc8329f0a M      include
+> 
+> 
+> [1] Problem on Alpha with "convert to generic irq framework"
+> Message-Id: <20060304111219.GA10532@localhost>
+> http://lkml.org/lkml/2006/3/4/31
+> 
+> -- 
+> Mathieu Chouquet-Stringer
+> 

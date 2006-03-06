@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752340AbWCFJYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752348AbWCFJZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752340AbWCFJYG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 04:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752343AbWCFJYG
+	id S1752348AbWCFJZu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752347AbWCFJZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 04:24:06 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:6544 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1752338AbWCFJYE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 04:24:04 -0500
-Message-ID: <440BFFAB.2040405@aitel.hist.no>
-Date: Mon, 06 Mar 2006 10:23:55 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jonathan@jonmasters.org
-CC: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] inotify hack for locate
-References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>	 <9a8748490603051342r64f1dd65qecf72a8016a0d520@mail.gmail.com> <35fb2e590603051350o27a00274r4566e65e3fb99721@mail.gmail.com>
-In-Reply-To: <35fb2e590603051350o27a00274r4566e65e3fb99721@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 04:25:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:24075 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751958AbWCFJZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 04:25:49 -0500
+Date: Mon, 6 Mar 2006 10:25:28 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] bsg, block layer sg
+Message-ID: <20060306092528.GA4329@suse.de>
+References: <20060302111945.GG4329@suse.de> <20060304180814.11f459b9.akpm@osdl.org> <20060306085735.GY4329@suse.de> <20060306011355.4df811f6.akpm@osdl.org> <20060306091959.GZ4329@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306091959.GZ4329@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Masters wrote:
+On Mon, Mar 06 2006, Jens Axboe wrote:
+> On Mon, Mar 06 2006, Andrew Morton wrote:
+> > Jens Axboe <axboe@suse.de> wrote:
+> > >
+> > > ...
+> > > > 
+> > > > If you expand the two above statements you get:
+> > > > 
+> > > > 	spin_lock_irqsave(q->queue_lock, flags);
+> > > > 	__elv_add_request(q, rq, where, plug);
+> > > > 	spin_unlock_irqrestore(q->queue_lock, flags);
+> > > > 	spin_lock_irq(q->queue_lock);
+> > > > 	__generic_unplug_device(q);
+> > > > 	spin_unlock_irq(q->queue_lock);
+> > > > 
+> > > > which is a bit sad.
+> > > 
+> > > Indeed, I'll do the locking manually and use the __ functions.
+> > 
+> > blk_execute_rq_nowait() and pkt_generic_packet() also do the above two
+> > calls.   It might be worth creating a new library function.
+> 
+> Yes it might, there are other call sites like this in the kernel. But
+> it's basically blk_execute_rq_nowait(). I'll make that change.
 
->On 3/5/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
->
->  
->
->>On 3/5/06, Jon Masters <jonmasters@gmail.com> wrote:
->>    
->>
->
->  
->
->>>I'm fed up with those finds running whenever I power on.
->>>      
->>>
->
->  
->
->>You run updatedb at boot time?
->>    
->>
->
->No, but said box will catch up cron jobs on boot.
->
->  
->
->>Why not run it from cron at night like most people do?
->>    
->>
->
->That's not the point. It usually does. I'm interested to know if
->anyone has written a daemon that can sit and just do this
->synchronously on my desktop - then not only do I /not/ have to run
->updatedb every day but I can also have a locate that is always up to
->the minute.
->  
->
-I haven't heard about anyone doing this.  You could modify
-the VFS to notify you everytime a file is created, moved or deleted.
-That should give you what you want, but at the cost of delaying
-those operations.
+First step:
 
-Another option would be to make a filesystem that stores its
-directory structure (or a copy of it) in a single file, so that
-a locate-like program can do quick lookups of the always-correct
-data.
+http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=commitdiff;h=6a09cbe527fe051c919c5d9526ba4a2d2689fb61
 
-Helge Hafting
+Second step:
+
+http://brick.kernel.dk/git/?p=linux-2.6-block.git;a=commitdiff;h=0f62c8deddf27b15f56edcf6414c3905e93fd0ef
+
+-- 
+Jens Axboe
+

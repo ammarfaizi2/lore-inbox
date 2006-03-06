@@ -1,97 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752040AbWCFWtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752452AbWCFWvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752040AbWCFWtT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWCFWtT
+	id S1752452AbWCFWvF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752455AbWCFWvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:49:19 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:17384
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751308AbWCFWtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:49:18 -0500
-Date: Mon, 6 Mar 2006 14:49:08 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: State of the Linux Driver core and sysfs Subsystems for 2.6.16-rc5
-Message-ID: <20060306224908.GA20981@kroah.com>
+	Mon, 6 Mar 2006 17:51:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59840 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752452AbWCFWvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:51:01 -0500
+Date: Mon, 6 Mar 2006 14:50:41 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: netdev@vger.kernel.org, openib-general@openib.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Matt Leininger <mlleinin@hpcn.ca.sandia.gov>
+Subject: Re: TSO and IPoIB performance degradation
+Message-ID: <20060306145041.320d4dd3@localhost.localdomain>
+In-Reply-To: <20060306223438.GA18277@mellanox.co.il>
+References: <20060306223438.GA18277@mellanox.co.il>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.6; i486-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a summary of the current state of the Linux Driver core and sysfs
-subsystems as of 2.6.16-rc5.
+On Tue, 7 Mar 2006 00:34:38 +0200
+"Michael S. Tsirkin" <mst@mellanox.co.il> wrote:
 
-If the information in here is incorrect, or anyone knows of any
-outstanding issues not listed here, please let me know.
-
-List of outstanding regressions from 2.6.15:
-	- none known.
-
-List of outstanding regressions from older kernel versions:
-	- none known.
-
-There are no outstanding bugs for these subsystems in the
-bugzilla.kernel.org system that I know of.  If this is not true, please
-point me at the bugs you feel I should know about.
-
-Future stuff:
-  All of the patches that will be sent in for 2.6.17 can be found in my
-  quilt tree at
-  http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/ and
-  are included automagically in the -mm releases.
-
-  Here's a summary of the changes that can be found there:
-	- There's a big pending AOE driver update that missed the 2.6.16
-	  cut-off timeframe.  If you use this driver, I would recommend
-	  getting these patches.
-	- pollable sysfs attributes will be coming soon.  I think Neil
-	  is going to rework the existing patches, due to some issues
-	  found in -mm reviews, but the functionality should remain the
-	  same (adds a new sysfs function you can call to let userspace
-	  know that a sysfs file has changed contents.  Use this instead
-	  of the old uevent interface to notify userspace in an easier
-	  manner.)
-	- change semaphores to mutexes.
-	- module sysfs file refcount fixes
-	- EXPORT_SYMBOL_GPL_FUTURE() addition.
-	- relayfs as a stand-alone filesystem is gone, to be replaced
-	  with the ability to use relayfs files from within sysfs.
-	- other minor bugfixes.
-
-I am currently working on allowing struct device to be bound to a struct
-class as part of the migration away from struct class_device and toward
-allowing everything to be a struct device in the sysfs device tree.
-That work is being tested out on the "usbfs2" work which adds a dev file
-to every USB endpoint in the system, allowing async-io to be used from
-userspace instead of the ioctl mess we have in usbfs today.  If anyone
-is interested in this work, look in my patch queue for the initial cut
-of it.  It will be rapidly changing this week as I get the time to work
-more on it.
-
-The above mentioned changes, do not change any existing sysfs or driver
-core apis, but only add a few more functions.  So there are no API
-changes coming in the near future that I am aware of.
+> Hello, Dave!
+> As you might know, the TSO patches merged into mainline kernel
+> since 2.6.11 have hurt performance for the simple (non-TSO)
+> high-speed netdevice that is IPoIB driver.
+> 
+> This was discussed at length here
+> http://openib.org/pipermail/openib-general/2005-October/012271.html
+> 
+> I'm trying to figure out what can be done to improve the situation.
+> In partucular, I'm looking at the Super TSO patch
+> http://oss.sgi.com/archives/netdev/2005-05/msg00889.html
+> 
+> merged into mainline here
+> 
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=314324121f9b94b2ca657a494cf2b9cb0e4a28cc
+> 
+> There, you said:
+> 
+> 	When we do ucopy receive (ie. copying directly to userspace
+> 	during tcp input processing) we attempt to delay the ACK
+> 	until cleanup_rbuf() is invoked.  Most of the time this
+> 	technique works very well, and we emit one ACK advertising
+> 	the largest window.
+> 
+> 	But this explodes if the ucopy prequeue is large enough.
+> 	When the receiver is cpu limited and TSO frames are large,
+> 	the receiver is inundated with ucopy processing, such that
+> 	the ACK comes out very late.  Often, this is so late that
+> 	by the time the sender gets the ACK the window has emptied
+> 	too much to be kept full by the sender.
+> 
+> 	The existing TSO code mostly avoided this by keeping the
+> 	TSO packets no larger than 1/8 of the available window.
+> 	But with the new code we can get much larger TSO frames.
+> 
+> So I'm trying to get a handle on it: could a solution be to simply
+> look at the frame size, and call tcp_send_delayed_ack from
+> if the frame size is no larger than 1/8?
+> 
+> Does this make sense?
+> 
+> Thanks,
+> 
+> 
 
 
-It is also noted that a lot of people still don't know how to use a
-kobject properly, and that more sysfs files are containing more than one
-value (hey, look a table of numbers in the cpufreq file...)  Please be
-aware that people will be walking around with big sticks and whacking
-the fingers of any programmers who do this.  When in doubt, _please_ ask
-how to do this kind of low-level programming as it is very easy to get
-wrong...
-
-Also the kernel/userspace API documentation patch is pending me getting
-the chance to work on it today or tomorrow, don't worry, I haven't
-forgotten about it :)
-
-
-Was this summary useful for people?  Anything that I should add to it?
-
-thanks,
-
-greg k-h
+More likely you are getting hit by the fact that TSO prevents the congestion
+window from increasing properly. This was fixed in 2.6.15 (around mid of Nov 2005).

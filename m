@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWCFTGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751987AbWCFTbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWCFTGb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWCFTGb
+	id S1751987AbWCFTbM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 14:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWCFTbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:06:31 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:22397 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S932215AbWCFTGa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:06:30 -0500
-Date: Mon, 6 Mar 2006 21:06:36 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-Subject: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
-Message-ID: <20060306190636.GA14849@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 06 Mar 2006 19:08:47.0703 (UTC) FILETIME=[65760E70:01C64151]
+	Mon, 6 Mar 2006 14:31:11 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:8374 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751164AbWCFTbK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 14:31:10 -0500
+Message-ID: <440C8DFB.7090005@ichips.intel.com>
+Date: Mon, 06 Mar 2006 11:31:07 -0800
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Caitlin Bestler <caitlinb@broadcom.com>
+CC: Sean Hefty <sean.hefty@intel.com>, Roland Dreier <rdreier@cisco.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] RE: [PATCH 2/6] IB: match connection requests
+ based on private data
+References: <54AD0F12E08D1541B826BE97C98F99F12FBF19@NT-SJCA-0751.brcm.ad.broadcom.com>
+In-Reply-To: <54AD0F12E08D1541B826BE97C98F99F12FBF19@NT-SJCA-0751.brcm.ad.broadcom.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I am working on implementing the Sockets Direct Protocol (SDP) for InfiniBand on
-Linux. SDP uses the regular IPv4/IPv6 addresses and utilizes the IPv4/IPv6 layer
-on top of InfiniBand for address resolution. However, all data is transferred by
-means of an infiniband reliable connection.
+Caitlin Bestler wrote:
+> The term "private data" is intended to convey the
+> intent that the data is private to the application
+> layer and is opaque to middleware and the network.
 
-Some existing SDP implementations posted on the openib.org subversion tree
-create a new address family in a free slot, for this purpose.
+The private data area is for the use of whatever client resides above the 
+Infiniband CM only.  There is no assumption about whether that client is 
+middleware or an application.
 
-Would it make sense to move SDP from using a separate address family to
-a separate protocol under AF_INET and AF_INET6?
-Something like IPPROTO_SDP?
+> By what mechanism does the listening application
+> delegate how much of the private data for use by
+> the CM for sub-dividing a listen? What does an 
+> application do if it wishes to retain full ownership
+> of the private data?
 
-The main advantages of this approach are
-- IPv6 support will come more naturally and without further extending
-  to a yet another address family
-- We could use a protocol number > 255 to avoid conflicting
-  with any IP based protocol.
-  There are much more free protocol numbers that free family numbers
-  (which only go up to 32 in linux for now).
-- I could reuse more code for creating connections from af_inet.c
+An application that interfaces directly with the Infiniband CM always retains 
+full control of any private data.  Applications that interface to middleware are 
+restricted by the limitations of that middleware layer.
 
-I also have a hunch this might make getaddrinfo and friends work better on sdp
-selecting IPv4/IPv6 as appropriate but I'm not sure.
-
-Comments? Are there disadvantages to this approach that someone can see?
-
-Thanks,
-
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
-_______________________________________________
-openib-general mailing list
-openib-general@openib.org
-http://openib.org/mailman/listinfo/openib-general
-
-To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
-
------ End forwarded message -----
-
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+- Sean

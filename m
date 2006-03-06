@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWCFWkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWCFWka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbWCFWkd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWCFWkc
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:40:32 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48840
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932419AbWCFWka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932423AbWCFWka (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 6 Mar 2006 17:40:30 -0500
-Date: Mon, 06 Mar 2006 14:40:34 -0800 (PST)
-Message-Id: <20060306.144034.53871111.davem@davemloft.net>
-To: mst@mellanox.co.il
-Cc: netdev@vger.kernel.org, openib-general@openib.org,
-       linux-kernel@vger.kernel.org, mlleinin@hpcn.ca.sandia.gov
-Subject: Re: TSO and IPoIB performance degradation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060306223438.GA18277@mellanox.co.il>
-References: <20060306223438.GA18277@mellanox.co.il>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWCFWka
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 6 Mar 2006 17:40:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:64675 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932415AbWCFWk2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:40:28 -0500
+Date: Tue, 7 Mar 2006 09:39:30 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, christoph <hch@lst.de>,
+       mcao@us.ibm.com, akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, vs@namesys.com,
+       zam@namesys.com
+Subject: Re: [PATCH 0/3] map multiple blocks in get_block() and mpage_readpages()
+Message-ID: <20060307093930.D219568@wobbly.melbourne.sgi.com>
+References: <1140470487.22756.12.camel@dyn9047017100.beaverton.ibm.com> <20060222151216.GA22946@lst.de> <1140801549.22756.195.camel@dyn9047017100.beaverton.ibm.com> <20060306100321.GA27319@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060306100321.GA27319@in.ibm.com>; from suparna@in.ibm.com on Mon, Mar 06, 2006 at 03:33:21PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Date: Tue, 7 Mar 2006 00:34:38 +0200
-
-> So I'm trying to get a handle on it: could a solution be to simply
-> look at the frame size, and call tcp_send_delayed_ack from
-> if the frame size is no larger than 1/8?
+On Mon, Mar 06, 2006 at 03:33:21PM +0530, Suparna Bhattacharya wrote:
+> On Fri, Feb 24, 2006 at 09:19:08AM -0800, Badari Pulavarty wrote:
+> > 
+> > I am thinking of having a "fast path" which doesn't deal with any
+> > of those and "slow" path to deal with all that non-sense.
+> > ...
+> > slow_path is going to be slow & ugly. How important is to handle
+> > 1k, 2k filesystems efficiently ? Should I try ?
 > 
-> Does this make sense?
+> With 64K page size that could include 4K, 8K, 16K, 32K block size filesystems
+> as well, not sure how likely that would be ?
 
-The comment you mention is very old, and no longer applies.
+A number of architectures have a pagesize greater than 4K.  Most
+(OK, sample size of 2) mkfs programs default to using 4K blocksizes.
+So, any/all platforms not having a 4K pagesize will be disadvantaged.
+Search on the definition of PAGE_SHIFT in asm-*/page.h and for all
+platforms where its not defined to 12, this will hurt.
 
-Get full packet traces from the kernel TSO code in the 2.6.x
-kernel, analyze is, and post here what you think is occuring
-that is causing the performance problems.
+cheers.
 
-One thing to note is that the newer TSO code really needs to
-have large socket buffers, so you can experiment with that.
+-- 
+Nathan

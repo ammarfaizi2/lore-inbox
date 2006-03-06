@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752062AbWCFHsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWCFHtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752062AbWCFHsP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 02:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbWCFHsP
+	id S1751165AbWCFHtM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 02:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752144AbWCFHtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 02:48:15 -0500
-Received: from mx2.suse.de ([195.135.220.15]:47549 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752062AbWCFHsO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 02:48:14 -0500
-Date: Mon, 6 Mar 2006 08:48:12 +0100
-From: Olaf Hering <olh@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc-dev@ozlabs.org, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.16-rc5
-Message-ID: <20060306074812.GD24869@suse.de>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060305140932.GA17132@suse.de> <20060305185923.GA21519@suse.de> <Pine.LNX.4.64.0603051147590.13139@g5.osdl.org> <20060305204231.GA22002@suse.de> <17419.23860.883220.80199@cargo.ozlabs.ibm.com> <20060305222202.GA22450@suse.de> <20060305224438.GA22580@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Mon, 6 Mar 2006 02:49:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:63001 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751165AbWCFHtK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 02:49:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lwQhg4ILAejhgA6767WojsI3/PN307urRHS3XVyHnMg7sswQRea9gnS1+8j+r4AIRqCQvPc2YBxGq0ut2oXTAlR030aFWoin2hYBXj4MQcWPnMuXmtLZailgnaFCr4KZ1MRb0cndqc2wRe95X+U9GTsjsyaiuvu5mgfK1G6WgXQ=
+Message-ID: <84144f020603052349p4e95381ar92c3f80027557c12@mail.gmail.com>
+Date: Mon, 6 Mar 2006 09:49:09 +0200
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Christoph Lameter" <clameter@engr.sgi.com>
+Subject: Re: cache_reap(): Further reduction in interrupt holdoff
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, kiran@scalex86.org,
+       alokk@calsoftinc.com
+In-Reply-To: <Pine.LNX.4.64.0603031530380.15581@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060305224438.GA22580@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+References: <Pine.LNX.4.64.0603031530380.15581@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Mar 05, Olaf Hering wrote:
+Hi,
 
->  On Sun, Mar 05, Olaf Hering wrote:
-> 
-> > 404849bbd2bfd62e05b36f4753f6e1af6050a824 + 3 buildfixes:
-> > 
-> > 31df1678d7732b94178a6e457ed6666e4431212f
-> > 8dacaedf04467e32c50148751a96150e73323cdc
-> > d2dd482bc17c3bc240045f80a7c4b4d5cea5e29c
-> > 
-> > 
-> > This one has the syscall changes, but not the two fixes you mentioned.
-> > It gets far, but at the point where it locks up with the d4eb, it
-> > crashes in run_timer_softirq, branched to 0x1f4. Maybe its the result of
-> > the missing fixes. Will continue tomorrow.
-> 
-> Another try with that version, now I see the corruption before the
-> package where it locked up before (glibc-locale, rather large).
-> Will backout the syscall change and try again with 404849bbd2bfd62e05b36f4753f6e1af6050a824.
+(Christoph, please use penberg@cs.helsinki.fi instead.)
 
-Its not the syscall change at least. Looking further.
+On 3/4/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> cache_reap takes the l3->list_lock (disabling interrupts) unconditionally and
+> then does a few checks and maybe does some cleanup. This patch makes
+> cache_reap() only take the lock if there is work to do and then the lock
+> is taken and released for each cleaning action.
+>
+> The checking of when to do the next reaping is done without any locking
+> and becomes racy. Should not matter since reaping can also be skipped
+> if the slab mutex cannot be acquired.
+
+The cache chain mutex is mostly used by /proc/slabinfo and not taken
+that often, I think. But yeah, I don't think next reaping is an issue
+either.
+
+On 3/4/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> The same is true for the touched processing. If we get this wrong once
+> in awhile then we will mistakenly clean or not clean the shared cache.
+> This will impact performance slightly.
+
+Touched processing worries me little because it's used when there's
+high allocation pressure. Do you have any numbers where this patch
+helps?
+
+                                         Pekka

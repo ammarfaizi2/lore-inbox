@@ -1,74 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWCFURV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWCFUWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWCFURV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 15:17:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWCFURV
+	id S1751267AbWCFUWp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 15:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWCFUWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 15:17:21 -0500
-Received: from mms3.broadcom.com ([216.31.210.19]:21515 "EHLO
-	MMS3.broadcom.com") by vger.kernel.org with ESMTP id S1751363AbWCFURU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 15:17:20 -0500
-X-Server-Uuid: B238DE4C-2139-4D32-96A8-DD564EF2313E
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 6 Mar 2006 15:22:45 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:19550 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751267AbWCFUWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 15:22:44 -0500
+Message-ID: <440C9A55.30201@tmr.com>
+Date: Mon, 06 Mar 2006 15:23:49 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Subject: RE: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
-Date: Mon, 6 Mar 2006 12:16:51 -0800
-Message-ID: <54AD0F12E08D1541B826BE97C98F99F12FBF33@NT-SJCA-0751.brcm.ad.broadcom.com>
-Thread-Topic: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
-Thread-Index: AcZBVpVoFhkFmvHgR0GwHpWRL1CSCAAA3xHw
-From: "Caitlin Bestler" <caitlinb@broadcom.com>
-To: "David Stevens" <dlstevens@us.ibm.com>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-X-TMWD-Spam-Summary: SEV=1.1; DFV=A2006030606; IFV=2.0.6,4.0-7;
- RPD=4.00.0004;
- RPDID=303030312E30413039303230392E34343043393834362E303037342D412D;
- ENG=IBF; TS=20060306201858; CAT=NONE; CON=NONE;
-X-MMS-Spam-Filter-ID: A2006030606_4.00.0004_2.0.6,4.0-7
-X-WSS-ID: 681246A736W4589265-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+To: jensmh@gmx.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc5 'lost' cpu
+References: <200603020505.13108.jensmh@gmx.de>
+In-Reply-To: <200603020505.13108.jensmh@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+jensmh@gmx.de wrote:
+> This is a dual xeon system with hyper threading enabled, so there should
+> be 4 cpus
 
-> -----Original Message-----
-> From: netdev-owner@vger.kernel.org 
-> [mailto:netdev-owner@vger.kernel.org] On Behalf Of David Stevens
-> Sent: Monday, March 06, 2006 11:49 AM
-> To: Michael S. Tsirkin
-> Cc: Linux Kernel Mailing List; netdev@vger.kernel.org
-> Subject: Re: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
+It decided that the first CPU had only one sibling, sounds like an ACPI 
+issue, if I had to place a bet I would lean to the hardware/BIOS not 
+admitting to that 2nd sibling.
 > 
-> I don't know any details about SDP, but if there are no 
-> differences at the protocol layer, then neither the address 
-> family nor the protocol is appropriate. If it's just an API 
-> change, the socket type is the right selector. So, maybe 
-> SOCK_DIRECT to go along with SOCK_STREAM, SOCK_DGRAM, etc.
->                                         +-DLS
+> jm@voyager ~ $ ll /proc/acpi/processor/
+> total 0
+> dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU0
+> dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU1
+> dr-xr-xr-x  2 root root 0 Mar  2 05:01 CPU3
+> 
+> jm@voyager ~ $ cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 2
+> model name      : Intel(R) Xeon(TM) CPU 2.80GHz
+> stepping        : 9
+> cpu MHz         : 2792.148
+> cache size      : 512 KB
+> physical id     : 0
+> siblings        : 1
+> core id         : 0
+> cpu cores       : 1
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+> bogomips        : 5588.74
+> 
+> processor       : 1
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 2
+> model name      : Intel(R) Xeon(TM) CPU 2.80GHz
+> stepping        : 9
+> cpu MHz         : 2799.930
+> cache size      : 512 KB
+> physical id     : 3
+> siblings        : 2
+> core id         : 0
+> cpu cores       : 1
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+> bogomips        : 5581.39
+> 
+> processor       : 2
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 2
+> model name      : Intel(R) Xeon(TM) CPU 2.80GHz
+> stepping        : 9
+> cpu MHz         : 2799.930
+> cache size      : 512 KB
+> physical id     : 3
+> siblings        : 2
+> core id         : 0
+> cpu cores       : 1
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
+> bogomips        : 5581.34
 
-That wouldn't work either. The whole point of SDP, or TOE,
-is that the API is either totally unchanged or at least
-essentially unchanged.
-
-Whenever an IP Address is used (SDP/iWARP, TOE and potentially
-SDP/IB) changing from AF_INET* is wrong.
-
-For both SDP/iWARP and SDP/IB you could argue that a different
-wire protocol is in use so IPPROTO_SDP is acceptable.
-That's probably the best answer as long as we are stuck
-under the restriction that the selection of an alternate
-stack cannot be done in the exact manner that the consumer
-wants it done (that is transparently to the application).
-
-There are even some corner case scenarios where the 
-application might care whether their SOCK_STREAM was
-carried over SDP or plain TCP. So a protocol based
-distinction is probably the least misleading of all
-the explicit selection options.
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

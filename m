@@ -1,79 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752168AbWCFSB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751980AbWCFSR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752168AbWCFSB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 13:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752238AbWCFSB5
+	id S1751980AbWCFSR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 13:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751552AbWCFSR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 13:01:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36809 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751980AbWCFSB4 (ORCPT
+	Mon, 6 Mar 2006 13:17:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15319 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751551AbWCFSR2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 13:01:56 -0500
-Message-ID: <440C7958.1050707@ce.jp.nec.com>
-Date: Mon, 06 Mar 2006 13:03:04 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       J M Cerqueira Esteves <jmce@artenumerica.com>
-CC: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
-       axboe@suse.de
-Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
- 2.6.12]
-References: <4405D383.5070201@artenumerica.com>	<20060302011735.55851ca2.akpm@osdl.org>	<440865A9.4000102@artenumerica.com>	<4409B8DC.9040404@artenumerica.com>	<20060304161519.6e6fbe2c.akpm@osdl.org>	<440BF718.60504@artenumerica.com> <20060306010241.2c230379.akpm@osdl.org>
-In-Reply-To: <20060306010241.2c230379.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 13:17:28 -0500
+Date: Mon, 6 Mar 2006 13:17:16 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Michael Ellerman <michael@ellerman.id.au>,
+       "Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [PATCH] leave APIC code inactive by default on i386
+Message-ID: <20060306181716.GC15971@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	Michael Ellerman <michael@ellerman.id.au>,
+	"Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
+	Chris McDermott <lcm@us.ibm.com>
+References: <43D03AF0.3040703@us.ibm.com> <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com> <20060301043353.GJ28434@redhat.com> <20060306125018.GA1673@elf.ucw.cz> <20060306171747.GN21445@redhat.com> <20060306174122.GA2716@elf.ucw.cz> <20060306175238.GA15971@redhat.com> <20060306175811.GB2716@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306175811.GB2716@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> J M Cerqueira Esteves <jmce@artenumerica.com> wrote:
->>>We have a candidate fix at
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
->>> Could you test that?  (and don't alter the Cc: list!).  The patch is
->>>against 2.6.16-rc5.
-> 
->>A new "feature": 36 of these kernel message pairs as boot time:
->>  device-mapper: dm-linear: Device lookup failed
->>  device-mapper: error adding target to table
-> 
-> OK, there were some fairly large DM patches touching on
-> dm_get_device().  Cc added ;)
+On Mon, Mar 06, 2006 at 06:58:11PM +0100, Pavel Machek wrote:
 
-Thanks Andrew for Cc-ing.
+ > I just do not want to see CONFIG_DO_NOAPIC_BY_DEFAULT someone suggested
+ > here (heh, it is still in subject :-). Whitelist/blacklist is fine
+ > with me.
 
-Sorry but I don't think my bd_claim patches affect on this problem
-as the patches are neither bug fixes nor included in
-2.6.16-rc5-mm2 yet.
+I (and Darrick) already agreed further up in this thread that it wasn't needed.
+I think we're actually in agreement ;)
 
-So if the problem persists, I would suggest to consult with
-dm-devel@redhat.com about the problem.
+		Dave
 
-If it's possible to do some testings on the system,
-I think the followings are worth trying:
-   - Checking if the problem occurs with plain 2.6.15
-     (not the one from distributor).
-   - Checking how the device-mapper devices are configured.
-     (e.g. comparing the output of "dmsetup table" command
-      with the one on the original kernel)
-   - Checking what lookup failed (printk below will show them).
-     [It's better if dm shows this information from the first time..]
-     Then checking whether the failed devices exist in the system
-     or initrds, whether they are mounted or used by md.
-
---- linux-2.6.16-rc5-mm2.tmp/drivers/md/dm-linear.c     2006-03-03 15:42:32.000000000 -0500
-+++ linux-2.6.16-rc5-mm2/drivers/md/dm-linear.c 2006-03-06 10:17:16.000000000 -0500
-@@ -47,6 +47,7 @@ static int linear_ctr(struct dm_target *
-
-         if (dm_get_device(ti, argv[0], lc->start, ti->len,
-                           dm_table_get_mode(ti->table), &lc->dev)) {
-+               printk("dm-linear: failed to lookup %s\n", argv[0]);
-                 ti->error = "dm-linear: Device lookup failed";
-                 goto bad;
-         }
-
-Thanks,
 -- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+http://www.codemonkey.org.uk

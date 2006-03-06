@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWCFTjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWCFSs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWCFTjN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWCFTjN
+	id S932111AbWCFSs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 13:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWCFSs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:39:13 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41117 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751173AbWCFTjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:39:13 -0500
-Subject: Re: VIA C3 (Ezra C5C) Crashes with longhaul Freq scaling
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Shinichi Kudo <randomshinichi4869@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060305043800.GA2253@redhat.com>
-References: <8be2e100603040646k7f40e8eai391eb914040cb8f8@mail.gmail.com>
-	 <20060305043800.GA2253@redhat.com>
-Content-Type: text/plain
+	Mon, 6 Mar 2006 13:48:57 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:26526 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S932111AbWCFSs4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 13:48:56 -0500
+Message-ID: <440C8405.60601@cs.wisc.edu>
+Date: Mon, 06 Mar 2006 12:48:37 -0600
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       Andrea Arcangeli <andrea@suse.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+References: <200603060117.16484.jesper.juhl@gmail.com> <Pine.LNX.4.64.0603060956570.13139@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603060956570.13139@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 06 Mar 2006 19:44:10 +0000
-Message-Id: <1141674250.26548.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2006-03-04 at 23:38 -0500, Dave Jones wrote:
-> There's an ugly patch below that was submitted, which fixes it for
-> some people, but as it's a) ide specific, and b) completely the
-> wrong place to do this and c) racy,  I never merged it to mainline.
+Linus Torvalds wrote:
+> 
+> James, Mike, can you double-check the retries? In particular, it's _wrong_ 
+> to retry after you've already marked a command completed with 
+> "complete(rq->waiting)", so if that happens somewhere, things are really 
+> broken.
+> 
 
-If I understand the documentation correctly you simply need to disable
-the master bit on the root bridge during the transition and the PCI
-transactions will be stalled, providing you don't take too long about
-it.
-
-
+I am looking into it. I think it has something to do with the request 
+getting completed too early or maybe something crazy like twice. This 
+looks like a similar problem that was reported to linux-scsi where for 
+some tape setup the request's bio gets freed twice.

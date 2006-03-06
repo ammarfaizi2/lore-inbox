@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751960AbWCFRww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWCFTPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751960AbWCFRww (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 12:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751971AbWCFRww
+	id S1751067AbWCFTPY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 14:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751888AbWCFTPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 12:52:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17090 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751960AbWCFRwv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 12:52:51 -0500
-Date: Mon, 6 Mar 2006 12:52:38 -0500
-From: Dave Jones <davej@redhat.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Michael Ellerman <michael@ellerman.id.au>,
-       "Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [PATCH] leave APIC code inactive by default on i386
-Message-ID: <20060306175238.GA15971@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Pavel Machek <pavel@ucw.cz>,
-	Michael Ellerman <michael@ellerman.id.au>,
-	"Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
-	Chris McDermott <lcm@us.ibm.com>
-References: <43D03AF0.3040703@us.ibm.com> <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com> <20060301043353.GJ28434@redhat.com> <20060306125018.GA1673@elf.ucw.cz> <20060306171747.GN21445@redhat.com> <20060306174122.GA2716@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Mar 2006 14:15:24 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:49070 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751067AbWCFTPX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 14:15:23 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oivxpHmTXqIaH5krFjNOJ9d7lAgT0nFN/GfzShHU9qq5k0nKPb4pRpsSo4nptn6/2jWCx2A2ofHuDszSAxzs9eQkSOLf0Rw6dwhrIcUQKkOrud4iZVukSOxcK1QFhGhLAPInFoJEL2XkMinASmfaLZLW1ngDJ0wL+dud1QFzdww=
+Message-ID: <41b516cb0603061115h4faf9115h407bd22ac070140@mail.gmail.com>
+Date: Mon, 6 Mar 2006 11:15:22 -0800
+From: "Chris Leech" <christopher.leech@intel.com>
+Reply-To: chris.leech@gmail.com
+To: gene.heskett@verizononline.net
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200603041705.41990.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060306174122.GA2716@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+References: <20060303214036.11908.10499.stgit@gitlost.site>
+	 <Pine.LNX.4.61.0603041945520.29991@yvahk01.tjqt.qr>
+	 <20060304.134144.122314124.davem@davemloft.net>
+	 <200603041705.41990.gene.heskett@verizon.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 06:41:22PM +0100, Pavel Machek wrote:
+> >> Does this buy the normal standard desktop user anything?
+> >
+> >Absolutely, it optimizes end-node performance.
+>
+> Is this quantifiable?, and does it only apply to Intel?
 
- > >  > Is adding "noapic nolapic" to default command line a big problem?
- > > For end-users, yes.  People want things to 'just work', not have
- > > to find arcane commands to type in to make things work.
- > If distro puts "noapic nolapic" on kernel command line, I'd say users
- > are unlikely to remove it.. And if they do remove it and it breaks,
- > they'll only blame themselves...
+What we've been developing for is a device integrated into Intel's
+Enterprise South Bridge 2 (ESB2), so it's a feature of Intel server
+platforms.  But the networking changes are written so that you could
+drop in a driver if similar functionality existed on other
+architectures.
 
-If distros put 'noapic nolapic' on the command line they've only
-themselves to blame when systems that need local apic for
-correct operation don't work.
+I'll look into what performance data I can share, I have to ask the
+marketing folks.
 
- > One more config-option is also not "cheap" (half of users will get it
- > wrong), and having config-option to change command-line-default seems
- > wrong to me.
- >
- > [Well, you could add CONFIG_CMDLINE to i386, like arm has... that
- > solves more than just this problem...]
-
-I'm not arguing for extra command line options. The inverse, I want
-*no* command line options.
-
-What's so hard to understand about expecting something to just work?
-
-		Dave
-
--- 
-http://www.codemonkey.org.uk
+- Chris

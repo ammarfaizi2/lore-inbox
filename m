@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWCFPoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWCFPqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWCFPoN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 10:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWCFPoM
+	id S1751749AbWCFPqE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 10:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751756AbWCFPqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 10:44:12 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:31184 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751153AbWCFPoJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 10:44:09 -0500
-Subject: Re: + memory-hotplug-compile-fix.patch added to -mm tree
-From: Dave Hansen <haveblue@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: kamezawa.hiroyu@jp.fujitsu.com, mm-commits@vger.kernel.org
-In-Reply-To: <200603040753.k247rbNK012054@shell0.pdx.osdl.net>
-References: <200603040753.k247rbNK012054@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 07:43:20 -0800
-Message-Id: <1141659800.9274.18.camel@localhost.localdomain>
+	Mon, 6 Mar 2006 10:46:04 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:18849
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751749AbWCFPqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 10:46:03 -0500
+Date: Mon, 6 Mar 2006 07:46:04 -0800
+From: Greg KH <greg@kroah.com>
+To: Ben Chelf <ben@coverity.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Coverity Open Source Defect Scan of Linux
+Message-ID: <20060306154604.GA7355@kroah.com>
+References: <440BCA0F.50501@coverity.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <440BCA0F.50501@coverity.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-03 at 23:52 -0800, akpm@osdl.org wrote:
-> diff -puN include/linux/memory_hotplug.h~memory-hotplug-compile-fix include/linux/memory_hotplug.h
-> --- devel/include/linux/memory_hotplug.h~memory-hotplug-compile-fix     2006-03-03 23:50:50.000000000 -0800
-> +++ devel-akpm/include/linux/memory_hotplug.h   2006-03-03 23:51:45.000000000 -0800
-> @@ -6,6 +6,10 @@
->  #include <linux/mmzone.h>
->  #include <linux/notifier.h>
->  
-> +struct page;
-> +struct zone;
-> +struct pglist_data;
+On Sun, Mar 05, 2006 at 09:35:11PM -0800, Ben Chelf wrote:
+>   Right now, we're guarding access to the actual defects that we report 
+> for a couple of reasons: (1) We think that you, as developers of Linux, 
+> should have the chance to look at the defects we find to patch them 
+> before random other folks get to see what we found and (2) From a 
+> support perspective, we want to make sure that we have the appropriate 
+> time to engage with those who want to use the results to fix the code. 
 
-There are places in that file where we dereference both zone and pgdat
-struct pointers.  struct page, on the other hand, is only a function
-argument.  So, the predeclaration should be fine for pages.  But, it
-probably won't do any good for zones or pgdats.  
+If you feel these are security related, please contact
+security@kernel.org with the information (as is documented in the kernel
+documentation).  If you do not feel they are security related, but just
+normal bugs that don't really cause problems, feel free to just post the
+information here on lkml, and cc: the maintainers of the affected areas
+of code.
 
--- Dave
+In other words, these should be treated like any other potential bug
+report.  And I mean "potential", as your tool has had false positives in
+the past :)
 
+thanks,
+
+greg k-h

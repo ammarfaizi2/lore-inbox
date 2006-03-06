@@ -1,35 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWCFVmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWCFVmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbWCFVmF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752426AbWCFVmE
+	id S932365AbWCFVmS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752435AbWCFVmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:42:04 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:53923 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751129AbWCFVmC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:42:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=eLR8RtCNiY9ywVh87N9ur8E7fZpgmBS71HH0R79G1u2sUk2Xe9Ht8z2pkA5/X9t5tJEn21Kb9KBbCt2oWiAjnNfh6FupOKYDawlkO27Al7RsTNPzcFC7qO9EVcDaDVTEC/TJU1MfenY34+pU5NcBbdoWGyl4RmKBMu6C3QaiJ1E=
-Message-ID: <4ae3c140603061342r26ca2226s2e6e41792104c633@mail.gmail.com>
-Date: Mon, 6 Mar 2006 16:42:01 -0500
-From: "Xin Zhao" <uszhaoxin@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Why ext3 uses different policies to allocate inodes for dirs and files?
-Cc: linux-fsdevel@vger.kernel.org
+	Mon, 6 Mar 2006 16:42:17 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:47031 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1752423AbWCFVmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 16:42:16 -0500
+Message-ID: <440CACB5.2010609@ichips.intel.com>
+Date: Mon, 06 Mar 2006 13:42:13 -0800
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Roland Dreier <rdreier@cisco.com>
+CC: Sean Hefty <sean.hefty@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for RDMA
+ connection manager
+References: <ORSMSX4011XvpFVjCRG00000009@orsmsx401.amr.corp.intel.com> <adaoe0j5kd6.fsf@cisco.com>
+In-Reply-To: <adaoe0j5kd6.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The policy seems to distribute dir inodes uniformly on all block
-groups. Why do we want to do this?  Isn't it better to create a dir
-inode close to its parent dir inode?
+Roland Dreier wrote:
+>  > +struct rdma_ucm_query_route_resp {
+>  > +	__u64 node_guid;
+>  > +	struct ib_user_path_rec ib_route[2];
+>  > +	struct sockaddr_in6 src_addr;
+>  > +	struct sockaddr_in6 dst_addr;
+>  > +	__u32 num_paths;
+>  > +	__u8 port_num;
+>  > +	__u8 reserved[3];
+>  > +};
+> 
+> Is there a 32-bit/64-bit compatibility problem here?  From a quick
+> look, struct sockaddr_in6 is not 8-byte aligned.
 
-Thanks in advance for your help!
+Unless I miss counted, they should be aligned.  ib_user_path_rec is defined near 
+the end of patch 1/6.
 
-Xin
++struct ib_user_path_rec {
++	__u8	dgid[16];
++	__u8	sgid[16];
++	__be16	dlid;
++	__be16	slid;
++	__u32	raw_traffic;
++	__be32	flow_label;
++	__u32	reversible;
++	__u32	mtu;
++	__be16	pkey;
++	__u8	hop_limit;
++	__u8	traffic_class;
++	__u8	numb_path;
++	__u8	sl;
++	__u8	mtu_selector;
++	__u8	rate_selector;
++	__u8	rate;
++	__u8	packet_life_time_selector;
++	__u8	packet_life_time;
++	__u8	preference;
++};
+
+- Sean
+

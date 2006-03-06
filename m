@@ -1,105 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWCFN2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWCFNaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWCFN2j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 08:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWCFN2j
+	id S932277AbWCFNaj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 08:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWCFNai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 08:28:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:39975 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932269AbWCFN2i convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 08:28:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QuXWvxfLs9Ni+EUNSPRYOJfgDdR3CK/E/VCoF3MmsvP0NWBm6fa3kV98tzVHzdtnXEfzyHpZ+VvMh0VFyWKEGtUDCxtXjx/1mtyIlmzeXZj2HYDfrWOC8P1S9dDTwr/HCMoB50FMSF2N49dTqEJLSynAc/BjBO129ufbtpIuDY8=
-Message-ID: <625fc13d0603060528y64e26329p3fa210537bf5ac74@mail.gmail.com>
-Date: Mon, 6 Mar 2006 07:28:37 -0600
-From: "Josh Boyer" <jwboyer@gmail.com>
-To: "Miguel Blanco" <mblancom@gmail.com>
-Subject: Re: problem mounting a jffs2 filesystem
-Cc: linux-kernel@vger.kernel.org,
-       "MTD mailing list" <linux-mtd@lists.infradead.org>
-In-Reply-To: <8766c4ce0603050504h24b445c5t@mail.gmail.com>
+	Mon, 6 Mar 2006 08:30:38 -0500
+Received: from mailgate1.uni-kl.de ([131.246.120.5]:63635 "EHLO
+	mailgate1.uni-kl.de") by vger.kernel.org with ESMTP
+	id S1751190AbWCFNai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 08:30:38 -0500
+Date: Mon, 6 Mar 2006 14:05:52 +0100
+From: Eduard Bloch <edi@gmx.de>
+To: "Mario 'BitKoenig' Holbe" <Mario.Holbe@TU-Ilmenau.DE>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Encrypting file system
+Message-ID: <20060306130552.GA2121@debian>
+References: <Pine.LNX.4.64.0603061600540.16555@vattikonda.junta.iitk.ac.in> <duh99h$i66$1@sea.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <8766c4ce0603050504h24b445c5t@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <duh99h$i66$1@sea.gmane.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/5/06, Miguel Blanco <mblancom@gmail.com> wrote:
-> Hello,
->
->  Trying to mount a jffs2 file system in my desktop PC:
->  ...
->  $ modprobe mtdram total_size=6144 erase_size=128
->  $ modprobe mtdblock
->  ...
->  $ dd if=fw.wsw of=data.jffs2 ibs=1 obs=1M count=5888K skip=6292872
->  $ jffs2dump -b -c -e data-le.jffs2 data.jffs2
->  $ dd if=data-le.jffs2 of=/dev/mtdblock0
->  $ mkdir data
->  $ mount -t jffs2 /dev/mtdblock0 data
->
->  I get a mount error:
->      "2942 Violación de segmento" (in spanish and "segment violation"
-> in english :-) )
->
->  and dmesg says (relevant part I think):
->
->  divide error: 0000 [#1]
->  last sysfs file: /block/mtdblock0/dev
->  Modules linked in: jffs2 zlib_deflate mtdblock mtd_blkdevs mtdram
-> mtdpart mtdcor e parport_pc lp parport autofs4 dm_mod video button
-> battery ac ipv6 ohci1394 iee e1394 uhci_hcd ehci_hcd i2c_i801 i2c_core
-> snd_intel8x0 snd_ac97_codec snd_ac97_b us snd_seq_dummy snd_seq_oss
-> snd_seq_midi_event snd_seq snd_seq_device snd_pcm_o ss snd_mixer_oss
-> snd_pcm snd_timer snd soundcore snd_page_alloc 8139cp 8139too m ii
-> floppy sr_mod ext3 jbd aic7xxx scsi_transport_spi sd_mod scsi_mod
->  CPU:    0
->  EIP:    0060:[<e118deef>]    Not tainted VLI
->  EFLAGS: 00210246   (2.6.15-1.1830_FC4)
->  EIP is at jffs2_scan_medium+0xdf/0x55e [jffs2]
->  eax: 0000fff4   ebx: d2c5fa00   ecx: dffef180   edx: 00000000
->  esi: d07d24e0   edi: d07d28d0   ebp: d3c98a80   esp: d0995d80
->  ds: 007b   es: 007b   ss: 0068
->  Process mount (pid: 2942, threadinfo=d0995000 task=d311b030)
->  Stack: 00000000 d3c98a80 d0995da4 00000080 00000030 00000002 00000000 00000000
->         00600000 e0b58000 d2c5fa00 00000030 d2c5fa00 00000000 e119107a d2c5fa00
->         d3c98338 fffffff4 c0152c19 ffffffff e119611d 000000d0 00000000 d2c5fa00
->  Call Trace:
->   [<e119107a>] jffs2_build_filesystem+0x1a
-> /0x306 [jffs2]     [<c0152c19>] __vmall oc+0xf/0x13
->   [<e119611d>] jffs2_sum_init+0x3d/0xbf [jffs2]     [<e1191609>]
-> jffs2_do_mount_f s+0x1cc/0x233 [jffs2]
->   [<e119300c>] jffs2_do_fill_super+0xa8/0x1cb [jffs2]     [<e1193647>]
-> jffs2_sb_s et+0x0/0x1d [jffs2]
->   [<e119385f>] jffs2_get_sb_mtd+0x1fb/0x22c [jffs2]     [<e11939b5>]
-> jffs2_get_sb +0xe7/0x192 [jffs2]
->   [<c017502b>] alloc_vfsmnt+0x9b/0xc2     [<c0174f79>] get_fs_type+0x8d/0xa4
->   [<c0161d29>] do_kern_mount+0xaf/0x147     [<c0176437>] do_new_mount+0x6b/0x90
->   [<c0176a37>] do_mount+0x1b1/0x1cc     [<c01422e0>] __alloc_pages+0x57/0x2ed
->   [<c017683d>] copy_mount_options+0x4d/0x96     [<c0176db4>] sys_mount+0x72/0xa4
->   [<c0102e75>] syscall_call+0x7/0xb
->  Code: 8b 93 b0 00 00 00 8b 42 18 01 43 7c 8b 43 78 2b 42 18 89 43 78
-> c7 42 18 00  00 00 00 8b b3 b0 00 00 00 85 f6 74 24 8b 46 20 31 d2
-> <f7> b3 84 01 00 00 85 d2  74 15 01 56 1c 01 53 7c 8b 83 b0 00 00
->  Continuing in 1 seconds.
->   <6>loop: loaded (max 8 devices)
->
->
->  this is with Fedora 4 kernel 2.6.15-1.1830 (and later kernels).
-> 2.6.14.1.1656 is OK!
->
->  I know is a vendor kernel, but the 2.6.15 ChangeLog contains a lot of
-> changes related
->  to mtd devices and jffs2 filesystems, so I think it could be a mainline bug.
->
->  Let me know if you need more information.
+#include <hallo.h>
+* Mario 'BitKoenig' Holbe [Mon, Mar 06 2006, 01:17:53PM]:
+> V Bhanu Chandra <vbhanu.lkml@gmail.com> wrote:
+> > I am thinking of designing and implementing a new native encrypting
+> > file system for the linux kernel as a part of a student / research
+> > project. Unlike dm-crypt/loop-AES/cryptoloop, I plan to target
+> > slightly more ambitious user specifications such as: per-file random
+> > secret encryption keys which are in-turn encrypted using the public
+> > keys of all users having access to that filesystem object (a copy
+> ...
+> > Any comments / guidance / suggestions are most welcome and solicitated.
+> 
+> Since you are talking about an encrypting filesystems but only
+> referencing encrypting block devices... Have you had a look at encfs
+> and/or StegFS already?
+> At least one of the encrypting block devices you mentioned (I don't
+> remember which one) already has the ability to have multiple keys.
 
-You should CC the MTD mailing list as well.  They might be able to
-help you a bit more.
+IIRC encfs does something like this (global key protected with pass
+phrase and optional per-file IVs). And there is a new development:
+http://ecryptfs.sourceforge.net/
 
-josh
+Eduard.
+
+-- 
+Fast jede Frau ist schön, wenn sie Charme hat. Fast jede Frau hat
+Charme, wenn sie Scham hat.
+		-- Sigmund Graff

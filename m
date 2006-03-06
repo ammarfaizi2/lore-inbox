@@ -1,75 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752033AbWCFWed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752453AbWCFWfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752033AbWCFWed (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752452AbWCFWec
+	id S1752453AbWCFWfI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:35:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752452AbWCFWfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:34:32 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:11932 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1751673AbWCFWeb (ORCPT
+	Mon, 6 Mar 2006 17:35:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41914 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751308AbWCFWfF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:34:31 -0500
-Date: Tue, 7 Mar 2006 00:34:38 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: netdev@vger.kernel.org, openib-general@openib.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Matt Leininger <mlleinin@hpcn.ca.sandia.gov>
-Subject: TSO and IPoIB performance degradation
-Message-ID: <20060306223438.GA18277@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 06 Mar 2006 22:36:49.0328 (UTC) FILETIME=[7516E300:01C6416E]
+	Mon, 6 Mar 2006 17:35:05 -0500
+Date: Mon, 6 Mar 2006 14:34:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Jens Axboe <axboe@suse.de>, Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+In-Reply-To: <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
+References: <200603060117.16484.jesper.juhl@gmail.com> 
+ <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>  <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
+  <200603062136.17098.jesper.juhl@gmail.com> 
+ <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com> 
+ <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com> 
+ <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+ <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+ <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Dave!
-As you might know, the TSO patches merged into mainline kernel
-since 2.6.11 have hurt performance for the simple (non-TSO)
-high-speed netdevice that is IPoIB driver.
-
-This was discussed at length here
-http://openib.org/pipermail/openib-general/2005-October/012271.html
-
-I'm trying to figure out what can be done to improve the situation.
-In partucular, I'm looking at the Super TSO patch
-http://oss.sgi.com/archives/netdev/2005-05/msg00889.html
-
-merged into mainline here
-
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=314324121f9b94b2ca657a494cf2b9cb0e4a28cc
-
-There, you said:
-
-	When we do ucopy receive (ie. copying directly to userspace
-	during tcp input processing) we attempt to delay the ACK
-	until cleanup_rbuf() is invoked.  Most of the time this
-	technique works very well, and we emit one ACK advertising
-	the largest window.
-
-	But this explodes if the ucopy prequeue is large enough.
-	When the receiver is cpu limited and TSO frames are large,
-	the receiver is inundated with ucopy processing, such that
-	the ACK comes out very late.  Often, this is so late that
-	by the time the sender gets the ACK the window has emptied
-	too much to be kept full by the sender.
-
-	The existing TSO code mostly avoided this by keeping the
-	TSO packets no larger than 1/8 of the available window.
-	But with the new code we can get much larger TSO frames.
-
-So I'm trying to get a handle on it: could a solution be to simply
-look at the frame size, and call tcp_send_delayed_ack from
-if the frame size is no larger than 1/8?
-
-Does this make sense?
-
-Thanks,
 
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+Ok, 
+ I have a new favorite suspect.
+
+It is this one: commit 4d268eba1187ef66844a6a33b9431e5d0dadd4ad:
+
+    [PATCH] slab: extract slab order calculation to separate function
+    
+    This patch moves the ugly loop that determines the 'optimal' size (page order)
+    of cache slabs from kmem_cache_create() to a separate function and cleans it
+    up a bit.
+    
+    Thanks to Matthew Wilcox for the help with this patch.
+    
+    Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+and I think it may be broken.
+
+In particular, as far as I can tell, that
+
++               /* More than offslab_limit objects will cause problems */
++               if (flags & CFLGS_OFF_SLAB && cachep->num > offslab_limit)
++                       break;
+
+has been incorrectly translated for several reasons:
+
+ - we shouldn't check "cachep->num > offslab_limit". We should check just 
+   "num > offslab_limit" (cachep->num is the _previous_ number we tested).
+
+ - when we do "break", we've already incremented "gfporder", and we should 
+   correct for that.
+
+Now, maybe I'm just off my rocker again (I've certainly been batting 0.000 
+so far, even if I think I've been finding real bugs). So who knows. But I 
+get the feeling that that patch is broken.
+
+Either revert it, or try this (TOTALLY UNTESTED!!!) patch..
+
+And hey, maybe I'm just crazy.
+
+		Linus
+
+----
+diff --git a/mm/slab.c b/mm/slab.c
+index 2b0b151..1cca41d 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1628,25 +1628,22 @@ static inline size_t calculate_slab_orde
+ 			size_t size, size_t align, unsigned long flags)
+ {
+ 	size_t left_over = 0;
++	int gfporder;
+ 
+-	for (;; cachep->gfporder++) {
++	for (gfporder = 0 ; gfporder < MAX_GFP_ORDER; gfporder++) {
+ 		unsigned int num;
+ 		size_t remainder;
+ 
+-		if (cachep->gfporder > MAX_GFP_ORDER) {
+-			cachep->num = 0;
+-			break;
+-		}
+-
+-		cache_estimate(cachep->gfporder, size, align, flags,
+-			       &remainder, &num);
++		cache_estimate(gfporder, size, align, flags, &remainder, &num);
+ 		if (!num)
+ 			continue;
++
+ 		/* More than offslab_limit objects will cause problems */
+-		if (flags & CFLGS_OFF_SLAB && cachep->num > offslab_limit)
++		if ((flags & CFLGS_OFF_SLAB) && num > offslab_limit)
+ 			break;
+ 
+ 		cachep->num = num;
++		cachep->gfporder = gfporder;
+ 		left_over = remainder;
+ 
+ 		/*

@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWCFSPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWCFTwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWCFSPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 13:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWCFSPY
+	id S1750715AbWCFTwB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 14:52:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752413AbWCFTwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 13:15:24 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:41894 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751421AbWCFSPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 13:15:24 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8218D46C-FB88-42B7-9310-989ACE7D5CEA@kernel.crashing.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: fixed assignment of BARs for a "hotplug" device
-Date: Mon, 6 Mar 2006 12:15:33 -0600
-To: pcihpd-discuss@lists.sourceforge.net
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 6 Mar 2006 14:52:00 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:23483 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1752409AbWCFTv6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 14:51:58 -0500
+Date: Mon, 6 Mar 2006 20:48:21 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+Message-ID: <20060306194821.GA15728@electric-eye.fr.zoreil.com>
+References: <20060305180757.GA22121@deprecation.cyrius.com> <20060305185948.GA24765@electric-eye.fr.zoreil.com> <20060306143512.GI23669@deprecation.cyrius.com> <20060306191706.GA6947@deprecation.cyrius.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306191706.GA6947@deprecation.cyrius.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It was suggest to me to ask this question on the PCI hotplug list by  
-GregKH.
+Martin Michlmayr <tbm@cyrius.com> :
+[...]
+> There's another interrupt related bug in the driver, though.  I
+> sometimes get a kernel panic when rsycing several 100 megs of data
+> across the LAN.  A picture showing the call trace can be found at
+> http://www.cyrius.com/tmp/de2104x_panic.jpg
 
-I was wondering if there are any examples on how to assign a device  
-fixed BARs.  In my situation I've got an FPGA in an embedded system.   
-Other PCI devices (DSPs) expect the FPGA at a given PCI address.  I  
-haven't found any examples or interfaces that let me do what I need  
-and thus suggested the following to Greg:
+Can you publish the .config ?
 
-http://marc.theaimsgroup.com/?l=linux-pci&m=114142619805420&w=2
-
-Here's a link to the original discussion:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114140791428032&w=2
-
-thanks
-
-- kumar
+-- 
+Ueimor

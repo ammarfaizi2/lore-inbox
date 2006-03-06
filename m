@@ -1,158 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWCFQ7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751934AbWCFRAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWCFQ7A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 11:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWCFQ7A
+	id S1751934AbWCFRAb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751926AbWCFRAa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 11:59:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63372 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751179AbWCFQ67 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 11:58:59 -0500
-Message-ID: <440C6A9F.1060301@ce.jp.nec.com>
-Date: Mon, 06 Mar 2006 12:00:15 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Mon, 6 Mar 2006 12:00:30 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:20284 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751324AbWCFRA3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 12:00:29 -0500
+Message-ID: <440C6AAA.9030301@watson.ibm.com>
+Date: Mon, 06 Mar 2006 12:00:26 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alasdair G Kergon <agk@redhat.com>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       device-mapper development <dm-devel@redhat.com>
-Subject: Re: [PATCH 6/6] dm to use bd_claim_by_disk
-References: <4408E33E.1080703@ce.jp.nec.com> <4408E638.9060704@ce.jp.nec.com> <20060306155649.GB25317@agk.surrey.redhat.com>
-In-Reply-To: <20060306155649.GB25317@agk.surrey.redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------060601010900060400060103"
+To: hadi@cyberus.ca
+CC: netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Patch 7/7] Generic netlink interface (delay accounting)
+References: <1141026996.5785.38.camel@elinux04.optonline.net>	 <1141029060.5785.77.camel@elinux04.optonline.net>	 <1141045194.5363.12.camel@localhost.localdomain>	 <4403608E.1050304@watson.ibm.com> <1141652556.5185.64.camel@localhost.localdomain>
+In-Reply-To: <1141652556.5185.64.camel@localhost.localdomain>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060601010900060400060103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Jamal,
 
-Hi Alasdair,
+Pls keep lkml and lse-tech on cc since some of this affects the usage
+of delay accounting.
 
-Alasdair G Kergon wrote:
- >>+static int open_dev(struct dm_dev *d, dev_t dev, struct gendisk *holder)
- >>+static int upgrade_mode(struct dm_dev *dd, int new_mode, struct gendisk *holder)
- >>+static void close_dev(struct dm_dev *d, struct gendisk *holder)
- >
- > Please pass the dm structure, struct mapped_device, around between dm functions
- > internally where you can, instead of struct gendisk.  (Every time the new
- > parameter is passed it's wrapped with dm_disk(), so move the dm_disk() inside.)
 
-Thank you for the comment. I changed them and updated the patch.
-Could you check whether there is any other wrong thing?
+jamal wrote:
+
+>Hi Shailabh,
+>Apologies for taking a week to respond ..
+>
+>On Mon, 2006-27-02 at 15:26 -0500, Shailabh Nagar wrote: 
+>  
+>
+>>jamal wrote:
+>>    
+>>
+>
+>  
+>
+>>Yes, the current intent is to allow multiple listeners to receive the 
+>>responses sent by the kernel.
+>>    
+>>
+>
+>Responses or events? There is a difference:
+>Response implies the program in user space requested (ex a GET) for that
+>information and is receiving such info.
+>Event implies the program in user space asked to be informed of changes
+>in the kernel. Example an exit would be considered an event. 
+>Events are received by virtue of registering to a multicast group.
+>[..] 
+>  
+>
+My design was to have the listener get both responses (what I call 
+replies in the code)
+as well as events (data sent on exit of pid)
+
+>>Since this interface (taskstats) is currently designed for that 
+>>possibility, having multiple listeners, one for
+>>each "component" such as delay accounting, is the model we're using.
+>>We expect each component to have a pair of userspace programs, one for 
+>>sending commands and the other
+>>to "listen" to all replies + data generated on task exits. 
+>>    
+>>
+>
+>You need to have a sender of GETs essentially and a listener of events.
+>Those are two connections. The replies of a get from user1 will not be
+>sent to user2 as well - unless ... thats what you are trying to achieve;
+>the question is why?
+>  
+>
+Yes, I was trying to have an asymmetric model where the userspace sender 
+of GETs
+doesn't receive the reply as a unicast. Rather the reply is sent by 
+multicast (alongwith all the
+event data).
+
+Reason for this unintuitive design was to make it easier to process the 
+returned data.
+
+The expected usage of delay accounting is to periodically "sample" the 
+delays for all
+tasks (or tgids) in the system. Also, get the delays from exiting pids 
+(lets forget how tgid exit
+is handled for now...irrelevant to this discussion).
+
+Using the above two pieces of data, userspace can aggregate the "delays" 
+seen by any
+grouping of tasks that it chooses to implement.
+
+In this usage scenario, its more efficient to have one receiver get both 
+response and event
+data and process in a loop.
+
+However, we could switch to the model you suggest and use a 
+multithreaded send/receive
+userspace utility.
+
+>>The listener 
+>>is expected to register/deregister interest through
+>>TASKSTATS_CMD_LISTEN and IGNORE.
+>>
+>>    
+>>
+>
+>It is not necessary if you follow the model i described.
+>
+>  
+>
+>>>How does this correlate to TASKSTATS_CMD_LISTEN/IGNORE?
+>>> 
+>>>
+>>>      
+>>>
+>>See above. Its mainly an optimization so that if no listener is present, 
+>>there's no need to generate the data.
+>>
+>>    
+>>
+>
+>Also not necessary - There is a recent netlink addition to make sure
+>that events dont get sent if no listeners exist.
+>genetlink needs to be extended. For now assume such a thing exists.
+>  
+>
+Ok. Will this addition work for both unicast and multicast modes ?
+
+
+
+>  
+>
+>>>>+
+>>>>        
+>>>>
+>
+>  
+>
+>>Good point. Should check for users sending it as a cmd and treat it as a 
+>>noop. 
+>>    
+>>
+>
+>More like return an -EINVAL
+>  
+>
+Will this be necessary ? Isn't genl_rcv_msg() going to return a -EOPNOTSUPP
+automatically for us since we've not registered the command ?
+ 
+
+>  
+>
+>>I'm just using
+>>this as a placeholder for data thats returned without being requested.
+>>
+>>    
+>>
+>
+>So it is unconditional?
+>  
+>
+Yes.
+
+>  
+>
+>>Come to think of it, there's no real reason to have a genlmsghdr for 
+>>returned data, is there ?
+>>    
+>>
+>
+>All messages should be consistent whether they are sent from user
+>or kernel.
+>  
+>
+Ok. will retain genetlink header.
+
+>>Other than to copy the genlmsghdr that was sent so user can identify 
+>>which command was sent
+>>(and I'm doing that through the reply type, perhaps redundantly).
+>>
+>>    
+>>
+>
+>yes, that is a useful trick. Just make sure they are reflected
+>correctly.
+>
+>  
+>
+>>Actually, the next iteration of the code will move to dynamically 
+>>generated ID. But yes, will need to check for that.
+>>
+>>    
+>>
+>
+>Also if you can provide feedback whether the doc i sent was any use
+>and what wasnt clear etc.
+>  
+>
+Will do.
+
+>>Thanks for the review.
+>>Couple of questions about general netlink:
+>>is it intended to remain a size that will always be aligned to the 
+>>NLMSG_ALIGNTO so that (NLMSG_DATA(nlhdr) + GENL_HDRLEN) can always 
+>>be used as a pointer to the genlmsghdr ?
+>>
+>>    
+>>
+>
+>I am not sure i followed.
+>The whole message (nlhdr, genlhdr, optionalhdr, TLVs) has to be in 
+>the end 32 bit aligned.
+>  
+>
+Ok , so separate padding isn't needed to make the genlhdr, optionalhdr 
+and TLV parts aligned
+too.
+
+>>Adding some macros like genlmsg_data(nlh) would be handy (currently I 
+>>just define and use it locally).
+>>
+>>    
+>>
+>
+>Send a patch.
+>  
+>
+will do.
+
 
 Thanks,
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
+Shailabh
 
---------------060601010900060400060103
-Content-Type: text/x-patch;
- name="06-dm_deptree-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="06-dm_deptree-2.patch"
+>cheers,
+>jamal
+>
+>  
+>
 
-Use bd_claim_by_disk.
-
-Following symlinks are created if dm-0 maps to sda:
-  /sys/block/dm-0/slaves/sda --> /sys/block/sda
-  /sys/block/sda/holders/dm-0 --> /sys/block/dm-0
-
-This patch depends on dm-table-store-md.patch in
-http://www.kernel.org/pub/linux/kernel/people/agk/patches/2.6/editing/
-
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-
- drivers/md/dm-table.c |   20 ++++++++++----------
- 1 files changed, 10 insertions(+), 10 deletions(-)
-
-
---- linux-2.6.16-rc5.orig/drivers/md/dm-table.c	2006-03-02 14:55:14.000000000 -0500
-+++ linux-2.6.16-rc5/drivers/md/dm-table.c	2006-03-06 11:00:23.000000000 -0500
-@@ -348,7 +348,7 @@ static struct dm_dev *find_device(struct
- /*
-  * Open a device so we can use it as a map destination.
-  */
--static int open_dev(struct dm_dev *d, dev_t dev)
-+static int open_dev(struct dm_dev *d, dev_t dev, struct mapped_device *md)
- {
- 	static char *_claim_ptr = "I belong to device-mapper";
- 	struct block_device *bdev;
-@@ -361,7 +361,7 @@ static int open_dev(struct dm_dev *d, de
- 	bdev = open_by_devnum(dev, d->mode);
- 	if (IS_ERR(bdev))
- 		return PTR_ERR(bdev);
--	r = bd_claim(bdev, _claim_ptr);
-+	r = bd_claim_by_disk(bdev, _claim_ptr, dm_disk(md));
- 	if (r)
- 		blkdev_put(bdev);
- 	else
-@@ -372,12 +372,12 @@ static int open_dev(struct dm_dev *d, de
- /*
-  * Close a device that we've been using.
-  */
--static void close_dev(struct dm_dev *d)
-+static void close_dev(struct dm_dev *d, struct mapped_device *md)
- {
- 	if (!d->bdev)
- 		return;
- 
--	bd_release(d->bdev);
-+	bd_release_from_disk(d->bdev, dm_disk(md));
- 	blkdev_put(d->bdev);
- 	d->bdev = NULL;
- }
-@@ -398,7 +398,7 @@ static int check_device_area(struct dm_d
-  * careful to leave things as they were if we fail to reopen the
-  * device.
-  */
--static int upgrade_mode(struct dm_dev *dd, int new_mode)
-+static int upgrade_mode(struct dm_dev *dd, int new_mode, struct mapped_device *md)
- {
- 	int r;
- 	struct dm_dev dd_copy;
-@@ -408,9 +408,9 @@ static int upgrade_mode(struct dm_dev *d
- 
- 	dd->mode |= new_mode;
- 	dd->bdev = NULL;
--	r = open_dev(dd, dev);
-+	r = open_dev(dd, dev, md);
- 	if (!r)
--		close_dev(&dd_copy);
-+		close_dev(&dd_copy, md);
- 	else
- 		*dd = dd_copy;
- 
-@@ -453,7 +453,7 @@ static int __table_get_device(struct dm_
- 		dd->mode = mode;
- 		dd->bdev = NULL;
- 
--		if ((r = open_dev(dd, dev))) {
-+		if ((r = open_dev(dd, dev, t->md))) {
- 			kfree(dd);
- 			return r;
- 		}
-@@ -464,7 +464,7 @@ static int __table_get_device(struct dm_
- 		list_add(&dd->list, &t->devices);
- 
- 	} else if (dd->mode != (mode | dd->mode)) {
--		r = upgrade_mode(dd, mode);
-+		r = upgrade_mode(dd, mode, t->md);
- 		if (r)
- 			return r;
- 	}
-@@ -539,7 +539,7 @@ int dm_get_device(struct dm_target *ti, 
- void dm_put_device(struct dm_target *ti, struct dm_dev *dd)
- {
- 	if (atomic_dec_and_test(&dd->count)) {
--		close_dev(dd);
-+		close_dev(dd, ti->table->md);
- 		list_del(&dd->list);
- 		kfree(dd);
- 	}
-
---------------060601010900060400060103--

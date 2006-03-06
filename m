@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWCFNzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWCFOR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932318AbWCFNzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 08:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWCFNzI
+	id S1750872AbWCFOR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 09:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWCFOR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 08:55:08 -0500
-Received: from smtp17.wanadoo.fr ([193.252.23.111]:16104 "EHLO
-	smtp17.wanadoo.fr") by vger.kernel.org with ESMTP id S932318AbWCFNzG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 08:55:06 -0500
-X-ME-UUID: 20060306135459485.766267000084@mwinf1701.wanadoo.fr
-Date: Mon, 6 Mar 2006 14:54:34 +0100
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-       Christoph Hellwig <hch@lst.de>, Richard Henderson <rth@twiddle.net>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Problem on Alpha with "convert to generic irq framework"
-Message-ID: <20060306135434.GA12829@localhost>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>, Richard Henderson <rth@twiddle.net>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060306155114.A8425@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+	Mon, 6 Mar 2006 09:17:29 -0500
+Received: from xsmtp0.ethz.ch ([82.130.70.14]:12208 "EHLO XSMTP0.ethz.ch")
+	by vger.kernel.org with ESMTP id S1750872AbWCFOR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 09:17:29 -0500
+Message-ID: <440C4472.8000509@debian.org>
+Date: Mon, 06 Mar 2006 15:17:22 +0100
+From: "Giacomo A. Catenazzi" <cate@debian.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: "Paul D. Smith" <psmith@gnu.org>, bug-make@gnu.org,
+       LKML <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
+       Art Haas <ahaas@airmail.net>
+Subject: Re: [kbuild-devel] Re: kbuild: Problem with latest GNU make rc
+References: <17413.49617.923704.35763@lemming.engeast.baynetworks.com> <20060304214026.GB1539@mars.ravnborg.org> <17419.25684.389269.70457@lemming.engeast.baynetworks.com> <20060305231954.GA25710@mars.ravnborg.org>
+In-Reply-To: <20060305231954.GA25710@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Mar 2006 14:17:22.0704 (UTC) FILETIME=[AF96F100:01C64128]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 03:51:14PM +0300, Ivan Kokshaysky wrote:
-> I cannot reproduce that, but all my machines use SRM, so interrupt
-> handling is quite different from AlphaBIOS systems.
-> [...]
-> I'll try to install AlphaBIOS/MILO on my lx164 to see what happens.
+Sam Ravnborg wrote:
+>>   sr> Suggestion:
+>>   sr> We are now warned about an incompatibility in kbuild and we will
+>>   sr> fix this asap. But that you postpone this particular behaviour
+>>   sr> change until next make release. Maybe you add in this change as
+>>   sr> the first thing after the stable relase so all bleeding edge make
+>>   sr> users see it and can report issues.
+>>
+>> I am willing to postpone this change.  However, I can't say how much of
+>> a window this delay will give you: I can say that it's extremely
+>> unlikely that it will be another 3 years before GNU make 3.82 comes out.
+> 
+> One year would be good. The fixed kernel build will be available in an
+> official kernel in maybe two or three months form now. With current pace
+> we will have maybe 3 more kernel relase until this hits us. And only on
+> bleeding edge machines.
 
-Too bad my alpha doesn't support SRM (it's really a modified LX164
-board).
+I don't think is a big issue. The short-cut "compile only the necessary
+files" is used mainly by developers.
+Anyway the kernel will remain correct. Maybe for old kernel it take more
+time to build the kernel, but correct.
 
-Is there anything I can do to help debug the problem?
--- 
-Mathieu Chouquet-Stringer                           mchouque@free.fr
-    "Le disparu, si l'on vénère sa mémoire, est plus présent et
-                 plus puissant que le vivant".
-           -- Antoine de Saint-Exupéry, Citadelle --
+BTW Debian building tools (IIRC) clean the sources before every kernel
+building process, and in 2.4 (and previous) it was high recommended to
+clean and recompile all kernel before any changes, so no big issue in
+these cases.
+I don't know other "normal use", but I think it is not a big issue if
+people will need a complete build in the rare (IMHO) case that they
+want to recompile kernel (with small patches or changes in configuration).
+
+ciao
+	cate
 

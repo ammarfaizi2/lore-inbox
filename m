@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751426AbWCFRon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751969AbWCFRo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751426AbWCFRon (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 12:44:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWCFRon
+	id S1751969AbWCFRo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWCFRo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 12:44:43 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:13277
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S1751426AbWCFRom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 12:44:42 -0500
-Date: Mon, 6 Mar 2006 11:44:23 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "Anders K. Pedersen" <akp@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Let DAC960 supply entropy to random pool
-Message-ID: <20060306174423.GY14549@waste.org>
-References: <1140713078.16199.25.camel@homer.cohaesio.com> <20060227000540.GN4650@waste.org> <1141644324.3627.15.camel@homer.cohaesio.com>
+	Mon, 6 Mar 2006 12:44:28 -0500
+Received: from mail.axxeo.de ([82.100.226.146]:37308 "EHLO mail.axxeo.de")
+	by vger.kernel.org with ESMTP id S1751380AbWCFRo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 12:44:27 -0500
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Date: Mon, 6 Mar 2006 18:44:07 +0100
+User-Agent: KMail/1.7.2
+Cc: "David S. Miller" <davem@davemloft.net>, jengelh@linux01.gwdg.de,
+       christopher.leech@intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <20060303214036.11908.10499.stgit@gitlost.site> <20060304.134144.122314124.davem@davemloft.net> <20060305014324.GA20026@2ka.mipt.ru>
+In-Reply-To: <20060305014324.GA20026@2ka.mipt.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1141644324.3627.15.camel@homer.cohaesio.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603061844.07439.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 12:25:24PM +0100, Anders K. Pedersen wrote:
-> On Mon, 2006-02-27 at 01:05, Matt Mackall wrote:
-> > On Thu, Feb 23, 2006 at 05:44:38PM +0100, Anders K. Pedersen wrote:
-> > > We have a couple of servers with Mylex RAID controllers (handled by the
-> > > DAC960 block device driver). There's normally no keyboard or mouse
-> > > attached, and neither the DAC960 nor the NIC driver (e100) provides
-> > > entropy to the random pool, so it was impossible to get any data from
-> > > /dev/random.
+Evgeniy Polyakov wrote:
+> On Sat, Mar 04, 2006 at 01:41:44PM -0800, David S. Miller (davem@davemloft.net) wrote:
+> > From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+> > Date: Sat, 4 Mar 2006 19:46:22 +0100 (MET)
 > > 
-> > Doesn't the add_disk_randomness call in ll_rw_blk.c suffice? This is
-> > the proper path for disks to add entropy.
+> > > Does this buy the normal standard desktop user anything?
+> > 
+> > Absolutely, it optimizes end-node performance.
 > 
-> Apparently the add_disk_randomness call in ll_rw_blk.c isn't invoked for
-> my setup. There were absolutely no data available from /dev/random for
-> more than an hour (with heavy disk activity) before applying the
-> dac960.c patch, and after applying it, random data were instantly
-> available.
+> It really depends on how it is used.
+> According to investigation made for kevent based FS AIO reading,
+> get_user_pages() performange graph looks like sqrt() function
 
-Ok, we probably want this patch. Please test.
+Hmm, so I should resurrect my user page table walker abstraction?
 
-Add disk entropy in DAC960 request completions.
+There I would hand each page to a "recording" function, which
+can drop the page from the collection or coalesce it in the collector
+if your scatter gather implementation allows it.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+Regards
 
-Index: 2.6/drivers/block/DAC960.c
-===================================================================
---- 2.6.orig/drivers/block/DAC960.c	2006-03-01 23:32:32.000000000 -0600
-+++ 2.6/drivers/block/DAC960.c	2006-03-06 11:41:45.000000000 -0600
-@@ -41,6 +41,7 @@
- #include <linux/timer.h>
- #include <linux/pci.h>
- #include <linux/init.h>
-+#include <linux/random.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include "DAC960.h"
-@@ -3463,7 +3464,7 @@ static inline boolean DAC960_ProcessComp
- 		Command->SegmentCount, Command->DmaDirection);
- 
- 	 if (!end_that_request_first(Request, UpToDate, Command->BlockCount)) {
--
-+		add_disk_randomness(Request->rq_disk);
-  	 	end_that_request_last(Request, UpToDate);
- 
- 		if (Command->Completion) {
-
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Ingo Oeser

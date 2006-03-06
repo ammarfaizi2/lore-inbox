@@ -1,80 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWCFXmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752052AbWCFXyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbWCFXmN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 18:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWCFXmN
+	id S1752052AbWCFXyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 18:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWCFXyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 18:42:13 -0500
-Received: from smtp107.rog.mail.re2.yahoo.com ([68.142.225.205]:11437 "HELO
-	smtp107.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932488AbWCFXmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 18:42:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=rogers.com;
-  h=Received:Subject:From:To:Cc:In-Reply-To:References:Content-Type:Date:Message-Id:Mime-Version:X-Mailer:Content-Transfer-Encoding;
-  b=eOgjYP5FzaEZ8HFuycFNDsD3hnhYu0mlaJIkBxI8NF2cSqJUXcLoU7k0MdZeilK2hF6OmHGzmtTrCn31jxHJ0etR1IcXjfSyTtDdmeladJhF0S5jH8y99mXFHqWHhC91RcMPzzNi7eu1MkY/BPC7G3YG8nlDXKJtjpfvOOjXuJA=  ;
-Subject: Re: [2.6 patch] make UNIX a bool
-From: "James C. Georgas" <jgeorgas@rogers.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <6D8D14D2-4ED3-46ED-8FB9-FF8567DC9F70@mac.com>
-References: <1141358816.3582.18.camel@Rainsong.home>
-	 <1141359278.3582.22.camel@Rainsong.home>
-	 <20060302233249.2aa918f4.mrmacman_g4@mac.com>
-	 <1141421511.11092.66.camel@Rainsong.home>
-	 <6D8D14D2-4ED3-46ED-8FB9-FF8567DC9F70@mac.com>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 18:42:18 -0500
-Message-Id: <1141688538.19207.18.camel@Rainsong.home>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 18:54:12 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:62607 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752468AbWCFXxC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 18:53:02 -0500
+Subject: [RFC][PATCH 6/6] sysvshm: containerize sysctls
+To: linux-kernel@vger.kernel.org
+Cc: serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       Herbert Poetzl <herbert@13thfloor.at>, Sam Vilain <sam@vilain.net>,
+       Dave Hansen <haveblue@us.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Mon, 06 Mar 2006 15:52:53 -0800
+References: <20060306235248.20842700@localhost.localdomain>
+In-Reply-To: <20060306235248.20842700@localhost.localdomain>
+Message-Id: <20060306235253.C758293E@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-04-03 at 17:57 -0500, Kyle Moffett wrote:
-> On Mar 3, 2006, at 16:31:51, James C. Georgas wrote:
-> > On Thu, 2006-02-03 at 23:32 -0500, Kyle Moffett wrote:
-> >> af_unix (IE: CONFIG_UNIX) currently uses the symbol  
-> >> get_max_files.  It is the only module that uses that symbol, and  
-> >> that symbol probably should not be exported as it's kind of an  
-> >> internal API.  Therefore if we mandate that CONFIG_UNIX != m, then  
-> >> that symbol may be properly unexported and made private, because  
-> >> nothing modular would use it.  Does that clear things up?
-> >
-> > Yes, I think I understand.
-> >
-> > However, even if you don't export the symbol, I don't see how you  
-> > can make it private (i.e. static declaration) to file_table.c,  
-> > since it has to remain extern, in order to be visible to af_unix.c.
-> 
-> You're missing some crucial information about how Linux operates.   
-> EXPORT_SYMBOL != extern.  Basically, Linux maintains a list of  
-> symbols that dynamically loaded modules are allowed to use, along  
-> with some technical usage restrictions on each  (Symbols exported  
-> with EXPORT_SYMBOL_GPL may only be used by modules that declare  
-> 'MODULE_LICENSE("GPL");'.) Exporting a symbol increases the 
-> likliehood that some module author will use it inappropriately, and  
-> bloats the kernel.  In this case, removing the EXPORT_SYMBOL() would  
-> be a good thing.
 
-Isn't it kind of pointless to not EXPORT a symbol if the symbol is still
-declared globally in an include/linux/ header file? If the intent is to
-prevent abuse of the symbol, then this doesn't do it, because I can just
-statically compile my module into the kernel, and keep on using that
-symbol.
+Note that this will effectively remove the system-wide limits
+on sysv shm resources that the sysctl mechanism currently
+provides and move it to a per-container limit.  This is
+currently by design, and may be later addressed when we have
+proper large-scale resource controls in the kernel.
 
-It makes sense to me to remove the EXPORT of geget_max_filest_max_files,
-if the intent is to eventually remove 
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
+ desc.txt                  |    0 
+ work-dave/ipc/shm.c       |   33 +++++++++++++++++++++++----------
+ work-dave/ipc/util.h      |    4 ++++
+ work-dave/kernel/sysctl.c |   12 ++++++------
+ 4 files changed, 33 insertions(+), 16 deletions(-)
 
-
-
-I was under the impression that Adrian wanted 
-> 
-> Cheers,
-> Kyle Moffett
-> 
--- 
-James C. Georgas <jgeorgas@rogers.com>
-
+diff -puN ipc/shm.c~sysvshm-containerize-sysctls ipc/shm.c
+--- work/ipc/shm.c~sysvshm-containerize-sysctls	2006-03-06 15:42:00.000000000 -0800
++++ work-dave/ipc/shm.c	2006-03-06 15:42:00.000000000 -0800
+@@ -55,12 +55,12 @@ static void shm_close (struct vm_area_st
+ static int sysvipc_shm_proc_show(struct seq_file *s, void *it);
+ #endif
+ 
+-size_t	shm_ctlmax = SHMMAX;
+-size_t 	shm_ctlall = SHMALL;
+-int 	shm_ctlmni = SHMMNI;
+-
+ void __init shm_init (struct ipc_shm_context *context)
+ {
++	context->ctlmax = SHMMAX;
++	context->ctlall = SHMALL;
++	context->ctlmni = SHMMNI;
++
+ 	ipc_init_ids(&context->ids, 1);
+ 	ipc_init_proc_interface("sysvipc/shm",
+ 				"       key      shmid perms       size  cpid  lpid nattch   uid   gid  cuid  cgid      atime      dtime      ctime\n",
+@@ -85,7 +85,7 @@ struct shmid_kernel *shm_rmid(struct ipc
+ static inline
+ int shm_addid(struct ipc_shm_context *context, struct shmid_kernel *shp)
+ {
+-	return ipc_addid(&context->ids, &shp->shm_perm, shm_ctlmni);
++	return ipc_addid(&context->ids, &shp->shm_perm, context->ctlmni);
+ }
+ 
+ 
+@@ -208,10 +208,10 @@ static int newseg (struct ipc_shm_contex
+ 	char name[13];
+ 	int id;
+ 
+-	if (size < SHMMIN || size > shm_ctlmax)
++	if (size < SHMMIN || size > context->ctlmax)
+ 		return -EINVAL;
+ 
+-	if (context->tot + numpages >= shm_ctlall)
++	if (context->tot + numpages >= context->ctlall)
+ 		return -ENOSPC;
+ 
+ 	shp = ipc_rcu_alloc(sizeof(*shp));
+@@ -463,9 +463,9 @@ asmlinkage long sys_shmctl (int shmid, i
+ 			return err;
+ 
+ 		memset(&shminfo,0,sizeof(shminfo));
+-		shminfo.shmmni = shminfo.shmseg = shm_ctlmni;
+-		shminfo.shmmax = shm_ctlmax;
+-		shminfo.shmall = shm_ctlall;
++		shminfo.shmmni = shminfo.shmseg = context->ctlmni;
++		shminfo.shmmax = context->ctlmax;
++		shminfo.shmall = context->ctlall;
+ 
+ 		shminfo.shmmin = SHMMIN;
+ 		if(copy_shminfo_to_user (buf, &shminfo, version))
+@@ -935,3 +935,16 @@ static int sysvipc_shm_proc_show(struct 
+ 			  shp->shm_ctim);
+ }
+ #endif
++
++void *shm_ctlmax_helper(void)
++{
++	return &current->ipc_context->shm.ctlmax;
++}
++void *shm_ctlall_helper(void)
++{
++	return &current->ipc_context->shm.ctlall;
++}
++void *shm_ctlmni_helper(void)
++{
++	return &current->ipc_context->shm.ctlmni;
++}
+diff -puN ipc/util.h~sysvshm-containerize-sysctls ipc/util.h
+--- work/ipc/util.h~sysvshm-containerize-sysctls	2006-03-06 15:42:00.000000000 -0800
++++ work-dave/ipc/util.h	2006-03-06 15:42:00.000000000 -0800
+@@ -47,6 +47,10 @@ struct ipc_sem_context {
+ struct ipc_shm_context {
+ 	struct ipc_ids ids;
+ 
++	size_t ctlmax;
++	size_t ctlall;
++	int    ctlmni;
++
+ 	int tot; /* total number of shared memory pages */
+ };
+ 
+diff -puN kernel/sysctl.c~sysvshm-containerize-sysctls kernel/sysctl.c
+--- work/kernel/sysctl.c~sysvshm-containerize-sysctls	2006-03-06 15:42:00.000000000 -0800
++++ work-dave/kernel/sysctl.c	2006-03-06 15:42:00.000000000 -0800
+@@ -92,12 +92,12 @@ extern char modprobe_path[];
+ extern int sg_big_buff;
+ #endif
+ #ifdef CONFIG_SYSVIPC
+-extern size_t shm_ctlmax;
+-extern size_t shm_ctlall;
++extern void *shm_ctlmax_helper(void);
++extern void *shm_ctlall_helper(void);
++extern void *shm_ctlmni_helper(void);
+ extern void *msg_ctlmnb_helper(void);
+ extern void *msg_ctlmni_helper(void);
+ extern void *msg_ctlmax_helper(void);
+-extern int shm_ctlmni;
+ extern int sem_ctls[];
+ #endif
+ 
+@@ -428,7 +428,7 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_SHMMAX,
+ 		.procname	= "shmmax",
+-		.data		= &shm_ctlmax,
++		.data_access	= &shm_ctlmax_helper,
+ 		.maxlen		= sizeof (size_t),
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_doulongvec_minmax,
+@@ -436,7 +436,7 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_SHMALL,
+ 		.procname	= "shmall",
+-		.data		= &shm_ctlall,
++		.data_access	= &shm_ctlall_helper,
+ 		.maxlen		= sizeof (size_t),
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_doulongvec_minmax,
+@@ -444,7 +444,7 @@ static ctl_table kern_table[] = {
+ 	{
+ 		.ctl_name	= KERN_SHMMNI,
+ 		.procname	= "shmmni",
+-		.data		= &shm_ctlmni,
++		.data_access	= &shm_ctlmni_helper,
+ 		.maxlen		= sizeof (int),
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+diff -puN desc.txt~sysvshm-containerize-sysctls desc.txt
+_

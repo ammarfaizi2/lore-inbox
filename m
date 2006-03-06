@@ -1,201 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWCFB5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWCFCBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWCFB5d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 20:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWCFB5A
+	id S932146AbWCFCBE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 21:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWCFCBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 20:57:00 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:58239 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1751607AbWCFBxO (ORCPT
+	Sun, 5 Mar 2006 21:01:03 -0500
+Received: from ozlabs.org ([203.10.76.45]:39575 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932146AbWCFCBA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 20:53:14 -0500
-Message-Id: <20060306015010.359877000@towertech.it>
-References: <20060306015008.858209000@towertech.it>
-User-Agent: quilt/0.43-1
-Date: Mon, 06 Mar 2006 02:50:15 +0100
-From: Alessandro Zummo <a.zummo@towertech.it>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, akpm@digeo.com, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 07/16] RTC subsystem, sysfs interface
-Content-Disposition: inline; filename=rtc-intf-sysfs.patch
+	Sun, 5 Mar 2006 21:01:00 -0500
+Date: Mon, 6 Mar 2006 13:00:05 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       William Lee Irwin <wli@holomorphy.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: hugepage: Move hugetlb_free_pgd_range() prototype to hugetlb.h
+Message-ID: <20060306020005.GB21408@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	William Lee Irwin <wli@holomorphy.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the sysfs interface to the
-RTC subsystem.
+The optional hugepage callback, hugetlb_free_pgd_range() is presently
+implemented non-trivially only on ia64 (but I plan to add one for
+powerpc shortly).  It has its own prototype for the function in
+asm-ia64/pgtable.h.  However, since the function is called from
+generic code, it make sense for its prototype to be in the generic
+hugetlb.h header file, as the protypes other arch callbacks already
+are (prepare_hugepage_range(), set_huge_pte_at(), etc.).  This patch
+makes it so.
 
-Each RTC client will have his own entry
-under /sys/classs/rtc/rtcN .
+Signed-off-by: David Gibson <dwg@au1.ibm.com>
 
-Within this entry some attributes are
-exported by the subsystem, like date and time.
-
-Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
---
-
- drivers/rtc/Kconfig     |   11 ++++
- drivers/rtc/Makefile    |    3 +
- drivers/rtc/rtc-sysfs.c |  124 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 138 insertions(+)
-
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-sysfs.c	2006-03-05 02:46:59.000000000 +0100
-@@ -0,0 +1,124 @@
-+/*
-+ * RTC subsystem, sysfs interface
-+ *
-+ * Copyright (C) 2005 Tower Technologies
-+ * Author: Alessandro Zummo <a.zummo@towertech.it>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/rtc.h>
-+
-+/* device attributes */
-+
-+static ssize_t rtc_sysfs_show_name(struct class_device *dev, char *buf)
-+{
-+	return sprintf(buf, "%s\n", to_rtc_device(dev)->name);
-+}
-+static CLASS_DEVICE_ATTR(name, S_IRUGO, rtc_sysfs_show_name, NULL);
-+
-+static ssize_t rtc_sysfs_show_date(struct class_device *dev, char *buf)
-+{
-+	ssize_t retval;
-+	struct rtc_time tm;
-+
-+	retval = rtc_read_time(dev, &tm);
-+	if (retval == 0) {
-+		retval = sprintf(buf, "%04d-%02d-%02d\n",
-+			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-+	}
-+
-+	return retval;
-+}
-+static CLASS_DEVICE_ATTR(date, S_IRUGO, rtc_sysfs_show_date, NULL);
-+
-+static ssize_t rtc_sysfs_show_time(struct class_device *dev, char *buf)
-+{
-+	ssize_t retval;
-+	struct rtc_time tm;
-+
-+	retval = rtc_read_time(dev, &tm);
-+	if (retval == 0) {
-+		retval = sprintf(buf, "%02d:%02d:%02d\n",
-+			tm.tm_hour, tm.tm_min, tm.tm_sec);
-+	}
-+
-+	return retval;
-+}
-+static CLASS_DEVICE_ATTR(time, S_IRUGO, rtc_sysfs_show_time, NULL);
-+
-+static ssize_t rtc_sysfs_show_since_epoch(struct class_device *dev, char *buf)
-+{
-+	ssize_t retval;
-+	struct rtc_time tm;
-+
-+	retval = rtc_read_time(dev, &tm);
-+	if (retval == 0) {
-+		unsigned long time;
-+		rtc_tm_to_time(&tm, &time);
-+		retval = sprintf(buf, "%lu\n", time);
-+	}
-+
-+	return retval;
-+}
-+static CLASS_DEVICE_ATTR(since_epoch, S_IRUGO, rtc_sysfs_show_since_epoch, NULL);
-+
-+static struct attribute *rtc_attrs[] = {
-+	&class_device_attr_name.attr,
-+	&class_device_attr_date.attr,
-+	&class_device_attr_time.attr,
-+	&class_device_attr_since_epoch.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group rtc_attr_group = {
-+	.attrs = rtc_attrs,
-+};
-+
-+static int __devinit rtc_sysfs_add_device(struct class_device *class_dev,
-+					struct class_interface *class_intf)
-+{
-+	int err;
-+
-+	dev_info(class_dev->dev, "rtc intf: sysfs\n");
-+
-+	err = sysfs_create_group(&class_dev->kobj, &rtc_attr_group);
-+	if (err)
-+		dev_err(class_dev->dev,
-+			"failed to create sysfs attributes\n");
-+
-+	return err;
-+}
-+
-+static void rtc_sysfs_remove_device(struct class_device *class_dev,
-+				struct class_interface *class_intf)
-+{
-+	sysfs_remove_group(&class_dev->kobj, &rtc_attr_group);
-+}
-+
-+/* interface registration */
-+
-+static struct class_interface rtc_sysfs_interface = {
-+	.add = &rtc_sysfs_add_device,
-+	.remove = &rtc_sysfs_remove_device,
-+};
-+
-+static int __init rtc_sysfs_init(void)
-+{
-+	return rtc_interface_register(&rtc_sysfs_interface);
-+}
-+
-+static void __exit rtc_sysfs_exit(void)
-+{
-+	class_interface_unregister(&rtc_sysfs_interface);
-+}
-+
-+module_init(rtc_sysfs_init);
-+module_exit(rtc_sysfs_exit);
-+
-+MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("RTC class sysfs interface");
-+MODULE_LICENSE("GPL");
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-05 02:39:59.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 02:46:23.000000000 +0100
-@@ -40,6 +40,17 @@ config RTC_HCTOSYS_DEVICE
- comment "RTC interfaces"
- 	depends on RTC_CLASS
+Index: working-2.6/include/asm-ia64/pgtable.h
+===================================================================
+--- working-2.6.orig/include/asm-ia64/pgtable.h	2006-02-24 11:44:35.000000000 +1100
++++ working-2.6/include/asm-ia64/pgtable.h	2006-03-06 12:57:11.000000000 +1100
+@@ -505,9 +505,6 @@ extern struct page *zero_page_memmap_ptr
+ #define HUGETLB_PGDIR_SHIFT	(HPAGE_SHIFT + 2*(PAGE_SHIFT-3))
+ #define HUGETLB_PGDIR_SIZE	(__IA64_UL(1) << HUGETLB_PGDIR_SHIFT)
+ #define HUGETLB_PGDIR_MASK	(~(HUGETLB_PGDIR_SIZE-1))
+-struct mmu_gather;
+-void hugetlb_free_pgd_range(struct mmu_gather **tlb, unsigned long addr,
+-		unsigned long end, unsigned long floor, unsigned long ceiling);
+ #endif
  
-+config RTC_INTF_SYSFS
-+	tristate "sysfs"
-+	depends on RTC_CLASS && SYSFS
-+	default RTC_CLASS
-+	help
-+	  Say yes here if you want to use your RTC using the sysfs
-+	  interface, /sys/class/rtc/rtcX .
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-sysfs.
-+
- comment "RTC drivers"
- 	depends on RTC_CLASS
+ /*
+Index: working-2.6/include/linux/hugetlb.h
+===================================================================
+--- working-2.6.orig/include/linux/hugetlb.h	2006-03-06 11:38:45.000000000 +1100
++++ working-2.6/include/linux/hugetlb.h	2006-03-06 12:53:20.000000000 +1100
+@@ -47,6 +47,10 @@ void hugetlb_change_protection(struct vm
  
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-05 02:40:00.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-05 02:46:23.000000000 +0100
-@@ -6,3 +6,6 @@ obj-$(CONFIG_RTC_LIB)		+= rtc-lib.o
- obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
- obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
- rtc-core-y			:= class.o interface.o
-+
-+obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
-+
+ #ifndef ARCH_HAS_HUGETLB_FREE_PGD_RANGE
+ #define hugetlb_free_pgd_range	free_pgd_range
++#else
++void hugetlb_free_pgd_range(struct mmu_gather **tlb, unsigned long addr,
++			    unsigned long end, unsigned long floor,
++			    unsigned long ceiling);
+ #endif
+ 
+ #ifndef ARCH_HAS_PREPARE_HUGEPAGE_RANGE
 
---
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

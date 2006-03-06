@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752312AbWCFJIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752316AbWCFJJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752312AbWCFJIf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 04:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752314AbWCFJIf
+	id S1752316AbWCFJJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752317AbWCFJJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 04:08:35 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:26833 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1752312AbWCFJIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 04:08:34 -0500
-Subject: RE: [PATCH] hugetlb_no_page might break hugetlb quota
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       David Gibson <david@gibson.dropbear.id.au>
-In-Reply-To: <200603060815.k268FXg07605@unix-os.sc.intel.com>
-References: <200603060815.k268FXg07605@unix-os.sc.intel.com>
-Content-Type: text/plain
-Message-Id: <1141635963.29825.28.camel@ymzhang-perf.sh.intel.com>
+	Mon, 6 Mar 2006 04:09:28 -0500
+Received: from secure.htb.at ([195.69.104.11]:11024 "EHLO pop3.htb.at")
+	by vger.kernel.org with ESMTP id S1752316AbWCFJJ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 04:09:27 -0500
+Date: Mon, 6 Mar 2006 10:09:05 +0100
+From: Richard Mittendorfer <delist@gmx.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [SUSPEND] Screen slides down after STR / neomagic
+Message-Id: <20060306100905.0199e7b5.delist@gmx.net>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 06 Mar 2006 17:06:03 +0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *1FGBiE-0005EN-00*tU/pvFt0q2k*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-06 at 16:15, Chen, Kenneth W wrote:
-> Zhang, Yanmin wrote on Sunday, March 05, 2006 10:22 PM
-> > In function hugetlb_no_page, backout path always calls hugetlb_put_quota.
-> > It's incorrect when find_lock_page gets the page or the new page is added
-> > into page cache.
-> 
-> While I acknowledge the bug, this patch is not complete.  It makes file
-> system quota consistent with respect to page cache state. But such quota
-> (more severely, the page cache state) is still buggy, for example under
-> ftruncate case: if one ftrucate hugetlb file and then tries to fault a
-> page outside ftruncate area, a new hugetlb page is allocated and then
-> added into page cache along with file system quota; and at the end
-> returning VM_FAULT_SIGBUS.  In this case, kernel traps an unreachable
-> page until possibly next mmap that extends it.  That need to be fixed.
-I have another patch to fix it. The second patch is to delete checking
-(!(vma->vm_flags & VM_WRITE) && len > inode->i_size) in function
-hugetlbfs_file_mmap, and add a checking in hugetlb_no_page,
-to implement a capability for application to mmap
-an zero-length huge page area. It's useful for process to protect one area.
-As a side effect, the second patch also fixes the problem you said.
+Hello,
 
+Toshiba Libretto; Every time I suspend to RAM an come back to Console or
+later exit Xorg (it's ok within X), the screen is somewhat displaced
+downward:
 
-> Which means we will be adding back conditional call to
-> hugetlb_put_quota(mapping) in the backout path.
-> 
-> 
-> > In addition, if the vma->vm_flags doesn't include VM_SHARED, the quota
-> > shouldn't be decreased.
-> 
-> Why? Private hugetlb page should be charged against the quota.  Or is
-> there a better reason not to do so?
-I checked tmpfs and other fs. Most of them don't charge private
-page against the quota.
+   physical screen:                video output:
+  -----------------------  -  -  -  -  -  -  -  -  -  -  
+  |                     |         -----------------------
+  |                     |         |$                    |
+  |                     |         |                     |
+  |                     |         |                     |
+  -----------------------  -   -  | -   -   -   -   -  -|
+                                  ----------------------- snipped
 
+First noticed this with IIRC kernel 2.6.12, quite a while ago, and now
+want to do something about it. I don't use (it doesn't occur with)
+the (neomagic) framebuffer videodriver. Bootoption is vga=5, but
+choosing another doesn't fix it.
 
+I also recognize previous versions of XFree and IIRC pre 6.9 Xorg
+thinking about screen geometry being 800x600, while in fact it's
+800x480. These 60/120 pixels(?) are about the amount of space (if you
+think of centering output to screen vertically) the display is
+misplaced. However, it also happens if I don't startup X at all.
+
+I also saw this: If I suspend, there are some lines printed about the
+suspend process and if they hit bottom line and start scrolling (after
+_a lot_ of suspends) screen layout seems to get fixed. sometimes? hmm.
+
+What can I do about it? Add a few lines printk's into the suspend code?
+;-)
+
+http://www.mittendorfer.com/rm/temp/config.txt
+http://www.mittendorfer.com/rm/temp/dmesg.txt
+
+0000:00:04.0 VGA compatible controller: Neomagic Corporation NM2160
+[MagicGraph 128XD] (rev 01)
+
+Thanks for some input,
+sl ritch

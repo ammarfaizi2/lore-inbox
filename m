@@ -1,98 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751994AbWCFTdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752403AbWCFTFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751994AbWCFTdv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:33:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWCFTdv
+	id S1752403AbWCFTFz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 14:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752402AbWCFTFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:33:51 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:60550 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1751661AbWCFTdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:33:50 -0500
-Message-ID: <440C8E60.6020005@torque.net>
-Date: Mon, 06 Mar 2006 14:32:48 -0500
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bodo Eggert <7eggert@gmx.de>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Move SG_GET_SCSI_ID from sg to scsi
-References: <Pine.LNX.4.58.0603061133070.2997@be1.lrz>
-In-Reply-To: <Pine.LNX.4.58.0603061133070.2997@be1.lrz>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 14:05:55 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:34704 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750774AbWCFTFy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 14:05:54 -0500
+Subject: Re: [PATCH] leave APIC code inactive by default on i386
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Michael Ellerman <michael@ellerman.id.au>,
+       linux-kernel@vger.kernel.org, Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <20060306181716.GC15971@redhat.com>
+References: <43D03AF0.3040703@us.ibm.com>
+	 <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com>
+	 <20060301043353.GJ28434@redhat.com> <20060306125018.GA1673@elf.ucw.cz>
+	 <20060306171747.GN21445@redhat.com> <20060306174122.GA2716@elf.ucw.cz>
+	 <20060306175238.GA15971@redhat.com> <20060306175811.GB2716@elf.ucw.cz>
+	 <20060306181716.GC15971@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9ZJoVgY5BMWbqlWKRcha"
+Date: Mon, 06 Mar 2006 11:05:48 -0800
+Message-Id: <1141671948.30185.115.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
-> I suggest moving the SG_GET_SCSI_ID ioctl from sg to scsi, since it's 
-> generally usefull and the alternative function SCSI_IOCTL_GET_IDLUN
-> is limited in range (in-kernel data types may be larger) and 
-> functionality (type, ...).
 
-Bodo,
-ioctls, especially new ones, have become very unpopular
-in the linux kernel. Whoever implemented the SG_IO ioctl
-in the block layer moved just enough other sg ioctls to
-fool cdrecord that it was talking to the sg driver. The
-SG_GET_SCSI_ID ioctl didn't make the cut, probably because
-cdrecord didn't use it.
+--=-9ZJoVgY5BMWbqlWKRcha
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Mind you, I think it is correct to (try and) move
-SG_GET_SCSI_ID to the SCSI subsystem rather than
-the block layer. Otherwise we would not be able
-to use your proposed ioctl on non-block, sg visible
-only devices (e.g. a SCSI enclosure (SES protocol)).
+On Mon, 2006-03-06 at 13:17 -0500, Dave Jones wrote:
 
-> However, I have some questions about that ioctl:
-> 
-> - There is the concept of 8-Byte-LUNs: Are they mapped to integer LUNs?
-> Should the extra space in the struct sg_scsi_id be used for that?
-> Or should I abandon the idea and create a new IOCTL instead?
+> I (and Darrick) already agreed further up in this thread that it wasn't n=
+eeded.
+> I think we're actually in agreement ;)
 
-Yes, the SG_GET_SCSI_ID ioctl should allow for 8 byte
-LUNs and that is a flaw in the current design. It is
-no excuse that the rest of the SCSI subsystem has a
-similar shortcoming.
+Yep.  Maybe it's time I cough up a patch that does this. :)
 
-In linux there is also a move away from the host_number,
-channel_number, target_identifier and LUN tuple used
-traditionally by many Unix SCSI subsystems (most do not
-have the second component: channel_number). At least the
-LUN is not controversial (as long as it is 8 byte!). The
-target_identifier is actually transport dependent (but
-could just be a simple enumeration). The host_number is
-typically an enumeration over PCI addresses but some
-other type of computer buses (e.g. microchannel) could be
-involved.
+--D
 
-> - The original IOCTL will check for sdp->detached. If the moved-to-scsi 
-> ioctl is called, the check will be done before chaining from sg, but what
-> will I need to check if it's called on a non-sg device?
+--=-9ZJoVgY5BMWbqlWKRcha
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-That should not be needed as the open file descriptor
-to the SCSI device should be sufficient to keep the
-relevant objects alive even if the device was just hot
-unplugged.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
 
-> - Are there any (planned) changes that will conflict with this patch?
+iD8DBQBEDIgMa6vRYYgWQuURAorNAJ9tYnfP/nG/dAwSMrhBL2j/WdZkfACfQyDD
+QBOAQVsrWlphhj9fqfPXedw=
+=/06a
+-----END PGP SIGNATURE-----
 
-There is this thing called sysfs which is advertised
-as an ioctl replacement. However if a routine is given
-an open device node and you want to find its identity
-an ioctl does have some advantages over a procfs followed
-by a sysfs trawl. Just like ioctl related structures,
-sysfs also changes, frustrating applications built on
-it. Sysfs might even change more often than a well designed
-ioctl since sysfs is often tightly bound to the driver
-software architecture which may change without impacting
-interfaces.
-
-Lets see if this post gets a response.
-
-Doug Gilbert
-
+--=-9ZJoVgY5BMWbqlWKRcha--
 

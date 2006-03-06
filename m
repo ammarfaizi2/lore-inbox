@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWCFUiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751592AbWCFUpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWCFUiw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 15:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCFUiw
+	id S1751592AbWCFUpg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 15:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWCFUpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 15:38:52 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19842
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932260AbWCFUiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 15:38:51 -0500
-Date: Mon, 06 Mar 2006 12:39:04 -0800 (PST)
-Message-Id: <20060306.123904.35238417.davem@davemloft.net>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com
-Subject: Re: VFS nr_files accounting
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060305113847.GE21751@in.ibm.com>
-References: <20060305070537.GB21751@in.ibm.com>
-	<20060304.233725.49897411.davem@davemloft.net>
-	<20060305113847.GE21751@in.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 6 Mar 2006 15:45:36 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:780 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751583AbWCFUpf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 15:45:35 -0500
+Date: Mon, 6 Mar 2006 21:45:17 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Paul D. Smith" <psmith@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] change kbuild to not rely on incorrect GNU make behavior
+Message-ID: <20060306204517.GA29092@mars.ravnborg.org>
+References: <E1FG1UQ-00045B-5P@fencepost.gnu.org> <20060305231312.GA25673@mars.ravnborg.org> <17419.34083.172540.639486@lemming.engeast.baynetworks.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17419.34083.172540.639486@lemming.engeast.baynetworks.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dipankar Sarma <dipankar@in.ibm.com>
-Date: Sun, 5 Mar 2006 17:08:47 +0530
+On Sun, Mar 05, 2006 at 07:41:07PM -0500, Paul D. Smith wrote:
+> %% Sam Ravnborg <sam@ravnborg.org> writes:
+> 
+>   sr> Thanks Paul.
+>   sr> Adapted to -rc4 and applied to my kbuild tree which I have pushed out.
+>   sr> For reference I added the applied patch below.
+> 
+> OK.  Note that this:
+> 
+>   sr> -.PHONY: tar%pkg
+>   sr> +PHONY += tar%pkg
+>   sr>  tar%pkg:
+> 
+> won't do what you expect.  tar%pkg is a pattern rule, but .PHONY doesn't
+> take patterns so you're declaring the actual file named literally
+> 'tar%pkg' to be phony.
 
-> Great. I look forward to hearing from you about the results
-> with your test case.
+So I can just let all relevant target rules include FORCE as
+prerequisite and skip the PHONY part all together.
+Thats what FORCE is there for anyway so this is just normal kbuild style
+anyway.
 
-It works quite fine so far, I haven't seen the filp exhaustion
-nor a highly fragmented filp SLAB.
-
-Instead, I'm not hitting other bugs that are of my own doing
-on Niagara, which is what I wanted to accomplish with these
-stress tests in the first place :-)
-
-I think we should seriously consider these patches for 2.6.16
+	Sam

@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWCFWjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbWCFWkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWCFWjM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWCFWjM
+	id S932419AbWCFWkd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:40:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWCFWkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:39:12 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:46792
+	Mon, 6 Mar 2006 17:40:32 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:48840
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932417AbWCFWjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:39:10 -0500
-Date: Mon, 06 Mar 2006 14:39:01 -0800 (PST)
-Message-Id: <20060306.143901.26500391.davem@davemloft.net>
-To: rdreier@cisco.com
-Cc: mshefty@ichips.intel.com, sean.hefty@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for
- RDMA connection manager
+	id S932419AbWCFWka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:40:30 -0500
+Date: Mon, 06 Mar 2006 14:40:34 -0800 (PST)
+Message-Id: <20060306.144034.53871111.davem@davemloft.net>
+To: mst@mellanox.co.il
+Cc: netdev@vger.kernel.org, openib-general@openib.org,
+       linux-kernel@vger.kernel.org, mlleinin@hpcn.ca.sandia.gov
+Subject: Re: TSO and IPoIB performance degradation
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <aday7zn432b.fsf@cisco.com>
-References: <adabqwj5j7b.fsf@cisco.com>
-	<20060306.142814.109285730.davem@davemloft.net>
-	<aday7zn432b.fsf@cisco.com>
+In-Reply-To: <20060306223438.GA18277@mellanox.co.il>
+References: <20060306223438.GA18277@mellanox.co.il>
 X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -28,36 +25,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 06 Mar 2006 14:32:28 -0800
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Date: Tue, 7 Mar 2006 00:34:38 +0200
 
-> The fundamental question seems to be whether things like
+> So I'm trying to get a handle on it: could a solution be to simply
+> look at the frame size, and call tcp_send_delayed_ack from
+> if the frame size is no larger than 1/8?
 > 
-> 	struct foo {
-> 		struct sockaddr_in6 src;
-> 		struct sockaddr_in6 dst;
-> 	};
-> 
-> and
-> 
-> 	struct bar {
-> 		struct sockaddr_in6 a;
-> 		__u32 b;
-> 	};
+> Does this make sense?
 
-I wrote a test program and it looks ok:
+The comment you mention is very old, and no longer applies.
 
-davem@sunset:~/src/GIT/sparc-2.6.17$ gcc -m32 -O -o foo foo.c
-davem@sunset:~/src/GIT/sparc-2.6.17$ ./foo
-SPARC32
-foo src: 0
-foo dst: 28
-bar a: 0
-bar b: 28
-davem@sunset:~/src/GIT/sparc-2.6.17$ gcc -m64 -O -o foo foo.c
-davem@sunset:~/src/GIT/sparc-2.6.17$ ./foo
-SPARC64
-foo src: 0
-foo dst: 28
-bar a: 0
-bar b: 28
+Get full packet traces from the kernel TSO code in the 2.6.x
+kernel, analyze is, and post here what you think is occuring
+that is causing the performance problems.
+
+One thing to note is that the newer TSO code really needs to
+have large socket buffers, so you can experiment with that.

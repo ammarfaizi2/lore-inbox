@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWCFSs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWCFRlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWCFSs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 13:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbWCFSs5
+	id S1751257AbWCFRlw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCFRlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 13:48:57 -0500
-Received: from sabe.cs.wisc.edu ([128.105.6.20]:26526 "EHLO sabe.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id S932111AbWCFSs4 (ORCPT
+	Mon, 6 Mar 2006 12:41:52 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25313 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751257AbWCFRlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 13:48:56 -0500
-Message-ID: <440C8405.60601@cs.wisc.edu>
-Date: Mon, 06 Mar 2006 12:48:37 -0600
-From: Mike Christie <michaelc@cs.wisc.edu>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       Andrea Arcangeli <andrea@suse.de>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-References: <200603060117.16484.jesper.juhl@gmail.com> <Pine.LNX.4.64.0603060956570.13139@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603060956570.13139@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 12:41:51 -0500
+Date: Mon, 6 Mar 2006 18:41:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, Michael Ellerman <michael@ellerman.id.au>,
+       "Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [PATCH] leave APIC code inactive by default on i386
+Message-ID: <20060306174122.GA2716@elf.ucw.cz>
+References: <43D03AF0.3040703@us.ibm.com> <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com> <20060301043353.GJ28434@redhat.com> <20060306125018.GA1673@elf.ucw.cz> <20060306171747.GN21445@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306171747.GN21445@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> James, Mike, can you double-check the retries? In particular, it's _wrong_ 
-> to retry after you've already marked a command completed with 
-> "complete(rq->waiting)", so if that happens somewhere, things are really 
-> broken.
-> 
 
-I am looking into it. I think it has something to do with the request 
-getting completed too early or maybe something crazy like twice. This 
-looks like a similar problem that was reported to linux-scsi where for 
-some tape setup the request's bio gets freed twice.
+>  > Is adding "noapic nolapic" to default command line a big problem?
+> 
+> For end-users, yes.  People want things to 'just work', not have
+> to find arcane commands to type in to make things work.
+
+If distro puts "noapic nolapic" on kernel command line, I'd say users
+are unlikely to remove it.. And if they do remove it and it breaks,
+they'll only blame themselves...
+
+One more config-option is also not "cheap" (half of users will get it
+wrong), and having config-option to change command-line-default seems
+wrong to me.
+
+[Well, you could add CONFIG_CMDLINE to i386, like arm has... that
+solves more than just this problem...]
+								Pavel
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

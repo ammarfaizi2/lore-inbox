@@ -1,35 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWCFTpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWCFSPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWCFTpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWCFTpY
+	id S1751421AbWCFSPY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 13:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWCFSPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:45:24 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:46987 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750998AbWCFTpY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:45:24 -0500
-In-Reply-To: <20060306190636.GA14849@mellanox.co.il>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFB3CB1E4D.355F7555-ON88257129.006C1001-88257129.006C836D@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Mon, 6 Mar 2006 11:48:53 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 03/06/2006 12:49:03,
-	Serialize complete at 03/06/2006 12:49:03
-Content-Type: text/plain; charset="US-ASCII"
+	Mon, 6 Mar 2006 13:15:24 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:41894 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1751421AbWCFSPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 13:15:24 -0500
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <8218D46C-FB88-42B7-9310-989ACE7D5CEA@kernel.crashing.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: fixed assignment of BARs for a "hotplug" device
+Date: Mon, 6 Mar 2006 12:15:33 -0600
+To: pcihpd-discuss@lists.sourceforge.net
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know any details about SDP, but if there are no differences at the
-protocol layer, then neither the address family nor the protocol is
-appropriate. If it's just an API change, the socket type is the right
-selector. So, maybe SOCK_DIRECT to go along with SOCK_STREAM,
-SOCK_DGRAM, etc.
-                                        +-DLS
+It was suggest to me to ask this question on the PCI hotplug list by  
+GregKH.
 
+I was wondering if there are any examples on how to assign a device  
+fixed BARs.  In my situation I've got an FPGA in an embedded system.   
+Other PCI devices (DSPs) expect the FPGA at a given PCI address.  I  
+haven't found any examples or interfaces that let me do what I need  
+and thus suggested the following to Greg:
+
+http://marc.theaimsgroup.com/?l=linux-pci&m=114142619805420&w=2
+
+Here's a link to the original discussion:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=114140791428032&w=2
+
+thanks
+
+- kumar

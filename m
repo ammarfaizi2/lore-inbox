@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWCFFfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWCFFhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbWCFFfK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 00:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCFFfK
+	id S1751259AbWCFFhK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 00:37:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCFFhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 00:35:10 -0500
-Received: from supmuscle.dreamhost.com ([66.33.192.105]:27278 "EHLO
-	coverity.dreamhost.com") by vger.kernel.org with ESMTP
-	id S1751246AbWCFFfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 00:35:09 -0500
-Message-ID: <440BCA0F.50501@coverity.com>
-Date: Sun, 05 Mar 2006 21:35:11 -0800
-From: Ben Chelf <ben@coverity.com>
-Reply-To: ben@coverity.com
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Mon, 6 Mar 2006 00:37:10 -0500
+Received: from ns.suse.de ([195.135.220.2]:45705 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751259AbWCFFhJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 00:37:09 -0500
+From: Neil Brown <neilb@suse.de>
+To: Iain William Wiseman <bibble@paradise.net.nz>
+Date: Mon, 6 Mar 2006 16:36:08 +1100
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Coverity Open Source Defect Scan of Linux
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17419.51784.875639.977675@cse.unsw.edu.au>
+Cc: Iain William Wiseman <iwiseman@eservglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Oops [NFS server crash]
+In-Reply-To: message from Iain William Wiseman on Monday March 6
+References: <440B4FE3.4000809@eservglobal.com>
+	<17419.47968.756969.377865@cse.unsw.edu.au>
+	<440BC09A.2080404@paradise.net.nz>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linux Developers,
+On Monday March 6, bibble@paradise.net.nz wrote:
+> Hi,
+> 
+> Firstly stupid me never saw the Bugzilla link first time through. This 
+> is now logged under Bug 6172
 
-   I'm the CTO of Coverity, Inc., a company that does static source code 
-analysis to look for defects in code. You may have heard of us or of our 
-technology from its days at Stanford (the "Stanford Checker"). The 
-reason I'm writing is because we have set up a framework internally to 
-continually scan open source projects and provide the results of our 
-analysis back to the developers of those projects. Linux is one of the 
-32 projects currently scanned at:
+You should be aware that bugzilla is not universally popular.  I
+hardly ever look at it myself and perfer to deal with issues simply in
+the mailing list.
 
-http://scan.coverity.com
+> 
+> This is a vanilla 2.6.15.4 kernel no patches.
 
-   My belief is that we (Coverity) must reach out to the developers of 
-these packages (you) in order to make progress in actually fixing the 
-defects that we happen to find, so this is my first step in that 
-mission. Of course, I think Coverity technology is great, but I want to 
-hear what you think and that's why I worked with folks at Coverity to 
-put this infrastructure in place. The process is simple -- it checks out 
-your code each night from your repository and scans it so you can always 
-see the latest results.
+Thanks for that confirmation.  It is always best to be sure.
 
-   Right now, we're guarding access to the actual defects that we report 
-for a couple of reasons: (1) We think that you, as developers of Linux, 
-should have the chance to look at the defects we find to patch them 
-before random other folks get to see what we found and (2) From a 
-support perspective, we want to make sure that we have the appropriate 
-time to engage with those who want to use the results to fix the code. 
-Because of this second point, I'd ask that if you are interested in 
-really digging into the results a bit further for your project, please 
-have a couple of core maintainers (or group nominated individuals) reach 
-out to me to request access. As this is a new process for us and still 
-involves a small number of packages, I want to make sure that I 
-personally can be involved with the activity that is generated from this 
-effort.
+> 
+> Several attempt were made to start NFS with /etc/init.d/nfs start. I 
+> understood this would start portmap. Am I wrong? Possibly my iptables 
+> provented it.  I have been experimenting with arno firewall.
 
-   So I'm basically asking for people who want to play around with some 
-cool new technology to help make source code better. If this interests 
-you, please feel free to reach out to me directly. And of course, if 
-there are other packages you care about that aren't currently on the 
-list, I want to know about those too.
+The functions in /etc/init.d are very dependant on distribution.  I
+gather you are using RedHat, and I know nothing about redhat's init.d.
 
-   If this is the wrong list, my sincerest apologies and please let me 
-know where would be a more appropriate forum for this type of message.
+However I suspect a badly configured firewall could be an issue and
+disabling the firewall before trying again would be a good idea.
 
-Many thanks for reading this far...
+> 
+> Thanks for responding and sorry for logging twice.
 
--ben
+Don't worry about that.  Twice is much better than never.  It is very
+easy to ignore a second copy of a bug report (when you read
+linux-kernel you have to get good at ignoring things:-)
 
-  Ben Chelf
-  Chief Technology Officer
-  Coverity, Inc.
+> 
+> Iain
+> New Zealand
+
+NeilBrown

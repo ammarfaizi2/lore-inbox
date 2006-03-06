@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWCFGYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWCFGiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbWCFGYM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 01:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWCFGYM
+	id S1751352AbWCFGiG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 01:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbWCFGiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 01:24:12 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:46013 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751378AbWCFGYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 01:24:11 -0500
-Subject: [PATCH] hugetlb_no_page might break hugetlb quota
-From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: David Gibson <david@gibson.dropbear.id.au>, kenneth.w.chen@intel.com
-Content-Type: text/plain
-Message-Id: <1141626096.29825.13.camel@ymzhang-perf.sh.intel.com>
+	Mon, 6 Mar 2006 01:38:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42981 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751352AbWCFGiF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 01:38:05 -0500
+Date: Sun, 5 Mar 2006 22:36:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Latchesar Ionkov <lucho@ionkov.net>
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net
+Subject: Re: [PATCH] v9fs: print 9p messages
+Message-Id: <20060305223623.1deb25a4.akpm@osdl.org>
+In-Reply-To: <20060304152513.GA24046@ionkov.net>
+References: <20060304152513.GA24046@ionkov.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 06 Mar 2006 14:21:36 +0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang Yanmin <yanmin.zhang@intel.com>
+Latchesar Ionkov <lucho@ionkov.net> wrote:
+>
+> Print 9p messages.
+> 
+> ...
+>
+> +#define DEBUG_FCALL		(1<<8)
+>  
+> ..
+>
+> +	if ((v9fs_debug_level&DEBUG_FCALL) == DEBUG_FCALL) {
 
-In function hugetlb_no_page, backout path always calls hugetlb_put_quota.
-It's incorrect when find_lock_page gets the page or the new page is added
-into page cache.
+There's no point in the rhs of this comparison.  Given that DEBUG_FCALL is
+a single bit and that won't be changing, one may as well do
 
-In addition, if the vma->vm_flags doesn't include VM_SHARED, the quota
-shouldn't be decreased.
+	if (v9fs_debug_level & DEBUG_FCALL) {
 
-My patch against 2.6.16-rc5-mm2 fixes it.
+Also, those macro names:
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+#define DEBUG_ERROR		(1<<0)
+#define DEBUG_CURRENT		(1<<1)
+#define DEBUG_9P	        (1<<2)
+#define DEBUG_VFS	        (1<<3)
+#define DEBUG_CONV		(1<<4)
+#define DEBUG_MUX		(1<<5)
+#define DEBUG_TRANS		(1<<6)
+#define DEBUG_SLABS	      	(1<<7)
+#define DEBUG_FCALL		(1<<8)
 
----
-
-diff -Nraup linux-2.6.16-rc5-mm2/mm/hugetlb.c linux-2.6.16-rc5-mm2_quota/mm/hugetlb.c
---- linux-2.6.16-rc5-mm2/mm/hugetlb.c	2006-03-06 18:48:18.000000000 +0800
-+++ linux-2.6.16-rc5-mm2_quota/mm/hugetlb.c	2006-03-06 18:48:58.000000000 +0800
-@@ -562,11 +562,12 @@ int hugetlb_no_page(struct mm_struct *mm
- retry:
- 	page = find_lock_page(mapping, idx);
- 	if (!page) {
--		if (hugetlb_get_quota(mapping))
-+		if (vma->vm_flags & VM_SHARED && hugetlb_get_quota(mapping))
- 			goto out;
- 		page = alloc_huge_page(vma, address);
- 		if (!page) {
--			hugetlb_put_quota(mapping);
-+			if (vma->vm_flags & VM_SHARED)
-+				hugetlb_put_quota(mapping);
- 			ret = VM_FAULT_OOM;
- 			goto out;
- 		}
-@@ -613,7 +614,6 @@ out:
- 
- backout:
- 	spin_unlock(&mm->page_table_lock);
--	hugetlb_put_quota(mapping);
- 	unlock_page(page);
- 	put_page(page);
- 	goto out;
-
-
+are quite poorly chosen.  If someone else were to make a similarly poor
+naming choice there would be collisions.

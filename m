@@ -1,183 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWCFGKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWCFGNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWCFGKR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 01:10:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWCFGKR
+	id S1751367AbWCFGNs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 01:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWCFGNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 01:10:17 -0500
-Received: from mx1.suse.de ([195.135.220.2]:61581 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751328AbWCFGKQ (ORCPT
+	Mon, 6 Mar 2006 01:13:48 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:23196 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S1751356AbWCFGNr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 01:10:16 -0500
-From: Neil Brown <neilb@suse.de>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
-Date: Mon, 6 Mar 2006 17:09:05 +1100
+	Mon, 6 Mar 2006 01:13:47 -0500
+Message-ID: <440BD31C.9090801@dgreaves.com>
+Date: Mon, 06 Mar 2006 06:13:48 +0000
+From: David Greaves <david@dgreaves.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Mark Lord <liml@rtr.ca>
+Cc: Justin Piszcz <jpiszcz@lucidpixels.com>, Mark Lord <lkml@rtr.ca>,
+       Jeff Garzik <jgarzik@pobox.com>, Tejun Heo <htejun@gmail.com>,
+       linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>,
+       albertcc@tw.ibm.com, axboe@suse.de, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046CE6.60803@rtr.ca> <44046D86.7050809@pobox.com> <4405DCAF.6030500@dgreaves.com> <4405DDEA.7020309@rtr.ca> <4405E42B.9040804@dgreaves.com> <4405E83D.9000906@rtr.ca> <4405EC94.2030202@dgreaves.com> <4405FAAE.3080705@dgreaves.com> <Pine.LNX.4.64.0603031437370.9331@p34> <4408C729.50401@dgreaves.com> <4409A369.1040607@rtr.ca>
+In-Reply-To: <4409A369.1040607@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17419.53761.295044.78549@cse.unsw.edu.au>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-In-Reply-To: message from Neil Brown on Thursday March 2
-References: <17414.38749.886125.282255@cse.unsw.edu.au>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday March 2, neilb@suse.de wrote:
-> 
-> 
-> Hi,
->  This mail relates to the thread with the same subject which can be
->  found at
-> 
->     http://lkml.org/lkml/2006/1/16/279
-> 
->  I would like to propose an alternate patch for the problem.
-....
-> 
-> Comments?  Please :-?
+Mark Lord wrote:
+> David Greaves wrote:
+>> Just FYI - I'm away (in Canada) for 2 weeks so can't do any additional
+>> testing until I return.
+>
+> Am I correct, in that your last test on rc5-git4 was a failure?
+It was *much* better than rc4 but it did have an error.
+I *think* the problem I'm seeing is likely to be similar to the one I 
+orginally reported (on 2.6.15 IIRC)
+Same sporadic warning/error which didn't usually trigger the 
+raid-boot-the-disk behaviour that the FUA code seemed to.
+> But without the "opcode" display in the error messages,
+> so we have no idea exactly what caused the errors (again!)?
+Yes. I thought the/a opcode-verbose patch was in  there but I  guess not.
+I don't have remote console access to the machine so wouldn't be able to 
+carry out reliable kernel tests - sorry.
+Of course I'll do this as soon as I return.
+>
+> [Whatcha doin up here?]
+[:) 2weeks skiing in Whistler (this time - 10 days canadian canoeing in 
+Algonquin last time!)
+Canada's great !!]
 
-Somewhere in among the comments (thanks), I realised that I was only
-closing half the race.  I had tried to make sure there were no stray
-references to any dentries, but there is still the inode which is
-being iput which can cause problem.
+David
 
-The following patch takes a totally different approach, is based on an
-idea from Jan Kara, and is much less intrusive.
-
-We:
-  - keep track of "who" is calling prune_dcache, and when a filesystem
-    is being unmounted (s_root == NULL) we only allow the unmount thread
-    to prune dentries.
-  - keep track of how many dentries are in the process of having
-    dentry_iput called on them for pruning
-  - don't allow umount to proceed until that count hits zero
-  - bias the count this way and that to make sure we get a wake_up at
-    the right time
-  - reuse 's_wait_unfrozen' to wait on the iput to complete.
-
-Again, I'm very keen on feedback.  This race is very hard to trigger,
-so code review is the only real way to evaluate that patch.
-
-Thanks,
-NeilBrown
-
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/dcache.c        |   17 +++++++++++++----
- ./fs/super.c         |   11 +++++++++++
- ./include/linux/fs.h |    2 ++
- 3 files changed, 26 insertions(+), 4 deletions(-)
-
-diff ./fs/dcache.c~current~ ./fs/dcache.c
---- ./fs/dcache.c~current~	2006-03-06 16:54:59.000000000 +1100
-+++ ./fs/dcache.c	2006-03-06 16:55:33.000000000 +1100
-@@ -366,6 +366,7 @@ static inline void prune_one_dentry(stru
- {
- 	struct dentry * parent;
- 
-+	dentry->d_sb->s_pending_iputs ++;
- 	__d_drop(dentry);
- 	list_del(&dentry->d_u.d_child);
- 	dentry_stat.nr_dentry--;	/* For d_free, below */
-@@ -375,6 +376,9 @@ static inline void prune_one_dentry(stru
- 	if (parent != dentry)
- 		dput(parent);
- 	spin_lock(&dcache_lock);
-+	dentry->d_sb->s_pending_iputs --;
-+	if (dentry->d_sb->s_pending_iputs < 0)
-+		wake_up(&dentry->d_sb->s_wait_unfrozen);
- }
- 
- /**
-@@ -390,7 +394,7 @@ static inline void prune_one_dentry(stru
-  * all the dentries are in use.
-  */
-  
--static void prune_dcache(int count)
-+static void prune_dcache(int count, struct dentry *parent)
- {
- 	spin_lock(&dcache_lock);
- 	for (; count ; count--) {
-@@ -407,6 +411,11 @@ static void prune_dcache(int count)
-  		dentry_stat.nr_unused--;
- 		dentry = list_entry(tmp, struct dentry, d_lru);
- 
-+		if (dentry->d_sb->s_root == NULL &&
-+		    (parent == NULL ||
-+		     parent->d_sb != dentry->d_sb))
-+			continue;
-+
-  		spin_lock(&dentry->d_lock);
- 		/*
- 		 * We found an inuse dentry which was not removed from
-@@ -635,7 +644,7 @@ void shrink_dcache_parent(struct dentry 
- 	int found;
- 
- 	while ((found = select_parent(parent)) != 0)
--		prune_dcache(found);
-+		prune_dcache(found, parent);
- }
- 
- /**
-@@ -673,7 +682,7 @@ void shrink_dcache_anon(struct hlist_hea
- 			}
- 		}
- 		spin_unlock(&dcache_lock);
--		prune_dcache(found);
-+		prune_dcache(found, NULL);
- 	} while(found);
- }
- 
-@@ -694,7 +703,7 @@ static int shrink_dcache_memory(int nr, 
- 	if (nr) {
- 		if (!(gfp_mask & __GFP_FS))
- 			return -1;
--		prune_dcache(nr);
-+		prune_dcache(nr, NULL);
- 	}
- 	return (dentry_stat.nr_unused / 100) * sysctl_vfs_cache_pressure;
- }
-
-diff ./fs/super.c~current~ ./fs/super.c
---- ./fs/super.c~current~	2006-03-06 16:54:59.000000000 +1100
-+++ ./fs/super.c	2006-03-06 16:57:19.000000000 +1100
-@@ -230,7 +230,18 @@ void generic_shutdown_super(struct super
- 	struct super_operations *sop = sb->s_op;
- 
- 	if (root) {
-+		spin_lock(&dcache_lock);
-+		/* disable stray dputs */
- 		sb->s_root = NULL;
-+
-+		/* trigger a wake_up */
-+		sb->s_pending_iputs --;
-+		spin_unlock(&dcache_lock);
-+		wait_event(sb->s_wait_unfrozen,
-+			   sb->s_pending_iputs < 0);
-+		/* avoid further wakeups */
-+		sb->s_pending_iputs = 65000;
-+
- 		shrink_dcache_parent(root);
- 		shrink_dcache_anon(&sb->s_anon);
- 		dput(root);
-
-diff ./include/linux/fs.h~current~ ./include/linux/fs.h
---- ./include/linux/fs.h~current~	2006-03-06 16:54:59.000000000 +1100
-+++ ./include/linux/fs.h	2006-03-06 12:49:55.000000000 +1100
-@@ -833,6 +833,8 @@ struct super_block {
- 	struct hlist_head	s_anon;		/* anonymous dentries for (nfs) exporting */
- 	struct list_head	s_files;
- 
-+	int			s_pending_iputs;
-+
- 	struct block_device	*s_bdev;
- 	struct list_head	s_instances;
- 	struct quota_info	s_dquot;	/* Diskquota specific options */

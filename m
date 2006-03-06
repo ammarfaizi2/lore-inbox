@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWCFUNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWCFUPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbWCFUNk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 15:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWCFUNk
+	id S1751360AbWCFUPz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 15:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWCFUPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 15:13:40 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:29123 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751169AbWCFUNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 15:13:39 -0500
-Date: Mon, 06 Mar 2006 15:13:37 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [OT] Linux washing powder (was: Re: Coverity Open Source Defect
- Scan of Linux)
-In-reply-to: <440C2D5D.3030601@stud.feec.vutbr.cz>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200603061513.37946.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <440BCA0F.50501@coverity.com>
- <200603060657.46879.gene.heskett@verizon.net>
- <440C2D5D.3030601@stud.feec.vutbr.cz>
-User-Agent: KMail/1.7
+	Mon, 6 Mar 2006 15:15:55 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:29322 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1751360AbWCFUPy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 15:15:54 -0500
+Date: Mon, 6 Mar 2006 22:16:03 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: David Stevens <dlstevens@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
+Message-ID: <20060306201603.GA17048@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20060306190636.GA14849@mellanox.co.il> <OFB3CB1E4D.355F7555-ON88257129.006C1001-88257129.006C836D@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFB3CB1E4D.355F7555-ON88257129.006C1001-88257129.006C836D@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 06 Mar 2006 20:18:14.0484 (UTC) FILETIME=[190E6140:01C6415B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 March 2006 07:38, Michal Schmidt wrote:
->Gene Heskett wrote:
->> If there is indeed a linux washing powder, where might it be
->> obtained? I get a bad case of contact dermatitus when I use the
->> regular stuff from M$.
->
->See http://en.wikipedia.org/wiki/Linux_(washing_powder)
+Quoting r. David Stevens <dlstevens@us.ibm.com>:
+> Subject: Re: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
+> 
+> I don't know any details about SDP, but if there are no differences at the
+> protocol layer, then neither the address family nor the protocol is
+> appropriate. If it's just an API change, the socket type is the right
+> selector. So, maybe SOCK_DIRECT to go along with SOCK_STREAM,
+> SOCK_DGRAM, etc.
 
-Touche`
-:)
+No, the API SDP implements is the regular SOCK_STREAM semantics.
+
+The difference is in the way connections are established with
+infiniband connection management messages, and data is transferred
+with infiniband reliable connection send messages.
+
 -- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

@@ -1,51 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWCFObe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWCFOf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWCFObe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 09:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWCFObe
+	id S1751375AbWCFOf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 09:35:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWCFOf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 09:31:34 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:19497 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750958AbWCFObd convert rfc822-to-8bit
+	Mon, 6 Mar 2006 09:35:27 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:47878 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751334AbWCFOf1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 09:31:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UN1Nze8UZbP5+eRAHS/rgBJZoNmmfriJH6f2yVxozUmZ7HzIqCJCZTZCchsO3D2qoVxg1hgdXiF8kGgFpxfomvkNNqD0wN/pLyXwdmtrm7oXYYgx8qqfI+n42GHdMAg1keEQ4pUwkm32Kk0m4qJwfcXT5YYrDytvycbkTq8fADk=
-Message-ID: <c43b2e150603060631h494b920g84cf357f376d64bb@mail.gmail.com>
-Date: Mon, 6 Mar 2006 15:31:32 +0100
-From: wixor <wixorpeek@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: using usblp with ppdev?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060303170752.GA5260@kroah.com>
+	Mon, 6 Mar 2006 09:35:27 -0500
+Date: Mon, 6 Mar 2006 14:35:12 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+Message-ID: <20060306143512.GI23669@deprecation.cyrius.com>
+References: <20060305180757.GA22121@deprecation.cyrius.com> <20060305185948.GA24765@electric-eye.fr.zoreil.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <c43b2e150603020732m42195b0dkf33d68fe64bc4a57@mail.gmail.com>
-	 <20060302165557.GA31247@kroah.com>
-	 <c43b2e150603030512l141c101va11300bcfbda4f60@mail.gmail.com>
-	 <20060303170752.GA5260@kroah.com>
+In-Reply-To: <20060305185948.GA24765@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> What is the output of /proc/bus/usb/devices with your device plugged in?
->
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12 MaxCh=0
-D: Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P: Vendor=067b ProdID=2305 Rev= 2.02
-S: Manufacturer=Proliftic Technology Inc.
-D: Product=IEEE-1284 Controller
-C:* #Ifs=1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=07(print) Sub=01 Prot=01 Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I: If#=0 Alt=1 #EPs=2 Cls=07(print) Sub=01 Prot=02 Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-I: If#=0 Alt=2 #EPs=3 Cls=ff(vend.) Sub=00 Prot=ff Driver=usblp
-E:  Ad=01(O) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MaxPS=64 Ivl=0ms
-E:  Ad=83(I) Atr=03(Int.) MaxPS=4 Ivl=1ms
+* Francois Romieu <romieu@fr.zoreil.com> [2006-03-05 19:59]:
+> > I have a system on which I can reproduce this bug 100%.  While I have
+> > no idea how to fix the issue, I can provide debugging information and
+> > test a fix.
+
+> (not compile-tested)
+
+Thanks a lot for your quick response, Francois.  I can confirm that
+this patch fixes the problem for me.
+
+> -err_out_hw:
+> -	spin_lock_irqsave(&de->lock, flags);
+> -	de_stop_hw(de);
+> -	spin_unlock_irqrestore(&de->lock, flags);
+
+flags is no longer used now, so we get a compilation warning.  Updated
+patch below.  Francois, can you please submit it with a proper
+changelog entry and your Signed-off-by.
+
+
+From: Francois Romieu <romieu@fr.zoreil.com>
+Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
+
+--- a/drivers/net/tulip/de2104x.c
++++ b/drivers/net/tulip/de2104x.c
+@@ -1362,7 +1362,6 @@ static int de_open (struct net_device *d
+ {
+ 	struct de_private *de = dev->priv;
+ 	int rc;
+-	unsigned long flags;
+ 
+ 	if (netif_msg_ifup(de))
+ 		printk(KERN_DEBUG "%s: enabling interface\n", dev->name);
+@@ -1376,18 +1375,20 @@ static int de_open (struct net_device *d
+ 		return rc;
+ 	}
+ 
+-	rc = de_init_hw(de);
+-	if (rc) {
+-		printk(KERN_ERR "%s: h/w init failure, err=%d\n",
+-		       dev->name, rc);
+-		goto err_out_free;
+-	}
++	dw32(IntrMask, 0);
+ 
+ 	rc = request_irq(dev->irq, de_interrupt, SA_SHIRQ, dev->name, dev);
+ 	if (rc) {
+ 		printk(KERN_ERR "%s: IRQ %d request failure, err=%d\n",
+ 		       dev->name, dev->irq, rc);
+-		goto err_out_hw;
++		goto err_out_free;
++	}
++
++	rc = de_init_hw(de);
++	if (rc) {
++		printk(KERN_ERR "%s: h/w init failure, err=%d\n",
++		       dev->name, rc);
++		goto err_out_free_irq;
+ 	}
+ 
+ 	netif_start_queue(dev);
+@@ -1395,11 +1396,8 @@ static int de_open (struct net_device *d
+ 
+ 	return 0;
+ 
+-err_out_hw:
+-	spin_lock_irqsave(&de->lock, flags);
+-	de_stop_hw(de);
+-	spin_unlock_irqrestore(&de->lock, flags);
+-
++err_out_free_irq:
++	free_irq(dev->irq, dev);
+ err_out_free:
+ 	de_free_rings(de);
+ 	return rc;
+
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

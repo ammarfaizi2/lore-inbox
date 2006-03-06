@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWCFWIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWCFWJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbWCFWIb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWCFWIb
+	id S932386AbWCFWJD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWCFWJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:08:31 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16820 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932379AbWCFWIa (ORCPT
+	Mon, 6 Mar 2006 17:09:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:36787 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932386AbWCFWJA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:08:30 -0500
-Date: Mon, 6 Mar 2006 23:07:55 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, Dave Jones <davej@redhat.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ericvh@gmail.com, rminnich@lanl.gov
-Subject: Re: 9pfs double kfree
-Message-ID: <20060306220755.GD4836@elf.ucw.cz>
-References: <20060306070456.GA16478@redhat.com> <20060305.230711.06026976.davem@davemloft.net> <20060306072346.GF27946@ftp.linux.org.uk> <20060306072823.GF21445@redhat.com> <84144f020603052356r321bc78dp66263fbfc73517c6@mail.gmail.com> <20060306081651.GG27946@ftp.linux.org.uk> <Pine.LNX.4.63.0603061031550.8581@kai.makisara.local> <20060306093401.GH27946@ftp.linux.org.uk>
+	Mon, 6 Mar 2006 17:09:00 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [OT] inotify hack for locate
+Date: Mon, 06 Mar 2006 22:08:28 +0000
+Message-ID: <yw1xzmk39qg3.fsf@agrajag.inprovide.com>
+References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com> <1141594983.14714.121.camel@mindpipe> <20060305230821.GA20768@kvack.org> <yw1xu0acbhby.fsf@agrajag.inprovide.com> <20060306215332.GA4836@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060306093401.GH27946@ftp.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 82.153.166.94
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
+Cancel-Lock: sha1:pcZOr8hyeCxbQH7jocHEiQnPSp8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 06-03-06 09:34:01, Al Viro wrote:
-> On Mon, Mar 06, 2006 at 10:40:03AM +0200, Kai Makisara wrote:
-> > > Legal, but rather bad taste.  Init to NULL, possibly assign the value
-> > > if kmalloc(), then kfree() unconditionally - sure, but that... almost
-> > > certainly one hell of a lousy cleanup logics somewhere.
-> > > 
-> > I agree with you.
-> > 
-> > However, a few months ago it was advocated to let kfree take care of 
-> > testing the pointer against NULL and a load of patches like this:
-> 
-> That's different - that's _exactly_ the case I've mentioned above.
-> 
-> Moreover, that's exact match to standard behaviour of free(3):
-> 
-> C99 7.20.3.2(2):
-> The free function causes the space pointed to by ptr to be deallocated, that
-> is, made available for further allocation.  If ptr is a null pointer, no action
-> occurs.  Otherwise, if the argument does not match a pointer returned by the
-> calloc, malloc, or realloc function, or if the space has been deallocated by
-> a call to free or realloc, the behaviour is undefined.
-> 
-> IOW, free(NULL) is guaranteed to be no-op while double-free is nasal daemon
-> country.
+Pavel Machek <pavel@ucw.cz> writes:
 
-Well, double-free of NULL is permitted by text above. 'If ptr is a
-null pointer, no action occurs.'
+> On Ne 05-03-06 23:30:09, M?ns Rullg?rd wrote:
+>> Benjamin LaHaise <bcrl@kvack.org> writes:
+>> 
+>> > On Sun, Mar 05, 2006 at 04:43:03PM -0500, Lee Revell wrote:
+>> >> updatedb runs at nice 20 on most distros, and with the CFQ scheduler the
+>> >> IO priority follows the nice value, so why does it still kill the
+>> >> machine?
+>> >
+>> > Running updatedb on a laptop when you're sitting in an airplane running 
+>> > off of batteries is Not Nice to the user.  I know, I've had it happen far 
+>> > too many times.
+>> 
+>> Running updatedb only if AC powered shouldn't be too difficult.
+>
+> That makes locate useless on some machines. I have sharp zaurus C3000
+> here... It is either powered on *or* connected on AC, but very rarely
+> connected to ac while turned on. Well, its power plug located at weird
+> place and old software version that prevents charging while turned on
+> is contributory factor, but...
 
-OTOH #define kfree(a) { __kfree(a); a = NULL; } actually does the
-right thing... even with double free.
-								Pavel
+OK, although that surely must be an exception.  Most laptops run
+happily with AC connected, and the current power source is easily
+obtained from some file in /proc that I've forgotten the name of.
+
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Måns Rullgård
+mru@inprovide.com
+

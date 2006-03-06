@@ -1,73 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWCFBwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbWCFBxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWCFBwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 20:52:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWCFBwJ
+	id S1751735AbWCFBxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 20:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbWCFBxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 20:52:09 -0500
-Received: from ozlabs.org ([203.10.76.45]:29078 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751114AbWCFBwI (ORCPT
+	Sun, 5 Mar 2006 20:53:19 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:55679 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1751564AbWCFBxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 20:52:08 -0500
-Date: Mon, 6 Mar 2006 12:51:29 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: powerpc: Make pmd_bad() and pud_bad() checks non-trivial
-Message-ID: <20060306015129.GA21408@localhost.localdomain>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 5 Mar 2006 20:53:13 -0500
+Message-Id: <20060306015009.110961000@towertech.it>
+References: <20060306015008.858209000@towertech.it>
+User-Agent: quilt/0.43-1
+Date: Mon, 06 Mar 2006 02:50:09 +0100
+From: Alessandro Zummo <a.zummo@towertech.it>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@zip.com.au, akpm@digeo.com
+Subject: [PATCH 01/16] RTC Subsystem, library functions
+Content-Disposition: inline; filename=rtc-lib.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulus, please apply.
+RTC and date/time related functions. 
 
-At present, the powerpc pmd_bad() and pud_bad() macros return false
-unless the fiven pmd or pud is zero.  This patch makes these tests
-more thorough, checking if the given pmd or pud looks like a plausible
-pte page or pmd page pointer respectively.  This can result in helpful
-error messages when messing with the pagetable code.
+Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
+---
+ drivers/Kconfig       |    2 +
+ drivers/Makefile      |    1 
+ drivers/rtc/Kconfig   |    6 +++
+ drivers/rtc/Makefile  |    5 ++
+ drivers/rtc/rtc-lib.c |   99 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/rtc.h   |    5 ++
+ 6 files changed, 118 insertions(+)
 
-Signed-off-by: David Gibson <dwg@au1.ibm.com>
-
-Index: working-2.6/include/asm-powerpc/pgtable.h
-===================================================================
---- working-2.6.orig/include/asm-powerpc/pgtable.h	2006-03-06 11:38:45.000000000 +1100
-+++ working-2.6/include/asm-powerpc/pgtable.h	2006-03-06 12:51:14.000000000 +1100
-@@ -188,9 +188,13 @@ static inline pte_t pfn_pte(unsigned lon
- #define pte_pfn(x)		((unsigned long)((pte_val(x)>>PTE_RPN_SHIFT)))
- #define pte_page(x)		pfn_to_page(pte_pfn(x))
- 
-+#define PMD_BAD_BITS		(PTE_TABLE_SIZE-1)
-+#define PUD_BAD_BITS		(PMD_TABLE_SIZE-1)
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-lib.c	2006-03-05 02:49:51.000000000 +0100
+@@ -0,0 +1,99 @@
++/*
++ * rtc and date/time utility functions
++ *
++ * Copyright (C) 2005-06 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * based on arch/arm/common/rtctime.c and other bits
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++*/
 +
- #define pmd_set(pmdp, pmdval) 	(pmd_val(*(pmdp)) = (pmdval))
- #define pmd_none(pmd)		(!pmd_val(pmd))
--#define	pmd_bad(pmd)		(pmd_val(pmd) == 0)
-+#define	pmd_bad(pmd)		(!is_kernel_addr(pmd_val(pmd)) \
-+				 || (pmd_val(pmd) & PMD_BAD_BITS))
- #define	pmd_present(pmd)	(pmd_val(pmd) != 0)
- #define	pmd_clear(pmdp)		(pmd_val(*(pmdp)) = 0)
- #define pmd_page_kernel(pmd)	(pmd_val(pmd) & ~PMD_MASKED_BITS)
-@@ -198,7 +202,8 @@ static inline pte_t pfn_pte(unsigned lon
++#include <linux/module.h>
++#include <linux/rtc.h>
++
++static const unsigned char rtc_days_in_month[] = {
++	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
++};
++
++#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
++#define LEAP_YEAR(year) ((!(year % 4) && (year % 100)) || !(year % 400))
++
++int rtc_month_days(unsigned int month, unsigned int year)
++{
++	return rtc_days_in_month[month] + (LEAP_YEAR(year) && month == 1);
++}
++EXPORT_SYMBOL(rtc_month_days);
++
++/*
++ * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
++ */
++void rtc_time_to_tm(unsigned long time, struct rtc_time *tm)
++{
++	register int days, month, year;
++
++	days = time / 86400;
++	time -= days * 86400;
++
++	/* day of the week, 1970-01-01 was a Thursday */
++	tm->tm_wday = (days + 4) % 7;
++
++	year = 1970 + days / 365;
++	days -= (year - 1970) * 365
++		+ LEAPS_THRU_END_OF(year - 1)
++		- LEAPS_THRU_END_OF(1970 - 1);
++	if (days < 0) {
++		year -= 1;
++		days += 365 + LEAP_YEAR(year);
++	}
++	tm->tm_year = year - 1900;
++	tm->tm_yday = days + 1;
++
++	for (month = 0; month < 11; month++) {
++		int newdays;
++
++		newdays = days - rtc_month_days(month, year);
++		if (newdays < 0)
++			break;
++		days = newdays;
++	}
++	tm->tm_mon = month;
++	tm->tm_mday = days + 1;
++
++	tm->tm_hour = time / 3600;
++	time -= tm->tm_hour * 3600;
++	tm->tm_min = time / 60;
++	tm->tm_sec = time - tm->tm_min * 60;
++}
++EXPORT_SYMBOL(rtc_time_to_tm);
++
++/*
++ * Does the rtc_time represent a valid date/time?
++ */
++int rtc_valid_tm(struct rtc_time *tm)
++{
++	if (tm->tm_year < 70
++		|| tm->tm_mon >= 12
++		|| tm->tm_mday < 1
++		|| tm->tm_mday > rtc_month_days(tm->tm_mon, tm->tm_year + 1900)
++		|| tm->tm_hour >= 24
++		|| tm->tm_min >= 60
++		|| tm->tm_sec >= 60)
++		return -EINVAL;
++
++	return 0;
++}
++EXPORT_SYMBOL(rtc_valid_tm);
++
++/*
++ * Convert Gregorian date to seconds since 01-01-1970 00:00:00.
++ */
++int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time)
++{
++	*time = mktime(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
++			tm->tm_hour, tm->tm_min, tm->tm_sec);
++	return 0;
++}
++EXPORT_SYMBOL(rtc_tm_to_time);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/Makefile	2006-03-05 02:48:31.000000000 +0100
+@@ -0,0 +1,5 @@
++#
++# Makefile for RTC class/drivers.
++#
++
++obj-$(CONFIG_RTC_LIB)	+= rtc-lib.o
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-05 02:48:31.000000000 +0100
+@@ -0,0 +1,6 @@
++#
++# RTC class/drivers configuration
++#
++
++config RTC_LIB
++	bool
+\ No newline at end of file
+--- linux-rtc.orig/drivers/Kconfig	2006-03-05 02:38:14.000000000 +0100
++++ linux-rtc/drivers/Kconfig	2006-03-05 02:38:16.000000000 +0100
+@@ -70,4 +70,6 @@ source "drivers/sn/Kconfig"
  
- #define pud_set(pudp, pudval)	(pud_val(*(pudp)) = (pudval))
- #define pud_none(pud)		(!pud_val(pud))
--#define pud_bad(pud)		((pud_val(pud)) == 0)
-+#define	pud_bad(pud)		(!is_kernel_addr(pud_val(pud)) \
-+				 || (pud_val(pud) & PUD_BAD_BITS))
- #define pud_present(pud)	(pud_val(pud) != 0)
- #define pud_clear(pudp)		(pud_val(*(pudp)) = 0)
- #define pud_page(pud)		(pud_val(pud) & ~PUD_MASKED_BITS)
+ source "drivers/edac/Kconfig"
+ 
++source "drivers/rtc/Kconfig"
++
+ endmenu
+--- linux-rtc.orig/drivers/Makefile	2006-03-05 02:38:14.000000000 +0100
++++ linux-rtc/drivers/Makefile	2006-03-05 02:38:16.000000000 +0100
+@@ -56,6 +56,7 @@ obj-$(CONFIG_USB_GADGET)	+= usb/gadget/
+ obj-$(CONFIG_GAMEPORT)		+= input/gameport/
+ obj-$(CONFIG_INPUT)		+= input/
+ obj-$(CONFIG_I2O)		+= message/
++obj-$(CONFIG_RTC_LIB)		+= rtc/
+ obj-$(CONFIG_I2C)		+= i2c/
+ obj-$(CONFIG_W1)		+= w1/
+ obj-$(CONFIG_HWMON)		+= hwmon/
+--- linux-rtc.orig/include/linux/rtc.h	2006-03-05 02:38:14.000000000 +0100
++++ linux-rtc/include/linux/rtc.h	2006-03-05 02:48:31.000000000 +0100
+@@ -95,6 +95,11 @@ struct rtc_pll_info {
+ 
+ #ifdef __KERNEL__
+ 
++extern int rtc_month_days(unsigned int month, unsigned int year);
++extern int rtc_valid_tm(struct rtc_time *tm);
++extern int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time);
++extern void rtc_time_to_tm(unsigned long time, struct rtc_time *tm);
++
+ typedef struct rtc_task {
+ 	void (*func)(void *private_data);
+ 	void *private_data;
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+--

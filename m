@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWCFVMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWCFVOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWCFVMk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWCFVMj
+	id S932199AbWCFVOl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWCFVOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:12:39 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:17043 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S932259AbWCFVMj
+	Mon, 6 Mar 2006 16:14:41 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:61879 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932199AbWCFVOk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:12:39 -0500
-Date: Mon, 6 Mar 2006 21:12:30 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm PATCH] mips: fixed collision of rtc function name
-Message-ID: <20060306211230.GC27612@linux-mips.org>
-References: <20060224031002.0f7ff92a.akpm@osdl.org> <20060225012721.52c4827b.yoichi_yuasa@tripeaks.co.jp> <20060225.224815.93020442.anemo@mba.ocn.ne.jp> <20060227074304.56dbecac.yoichi_yuasa@tripeaks.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Mar 2006 16:14:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=kTPCPHlHImzrHAMmQP37Q5WRGN4OIQrj6cb3Fsml8qNvMTJ7RGyEgoKFWZl2X0Vrthzt7ea2qicn4RpkuMpzEKtejWByIR2RxljTmi/SS8NpU4hbCEbOrf/a00WBj5BmhcWbqdT2aUeHY8PNxHBbSW3BHB/d3KOimFOlAFVWIN0=
+Message-ID: <9a8748490603061314o548f2345k6fecd812ad19597a@mail.gmail.com>
+Date: Mon, 6 Mar 2006 22:14:39 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Jens Axboe" <axboe@suse.de>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+Cc: "Linus Torvalds" <torvalds@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       "Andrea Arcangeli" <andrea@suse.de>,
+       "Mike Christie" <michaelc@cs.wisc.edu>,
+       "James Bottomley" <James.Bottomley@steeleye.com>
+In-Reply-To: <20060306203319.GR4595@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060227074304.56dbecac.yoichi_yuasa@tripeaks.co.jp>
-User-Agent: Mutt/1.4.2.1i
+References: <200603060117.16484.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
+	 <200603062124.42223.jesper.juhl@gmail.com>
+	 <20060306203036.GQ4595@suse.de> <20060306203319.GR4595@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 27, 2006 at 07:43:04AM +0900, Yoichi Yuasa wrote:
+On 3/6/06, Jens Axboe <axboe@suse.de> wrote:
+<snip>
+>
+> This is the one:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114041855331295&w=2
+>
+> Also an -mm report, btw. Does this reproduce with 2.6.16-rcX latest?
+>
 
-> > yoichi> This patch has fixed the collision of rtc function name on
-> > yoichi> 2.6.16-rc4-mm2.
-> > 
-> > You missed changes for include/asm-mips/rtc.h (an interface for genrtc
-> > driver) ?  Or genrtc driver will be gone in the new RTC subsystem?
-> 
-> The new RTC subsystem don't have genrtc driver.
-> I think we should move from genrtc driver to the new RTC subsystem.
+I just build and booted a2.6.16-rc5-git8 with the same config that I
+used for the -mm kernel and the problem did not manifest itself there.
+So it seems that mainline is fine but we need to find the bug before
+it propagates from mm to mainline.
 
-Definately preferable.  I took the RTC subsystem patches as the reason
-to do some more cleaning in the MIPS RTC code.  It's all quite disgusting
-but untangeling it is something one can easily burn a day or more on ...
+I'll test a -mm kernel without slab debug/poison now to see it it goes Oops.
 
-   Ralf
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

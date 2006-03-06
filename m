@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752263AbWCFJak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752354AbWCFJbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752263AbWCFJak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 04:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752350AbWCFJak
+	id S1752354AbWCFJbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752355AbWCFJbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 04:30:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30629 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752263AbWCFJak (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 04:30:40 -0500
-Date: Mon, 6 Mar 2006 01:28:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: J M Cerqueira Esteves <jmce@artenumerica.com>
-Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
-       axboe@suse.de, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
- 2.6.12]
-Message-Id: <20060306012854.581423ec.akpm@osdl.org>
-In-Reply-To: <440BFEA8.2080103@artenumerica.com>
-References: <4405D383.5070201@artenumerica.com>
-	<20060302011735.55851ca2.akpm@osdl.org>
-	<440865A9.4000102@artenumerica.com>
-	<4409B8DC.9040404@artenumerica.com>
-	<20060304161519.6e6fbe2c.akpm@osdl.org>
-	<440BFEA8.2080103@artenumerica.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Mar 2006 04:31:42 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:8848 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1752351AbWCFJbm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 04:31:42 -0500
+Message-ID: <440C0175.7040909@aitel.hist.no>
+Date: Mon, 06 Mar 2006 10:31:33 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: jonathan@jonmasters.org
+CC: Chris Ball <cjb@mrao.cam.ac.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] inotify hack for locate
+References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>	 <yd3bqwkbgsi.fsf@islay.ra.phy.cam.ac.uk> <35fb2e590603051704k120e0257wb39c3e3eb1cf0b49@mail.gmail.com>
+In-Reply-To: <35fb2e590603051704k120e0257wb39c3e3eb1cf0b49@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J M Cerqueira Esteves <jmce@artenumerica.com> wrote:
+Jon Masters wrote:
+
+>You're right. What I want really is to be able to bind to a netlink
+>socket and get told about particular file IO operations I'm interested
+>in for the /whole/ of a filesystem. The same kind of thing that real
+>time anti-virus/anti-spam people want to do anyway.
 >
-> Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
-> >  Could you test that?  (and don't alter the Cc: list!).  The patch is
-> > against 2.6.16-rc5.
-> 
-> I forgot to mention that the DVD drive was not automatically recognized:
-> 
-> ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x18F0 irq 14
-> ata1: dev 0 cfg 49:0f00 82:0218 83:4000 84:4000 85:0218 86:0000 87:4000
-> 88:041f
-> ata1: dev 0 ATAPI, max UDMA/66
-> ata1: dev 0 configured for UDMA/33
-> scsi0 : ata_piix
-> ata1(0): WARNING: ATAPI is disabled, device ignored.
-> 
-> Is this still as described in
-> http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux
-> under "DVD drive not recognized"?  Perhaps I'll be able to do some tests
-> on that later, too.
-> 
+>  
+>
+Do they?
+I thought all this mail processing could be done in the mailserver
+and/or mail reader.  Why detect spam by looking for generic file
+creation when you can trivially tap into mail as it arrives?
 
-I've not been following the saga of atapi-versus-libata at all closely. 
-Booting with libata.atapi_enabled=1 might make things work.  I think Randy
-should know what happened here?
+As for the non-existent virus problem - it is mostly prevented
+by users not being administrators.  And you can go further
+with a readonly /usr and a noexec /home.
 
-You were testing 2.6.16-rc5, yes?  What did you expect to see and what were
-you seeing in earlier kernels (which versions?)  (IOW: what did we break
-this time?)
-
+Helge Hafting

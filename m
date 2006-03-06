@@ -1,76 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752321AbWCFJTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752332AbWCFJUZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752321AbWCFJTk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 04:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752328AbWCFJTk
+	id S1752332AbWCFJUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:20:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752333AbWCFJUZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 04:19:40 -0500
-Received: from merlin.artenumerica.net ([80.68.90.14]:27914 "EHLO
-	merlin.artenumerica.net") by vger.kernel.org with ESMTP
-	id S1752321AbWCFJTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 04:19:39 -0500
-Message-ID: <440BFEA8.2080103@artenumerica.com>
-Date: Mon, 06 Mar 2006 09:19:36 +0000
-From: J M Cerqueira Esteves <jmce@artenumerica.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 6 Mar 2006 04:20:25 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:10869 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1752332AbWCFJUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 04:20:24 -0500
+Date: Mon, 6 Mar 2006 10:19:59 +0100
+From: Jens Axboe <axboe@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
- 2.6.12]
-References: <4405D383.5070201@artenumerica.com>	<20060302011735.55851ca2.akpm@osdl.org>	<440865A9.4000102@artenumerica.com>	<4409B8DC.9040404@artenumerica.com> <20060304161519.6e6fbe2c.akpm@osdl.org>
-In-Reply-To: <20060304161519.6e6fbe2c.akpm@osdl.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA195A286FF312313FFDF9FDB"
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] bsg, block layer sg
+Message-ID: <20060306091959.GZ4329@suse.de>
+References: <20060302111945.GG4329@suse.de> <20060304180814.11f459b9.akpm@osdl.org> <20060306085735.GY4329@suse.de> <20060306011355.4df811f6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306011355.4df811f6.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA195A286FF312313FFDF9FDB
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, Mar 06 2006, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > ...
+> > > 
+> > > If you expand the two above statements you get:
+> > > 
+> > > 	spin_lock_irqsave(q->queue_lock, flags);
+> > > 	__elv_add_request(q, rq, where, plug);
+> > > 	spin_unlock_irqrestore(q->queue_lock, flags);
+> > > 	spin_lock_irq(q->queue_lock);
+> > > 	__generic_unplug_device(q);
+> > > 	spin_unlock_irq(q->queue_lock);
+> > > 
+> > > which is a bit sad.
+> > 
+> > Indeed, I'll do the locking manually and use the __ functions.
+> 
+> blk_execute_rq_nowait() and pkt_generic_packet() also do the above two
+> calls.   It might be worth creating a new library function.
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
->  Could you test that?  (and don't alter the Cc: list!).  The patch is
-> against 2.6.16-rc5.
+Yes it might, there are other call sites like this in the kernel. But
+it's basically blk_execute_rq_nowait(). I'll make that change.
 
-I forgot to mention that the DVD drive was not automatically recognized:
+> > > > +static int bsg_complete_all_commands(struct bsg_device *bd)
+> > > > +{
+> > > > +	struct bsg_command *bc;
+> > > > +	int ret, tret;
+> > > > +
+> > > > +	dprintk("%s: entered\n", bd->name);
+> > > > +
+> > > > +	set_bit(BSG_F_BLOCK, &bd->flags);
+> > > > +
+> > > > +	/*
+> > > > +	 * wait for all commands to complete
+> > > > +	 */
+> > > > +	ret = 0;
+> > > > +	do {
+> > > > +		ret = bsg_io_schedule(bd, TASK_UNINTERRUPTIBLE);
+> > > > +		/*
+> > > > +		 * look for -ENODATA specifically -- we'll sometimes get
+> > > > +		 * -ERESTARTSYS when we've taken a signal, but we can't
+> > > > +		 * return until we're done freeing the queue, so ignore
+> > > > +		 * it.  The signal will get handled when we're done freeing
+> > > > +		 * the bsg_device.
+> > > > +		 */
+> > > > +	} while (ret != -ENODATA);
+> > > > +
+> > > > +	/*
+> > > > +	 * discard done commands
+> > > > +	 */
+> > > 
+> > > Would it be useful to reap the completed commands earlier?  While their
+> > > predecessors are still in flight?
+> > 
+> > Not sure I follow... You mean if someone attempts to queue and fails
+> > because we are out of commands, then try and reap some done commands?
+> 
+> Rather than waiting for all commands to complete then freeing them all
+> up, it might be possible to free some of them earlier, while the rest
+> are still in flight.  Pipeline the reaping with the I/O completion.  A
+> minor saving in cycles and memory, perhaps.   Probably it's not worth
+> the complexity - I was just asking ;)
 
-ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x18F0 irq 14
-ata1: dev 0 cfg 49:0f00 82:0218 83:4000 84:4000 85:0218 86:0000 87:4000
-88:041f
-ata1: dev 0 ATAPI, max UDMA/66
-ata1: dev 0 configured for UDMA/33
-scsi0 : ata_piix
-ata1(0): WARNING: ATAPI is disabled, device ignored.
+For the example above, it's the final shutdown case just waiting for all
+commands to complete. So definitely not worth extra complexity :-)
 
-Is this still as described in
-http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux
-under "DVD drive not recognized"?  Perhaps I'll be able to do some tests
-on that later, too.
-
-Best regards
-                J Esteves
 -- 
-+351 939838775   Skype:jmcerqueira   http://del.icio.us/jmce
+Jens Axboe
 
---------------enigA195A286FF312313FFDF9FDB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFEC/6oesWiVDEbnjYRAlfrAKCpyetAEQqm1N0FFuwOQzQNIqr4iACfRGs/
-XUVhdxbPpyR0ervB3x8Ws3k=
-=Y3NG
------END PGP SIGNATURE-----
-
---------------enigA195A286FF312313FFDF9FDB--

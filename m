@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWCFQN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWCFQPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWCFQN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 11:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWCFQN2
+	id S1750868AbWCFQPO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 11:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWCFQPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 11:13:28 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:4480 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S1750783AbWCFQN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 11:13:27 -0500
-Date: Mon, 6 Mar 2006 19:13:24 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Problem on Alpha with "convert to generic irq framework"
-Message-ID: <20060306191324.A1502@jurassic.park.msu.ru>
-References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru> <20060306135434.GA12829@localhost>
+	Mon, 6 Mar 2006 11:15:14 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:22034 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1750868AbWCFQPN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 11:15:13 -0500
+Date: Mon, 6 Mar 2006 17:15:12 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: Re: Is that an acceptable interface change?
+Message-ID: <20060306161512.GB23513@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Jesper Juhl <jesper.juhl@gmail.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	"Hack inc." <linux-kernel@vger.kernel.org>
+References: <20060306011757.GA21649@dspnet.fr.eu.org> <1141631568.4084.2.camel@laptopd505.fenrus.org> <20060306155021.GA23513@dspnet.fr.eu.org> <9a8748490603060755r55b3584bpf0a16451a57925b5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060306135434.GA12829@localhost>; from mchouque@free.fr on Mon, Mar 06, 2006 at 02:54:34PM +0100
+In-Reply-To: <9a8748490603060755r55b3584bpf0a16451a57925b5@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 02:54:34PM +0100, Mathieu Chouquet-Stringer wrote:
-> Too bad my alpha doesn't support SRM (it's really a modified LX164
-> board).
-> 
-> Is there anything I can do to help debug the problem?
+On Mon, Mar 06, 2006 at 04:55:02PM +0100, Jesper Juhl wrote:
+> Userspace apps should not include kernel headers, period.
+> So, userspace applications really shouldn't care.
 
-No, thanks. I've finally found the AlphaBIOS ROM image for lx164,
-that was most difficult part of the work. ;-)
-Now I'm able to kill the box in just one second with 'ping -f'...
-Will look into this tomorrow.
+Please excuse me if I'm a little dense here, but the kernel headers
+_define_ the userspace-kernel interface.  If you don't have them or a
+sanitized copy of them you just can't talk with the kernel at all.
 
-Ivan.
+  OG.

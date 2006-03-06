@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWCFXTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751678AbWCFXYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWCFXTn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 18:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWCFXTn
+	id S1751678AbWCFXYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 18:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751952AbWCFXYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 18:19:43 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:34478 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932447AbWCFXTm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 18:19:42 -0500
-Message-ID: <440CC332.90005@cfl.rr.com>
-Date: Mon, 06 Mar 2006 18:18:10 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Mar 2006 18:24:45 -0500
+Received: from pproxy.gmail.com ([64.233.166.181]:14691 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751678AbWCFXYp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 18:24:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e3IVYgGIO3S1xdNYz82PGLCSUT0UlXnXhSnu4rozA2sCBcAMCBY1itqSMY/acBd9hkff2uXNAZUmT19Hl+jvLhzMvekbg1bWTv/2FYICniV42x3VLgMgREYZW7sIqf2LDfnbFMORSBRmgudrmeV1uwRfZvXIh/H8jlRzRqpt3YA=
+Message-ID: <9a8748490603061524j616bf6b3i1b6ab5354bcfe1a9@mail.gmail.com>
+Date: Tue, 7 Mar 2006 00:24:44 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, markhe@nextd.demon.co.uk,
+       andrea@suse.de, michaelc@cs.wisc.edu, James.Bottomley@steeleye.com,
+       axboe@suse.de, penberg@cs.helsinki.fi
+In-Reply-To: <20060306150612.51f48efa.akpm@osdl.org>
 MIME-Version: 1.0
-To: Dan Aloni <da-x@monatomic.org>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Status of AIO
-References: <20060306062402.GA25284@localdomain>
-In-Reply-To: <20060306062402.GA25284@localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Mar 2006 23:21:59.0578 (UTC) FILETIME=[C48637A0:01C64174]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14308.000
-X-TM-AS-Result: No--9.700000-5.000000-31
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200603060117.16484.jesper.juhl@gmail.com>
+	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
+	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>
+	 <9a8748490603061501r387291f0ha10e9e9fe3c9e060@mail.gmail.com>
+	 <20060306150612.51f48efa.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sending this again because it looks like the original got lost.  At 
-least, I've not seen it show up on the mailing list yet and I sent it 8 
-hours ago.
+On 3/7/06, Andrew Morton <akpm@osdl.org> wrote:
+> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+> >
+> > And since 2.6.16-rc5-git8 is not experiencing problems I'd suggest you
+> >  perhaps instead take a look at what's in -mm... That's where we need
+> >  to work (it seems) to find the bug...
+>
+> Yes, it's very probably something in git-scsi-misc.
+>
+I would say that's correct. I just build 2.6.16-rc5-mm2 with just
+git-scsi-misc.patch reverted, and that makes the problem go away.
 
-Dan Aloni wrote:
-> Hello,
-> 
-> I'm trying to assert the status of AIO under the current version 
+So now the big question is; what part(s) of git-scsi-misc is broken?
 
-I think you mean ascertain.
-
-> of Linux 2.6. However by searching I wasn't able to find any 
-> indication about it's current state. Is there anyone using it
-> under a production environment?
-> 
-> I'd like to know how complete it is and whether socket AIO is
-> adaquately supported.
-> 
-> Thanks,
-> 
-
-AFAIK, it is not yet supported by the sockets layer, and the glibc posix
-aio apis do NOT use the kernel aio support.  I have done some
-experimentation with it by hacking dd, but from what I can tell, it is
-not used in any sort of production capacity.
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

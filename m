@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752074AbWCFTjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752406AbWCFTHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752074AbWCFTjn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWCFTjm
+	id S1752406AbWCFTHs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 14:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752408AbWCFTHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:39:42 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:6843 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750729AbWCFTjl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:39:41 -0500
-Date: Mon, 6 Mar 2006 14:39:39 -0500
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patches] net driver fixes
-Message-ID: <20060306193939.GA14122@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 6 Mar 2006 14:07:47 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:62170 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1752405AbWCFTHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 14:07:46 -0500
+From: "Sean Hefty" <sean.hefty@intel.com>
+To: "'Roland Dreier'" <rdreier@cisco.com>, <linux-kernel@vger.kernel.org>,
+       <netdev@vger.kernel.org>
+Cc: <openib-general@openib.org>
+Subject: [PATCH 3/6] net/IB: export ip_dev_find
+Date: Mon, 6 Mar 2006 11:07:44 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <adaslpz2l9p.fsf@cisco.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Thread-Index: AcY/FYSDoSObWDAKRKyl93Kwz34rUACOz9oA
+Message-ID: <ORSMSX4011XvpFVjCRG00000006@orsmsx401.amr.corp.intel.com>
+X-OriginalArrivalTime: 06 Mar 2006 19:07:44.0470 (UTC) FILETIME=[3FC57760:01C64151]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Export ip_dev_find to allow locating a net_device given an IP address.
 
-Please pull from 'upstream-fixes' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 
-to receive the following updates:
+---
 
- drivers/net/chelsio/espi.c |    4 +---
- drivers/net/s2io.c         |    1 +
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
-Eric Sesterhenn:
-      chelsio: fix kmalloc failure in t1_espi_create
-
-Jeff Garzik:
-      s2io: set_multicast_list bug
-
-diff --git a/drivers/net/chelsio/espi.c b/drivers/net/chelsio/espi.c
-index 2306425..e824aca 100644
---- a/drivers/net/chelsio/espi.c
-+++ b/drivers/net/chelsio/espi.c
-@@ -296,9 +296,7 @@ void t1_espi_destroy(struct peespi *espi
+diff -uprN -X linux-2.6.git/Documentation/dontdiff 
+linux-2.6.git/net/ipv4/fib_frontend.c 
+linux-2.6.ib/net/ipv4/fib_frontend.c
+--- linux-2.6.git/net/ipv4/fib_frontend.c	2006-01-16 10:28:29.000000000 -0800
++++ linux-2.6.ib/net/ipv4/fib_frontend.c	2006-01-16 16:14:24.000000000 -0800
+@@ -666,4 +666,5 @@ void __init ip_fib_init(void)
+ }
  
- struct peespi *t1_espi_create(adapter_t *adapter)
- {
--	struct peespi *espi = kmalloc(sizeof(*espi), GFP_KERNEL);
--
--	memset(espi, 0, sizeof(*espi));
-+	struct peespi *espi = kzalloc(sizeof(*espi), GFP_KERNEL);
- 
- 	if (espi)
- 		espi->adapter = adapter;
-diff --git a/drivers/net/s2io.c b/drivers/net/s2io.c
-index 49b597c..b7f00d6 100644
---- a/drivers/net/s2io.c
-+++ b/drivers/net/s2io.c
-@@ -4092,6 +4092,7 @@ static void s2io_set_multicast(struct ne
- 		     i++, mclist = mclist->next) {
- 			memcpy(sp->usr_addrs[i].addr, mclist->dmi_addr,
- 			       ETH_ALEN);
-+			mac_addr = 0;
- 			for (j = 0; j < ETH_ALEN; j++) {
- 				mac_addr |= mclist->dmi_addr[j];
- 				mac_addr <<= 8;
+ EXPORT_SYMBOL(inet_addr_type);
++EXPORT_SYMBOL(ip_dev_find);
+ EXPORT_SYMBOL(ip_rt_ioctl);
+
+
+

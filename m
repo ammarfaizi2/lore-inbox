@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751605AbWCFUX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbWCFU15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751605AbWCFUX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 15:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbWCFUX5
+	id S1751625AbWCFU15 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 15:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751583AbWCFU14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 15:23:57 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:60608 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751526AbWCFUX5
+	Mon, 6 Mar 2006 15:27:56 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:38111 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750993AbWCFU1z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 15:23:57 -0500
-Date: Mon, 6 Mar 2006 21:23:30 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Martin Michlmayr <tbm@cyrius.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-Message-ID: <20060306202330.GB15728@electric-eye.fr.zoreil.com>
-References: <20060305180757.GA22121@deprecation.cyrius.com> <20060305185948.GA24765@electric-eye.fr.zoreil.com> <20060306143512.GI23669@deprecation.cyrius.com> <20060306191706.GA6947@deprecation.cyrius.com> <20060306194821.GA15728@electric-eye.fr.zoreil.com> <20060306195953.GB10703@deprecation.cyrius.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060306195953.GB10703@deprecation.cyrius.com>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+	Mon, 6 Mar 2006 15:27:55 -0500
+In-Reply-To: <54AD0F12E08D1541B826BE97C98F99F12FBF33@NT-SJCA-0751.brcm.ad.broadcom.com>
+To: "Caitlin Bestler" <caitlinb@broadcom.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>, netdev@vger.kernel.org
+MIME-Version: 1.0
+Subject: RE: RFC: move SDP from AF_INET_SDP to IPPROTO_SDP
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF8F668698.3BC5B375-ON88257129.00701FC1-88257129.007069DF@us.ibm.com>
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Mon, 6 Mar 2006 12:31:33 -0800
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 03/06/2006 13:31:34,
+	Serialize complete at 03/06/2006 13:31:34
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Michlmayr <tbm@cyrius.com> :
-[...]
-> http://www.cyrius.com/tmp/config-2.6.16-rc5-486
-> 
-> By the way, I'm getting the following messages in dmesg:
+IPPROTO_* should match the protocol field on the wire, which
+I gather isn't different. And I'm assuming there is no standard API
+defined already...
 
-netconsole appears enabled. Do you use it ?
+What about using a socket option?
 
--- 
-Ueimor
+                                        +-DLS
+

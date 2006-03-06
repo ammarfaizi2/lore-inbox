@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWCFRAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWCFRFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbWCFRAs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 12:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWCFRAs
+	id S1751271AbWCFRFu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751941AbWCFRFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 12:00:48 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:967 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751273AbWCFRAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 12:00:47 -0500
-Date: Mon, 6 Mar 2006 09:00:05 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: jesper.juhl@gmail.com, arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Is that an acceptable interface change?
-Message-Id: <20060306090005.e5575140.pj@sgi.com>
-In-Reply-To: <20060306161512.GB23513@dspnet.fr.eu.org>
-References: <20060306011757.GA21649@dspnet.fr.eu.org>
-	<1141631568.4084.2.camel@laptopd505.fenrus.org>
-	<20060306155021.GA23513@dspnet.fr.eu.org>
-	<9a8748490603060755r55b3584bpf0a16451a57925b5@mail.gmail.com>
-	<20060306161512.GB23513@dspnet.fr.eu.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 6 Mar 2006 12:05:50 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:57289
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751271AbWCFRFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 12:05:50 -0500
+Date: Mon, 6 Mar 2006 09:05:42 -0800
+From: Greg KH <greg@kroah.com>
+To: s.schmidt@avm.de
+Cc: kkeil@suse.de, libusb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       opensuse-factory@opensuse.org, torvalds@osdl.org
+Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+Message-ID: <20060306170542.GB8142@kroah.com>
+References: <20060217230004.GA15492@kroah.com> <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Please excuse me if I'm a little dense here, but the kernel headers
-> _define_ the userspace-kernel interface. 
+On Mon, Mar 06, 2006 at 01:47:43PM +0100, s.schmidt@avm.de wrote:
+> Your focus on the technical aspects shows us that there is a common
+> understanding, so we certainly appreciate your input.
+> 
+> The described userland/kernel mix scenarios may work in uninterrupted
+> environments, but non-stop quality of service "at all times and situations"
+> is only truly feasible in kernel space. "with the only bottleneck being the
+> CPU to RAM bus." is exactly the main argument against a mixed kernel/user
+> space driver architecture. We know from our everyday business, Linux is
+> often used in slow CPU environments like PIII or similar. Thus latency
+> times are even more critical within these environments.
 
-I don't think so.  The kernel headers define the API's that the
-various kernel facilities present to each other, within the kernel.
+I agree.  But have you measured such latency on the 2.6 kernel recently?
+On old hardware?  Is it still unacceptable for you?  If so, what is
+required?
 
-The userspace-kernel interface is not really a simple interface
-of procedures and types definable by a traditional C header.
-It uses a variety of techniques, such as special calling conventions,
-special files, and what not ... almost everything possible except
-the simple call by one procedure of another on a common stack.
+> Even though people might do realtime DSP things in user space with Linux
+> and soft modems might work pretty well in userspace, in the case of Fax G3
+> an extremely short latency is required. The user space lacks the required
+> reliability and interoperability. Latency times of 4/10/20 or 40
+> milliseconds are one aspect, but QoS is the overall essence. Within the
+> kernel space there is no need for unnecessary mode switches or data copy
+> procedures.
 
-In the general case, we can do no more than document, from the
-kernel side, what is the interface, and expect libraries and such
-on the user side to wrap this up in a form palatable to C (and
-other diverse) language uses.
+I understand, that is why I suggested a mix of a kernel driver to handle
+the stuff that has latency issues, and userspace to handle the rest.
 
-Such header files as are useful to a userspace C programmer are
-usually provided by the userspace library, for it is that library
-that the application is linking with, not the kernel.
+> Compared to other operating systems, such as Mac OS, BeOS,
+> Windows etc., Linux is walking a solitary path with the "user mode only"
+> shift. One gets the impression, that legal concerns are leading Linux to a
+> technically suboptimal/isolated solution.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+No, right now, Linux has the best latency numbers _by far_ than any
+other operating system, so we can move stuff to userspace.
+
+And again, it's your legal issues that are forcing you that way, if you
+change that, putting everything in the kernel would be fine :)
+
+So, in conclusion, is there anything that we can help you out with in
+regards to you feeling that userspace can not handle your needs?  Do you
+have numbers showing that putting a small portion of the USB urb handler
+logic in the kernel and the rest in userspace will not work for you?
+Example code showing long delay periods that we can help fix?
+
+Anything else we can do?
+
+thanks,
+
+greg k-h

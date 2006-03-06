@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWCFWIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbWCFWJ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWCFWIj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWCFWIi
+	id S932392AbWCFWJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:09:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWCFWJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:08:38 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:29980 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932384AbWCFWIh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:08:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bwg3EsTmHLauw9AcsNsTobNweLTjsuoIQ3UTPsGcacoq62q7Eu/f0awAeBnB2ZzcDhoKSbMnFopQ22OciPXER54NcJvsqqZoit/0LElKVx+TqRtV5QpsWyVEwJSKP0ObprPg8yConzuCQDDj/xdhNORKxJrEWK6QUgU6suY/OKY=
-Message-ID: <9a8748490603061408r5f4f7509v6d39a7e39d36ca6d@mail.gmail.com>
-Date: Mon, 6 Mar 2006 23:08:35 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, markhe@nextd.demon.co.uk,
-       andrea@suse.de, michaelc@cs.wisc.edu, James.Bottomley@steeleye.com,
-       axboe@suse.de
-In-Reply-To: <20060306140541.16a41cd2.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200603060117.16484.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>
-	 <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
-	 <200603062136.17098.jesper.juhl@gmail.com>
-	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
-	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
-	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
-	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
-	 <20060306140541.16a41cd2.akpm@osdl.org>
+	Mon, 6 Mar 2006 17:09:29 -0500
+Received: from mxout1.netvision.net.il ([194.90.9.20]:28488 "EHLO
+	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
+	id S932391AbWCFWJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:09:26 -0500
+Date: Tue, 07 Mar 2006 00:09:53 +0300
+From: Maxim Kozover <maximkoz@netvision.net.il>
+Subject: Re: Re: problems with scsi_transport_fc and qla2xxx
+In-reply-to: <20060306212835.GO6278@andrew-vasquezs-powerbook-g4-15.local>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Mike Snitzer <snitzer@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
+Message-id: <1229893529.20060307000953@netvision.net.il>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Priority: 3 (Normal)
+References: <1413265398.20060227150526@netvision.net.il>
+ <978150825.20060227210552@netvision.net.il>
+ <20060228221422.282332ef.akpm@osdl.org> <4406034B.9030105@madness.at>
+ <20060301210802.GA7288@spe2> <957728045.20060302193248@netvision.net.il>
+ <170fa0d20603061200y38315a62uf143258c79659381@mail.gmail.com>
+ <1119462161.20060306230951@netvision.net.il>
+ <20060306212835.GO6278@andrew-vasquezs-powerbook-g4-15.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/6/06, Andrew Morton <akpm@osdl.org> wrote:
-> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
-> >
-> > Where do we go from here ?
-> >
->
-> If you can test just
->
->         2.6.16-rc5 + linus.patch + git-scsi-misc.patch
->
-> then we'd have a clearer idea.
->
-Sure, I'll get right on it.
-I'll post the results in 15min or so.
+Hi Andrew!
+After applying the patch the same lock exists:
+#001:             [ffff81006edc4080] {scsi_host_alloc}
+.. held by:         scsi_wq_4: 4255 [ffff81007edaf770, 110]
+... acquired at:               scsi_scan_target+0x51/0x87 [scsi_mod]
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Thanks,
+
+Maxim.
+
+

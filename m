@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752325AbWCFJPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752321AbWCFJTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752325AbWCFJPm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 04:15:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752323AbWCFJPm
+	id S1752321AbWCFJTk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 04:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752328AbWCFJTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 04:15:42 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:16853 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752325AbWCFJPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 04:15:41 -0500
-Date: Mon, 6 Mar 2006 10:14:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-Subject: Re: Fw: Re: oops in choose_configuration()
-Message-ID: <20060306091429.GA9330@elte.hu>
-References: <20060304121723.19fe9b4b.akpm@osdl.org> <Pine.LNX.4.64.0603041235110.22647@g5.osdl.org> <20060304213447.GA4445@kroah.com> <20060304135138.613021bd.akpm@osdl.org> <20060304221810.GA20011@kroah.com> <20060305154858.0fb0006a.akpm@osdl.org> <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 6 Mar 2006 04:19:40 -0500
+Received: from merlin.artenumerica.net ([80.68.90.14]:27914 "EHLO
+	merlin.artenumerica.net") by vger.kernel.org with ESMTP
+	id S1752321AbWCFJTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 04:19:39 -0500
+Message-ID: <440BFEA8.2080103@artenumerica.com>
+Date: Mon, 06 Mar 2006 09:19:36 +0000
+From: J M Cerqueira Esteves <jmce@artenumerica.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, support@artenumerica.com, ngalamba@fc.ul.pt,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: oom-killer: gfp_mask=0xd1 with 2.6.15.4 on EM64T [previously
+ 2.6.12]
+References: <4405D383.5070201@artenumerica.com>	<20060302011735.55851ca2.akpm@osdl.org>	<440865A9.4000102@artenumerica.com>	<4409B8DC.9040404@artenumerica.com> <20060304161519.6e6fbe2c.akpm@osdl.org>
+In-Reply-To: <20060304161519.6e6fbe2c.akpm@osdl.org>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA195A286FF312313FFDF9FDB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA195A286FF312313FFDF9FDB
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm2/broken-out/x86_64-mm-blk-bounce.patch.
+>  Could you test that?  (and don't alter the Cc: list!).  The patch is
+> against 2.6.16-rc5.
 
-> @@ -4028,6 +4028,8 @@ static inline void __cond_resched(void)
->  	 */
->  	if (unlikely(preempt_count()))
->  		return;
-> +	if (unlikely(system_state != SYSTEM_RUNNING))
-> +		return;
+I forgot to mention that the DVD drive was not automatically recognized:
 
-we used to have this, but it was frowned upon during the initial lkml 
-review of -VP so i fixed all the known 'early bootup scheduling 
-assumptions' and removed this condition .. but that was a losing battle 
-i suspect. In any case, i fully agree with your fix. We also need this 
-fix for v2.6.16.
+ata1: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0x18F0 irq 14
+ata1: dev 0 cfg 49:0f00 82:0218 83:4000 84:4000 85:0218 86:0000 87:4000
+88:041f
+ata1: dev 0 ATAPI, max UDMA/66
+ata1: dev 0 configured for UDMA/33
+scsi0 : ata_piix
+ata1(0): WARNING: ATAPI is disabled, device ignored.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+Is this still as described in
+http://www.thinkwiki.org/wiki/Problems_with_SATA_and_Linux
+under "DVD drive not recognized"?  Perhaps I'll be able to do some tests
+on that later, too.
 
-	Ingo
+Best regards
+                J Esteves
+-- 
++351 939838775   Skype:jmcerqueira   http://del.icio.us/jmce
+
+--------------enigA195A286FF312313FFDF9FDB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFEC/6oesWiVDEbnjYRAlfrAKCpyetAEQqm1N0FFuwOQzQNIqr4iACfRGs/
+XUVhdxbPpyR0ervB3x8Ws3k=
+=Y3NG
+-----END PGP SIGNATURE-----
+
+--------------enigA195A286FF312313FFDF9FDB--

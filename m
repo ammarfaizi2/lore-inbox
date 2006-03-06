@@ -1,45 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWCFWuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752454AbWCFWwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWCFWuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752440AbWCFWut
+	id S1752454AbWCFWwF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752456AbWCFWwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:50:49 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6021
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751675AbWCFWus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:50:48 -0500
-Date: Mon, 06 Mar 2006 14:50:53 -0800 (PST)
-Message-Id: <20060306.145053.129802994.davem@davemloft.net>
-To: rdreier@cisco.com
-Cc: mshefty@ichips.intel.com, sean.hefty@intel.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for
- RDMA connection manager
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <adau0ab42ni.fsf@cisco.com>
-References: <aday7zn432b.fsf@cisco.com>
-	<20060306.143901.26500391.davem@davemloft.net>
-	<adau0ab42ni.fsf@cisco.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 17:52:05 -0500
+Received: from pproxy.gmail.com ([64.233.166.180]:61760 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752458AbWCFWwC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:52:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bLRYKL0/Ai+LrhdVVuQ+ExtefrrpH2Y2I8P6A+hfy/IhvlcbK1/krqlgnz+uU54KJFxdufwE8LBc+H5tS5w4zfpj+DAQQCu6ielTFdcmZRDbLSMDEPKymzNoQ9ewSB7vL7qrEGTOszWPR43CaMp/sKX32HNjlVFZsQPhnzDcURY=
+Message-ID: <9a8748490603061452k794fc6cdk54b4ba7a27151bb1@mail.gmail.com>
+Date: Mon, 6 Mar 2006 23:52:01 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       "Andrea Arcangeli" <andrea@suse.de>,
+       "Mike Christie" <michaelc@cs.wisc.edu>,
+       "James Bottomley" <James.Bottomley@steeleye.com>,
+       "Jens Axboe" <axboe@suse.de>, "Pekka Enberg" <penberg@cs.helsinki.fi>
+In-Reply-To: <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200603060117.16484.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
+	 <200603062136.17098.jesper.juhl@gmail.com>
+	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
+	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roland Dreier <rdreier@cisco.com>
-Date: Mon, 06 Mar 2006 14:41:21 -0800
+On 3/6/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> Ok,
+>  I have a new favorite suspect.
+>
+Heh, you are coming up with stuff to test faster than I can build &
+boot kernels ;-)
+Which is good, we'll get to the bottom of this all the faster :)
 
-> I should look into getting some niagara machines to test with -- with
-> PCIe slots they should actually be good for IB testing.
 
-You'll be cpu limited until we have Van Jacobson net channels.
+> It is this one: commit 4d268eba1187ef66844a6a33b9431e5d0dadd4ad:
+>
+[--snip--]
+>
+> Now, maybe I'm just off my rocker again (I've certainly been batting 0.000
+> so far, even if I think I've been finding real bugs). So who knows. But I
+> get the feeling that that patch is broken.
+>
+> Either revert it, or try this (TOTALLY UNTESTED!!!) patch..
+>
+Hmm, that patch doesn't apply at all to 2.6.16-rc5-mm2 :/
 
-Also, since our existing Linux "generic" MSI code is so riddled with
-x86'isms (it was written by an Intel person, so this is just the
-status quo), it will be a while before MSI interrupts are supported on
-sparc64.
+patching file mm/slab.c
+Hunk #1 FAILED at 1628.
+1 out of 1 hunk FAILED -- saving rejects to file mm/slab.c.rej
 
-I haven't gotten around to working on that problem yet, and PPC needs
-this work too as they now have MSI capable PCI controllers.
+
+$ cat mm/slab.c.rej
+***************
+*** 1628,1649 ****
+  			size_t size, size_t align, unsigned long flags)
+  {
+  	size_t left_over = 0;
+- 	int gfporder;
+
+- 	for (gfporder = 0 ; gfporder < MAX_GFP_ORDER; gfporder++) {
+  		unsigned int num;
+  		size_t remainder;
+
+- 		cache_estimate(gfporder, size, align, flags, &remainder, &num);
+  		if (!num)
+  			continue;
+-
+  		/* More than offslab_limit objects will cause problems */
+- 		if ((flags & CFLGS_OFF_SLAB) && num > offslab_limit)
+  			break;
+
+  		cachep->num = num;
+- 		cachep->gfporder = gfporder;
+  		left_over = remainder;
+
+  		/*
+--- 1628,1652 ----
+  			size_t size, size_t align, unsigned long flags)
+  {
+  	size_t left_over = 0;
+
++ 	for (;; cachep->gfporder++) {
+  		unsigned int num;
+  		size_t remainder;
+
++ 		if (cachep->gfporder > MAX_GFP_ORDER) {
++ 			cachep->num = 0;
++ 			break;
++ 		}
++
++ 		cache_estimate(cachep->gfporder, size, align, flags,
++ 			       &remainder, &num);
+  		if (!num)
+  			continue;
+  		/* More than offslab_limit objects will cause problems */
++ 		if (flags & CFLGS_OFF_SLAB && cachep->num > offslab_limit)
+  			break;
+
+  		cachep->num = num;
+  		left_over = remainder;
+
+  		/*
+
+
+
+> And hey, maybe I'm just crazy.
+>
+Somehow I don't think that's the core problem here ;)
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

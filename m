@@ -1,264 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWCFEGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWCFEEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWCFEGE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 23:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWCFEGC
+	id S1750751AbWCFEEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 23:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWCFEEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 23:06:02 -0500
-Received: from ozlabs.org ([203.10.76.45]:52890 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750780AbWCFEGB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 23:06:01 -0500
-Date: Mon, 6 Mar 2006 15:05:22 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: hugepage: is_aligned_hugepage_range() cleanup
-Message-ID: <20060306040522.GE21408@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>,
-	William Lee Irwin <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Sun, 5 Mar 2006 23:04:15 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:55824 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S1750751AbWCFEEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 23:04:15 -0500
+Message-ID: <440BB474.8000500@snapgear.com>
+Date: Mon, 06 Mar 2006 14:03:00 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Ringle <jringle@vertical.com>
+CC: Adrian Cox <adrian@humboldt.co.uk>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux running on a PCI Option device?
+References: <43EAE4AC.6070807@snapgear.com> <200603030909.28640.jringle@vertical.com> <1141396843.8912.49.camel@localhost.localdomain> <200603031331.16849.jringle@vertical.com>
+In-Reply-To: <200603031331.16849.jringle@vertical.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch applies on top of all my other hugepage patches in the -mm
-queue.
+Hi Jon,
 
-Quite a long time back, prepare_hugepage_range() replaced
-is_aligned_hugepage_range() as the callback from mm/mmap.c to arch
-code to verify if an address range is suitable for a hugepage mapping.
-is_aligned_hugepage_range() stuck around, but only to implement
-prepare_hugepage_range() on archs which didn't implement their own.
+Jon Ringle wrote:
+> On Friday 03 March 2006 09:40 am, Adrian Cox wrote:
+> 
+>>Based on only a quick look at the code: if the Windows host is present,
+>>don't call pci_common_init() in ixdp425_pci_init().
+> 
+> 
+> Doing this will prevent the code in ixp4xx_pci_preinit() from executing which 
+> handles some initialization for both PCI host and option modes. Should I go 
+> ahead and explicitly call ixp4xx_pci_preinit() from ixdp425_pci_init() if in 
+> PCI option mode?
 
-Most archs (everything except ia64 and powerpc) used the same
-implementation of is_aligned_hugepage_range().  On powerpc, which
-implements its own prepare_hugepage_range(), the custom version was
-never used.
+The older 2.4 kernel code for the IXP425 support pretty much did it
+this way (which is what makes it look like it supports the device
+in option mode).
 
-In addition, "is_aligned_hugepage_range()" was a bad name, because it
-suggests it returns true iff the given range is a good hugepage range,
-whereas in fact it returns 0-or-error (so the sense is reversed).
+Code snippet from ixp425_pci_init() in arch/arm/mach-ixp425/ixp425-pci.c
+(from patches for 2.4 kernels to support ixp425):
 
-This patch cleans up by abolishing is_aligned_hugepage_range().
-Instead prepare_hugepage_range() is defined directly.  Most archs use
-the default version, which simply checks the given region is aligned
-to the size of a hugepage.  ia64 and powerpc define custom versions.
-The ia64 one simply checks that the range is in the correct address
-space region in addition to being suitably aligned.  The powerpc
-version (just as previously) checks for suitable addresses, and if
-necessary performs low-level MMU frobbing to set up new areas for use
-by hugepages.
+        ...
+        if (ixp425_pci_is_host())
+         {
+                 local_write_config_word(PCI_COMMAND, PCI_COMMAND_MASTER |
+                         PCI_COMMAND_MEMORY);
 
-No libhugetlbfs testsuite regressions on ppc64 (POWER5 LPAR).
+                 DBG("allocating hose\n");
+                 hose = pcibios_alloc_controller();
+                 if (!hose)
+                 panic("Could not allocate PCI hose");
 
-Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
+                 hose->first_busno = 0;
+                 hose->last_busno = 0;
+                 hose->io_space.start = 0;
+                 hose->io_space.end = 0xffffffff;
+                 hose->mem_space.start = 0x48000000;
+                 hose->mem_space.end = 0x4bffffff;
 
- arch/i386/mm/hugetlbpage.c    |   12 ------------
- arch/ia64/mm/hugetlbpage.c    |    5 +++--
- arch/powerpc/mm/hugetlbpage.c |   15 ---------------
- arch/sh/mm/hugetlbpage.c      |   12 ------------
- arch/sh64/mm/hugetlbpage.c    |   12 ------------
- arch/sparc64/mm/hugetlbpage.c |   12 ------------
- include/asm-ia64/page.h       |    1 +
- include/linux/hugetlb.h       |   16 ++++++++++++----
- 8 files changed, 16 insertions(+), 69 deletions(-)
+                 /* autoconfig the bus */ DBG("AUTOCONFIG\n");
+                 hose->last_busno = pciauto_bus_scan(hose, 0);
 
-Index: working-2.6/arch/i386/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/i386/mm/hugetlbpage.c	2006-02-24 11:44:19.000000000 +1100
-+++ working-2.6/arch/i386/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-@@ -48,18 +48,6 @@ pte_t *huge_pte_offset(struct mm_struct 
- 	return (pte_t *) pmd;
- }
- 
--/*
-- * This function checks for proper alignment of input addr and len parameters.
-- */
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len)
--{
--	if (len & ~HPAGE_MASK)
--		return -EINVAL;
--	if (addr & ~HPAGE_MASK)
--		return -EINVAL;
--	return 0;
--}
--
- #if 0	/* This is just for testing */
- struct page *
- follow_huge_addr(struct mm_struct *mm, unsigned long address, int write)
-Index: working-2.6/arch/ia64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ia64/mm/hugetlbpage.c	2006-02-24 11:44:19.000000000 +1100
-+++ working-2.6/arch/ia64/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-@@ -68,9 +68,10 @@ huge_pte_offset (struct mm_struct *mm, u
- #define mk_pte_huge(entry) { pte_val(entry) |= _PAGE_P; }
- 
- /*
-- * This function checks for proper alignment of input addr and len parameters.
-+ * Don't actually need to do any preparation, but need to make sure
-+ * the address is in the right region.
-  */
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len)
-+int prepare_hugepage_range(unsigned long addr, unsigned long len)
- {
- 	if (len & ~HPAGE_MASK)
- 		return -EINVAL;
-Index: working-2.6/arch/powerpc/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/powerpc/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-+++ working-2.6/arch/powerpc/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-@@ -332,21 +332,6 @@ pte_t huge_ptep_get_and_clear(struct mm_
- 	return __pte(old);
- }
- 
--/*
-- * This function checks for proper alignment of input addr and len parameters.
-- */
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len)
--{
--	if (len & ~HPAGE_MASK)
--		return -EINVAL;
--	if (addr & ~HPAGE_MASK)
--		return -EINVAL;
--	if (! (within_hugepage_low_range(addr, len)
--	       || within_hugepage_high_range(addr, len)) )
--		return -EINVAL;
--	return 0;
--}
--
- struct slb_flush_info {
- 	struct mm_struct *mm;
- 	u16 newareas;
-Index: working-2.6/arch/sh/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/sh/mm/hugetlbpage.c	2006-02-24 11:44:20.000000000 +1100
-+++ working-2.6/arch/sh/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-@@ -84,18 +84,6 @@ pte_t huge_ptep_get_and_clear(struct mm_
- 	return entry;
- }
- 
--/*
-- * This function checks for proper alignment of input addr and len parameters.
-- */
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len)
--{
--	if (len & ~HPAGE_MASK)
--		return -EINVAL;
--	if (addr & ~HPAGE_MASK)
--		return -EINVAL;
--	return 0;
--}
--
- struct page *follow_huge_addr(struct mm_struct *mm,
- 			      unsigned long address, int write)
- {
-Index: working-2.6/arch/sh64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/sh64/mm/hugetlbpage.c	2006-02-24 11:44:20.000000000 +1100
-+++ working-2.6/arch/sh64/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-@@ -84,18 +84,6 @@ pte_t huge_ptep_get_and_clear(struct mm_
- 	return entry;
- }
- 
--/*
-- * This function checks for proper alignment of input addr and len parameters.
-- */
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len)
--{
--	if (len & ~HPAGE_MASK)
--		return -EINVAL;
--	if (addr & ~HPAGE_MASK)
--		return -EINVAL;
--	return 0;
--}
--
- struct page *follow_huge_addr(struct mm_struct *mm,
- 			      unsigned long address, int write)
- {
-Index: working-2.6/arch/sparc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/sparc64/mm/hugetlbpage.c	2006-02-24 11:44:21.000000000 +1100
-+++ working-2.6/arch/sparc64/mm/hugetlbpage.c	2006-03-06 14:57:48.000000000 +1100
-@@ -92,18 +92,6 @@ pte_t huge_ptep_get_and_clear(struct mm_
- 	return entry;
- }
- 
--/*
-- * This function checks for proper alignment of input addr and len parameters.
-- */
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len)
--{
--	if (len & ~HPAGE_MASK)
--		return -EINVAL;
--	if (addr & ~HPAGE_MASK)
--		return -EINVAL;
--	return 0;
--}
--
- struct page *follow_huge_addr(struct mm_struct *mm,
- 			      unsigned long address, int write)
- {
-Index: working-2.6/include/asm-ia64/page.h
-===================================================================
---- working-2.6.orig/include/asm-ia64/page.h	2006-03-06 14:57:47.000000000 +1100
-+++ working-2.6/include/asm-ia64/page.h	2006-03-06 14:57:48.000000000 +1100
-@@ -57,6 +57,7 @@
- 
- # define HAVE_ARCH_HUGETLB_UNMAPPED_AREA
- # define ARCH_HAS_HUGEPAGE_ONLY_RANGE
-+# define ARCH_HAS_PREPARE_HUGEPAGE_RANGE
- # define ARCH_HAS_HUGETLB_FREE_PGD_RANGE
- #endif /* CONFIG_HUGETLB_PAGE */
- 
-Index: working-2.6/include/linux/hugetlb.h
-===================================================================
---- working-2.6.orig/include/linux/hugetlb.h	2006-03-06 14:57:48.000000000 +1100
-+++ working-2.6/include/linux/hugetlb.h	2006-03-06 14:57:48.000000000 +1100
-@@ -36,7 +36,6 @@ struct page *follow_huge_addr(struct mm_
- 			      int write);
- struct page *follow_huge_pmd(struct mm_struct *mm, unsigned long address,
- 				pmd_t *pmd, int write);
--int is_aligned_hugepage_range(unsigned long addr, unsigned long len);
- int pmd_huge(pmd_t pmd);
- void hugetlb_change_protection(struct vm_area_struct *vma,
- 		unsigned long address, unsigned long end, pgprot_t newprot);
-@@ -54,8 +53,18 @@ void hugetlb_free_pgd_range(struct mmu_g
- #endif
- 
- #ifndef ARCH_HAS_PREPARE_HUGEPAGE_RANGE
--#define prepare_hugepage_range(addr, len)	\
--	is_aligned_hugepage_range(addr, len)
-+/*
-+ * If the arch doesn't supply something else, assume that hugepage
-+ * size aligned regions are ok without further preparation.
-+ */
-+static inline int prepare_hugepage_range(unsigned long addr, unsigned long len)
-+{
-+	if (len & ~HPAGE_MASK)
-+		return -EINVAL;
-+	if (addr & ~HPAGE_MASK)
-+		return -EINVAL;
-+	return 0;
-+}
- #else
- int prepare_hugepage_range(unsigned long addr, unsigned long len);
- #endif
-@@ -95,7 +104,6 @@ static inline unsigned long hugetlb_tota
- #define hugetlb_report_meminfo(buf)		0
- #define hugetlb_report_node_meminfo(n, buf)	0
- #define follow_huge_pmd(mm, addr, pmd, write)	NULL
--#define is_aligned_hugepage_range(addr, len)	0
- #define prepare_hugepage_range(addr, len)	(-EINVAL)
- #define pmd_huge(x)	0
- #define is_hugepage_only_range(mm, addr, len)	0
+                 /* scan the bus */
+                 DBG("SCANNING THE BUS\n");
+                 pci_scan_bus(0, &ixp425_ops, sysdata);
+          }
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+
+Pretty much the rest of the PCI init is the same, it just
+doesn't do the bus scan.
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a Secure Computing Company      PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

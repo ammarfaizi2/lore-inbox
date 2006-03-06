@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752457AbWCFWxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752460AbWCFWy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752457AbWCFWxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 17:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752458AbWCFWxK
+	id S1752460AbWCFWy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 17:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752462AbWCFWy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 17:53:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:53615 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752457AbWCFWxI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 17:53:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jIEiilaeJRxYG9ygvo2+VMzVIvhz+qBEqyKZkpl/WpuS8HzO509uAuWR8iRec+K4qa4YcsRbL5WWdksY1b/c50t41IvviJYPE3jaFAR1LxXaY6uLSQn5wmFBXX7LD9vM7i4/JwezmTowKWp1qbtktsBZi4r17RtNtk0AcsqOAEA=
-Message-ID: <a36005b50603061453w36f5d49cs7bac0c186aee30b3@mail.gmail.com>
-Date: Mon, 6 Mar 2006 14:53:07 -0800
-From: "Ulrich Drepper" <drepper@gmail.com>
-To: "Benjamin LaHaise" <bcrl@kvack.org>
-Subject: Re: Status of AIO
-Cc: "Dan Aloni" <da-x@monatomic.org>,
-       "Linux Kernel List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060306211854.GM20768@kvack.org>
+	Mon, 6 Mar 2006 17:54:57 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:33474 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752460AbWCFWy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 17:54:56 -0500
+Date: Mon, 6 Mar 2006 14:54:37 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Jens Axboe <axboe@suse.de>, Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+In-Reply-To: <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>
+References: <200603060117.16484.jesper.juhl@gmail.com> 
+ <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>  <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
+  <200603062136.17098.jesper.juhl@gmail.com> 
+ <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com> 
+ <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com> 
+ <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+ <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+ <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org> <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060306062402.GA25284@localdomain>
-	 <20060306211854.GM20768@kvack.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/6/06, Benjamin LaHaise <bcrl@kvack.org> wrote:
-> Socket AIO is not supported yet, but it is useful to get user requests to
-> know there is demand for it.
 
-I don't think the POSIX AIO nor the kernel AIO interfaces are suitable
-for sockets, at least the way we can expect network traffic to be
-handled in the near future.  Some more radical approaches are needed. 
-I'll have some proposals which will be part of the talk I have at OLS.
+
+On Mon, 6 Mar 2006, Linus Torvalds wrote:
+> 
+> Either revert it, or try this (TOTALLY UNTESTED!!!) patch..
+
+Don't even bother with the untested patch.
+
+> +	for (gfporder = 0 ; gfporder < MAX_GFP_ORDER; gfporder++) {
+
+At a minimum, this "<" needs to be "<=".
+
+After that, it might even work. Not that I can convince me that the test 
+for "offslab_limit" ever even triggers, so..
+
+		Linus

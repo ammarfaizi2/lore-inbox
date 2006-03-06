@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752122AbWCFHrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWCFHql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752122AbWCFHrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 02:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752144AbWCFHrQ
+	id S1751386AbWCFHql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 02:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752139AbWCFHql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 02:47:16 -0500
-Received: from mail.gmx.net ([213.165.64.20]:59082 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752122AbWCFHrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 02:47:15 -0500
-X-Authenticated: #14349625
-Subject: Re: Fw: Re: oops in choose_configuration()
-From: Mike Galbraith <efault@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>
-References: <20060304121723.19fe9b4b.akpm@osdl.org>
-	 <Pine.LNX.4.64.0603041235110.22647@g5.osdl.org>
-	 <20060304213447.GA4445@kroah.com> <20060304135138.613021bd.akpm@osdl.org>
-	 <20060304221810.GA20011@kroah.com> <20060305154858.0fb0006a.akpm@osdl.org>
-	 <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 08:47:20 +0100
-Message-Id: <1141631240.26111.11.camel@homer>
+	Mon, 6 Mar 2006 02:46:41 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:40131 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751386AbWCFHql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 02:46:41 -0500
+Date: Mon, 6 Mar 2006 08:46:39 +0100
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Bastian Blank <bastian@waldi.eu.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org,
+       Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390 - fix match in ccw modalias
+Message-ID: <20060306084639.05bd7a9b@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20060306020024.GA25620@wavehammer.waldi.eu.org>
+References: <20060306020024.GA25620@wavehammer.waldi.eu.org>
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-05 at 21:00 -0800, Linus Torvalds wrote:
+On Mon, 6 Mar 2006 03:00:24 +0100
+Bastian Blank <bastian@waldi.eu.org> wrote:
 
-> 
-> Is there something else I've missed?
+> diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+> index be97caf..c164b23 100644
+> --- a/scripts/mod/file2alias.c
+> +++ b/scripts/mod/file2alias.c
+> @@ -246,7 +246,7 @@ static int do_ccw_entry(const char *file
+>  	    id->cu_model);
+>  	ADD(alias, "dt", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_TYPE,
+>  	    id->dev_type);
+> -	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_TYPE,
+> +	ADD(alias, "dm", id->match_flags&CCW_DEVICE_ID_MATCH_DEVICE_MODEL,
+>  	    id->dev_model);
+>  	return 1;
+>  }
 
-Maybe.  Does this add anything to the picture?  During boot,
-recalc_task_prio() is called with now < p->timestamp.  This causes quite
-a stir.  If you WARN_ON(now < p->timestamp) or printk, you'll have a
-dead box due to hundreds of gripes as things churn.  Adding...
+Patch makes sense to me.
 
-if (unlikely(now < p->timestamp))
-	__sleep_time = 0ULL;
+> Martin: can you please push them through for 2.6.16? It breaks automatic
+> loading of any dasd module.
 
-...turns it into exactly one gripe.
+I don't know whether Martin is operational this week, but I'd second an
+inclusion into 2.6.16.
 
-	-Mike
-
+Cornelia

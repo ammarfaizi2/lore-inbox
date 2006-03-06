@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751925AbWCFVuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWCFVyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751925AbWCFVuS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 16:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751927AbWCFVuR
+	id S1751670AbWCFVyF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 16:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752434AbWCFVyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 16:50:17 -0500
-Received: from mail.homelink.ru ([81.9.33.123]:12457 "EHLO eltel.net")
-	by vger.kernel.org with ESMTP id S1751925AbWCFVuQ (ORCPT
+	Mon, 6 Mar 2006 16:54:05 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30083 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751670AbWCFVyD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 16:50:16 -0500
-Date: Tue, 7 Mar 2006 00:07:18 +0300
-From: Andrew Zabolotny <zap@homelink.ru>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: adaplas@gmail.com, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: Backlight Class sysfs attribute behaviour
-Message-Id: <20060307000718.0e8b8be3.zap@homelink.ru>
-In-Reply-To: <1141634729.6524.14.camel@localhost.localdomain>
-References: <1141571334.6521.38.camel@localhost.localdomain>
-	<440B89AB.3020203@gmail.com>
-	<1141634729.6524.14.camel@localhost.localdomain>
-Organization: home
-X-Mailer: Sylpheed version 2.0.0beta6 (GTK+ 2.6.7; i686-pc-linux-gnu)
-X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
- epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
- rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
+	Mon, 6 Mar 2006 16:54:03 -0500
+Date: Mon, 6 Mar 2006 22:53:32 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: M?ns Rullg?rd <mru@inprovide.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] inotify hack for locate
+Message-ID: <20060306215332.GA4836@elf.ucw.cz>
+References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com> <1141594983.14714.121.camel@mindpipe> <20060305230821.GA20768@kvack.org> <yw1xu0acbhby.fsf@agrajag.inprovide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yw1xu0acbhby.fsf@agrajag.inprovide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Mar 2006 08:45:28 +0000
-Richard Purdie <rpurdie@rpsys.net> wrote:
+On Ne 05-03-06 23:30:09, M?ns Rullg?rd wrote:
+> Benjamin LaHaise <bcrl@kvack.org> writes:
+> 
+> > On Sun, Mar 05, 2006 at 04:43:03PM -0500, Lee Revell wrote:
+> >> updatedb runs at nice 20 on most distros, and with the CFQ scheduler the
+> >> IO priority follows the nice value, so why does it still kill the
+> >> machine?
+> >
+> > Running updatedb on a laptop when you're sitting in an airplane running 
+> > off of batteries is Not Nice to the user.  I know, I've had it happen far 
+> > too many times.
+> 
+> Running updatedb only if AC powered shouldn't be too difficult.
 
-> * the user supplied power sysfs attribute
-> * the user supplied brightness sysfs attribute
-> * the current FB blanking state
-> * any other driver specific factors
-As far I see the only real concern here is the console blanking. So why
-not make it just another device state flag, which doesn't influence the
-'power' attribute and which isn't visible from user space (what for?).
-And the 'real' power state will be computed as "blank && power"
-attributes. The entire logic could be hidden in backlight.c so that no
-driver will have to be modified for this. Maybe a 'hw_power' or such
-would be needed to see the 'real' hardware state (and possibly
-modify, if you really really want to).
+That makes locate useless on some machines. I have sharp zaurus C3000
+here... It is either powered on *or* connected on AC, but very rarely
+connected to ac while turned on. Well, its power plug located at weird
+place and old software version that prevents charging while turned on
+is contributory factor, but...
 
-Is there any need for a broader-range solution here?
-
+								Pavel
 -- 
-Greetings,
-   Andrew
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

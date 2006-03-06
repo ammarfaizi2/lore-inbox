@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWCFH3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751947AbWCFH34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWCFH3E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 02:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCFH3E
+	id S1751947AbWCFH34 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 02:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751949AbWCFH34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 02:29:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48812 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751393AbWCFH3C (ORCPT
+	Mon, 6 Mar 2006 02:29:56 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:53698 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751947AbWCFH3z convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 02:29:02 -0500
-Date: Mon, 6 Mar 2006 02:28:23 -0500
-From: Dave Jones <davej@redhat.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ericvh@gmail.com, rminnich@lanl.gov
-Subject: Re: 9pfs double kfree
-Message-ID: <20060306072823.GF21445@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org, ericvh@gmail.com, rminnich@lanl.gov
-References: <20060306070456.GA16478@redhat.com> <20060305.230711.06026976.davem@davemloft.net> <20060306072346.GF27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060306072346.GF27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 6 Mar 2006 02:29:55 -0500
+Date: Mon, 6 Mar 2006 02:29:49 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: jonathan@jonmasters.org
+cc: =?ISO-8859-1?Q?Ra=FAl_Baena?= <raul_baena@ya.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Doubt about scheduler
+In-Reply-To: <35fb2e590603051330o1dfa6951le3e7f14cda0c0eaa@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0603060218540.17802@gandalf.stny.rr.com>
+References: <4407584A.60301@ya.com>  <35fb2e590603032233i7302162do553ba61674cc8e50@mail.gmail.com>
+  <440AE3F3.3090404@ya.com> <440AE7E3.4060500@yahoo.com.au>  <440B01E1.8080102@ya.com>
+ <35fb2e590603051330o1dfa6951le3e7f14cda0c0eaa@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 07:23:46AM +0000, Al Viro wrote:
- > On Sun, Mar 05, 2006 at 11:07:11PM -0800, David S. Miller wrote:
- > > From: Dave Jones <davej@redhat.com>
- > > Date: Mon, 6 Mar 2006 02:04:58 -0500
- > > 
- > > > (I wish we had a kfree variant that NULL'd the target when it was free'd)
- > > 
- > > Excellent idea.
- > 
- > ITYM "poison the pointer variable".  Otherwise that sort of crap will go
- > unnoticed.
 
-yeah, even better idea. Just like slab debug, but without the overhead
-of poisoning the whole object.
+On Sun, 5 Mar 2006, Jon Masters wrote:
 
-I wonder if we could get away with something as simple as..
+> On 3/5/06, Raúl Baena <raul_baena@ya.com> wrote:
+>
+> > I thought that to make the module about the new O(k) scheduler would be
+> > a good idea. I think that it´s not enough for me schedstats, because I
+> > want to make a visual scheduler, I mean, using GTK+ , a module and
+> > something else to make a visual scheduler monitor, how the tasks move
+> > between "active" and "expired", where the task are in prio_array with
+> > the bitmap fields...this module isn´t usefull, only in a didactic way.
+>
+> If you're seriously interested in this then cool. Let me know how you get on.
+>
+> I looked at hacking something into gtop etc. previously to use
+> /proc/kcore and pull out task information - I'd certainly like to see
+> a visual process monitor that could pull all of this stuff out and
+> display it for educational interest (page tables, vmas, other
+> resources). But then, it's probably been done - I didn't look to see
+> what else is out there.
+>
 
-#define kfree(foo) \
-	__kfree(foo); \
-	foo = KFREE_POISON;
+Raul, Also take a look at relayfs. It's a fast way to record data in the
+kernel and pass it back to a userland process.  You'll have to patch the
+kernel as it is said that the data needed is private to sched.c
 
-?
+Look into Documentation/filesystems/relayfs.txt
 
-		Dave
+relayfs entered the kernel in 2.6.14.
 
--- 
-http://www.codemonkey.org.uk
+-- Steve
+

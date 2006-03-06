@@ -1,59 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752416AbWCFT6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWCFUAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752416AbWCFT6o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 14:58:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752420AbWCFT6n
+	id S1751368AbWCFUAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 15:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWCFUAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 14:58:43 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:59383 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752413AbWCFT6n convert rfc822-to-8bit
+	Mon, 6 Mar 2006 15:00:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:43762 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932354AbWCFUAK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 14:58:43 -0500
+	Mon, 6 Mar 2006 15:00:10 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XeJQXdvaC1YpCiZRl0P5VgZcWyOzeTJvZqy0uYxCuTyjdtXfKPUekBp3Tf18IC+WB4JsbosCDDzQ7AxrhUv8dxwonMDMflW9iufYA3p6hgRZV/9SUOvpxiTdeiZGW7CBmoo7f/RSVUkURH/h091WWdv5BcEykdpiqFP2qPCbtaE=
-Message-ID: <9a8748490603061158g4213225aq2b0d7a0f98bbd495@mail.gmail.com>
-Date: Mon, 6 Mar 2006 20:58:41 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       "Andrea Arcangeli" <andrea@suse.de>,
-       "Mike Christie" <michaelc@cs.wisc.edu>,
-       "James Bottomley" <James.Bottomley@steeleye.com>
-In-Reply-To: <200603062051.45555.jesper.juhl@gmail.com>
+        b=WO/uHwbpuGfpaqf7O4asE/OouostEpEWfZ2zORUbJ7150ehK4TY/YGMaLywfI4aw78vTMYiUY5ovurpm/OZLHaQQoo8HbIY7yZ0pcRYOpR6QtPF56R/i8E32NY0fbJ9sp6nOY5wLs8B8dFKDRvd73lbGhAyYLEYs/xBe8zL4WCQ=
+Message-ID: <170fa0d20603061200y38315a62uf143258c79659381@mail.gmail.com>
+Date: Mon, 6 Mar 2006 15:00:07 -0500
+From: "Mike Snitzer" <snitzer@gmail.com>
+To: "Maxim Kozover" <maximkoz@netvision.net.il>
+Subject: Re: Re: problems with scsi_transport_fc and qla2xxx
+Cc: "Andrew Vasquez" <andrew.vasquez@qlogic.com>,
+       "Stefan Kaltenbrunner" <mm-mailinglist@madness.at>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <957728045.20060302193248@netvision.net.il>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <200603060117.16484.jesper.juhl@gmail.com>
-	 <200603061943.35502.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>
-	 <200603062051.45555.jesper.juhl@gmail.com>
+References: <1413265398.20060227150526@netvision.net.il>
+	 <978150825.20060227210552@netvision.net.il>
+	 <20060228221422.282332ef.akpm@osdl.org> <4406034B.9030105@madness.at>
+	 <20060301210802.GA7288@spe2>
+	 <957728045.20060302193248@netvision.net.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/6/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On Monday 06 March 2006 20:32, Linus Torvalds wrote:
-> >
-> > seem to be able to recreate it at will. Oh, well. Testign that one patch
-> > would still help.
-> >
-> Hmm, that patch does not apply to the 2.6.16-rc5-mm2 kernel :
+On 3/2/06, Maxim Kozover <maximkoz@netvision.net.il> wrote:
+> Hi Andrew!
+> Today I tested disconnecting QLogic port.
+> Adapter 4 is connected via switch to a storage and 3 LUNs are seen via
+> the adapter.
+> Only 1 rport is created (for FCP Target) while in Emulex case there
+> were 3: (Fabric Port, Directory Server and FCP Target, FCP Initiator).
+> # ls /sys/class/fc_remote_ports/
+> rport-4:0-0
+> # cat /sys/class/fc_remote_ports/*/roles
+> FCP Target
 >
-I fixed it up by hand.
-Building a new kernel at the moment - results in a short while.
-
+> Default dev_loss_tmo is 6 (1+5) while in Emulex case the default was 35.
 >
-> I'll go see if the problem also exists in mainline - will report on that
-> shortly.
+> After disconnecting the cable between the HBA and the switch
+> qla2xxx 0000:03:01.0: LOOP DOWN detected (2).
+>  rport-4:0-0: blocked FC remote port time out: removing target and saving binding
 >
-I'll still do this. Just downloading 2.6.16-rc5-git8 as we speak.
+> # ls /sys/class/fc_remote_ports/
+> rport-4:0-0
+> # cat /sys/class/fc_remote_ports/*/roles
+> unknown
+>
+> Relevant scsi devices are removed from /proc/scsi/scsi.
+>
+> After reconnecting the cable
+> qla2xxx 0000:03:01.0: LIP reset occured (f7f7).
+> qla2xxx 0000:03:01.0: LOOP UP detected (2 Gbps).
+>
+> # ls /sys/class/fc_remote_ports/
+> rport-4:0-0
+> # cat /sys/class/fc_remote_ports/*/roles
+> FCP Target
+>
+> However, scsi devices don't reappear in /proc/scsi/scsi.
+> When I issue rescan, the command is stuck
+> echo - - - > /sys/class/scsi_host/host4/scan
 
+Historically the qlogic driver rescan is a 2-phase process:
+1) schedule the rescan, e.g.: echo scsi-qlascan > /proc/scsi/qla2xxx/4
+2) rescan, e.g.: echo - - - > /sys/class/scsi_host/host4/scan
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+BUT, I've just used scsi-qlascan to discover _new_ devices... not
+existing devices that experienced FC connection loss.  I assume the
+qla driver _should_ just bring those lost devices back?  But does the
+historic 2-phase rescan for new devices speak to why the qlogic driver
+doesn't automagically bring the old devices back?  Or has the latest
+qlogic driver in mainline advanced past this 2-phase requirement in
+general?
+
+regards,
+Mike
+
+Mike

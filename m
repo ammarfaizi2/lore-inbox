@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWCFXBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751932AbWCFXCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751931AbWCFXBW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 18:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWCFXBV
+	id S1751932AbWCFXCh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 18:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752465AbWCFXCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 18:01:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:8609 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751931AbWCFXBU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 18:01:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ImUsOhq5voX/kma+wfsAXLwWfdRh+CaDBuw5XbBdKP1j7Jrj8d/AcTJb01gIGobdwxPntm5UtYFzuVj/njZ+At58u5KeFZmgr63WvadcJVspTAcIFbFvlIt6W8g5UDVZw+NLwxPlfVgA7xdNPZERxznCYXeMQaZXyAICFJSvmBk=
-Message-ID: <9a8748490603061501r387291f0ha10e9e9fe3c9e060@mail.gmail.com>
-Date: Tue, 7 Mar 2006 00:01:19 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       "Andrea Arcangeli" <andrea@suse.de>,
-       "Mike Christie" <michaelc@cs.wisc.edu>,
-       "James Bottomley" <James.Bottomley@steeleye.com>,
-       "Jens Axboe" <axboe@suse.de>, "Pekka Enberg" <penberg@cs.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Mar 2006 18:02:37 -0500
+Received: from mail.suse.de ([195.135.220.2]:20698 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751932AbWCFXCh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 18:02:37 -0500
+Date: Tue, 7 Mar 2006 00:02:35 +0100
+From: Olaf Hering <olh@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linuxppc-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc5
+Message-ID: <20060306230235.GA6113@suse.de>
+References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org> <20060305140932.GA17132@suse.de> <20060305185923.GA21519@suse.de> <Pine.LNX.4.64.0603051147590.13139@g5.osdl.org> <20060305204231.GA22002@suse.de> <17419.23860.883220.80199@cargo.ozlabs.ibm.com> <20060306164818.GA2523@suse.de> <20060306222000.GA5903@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <200603060117.16484.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
-	 <200603062136.17098.jesper.juhl@gmail.com>
-	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
-	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
-	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
-	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
-	 <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
-	 <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
-	 <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>
+In-Reply-To: <20060306222000.GA5903@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/6/06, Linus Torvalds <torvalds@osdl.org> wrote:
->
->
-> On Mon, 6 Mar 2006, Linus Torvalds wrote:
-> >
-> > Either revert it, or try this (TOTALLY UNTESTED!!!) patch..
->
-> Don't even bother with the untested patch.
->
-> > +     for (gfporder = 0 ; gfporder < MAX_GFP_ORDER; gfporder++) {
->
-> At a minimum, this "<" needs to be "<=".
->
-> After that, it might even work. Not that I can convince me that the test
-> for "offslab_limit" ever even triggers, so..
->
+ On Mon, Mar 06, Olaf Hering wrote:
 
-Ehh, it's getting pretty clear that you are looking at
-2.6.16-rc5-git<latest> and I'm using -mm here, since that code is not
-present in mm/slab.c in 2.6.16-rc5-mm2 in anything near that form.
+>  On Mon, Mar 06, Olaf Hering wrote:
+> 
+> >  On Mon, Mar 06, Paul Mackeras wrote:
+> > 
+> > > There are also commits from Ben H that change the way we parse
+> > > addresses from the OF device tree.  If you can bisect a bit further
+> > > that would be good, although you may strike problems between the 401d
+> > > and 6237 commits I mentioned above.
+> > 
+> > What I have right now is this, which got me in a non-compiling state.
+> > I will pick the udbg stuff and apply the relevant changes to -git5.
 
-And since 2.6.16-rc5-git8 is not experiencing problems I'd suggest you
-perhaps instead take a look at what's in -mm... That's where we need
-to work (it seems) to find the bug...
+I tried with CONFIG_BOOTX_TEXT disabled. same result. This is the list
+of patches I used on top of 2.6.15:
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+patches.kernel.org/patch-2.6.15-git5
+patches.suse/get_cramfs_inode-revert.patch
+patches.suse/suse-ppc-legacy-io.patch
+patches.arch/0022-powerpc-incorrect-rmo_top-handling-in-prom_init.txt
+patches.suse/9100b205fdc70b300894954ebebbf2709c5ed525.patch
+patches.suse/3d1229d6ae92ed1994f4411b8493327ef8f4b76f.patch
+patches.suse/d1405b869850982f05c7ec0d3f137ca27588192f.patch
+patches.suse/463ce0e103f419f51b1769111e73fe8bb305d0ec.patch
+
+patches.suse/51d3082fe6e55aecfa17113dbe98077c749f724c.patch
+patches.suse/31df1678d7732b94178a6e457ed6666e4431212f.patch
+patches.suse/8dacaedf04467e32c50148751a96150e73323cdc.patch
+patches.suse/52020d2bda9fe447bb50674a2e39e4064b6a10b5.patch
+

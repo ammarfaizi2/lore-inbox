@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751592AbWCFUpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751652AbWCFUwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751592AbWCFUpg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 15:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWCFUpg
+	id S1751652AbWCFUwN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 15:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751896AbWCFUwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 15:45:36 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:780 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751583AbWCFUpf (ORCPT
+	Mon, 6 Mar 2006 15:52:13 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:25971 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1751652AbWCFUwN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 15:45:35 -0500
-Date: Mon, 6 Mar 2006 21:45:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Paul D. Smith" <psmith@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] change kbuild to not rely on incorrect GNU make behavior
-Message-ID: <20060306204517.GA29092@mars.ravnborg.org>
-References: <E1FG1UQ-00045B-5P@fencepost.gnu.org> <20060305231312.GA25673@mars.ravnborg.org> <17419.34083.172540.639486@lemming.engeast.baynetworks.com>
+	Mon, 6 Mar 2006 15:52:13 -0500
+X-IronPort-AV: i="4.02,168,1139212800"; 
+   d="scan'208"; a="365045738:sNHT19453976"
+Subject: Re: [PATCH] sunrpc svc: be quieter
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Daniel Drake <dsd@gentoo.org>, neilb@cse.unsw.edu.au,
+       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       okir@monad.swb.de
+In-Reply-To: <Pine.LNX.4.61.0603051451590.30115@yvahk01.tjqt.qr>
+References: <20060305005532.5E7A0870504@zog.reactivated.net>
+	 <Pine.LNX.4.61.0603051451590.30115@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Network Appliance, Inc
+Date: Mon, 06 Mar 2006 15:52:10 -0500
+Message-Id: <1141678330.31680.13.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17419.34083.172540.639486@lemming.engeast.baynetworks.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+X-OriginalArrivalTime: 06 Mar 2006 20:52:11.0243 (UTC) FILETIME=[D70F23B0:01C6415F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 05, 2006 at 07:41:07PM -0500, Paul D. Smith wrote:
-> %% Sam Ravnborg <sam@ravnborg.org> writes:
+On Sun, 2006-03-05 at 14:52 +0100, Jan Engelhardt wrote:
+> >
+> >A Gentoo user at http://bugs.gentoo.org/124884 reports that the following
+> >message appears in the logs over 650 times every day:
+> >
+> >	svc: unknown version (0)
+> >
+> Should not the clients be fixed?
 > 
->   sr> Thanks Paul.
->   sr> Adapted to -rc4 and applied to my kbuild tree which I have pushed out.
->   sr> For reference I added the applied patch below.
-> 
-> OK.  Note that this:
-> 
->   sr> -.PHONY: tar%pkg
->   sr> +PHONY += tar%pkg
->   sr>  tar%pkg:
-> 
-> won't do what you expect.  tar%pkg is a pattern rule, but .PHONY doesn't
-> take patterns so you're declaring the actual file named literally
-> 'tar%pkg' to be phony.
 
-So I can just let all relevant target rules include FORCE as
-prerequisite and skip the PHONY part all together.
-Thats what FORCE is there for anyway so this is just normal kbuild style
-anyway.
+They are probably trying to ping the server with a NULL procedure call
+to test for service availability. We should allow that particular
+usage...
 
-	Sam
+Cheers,
+  Trond

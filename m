@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWCFRFu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751941AbWCFRI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWCFRFu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 12:05:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751941AbWCFRFu
+	id S1751941AbWCFRI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWCFRI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 12:05:50 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:57289
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751271AbWCFRFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 12:05:50 -0500
-Date: Mon, 6 Mar 2006 09:05:42 -0800
-From: Greg KH <greg@kroah.com>
-To: s.schmidt@avm.de
-Cc: kkeil@suse.de, libusb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
-       opensuse-factory@opensuse.org, torvalds@osdl.org
-Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
-Message-ID: <20060306170542.GB8142@kroah.com>
-References: <20060217230004.GA15492@kroah.com> <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
+	Mon, 6 Mar 2006 12:08:26 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:23260 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1750745AbWCFRIZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 12:08:25 -0500
+Date: Mon, 6 Mar 2006 18:08:24 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
+       Sam Vilain <sam@vilain.net>
+Subject: Re: sysctls inside containers
+Message-ID: <20060306170824.GB29885@MAIL.13thfloor.at>
+Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
+	Sam Vilain <sam@vilain.net>
+References: <43F9E411.1060305@sw.ru> <m1oe0wbfed.fsf@ebiederm.dsl.xmission.com> <1141062132.8697.161.camel@localhost.localdomain> <m1ek1owllf.fsf@ebiederm.dsl.xmission.com> <1141442246.9274.14.camel@localhost.localdomain> <m1veuucxnv.fsf@ebiederm.dsl.xmission.com> <1141662436.9274.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1141662436.9274.25.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 01:47:43PM +0100, s.schmidt@avm.de wrote:
-> Your focus on the technical aspects shows us that there is a common
-> understanding, so we certainly appreciate your input.
+On Mon, Mar 06, 2006 at 08:27:16AM -0800, Dave Hansen wrote:
+> On Sat, 2006-03-04 at 03:27 -0700, Eric W. Biederman wrote:
+> > > I don't see an immediately clear solution on how to containerize sysctls
+> > > properly.  The entire construct seems to be built around getting data
+> > > from in and out of global variables and into /proc files.
+> > 
+> > I successfully handled pid_max.  So while it is awkward you can get
+> > per task values in and out if sysctl. 
 > 
-> The described userland/kernel mix scenarios may work in uninterrupted
-> environments, but non-stop quality of service "at all times and situations"
-> is only truly feasible in kernel space. "with the only bottleneck being the
-> CPU to RAM bus." is exactly the main argument against a mixed kernel/user
-> space driver architecture. We know from our everyday business, Linux is
-> often used in slow CPU environments like PIII or similar. Thus latency
-> times are even more critical within these environments.
+> This:
+> 
+> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/ebiederm/linux-2.6-ns.git;a=commitdiff;h=1150082e0bae41a3621043b4c5ce15e9112884fa
+> 
+> sir, is a hack :)
+> 
+> We can't possibly do that for each and every sysctl variable.  It would
+> mean about fourteen billion duplicated _conv() functions. 
+> 
+> I'm wondering if, instead of having the .data field in that table, we
+> can have a function pointer which, when called, gives a pointer to the
+> data.  I'll give it a shot.
 
-I agree.  But have you measured such latency on the 2.6 kernel recently?
-On old hardware?  Is it still unacceptable for you?  If so, what is
-required?
+something similar to this?
 
-> Even though people might do realtime DSP things in user space with Linux
-> and soft modems might work pretty well in userspace, in the case of Fax G3
-> an extremely short latency is required. The user space lacks the required
-> reliability and interoperability. Latency times of 4/10/20 or 40
-> milliseconds are one aspect, but QoS is the overall essence. Within the
-> kernel space there is no need for unnecessary mode switches or data copy
-> procedures.
+http://www.13thfloor.at/vserver/d_rel26/v2.1.0/split-2.6.14.4-vs2.1.0/15_2.6.14.4_virt.diff.hl
 
-I understand, that is why I suggested a mix of a kernel driver to handle
-the stuff that has latency issues, and userspace to handle the rest.
+(look for virt_handler() for sysctl ops)
 
-> Compared to other operating systems, such as Mac OS, BeOS,
-> Windows etc., Linux is walking a solitary path with the "user mode only"
-> shift. One gets the impression, that legal concerns are leading Linux to a
-> technically suboptimal/isolated solution.
+best,
+Herbert
 
-No, right now, Linux has the best latency numbers _by far_ than any
-other operating system, so we can move stuff to userspace.
-
-And again, it's your legal issues that are forcing you that way, if you
-change that, putting everything in the kernel would be fine :)
-
-So, in conclusion, is there anything that we can help you out with in
-regards to you feeling that userspace can not handle your needs?  Do you
-have numbers showing that putting a small portion of the USB urb handler
-logic in the kernel and the rest in userspace will not work for you?
-Example code showing long delay periods that we can help fix?
-
-Anything else we can do?
-
-thanks,
-
-greg k-h
+> -- Dave

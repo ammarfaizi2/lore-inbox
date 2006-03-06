@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWCFMRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWCFMSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWCFMRd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 07:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWCFMRd
+	id S932140AbWCFMSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 07:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbWCFMSO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 07:17:33 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:32913 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932107AbWCFMRc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 07:17:32 -0500
-Message-ID: <440C2853.7090700@aitel.hist.no>
-Date: Mon, 06 Mar 2006 13:17:23 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       Tilman Schmidt <tilman@imap.cc>
-Subject: Re: 2.6.16-rc5-mm2 compile error in urb.c
-References: <20060303045651.1f3b55ec.akpm@osdl.org>	<440BFC8A.1030607@aitel.hist.no> <20060306012141.5d8ca46f.akpm@osdl.org>
-In-Reply-To: <20060306012141.5d8ca46f.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 07:18:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:26762 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932140AbWCFMSO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 07:18:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@TU-Ilmenau.DE>
+Subject: Re: [RFC] Encrypting file system
+Date: Mon, 6 Mar 2006 13:17:53 +0100
+Organization: Technische Universitaet Ilmenau, Germany
+Message-ID: <duh99h$i66$1@sea.gmane.org>
+References: <Pine.LNX.4.64.0603061600540.16555@vattikonda.junta.iitk.ac.in>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p54b89798.dip0.t-ipconnect.de
+User-Agent: slrn/0.9.8.1pl1 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+V Bhanu Chandra <vbhanu.lkml@gmail.com> wrote:
+> I am thinking of designing and implementing a new native encrypting
+> file system for the linux kernel as a part of a student / research
+> project. Unlike dm-crypt/loop-AES/cryptoloop, I plan to target
+> slightly more ambitious user specifications such as: per-file random
+> secret encryption keys which are in-turn encrypted using the public
+> keys of all users having access to that filesystem object (a copy
+...
+> Any comments / guidance / suggestions are most welcome and solicitated.
 
->Helge Hafting <helge.hafting@aitel.hist.no> wrote:
->  
->
->>Compiling 2.6.16-rc5-mm2 stopped here:
->>
->>  CC      drivers/usb/core/urb.o
->>drivers/usb/core/urb.c: In function ___usb_alloc_urb___:
->>drivers/usb/core/urb.c:65: error: dereferencing pointer to incomplete type
->>drivers/usb/core/urb.c: In function ___usb_submit_urb___:
->>drivers/usb/core/urb.c:329: error: dereferencing pointer to incomplete type
->>make[3]: *** [drivers/usb/core/urb.o] Error 1
->>make[2]: *** [drivers/usb/core] Error 2
->>make[1]: *** [drivers/usb] Error 2
->>make: *** [drivers] Error 2
->>
->>    
->>
->
->I guess this is gregkh-usb-usb-reduce-syslog-clutter.patch trying to
->dereference THIS_MODULE when the driver is being built into vmlinux.  I
->suggest you revert that patch, thanks.
->  
->
-Thanks. Reverting this gave me a kernel that compiled and booted.
+Since you are talking about an encrypting filesystems but only
+referencing encrypting block devices... Have you had a look at encfs
+and/or StegFS already?
+At least one of the encrypting block devices you mentioned (I don't
+remember which one) already has the ability to have multiple keys.
 
-Helge Hafting
+
+regards
+   Mario
+-- 
+I have great faith in fools; self-confidence my friends call it.
+                                              -- Edgar Allan Poe
+

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWCFIPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752038AbWCFIRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWCFIPi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 03:15:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752164AbWCFIPi
+	id S1752038AbWCFIRA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 03:17:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWCFIRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 03:15:38 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:63140 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751009AbWCFIPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 03:15:38 -0500
-Message-Id: <200603060815.k268FXg07605@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
-       <linux-kernel@vger.kernel.org>
-Cc: "David Gibson" <david@gibson.dropbear.id.au>
-Subject: RE: [PATCH] hugetlb_no_page might break hugetlb quota
-Date: Mon, 6 Mar 2006 00:15:33 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZA5pJHFkkChS3oSOqykP1Js48NGwACfMnQ
-In-Reply-To: <1141626096.29825.13.camel@ymzhang-perf.sh.intel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Mon, 6 Mar 2006 03:17:00 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:6044 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1752038AbWCFIQ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 03:16:59 -0500
+Date: Mon, 6 Mar 2006 08:16:51 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, ericvh@gmail.com, rminnich@lanl.gov
+Subject: Re: 9pfs double kfree
+Message-ID: <20060306081651.GG27946@ftp.linux.org.uk>
+References: <20060306070456.GA16478@redhat.com> <20060305.230711.06026976.davem@davemloft.net> <20060306072346.GF27946@ftp.linux.org.uk> <20060306072823.GF21445@redhat.com> <84144f020603052356r321bc78dp66263fbfc73517c6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020603052356r321bc78dp66263fbfc73517c6@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhang, Yanmin wrote on Sunday, March 05, 2006 10:22 PM
-> In function hugetlb_no_page, backout path always calls hugetlb_put_quota.
-> It's incorrect when find_lock_page gets the page or the new page is added
-> into page cache.
+On Mon, Mar 06, 2006 at 09:56:22AM +0200, Pekka Enberg wrote:
+> On 3/6/06, Dave Jones <davej@redhat.com> wrote:
+> > I wonder if we could get away with something as simple as..
+> >
+> > #define kfree(foo) \
+> >         __kfree(foo); \
+> >         foo = KFREE_POISON;
+> >
+> > ?
+> 
+> It's legal to call kfree() twice for NULL pointer. The above poisons
+> foo unconditionally which makes that case break I think.
 
-While I acknowledge the bug, this patch is not complete.  It makes file
-system quota consistent with respect to page cache state. But such quota
-(more severely, the page cache state) is still buggy, for example under
-ftruncate case: if one ftrucate hugetlb file and then tries to fault a
-page outside ftruncate area, a new hugetlb page is allocated and then
-added into page cache along with file system quota; and at the end
-returning VM_FAULT_SIGBUS.  In this case, kernel traps an unreachable
-page until possibly next mmap that extends it.  That need to be fixed.
-Which means we will be adding back conditional call to
-hugetlb_put_quota(mapping) in the backout path.
+Legal, but rather bad taste.  Init to NULL, possibly assign the value
+if kmalloc(), then kfree() unconditionally - sure, but that... almost
+certainly one hell of a lousy cleanup logics somewhere.
 
-
-> In addition, if the vma->vm_flags doesn't include VM_SHARED, the quota
-> shouldn't be decreased.
-
-Why? Private hugetlb page should be charged against the quota.  Or is
-there a better reason not to do so?
-
-- Ken
-
+There's worse problem with that, though:
+	kfree(container_of(......));
+and it simply won't compile.

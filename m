@@ -1,81 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752283AbWCFIhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752288AbWCFIpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752283AbWCFIhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 03:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752287AbWCFIhQ
+	id S1752288AbWCFIpp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 03:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752290AbWCFIpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 03:37:16 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:60916 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1752283AbWCFIhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 03:37:14 -0500
-Date: Mon, 6 Mar 2006 10:40:03 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, Dave Jones <davej@redhat.com>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       ericvh@gmail.com, rminnich@lanl.gov
-Subject: Re: 9pfs double kfree
-In-Reply-To: <20060306081651.GG27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.63.0603061031550.8581@kai.makisara.local>
-References: <20060306070456.GA16478@redhat.com> <20060305.230711.06026976.davem@davemloft.net>
- <20060306072346.GF27946@ftp.linux.org.uk> <20060306072823.GF21445@redhat.com>
- <84144f020603052356r321bc78dp66263fbfc73517c6@mail.gmail.com>
- <20060306081651.GG27946@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Mar 2006 03:45:45 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:14209 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1752288AbWCFIpo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 03:45:44 -0500
+Subject: Re: RFC: Backlight Class sysfs attribute behaviour
+From: Richard Purdie <rpurdie@rpsys.net>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Zabolotny <zap@homelink.ru>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <440B89AB.3020203@gmail.com>
+References: <1141571334.6521.38.camel@localhost.localdomain>
+	 <440B89AB.3020203@gmail.com>
+Content-Type: text/plain
+Date: Mon, 06 Mar 2006 08:45:28 +0000
+Message-Id: <1141634729.6524.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Mar 2006, Al Viro wrote:
+On Mon, 2006-03-06 at 09:00 +0800, Antonino A. Daplas wrote:
+> Why not just agree on a normal range of values (ie, 0-255), and let the
+> driver "denormalize" them?  Thus, a driver that has only 2 levels of
+> brightness, will treat 0-127 as 0 and 128-255 as 1, and will return only
+> two possible values 0 and 255.
+>
+> If a user requests max brightness (255), and the driver is capable of setting
+> it, then it returns 255.  But if for some reason it can't (ie low power state),
+> it returns the current max brightness, normalized, (ie 128 instead of 255 and
+> because that the scale is 0-255, a value of 128 tells the user that only
+> half of max brightness was set).
 
-> On Mon, Mar 06, 2006 at 09:56:22AM +0200, Pekka Enberg wrote:
-> > On 3/6/06, Dave Jones <davej@redhat.com> wrote:
-> > > I wonder if we could get away with something as simple as..
-> > >
-> > > #define kfree(foo) \
-> > >         __kfree(foo); \
-> > >         foo = KFREE_POISON;
-> > >
-> > > ?
-> > 
-> > It's legal to call kfree() twice for NULL pointer. The above poisons
-> > foo unconditionally which makes that case break I think.
-> 
-> Legal, but rather bad taste.  Init to NULL, possibly assign the value
-> if kmalloc(), then kfree() unconditionally - sure, but that... almost
-> certainly one hell of a lousy cleanup logics somewhere.
-> 
-I agree with you.
+We already have a max_brightness attribute and brightness can vary
+between 0 and max_brightness (hence avoiding scaling issues which we
+leave to userspace).
 
-However, a few months ago it was advocated to let kfree take care of 
-testing the pointer against NULL and a load of patches like this:
+> And instead of a new "driver_brightness" attribute, why not just a new
+> attribute that returns the number of brightness levels?
 
-[PATCH] kfree cleanup: drivers/scsi
-author	Jesper Juhl <jesper.juhl@gmail.com>
-	Mon, 7 Nov 2005 09:01:26 +0000 (01:01 -0800)
-committer	Linus Torvalds <torvalds@g5.osdl.org>
-	Mon, 7 Nov 2005 15:54:01 +0000 (07:54 -0800)
-commit	c9475cb0c358ff0dd473544280d92482df491913
-tree	091617d0bdab9273d44139c86af21b7540e6d9b1	tree
-parent	089b1dbbde28f0f641c20beabba28fa89ab4fab9	commit | 
-commitdiff
-[PATCH] kfree cleanup: drivers/scsi
+The idea of the driver_brightness attribute is to separate the user
+requested brightness value from the actual brightness value decided by
+the driver. The driver determines the real brightness by combining:
 
-This is the drivers/scsi/ part of the big kfree cleanup patch.
+* the user supplied power sysfs attribute
+* the user supplied brightness sysfs attribute
+* the current FB blanking state
+* any other driver specific factors
 
-Remove pointless checks for NULL prior to calling kfree() in 
-drivers/scsi/.
+At present, the user specified values through the sysfs attributes can
+easily get lost as other factors overwrite it (FB blanking overwrites
+user specified power for example). This leads to a class interface with
+unpredictable behaviour.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: James Bottomley <James.Bottomley@steeleye.com>
-Acked-by: Kai Makisara <kai.makisara@kolumbus.fi>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+I'm therefore suggesting separation of the values so each attribute
+reads and writes in a predicable manner and the actual state determined
+by the driver becomes a new readonly sysfs attribute
+("driver_brightness" although I'm open to suggestions of a better name).
 
+Richard
 
-went in. I wonder what will come next when wind changes.
-
--- 
-Kai

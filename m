@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752386AbWCFLFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWCFLMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752386AbWCFLFo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 06:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752387AbWCFLFo
+	id S1751312AbWCFLMz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 06:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWCFLMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 06:05:44 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:4811 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1752384AbWCFLFn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 06:05:43 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] add support for PANJIT TouchSet USB Touchscreen Device
-Date: Mon, 6 Mar 2006 12:05:32 +0100
-User-Agent: KMail/1.8
-Cc: "Lanslott Gish" <lanslott.gish@gmail.com>, linux-kernel@vger.kernel.org,
-       "Greg KH" <greg@kroah.com>, "Alan Cox" <alan@redhat.com>
-References: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
-In-Reply-To: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603061205.32660.oliver@neukum.org>
+	Mon, 6 Mar 2006 06:12:55 -0500
+Received: from ns.firmix.at ([62.141.48.66]:54953 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751312AbWCFLMy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 06:12:54 -0500
+Subject: Re: Coverity Open Source Defect Scan of Linux
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: Ben Chelf <ben@coverity.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <440C16E4.4050303@stud.feec.vutbr.cz>
+References: <440BCA0F.50501@coverity.com>  <20060306102729.GD3974@stusta.de>
+	 <1141641832.29267.4.camel@tara.firmix.at>
+	 <440C16E4.4050303@stud.feec.vutbr.cz>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 06 Mar 2006 12:08:50 +0100
+Message-Id: <1141643330.30975.4.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 6. März 2006 10:14 schrieb Lanslott Gish:
-> hi,
+On Mon, 2006-03-06 at 12:03 +0100, Michal Schmidt wrote:
+> Bernd Petrovitsch wrote:
+> > > > analysis back to the developers of those projects. Linux is one of the 
+> >                                                        ^^^^^
+> >                                 should have been "The Linux kernel"
 > 
-> this is the first version of the patch from a newbie :)
-> add support for PANJIT TouchSet USB touchscreen device.
-> 
+> Why? Are you afraid of confusion with Linux the washing powder?
 
-> +#define TOUCHSET_DOWN			0x01
-> +#define TOUCHSET_POINT_TOUCH		0x81
-> +#define TOUCHSET_POINT_NOTOUCH		0x80
-> +
-> +#define TOUCHSET_GET_TOUCHED(dat)	((((dat)[0]) & TOUCHSET_DOWN) ? 1 : 0)
+No (that's actually the cobfusion I don't fear).
+The word "Linux" used as above has lots of different interpretations
+depending on who you ask (from "Linux kernel" to "Linux distribution" to
+"open source software" and I won't try to guess what sales people in
+their average ignorance would answer).
+"The Linux kernel" is not that much longer much more accurate.
 
-Drop the "?"
+Yes, directly (and only) here on LKML there is probably no problem. But
+these mails are also in some mail archives on the web .....
 
-> +static int touchset_open(struct input_dev *input)
-> +{
-> +	struct touchset_usb *touchset = input->private;
-> +
-> +	touchset->irq->dev = touchset->udev;
-> +
-> +	if (usb_submit_urb(touchset->irq, GFP_ATOMIC))
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-GFP_KERNEL
-
-> +		return -EIO;
-> +
-> +	return 0;
-> +}
-> +
-> +static void touchset_close(struct input_dev *input)
-> +{
-> +	struct touchset_usb *touchset = input->private;
-> +
-> +	usb_kill_urb(touchset->irq);
-> +}
-> +
-> +static int touchset_alloc_buffers(struct usb_device *udev,
-> +				  struct touchset_usb *touchset)
-> +{
-> +	touchset->data = usb_buffer_alloc(udev, TOUCHSET_REPORT_DATA_SIZE,
-> +	                                  SLAB_ATOMIC, &touchset->data_dma);
-
-SLAB_KERNEL
-
-	Regards
-		Oliver

@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752373AbWCFKub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752378AbWCFLEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752373AbWCFKub (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 05:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752374AbWCFKub
+	id S1752378AbWCFLEf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 06:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752381AbWCFLEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 05:50:31 -0500
-Received: from ns.firmix.at ([62.141.48.66]:52649 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1752372AbWCFKua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 05:50:30 -0500
-Subject: Re: Coverity Open Source Defect Scan of Linux
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Ben Chelf <ben@coverity.com>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060306102729.GD3974@stusta.de>
-References: <440BCA0F.50501@coverity.com>  <20060306102729.GD3974@stusta.de>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Mon, 06 Mar 2006 11:43:51 +0100
-Message-Id: <1141641832.29267.4.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 06:04:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:16495 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752378AbWCFLEe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 06:04:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y0+lHUof3gTnpFRsXZfsYTiGEvWvFcgVKpVyn63Gvs+uMDMJfZP/PFIfW2haUdaTewhUAMQSpHs0b9twGtggk5Iizfc39LjKqPiQj8/Z62NCaLZHMMpwln/ZwRchxnwe3M16+tSJuKTNmhxzBigJJTxQ2ixqhYaxq1THjXgF65A=
+Message-ID: <9a8748490603060304q2fa22a4fq6d4abf1a8e990482@mail.gmail.com>
+Date: Mon, 6 Mar 2006 12:04:33 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: Fw: Re: oops in choose_configuration()
+Cc: "Greg KH" <greg@kroah.com>, torvalds@osdl.org,
+       "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060305154858.0fb0006a.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060304121723.19fe9b4b.akpm@osdl.org>
+	 <Pine.LNX.4.64.0603041235110.22647@g5.osdl.org>
+	 <20060304213447.GA4445@kroah.com>
+	 <20060304135138.613021bd.akpm@osdl.org>
+	 <20060304221810.GA20011@kroah.com>
+	 <20060305154858.0fb0006a.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some improvements for the next press release (of Coverty, Inc.):
+On 3/6/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> Might as well cc the list on this, so there's a record...
+>
+> For several days I've been getting repeatable oopses in the -mm kernel.
+> They occur once per ~30 boots, during initscripts.
+>
+[snip]
 
-On Mon, 2006-03-06 at 11:27 +0100, Adrian Bunk wrote:
-> On Sun, Mar 05, 2006 at 09:35:11PM -0800, Ben Chelf wrote:
-> > Hello Linux Developers,
-[...]
-> > analysis back to the developers of those projects. Linux is one of the 
-                                                       ^^^^^
-                                should have been "The Linux kernel"
-[...]
-> > for a couple of reasons: (1) We think that you, as developers of Linux, 
-                                                                   ^^^^^
-                                     should have been "the Linux kernel"
-[...]
-> It seems there is some internal communication problem inside your 
-> company:
+Hi Andrew,
 
-ACK.
+I send a mail to the list yesterday (with you and a few other people
+on cc) about Slab corruption in 2.6.16-5c5-mm2.
+You have a problem with memory corruption and I'm seeing slab
+corruption messages in dmesg...
 
-> This is far from being a "new process", you already offered this for 
-> some time at http://linuxbugsdb.coverity.com/ (with the exception that 
-> you stopped updating the results half a year ago).
-> 
-> If you as the CTO didn't know about this it is giving a very bad 
-> impression of your company.
-[...]
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Just wanted to point it out in this thread in case they are related.
 
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

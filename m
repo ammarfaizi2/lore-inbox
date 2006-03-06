@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWCFAJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWCFAOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWCFAJI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 19:09:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWCFAJI
+	id S1750700AbWCFAOP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 19:14:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWCFAOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 19:09:08 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:18072 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750762AbWCFAJH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 19:09:07 -0500
-Subject: Re: RFC: Backlight Class sysfs attribute behaviour
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: adaplas@gmail.com, linux-fbdev-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060306010909.190f06fe.zap@homelink.ru>
-References: <1141571334.6521.38.camel@localhost.localdomain>
-	 <20060306010909.190f06fe.zap@homelink.ru>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 00:08:54 +0000
-Message-Id: <1141603734.6521.85.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Mar 2006 19:14:15 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51139 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750700AbWCFAOP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 19:14:15 -0500
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Greg KH <gregkh@suse.de>, Nicholas Miell <nmiell@comcast.net>,
+       Greg KH <greg@kroah.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
+References: <20060227190150.GA9121@kroah.com>
+	<20060227193654.GA12788@kvack.org> <20060227194623.GC9991@suse.de>
+	<Pine.LNX.4.64.0602271216340.22647@g5.osdl.org>
+	<20060227234525.GA21694@suse.de> <20060228063207.GA12502@thunk.org>
+	<20060301003452.GG23716@kroah.com> <1141175870.2989.17.camel@entropy>
+	<20060302042455.GB10464@suse.de>
+	<m1fylwc1c8.fsf@ebiederm.dsl.xmission.com>
+	<20060305232326.GC20768@kvack.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 05 Mar 2006 17:12:48 -0700
+In-Reply-To: <20060305232326.GC20768@kvack.org> (Benjamin LaHaise's message
+ of "Sun, 5 Mar 2006 18:23:26 -0500")
+Message-ID: <m1y7zoa0sf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-06 at 01:09 +0300, Andrew Zabolotny wrote:
-> On Sun, 05 Mar 2006 15:08:53 +0000
-> Richard Purdie <rpurdie@rpsys.net> wrote:
-> 
-> > The solution might be to have brightness always return the user
-> > requested value y and have a new attribute returning the brightness as
-> > determined by the driver once it accounts for all the factors it needs
-> > to consider. Naming of such an attribute is tricky -
-> > "driver_brightness" perthaps?
-> Maybe by analogy to sound card there can be a 'master' control, and one
-> 'user' control. But it's not clear how many of these strings you will
-> need for every 'real' attribute. Why two and not three? Why three and
-> not ten?
+Benjamin LaHaise <bcrl@kvack.org> writes:
 
-I'm just wondering about the name of the single attribute that reflects
-the status of the current actual brightness value that the driver has
-chosen.
+> On Sun, Mar 05, 2006 at 09:17:59AM -0700, Eric W. Biederman wrote:
+>> So if we go down this path can we make this functional Documentation?
+>> 
+>> In particular can we have per process/per interface kinds of flags that
+>> allow access to experimental subsystems?
+>
+> Sounds fragile.  It doesn't help the real problem that APIs need to be well 
+> designed.
 
-> But I don't think that's a kernel-side problem. I think it would be
-> better to have some daemon controlling these attributes (and keeping
-> track of as many factors as needed) and programming the final, 'true'
-> kernel value. Then a set of user-mode tools could be provided to alter
-> them, and a simple API.
+Yes.  But it does sure stick out like a sore thumb in a patch or when
+you try to use it.  Especially if you do something evil like require
+user space to pass in a hash of the kernel code implementing the
+interface.  So even the smallest changes of the implementation break
+user space.
 
-If all the events that could influence the backlight were available in
-userspace, I'd agree but they're not. There might be a need for a daemon
-in userspace for various reasons depending on the application but I'm
-not concerned about that.
+>> If the developer has to jump through an extra hoop to use an interface
+>> we have clearly documented this is unsupported and will change in the
+>> future.  Anything else can be easy to miss.
+>
+> At this point if it ends up anywhere near the tools people need to use on 
+> a regular basis, it will not have accomplished anything.  APIs should be 
+> reasonably stable, often extensible, by the time they hit the kernel.  The 
+> problem with any sort of 'experimental' API is that it probably means the 
+> code is not ready to be in the kernel.  Wrapping it up in flags doesn't 
+> stop people from using it and tieing code to the interface; not shipping 
+> code that isn't fully baked does.
 
-> Well with power it's simple: LCD is either powered or it's not. After
-> resuming the LCD should be always powered on, and the program can then
-> turn it back off if it's desired. FB blanking isn't a issue with X11/
-> Qtopia, as far as I understand? And finally, the 'user' requested power
-> state has to be tracked by the program that does the blanking (say an
-> audio player or such).
+I don't know all of the answers.  But if we are going to document something
+is half backed, let have the code behave like the interface is half backed
+and at least try to keep it out of the hands of most applications.
 
-So the user powers down the LCD, the FB blanking then blanks and
-unblanks. What should the current LCD power status be? The LCD should
-still be off as far as I can see yet the LCD/backlight class doesn't do
-this at present.
+To a large extent I agree that we should have fully backed interfaces in
+the stable kernel.  Is that always possible?  How often do things not show
+up until they are being used in the real world?  Is it possible to
+find those things out in experimental branches?
 
-I'm beginning to favour a system where backlight drivers only provide
-two functions:
-
-int (*set_status)(struct backlight_device *, int brightness, int power, int fb_blank);
-int (*get_status)(struct backlight_device *);
-
-set_status passes the user requested brightness and power values along
-with the current fb_blanking status to the driver. The driver can then
-set the hardware up as appropriate. 
-
-get_status returns the brightness for the current configuration.
-
-The backlight core itself keeps track of the requested power and
-brightness values rather than having every backlight driver including
-the logic. This has the advantage of keeping behaviour the same and
-avoiding subtle logic bugs of which there are several at the moment.
-
-This also means that "echo 31 > brightness; cat brightness" will always
-give the expected answer of whatever brightness the user is requesting
-and the actual current driver brightness choice is available through
-"cat driver_brightness".
-
-Does this seem reasonable?
-
-Richard
-
-
-
-
+Eric

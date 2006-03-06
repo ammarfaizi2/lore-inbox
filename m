@@ -1,228 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWCFEft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWCFEdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWCFEft (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Mar 2006 23:35:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWCFEfs
+	id S1750971AbWCFEdh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Mar 2006 23:33:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWCFEdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Mar 2006 23:35:48 -0500
-Received: from detroit.securenet-server.net ([209.51.153.26]:62343 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S1751131AbWCFEfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Mar 2006 23:35:48 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       airlied@linux.ie
-Subject: [PATCH] basic drm driver for Trident CyberBlade
-Date: Sun, 5 Mar 2006 20:35:40 -0800
-User-Agent: KMail/1.9.1
+	Sun, 5 Mar 2006 23:33:37 -0500
+Received: from mail.suse.de ([195.135.220.2]:41089 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750971AbWCFEdg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Mar 2006 23:33:36 -0500
+From: Neil Brown <neilb@suse.de>
+To: Iain William Wiseman <iwiseman@eservglobal.com>
+Date: Mon, 6 Mar 2006 15:32:32 +1100
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_dw7CEhiw07xBdFq"
-Message-Id: <200603052035.41084.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17419.47968.756969.377865@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops [NFS server crash]
+In-Reply-To: message from Iain William Wiseman on Monday March 6
+References: <440B4FE3.4000809@eservglobal.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_dw7CEhiw07xBdFq
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Monday March 6, iwiseman@eservglobal.com wrote:
+> Hi,
+> 
+> Hope I am sending this to the right place. Let me know if you need any 
+> other infor
 
-I'm trying to get the CyberBlade EXA driver into a bit better shape, and 
-that means some sort of decent host<->fb DMA support.  The device 
-itself is apparently capable of that, but EXA has trouble since it only 
-has the user virtual address of the transfers it wants to make, so I 
-thought a DRM driver might be in order.  It's also necessary for decent 
-VBLANK support, which will hopefully be pretty straightforward.  Note 
-that at this point, the DRM driver won't do you any good since I 
-haven't checked the EXA stuff that uses it into X.Org CVS yet (and 
-afaik there's no DRI driver for this device either).
+It's as good a place as any - though putting something more
+descriptive like "NFS server crash" might make it less likely to all
+through the cracks..
 
-Any thoughts on how the host<->fb DMA stuff should work?  Basically EXA 
-UploadToScreen wants to hand the card a virtual address range and have 
-it loaded up to the card's VRAM; DownloadFromScreen wants to do the 
-same in reverse.  Should I just add a device specific DRM_IOCTL to 
-accomplish this (using get_user_pages() etc.) or is there some existing 
-code I could leverage?
 
-Thanks,
-Jesse
+> 
+> The machine crashed while trying to use NFS
+> 
+> *Kernel Version*
+> Linux version 2.6.15.4 (root@denise.wiseman.com) (gcc version 4.0.0 
+> 20050519 (Red Hat 4.0.0-8)) #1 Sat Feb 25 21:23:05 NZDT 2006
+> 
 
-Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+This is a vanilla 2.6.15.4 is it?  No extra patches?
 
---Boundary-00=_dw7CEhiw07xBdFq
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="blade-drm-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="blade-drm-2.patch"
+I haven't tried to duplicate the problem yet (my test machine is busy)
+but it is very hard to see this happening unless the 'lock_kernel'
+lock stopped working.
 
-diff --git a/drivers/char/drm/Makefile b/drivers/char/drm/Makefile
-index 9d180c4..a212175 100644
---- a/drivers/char/drm/Makefile
-+++ b/drivers/char/drm/Makefile
-@@ -8,6 +8,7 @@ drm-objs    :=	drm_auth.o drm_bufs.o drm
- 		drm_agpsupport.o drm_scatter.o ati_pcigart.o drm_pci.o \
- 		drm_sysfs.o
- 
-+blade-objs  := blade_drv.o
- tdfx-objs   := tdfx_drv.o
- r128-objs   := r128_drv.o r128_cce.o r128_state.o r128_irq.o
- mga-objs    := mga_drv.o mga_dma.o mga_state.o mga_warp.o mga_irq.o
-@@ -30,6 +31,7 @@ endif
- 
- obj-$(CONFIG_DRM)	+= drm.o
- obj-$(CONFIG_DRM_TDFX)	+= tdfx.o
-+obj-$(CONFIG_DRM_BLADE) += blade.o
- obj-$(CONFIG_DRM_R128)	+= r128.o
- obj-$(CONFIG_DRM_RADEON)+= radeon.o
- obj-$(CONFIG_DRM_MGA)	+= mga.o
---- /dev/null	2006-03-02 18:11:38.777108750 -0800
-+++ drivers/char/drm/blade_drv.c	2006-03-05 20:24:53.000000000 -0800
-@@ -0,0 +1,117 @@
-+/*
-+ * Copyright 2006 Jesse Barnes <jbarnes@virtuousgeek.org>
-+ * All Rights Reserved.
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a
-+ * copy of this software and associated documentation files (the "Software"),
-+ * to deal in the Software without restriction, including without limitation
-+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
-+ * and/or sell copies of the Software, and to permit persons to whom the
-+ * Software is furnished to do so, subject to the following conditions:
-+ *
-+ * The above copyright notice and this permission notice (including the next
-+ * paragraph) shall be included in all copies or substantial portions of the
-+ * Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-+ * PRECISION INSIGHT AND/OR ITS SUPPLIERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-+ * DEALINGS IN THE SOFTWARE.
-+ *
-+ * Authors:
-+ *    Jesse Barnes <jbarnes@virtuousgeek.org>
-+ */
-+
-+#include <linux/config.h>
-+#include "drm_pciids.h"
-+#include "drmP.h"
-+
-+#define DRIVER_AUTHOR		"Jesse Barnes"
-+
-+#define DRIVER_NAME		"blade_drm"
-+#define DRIVER_DESC		"Trident CyberBlade"
-+#define DRIVER_DATE		"20060303"
-+
-+#define DRIVER_MAJOR		1
-+#define DRIVER_MINOR		0
-+#define DRIVER_PATCHLEVEL	0
-+
-+static struct pci_device_id blade_pciids[] = {
-+	blade_PCI_IDS
-+};
-+
-+static struct drm_driver blade_driver = {
-+	.driver_features = (DRIVER_USE_AGP | DRIVER_USE_MTRR |
-+			    DRIVER_PCI_DMA | DRIVER_SG | DRIVER_HAVE_DMA |
-+			    DRIVER_HAVE_IRQ | DRIVER_FB_DMA), /* IRQ_VBL? */
-+	.reclaim_buffers = drm_core_reclaim_buffers,
-+	.get_map_ofs = drm_core_get_map_ofs,
-+	.get_reg_ofs = drm_core_get_reg_ofs,
-+	.fops = {
-+		 .owner = THIS_MODULE,
-+		 .open = drm_open,
-+		 .release = drm_release,
-+		 .ioctl = drm_ioctl,
-+		 .mmap = drm_mmap,
-+		 .poll = drm_poll,
-+		 .fasync = drm_fasync,
-+	},
-+	.pci_driver = {
-+		 .name = DRIVER_NAME,
-+		 .id_table = blade_pciids,
-+	},
-+
-+	.name = DRIVER_NAME,
-+	.desc = DRIVER_DESC,
-+	.date = DRIVER_DATE,
-+	.major = DRIVER_MAJOR,
-+	.minor = DRIVER_MINOR,
-+	.patchlevel = DRIVER_PATCHLEVEL,
-+};
-+
-+static int vblank_wait(struct drm_device * dev, unsigned int *sequence)
-+{
-+	/* Use next vblank interrupt or pending register */
-+}
-+
-+static irqreturn_t irq_handler(DRM_IRQ_ARGS)
-+{
-+}
-+
-+static void irq_preinstall(struct drm_device * dev)
-+{
-+}
-+
-+static void irq_postinstall(struct drm_device * dev)
-+{
-+}
-+
-+static void irq_uninstall(struct drm_device * dev)
-+{
-+}
-+
-+static int __init blade_init(void)
-+{
-+	/*
-+	 * TODO:
-+	 *   ioremap device resources
-+	 *   Setup IRQ for vblank
-+	 *   Lots of other stuff (e.g. host<->fb dma stuff)
-+	 */
-+	return drm_init(&blade_driver);
-+}
-+
-+static void __exit blade_exit(void)
-+{
-+	drm_exit(&blade_driver);
-+}
-+
-+module_init(blade_init);
-+module_exit(blade_exit);
-+
-+MODULE_AUTHOR(DRIVER_AUTHOR);
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPL and additional rights");
-diff --git a/drivers/char/drm/Kconfig b/drivers/char/drm/Kconfig
-index 56ace9d..10c42b7 100644
---- a/drivers/char/drm/Kconfig
-+++ b/drivers/char/drm/Kconfig
-@@ -16,6 +16,13 @@ config DRM
- 	  details.  You should also select and configure AGP
- 	  (/dev/agpgart) support.
- 
-+config DRM_BLADE
-+	tristate "Trident CyberBlade/i1"
-+	depends on DRM && PCI
-+	help
-+	  Choose this option if you have a Trident CyberBlade/i1 device.  If M
-+	  is selected, the module will be called blade.
-+
- config DRM_TDFX
- 	tristate "3dfx Banshee/Voodoo3+"
- 	depends on DRM && PCI
+It looks from the logs like there were two attempts to start the nfs
+server, the first one simply failed, the second caused the oops.  Is
+that correct?
 
---Boundary-00=_dw7CEhiw07xBdFq--
+The reason the first attempt failed is that 'portmap' appear to not be
+running. 
+
+The reason for the oops is the interesting one for me.  I don't think
+these is any extra information you can provide other than answers to
+the above questions.
+
+I'll try to reproduce it.
+
+Thanks for the report.
+
+NeilBrown

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751969AbWCFRo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751970AbWCFR7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751969AbWCFRo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 12:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWCFRo2
+	id S1751970AbWCFR7A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 12:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751976AbWCFR67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 12:44:28 -0500
-Received: from mail.axxeo.de ([82.100.226.146]:37308 "EHLO mail.axxeo.de")
-	by vger.kernel.org with ESMTP id S1751380AbWCFRo1 (ORCPT
+	Mon, 6 Mar 2006 12:58:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4846 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751970AbWCFR67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 12:44:27 -0500
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-Date: Mon, 6 Mar 2006 18:44:07 +0100
-User-Agent: KMail/1.7.2
-Cc: "David S. Miller" <davem@davemloft.net>, jengelh@linux01.gwdg.de,
-       christopher.leech@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <20060303214036.11908.10499.stgit@gitlost.site> <20060304.134144.122314124.davem@davemloft.net> <20060305014324.GA20026@2ka.mipt.ru>
-In-Reply-To: <20060305014324.GA20026@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Mar 2006 12:58:59 -0500
+Date: Mon, 6 Mar 2006 18:58:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, Michael Ellerman <michael@ellerman.id.au>,
+       "Darrick J. Wong" <djwong@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [PATCH] leave APIC code inactive by default on i386
+Message-ID: <20060306175811.GB2716@elf.ucw.cz>
+References: <43D03AF0.3040703@us.ibm.com> <dc1166600602281957h4158c07od19d0e5200d21659@mail.gmail.com> <20060301043353.GJ28434@redhat.com> <20060306125018.GA1673@elf.ucw.cz> <20060306171747.GN21445@redhat.com> <20060306174122.GA2716@elf.ucw.cz> <20060306175238.GA15971@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603061844.07439.netdev@axxeo.de>
+In-Reply-To: <20060306175238.GA15971@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> On Sat, Mar 04, 2006 at 01:41:44PM -0800, David S. Miller (davem@davemloft.net) wrote:
-> > From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-> > Date: Sat, 4 Mar 2006 19:46:22 +0100 (MET)
-> > 
-> > > Does this buy the normal standard desktop user anything?
-> > 
-> > Absolutely, it optimizes end-node performance.
+
+>  > One more config-option is also not "cheap" (half of users will get it
+>  > wrong), and having config-option to change command-line-default seems
+>  > wrong to me.
+>  >
+>  > [Well, you could add CONFIG_CMDLINE to i386, like arm has... that
+>  > solves more than just this problem...]
 > 
-> It really depends on how it is used.
-> According to investigation made for kevent based FS AIO reading,
-> get_user_pages() performange graph looks like sqrt() function
+> I'm not arguing for extra command line options. The inverse, I want
+> *no* command line options.
+> 
+> What's so hard to understand about expecting something to just work?
 
-Hmm, so I should resurrect my user page table walker abstraction?
+I don't argue with "just works". I just do not want to see
+CONFIG_DO_NOAPIC_BY_DEFAULT someone suggested
+here (heh, it is still in subject :-). Whitelist/blacklist is fine
+with me.
+								Pavel
 
-There I would hand each page to a "recording" function, which
-can drop the page from the collection or coalesce it in the collector
-if your scatter gather implementation allows it.
-
-Regards
-
-Ingo Oeser
+-- 
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

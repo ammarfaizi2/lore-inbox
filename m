@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWCFOOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWCFN6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWCFOOp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 09:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWCFOOp
+	id S1750788AbWCFN6U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 08:58:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWCFN6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 09:14:45 -0500
-Received: from smtp17.wanadoo.fr ([193.252.23.111]:34647 "EHLO
-	smtp17.wanadoo.fr") by vger.kernel.org with ESMTP id S932298AbWCFOOo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 09:14:44 -0500
-X-ME-UUID: 20060306141443103.19269700008D@mwinf1709.wanadoo.fr
-Date: Mon, 6 Mar 2006 15:14:20 +0100
-From: Mathieu Chouquet-Stringer <mchouque@free.fr>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Problem on Alpha with "convert to generic irq framework"
-Message-ID: <20060306141420.GA13739@localhost>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>, Richard Henderson <rth@twiddle.net>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru> <20060306130050.GI27946@ftp.linux.org.uk>
+	Mon, 6 Mar 2006 08:58:20 -0500
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:31145 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750788AbWCFN6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 08:58:19 -0500
+Date: Mon, 6 Mar 2006 14:57:48 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Howells <dhowells@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] Permit NFS superblock sharing [try #3]
+Message-ID: <20060306135748.GA10519@wohnheim.fh-wedel.de>
+References: <20060304041647.6894ca62.akpm@osdl.org> <20060302213356.7282.26463.stgit@warthog.cambridge.redhat.com> <29932.1141646154@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060306130050.GI27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <29932.1141646154@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 01:00:50PM +0000, Al Viro wrote:
-> FWIW, works here on DS10 and alphastation (both with SRM)...
+On Mon, 6 March 2006 11:55:54 +0000, David Howells wrote:
+> 
+> > The kernel won't compile with just patch #1 applied.  Patches shouldn't go
+> > into git in that manner.
+> 
+> It's easier to review them in that manner. If you don't think git is up to it,
+> then combine them.
 
-Thanks for chiming in!!!
+Funny, I would have assumed that all patches should leave the kernel
+in a state where it'd at least compile and boot.  Since when are
+patches split for review an accepted exception?
+
+Jörn
 
 -- 
-Mathieu Chouquet-Stringer
-
+More computing sins are committed in the name of efficiency (without
+necessarily achieving it) than for any other single reason - including
+blind stupidity.
+-- W. A. Wulf 

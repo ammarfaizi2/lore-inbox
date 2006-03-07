@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWCGAdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWCGAjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbWCGAdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 19:33:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWCGAdp
+	id S932532AbWCGAjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 19:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWCGAjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 19:33:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:10659 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932527AbWCGAdp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 19:33:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fnVJ2Vu9NGe9SAN1V64IFFLBSbFrVbhckLcjYrg+8tA0S8IK3dK+H8ctTdGRQXbcCst9iNkftG5pnR23oU1btvMctRTxxNMjJdHVSd8b9NFp94LJZa4Us/OnZ44BQ2+ak9ufE1b+pqUXMzsJczAxRnHX0ee09NiZdZ9hJ/xOwxk=
-Message-ID: <35fb2e590603061633w2dd7fff4m63e73ee8ed409951@mail.gmail.com>
-Date: Tue, 7 Mar 2006 00:33:44 +0000
-From: "Jon Masters" <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "Lee Revell" <rlrevell@joe-job.com>
-Subject: Re: [OT] inotify hack for locate
-Cc: "Helge Hafting" <helge.hafting@aitel.hist.no>,
-       "Chris Ball" <cjb@mrao.cam.ac.uk>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1141690310.25487.97.camel@mindpipe>
-MIME-Version: 1.0
+	Mon, 6 Mar 2006 19:39:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15329 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932532AbWCGAjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 19:39:39 -0500
+Date: Mon, 6 Mar 2006 16:37:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, ericvh@gmail.com, rminnich@lanl.gov
+Subject: Re: 9pfs double kfree
+Message-Id: <20060306163745.65e0f4d8.akpm@osdl.org>
+In-Reply-To: <20060306070456.GA16478@redhat.com>
+References: <20060306070456.GA16478@redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com>
-	 <yd3bqwkbgsi.fsf@islay.ra.phy.cam.ac.uk>
-	 <35fb2e590603051704k120e0257wb39c3e3eb1cf0b49@mail.gmail.com>
-	 <440C0175.7040909@aitel.hist.no> <1141690310.25487.97.camel@mindpipe>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/7/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2006-03-06 at 10:31 +0100, Helge Hafting wrote:
-> > As for the non-existent virus problem - it is mostly prevented
-> > by users not being administrators.  And you can go further
-> > with a readonly /usr and a noexec /home.
+Dave Jones <davej@redhat.com> wrote:
+>
+> Probably the first of many found with Coverity.
+> 
+> This is kfree'd outside of both arms of the if condition already,
+> so fall through and free it just once.
+> 
+> Second variant is double-nasty, it deref's the free'd fcall
+> before it tries to free it a second time.
+> 
+> (I wish we had a kfree variant that NULL'd the target when it was free'd)
+> 
+> Coverity bugs: 987, 986
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> 
+> --- linux-2.6.15.noarch/fs/9p/vfs_super.c~	2006-03-06 01:53:38.000000000 -0500
+> +++ linux-2.6.15.noarch/fs/9p/vfs_super.c	2006-03-06 01:54:36.000000000 -0500
+> @@ -156,7 +156,6 @@ static struct super_block *v9fs_get_sb(s
+>  	stat_result = v9fs_t_stat(v9ses, newfid, &fcall);
+>  	if (stat_result < 0) {
+>  		dprintk(DEBUG_ERROR, "stat error\n");
+> -		kfree(fcall);
+>  		v9fs_t_clunk(v9ses, newfid);
+>  	} else {
+>  		/* Setup the Root Inode */
+> --- linux-2.6.15.noarch/fs/9p/vfs_inode.c~	2006-03-06 01:57:05.000000000 -0500
+> +++ linux-2.6.15.noarch/fs/9p/vfs_inode.c	2006-03-06 01:58:05.000000000 -0500
+> @@ -274,7 +274,6 @@ v9fs_create(struct v9fs_session_info *v9
+>  		PRINT_FCALL_ERROR("clone error", fcall);
+>  		goto error;
+>  	}
+> -	kfree(fcall);
+>  
+>  	err = v9fs_t_create(v9ses, fid, name, perm, mode, &fcall);
+>  	if (err < 0) {
 
-> I believe he is referring to using Linux systems to provide virus
-> scanning services for mail, NFS, SMB etc. clients, rather than to virus
-> scanning for the Linux desktop (which is indeed a non problem).
+The second hunk is probably right and I guess the first one has to be right
+as well, but it's all rather obscure, complex and (naturally) comment-free.
 
-Sure. I wasn't hand waving an muttering about virus problems on Linux
-desktops everywhere.
-
-Anyway. Seems a couple of us are interested in having something more
-generic at the VFS level to notify userspace about particular events
-of interest (recursively registering a watcher on every directory is
-silly). I really should go scope out some of the existing projects
-that cover this before I decide what to do. This kind of thing should
-be in mainline IMHO.
-
-Jon.
+So I'll duck on this - Eric, could you please handle it?  Consider doing
+away with the dynamically-allocated thing altogether and just allocating it
+on the outermost caller's stack.  

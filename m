@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWCGVBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWCGVFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWCGVBU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 16:01:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWCGVBU
+	id S1751573AbWCGVFs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 16:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWCGVFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 16:01:20 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47061 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751479AbWCGVBU (ORCPT
+	Tue, 7 Mar 2006 16:05:48 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:42426 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751526AbWCGVFr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 16:01:20 -0500
-Date: Tue, 7 Mar 2006 13:01:08 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: Martin Bligh <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: 2.6.16-rc5-mm3
-In-Reply-To: <20060307125122.5f7d3462.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0603071300100.32539@schroedinger.engr.sgi.com>
-References: <20060307021929.754329c9.akpm@osdl.org> <440DEF0A.3030701@mbligh.org>
- <440DEF75.9060802@mbligh.org> <20060307125122.5f7d3462.akpm@osdl.org>
+	Tue, 7 Mar 2006 16:05:47 -0500
+Message-ID: <440DF4F8.1DC7F5A5@tv-sign.ru>
+Date: Wed, 08 Mar 2006 00:02:48 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 01/23] tref: Implement task references.
+References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
+		<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
+		<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
+		<44074479.15D306EB@tv-sign.ru>
+		<m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
+		<440CA459.6627024C@tv-sign.ru> <m1fylu2ybx.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Mar 2006, Andrew Morton wrote:
-
-> --- devel/mm/mempolicy.c~numa_maps-update-fix	2006-03-07 12:48:38.000000000 -0800
-> +++ devel-akpm/mm/mempolicy.c	2006-03-07 12:49:22.000000000 -0800
-> @@ -1789,6 +1789,7 @@ static void gather_stats(struct page *pa
->  	cond_resched();
->  }
->  
-> +#ifdef CONFIG_HUGETLB_PAGE
->  static void check_huge_range(struct vm_area_struct *vma,
->  		unsigned long start, unsigned long end,
->  		struct numa_maps *md)
-> @@ -1814,6 +1815,7 @@ static void check_huge_range(struct vm_a
->  		gather_stats(page, md, pte_dirty(*ptep));
->  	}
->  }
-#else
-....
-
-{
-}
-
-?
-
-> +#endif
->  
->  int show_numa_map(struct seq_file *m, void *v)
+"Eric W. Biederman" wrote:
+> 
+>  struct pid
 >  {
-> _
-> 
-> 
+> +       atomic_t count;
+>         /* Try to keep pid_chain in the same cacheline as nr for find_pid */
+>         int nr;
+>         struct hlist_node pid_chain;
+>         /* list of pids with the same nr, only one of them is in the hash */
+> -       struct list_head pid_list;
+> -       /* Does a weak reference of this type exist to the task struct? */
+> -       struct task_ref *tref;
+> +       struct list_head tasks[PIDTYPE_MAX];
+> +       struct rcu_head rcu;
+>  };
+>
+> ...
+>
+> +static void rcu_put_pid(struct rcu_head *rhp)
+> +{
+> +       struct pid *pid = container_of(rhp, struct pid, rcu);
+> +       put_pid(pid);
+> +}
+
+I hope we can do it without pid->rcu and rcu_put_pid(). Hopefuly
+we can use SLAB_DESTROY_BY_RCU. To do so we need some changes in
+find_task_by_pid_type().
+
+I'll try to look closer at this patch tomorrow.
+
+Oleg.

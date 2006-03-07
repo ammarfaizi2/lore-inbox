@@ -1,75 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWCGWRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWCGWVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWCGWRR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 17:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWCGWRR
+	id S964783AbWCGWVN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 17:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWCGWVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 17:17:17 -0500
-Received: from hc652ae31.dhcp.vt.edu ([198.82.174.49]:9613 "EHLO
-	hc652ae31.dhcp.vt.edu") by vger.kernel.org with ESMTP
-	id S964783AbWCGWRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 17:17:16 -0500
-Message-Id: <200603072217.k27MH6IJ003533@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm3 
-In-Reply-To: Your message of "Tue, 07 Mar 2006 02:19:29 PST."
-             <20060307021929.754329c9.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060307021929.754329c9.akpm@osdl.org>
+	Tue, 7 Mar 2006 17:21:13 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:50872 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964783AbWCGWVN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 17:21:13 -0500
+Date: Tue, 7 Mar 2006 17:20:52 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC][PATCH] kdump: x86_64 timer interrupt lockup due to pending interrupt
+Message-ID: <20060307222052.GD9106@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20060306164034.GB10594@in.ibm.com> <20060306214332.GA18529@muc.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1141769826_3290P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Mar 2006 17:17:06 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306214332.GA18529@muc.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1141769826_3290P
-Content-Type: text/plain; charset=us-ascii
+On Mon, Mar 06, 2006 at 10:43:32PM +0100, Andi Kleen wrote:
+> On Mon, Mar 06, 2006 at 11:40:34AM -0500, Vivek Goyal wrote:
+> > 
+> > o check_timer() routine fails while second kernel is booting after a crash
+> >   on an opetron box. Problem happens because timer vector (0x31) seems to be
+> >   locked.
+> > 
+> > o After a system crash, it is not safe to service interrupts any more, hence
+> >   interrupts are disabled. This leads to pending interrupts at LAPIC. LAPIC
+> >   sends these interrupts to the CPU during early boot of second kernel. Other
+> >   pending interrupts are discarded saying unexpected trap but timer interrupt
+> >   is serviced and CPU does not issue an LAPIC EOI because it think this
+> >   interrupt came from i8259 and sends ack to 8259. This leads to vector 0x31
+> >   locking as LAPIC does not clear respective ISR and keeps on waiting for
+> >   EOI.
+> > 
+> > o In this patch, one extra EOI is being issued in check_timer() to unlock the
+> >   vector. Please suggest if there is a better way to handle this situation.
+> 
+> Shouldn't we rather do this for all interrupts when the APIC is set up? 
+> I don't see how the timer is special here.
+>
 
-On Tue, 07 Mar 2006 02:19:29 PST, Andrew Morton said:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/
+Timer is a special case here.
 
-Seen during early boot from the initrd, while the initrd was firing up a
-'lvm vgscan' to get the root filesystem accessible.. 2.6.15-rc5-mm2 didn't do this.
-Dell laptop, Pentium4, UP kernel...
+In other cases, the moment interrupts are enabled on cpu, LAPIC pushes pending
+interrupts to cpu and it is ignored as bad irq using ack_bad_irq(). This
+still sends EOI to LAPIC if LPAIC support is compiled in.
 
-[   16.959458] Freeing unused kernel memory: 176k freed
-[   16.984855] Write protecting the kernel read-only data: 998k
-[   17.044106] Time: tsc clocksource has been installed.
-[   17.600897] BUG: sleeping function called from invalid context at mm/slab.c:2751
-[   17.625891] in_atomic():1, irqs_disabled():0
-[   17.650461]  [<c0103aba>] show_trace+0xd/0xf
-[   17.674759]  [<c0103b5b>] dump_stack+0x17/0x19
-[   17.698533]  [<c010ff3c>] __might_sleep+0x86/0x90
-[   17.722149]  [<c015155a>] kmem_cache_alloc+0x27/0x82
-[   17.745520]  [<c015baf1>] bd_claim_by_kobject+0x77/0x1b1
-[   17.768657]  [<c02a55a4>] open_dev+0x54/0x72
-[   17.791983]  [<c02a5c8b>] dm_get_device+0x13f/0x336
-[   17.815254]  [<c02a656c>] linear_ctr+0x7f/0xbb
-[   17.838389]  [<c02a5996>] dm_table_add_target+0x10e/0x233
-[   17.861491]  [<c02a7c82>] table_load+0xc9/0x1a5
-[   17.884366]  [<c02a796b>] ctl_ioctl+0x208/0x246
-[   17.906866]  [<c01653f2>] do_ioctl+0x4e/0x67
-[   17.929035]  [<c0165657>] vfs_ioctl+0x24c/0x25f
-[   17.950782]  [<c01656b1>] sys_ioctl+0x47/0x62
-[   17.971931]  [<c0102707>] syscall_call+0x7/0xb
-[   18.426629] kjournald starting.  Commit interval 5 seconds
+But for timer, the moment pending interrupt is pushed to cpu, it is handled
+as valid interrupt and cpu assumes that it came from 8259 and sends ack to
+8259 and not to LAPIC. Hence leads to missing EOI for timer vector and 
+deadlock.
+
+But still doing it generic manner for all interrupts while setting up LAPIC
+probably makes more sense. Please find attached the patch.
 
 
 
---==_Exmh_1141769826_3290P
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+o check_timer() routine fails while second kernel is booting after a crash
+  on an opetron box. Problem happens because timer vector (0x31) seems to be
+  locked.
 
-iD8DBQFEDgZicC3lWbTT17ARAmnDAJ9mOjvT3Fv73ug4l3a92UUcz/7pqwCgj7Yc
-qQFRXlAQsq/97m+0v8VMRbs=
-=TLxD
------END PGP SIGNATURE-----
+o After a system crash, it is not safe to service interrupts any more, hence
+  interrupts are disabled. This leads to pending interrupts at LAPIC. LAPIC
+  sends these interrupts to the CPU during early boot of second kernel. Other
+  pending interrupts are discarded saying unexpected trap but timer interrupt
+  is serviced and CPU does not issue an LAPIC EOI because it think this
+  interrupt came from i8259 and sends ack to 8259. This leads to vector 0x31
+  locking as LAPIC does not clear respective ISR and keeps on waiting for
+  EOI.
 
---==_Exmh_1141769826_3290P--
+o This patch issues extra EOI for the pending interrupts who have ISR set.
+
+o Though today only timer seems to be the special case because in early
+  boot it thinks interrupts are coming from i8259 and uses
+  mask_and_ack_8259A() as ack handler and does not issue LAPIC EOI. But
+  probably doing it in generic manner for all vectors makes sense.
+
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ arch/x86_64/kernel/apic.c    |   21 +++++++++++++++++++++
+ include/asm-x86_64/apicdef.h |    1 +
+ 2 files changed, 22 insertions(+)
+
+diff -puN arch/x86_64/kernel/apic.c~x86_64-pending-interrupt-fix arch/x86_64/kernel/apic.c
+--- linux-2.6.16-rc5-16M/arch/x86_64/kernel/apic.c~x86_64-pending-interrupt-fix	2006-03-07 15:37:49.000000000 -0500
++++ linux-2.6.16-rc5-16M-root/arch/x86_64/kernel/apic.c	2006-03-07 16:25:11.000000000 -0500
+@@ -342,6 +342,7 @@ void __init init_bsp_APIC(void)
+ void __cpuinit setup_local_APIC (void)
+ {
+ 	unsigned int value, maxlvt;
++	int i, j;
+ 
+ 	value = apic_read(APIC_LVR);
+ 
+@@ -370,6 +371,26 @@ void __cpuinit setup_local_APIC (void)
+ 	value &= ~APIC_TPRI_MASK;
+ 	apic_write(APIC_TASKPRI, value);
+ 
++#ifdef CONFIG_CRASH_DUMP
++	/*
++	 * After a crash, we no longer service the interrupts and a pending
++	 * interrupt from previous kernel might still have ISR bit set.
++	 *
++	 * Most probably by now CPU has serviced that pending interrupt and
++	 * it might not have done the ack_APIC_irq() because it thought,
++	 * interrupt came from i8259 as ExtInt. LAPIC did not get EOI so it
++	 * does not clear the ISR bit and cpu thinks it has already serivced
++	 * the interrupt. Hence a vector might get locked. It was noticed
++	 * for timer irq (vector 0x31). Issue an extra EOI to clear ISR.
++	 */
++	for (i = APIC_ISR_NR - 1; i >= 0; i--) {
++		value = apic_read(APIC_ISR + i*0x10);
++		for (j = 31; j >= 0; j--) {
++			if (value & (1<<j))
++				ack_APIC_irq();
++		}
++	}
++#endif
+ 	/*
+ 	 * Now that we are all set up, enable the APIC
+ 	 */
+diff -puN include/asm-x86_64/apicdef.h~x86_64-pending-interrupt-fix include/asm-x86_64/apicdef.h
+--- linux-2.6.16-rc5-16M/include/asm-x86_64/apicdef.h~x86_64-pending-interrupt-fix	2006-03-07 15:56:10.000000000 -0500
++++ linux-2.6.16-rc5-16M-root/include/asm-x86_64/apicdef.h	2006-03-07 16:27:45.000000000 -0500
+@@ -39,6 +39,7 @@
+ #define			APIC_SPIV_FOCUS_DISABLED	(1<<9)
+ #define			APIC_SPIV_APIC_ENABLED		(1<<8)
+ #define		APIC_ISR	0x100
++#define		APIC_ISR_NR	0x8	/* Number of 32 bit ISR registers. */
+ #define		APIC_TMR	0x180
+ #define 	APIC_IRR	0x200
+ #define 	APIC_ESR	0x280
+_

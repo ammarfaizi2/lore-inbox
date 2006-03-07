@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWCGTVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWCGTXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751572AbWCGTVk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 14:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751573AbWCGTVk
+	id S1751570AbWCGTXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 14:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWCGTXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 14:21:40 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:59272 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1751569AbWCGTVj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 14:21:39 -0500
-Subject: Re: [PATCH] slab: fix offslab_limit in calculate_slab_order (Was:
-	Slab corruption in 2.6.16-rc5-mm2)
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <Pine.LNX.4.64.0603070911380.3573@g5.osdl.org>
-References: <200603060117.16484.jesper.juhl@gmail.com>
-	 <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>
-	 <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
-	 <200603062136.17098.jesper.juhl@gmail.com>
-	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
-	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
-	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
-	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
-	 <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
-	 <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
-	 <Pine.LNX.4.58.0603071042370.18351@sbz-30.cs.Helsinki.FI>
-	 <Pine.LNX.4.64.0603070911380.3573@g5.osdl.org>
-Date: Tue, 07 Mar 2006 21:21:27 +0200
-Message-Id: <1141759287.11197.5.camel@localhost>
+	Tue, 7 Mar 2006 14:23:35 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:63187 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751569AbWCGTXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 14:23:34 -0500
+Subject: Re: [PATCH] Document Linux's memory barriers
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <7621.1141756240@warthog.cambridge.redhat.com>
+References: <200603071134.52962.ak@suse.de>
+	 <31492.1141753245@warthog.cambridge.redhat.com>
+	 <7621.1141756240@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 11:23:28 -0800
+Message-Id: <1141759408.2617.9.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Mar 2006, Pekka J Enberg wrote:
-> > No you're not, it's broken. However, I think you're forgetting to reset 
-> > cachep->num when we go over MAX_GFP_ORDER, no?
+On Tue, 2006-03-07 at 18:30 +0000, David Howells wrote:
 
-On Tue, 2006-03-07 at 09:12 -0800, Linus Torvalds wrote:
-> No, we only ever set "cachep->num" for something that we've decided is 
-> valid.
-> 
-> "gfporder" can never be > MAX_GFP_ORDER inside the loop, because we just 
-> iterate between 0..MAX_GFP_ORDER.
+> True, I suppose. I should make it clear that these accessor functions imply
+> memory barriers, if indeed they do,
 
-I don't think that's true. We set cachep->num to something we think is
-valid but check for internal fragmentation later. So I think we can get
-out of the loop with cachep->num initialized to non-zero but gfporder
-set to MAX_GFP_ORDER, no? Or did I forget to take my medicine this
-morning...?
+They don't, but according to Documentation/DocBook/deviceiobook.tmpl
+they are performed by the compiler in the order specified.
 
-			Pekka
+They also convert between PCI byte order and CPU byte order.  If you
+want to avoid that, you need the __raw_* versions, which are not
+guaranteed to be provided by all arches.
+
+	<b
 

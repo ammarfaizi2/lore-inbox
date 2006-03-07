@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWCGTGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWCGTGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWCGTGE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 14:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWCGTGE
+	id S1751416AbWCGTGK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 14:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWCGTGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 14:06:04 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:43670
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751447AbWCGTGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 14:06:03 -0500
-Date: Tue, 7 Mar 2006 11:05:49 -0800
-From: Greg KH <greg@kroah.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Dave Peterson <dsp@llnl.gov>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Message-ID: <20060307190549.GA18944@kroah.com>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061014.22312.dsp@llnl.gov> <20060306102232.613911f6.rdunlap@xenotime.net> <200603070903.19226.dsp@llnl.gov> <1141758219.3048.10.camel@laptopd505.fenrus.org>
+	Tue, 7 Mar 2006 14:06:10 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:65190 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751416AbWCGTGI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 14:06:08 -0500
+Date: Tue, 7 Mar 2006 12:06:02 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Document Linux's memory barriers
+Message-ID: <20060307190602.GE7301@parisc-linux.org>
+References: <31492.1141753245@warthog.cambridge.redhat.com> <1141756825.31814.75.camel@localhost.localdomain> <Pine.LNX.4.61.0603071346540.9814@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1141758219.3048.10.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.61.0603071346540.9814@chaos.analogic.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 08:03:38PM +0100, Arjan van de Ven wrote:
+On Tue, Mar 07, 2006 at 01:54:33PM -0500, linux-os (Dick Johnson) wrote:
+> This might be a good place to document:
+>     dummy = readl(&foodev->ctrl);
 > 
-> > I was initially a bit confused because I thought the comment
-> > specifically pertained to the piece of code shown above.  I need to
-> > take a closer look at the EDAC sysfs code - I'm not as familiar with
-> > some of its details as I should be.  Thanks for pointing out the
-> > issue.
-> 
-> afaics it is a list of pci devices. these should just be symlinks to the
-> sysfs resource of these pci devices instead, not a flat table file.
+> Will flush all pending writes to the PCI bus and that:
+>     (void) readl(&foodev->ctrl);
+> ... won't because `gcc` may optimize it away. In fact, variable
+> "dummy" should be global or `gcc` may make it go away as well.
 
-Ugh, all this talk is making me wonder what in the world this code is
-doing.  Time to go look at it...
+static inline unsigned int readl(const volatile void __iomem *addr)
+{
+	return *(volatile unsigned int __force *) addr;
+}
 
-And people complain that all interfaces in userspace should be instantly
-marked "stable" because we all know exactly what we are doing :)
-
-greg k-h
+The cast is volatile, so gcc knows not to optimise it away.

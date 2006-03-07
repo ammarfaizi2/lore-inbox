@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWCGQew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWCGQko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWCGQew (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 11:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWCGQew
+	id S1750867AbWCGQko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 11:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWCGQko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 11:34:52 -0500
-Received: from odin2.bull.net ([192.90.70.84]:46998 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S1751258AbWCGQev (ORCPT
+	Tue, 7 Mar 2006 11:40:44 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:40927 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1750867AbWCGQko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 11:34:51 -0500
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: linux-kernel@vger.kernel.org, ltt-dev@shafik.org
-Subject: RT patch and arch/i386/kernel/time.c question
-Date: Tue, 7 Mar 2006 17:42:41 +0100
-User-Agent: KMail/1.7.1
-Cc: Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 11:40:44 -0500
+Date: Tue, 7 Mar 2006 11:35:31 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: drepper@gmail.com, da-x@monatomic.org, linux-kernel@vger.kernel.org
+Subject: Re: Status of AIO
+Message-ID: <20060307163531.GB5410@kvack.org>
+References: <20060307004237.GT20768@kvack.org> <20060306.165129.62204114.davem@davemloft.net> <20060307013915.GU20768@kvack.org> <20060306.190633.08168501.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603071742.42262.Serge.Noiraud@bull.net>
+In-Reply-To: <20060306.190633.08168501.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Mon, Mar 06, 2006 at 07:06:33PM -0800, David S. Miller wrote:
+> You've just reinvented fbufs, and they have their own known set of
+> issues.
 
-	I'm trying to port the LTTng patch over the rt20 and I got the following problem :
-The LTTng patch try to modify the arch/i386/kernel/time.c file in which the 
-timer_interrupt function doesn't exist anymore.
+> Please read chapter 5 of Networking Algorithmics or ask someone to
+> paraphrase the content for you.  It really covers this completely, and
+> once you read it you will be able to avoid reinenting the wheel and
+> falling under the false notion of having invented something :-)
 
-In which file / function could I try to patch the equivalent function ?
+Nothing in software is particularly unique given the same set of 
+requirements.  Unfortunately, none of the local book stores have a copy 
+of Networking Algorithmics in stock, so it will be a few days before it 
+arrives.  What problems does this approach have?  Aside from the fact that 
+it's useless unless implemented on top of AIO type semantics, it looks 
+like a good way to improve performance.
 
+		-ben
 -- 
-Serge Noiraud
+"Time is of no importance, Mr. President, only life is important."
+Don't Email: <dont@kvack.org>.

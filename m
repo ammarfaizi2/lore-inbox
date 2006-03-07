@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbWCGDC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932634AbWCGDEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932629AbWCGDC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 22:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbWCGDC2
+	id S932634AbWCGDEN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 22:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932635AbWCGDEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 22:02:28 -0500
-Received: from watts.utsl.gen.nz ([202.78.240.73]:18348 "EHLO mail.utsl.gen.nz")
-	by vger.kernel.org with ESMTP id S932629AbWCGDC2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 22:02:28 -0500
-Message-ID: <440CF7B6.7050605@vilain.net>
-Date: Tue, 07 Mar 2006 16:02:14 +1300
-From: Sam Vilain <sam@vilain.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: [RFC][PATCH 1/6] prepare sysctls for containers
-References: <20060306235248.20842700@localhost.localdomain>	 <20060306235249.880CB28A@localhost.localdomain>	 <20060307010139.GF27645@sorel.sous-sol.org> <1141697051.9274.58.camel@localhost.localdomain>
-In-Reply-To: <1141697051.9274.58.camel@localhost.localdomain>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 6 Mar 2006 22:04:13 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38887
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932634AbWCGDEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 22:04:12 -0500
+Date: Mon, 06 Mar 2006 19:04:28 -0800 (PST)
+Message-Id: <20060306.190428.23731173.davem@davemloft.net>
+To: psusi@cfl.rr.com
+Cc: bcrl@kvack.org, drepper@gmail.com, da-x@monatomic.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Status of AIO
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <440CE336.3080504@cfl.rr.com>
+References: <20060306233300.GR20768@kvack.org>
+	<20060306.162444.107249907.davem@davemloft.net>
+	<440CE336.3080504@cfl.rr.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+From: Phillip Susi <psusi@cfl.rr.com>
+Date: Mon, 06 Mar 2006 20:34:46 -0500
 
->>Interesting idea.  One piece that's missing is strategy for controlling
->>creation the new context (assuming the data_access() will always evaluate
->>into a context sensitive piece of data).  Otherwise a user can get out
->>of the limits imposed by sysadmin (since they may have placed themselves
->>in a context which differs from admin).
->>    
->>
->Yup, that is missing for now.  We couldn't agree on quite which
->implementation we want for basic containers/vservers/vpses.  So, for
->now, making it useful is left as an exercise to the reader. :)
->
->BTW, the current code _is_ potentially context sensitive because
->"current" provides much of the context that we will ever need.
->  
->
+> What is this "net channels"?  I'll do some googling but if you have a 
+> direct reference it would be helpful.
 
-I have an RFC quality submission ready, extracted from Herbert's work. 
-I'll prepare and forward it to the ML now for reference.
+You didn't google hard enough, my blog entry on the topic
+comes up as the first entry when you google for "Van Jacobson
+net channels".
 
-Sam.
+> Maybe you should try using a microkernel then like mach?  The Linux way 
+> of doing things is to leave critical services that most user mode code 
+> depends on, such as filesystems and the network stack, in the kernel.  I 
+> don't think that's going to change.
+
+Oh yee of little faith, and we don't need to go to a microkernel
+architecture to move things like parts of the TCP stack into
+user space.

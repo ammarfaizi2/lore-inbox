@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWCGDGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932635AbWCGDIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWCGDGO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 22:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752483AbWCGDGO
+	id S932635AbWCGDIR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 22:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752482AbWCGDIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 22:06:14 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40679
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1752482AbWCGDGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 22:06:14 -0500
-Date: Mon, 06 Mar 2006 19:06:33 -0800 (PST)
-Message-Id: <20060306.190633.08168501.davem@davemloft.net>
-To: bcrl@kvack.org
-Cc: drepper@gmail.com, da-x@monatomic.org, linux-kernel@vger.kernel.org
-Subject: Re: Status of AIO
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060307013915.GU20768@kvack.org>
-References: <20060307004237.GT20768@kvack.org>
-	<20060306.165129.62204114.davem@davemloft.net>
-	<20060307013915.GU20768@kvack.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 6 Mar 2006 22:08:17 -0500
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:31662 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1752472AbWCGDIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 22:08:16 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: "Lanslott Gish" <lanslott.gish@gmail.com>
+Subject: Re: [PATCH] add support for PANJIT TouchSet USB Touchscreen Device
+Date: Mon, 6 Mar 2006 22:08:13 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       "Greg KH" <greg@kroah.com>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Alan Cox" <alan@redhat.com>
+References: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
+In-Reply-To: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603062208.13922.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Benjamin LaHaise <bcrl@kvack.org>
-Date: Mon, 6 Mar 2006 20:39:15 -0500
+On Monday 06 March 2006 04:14, Lanslott Gish wrote:
+> hi,
+> 
+> this is the first version of the patch from a newbie :)
+> add support for PANJIT TouchSet USB touchscreen device.
+>
 
-> VM tricks do suck, so you just have to use the tricks that nobody else 
-> is...  My thinking is to do something like the following: have a structure 
-> to reference a set of pages.  When it is first created, it takes a reference 
-> on the pages in question, and it is added to the vm_area_struct of the user 
-> so that the vm can poke it for freeing when memory pressure occurs.  The 
-> sk_buff dataref also has to have a pointer to the pageref added.
+Hi,
 
-You've just reinvented fbufs, and they have their own known set of
-issues.
+I am reading this and it looks like twin brother of touchkitusb.c
+Is there any chance we can combine these together?
 
-Please read chapter 5 of Networking Algorithmics or ask someone to
-paraphrase the content for you.  It really covers this completely, and
-once you read it you will be able to avoid reinenting the wheel and
-falling under the false notion of having invented something :-)
+-- 
+Dmitry

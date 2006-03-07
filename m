@@ -1,31 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWCFXxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWCGAFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbWCFXxX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 18:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752469AbWCFXxD
+	id S1751078AbWCGAFj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 19:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWCGAFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 18:53:03 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:60567 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752052AbWCFXxA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 18:53:00 -0500
-Subject: [RFC][PATCH 0/6] support separate namespaces for sysv
-To: linux-kernel@vger.kernel.org
-Cc: serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       Herbert Poetzl <herbert@13thfloor.at>, Sam Vilain <sam@vilain.net>,
-       Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Mon, 06 Mar 2006 15:52:48 -0800
-Message-Id: <20060306235248.20842700@localhost.localdomain>
+	Mon, 6 Mar 2006 19:05:39 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:48616 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751022AbWCGAFi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 19:05:38 -0500
+Subject: Re: [openib-general] Re: [PATCH 6/6] IB: userspace support for
+	RDMA connection manager
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org, netdev@vger.kernel.org
+In-Reply-To: <adapskz3zw7.fsf@cisco.com>
+References: <aday7zn432b.fsf@cisco.com>
+	 <20060306.143901.26500391.davem@davemloft.net> <adau0ab42ni.fsf@cisco.com>
+	 <20060306.145053.129802994.davem@davemloft.net> <adapskz3zw7.fsf@cisco.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Mon, 06 Mar 2006 16:05:30 -0800
+Message-Id: <1141689930.3814.69.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is more followup on this thread:
+On Mon, 2006-03-06 at 15:40 -0800, Roland Dreier wrote:
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=114108773827517&w=2
+> Anyway IB works fine with standard INTx interrupts -- MSI is just icing.
 
-The following series makes it possible to isolate different
-sets of sysv structures (msg, sem, and shm) on one kernel.
+Depends on the driver.  Ours needs the interrupt vector rather than the
+number, which means we don't work without CONFIG_PCI_MSI.  That is,
+unless there's some other way to get the vector that I don't know about
+(entirely likely).
 
-The initial patch makes it much more feasible to access these
-disparite sets from the traditional sysctl interfaces.
+	<b
+

@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751611AbWCGANg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752055AbWCGAO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751611AbWCGANg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 19:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752055AbWCGANg
+	id S1752055AbWCGAO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 19:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752060AbWCGAO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 19:13:36 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:49480 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751611AbWCGANf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 19:13:35 -0500
-Date: Mon, 06 Mar 2006 18:15:22 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: PCI-DMA: Out of IOMMU space on x86-64 (Athlon64x2), with solution
-In-reply-to: <5MyAS-5zh-5@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <440CD09A.9040005@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-References: <5Mq18-1Na-21@gated-at.bofh.it> <5MqNc-2Y5-3@gated-at.bofh.it>
- <5MqX4-39H-21@gated-at.bofh.it> <5MyAS-5zh-5@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Mar 2006 19:14:57 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:25313 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752055AbWCGAO4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 19:14:56 -0500
+Message-ID: <440D40F6.4030803@us.ibm.com>
+Date: Tue, 07 Mar 2006 00:14:46 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.16-rc5-mm2 mpage_readpages() cleanup
+References: <1141684312.17095.11.camel@dyn9047017100.beaverton.ibm.com> <20060306143718.50fc0d94.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Monnerie wrote:
-> On Freitag, 3. März 2006 23:23 Jeff Garzik wrote:
->> I'll happen but not soon.  Motivation is low at NV and here as well,
->> since newer NV is AHCI.  The code in question, "NV ADMA", is
->> essentially legacy at this point -- though I certainly acknowledge
->> the large current installed base.  Just being honest about the
->> current state of things...
-> 
-> I'd like to raise motivation a lot because most MB sold here (central 
-> Europe) are Nforce4 with Athlon64x2 at the moment. It would be nice 
-> from vendors if they support OSS developers more, as it's their 
-> interest to have good drivers.
 
-I second that.. It appears that nForce4 will continue to be a popular 
-chipset even after the Socket AM2 chips are released, so the demand for 
-this (and for NCQ support as well, likely) will only increase.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Andrew Morton wrote:
+
+>Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+>>Instead of passing validity of block mapping, do_mpage_readpage() 
+>> can figure it out using buffer_mapped(). This will reduce one
+>> un-needed argument passing.
+>>
+>
+>Is buffer_mapped() the correct flag to use?  Remember that get_block() can
+>validly return a !buffer_mapped() bh over a file hole.
+>
+Yes. Currently the code which handles hole can only deal with a single 
+block at a time.
+All I am trying to do is,  find out when to do next getblock() call.
+
+>
+>Either way, there should be a comment in there explaining the protocol,
+>please.
+>
+Will do.
+
+Thanks,
+Badari
+
+
 

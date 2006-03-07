@@ -1,48 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWCGXNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbWCGXPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWCGXNV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 18:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCGXNV
+	id S964796AbWCGXPV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 18:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWCGXPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 18:13:21 -0500
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:49547 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751343AbWCGXNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 18:13:21 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] mm: yield during swap prefetching
-Date: Wed, 8 Mar 2006 10:13:44 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-mm@kvack.org, Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org
+	Tue, 7 Mar 2006 18:15:21 -0500
+Received: from mail.fieldses.org ([66.93.2.214]:29378 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S964796AbWCGXPV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 18:15:21 -0500
+Date: Tue, 7 Mar 2006 18:15:17 -0500
+To: Neil Brown <neilb@suse.de>
+Cc: Eric Sesterhenn <snakebyte@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Wrong error handling in nfs4acl
+Message-ID: <20060307231517.GD14147@fieldses.org>
+References: <1141761420.7561.7.camel@alice> <17422.4603.950948.166039@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603081013.44678.kernel@kolivas.org>
+In-Reply-To: <17422.4603.950948.166039@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Swap prefetching doesn't use very much cpu but spends a lot of time waiting on 
-disk in uninterruptible sleep. This means it won't get preempted often even at 
-a low nice level since it is seen as sleeping most of the time. We want to 
-minimise its cpu impact so yield where possible.
+On Wed, Mar 08, 2006 at 10:06:35AM +1100, Neil Brown wrote:
+> I think we want to change nfs4_acl_add_ace to return -ENOMEM rather
+> than -1 too.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
----
- mm/swap_prefetch.c |    1 +
- 1 file changed, 1 insertion(+)
+Whoops, yes, a search for "-1" in that file produces a number of dubious
+returns.  I'll make a patch.
 
-Index: linux-2.6.15-ck5/mm/swap_prefetch.c
-===================================================================
---- linux-2.6.15-ck5.orig/mm/swap_prefetch.c	2006-03-02 14:00:46.000000000 +1100
-+++ linux-2.6.15-ck5/mm/swap_prefetch.c	2006-03-08 08:49:32.000000000 +1100
-@@ -421,6 +421,7 @@ static enum trickle_return trickle_swap(
- 
- 		if (trickle_swap_cache_async(swp_entry, node) == TRICKLE_DELAY)
- 			break;
-+		yield();
- 	}
- 
- 	if (sp_stat.prefetched_pages) {
+--b.

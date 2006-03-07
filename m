@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932612AbWCGCNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWCGCQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932612AbWCGCNw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 21:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932610AbWCGCNw
+	id S932610AbWCGCQq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 21:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWCGCQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 21:13:52 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:7040 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932608AbWCGCNu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 21:13:50 -0500
-Date: Mon, 6 Mar 2006 18:18:07 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, linux-kernel@vger.kernel.org,
-       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com,
-       Herbert Poetzl <herbert@13thfloor.at>, Sam Vilain <sam@vilain.net>
-Subject: Re: [RFC][PATCH 1/6] prepare sysctls for containers
-Message-ID: <20060307021807.GH27645@sorel.sous-sol.org>
-References: <20060306235248.20842700@localhost.localdomain> <20060306235249.880CB28A@localhost.localdomain> <20060307010139.GF27645@sorel.sous-sol.org> <1141697051.9274.58.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 6 Mar 2006 21:16:46 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:64149 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932610AbWCGCQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 21:16:45 -0500
+From: Neil Brown <neilb@suse.de>
+To: Jan Blunck <jblunck@suse.de>
+Date: Tue, 7 Mar 2006 13:15:41 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141697051.9274.58.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17420.60621.425286.979327@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Olaf Hering <olh@suse.de>, Kirill Korotaev <dev@openvz.org>,
+       Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
+In-Reply-To: message from Jan Blunck on Monday March 6
+References: <17414.38749.886125.282255@cse.unsw.edu.au>
+	<17419.53761.295044.78549@cse.unsw.edu.au>
+	<20060306115602.GC22832@hasse.suse.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Hansen (haveblue@us.ibm.com) wrote:
-> Yup, that is missing for now.  We couldn't agree on quite which
-> implementation we want for basic containers/vservers/vpses.  So, for
-> now, making it useful is left as an exercise to the reader. :)
+On Monday March 6, jblunck@suse.de wrote:
+> 
+> This are two different problems which you adress with this and your first
+> patch. This one is to prevent busy inodes on umouny, the first one was to get
+> the reference counting on dentries right.
 
-;-)
+I think that solving the "busy inodes" problem is sufficient.  The
+reference count on dentries isn't *wrong* as someone is actually
+holding a reference.  It is just that generic_shutdown_super doesn't
+expect anyone else to hold any references.  Fixing the "busy inodes"
+problem means that no-one else will be holding any references, so it
+becomes a non-problem.
+> 
+> Neil, did you actually read my patch for this one?!
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=114123870406751&w=2
 
-> BTW, the current code _is_ potentially context sensitive because
-> "current" provides much of the context that we will ever need.
+No, I didn't :-(  I obviously didn't do enough homework.
 
-Right.  More a question of sysadmin lowering limits which aren't seen
-in any context but sysadmin context.  But from your comments above and
-in other mail, I understand the requirements aren't fully baked yet.
+The significant differences seem to be:
+ - you test ->s_prunes inside the spinlock.  I don't bother.  Yours is
+   probably safer.
+ - You call wake_up every time through prune_one_dentry while I try to
+   limit the calls.  As each call is a function call and a spinlock,
+   maybe at least guard it with
+      if(waitqueue_active()) ...
 
-thanks,
--chris
+
+> 
+> What I don't like, is that you are serializing the work of shrink_dcache_*
+> although they could work in parallel on different processors.
+
+I don't see how I am parallelising anything.  Multiple shrink_dcache_*
+can still run.  The only place that extra locking is done is in
+generic_shutdown_super.
+
+But what do you think of Balbir Singh's patch?  I think it is less
+intrusive and solves the problem just a well.
+
+Thanks,
+NeilBrown
+
+

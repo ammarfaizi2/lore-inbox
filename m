@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWCGBQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbWCGBYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbWCGBQs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWCGBQs
+	id S932589AbWCGBYo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:24:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbWCGBYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:16:48 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18623 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932587AbWCGBQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:16:47 -0500
-Date: Mon, 06 Mar 2006 18:02:34 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-In-reply-to: <5NnDE-44v-11@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <440CCD9A.3070907@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5N5Ql-30C-11@gated-at.bofh.it> <5NnDE-44v-11@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 6 Mar 2006 20:24:44 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:37550 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932589AbWCGBYn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:24:43 -0500
+Date: Tue, 7 Mar 2006 01:24:38 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, serue@us.ibm.com, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, Herbert Poetzl <herbert@13thfloor.at>,
+       Sam Vilain <sam@vilain.net>
+Subject: Re: [RFC][PATCH 1/6] prepare sysctls for containers
+Message-ID: <20060307012438.GL27946@ftp.linux.org.uk>
+References: <20060306235248.20842700@localhost.localdomain> <20060306235249.880CB28A@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306235249.880CB28A@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> This started to happen in a lot of PCI drivers once it became
-> necessary to call pci_enable_device() in order to make the
-> returned IRQ values valid. This has been reported numerious
-> times and has not been fixed. Basically, in order to get
-> the correct value, one needs to disable the board in some
-> unspecified way so it is not possible for it to generate
-> an interrupt before enabling the board. With some devices
-> this may not be possible!
+On Mon, Mar 06, 2006 at 03:52:49PM -0800, Dave Hansen wrote:
+> 
+> Right now, sysctls can only deal with global variables.  This
+> patch makes them a _little_ more flexible by allowing there to
+> be an accessor function to get at the variable being changed,
+> instead of it being global.
+> 
+> This allows the sysctls to be backed by variables that are,
+> for instance, dynamically allocated and not available at
+> compile-time.
+> 
+> This also provides a very simple mechanism to take things that
+> are currently global and containerize them.
+> 
 
-What kind of board behaves that way? pci_enable_device just enables the 
-device BARs and wakes it up if it was suspended, I should think that any 
-device that starts generating interrupts from that must be quite broken..
+This is disgusting.  Please, don't pile more and more complexity into
+sysctl_table - it's already choke-full of it and needs to be simplified,
+not to grow more crap.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+NAK.

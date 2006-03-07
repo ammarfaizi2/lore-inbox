@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752023AbWCGIK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWCGIX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752023AbWCGIK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 03:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWCGIK2
+	id S1752096AbWCGIX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 03:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWCGIX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 03:10:28 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:30126 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752023AbWCGIK2
+	Tue, 7 Mar 2006 03:23:26 -0500
+Received: from c-68-35-68-128.hsd1.nm.comcast.net ([68.35.68.128]:25028 "EHLO
+	deneb.dwf.com") by vger.kernel.org with ESMTP id S1752096AbWCGIX0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 03:10:28 -0500
-Date: Tue, 7 Mar 2006 13:39:22 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       fabbione@ubuntu.com, akpm@osdl.org
-Subject: Re: VFS nr_files accounting
-Message-ID: <20060307080922.GC5946@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060306.123904.35238417.davem@davemloft.net> <20060307064120.GA5946@in.ibm.com> <440D2DDA.7040209@yahoo.com.au> <20060306.230030.131765838.davem@davemloft.net>
+	Tue, 7 Mar 2006 03:23:26 -0500
+Message-Id: <200603070823.k278NE9o006674@deneb.dwf.com>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Reg Clemens <reg@dwf.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, reg@deneb.dwf.com
+Subject: Re: vmlinuz-2.6.16-rc5-git8 still nogo with Intel D945 Motherboard 
+In-reply-to: <1141703317.25487.142.camel@mindpipe> 
+References: <200603070340.k273ev0A003594@deneb.dwf.com> 
+ <1141703317.25487.142.camel@mindpipe>
+Comments: In-reply-to Lee Revell <rlrevell@joe-job.com>
+   message dated "Mon, 06 Mar 2006 22:48:36 -0500."
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060306.230030.131765838.davem@davemloft.net>
-User-Agent: Mutt/1.5.10i
+Date: Tue, 07 Mar 2006 01:23:14 -0700
+From: Reg Clemens <reg@dwf.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 11:00:30PM -0800, David S. Miller wrote:
-> From: Nick Piggin <nickpiggin@yahoo.com.au>
-> Date: Tue, 07 Mar 2006 17:53:14 +1100
+> On Mon, 2006-03-06 at 20:40 -0700, Reg Clemens wrote:
+> > 
+> > Anyone working this problem? 
 > 
-> > The other thing that is typically done for regressions like these
-> > close to release time is to revert the offending changes. I figure
-> > that in this case, such an option is probably _more_ risky.
+> Why don't you try to narrow it down some?
 > 
-> Especially since we're talking about something that went into
-> 2.6.14
 
-Without a doubt, yes. Waaaay more risky. Compared to that the
-rcu-batch-tuning and fix-file-counting are a cakewalk. It would
-however be nice if Christoph or Viro gives the file counting
-patch a look-over just so that I didn't break any sysctl
-stuff.
+For what its worth, this is a D945GNT
+It has ICH7 series Video/Sound/Ethernet on board.
+The Video works in vesa mode, but not in native mode.
+The sound is not recognized.
+The ethernet is recognized by some kernels, but does not work.
+It has ATA and SATA which both work.
 
-Thanks
-Dipankar
+My sound card is a Nvidia 6600, it works fine with 2.6.11.
+
+At the moment I run with a 2.6.11 kernel, an ethernet card and a Soundblaster.
+Other than the Onboard hardware not being supported, things work with the
+2.6.11 kernel.  this PCI error only occurs with later kernels.
+
+I could play halfsies to determine just when the PCI error starts, but
+another responder had noted that he had similar problems after some
+'large PCI changes'  (Im sure he mentioned what version they occurred
+in, but it would take some searching to find his e-mail)
+
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
+
+

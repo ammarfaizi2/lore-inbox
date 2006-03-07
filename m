@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752475AbWCGCCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752474AbWCGCDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752475AbWCGCCp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 21:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752474AbWCGCCp
+	id S1752474AbWCGCDS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 21:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752477AbWCGCDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 21:02:45 -0500
-Received: from noname.neutralserver.com ([70.84.186.210]:37087 "EHLO
-	noname.neutralserver.com") by vger.kernel.org with ESMTP
-	id S1752475AbWCGCCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 21:02:44 -0500
-Date: Tue, 7 Mar 2006 04:04:11 +0200
-From: Dan Aloni <da-x@monatomic.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: "David S. Miller" <davem@davemloft.net>, drepper@gmail.com,
+	Mon, 6 Mar 2006 21:03:18 -0500
+Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:64767 "EHLO
+	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
+	id S1752474AbWCGCDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 21:03:17 -0500
+Date: Tue, 07 Mar 2006 11:03:14 +0900 (JST)
+Message-Id: <20060307.110314.00927749.nemoto@toshiba-tops.co.jp>
+To: akpm@osdl.org
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Status of AIO
-Message-ID: <20060307020411.GA21626@localdomain>
-References: <20060306233300.GR20768@kvack.org> <20060306.162444.107249907.davem@davemloft.net> <20060307004237.GT20768@kvack.org> <20060306.165129.62204114.davem@davemloft.net> <20060307013915.GU20768@kvack.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060307013915.GU20768@kvack.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - noname.neutralserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - monatomic.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Subject: Re: [PATCH] 64bit unaligned access on 32bit kernel
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060306170552.0aab29c5.akpm@osdl.org>
+References: <20050830104056.GA4710@linux-mips.org>
+	<20060306.203218.69025300.nemoto@toshiba-tops.co.jp>
+	<20060306170552.0aab29c5.akpm@osdl.org>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 08:39:15PM -0500, Benjamin LaHaise wrote:
-> On Mon, Mar 06, 2006 at 04:51:29PM -0800, David S. Miller wrote:
-> > I think any such VM tricks need serious thought.  It has serious
-> > consequences as far as cost especially on SMP.  Evgivny has some data
-> > that shows this, and chapter 5 of Networking Algorithmics has a lot of
-> > good analysis and paper references on this topic.
-> 
-> VM tricks do suck, so you just have to use the tricks that nobody else 
-> is...  My thinking is to do something like the following: have a structure 
-> to reference a set of pages.  When it is first created, it takes a reference 
-> on the pages in question, and it is added to the vm_area_struct of the user 
-> so that the vm can poke it for freeing when memory pressure occurs.  The 
-> sk_buff dataref also has to have a pointer to the pageref added.  Now, the 
-> trick to making it useful is as follows:
-> 
-> 	struct pageref {
-> 		atomic_t	free_count;
-> 		int		use_count;	/* protected by socket lock */
-> 		...
-> 		unsigned long	user_address;
-> 		unsigned long	length;
-> 		struct socket	*sock;		/* backref for VM */
-> 		struct page	*pages[];
-> 	};
-[...]
-> 
-> It's probably easier to show this tx path with code that gets the details 
-> right.
+>>>>> On Mon, 6 Mar 2006 17:05:52 -0800, Andrew Morton <akpm@osdl.org> said:
+>> Use __u64 instead of __typeof__(*(ptr)) for temporary variable to
+>> get rid of errors on gcc 4.x.
 
-This somehow resembles the scatter-gatter lists already used in some 
-subsystems such as the SCSI sg driver. 
+akpm> I worry about what impact that change might have on code
+akpm> generation.  Hopefully none, if gcc is good enough.
 
-BTW you have to make these pages Copy-On-Write before this procedure 
-starts because you wouldn't want it to accidently fill the zero page, 
-i.e. the VM will have to supply a unique set of pages otherwise it 
-messes up.
+akpm> But I cannot think of a better fix.
 
--- 
-Dan Aloni
-da-x@monatomic.org, da-x@colinux.org, da-x@gmx.net, dan@xiv.co.il
+As I tested on MIPS gcc 3.x, the impact is not none, but not so huge.
+And it becomes much smaller with gcc 4.x.
+
+---
+Atsushi Nemoto

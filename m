@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWCGPka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWCGPrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWCGPka (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 10:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWCGPka
+	id S1751237AbWCGPrh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 10:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWCGPrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 10:40:30 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:40355 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S1751192AbWCGPka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 10:40:30 -0500
-Message-ID: <440DA96B.5010604@isotton.com>
-Date: Tue, 07 Mar 2006 16:40:27 +0100
-From: Aaron Isotton <aaron@isotton.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 7 Mar 2006 10:47:37 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:53940 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751237AbWCGPrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 10:47:36 -0500
+X-Sasl-enc: rbkIGC+YD7MQDbHN95pUH025w8xrMSpow15TRsm/PQLX 1141746434
+Date: Tue, 7 Mar 2006 12:47:10 -0300
+From: Henrique de Moraes Holschuh <hmh@debian.org>
+To: Dave Peterson <dsp@llnl.gov>, Andrew Morton <akpm@osdl.org>,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       bluesmoke-devel@lists.sourceforge.net, thayne@realmsys.com
+Subject: Re: [PATCH 7/15] EDAC: i82875p cleanup
+Message-ID: <20060307154710.GA23763@khazad-dum.debian.net>
+References: <200603031047.01445.dsp@llnl.gov> <20060307050609.GA32733@zhen-devel.sh.intel.com>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: What is this: skge Ram read/write data parity error
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 32701;
-	Body=1 Fuz1=1 Fuz2=1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060307050609.GA32733@zhen-devel.sh.intel.com>
+X-GPG-Fingerprint: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 07 Mar 2006, Wang Zhenyu wrote:
+> On 2006.03.04 02:47:01 +0000, Dave Peterson wrote:
+> >    On Thursday 02 March 2006 18:30, Andrew Morton wrote:
+> >    > Dave Peterson <dsp@llnl.gov> wrote:
+> >    > >  +#ifdef CORRECT_BIOS
+> >    > >  +fail0:
+> >    > >  +#endif
+> >    >
+> >    > What is CORRECT_BIOS?  Is the fact that it's never defined some sort of
+> >    > commentary?  ;)
+> >    I'm not sure about this.  I'm cc'ing Thayne Harbaugh and Wang Zhenyu since
+> >    their names are in the credits for the i82875p module.  Maybe they can
+> >    provide some info.
+> 
+> You can take CORRECT_BIOS as "strict-pci-resource-reserve" for overflow device
+> in 82875p, some bad BIOS does make it reserved, which cause pci_request_region()
+> failed.  Actually we never defined it. 
 
-Since some time I'm getting the following log entries under 2.6.15:
+Bad? :-)  It would be bad only if they didn't *hide* the overflow device.
+Regardless of the overflow device being hidden or not, that area is really
+in use, and should be known to be in use.  How can you know it is in use if
+the device is hidden, unless the BIOS reserves it?
 
-Mar  7 05:42:48 tiger kernel: skge Ram write data parity error
-Mar  7 05:42:48 tiger kernel: skge Ram read data parity error
+Let's call that "inconvenient" BIOSes instead...
 
-Does this mean my hardware is faulty? The error message seems to imply
-that, but since I am not experiencing any problems and a comment in
-skge.c says
-
-/* Parity errors seem to happen when Genesis is connected to a switch
- * with no other ports present. Heartbeat error??
- */
-
-talking about some other sort of parity error though ("mac parity") I'm
-not sure any more. Can anybody enlighten me?	
-
-Thanks,
-Aaron
 -- 
-Aaron Isotton | http://www.isotton.com/
-I'll give you a definite maybe. --Samuel Goldwyn
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

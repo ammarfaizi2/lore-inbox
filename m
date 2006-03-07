@@ -1,71 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWCGVQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWCGVWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWCGVQL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 16:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWCGVQL
+	id S932302AbWCGVWT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 16:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWCGVWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 16:16:11 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:10371 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S932284AbWCGVQK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 16:16:10 -0500
-Message-ID: <440DF802.8@tlinx.org>
-Date: Tue, 07 Mar 2006 13:15:46 -0800
-From: Linda Walsh <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 7 Mar 2006 16:22:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:39590 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932302AbWCGVWT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 16:22:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TEo/dO69wIMKgSHgJOM6vnI4aEzvLkHKfpT4YlKev1elHpd9TYUhDV2r/MB7tEWlTRl1RJdS9P0GvG62zfP3V0dPgsbNPasEFmgfYMbOLG8RHbvI8VCKV2orq3q3Xwc1LLB1bWrHOa17CFhwtbJNykpvucGYFWG74TAa9JuB2SE=
+Message-ID: <9a8748490603071322r624957c1ked074a7bf7263c20@mail.gmail.com>
+Date: Tue, 7 Mar 2006 22:22:18 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.16-rc5-mm3
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060307021929.754329c9.akpm@osdl.org>
 MIME-Version: 1.0
-To: Marr <marr@flex.com>
-CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()'
- Calls From 2.4 to 2.6 -- VMM Change?)
-References: <200602241522.48725.marr@flex.com> <4403935A.3080503@tmr.com> <440B6E05.9010609@tlinx.org> <200603071453.46768.marr@flex.com>
-In-Reply-To: <200603071453.46768.marr@flex.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060307021929.754329c9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marr wrote:
-> On Sunday 05 March 2006 6:02pm, Linda Walsh wrote:
->> Does this happen with a seek call as well, or is this limited
->> to fseek?
->>
->> if you look at "hdparm's" idea of read-ahead, what does it say
->> for the device?.  I.e.:
->>
->> hdparm /dev/hda:
->>
->> There is a line entitled "readahead".  What does it say?
+On 3/7/06, Andrew Morton <akpm@osdl.org> wrote:
 >
-> Linda,
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/
 >
-> I don't know (based on your email addressing) if you were directing this 
-> question at me, but since I'm the guy who originally reported this issue, 
-> here are my 'hdparm' results on my (standard Slackware 10.2) ReiserFS 
-> filesystem:
->
->    2.6.13 (with 'nolargeio=1' for reiserfs mount): 
->       readahead    = 256 (on)
->
->    2.6.13 (without 'nolargeio=1' for reiserfs mount): 
->       readahead    = 256 (on)
->
->    2.4.31 ('nolargeio' option irrelevant/unavailable for 2.4.x): 
->       readahead    = 8 (on)
->
-> *** Please CC: me on replies -- I'm not subscribed.
->
-> Regards,
-> Bill Marr
---------
-    Could you retry your test with read-ahead set to a smaller
-value?  Say the same as in 2.4 (8) or 16 and see if that changes
-anything?
 
-hdparm -a8 /dev/hdx
-  or
-hdparm -a16 /dev/hdx
+Just for the record; the slab corruption I was seeing with
+2.6.16-rc5-mm2 does not occour with this kernel.
+After a lot of rebuilds and very good bug hunting by various people we
+found the offensive patch and it seems you removed it from -mm -
+thanks.
 
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

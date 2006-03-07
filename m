@@ -1,124 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752051AbWCGKm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752093AbWCGKub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752051AbWCGKm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 05:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752031AbWCGKm1
+	id S1752093AbWCGKub (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 05:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWCGKub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 05:42:27 -0500
-Received: from ozlabs.org ([203.10.76.45]:7078 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1752051AbWCGKm1 (ORCPT
+	Tue, 7 Mar 2006 05:50:31 -0500
+Received: from mail.gmx.net ([213.165.64.20]:48547 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1752093AbWCGKub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 05:42:27 -0500
-To: Greg Kroah-Hartman <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-From: Michael Ellerman <michael@ellerman.id.au>
-Date: Tue, 07 Mar 2006 21:41:59 +1100
-Subject: [PATCH] debugfs: Add debugfs_create_blob() helper for exporting binary data
-Message-Id: <20060307104225.E0DDA679E6@ozlabs.org>
+	Tue, 7 Mar 2006 05:50:31 -0500
+X-Authenticated: #14349625
+Subject: p4_clockmod weirdness
+From: Mike Galbraith <efault@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 11:50:56 +0100
+Message-Id: <1141728656.7951.44.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wanted to export a binary blob via debugfs, and although it was pretty easy
-it seems like it'd be easier if there was a helper for it. It's a pity we need
-the wrapper struct but I can't see a cleaner way to do it.
+Greetings,
 
-Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
----
+I recently found that recalc_task_prio() is being called with now <
+p->timestamp on my system.  The debug code below leads to the output
+below that.  This only happens if the kernel for my single P4 system is
+compiled SMP, which seems strange, because traces showed that tasks were
+not migrating back and forth between the real CPU and it's retarded
+little brother (ergo unlikely to be synchronization between multiple
+counters which may or may not even exist in a single p4;).  It seemed to
+me that if power saving frequency switching (which I know zero about) is
+causing this, the same thing should happen whether compiled as UP or
+SMP.
 
- fs/debugfs/file.c       |   46 ++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/debugfs.h |   15 +++++++++++++++
- 2 files changed, 61 insertions(+)
+if (unlikely(now < p->timestamp)) {
+	unsigned long long clock = sched_clock();
+	unsigned long long warp;
 
-Index: kdump/fs/debugfs/file.c
-===================================================================
---- kdump.orig/fs/debugfs/file.c
-+++ kdump/fs/debugfs/file.c
-@@ -251,3 +251,49 @@ struct dentry *debugfs_create_bool(const
- }
- EXPORT_SYMBOL_GPL(debugfs_create_bool);
- 
-+static ssize_t read_file_blob(struct file *file, char __user *user_buf,
-+			      size_t count, loff_t *ppos)
-+{
-+	struct debugfs_blob_wrapper *blob = file->private_data;
-+	return simple_read_from_buffer(user_buf, count, ppos, blob->data,
-+			blob->size);
-+}
-+
-+static struct file_operations fops_blob = {
-+	.read =		read_file_blob,
-+	.open =		default_open,
-+};
-+
-+/**
-+ * debugfs_create_blob - create a file in the debugfs filesystem that is
-+ * used to read and write a binary blob.
-+ *
-+ * @name: a pointer to a string containing the name of the file to create.
-+ * @mode: the permission that the file should have
-+ * @parent: a pointer to the parent dentry for this file.  This should be a
-+ *          directory dentry if set.  If this paramater is NULL, then the
-+ *          file will be created in the root of the debugfs filesystem.
-+ * @blob: a pointer to a struct debugfs_blob_wrapper which contains a pointer
-+ *        to the blob data and the size of the data.
-+ *
-+ * This function creates a file in debugfs with the given name that exports
-+ * @blob->data as a binary blob. If the @mode variable is so set it can be
-+ * read from. Writing is not supported.
-+ *
-+ * This function will return a pointer to a dentry if it succeeds.  This
-+ * pointer must be passed to the debugfs_remove() function when the file is
-+ * to be removed (no automatic cleanup happens if your module is unloaded,
-+ * you are responsible here.)  If an error occurs, NULL will be returned.
-+ *
-+ * If debugfs is not enabled in the kernel, the value -ENODEV will be
-+ * returned.  It is not wise to check for this value, but rather, check for
-+ * NULL or !NULL instead as to eliminate the need for #ifdef in the calling
-+ * code.
-+ */
-+struct dentry *debugfs_create_blob(const char *name, mode_t mode,
-+				   struct dentry *parent,
-+				   struct debugfs_blob_wrapper *blob)
-+{
-+	return debugfs_create_file(name, mode, parent, blob, &fops_blob);
-+}
-+EXPORT_SYMBOL_GPL(debugfs_create_blob);
-Index: kdump/include/linux/debugfs.h
-===================================================================
---- kdump.orig/include/linux/debugfs.h
-+++ kdump/include/linux/debugfs.h
-@@ -21,6 +21,11 @@
- 
- struct file_operations;
- 
-+struct debugfs_blob_wrapper {
-+	void *data;
-+	unsigned long size;
-+};
-+
- #if defined(CONFIG_DEBUG_FS)
- struct dentry *debugfs_create_file(const char *name, mode_t mode,
- 				   struct dentry *parent, void *data,
-@@ -39,6 +44,9 @@ struct dentry *debugfs_create_u32(const 
- struct dentry *debugfs_create_bool(const char *name, mode_t mode,
- 				  struct dentry *parent, u32 *value);
- 
-+struct dentry *debugfs_create_blob(const char *name, mode_t mode,
-+				  struct dentry *parent,
-+				  struct debugfs_blob_wrapper *blob);
- #else
- 
- #include <linux/err.h>
-@@ -94,6 +102,13 @@ static inline struct dentry *debugfs_cre
- 	return ERR_PTR(-ENODEV);
- }
- 
-+static inline struct dentry *debugfs_create_blob(const char *name, mode_t mode,
-+				  struct dentry *parent,
-+				  struct debugfs_blob_wrapper *blob)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
-+
- #endif
- 
- #endif
+	warp = clock - now;
+	__sleep_time = 0ULL;
+	if (jiffies > INITIAL_JIFFIES + 60000) // only to improve survivability
+		printk(KERN_ERR "%s:%d now:%Lu stamp:%Lu clock:%Lu warp:%Lu\n",
+		p->comm, p->pid, now, p->timestamp, clock, warp);
+}
+
+konsole:7630 now:168775258387 stamp:168775259360 clock:168775262028 warp:3641
+konsole:7630 now:169439733481 stamp:169439734665 clock:169439737077 warp:3596
+konsole:7630 now:169598589224 stamp:169598590376 clock:169598592795 warp:3571
+konsole:7630 now:169756488313 stamp:169756489545 clock:169756491846 warp:3533
+konsole:7630 now:170187200934 stamp:170187201938 clock:170187204705 warp:3771
+X:6907 now:171350486801 stamp:171350487465 clock:171350490314 warp:3513
+konsole:7630 now:171361246237 stamp:171361247379 clock:171361249920 warp:3683
+konsole:7630 now:171558121226 stamp:171558122502 clock:171558124855 warp:3629
+konsole:7630 now:171950822632 stamp:171950823914 clock:171950826323 warp:3691
+
+Tinkering with this problem, I noticed a correlation.  p4_clockmod
+gripes loudly and bales for half of my CPU, namely the real half.  It's
+happy with the sibling, and enables scaling in SMP mode only for the
+sibling. In UP, it of course just bales.  SMP mode, half-assed frequency
+scaling and problem.  UP mode, no frequency scaling, and no problem.
+However, the problem is there in SMP mode whether I load p4_clockmod or
+not, or have it compiled in or not.
+
+cpufreq-core: trying to register driver p4-clockmod
+cpufreq-core: adding CPU 0
+p4-clockmod: has errata -- disabling frequencies lower than 2ghz
+speedstep-lib: x86: f, model: 2
+speedstep-lib: ebx value is 9, x86_mask is 9
+speedstep-lib: P4 - MSR_EBC_FREQUENCY_ID: 0xf12000f 0x0
+speedstep-lib: P4 - FSB 200000 kHz; Multiplier 15; Speed 3000000 kHz
+freq-table: setting show_table for cpu 0 to f8d18720
+freq-table: table entry 0 is invalid, skipping
+freq-table: table entry 1 is invalid, skipping
+freq-table: table entry 2 is invalid, skipping
+freq-table: table entry 3 is invalid, skipping
+freq-table: table entry 4 is invalid, skipping
+freq-table: table entry 5 is invalid, skipping
+freq-table: table entry 6 is invalid, skipping
+freq-table: table entry 7 is invalid, skipping
+freq-table: table entry 8 is invalid, skipping
+cpufreq-core: initialization failed
+cpufreq-core: adding CPU 1
+p4-clockmod: has errata -- disabling frequencies lower than 2ghz
+speedstep-lib: x86: f, model: 2
+speedstep-lib: ebx value is 9, x86_mask is 9
+speedstep-lib: P4 - MSR_EBC_FREQUENCY_ID: 0xf12000f 0x0
+speedstep-lib: P4 - FSB 200000 kHz; Multiplier 15; Speed 3000000 kHz
+freq-table: setting show_table for cpu 1 to f8d18720
+freq-table: table entry 0 is invalid, skipping
+freq-table: table entry 1: 375000 kHz, 1 index
+freq-table: table entry 2: 750000 kHz, 2 index
+freq-table: table entry 3: 1125000 kHz, 3 index
+freq-table: table entry 4: 1500000 kHz, 4 index
+freq-table: table entry 5: 1875000 kHz, 5 index
+freq-table: table entry 6: 2250000 kHz, 6 index
+freq-table: table entry 7: 2625000 kHz, 7 index
+freq-table: table entry 8: 3000000 kHz, 8 index
+cpufreq-core: setting new policy for CPU 1: 375000 - 3000000 kHz
+freq-table: request for verification of policy (375000 - 3000000 kHz) for cpu 1
+freq-table: verification lead to (375000 - 3000000 kHz) for cpu 1
+freq-table: request for verification of policy (375000 - 3000000 kHz) for cpu 1
+freq-table: verification lead to (375000 - 3000000 kHz) for cpu 1
+cpufreq-core: new min and max freqs are 375000 - 3000000 kHz
+cpufreq-core: governor switch
+cpufreq-core: __cpufreq_governor for CPU 1, event 1
+performance: setting to 3000000 kHz because of event 1
+cpufreq-core: target for CPU 1: 3000000 kHz, relation 1
+freq-table: request for target 3000000 kHz (relation: 1) for cpu 1
+freq-table: target is 8 (3000000 kHz, 8)
+cpufreq-core: governor: change or update limits
+cpufreq-core: __cpufreq_governor for CPU 1, event 3
+performance: setting to 3000000 kHz because of event 3
+cpufreq-core: target for CPU 1: 3000000 kHz, relation 1
+freq-table: request for target 3000000 kHz (relation: 1) for cpu 1
+freq-table: target is 8 (3000000 kHz, 8)
+cpufreq-core: initialization complete
+cpufreq-core: driver p4-clockmod up and running
+p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
+whoami:7818 now:173037394175 stamp:173037394416 clock:173037397434 warp:3259
+konsole:7630 now:173056342791 stamp:173056343848 clock:173056346553 warp:3762
+konsole:7630 now:176252452790 stamp:176252453850 clock:176252456318 warp:3528
+konsole:7630 now:176566223402 stamp:176566224535 clock:176566227049 warp:3647
+konsole:7630 now:176605227603 stamp:176605228789 clock:176605231297 warp:3694
+konsole:7630 now:177233688054 stamp:177233689160 clock:177233691714 warp:3660
+konsole:7630 now:177353592995 stamp:177353594229 clock:177353596643 warp:3648
+konsole:7630 now:179585880188 stamp:179585881413 clock:179585883863 warp:3675
+konsole:7630 now:179938657279 stamp:179938658134 clock:179938660897 warp:3618
+konsole:7630 now:180177457448 stamp:180177458753 clock:180177461266 warp:3818
+
+	-Mike
+

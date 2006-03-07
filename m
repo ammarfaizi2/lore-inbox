@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWCGTYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWCGT2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWCGTYr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 14:24:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932266AbWCGTYq
+	id S932280AbWCGT2k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 14:28:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWCGT2k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 14:24:46 -0500
-Received: from mx2.suse.de ([195.135.220.15]:40671 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932262AbWCGTYp (ORCPT
+	Tue, 7 Mar 2006 14:28:40 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:6889 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932242AbWCGT2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 14:24:45 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
+	Tue, 7 Mar 2006 14:28:39 -0500
 Subject: Re: [PATCH] Document Linux's memory barriers
-Date: Tue, 7 Mar 2006 12:57:23 +0100
-User-Agent: KMail/1.9.1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
 Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
        mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-References: <200603071134.52962.ak@suse.de> <7621.1141756240@warthog.cambridge.redhat.com> <1141759408.2617.9.camel@serpentine.pathscale.com>
-In-Reply-To: <1141759408.2617.9.camel@serpentine.pathscale.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0603071346540.9814@chaos.analogic.com>
+References: <31492.1141753245@warthog.cambridge.redhat.com>
+	 <1141756825.31814.75.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0603071346540.9814@chaos.analogic.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603071257.24234.ak@suse.de>
+Date: Tue, 07 Mar 2006 19:33:41 +0000
+Message-Id: <1141760021.2455.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 20:23, Bryan O'Sullivan wrote:
-> On Tue, 2006-03-07 at 18:30 +0000, David Howells wrote:
+On Maw, 2006-03-07 at 13:54 -0500, linux-os (Dick Johnson) wrote:
+> On Tue, 7 Mar 2006, Alan Cox wrote:
+> > 	writel(STOP_DMA, &foodev->ctrl);
+> > 	free_dma_buffers(foodev);
+> >
+> > This leads to horrible disasters.
 > 
-> > True, I suppose. I should make it clear that these accessor functions imply
-> > memory barriers, if indeed they do,
+> This might be a good place to document:
+>     dummy = readl(&foodev->ctrl);
+
+Absolutely. And this falls outside of the memory barrier functions.
 > 
-> They don't, but according to Documentation/DocBook/deviceiobook.tmpl
-> they are performed by the compiler in the order specified.
+> Will flush all pending writes to the PCI bus and that:
+>     (void) readl(&foodev->ctrl);
+> ... won't because `gcc` may optimize it away. In fact, variable
+> "dummy" should be global or `gcc` may make it go away as well.
 
-I don't think that's correct. Probably the documentation should
-be fixed.
+If they were ordinary functions then maybe, but they are not so a simple
+readl(&foodev->ctrl) will be sufficient and isn't optimised away.
 
--Andi
+Alan
+

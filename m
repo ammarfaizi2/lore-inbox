@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752126AbWCGIwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752124AbWCGI4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752126AbWCGIwv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 03:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752124AbWCGIwv
+	id S1752124AbWCGI4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 03:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752125AbWCGI4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 03:52:51 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:27790 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752123AbWCGIwu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 03:52:50 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 7 Mar 2006 03:56:30 -0500
+Received: from trider-g7.fabbione.net ([195.22.207.161]:3809 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id S1752124AbWCGI4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 03:56:30 -0500
+Message-ID: <440D4A84.6090802@ubuntu.com>
+Date: Tue, 07 Mar 2006 09:55:32 +0100
+From: Fabio Massimo Di Nitto <fabbione@ubuntu.com>
+User-Agent: Mail/News 1.5 (X11/20060213)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
-Date: Tue, 7 Mar 2006 16:52:46 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B22A242@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
-thread-index: AcZBic7yCQpvpXbPShqNkM2Bnx6bXgANVMYQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Jaya Kumar" <jayakumar.acpi@gmail.com>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Mar 2006 08:52:47.0812 (UTC) FILETIME=[82100040:01C641C4]
+To: dipankar@in.ibm.com
+CC: "David S. Miller" <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: VFS nr_files accounting
+References: <20060306.123904.35238417.davem@davemloft.net> <20060307064120.GA5946@in.ibm.com> <440D2DDA.7040209@yahoo.com.au> <20060306.230030.131765838.davem@davemloft.net> <20060307080922.GC5946@in.ibm.com>
+In-Reply-To: <20060307080922.GC5946@in.ibm.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've added it as an attachment here. Please let me know if you get it.
->
-I just found this:
-            Device (SVG)
-                Device (LCD)
-It looks too simple to fit video.c.
+Dipankar Sarma wrote:
+> On Mon, Mar 06, 2006 at 11:00:30PM -0800, David S. Miller wrote:
+>> From: Nick Piggin <nickpiggin@yahoo.com.au>
+>> Date: Tue, 07 Mar 2006 17:53:14 +1100
+>>
+>>> The other thing that is typically done for regressions like these
+>>> close to release time is to revert the offending changes. I figure
+>>> that in this case, such an option is probably _more_ risky.
+>> Especially since we're talking about something that went into
+>> 2.6.14
+> 
+> Without a doubt, yes. Waaaay more risky. Compared to that the
+> rcu-batch-tuning and fix-file-counting are a cakewalk. It would
+> however be nice if Christoph or Viro gives the file counting
+> patch a look-over just so that I didn't break any sysctl
+> stuff.
+> 
+> Thanks
+> Dipankar
 
-But it is quite easy to implement in hotkey.c.
-Because it has dedicated device with HID and , 
-well-known method name.
+Considering the impact of the problem, wouldn't be wise to push
+the fix to -stable as well?
 
-Ideally, you can enable this jus like this:
-http://bugzilla.kernel.org/attachment.cgi?id=6843&action=view
+Thanks
+Fabio
 
-Note, the latest hotkey.c need patch at
-http://bugzilla.kernel.org/show_bug.cgi?id=5749
-
-
-Thanks,
-Luming
+-- 
+I'm going to make him an offer he can't refuse.

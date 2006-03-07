@@ -1,73 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752079AbWCGHQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752019AbWCGHUd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752079AbWCGHQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 02:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752087AbWCGHQ5
+	id S1752019AbWCGHUd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 02:20:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752087AbWCGHUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 02:16:57 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:27272 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1752079AbWCGHQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 02:16:57 -0500
-Message-ID: <440D3475.4040603@sw.ru>
-Date: Tue, 07 Mar 2006 10:21:25 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Tue, 7 Mar 2006 02:20:33 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:37380 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1752019AbWCGHUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 02:20:32 -0500
+Date: Tue, 7 Mar 2006 08:20:14 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Gerald Schaefer <geraldsc@de.ibm.com>,
+       David Howells <dhowells@redhat.com>
+Subject: [patch 1/3] s390: fix strnlen_user return value
+Message-ID: <20060307072014.GA9329@osiris.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: Neil Brown <neilb@suse.de>, Balbir Singh <bsingharora@gmail.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-References: <17414.38749.886125.282255@cse.unsw.edu.au> <17419.53761.295044.78549@cse.unsw.edu.au> <661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com> <17420.59580.915759.44913@cse.unsw.edu.au> <440D2536.60005@sw.ru> <20060307070301.GA12165@in.ibm.com>
-In-Reply-To: <20060307070301.GA12165@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>No, it looks as it is not :(
->>Have you noticed my comment about "count" argument to prune_dcache()?
->>For example, prune_dcache() is called from shrink_dcache_parent() which 
->>is called in many places and not all of them have PF_MEMALLOC or 
->>s_umount semaphore for write. But prune_dcache() doesn't care for super 
->>blocks etc. It simply shrinks N dentries which are found _first_.
->>
->>So the condition:
->>+		if ((current->flags & PF_MEMALLOC) &&
->>+			!(ret = down_read_trylock(&s->s_umount))) {
->>is not always true when the race occurs, as PF_MEMALLOC is not always set.
-> 
-> 
-> I understand your comment about shrink_dcache_parent() being called
-> from several places. prune_one_dentry() would eventually dput the parent,
-> but unmount would go ahead and unmount the filesystem before the
-> dput of the parent could happen.
-exactly.
+From: Gerald Schaefer <geraldsc@de.ibm.com>
 
-> Given that background, I thought our main concern was with respect to
-> unmount. The race was between shrink_dcache_parent() (called from unmount)
-> and shrink_dcache_memory() (called from the allocator), hence the fix
-> for the race condition.
-Partial fix doesn't make much sense from my point of view.
+strnlen_user is supposed to return then length count + 1 if no
+terminating \0 is found, and it should return 0 on exception.
+Found by David Howells <dhowells@redhat.com>.
 
-> I just noticied that 2.6.16-rc* now seems to have drop_slab() where
-> PF_MEMALLOC is not set. So, we can still race with my fix if there
-> if /proc/sys/vm/drop_caches is written to and unmount is done in parallel.
-> 
-> A simple hack would be to set PF_MEMALLOC in drop_slab(), but I do not
-> think it is a good idea.
-Yeah, playing with PF_MEMALLOC can be not so good idea :/
-And as it doesn't help in other cases it looks unpromising...
+Signed-off-by: Gerald Schaefer <geraldsc@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
->>>Have you had any other feedback on this?
->>here it is :)
-> Thanks for your detailed feedback
-Sorry, that I did it too late :/
+ arch/s390/lib/uaccess.S   |    6 +++---
+ arch/s390/lib/uaccess64.S |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-Thanks,
-Kirill
-
-
+diff -urpN linux-2.6/arch/s390/lib/uaccess64.S linux-2.6-patched/arch/s390/lib/uaccess64.S
+--- linux-2.6/arch/s390/lib/uaccess64.S	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6-patched/arch/s390/lib/uaccess64.S	2006-03-07 07:59:22.000000000 +0100
+@@ -194,12 +194,12 @@ __strnlen_user_asm:
+ 0:	srst	%r2,%r1
+ 	jo	0b
+ 	sacf	0
+-	jh	1f		# \0 found in string ?
+ 	aghi	%r2,1		# strnlen_user result includes the \0
+-1:	slgr	%r2,%r3
++				# or return count+1 if \0 not found
++	slgr	%r2,%r3
+ 	br	%r14
+ 2:	sacf	0
+-	lghi	%r2,-EFAULT
++	slgr	%r2,%r2		# return 0 on exception
+ 	br	%r14
+ 	.section __ex_table,"a"
+ 	.quad	0b,2b
+diff -urpN linux-2.6/arch/s390/lib/uaccess.S linux-2.6-patched/arch/s390/lib/uaccess.S
+--- linux-2.6/arch/s390/lib/uaccess.S	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6-patched/arch/s390/lib/uaccess.S	2006-03-07 07:59:22.000000000 +0100
+@@ -198,12 +198,12 @@ __strnlen_user_asm:
+ 0:	srst	%r2,%r1
+ 	jo	0b
+ 	sacf	0
+-	jh	1f		# \0 found in string ?
+ 	ahi	%r2,1		# strnlen_user result includes the \0
+-1:	slr	%r2,%r3
++				# or return count+1 if \0 not found
++	slr	%r2,%r3
+ 	br	%r14
+ 2:	sacf	0
+-	lhi	%r2,-EFAULT
++	slr	%r2,%r2		# return 0 on exception
+ 	br	%r14
+ 	.section __ex_table,"a"
+ 	.long	0b,2b

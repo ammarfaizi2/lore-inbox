@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWCGIX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752087AbWCGIWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752096AbWCGIX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 03:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWCGIX0
+	id S1752087AbWCGIWr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 03:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWCGIWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 03:23:26 -0500
-Received: from c-68-35-68-128.hsd1.nm.comcast.net ([68.35.68.128]:25028 "EHLO
-	deneb.dwf.com") by vger.kernel.org with ESMTP id S1752096AbWCGIX0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 03:23:26 -0500
-Message-Id: <200603070823.k278NE9o006674@deneb.dwf.com>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Reg Clemens <reg@dwf.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, reg@deneb.dwf.com
-Subject: Re: vmlinuz-2.6.16-rc5-git8 still nogo with Intel D945 Motherboard 
-In-reply-to: <1141703317.25487.142.camel@mindpipe> 
-References: <200603070340.k273ev0A003594@deneb.dwf.com> 
- <1141703317.25487.142.camel@mindpipe>
-Comments: In-reply-to Lee Revell <rlrevell@joe-job.com>
-   message dated "Mon, 06 Mar 2006 22:48:36 -0500."
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 07 Mar 2006 01:23:14 -0700
-From: Reg Clemens <reg@dwf.com>
+	Tue, 7 Mar 2006 03:22:47 -0500
+Received: from cernmx03.cern.ch ([137.138.166.166]:2592 "EHLO cernmxlb.cern.ch")
+	by vger.kernel.org with ESMTP id S1752087AbWCGIWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 03:22:46 -0500
+DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
+	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding;
+	b=G1GOn9VSLddsb611DO1Be8MYU1GogY9BDGHxncAqkb5anUljaJ5EOifDIYVp0dxjeXXy0wgIrM2lWdCqGknd5140I2f9NFZp8WBqQITjilLR/7+yvD9+xfIRqG8VLhG1;
+Keywords: CERN SpamKiller Note: -51 Charset: west-latin
+X-Filter: CERNMX03 CERN MX v2.0 051110.1345 Release
+Message-ID: <440D42D9.7000604@cern.ch>
+Date: Tue, 07 Mar 2006 09:22:49 +0100
+From: Jiri Tyr <jiri.tyr@cern.ch>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060128)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: mchehab@brturbo.com.br, video4linux-list@redhat.com, skinkie@xs4all.nl
+Subject: Re: PROBLEM: four bttv tuners in one PC crashed
+References: <440C5672.7000009@cern.ch> <200603061656.18846.duncan.sands@math.u-psud.fr>
+In-Reply-To: <200603061656.18846.duncan.sands@math.u-psud.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Mar 2006 08:22:41.0616 (UTC) FILETIME=[4D7C5D00:01C641C0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2006-03-06 at 20:40 -0700, Reg Clemens wrote:
-> > 
-> > Anyone working this problem? 
-> 
-> Why don't you try to narrow it down some?
-> 
+Stefan de Konink wrote:
 
-For what its worth, this is a D945GNT
-It has ICH7 series Video/Sound/Ethernet on board.
-The Video works in vesa mode, but not in native mode.
-The sound is not recognized.
-The ethernet is recognized by some kernels, but does not work.
-It has ATA and SATA which both work.
+>>I have removed all unnecessary things from kernel. Libata I need for
+>>SATA disk. Do you think that is some possibility how to make this four
+>>bttv tuners working?
+>>
+>What is your CONFIG_HZ setting? (100/250/1000 Hz)
+>  
+>
 
-My sound card is a Nvidia 6600, it works fine with 2.6.11.
+I'm using CONFIG_HZ=250. I have tryed also CONFIG_HZ=100, but it didn't
+helped.
 
-At the moment I run with a 2.6.11 kernel, an ethernet card and a Soundblaster.
-Other than the Onboard hardware not being supported, things work with the
-2.6.11 kernel.  this PCI error only occurs with later kernels.
+Ihave tryed to remove one of the four tuners and now I have no shared 
+IRQ, but the PC still freeze. It is bug in DMA or whats wrong?
 
-I could play halfsies to determine just when the PCI error starts, but
-another responder had noted that he had similar problems after some
-'large PCI changes'  (Im sure he mentioned what version they occurred
-in, but it would take some searching to find his e-mail)
-
--- 
-                                        Reg.Clemens
-                                        reg@dwf.com
-
+Jiri
 

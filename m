@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWCGHmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWCGHo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbWCGHmi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 02:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWCGHmi
+	id S932459AbWCGHo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 02:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWCGHo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 02:42:38 -0500
-Received: from ns.netmarketing.ro ([81.181.94.174]:30904 "EHLO netmarketing.ro")
-	by vger.kernel.org with ESMTP id S932441AbWCGHmi (ORCPT
+	Tue, 7 Mar 2006 02:44:57 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:11175 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932444AbWCGHo4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 02:42:38 -0500
-From: Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>
-To: opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
-Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
-Date: Tue, 7 Mar 2006 09:42:31 +0200
-User-Agent: KMail/1.9.1
-References: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
-In-Reply-To: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
-Organization: Field Insights
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 02:44:56 -0500
+Date: Tue, 7 Mar 2006 10:44:39 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ingo Oeser <netdev@axxeo.de>
+Cc: "David S. Miller" <davem@davemloft.net>, jengelh@linux01.gwdg.de,
+       christopher.leech@intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Message-ID: <20060307074438.GA22672@2ka.mipt.ru>
+References: <20060303214036.11908.10499.stgit@gitlost.site> <20060304.134144.122314124.davem@davemloft.net> <20060305014324.GA20026@2ka.mipt.ru> <200603061844.07439.netdev@axxeo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
-X-BitDefender-Scanner: Clean, Agent: BitDefender POSTFIX 1.6.2 on
- mail.netmarketing.ro
+In-Reply-To: <200603061844.07439.netdev@axxeo.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 07 Mar 2006 10:44:40 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 March 2006 14:47, s.schmidt@avm.de wrote:
+On Mon, Mar 06, 2006 at 06:44:07PM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
+> Evgeniy Polyakov wrote:
+> > On Sat, Mar 04, 2006 at 01:41:44PM -0800, David S. Miller (davem@davemloft.net) wrote:
+> > > From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+> > > Date: Sat, 4 Mar 2006 19:46:22 +0100 (MET)
+> > > 
+> > > > Does this buy the normal standard desktop user anything?
+> > > 
+> > > Absolutely, it optimizes end-node performance.
+> > 
+> > It really depends on how it is used.
+> > According to investigation made for kevent based FS AIO reading,
+> > get_user_pages() performange graph looks like sqrt() function
+> 
+> Hmm, so I should resurrect my user page table walker abstraction?
+> 
+> There I would hand each page to a "recording" function, which
+> can drop the page from the collection or coalesce it in the collector
+> if your scatter gather implementation allows it.
 
-> Even though people might do realtime DSP things in user space with Linux
-> and soft modems might work pretty well in userspace, in the case of Fax G3
-> an extremely short latency is required.
+It depends on where performance growth is stopped.
+>From the first glance it does not look like find_extend_vma(),
+probably follow_page() fault and thus __handle_mm_fault().
+I can not say actually, but if it is true and performance growth is
+stopped due to increased number of faults and it's processing, 
+your approach will hit this problem too, doesn't it?
 
-So basically we have to choose between:
+> Regards
+> 
+> Ingo Oeser
 
-1. keeping a stable open source kernel and sticking to the principles that got 
-Linux where it is now
-
-and
-
-2. Fax G3
-
-Umm...
-
+-- 
+	Evgeniy Polyakov

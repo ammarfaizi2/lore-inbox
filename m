@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWCGL2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWCGLeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWCGL2v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 06:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWCGL2v
+	id S932490AbWCGLeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 06:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752364AbWCGLen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 06:28:51 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:46555 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932460AbWCGL2u (ORCPT
+	Tue, 7 Mar 2006 06:34:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55973 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752169AbWCGLeT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 06:28:50 -0500
-Date: Tue, 7 Mar 2006 12:27:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jan Altenberg <tb10alj@tglx.de>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] realtime-preempt patch-2.6.15-rt19 compile error (was: realtime-preempt patch-2.6.15-rt18 issues)
-Message-ID: <20060307112744.GA1369@elte.hu>
-References: <45924.195.245.190.93.1141647094.squirrel@www.rncbc.org> <20060306132442.GA12359@elte.hu> <4547.195.245.190.94.1141657830.squirrel@www.rncbc.org> <440D54F2.2080009@tglx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440D54F2.2080009@tglx.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 7 Mar 2006 06:34:19 -0500
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 6/6] Optimise d_find_alias() [try #6]
+Date: Tue, 07 Mar 2006 11:34:04 +0000
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Message-Id: <20060307113404.23330.71158.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060307113352.23330.80913.stgit@warthog.cambridge.redhat.com>
+References: <20060307113352.23330.80913.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The attached patch optimises d_find_alias() to only take the spinlock if
+there's anything in the the inode's alias list. If there isn't, it returns NULL
+immediately.
 
-* Jan Altenberg <tb10alj@tglx.de> wrote:
+With respect to the superblock sharing patch, this should reduce by one the
+number of times the dcache_lock is taken by nfs_lookup() for ordinary
+directory lookups.
 
-> Hi,
-> 
-> > -rt19 doesn't compile here (either with CONFIG_EMBEDDED=y or not):
-> 
-> same problem here. Looks like a typo...
-> Am I right?
+Only in the case where there's already a dentry for particular directory inode
+(such as might happen when another mountpoint is rooted at that dentry) will
+the lock then be taken the extra time.
 
-> -       .spinlock = SPIN_LOCK_UNLOCKED(&cache_cache.spinlock),
-> +       .spinlock = SPIN_LOCK_UNLOCKED(cache_cache.spinlock),
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-indeed - i've uploaded -rt20 with this fix.
+ fs/dcache.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
 
-	Ingo
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 97e1e44..32051ba 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -325,10 +325,13 @@ static struct dentry * __d_find_alias(st
+ 
+ struct dentry * d_find_alias(struct inode *inode)
+ {
+-	struct dentry *de;
+-	spin_lock(&dcache_lock);
+-	de = __d_find_alias(inode, 0);
+-	spin_unlock(&dcache_lock);
++	struct dentry *de = NULL;
++	smp_rmb();
++	if (!list_empty(&inode->i_dentry)) {
++		spin_lock(&dcache_lock);
++		de = __d_find_alias(inode, 0);
++		spin_unlock(&dcache_lock);
++	}
+ 	return de;
+ }
+ 
+

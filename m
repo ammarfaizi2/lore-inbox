@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWCGRXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWCGR1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWCGRXj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 12:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWCGRXi
+	id S1751372AbWCGR1D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 12:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWCGR1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 12:23:38 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:6289 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751342AbWCGRXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 12:23:38 -0500
-Date: Tue, 7 Mar 2006 12:23:23 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Serge Noiraud <serge.noiraud@bull.net>
-cc: linux-kernel@vger.kernel.org, ltt-dev@shafik.org,
-       Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Subject: Re: RT patch and arch/i386/kernel/time.c question
-In-Reply-To: <200603071742.42262.Serge.Noiraud@bull.net>
-Message-ID: <Pine.LNX.4.58.0603071220100.15305@gandalf.stny.rr.com>
-References: <200603071742.42262.Serge.Noiraud@bull.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Mar 2006 12:27:03 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:37564 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751372AbWCGR1B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 12:27:01 -0500
+Date: Tue, 7 Mar 2006 11:26:51 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: ak@muc.de
+Cc: mulix@mulix.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] x86-64: free_bootmem_node needs __pa in allocate_aperture
+Message-ID: <20060307172651.GA26662@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+free_bootmem_node expects a physical address to be passed in, but
+__alloc_bootmem_node returns a virtual one.  That address needs to be
+translated to physical.
 
-On Tue, 7 Mar 2006, Serge Noiraud wrote:
+Thanks,
+Jon
 
-> hi,
->
-> 	I'm trying to port the LTTng patch over the rt20 and I got the following problem :
-> The LTTng patch try to modify the arch/i386/kernel/time.c file in which the
-> timer_interrupt function doesn't exist anymore.
->
-> In which file / function could I try to patch the equivalent function ?
->
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
 
-The -rt patch uses the lastest stuff from Thomas Gleixner, John Stultz and
-of course Ingo Molnar.  The functions you are interested in, are in
-kernel/time/ directory.  Take a look at clockevents.c and perhaps
-handle_tick().  I'm not sure what LTTng is doing there, but this will give
-you a direction in which way to look.
-
--- Steve
-
+diff -r 5647dfd5ed8a arch/x86_64/kernel/aperture.c
+--- a/arch/x86_64/kernel/aperture.c	Tue Mar  7 02:47:07 2006
++++ b/arch/x86_64/kernel/aperture.c	Tue Mar  7 10:59:55 2006
+@@ -60,7 +60,7 @@
+ 		printk("Cannot allocate aperture memory hole (%p,%uK)\n",
+ 		       p, aper_size>>10);
+ 		if (p)
+-			free_bootmem_node(nd0, (unsigned long)p, aper_size); 
++			free_bootmem_node(nd0, __pa(p), aper_size); 
+ 		return 0;
+ 	}
+ 	printk("Mapping aperture over %d KB of RAM @ %lx\n",

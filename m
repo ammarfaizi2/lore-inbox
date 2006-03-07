@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWCGRGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWCGRN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWCGRGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 12:06:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCGRGp
+	id S1751142AbWCGRN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 12:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWCGRN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 12:06:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23313 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751243AbWCGRGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 12:06:44 -0500
-Date: Tue, 7 Mar 2006 18:06:42 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andreas Happe <andreashappe@snikt.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linville@tuxdriver.com, jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm2: IPW_QOS: two remarks
-Message-ID: <20060307170642.GE3974@stusta.de>
-References: <20060303045651.1f3b55ec.akpm@osdl.org> <20060303152641.GR9295@stusta.de> <200603050146.27529.andreashappe@snikt.net>
+	Tue, 7 Mar 2006 12:13:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7622 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751142AbWCGRN3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 12:13:29 -0500
+Date: Tue, 7 Mar 2006 09:12:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] slab: fix offslab_limit in calculate_slab_order (Was:
+ Slab corruption in 2.6.16-rc5-mm2)
+In-Reply-To: <Pine.LNX.4.58.0603071042370.18351@sbz-30.cs.Helsinki.FI>
+Message-ID: <Pine.LNX.4.64.0603070911380.3573@g5.osdl.org>
+References: <200603060117.16484.jesper.juhl@gmail.com> 
+ <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>  <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
+  <200603062136.17098.jesper.juhl@gmail.com> 
+ <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com> 
+ <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com> 
+ <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+ <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+ <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org> <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
+ <Pine.LNX.4.58.0603071042370.18351@sbz-30.cs.Helsinki.FI>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603050146.27529.andreashappe@snikt.net>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 05, 2006 at 01:46:26AM +0100, Andreas Happe wrote:
-> On Friday 03 March 2006 16:26, Adrian Bunk wrote:
->...
-> > - please add a help text
+
+
+On Tue, 7 Mar 2006, Pekka J Enberg wrote:
 > 
-> i could add some stuff about WMM to its help text, but I think someone more 
-> involved with the ipw2200-project should do that.
+> No you're not, it's broken. However, I think you're forgetting to reset 
+> cachep->num when we go over MAX_GFP_ORDER, no?
 
-Even a short help text is better than no help text.
+No, we only ever set "cachep->num" for something that we've decided is 
+valid.
 
-> andy
->...
+"gfporder" can never be > MAX_GFP_ORDER inside the loop, because we just 
+iterate between 0..MAX_GFP_ORDER.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+		Linus

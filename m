@@ -1,77 +1,324 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752133AbWCGJoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWCGKRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752133AbWCGJoM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 04:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWCGJoM
+	id S1751433AbWCGKRL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 05:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWCGKRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 04:44:12 -0500
-Received: from mail.axxeo.de ([82.100.226.146]:31404 "EHLO mail.axxeo.de")
-	by vger.kernel.org with ESMTP id S1752133AbWCGJoL (ORCPT
+	Tue, 7 Mar 2006 05:17:11 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:48068 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751433AbWCGKRJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 04:44:11 -0500
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-Date: Tue, 7 Mar 2006 10:43:59 +0100
-User-Agent: KMail/1.7.2
+	Tue, 7 Mar 2006 05:17:09 -0500
+Date: Tue, 7 Mar 2006 13:16:53 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ingo Oeser <netdev@axxeo.de>
 Cc: "David S. Miller" <davem@davemloft.net>, jengelh@linux01.gwdg.de,
        christopher.leech@intel.com, linux-kernel@vger.kernel.org,
        netdev@vger.kernel.org
-References: <20060303214036.11908.10499.stgit@gitlost.site> <200603061844.07439.netdev@axxeo.de> <20060307074438.GA22672@2ka.mipt.ru>
-In-Reply-To: <20060307074438.GA22672@2ka.mipt.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Message-ID: <20060307101653.GA7276@2ka.mipt.ru>
+References: <20060303214036.11908.10499.stgit@gitlost.site> <200603061844.07439.netdev@axxeo.de> <20060307074438.GA22672@2ka.mipt.ru> <200603071043.59479.netdev@axxeo.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
 Content-Disposition: inline
-Message-Id: <200603071043.59479.netdev@axxeo.de>
+In-Reply-To: <200603071043.59479.netdev@axxeo.de>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 07 Mar 2006 13:16:54 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov wrote:
-> On Mon, Mar 06, 2006 at 06:44:07PM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
-> > Hmm, so I should resurrect my user page table walker abstraction?
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Mar 07, 2006 at 10:43:59AM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
+> Evgeniy Polyakov wrote:
+> > On Mon, Mar 06, 2006 at 06:44:07PM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
+> > > Hmm, so I should resurrect my user page table walker abstraction?
+> > > 
+> > > There I would hand each page to a "recording" function, which
+> > > can drop the page from the collection or coalesce it in the collector
+> > > if your scatter gather implementation allows it.
 > > 
-> > There I would hand each page to a "recording" function, which
-> > can drop the page from the collection or coalesce it in the collector
-> > if your scatter gather implementation allows it.
+> > It depends on where performance growth is stopped.
+> > From the first glance it does not look like find_extend_vma(),
+> > probably follow_page() fault and thus __handle_mm_fault().
+> > I can not say actually, but if it is true and performance growth is
+> > stopped due to increased number of faults and it's processing, 
+> > your approach will hit this problem too, doesn't it?
 > 
-> It depends on where performance growth is stopped.
-> From the first glance it does not look like find_extend_vma(),
-> probably follow_page() fault and thus __handle_mm_fault().
-> I can not say actually, but if it is true and performance growth is
-> stopped due to increased number of faults and it's processing, 
-> your approach will hit this problem too, doesn't it?
+> My approach reduced the number of loops performed and number
+> of memory needed at the expense of doing more work in the main
+> loop of get_user_pages. 
+> 
+> This was mitigated for the common case of getting just one page by 
+> providing a get_one_user_page() function.
+> 
+> The whole problem, why we need such multiple loops is that we have
+> no common container object for "IO vector + additional data".
+> 
+> So we always do a loop working over the vector returned by 
+> get_user_pages() all the time. The bigger that vector, 
+> the bigger the impact.
+> 
+> Maybe sth. as simple as providing get_user_pages() with some offset_of 
+> and container_of hackery will work these days without the disadvantages 
+> my old get_user_pages() work had.
+> 
+> The idea is, that you'll provide a vector (like arguments to calloc) and two 
+> offsets: One for the page to store within the offset and one for the vma 
+> to store.
+> 
+> If the offset has a special value (e.g MAX_LONG) you don't store there at all.
 
-My approach reduced the number of loops performed and number
-of memory needed at the expense of doing more work in the main
-loop of get_user_pages. 
+You still need to find VMA in one loop, and run through it's(mm_structu) pages in
+second loop.
 
-This was mitigated for the common case of getting just one page by 
-providing a get_one_user_page() function.
+> But if the performance problem really is get_user_pages() itself 
+> (and not its callers), then my approach won't help at all.
 
-The whole problem, why we need such multiple loops is that we have
-no common container object for "IO vector + additional data".
+It looks so.
+My test pseudocode is following:
+fget_light();
+igrab();
+kzalloc(number_of_pages * sizeof(void *));
+get_user_pages(number_of_pages);
+... undo ...
 
-So we always do a loop working over the vector returned by 
-get_user_pages() all the time. The bigger that vector, 
-the bigger the impact.
+I've attached two graphs of performance with and without
+get_user_pages(), it is get_user_pages.png and kmalloc.png.
 
-Maybe sth. as simple as providing get_user_pages() with some offset_of 
-and container_of hackery will work these days without the disadvantages 
-my old get_user_pages() work had.
+Vertical axis is number of Mbytes per second thrown through above code,
+horizontal one is number of pages in each run.
+ 
+> Regards
+> 
+> Ingo Oeser
 
-The idea is, that you'll provide a vector (like arguments to calloc) and two 
-offsets: One for the page to store within the offset and one for the vma 
-to store.
+-- 
+	Evgeniy Polyakov
 
-If the offset has a special value (e.g MAX_LONG) you don't store there at all.
+--ew6BAiZeqk4r7MaW
+Content-Type: image/png
+Content-Disposition: attachment; filename="get_user_pages.png"
+Content-Transfer-Encoding: base64
 
-But if the performance problem really is get_user_pages() itself 
-(and not its callers), then my approach won't help at all.
+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
 
+--ew6BAiZeqk4r7MaW
+Content-Type: image/png
+Content-Disposition: attachment; filename="kmalloc.png"
+Content-Transfer-Encoding: base64
 
-Regards
+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
 
-Ingo Oeser
+--ew6BAiZeqk4r7MaW--

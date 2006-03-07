@@ -1,123 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWCGQGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWCGQHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWCGQGV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 11:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWCGQGV
+	id S1751140AbWCGQHz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 11:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWCGQHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 11:06:21 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:42413 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751088AbWCGQGV (ORCPT
+	Tue, 7 Mar 2006 11:07:54 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:59709 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751140AbWCGQHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 11:06:21 -0500
-From: Andi Kleen <ak@suse.de>
-To: Zou Nan hai <nanhai.zou@intel.com>
-Subject: Re: [Patch] Move swiotlb_init early on X86_64
-Date: Tue, 7 Mar 2006 09:39:02 +0100
-User-Agent: KMail/1.9.1
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-References: <1141175458.2642.78.camel@linux-znh>
-In-Reply-To: <1141175458.2642.78.camel@linux-znh>
+	Tue, 7 Mar 2006 11:07:54 -0500
+Message-ID: <440DAF7D.1050605@cfl.rr.com>
+Date: Tue, 07 Mar 2006 11:06:21 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: "David S. Miller" <davem@davemloft.net>
+CC: bcrl@kvack.org, drepper@gmail.com, da-x@monatomic.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Status of AIO
+References: <440CE336.3080504@cfl.rr.com> <20060306.190428.23731173.davem@davemloft.net> <440D06E9.1020901@cfl.rr.com> <20060306.220237.07925602.davem@davemloft.net>
+In-Reply-To: <20060306.220237.07925602.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603070939.03368.ak@suse.de>
+X-OriginalArrivalTime: 07 Mar 2006 16:09:26.0641 (UTC) FILETIME=[81C80E10:01C64201]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14309.000
+X-TM-AS-Result: No--9.990000-5.000000-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 March 2006 02:10, Zou Nan hai wrote:
-> on X86_64, swiotlb buffer is allocated in mem_init, after memmap and vfs cache allocation.
+David S. Miller wrote:
+> The whole idea is to figure out what socket gets the packet
+> without going through the IP and TCP stack at all, in the
+> hardware interrupt handler, using a tiny classifier that's
+> very fast and can be implemented in hardware.
 > 
-> On platforms with huge physical memory, 
-> large memmap and vfs cache may eat up all usable system memory 
-> under 4G.
+
+AFAIK, "going through the IP and TCP stack" just means passing a quick 
+packet classifier to locate the corresponding socket.  It would be nice 
+to be able to possibly offload that to the hardware, but you don't need 
+to throw out the baby ( tcp/ip stack ) with the bathwater to get there.
+
+Maybe some sort of interface could be constructed to allow the higher 
+layers to pass down some sort of ASL type byte code classifier to the 
+NIC driver, which could either call it via the kernel software ASL 
+interpreter, or convert it to firmware code to load into the hardware.
+
+> Please wrap your brain around the idea a little longer than
+> the 15 or so minutes you have thus far... thanks.
 > 
-> Move swiotlb_init early before memmap is allocated can
-> solve this issue.
+
+I've had my brain wrapped around these sort of networking problems for 
+over 10 years now, so I think I have a fair handle on things.  Certainly 
+enough to carry on a discussion about it.
+
+>> Yes, we can and should have a 6 times speed up, but as I've explained 
+>> above, NT has had that for 10 years without having to push TCP into user 
+>> space.
 > 
-> Signed-off-by: Zou Nan hai <Nanhai.zou@intel.com>
+> That's complete BS.
 
+Error, does not compute.
 
-I came up with a simpler change now that should fix the problem too.
-It just try to move the memmap to the end of the node. I don't have a system
-big enough to test the original problem though.
+Your holier than thou attitude does not a healthy discussion make.  I 
+explained the methods that have been in use on NT to achieve a 6 fold 
+decrease in cpu utilization for bulk network IO, and how it can be 
+applied to the Linux kernel without radical changes.  If you don't 
+understand it, then ask sensible questions, not just cry "That's 
+complete BS!"
 
-It should be fairly safe because if the allocation fails we just fallback
-to the normal old way of allocating it near the beginning.
-
-Try to allocate node memmap near the end of node
-
-This fixes problems with very large nodes (over 128GB) filling up all of 
-the first 4GB with their mem_map and not leaving enough
-space for the swiotlb.
-
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
----
- arch/x86_64/mm/numa.c   |   12 +++++++++++-
- include/linux/bootmem.h |    3 +++
- mm/bootmem.c            |    2 +-
- 3 files changed, 15 insertions(+), 2 deletions(-)
-
-Index: linux/arch/x86_64/mm/numa.c
-===================================================================
---- linux.orig/arch/x86_64/mm/numa.c
-+++ linux/arch/x86_64/mm/numa.c
-@@ -172,7 +172,7 @@ void __init setup_node_bootmem(int nodei
- /* Initialize final allocator for a zone */
- void __init setup_node_zones(int nodeid)
- { 
--	unsigned long start_pfn, end_pfn; 
-+	unsigned long start_pfn, end_pfn, memmapsize, limit;
- 	unsigned long zones[MAX_NR_ZONES];
- 	unsigned long holes[MAX_NR_ZONES];
- 
-@@ -182,6 +182,16 @@ void __init setup_node_zones(int nodeid)
- 	Dprintk(KERN_INFO "Setting up node %d %lx-%lx\n",
- 		nodeid, start_pfn, end_pfn);
- 
-+	/* Try to allocate mem_map at end to not fill up precious <4GB
-+	   memory. */
-+	memmapsize = sizeof(struct page) * (end_pfn-start_pfn);
-+	limit = end_pfn << PAGE_SHIFT;
-+	NODE_DATA(nodeid)->node_mem_map = 
-+		__alloc_bootmem_core(NODE_DATA(nodeid)->bdata, 
-+				memmapsize, SMP_CACHE_BYTES, 
-+				limit, 
-+				round_down(limit - memmapsize, PAGE_SIZE));
-+
- 	size_zones(zones, holes, start_pfn, end_pfn);
- 	free_area_init_node(nodeid, NODE_DATA(nodeid), zones,
- 			    start_pfn, holes);
-Index: linux/include/linux/bootmem.h
-===================================================================
---- linux.orig/include/linux/bootmem.h
-+++ linux/include/linux/bootmem.h
-@@ -52,6 +52,9 @@ extern void * __init __alloc_bootmem_low
- 					      unsigned long size,
- 					      unsigned long align,
- 					      unsigned long goal);
-+extern void * __init __alloc_bootmem_core(struct bootmem_data *bdata,
-+		unsigned long size, unsigned long align, unsigned long goal,
-+		unsigned long limit);
- #ifndef CONFIG_HAVE_ARCH_BOOTMEM_NODE
- extern void __init reserve_bootmem (unsigned long addr, unsigned long size);
- #define alloc_bootmem(x) \
-Index: linux/mm/bootmem.c
-===================================================================
---- linux.orig/mm/bootmem.c
-+++ linux/mm/bootmem.c
-@@ -152,7 +152,7 @@ static void __init free_bootmem_core(boo
-  *
-  * NOTE:  This function is _not_ reentrant.
-  */
--static void * __init
-+void * __init
- __alloc_bootmem_core(struct bootmem_data *bdata, unsigned long size,
- 	      unsigned long align, unsigned long goal, unsigned long limit)
- {
+We already have O_DIRECT aio for disk drives that can do zero copy, 
+there's no reason not to apply that to the network stack as well.
 
 

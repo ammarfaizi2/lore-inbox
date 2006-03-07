@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752501AbWCGMeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWCGM6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752501AbWCGMeO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 07:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752502AbWCGMeO
+	id S1751214AbWCGM6n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWCGM6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 07:34:14 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:60061 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752501AbWCGMeN convert rfc822-to-8bit
+	Tue, 7 Mar 2006 07:58:43 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:18508 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751214AbWCGM6m convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 07:34:13 -0500
+	Tue, 7 Mar 2006 07:58:42 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ReTG243nTIKMpI7UNGtUWbbpkOFYh9DXM9X54K6J83CyXttwGGV3vhYK9iTNbzAQqy6ZyY5STyDQtPnXZRVQ6BMsLYnpXtiiR9VQKWCE1Cv8ELEY1Z06p1M/0j+hj0NGUIGGMlKMZg7R6rphYTFsTh3oC4+NGyVNbttW35PCMp4=
-Message-ID: <aec7e5c30603070434j7f326ad2r5f1b0e8046870941@mail.gmail.com>
-Date: Tue, 7 Mar 2006 21:34:11 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: SMP and 101% cpu max?
+        b=AbO39iuT3ZqvDsAZvs9dvt/Fvm/sw6appbrT64WAF4K+gxo3j+hieWYM8pRAENeSQaclRTmrXI9+Ojw5r0DOosickr2FGxSXTAg18v6LIW87von0IUd7jqCJGVvZfwMadCvbkd6dZTGt7OKnlh0hZEwIn+Pa2x0FQwLuNfTnXeY=
+Message-ID: <ca8cd3800603070458w64462bc1xcc867514a239c978@mail.gmail.com>
+Date: Tue, 7 Mar 2006 17:58:41 +0500
+From: "Ali Ahmed Thawerani" <aaht14@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: how to sync page cache
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -25,68 +25,44 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+i have written a wrapper for a block device. my wrapper is also
+registered as a block device and i am obtaining the pointer bdev of
+the wrapper block device by using the open_by_devnum function with
+FMODE_READ | FMODE_WRITE
 
-I'm doing some memory related hacking, and part of that is testing the
-current behaviour of the Linux VM. This testing involves running some
-simple tests (building the linux kernel is one of the tests) while
-varying the amount of RAM available to the kernel.
+i want to sync the memory pages that are in the page cache for this
+particular wrapper block device
 
-I've tested memory configurations of 64MB, 128MB and 256MB on a Dual
-PIII machine. The tested kernel is 2.6.16-rc5, and user space is based
-on debian-3.1. I run 5 tests per memory configuration, and the machine
-is rebooted between each test.
+what i am doing is using two functions filemap_fdatawrite and
+filemap_fdatawait which take bdev->bd_inode->i_mapping as argument and
+sync the data associated with a particular block device
 
-Problem:
+the return status of these two functions is 0 which i think means no success
 
-With 128MB and 256MB configurations, a majority of the tests never
-make it over 101% CPU usage when I run "make -j 2 bzImage", building a
-allnoconfig kernel. With 64MB memory, everything seems to be working
-as expected. Also, running "make bzImage" works as expected too.
+i have tried to figure out what can be the reason for this and i
+followed the function calling that have been made
 
-Results for "make bzImage":
+some of the possible reasons were: when
+i_mapping->backing_dev_info->memory_backed is 1 then these functions
+return 0 i have checked that this value is not greater than 0 moreover
+i have also checked that the i_mapping->nr_pages are also greater than
+0
 
-# time: real user sys, cpu: percentage, ram: KB, swap: KB
+i was not able to go any further
 
-time: 229.261 211.6 18.18, cpu: 100, ram: 256716, swap: 125944
-time: 229.621 211.45 17.51, cpu: 100, ram: 256716, swap: 125944
-time: 229.698 212.11 17.68, cpu: 100, ram: 256716, swap: 125944
-time: 230.711 211.89 17.86, cpu: 100, ram: 256716, swap: 125944
-time: 232.219 210.55 18.5, cpu: 99, ram: 256716, swap: 125944
-time: 233.203 213.34 17.79, cpu: 99, ram: 126876, swap: 125944
-time: 233.371 213.82 17.15, cpu: 99, ram: 126876, swap: 125944
-time: 234.18 213.43 17.92, cpu: 99, ram: 126876, swap: 125944
-time: 234.315 213.11 17.92, cpu: 99, ram: 126876, swap: 125944
-time: 235.334 215.06 17.22, cpu: 99, ram: 126876, swap: 125944
-time: 241.159 222.82 15.38, cpu: 99, ram: 61956, swap: 125944
-time: 241.299 222.39 15.34, cpu: 99, ram: 61956, swap: 125944
-time: 241.475 223.16 15.38, cpu: 99, ram: 61956, swap: 125944
-time: 241.955 223.24 15.66, cpu: 99, ram: 61956, swap: 125944
-time: 242.099 222.92 15.98, cpu: 99, ram: 61956, swap: 125944
+i am calling these two functions in a thread
 
-Results for "make -j 2 bzImage":
+there was also another problem that when there is some request coming
+to my wrapper block device and wake up the thread which tries to sync
+the page cache my system gets stuck may be both the threads are trying
+to modify the inodes at the same time and none is succeeding
 
-# time: real user sys, cpu: percentage, ram: KB, swap: KB
+what i did to solve this problem that i used kernel timer if there is
+no request in the request queue for jiffies + 30 then i wake up the
+thread to sync the buffer cache and at the same time set a
+flag........ as according to my assumption when buffer cache will sync
+data will come to my wrapper block device and i have to requeue it to
+avoid any sort of problem but the thing is no such thing happens that
+is there is no new request in request queue at all
 
-time: 124.336 220.03 18.98, cpu: 192, ram: 126876, swap: 125944
-time: 124.547 217.57 19.15, cpu: 190, ram: 256716, swap: 125944
-time: 125.162 218.35 19.51, cpu: 190, ram: 256716, swap: 125944
-time: 132.488 228.71 17.1, cpu: 186, ram: 61956, swap: 125944
-time: 132.502 230.93 16.26, cpu: 187, ram: 61956, swap: 125944
-time: 132.634 230.55 16.42, cpu: 186, ram: 61956, swap: 125944
-time: 132.643 229.89 17.63, cpu: 187, ram: 61956, swap: 125944
-time: 133.2 230.09 16.28, cpu: 185, ram: 61956, swap: 125944
-time: 227.371 211.45 17.36, cpu: 101, ram: 256716, swap: 125944
-time: 227.898 211.93 17.3, cpu: 101, ram: 256716, swap: 125944
-time: 228.071 212.21 17.15, cpu: 101, ram: 256716, swap: 125944
-time: 228.788 212.46 17.88, cpu: 101, ram: 126876, swap: 125944
-time: 229.223 214.14 16.46, cpu: 101, ram: 126876, swap: 125944
-time: 229.255 213.56 17.19, cpu: 101, ram: 126876, swap: 125944
-time: 230.296 214.25 17.44, cpu: 101, ram: 126876, swap: 125944
-
-Any ideas what is causing this? Is it a memory subsystem issue, or cpu
-scheduling?
-
-Thanks,
-
-/ magnus
+can any one help me out in this

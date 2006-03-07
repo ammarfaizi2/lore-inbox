@@ -1,83 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752080AbWCGHDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752020AbWCGHJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752080AbWCGHDr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 02:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWCGHDr
+	id S1752020AbWCGHJW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 02:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752079AbWCGHJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 02:03:47 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:61338 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752080AbWCGHDq (ORCPT
+	Tue, 7 Mar 2006 02:09:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53978 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752020AbWCGHJV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 02:03:46 -0500
-Date: Tue, 7 Mar 2006 12:33:01 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Neil Brown <neilb@suse.de>, Balbir Singh <bsingharora@gmail.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-Message-ID: <20060307070301.GA12165@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <17414.38749.886125.282255@cse.unsw.edu.au> <17419.53761.295044.78549@cse.unsw.edu.au> <661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com> <17420.59580.915759.44913@cse.unsw.edu.au> <440D2536.60005@sw.ru>
+	Tue, 7 Mar 2006 02:09:21 -0500
+Date: Mon, 6 Mar 2006 23:06:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dipankar@in.ibm.com
+Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       fabbione@ubuntu.com
+Subject: Re: VFS nr_files accounting
+Message-Id: <20060306230639.24eacb6c.akpm@osdl.org>
+In-Reply-To: <20060307064120.GA5946@in.ibm.com>
+References: <20060305070537.GB21751@in.ibm.com>
+	<20060304.233725.49897411.davem@davemloft.net>
+	<20060305113847.GE21751@in.ibm.com>
+	<20060306.123904.35238417.davem@davemloft.net>
+	<20060307064120.GA5946@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440D2536.60005@sw.ru>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 09:16:22AM +0300, Kirill Korotaev wrote:
-> >>The code changes look big, have you looked at
-> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=113817279225962&w=2
-> >
-> >
-> >No I haven't.  I like it.
-> > - Holding the semaphore shouldn't be a problem.
-> > - calling down_read_trylock ought to be fast
-> > - I *think* the unwanted calls to prune_dcache are always under
-> >   PF_MEMALLOC - they certainly seem to be.
-> No, it looks as it is not :(
-> Have you noticed my comment about "count" argument to prune_dcache()?
-> For example, prune_dcache() is called from shrink_dcache_parent() which 
-> is called in many places and not all of them have PF_MEMALLOC or 
-> s_umount semaphore for write. But prune_dcache() doesn't care for super 
-> blocks etc. It simply shrinks N dentries which are found _first_.
+Dipankar Sarma <dipankar@in.ibm.com> wrote:
+>
+>  > I think we should seriously consider these patches for 2.6.16
 > 
-> So the condition:
-> +		if ((current->flags & PF_MEMALLOC) &&
-> +			!(ret = down_read_trylock(&s->s_umount))) {
-> is not always true when the race occurs, as PF_MEMALLOC is not always set.
+>  Isn't it a little too late in the 2.6.16 cycle ? I would have
+>  liked a little more time in -mm. Anyway, it is Linus' call. 
+>  I can refresh the patches and submit against latest mainline
+>  if Linus and Andrew want.
 
-I understand your comment about shrink_dcache_parent() being called
-from several places. prune_one_dentry() would eventually dput the parent,
-but unmount would go ahead and unmount the filesystem before the
-dput of the parent could happen.
+I'd view a 2.6.16 merge as relatively low-risk.  My main concern would be
+possible breakage of those whacky route-cache workloads.
 
-Given that background, I thought our main concern was with respect to
-unmount. The race was between shrink_dcache_parent() (called from unmount)
-and shrink_dcache_memory() (called from the allocator), hence the fix
-for the race condition.
-
-I just noticied that 2.6.16-rc* now seems to have drop_slab() where
-PF_MEMALLOC is not set. So, we can still race with my fix if there
-if /proc/sys/vm/drop_caches is written to and unmount is done in parallel.
-
-A simple hack would be to set PF_MEMALLOC in drop_slab(), but I do not
-think it is a good idea.
-
-> 
-> >And it is a nice small change.
-> >Have you had any other feedback on this?
-> here it is :)
-> 
-
-Thanks for your detailed feedback
-
-> Thanks,
-> Kirill
-> 
-
-Regards,
-Balbir
+(I've consoldidated the patches and rebased them against mainline).

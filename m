@@ -1,125 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752480AbWCGCJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752481AbWCGCKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752480AbWCGCJl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 21:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752481AbWCGCJl
+	id S1752481AbWCGCKe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 21:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752482AbWCGCKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 21:09:41 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:54465 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752480AbWCGCJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 21:09:40 -0500
-Subject: Re: [RFC][PATCH 2/6] sysvmsg: containerize
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: linux-kernel@vger.kernel.org, serue@us.ibm.com, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, Herbert Poetzl <herbert@13thfloor.at>,
-       Sam Vilain <sam@vilain.net>
-In-Reply-To: <20060307015745.GG27645@sorel.sous-sol.org>
-References: <20060306235248.20842700@localhost.localdomain>
-	 <20060306235250.35676515@localhost.localdomain>
-	 <20060307015745.GG27645@sorel.sous-sol.org>
-Content-Type: text/plain
-Date: Mon, 06 Mar 2006 18:08:43 -0800
-Message-Id: <1141697323.9274.64.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Mon, 6 Mar 2006 21:10:34 -0500
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:64653 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1752481AbWCGCKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 21:10:33 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Mon, 6 Mar 2006 21:10:30 -0500
+User-Agent: KMail/1.9.1
+Cc: Al Viro <viro@ftp.linux.org.uk>, Dave Peterson <dsp@llnl.gov>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603062046.00906.dtor_core@ameritech.net> <20060307015735.GB22239@kroah.com>
+In-Reply-To: <20060307015735.GB22239@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603062110.31432.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-06 at 17:57 -0800, Chris Wright wrote:
-> * Dave Hansen (haveblue@us.ibm.com) wrote:
-> > --- work/include/linux/init_task.h~sysvmsg-container	2006-03-06 15:41:56.000000000 -0800
-> > +++ work-dave/include/linux/init_task.h	2006-03-06 15:41:56.000000000 -0800
-> > @@ -2,6 +2,7 @@
-> >  #define _LINUX__INIT_TASK_H
-> >  
-> >  #include <linux/file.h>
-> > +#include <linux/ipc.h>
-> >  #include <linux/rcupdate.h>
-> >  
-> >  #define INIT_FDTABLE \
+On Monday 06 March 2006 20:57, Greg KH wrote:
+> On Mon, Mar 06, 2006 at 08:45:59PM -0500, Dmitry Torokhov wrote:
+> > On Monday 06 March 2006 16:53, Greg KH wrote:
+> > > On Mon, Mar 06, 2006 at 09:32:03PM +0000, Al Viro wrote:
+> > > > On Mon, Mar 06, 2006 at 01:01:37PM -0800, Dave Peterson wrote:
+> > > > > Regarding the above problem with the kobject reference count, this
+> > > > > was recently fixed in the -mm tree (see edac-kobject-sysfs-fixes.patch
+> > > > > in 2.6.16-rc5-mm2).  The fix I implemented was to add a call to
+> > > > > complete() in edac_memctrl_master_release() and then have the module
+> > > > > cleanup code wait for the completion.  I think there were a few other
+> > > > > instances of this type of problem that I also fixed in the
+> > > > > above-mentioned patch.
+> > > > 
+> > > > This is not a fix, this is a goddamn deadlock.
+> > > > 	rmmod your_turd </sys/spew/from/your_turd
+> > > > and there you go.  rmmod can _NOT_ wait for sysfs references to go away.
+> > > 
+> > > To be fair, the only part of the kernel that supports the above process,
+> > > is the network stack.  And they implemented a special kind of lock to
+> > > handle just this kind of thing.
+> > > 
+> > 
+> > Not so:
+> > 
+> > [root@core ~]# rmmod psmouse < /sys/bus/serio/devices/serio0/rate
+> > ERROR: Module psmouse is in use
+> > [root@core ~]# rmmod psmouse
+> > [root@core ~]# modprobe psmouse
+> > [root@core ~]# 
+> > 
+> > It would be nice if more subsystem could handle this, preferably without
+> > "Waiting for blah to become free" messages (as in W1).
 > 
-> missing INIT_IPC_CONTEXT type of macro?
-
-Yeah, I was doing something like that at first.  But, I decided to
-dynamically allocate it, much like it will have to be done when we have
-_real_ namespaces for it.  That means that we can't actually initialize
-it at init_task.h time.  
-
-> > diff -puN include/linux/sched.h~sysvmsg-container include/linux/sched.h
-> > --- work/include/linux/sched.h~sysvmsg-container	2006-03-06 15:41:56.000000000 -0800
-> > +++ work-dave/include/linux/sched.h	2006-03-06 15:41:56.000000000 -0800
-> > @@ -793,6 +793,7 @@ struct task_struct {
-> >  	int link_count, total_link_count;
-> >  /* ipc stuff */
-> >  	struct sysv_sem sysvsem;
-> > +	struct ipc_context *ipc_context;
+> See my previous apology about this :)
 > 
-> how does this propagate on clone (presently it's just side-effect of
-> dup_task_struct starting from init_task, with no dynamic lifetime),
-> how is it meant to be changed?
-
-Some interface later down the road.  You caught me a bit early in the
-cycle.
-
-> > -void __init msg_init (void)
-> > +void __init msg_init (struct ipc_msg_context *context)
-> >  {
-> > -	ipc_init_ids(&msg_ids,msg_ctlmni);
-> > +	ipc_init_ids(&context->ids,msg_ctlmni);
-> >  	ipc_init_proc_interface("sysvipc/msg",
-> >  				"       key      msqid perms      cbytes       qnum lspid lrpid   uid   gid  cuid  cgid      stime      rtime      ctime\n",
-> > -				&msg_ids,
-> > +				&context->ids,
-> >  				sysvipc_msg_proc_show);
+> Anyway, the network stack does have a special lock for unloading modules
+> while they are still "in use", but as long as Al was referring to your
+> above sequence, I have no disagreement.
 > 
-> Does that mean /proc interface only gets init_task context?
-> Along those lines, I think now ipcs -a is incomplete from admin
-> perspective.  Suppose that's a feature from the container/vserver
-> POV.
 
-It will get context from the current task, which means the current
-container.  We haven't quite decided how these things will be (or if
-they need to be) aggregated on a a system-wide basis.
+I am sorry, I butt in as I read LKML ;) I noticed Al's and your replies
+only after I wrote mine...
 
-> > --- work/ipc/util.h~sysvmsg-container	2006-03-06 15:41:56.000000000 -0800
-> > +++ work-dave/ipc/util.h	2006-03-06 15:41:56.000000000 -0800
-> > @@ -12,7 +12,7 @@
-> >  #define SEQ_MULTIPLIER	(IPCMNI)
-> >  
-> >  void sem_init (void);
-> > -void msg_init (void);
-> > +void msg_init (struct ipc_msg_context *context);
-> >  void shm_init (void);
-> >  
-> >  struct ipc_id_ary {
-> > @@ -30,6 +30,18 @@ struct ipc_ids {
-> >  	struct ipc_id_ary* entries;
-> >  };
-> >  
-> > +struct ipc_msg_context {
-> > +	atomic_t bytes;
-> > +	atomic_t hdrs;
-> > +
-> > +	struct ipc_ids ids;
-> > +	struct kref count;
-> > +};
-> > +
-> > +struct ipc_context {
-> > +	struct ipc_msg_context msg;
-> > +};
-> 
-> This looks a little suspect.  ref count embedded in embedded object.
-> My first thought was, sem and shared memory would introduce same, and
-> now we'd have 3 independent refounts for top level object.  However,
-> it's not used, and doesn't appear to be mirrored in the sem and shared
-> mem contexts.  Perhaps it is just a leftover?
-
-Yeah, I have the feeling that it used to be an atomic_t, and got
-converted over to a kref a bit needlessly.  I'll investigate more when I
-spin the patches again.
-
--- Dave
-
+-- 
+Dmitry

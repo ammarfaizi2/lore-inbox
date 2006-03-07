@@ -1,72 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWCGMHy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752489AbWCGMIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbWCGMHy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 07:07:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752488AbWCGMHy
+	id S1752489AbWCGMIu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:08:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752490AbWCGMIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 07:07:54 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:10760 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1750842AbWCGMHy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 07:07:54 -0500
+	Tue, 7 Mar 2006 07:08:50 -0500
+Received: from c-14c1e455.43-25-64736c10.cust.bredbandsbolaget.se ([85.228.193.20]:28111
+	"HELO styx.klippanlan.net") by vger.kernel.org with SMTP
+	id S1752489AbWCGMIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 07:08:49 -0500
+Message-ID: <002b01c641df$e0d49b20$072011ac@majestix>
+From: "PaNiC" <panic@klippanlan.net>
+To: <jzb@aexorsyst.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <001501c64119$6d8e7bc0$072011ac@majestix> <200603060933.57036.jzb@aexorsyst.com>
+Subject: Re: Problem: NIC transmit timeouts
+Date: Tue, 7 Mar 2006 13:08:42 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <440CCD9A.3070907@shaw.ca>
-x-originalarrivaltime: 07 Mar 2006 12:07:46.0937 (UTC) FILETIME=[BF48CE90:01C641DF]
-Content-class: urn:content-classes:message
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-Date: Tue, 7 Mar 2006 07:07:46 -0500
-Message-ID: <Pine.LNX.4.61.0603070705490.8536@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: de2104x: interrupts before interrupt handler is registered
-Thread-Index: AcZB379lL8+UnjzIRNG68/4t6i+tag==
-References: <5N5Ql-30C-11@gated-at.bofh.it> <5NnDE-44v-11@gated-at.bofh.it> <440CCD9A.3070907@shaw.ca>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Robert Hancock" <hancockr@shaw.ca>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for your reply.
+I have an idea what you're talking about, but no more i'm afraid.
+I'm no programmer and i don't know how to try what you suggested.
+What i did try was applying some patches manually that i found in the 
+mailing list archives.
 
-On Mon, 6 Mar 2006, Robert Hancock wrote:
+This is one of them:
 
-> linux-os (Dick Johnson) wrote:
->> This started to happen in a lot of PCI drivers once it became
->> necessary to call pci_enable_device() in order to make the
->> returned IRQ values valid. This has been reported numerious
->> times and has not been fixed. Basically, in order to get
->> the correct value, one needs to disable the board in some
->> unspecified way so it is not possible for it to generate
->> an interrupt before enabling the board. With some devices
->> this may not be possible!
+--- drivers/net/sunhme.c.~1~ Sun Aug 11 18:37:34 2002
++++ drivers/net/sunhme.c Sun Aug 11 18:38:17 2002
+@@ -1640,6 +1640,7 @@
+  HMD((", enable global interrupts, "));
+  hme_write32(hp, gregs + GREG_IMASK,
+       (GREG_IMASK_GOTFRAME | GREG_IMASK_RCNTEXP |
++ GREG_IMASK_TXALL |
+        GREG_IMASK_SENTFRAME | GREG_IMASK_TXPERR));
+
+  /* Set the transmit ring buffer size. */
+@@ -2125,8 +2126,8 @@
+   happy_meal_mif_interrupt(hp);
+  }
+
+- if (happy_status & GREG_STAT_TXALL) {
+- HMD(("TXALL "));
++ if (happy_status & GREG_STAT_HOSTTOTX) {
++ HMD(("HOSTTOTX "));
+   happy_meal_tx(hp);
+  }
+
+@@ -2155,7 +2156,7 @@
+
+   if (!(happy_status & (GREG_STAT_ERRORS |
+           GREG_STAT_MIFIRQ |
+- GREG_STAT_TXALL |
++ GREG_STAT_HOSTTOTX |
+           GREG_STAT_RXTOHOST)))
+    continue;
+
+@@ -2172,8 +2173,8 @@
+    happy_meal_mif_interrupt(hp);
+   }
+
+- if (happy_status & GREG_STAT_TXALL) {
+- HMD(("TXALL "));
++ if (happy_status & GREG_STAT_HOSTTOTX) {
++ HMD(("HOSTTOTX "));
+    happy_meal_tx(hp);
+   }
+
+The other just put a "udelay(1)" on line 1999 of sunhme.c.
+With the udelay(1) it seemed like after a reboot it would take longer 
+for the timeout to happen. The other made no difference.
+
+Very thankful for your time.
+Jonas
+
+
+
+----- Original Message ----- 
+From: "John Z. Bohach" <jzb@aexorsyst.com>
+To: "PaNiC" <panic@klippanlan.net>; <linux-kernel@vger.kernel.org>
+Sent: Monday, March 06, 2006 6:33 PM
+Subject: Re: Problem: NIC transmit timeouts
+
+
+> On Monday 06 March 2006 04:28, PaNiC wrote:
+>> 1. The problem is that the outbound interface in a Sun Enterprise 250
+>> running maquerade gets transmit timeouts frequently.
+>>
+>> 2. I get the error "NETDEV WATCHDOG: eth0: transmit timed out" and a
+>> couple of seconds later the     interface jumps back up again. This
 >
-> What kind of board behaves that way? pci_enable_device just enables the
-> device BARs and wakes it up if it was suspended, I should think that any
-> device that starts generating interrupts from that must be quite broken..
+> I can't say what the cause of your particular NETDEV WATCHDOG timeout 
+> may
+> be, but I had the same problem, and I root-caused it to the host bus 
+> <--> PCI bridge
+> configuration.  In particular, the multi-transaction timeout register 
+> in the bridge
+> wasn't programmed, and heavy PCI traffic would cause aborts.  Also, 
+> the
+> ICH configuration register had to be programmed according to the 
+> manufacturer's
+> recommendations.
 >
-> --
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
+> This was on Intel h/w, and the registers to which I refer are
+> proprietary, so its a bit difficult to know what values to program 
+> where,
+> but it might give you a place to start.  On the other hand, some 
+> people have
+> reported issues with their device driver causing some timeouts, but 
+> your symptoms
+> seem to more closely resemble what I was seeing than those folks who 
+> had
+> s/w issues.
+>
+> Regards,
+> John
+>
+>
+> 
 
-No. It would be good if that was true. Unfortunately, the IRQ
-returned before the pci_enable_device() is not correct. It
-gets re-written by pci_enable_device().
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.50 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

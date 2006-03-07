@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932597AbWCGBoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbWCGBqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932597AbWCGBoe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWCGBoe
+	id S932602AbWCGBqF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbWCGBqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:44:34 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:20423 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932307AbWCGBod (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:44:33 -0500
-Date: Mon, 6 Mar 2006 20:39:15 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: drepper@gmail.com, da-x@monatomic.org, linux-kernel@vger.kernel.org
-Subject: Re: Status of AIO
-Message-ID: <20060307013915.GU20768@kvack.org>
-References: <20060306233300.GR20768@kvack.org> <20060306.162444.107249907.davem@davemloft.net> <20060307004237.GT20768@kvack.org> <20060306.165129.62204114.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Mar 2006 20:46:05 -0500
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:19640 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932598AbWCGBqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:46:03 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Mon, 6 Mar 2006 20:45:59 -0500
+User-Agent: KMail/1.9.1
+Cc: Al Viro <viro@ftp.linux.org.uk>, Dave Peterson <dsp@llnl.gov>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <20060306213203.GJ27946@ftp.linux.org.uk> <20060306215344.GB16825@kroah.com>
+In-Reply-To: <20060306215344.GB16825@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060306.165129.62204114.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200603062046.00906.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 04:51:29PM -0800, David S. Miller wrote:
-> I think any such VM tricks need serious thought.  It has serious
-> consequences as far as cost especially on SMP.  Evgivny has some data
-> that shows this, and chapter 5 of Networking Algorithmics has a lot of
-> good analysis and paper references on this topic.
+On Monday 06 March 2006 16:53, Greg KH wrote:
+> On Mon, Mar 06, 2006 at 09:32:03PM +0000, Al Viro wrote:
+> > On Mon, Mar 06, 2006 at 01:01:37PM -0800, Dave Peterson wrote:
+> > > Regarding the above problem with the kobject reference count, this
+> > > was recently fixed in the -mm tree (see edac-kobject-sysfs-fixes.patch
+> > > in 2.6.16-rc5-mm2).  The fix I implemented was to add a call to
+> > > complete() in edac_memctrl_master_release() and then have the module
+> > > cleanup code wait for the completion.  I think there were a few other
+> > > instances of this type of problem that I also fixed in the
+> > > above-mentioned patch.
+> > 
+> > This is not a fix, this is a goddamn deadlock.
+> > 	rmmod your_turd </sys/spew/from/your_turd
+> > and there you go.  rmmod can _NOT_ wait for sysfs references to go away.
+> 
+> To be fair, the only part of the kernel that supports the above process,
+> is the network stack.  And they implemented a special kind of lock to
+> handle just this kind of thing.
+> 
 
-VM tricks do suck, so you just have to use the tricks that nobody else 
-is...  My thinking is to do something like the following: have a structure 
-to reference a set of pages.  When it is first created, it takes a reference 
-on the pages in question, and it is added to the vm_area_struct of the user 
-so that the vm can poke it for freeing when memory pressure occurs.  The 
-sk_buff dataref also has to have a pointer to the pageref added.  Now, the 
-trick to making it useful is as follows:
+Not so:
 
-	struct pageref {
-		atomic_t	free_count;
-		int		use_count;	/* protected by socket lock */
-		...
-		unsigned long	user_address;
-		unsigned long	length;
-		struct socket	*sock;		/* backref for VM */
-		struct page	*pages[];
-	};
+[root@core ~]# rmmod psmouse < /sys/bus/serio/devices/serio0/rate
+ERROR: Module psmouse is in use
+[root@core ~]# rmmod psmouse
+[root@core ~]# modprobe psmouse
+[root@core ~]# 
 
-The fast path in network transmit becomes:
+It would be nice if more subsystem could handle this, preferably without
+"Waiting for blah to become free" messages (as in W1).
 
-	if (sock->pageref->... overlaps buf) {
-		for each packet built {
-			use_count++;
-			<add pageref to skb's dataref happily without atomics 
-			or memory copying>
-		}
-	}
-
-Then the kfree_skb() path does an atomic_dec() on pageref->free_count 
-instead of the page.  (Or get rid of the atomic using knowledge about the 
-fact that a given pageref could only be freed by the network driver it was 
-given to.)  That would make the transmit path bloody cheap, and the tx irq 
-context no more expensive than it already is.
-
-It's probably easier to show this tx path with code that gets the details 
-right.
-
-		-ben
 -- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+Dmitry

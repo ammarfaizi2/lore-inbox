@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWCGVOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWCGVQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWCGVOv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 16:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWCGVOv
+	id S932284AbWCGVQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 16:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWCGVQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 16:14:51 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:53981 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932300AbWCGVOu (ORCPT
+	Tue, 7 Mar 2006 16:16:11 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:10371 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S932284AbWCGVQK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 16:14:50 -0500
-Subject: Re: [PATCH] Document Linux's memory barriers
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Andi Kleen <ak@suse.de>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200603071257.24234.ak@suse.de>
-References: <200603071134.52962.ak@suse.de>
-	 <7621.1141756240@warthog.cambridge.redhat.com>
-	 <1141759408.2617.9.camel@serpentine.pathscale.com>
-	 <200603071257.24234.ak@suse.de>
-Content-Type: text/plain
-Date: Tue, 07 Mar 2006 13:14:45 -0800
-Message-Id: <1141766085.5255.12.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 7 Mar 2006 16:16:10 -0500
+Message-ID: <440DF802.8@tlinx.org>
+Date: Tue, 07 Mar 2006 13:15:46 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Marr <marr@flex.com>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()'
+ Calls From 2.4 to 2.6 -- VMM Change?)
+References: <200602241522.48725.marr@flex.com> <4403935A.3080503@tmr.com> <440B6E05.9010609@tlinx.org> <200603071453.46768.marr@flex.com>
+In-Reply-To: <200603071453.46768.marr@flex.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-07 at 12:57 +0100, Andi Kleen wrote:
+Marr wrote:
+> On Sunday 05 March 2006 6:02pm, Linda Walsh wrote:
+>> Does this happen with a seek call as well, or is this limited
+>> to fseek?
+>>
+>> if you look at "hdparm's" idea of read-ahead, what does it say
+>> for the device?.  I.e.:
+>>
+>> hdparm /dev/hda:
+>>
+>> There is a line entitled "readahead".  What does it say?
+>
+> Linda,
+>
+> I don't know (based on your email addressing) if you were directing this 
+> question at me, but since I'm the guy who originally reported this issue, 
+> here are my 'hdparm' results on my (standard Slackware 10.2) ReiserFS 
+> filesystem:
+>
+>    2.6.13 (with 'nolargeio=1' for reiserfs mount): 
+>       readahead    = 256 (on)
+>
+>    2.6.13 (without 'nolargeio=1' for reiserfs mount): 
+>       readahead    = 256 (on)
+>
+>    2.4.31 ('nolargeio' option irrelevant/unavailable for 2.4.x): 
+>       readahead    = 8 (on)
+>
+> *** Please CC: me on replies -- I'm not subscribed.
+>
+> Regards,
+> Bill Marr
+--------
+    Could you retry your test with read-ahead set to a smaller
+value?  Say the same as in 2.4 (8) or 16 and see if that changes
+anything?
 
-> > > True, I suppose. I should make it clear that these accessor functions imply
-> > > memory barriers, if indeed they do,
-> > 
-> > They don't, but according to Documentation/DocBook/deviceiobook.tmpl
-> > they are performed by the compiler in the order specified.
-> 
-> I don't think that's correct. Probably the documentation should
-> be fixed.
+hdparm -a8 /dev/hdx
+  or
+hdparm -a16 /dev/hdx
 
-That's why I hedged my words with "according to ..." :-)
 
-But on most arches those accesses do indeed seem to happen in-order.  On
-i386 and x86_64, it's a natural consequence of program store ordering.
-On at least some other arches, there are explicit memory barriers in the
-implementation of the access macros to force this ordering to occur.
-
-	<b
 

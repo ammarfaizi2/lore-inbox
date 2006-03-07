@@ -1,86 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752064AbWCGB73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752471AbWCGCBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752064AbWCGB73 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752471AbWCGB72
+	id S1752471AbWCGCBR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 21:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752472AbWCGCBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:59:28 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:48274 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1752064AbWCGB72 (ORCPT
+	Mon, 6 Mar 2006 21:01:17 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:36533 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752471AbWCGCBQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:59:28 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Balbir Singh" <bsingharora@gmail.com>
-Date: Tue, 7 Mar 2006 12:58:20 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Mar 2006 21:01:16 -0500
+Subject: Re: [RFC][PATCH 1/6] prepare sysctls for containers
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: linux-kernel@vger.kernel.org, serue@us.ibm.com, frankeh@watson.ibm.com,
+       clg@fr.ibm.com, Sam Vilain <sam@vilain.net>
+In-Reply-To: <20060307005002.GA15640@MAIL.13thfloor.at>
+References: <20060306235248.20842700@localhost.localdomain>
+	 <20060306235249.880CB28A@localhost.localdomain>
+	 <20060307005002.GA15640@MAIL.13thfloor.at>
+Content-Type: text/plain
+Date: Mon, 06 Mar 2006 18:00:21 -0800
+Message-Id: <1141696822.9274.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17420.59580.915759.44913@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       "Olaf Hering" <olh@suse.de>, "Jan Blunck" <jblunck@suse.de>,
-       "Kirill Korotaev" <dev@openvz.org>, "Al Viro" <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-In-Reply-To: message from Balbir Singh on Monday March 6
-References: <17414.38749.886125.282255@cse.unsw.edu.au>
-	<17419.53761.295044.78549@cse.unsw.edu.au>
-	<661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday March 6, bsingharora@gmail.com wrote:
-> > Somewhere in among the comments (thanks), I realised that I was only
-> > closing half the race.  I had tried to make sure there were no stray
-> > references to any dentries, but there is still the inode which is
-> > being iput which can cause problem.
-> >
-> > The following patch takes a totally different approach, is based on an
-> > idea from Jan Kara, and is much less intrusive.
-> >
-> > We:
-> >   - keep track of "who" is calling prune_dcache, and when a filesystem
-> >     is being unmounted (s_root == NULL) we only allow the unmount thread
-> >     to prune dentries.
-> >   - keep track of how many dentries are in the process of having
-> >     dentry_iput called on them for pruning
-> >   - don't allow umount to proceed until that count hits zero
-> >   - bias the count this way and that to make sure we get a wake_up at
-> >     the right time
-> >   - reuse 's_wait_unfrozen' to wait on the iput to complete.
-> >
-> > Again, I'm very keen on feedback.  This race is very hard to trigger,
-> > so code review is the only real way to evaluate that patch.
-> >
-> > Thanks,
-> > NeilBrown
-> >
+On Tue, 2006-03-07 at 01:50 +0100, Herbert Poetzl wrote:
+> On Mon, Mar 06, 2006 at 03:52:49PM -0800, Dave Hansen wrote:
+> > 
+> > Right now, sysctls can only deal with global variables.  This
+> > patch makes them a _little_ more flexible by allowing there to
+> > be an accessor function to get at the variable being changed,
+> > instead of it being global.
+> > 
+> > This allows the sysctls to be backed by variables that are,
+> > for instance, dynamically allocated and not available at
+> > compile-time.
+> > 
+> > This also provides a very simple mechanism to take things that
+> > are currently global and containerize them.
 > 
-> The code changes look big, have you looked at
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113817279225962&w=2
+> hmm, why do you call the sysctl_table_data() over and
+> over again? what's the purpose?
 
-No I haven't.  I like it.
- - Holding the semaphore shouldn't be a problem.
- - calling down_read_trylock ought to be fast
- - I *think* the unwanted calls to prune_dcache are always under
-   PF_MEMALLOC - they certainly seem to be.
+Letting me be lazy and code with s/// :)
 
-And it is a nice small change.
-Have you had any other feedback on this?
+For the current application, it doesn't really matter.  But, I can
+imagine that other users could be a bit more costly.  
 
+> what about sideeffects?
 
+Require that there aren't any. ;)
+
+It might be necessary to have something effectively implementing put and
+get, but this certainly doesn't need it yet.
+
+> > Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+> > ---
+> > 
+> >  work-dave/include/linux/sysctl.h |    8 ++++
+> >  work-dave/kernel/sysctl.c        |   65 ++++++++++++++++++++++++++-------------
+> >  2 files changed, 52 insertions(+), 21 deletions(-)
+> > 
+> > diff -puN include/linux/sysctl.h~sysctls-for-containers include/linux/sysctl.h
+> > --- work/include/linux/sysctl.h~sysctls-for-containers	2006-03-06 15:41:55.000000000 -0800
+> > +++ work-dave/include/linux/sysctl.h	2006-03-06 15:41:55.000000000 -0800
+> > @@ -872,6 +872,7 @@ extern void sysctl_init(void);
+> >  
+> >  typedef struct ctl_table ctl_table;
+> >  
+> > +typedef void *ctl_data_access (void);
+> >  typedef int ctl_handler (ctl_table *table, int __user *name, int nlen,
+> >  			 void __user *oldval, size_t __user *oldlenp,
+> >  			 void __user *newval, size_t newlen, 
+> > @@ -957,6 +958,13 @@ struct ctl_table 
+> >  	int ctl_name;			/* Binary ID */
+> >  	const char *procname;		/* Text ID for /proc/sys, or zero */
+> >  	void *data;
+> > +	ctl_data_access *data_access;	/* set this to a function if you
+> > +					 * don't have a static place to point
+> > +					 * ->data at compile-time.  This
+> > +					 * function will be called to dynamically
+> > +					 * figure out a ->data pointer.  Do not
+> > +					 * set this and ->data at once.
+> > +					 */
+> >  	int maxlen;
+> >  	mode_t mode;
+> >  	ctl_table *child;
+> > diff -puN kernel/sysctl.c~sysctls-for-containers kernel/sysctl.c
+> > --- work/kernel/sysctl.c~sysctls-for-containers	2006-03-06 15:41:55.000000000 -0800
+> > +++ work-dave/kernel/sysctl.c	2006-03-06 15:41:55.000000000 -0800
+> > @@ -1197,6 +1197,24 @@ repeat:
+> >  	return -ENOTDIR;
+> >  }
+> >  
 > 
-> Some top of the head feedback below. Will try and do a detailed review later.
+> I'd expect that to be inline, and to vanish when
+> containers are disabled ...
+
+Unless we want non-container code to be able to use it.  I guess we
+could restrict it to containers only, though.
+
+> > +void *sysctl_table_data(ctl_table *table)
+> > +{
+> > +	void *data;
+> > +
+> > +	if (table->data && table->data_access) {
+> > +		printk(KERN_WARNING
+> > +			"sysctl: data and accessor function set for: '%s'\n",
+> > +			table->procname);
+> > +		table->data = NULL;
 > 
+> why is ->data and ->data_access evil?
 
-> > +               /* avoid further wakeups */
-> > +               sb->s_pending_iputs = 65000;
-> 
-> This looks a bit ugly, what is 65000?
+As it stands, which one do you use?  What if they aren't consistent?  Do
+you use both?  Just one?  Which first?  Easiest to just say that it
+isn't allowed.
 
-Just the first big number that came to by head... probably not needed.
+> wouldn't some get/set helper make more sense?
+> i.e. some virtualizer and devirtualizer functions?
 
+I'm not quite sure I know what you mean.  Can you elaborate some more?
 
-NeilBrown
+-- Dave
+

@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWCGSCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWCGSCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWCGSCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 13:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWCGSCJ
+	id S1751445AbWCGSCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 13:02:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWCGSCQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 13:02:09 -0500
-Received: from ns.suse.de ([195.135.220.2]:48599 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751436AbWCGSCH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 13:02:07 -0500
-From: Andi Kleen <ak@suse.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] Document Linux's memory barriers
-Date: Tue, 7 Mar 2006 11:34:52 +0100
-User-Agent: KMail/1.9.1
-Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-References: <31492.1141753245@warthog.cambridge.redhat.com>
-In-Reply-To: <31492.1141753245@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Tue, 7 Mar 2006 13:02:16 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:64235 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751445AbWCGSCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 13:02:15 -0500
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Mike Christie <michaelc@cs.wisc.edu>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       markhe@nextd.demon.co.uk, andrea@suse.de, axboe@suse.de,
+       penberg@cs.helsinki.fi
+In-Reply-To: <Pine.LNX.4.64.0603061917330.3573@g5.osdl.org>
+References: <200603060117.16484.jesper.juhl@gmail.com>
+	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>
+	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>
+	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>
+	 <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
+	 <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>
+	 <9a8748490603061501r387291f0ha10e9e9fe3c9e060@mail.gmail.com>
+	 <20060306150612.51f48efa.akpm@osdl.org>
+	 <9a8748490603061524j616bf6b3i1b6ab5354bcfe1a9@mail.gmail.com>
+	 <440CFABF.5040403@cs.wisc.edu>
+	 <Pine.LNX.4.64.0603061917330.3573@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 12:01:52 -0600
+Message-Id: <1141754512.3239.41.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603071134.52962.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 18:40, David Howells wrote:
+On Mon, 2006-03-06 at 19:20 -0800, Linus Torvalds wrote:
+> > should be added back I think.
+> 
+> Good eyes. I bet that's it.
 
-> +Older and less complex CPUs will perform memory accesses in exactly the order
-> +specified, so if one is given the following piece of code:
-> +
-> +	a = *A;
-> +	*B = b;
-> +	c = *C;
-> +	d = *D;
-> +	*E = e;
-> +
-> +It can be guaranteed that it will complete the memory access for each
-> +instruction before moving on to the next line, leading to a definite sequence
-> +of operations on the bus:
+Yes, well done.  Do we have confirmation yet that reversing this fixes
+the bug?
 
-Actually gcc is free to reorder it 
-(often it will not when it cannot prove that they don't alias, but sometimes
-it can)
+I think a full reversal is in order, since buffer is a quantity being
+written to, there's no point in zeroing it.
 
-> +
-> +     Consider, for example, an ethernet chipset such as the AMD PCnet32. It
-> +     presents to the CPU an "address register" and a bunch of "data registers".
-> +     The way it's accessed is to write the index of the internal register you
-> +     want to access to the address register, and then read or write the
-> +     appropriate data register to access the chip's internal register:
-> +
-> +	*ADR = ctl_reg_3;
-> +	reg = *DATA;
+[Note to self: must do better in checking janitors patches]
 
-You're not supposed to do it this way anyways. The official way to access
-MMIO space is using read/write[bwlq]
+James
 
-Haven't read all of it sorry, but thanks for the work of documenting 
-it.
-
--Andi
 

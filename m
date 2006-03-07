@@ -1,99 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWCGBPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWCGBQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932586AbWCGBPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWCGBPR
+	id S932587AbWCGBQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWCGBQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:15:17 -0500
-Received: from mournblade.cat.pdx.edu ([131.252.208.27]:35458 "EHLO
-	mournblade.cat.pdx.edu") by vger.kernel.org with ESMTP
-	id S932586AbWCGBPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:15:16 -0500
-Date: Mon, 6 Mar 2006 17:14:40 -0800 (PST)
-From: Suzanne Wood <suzannew@cs.pdx.edu>
-Message-Id: <200603070114.k271Eers024539@adara.cs.pdx.edu>
-To: dipankar@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, walpole@cs.pdx.edu
-Subject: Re: 2.6.16-rc regression: m68k CONFIG_RMW_INSNS=n compile broken
+	Mon, 6 Mar 2006 20:16:48 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18623 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932587AbWCGBQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:16:47 -0500
+Date: Mon, 06 Mar 2006 18:02:34 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+In-reply-to: <5NnDE-44v-11@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <440CCD9A.3070907@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5N5Ql-30C-11@gated-at.bofh.it> <5NnDE-44v-11@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello and thank you again.
+linux-os (Dick Johnson) wrote:
+> This started to happen in a lot of PCI drivers once it became
+> necessary to call pci_enable_device() in order to make the
+> returned IRQ values valid. This has been reported numerious
+> times and has not been fixed. Basically, in order to get
+> the correct value, one needs to disable the board in some
+> unspecified way so it is not possible for it to generate
+> an interrupt before enabling the board. With some devices
+> this may not be possible!
 
- > From dipankar@in.ibm.com  Mon Mar  6 08:49:55 2006
+What kind of board behaves that way? pci_enable_device just enables the 
+device BARs and wakes it up if it was suspended, I should think that any 
+device that starts generating interrupts from that must be quite broken..
 
- > On Mon, Mar 06, 2006 at 08:13:41AM -0800, Suzanne Wood wrote:
- > > Thank you very much.
- > >   > > struct file fastcall *fget_light(unsigned int fd, int *fput_needed)
- > >   > > {
- > >   > > 	struct file *file;
- > >   > > 	struct files_struct *files = current->files;
- > >   > > 
- > >   > > 	*fput_needed = 0;
- > >   > > 	if (likely((atomic_read(&files->count) == 1))) {
- > >   > > 		file = fcheck_files(files, fd);
- > >   > > 	} else {
- > > 
- > >   > This means that the fd table is not shared between threads. So,
- > >   > there can't be any race and no need to protect using
- > >   > rcu_read_lock()/rcu_read_unlock().
- > > 
- > > Then why call fcheck_files() with the rcu_dereference() which would flag 
- > > an automated check for the need to mark a read-side critical section?
- > > Would it make sense to introduce the function that doesn't?  The goal of
- > > keeping the kernel small is balanced with clarity.  The inconsistency of
- > > how fcheck_files() is used within a single function (fget_light()) was
- > > my opening question.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
- > Because rcu_dereference() hurts only alpha and we don't care about
- > alpha :-)
-
- > Just kidding!
-
- > Good point about automated checkers. However, this isn't an
- > uncommon thing in multi-threaded programs - can't the checker 
- > rules be written to take into account sharing and non-sharing of 
- > the object in question ?
-
-Henzinger, et al., UC Berkeley, describe race checking on a 
-language for networked embedded systems NES-C using the atomic 
-keyword to delimit sections.  (The rcu_read_lock() would be 
-similar in disallowing interrupts.)  When flow-based analysis 
-returned false positives, the programmer could annotate the 
-code with "norace" and in practice all shared accesses were 
-put in atomic sections even if there were no actual race 
-conditions.  To limit the number of atomic sections, the 
-UCB group modeled multiple threads, triggered hardware 
-interrupts and interleaved tasks and checked for safe access
-and did manual corrections to the unsafe code.
-
-In fget_light(), the rcu_dereference() is apparently never 
-intended in the "if true" of the conditional where 
-(likely((atomic_read(&files->count) == 1), so only one file 
-descriptor is open for the current task at that instant.  (A 
-child process could share that descriptor, but an unrelated 
-process would have its own file descriptor.)
-
-But fget_light() does return the file pointer which _some_ of 
-the time does require rcu-protection, so hypothetically, a 
-checker flags it as unsafe if no rcu_read_lock() is in place 
-in a caller at some level and checking can proceed to other 
-locking.
-
-The core premises have been that a path through the code 
-that contains rcu_dereference() or rcu_assign_pointer() is 
-matched to the assign/deref counterpart with the same struct 
-object type and the rcu_dereference() is nested in a read-side 
-critical section delimited by rcu_read_lock() and 
-rcu_read_unlock() used to determine the extent of the duration 
-of the struct at the address.
-
-The pointer to the file struct that fcheck_files() returns is 
-rcu_dereference(fdt->fd[fd]) and open.c has fd_install() call 
-rcu_assign_pointer(fdt->fd[fd], file).  In file_table.c, 
-file_free() calls call_rcu(&f->f_u.fu_rcuhead, file_free_rcu), 
-where the fu_rcuhead is a field of the file struct and 
-file_free_rcu() calls kmem_cache_free().
-
-Thank you very much for your insights into the reasoning. 
-Suzanne

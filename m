@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWCGBiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752467AbWCGBkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWCGBiA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752064AbWCGBiA
+	id S1752467AbWCGBkh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752468AbWCGBkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:38:00 -0500
-Received: from ms-smtp-04-smtplb.tampabay.rr.com ([65.32.5.134]:56978 "EHLO
-	ms-smtp-04.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751294AbWCGBh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:37:59 -0500
-Message-ID: <440CE3DB.5050103@cfl.rr.com>
-Date: Mon, 06 Mar 2006 20:37:31 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060213)
-MIME-Version: 1.0
-To: Dan Aloni <da-x@monatomic.org>
-CC: Benjamin LaHaise <bcrl@kvack.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Status of AIO
-References: <20060306062402.GA25284@localdomain> <20060306211854.GM20768@kvack.org> <20060307013049.GA19775@localdomain>
-In-Reply-To: <20060307013049.GA19775@localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 6 Mar 2006 20:40:37 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:56012 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1752467AbWCGBkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:40:36 -0500
+Subject: [PATCH]cpu model calculation for family 6 cpu
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 09:39:39 +0800
+Message-Id: <1141695579.19013.24.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aio_* functions are library routines in glibc that are implemented by 
-spawning threads to use the normal kernel io syscalls.  They don't use 
-real async IO in the kernel.  I'm not sure why you didn't see the 
-thread, but if you look up the glibc sources you will see how it works.
+The x86_model calculation also applies for family 6. early_cpu_detect
+does the right thing, but generic_identify misses.
 
-To use the kernel aio you make calls to io_submit().
+Signed-off-by: Shaohua Li<shaohua.li@intel.com>
+---
 
-Dan Aloni wrote:
-> Well, I've written a small test app to see if it works with network
-> sockets and apparently it did for that small test case (connect() 
-> with aio_read(), loop with aio_error(), and aio_return()). I thought 
-> perhaps the glibc implementation was running behind the scene, so I've 
-> checked to see if it a thread was created in the background and I 
-> there wasn't any thread. 
-> 
+ linux-2.6.16-rc5-root/arch/i386/kernel/cpu/common.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN arch/i386/kernel/cpu/common.c~cpu_model arch/i386/kernel/cpu/common.c
+--- linux-2.6.16-rc5/arch/i386/kernel/cpu/common.c~cpu_model	2006-03-02 09:47:21.000000000 +0800
++++ linux-2.6.16-rc5-root/arch/i386/kernel/cpu/common.c	2006-03-02 09:53:01.000000000 +0800
+@@ -278,10 +278,10 @@ void __devinit generic_identify(struct c
+ 			c->x86_capability[4] = excap;
+ 			c->x86 = (tfms >> 8) & 15;
+ 			c->x86_model = (tfms >> 4) & 15;
+-			if (c->x86 == 0xf) {
++			if (c->x86 == 0xf)
+ 				c->x86 += (tfms >> 20) & 0xff;
++			if (c->x86 >= 0x6)
+ 				c->x86_model += ((tfms >> 16) & 0xF) << 4;
+-			} 
+ 			c->x86_mask = tfms & 15;
+ 		} else {
+ 			/* Have CPUID level 0 only - unheard of */
+_
+
 

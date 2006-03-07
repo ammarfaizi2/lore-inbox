@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752125AbWCGJkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752133AbWCGJoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752125AbWCGJkO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 04:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752132AbWCGJkO
+	id S1752133AbWCGJoM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 04:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWCGJoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 04:40:14 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:42135
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1752125AbWCGJkM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 04:40:12 -0500
-Message-ID: <440D54F2.2080009@tglx.de>
-Date: Tue, 07 Mar 2006 10:40:02 +0100
-From: Jan Altenberg <tb10alj@tglx.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Tue, 7 Mar 2006 04:44:12 -0500
+Received: from mail.axxeo.de ([82.100.226.146]:31404 "EHLO mail.axxeo.de")
+	by vger.kernel.org with ESMTP id S1752133AbWCGJoL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 04:44:11 -0500
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Date: Tue, 7 Mar 2006 10:43:59 +0100
+User-Agent: KMail/1.7.2
+Cc: "David S. Miller" <davem@davemloft.net>, jengelh@linux01.gwdg.de,
+       christopher.leech@intel.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <20060303214036.11908.10499.stgit@gitlost.site> <200603061844.07439.netdev@axxeo.de> <20060307074438.GA22672@2ka.mipt.ru>
+In-Reply-To: <20060307074438.GA22672@2ka.mipt.ru>
 MIME-Version: 1.0
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: [PATCH] realtime-preempt patch-2.6.15-rt19 compile error (was: realtime-preempt
- patch-2.6.15-rt18 issues)
-References: <45924.195.245.190.93.1141647094.squirrel@www.rncbc.org>    <20060306132442.GA12359@elte.hu> <4547.195.245.190.94.1141657830.squirrel@www.rncbc.org>
-In-Reply-To: <4547.195.245.190.94.1141657830.squirrel@www.rncbc.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603071043.59479.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Evgeniy Polyakov wrote:
+> On Mon, Mar 06, 2006 at 06:44:07PM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
+> > Hmm, so I should resurrect my user page table walker abstraction?
+> > 
+> > There I would hand each page to a "recording" function, which
+> > can drop the page from the collection or coalesce it in the collector
+> > if your scatter gather implementation allows it.
+> 
+> It depends on where performance growth is stopped.
+> From the first glance it does not look like find_extend_vma(),
+> probably follow_page() fault and thus __handle_mm_fault().
+> I can not say actually, but if it is true and performance growth is
+> stopped due to increased number of faults and it's processing, 
+> your approach will hit this problem too, doesn't it?
 
-> -rt19 doesn't compile here (either with CONFIG_EMBEDDED=y or not):
+My approach reduced the number of loops performed and number
+of memory needed at the expense of doing more work in the main
+loop of get_user_pages. 
 
-same problem here. Looks like a typo...
-Am I right?
+This was mitigated for the common case of getting just one page by 
+providing a get_one_user_page() function.
 
-Signed-off-by: Jan Altenberg <tb10alj@tglx.de>
+The whole problem, why we need such multiple loops is that we have
+no common container object for "IO vector + additional data".
 
---------------------------------------------------
+So we always do a loop working over the vector returned by 
+get_user_pages() all the time. The bigger that vector, 
+the bigger the impact.
 
---- slab.c.orig 2006-03-07 10:27:35.000000000 +0100
-+++ slab.c      2006-03-07 10:28:17.000000000 +0100
-@@ -700,7 +700,7 @@ static struct kmem_cache cache_cache = {
-        .shared = 1,
-        .buffer_size = sizeof(struct kmem_cache),
-        .flags = SLAB_NO_REAP,
--       .spinlock = SPIN_LOCK_UNLOCKED(&cache_cache.spinlock),
-+       .spinlock = SPIN_LOCK_UNLOCKED(cache_cache.spinlock),
-        .name = "kmem_cache",
- #if DEBUG
-        .obj_size = sizeof(struct kmem_cache),
+Maybe sth. as simple as providing get_user_pages() with some offset_of 
+and container_of hackery will work these days without the disadvantages 
+my old get_user_pages() work had.
+
+The idea is, that you'll provide a vector (like arguments to calloc) and two 
+offsets: One for the page to store within the offset and one for the vma 
+to store.
+
+If the offset has a special value (e.g MAX_LONG) you don't store there at all.
+
+But if the performance problem really is get_user_pages() itself 
+(and not its callers), then my approach won't help at all.
+
+
+Regards
+
+Ingo Oeser

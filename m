@@ -1,84 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752364AbWCGL5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752485AbWCGMEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752364AbWCGL5n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 06:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWCGL5n
+	id S1752485AbWCGMEC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:04:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752488AbWCGMEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 06:57:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43460 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752364AbWCGL5n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 06:57:43 -0500
-Date: Tue, 7 Mar 2006 03:55:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "lgeek@frontiernet.net" <lgeek@frontiernet.net>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH] IRQ: prevent enabling of previously disabled interrupt
-Message-Id: <20060307035545.49b129c9.akpm@osdl.org>
-In-Reply-To: <20060306212209.qav38uffwhkwsg00@webmail04.roc.ny.frontiernet.net>
-References: <20060306212209.qav38uffwhkwsg00@webmail04.roc.ny.frontiernet.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Mar 2006 07:04:01 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:21624 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752486AbWCGMEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 07:04:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ZB5agXykZYSdp8l0vMXfTssSHGF8JAUJYc60vaEZdl+AkLfPLIYHwM8uE45l+t6lZQPW8q/ywTxBkWRUIcCYaFizUZeL6QszOWkMba2sqWu/1xVDULNdDIk4k3cCXhHxyA4Ha5Xljb+6s6Rgv3vhPILU/wS92jaU4dTMs7OY5v8=  ;
+Message-ID: <440D76A4.8050703@yahoo.com.au>
+Date: Tue, 07 Mar 2006 23:03:48 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com,
+       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/6] Optimise d_find_alias() [try #6]
+References: <20060307113352.23330.80913.stgit@warthog.cambridge.redhat.com> <20060307113404.23330.71158.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060307113404.23330.71158.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"lgeek@frontiernet.net" <lgeek@frontiernet.net> wrote:
->
-> Hi,
->    This fix prevents re-disabling and enabling of a previously disabled 
-> interrupt in 2.6.16-rc5.  On an SMP system with irq balancing enabled; 
-> If an interrupt is disabled from within its own interrupt context with 
-> disable_irq_nosync and is also earmarked for processor migration, the 
-> interrupt is blindly moved to the other processor and enabled without 
-> regard for its current "enabled" state.  If there is an interrupt  
-> pending, it will unexpectedly invoke the irq handler on the new irq 
-> owning processor (even though the irq was previously disabled)
+David Howells wrote:
+> The attached patch optimises d_find_alias() to only take the spinlock if
+> there's anything in the the inode's alias list. If there isn't, it returns NULL
+> immediately.
 > 
->    The more intuitive fix would be to invoke disable_irq_nosync and 
-> enable_irq, but since we already have the desc->lock from __do_IRQ, we 
-> cannot call them directly.  Instead we can use the same logic to 
-> disable and enable found in disable_irq_nosync and enable_irq, with 
-> regards to the desc->depth.
+> With respect to the superblock sharing patch, this should reduce by one the
+> number of times the dcache_lock is taken by nfs_lookup() for ordinary
+> directory lookups.
 > 
->    This now prevents a disabled interrupt from being re-disabled, and 
-> more importantly prevents a disabled interrupt from being incorrectly 
-> enabled on a different processor.
+> Only in the case where there's already a dentry for particular directory inode
+> (such as might happen when another mountpoint is rooted at that dentry) will
+> the lock then be taken the extra time.
 > 
-> Signed-off-by: Bryan Holty <lgeek@frontiernet.net>
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
 > 
-> --- 2.6.16-rc5/include/linux/irq.h
-> +++ b/include/linux/irq.h
-> @@ -155,9 +155,13 @@
-> 	 * Being paranoid i guess!
-> 	 */
-> 	if (unlikely(!cpus_empty(tmp))) {
-> -		desc->handler->disable(irq);
-> +		if (likely(!desc->depth++))
-> +			desc->handler->disable(irq);
-> +
-> 		desc->handler->set_affinity(irq,tmp);
-> -		desc->handler->enable(irq);
-> +
-> +		if (likely(!--desc->depth))
-> +			desc->handler->enable(irq);
-> 	}
-> 	cpus_clear(pending_irq_cpumask[irq]);
-> }
+>  fs/dcache.c |   11 +++++++----
+>  1 files changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/dcache.c b/fs/dcache.c
+> index 97e1e44..32051ba 100644
+> --- a/fs/dcache.c
+> +++ b/fs/dcache.c
+> @@ -325,10 +325,13 @@ static struct dentry * __d_find_alias(st
+>  
+>  struct dentry * d_find_alias(struct inode *inode)
+>  {
+> -	struct dentry *de;
+> -	spin_lock(&dcache_lock);
+> -	de = __d_find_alias(inode, 0);
+> -	spin_unlock(&dcache_lock);
+> +	struct dentry *de = NULL;
+> +	smp_rmb();
 
-But desc->lock isn't held here.  We need that for the update to ->depth (at
-least).
+Having the smp_rmb() here implies there is some sort of memory barrier
+based synchronisation protocol at a higher level (than this function),
+because you don't actually do anything before them smp_rmb() here.
 
-And we can't take it here because one of the two ->end callers in __do_IRQ
-already holds that lock.  Possibly we should require that ->end callers
-hold the lock, but that would incur considerable cost for cpu-local
-interrupts.
+So can you comment what that is?
 
-So we'd need to require that ->end gets called outside the lock for
-non-CPU-local interrupts.  I'm not sure what the implications of that would
-be - the ->end handlers don't need to be threaded at present and perhaps we
-could put hardware into a bad state?
+> +	if (!list_empty(&inode->i_dentry)) {
+> +		spin_lock(&dcache_lock);
+> +		de = __d_find_alias(inode, 0);
+> +		spin_unlock(&dcache_lock);
+> +	}
+>  	return de;
+>  }
+>  
 
-Or we add a new ->local_end, just for the CPU-local IRQs.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

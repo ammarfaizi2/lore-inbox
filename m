@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWCGXcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751580AbWCGXgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWCGXcR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 18:32:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWCGXcR
+	id S1751580AbWCGXgU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 18:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWCGXgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 18:32:17 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:16597 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964805AbWCGXcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 18:32:16 -0500
-References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org>
-Message-ID: <cone.1141774323.5234.18683.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Date: Wed, 08 Mar 2006 10:32:03 +1100
+	Tue, 7 Mar 2006 18:36:20 -0500
+Received: from hera.kernel.org ([140.211.167.34]:7392 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751462AbWCGXgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 18:36:19 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Patch to reorder functions in the vmlinux to a defined order
+Date: Tue, 7 Mar 2006 15:36:00 -0800 (PST)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <dul5d0$16r$1@terminus.zytor.com>
+References: <1140700758.4672.51.camel@laptopd505.fenrus.org> <m17j7kda52.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0602240925170.3771@g5.osdl.org> <43FF48F2.70508@keyaccess.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1141774560 1244 127.0.0.1 (7 Mar 2006 23:36:00 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 7 Mar 2006 23:36:00 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
-
-> Con Kolivas <kernel@kolivas.org> wrote:
->>
->> Swap prefetching doesn't use very much cpu but spends a lot of time waiting on 
->> disk in uninterruptible sleep. This means it won't get preempted often even at 
->> a low nice level since it is seen as sleeping most of the time. We want to 
->> minimise its cpu impact so yield where possible.
->> 
->> Signed-off-by: Con Kolivas <kernel@kolivas.org>
->> ---
->>  mm/swap_prefetch.c |    1 +
->>  1 file changed, 1 insertion(+)
->> 
->> Index: linux-2.6.15-ck5/mm/swap_prefetch.c
->> ===================================================================
->> --- linux-2.6.15-ck5.orig/mm/swap_prefetch.c	2006-03-02 14:00:46.000000000 +1100
->> +++ linux-2.6.15-ck5/mm/swap_prefetch.c	2006-03-08 08:49:32.000000000 +1100
->> @@ -421,6 +421,7 @@ static enum trickle_return trickle_swap(
->>  
->>  		if (trickle_swap_cache_async(swp_entry, node) == TRICKLE_DELAY)
->>  			break;
->> +		yield();
->>  	}
->>  
->>  	if (sp_stat.prefetched_pages) {
+Followup to:  <43FF48F2.70508@keyaccess.nl>
+By author:    Rene Herman <rene.herman@keyaccess.nl>
+In newsgroup: linux.dev.kernel
+>
+> Linus Torvalds wrote:
 > 
-> yield() really sucks if there are a lot of runnable tasks.  And the amount
-> of CPU which that thread uses isn't likely to matter anyway.
+> > The real issue is the _physical_ address. Nothing else matters.
+> > 
+> > If the TLB splitting on the fixed MTRRs is an issue, it depends entirely 
+> > on what physical address the kernel resides in, and the virtual address is 
+> > totally inconsequential.
+> > 
+> > So playing games with virtual mapping has absolutely no upsides, and it 
+> > definitely has downsides.
 > 
-> I think it'd be better to just not do this.  Perhaps alter the thread's
-> static priority instead?  Does the scheduler have a knob which can be used
-> to disable a tasks's dynamic priority boost heuristic?
+> The notion was that having a fixed virtual mapping of the kernel would 
+> allow it to be loaded anywhere physically without needing to do actual 
+> address fixups. The bootloader could then for example at runtime decide 
+> to load the kernel at 16MB if the machine had enough memory available, 
+> to free up ZONE_DMA. Or not do that if running on a <= 16MB machine.
+> 
 
-We do have SCHED_BATCH but even that doesn't really have the desired effect. 
-I know how much yield sucks and I actually want it to suck as much as yield 
-does.
+The only machines on which ZONE_DMA matters (machines with ISA DMA
+devices) are also the ones which are likely to be <= 16 MB.
 
-Cheers,
-Con
+Yes, there are floppies, but I think having over 3 MB available for
+floppy DMA is plenty, and floppies are FINALLY going away...
 
+	-hpa

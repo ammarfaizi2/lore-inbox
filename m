@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752487AbWCGMK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWCGMKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752487AbWCGMK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 07:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752490AbWCGMK2
+	id S1751155AbWCGMKN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752487AbWCGMKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 07:10:28 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:4765 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752487AbWCGMK1 (ORCPT
+	Tue, 7 Mar 2006 07:10:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2504 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751155AbWCGMKL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 07:10:27 -0500
-Date: Tue, 7 Mar 2006 17:39:16 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       fabbione@ubuntu.com
-Subject: Re: VFS nr_files accounting
-Message-ID: <20060307120916.GD5946@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060305070537.GB21751@in.ibm.com> <20060304.233725.49897411.davem@davemloft.net> <20060305113847.GE21751@in.ibm.com> <20060306.123904.35238417.davem@davemloft.net> <20060307064120.GA5946@in.ibm.com> <20060306230639.24eacb6c.akpm@osdl.org>
+	Tue, 7 Mar 2006 07:10:11 -0500
+Date: Tue, 7 Mar 2006 04:08:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andres Salomon <dilinger@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pdflush and high load
+Message-Id: <20060307040821.29aa78c1.akpm@osdl.org>
+In-Reply-To: <1141682814.30428.60.camel@localhost.localdomain>
+References: <1141682814.30428.60.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060306230639.24eacb6c.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 11:06:39PM -0800, Andrew Morton wrote:
-> Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> >
-> >  > I think we should seriously consider these patches for 2.6.16
-> > 
-> >  Isn't it a little too late in the 2.6.16 cycle ? I would have
-> >  liked a little more time in -mm. Anyway, it is Linus' call. 
-> >  I can refresh the patches and submit against latest mainline
-> >  if Linus and Andrew want.
+Andres Salomon <dilinger@debian.org> wrote:
+>
+> Hi,
 > 
-> I'd view a 2.6.16 merge as relatively low-risk.  My main concern would be
-> possible breakage of those whacky route-cache workloads.
+> (2nd attempt at posting this; the first one appears to have
+> disappeared?)
 
-Yes, I was hoping that more time in -mm would bring out those
-whacky corner case OOM/latency problems. 
+It came through.
 
-Anyway, here is the kernel paramenter documentation patch.
-I am not sure if I got the restrictions in square bracket
-right.
+> Basically, what ends up happening on my system is, each pdflush process
+> is handling background_writeout(), encountering congestion, and calling
+> blk_congestion_wait(WRITE, HZ/10) after every loop.
 
-Thanks
-Dipankar
+Yes, the do-we-need-another-thread algorithm is rather too naive.  I could
+swear it _used_ to work OK.  Maybe something changed to cause individual
+threads to block for longer than they used to.  That would be an
+independent problem - one pdflush instance is supposed to be able to handle
+many queues (I tested one instance on 12 disks and it worked OK.  But that
+was 4-5 years ago)
 
+> My solution to the problem is to keep the blk_congestion_wait() sleep as
+> uninterruptible, but add a check to the background_writeout() loop to
+> check whether the current pdflush thread is actually doing anything
+> useful; if it's not, just give up.
 
+It would be better to not start a new thread in the first place.
 
-Update kernel paramenters documentation for new RCU tuning
-paramenters.
-
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
-
-
- Documentation/kernel-parameters.txt |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
-
-diff -puN Documentation/kernel-parameters.txt~rcu-tuning-parm-doc Documentation/kernel-parameters.txt
---- linux-2.6.16-rc3-rcu/Documentation/kernel-parameters.txt~rcu-tuning-parm-doc	2006-03-07 17:23:52.000000000 +0530
-+++ linux-2.6.16-rc3-rcu-dipankar/Documentation/kernel-parameters.txt	2006-03-07 17:33:59.000000000 +0530
-@@ -1280,6 +1280,19 @@ running once the system is up.
- 			New name for the ramdisk parameter.
- 			See Documentation/ramdisk.txt.
- 
-+	rcu.blimit=	[KNL,BOOT] Set maximum number of finished
-+			RCU callbacks to process in one batch.
-+
-+	rcu.qhimark=	[KNL,BOOT] Set threshold of queued
-+			RCU callbacks over which batch limiting is disabled.
-+
-+	rcu.qlowmark=	[KNL,BOOT] Set threshold of queued
-+			RCU callbacks below which batch limiting is re-enabled.
-+
-+	rcu.rsinterval=	[KNL,BOOT,SMP] Set the number of additional
-+			RCU callbacks to queued before forcing reschedule
-+			on all cpus.
-+
- 	rdinit=		[KNL]
- 			Format: <full_path>
- 			Run specified binary instead of /init from the ramdisk,
-
-_

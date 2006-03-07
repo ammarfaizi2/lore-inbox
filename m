@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752141AbWCGM2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWCGMZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752141AbWCGM2j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 07:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752492AbWCGM2j
+	id S1750858AbWCGMZd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752141AbWCGMZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 07:28:39 -0500
-Received: from tao.natur.cuni.cz ([195.113.56.1]:42513 "EHLO tao.natur.cuni.cz")
-	by vger.kernel.org with ESMTP id S1752141AbWCGM2i (ORCPT
+	Tue, 7 Mar 2006 07:25:33 -0500
+Received: from tao.natur.cuni.cz ([195.113.56.1]:37905 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id S1750858AbWCGMZc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 07:28:38 -0500
+	Tue, 7 Mar 2006 07:25:32 -0500
 X-Obalka-From: mmokrejs@ribosome.natur.cuni.cz
 X-Obalka-To: <linux-kernel@vger.kernel.org>
-Message-ID: <440D7C75.8010307@ribosome.natur.cuni.cz>
-Date: Tue, 07 Mar 2006 13:28:37 +0100
+Message-ID: <440D7BB8.40106@ribosome.natur.cuni.cz>
+Date: Tue, 07 Mar 2006 13:25:28 +0100
 From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
 	<mmokrejs@ribosome.natur.cuni.cz>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051002
@@ -29,10 +29,7 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, BIOS during the POST test shows all 16GB, it is only 
-linux-2.6.16-rc5 who get's it wrong. Even the summary window 
-provided by BIOS just before grub gets loaded shows 16GB of RAM.
-I don't believe it is anything else then the kernel.
+Hi Andrew,
 
 Andrew Morton wrote:
 > Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
@@ -72,5 +69,20 @@ Andrew Morton wrote:
 > 
 > These numbers are what the BIOS is telling the kernel about your machine. 
 > Was the BIOS changed?
+
+No, it hasn't since we got the motherboard. Yes, it is 1.20 instead 
+of 1.50. The MSI web is such a crap I couldn't first of all get the 
+file at all and once found on a local reseller's page the zip file 
+contains no Changelog, so I have no clue what happened between 1.20 
+and 1.50 BIOS revision.
+
 > 
 > If not, you might need to wiggle those DIMMs or something.
+
+It is really something else, 16GB can be seen under 2.6.15, 
+2.6.15-rc1 (if I remember right my previous kernel version).
+I can reproduce just by booting with "wrong" kernel version.
+Any other recommendation? Except flashing and praying?
+I haven't touched the BIOS setting either, I worked completely remotely.
+
+Martin

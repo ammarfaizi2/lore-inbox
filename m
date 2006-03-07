@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWCGRvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWCGRzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWCGRvm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 12:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCGRvm
+	id S1751407AbWCGRzs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 12:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCGRzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 12:51:42 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:21429 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1751398AbWCGRvl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 12:51:41 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-Date: Tue, 7 Mar 2006 10:51:35 -0700
-User-Agent: KMail/1.8.3
-Cc: "Robert Hancock" <hancockr@shaw.ca>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <5N5Ql-30C-11@gated-at.bofh.it> <440D918D.2000502@shaw.ca> <Pine.LNX.4.61.0603070908460.9133@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0603070908460.9133@chaos.analogic.com>
+	Tue, 7 Mar 2006 12:55:48 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18395 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751407AbWCGRzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 12:55:47 -0500
+To: Gerd Hoffmann <kraxel@suse.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix ELF entry point (i386)
+References: <43FC4682.6050803@suse.de>
+	<m1bqwkc0l1.fsf@ebiederm.dsl.xmission.com> <440C363F.8000503@suse.de>
+	<m1r75f8k21.fsf@ebiederm.dsl.xmission.com> <440D8D97.6000300@suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Mar 2006 10:55:24 -0700
+In-Reply-To: <440D8D97.6000300@suse.de> (Gerd Hoffmann's message of "Tue, 07
+ Mar 2006 14:41:43 +0100")
+Message-ID: <m1y7zm16nn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603071051.35791.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 07:21, linux-os (Dick Johnson) wrote:
-> Thinking that a device powers ON in a stable state is naive. Many
-> complex devices will have FPGA devices with floating pins that don't
-> become stable until their contents are loaded serially. Others will
-> have IRQ requests based upon power-on states that need to be cleared
-> with a software reset. One can't issue a software reset until the
-> device is enabled and enabling the device may generate interrupts
-> with no handler in place so you have a "can't get there from here"
-> problem.
+Gerd Hoffmann <kraxel@suse.de> writes:
 
-Maybe you could handle this with a PCI quirk that runs before
-pci_enable_device().  IIRC, we considered exposing a separate
-interface for PCI IRQ allocation and routing, but decided it
-wasn't worth the complexity since so few devices would need it.
+>> Currently my assumptions are:
+>> 
+>> Standalone executables load at the physical not the virtual addresses.
+>> Standalone executables start executing at a physical address and not at
+>> a virtual address.
+>
+> Well, that is true for real hardware.  xen guest kernels are booted with
+> paging already enabled and thus the entry point is in virtual memory,
+> and I'm trying to figure how to handle that best (both for initial boot
+> and kexec).
+>
+> xen uses a special xen header anyway to give the domain builder a hint
+> how the initial page tables should look like (they look simliar to what
+> head.S creates on real hardware).  That can also be used to figure the
+> correct virtual entry point from the physical one.  It probably even
+> makes more sense to do that (instead of writing the virtual address into
+> the entry point) as the xen domain builder doesn't look at the virtual
+> addresses in the ELF headers too.  It uses PAGE_OFFSET+paddr instead.
+> That keeps the differences between real and virtual hardware small ...
 
-> Linux-2.4.x had IRQs that were stable. One could put 
-> a handler in place that would handle the possible burst of interrupts
-> upon startup. Then this was changed so the IRQ value is wrong
-> until an unrelated and illogical event occurs.
+Ok. The unmerged Xen case.
 
-There are good reasons to wait to allocate the IRQ until you have
-a driver that cares about the device.  I'm sorry that this broke
-your specific case.
+I have some pending patches that make a bzImage a ET_DYN executable.
+Would that be interesting to you?  Especially if that would just mean
+your initial page tables got to set physical == virtual?
 
-Bjorn
+I believe Xen does expose the actual physical addresses to the guest.
+
+Either that or this is a case where Xen probably needs to take a
+different path in the build system.
+
+Eric
+
+

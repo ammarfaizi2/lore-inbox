@@ -1,83 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWCGBHo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWCGBJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932576AbWCGBHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:07:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWCGBHn
+	id S932385AbWCGBJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:09:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWCGBJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:07:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37097 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932576AbWCGBHn (ORCPT
+	Mon, 6 Mar 2006 20:09:27 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49073 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932385AbWCGBJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:07:43 -0500
-Date: Mon, 6 Mar 2006 17:05:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 64bit unaligned access on 32bit kernel
-Message-Id: <20060306170552.0aab29c5.akpm@osdl.org>
-In-Reply-To: <20060306.203218.69025300.nemoto@toshiba-tops.co.jp>
-References: <20050830104056.GA4710@linux-mips.org>
-	<20060306.203218.69025300.nemoto@toshiba-tops.co.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 6 Mar 2006 20:09:27 -0500
+Date: Mon, 6 Mar 2006 17:09:19 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: initcall at ... returned with error code -19 (Was: Re:
+ 2.6.16-rc5-mm2)
+Message-Id: <20060306170919.0fcd8566.pj@sgi.com>
+In-Reply-To: <20060306140851.4140ae2b.akpm@osdl.org>
+References: <9a8748490603061359r64655a45i9a26e1f92009c7bf@mail.gmail.com>
+	<20060306140851.4140ae2b.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
->
-> >>>>> On Tue, 30 Aug 2005 11:40:56 +0100, Ralf Baechle <ralf@linux-mips.org> said:
-> > I've rewriten Atushi's fix for the 64-bit put_unaligned on 32-bit
-> > systems bug to generate more efficient code.
-> 
-> > This case has buzilla URL http://bugzilla.kernel.org/show_bug.cgi?id=5138.
-> 
-> > Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-> ...
-> >  #define __get_unaligned(ptr, size) ({		\
-> >  	const void *__gu_p = ptr;		\
-> > -	unsigned long val;			\
-> > +	__typeof__(*(ptr)) val;			\
-> >  	switch (size) {				\
-> >  	case 1:					\
-> >  		val = *(const __u8 *)__gu_p;	\
-> 
-> It looks gcc 4.x strike back.  If the 'ptr' is a const, this code
-> cause "assignment of read-only variable" error on gcc 4.x.  Let's step
-> a back, or do you have any other good idea?
-> 
-> 
-> Use __u64 instead of __typeof__(*(ptr)) for temporary variable to get
-> rid of errors on gcc 4.x.
-> 
-> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-> 
-> diff --git a/include/asm-generic/unaligned.h b/include/asm-generic/unaligned.h
-> index 4dc8ddb..09ec447 100644
-> --- a/include/asm-generic/unaligned.h
-> +++ b/include/asm-generic/unaligned.h
-> @@ -78,7 +78,7 @@ static inline void __ustw(__u16 val, __u
->  
->  #define __get_unaligned(ptr, size) ({		\
->  	const void *__gu_p = ptr;		\
-> -	__typeof__(*(ptr)) val;			\
-> +	__u64 val;				\
->  	switch (size) {				\
->  	case 1:					\
->  		val = *(const __u8 *)__gu_p;	\
-> @@ -95,7 +95,7 @@ static inline void __ustw(__u16 val, __u
->  	default:				\
->  		bad_unaligned_access_length();	\
->  	};					\
-> -	val;					\
-> +	(__typeof__(*(ptr)))val;		\
->  })
->  
->  #define __put_unaligned(val, ptr, size)		\
+Andrew wrote:
+> That's OK - it's -ENODEV. 
 
-I worry about what impact that change might have on code generation. 
-Hopefully none, if gcc is good enough.
+I can't help but wonder if the particular case of -ENODEV should
+be kept quiet, as in the following totally untested patch:
 
-But I cannot think of a better fix.
+diff -Naurp 2.6.16-rc5-mm2.orig/init/main.c 2.6.16-rc5-mm2/init/main.c
+--- 2.6.16-rc5-mm2.orig/init/main.c	2006-03-06 17:02:46.491860190 -0800
++++ 2.6.16-rc5-mm2/init/main.c	2006-03-06 17:07:29.754830844 -0800
+@@ -608,7 +608,8 @@ static void __init do_initcalls(void)
+ 
+ 		result = (*call)();
+ 
+-		if (result) {
++		/* don't mind -ENODEV - just a driver w/o hardware */
++		if (result && result != -ENODEV) {
+ 			sprintf(msgbuf, "error code %d", result);
+ 			msg = msgbuf;
+ 		}
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

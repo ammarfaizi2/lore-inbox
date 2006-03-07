@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbWCGIAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWCGIDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbWCGIAa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 03:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752012AbWCGIAa
+	id S1751141AbWCGIDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 03:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752023AbWCGIDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 03:00:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:33255 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750950AbWCGIA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 03:00:29 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alex <gaaf@gmx.net>
-Subject: Re: modutils
-Date: Tue, 07 Mar 2006 08:45:50 +0100
-Message-ID: <dujdne$hku$1@sea.gmane.org>
-References: <503e0f9d0603022041q717ae7cdo8539ba8f508dd681@mail.gmail.com> <105c793f0603022138u6dca326ewa3b5d476f4c4ef48@mail.gmail.com> <503e0f9d0603022141l5dc9a88ds380dd9dd2ba22c41@mail.gmail.com> <105c793f0603022145t55f25cedpd6c40efd703530f5@mail.gmail.com> <503e0f9d0603022155j2570314jffcdf84060e336f2@mail.gmail.com>
+	Tue, 7 Mar 2006 03:03:15 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:53633 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751141AbWCGIDP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 03:03:15 -0500
+Date: Tue, 7 Mar 2006 13:32:06 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com,
+       akpm@osdl.org
+Subject: Re: VFS nr_files accounting
+Message-ID: <20060307080206.GB5946@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060305113847.GE21751@in.ibm.com> <20060306.123904.35238417.davem@davemloft.net> <20060307064120.GA5946@in.ibm.com> <20060306.224748.86458359.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: waxy.kabel.utwente.nl
-User-Agent: KNode/0.10.1
+Content-Disposition: inline
+In-Reply-To: <20060306.224748.86458359.davem@davemloft.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tim tim wrote:
-
-> okayy let me give a breif explanatin of what i am doing..
+On Mon, Mar 06, 2006 at 10:47:48PM -0800, David S. Miller wrote:
+> From: Dipankar Sarma <dipankar@in.ibm.com>
+> Date: Tue, 7 Mar 2006 12:11:20 +0530
 > 
-> here i am trying to install 2.6.10 kernel on the system that was fully
-> installed RedHat EL3 (2.4.21). we followed this procedure..
+> > On Mon, Mar 06, 2006 at 12:39:04PM -0800, David S. Miller wrote:
+> > > I think we should seriously consider these patches for 2.6.16
+> > 
+> > Isn't it a little too late in the 2.6.16 cycle ? I would have
+> > liked a little more time in -mm. Anyway, it is Linus' call. 
+> > I can refresh the patches and submit against latest mainline
+> > if Linus and Andrew want.
 > 
-> make xconfig and selected loadable modules support along with the
-> filesystem (ext3) support.
+> Users can run widely published programs to make one's system run out
+> of file descriptors and make the machine totaly unusable.
 > 
-> then make bzImage
-> make modules
+> If that doesn't qualify for something to fix for 2.6.16 I don't know
+> what does.  :-)
 
-Isn't a 'make install' missing here?
- 
-> so far it works fine  and
-> make modules_install
-> 
-> it tries to install some .. modules .. after that it prints like..
+Not many people have access to shiny new 8-core 32-thread CPUs
+(/me turns green saying this) :-)
 
-<snip>
+To be honest I thought Linus' earlier fix that increased
+RCU maximum batch size to 1000 had more or less fixed
+the issue for most people. I haven't seen it in my testing,
+but I agree that we have to take OOMs seriously. I am just being
+paranoic here.
 
-
-Alex.
-
+Thanks
+Dipankar

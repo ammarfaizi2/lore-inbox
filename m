@@ -1,62 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752049AbWCGK0U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751979AbWCGKnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752049AbWCGK0U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 05:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752134AbWCGK0U
+	id S1751979AbWCGKnX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 05:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752031AbWCGKnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 05:26:20 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:15595 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1752049AbWCGK0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 05:26:20 -0500
-Date: Tue, 7 Mar 2006 05:26:09 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: jonathan@jonmasters.org
-cc: Lee Revell <rlrevell@joe-job.com>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Chris Ball <cjb@mrao.cam.ac.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] inotify hack for locate
-In-Reply-To: <35fb2e590603061633w2dd7fff4m63e73ee8ed409951@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0603070524020.9699@gandalf.stny.rr.com>
-References: <35fb2e590603051336t5d8d7e93i986109bc16a8ec38@mail.gmail.com> 
- <yd3bqwkbgsi.fsf@islay.ra.phy.cam.ac.uk>  <35fb2e590603051704k120e0257wb39c3e3eb1cf0b49@mail.gmail.com>
-  <440C0175.7040909@aitel.hist.no> <1141690310.25487.97.camel@mindpipe>
- <35fb2e590603061633w2dd7fff4m63e73ee8ed409951@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Mar 2006 05:43:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55727 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751979AbWCGKnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 05:43:22 -0500
+Date: Tue, 7 Mar 2006 02:41:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: greg@kroah.com, dsp@llnl.gov, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Message-Id: <20060307024113.103bbf1c.akpm@osdl.org>
+In-Reply-To: <20060306222400.GK27946@ftp.linux.org.uk>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org>
+	<200603061052.57188.dsp@llnl.gov>
+	<20060306195348.GB8777@kroah.com>
+	<200603061301.37923.dsp@llnl.gov>
+	<20060306213203.GJ27946@ftp.linux.org.uk>
+	<20060306215344.GB16825@kroah.com>
+	<20060306222400.GK27946@ftp.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 7 Mar 2006, Jon Masters wrote:
-
-> On 3/7/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> > On Mon, 2006-03-06 at 10:31 +0100, Helge Hafting wrote:
-> > > As for the non-existent virus problem - it is mostly prevented
-> > > by users not being administrators.  And you can go further
-> > > with a readonly /usr and a noexec /home.
+Al Viro <viro@ftp.linux.org.uk> wrote:
 >
-> > I believe he is referring to using Linux systems to provide virus
-> > scanning services for mail, NFS, SMB etc. clients, rather than to virus
-> > scanning for the Linux desktop (which is indeed a non problem).
->
-> Sure. I wasn't hand waving an muttering about virus problems on Linux
-> desktops everywhere.
->
-> Anyway. Seems a couple of us are interested in having something more
-> generic at the VFS level to notify userspace about particular events
-> of interest (recursively registering a watcher on every directory is
-> silly). I really should go scope out some of the existing projects
-> that cover this before I decide what to do. This kind of thing should
-> be in mainline IMHO.
->
+> On Mon, Mar 06, 2006 at 01:53:44PM -0800, Greg KH wrote:
+>  > > 	rmmod your_turd </sys/spew/from/your_turd
+>  > > and there you go.  rmmod can _NOT_ wait for sysfs references to go away.
+>  > 
+>  > To be fair, the only part of the kernel that supports the above process,
+>  > is the network stack.  And they implemented a special kind of lock to
+>  > handle just this kind of thing.
+>  > 
+>  > That is not something that I want the rest of the kernel to have to use.
+>  > If your code blocks when doing the above thing, that's fine with me.
+> 
+>  One word: fail.  With -EBUSY.
 
-Hmm, this could also be very useful for change management systems and
-especially backup utilities. Imagine having a daemon that records all the
-changes on a filesystem, and then backs them up periodically. Could very
-well be useful.
+It seems quite simple to make wait_for_zero_refcount() interruptible? 
+Something like...
 
--- Steve
+
+
+--- devel/kernel/module.c~modules-make-wait_for_zero_refcount-interruptible	2006-03-07 02:36:46.000000000 -0800
++++ devel-akpm/kernel/module.c	2006-03-07 02:39:18.000000000 -0800
+@@ -578,8 +578,8 @@ static void wait_for_zero_refcount(struc
+ 	mutex_unlock(&module_mutex);
+ 	for (;;) {
+ 		DEBUGP("Looking at refcount...\n");
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		if (module_refcount(mod) == 0)
++		set_current_state(TASK_INTERRUPTIBLE);
++		if (module_refcount(mod) == 0 || signal_pending(current))
+ 			break;
+ 		schedule();
+ 	}
+@@ -645,8 +645,18 @@ sys_delete_module(const char __user *nam
+ 		goto out;
+ 
+ 	/* Never wait if forced. */
+-	if (!forced && module_refcount(mod) != 0)
++	if (!forced && module_refcount(mod) != 0) {
+ 		wait_for_zero_refcount(mod);
++		if (module_refcount(mod)) {
++			/*
++			 * Signalled: back out
++			 */
++			mod->state = MODULE_STATE_LIVE;
++			mod->waiter = NULL;
++			ret = -EINTR;
++			goto out;
++		}
++	}
+ 
+ 	/* Final destruction now noone is using it. */
+ 	if (mod->exit != NULL) {
+_
+

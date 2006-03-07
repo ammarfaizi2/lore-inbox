@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWCGTAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWCGTDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWCGTAx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 14:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWCGTAw
+	id S1751187AbWCGTDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 14:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWCGTDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 14:00:52 -0500
-Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:39851
-	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
-	id S932167AbWCGTAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 14:00:52 -0500
-Date: Tue, 7 Mar 2006 11:59:51 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, "Anders K. Pedersen" <akp@cohaesio.com>
-Subject: Re: [PATCH] Let DAC960 supply entropy to random pool]
-Message-ID: <20060307175951.GH14549@waste.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 7 Mar 2006 14:03:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54219 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751187AbWCGTDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 14:03:44 -0500
+Subject: Re: [PATCH] EDAC: core EDAC support code
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, alan@redhat.com, gregkh@kroah.com
+In-Reply-To: <200603070903.19226.dsp@llnl.gov>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org>
+	 <200603061014.22312.dsp@llnl.gov>
+	 <20060306102232.613911f6.rdunlap@xenotime.net>
+	 <200603070903.19226.dsp@llnl.gov>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 20:03:38 +0100
+Message-Id: <1141758219.3048.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add disk entropy in DAC960 request completions.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
-Tested-by: Anders K. Pedersen <akp@cohaesio.com>
+> I was initially a bit confused because I thought the comment
+> specifically pertained to the piece of code shown above.  I need to
+> take a closer look at the EDAC sysfs code - I'm not as familiar with
+> some of its details as I should be.  Thanks for pointing out the
+> issue.
 
-Index: 2.6/drivers/block/DAC960.c
-===================================================================
---- 2.6.orig/drivers/block/DAC960.c	2006-03-01 23:32:32.000000000 -0600
-+++ 2.6/drivers/block/DAC960.c	2006-03-06 11:41:45.000000000 -0600
-@@ -41,6 +41,7 @@
- #include <linux/timer.h>
- #include <linux/pci.h>
- #include <linux/init.h>
-+#include <linux/random.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include "DAC960.h"
-@@ -3463,7 +3464,7 @@ static inline boolean DAC960_ProcessComp
- 		Command->SegmentCount, Command->DmaDirection);
- 
- 	 if (!end_that_request_first(Request, UpToDate, Command->BlockCount)) {
--
-+		add_disk_randomness(Request->rq_disk);
-  	 	end_that_request_last(Request, UpToDate);
- 
- 		if (Command->Completion) {
+afaics it is a list of pci devices. these should just be symlinks to the
+sysfs resource of these pci devices instead, not a flat table file.
 
-
--- 
-Mathematics is the supreme nostalgia of our time.
 

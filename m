@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWCGGmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWCGF43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751842AbWCGGmM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 01:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWCGGmM
+	id S1751107AbWCGF43 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 00:56:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWCGF43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 01:42:12 -0500
-Received: from pproxy.gmail.com ([64.233.166.179]:34596 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751842AbWCGGmL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 01:42:11 -0500
+	Tue, 7 Mar 2006 00:56:29 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:45650 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751107AbWCGF43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 00:56:29 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=o/39DWA9051kuDByVBG8HbCacFn9SP1CEXLvh2VIMs12x/wuBcG6vqp04m64AshO6tdGtGXgiyl/f86OnCJcGiajL/Z2NcZfh6QL1x0/2i80gJaJvorVdSwznt882FfLXcAzY069P7TEMWikZynpgzfa8RlvZXWI4UsEXVzuumc=
-Message-ID: <105c793f0603062242h4c03b95fy8871e3ee50501ac1@mail.gmail.com>
-Date: Tue, 7 Mar 2006 01:42:10 -0500
-From: "Andrew Haninger" <ahaning@gmail.com>
-To: "tim tim" <tictactoe.tim@gmail.com>
-Subject: Re: kernel installation --depmod
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <503e0f9d0603062203x21cdf4e4w4e7da8c0f106fb73@mail.gmail.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=VHmzjp02CyJb0vsTzlzc2Td+4Do+dbwD34QUfcL/06wYlHJTjxxRX54EOx1yPeFnmWiDMSppKw59HLAmMduHBJ4KhaXKw2Zd9JB0S8Jd3mJlWGrGtC6Al4EEDVKoK8Zy6eJydyr45uwYkj9FXpJamGT1CivJ0JER+WghgG7rgG0=  ;
+Message-ID: <440D2087.5010201@yahoo.com.au>
+Date: Tue, 07 Mar 2006 16:56:23 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <503e0f9d0603062203x21cdf4e4w4e7da8c0f106fb73@mail.gmail.com>
+To: Mike Galbraith <efault@gmx.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>
+Subject: Re: Fw: Re: oops in choose_configuration()
+References: <20060304121723.19fe9b4b.akpm@osdl.org>	 <Pine.LNX.4.64.0603041235110.22647@g5.osdl.org>	 <20060304213447.GA4445@kroah.com> <20060304135138.613021bd.akpm@osdl.org>	 <20060304221810.GA20011@kroah.com> <20060305154858.0fb0006a.akpm@osdl.org>	 <Pine.LNX.4.64.0603052043170.13139@g5.osdl.org>	 <1141631240.26111.11.camel@homer> <1141710669.7901.9.camel@homer>
+In-Reply-To: <1141710669.7901.9.camel@homer>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/7/06, tim tim <tictactoe.tim@gmail.com> wrote:
-> hello andrew.. i even tried with modutils & mod init tools but even
-> after that we r getting the depmod errors.. i don't think there is a
-> problem in make modules.. since  Sam Ravnborg has mentioned something
-> that make modules is problem.. can any other suggestions u can offer
-> for us..
-I don't know what else I can really suggest. Perhaps it's time to find
-a distribution that includes the kernel release you want (or a more
-recent one).
+Mike Galbraith wrote:
+> On Mon, 2006-03-06 at 08:47 +0100, Mike Galbraith wrote:
+> 
+>>On Sun, 2006-03-05 at 21:00 -0800, Linus Torvalds wrote:
+>>
+>>
+>>>Is there something else I've missed?
+>>
+>>Maybe.  Does this add anything to the picture?  During boot,
+>>recalc_task_prio() is called with now < p->timestamp.  This causes quite
+>>a stir.  If you WARN_ON(now < p->timestamp) or printk, you'll have a
+>>dead box due to hundreds of gripes as things churn.  Adding...
+>>
+>>if (unlikely(now < p->timestamp))
+>>	__sleep_time = 0ULL;
+>>
+>>...turns it into exactly one gripe.
+> 
+> 
+> Nope.  Further research shows that this is just a speed-step problem.
+> Still, the scheduler needs to protect itself, because even with all of
+> the speed-step stuff enabled, these continue to occurr even after
+> boot-up if you switch to a low power setting, which screws up the
+> scheduler.
+> 
 
-Please answer the questions Sam asked:
+sched_clock needs to be fixed, rather than scheduler.
 
-> The warnings you see is a module that references symbols that it cannot
-> resolve.
-> Do you have a vmlinux in the root of your kernel tree?
-Look in your kernel source directory. Is there a file there called "vmlinux"?
-
-> Does Module.symvers include the symbols that you get warnings on?
-This file should be found in the root of your kernel tree, too.
-
-> You need to do a successful build of the kernel before you can build
-> the modules.
-Is the build of the kernel failing, thus leaving certain dependancies
-not met for the build of the modules? Do you get any error messages
-when you run "make" in the kernel source directory?
-
-Again, unless this is a "just for fun" exercise, it might be more
-worth your while to get a different distribution with all of this
-stuff preconfigured.
-
--Andy
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

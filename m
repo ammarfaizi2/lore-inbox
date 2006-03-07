@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751548AbWCGSuL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWCGSuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751548AbWCGSuL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 13:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWCGSuL
+	id S1751156AbWCGSuK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 13:50:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWCGSuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 13:50:11 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61126 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751548AbWCGSuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 13:50:09 -0500
-Subject: Re: vmlinuz-2.6.16-rc5-git8 still nogo with Intel D945 Motherboard
-From: Lee Revell <rlrevell@joe-job.com>
-To: Reg Clemens <reg@dwf.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       reg@deneb.dwf.com
-In-Reply-To: <200603071838.k27Icsem003983@deneb.dwf.com>
-References: <200603070340.k273ev0A003594@deneb.dwf.com>
-	 <1141703317.25487.142.camel@mindpipe>
-	 <200603070823.k278NE9o006674@deneb.dwf.com>
-	 <20060307081806.0af1d2c4.rdunlap@xenotime.net>
-	 <200603071838.k27Icsem003983@deneb.dwf.com>
+	Tue, 7 Mar 2006 13:50:10 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:25789 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751156AbWCGSuH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 13:50:07 -0500
+Subject: Re: Memory barriers and spin_unlock safety
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, ak@suse.de,
+       mingo@redhat.com, jblunck@suse.de, bcrl@linux.intel.com, matthew@wil.cx,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0603071024550.3573@g5.osdl.org>
+References: <5041.1141417027@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.64.0603030856260.22647@g5.osdl.org>
+	 <32518.1141401780@warthog.cambridge.redhat.com>
+	 <1146.1141404346@warthog.cambridge.redhat.com>
+	 <31420.1141753019@warthog.cambridge.redhat.com>
+	 <1141755496.31814.56.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603071024550.3573@g5.osdl.org>
 Content-Type: text/plain
-Date: Tue, 07 Mar 2006 13:50:06 -0500
-Message-Id: <1141757407.767.59.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Mar 2006 18:55:06 +0000
+Message-Id: <1141757706.31814.80.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-07 at 11:38 -0700, Reg Clemens wrote:
-> > Maybe try the latest e1000 driver from
-> >   http://sourceforge.net/projects/e1000/
-> > 
-> 
-> Humm
-> Since my last tests, the onboard sound does seem to work.
-> Mabe installing the SoundBlaster Intimidated it...
-> 
+On Maw, 2006-03-07 at 10:28 -0800, Linus Torvalds wrote:
+> x86 tends to serialize PIO too much (I think at least Intel CPU's will 
+> actually wait for the PIO write to be acknowledged by _something_ on the 
+> bus, although it obviously can't wait for the device to have acted on it).
 
-It was probably incorrect mixer settings or a buggy mixer app like Kmix.
+Don't bet on that 8(
 
-Lee
+In the PCI case the I/O write appears to be acked by the bridges used on
+x86 when the write completes on the PCI bus and then back to the CPU.
+MMIO is thankfully posted. At least thats how the timings on some
+devices look.
+
+
 

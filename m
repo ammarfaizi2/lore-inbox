@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWCGBEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbWCGBHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbWCGBEU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbWCGBEU
+	id S932576AbWCGBHo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWCGBHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:04:20 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:49343 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932574AbWCGBET convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:04:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WqWtXeAmsLYJsy/B7cq4jrzKmqkbQFUEI92dYGGliAJEStgr9cSmIiSscP8v3HYaRot6cMmiG051/wLaKRZk/M+taLqopUY2WIZ+2eNehwHayFWZsb4e7Jy8YAKNuEGFh9Ck3cmPkwM5v1S1jCSLIuhUSP88K0bQYBv7QyjrQDM=
-Message-ID: <a4e6962a0603061704o2eb3ef72t59f1b535ade1dd82@mail.gmail.com>
-Date: Mon, 6 Mar 2006 19:04:17 -0600
-From: "Eric Van Hensbergen" <ericvh@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 9pfs double kfree
-Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       rminnich@lanl.gov, "Latchesar Ionkov" <lucho@ionkov.net>
-In-Reply-To: <20060306163745.65e0f4d8.akpm@osdl.org>
-MIME-Version: 1.0
+	Mon, 6 Mar 2006 20:07:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37097 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932576AbWCGBHn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:07:43 -0500
+Date: Mon, 6 Mar 2006 17:05:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: ralf@linux-mips.org, linux-mips@linux-mips.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 64bit unaligned access on 32bit kernel
+Message-Id: <20060306170552.0aab29c5.akpm@osdl.org>
+In-Reply-To: <20060306.203218.69025300.nemoto@toshiba-tops.co.jp>
+References: <20050830104056.GA4710@linux-mips.org>
+	<20060306.203218.69025300.nemoto@toshiba-tops.co.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060306070456.GA16478@redhat.com>
-	 <20060306163745.65e0f4d8.akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/6/06, Andrew Morton <akpm@osdl.org> wrote:
+Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
 >
-> So I'll duck on this - Eric, could you please handle it?  Consider doing
-> away with the dynamically-allocated thing altogether and just allocating it
-> on the outermost caller's stack.
->
+> >>>>> On Tue, 30 Aug 2005 11:40:56 +0100, Ralf Baechle <ralf@linux-mips.org> said:
+> > I've rewriten Atushi's fix for the 64-bit put_unaligned on 32-bit
+> > systems bug to generate more efficient code.
+> 
+> > This case has buzilla URL http://bugzilla.kernel.org/show_bug.cgi?id=5138.
+> 
+> > Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+> ...
+> >  #define __get_unaligned(ptr, size) ({		\
+> >  	const void *__gu_p = ptr;		\
+> > -	unsigned long val;			\
+> > +	__typeof__(*(ptr)) val;			\
+> >  	switch (size) {				\
+> >  	case 1:					\
+> >  		val = *(const __u8 *)__gu_p;	\
+> 
+> It looks gcc 4.x strike back.  If the 'ptr' is a const, this code
+> cause "assignment of read-only variable" error on gcc 4.x.  Let's step
+> a back, or do you have any other good idea?
+> 
+> 
+> Use __u64 instead of __typeof__(*(ptr)) for temporary variable to get
+> rid of errors on gcc 4.x.
+> 
+> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> 
+> diff --git a/include/asm-generic/unaligned.h b/include/asm-generic/unaligned.h
+> index 4dc8ddb..09ec447 100644
+> --- a/include/asm-generic/unaligned.h
+> +++ b/include/asm-generic/unaligned.h
+> @@ -78,7 +78,7 @@ static inline void __ustw(__u16 val, __u
+>  
+>  #define __get_unaligned(ptr, size) ({		\
+>  	const void *__gu_p = ptr;		\
+> -	__typeof__(*(ptr)) val;			\
+> +	__u64 val;				\
+>  	switch (size) {				\
+>  	case 1:					\
+>  		val = *(const __u8 *)__gu_p;	\
+> @@ -95,7 +95,7 @@ static inline void __ustw(__u16 val, __u
+>  	default:				\
+>  		bad_unaligned_access_length();	\
+>  	};					\
+> -	val;					\
+> +	(__typeof__(*(ptr)))val;		\
+>  })
+>  
+>  #define __put_unaligned(val, ptr, size)		\
 
-Sure - Lucho may have already caught these, he's got a couple of
-patches in the queue and he reported fixing some problems of this
-nature that were in our recent patches.
+I worry about what impact that change might have on code generation. 
+Hopefully none, if gcc is good enough.
 
-             -eric
+But I cannot think of a better fix.

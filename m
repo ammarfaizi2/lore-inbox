@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWCGLGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751984AbWCGLJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWCGLGK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 06:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWCGLGK
+	id S1751984AbWCGLJA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 06:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752140AbWCGLJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 06:06:10 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:15819 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751087AbWCGLGI
+	Tue, 7 Mar 2006 06:09:00 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:60112 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751984AbWCGLI7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 06:06:08 -0500
-Date: Tue, 7 Mar 2006 16:35:53 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Neil Brown <neilb@suse.de>, Balbir Singh <bsingharora@gmail.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-Message-ID: <20060307110553.GA15796@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <17414.38749.886125.282255@cse.unsw.edu.au> <17419.53761.295044.78549@cse.unsw.edu.au> <661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com> <17420.59580.915759.44913@cse.unsw.edu.au> <440D2536.60005@sw.ru> <20060307070301.GA12165@in.ibm.com> <440D3475.4040603@sw.ru>
+	Tue, 7 Mar 2006 06:08:59 -0500
+Date: Tue, 7 Mar 2006 11:08:54 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: greg@kroah.com, dsp@llnl.gov, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Message-ID: <20060307110854.GN27946@ftp.linux.org.uk>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061052.57188.dsp@llnl.gov> <20060306195348.GB8777@kroah.com> <200603061301.37923.dsp@llnl.gov> <20060306213203.GJ27946@ftp.linux.org.uk> <20060306215344.GB16825@kroah.com> <20060306222400.GK27946@ftp.linux.org.uk> <20060307024113.103bbf1c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <440D3475.4040603@sw.ru>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20060307024113.103bbf1c.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Given that background, I thought our main concern was with respect to
-> >unmount. The race was between shrink_dcache_parent() (called from unmount)
-> >and shrink_dcache_memory() (called from the allocator), hence the fix
-> >for the race condition.
-> Partial fix doesn't make much sense from my point of view.
->
-
-IMHO, It was not a partial fix. slab_drop() addition changed the assumptions
-used by this fix 
- 
-> >I just noticied that 2.6.16-rc* now seems to have drop_slab() where
-> >PF_MEMALLOC is not set. So, we can still race with my fix if there
-> >if /proc/sys/vm/drop_caches is written to and unmount is done in parallel.
+On Tue, Mar 07, 2006 at 02:41:13AM -0800, Andrew Morton wrote:
+> Al Viro <viro@ftp.linux.org.uk> wrote:
 > >
-> >A simple hack would be to set PF_MEMALLOC in drop_slab(), but I do not
-> >think it is a good idea.
-> Yeah, playing with PF_MEMALLOC can be not so good idea :/
-> And as it doesn't help in other cases it looks unpromising...
-
-Yes, agreed.
-
+> > On Mon, Mar 06, 2006 at 01:53:44PM -0800, Greg KH wrote:
+> >  > > 	rmmod your_turd </sys/spew/from/your_turd
+> >  > > and there you go.  rmmod can _NOT_ wait for sysfs references to go away.
+> >  > 
+> >  > To be fair, the only part of the kernel that supports the above process,
+> >  > is the network stack.  And they implemented a special kind of lock to
+> >  > handle just this kind of thing.
+> >  > 
+> >  > That is not something that I want the rest of the kernel to have to use.
+> >  > If your code blocks when doing the above thing, that's fine with me.
+> > 
+> >  One word: fail.  With -EBUSY.
 > 
-> >>>Have you had any other feedback on this?
-> >>here it is :)
-> >Thanks for your detailed feedback
-> Sorry, that I did it too late :/
-> 
+> It seems quite simple to make wait_for_zero_refcount() interruptible? 
+> Something like...
 
-No problem
+That's something we need to do anyway, but here it's not a matter of removal
+blocking on module refcount:
 
-> Thanks,
-> Kirill
-> 
+| Regarding the above problem with the kobject reference count, this
+| was recently fixed in the -mm tree (see edac-kobject-sysfs-fixes.patch
+| in 2.6.16-rc5-mm2).  The fix I implemented was to add a call to
+| complete() in edac_memctrl_master_release() and then have the module
+| cleanup code wait for the completion.  I think there were a few other
+| instances of this type of problem that I also fixed in the
+| above-mentioned patch.
 
-Balbir
+and that is clearly broken.  Moreover, unlike having rmmod -w interruptible
+(which is obviously a very good idea), here we would be in the middle of
+cleanup sequence and it would be too late to back off if interrupted.

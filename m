@@ -1,88 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWCGBPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbWCGBPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbWCGBPq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbWCGBPq
+	id S932586AbWCGBPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWCGBPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:15:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:48483 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932589AbWCGBPp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:15:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mROcdhmVga4RuT9pDbehWozzSrHZJE2rRjUz5llbTJCgr1k4tTa4C8scF0SJMZ2N9YYBYzaTaXNBikybBbszRgs0libp6bZEXtWzyXZXEwuQjV5Ht7R1Q7G1z0mK9YihBq475y9Why/ziJ0UgvvS4SsHQTSSCia/G29B61oloow=
-Message-ID: <8766c4ce0603061715t7a0c2aacg@mail.gmail.com>
-Date: Tue, 7 Mar 2006 02:15:43 +0100
-From: "Miguel Blanco" <mblancom@gmail.com>
-To: "David Woodhouse" <dwmw2@infradead.org>
-Subject: Re: problem mounting a jffs2 filesystem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1141652131.4110.47.camel@pmac.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <8766c4ce0603050504h24b445c5t@mail.gmail.com>
-	 <1141652131.4110.47.camel@pmac.infradead.org>
+	Mon, 6 Mar 2006 20:15:17 -0500
+Received: from mournblade.cat.pdx.edu ([131.252.208.27]:35458 "EHLO
+	mournblade.cat.pdx.edu") by vger.kernel.org with ESMTP
+	id S932586AbWCGBPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:15:16 -0500
+Date: Mon, 6 Mar 2006 17:14:40 -0800 (PST)
+From: Suzanne Wood <suzannew@cs.pdx.edu>
+Message-Id: <200603070114.k271Eers024539@adara.cs.pdx.edu>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, walpole@cs.pdx.edu
+Subject: Re: 2.6.16-rc regression: m68k CONFIG_RMW_INSNS=n compile broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, It works now with the patch !!!
+Hello and thank you again.
 
-Thank you.
+ > From dipankar@in.ibm.com  Mon Mar  6 08:49:55 2006
 
-Miguel.
+ > On Mon, Mar 06, 2006 at 08:13:41AM -0800, Suzanne Wood wrote:
+ > > Thank you very much.
+ > >   > > struct file fastcall *fget_light(unsigned int fd, int *fput_needed)
+ > >   > > {
+ > >   > > 	struct file *file;
+ > >   > > 	struct files_struct *files = current->files;
+ > >   > > 
+ > >   > > 	*fput_needed = 0;
+ > >   > > 	if (likely((atomic_read(&files->count) == 1))) {
+ > >   > > 		file = fcheck_files(files, fd);
+ > >   > > 	} else {
+ > > 
+ > >   > This means that the fd table is not shared between threads. So,
+ > >   > there can't be any race and no need to protect using
+ > >   > rcu_read_lock()/rcu_read_unlock().
+ > > 
+ > > Then why call fcheck_files() with the rcu_dereference() which would flag 
+ > > an automated check for the need to mark a read-side critical section?
+ > > Would it make sense to introduce the function that doesn't?  The goal of
+ > > keeping the kernel small is balanced with clarity.  The inconsistency of
+ > > how fcheck_files() is used within a single function (fget_light()) was
+ > > my opening question.
 
-2006/3/6, David Woodhouse <dwmw2@infradead.org>:
-> On Sun, 2006-03-05 at 14:04 +0100, Miguel Blanco wrote:
-> >  divide error: 0000 [#1]
-> >  EIP is at jffs2_scan_medium+0xdf/0x55e [jffs2]
->
-> Can you try it with the attached patch? Or turn off
-> CONFIG_JFFS2_FS_WRITEBUFFER
->
-> --
-> dwmw2
->
->
->
-> ---------- Mensaje reenviado ----------
-> From: David Woodhouse <dwmw2@infradead.org>
-> To: linux-mtd-cvs@lists.infradead.org
-> Date: Thu, 09 Feb 2006 16:13:01 +0000
-> Subject: mtd/fs/jffs2 scan.c,1.134,1.135
-> Update of /home/cvs/mtd/fs/jffs2
-> In directory phoenix.infradead.org:/tmp/cvs-serv28853
->
-> Modified Files:
->         scan.c
-> Log Message:
-> Avoid divide-by-zero
->
-> Index: scan.c
-> ===================================================================
-> RCS file: /home/cvs/mtd/fs/jffs2/scan.c,v
-> retrieving revision 1.134
-> retrieving revision 1.135
-> diff -u -r1.134 -r1.135
-> --- scan.c      13 Jan 2006 10:25:29 -0000      1.134
-> +++ scan.c      9 Feb 2006 16:12:59 -0000       1.135
-> @@ -239,7 +239,7 @@
->                 c->nextblock->dirty_size = 0;
->         }
->  #ifdef CONFIG_JFFS2_FS_WRITEBUFFER
-> -       if (!jffs2_can_mark_obsolete(c) && c->nextblock && (c->nextblock->free_size % c->wbuf_pagesize)) {
-> +       if (!jffs2_can_mark_obsolete(c) && c->wbuf_pagesize && c->nextblock && (c->nextblock->free_size % c->wbuf_pagesize)) {
->                 /* If we're going to start writing into a block which already
->                    contains data, and the end of the data isn't page-aligned,
->                    skip a little and align it. */
->
->
-> __________________________________________________________
-> Linux-MTD CVS commit list
-> http://lists.infradead.org/mailman/listinfo/linux-mtd-cvs/
->
->
->
+ > Because rcu_dereference() hurts only alpha and we don't care about
+ > alpha :-)
+
+ > Just kidding!
+
+ > Good point about automated checkers. However, this isn't an
+ > uncommon thing in multi-threaded programs - can't the checker 
+ > rules be written to take into account sharing and non-sharing of 
+ > the object in question ?
+
+Henzinger, et al., UC Berkeley, describe race checking on a 
+language for networked embedded systems NES-C using the atomic 
+keyword to delimit sections.  (The rcu_read_lock() would be 
+similar in disallowing interrupts.)  When flow-based analysis 
+returned false positives, the programmer could annotate the 
+code with "norace" and in practice all shared accesses were 
+put in atomic sections even if there were no actual race 
+conditions.  To limit the number of atomic sections, the 
+UCB group modeled multiple threads, triggered hardware 
+interrupts and interleaved tasks and checked for safe access
+and did manual corrections to the unsafe code.
+
+In fget_light(), the rcu_dereference() is apparently never 
+intended in the "if true" of the conditional where 
+(likely((atomic_read(&files->count) == 1), so only one file 
+descriptor is open for the current task at that instant.  (A 
+child process could share that descriptor, but an unrelated 
+process would have its own file descriptor.)
+
+But fget_light() does return the file pointer which _some_ of 
+the time does require rcu-protection, so hypothetically, a 
+checker flags it as unsafe if no rcu_read_lock() is in place 
+in a caller at some level and checking can proceed to other 
+locking.
+
+The core premises have been that a path through the code 
+that contains rcu_dereference() or rcu_assign_pointer() is 
+matched to the assign/deref counterpart with the same struct 
+object type and the rcu_dereference() is nested in a read-side 
+critical section delimited by rcu_read_lock() and 
+rcu_read_unlock() used to determine the extent of the duration 
+of the struct at the address.
+
+The pointer to the file struct that fcheck_files() returns is 
+rcu_dereference(fdt->fd[fd]) and open.c has fd_install() call 
+rcu_assign_pointer(fdt->fd[fd], file).  In file_table.c, 
+file_free() calls call_rcu(&f->f_u.fu_rcuhead, file_free_rcu), 
+where the fu_rcuhead is a field of the file struct and 
+file_free_rcu() calls kmem_cache_free().
+
+Thank you very much for your insights into the reasoning. 
+Suzanne

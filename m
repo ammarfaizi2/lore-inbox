@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWCGNHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWCGNKg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWCGNHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 08:07:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751428AbWCGNHQ
+	id S1750730AbWCGNKg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 08:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWCGNKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 08:07:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:49893 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751208AbWCGNHO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 08:07:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n1F+L8UeJZrKWJW5/eNhedxsLAt2c83To7QYWr0mc3xLxUdOthfNXGO3KGp7vmqZmAhvZ4JSp/1Pii+8wqhVxmmLvUyQTOluIkNi3u0kbcROkq3+zqX8MwrTtwXz0RKsHF1rHIZEX2IFvmEn6x+pJcW0/KUFc52CXKBOFxFvWqU=
-Message-ID: <9a8748490603070507h48e2fe02qbf9da7956e794161@mail.gmail.com>
-Date: Tue, 7 Mar 2006 14:07:13 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Magnus Damm" <magnus.damm@gmail.com>
-Subject: Re: SMP and 101% cpu max?
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <aec7e5c30603070434j7f326ad2r5f1b0e8046870941@mail.gmail.com>
+	Tue, 7 Mar 2006 08:10:36 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:17132 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1750730AbWCGNKg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 08:10:36 -0500
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: initcall at ... returned with error code -19 (Was: Re: 2.6.16-rc5-mm2)
+References: <9a8748490603061359r64655a45i9a26e1f92009c7bf@mail.gmail.com>
+	<20060306140851.4140ae2b.akpm@osdl.org>
+	<20060306170919.0fcd8566.pj@sgi.com>
+From: Jes Sorensen <jes@sgi.com>
+Date: 07 Mar 2006 08:10:33 -0500
+In-Reply-To: <20060306170919.0fcd8566.pj@sgi.com>
+Message-ID: <yq0veuq2yeu.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <aec7e5c30603070434j7f326ad2r5f1b0e8046870941@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/7/06, Magnus Damm <magnus.damm@gmail.com> wrote:
-> Hi guys,
->
-> I'm doing some memory related hacking, and part of that is testing the
-> current behaviour of the Linux VM. This testing involves running some
-> simple tests (building the linux kernel is one of the tests) while
-> varying the amount of RAM available to the kernel.
->
-> I've tested memory configurations of 64MB, 128MB and 256MB on a Dual
-> PIII machine. The tested kernel is 2.6.16-rc5, and user space is based
-> on debian-3.1. I run 5 tests per memory configuration, and the machine
-> is rebooted between each test.
->
-> Problem:
->
-> With 128MB and 256MB configurations, a majority of the tests never
-> make it over 101% CPU usage when I run "make -j 2 bzImage", building a
-> allnoconfig kernel. With 64MB memory, everything seems to be working
-> as expected. Also, running "make bzImage" works as expected too.
->
-Hmm, I wonder if it's related to the problem I reported here :
-http://lkml.org/lkml/2006/2/28/219
-Where I need to run make -j 5 or higher to load both cores of my Athlon X2.
+>>>>> "Paul" == Paul Jackson <pj@sgi.com> writes:
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Paul> Andrew wrote:
+>> That's OK - it's -ENODEV.
+
+Paul> I can't help but wonder if the particular case of -ENODEV should
+Paul> be kept quiet, as in the following totally untested patch:
+
+I'd subscribe to that. It seems a bit wrong to return 0 in a
+loadable module if nothing is found, and some of the ones people have
+posted patches for converting can be either modules or static.
+
+Cheers,
+Jes

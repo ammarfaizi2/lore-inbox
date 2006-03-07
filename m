@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWCGSpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWCGSqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWCGSpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 13:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751413AbWCGSpJ
+	id S1751413AbWCGSqa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 13:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWCGSqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 13:45:09 -0500
-Received: from xenotime.net ([66.160.160.81]:53451 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751112AbWCGSpH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 13:45:07 -0500
-Date: Tue, 7 Mar 2006 10:46:46 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Reg Clemens <reg@dwf.com>
-Cc: reg@dwf.com, rlrevell@joe-job.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, reg@deneb.dwf.com
-Subject: Re: vmlinuz-2.6.16-rc5-git8 still nogo with Intel D945 Motherboard
-Message-Id: <20060307104646.9b2e193d.rdunlap@xenotime.net>
-In-Reply-To: <200603071820.k27IKSsm003595@deneb.dwf.com>
-References: <200603070340.k273ev0A003594@deneb.dwf.com>
-	<1141703317.25487.142.camel@mindpipe>
-	<200603070823.k278NE9o006674@deneb.dwf.com>
-	<20060307081806.0af1d2c4.rdunlap@xenotime.net>
-	<200603071820.k27IKSsm003595@deneb.dwf.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Mar 2006 13:46:30 -0500
+Received: from detroit.securenet-server.net ([209.51.153.26]:8388 "EHLO
+	detroit.securenet-server.net") by vger.kernel.org with ESMTP
+	id S1751413AbWCGSq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 13:46:29 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] Document Linux's memory barriers
+Date: Tue, 7 Mar 2006 10:46:11 -0800
+User-Agent: KMail/1.9.1
+Cc: Andi Kleen <ak@suse.de>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+References: <200603071134.52962.ak@suse.de> <31492.1141753245@warthog.cambridge.redhat.com> <7621.1141756240@warthog.cambridge.redhat.com>
+In-Reply-To: <7621.1141756240@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603071046.11980.jbarnes@virtuousgeek.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - virtuousgeek.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Mar 2006 11:20:28 -0700 Reg Clemens wrote:
+On Tuesday, March 7, 2006 10:30 am, David Howells wrote:
+> True, I suppose. I should make it clear that these accessor functions
+> imply memory barriers, if indeed they do, and that you should use them
+> rather than accessing I/O registers directly (at least, outside the
+> arch you should).
 
-> 
-> > I meant, narrow it down by identifying the change that broke it.
-> > "Somewhere between 2.6.11 and 2.6.15" is not helpful.
-> 
-> Yes, I can do that, but not till this evening.
-> 
-> > The HD (high-definition) audio driver works for me.
-> > Are you using a vendor/distro kernel or roll-your-own?
-> 
-> Im building my own kernels.
-> 
-> > Maybe try the latest e1000 driver from
-> >  http://sourceforge.net/projects/e1000/
-> 
-> Ill give that a shot, but again probably not till this evening.
-> 
-> > Can you post the complete boot log instead of one line of it?
-> 
-> Sure.
-> In fact, Ill give you two, first the bad boot from 2.6.16, then a
-> good boot from 1.6.11 just in case you need something to compare
-> against.
-> 
-> Here they are, In the bad boot, the lines of interest are between
-> lines 115 and 120, and start with PCI: Cannot and PCI: Failed .
+But they don't, that's why we have mmiowb().  There are lots of cases to 
+handle:
+  1) memory vs. memory
+  2) memory vs. I/O
+  3) I/O vs. I/O
+(reads and writes for every case).
 
-Both boot logs contains the Cannot messages.
-The "bad" log also contains:
-Mar  7 10:58:41 deneb kernel: PCI: Failed to allocate mem resource #6:20000@48000000 for 0000:01:00.0
+AFAIK, we have (1) fairly well handled with a plethora of barrier ops.  
+(2) is a bit fuzzy with the current operations I think, and for (3) all 
+we have is mmiowb() afaik.  Maybe one of the ppc64 guys can elaborate on 
+the barriers their hw needs for the above cases (I think they're the 
+pathological case, so covering them should be good enough everybody).
 
-Is device 0:01:00.0 your Nvidia video card?
-Is there an updated NVRM driver for it (guessing from your OK boot log)
-for 2.6.15 or later?
+Btw, thanks for putting together this documentation, it's desperately 
+needed.
 
-I suppose an lspci might help.  I dunno.
-
----
-~Randy
+Jesse

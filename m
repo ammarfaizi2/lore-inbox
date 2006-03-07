@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWCGNKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWCGNN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWCGNKg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 08:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWCGNKg
+	id S1750861AbWCGNN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 08:13:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWCGNN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 08:10:36 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:17132 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1750730AbWCGNKg (ORCPT
+	Tue, 7 Mar 2006 08:13:26 -0500
+Received: from max.feld.cvut.cz ([147.32.192.36]:36320 "EHLO max.feld.cvut.cz")
+	by vger.kernel.org with ESMTP id S1750861AbWCGNNZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 08:10:36 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: initcall at ... returned with error code -19 (Was: Re: 2.6.16-rc5-mm2)
-References: <9a8748490603061359r64655a45i9a26e1f92009c7bf@mail.gmail.com>
-	<20060306140851.4140ae2b.akpm@osdl.org>
-	<20060306170919.0fcd8566.pj@sgi.com>
-From: Jes Sorensen <jes@sgi.com>
-Date: 07 Mar 2006 08:10:33 -0500
-In-Reply-To: <20060306170919.0fcd8566.pj@sgi.com>
-Message-ID: <yq0veuq2yeu.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 7 Mar 2006 08:13:25 -0500
+From: CIJOML <cijoml@volny.cz>
+To: linux-kernel@vger.kernel.org
+Subject: UBIQUAM UM-300 doesn't work with 2.6.16-rc5
+Date: Tue, 7 Mar 2006 14:12:31 +0100
+User-Agent: KMail/1.8.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603071412.32051.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Paul" == Paul Jackson <pj@sgi.com> writes:
+Hi all,
 
-Paul> Andrew wrote:
->> That's OK - it's -ENODEV.
+I got UBIQUAM UM-300 PCMCIA Type II Card
 
-Paul> I can't help but wonder if the particular case of -ENODEV should
-Paul> be kept quiet, as in the following totally untested patch:
+http://www.ubiquam.com/product/da_um300.php
 
-I'd subscribe to that. It seems a bit wrong to return 0 in a
-loadable module if nothing is found, and some of the ones people have
-posted patches for converting can be either modules or static.
+Socket 0:
+  product info: "Ubiquam", "UM-300", "", ""
+  manfid: 0x015d, 0x4c45
+  function: 254 ((null))
 
-Cheers,
-Jes
+I tried bind it to serial_cs driver, but without success:
+
+PCMCIA_DEVICE_MANF_CARD(0x015d, 0x4c45),
+
+After this addition I got:
+
+pccard: PCMCIA card inserted into slot 0
+pcmcia: registering new device pcmcia0.0
+pcmcia: registering new device pcmcia0.1
+0.1: ttyS2 at I/O 0x3e8 (irq = 10) is a XScale
+
+But when I tried talk to it I got:
+
+serial8250: too much work for irq10
+serial8250: too much work for irq10
+serial8250: too much work for irq10
+serial8250: too much work for irq10
+serial8250: too much work for irq10
+
+Any clue?
+
+Thanks and regards
+
+Michal

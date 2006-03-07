@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWCGPjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWCGPka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751266AbWCGPjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 10:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWCGPjN
+	id S1751192AbWCGPka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 10:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWCGPka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 10:39:13 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:3248 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751221AbWCGPjM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 10:39:12 -0500
-Date: Tue, 7 Mar 2006 08:39:10 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: "Joseph D. Wagner" <technojoe@josephdwagner.info>
-Cc: "'Andreas Dilger'" <adilger@clusterfs.com>,
-       "'Xin Zhao'" <uszhaoxin@gmail.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: Why ext3 uses different policies to allocate inodes for dirs and files?
-Message-ID: <20060307153910.GC7301@parisc-linux.org>
-References: <20060307083319.GH6393@schatzie.adilger.int> <001901c641fc$ae8120e0$0201a8c0@joe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001901c641fc$ae8120e0$0201a8c0@joe>
-User-Agent: Mutt/1.5.9i
+	Tue, 7 Mar 2006 10:40:30 -0500
+Received: from mxout.hispeed.ch ([62.2.95.247]:40355 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S1751192AbWCGPka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 10:40:30 -0500
+Message-ID: <440DA96B.5010604@isotton.com>
+Date: Tue, 07 Mar 2006 16:40:27 +0100
+From: Aaron Isotton <aaron@isotton.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: What is this: skge Ram read/write data parity error
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 32701;
+	Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 09:34:53AM -0600, Joseph D. Wagner wrote:
-> > I'm not sure what it is you are saying.  Directories may be renamed, but
-> > the inodes are never moved.
-> 
-> If the "dir inode" were to be moved closer to the "parent dir inode", this would become quite an expensive "move" operation, as it would have to move all of the "dir inodes" of the "i386-redhat-linux" directory and all subdirectories away from the "parent dir inode" of "/usr/local/lib/" and closer to the "parent dir inode" of "/usr/lib/".
+Hello,
 
-inodes are allocated once and never moved.  We're talking about initial
-allocation.  So even though files have their inodes allocated near
-their parent directory's inode, their inode is not moved when moved to
-another directory.
+Since some time I'm getting the following log entries under 2.6.15:
 
-The reason, as Andreas said, is that if we did allocate directory inodes
-near their parent inode, we would end up just filling up from the start
-of the drive and never spreading out.
+Mar  7 05:42:48 tiger kernel: skge Ram write data parity error
+Mar  7 05:42:48 tiger kernel: skge Ram read data parity error
+
+Does this mean my hardware is faulty? The error message seems to imply
+that, but since I am not experiencing any problems and a comment in
+skge.c says
+
+/* Parity errors seem to happen when Genesis is connected to a switch
+ * with no other ports present. Heartbeat error??
+ */
+
+talking about some other sort of parity error though ("mac parity") I'm
+not sure any more. Can anybody enlighten me?	
+
+Thanks,
+Aaron
+-- 
+Aaron Isotton | http://www.isotton.com/
+I'll give you a definite maybe. --Samuel Goldwyn

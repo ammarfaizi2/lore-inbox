@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751998AbWCGGmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWCGGmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751998AbWCGGmY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 01:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752000AbWCGGmY
+	id S1751842AbWCGGmM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 01:42:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWCGGmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 01:42:24 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:6059 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751998AbWCGGmX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 01:42:23 -0500
-Date: Tue, 7 Mar 2006 12:11:20 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: VFS nr_files accounting
-Message-ID: <20060307064120.GA5946@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060305070537.GB21751@in.ibm.com> <20060304.233725.49897411.davem@davemloft.net> <20060305113847.GE21751@in.ibm.com> <20060306.123904.35238417.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Mar 2006 01:42:12 -0500
+Received: from pproxy.gmail.com ([64.233.166.179]:34596 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751842AbWCGGmL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 01:42:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o/39DWA9051kuDByVBG8HbCacFn9SP1CEXLvh2VIMs12x/wuBcG6vqp04m64AshO6tdGtGXgiyl/f86OnCJcGiajL/Z2NcZfh6QL1x0/2i80gJaJvorVdSwznt882FfLXcAzY069P7TEMWikZynpgzfa8RlvZXWI4UsEXVzuumc=
+Message-ID: <105c793f0603062242h4c03b95fy8871e3ee50501ac1@mail.gmail.com>
+Date: Tue, 7 Mar 2006 01:42:10 -0500
+From: "Andrew Haninger" <ahaning@gmail.com>
+To: "tim tim" <tictactoe.tim@gmail.com>
+Subject: Re: kernel installation --depmod
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <503e0f9d0603062203x21cdf4e4w4e7da8c0f106fb73@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060306.123904.35238417.davem@davemloft.net>
-User-Agent: Mutt/1.5.10i
+References: <503e0f9d0603062203x21cdf4e4w4e7da8c0f106fb73@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 12:39:04PM -0800, David S. Miller wrote:
-> From: Dipankar Sarma <dipankar@in.ibm.com>
-> Date: Sun, 5 Mar 2006 17:08:47 +0530
-> 
-> > Great. I look forward to hearing from you about the results
-> > with your test case.
-> 
-> It works quite fine so far, I haven't seen the filp exhaustion
-> nor a highly fragmented filp SLAB.
+On 3/7/06, tim tim <tictactoe.tim@gmail.com> wrote:
+> hello andrew.. i even tried with modutils & mod init tools but even
+> after that we r getting the depmod errors.. i don't think there is a
+> problem in make modules.. since  Sam Ravnborg has mentioned something
+> that make modules is problem.. can any other suggestions u can offer
+> for us..
+I don't know what else I can really suggest. Perhaps it's time to find
+a distribution that includes the kernel release you want (or a more
+recent one).
 
-Good to hear that.
+Please answer the questions Sam asked:
 
-> Instead, I'm not hitting other bugs that are of my own doing
-> on Niagara, which is what I wanted to accomplish with these
-> stress tests in the first place :-)
+> The warnings you see is a module that references symbols that it cannot
+> resolve.
+> Do you have a vmlinux in the root of your kernel tree?
+Look in your kernel source directory. Is there a file there called "vmlinux"?
 
-Not good :)
+> Does Module.symvers include the symbols that you get warnings on?
+This file should be found in the root of your kernel tree, too.
 
-> I think we should seriously consider these patches for 2.6.16
+> You need to do a successful build of the kernel before you can build
+> the modules.
+Is the build of the kernel failing, thus leaving certain dependancies
+not met for the build of the modules? Do you get any error messages
+when you run "make" in the kernel source directory?
 
-Isn't it a little too late in the 2.6.16 cycle ? I would have
-liked a little more time in -mm. Anyway, it is Linus' call. 
-I can refresh the patches and submit against latest mainline
-if Linus and Andrew want.
+Again, unless this is a "just for fun" exercise, it might be more
+worth your while to get a different distribution with all of this
+stuff preconfigured.
 
-Thanks
-Dipankar
+-Andy

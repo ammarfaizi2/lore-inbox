@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752087AbWCGIWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752107AbWCGId0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752087AbWCGIWr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 03:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWCGIWr
+	id S1752107AbWCGId0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 03:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWCGIdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 03:22:47 -0500
-Received: from cernmx03.cern.ch ([137.138.166.166]:2592 "EHLO cernmxlb.cern.ch")
-	by vger.kernel.org with ESMTP id S1752087AbWCGIWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 03:22:46 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
-	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding;
-	b=G1GOn9VSLddsb611DO1Be8MYU1GogY9BDGHxncAqkb5anUljaJ5EOifDIYVp0dxjeXXy0wgIrM2lWdCqGknd5140I2f9NFZp8WBqQITjilLR/7+yvD9+xfIRqG8VLhG1;
-Keywords: CERN SpamKiller Note: -51 Charset: west-latin
-X-Filter: CERNMX03 CERN MX v2.0 051110.1345 Release
-Message-ID: <440D42D9.7000604@cern.ch>
-Date: Tue, 07 Mar 2006 09:22:49 +0100
-From: Jiri Tyr <jiri.tyr@cern.ch>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060128)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: mchehab@brturbo.com.br, video4linux-list@redhat.com, skinkie@xs4all.nl
-Subject: Re: PROBLEM: four bttv tuners in one PC crashed
-References: <440C5672.7000009@cern.ch> <200603061656.18846.duncan.sands@math.u-psud.fr>
-In-Reply-To: <200603061656.18846.duncan.sands@math.u-psud.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2006 08:22:41.0616 (UTC) FILETIME=[4D7C5D00:01C641C0]
+	Tue, 7 Mar 2006 03:33:25 -0500
+Received: from mail.clusterfs.com ([206.168.112.78]:44704 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1752025AbWCGIdZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 03:33:25 -0500
+Date: Tue, 7 Mar 2006 01:33:19 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Joseph D. Wagner" <technojoe@josephdwagner.info>
+Cc: "'Xin Zhao'" <uszhaoxin@gmail.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Why ext3 uses different policies to allocate inodes for dirs and files?
+Message-ID: <20060307083319.GH6393@schatzie.adilger.int>
+Mail-Followup-To: "Joseph D. Wagner" <technojoe@josephdwagner.info>,
+	'Xin Zhao' <uszhaoxin@gmail.com>,
+	'linux-kernel' <linux-kernel@vger.kernel.org>,
+	linux-fsdevel@vger.kernel.org
+References: <4ae3c140603061342r26ca2226s2e6e41792104c633@mail.gmail.com> <002601c641a7$6687d680$0201a8c0@joe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <002601c641a7$6687d680$0201a8c0@joe>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan de Konink wrote:
+On Mar 06, 2006  23:24 -0600, Joseph D. Wagner wrote:
+> > The policy seems to distribute dir inodes uniformly on all block
+> > groups. Why do we want to do this?  Isn't it better to create a dir
+> > inode close to its parent dir inode?
+> 
+> Directories can, and frequently are, moved.  If you kept the dir inode
+> close to its parent dir inode, you'd have to move dir inodes around
+> every time you move directories.  Less is more.
 
->>I have removed all unnecessary things from kernel. Libata I need for
->>SATA disk. Do you think that is some possibility how to make this four
->>bttv tuners working?
->>
->What is your CONFIG_HZ setting? (100/250/1000 Hz)
->  
->
+I'm not sure what it is you are saying.  Directories may be renamed, but
+the inodes are never moved.
 
-I'm using CONFIG_HZ=250. I have tryed also CONFIG_HZ=100, but it didn't
-helped.
+The reason that directory inodes are spread across the disk is that this
+allows later balancing of the file inodes that are created within each
+directory.  If all of the parent directories are kept in the same group,
+you would just end up having all inodes at the start of the filesystem
+in use, with high fragmentation and no locality between directories and
+the files created therein, and similar problems with inode blocks.
 
-Ihave tryed to remove one of the four tuners and now I have no shared 
-IRQ, but the PC still freeze. It is bug in DMA or whats wrong?
-
-Jiri
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

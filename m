@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWCGUr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWCGUxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbWCGUr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 15:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWCGUr6
+	id S1751569AbWCGUxP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 15:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWCGUxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 15:47:58 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:11705 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751446AbWCGUr5 (ORCPT
+	Tue, 7 Mar 2006 15:53:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41899 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751526AbWCGUxO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 15:47:57 -0500
-Message-ID: <440DF0C2.B23B8837@tv-sign.ru>
-Date: Tue, 07 Mar 2006 23:44:50 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 01/23] tref: Implement task references.
-References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
-		<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
-		<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
-		<44074479.15D306EB@tv-sign.ru>
-		<m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
-		<440CA459.6627024C@tv-sign.ru> <m1wtf76wtr.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=koi8-r
+	Tue, 7 Mar 2006 15:53:14 -0500
+Date: Tue, 7 Mar 2006 12:51:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: mbligh@mbligh.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: 2.6.16-rc5-mm3
+Message-Id: <20060307125122.5f7d3462.akpm@osdl.org>
+In-Reply-To: <440DEF75.9060802@mbligh.org>
+References: <20060307021929.754329c9.akpm@osdl.org>
+	<440DEF0A.3030701@mbligh.org>
+	<440DEF75.9060802@mbligh.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
+Martin Bligh <mbligh@mbligh.org> wrote:
+>
+> Martin Bligh wrote:
+> > Andrew Morton wrote:
+> > 
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/ 
+> >>
+> >>
+> >> - A relatively small number of changes, although we're up to 9MB of diff
+> >>   in the various git trees.
+> > 
+> > 
+> > E_NOT_COMPILING ;-) i386+NUMA at least
+> > 
+> > NUMA-Q + 
+> > http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
+> > =
+> > http://test.kernel.org/24793/debug/test.log.0
+> > mm/built-in.o(.text+0x178dc): In function `check_huge_range':
+> > mm/mempolicy.c:1832: undefined reference to `huge_pte_offset'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 03/07/06-12:25:56 Build the kernel. Failed rc = 2
+> > 03/07/06-12:25:56 build: kernel build Failed rc = 1
+> > 03/07/06-12:25:56 command complete: (2) rc=126
+> > 
+> > Much the same error on x440 +
+> > http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/elm3b67
+> > =
+> > http://test.kernel.org/24791/debug/test.log.0
 > 
-> Unless we can implement do_each_task_pid/while_each_task_pid in terms
-> of for_each_task_pid.  I am nervous about making the conversion.
+> Oh, BTW ... I see that's also broken in -git9, but not -git8.
+> 
+> Presumably something didn't go via -mm for testing?
+> 
 
-Yes, of course. Currently I have:
+No, it's just that we suck.  The numa-maps update got squeezed in at the
+last minute.
 
-#define for_each_task_pid(head, who, type, task)                             \
-        if ((head = find_pid(who)))                                          \ 
-                list_for_each_entry(task, ((head)->tasks + type), pids[type])
+I guess we do it this way - there's still code in there which will call
+check_huge_range(), but it's inside if (0) {}.
 
-// OBSOLETE
-#define do_each_task_pid(who, type, task)                               \
-        do {                                                            \
-                struct pid_head * __pid_head__;                         \
-                for_each_task_pid(__pid_head__, who, type, task) {
 
-#define while_each_task_pid(who, type, task)                            \
-                }                                                       \
-        } while (0)
 
-It's better not to change the users of do_each_task_pid() for some
-time at least.
+--- devel/mm/mempolicy.c~numa_maps-update-fix	2006-03-07 12:48:38.000000000 -0800
++++ devel-akpm/mm/mempolicy.c	2006-03-07 12:49:22.000000000 -0800
+@@ -1789,6 +1789,7 @@ static void gather_stats(struct page *pa
+ 	cond_resched();
+ }
+ 
++#ifdef CONFIG_HUGETLB_PAGE
+ static void check_huge_range(struct vm_area_struct *vma,
+ 		unsigned long start, unsigned long end,
+ 		struct numa_maps *md)
+@@ -1814,6 +1815,7 @@ static void check_huge_range(struct vm_a
+ 		gather_stats(page, md, pte_dirty(*ptep));
+ 	}
+ }
++#endif
+ 
+ int show_numa_map(struct seq_file *m, void *v)
+ {
+_
 
-Oleg.

@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWCGXha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWCGXk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWCGXha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 18:37:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWCGXh3
+	id S964809AbWCGXk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 18:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWCGXk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 18:37:29 -0500
-Received: from mail.gmx.net ([213.165.64.20]:29608 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964808AbWCGXh3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 18:37:29 -0500
-X-Authenticated: #428038
-Date: Wed, 8 Mar 2006 00:37:24 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>,
-       opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
-Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
-Message-ID: <20060307233724.GB13357@merlin.emma.line.org>
-Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
-	Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>,
-	opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
-References: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de> <200603070942.31774.silviu_marin-caea@fieldinsights.ro> <1141769422.767.99.camel@mindpipe>
+	Tue, 7 Mar 2006 18:40:29 -0500
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:32975 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964809AbWCGXk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 18:40:29 -0500
+Date: Tue, 7 Mar 2006 18:34:07 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch] i386 spinlocks: disable interrupts only if we enabled
+  them
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>
+Message-ID: <200603071837_MC3-1-BA13-E5FB@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1141769422.767.99.camel@mindpipe>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Mar 2006, Lee Revell wrote:
+_raw_spin_lock_flags() is entered with interrupts disabled.  If it
+cannot obtain a spinlock, it checks the flags that were passed and
+re-enables interrupts before spinning if that's how the flags are set.
+When the spinlock might be available, it disables interrupts (even if
+they are already disabled) before trying to get the lock.  Change that
+so interrupts are only disabled if they have been enabled.  This costs
+nine bytes of duplicated spinloop code.
 
-> If they are doing serious realtime DSP then they should get better
-> results in userspace anyway, because they get to use the floating point
-> unit which isn't allowed in the kernel.
+Fastpath before patch:
+        jle <keep looping>      not-taken conditional jump
+        cli                     disable interrupts
+        jmp <try for lock>      unconditional jump
 
-It's not as though every algorithm needed float just because it said DSP
-(some of those are actually fixed-point or something like that) at a time.
+Fastpath after patch, if interrupts were not enabled:
+        jg <try for lock>       taken conditional branch
 
-There are lots of algorithms to avoid exactly that, because it costs
-performance big time. Whenever you can have integer and/or
-reduce/approximate multiplication by shift+add, people will use it if
-performance is of paramount importance. And such often is the difference
-between having a real-time DRM software radio or not, to name just one
-example I've seen in my vicinity.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-In a color-space conversion tool (CCITT YUV to RGB) on P-II or P-III
-(don't recall) emulating fixed point by using integers and then shifting
-appropriately gave a speedup of well more than three.
-
-There must surely be better and reasons than the FPU - licenses had
-already been mentioned.
-
+--- 2.6.16-rc5-d2.orig/include/asm-i386/spinlock.h
++++ 2.6.16-rc5-d2/include/asm-i386/spinlock.h
+@@ -35,18 +35,23 @@
+ #define __raw_spin_lock_string_flags \
+ 	"\n1:\t" \
+ 	"lock ; decb %0\n\t" \
+-	"jns 4f\n\t" \
++	"jns 5f\n" \
+ 	"2:\t" \
+ 	"testl $0x200, %1\n\t" \
+-	"jz 3f\n\t" \
+-	"sti\n\t" \
++	"jz 4f\n\t" \
++	"sti\n" \
+ 	"3:\t" \
+ 	"rep;nop\n\t" \
+ 	"cmpb $0, %0\n\t" \
+ 	"jle 3b\n\t" \
+ 	"cli\n\t" \
+ 	"jmp 1b\n" \
+-	"4:\n\t"
++	"4:\t" \
++	"rep;nop\n\t" \
++	"cmpb $0, %0\n\t" \
++	"jg 1b\n\t" \
++	"jmp 4b\n" \
++	"5:\n\t"
+ 
+ static inline void __raw_spin_lock(raw_spinlock_t *lock)
+ {
 -- 
-Matthias Andree
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"

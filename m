@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbWCGGBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751998AbWCGGmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751516AbWCGGBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 01:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWCGGBT
+	id S1751998AbWCGGmY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 01:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752000AbWCGGmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 01:01:19 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:39613 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751516AbWCGGBS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 01:01:18 -0500
-Message-ID: <440D2151.5040501@jp.fujitsu.com>
-Date: Tue, 07 Mar 2006 14:59:45 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [PATCH 4/4] PCI legacy I/O port free driver (take5) - Make Emulex
- lpfc driver legacy I/O port free
-References: <440D1FEC.1070701@jp.fujitsu.com>
-In-Reply-To: <440D1FEC.1070701@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 01:42:24 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:6059 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751998AbWCGGmX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 01:42:23 -0500
+Date: Tue, 7 Mar 2006 12:11:20 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, fabbione@ubuntu.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: VFS nr_files accounting
+Message-ID: <20060307064120.GA5946@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060305070537.GB21751@in.ibm.com> <20060304.233725.49897411.davem@davemloft.net> <20060305113847.GE21751@in.ibm.com> <20060306.123904.35238417.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060306.123904.35238417.davem@davemloft.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes Emulex lpfc driver legacy I/O port free.
+On Mon, Mar 06, 2006 at 12:39:04PM -0800, David S. Miller wrote:
+> From: Dipankar Sarma <dipankar@in.ibm.com>
+> Date: Sun, 5 Mar 2006 17:08:47 +0530
+> 
+> > Great. I look forward to hearing from you about the results
+> > with your test case.
+> 
+> It works quite fine so far, I haven't seen the filp exhaustion
+> nor a highly fragmented filp SLAB.
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Good to hear that.
 
----
- drivers/scsi/lpfc/lpfc_init.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+> Instead, I'm not hitting other bugs that are of my own doing
+> on Niagara, which is what I wanted to accomplish with these
+> stress tests in the first place :-)
 
-Index: linux-2.6.16-rc5-mm2/drivers/scsi/lpfc/lpfc_init.c
-===================================================================
---- linux-2.6.16-rc5-mm2.orig/drivers/scsi/lpfc/lpfc_init.c	2006-03-07 14:06:48.000000000 +0900
-+++ linux-2.6.16-rc5-mm2/drivers/scsi/lpfc/lpfc_init.c	2006-03-07 14:07:22.000000000 +0900
-@@ -1391,8 +1391,9 @@
- 	int error = -ENODEV, retval;
- 	int i;
- 	uint16_t iotag;
-+	int bars = pci_select_bars(pdev, IORESOURCE_MEM);
- 
--	if (pci_enable_device(pdev))
-+	if (pci_enable_device_bars(pdev, bars))
- 		goto out;
- 	if (pci_request_regions(pdev, LPFC_DRIVER_NAME))
- 		goto out_disable_device;
+Not good :)
 
+> I think we should seriously consider these patches for 2.6.16
+
+Isn't it a little too late in the 2.6.16 cycle ? I would have
+liked a little more time in -mm. Anyway, it is Linus' call. 
+I can refresh the patches and submit against latest mainline
+if Linus and Andrew want.
+
+Thanks
+Dipankar

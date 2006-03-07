@@ -1,114 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWCGPGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWCGPGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWCGPGP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 10:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWCGPGP
+	id S1750925AbWCGPGN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 10:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWCGPGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 10:06:15 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:1232 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750772AbWCGPGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 10:06:14 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Dmitry Mishin <dim@openvz.org>
-Subject: Re: {get|set}sockopt compat layer
-Date: Tue, 7 Mar 2006 16:05:38 +0100
-User-Agent: KMail/1.9.1
-Cc: devel@openvz.org, dev@openvz.org, akpm@osdl.org,
-       netfilter-devel@lists.netfilter.org, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-References: <200602201110.39092.dim@openvz.org> <200602211256.00846.arnd@arndb.de> <200603071707.19138.dim@openvz.org>
-In-Reply-To: <200603071707.19138.dim@openvz.org>
+	Tue, 7 Mar 2006 10:06:13 -0500
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:54725 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP id S1751142AbWCGPGM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 10:06:12 -0500
+Message-ID: <440DA141.9010906@pg.gda.pl>
+Date: Tue, 07 Mar 2006 16:05:37 +0100
+From: =?UTF-8?B?QWRhbSBUbGHFgmth?= <atlka@pg.gda.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.7.12) Gecko/20050920
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Thomas Dickey <dickey@his.com>
+CC: "Alexander E. Patrakov" <patrakov@ums.usu.ru>, torvalds@osdl.org,
+       Ncurses Mailing List <bug-ncurses@gnu.org>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]console:UTF-8 mode compatibility fixes
+References: <20060217233333.GA5208@sunrise.pg.gda.pl> <43F72C7A.8010709@ums.usu.ru> <20060218204407.L36972@mail101.his.com> <20060219114736.GD862@sunrise.pg.gda.pl> <20060219201811.D62691@mail101.his.com>
+In-Reply-To: <20060219201811.D62691@mail101.his.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200603071605.39177.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 15:07, Dmitry Mishin wrote:
-> Sorry for such delay, was on vacancy. Here is a patch, introducing 
-> compat_(get|set)sockopt handlers, as you proposed.
+Thomas Dickey wrote:
 
-Looks pretty good to me, just a few nits I like to pick:
+> On Sun, 19 Feb 2006, Adam Tla/lka wrote:
+>
+>> OK but my fix is for all not only curses programs. Anyway from my
+>> point of view programs should be written in a way so they are easy to
+>> use and work correctly without user special intervention and
+>> knowledge. So ncurses hack is not
+>
+>
+> of course (which is why I have xterm doing the same thing).
 
-> --- ./include/linux/net.h.compat        2006-03-07 11:22:27.000000000 +0300
-> +++ ./include/linux/net.h       2006-03-07 11:20:07.000000000 +0300
-> @@ -149,6 +149,12 @@ struct proto_ops {
->                                       int optname, char __user *optval, int optlen);
->         int             (*getsockopt)(struct socket *sock, int level,
->                                       int optname, char __user *optval, int __user *optlen);
-> +#ifdef CONFIG_COMPAT
-> +       int             (*compat_setsockopt)(struct socket *sock, int level,
-> +                                     int optname, char __user *optval, int optlen);
-> +       int             (*compat_getsockopt)(struct socket *sock, int level,
-> +                                     int optname, char __user *optval, int __user *optlen);
-> +#endif
->         int             (*sendmsg)   (struct kiocb *iocb, struct socket *sock,
->                                       struct msghdr *m, size_t total_len);
->         int             (*recvmsg)   (struct kiocb *iocb, struct socket *sock,
+Yes, I tested VT100 graphics in UTF8-mode with  various terminal
+emulator programs - xterm, gnome-terminal, kconsole, mlterm, rxvt - and
+they all work the same way accepting ^N as smacs and VT100 graphics
+chars. So this is the reason why Linux console should not break this
+compatibility in UTF8 mode too.
 
-For the compat_ioctl stuff, we don't have the function pointer inside an
-#ifdef, the overhead is relatively small since there is only one of these
-structures per module implementing a protocol, but it avoids having to
-rebuild everything when changing CONFIG_COMPAT.
+There are some programs which use ascs even if they can do it by UTF8
+sequences - w3m for example. Without supporting
+acsc in UTF8 mode using Linux console and w3m gives not so good visual
+results. Second reason ;-).
+There are other programs of course - aptitude for example - working the
+same way as w3m.
 
-It's probably not a big issue either way, maybe davem has a stronger opinion
-on it either way.
+Using smacs=\e[11m which means smacs == smpch is some kind of a hack and
+not the proper solution. Terminal description should describe sequences
+interpreted by a device and in case of smacs == smpch sequences like ^N
+and ^O do not exist in terminal description but they are interpreted as
+before. So the description is not complete. The acsc string should be
+set so it sticks to VT100 map in Linux console sources too:
 
-> --- ./include/linux/netfilter.h.compat  2006-03-06 12:06:34.000000000 +0300
-> +++ ./include/linux/netfilter.h 2006-03-07 15:00:14.000000000 +0300
-> @@ -2,6 +2,7 @@
->  #define __LINUX_NETFILTER_H
->  
->  #ifdef __KERNEL__
-> +#include <linux/config.h>
->  #include <linux/init.h>
->  #include <linux/types.h>
->  #include <linux/skbuff.h>
+acsc=++\,\,--..00``aaffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
 
-You don't need to add new <linux/config.h> includes any more, these are
-automatic now.
+now adding proper USC2 to font mapping to used console font makes it
+working correctly in both normal and UTF8 modes. Other solutions like
+modifying acsc to obtain some different chars for nonexisting glyphs are
+only partially correct because we have only half functioning terminal -
+in normal mode we see some chars but in UTF8  mode there are only
+replacemnt glyphs. So only the compatible definition and then correction
+to console fonts included UCS2 to glyph maps solves the problem IMHO.
+Also if we have different definitions on different systems and VT100
+compatibility is lost we have problems too.
 
-> @@ -80,10 +81,18 @@ struct nf_sockopt_ops
->         int set_optmin;
->         int set_optmax;
->         int (*set)(struct sock *sk, int optval, void __user *user, unsigned int len);
-> +#ifdef CONFIG_COMPAT
-> +       int (*compat_set)(struct sock *sk, int optval,
-> +                       void __user *user, unsigned int len);
-> +#endif
->  
->         int get_optmin;
->         int get_optmax;
->         int (*get)(struct sock *sk, int optval, void __user *user, int *len);
-> +#ifdef CONFIG_COMPAT
-> +       int (*compat_get)(struct sock *sk, int optval,
-> +                       void __user *user, int *len);
-> +#endif
->  
->         /* Number of users inside set() or get(). */
->         unsigned int use;
+After some discussion I've  sended final patch
 
-see above, same for some more of these.
+2006-02-27 13:06 [PATCH]console compatibility fixes to UTF-8 mode
 
-> @@ -816,6 +826,12 @@ extern int sock_common_recvmsg(struct ki
->                                struct msghdr *msg, size_t size, int flags);
->  extern int sock_common_setsockopt(struct socket *sock, int level, int optname,
->                                   char __user *optval, int optlen);
-> +#ifdef CONFIG_COMPAT
-> +extern int compat_sock_common_getsockopt(struct socket *sock, int level,
-> +               int optname, char __user *optval, int __user *optlen);
-> +extern int compat_sock_common_setsockopt(struct socket *sock, int level,
-> +               int optname, char __user *optval, int optlen);
-> +#endif
->  
->  extern void sk_common_release(struct sock *sk);
->  
+and now I am waiting for some reaction.
+I am using this patch with my work machines now.
 
-Declarations don't belong inside #ifdef.
+Regards
 
-	Arnd <><
+-- 
+Adam TlaÅ‚ka       mailto:atlka@pg.gda.pl    ^v^ ^v^ ^v^
+System  & Network Administration Group       - - - ~~~~~~
+Computer Center,  GdaÅ„sk University of Technology, Poland
+PGP public key:   finger atlka@sunrise.pg.gda.pl
+

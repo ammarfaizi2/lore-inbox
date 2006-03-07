@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751704AbWCGMcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752141AbWCGM2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751704AbWCGMcW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 07:32:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752492AbWCGMcW
+	id S1752141AbWCGM2j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752492AbWCGM2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 07:32:22 -0500
-Received: from smtp5-g19.free.fr ([212.27.42.35]:56782 "EHLO smtp5-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751704AbWCGMcW (ORCPT
+	Tue, 7 Mar 2006 07:28:39 -0500
+Received: from tao.natur.cuni.cz ([195.113.56.1]:42513 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id S1752141AbWCGM2i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 07:32:22 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Jiri Tyr <jiri.tyr@cern.ch>
-Subject: Re: PROBLEM: four bttv tuners in one PC crashed
-Date: Tue, 7 Mar 2006 13:32:19 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com,
-       Michel Bardiaux <mbardiaux@mediaxim.be>
-References: <440C5672.7000009@cern.ch> <200603061656.18846.duncan.sands@math.u-psud.fr> <440D7384.5030307@cern.ch>
-In-Reply-To: <440D7384.5030307@cern.ch>
+	Tue, 7 Mar 2006 07:28:38 -0500
+X-Obalka-From: mmokrejs@ribosome.natur.cuni.cz
+X-Obalka-To: <linux-kernel@vger.kernel.org>
+Message-ID: <440D7C75.8010307@ribosome.natur.cuni.cz>
+Date: Tue, 07 Mar 2006 13:28:37 +0100
+From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051002
+X-Accept-Language: cs
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5 huge memory detection regression
+References: <440D6581.9080000@ribosome.natur.cuni.cz> <20060307041532.3ef45392.akpm@osdl.org>
+In-Reply-To: <20060307041532.3ef45392.akpm@osdl.org>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603071332.19614.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 7 March 2006 12:50, Jiri Tyr wrote:
-> Michel Bardiaux wrote:
-> 
->  >I dont see anything suspicious conflict. But 'overlay' has been
->  >mentionned, I'm not familiar with that but I assume it means you're
->  >doing video grabs directly to the X display, right?
-> 
-> Yes, I'm using xawtv + overlay directly to the X display :0.0. Is better 
-> way to use it with some WM (KDE, Gnome, ...)?
-> 
->  >Then it could be a problem with the graphics card or its driver.
-> 
-> On the mainboard is graphics card Intel 915. I have tryed it with i810 
-> (with / without DRI) and vesa driver. I have also tryed PCIE graphics 
-> card from ATI. In all of those cases the PC freeze and as well as if is 
-> in PCI slot only ONE tuner!
-> 
->  >Just my 2 cents, because I am totally unfamiliar with such uses, sounds
->  >like a problem for the MythTV crowd.
-> 
-> I'm totally lost! I have here 25 PCs (100 tuners) what always freeze ;o(
+BTW, BIOS during the POST test shows all 16GB, it is only 
+linux-2.6.16-rc5 who get's it wrong. Even the summary window 
+provided by BIOS just before grub gets loaded shows 16GB of RAM.
+I don't believe it is anything else then the kernel.
 
-Try using grabdisplay.  Also, if you hook up a serial console you may see
-some helpful output when the pc freezes.
-
-Ciao,
-
-Duncan.
+Andrew Morton wrote:
+> Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
+> 
+>>  I just tested 2.6.16-rc5 kernel on MSI 9136 dual Xeon server 
+>> motherboard with 16 GB of memory and the kernel detects only 8 GB of 
+>> RAM instead. 2.6.15 kernel detected properly 16 GB. I haven't tested 
+>> any kernel revisions in between these two, but could if you point me 
+>> in a specific direction. Attaching diff(1) output of dmesg(1) outputs.
+>> Please Cc: me in replies. Thanks!
+>> Martin
+>>
+>>
+>>[boot-2.6.15_to_16-rc5.diff  text/plain (12156 bytes)]
+> 
+> 
+> The diff is useful.
+> 
+> 
+>> --- tmp/boot-2.6.15.txt	2006-03-07 11:45:48.015509048 +0100
+>> +++ tmp/boot-2.6.16-rc5.txt	2006-03-07 11:45:48.029506920 +0100
+>> @@ -1,4 +1,4 @@
+>> -Linux version 2.6.15 (root@phylo) (gcc version 3.4.5 (Gentoo 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Mon Mar 6 20:20:06 MET 2006
+>> +Linux version 2.6.16-rc5 (root@phylo) (gcc version 3.4.5 (Gentoo 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Mon Mar 6 19:58:24 MET 2006
+>>  BIOS-provided physical RAM map:
+>>   BIOS-e820: 0000000000000000 - 000000000009a800 (usable)
+>>   BIOS-e820: 000000000009a800 - 00000000000a0000 (reserved)
+>> @@ -12,16 +12,16 @@
+>>   BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+>>   BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
+>>   BIOS-e820: 00000000fffffc00 - 0000000100000000 (reserved)
+>> - BIOS-e820: 0000000100000000 - 0000000430000000 (usable)
+>> -16256MB HIGHMEM available.
+>> + BIOS-e820: 0000000100000000 - 0000000230000000 (usable)
+>> +8064MB HIGHMEM available.
+> 
+> 
+> These numbers are what the BIOS is telling the kernel about your machine. 
+> Was the BIOS changed?
+> 
+> If not, you might need to wiggle those DIMMs or something.

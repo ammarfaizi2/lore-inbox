@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWCGFXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751717AbWCGGlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWCGFXU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 00:23:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWCGFXU
+	id S1751717AbWCGGlp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 01:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751842AbWCGGlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 00:23:20 -0500
-Received: from mxsf42.cluster1.charter.net ([209.225.28.174]:35756 "EHLO
-	mxsf42.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1751159AbWCGFXT convert rfc822-to-8bit (ORCPT
+	Tue, 7 Mar 2006 01:41:44 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:46094 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751717AbWCGGlo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 00:23:19 -0500
-From: "Joseph D. Wagner" <technojoe@josephdwagner.info>
-To: "'Xin Zhao'" <uszhaoxin@gmail.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Cc: <linux-fsdevel@vger.kernel.org>
-Subject: RE: Why ext3 uses different policies to allocate inodes for dirs and files?
-Date: Mon, 6 Mar 2006 23:24:25 -0600
-Message-ID: <002601c641a7$6687d680$0201a8c0@joe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Thread-Index: AcZBZtJ1M3lfhg/pQfadEBHd4Ty/bAAP9wXA
-In-Reply-To: <4ae3c140603061342r26ca2226s2e6e41792104c633@mail.gmail.com>
+	Tue, 7 Mar 2006 01:41:44 -0500
+Date: Tue, 7 Mar 2006 07:41:28 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: tim tim <tictactoe.tim@gmail.com>
+Cc: ahaning@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel installation --depmod
+Message-ID: <20060307064128.GA30970@mars.ravnborg.org>
+References: <503e0f9d0603062203x21cdf4e4w4e7da8c0f106fb73@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <503e0f9d0603062203x21cdf4e4w4e7da8c0f106fb73@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The policy seems to distribute dir inodes uniformly on all block
-> groups. Why do we want to do this?  Isn't it better to create a dir
-> inode close to its parent dir inode?
+On Tue, Mar 07, 2006 at 11:33:30AM +0530, tim tim wrote:
+> hello andrew.. i even tried with modutils & mod init tools but even
+> after that we r getting the depmod errors.. i don't think there is a
+> problem in make modules.. since  Sam Ravnborg has mentioned something
+> that make modules is problem.. can any other suggestions u can offer
+> for us..
 
-Directories can, and frequently are, moved.  If you kept the dir inode close to its parent dir inode, you'd have to move dir inodes around every time you move directories.  Less is more.
+Try to drop me the output of
+make V=1
 
-Keeping the dir inodes uniform means the time to perform a name->inode lookup is relatively the same regardless of directory.  While admittedly this does not always yield the fastest performance, in this case we prefer consistency over speed.
+Use something like: make V=1 > sam 2>&1
+And send me the file sam offline (probarly too big for lkml anyway)
+And then also the output of scripts/ver_linux
 
-I'm sure there are other good reasons too, but these two are enough to justify it.
+I expect this to be a simple problem when we find it.
 
-Joseph D. Wagner
+	Sam

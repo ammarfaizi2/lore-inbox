@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751568AbWCGSy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbWCGTAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751568AbWCGSy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 13:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWCGSy1
+	id S1751556AbWCGTAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 14:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWCGTAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 13:54:27 -0500
-Received: from cmsout03.mbox.net ([165.212.64.33]:35463 "EHLO
-	cmsout03.mbox.net") by vger.kernel.org with ESMTP id S1751172AbWCGSy0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 13:54:26 -0500
-X-USANET-Source: 165.212.11.129  IN   lion@3tera.com uadvg129.cms.usa.net
-X-USANET-MsgId: XID930kcgs3Z7704X03
-X-USANET-Auth: 82.81.211.211   AUTH lkalev@usa.net [192.168.0.101]
-Message-ID: <440DD6D7.9020206@3tera.com>
-Date: Tue, 07 Mar 2006 10:54:15 -0800
-From: Leonid Kalev <lion@3tera.com>
-Reply-To: lion@3tera.com
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 7 Mar 2006 14:00:25 -0500
+Received: from mail.gmx.de ([213.165.64.20]:46239 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751447AbWCGTAY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 14:00:24 -0500
+X-Authenticated: #20450766
+Date: Tue, 7 Mar 2006 20:00:20 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Sergei Steshenko <steshenko_sergei@list.ru>,
+       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: [Alsa-user] arecord under 2.6.15.4-rt17 ->overruns...
+In-Reply-To: <1141757284.767.56.camel@mindpipe>
+Message-ID: <Pine.LNX.4.60.0603071955350.3662@poirot.grange>
+References: <Pine.LNX.4.60.0603022032040.4969@poirot.grange> 
+ <1141331113.3042.5.camel@mindpipe>  <Pine.LNX.4.60.0603022132160.4969@poirot.grange>
+  <1141333305.3042.14.camel@mindpipe>  <Pine.LNX.4.60.0603022207160.3033@poirot.grange>
+  <1141334604.3042.17.camel@mindpipe>  <Pine.LNX.4.60.0603022226130.3033@poirot.grange>
+  <1141335418.3042.25.camel@mindpipe>  <Pine.LNX.4.60.0603030012070.3397@poirot.grange>
+  <1141342018.3042.40.camel@mindpipe>  <Pine.LNX.4.60.0603030707270.2959@poirot.grange>
+  <1141410043.3042.116.camel@mindpipe>  <Pine.LNX.4.60.0603041429340.3283@poirot.grange>
+  <20060304154357.74f74cac@localhost>  <Pine.LNX.4.60.0603041823560.3601@poirot.grange>
+  <1141495123.3042.181.camel@mindpipe>  <Pine.LNX.4.60.0603042046450.3135@poirot.grange>
+  <1141509605.14714.11.camel@mindpipe>  <Pine.LNX.4.60.0603051915020.3204@poirot.grange>
+  <Pine.LNX.4.60.0603071851190.3662@poirot.grange> <1141757284.767.56.camel@mindpipe>
 MIME-Version: 1.0
-To: Sumit Narayan <talk2sumit@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error while copying file on a new filesystem
-References: <1458d9610603062122x4d5687efw99fca51944c56202@mail.gmail.com>
-In-Reply-To: <1458d9610603062122x4d5687efw99fca51944c56202@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
-Z-USANET-MsgId: XID967kcgs3y0103X29
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sumit Narayan wrote:
+On Tue, 7 Mar 2006, Lee Revell wrote:
 
->Hi,
->
->I am involved in development of a new file system. I can successfully
->write/read on the filesystem partition. But when I copy or move a
->file, I get this error:
->
->[root@sumit /mnt/newfs]# mv /root/1 .
->mv: writing `/mnt/newfs/1': No space left on device
->
->And although I get this error, the file is successfully copied to the
->directory and I can read the file properly after that.
->
->Can somebody please explain why this is happening. 'df' shows that
->there are free available inodes/disk space. I am using device
->virtualization to provide a single mount point for multiple devices.
->
->  
->
-I would venture to guess that your filesystem handler for 'write' 
-returned 0 as the number of bytes written, even though it wrote all the 
-data successfully (as you say, you can read it afterwards).
+> On Tue, 2006-03-07 at 19:30 +0100, Guennadi Liakhovetski wrote:
+> 
+> > And my audio still doesn't work properly... 
+> 
+> Yes you've mentioned that several times.
 
-regards,
+Ok, sorry, I just wanted to come to some resolution - either a fix or an 
+agreement that it's unfixable. So, if there are no further ideas, I'll 
+just open an entry on bugzilla and be done with it.
 
-Leo
+Thanks for trying to help me, everyone, sorry, if I abused your help in 
+any way:-)
 
+Guennadi
+---
+Guennadi Liakhovetski

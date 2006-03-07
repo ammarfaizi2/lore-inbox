@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWCGVFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWCGVHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751573AbWCGVFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 16:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751607AbWCGVFs
+	id S932338AbWCGVHB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 16:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWCGVHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 16:05:48 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:42426 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751526AbWCGVFr (ORCPT
+	Tue, 7 Mar 2006 16:07:01 -0500
+Received: from smtp2-g19.free.fr ([212.27.42.28]:45226 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751607AbWCGVHA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 16:05:47 -0500
-Message-ID: <440DF4F8.1DC7F5A5@tv-sign.ru>
-Date: Wed, 08 Mar 2006 00:02:48 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 7 Mar 2006 16:07:00 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Roland Scheidegger <rscheidegger_lists@hispeed.ch>
+Subject: Re: PROBLEM: four bttv tuners in one PC crashed
+Date: Tue, 7 Mar 2006 20:43:43 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+References: <440C5672.7000009@cern.ch> <440D7384.5030307@cern.ch> <440DDA46.2010503@hispeed.ch>
+In-Reply-To: <440DDA46.2010503@hispeed.ch>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 01/23] tref: Implement task references.
-References: <m1oe0yhy1w.fsf@ebiederm.dsl.xmission.com>
-		<m1k6bmhxze.fsf@ebiederm.dsl.xmission.com>
-		<m1mzgidnr0.fsf@ebiederm.dsl.xmission.com>
-		<44074479.15D306EB@tv-sign.ru>
-		<m14q2gjxqo.fsf@ebiederm.dsl.xmission.com>
-		<440CA459.6627024C@tv-sign.ru> <m1fylu2ybx.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603072043.44210.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
->  struct pid
->  {
-> +       atomic_t count;
->         /* Try to keep pid_chain in the same cacheline as nr for find_pid */
->         int nr;
->         struct hlist_node pid_chain;
->         /* list of pids with the same nr, only one of them is in the hash */
-> -       struct list_head pid_list;
-> -       /* Does a weak reference of this type exist to the task struct? */
-> -       struct task_ref *tref;
-> +       struct list_head tasks[PIDTYPE_MAX];
-> +       struct rcu_head rcu;
->  };
->
-> ...
->
-> +static void rcu_put_pid(struct rcu_head *rhp)
-> +{
-> +       struct pid *pid = container_of(rhp, struct pid, rcu);
-> +       put_pid(pid);
-> +}
+> The bttv driver/chip seems to cause random memory corruption sometimes, 
+> processes will just start dying...
 
-I hope we can do it without pid->rcu and rcu_put_pid(). Hopefuly
-we can use SLAB_DESTROY_BY_RCU. To do so we need some changes in
-find_task_by_pid_type().
+There is a known buffer overflow in the bttv driver (when using
+grabdisplay).  The fix is waiting on an audit of the rest of the
+bttv (and similar) code, since it looks like the same mistake
+occurs in several places.
 
-I'll try to look closer at this patch tomorrow.
+Ciao,
 
-Oleg.
+D.

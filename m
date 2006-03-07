@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWCGWKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWCGWRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbWCGWKa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 17:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCGWKa
+	id S964788AbWCGWRR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 17:17:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWCGWRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 17:10:30 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12782 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750759AbWCGWKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 17:10:30 -0500
-Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences /
-	GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
-From: Lee Revell <rlrevell@joe-job.com>
-To: Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>
-Cc: opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
-References: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
-	 <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
-Content-Type: text/plain
-Date: Tue, 07 Mar 2006 17:10:21 -0500
-Message-Id: <1141769422.767.99.camel@mindpipe>
+	Tue, 7 Mar 2006 17:17:17 -0500
+Received: from hc652ae31.dhcp.vt.edu ([198.82.174.49]:9613 "EHLO
+	hc652ae31.dhcp.vt.edu") by vger.kernel.org with ESMTP
+	id S964783AbWCGWRQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 17:17:16 -0500
+Message-Id: <200603072217.k27MH6IJ003533@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5-mm3 
+In-Reply-To: Your message of "Tue, 07 Mar 2006 02:19:29 PST."
+             <20060307021929.754329c9.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060307021929.754329c9.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+Content-Type: multipart/signed; boundary="==_Exmh_1141769826_3290P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Mar 2006 17:17:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-07 at 09:42 +0200, Silviu Marin-Caea wrote:
-> On Monday 06 March 2006 14:47, s.schmidt@avm.de wrote:
-> 
-> > Even though people might do realtime DSP things in user space with Linux
-> > and soft modems might work pretty well in userspace, in the case of Fax G3
-> > an extremely short latency is required.
-> 
-> So basically we have to choose between:
-> 
-> 1. keeping a stable open source kernel and sticking to the principles that got 
-> Linux where it is now
-> 
-> and
-> 
-> 2. Fax G3
-> 
-> Umm...
+--==_Exmh_1141769826_3290P
+Content-Type: text/plain; charset=us-ascii
 
-Extremely short, consistent latency is also required to use a Linux box
-as a live audio effects processor and thousands of people do that.  It
-works extremely well, is used by numerous professionals, and no one has
-ever seriously proposed moving it to the kernel.  The POSIX realtime
-APIs were designed for exactly this kind of application.
+On Tue, 07 Mar 2006 02:19:29 PST, Andrew Morton said:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/
 
-If they are doing serious realtime DSP then they should get better
-results in userspace anyway, because they get to use the floating point
-unit which isn't allowed in the kernel.
+Seen during early boot from the initrd, while the initrd was firing up a
+'lvm vgscan' to get the root filesystem accessible.. 2.6.15-rc5-mm2 didn't do this.
+Dell laptop, Pentium4, UP kernel...
 
-I suspect you last tried it in the 2.4 or early 2.6 era when patching
-the kernel was required to get decent latency.
+[   16.959458] Freeing unused kernel memory: 176k freed
+[   16.984855] Write protecting the kernel read-only data: 998k
+[   17.044106] Time: tsc clocksource has been installed.
+[   17.600897] BUG: sleeping function called from invalid context at mm/slab.c:2751
+[   17.625891] in_atomic():1, irqs_disabled():0
+[   17.650461]  [<c0103aba>] show_trace+0xd/0xf
+[   17.674759]  [<c0103b5b>] dump_stack+0x17/0x19
+[   17.698533]  [<c010ff3c>] __might_sleep+0x86/0x90
+[   17.722149]  [<c015155a>] kmem_cache_alloc+0x27/0x82
+[   17.745520]  [<c015baf1>] bd_claim_by_kobject+0x77/0x1b1
+[   17.768657]  [<c02a55a4>] open_dev+0x54/0x72
+[   17.791983]  [<c02a5c8b>] dm_get_device+0x13f/0x336
+[   17.815254]  [<c02a656c>] linear_ctr+0x7f/0xbb
+[   17.838389]  [<c02a5996>] dm_table_add_target+0x10e/0x233
+[   17.861491]  [<c02a7c82>] table_load+0xc9/0x1a5
+[   17.884366]  [<c02a796b>] ctl_ioctl+0x208/0x246
+[   17.906866]  [<c01653f2>] do_ioctl+0x4e/0x67
+[   17.929035]  [<c0165657>] vfs_ioctl+0x24c/0x25f
+[   17.950782]  [<c01656b1>] sys_ioctl+0x47/0x62
+[   17.971931]  [<c0102707>] syscall_call+0x7/0xb
+[   18.426629] kjournald starting.  Commit interval 5 seconds
 
-Lee
 
+
+--==_Exmh_1141769826_3290P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEDgZicC3lWbTT17ARAmnDAJ9mOjvT3Fv73ug4l3a92UUcz/7pqwCgj7Yc
+qQFRXlAQsq/97m+0v8VMRbs=
+=TLxD
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1141769826_3290P--

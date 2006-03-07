@@ -1,43 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWCGTDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWCGTEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751187AbWCGTDo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 14:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751416AbWCGTDo
+	id S1751458AbWCGTEi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 14:04:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751549AbWCGTEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 14:03:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54219 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751187AbWCGTDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 14:03:44 -0500
-Subject: Re: [PATCH] EDAC: core EDAC support code
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, alan@redhat.com, gregkh@kroah.com
-In-Reply-To: <200603070903.19226.dsp@llnl.gov>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org>
-	 <200603061014.22312.dsp@llnl.gov>
-	 <20060306102232.613911f6.rdunlap@xenotime.net>
-	 <200603070903.19226.dsp@llnl.gov>
-Content-Type: text/plain
-Date: Tue, 07 Mar 2006 20:03:38 +0100
-Message-Id: <1141758219.3048.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 7 Mar 2006 14:04:38 -0500
+Received: from outbound-ash.frontbridge.com ([206.16.192.249]:28871 "EHLO
+	outbound1-ash-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751559AbWCGTEh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 14:04:37 -0500
+X-BigFish: V
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] mm: data overlapping in page struct 
+Date: Tue, 7 Mar 2006 14:04:34 -0500
+Message-ID: <E6F1C74189C227449B7C7BC9F60926F901B4EC4C@torcaexmb2.atitech.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] mm: data overlapping in page struct 
+Thread-Index: AcZB0+S3Fi/wMtX4R3KIEKwq8ABJMAAH3MAQ
+From: "Hui Yu" <hyu@ati.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Andi Kleen" <ak@suse.de>, "Andrea Arcangeli" <andrea@suse.de>
+X-OriginalArrivalTime: 07 Mar 2006 19:04:32.0070 (UTC) FILETIME=[F7814E60:01C64219]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is to fix a data overlapping issue in struct page. The
+problem was introduced a few months ago by "split page table lock"
+change in which mapping is moved into the same union with ptl. Since
+private has fixed length (size of unsigned long), depending on config
+options, ptl may have larger size than private. In this case, ptl will
+overlap to mapping and may overwrite the original data in mapping. 
+The simplest way of fixing this is to move mapping out of the union, as
+in this patch. There may be better approaches; I'll leave it to the
+experts more familiar with this part of code.  
 
-> I was initially a bit confused because I thought the comment
-> specifically pertained to the piece of code shown above.  I need to
-> take a closer look at the EDAC sysfs code - I'm not as familiar with
-> some of its details as I should be.  Thanks for pointing out the
-> issue.
+We have discussed this with some of the Novell kernel engineers in the
+CC list.
 
-afaics it is a list of pci devices. these should just be symlinks to the
-sysfs resource of these pci devices instead, not a flat table file.
+Signed-off-by: Hui Yu <hyu@ati.com>
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 498ff87..edb9a22 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -234,18 +234,18 @@ struct page {
+ 						 * indicates order in
+the buddy
+ 						 * system.
+ 						 */
+-		struct address_space *mapping;	/* If low bit clear,
+points to
+-						 * inode address_space,
+or NULL.
+-						 * If page mapped as
+anonymous
+-						 * memory, low bit is
+set, and
+-						 * it points to anon_vma
+object:
+-						 * see PAGE_MAPPING_ANON
+below.
+-						 */
+ 	    };
+ #if NR_CPUS >= CONFIG_SPLIT_PTLOCK_CPUS
+ 	    spinlock_t ptl;
+ #endif
+ 	};
++	struct address_space *mapping;	/* If low bit clear, points to
++					 * inode address_space, or NULL.
++					 * If page mapped as anonymous
++					 * memory, low bit is set, and
++					 * it points to anon_vma object:
++					 * see PAGE_MAPPING_ANON below.
++					 */
+ 	pgoff_t index;			/* Our offset within mapping. */
+ 	struct list_head lru;		/* Pageout list, eg. active_list
+ 					 * protected by zone->lru_lock !
 
 

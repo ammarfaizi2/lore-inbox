@@ -1,324 +1,421 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWCGKRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWCGKVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbWCGKRL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 05:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWCGKRL
+	id S1751586AbWCGKVR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 05:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751657AbWCGKVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 05:17:11 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:48068 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751433AbWCGKRJ (ORCPT
+	Tue, 7 Mar 2006 05:21:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18345 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751538AbWCGKVQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 05:17:09 -0500
-Date: Tue, 7 Mar 2006 13:16:53 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ingo Oeser <netdev@axxeo.de>
-Cc: "David S. Miller" <davem@davemloft.net>, jengelh@linux01.gwdg.de,
-       christopher.leech@intel.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-Message-ID: <20060307101653.GA7276@2ka.mipt.ru>
-References: <20060303214036.11908.10499.stgit@gitlost.site> <200603061844.07439.netdev@axxeo.de> <20060307074438.GA22672@2ka.mipt.ru> <200603071043.59479.netdev@axxeo.de>
+	Tue, 7 Mar 2006 05:21:16 -0500
+Date: Tue, 7 Mar 2006 02:19:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc5-mm3
+Message-Id: <20060307021929.754329c9.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
-Content-Disposition: inline
-In-Reply-To: <200603071043.59479.netdev@axxeo.de>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Tue, 07 Mar 2006 13:16:54 +0300 (MSK)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/
 
-On Tue, Mar 07, 2006 at 10:43:59AM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
-> Evgeniy Polyakov wrote:
-> > On Mon, Mar 06, 2006 at 06:44:07PM +0100, Ingo Oeser (netdev@axxeo.de) wrote:
-> > > Hmm, so I should resurrect my user page table walker abstraction?
-> > > 
-> > > There I would hand each page to a "recording" function, which
-> > > can drop the page from the collection or coalesce it in the collector
-> > > if your scatter gather implementation allows it.
-> > 
-> > It depends on where performance growth is stopped.
-> > From the first glance it does not look like find_extend_vma(),
-> > probably follow_page() fault and thus __handle_mm_fault().
-> > I can not say actually, but if it is true and performance growth is
-> > stopped due to increased number of faults and it's processing, 
-> > your approach will hit this problem too, doesn't it?
-> 
-> My approach reduced the number of loops performed and number
-> of memory needed at the expense of doing more work in the main
-> loop of get_user_pages. 
-> 
-> This was mitigated for the common case of getting just one page by 
-> providing a get_one_user_page() function.
-> 
-> The whole problem, why we need such multiple loops is that we have
-> no common container object for "IO vector + additional data".
-> 
-> So we always do a loop working over the vector returned by 
-> get_user_pages() all the time. The bigger that vector, 
-> the bigger the impact.
-> 
-> Maybe sth. as simple as providing get_user_pages() with some offset_of 
-> and container_of hackery will work these days without the disadvantages 
-> my old get_user_pages() work had.
-> 
-> The idea is, that you'll provide a vector (like arguments to calloc) and two 
-> offsets: One for the page to store within the offset and one for the vma 
-> to store.
-> 
-> If the offset has a special value (e.g MAX_LONG) you don't store there at all.
+- A relatively small number of changes, although we're up to 9MB of diff
+  in the various git trees.
 
-You still need to find VMA in one loop, and run through it's(mm_structu) pages in
-second loop.
 
-> But if the performance problem really is get_user_pages() itself 
-> (and not its callers), then my approach won't help at all.
 
-It looks so.
-My test pseudocode is following:
-fget_light();
-igrab();
-kzalloc(number_of_pages * sizeof(void *));
-get_user_pages(number_of_pages);
-... undo ...
+Boilerplate:
 
-I've attached two graphs of performance with and without
-get_user_pages(), it is get_user_pages.png and kmalloc.png.
+- See the `hot-fixes' directory for any important updates to this patchset.
 
-Vertical axis is number of Mbytes per second thrown through above code,
-horizontal one is number of pages in each run.
- 
-> Regards
-> 
-> Ingo Oeser
+- To fetch an -mm tree using git, use (for example)
 
--- 
-	Evgeniy Polyakov
+  git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
 
---ew6BAiZeqk4r7MaW
-Content-Type: image/png
-Content-Disposition: attachment; filename="get_user_pages.png"
-Content-Transfer-Encoding: base64
+- -mm kernel commit activity can be reviewed by subscribing to the
+  mm-commits mailing list.
 
-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
+        echo "subscribe mm-commits" | mail majordomo@vger.kernel.org
 
---ew6BAiZeqk4r7MaW
-Content-Type: image/png
-Content-Disposition: attachment; filename="kmalloc.png"
-Content-Transfer-Encoding: base64
+- If you hit a bug in -mm and it's not obvious which patch caused it, it is
+  most valuable if you can perform a bisection search to identify which patch
+  introduced the bug.  Instructions for this process are at
 
-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
+        http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
 
---ew6BAiZeqk4r7MaW--
+  But beware that this process takes some time (around ten rebuilds and
+  reboots), so consider reporting the bug first and if we cannot immediately
+  identify the faulty patch, then perform the bisection search.
+
+- When reporting bugs, please try to Cc: the relevant maintainer and mailing
+  list on any email.
+
+Changes since 2.6.16-rc3-mm2:
+
+
+ linus.patch
+ git-acpi.patch
+ git-agpgart.patch
+ git-alsa.patch
+ git-audit-master.patch
+ git-blktrace.patch
+ git-cfq.patch
+ git-cifs.patch
+ git-cifs-fixup.patch
+ git-cpufreq.patch
+ git-drm.patch
+ git-dvb.patch
+ git-ia64.patch
+ git-ieee1394.patch
+ git-infiniband.patch
+ git-input.patch
+ git-jfs.patch
+ git-kbuild.patch
+ git-libata-all.patch
+ git-netdev-all.patch
+ git-net.patch
+ git-nfs.patch
+ git-ocfs2.patch
+ git-powerpc.patch
+ git-serial.patch
+ git-sym2.patch
+ git-pcmcia.patch
+ git-scsi-misc.patch
+ git-scsi-rc-fixes.patch
+ git-sas-jg.patch
+ git-sparc64.patch
+ git-watchdog.patch
+ git-xfs.patch
+ git-cryptodev.patch
+ git-viro-bird-m32r.patch
+ git-viro-bird-m68k.patch
+ git-viro-bird-xfs.patch
+ git-viro-bird-uml.patch
+ git-viro-bird-frv.patch
+ git-viro-bird-upf.patch
+ git-viro-bird-volatile.patch
+
+ git trees
+
+-git-audit-master-build-fix.patch
+-git-infiniband-build-fix.patch
+-mmc-au1xmmc-fix-compilation-error-by-using-platform_driver.patch
+-mmc-au1xmmc-fix-linking-error-because-mmc_rsp_type-doesnt-exist.patch
+-mmc-au1xmmc-fix-a-compilation-warning-status-is-not-used.patch
+-natsemi-napi-conversion.patch
+-natsemi-rx-lockup-fix.patch
+-net-convert-rtnl-to-mutex.patch
+-atm-fix-section-mismatch-warnings-in-fore200ec.patch
+-add-missing-ifdef-for-via-rng-code.patch
+-reiserfs-fix-unaligned-bitmap-usage.patch
+-fix-next_timer_interrupt-for-hrtimer.patch
+
+ Merged
+
++fix-next_timer_interrupt-for-hrtimer.patch
++s390-fix-compile-with-virt_cpu_accounting=n.patch
++add-missing-pm_power_offs.patch
++memory-hotplug-compile-fix.patch
++increase-max-kmalloc-size-for-very-large-systems.patch
++time-add-barrier-after-updating-jiffies_64.patch
++alsa-fix-error-paths-in-snd_ctl_elem_add.patch
++numa_maps-update.patch
++efi-fix-gdt-load.patch
++ramfs-needs-to-update-directory-m-ctime-on-symlink.patch
++smaps-hugepages-fix.patch
++smaps-shared-fix.patch
++windfarm-license-fix.patch
++s390-fix-match-in-ccw-modalias.patch
++s390-multiple-subchannel-sets-support.patch
++udf-fix-uid-gid-options-and-add-uid-gid=ignore-and-forget-options.patch
++fix-usbmixer-double-kfree.patch
++emu10k1_synth-use-after-free.patch
++sound-isa-sb-sb_mixerc-double-kfree.patch
++ad1848-double-free.patch
++opl3_oss-use-after-free.patch
++opl3_seq-use-after-free.patch
++idle-threads-should-have-a-sane-timestamp-value.patch
++__get_unaligned-gcc4-fix.patch
++kdump-x86_64-timer-interrupt-lockup-due-to-pending-interrupt.patch
++x86-fix-i386-nmi_watchdog-that-does-not-trigger-die_nmi.patch
++percpu_counter_sum.patch
++rcu-batch-tuning.patch
++fix-file-counting.patch
+
+ 2.6.16 queue (some of these are already merged)
+
++acpi-signedness-fix-2.patch
++acpi-should-depend-on-not-select-pci.patch
+
+ ACPI fixes
+
++vx-fix-memory-leak-on-error-path.patch
+
+ ALSA fix
+
++blk_execute_rq_nowait-speedup.patch
+
+ block performance tweak
+
++git-cifs-fixup.patch
+
+ Fix reject in git-cifs.patch
+
++ia64-dont-report-sn2-or-summit-hardware-as-an-error.patch
++sgi-sn-drivers-dont-report-sn2-hardware-as-an-error.patch
+
+ ia64 fixes
+
++ieee1394-speed-up-of-dma_region_sync_for_cpu.patch
+
+ firewire speedup
+
++kill-ifdefs-in-mtdcorec.patch
+
+ MTD cleanup
+
++revert-ipw2200-Fix-WPA-network-selection-problem.patch
+
+ Revert bad patch in ipw2200.  But there's still an AP selection problem in
+ there.
+
++git-net-build-hacks.patch
++git-net-build-hacks-fixes.patch
+
+ Fix git-net.patch
+
++nfs-make-2-functions-static.patch
++fs-locksc-make-posix_locks_deadlock-static.patch
+
+ NFS cleanups
+
++nfs-permit-filesystem-to-override-root-dentry-on-mount-update.patch
+
+ Fix nfs-permit-filesystem-to-override-root-dentry-on-mount.patch
+
++nfs-apply-mount-root-dentry-override-to-filesystems-v9fs-fix-2.patch
++nfs-apply-mount-root-dentry-override-to-filesystems-fix-3.patch
+
+ Fix nfs-apply-mount-root-dentry-override-to-filesystems.patch
+
++git-scsi-misc-sr_ioctl-missing-memset.patch
++git-scsi-misc-sr_ioctl-missing-memset-2.patch
+
+ Fix git-scsi-misc.patch
+
++drivers-message-fusion-mptbasec-make-mpt_read_ioc_pg_3-static.patch
++drivers-message-fusion-mptctlc-make-struct-async_queue-static.patch
+
+ Fusion cleanups
+
+-gregkh-usb-usbfs2.patch
+-gregkh-usb-usbfs2-vs-nfs-apply-mount-root-dentry-override-to-filesystems.patch
+
+ usbfs2 got dropped
+
++revert-gregkh-usb-usb-reduce-syslog-clutter.patch
+
+ Drop buggy patch from Greg's tree
+
++x86_64-mm-fix-orphaned-bits-of-timer-init-messages.patch
++x86_64-mm-cpu-limit.patch
++x86_64-mm-i386-early-alignment.patch
+
+ x86_64 tree updates
+
++mm-isolate_lru_pages-scan-count-fix.patch
++mm-shrink_inactive_lis-nr_scan-accounting-fix.patch
+
+ vmscan fixes
+
++enable-mprotect-on-huge-pages-fix.patch
+
+ Fix enable-mprotect-on-huge-pages.patch
+
++hugepage-move-hugetlb_free_pgd_range-prototype-to-hugetlbh.patch
++hugepage-is_aligned_hugepage_range-cleanup.patch
+
+ More hugetlbpage fixes
+
++slab-cache_reap-further-reduction-in-interrupt-holdoff.patch
++slab-cache_reap-further-reduction-in-interrupt-holdoff-fix.patch
++slab-make-drain_array-more-universal-by-adding-more-parameters.patch
++slab-remove-drain_array_locked.patch
++slab-fix-drain_array-so-that-it-works-correctly-with-the-shared_array.patch
+
+ slab tweaks
+
++powerpc-fix-windfarm_pm112-not-starting-all-control-loops.patch
++powerpc-make-pmd_bad-and-pud_bad-checks-non-trivial.patch
+
+ powerpc fixes
+
+-fix-elf-entry-point-i386.patch
+
+ Dropped, wrong.
+
++i386-cleanup-after-cpu_gdt_descr-conversion-to.patch
++i386-fix-dump_stack.patch
++x86-cpuid4-doesnt-need-cpu-level-5.patch
++x86-cpu-model-calculation-for-family-6-cpu.patch
++x86-deterine-xapic-using-apic-version.patch
+
+ x86 updates
+
++enable-sci_emulate-to-manually-simulate-physical-hotplug-testing-fix.patch
++drivers-acpi-busc-make-struct-acpi_sci_dir-static.patch
+
+ Fix enable-sci_emulate-to-manually-simulate-physical-hotplug-testing.patch
+
++s390-increase-spinlock-retry-code-performance.patch
+
+ s390 speedup
+
++notifier-profileh-forward-decl.patch
+
+ Build fix
+
++mmc-sdhci-build-fix.patch
+
+ Fix mmc-secure-digital-host-controller-interface-driver.patch
+
++update-obsolete_oss_driver-schedule-and-dependencies-update.patch
+
+ Fix update-obsolete_oss_driver-schedule-and-dependencies.patch
+
++kconfig-clarify-memory-debug-options.patch
++v9fs-consolidate-trans_sock-into-trans_fd.patch
++v9fs-rename-tids-to-tags-to-be-consistent-with-plan-9-documentation.patch
++v9fs-print-9p-messages.patch
++smbfs-fix-debug-logging-only-compilation-error.patch
++adjust-dev-kmemmemport-write-handlers.patch
++remove-maintainers-entry-for-rtlinux.patch
++fix-hardcoded-values-in-collie-frontlight.patch
++collie-fix-missing-pcmcia-bits.patch
++tpm-sparc32-build-fix.patch
++ads7846-build-fix.patch
+
+ Misc updates and fixes
+
++ext3-get-blocks-maping-multiple-blocks-at-a-once-get-block-chain-confliction-fix.patch
+
+ Fix ext3-get-blocks-maping-multiple-blocks-at-a-once.patch
+
++ext3-cleanups-and-warn_on.patch
++ext3-multi-block-get_block.patch
+
+ Update ext3 patches in -mm.
+
++time-reduced-ntp-rework-part-2-remove-duplicate.patch
+
+ Fix time-reduced-ntp-rework-part-2-fix-adjtimeadj.patch
+
++time-i386-conversion-part-3-lock-jiffies_64.patch
+
+ Locking fix
+
++time-i386-clocksource-drivers-drop-acpi_pm_buggy.patch
+
+ Fix time-i386-clocksource-drivers.patch
+
++kernel-timec-remove-unused-pps_-variables.patch
+
+ Cleanup
+
++kprobe-handler-discard-user-space-trap-fix-2.patch
+
+ Fix kprobe-handler-discard-user-space-trap.patch some more
+
++uevent-redzoning.patch
++early-boot-safety-in-cond_resched.patch
++pipe-refcounting-cleanup.patch
+
+ Various things which might fix or detect a rare memory corruption bug.
+
+-export-file_ra_state_init-again.patch
+
+ Dropped, unneeded.
+
++for_each_online_pgdat-take2-for_each_bootmem-fix.patch
+
+ Fix for_each_online_pgdat-take2-for_each_bootmem.patch
+
+-rtc-subsystem-library-functions.patch
+-rtc-subsystem-arm-cleanup.patch
+-rtc-subsystem-class.patch
+-rtc-subsystem-class-fix.patch
+-rtc-subsystem-class-fix-2.patch
+-rtc-subsystem-i2c-cleanup.patch
+-rtc-subsystem-sysfs-interface.patch
+-rtc-subsystem-proc-interface.patch
+-rtc-subsystem-dev-interface.patch
+-rtc-subsystem-x1205-driver.patch
+-rtc-subsystem-test-device-driver.patch
+-rtc-subsystem-ds1672-driver.patch
+-rtc-subsystem-pcf8563-driver.patch
+-rtc-subsystem-rs5c372-driver.patch
++rtc-subsystem-library-functions-2.patch
++rtc-subsystem-arm-cleanup-2.patch
++rtc-subsystem-arm-integrator-cleanup-2.patch
++rtc-subsystem-class-2.patch
++rtc-subsystem-i2c-cleanup-2.patch
++rtc-subsystem-sysfs-interface-2.patch
++rtc-subsystem-proc-interface-2.patch
++rtc-subsystem-dev-interface-2.patch
++rtc-subsystem-x1205-driver-2.patch
++rtc-subsystem-test-device-driver-2.patch
++rtc-subsystem-ds1672-driver-2.patch
++rtc-subsystem-pcf8563-driver-2.patch
++rtc-subsystem-rs5c372-driver-2.patch
++rtc-subsystem-ep93xx-driver-2.patch
++rtc-subsystem-sa1100-pxa2xx-driver-2.patch
+
+ Updated rtc patch series
+
++tref-implement-task-references-kill-init_tref.patch
++tref-fix-task_ref-reference-counting.patch
++tref-fix-task_ref-reference-counting-fix.patch
++tref-fix-task_ref-reference-counting-ensure-the-references-is-always-on-the-first-task.patch
++proc-dont-lock-task_structs-indefinitely-kill-init_tref.patch
++proc-dont-lock-task_structs-indefinitely-kill-init_tref-inode.patch
++proc-dont-lock-task_structs-indefinitely-tref-ensure-the-references-is-always-on-the-first-task.patch
++proc-cleanup-proc_fd_access_allowed.patch
+
+ Various updates to the procfs patches in -mm.
+
++framebuffer-cmap-setting-return-values.patch
+
+ framebuffer fixlet.
+
++kobject_add_dir.patch
++add-holders-slaves-subdirectory-to-sys-block.patch
++bd_claim_by_kobject.patch
++bd_claim_by_disk.patch
++md-to-use-bd_claim_by_disk.patch
++dm-table-store-md.patch
++dm-table-store-md-fix.patch
++dm-to-use-bd_claim_by_disk.patch
++dm-linear-debug.patch
+
+ devicemapper feature work.
+
++fold-select_bits_alloc-free-into-caller-code.patch
+
+ select() cleanup.
+
++typos-grab-bag-of-the-month.patch
+
+ Fix lots of tpyos.
+
+
+
+All 1448 patches:
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/patch-list
+
+

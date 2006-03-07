@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbWCGDlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWCGDeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932647AbWCGDlN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 22:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbWCGDlN
+	id S932482AbWCGDeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 22:34:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbWCGDeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 22:41:13 -0500
-Received: from c-68-35-68-128.hsd1.nm.comcast.net ([68.35.68.128]:14294 "EHLO
-	deneb.dwf.com") by vger.kernel.org with ESMTP id S932648AbWCGDlL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 22:41:11 -0500
-Message-Id: <200603070340.k273ev0A003594@deneb.dwf.com>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1
-To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: vmlinuz-2.6.16-rc5-git8 still nogo with Intel D945 Motherboard
-Mime-Version: 1.0
+	Mon, 6 Mar 2006 22:34:16 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:20129 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932482AbWCGDeQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 22:34:16 -0500
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com
+Subject: Re: Ocfs2 performance bugs of doom
+References: <4408C2E8.4010600@google.com>
+	<20060303233617.51718c8e.akpm@osdl.org> <440B9035.1070404@google.com>
+	<20060306025800.GA27280@ca-server1.us.oracle.com>
+	<440BC1C6.1000606@google.com>
+	<20060306195135.GB27280@ca-server1.us.oracle.com>
+From: Andi Kleen <ak@suse.de>
+Date: 07 Mar 2006 04:34:12 +0100
+In-Reply-To: <20060306195135.GB27280@ca-server1.us.oracle.com>
+Message-ID: <p733bhvgc7f.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Mar 2006 20:40:57 -0700
-From: Reg Clemens <reg@dwf.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Im still running a 2.6.11 
-Ever since some PCI changes (between 2.6.11 and 2.6.15) I have been
-unable to build a kernel that will run with my machine on an 
-Intel D945 Motherboard.
+Mark Fasheh <mark.fasheh@oracle.com> writes:
 
-I just tried vmlinuz-2.6.16-rc5-git8 and still no luck, the kernel builds,
-but during the first few lines of the boot you get the message:
+> On Sun, Mar 05, 2006 at 08:59:50PM -0800, Daniel Phillips wrote:
+> > So that hack apparently improves the bucket distribution quite a bit, but
+> > look, the bad old linear systime creep is still very obvious.  For that
+> > there is no substitute for lots of buckets.
+> Yes, I think the way to go right now is to allocate an array of pages and
+> index into that. We can make the array size a mount option so that the
+> default can be something reasonable ;)
 
-    PCI: Failed to allocate mem resource #6 ...
+Did you actually do some statistics how long the hash chains are? 
+Just increasing hash tables blindly has other bad side effects, like
+increasing cache misses.
 
-Ive tried stripping things down to just the video card, and still the same
-result.
-
-This Motherboard has been available for the better part of a year, and
-still no Linux support.  Usually by the time I buy something, its supported.
-
-Anyone working this problem?
-
--- 
-                                        Reg.Clemens
-                                        reg@dwf.com
-
-
+-Andi

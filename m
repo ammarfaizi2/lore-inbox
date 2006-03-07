@@ -1,48 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752113AbWCGHDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752080AbWCGHDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752113AbWCGHDu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 02:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752107AbWCGHDt
+	id S1752080AbWCGHDr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 02:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWCGHDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 02:03:49 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:55712 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1752089AbWCGHDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 02:03:48 -0500
-Date: Tue, 7 Mar 2006 16:03:14 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
-       Greg KH <greg@kroah.com>, LHMS <lhms-devel@lists.sourceforge.net>,
-       ACPI <linux-acpi@vger.kernel.org>
-Subject: [PATCH] naming memory hotplug's phys_device take2 [3/3] name memory
- at boot
-Message-Id: <20060307160314.35687b55.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Tue, 7 Mar 2006 02:03:47 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:61338 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752080AbWCGHDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 02:03:46 -0500
+Date: Tue, 7 Mar 2006 12:33:01 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Neil Brown <neilb@suse.de>, Balbir Singh <bsingharora@gmail.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>,
+       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
+Message-ID: <20060307070301.GA12165@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <17414.38749.886125.282255@cse.unsw.edu.au> <17419.53761.295044.78549@cse.unsw.edu.au> <661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com> <17420.59580.915759.44913@cse.unsw.edu.au> <440D2536.60005@sw.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <440D2536.60005@sw.ru>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch shows ACPI information of rams which exists at boot time,
-maybe will not be used until memory-hot-remove will be implemented.
+On Tue, Mar 07, 2006 at 09:16:22AM +0300, Kirill Korotaev wrote:
+> >>The code changes look big, have you looked at
+> >>http://marc.theaimsgroup.com/?l=linux-kernel&m=113817279225962&w=2
+> >
+> >
+> >No I haven't.  I like it.
+> > - Holding the semaphore shouldn't be a problem.
+> > - calling down_read_trylock ought to be fast
+> > - I *think* the unwanted calls to prune_dcache are always under
+> >   PF_MEMALLOC - they certainly seem to be.
+> No, it looks as it is not :(
+> Have you noticed my comment about "count" argument to prune_dcache()?
+> For example, prune_dcache() is called from shrink_dcache_parent() which 
+> is called in many places and not all of them have PF_MEMALLOC or 
+> s_umount semaphore for write. But prune_dcache() doesn't care for super 
+> blocks etc. It simply shrinks N dentries which are found _first_.
+> 
+> So the condition:
+> +		if ((current->flags & PF_MEMALLOC) &&
+> +			!(ret = down_read_trylock(&s->s_umount))) {
+> is not always true when the race occurs, as PF_MEMALLOC is not always set.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+I understand your comment about shrink_dcache_parent() being called
+from several places. prune_one_dentry() would eventually dput the parent,
+but unmount would go ahead and unmount the filesystem before the
+dput of the parent could happen.
 
-Index: linux-2.6.16-rc5-mm2/drivers/acpi/acpi_memhotplug.c
-===================================================================
---- linux-2.6.16-rc5-mm2.orig/drivers/acpi/acpi_memhotplug.c	2006-03-07 15:28:08.000000000 +0900
-+++ linux-2.6.16-rc5-mm2/drivers/acpi/acpi_memhotplug.c	2006-03-07 15:28:10.000000000 +0900
-@@ -387,6 +387,10 @@
- 
- 	printk(KERN_INFO "%s \n", acpi_device_name(device));
- 
-+	/* if memory is available now (we have page memmap), name it */
-+	if ( pfn_valid(mem_device->start_addr >> PAGE_SHIFT)) {
-+		acpi_memory_device_export_name(mem_device);
-+	}
- 	return_VALUE(result);
- }
- 
+Given that background, I thought our main concern was with respect to
+unmount. The race was between shrink_dcache_parent() (called from unmount)
+and shrink_dcache_memory() (called from the allocator), hence the fix
+for the race condition.
+
+I just noticied that 2.6.16-rc* now seems to have drop_slab() where
+PF_MEMALLOC is not set. So, we can still race with my fix if there
+if /proc/sys/vm/drop_caches is written to and unmount is done in parallel.
+
+A simple hack would be to set PF_MEMALLOC in drop_slab(), but I do not
+think it is a good idea.
+
+> 
+> >And it is a nice small change.
+> >Have you had any other feedback on this?
+> here it is :)
+> 
+
+Thanks for your detailed feedback
+
+> Thanks,
+> Kirill
+> 
+
+Regards,
+Balbir

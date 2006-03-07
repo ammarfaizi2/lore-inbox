@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWCGMZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752501AbWCGMeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWCGMZd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 07:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752141AbWCGMZd
+	id S1752501AbWCGMeO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 07:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752502AbWCGMeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 07:25:33 -0500
-Received: from tao.natur.cuni.cz ([195.113.56.1]:37905 "EHLO tao.natur.cuni.cz")
-	by vger.kernel.org with ESMTP id S1750858AbWCGMZc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 07:25:32 -0500
-X-Obalka-From: mmokrejs@ribosome.natur.cuni.cz
-X-Obalka-To: <linux-kernel@vger.kernel.org>
-Message-ID: <440D7BB8.40106@ribosome.natur.cuni.cz>
-Date: Tue, 07 Mar 2006 13:25:28 +0100
-From: =?windows-1252?Q?Martin_MOKREJ=8A?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051002
-X-Accept-Language: cs
+	Tue, 7 Mar 2006 07:34:14 -0500
+Received: from nproxy.gmail.com ([64.233.182.202]:60061 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752501AbWCGMeN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 07:34:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ReTG243nTIKMpI7UNGtUWbbpkOFYh9DXM9X54K6J83CyXttwGGV3vhYK9iTNbzAQqy6ZyY5STyDQtPnXZRVQ6BMsLYnpXtiiR9VQKWCE1Cv8ELEY1Z06p1M/0j+hj0NGUIGGMlKMZg7R6rphYTFsTh3oC4+NGyVNbttW35PCMp4=
+Message-ID: <aec7e5c30603070434j7f326ad2r5f1b0e8046870941@mail.gmail.com>
+Date: Tue, 7 Mar 2006 21:34:11 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: SMP and 101% cpu max?
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5 huge memory detection regression
-References: <440D6581.9080000@ribosome.natur.cuni.cz> <20060307041532.3ef45392.akpm@osdl.org>
-In-Reply-To: <20060307041532.3ef45392.akpm@osdl.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Hi guys,
 
-Andrew Morton wrote:
-> Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
-> 
->>  I just tested 2.6.16-rc5 kernel on MSI 9136 dual Xeon server 
->> motherboard with 16 GB of memory and the kernel detects only 8 GB of 
->> RAM instead. 2.6.15 kernel detected properly 16 GB. I haven't tested 
->> any kernel revisions in between these two, but could if you point me 
->> in a specific direction. Attaching diff(1) output of dmesg(1) outputs.
->> Please Cc: me in replies. Thanks!
->> Martin
->>
->>
->>[boot-2.6.15_to_16-rc5.diff  text/plain (12156 bytes)]
-> 
-> 
-> The diff is useful.
-> 
-> 
->> --- tmp/boot-2.6.15.txt	2006-03-07 11:45:48.015509048 +0100
->> +++ tmp/boot-2.6.16-rc5.txt	2006-03-07 11:45:48.029506920 +0100
->> @@ -1,4 +1,4 @@
->> -Linux version 2.6.15 (root@phylo) (gcc version 3.4.5 (Gentoo 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Mon Mar 6 20:20:06 MET 2006
->> +Linux version 2.6.16-rc5 (root@phylo) (gcc version 3.4.5 (Gentoo 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)) #1 SMP Mon Mar 6 19:58:24 MET 2006
->>  BIOS-provided physical RAM map:
->>   BIOS-e820: 0000000000000000 - 000000000009a800 (usable)
->>   BIOS-e820: 000000000009a800 - 00000000000a0000 (reserved)
->> @@ -12,16 +12,16 @@
->>   BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
->>   BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
->>   BIOS-e820: 00000000fffffc00 - 0000000100000000 (reserved)
->> - BIOS-e820: 0000000100000000 - 0000000430000000 (usable)
->> -16256MB HIGHMEM available.
->> + BIOS-e820: 0000000100000000 - 0000000230000000 (usable)
->> +8064MB HIGHMEM available.
-> 
-> 
-> These numbers are what the BIOS is telling the kernel about your machine. 
-> Was the BIOS changed?
+I'm doing some memory related hacking, and part of that is testing the
+current behaviour of the Linux VM. This testing involves running some
+simple tests (building the linux kernel is one of the tests) while
+varying the amount of RAM available to the kernel.
 
-No, it hasn't since we got the motherboard. Yes, it is 1.20 instead 
-of 1.50. The MSI web is such a crap I couldn't first of all get the 
-file at all and once found on a local reseller's page the zip file 
-contains no Changelog, so I have no clue what happened between 1.20 
-and 1.50 BIOS revision.
+I've tested memory configurations of 64MB, 128MB and 256MB on a Dual
+PIII machine. The tested kernel is 2.6.16-rc5, and user space is based
+on debian-3.1. I run 5 tests per memory configuration, and the machine
+is rebooted between each test.
 
-> 
-> If not, you might need to wiggle those DIMMs or something.
+Problem:
 
-It is really something else, 16GB can be seen under 2.6.15, 
-2.6.15-rc1 (if I remember right my previous kernel version).
-I can reproduce just by booting with "wrong" kernel version.
-Any other recommendation? Except flashing and praying?
-I haven't touched the BIOS setting either, I worked completely remotely.
+With 128MB and 256MB configurations, a majority of the tests never
+make it over 101% CPU usage when I run "make -j 2 bzImage", building a
+allnoconfig kernel. With 64MB memory, everything seems to be working
+as expected. Also, running "make bzImage" works as expected too.
 
-Martin
+Results for "make bzImage":
+
+# time: real user sys, cpu: percentage, ram: KB, swap: KB
+
+time: 229.261 211.6 18.18, cpu: 100, ram: 256716, swap: 125944
+time: 229.621 211.45 17.51, cpu: 100, ram: 256716, swap: 125944
+time: 229.698 212.11 17.68, cpu: 100, ram: 256716, swap: 125944
+time: 230.711 211.89 17.86, cpu: 100, ram: 256716, swap: 125944
+time: 232.219 210.55 18.5, cpu: 99, ram: 256716, swap: 125944
+time: 233.203 213.34 17.79, cpu: 99, ram: 126876, swap: 125944
+time: 233.371 213.82 17.15, cpu: 99, ram: 126876, swap: 125944
+time: 234.18 213.43 17.92, cpu: 99, ram: 126876, swap: 125944
+time: 234.315 213.11 17.92, cpu: 99, ram: 126876, swap: 125944
+time: 235.334 215.06 17.22, cpu: 99, ram: 126876, swap: 125944
+time: 241.159 222.82 15.38, cpu: 99, ram: 61956, swap: 125944
+time: 241.299 222.39 15.34, cpu: 99, ram: 61956, swap: 125944
+time: 241.475 223.16 15.38, cpu: 99, ram: 61956, swap: 125944
+time: 241.955 223.24 15.66, cpu: 99, ram: 61956, swap: 125944
+time: 242.099 222.92 15.98, cpu: 99, ram: 61956, swap: 125944
+
+Results for "make -j 2 bzImage":
+
+# time: real user sys, cpu: percentage, ram: KB, swap: KB
+
+time: 124.336 220.03 18.98, cpu: 192, ram: 126876, swap: 125944
+time: 124.547 217.57 19.15, cpu: 190, ram: 256716, swap: 125944
+time: 125.162 218.35 19.51, cpu: 190, ram: 256716, swap: 125944
+time: 132.488 228.71 17.1, cpu: 186, ram: 61956, swap: 125944
+time: 132.502 230.93 16.26, cpu: 187, ram: 61956, swap: 125944
+time: 132.634 230.55 16.42, cpu: 186, ram: 61956, swap: 125944
+time: 132.643 229.89 17.63, cpu: 187, ram: 61956, swap: 125944
+time: 133.2 230.09 16.28, cpu: 185, ram: 61956, swap: 125944
+time: 227.371 211.45 17.36, cpu: 101, ram: 256716, swap: 125944
+time: 227.898 211.93 17.3, cpu: 101, ram: 256716, swap: 125944
+time: 228.071 212.21 17.15, cpu: 101, ram: 256716, swap: 125944
+time: 228.788 212.46 17.88, cpu: 101, ram: 126876, swap: 125944
+time: 229.223 214.14 16.46, cpu: 101, ram: 126876, swap: 125944
+time: 229.255 213.56 17.19, cpu: 101, ram: 126876, swap: 125944
+time: 230.296 214.25 17.44, cpu: 101, ram: 126876, swap: 125944
+
+Any ideas what is causing this? Is it a memory subsystem issue, or cpu
+scheduling?
+
+Thanks,
+
+/ magnus

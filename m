@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751477AbWCHQGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWCHQJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751477AbWCHQGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 11:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWCHQGI
+	id S932068AbWCHQJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 11:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWCHQJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 11:06:08 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:20446 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S1751477AbWCHQGH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 11:06:07 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-Date: Wed, 8 Mar 2006 09:05:59 -0700
-User-Agent: KMail/1.8.3
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Robert Hancock" <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <5N5Ql-30C-11@gated-at.bofh.it> <200603071051.35791.bjorn.helgaas@hp.com> <4807377b0603080018h1b952e3av4966d81b85f6d346@mail.gmail.com>
-In-Reply-To: <4807377b0603080018h1b952e3av4966d81b85f6d346@mail.gmail.com>
+	Wed, 8 Mar 2006 11:09:18 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:60659 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751772AbWCHQJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 11:09:17 -0500
+Message-ID: <440DE40F.6090107@tmr.com>
+Date: Tue, 07 Mar 2006 14:50:39 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nigel Cunningham <nigel@suspend2.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Nigel's work and the future of Suspend2.
+References: <200603071005.56453.nigel@suspend2.net>
+In-Reply-To: <200603071005.56453.nigel@suspend2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603080905.59470.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 March 2006 01:18, Jesse Brandeburg wrote:
-> On 3/7/06, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> > On Tuesday 07 March 2006 07:21, linux-os (Dick Johnson) wrote:
-> > Maybe you could handle this with a PCI quirk that runs before
-> > pci_enable_device().  IIRC, we considered exposing a separate
-> > interface for PCI IRQ allocation and routing, but decided it
-> > wasn't worth the complexity since so few devices would need it.
-> >
-> > > Linux-2.4.x had IRQs that were stable. One could put
-> > > a handler in place that would handle the possible burst of interrupts
-> > > upon startup. Then this was changed so the IRQ value is wrong
-> > > until an unrelated and illogical event occurs.
-> >
-> > There are good reasons to wait to allocate the IRQ until you have
-> > a driver that cares about the device.  I'm sorry that this broke
-> > your specific case.
+Nigel Cunningham wrote:
+> Hi all.
 > 
-> FWIW, I'd be interested in following up on something like this in
-> another thread because e100 appears to have (at least in one
-> reporter's dual e100 machine) a similar "hardware problem" where a
-> shared interrupt line gets asserted too early and the kernel prints a
-> Nobody Cared message.
+> I'm delighted to announce that I've accepted a call to serve a congregation in 
+> Victoria, Australia, as a Home Missionary elder. As a result, some time in 
+> the next month or two, I will stop working for Cyclades and make the move.
 > 
-> So we have a new way of doing things that exposes more broken
-> hardware, shouldn't we provide a way for that hardware to continue
-> working?
+> Users of Suspend2 can rest assured that I will not allow the patches to suffer 
+> bitrot. I will be continuing to use them myself, and will therefore have the 
+> best of incentives to keep them up-to-date.
 
-Booting with "pci=routeirq" gives the previous behavior.
+I think you for all your work, and I hope that your new calling will be 
+satisfying!
+> 
+> Now for the downside: I won't, however, be making any sort of concerted effort 
+> at getting them merged into the vanilla kernel after my move, and am not 
+> inclined to make a big effort beforehand. Recent discussions on LKML clearly 
+> showed that Pavel doesn't want to see them merged, and I didn't see much in 
+> the way of other kernel developers expressing a desire contrary to Pavel's 
+> wishes. I don't want to waste my time and effort, so I don't see the point to 
+> doing anything but maintaining the patches as they stand.
 
-It would be interesting to know whether that makes a difference
-in the e100 issue you mention.
+I have never had any problems with Suspend1 in terms of SUSPEND, 
+although I was hoping at some time that RESUME functionality would be 
+added as well ;-) Suspend2 has worked for my laptops, and I'm delighted 
+that you will be continuing your work.
+> 
+> I'd like to take this opportunity to thank Cyclades for their employment and 
+> support of the project.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
+

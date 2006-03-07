@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWCGQsD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWCGQsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751244AbWCGQsD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 11:48:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbWCGQsD
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 11:48:03 -0500
-Received: from adsl-71-140-189-62.dsl.pltn13.pacbell.net ([71.140.189.62]:47541
-	"EHLO aexorsyst.com") by vger.kernel.org with ESMTP
-	id S1751244AbWCGQsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751254AbWCGQsB (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 7 Mar 2006 11:48:01 -0500
-From: "John Z. Bohach" <jzb@aexorsyst.com>
-Reply-To: jzb@aexorsyst.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem: NIC transmit timeouts
-Date: Tue, 7 Mar 2006 08:48:00 -0800
-User-Agent: KMail/1.5.2
-References: <001501c64119$6d8e7bc0$072011ac@majestix> <200603060933.57036.jzb@aexorsyst.com> <002b01c641df$e0d49b20$072011ac@majestix>
-In-Reply-To: <002b01c641df$e0d49b20$072011ac@majestix>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbWCGQsB
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 7 Mar 2006 11:48:01 -0500
+Received: from smtp-3.llnl.gov ([128.115.41.83]:953 "EHLO smtp-3.llnl.gov")
+	by vger.kernel.org with ESMTP id S1751243AbWCGQsA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 11:48:00 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Tue, 7 Mar 2006 08:47:44 -0800
+User-Agent: KMail/1.5.3
+Cc: Greg KH <greg@kroah.com>, Arjan van de Ven <arjan@infradead.org>,
+       dthompson@lnxi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061301.37923.dsp@llnl.gov> <20060306213203.GJ27946@ftp.linux.org.uk>
+In-Reply-To: <20060306213203.GJ27946@ftp.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603070848.00584.jzb@aexorsyst.com>
+Message-Id: <200603070847.44417.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 04:08, PaNiC wrote:
-> Thanks for your reply.
-> I have an idea what you're talking about, but no more i'm afraid.
-> I'm no programmer and i don't know how to try what you suggested.
-> What i did try was applying some patches manually that i found in the
-> mailing list archives.
+On Monday 06 March 2006 13:32, Al Viro wrote:
+> On Mon, Mar 06, 2006 at 01:01:37PM -0800, Dave Peterson wrote:
+> > Regarding the above problem with the kobject reference count, this
+> > was recently fixed in the -mm tree (see edac-kobject-sysfs-fixes.patch
+> > in 2.6.16-rc5-mm2).  The fix I implemented was to add a call to
+> > complete() in edac_memctrl_master_release() and then have the module
+> > cleanup code wait for the completion.  I think there were a few other
+> > instances of this type of problem that I also fixed in the
+> > above-mentioned patch.
 >
-> This is one of them:
+> This is not a fix, this is a goddamn deadlock.
+> 	rmmod your_turd </sys/spew/from/your_turd
+> and there you go.  rmmod can _NOT_ wait for sysfs references to go away.
 
-I'll try to elaborate a little, but since my experience in dealing with the
-NETDEV watchdog timeout issue is confined to x86 architectures,
-some translation may be necessary...
+Ok, how does this sound:
 
-I've seen two causes for this:  1) driver bug, 2) firmware bug.  I have yet to
-come across one where the kernel itself was at fault.
+    - Modify EDAC so it uses kmalloc() to create the kobject.
+    - Eliminate edac_memctrl_master_release().  Instead, use kfree() as
+      the release method for the kobject.  Here, it's important to use a
+      function -outside- of EDAC as the release method since the core
+      EDAC module may have been unloaded by the time the release method
+      is called.
+    - Make similar modifications to the other places in EDAC where
+      kobjects are used.
 
-1)  if its a driver bug, updating to the latest driver should have an effect,
-hopefully a positive one.  Generally, the driver maintainer is at least aware
-of the problem, if this is the cause.
+At least this will keep the module unload operation from blocking
+in the module cleanup function due to a nonzero kobject reference
+count.  I'm going to be away from my keyboard for most of the rest of
+today.  However, if there is general agreement that this is a
+reasonable way to proceed, I'll make a patch that implements this
+tomorrow.
 
-2)  If its a firmware bug, you'll have to upgrade to the latest version of
-the BIOS, uboot, rommon, or whatever your platform uses to boot the
-OS.
-
-Case 2) is the type of problem where many people can be using the exact
-same kernel and exact same driver, and only a few experience any problems.
-This is because its not the kernel or the driver, but the firmware that is at fault.
-
-In particular, on the x86 platform where I've root-caused this issue, a different
-version of the BIOS was present (I did an upgrade, and the upgrade failed to
-implement the proper register programming, and that's when the problem showed
-up).  The manifestation is that heavy PCI traffic (not just ethernet traffic) would
-overload the host-PCI bridge, and bad things started happening.  In some cases,
-just ethernet traffic alone was enough to overpower the bridge, but that dependended
-on the link speed.  100 Mbs took a lot longer to NETDEV watchdog timeout than
-1000 Mbs.  Another fun aspect of case 2) is that since its PCI traffic related, its very hard
-to recreate exactly, since there's usually other stuff on the PCI bus.
-
-So if nobody seems to have a solution for your problem, it is possible that its
-firmware-related, so try getting a different firmware.  In particular, if you have any
-experience at this, or know someone in your organization who does, try focusing on
-the MTT (multi-transaction timeout) register, and the equivalent (if any) of the ICH
-configuration register in the host-PCI bridge.  These are both proprietary registers, and
-are not present in the standard 64 byte PCI header, so its pretty hard to "guess" where they
-are what they should be set to.  If you have a similar platform that does not have any
-NETDEV watchodog timeout issues, it may be possible to dump the PCI config. space
-of the host-PCI bridge on that platform, and compare it with the failing platform, and start
-"guessing" from there, but the firmware is the responsible entity that should have these
-registers programmed correctly in the first place.
-
-Sorry for being so verbose, I'm hoping that others googling in the future may save themselves
-some time in isolating this pretty obscure cause...
-
+Dave

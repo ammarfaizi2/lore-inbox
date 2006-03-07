@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWCGRCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWCGREM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWCGRCN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 12:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWCGRCN
+	id S1751213AbWCGREM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 12:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWCGREM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 12:02:13 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:25861 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751196AbWCGRCN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 12:02:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z1kvuY8fDzljVNoDeL5KMvTQPZYPCP+zW7hdFJZkXSeimkLaEzZ0+3Xn1pDmwuyzmbGpL2Wa5Zj5C+8PJn8jw+YIIfZzFhQeQbduScgT4XhbSAl1+Sb9HN2KteQ8YPUsuCWdcN3utRu3CFoXsIbeawXXyVYRHA2JNM5H1OVmDRo=
-Message-ID: <c43b2e150603070902l10659822ib6ffe1c4b0b296bf@mail.gmail.com>
-Date: Tue, 7 Mar 2006 18:02:12 +0100
-From: wixor <wixorpeek@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: using usblp with ppdev?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060306172532.GB8697@kroah.com>
+	Tue, 7 Mar 2006 12:04:12 -0500
+Received: from smtp-1.llnl.gov ([128.115.3.81]:11950 "EHLO smtp-1.llnl.gov")
+	by vger.kernel.org with ESMTP id S1751213AbWCGREK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 12:04:10 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Tue, 7 Mar 2006 09:03:19 -0800
+User-Agent: KMail/1.5.3
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       alan@redhat.com, gregkh@kroah.com
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061014.22312.dsp@llnl.gov> <20060306102232.613911f6.rdunlap@xenotime.net>
+In-Reply-To: <20060306102232.613911f6.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <c43b2e150603020732m42195b0dkf33d68fe64bc4a57@mail.gmail.com>
-	 <20060302165557.GA31247@kroah.com>
-	 <c43b2e150603030512l141c101va11300bcfbda4f60@mail.gmail.com>
-	 <20060303170752.GA5260@kroah.com>
-	 <c43b2e150603060631h494b920g84cf357f376d64bb@mail.gmail.com>
-	 <20060306172532.GB8697@kroah.com>
+Message-Id: <200603070903.19226.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 06 March 2006 10:22, Randy.Dunlap wrote:
+> On Mon, 6 Mar 2006 10:14:22 -0800 Dave Peterson wrote:
+> > On Sunday 05 March 2006 02:30, Arjan van de Ven wrote:
+> > > On Sun, 2006-03-05 at 11:18 +0100, Arjan van de Ven wrote:
+> > > > > +/* Main MC kobject release() function */
+> > > > > +static void edac_memctrl_master_release(struct kobject *kobj)
+> > > > > +{
+> > > > > +	debugf1("EDAC MC: " __FILE__ ": %s()\n", __func__);
+> > > > > +}
+> > > > > +
+> > > >
+> > > > ehhh how on earth can this be right?
+> > >
+> > > oh and this stuff also violates the "one value per file" rule; can we
+> > > fix that urgently before it becomes part of the ABI in 2.6.16??
+> >
+> > Ok, I'll admit to being a bit clueless about this.  I'm not familiar
+> > with the "one value per file" rule; can someone please explain?
 >
-> But if you want to play around and verify this, try modifying the USB
-> device table in the drivers/usb/misc/uss720.c file (look for the
-> structure called "uss720_table" and add a new entry with the vendor and
-> product id of your device there.)
->
-Well, it seems the device doesn't like the driver or vice-verse. When
-added entry to the uss720_table, /proc/bus/usb/devices reports that
-the device is being handled by this driver, but when I plug the device
-in, dmesg gets full of error reports, and the device file doesn't
-appear in /dev . Now, my question is: is the cable named "usb to
-parallel cable" an interface that converts classic printer to usb
-printer? Shouldn't it be rather a real usb to parallel cable? Is it
-some kind of protocol limitation that the device is unable to perform
-per-pin i/o tasks or maybe  the protocol isn't simply fully
-implemented by the device? Or maybe I should use some another protocol
-(and driver) to use advanced (?) functions? The uss720 driver
-complains about usb error -32 (like: get_1284_register: usb error -32
-[but: async_complete: urb error -32 - shouldn't it be USB error? a
-typo?])
+> it's in Documentation/filesystems/sysfs.txt
+> Strongly preferred.
 
-thanks for help
+Ok, I assume the comment refers to the following:
 
-wixor
+    Attributes should be ASCII text files, preferably with only one value
+    per file. It is noted that it may not be efficient to contain only
+    value per file, so it is socially acceptable to express an array of
+    values of the same type.
+
+I was initially a bit confused because I thought the comment
+specifically pertained to the piece of code shown above.  I need to
+take a closer look at the EDAC sysfs code - I'm not as familiar with
+some of its details as I should be.  Thanks for pointing out the
+issue.
+
+Dave

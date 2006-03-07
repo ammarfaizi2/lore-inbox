@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWCGE64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWCGFGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751637AbWCGE64 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 23:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWCGE64
+	id S1750708AbWCGFGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 00:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWCGFGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 23:58:56 -0500
-Received: from rgminet01.oracle.com ([148.87.113.118]:36813 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751025AbWCGE6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 23:58:55 -0500
-Date: Mon, 6 Mar 2006 20:58:35 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com
-Subject: Re: Ocfs2 performance bugs of doom
-Message-ID: <20060307045835.GF27280@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <4408C2E8.4010600@google.com> <20060303233617.51718c8e.akpm@osdl.org> <440B9035.1070404@google.com> <20060306025800.GA27280@ca-server1.us.oracle.com> <440BC1C6.1000606@google.com> <20060306195135.GB27280@ca-server1.us.oracle.com> <p733bhvgc7f.fsf@verdi.suse.de>
-MIME-Version: 1.0
+	Tue, 7 Mar 2006 00:06:41 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:37581 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750708AbWCGFGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 00:06:40 -0500
+Date: Tue, 7 Mar 2006 13:06:09 +0800
+From: Wang Zhenyu <zhenyu.z.wang@intel.com>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: Andrew Morton <akpm@osdl.org>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+       thayne@realmsys.com
+Subject: Re: [PATCH 7/15] EDAC: i82875p cleanup
+Message-ID: <20060307050609.GA32733@zhen-devel.sh.intel.com>
+Mail-Followup-To: Dave Peterson <dsp@llnl.gov>,
+	Andrew Morton <akpm@osdl.org>, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org, bluesmoke-devel@lists.sourceforge.net,
+	thayne@realmsys.com
+References: <200603031047.01445.dsp@llnl.gov>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <p733bhvgc7f.fsf@verdi.suse.de>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+In-Reply-To: <200603031047.01445.dsp@llnl.gov>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 04:34:12AM +0100, Andi Kleen wrote:
-> Did you actually do some statistics how long the hash chains are? 
-> Just increasing hash tables blindly has other bad side effects, like
-> increasing cache misses.
-Yep, the gory details are at:
+On 2006.03.04 02:47:01 +0000, Dave Peterson wrote:
+> 
+>    On Thursday 02 March 2006 18:30, Andrew Morton wrote:
+>    > Dave Peterson <dsp@llnl.gov> wrote:
+>    > >  +#ifdef CORRECT_BIOS
+>    > >  +fail0:
+>    > >  +#endif
+>    >
+>    > What is CORRECT_BIOS?  Is the fact that it's never defined some sort of
+>    > commentary?  ;)
+>    I'm not sure about this.  I'm cc'ing Thayne Harbaugh and Wang Zhenyu since
+>    their names are in the credits for the i82875p module.  Maybe they can
+>    provide some info.
 
-http://oss.oracle.com/~mfasheh/lock_distribution.csv
+You can take CORRECT_BIOS as "strict-pci-resource-reserve" for overflow device
+in 82875p, some bad BIOS does make it reserved, which cause pci_request_region()
+failed.  Actually we never defined it. 
 
-This measure was taken about 18,000 locks into a kernel untar. The only
-change was that I switched things to only hash the last 18 characters of
-lock resource names.
-
-In short things aren't so bad that a larger hash table wouldn't help. We've
-definitely got some peaks however. Our in-house laboratory of mathematicians
-(read: Bill Irwin) is checking out methods by which we can smooth things out
-a bit more :)
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+zhen

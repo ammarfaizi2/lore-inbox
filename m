@@ -1,75 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbWCGCQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbWCGCUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932610AbWCGCQq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 21:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932611AbWCGCQq
+	id S932611AbWCGCUz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 21:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbWCGCUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 21:16:46 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:64149 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932610AbWCGCQp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 21:16:45 -0500
-From: Neil Brown <neilb@suse.de>
-To: Jan Blunck <jblunck@suse.de>
-Date: Tue, 7 Mar 2006 13:15:41 +1100
+	Mon, 6 Mar 2006 21:20:55 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:51798 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932611AbWCGCUy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 21:20:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=V5BBoPFmRPvcRs4wl7svxh2CCaEThjA6kth4EIBb9ie1rVZ3CDVbOb3xMCb3LEOklomnFtyhmPtNPuBtNoKeN3ZacJm2Yk7lfM5fiZ2+dZY1ky7dRKqVcl86EJNLYbyWji/ZaEkiovE/AFi9A/ESgxPKRSUB9owH4bCi5DuaAmk=
+Message-ID: <f158dc670603061820t69045cd3m3a98a9c3af3e49df@mail.gmail.com>
+Date: Mon, 6 Mar 2006 21:20:53 -0500
+From: "Latchesar Ionkov" <lionkov@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 9pfs double kfree
+Cc: "Dave Jones" <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       ericvh@gmail.com, rminnich@lanl.gov,
+       v9fs-developer@lists.sourceforge.net
+In-Reply-To: <20060306163745.65e0f4d8.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17420.60621.425286.979327@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olh@suse.de>, Kirill Korotaev <dev@openvz.org>,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-In-Reply-To: message from Jan Blunck on Monday March 6
-References: <17414.38749.886125.282255@cse.unsw.edu.au>
-	<17419.53761.295044.78549@cse.unsw.edu.au>
-	<20060306115602.GC22832@hasse.suse.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060306070456.GA16478@redhat.com>
+	 <20060306163745.65e0f4d8.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday March 6, jblunck@suse.de wrote:
-> 
-> This are two different problems which you adress with this and your first
-> patch. This one is to prevent busy inodes on umouny, the first one was to get
-> the reference counting on dentries right.
-
-I think that solving the "busy inodes" problem is sufficient.  The
-reference count on dentries isn't *wrong* as someone is actually
-holding a reference.  It is just that generic_shutdown_super doesn't
-expect anyone else to hold any references.  Fixing the "busy inodes"
-problem means that no-one else will be holding any references, so it
-becomes a non-problem.
-> 
-> Neil, did you actually read my patch for this one?!
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=114123870406751&w=2
-
-No, I didn't :-(  I obviously didn't do enough homework.
-
-The significant differences seem to be:
- - you test ->s_prunes inside the spinlock.  I don't bother.  Yours is
-   probably safer.
- - You call wake_up every time through prune_one_dentry while I try to
-   limit the calls.  As each call is a function call and a spinlock,
-   maybe at least guard it with
-      if(waitqueue_active()) ...
-
-
-> 
-> What I don't like, is that you are serializing the work of shrink_dcache_*
-> although they could work in parallel on different processors.
-
-I don't see how I am parallelising anything.  Multiple shrink_dcache_*
-can still run.  The only place that extra locking is done is in
-generic_shutdown_super.
-
-But what do you think of Balbir Singh's patch?  I think it is less
-intrusive and solves the problem just a well.
+We can't allocate it on the outermost caller's stack. The memory
+pointed by v9fs_fcall strucures has variable size and depends on the
+incoming 9P messages.
 
 Thanks,
-NeilBrown
+    Lucho
 
-
+On 3/6/06, Andrew Morton <akpm@osdl.org> wrote:
+> Dave Jones <davej@redhat.com> wrote:
+> >
+> > Probably the first of many found with Coverity.
+> >
+> > This is kfree'd outside of both arms of the if condition already,
+> > so fall through and free it just once.
+> >
+> > Second variant is double-nasty, it deref's the free'd fcall
+> > before it tries to free it a second time.
+> >
+> > (I wish we had a kfree variant that NULL'd the target when it was free'd)
+> >
+> > Coverity bugs: 987, 986
+> >
+> > Signed-off-by: Dave Jones <davej@redhat.com>
+> >
+> >
+> > --- linux-2.6.15.noarch/fs/9p/vfs_super.c~    2006-03-06 01:53:38.000000000 -0500
+> > +++ linux-2.6.15.noarch/fs/9p/vfs_super.c     2006-03-06 01:54:36.000000000 -0500
+> > @@ -156,7 +156,6 @@ static struct super_block *v9fs_get_sb(s
+> >       stat_result = v9fs_t_stat(v9ses, newfid, &fcall);
+> >       if (stat_result < 0) {
+> >               dprintk(DEBUG_ERROR, "stat error\n");
+> > -             kfree(fcall);
+> >               v9fs_t_clunk(v9ses, newfid);
+> >       } else {
+> >               /* Setup the Root Inode */
+> > --- linux-2.6.15.noarch/fs/9p/vfs_inode.c~    2006-03-06 01:57:05.000000000 -0500
+> > +++ linux-2.6.15.noarch/fs/9p/vfs_inode.c     2006-03-06 01:58:05.000000000 -0500
+> > @@ -274,7 +274,6 @@ v9fs_create(struct v9fs_session_info *v9
+> >               PRINT_FCALL_ERROR("clone error", fcall);
+> >               goto error;
+> >       }
+> > -     kfree(fcall);
+> >
+> >       err = v9fs_t_create(v9ses, fid, name, perm, mode, &fcall);
+> >       if (err < 0) {
+>
+> The second hunk is probably right and I guess the first one has to be right
+> as well, but it's all rather obscure, complex and (naturally) comment-free.
+>
+> So I'll duck on this - Eric, could you please handle it?  Consider doing
+> away with the dynamically-allocated thing altogether and just allocating it
+> on the outermost caller's stack.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

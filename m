@@ -1,106 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbWCGEe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751637AbWCGE64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbWCGEe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 23:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWCGEeZ
+	id S1751637AbWCGE64 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 23:58:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751641AbWCGE64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 23:34:25 -0500
-Received: from mail2.sea5.speakeasy.net ([69.17.117.4]:9363 "EHLO
-	mail2.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S932490AbWCGEeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 23:34:25 -0500
-Date: Mon, 6 Mar 2006 20:34:24 -0800 (PST)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fold select_bits_alloc/free into caller code.
-Message-ID: <Pine.LNX.4.58.0603062031490.10262@shell2.speakeasy.net>
+	Mon, 6 Mar 2006 23:58:56 -0500
+Received: from rgminet01.oracle.com ([148.87.113.118]:36813 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1751025AbWCGE6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 23:58:55 -0500
+Date: Mon, 6 Mar 2006 20:58:35 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com
+Subject: Re: Ocfs2 performance bugs of doom
+Message-ID: <20060307045835.GF27280@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <4408C2E8.4010600@google.com> <20060303233617.51718c8e.akpm@osdl.org> <440B9035.1070404@google.com> <20060306025800.GA27280@ca-server1.us.oracle.com> <440BC1C6.1000606@google.com> <20060306195135.GB27280@ca-server1.us.oracle.com> <p733bhvgc7f.fsf@verdi.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p733bhvgc7f.fsf@verdi.suse.de>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Mar 07, 2006 at 04:34:12AM +0100, Andi Kleen wrote:
+> Did you actually do some statistics how long the hash chains are? 
+> Just increasing hash tables blindly has other bad side effects, like
+> increasing cache misses.
+Yep, the gory details are at:
 
-This patch removes what currently seems to be an unnecessary level of
-indirection in allocating and freeing select bits, as per the
-select_bits_alloc() and select_bits_free() functions. Both select.c and
-compat.c are updated.
+http://oss.oracle.com/~mfasheh/lock_distribution.csv
 
-Signed-off-by: Vadim Lobanov <vlobanov@speakeasy.net>
+This measure was taken about 18,000 locks into a kernel untar. The only
+change was that I switched things to only hash the last 18 characters of
+lock resource names.
 
-diff -Npru linux-2.6.16-rc5/fs/compat.c linux-new/fs/compat.c
---- linux-2.6.16-rc5/fs/compat.c	2006-03-06 20:07:34.000000000 -0800
-+++ linux-new/fs/compat.c	2006-03-06 20:12:13.000000000 -0800
-@@ -1638,15 +1638,6 @@ void compat_set_fd_set(unsigned long nr,
-  * This is a virtual copy of sys_select from fs/select.c and probably
-  * should be compared to it from time to time
-  */
--static void *select_bits_alloc(int size)
--{
--	return kmalloc(6 * size, GFP_KERNEL);
--}
--
--static void select_bits_free(void *bits, int size)
--{
--	kfree(bits);
--}
+In short things aren't so bad that a larger hash table wouldn't help. We've
+definitely got some peaks however. Our in-house laboratory of mathematicians
+(read: Bill Irwin) is checking out methods by which we can smooth things out
+a bit more :)
+	--Mark
 
- /*
-  * We can actually return ERESTARTSYS instead of EINTR, but I'd
-@@ -1685,7 +1676,7 @@ int compat_core_sys_select(int n, compat
- 	 */
- 	ret = -ENOMEM;
- 	size = FDS_BYTES(n);
--	bits = select_bits_alloc(size);
-+	bits = kmalloc(6 * size, GFP_KERNEL);
- 	if (!bits)
- 		goto out_nofds;
- 	fds.in      = (unsigned long *)  bits;
-@@ -1719,7 +1710,7 @@ int compat_core_sys_select(int n, compat
- 	compat_set_fd_set(n, exp, fds.res_ex);
-
- out:
--	select_bits_free(bits, size);
-+	kfree(bits);
- out_nofds:
- 	return ret;
- }
-diff -Npru linux-2.6.16-rc5/fs/select.c linux-new/fs/select.c
---- linux-2.6.16-rc5/fs/select.c	2006-03-06 20:07:35.000000000 -0800
-+++ linux-new/fs/select.c	2006-03-06 20:13:11.000000000 -0800
-@@ -284,16 +284,6 @@ int do_select(int n, fd_set_bits *fds, s
- 	return retval;
- }
-
--static void *select_bits_alloc(int size)
--{
--	return kmalloc(6 * size, GFP_KERNEL);
--}
--
--static void select_bits_free(void *bits, int size)
--{
--	kfree(bits);
--}
--
- /*
-  * We can actually return ERESTARTSYS instead of EINTR, but I'd
-  * like to be certain this leads to no problems. So I return
-@@ -332,7 +322,7 @@ static int core_sys_select(int n, fd_set
- 	 */
- 	ret = -ENOMEM;
- 	size = FDS_BYTES(n);
--	bits = select_bits_alloc(size);
-+	bits = kmalloc(6 * size, GFP_KERNEL);
- 	if (!bits)
- 		goto out_nofds;
- 	fds.in      = (unsigned long *)  bits;
-@@ -367,7 +357,7 @@ static int core_sys_select(int n, fd_set
- 		ret = -EFAULT;
-
- out:
--	select_bits_free(bits, size);
-+	kfree(bits);
- out_nofds:
- 	return ret;
- }
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

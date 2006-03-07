@@ -1,177 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWCGPxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWCGQIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWCGPxv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 10:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWCGPxv
+	id S1751149AbWCGQIT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 11:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWCGQIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 10:53:51 -0500
-Received: from xproxy.gmail.com ([66.249.82.201]:64584 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751324AbWCGPxu convert rfc822-to-8bit
+	Tue, 7 Mar 2006 11:08:19 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:29665 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751149AbWCGQIS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 10:53:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=tRUj8fuwaoYHUBjQRHthVh22pmxtqD2Awt08G5nLhoQSVHoQ2mHNvVdJ7/7nypnBNM9M8v9hqqY1bqNjp2jE8iCcupUDb32AGcxa95teuuUrGuIZCaq7XUF9rSdtztrMbbl15MCEnP17mHxNHsXPbCeTHs2y6pMgA9NdcIIfHgk=
-Message-ID: <db5f2c340603070753q23416c5byd7200257c0d83ff3@mail.gmail.com>
-Date: Tue, 7 Mar 2006 16:53:49 +0100
-From: "=?ISO-8859-1?Q?Fran=E7ois_Trahay?=" <ftrahay@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML : separated stack and libs randomization
-Cc: ftrahay@gmail.com, "Stanislas Dourdin" <sdourdin@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 7 Mar 2006 11:08:18 -0500
+From: Jiri Slaby <jirislaby@gmail.com>
+To: linux-acpi@vger.kernel.org
+Cc: Len Brown <len.brown@intel.com>, Luming Yu <luming.yu@intel.com>,
+       Robert Moore <robert.moore@intel.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/1] acpi EC: acpi-ecdt-uid-hack
+Message-Id: <E1FGejD-0000QV-00@decibel.fi.muni.cz>
+Date: Tue, 07 Mar 2006 17:08:03 +0100
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@informatics.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch for UML (but, it is easy to apply it to x86 architecture).
-It allows you to randomize mmap and stack separately ( randomize_va_space is
-replaced by randomize_stack_space and randomize_mmap_space). This is just
-for study purposes but I'd like to have your opinion about it.
+acpi-ecdt-uid-hack
 
+On some boxes ecdt uid may be equal to 0, so do not test for uids equality, so
+that fake handler will be unconditionally removed to allow loading the real one.
 
+See http://bugzilla.kernel.org/show_bug.cgi?id=6111
 
-diff -BburN linux-2.6.15/arch/um/kernel/process_kern.c
-linux-2.6.15.diff/arch/um/kernel/process_kern.c
---- linux-2.6.15/arch/um/kernel/process_kern.c	2006-01-03
-04:21:10.000000000 +0100
-+++ linux-2.6.15.diff/arch/um/kernel/process_kern.c	2006-03-05
-13:19:09.000000000 +0100
-@@ -465,7 +465,7 @@
- #ifndef arch_align_stack
- unsigned long arch_align_stack(unsigned long sp)
- {
--	if (randomize_va_space)
-+	if (randomize_stack_space)
- 		sp -= get_random_int() % 8192;
- 	return sp & ~0xf;
- }
-diff -BburN linux-2.6.15/fs/binfmt_elf.c linux-2.6.15.diff/fs/binfmt_elf.c
---- linux-2.6.15/fs/binfmt_elf.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.diff/fs/binfmt_elf.c	2006-03-05 13:19:09.000000000 +0100
-@@ -767,7 +767,7 @@
- 	if (elf_read_implies_exec(loc->elf_ex, executable_stack))
- 		current->personality |= READ_IMPLIES_EXEC;
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Cc: Luming Yu <luming.yu@intel.com>
 
--	if ( !(current->personality & ADDR_NO_RANDOMIZE) && randomize_va_space)
-+	if ( !(current->personality & ADDR_NO_RANDOMIZE) && randomize_stack_space)
- 		current->flags |= PF_RANDOMIZE;
- 	arch_pick_mmap_layout(current->mm);
+---
+commit ff7e5094ceaf67b950f7684c66c54011fa0e5cd5
+tree bde2662da704bea931d88fcc8a5d16d2f8895700
+parent 8e07cf694b71c1cddded6f311e15db6e25696157
+author Jiri Slaby <ku@bellona.localdomain> Mon, 06 Mar 2006 17:40:42 +0059
+committer Jiri Slaby <ku@bellona.localdomain> Mon, 06 Mar 2006 17:40:42 +0059
 
-diff -BburN linux-2.6.15/include/linux/kernel.h
-linux-2.6.15.diff/include/linux/kernel.h
---- linux-2.6.15/include/linux/kernel.h	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.diff/include/linux/kernel.h	2006-03-05 13:25:25.000000000 +0100
-@@ -310,9 +310,11 @@
- #define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
+ drivers/acpi/ec.c |   16 ++++++----------
+ 1 files changed, 6 insertions(+), 10 deletions(-)
 
- #ifdef CONFIG_SYSCTL
--extern int randomize_va_space;
-+extern int randomize_stack_space;
-+extern int randomize_mmap_space;
- #else
--#define randomize_va_space 1
-+#define randomize_stack_space 1
-+#define randomize_mmap_space 1
- #endif
-
- /* Trap pasters of __FUNCTION__ at compile-time */
-diff -BburN linux-2.6.15/include/linux/sched.h
-linux-2.6.15.diff/include/linux/sched.h
---- linux-2.6.15/include/linux/sched.h	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.diff/include/linux/sched.h	2006-03-05 13:20:57.000000000 +0100
-@@ -34,6 +34,7 @@
- #include <linux/percpu.h>
- #include <linux/topology.h>
- #include <linux/seccomp.h>
-+#include <linux/random.h>
-
- #include <linux/auxvec.h>	/* For AT_VECTOR_SIZE */
-
-@@ -1368,11 +1369,30 @@
- #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
- extern void arch_pick_mmap_layout(struct mm_struct *mm);
- #else
-+#define MIN_GAP (128*1024*1024)
-+#define MAX_GAP (TASK_SIZE/6*5)
-+
-+static inline unsigned long mmap_base(struct mm_struct *mm)
-+{
-+	unsigned long gap = current->signal->rlim[RLIMIT_STACK].rlim_cur;
-+	unsigned long random_factor = 0;
-+
-+	if (randomize_mmap_space)
-+		random_factor = get_random_int() % (1024*1024);
-+
-+	if (gap < MIN_GAP)
-+		gap = MIN_GAP;
-+	else if (gap > MAX_GAP)
-+		gap = MAX_GAP;
-+
-+	return PAGE_ALIGN(TASK_SIZE - gap - random_factor);
-+}
-+
- static inline void arch_pick_mmap_layout(struct mm_struct *mm)
- {
--	mm->mmap_base = TASK_UNMAPPED_BASE;
--	mm->get_unmapped_area = arch_get_unmapped_area;
--	mm->unmap_area = arch_unmap_area;
-+	mm->mmap_base = mmap_base(mm);
-+	mm->get_unmapped_area = arch_get_unmapped_area_topdown;
-+	mm->unmap_area = arch_unmap_area_topdown;
- }
- #endif
-
-diff -BburN linux-2.6.15/include/linux/sysctl.h
-linux-2.6.15.diff/include/linux/sysctl.h
---- linux-2.6.15/include/linux/sysctl.h	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.diff/include/linux/sysctl.h	2006-03-05 13:28:41.000000000 +0100
-@@ -143,9 +143,10 @@
- 	KERN_HZ_TIMER=65,	/* int: hz timer on or off */
- 	KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
- 	KERN_BOOTLOADER_TYPE=67, /* int: boot loader type */
--	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
- 	KERN_SETUID_DUMPABLE=69, /* int: behaviour of dumps for setuid core */
- 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
-+	KERN_RANDOMIZE_STACK=71, /* int: randomize stack top */
-+	KERN_RANDOMIZE_MMAP=72, /* int: randomize mmap adress */
- };
-
-
-diff -BburN linux-2.6.15/kernel/sysctl.c linux-2.6.15.diff/kernel/sysctl.c
---- linux-2.6.15/kernel/sysctl.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.15.diff/kernel/sysctl.c	2006-03-05 13:26:26.000000000 +0100
-@@ -124,7 +124,8 @@
- extern int acct_parm[];
- #endif
-
--int randomize_va_space = 1;
-+int randomize_stack_space = 1;
-+int randomize_mmap_space = 1;
-
- static int parse_table(int __user *, int, void __user *, size_t
-__user *, void __user *, size_t,
- 		       ctl_table *, void **);
-@@ -639,9 +640,17 @@
- 	},
- #endif
- 	{
--		.ctl_name	= KERN_RANDOMIZE,
--		.procname	= "randomize_va_space",
--		.data		= &randomize_va_space,
-+		.ctl_name	= KERN_RANDOMIZE_STACK,
-+		.procname	= "randomize_stack_space",
-+		.data		= &randomize_stack_space,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+	{
-+		.ctl_name	= KERN_RANDOMIZE_MMAP,
-+		.procname	= "randomize_mmap_space",
-+		.data		= &randomize_mmap_space,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
- 		.proc_handler	= &proc_dointvec,
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index f339bd4..de95a09 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -989,7 +989,6 @@ static int acpi_ec_poll_add(struct acpi_
+ 	int result = 0;
+ 	acpi_status status = AE_OK;
+ 	union acpi_ec *ec = NULL;
+-	unsigned long uid;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_ec_add");
+ 
+@@ -1012,10 +1011,9 @@ static int acpi_ec_poll_add(struct acpi_
+ 	acpi_evaluate_integer(ec->common.handle, "_GLK", NULL,
+ 			      &ec->common.global_lock);
+ 
+-	/* If our UID matches the UID for the ECDT-enumerated EC,
+-	   we now have the *real* EC info, so kill the makeshift one. */
+-	acpi_evaluate_integer(ec->common.handle, "_UID", NULL, &uid);
+-	if (ec_ecdt && ec_ecdt->common.uid == uid) {
++	/* XXX we don't test uids, because on some boxes ecdt uid = 0, see:
++	   http://bugzilla.kernel.org/show_bug.cgi?id=6111 */
++	if (ec_ecdt) {
+ 		acpi_remove_address_space_handler(ACPI_ROOT_OBJECT,
+ 						  ACPI_ADR_SPACE_EC,
+ 						  &acpi_ec_space_handler);
+@@ -1059,7 +1057,6 @@ static int acpi_ec_intr_add(struct acpi_
+ 	int result = 0;
+ 	acpi_status status = AE_OK;
+ 	union acpi_ec *ec = NULL;
+-	unsigned long uid;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_ec_add");
+ 
+@@ -1085,10 +1082,9 @@ static int acpi_ec_intr_add(struct acpi_
+ 	acpi_evaluate_integer(ec->common.handle, "_GLK", NULL,
+ 			      &ec->common.global_lock);
+ 
+-	/* If our UID matches the UID for the ECDT-enumerated EC,
+-	   we now have the *real* EC info, so kill the makeshift one. */
+-	acpi_evaluate_integer(ec->common.handle, "_UID", NULL, &uid);
+-	if (ec_ecdt && ec_ecdt->common.uid == uid) {
++	/* XXX we don't test uids, because on some boxes ecdt uid = 0, see:
++	   http://bugzilla.kernel.org/show_bug.cgi?id=6111 */
++	if (ec_ecdt) {
+ 		acpi_remove_address_space_handler(ACPI_ROOT_OBJECT,
+ 						  ACPI_ADR_SPACE_EC,
+ 						  &acpi_ec_space_handler);

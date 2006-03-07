@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbWCGD50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWCGD7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbWCGD50 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 22:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932654AbWCGD50
+	id S1751080AbWCGD7i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 22:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752060AbWCGD7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 22:57:26 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:12167
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932578AbWCGD5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 22:57:25 -0500
-Date: Mon, 6 Mar 2006 19:56:45 -0800
-From: Greg KH <greg@kroah.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, Greg KH <gregkh@suse.de>,
-       Nicholas Miell <nmiell@comcast.net>, "Theodore Ts'o" <tytso@mit.edu>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, davej@redhat.com, perex@suse.cz,
-       Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [RFC] Add kernel<->userspace ABI stability documentation
-Message-ID: <20060307035645.GB23284@kroah.com>
-References: <20060227234525.GA21694@suse.de> <20060228063207.GA12502@thunk.org> <20060301003452.GG23716@kroah.com> <1141175870.2989.17.camel@entropy> <20060302042455.GB10464@suse.de> <m1fylwc1c8.fsf@ebiederm.dsl.xmission.com> <20060305232326.GC20768@kvack.org> <m1y7zoa0sf.fsf@ebiederm.dsl.xmission.com> <20060306003933.GE20768@kvack.org> <m1lkvo9v4o.fsf@ebiederm.dsl.xmission.com>
+	Mon, 6 Mar 2006 22:59:38 -0500
+Received: from xenotime.net ([66.160.160.81]:7598 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751080AbWCGD7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 22:59:38 -0500
+Date: Mon, 6 Mar 2006 20:01:11 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Reg Clemens <reg@dwf.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: vmlinuz-2.6.16-rc5-git8 still nogo with Intel D945 Motherboard
+Message-Id: <20060306200111.6b6e808d.rdunlap@xenotime.net>
+In-Reply-To: <200603070340.k273ev0A003594@deneb.dwf.com>
+References: <200603070340.k273ev0A003594@deneb.dwf.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1lkvo9v4o.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 05, 2006 at 07:15:03PM -0700, Eric W. Biederman wrote:
+On Mon, 06 Mar 2006 20:40:57 -0700 Reg Clemens wrote:
+
+> Im still running a 2.6.11 
+> Ever since some PCI changes (between 2.6.11 and 2.6.15) I have been
+> unable to build a kernel that will run with my machine on an 
+> Intel D945 Motherboard.
 > 
-> So the question is can we get good enough at review that we can live
-> with the few mistakes that make it through?
+> I just tried vmlinuz-2.6.16-rc5-git8 and still no luck, the kernel builds,
+> but during the first few lines of the boot you get the message:
+> 
+>     PCI: Failed to allocate mem resource #6 ...
+> 
+> Ive tried stripping things down to just the video card, and still the same
+> result.
+> 
+> This Motherboard has been available for the better part of a year, and
+> still no Linux support.  Usually by the time I buy something, its supported.
+> 
+> Anyone working this problem?
 
-Exactly.
+Mine works, but I expect that we don't have the same video card.
+Mine is intel integrated video.
+So like Lee said, we need more info.
 
-Combined with the fact that we do not have many reviewers (it's a
-thankless, grumpy job), makes it very hard to make it "good enough"...
-
-thanks,
-
-greg k-h
+---
+~Randy

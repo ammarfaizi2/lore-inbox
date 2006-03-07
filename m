@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751581AbWCGWHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWCGWKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751581AbWCGWHg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 17:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751626AbWCGWHg
+	id S1750759AbWCGWKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 17:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCGWKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 17:07:36 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:55484 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751581AbWCGWHe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 17:07:34 -0500
-Date: Tue, 7 Mar 2006 23:06:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       cc@ccrma.Stanford.EDU
-Subject: Re: 2.6.15-rt18, alsa sequencer, rosegarden -> alsa hangs
-Message-ID: <20060307220628.GA27536@elte.hu>
-References: <1141769000.5565.21.camel@cmn3.stanford.edu>
+	Tue, 7 Mar 2006 17:10:30 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:12782 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750759AbWCGWKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 17:10:30 -0500
+Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences /
+	GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+From: Lee Revell <rlrevell@joe-job.com>
+To: Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>
+Cc: opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
+References: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
+	 <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 17:10:21 -0500
+Message-Id: <1141769422.767.99.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141769000.5565.21.camel@cmn3.stanford.edu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> The symptoms are as follows:
->   - start jack using qjackctl
->   - start qsynth (gui front end for fluidsynth, a synth)
->   - start rosegarden (midi sequencer and audio recorder)
->   - load a midi file into rosegarden
->   - midi file plays successfully
->   - close rosegarden
-> at this point one of the threads of rosegarden fails to exit and stays
-> forever in the process list, in a ps axuw it shows as:
+On Tue, 2006-03-07 at 09:42 +0200, Silviu Marin-Caea wrote:
+> On Monday 06 March 2006 14:47, s.schmidt@avm.de wrote:
 > 
-> nando 5484 0.0 0.0 0 0 pts/1    D    13:32   0:00 [rosegardenseque]
+> > Even though people might do realtime DSP things in user space with Linux
+> > and soft modems might work pretty well in userspace, in the case of Fax G3
+> > an extremely short latency is required.
 > 
-> Anything else that I try to stop that touches the alsa sequencer never
-> dies (qjackctl, vkeybd, qsynth, etc). Anything I try to start that tries
-> to use it does not start. This happened with two widely different
+> So basically we have to choose between:
+> 
+> 1. keeping a stable open source kernel and sticking to the principles that got 
+> Linux where it is now
+> 
+> and
+> 
+> 2. Fax G3
+> 
+> Umm...
 
-could you get a tasklist-dump? It's either SysRq-T, or:
+Extremely short, consistent latency is also required to use a Linux box
+as a live audio effects processor and thousands of people do that.  It
+works extremely well, is used by numerous professionals, and no one has
+ever seriously proposed moving it to the kernel.  The POSIX realtime
+APIs were designed for exactly this kind of application.
 
-	echo t > /proc/sysrq-trigger
+If they are doing serious realtime DSP then they should get better
+results in userspace anyway, because they get to use the floating point
+unit which isn't allowed in the kernel.
 
-that should dump all tasks and their backtraces - including the hung 
-rosegardensequencer task.
+I suspect you last tried it in the 2.4 or early 2.6 era when patching
+the kernel was required to get decent latency.
 
-	Ingo
+Lee
+

@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751389AbWCGRga@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751403AbWCGRhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751389AbWCGRga (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 12:36:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWCGRga
+	id S1751403AbWCGRhW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 12:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWCGRhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 12:36:30 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:40386 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751389AbWCGRg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 12:36:29 -0500
-Message-ID: <440DC353.8080101@sgi.com>
-Date: Tue, 07 Mar 2006 18:30:59 +0100
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5 (X11/20051027)
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-CC: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       jesper.juhl@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: initcall at ... returned with error code -19 (Was: Re: 2.6.16-rc5-mm2)
-References: <9a8748490603061359r64655a45i9a26e1f92009c7bf@mail.gmail.com> <20060306170919.0fcd8566.pj@sgi.com> <yq0veuq2yeu.fsf@jaguar.mkp.net> <200603071031.32558.bjorn.helgaas@hp.com>
-In-Reply-To: <200603071031.32558.bjorn.helgaas@hp.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 12:37:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48095 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751398AbWCGRhU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 12:37:20 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <5041.1141417027@warthog.cambridge.redhat.com> 
+References: <5041.1141417027@warthog.cambridge.redhat.com>  <Pine.LNX.4.64.0603030856260.22647@g5.osdl.org> <32518.1141401780@warthog.cambridge.redhat.com> <1146.1141404346@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org, ak@suse.de,
+       mingo@redhat.com, jblunck@suse.de, bcrl@linux.intel.com, matthew@wil.cx,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Memory barriers and spin_unlock safety 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Tue, 07 Mar 2006 17:36:59 +0000
+Message-ID: <31420.1141753019@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas wrote:
-> On Tuesday 07 March 2006 06:10, Jes Sorensen wrote:
->> I'd subscribe to that. It seems a bit wrong to return 0 in a
->> loadable module if nothing is found, and some of the ones people have
->> posted patches for converting can be either modules or static.
-> 
-> Yeah, maybe.  But it feels a little like the question of whether
-> {pci,pnp,acpi_bus}_register_driver() should return the number of
-> devices found.  The consensus is that these functions should return
-> only a negative error, or zero for success, leaving any counting of
-> devices to the driver's .probe() or .add() method.
-> 
-> I think a loadable driver's init function *should* return success
-> even if no device is yet present.  Maybe you want to load the driver
-> before hot-adding the device.
+David Howells <dhowells@redhat.com> wrote:
 
-I don't really like this ;-( If a driver is loaded for a specific PCI
-device and that isn't present, then IMHO it is better to have it
-return -ENODEV and unload it again.
+> I suspect, then, that x86_64 should not have an SFENCE for smp_wmb(), and
+> that only io_wmb() should have that.
 
-Cheers,
-Jes
+Hmmm... We don't actually have io_wmb()... Should the following be added to
+all archs?
+
+	io_mb()
+	io_rmb()
+	io_wmb()
+
+David

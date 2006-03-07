@@ -1,46 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbWCGDLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWCGDP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932638AbWCGDLD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 22:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWCGDLD
+	id S932640AbWCGDP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 22:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbWCGDP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 22:11:03 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:47798
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932638AbWCGDLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 22:11:01 -0500
-Date: Mon, 06 Mar 2006 19:11:20 -0800 (PST)
-Message-Id: <20060306.191120.58661202.davem@davemloft.net>
-To: bcrl@kvack.org
-Cc: da-x@monatomic.org, drepper@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: Status of AIO
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060307020736.GW20768@kvack.org>
-References: <20060307013915.GU20768@kvack.org>
-	<20060307020411.GA21626@localdomain>
-	<20060307020736.GW20768@kvack.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 6 Mar 2006 22:15:27 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:33185 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S932640AbWCGDP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 22:15:26 -0500
+Message-ID: <440CFABF.5040403@cs.wisc.edu>
+Date: Mon, 06 Mar 2006 21:15:11 -0600
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, markhe@nextd.demon.co.uk, andrea@suse.de,
+       James.Bottomley@steeleye.com, axboe@suse.de, penberg@cs.helsinki.fi
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+References: <200603060117.16484.jesper.juhl@gmail.com>	 <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>	 <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>	 <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org>	 <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com>	 <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org>	 <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>	 <Pine.LNX.4.64.0603061445350.13139@g5.osdl.org>	 <9a8748490603061501r387291f0ha10e9e9fe3c9e060@mail.gmail.com>	 <20060306150612.51f48efa.akpm@osdl.org> <9a8748490603061524j616bf6b3i1b6ab5354bcfe1a9@mail.gmail.com>
+In-Reply-To: <9a8748490603061524j616bf6b3i1b6ab5354bcfe1a9@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Benjamin LaHaise <bcrl@kvack.org>
-Date: Mon, 6 Mar 2006 21:07:36 -0500
-
-> On Tue, Mar 07, 2006 at 04:04:11AM +0200, Dan Aloni wrote:
-> > This somehow resembles the scatter-gatter lists already used in some 
-> > subsystems such as the SCSI sg driver. 
+Jesper Juhl wrote:
+> On 3/7/06, Andrew Morton <akpm@osdl.org> wrote:
 > 
-> None of the iovecs are particularly special.  What's special here is that 
-> particulars of the container make the fast path *cheap*.
+>>"Jesper Juhl" <jesper.juhl@gmail.com> wrote:
+>>
+>>>And since 2.6.16-rc5-git8 is not experiencing problems I'd suggest you
+>>> perhaps instead take a look at what's in -mm... That's where we need
+>>> to work (it seems) to find the bug...
+>>
+>>Yes, it's very probably something in git-scsi-misc.
+>>
+> 
+> I would say that's correct. I just build 2.6.16-rc5-mm2 with just
+> git-scsi-misc.patch reverted, and that makes the problem go away.
+> 
+> So now the big question is; what part(s) of git-scsi-misc is broken?
+> 
 
-Please read Druschel and Peterson's paper on fbufs and any followon
-work before going down this path.  Fbufs are exactly what you are
-proposing as a workaround for the VM cost of page flipping, and the
-idea has been around since 1993. :-)
+Is it relate to this change?
 
-As I mentioned Chapter 5 of Networking Algorithmics discusses this
-in detail, and also covers many related attempts such as I/O
-Lite.
+diff --git a/drivers/scsi/sr_ioctl.c b/drivers/scsi/sr_ioctl.c
+index 5d02ff4..03fbc4b 100644
+--- a/drivers/scsi/sr_ioctl.c
++++ b/drivers/scsi/sr_ioctl.c
+@@ -44,11 +44,10 @@ static int sr_read_tochdr(struct cdrom_d
+         int result;
+         unsigned char *buffer;
+
+-       buffer = kmalloc(32, GFP_KERNEL | SR_GFP_DMA(cd));
++       buffer = kzalloc(32, GFP_KERNEL | SR_GFP_DMA(cd));
+         if (!buffer)
+                 return -ENOMEM;
+
+-       memset(&cgc, 0, sizeof(struct packet_command));         cgc.timeout = IOCTL_TIMEOUT;
+         cgc.cmd[0] = GPCMD_READ_TOC_PMA_ATIP;         cgc.cmd[8] = 12;                /* LSB of length */
+@@ -74,11 +73,10 @@ static int sr_read_tocentry(struct cdrom
+         int result;
+         unsigned char *buffer;
+
+-       buffer = kmalloc(32, GFP_KERNEL | SR_GFP_DMA(cd));
++       buffer = kzalloc(32, GFP_KERNEL | SR_GFP_DMA(cd));
+         if (!buffer)
+                 return -ENOMEM;
+
+-       memset(&cgc, 0, sizeof(struct packet_command));
+
+
+
+
+When someone converted the *buffer* allocation to kzalloc they
+also removed the the memset for the *packet_cmmand* struct.
+
+The
+
+memset(&cgc, 0, sizeof(struct packet_command));
+
+should be added back I think.

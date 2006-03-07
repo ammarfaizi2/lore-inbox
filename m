@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWCGBfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWCGBhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWCGBfU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Mar 2006 20:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWCGBfU
+	id S1751247AbWCGBhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Mar 2006 20:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWCGBhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Mar 2006 20:35:20 -0500
-Received: from ms-smtp-02-smtplb.tampabay.rr.com ([65.32.5.132]:2024 "EHLO
-	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1751230AbWCGBfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Mar 2006 20:35:19 -0500
-Message-ID: <440CE336.3080504@cfl.rr.com>
-Date: Mon, 06 Mar 2006 20:34:46 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mail/News 1.5 (X11/20060213)
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: bcrl@kvack.org, drepper@gmail.com, da-x@monatomic.org,
-       linux-kernel@vger.kernel.org
+	Mon, 6 Mar 2006 20:37:19 -0500
+Received: from sccrmhc11.comcast.net ([204.127.200.81]:13460 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1751247AbWCGBhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Mar 2006 20:37:17 -0500
 Subject: Re: Status of AIO
-References: <20060306211854.GM20768@kvack.org> <a36005b50603061453w36f5d49cs7bac0c186aee30b3@mail.gmail.com> <20060306233300.GR20768@kvack.org> <20060306.162444.107249907.davem@davemloft.net>
-In-Reply-To: <20060306.162444.107249907.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Nicholas Miell <nmiell@comcast.net>
+To: Dan Aloni <da-x@monatomic.org>
+Cc: Benjamin LaHaise <bcrl@kvack.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060307013049.GA19775@localdomain>
+References: <20060306062402.GA25284@localdomain>
+	 <20060306211854.GM20768@kvack.org>  <20060307013049.GA19775@localdomain>
+Content-Type: text/plain
+Date: Mon, 06 Mar 2006 17:37:13 -0800
+Message-Id: <1141695433.2993.5.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Tue, 2006-03-07 at 03:30 +0200, Dan Aloni wrote:
+> On Mon, Mar 06, 2006 at 04:18:54PM -0500, Benjamin LaHaise wrote:
+> > On Mon, Mar 06, 2006 at 08:24:03AM +0200, Dan Aloni wrote:
+> > > Hello,
+> > > 
+> > > I'm trying to assert the status of AIO under the current version 
+> > > of Linux 2.6. However by searching I wasn't able to find any 
+> > > indication about it's current state. Is there anyone using it
+> > > under a production environment?
+> > 
+> > For O_DIRECT aio things are pretty stable (barring a patch to improve -EIO 
+> > handling).  The functionality is used by the various databases, so it gets 
+> > a fair amount of exercise.
+> > 
+> > > I'd like to know how complete it is and whether socket AIO is
+> > > adaquately supported.
+> > 
+> > Socket AIO is not supported yet, but it is useful to get user requests to 
+> > know there is demand for it.
 > 
-> I think something like net channels will be more effective on receive.
-> 
+> Well, I've written a small test app to see if it works with network
+> sockets and apparently it did for that small test case (connect() 
+> with aio_read(), loop with aio_error(), and aio_return()). I thought 
+> perhaps the glibc implementation was running behind the scene, so I've 
+> checked to see if it a thread was created in the background and I 
+> there wasn't any thread. 
 
-What is this "net channels"?  I'll do some googling but if you have a 
-direct reference it would be helpful.
+None of the aio_* functions use the kernel's AIO interface. They're
+implemented entirely in userspace using a thread pool.
 
-> We shouldn't be designing things for the old and inefficient world
-> where the work is done in software and hardware interrupt context, it
-> should be moved as close as possible to the compute entities and that
-> means putting the work all the way into the app itself, if not very
-> close.
-> 
-> To me, it is not a matter of if we put the networking stack at least
-> partially into some userland library, but when.
-> 
-
-Maybe you should try using a microkernel then like mach?  The Linux way 
-of doing things is to leave critical services that most user mode code 
-depends on, such as filesystems and the network stack, in the kernel.  I 
-don't think that's going to change.
-
-> Eveyone has their brains wrapped around how OS support for networking
-> has always been done, and assuming that particular model is erroneous
-> (and net channels show good hard evidence that it is) this continued
-> thought process merely continues the error.
-> 
-
-Have you taken a look at bsd's kqueue and NT's IO completion port 
-approach?  They allow virtually all of the IO to be offloaded to 
-hardware DMA, and there's no reason Linux can't do the same with aio and 
-O_DIRECT.  There's no need completely throw out the stack and start 
-over, let alone in user mode, to get there.
-
-> I really dislike it when non-networking people work on these
-> interfaces.  They've all frankly stunk, and they've had several
-> opportunities to try and get it right.
-> 
-
-I agree, the old (non) blocking IO style interfaces have all sucked, 
-which is why it's time to move on to aio.  NT has been demonstrating for 
-10 years now ( that's how long ago I wrote an FTPd using IOCPs on NT ) 
-the benefits of async IO.  It has been a long time coming, but once the 
-Linux kernel is capable of zero copy aio, I will be quite happy.
-
-> I want a bonafide networking person to work on any high performance
-> networking API we every decide to actually use.
-> 
-> This is why I going to sit and wait patiently for Van Jacobson's work
-> to get published and mature, because it's the only light in the tunnel
-> since Multics.
-> 
-> Yes, since Multics, that's how bad the existing models for doing these
-> things are.
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

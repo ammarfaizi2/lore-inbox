@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWCHAPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWCHASg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWCHAPo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWCHAPo
+	id S964817AbWCHASg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:18:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWCHASg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:15:44 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39815
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964815AbWCHAPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:15:43 -0500
-Date: Tue, 07 Mar 2006 16:15:00 -0800 (PST)
-Message-Id: <20060307.161500.59628589.davem@davemloft.net>
-To: 76306.1226@compuserve.com
-Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200603071819_MC3-1-BA15-3119@compuserve.com>
-References: <200603071819_MC3-1-BA15-3119@compuserve.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 7 Mar 2006 19:18:36 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:39808 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750938AbWCHASf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:18:35 -0500
+Subject: [RFC PATCH 0/3]  VFS changes to collapse all the vectored and AIO
+	support
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Zach Brown <zach.brown@oracle.com>, christoph <hch@lst.de>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, pbadari@us.ibm.com
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 16:19:59 -0800
+Message-Id: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Date: Tue, 7 Mar 2006 18:17:19 -0500
+Hi,
 
-> In-Reply-To: <31492.1141753245@warthog.cambridge.redhat.com>
-> 
-> On Tue, 07 Mar 2006 17:40:45 +0000, David Howells wrote:
-> 
-> > The attached patch documents the Linux kernel's memory barriers.
-> 
-> References:
+These series of changes collapses all the vectored IO support 
+into single file-operation method using aio_read/aio_write. 
 
-Here are some good ones for Sparc64:
+This work was originally suggested & started by Christoph Hellwig, 
+when Zach Brown tried to add vectored support for AIO. 
 
-The SPARC Architecture Manual, Version 9
-    Chapter 8: Memory Models
-    Appendix D: Formal Specification of the Memory Models
-    Appendix J: Programming with the Memory Models
+Christoph & Zach, comments/suggestions ? If you are happy with the
+work, can you add your Sign-off or Ack ? I addressed all the
+known issues, please review.
 
-UltraSPARC Programmer Reference Manual
-    Chapter 5: Memory Accesses and Cacheability
-    Chapter 15: Sparc-V9 Memory Models
+Here is the summary:
 
-UltraSPARC III Cu User's Manual
-    Chapter 9: Memory Models
+[PATCH 1/3] Vectorize aio_read/aio_write methods
 
-UltraSPARC IIIi Processor User's Manual
-    Chapter 8: Memory Models
+[PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
+instead.
 
-UltraSPARC Architecture 2005
-    Chapter 9: Memory
-    Appendix D: Formal Specifications of the Memory Models
+[PATCH 3/3] Zach's core aio changes to support vectored AIO.
 
-UltraSPARC T1 Supplment to the UltraSPARC Architecture 2005
-    Chapter 8: Memory Models
-    Appendix F: Caches and Cache Coherency
+NOTE: This is not ready for -mm or mainline consumption yet -
+since I am still doing basic testing. 
+
+Comments ?
+
+Thanks,
+Badari
+

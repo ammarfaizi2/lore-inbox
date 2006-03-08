@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWCHOHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWCHOJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbWCHOHl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 09:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbWCHOHl
+	id S1030192AbWCHOJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 09:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWCHOJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 09:07:41 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:22169 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751034AbWCHOHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 09:07:40 -0500
-Date: Wed, 8 Mar 2006 15:06:35 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: karsten wiese <annabellesgarden@yahoo.de>
-Cc: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       cc@ccrma.Stanford.EDU
-Subject: Re: [Alsa-devel] Re: 2.6.15-rt18, alsa sequencer, rosegarden -> alsa hangs
-Message-ID: <20060308140635.GA16972@elte.hu>
-References: <1141800836.6150.3.camel@cmn3.stanford.edu> <20060308133635.96547.qmail@web26507.mail.ukl.yahoo.com>
+	Wed, 8 Mar 2006 09:09:53 -0500
+Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:558 "EHLO
+	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
+	id S1030192AbWCHOJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 09:09:52 -0500
+Date: Wed, 08 Mar 2006 23:09:49 +0900 (JST)
+Message-Id: <20060308.230949.133381156.nemoto@toshiba-tops.co.jp>
+To: herbert@gondor.apana.org.au
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] crypto: alignment fixes
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060308102731.GA32195@gondor.apana.org.au>
+References: <20060308.160529.37994551.nemoto@toshiba-tops.co.jp>
+	<20060308102731.GA32195@gondor.apana.org.au>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308133635.96547.qmail@web26507.mail.ukl.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Wed, 8 Mar 2006 21:27:31 +1100, Herbert Xu <herbert@gondor.apana.org.au> said:
+>> This patch fixes some alignment problem on crypto modules.
 
-* karsten wiese <annabellesgarden@yahoo.de> wrote:
+herbert> Thanks for the patch.  Please split this up and cc
+herbert> linux-crypto@vger.kernel.org.
 
-> ALSA Midi sequencer uses tasklets. there are 2 kinds of
-> them: lo and hi.
-> In rt-18 PREEMPT-RT, tasklet_hi_schedule() didn't work,
-> 'cause it woke up tasklet_lo's thread.
-> Thats what my patch fixed.
+OK, I'll send soon.
 
-ah - i thought that -rt18 had your fix already - but indeed it's -rt19 
-that added it. So it's probably the same bug.
+>> 1. Many cipher setkey functions load key words directly but the key
+>> words might not be aligned.  Enforce correct alignment in the
+>> setkey wrapper.
 
-	Ingo
+herbert> This isn't right.  The alignmask applies to
+herbert> source/destination buffers only.  The only requirement on the
+herbert> key is that it must always be 32-bit aligned.
+
+Thank you for clarification.  The tcrypt module breaks this
+requirement currently.  I'll fix tcrypt.
+
+>> 3. Some hash modules (and sha_transform() library function)
+>> load/store data words directly.  Use
+>> get_unaligned()/put_unaligned() for them.
+
+herbert> We should extend alignmask to cover this and handle it in the
+herbert> digest layer.
+
+OK, I'll try it.  Thank you.
+
+---
+Atsushi Nemoto

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWCHATj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWCHAUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964807AbWCHATj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWCHATj
+	id S1751711AbWCHAUG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWCHAUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:19:39 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30857
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964807AbWCHATi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:19:38 -0500
-Date: Tue, 07 Mar 2006 16:18:08 -0800 (PST)
-Message-Id: <20060307.161808.60227862.davem@davemloft.net>
-To: mlleinin@hpcn.ca.sandia.gov
-Cc: shemminger@osdl.org, xma@us.ibm.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       mst@mellanox.co.il
-Subject: Re: [openib-general] Re: TSO and IPoIB performance degradation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1141776697.6119.938.camel@localhost>
-References: <1141767891.6119.903.camel@localhost>
-	<20060307134907.733d3d27@localhost.localdomain>
-	<1141776697.6119.938.camel@localhost>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 7 Mar 2006 19:20:05 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24745 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751711AbWCHAUB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:20:01 -0500
+Date: Wed, 8 Mar 2006 01:15:56 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+Message-ID: <20060308001556.GA9362@electric-eye.fr.zoreil.com>
+References: <20060305180757.GA22121@deprecation.cyrius.com> <20060305185948.GA24765@electric-eye.fr.zoreil.com> <20060306143512.GI23669@deprecation.cyrius.com> <20060306191706.GA6947@deprecation.cyrius.com> <20060306211745.GD15728@electric-eye.fr.zoreil.com> <20060307051152.GA1244@deprecation.cyrius.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060307051152.GA1244@deprecation.cyrius.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Leininger <mlleinin@hpcn.ca.sandia.gov>
-Date: Tue, 07 Mar 2006 16:11:37 -0800
+Martin Michlmayr <tbm@cyrius.com> :
+[...]
+> It seems to help.  It's hard to say for sure because I don't have a
+> foolproof way to reproduce this panic.  It _usually_ occurs after
+> copying a few hundred MB but there's no clear trigger.  I've now copied
+> a few GB around using a kernel with your patch and it hasn't crashed.
 
->   I used the standard setting for tcp_rmem and tcp_wmem.   Here are a
-> few other runs that change those variables.  I was able to improve
-> performance by ~30MB/s to 403 MB/s, but this is still a ways from the
-> 474 MB/s before the TSO patches.
+netdev watchdog events appear in the dmesg of the patched driver.
+The driver survived it. So I'd say that the patch does its job.
 
-How limited are the IPoIB devices, TX descriptor wise?
+OTOH, if you ever saw the unpatched driver survive this event, yell now.
 
-One side effect of the TSO changes is that one extra descriptor
-will be used for outgoing packets.  This is because we have to
-put the headers as well as the user data, into page based
-buffers now.
-
-Perhaps you can experiment with increasing the transmit descriptor
-table size, if that's possible.
+-- 
+Ueimor

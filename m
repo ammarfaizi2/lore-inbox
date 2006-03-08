@@ -1,1102 +1,1118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWCHAUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbWCHAVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751889AbWCHAUl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWCHAUl
+	id S964819AbWCHAVe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWCHAVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:20:41 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:43747 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751825AbWCHAUj
+	Tue, 7 Mar 2006 19:21:34 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:62908 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964819AbWCHAVb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:20:39 -0500
-Subject: [PATCH 1/3] Vectorize aio_read/aio_write methods
+	Tue, 7 Mar 2006 19:21:31 -0500
+Subject: [PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
+	instead
 From: Badari Pulavarty <pbadari@us.ibm.com>
 To: Zach Brown <zach.brown@oracle.com>
 Cc: christoph <hch@lst.de>, lkml <linux-kernel@vger.kernel.org>,
        linux-fsdevel <linux-fsdevel@vger.kernel.org>
 In-Reply-To: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
 References: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: multipart/mixed; boundary="=-dLEXWUOxgd91Lv2g1L18"
-Date: Tue, 07 Mar 2006 16:22:10 -0800
-Message-Id: <1141777330.17095.36.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: multipart/mixed; boundary="=-pFuVh3Tt+aNdR21GPYnN"
+Date: Tue, 07 Mar 2006 16:23:02 -0800
+Message-Id: <1141777382.17095.38.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-dLEXWUOxgd91Lv2g1L18
+--=-pFuVh3Tt+aNdR21GPYnN
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-This patch vectorizes aio_read() and aio_write() methods to prepare
-for colapsing all the vectored operations into one interface -
-which is aio_read()/aio_write().
+This patch removes readv() and writev() methods and replaces
+them with aio_read()/aio_write() methods.
 
 
 
---=-dLEXWUOxgd91Lv2g1L18
-Content-Disposition: attachment; filename=aiovector.patch
-Content-Type: text/x-patch; name=aiovector.patch; charset=UTF-8
+--=-pFuVh3Tt+aNdR21GPYnN
+Content-Disposition: attachment; filename=remove-readv-writev.patch
+Content-Type: text/x-patch; name=remove-readv-writev.patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-This patch vectorizes aio_read() and aio_write() methods to prepare
-for colapsing all the vectored operations into one interface -
-which is aio_read()/aio_write().
-
+This patch removes readv() and writev() methods and replaces
+them with aio_read()/aio_write() methods.
 
 Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-Index: linux-2.6.16-rc5/Documentation/filesystems/Locking
-===================================================================
---- linux-2.6.16-rc5.orig/Documentation/filesystems/Locking	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/Documentation/filesystems/Locking	2006-02-27 08:33:22.000000000 -0800
-@@ -355,10 +355,9 @@ The last two are called only from check_
- prototypes:
- 	loff_t (*llseek) (struct file *, loff_t, int);
- 	ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
--	ssize_t (*aio_read) (struct kiocb *, char __user *, size_t, loff_t);
- 	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
--	ssize_t (*aio_write) (struct kiocb *, const char __user *, size_t,
--			loff_t);
-+	ssize_t (*aio_read) (struct kiocb *, const struct iovec *, unsigned long, loff_t);
-+	ssize_t (*aio_write) (struct kiocb *, const struct iovec *, unsigned long, loff_t);
- 	int (*readdir) (struct file *, void *, filldir_t);
- 	unsigned int (*poll) (struct file *, struct poll_table_struct *);
- 	int (*ioctl) (struct inode *, struct file *, unsigned int,
-Index: linux-2.6.16-rc5/Documentation/filesystems/vfs.txt
-===================================================================
---- linux-2.6.16-rc5.orig/Documentation/filesystems/vfs.txt	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/Documentation/filesystems/vfs.txt	2006-02-27 08:33:22.000000000 -0800
-@@ -526,9 +526,9 @@ This describes how the VFS can manipulat
- struct file_operations {
- 	loff_t (*llseek) (struct file *, loff_t, int);
- 	ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
--	ssize_t (*aio_read) (struct kiocb *, char __user *, size_t, loff_t);
- 	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
--	ssize_t (*aio_write) (struct kiocb *, const char __user *, size_t, loff_t);
-+	ssize_t (*aio_read) (struct kiocb *, const struct iovec *, unsigned long, loff_t);
-+	ssize_t (*aio_write) (struct kiocb *, const struct iovec *, unsigned long, loff_t);
- 	int (*readdir) (struct file *, void *, filldir_t);
- 	unsigned int (*poll) (struct file *, struct poll_table_struct *);
- 	int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
 Index: linux-2.6.16-rc5/drivers/char/raw.c
 ===================================================================
---- linux-2.6.16-rc5.orig/drivers/char/raw.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/drivers/char/raw.c	2006-03-07 13:52:28.000000000 -0800
-@@ -249,23 +249,11 @@ static ssize_t raw_file_write(struct fil
- 	return generic_file_write_nolock(file, &local_iov, 1, ppos);
- }
- 
--static ssize_t raw_file_aio_write(struct kiocb *iocb, const char __user *buf,
--					size_t count, loff_t pos)
--{
--	struct iovec local_iov = {
--		.iov_base = (char __user *)buf,
--		.iov_len = count
--	};
--
--	return generic_file_aio_write_nolock(iocb, &local_iov, 1, &iocb->ki_pos);
--}
--
--
- static struct file_operations raw_fops = {
- 	.read	=	generic_file_read,
- 	.aio_read = 	generic_file_aio_read,
- 	.write	=	raw_file_write,
--	.aio_write = 	raw_file_aio_write,
-+	.aio_write = 	generic_file_aio_write_nolock,
+--- linux-2.6.16-rc5.orig/drivers/char/raw.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/drivers/char/raw.c	2006-03-07 13:36:05.000000000 -0800
+@@ -257,8 +257,6 @@ static struct file_operations raw_fops =
  	.open	=	raw_open,
  	.release=	raw_release,
  	.ioctl	=	raw_ioctl,
-Index: linux-2.6.16-rc5/fs/aio.c
+-	.readv	= 	generic_file_readv,
+-	.writev	= 	generic_file_writev,
+ 	.owner	=	THIS_MODULE,
+ };
+ 
+Index: linux-2.6.16-rc5/drivers/net/tun.c
 ===================================================================
---- linux-2.6.16-rc5.orig/fs/aio.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/aio.c	2006-03-07 13:44:09.000000000 -0800
-@@ -15,6 +15,7 @@
- #include <linux/aio_abi.h>
- #include <linux/module.h>
- #include <linux/syscalls.h>
-+#include <linux/uio.h>
+--- linux-2.6.16-rc5.orig/drivers/net/tun.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/drivers/net/tun.c	2006-03-07 13:36:05.000000000 -0800
+@@ -286,11 +286,10 @@ static inline size_t iov_total(const str
+ 	return len;
+ }
  
- #define DEBUG 0
+-/* Writev */
+-static ssize_t tun_chr_writev(struct file * file, const struct iovec *iv, 
+-			      unsigned long count, loff_t *pos)
++static ssize_t tun_chr_aio_write(struct kiocb *iocb, const struct iovec *iv,
++			      unsigned long count, loff_t pos)
+ {
+-	struct tun_struct *tun = file->private_data;
++	struct tun_struct *tun = iocb->ki_filp->private_data;
  
-@@ -1316,8 +1317,11 @@ static ssize_t aio_pread(struct kiocb *i
- 	ssize_t ret = 0;
+ 	if (!tun)
+ 		return -EBADFD;
+@@ -300,14 +299,6 @@ static ssize_t tun_chr_writev(struct fil
+ 	return tun_get_user(tun, (struct iovec *) iv, iov_total(iv, count));
+ }
  
- 	do {
--		ret = file->f_op->aio_read(iocb, iocb->ki_buf,
--			iocb->ki_left, iocb->ki_pos);
-+		iocb->ki_inline_vec.iov_base = iocb->ki_buf;
-+		iocb->ki_inline_vec.iov_len = iocb->ki_left;
-+
-+		ret = file->f_op->aio_read(iocb, &iocb->ki_inline_vec,
-+						1, iocb->ki_pos);
- 		/*
- 		 * Can't just depend on iocb->ki_left to determine
- 		 * whether we are done. This may have been a short read.
-@@ -1350,8 +1354,11 @@ static ssize_t aio_pwrite(struct kiocb *
- 	ssize_t ret = 0;
+-/* Write */
+-static ssize_t tun_chr_write(struct file * file, const char __user * buf, 
+-			     size_t count, loff_t *pos)
+-{
+-	struct iovec iv = { (void __user *) buf, count };
+-	return tun_chr_writev(file, &iv, 1, pos);
+-}
+-
+ /* Put packet to the user space buffer */
+ static __inline__ ssize_t tun_put_user(struct tun_struct *tun,
+ 				       struct sk_buff *skb,
+@@ -341,10 +332,10 @@ static __inline__ ssize_t tun_put_user(s
+ 	return total;
+ }
  
- 	do {
--		ret = file->f_op->aio_write(iocb, iocb->ki_buf,
--			iocb->ki_left, iocb->ki_pos);
-+		iocb->ki_inline_vec.iov_base = iocb->ki_buf;
-+		iocb->ki_inline_vec.iov_len = iocb->ki_left;
-+
-+		ret = file->f_op->aio_write(iocb, &iocb->ki_inline_vec,
-+						1, iocb->ki_pos);
- 		if (ret > 0) {
- 			iocb->ki_buf += ret;
- 			iocb->ki_left -= ret;
+-/* Readv */
+-static ssize_t tun_chr_readv(struct file *file, const struct iovec *iv,
+-			    unsigned long count, loff_t *pos)
++static ssize_t tun_chr_aio_read(struct kiocb *iocb, const struct iovec *iv,
++			    unsigned long count, loff_t pos)
+ {
++	struct file *file = iocb->ki_filp;
+ 	struct tun_struct *tun = file->private_data;
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct sk_buff *skb;
+@@ -424,14 +415,6 @@ static ssize_t tun_chr_readv(struct file
+ 	return ret;
+ }
+ 
+-/* Read */
+-static ssize_t tun_chr_read(struct file * file, char __user * buf, 
+-			    size_t count, loff_t *pos)
+-{
+-	struct iovec iv = { buf, count };
+-	return tun_chr_readv(file, &iv, 1, pos);
+-}
+-
+ static void tun_setup(struct net_device *dev)
+ {
+ 	struct tun_struct *tun = netdev_priv(dev);
+@@ -759,10 +742,8 @@ static int tun_chr_close(struct inode *i
+ static struct file_operations tun_fops = {
+ 	.owner	= THIS_MODULE,	
+ 	.llseek = no_llseek,
+-	.read	= tun_chr_read,
+-	.readv	= tun_chr_readv,
+-	.write	= tun_chr_write,
+-	.writev = tun_chr_writev,
++	.aio_read  = tun_chr_aio_read,
++	.aio_write = tun_chr_aio_write,
+ 	.poll	= tun_chr_poll,
+ 	.ioctl	= tun_chr_ioctl,
+ 	.open	= tun_chr_open,
+Index: linux-2.6.16-rc5/fs/bad_inode.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/bad_inode.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/bad_inode.c	2006-03-07 13:36:05.000000000 -0800
+@@ -40,8 +40,6 @@ static struct file_operations bad_file_o
+ 	.aio_fsync	= EIO_ERROR,
+ 	.fasync		= EIO_ERROR,
+ 	.lock		= EIO_ERROR,
+-	.readv		= EIO_ERROR,
+-	.writev		= EIO_ERROR,
+ 	.sendfile	= EIO_ERROR,
+ 	.sendpage	= EIO_ERROR,
+ 	.get_unmapped_area = EIO_ERROR,
 Index: linux-2.6.16-rc5/fs/block_dev.c
 ===================================================================
---- linux-2.6.16-rc5.orig/fs/block_dev.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/block_dev.c	2006-03-07 13:52:28.000000000 -0800
-@@ -769,14 +769,6 @@ static ssize_t blkdev_file_write(struct 
- 	return generic_file_write_nolock(file, &local_iov, 1, ppos);
- }
+--- linux-2.6.16-rc5.orig/fs/block_dev.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/block_dev.c	2006-03-07 13:36:05.000000000 -0800
+@@ -798,8 +798,6 @@ struct file_operations def_blk_fops = {
+ #ifdef CONFIG_COMPAT
+ 	.compat_ioctl	= compat_blkdev_ioctl,
+ #endif
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_write_nolock,
+ 	.sendfile	= generic_file_sendfile,
+ };
  
--static ssize_t blkdev_file_aio_write(struct kiocb *iocb, const char __user *buf,
--				   size_t count, loff_t pos)
--{
--	struct iovec local_iov = { .iov_base = (void __user *)buf, .iov_len = count };
--
--	return generic_file_aio_write_nolock(iocb, &local_iov, 1, &iocb->ki_pos);
--}
--
- static long block_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- {
- 	return blkdev_ioctl(file->f_mapping->host, file, cmd, arg);
-@@ -799,7 +791,7 @@ struct file_operations def_blk_fops = {
- 	.read		= generic_file_read,
- 	.write		= blkdev_file_write,
-   	.aio_read	= generic_file_aio_read,
--  	.aio_write	= blkdev_file_aio_write, 
-+  	.aio_write	= generic_file_aio_write_nolock,
- 	.mmap		= generic_file_mmap,
- 	.fsync		= block_fsync,
- 	.unlocked_ioctl	= block_ioctl,
 Index: linux-2.6.16-rc5/fs/cifs/cifsfs.c
 ===================================================================
---- linux-2.6.16-rc5.orig/fs/cifs/cifsfs.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/cifs/cifsfs.c	2006-03-07 13:52:28.000000000 -0800
-@@ -501,13 +501,13 @@ static ssize_t cifs_file_writev(struct f
- 	return written;
+--- linux-2.6.16-rc5.orig/fs/cifs/cifsfs.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/cifs/cifsfs.c	2006-03-07 13:36:05.000000000 -0800
+@@ -489,18 +489,6 @@ cifs_get_sb(struct file_system_type *fs_
+ 	return sb;
  }
  
--static ssize_t cifs_file_aio_write(struct kiocb *iocb, const char __user *buf,
--				   size_t count, loff_t pos)
-+static ssize_t cifs_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
-+				   unsigned long nr_segs, loff_t pos)
- {
- 	struct inode *inode = iocb->ki_filp->f_dentry->d_inode;
- 	ssize_t written;
- 
--	written = generic_file_aio_write(iocb, buf, count, pos);
-+	written = generic_file_aio_write(iocb, iov, nr_segs, pos);
- 	if (!CIFS_I(inode)->clientCanCacheAll)
- 		filemap_fdatawrite(inode->i_mapping);
- 	return written;
-Index: linux-2.6.16-rc5/fs/ext3/file.c
-===================================================================
---- linux-2.6.16-rc5.orig/fs/ext3/file.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/ext3/file.c	2006-03-07 13:52:28.000000000 -0800
-@@ -48,14 +48,15 @@ static int ext3_release_file (struct ino
- }
- 
- static ssize_t
--ext3_file_write(struct kiocb *iocb, const char __user *buf, size_t count, loff_t pos)
-+ext3_file_write(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
- {
- 	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file->f_dentry->d_inode;
- 	ssize_t ret;
- 	int err;
- 
--	ret = generic_file_aio_write(iocb, buf, count, pos);
-+	ret = generic_file_aio_write(iocb, iov, nr_segs, pos);
- 
- 	/*
- 	 * Skip flushing if there was an error, or if nothing was written.
-Index: linux-2.6.16-rc5/fs/nfs/file.c
-===================================================================
---- linux-2.6.16-rc5.orig/fs/nfs/file.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/nfs/file.c	2006-02-27 08:33:22.000000000 -0800
-@@ -40,8 +40,10 @@ static int nfs_file_release(struct inode
- static loff_t nfs_file_llseek(struct file *file, loff_t offset, int origin);
- static int  nfs_file_mmap(struct file *, struct vm_area_struct *);
- static ssize_t nfs_file_sendfile(struct file *, loff_t *, size_t, read_actor_t, void *);
--static ssize_t nfs_file_read(struct kiocb *, char __user *, size_t, loff_t);
--static ssize_t nfs_file_write(struct kiocb *, const char __user *, size_t, loff_t);
-+static ssize_t nfs_file_read(struct kiocb *, const struct iovec *,
-+		unsigned long, loff_t);
-+static ssize_t nfs_file_write(struct kiocb *, const struct iovec *,
-+		unsigned long, loff_t);
- static int  nfs_file_flush(struct file *);
- static int  nfs_fsync(struct file *, struct dentry *dentry, int datasync);
- static int nfs_check_flags(int flags);
-@@ -52,8 +54,8 @@ struct file_operations nfs_file_operatio
- 	.llseek		= nfs_file_llseek,
- 	.read		= do_sync_read,
- 	.write		= do_sync_write,
--	.aio_read		= nfs_file_read,
--	.aio_write		= nfs_file_write,
-+	.aio_read	= nfs_file_read,
-+	.aio_write	= nfs_file_write,
- 	.mmap		= nfs_file_mmap,
- 	.open		= nfs_file_open,
- 	.flush		= nfs_file_flush,
-@@ -213,7 +215,8 @@ nfs_file_flush(struct file *file)
- }
- 
- static ssize_t
--nfs_file_read(struct kiocb *iocb, char __user * buf, size_t count, loff_t pos)
-+nfs_file_read(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
- {
- 	struct dentry * dentry = iocb->ki_filp->f_dentry;
- 	struct inode * inode = dentry->d_inode;
-@@ -221,16 +224,15 @@ nfs_file_read(struct kiocb *iocb, char _
- 
- #ifdef CONFIG_NFS_DIRECTIO
- 	if (iocb->ki_filp->f_flags & O_DIRECT)
--		return nfs_file_direct_read(iocb, buf, count, pos);
-+		return nfs_file_direct_read(iocb, iov, nr_segs, pos);
- #endif
- 
--	dfprintk(VFS, "nfs: read(%s/%s, %lu@%lu)\n",
--		dentry->d_parent->d_name.name, dentry->d_name.name,
--		(unsigned long) count, (unsigned long) pos);
-+	dfprintk(VFS, "nfs: read(%s/%s)\n",
-+		dentry->d_parent->d_name.name, dentry->d_name.name);
- 
- 	result = nfs_revalidate_file(inode, iocb->ki_filp);
- 	if (!result)
--		result = generic_file_aio_read(iocb, buf, count, pos);
-+		result = generic_file_aio_read(iocb, iov, nr_segs, pos);
- 	return result;
- }
- 
-@@ -333,7 +335,8 @@ struct address_space_operations nfs_file
-  * Write to a file (through the page cache).
-  */
- static ssize_t
--nfs_file_write(struct kiocb *iocb, const char __user *buf, size_t count, loff_t pos)
-+nfs_file_write(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
- {
- 	struct dentry * dentry = iocb->ki_filp->f_dentry;
- 	struct inode * inode = dentry->d_inode;
-@@ -341,12 +344,12 @@ nfs_file_write(struct kiocb *iocb, const
- 
- #ifdef CONFIG_NFS_DIRECTIO
- 	if (iocb->ki_filp->f_flags & O_DIRECT)
--		return nfs_file_direct_write(iocb, buf, count, pos);
-+		return nfs_file_direct_write(iocb, iov, nr_segs, pos);
- #endif
- 
--	dfprintk(VFS, "nfs: write(%s/%s(%ld), %lu@%lu)\n",
-+	dfprintk(VFS, "nfs: write(%s/%s(%ld))\n",
- 		dentry->d_parent->d_name.name, dentry->d_name.name,
--		inode->i_ino, (unsigned long) count, (unsigned long) pos);
-+		inode->i_ino);
- 
- 	result = -EBUSY;
- 	if (IS_SWAPFILE(inode))
-@@ -361,11 +364,7 @@ nfs_file_write(struct kiocb *iocb, const
- 	}
- 	nfs_revalidate_mapping(inode, iocb->ki_filp->f_mapping);
- 
--	result = count;
--	if (!count)
--		goto out;
--
--	result = generic_file_aio_write(iocb, buf, count, pos);
-+	result = generic_file_aio_write(iocb, iov, nr_segs, pos);
- out:
- 	return result;
- 
-Index: linux-2.6.16-rc5/fs/read_write.c
-===================================================================
---- linux-2.6.16-rc5.orig/fs/read_write.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/read_write.c	2006-03-07 13:52:28.000000000 -0800
-@@ -227,14 +227,19 @@ static void wait_on_retry_sync_kiocb(str
- 
- ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos)
- {
-+	struct iovec iov = { .iov_base = buf, .iov_len = len };
- 	struct kiocb kiocb;
- 	ssize_t ret;
- 
- 	init_sync_kiocb(&kiocb, filp);
- 	kiocb.ki_pos = *ppos;
--	while (-EIOCBRETRY ==
--		(ret = filp->f_op->aio_read(&kiocb, buf, len, kiocb.ki_pos)))
-+
-+	for (;;) {
-+		ret = filp->f_op->aio_read(&kiocb, &iov, 1, kiocb.ki_pos);
-+		if (ret != -EIOCBRETRY)
-+			break;
- 		wait_on_retry_sync_kiocb(&kiocb);
-+	}
- 
- 	if (-EIOCBQUEUED == ret)
- 		ret = wait_on_sync_kiocb(&kiocb);
-@@ -279,14 +284,19 @@ EXPORT_SYMBOL(vfs_read);
- 
- ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos)
- {
-+	struct iovec iov = { .iov_base = (void __user *)buf, .iov_len = len };
- 	struct kiocb kiocb;
- 	ssize_t ret;
- 
- 	init_sync_kiocb(&kiocb, filp);
- 	kiocb.ki_pos = *ppos;
--	while (-EIOCBRETRY ==
--	       (ret = filp->f_op->aio_write(&kiocb, buf, len, kiocb.ki_pos)))
-+
-+	for (;;) {
-+		ret = filp->f_op->aio_write(&kiocb, &iov, 1, kiocb.ki_pos);
-+		if (ret != -EIOCBRETRY)
-+			break;
- 		wait_on_retry_sync_kiocb(&kiocb);
-+	}
- 
- 	if (-EIOCBQUEUED == ret)
- 		ret = wait_on_sync_kiocb(&kiocb);
-Index: linux-2.6.16-rc5/fs/reiserfs/file.c
-===================================================================
---- linux-2.6.16-rc5.orig/fs/reiserfs/file.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/reiserfs/file.c	2006-02-27 08:33:22.000000000 -0800
-@@ -1560,12 +1560,6 @@ static ssize_t reiserfs_file_write(struc
- 	return res;
- }
- 
--static ssize_t reiserfs_aio_write(struct kiocb *iocb, const char __user * buf,
--				  size_t count, loff_t pos)
+-static ssize_t cifs_file_writev(struct file *file, const struct iovec *iov,
+-				unsigned long nr_segs, loff_t *ppos)
 -{
--	return generic_file_aio_write(iocb, buf, count, pos);
+-	struct inode *inode = file->f_dentry->d_inode;
+-	ssize_t written;
+-
+-	written = generic_file_writev(file, iov, nr_segs, ppos);
+-	if (!CIFS_I(inode)->clientCanCacheAll)
+-		filemap_fdatawrite(inode->i_mapping);
+-	return written;
 -}
 -
- struct file_operations reiserfs_file_operations = {
- 	.read = generic_file_read,
- 	.write = reiserfs_file_write,
-@@ -1575,7 +1569,7 @@ struct file_operations reiserfs_file_ope
- 	.fsync = reiserfs_sync_file,
- 	.sendfile = generic_file_sendfile,
+ static ssize_t cifs_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
+ 				   unsigned long nr_segs, loff_t pos)
+ {
+@@ -586,8 +574,6 @@ struct inode_operations cifs_symlink_ino
+ struct file_operations cifs_file_ops = {
+ 	.read = do_sync_read,
+ 	.write = do_sync_write,
+-	.readv = generic_file_readv,
+-	.writev = cifs_file_writev,
  	.aio_read = generic_file_aio_read,
--	.aio_write = reiserfs_aio_write,
-+	.aio_write = generic_file_aio_write,
- };
- 
- struct inode_operations reiserfs_file_inode_operations = {
-Index: linux-2.6.16-rc5/fs/xfs/linux-2.6/xfs_file.c
+ 	.aio_write = cifs_file_aio_write,
+ 	.open = cifs_open,
+@@ -629,8 +615,6 @@ struct file_operations cifs_file_direct_
+ struct file_operations cifs_file_nobrl_ops = {
+ 	.read = do_sync_read,
+ 	.write = do_sync_write,
+-	.readv = generic_file_readv,
+-	.writev = cifs_file_writev,
+ 	.aio_read = generic_file_aio_read,
+ 	.aio_write = cifs_file_aio_write,
+ 	.open = cifs_open,
+Index: linux-2.6.16-rc5/fs/compat.c
 ===================================================================
---- linux-2.6.16-rc5.orig/fs/xfs/linux-2.6/xfs_file.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/xfs/linux-2.6/xfs_file.c	2006-03-07 13:52:28.000000000 -0800
-@@ -51,12 +51,11 @@ static struct vm_operations_struct linvf
- STATIC inline ssize_t
- __linvfs_read(
- 	struct kiocb		*iocb,
--	char			__user *buf,
-+	const struct iovec	*iov,
-+	unsigned long		nr_segs,
- 	int			ioflags,
--	size_t			count,
- 	loff_t			pos)
- {
--	struct iovec		iov = {buf, count};
- 	struct file		*file = iocb->ki_filp;
- 	vnode_t			*vp = LINVFS_GET_VP(file->f_dentry->d_inode);
- 	ssize_t			rval;
-@@ -65,7 +64,7 @@ __linvfs_read(
+--- linux-2.6.16-rc5.orig/fs/compat.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/compat.c	2006-03-07 13:36:05.000000000 -0800
+@@ -55,6 +55,8 @@
  
- 	if (unlikely(file->f_flags & O_DIRECT))
- 		ioflags |= IO_ISDIRECT;
--	VOP_READ(vp, iocb, &iov, 1, &iocb->ki_pos, ioflags, NULL, rval);
-+	VOP_READ(vp, iocb, iov, nr_segs, &iocb->ki_pos, ioflags, NULL, rval);
- 	return rval;
- }
+ extern void sigset_from_compat(sigset_t *set, compat_sigset_t *compat);
  
-@@ -73,33 +72,32 @@ __linvfs_read(
- STATIC ssize_t
- linvfs_aio_read(
- 	struct kiocb		*iocb,
--	char			__user *buf,
--	size_t			count,
-+	const struct iovec	*iov,
-+	unsigned long		nr_segs,
- 	loff_t			pos)
- {
--	return __linvfs_read(iocb, buf, IO_ISAIO, count, pos);
-+	return __linvfs_read(iocb, iov, nr_segs, IO_ISAIO, pos);
- }
- 
- STATIC ssize_t
- linvfs_aio_read_invis(
- 	struct kiocb		*iocb,
--	char			__user *buf,
--	size_t			count,
-+	const struct iovec	*iov,
-+	unsigned long		nr_segs,
- 	loff_t			pos)
- {
--	return __linvfs_read(iocb, buf, IO_ISAIO|IO_INVIS, count, pos);
-+	return __linvfs_read(iocb, iov, nr_segs, IO_ISAIO|IO_INVIS, pos);
- }
- 
- 
- STATIC inline ssize_t
- __linvfs_write(
--	struct kiocb	*iocb,
--	const char	__user *buf,
--	int		ioflags,
--	size_t		count,
--	loff_t		pos)
-+	struct kiocb		*iocb,
-+	const struct iovec	*iov,
-+	unsigned long		nr_segs,
-+	int			ioflags,
-+	loff_t			pos)
- {
--	struct iovec	iov = {(void __user *)buf, count};
- 	struct file	*file = iocb->ki_filp;
- 	struct inode	*inode = file->f_mapping->host;
- 	vnode_t		*vp = LINVFS_GET_VP(inode);
-@@ -109,7 +107,7 @@ __linvfs_write(
- 	if (unlikely(file->f_flags & O_DIRECT))
- 		ioflags |= IO_ISDIRECT;
- 
--	VOP_WRITE(vp, iocb, &iov, 1, &iocb->ki_pos, ioflags, NULL, rval);
-+	VOP_WRITE(vp, iocb, iov, nr_segs, &iocb->ki_pos, ioflags, NULL, rval);
- 	return rval;
- }
- 
-@@ -117,21 +115,21 @@ __linvfs_write(
- STATIC ssize_t
- linvfs_aio_write(
- 	struct kiocb		*iocb,
--	const char		__user *buf,
--	size_t			count,
-+	const struct iovec	*iov,
-+	unsigned long		nr_segs,
- 	loff_t			pos)
- {
--	return __linvfs_write(iocb, buf, IO_ISAIO, count, pos);
-+	return __linvfs_write(iocb, iov, nr_segs, IO_ISAIO, pos);
- }
- 
- STATIC ssize_t
- linvfs_aio_write_invis(
- 	struct kiocb		*iocb,
--	const char		__user *buf,
--	size_t			count,
-+	const struct iovec	*iov,
-+	unsigned long		nr_segs,
- 	loff_t			pos)
- {
--	return __linvfs_write(iocb, buf, IO_ISAIO|IO_INVIS, count, pos);
-+	return __linvfs_write(iocb, iov, nr_segs, IO_ISAIO|IO_INVIS, pos);
- }
- 
- 
-Index: linux-2.6.16-rc5/include/linux/fs.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/linux/fs.h	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/include/linux/fs.h	2006-03-07 13:52:28.000000000 -0800
-@@ -999,9 +999,9 @@ struct file_operations {
- 	struct module *owner;
- 	loff_t (*llseek) (struct file *, loff_t, int);
- 	ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
--	ssize_t (*aio_read) (struct kiocb *, char __user *, size_t, loff_t);
- 	ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
--	ssize_t (*aio_write) (struct kiocb *, const char __user *, size_t, loff_t);
-+	ssize_t (*aio_read) (struct kiocb *, const struct iovec *, unsigned long, loff_t);
-+	ssize_t (*aio_write) (struct kiocb *, const struct iovec *, unsigned long, loff_t);
- 	int (*readdir) (struct file *, void *, filldir_t);
- 	unsigned int (*poll) (struct file *, struct poll_table_struct *);
- 	int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
-@@ -1561,11 +1561,11 @@ extern int file_send_actor(read_descript
- extern ssize_t generic_file_read(struct file *, char __user *, size_t, loff_t *);
- int generic_write_checks(struct file *file, loff_t *pos, size_t *count, int isblk);
- extern ssize_t generic_file_write(struct file *, const char __user *, size_t, loff_t *);
--extern ssize_t generic_file_aio_read(struct kiocb *, char __user *, size_t, loff_t);
-+extern ssize_t generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t);
- extern ssize_t __generic_file_aio_read(struct kiocb *, const struct iovec *, unsigned long, loff_t *);
--extern ssize_t generic_file_aio_write(struct kiocb *, const char __user *, size_t, loff_t);
-+extern ssize_t generic_file_aio_write(struct kiocb *, const struct iovec *, unsigned long, loff_t);
- extern ssize_t generic_file_aio_write_nolock(struct kiocb *, const struct iovec *,
--		unsigned long, loff_t *);
-+		unsigned long, loff_t);
- extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
- 		unsigned long *, loff_t, loff_t *, size_t, size_t);
- extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
-Index: linux-2.6.16-rc5/include/net/sock.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/net/sock.h	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/include/net/sock.h	2006-02-27 08:33:22.000000000 -0800
-@@ -650,7 +650,6 @@ struct sock_iocb {
- 	struct sock		*sk;
- 	struct scm_cookie	*scm;
- 	struct msghdr		*msg, async_msg;
--	struct iovec		async_iov;
- 	struct kiocb		*kiocb;
- };
- 
-Index: linux-2.6.16-rc5/mm/filemap.c
-===================================================================
---- linux-2.6.16-rc5.orig/mm/filemap.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/mm/filemap.c	2006-03-07 13:52:28.000000000 -0800
-@@ -1065,14 +1065,12 @@ out:
- EXPORT_SYMBOL(__generic_file_aio_read);
- 
- ssize_t
--generic_file_aio_read(struct kiocb *iocb, char __user *buf, size_t count, loff_t pos)
-+generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
- {
--	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
--
- 	BUG_ON(iocb->ki_pos != pos);
--	return __generic_file_aio_read(iocb, &local_iov, 1, &iocb->ki_pos);
-+	return __generic_file_aio_read(iocb, iov, nr_segs, &iocb->ki_pos);
- }
--
- EXPORT_SYMBOL(generic_file_aio_read);
- 
- ssize_t
-@@ -2132,22 +2130,21 @@ out:
- 	current->backing_dev_info = NULL;
- 	return written ? written : err;
- }
--EXPORT_SYMBOL(generic_file_aio_write_nolock);
- 
--ssize_t
--generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
-+ssize_t generic_file_aio_write_nolock(struct kiocb *iocb,
-+		const struct iovec *iov, unsigned long nr_segs, loff_t pos)
- {
- 	struct file *file = iocb->ki_filp;
- 	struct address_space *mapping = file->f_mapping;
- 	struct inode *inode = mapping->host;
- 	ssize_t ret;
--	loff_t pos = *ppos;
- 
--	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs, ppos);
-+	BUG_ON(iocb->ki_pos != pos);
++#include "read_write.h"
 +
-+	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs, &iocb->ki_pos);
- 
- 	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
--		int err;
-+		ssize_t err;
- 
- 		err = sync_page_range_nolock(inode, mapping, pos, ret);
- 		if (err < 0)
-@@ -2155,6 +2152,7 @@ generic_file_aio_write_nolock(struct kio
+ /*
+  * Not all architectures have sys_utime, so implement this in terms
+  * of sys_utimes.
+@@ -1137,9 +1139,6 @@ static ssize_t compat_do_readv_writev(in
+ 			       const struct compat_iovec __user *uvector,
+ 			       unsigned long nr_segs, loff_t *pos)
+ {
+-	typedef ssize_t (*io_fn_t)(struct file *, char __user *, size_t, loff_t *);
+-	typedef ssize_t (*iov_fn_t)(struct file *, const struct iovec *, unsigned long, loff_t *);
+-
+ 	compat_ssize_t tot_len;
+ 	struct iovec iovstack[UIO_FASTIOV];
+ 	struct iovec *iov=iovstack, *vector;
+@@ -1218,39 +1217,17 @@ static ssize_t compat_do_readv_writev(in
+ 	fnv = NULL;
+ 	if (type == READ) {
+ 		fn = file->f_op->read;
+-		fnv = file->f_op->readv;
++		fnv = file->f_op->aio_read;
+ 	} else {
+ 		fn = (io_fn_t)file->f_op->write;
+-		fnv = file->f_op->writev;
+-	}
+-	if (fnv) {
+-		ret = fnv(file, iov, nr_segs, pos);
+-		goto out;
++		fnv = file->f_op->aio_write;
  	}
- 	return ret;
+ 
+-	/* Do it by hand, with file-ops */
+-	ret = 0;
+-	vector = iov;
+-	while (nr_segs > 0) {
+-		void __user * base;
+-		size_t len;
+-		ssize_t nr;
+-
+-		base = vector->iov_base;
+-		len = vector->iov_len;
+-		vector++;
+-		nr_segs--;
+-
+-		nr = fn(file, base, len, pos);
++	if (fnv)
++		ret = do_sync_readv_writev(file, iov, nr_segs, pos, fnv);
++	else
++		ret = do_loop_readv_writev(file, iov, nr_segs, pos, fn);
+ 
+-		if (nr < 0) {
+-			if (!ret) ret = nr;
+-			break;
+-		}
+-		ret += nr;
+-		if (nr != len)
+-			break;
+-	}
+ out:
+ 	if (iov != iovstack)
+ 		kfree(iov);
+@@ -1278,7 +1255,7 @@ compat_sys_readv(unsigned long fd, const
+ 		goto out;
+ 
+ 	ret = -EINVAL;
+-	if (!file->f_op || (!file->f_op->readv && !file->f_op->read))
++	if (!file->f_op || (!file->f_op->aio_read && !file->f_op->read))
+ 		goto out;
+ 
+ 	ret = compat_do_readv_writev(READ, file, vec, vlen, &file->f_pos);
+@@ -1301,7 +1278,7 @@ compat_sys_writev(unsigned long fd, cons
+ 		goto out;
+ 
+ 	ret = -EINVAL;
+-	if (!file->f_op || (!file->f_op->writev && !file->f_op->write))
++	if (!file->f_op || (!file->f_op->aio_write && !file->f_op->write))
+ 		goto out;
+ 
+ 	ret = compat_do_readv_writev(WRITE, file, vec, vlen, &file->f_pos);
+Index: linux-2.6.16-rc5/fs/ext2/file.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/ext2/file.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/ext2/file.c	2006-03-07 13:36:05.000000000 -0800
+@@ -50,8 +50,6 @@ struct file_operations ext2_file_operati
+ 	.open		= generic_file_open,
+ 	.release	= ext2_release_file,
+ 	.fsync		= ext2_sync_file,
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_writev,
+ 	.sendfile	= generic_file_sendfile,
+ };
+ 
+Index: linux-2.6.16-rc5/fs/ext3/file.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/ext3/file.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/ext3/file.c	2006-03-07 13:36:05.000000000 -0800
+@@ -112,8 +112,6 @@ struct file_operations ext3_file_operati
+ 	.write		= do_sync_write,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= ext3_file_write,
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_writev,
+ 	.ioctl		= ext3_ioctl,
+ 	.mmap		= generic_file_mmap,
+ 	.open		= generic_file_open,
+Index: linux-2.6.16-rc5/fs/fat/file.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/fat/file.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/fat/file.c	2006-03-07 13:36:05.000000000 -0800
+@@ -116,8 +116,6 @@ struct file_operations fat_file_operatio
+ 	.llseek		= generic_file_llseek,
+ 	.read		= do_sync_read,
+ 	.write		= do_sync_write,
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_writev,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+Index: linux-2.6.16-rc5/fs/fuse/dev.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/fuse/dev.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/fuse/dev.c	2006-03-07 13:36:05.000000000 -0800
+@@ -602,8 +602,8 @@ static void request_wait(struct fuse_con
+  * request_end().  Otherwise add it to the processing list, and set
+  * the 'sent' flag.
+  */
+-static ssize_t fuse_dev_readv(struct file *file, const struct iovec *iov,
+-			      unsigned long nr_segs, loff_t *off)
++static ssize_t fuse_dev_read(struct kiocb *iocb, const struct iovec *iov,
++			      unsigned long nr_segs, loff_t pos)
+ {
+ 	int err;
+ 	struct fuse_conn *fc;
+@@ -614,7 +614,7 @@ static ssize_t fuse_dev_readv(struct fil
+ 
+  restart:
+ 	spin_lock(&fuse_lock);
+-	fc = file->private_data;
++	fc = iocb->ki_filp->private_data;
+ 	err = -EPERM;
+ 	if (!fc)
+ 		goto err_unlock;
+@@ -672,15 +672,6 @@ static ssize_t fuse_dev_readv(struct fil
+ 	return err;
  }
-+EXPORT_SYMBOL(generic_file_aio_write_nolock);
+ 
+-static ssize_t fuse_dev_read(struct file *file, char __user *buf,
+-			     size_t nbytes, loff_t *off)
+-{
+-	struct iovec iov;
+-	iov.iov_len = nbytes;
+-	iov.iov_base = buf;
+-	return fuse_dev_readv(file, &iov, 1, off);
+-}
+-
+ /* Look up request on processing list by unique ID */
+ static struct fuse_req *request_find(struct fuse_conn *fc, u64 unique)
+ {
+@@ -725,15 +716,15 @@ static int copy_out_args(struct fuse_cop
+  * it from the list and copy the rest of the buffer to the request.
+  * The request is finished by calling request_end()
+  */
+-static ssize_t fuse_dev_writev(struct file *file, const struct iovec *iov,
+-			       unsigned long nr_segs, loff_t *off)
++static ssize_t fuse_dev_write(struct kiocb *iocb, const struct iovec *iov,
++			       unsigned long nr_segs, loff_t pos)
+ {
+ 	int err;
+ 	unsigned nbytes = iov_length(iov, nr_segs);
+ 	struct fuse_req *req;
+ 	struct fuse_out_header oh;
+ 	struct fuse_copy_state cs;
+-	struct fuse_conn *fc = fuse_get_conn(file);
++	struct fuse_conn *fc = fuse_get_conn(iocb->ki_filp);
+ 	if (!fc)
+ 		return -ENODEV;
+ 
+@@ -793,15 +784,6 @@ static ssize_t fuse_dev_writev(struct fi
+ 	return err;
+ }
+ 
+-static ssize_t fuse_dev_write(struct file *file, const char __user *buf,
+-			      size_t nbytes, loff_t *off)
+-{
+-	struct iovec iov;
+-	iov.iov_len = nbytes;
+-	iov.iov_base = (char __user *) buf;
+-	return fuse_dev_writev(file, &iov, 1, off);
+-}
+-
+ static unsigned fuse_dev_poll(struct file *file, poll_table *wait)
+ {
+ 	struct fuse_conn *fc = fuse_get_conn(file);
+@@ -925,10 +907,8 @@ static int fuse_dev_release(struct inode
+ struct file_operations fuse_dev_operations = {
+ 	.owner		= THIS_MODULE,
+ 	.llseek		= no_llseek,
+-	.read		= fuse_dev_read,
+-	.readv		= fuse_dev_readv,
+-	.write		= fuse_dev_write,
+-	.writev		= fuse_dev_writev,
++	.aio_read	= fuse_dev_read,
++	.aio_write	= fuse_dev_write,
+ 	.poll		= fuse_dev_poll,
+ 	.release	= fuse_dev_release,
+ };
+Index: linux-2.6.16-rc5/fs/hostfs/hostfs_kern.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/hostfs/hostfs_kern.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/hostfs/hostfs_kern.c	2006-03-07 13:36:05.000000000 -0800
+@@ -390,8 +390,6 @@ static struct file_operations hostfs_fil
+ 	.sendfile	= generic_file_sendfile,
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_writev,
+ 	.write		= generic_file_write,
+ 	.mmap		= generic_file_mmap,
+ 	.open		= hostfs_file_open,
+Index: linux-2.6.16-rc5/fs/jfs/file.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/jfs/file.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/jfs/file.c	2006-03-07 13:36:05.000000000 -0800
+@@ -108,8 +108,6 @@ struct file_operations jfs_file_operatio
+ 	.aio_read	= generic_file_aio_read,
+ 	.aio_write	= generic_file_aio_write,
+ 	.mmap		= generic_file_mmap,
+-	.readv		= generic_file_readv,
+-	.writev		= generic_file_writev,
+  	.sendfile	= generic_file_sendfile,
+ 	.fsync		= jfs_fsync,
+ 	.release	= jfs_release,
+Index: linux-2.6.16-rc5/fs/ntfs/file.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/ntfs/file.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/ntfs/file.c	2006-03-07 13:36:05.000000000 -0800
+@@ -2308,11 +2308,9 @@ struct file_operations ntfs_file_ops = {
+ 	.llseek		= generic_file_llseek,	 /* Seek inside file. */
+ 	.read		= generic_file_read,	 /* Read from file. */
+ 	.aio_read	= generic_file_aio_read, /* Async read from file. */
+-	.readv		= generic_file_readv,	 /* Read from file. */
+ #ifdef NTFS_RW
+ 	.write		= ntfs_file_write,	 /* Write to file. */
+ 	.aio_write	= ntfs_file_aio_write,	 /* Async write to file. */
+-	.writev		= ntfs_file_writev,	 /* Write to file. */
+ 	/*.release	= ,*/			 /* Last file is closed.  See
+ 						    fs/ext2/file.c::
+ 						    ext2_release_file() for
+Index: linux-2.6.16-rc5/fs/pipe.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/pipe.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/pipe.c	2006-03-07 13:36:05.000000000 -0800
+@@ -119,9 +119,10 @@ static struct pipe_buf_operations anon_p
+ };
  
  static ssize_t
- __generic_file_write_nolock(struct file *file, const struct iovec *iov,
-@@ -2164,9 +2162,11 @@ __generic_file_write_nolock(struct file 
- 	ssize_t ret;
- 
- 	init_sync_kiocb(&kiocb, file);
-+	kiocb.ki_pos = *ppos;
- 	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
--	if (ret == -EIOCBQUEUED)
-+	if (-EIOCBQUEUED == ret)
- 		ret = wait_on_sync_kiocb(&kiocb);
-+	*ppos = kiocb.ki_pos;
- 	return ret;
- }
- 
-@@ -2178,28 +2178,27 @@ generic_file_write_nolock(struct file *f
- 	ssize_t ret;
- 
- 	init_sync_kiocb(&kiocb, file);
--	ret = generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
-+	kiocb.ki_pos = *ppos;
-+	ret = generic_file_aio_write_nolock(&kiocb, iov, nr_segs, *ppos);
- 	if (-EIOCBQUEUED == ret)
- 		ret = wait_on_sync_kiocb(&kiocb);
-+	*ppos = kiocb.ki_pos;
- 	return ret;
- }
- EXPORT_SYMBOL(generic_file_write_nolock);
- 
--ssize_t generic_file_aio_write(struct kiocb *iocb, const char __user *buf,
--			       size_t count, loff_t pos)
-+ssize_t generic_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
-+		unsigned long nr_segs, loff_t pos)
+-pipe_readv(struct file *filp, const struct iovec *_iov,
+-	   unsigned long nr_segs, loff_t *ppos)
++pipe_read(struct kiocb *iocb, const struct iovec *_iov,
++	   unsigned long nr_segs, loff_t pos)
  {
- 	struct file *file = iocb->ki_filp;
- 	struct address_space *mapping = file->f_mapping;
- 	struct inode *inode = mapping->host;
- 	ssize_t ret;
--	struct iovec local_iov = { .iov_base = (void __user *)buf,
--					.iov_len = count };
- 
- 	BUG_ON(iocb->ki_pos != pos);
- 
- 	mutex_lock(&inode->i_mutex);
--	ret = __generic_file_aio_write_nolock(iocb, &local_iov, 1,
--						&iocb->ki_pos);
-+	ret = __generic_file_aio_write_nolock(iocb, iov, nr_segs, &iocb->ki_pos);
- 	mutex_unlock(&inode->i_mutex);
- 
- 	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
-Index: linux-2.6.16-rc5/net/socket.c
-===================================================================
---- linux-2.6.16-rc5.orig/net/socket.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/net/socket.c	2006-03-07 13:53:40.000000000 -0800
-@@ -98,10 +98,10 @@
- #include <linux/netfilter.h>
- 
- static int sock_no_open(struct inode *irrelevant, struct file *dontcare);
--static ssize_t sock_aio_read(struct kiocb *iocb, char __user *buf,
--			 size_t size, loff_t pos);
--static ssize_t sock_aio_write(struct kiocb *iocb, const char __user *buf,
--			  size_t size, loff_t pos);
-+static ssize_t sock_aio_read(struct kiocb *iocb, const struct iovec *iov,
-+			 unsigned long nr_segs, loff_t pos);
-+static ssize_t sock_aio_write(struct kiocb *iocb, const struct iovec *iov,
-+			  unsigned long nr_segs, loff_t pos);
- static int sock_mmap(struct file *file, struct vm_area_struct * vma);
- 
- static int sock_close(struct inode *inode, struct file *file);
-@@ -656,7 +656,7 @@ static ssize_t sock_sendpage(struct file
++	struct file *filp = iocb->ki_filp;
+ 	struct inode *inode = filp->f_dentry->d_inode;
+ 	struct pipe_inode_info *info;
+ 	int do_wakeup;
+@@ -212,16 +213,10 @@ pipe_readv(struct file *filp, const stru
  }
  
- static struct sock_iocb *alloc_sock_iocb(struct kiocb *iocb,
--		char __user *ubuf, size_t size, struct sock_iocb *siocb)
-+		struct sock_iocb *siocb)
- {
- 	if (!is_sync_kiocb(iocb)) {
- 		siocb = kmalloc(sizeof(*siocb), GFP_KERNEL);
-@@ -666,15 +666,13 @@ static struct sock_iocb *alloc_sock_iocb
- 	}
- 
- 	siocb->kiocb = iocb;
--	siocb->async_iov.iov_base = ubuf;
--	siocb->async_iov.iov_len = size;
+ static ssize_t
+-pipe_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
+-{
+-	struct iovec iov = { .iov_base = buf, .iov_len = count };
+-	return pipe_readv(filp, &iov, 1, ppos);
+-}
 -
- 	iocb->private = siocb;
- 	return siocb;
- }
- 
- static ssize_t do_sock_read(struct msghdr *msg, struct kiocb *iocb,
--		struct file *file, struct iovec *iov, unsigned long nr_segs)
-+		struct file *file, const struct iovec *iov,
-+		unsigned long nr_segs)
+-static ssize_t
+-pipe_writev(struct file *filp, const struct iovec *_iov,
+-	    unsigned long nr_segs, loff_t *ppos)
++pipe_write(struct kiocb *iocb, const struct iovec *_iov,
++	    unsigned long nr_segs, loff_t pos)
  {
- 	struct socket *sock = file->private_data;
- 	size_t size = 0;
-@@ -705,31 +703,33 @@ static ssize_t sock_readv(struct file *f
-         init_sync_kiocb(&iocb, NULL);
- 	iocb.private = &siocb;
- 
--	ret = do_sock_read(&msg, &iocb, file, (struct iovec *)iov, nr_segs);
-+	ret = do_sock_read(&msg, &iocb, file, iov, nr_segs);
- 	if (-EIOCBQUEUED == ret)
- 		ret = wait_on_sync_kiocb(&iocb);
- 	return ret;
++	struct file *filp = iocb->ki_filp;
+ 	struct inode *inode = filp->f_dentry->d_inode;
+ 	struct pipe_inode_info *info;
+ 	ssize_t ret;
+@@ -352,14 +347,6 @@ out:
  }
  
--static ssize_t sock_aio_read(struct kiocb *iocb, char __user *ubuf,
--			 size_t count, loff_t pos)
-+static ssize_t sock_aio_read(struct kiocb *iocb, const struct iovec *iov,
-+			 unsigned long nr_segs, loff_t pos)
+ static ssize_t
+-pipe_write(struct file *filp, const char __user *buf,
+-	   size_t count, loff_t *ppos)
+-{
+-	struct iovec iov = { .iov_base = (void __user *)buf, .iov_len = count };
+-	return pipe_writev(filp, &iov, 1, ppos);
+-}
+-
+-static ssize_t
+ bad_pipe_r(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
  {
- 	struct sock_iocb siocb, *x;
+ 	return -EBADF;
+@@ -570,8 +557,7 @@ pipe_rdwr_open(struct inode *inode, stru
+  */
+ struct file_operations read_fifo_fops = {
+ 	.llseek		= no_llseek,
+-	.read		= pipe_read,
+-	.readv		= pipe_readv,
++	.aio_read	= pipe_read,
+ 	.write		= bad_pipe_w,
+ 	.poll		= pipe_poll,
+ 	.ioctl		= pipe_ioctl,
+@@ -583,8 +569,7 @@ struct file_operations read_fifo_fops = 
+ struct file_operations write_fifo_fops = {
+ 	.llseek		= no_llseek,
+ 	.read		= bad_pipe_r,
+-	.write		= pipe_write,
+-	.writev		= pipe_writev,
++	.aio_write	= pipe_write,
+ 	.poll		= pipe_poll,
+ 	.ioctl		= pipe_ioctl,
+ 	.open		= pipe_write_open,
+@@ -594,10 +579,8 @@ struct file_operations write_fifo_fops =
  
- 	if (pos != 0)
- 		return -ESPIPE;
--	if (count == 0)		/* Match SYS5 behaviour */
-+
-+	if (iocb->ki_left == 0)		/* Match SYS5 behaviour */
- 		return 0;
+ struct file_operations rdwr_fifo_fops = {
+ 	.llseek		= no_llseek,
+-	.read		= pipe_read,
+-	.readv		= pipe_readv,
+-	.write		= pipe_write,
+-	.writev		= pipe_writev,
++	.aio_read	= pipe_read,
++	.aio_write	= pipe_write,
+ 	.poll		= pipe_poll,
+ 	.ioctl		= pipe_ioctl,
+ 	.open		= pipe_rdwr_open,
+@@ -607,8 +590,7 @@ struct file_operations rdwr_fifo_fops = 
  
--	x = alloc_sock_iocb(iocb, ubuf, count, &siocb);
-+
-+	x = alloc_sock_iocb(iocb, &siocb);
- 	if (!x)
- 		return -ENOMEM;
--	return do_sock_read(&x->async_msg, iocb, iocb->ki_filp,
--			&x->async_iov, 1);
-+	return do_sock_read(&x->async_msg, iocb, iocb->ki_filp, iov, nr_segs);
- }
+ struct file_operations read_pipe_fops = {
+ 	.llseek		= no_llseek,
+-	.read		= pipe_read,
+-	.readv		= pipe_readv,
++	.aio_read	= pipe_read,
+ 	.write		= bad_pipe_w,
+ 	.poll		= pipe_poll,
+ 	.ioctl		= pipe_ioctl,
+@@ -620,8 +602,7 @@ struct file_operations read_pipe_fops = 
+ struct file_operations write_pipe_fops = {
+ 	.llseek		= no_llseek,
+ 	.read		= bad_pipe_r,
+-	.write		= pipe_write,
+-	.writev		= pipe_writev,
++	.aio_write	= pipe_write,
+ 	.poll		= pipe_poll,
+ 	.ioctl		= pipe_ioctl,
+ 	.open		= pipe_write_open,
+@@ -631,10 +612,8 @@ struct file_operations write_pipe_fops =
  
- static ssize_t do_sock_write(struct msghdr *msg, struct kiocb *iocb,
--		struct file *file, struct iovec *iov, unsigned long nr_segs)
-+		struct file *file, const struct iovec *iov,
-+		unsigned long nr_segs)
- {
- 	struct socket *sock = file->private_data;
- 	size_t size = 0;
-@@ -762,28 +762,28 @@ static ssize_t sock_writev(struct file *
- 	init_sync_kiocb(&iocb, NULL);
- 	iocb.private = &siocb;
- 
--	ret = do_sock_write(&msg, &iocb, file, (struct iovec *)iov, nr_segs);
-+	ret = do_sock_write(&msg, &iocb, file, iov, nr_segs);
- 	if (-EIOCBQUEUED == ret)
- 		ret = wait_on_sync_kiocb(&iocb);
- 	return ret;
- }
- 
--static ssize_t sock_aio_write(struct kiocb *iocb, const char __user *ubuf,
--			  size_t count, loff_t pos)
-+static ssize_t sock_aio_write(struct kiocb *iocb, const struct iovec *iov,
-+			  unsigned long nr_segs, loff_t pos)
- {
- 	struct sock_iocb siocb, *x;
- 
- 	if (pos != 0)
- 		return -ESPIPE;
--	if (count == 0)		/* Match SYS5 behaviour */
-+
-+	if (iocb->ki_left == 0)		/* Match SYS5 behaviour */
- 		return 0;
- 
--	x = alloc_sock_iocb(iocb, (void __user *)ubuf, count, &siocb);
-+	x = alloc_sock_iocb(iocb, &siocb);
- 	if (!x)
- 		return -ENOMEM;
- 
--	return do_sock_write(&x->async_msg, iocb, iocb->ki_filp,
--			&x->async_iov, 1);
-+	return do_sock_write(&x->async_msg, iocb, iocb->ki_filp, iov, nr_segs);
- }
- 
- 
-Index: linux-2.6.16-rc5/fs/nfs/direct.c
+ struct file_operations rdwr_pipe_fops = {
+ 	.llseek		= no_llseek,
+-	.read		= pipe_read,
+-	.readv		= pipe_readv,
+-	.write		= pipe_write,
+-	.writev		= pipe_writev,
++	.aio_read	= pipe_read,
++	.aio_write	= pipe_write,
+ 	.poll		= pipe_poll,
+ 	.ioctl		= pipe_ioctl,
+ 	.open		= pipe_rdwr_open,
+Index: linux-2.6.16-rc5/fs/read_write.c
 ===================================================================
---- linux-2.6.16-rc5.orig/fs/nfs/direct.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/fs/nfs/direct.c	2006-02-27 08:38:28.000000000 -0800
-@@ -626,6 +626,32 @@ nfs_direct_IO(int rw, struct kiocb *iocb
- 	return result;
- }
+--- linux-2.6.16-rc5.orig/fs/read_write.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/read_write.c	2006-03-07 13:51:38.000000000 -0800
+@@ -448,6 +448,68 @@ unsigned long iov_shorten(struct iovec *
  
-+static ssize_t
-+check_access_ok(int type, const struct iovec *iov, unsigned long nr_segs)
+ EXPORT_SYMBOL(iov_shorten);
+ 
++typedef ssize_t (*io_fn_t)(struct file *, char __user *, size_t, loff_t *);
++typedef ssize_t (*iov_fn_t)(struct kiocb *, const struct iovec *,
++		unsigned long, loff_t);
++
++
++ssize_t do_sync_readv_writev(struct file *filp, const struct iovec *iov,
++		unsigned long nr_segs, size_t len, loff_t *ppos, iov_fn_t fn)
 +{
-+	ssize_t	tot_len = 0;
-+	ssize_t ret = -EINVAL;
-+	int seg;
++	struct kiocb kiocb;
++	ssize_t ret;
 +
-+	for (seg = 0; seg < nr_segs; seg++) {
-+		void __user *buf = iov[seg].iov_base;
-+		ssize_t len = (ssize_t)iov[seg].iov_len;
++	init_sync_kiocb(&kiocb, filp);
++	kiocb.ki_pos = *ppos;
++	kiocb.ki_left = len;
++	kiocb.ki_nbytes = len;
 +
-+		if (len < 0)	/* size_t not fitting an ssize_t .. */
-+			goto out;
-+		if (unlikely(!access_ok(type, buf, len))) {
-+			ret = -EFAULT;
-+			goto out;
-+		}
-+		tot_len += len;
-+		if ((ssize_t)tot_len < 0) /* maths overflow on the ssize_t */
-+			goto out;
++	for (;;) {
++		ret = fn(&kiocb, iov, nr_segs, kiocb.ki_pos);
++		if (ret != -EIOCBRETRY)
++			break;
++		wait_on_retry_sync_kiocb(&kiocb);
 +	}
-+	ret = tot_len;
-+out:
++
++	if (ret == -EIOCBQUEUED)
++		ret = wait_on_sync_kiocb(&kiocb);
++	*ppos = kiocb.ki_pos;
 +	return ret;
 +}
 +
- /**
-  * nfs_file_direct_read - file direct read operation for NFS files
-  * @iocb: target I/O control block
-@@ -648,7 +674,8 @@ nfs_direct_IO(int rw, struct kiocb *iocb
-  * cache.
-  */
- ssize_t
--nfs_file_direct_read(struct kiocb *iocb, char __user *buf, size_t count, loff_t pos)
-+nfs_file_direct_read(struct kiocb *iocb, const struct iovec *iov,
-+			unsigned long nr_segs, loff_t pos)
- {
- 	ssize_t retval = -EINVAL;
- 	loff_t *ppos = &iocb->ki_pos;
-@@ -657,32 +684,24 @@ nfs_file_direct_read(struct kiocb *iocb,
- 			(struct nfs_open_context *) file->private_data;
- 	struct address_space *mapping = file->f_mapping;
- 	struct inode *inode = mapping->host;
--	struct iovec iov = {
--		.iov_base = buf,
--		.iov_len = count,
--	};
- 
--	dprintk("nfs: direct read(%s/%s, %lu@%Ld)\n",
-+	dprintk("nfs: direct read(%s/%s, @%Ld)\n",
- 		file->f_dentry->d_parent->d_name.name,
- 		file->f_dentry->d_name.name,
--		(unsigned long) count, (long long) pos);
-+		(long long) pos);
- 
- 	if (!is_sync_kiocb(iocb))
- 		goto out;
--	if (count < 0)
--		goto out;
--	retval = -EFAULT;
--	if (!access_ok(VERIFY_WRITE, iov.iov_base, iov.iov_len))
--		goto out;
--	retval = 0;
--	if (!count)
++/* Do it by hand, with file-ops */
++ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov,
++		unsigned long nr_segs, loff_t *ppos, io_fn_t fn)
++{
++	struct iovec *vector = iov;
++	ssize_t ret = 0;
 +
-+	retval = check_access_ok(VERIFY_WRITE, iov, nr_segs);
-+	if (retval <= 0)
- 		goto out;
- 
- 	retval = nfs_sync_mapping(mapping);
- 	if (retval)
- 		goto out;
- 
--	retval = nfs_direct_read(inode, ctx, &iov, pos, 1);
-+	retval = nfs_direct_read(inode, ctx, iov, pos, nr_segs);
- 	if (retval > 0)
- 		*ppos = pos + retval;
- 
-@@ -716,7 +735,8 @@ out:
-  * is no atomic O_APPEND write facility in the NFS protocol.
-  */
- ssize_t
--nfs_file_direct_write(struct kiocb *iocb, const char __user *buf, size_t count, loff_t pos)
-+nfs_file_direct_write(struct kiocb *iocb, const struct iovec *iov,
-+			unsigned long nr_segs, loff_t pos)
- {
- 	ssize_t retval;
- 	struct file *file = iocb->ki_filp;
-@@ -724,40 +744,32 @@ nfs_file_direct_write(struct kiocb *iocb
- 			(struct nfs_open_context *) file->private_data;
- 	struct address_space *mapping = file->f_mapping;
- 	struct inode *inode = mapping->host;
--	struct iovec iov = {
--		.iov_base = (char __user *)buf,
--	};
-+	ssize_t count;
- 
--	dfprintk(VFS, "nfs: direct write(%s/%s, %lu@%Ld)\n",
-+	dfprintk(VFS, "nfs: direct write(%s/%s, @%Ld)\n",
- 		file->f_dentry->d_parent->d_name.name,
- 		file->f_dentry->d_name.name,
--		(unsigned long) count, (long long) pos);
-+		(long long) pos);
- 
- 	retval = -EINVAL;
- 	if (!is_sync_kiocb(iocb))
- 		goto out;
- 
--	retval = generic_write_checks(file, &pos, &count, 0);
--	if (retval)
-+	retval = check_access_ok(VERIFY_READ, iov, nr_segs);
-+	if (retval <= 0)
- 		goto out;
- 
--	retval = -EINVAL;
--	if ((ssize_t) count < 0)
--		goto out;
--	retval = 0;
--	if (!count)
--		goto out;
--	iov.iov_len = count,
--
--	retval = -EFAULT;
--	if (!access_ok(VERIFY_READ, iov.iov_base, iov.iov_len))
-+	/* FIXME:  how to adjust iovec if count gets adjusted ? */
-+	count = retval;
-+	retval = generic_write_checks(file, &pos, &count, 0);
-+	if (retval)
- 		goto out;
- 
- 	retval = nfs_sync_mapping(mapping);
- 	if (retval)
- 		goto out;
- 
--	retval = nfs_direct_write(inode, ctx, &iov, pos, 1);
-+	retval = nfs_direct_write(inode, ctx, iov, pos, nr_segs);
- 	if (mapping->nrpages)
- 		invalidate_inode_pages2(mapping);
- 	if (retval > 0)
-Index: linux-2.6.16-rc5/include/linux/nfs_fs.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/linux/nfs_fs.h	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/include/linux/nfs_fs.h	2006-02-27 08:33:22.000000000 -0800
-@@ -369,10 +369,10 @@ extern int nfs3_removexattr (struct dent
-  */
- extern ssize_t nfs_direct_IO(int, struct kiocb *, const struct iovec *, loff_t,
- 			unsigned long);
--extern ssize_t nfs_file_direct_read(struct kiocb *iocb, char __user *buf,
--			size_t count, loff_t pos);
--extern ssize_t nfs_file_direct_write(struct kiocb *iocb, const char __user *buf,
--			size_t count, loff_t pos);
-+extern ssize_t nfs_file_direct_read(struct kiocb *iocb, const struct iovec *,
-+			unsigned long nr_segs, loff_t pos);
-+extern ssize_t nfs_file_direct_write(struct kiocb *iocb, const struct iovec *,
-+			unsigned long nr_segs, loff_t pos);
- 
- /*
-  * linux/fs/nfs/dir.c
-Index: linux-2.6.16-rc5/drivers/usb/gadget/inode.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/usb/gadget/inode.c	2006-02-26 21:09:35.000000000 -0800
-+++ linux-2.6.16-rc5/drivers/usb/gadget/inode.c	2006-03-07 13:26:46.000000000 -0800
-@@ -529,7 +529,8 @@ struct kiocb_priv {
- 	struct usb_request	*req;
- 	struct ep_data		*epdata;
- 	void			*buf;
--	char __user		*ubuf;
-+	struct iovec 		*iv;
-+	unsigned long 		count;
- 	unsigned		actual;
- };
- 
-@@ -557,18 +558,32 @@ static int ep_aio_cancel(struct kiocb *i
- static ssize_t ep_aio_read_retry(struct kiocb *iocb)
- {
- 	struct kiocb_priv	*priv = iocb->private;
--	ssize_t			status = priv->actual;
-+	ssize_t			len, total;
- 
- 	/* we "retry" to get the right mm context for this: */
--	status = copy_to_user(priv->ubuf, priv->buf, priv->actual);
--	if (unlikely(0 != status))
--		status = -EFAULT;
--	else
--		status = priv->actual;
 +
-+	/* copy stuff into user buffers */
-+	total = priv->actual;
-+	len = 0;
-+	for (i=0; i < priv->count; i++) {
-+		ssize_t this = min(priv->iv[i].iov_len, (size_t)total);
++	while (nr_segs > 0) {
++		void __user * base;
++		size_t len;
++		ssize_t nr;
 +
-+		if (copy_to_user(priv->iv[i].iov_buf, priv->buf, this))
++		base = vector->iov_base;
++		len = vector->iov_len;
++		vector++;
++		nr_segs--;
++
++		nr = fn(filp, base, len, ppos);
++
++		if (nr < 0) {
++			if (!ret)
++				ret = nr;
 +			break;
-+
-+		total -= this;
-+		len += this;
-+		if (total <= 0)
++		}
++		ret += nr;
++		if (nr != len)
 +			break;
 +	}
 +
-+	if (unlikely(len != 0))
-+		len = -EFAULT;
++	return ret;
++}
 +
- 	kfree(priv->buf);
- 	kfree(priv);
- 	aio_put_req(iocb);
--	return status;
-+	return len;
- }
+ /* A write operation does a read from user space and vice versa */
+ #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
  
- static void ep_aio_complete(struct usb_ep *ep, struct usb_request *req)
-@@ -616,7 +631,8 @@ ep_aio_rwtail(
- 	char		*buf,
- 	size_t		len,
- 	struct ep_data	*epdata,
--	char __user	*ubuf
-+	const struct iovec *iv,
-+	unsigned long 	count
- )
+@@ -455,12 +517,9 @@ static ssize_t do_readv_writev(int type,
+ 			       const struct iovec __user * uvector,
+ 			       unsigned long nr_segs, loff_t *pos)
  {
- 	struct kiocb_priv	*priv = (void *) &iocb->private;
-@@ -631,7 +647,8 @@ fail:
- 		return value;
+-	typedef ssize_t (*io_fn_t)(struct file *, char __user *, size_t, loff_t *);
+-	typedef ssize_t (*iov_fn_t)(struct file *, const struct iovec *, unsigned long, loff_t *);
+-
+ 	size_t tot_len;
+ 	struct iovec iovstack[UIO_FASTIOV];
+-	struct iovec *iov=iovstack, *vector;
++	struct iovec *iov = iovstack;
+ 	ssize_t ret;
+ 	int seg;
+ 	io_fn_t fn;
+@@ -530,39 +589,17 @@ static ssize_t do_readv_writev(int type,
+ 	fnv = NULL;
+ 	if (type == READ) {
+ 		fn = file->f_op->read;
+-		fnv = file->f_op->readv;
++		fnv = file->f_op->aio_read;
+ 	} else {
+ 		fn = (io_fn_t)file->f_op->write;
+-		fnv = file->f_op->writev;
+-	}
+-	if (fnv) {
+-		ret = fnv(file, iov, nr_segs, pos);
+-		goto out;
++		fnv = file->f_op->aio_write;
  	}
- 	iocb->private = priv;
--	priv->ubuf = ubuf;
-+	priv->iovec = iv;
-+	priv->count = count;
  
- 	value = get_ready_ep(iocb->ki_filp->f_flags, epdata);
- 	if (unlikely(value < 0)) {
-@@ -676,36 +693,52 @@ fail:
- }
+-	/* Do it by hand, with file-ops */
+-	ret = 0;
+-	vector = iov;
+-	while (nr_segs > 0) {
+-		void __user * base;
+-		size_t len;
+-		ssize_t nr;
+-
+-		base = vector->iov_base;
+-		len = vector->iov_len;
+-		vector++;
+-		nr_segs--;
+-
+-		nr = fn(file, base, len, pos);
++	if (fnv)
++		ret = do_sync_readv_writev(file, iov, nr_segs, tot_len, pos, fnv);
++	else
++		ret = do_loop_readv_writev(file, iov, nr_segs, pos, fn);
  
- static ssize_t
--ep_aio_read(struct kiocb *iocb, char __user *ubuf, size_t len, loff_t o)
-+ep_aio_read(struct kiocb *iocb, const struct iovec *iv,
-+		unsigned long count, loff_t o)
+-		if (nr < 0) {
+-			if (!ret) ret = nr;
+-			break;
+-		}
+-		ret += nr;
+-		if (nr != len)
+-			break;
+-	}
+ out:
+ 	if (iov != iovstack)
+ 		kfree(iov);
+@@ -583,7 +620,7 @@ ssize_t vfs_readv(struct file *file, con
  {
- 	struct ep_data		*epdata = iocb->ki_filp->private_data;
- 	char			*buf;
-+	size_t			len;
-+	int			i = 0;
-+	ssize_t			ret;
- 
- 	if (unlikely(epdata->desc.bEndpointAddress & USB_DIR_IN))
+ 	if (!(file->f_mode & FMODE_READ))
+ 		return -EBADF;
+-	if (!file->f_op || (!file->f_op->readv && !file->f_op->read))
++	if (!file->f_op || (!file->f_op->aio_read && !file->f_op->read))
  		return -EINVAL;
--	buf = kmalloc(len, GFP_KERNEL);
-+
-+	buf = kmalloc(iocb->ki_left, GFP_KERNEL);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
-+
- 	iocb->ki_retry = ep_aio_read_retry;
--	return ep_aio_rwtail(iocb, buf, len, epdata, ubuf);
-+	return ep_aio_rwtail(iocb, buf, len, epdata, iv, count);
- }
  
- static ssize_t
--ep_aio_write(struct kiocb *iocb, const char __user *ubuf, size_t len, loff_t o)
-+ep_aio_write(struct kiocb *iocb, const struct iovec *iv,
-+		unsigned long count, loff_t o)
+ 	return do_readv_writev(READ, file, vec, vlen, pos);
+@@ -596,7 +633,7 @@ ssize_t vfs_writev(struct file *file, co
  {
- 	struct ep_data		*epdata = iocb->ki_filp->private_data;
- 	char			*buf;
-+	size_t			len = 0;
-+	int			i = 0;
-+	ssize_t			ret;
- 
- 	if (unlikely(!(epdata->desc.bEndpointAddress & USB_DIR_IN)))
+ 	if (!(file->f_mode & FMODE_WRITE))
+ 		return -EBADF;
+-	if (!file->f_op || (!file->f_op->writev && !file->f_op->write))
++	if (!file->f_op || (!file->f_op->aio_write && !file->f_op->write))
  		return -EINVAL;
--	buf = kmalloc(len, GFP_KERNEL);
-+
-+	buf = kmalloc(iocb->ki_left, GFP_KERNEL);
- 	if (unlikely(!buf))
- 		return -ENOMEM;
--	if (unlikely(copy_from_user(buf, ubuf, len) != 0)) {
--		kfree(buf);
--		return -EFAULT;
-+
-+	for (i=0; i < count; i++) {
-+		if (unlikely(copy_from_user(&buf[len], iv[i]->iov_base,
-+				iv[i]->iov_len) != 0)) {
-+			kfree(buf);
-+			return -EFAULT;
-+		}
-+		len += iv[i]->iov_len;
- 	}
--	return ep_aio_rwtail(iocb, buf, len, epdata, NULL);
-+	return ep_aio_rwtail(iocb, buf, len, epdata, NULL, 0);
- }
  
- /*----------------------------------------------------------------------*/
-Index: linux-2.6.16-rc5/include/linux/aio.h
+ 	return do_readv_writev(WRITE, file, vec, vlen, pos);
+Index: linux-2.6.16-rc5/fs/read_write.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/linux/aio.h	2006-03-07 08:37:05.000000000 -0800
-+++ linux-2.6.16-rc5/include/linux/aio.h	2006-03-07 13:44:09.000000000 -0800
-@@ -4,6 +4,7 @@
- #include <linux/list.h>
- #include <linux/workqueue.h>
- #include <linux/aio_abi.h>
-+#include <linux/uio.h>
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.16-rc5/fs/read_write.h	2006-03-07 13:36:05.000000000 -0800
+@@ -0,0 +1,14 @@
++/*
++ * This file is only for sharing some helpers from read_write.c with compat.c.
++ * Don't use anywhere else.
++ */
++
++
++typedef ssize_t (*io_fn_t)(struct file *, char __user *, size_t, loff_t *);
++typedef ssize_t (*iov_fn_t)(struct kiocb *, const struct iovec *,
++		unsigned long, loff_t);
++
++ssize_t do_sync_readv_writev(struct file *filp, const struct iovec *iov,
++		unsigned long nr_segs, loff_t *ppos, iov_fn_t fn);
++ssize_t do_loop_readv_writev(struct file *filp, struct iovec *iov,
++		unsigned long nr_segs, loff_t *ppos, io_fn_t fn);
+Index: linux-2.6.16-rc5/fs/xfs/linux-2.6/xfs_file.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/xfs/linux-2.6/xfs_file.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/fs/xfs/linux-2.6/xfs_file.c	2006-03-07 13:36:05.000000000 -0800
+@@ -133,96 +133,6 @@ linvfs_aio_write_invis(
+ }
  
- #include <asm/atomic.h>
  
-@@ -112,6 +113,7 @@ struct kiocb {
- 	long			ki_retried; 	/* just for testing */
- 	long			ki_kicked; 	/* just for testing */
- 	long			ki_queued; 	/* just for testing */
-+	struct iovec		ki_inline_vec;	/* inline vector */
+-STATIC inline ssize_t
+-__linvfs_readv(
+-	struct file		*file,
+-	const struct iovec 	*iov,
+-	int			ioflags,
+-	unsigned long		nr_segs,
+-	loff_t			*ppos)
+-{
+-	struct inode	*inode = file->f_mapping->host;
+-	vnode_t		*vp = LINVFS_GET_VP(inode);
+-	struct		kiocb kiocb;
+-	ssize_t		rval;
+-
+-	init_sync_kiocb(&kiocb, file);
+-	kiocb.ki_pos = *ppos;
+-
+-	if (unlikely(file->f_flags & O_DIRECT))
+-		ioflags |= IO_ISDIRECT;
+-	VOP_READ(vp, &kiocb, iov, nr_segs, &kiocb.ki_pos, ioflags, NULL, rval);
+-
+-	*ppos = kiocb.ki_pos;
+-	return rval;
+-}
+-
+-STATIC ssize_t
+-linvfs_readv(
+-	struct file		*file,
+-	const struct iovec 	*iov,
+-	unsigned long		nr_segs,
+-	loff_t			*ppos)
+-{
+-	return __linvfs_readv(file, iov, 0, nr_segs, ppos);
+-}
+-
+-STATIC ssize_t
+-linvfs_readv_invis(
+-	struct file		*file,
+-	const struct iovec 	*iov,
+-	unsigned long		nr_segs,
+-	loff_t			*ppos)
+-{
+-	return __linvfs_readv(file, iov, IO_INVIS, nr_segs, ppos);
+-}
+-
+-
+-STATIC inline ssize_t
+-__linvfs_writev(
+-	struct file		*file,
+-	const struct iovec 	*iov,
+-	int			ioflags,
+-	unsigned long		nr_segs,
+-	loff_t			*ppos)
+-{
+-	struct inode	*inode = file->f_mapping->host;
+-	vnode_t		*vp = LINVFS_GET_VP(inode);
+-	struct		kiocb kiocb;
+-	ssize_t		rval;
+-
+-	init_sync_kiocb(&kiocb, file);
+-	kiocb.ki_pos = *ppos;
+-	if (unlikely(file->f_flags & O_DIRECT))
+-		ioflags |= IO_ISDIRECT;
+-
+-	VOP_WRITE(vp, &kiocb, iov, nr_segs, &kiocb.ki_pos, ioflags, NULL, rval);
+-
+-	*ppos = kiocb.ki_pos;
+-	return rval;
+-}
+-
+-
+-STATIC ssize_t
+-linvfs_writev(
+-	struct file		*file,
+-	const struct iovec 	*iov,
+-	unsigned long		nr_segs,
+-	loff_t			*ppos)
+-{
+-	return __linvfs_writev(file, iov, 0, nr_segs, ppos);
+-}
+-
+-STATIC ssize_t
+-linvfs_writev_invis(
+-	struct file		*file,
+-	const struct iovec 	*iov,
+-	unsigned long		nr_segs,
+-	loff_t			*ppos)
+-{
+-	return __linvfs_writev(file, iov, IO_INVIS, nr_segs, ppos);
+-}
+-
+ STATIC ssize_t
+ linvfs_sendfile(
+ 	struct file		*filp,
+@@ -529,8 +439,6 @@ struct file_operations linvfs_file_opera
+ 	.llseek		= generic_file_llseek,
+ 	.read		= do_sync_read,
+ 	.write		= do_sync_write,
+-	.readv		= linvfs_readv,
+-	.writev		= linvfs_writev,
+ 	.aio_read	= linvfs_aio_read,
+ 	.aio_write	= linvfs_aio_write,
+ 	.sendfile	= linvfs_sendfile,
+@@ -551,8 +459,6 @@ struct file_operations linvfs_invis_file
+ 	.llseek		= generic_file_llseek,
+ 	.read		= do_sync_read,
+ 	.write		= do_sync_write,
+-	.readv		= linvfs_readv_invis,
+-	.writev		= linvfs_writev_invis,
+ 	.aio_read	= linvfs_aio_read_invis,
+ 	.aio_write	= linvfs_aio_write_invis,
+ 	.sendfile	= linvfs_sendfile,
+Index: linux-2.6.16-rc5/include/linux/fs.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/fs.h	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/include/linux/fs.h	2006-03-07 13:44:09.000000000 -0800
+@@ -1015,8 +1015,6 @@ struct file_operations {
+ 	int (*aio_fsync) (struct kiocb *, int datasync);
+ 	int (*fasync) (int, struct file *, int);
+ 	int (*lock) (struct file *, int, struct file_lock *);
+-	ssize_t (*readv) (struct file *, const struct iovec *, unsigned long, loff_t *);
+-	ssize_t (*writev) (struct file *, const struct iovec *, unsigned long, loff_t *);
+ 	ssize_t (*sendfile) (struct file *, loff_t *, size_t, read_actor_t, void *);
+ 	ssize_t (*sendpage) (struct file *, struct page *, int, size_t, loff_t *, int);
+ 	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+@@ -1580,10 +1578,6 @@ extern void do_generic_mapping_read(stru
+ 				    loff_t *, read_descriptor_t *, read_actor_t);
+ extern void
+ file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping);
+-extern ssize_t generic_file_readv(struct file *filp, const struct iovec *iov, 
+-	unsigned long nr_segs, loff_t *ppos);
+-ssize_t generic_file_writev(struct file *filp, const struct iovec *iov, 
+-			unsigned long nr_segs, loff_t *ppos);
+ extern loff_t no_llseek(struct file *file, loff_t offset, int origin);
+ extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin);
+ extern loff_t remote_llseek(struct file *file, loff_t offset, int origin);
+Index: linux-2.6.16-rc5/mm/filemap.c
+===================================================================
+--- linux-2.6.16-rc5.orig/mm/filemap.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/mm/filemap.c	2006-03-07 13:36:05.000000000 -0800
+@@ -2236,42 +2236,6 @@ ssize_t generic_file_write(struct file *
+ }
+ EXPORT_SYMBOL(generic_file_write);
  
- 	struct list_head	ki_list;	/* the aio core uses this
- 						 * for cancellation */
+-ssize_t generic_file_readv(struct file *filp, const struct iovec *iov,
+-			unsigned long nr_segs, loff_t *ppos)
+-{
+-	struct kiocb kiocb;
+-	ssize_t ret;
+-
+-	init_sync_kiocb(&kiocb, filp);
+-	ret = __generic_file_aio_read(&kiocb, iov, nr_segs, ppos);
+-	if (-EIOCBQUEUED == ret)
+-		ret = wait_on_sync_kiocb(&kiocb);
+-	return ret;
+-}
+-EXPORT_SYMBOL(generic_file_readv);
+-
+-ssize_t generic_file_writev(struct file *file, const struct iovec *iov,
+-			unsigned long nr_segs, loff_t *ppos)
+-{
+-	struct address_space *mapping = file->f_mapping;
+-	struct inode *inode = mapping->host;
+-	ssize_t ret;
+-
+-	mutex_lock(&inode->i_mutex);
+-	ret = __generic_file_write_nolock(file, iov, nr_segs, ppos);
+-	mutex_unlock(&inode->i_mutex);
+-
+-	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
+-		int err;
+-
+-		err = sync_page_range(inode, mapping, *ppos - ret, ret);
+-		if (err < 0)
+-			ret = err;
+-	}
+-	return ret;
+-}
+-EXPORT_SYMBOL(generic_file_writev);
+-
+ /*
+  * Called under i_mutex for writes to S_ISREG files.   Returns -EIO if something
+  * went wrong during pagecache shootdown.
+Index: linux-2.6.16-rc5/net/socket.c
+===================================================================
+--- linux-2.6.16-rc5.orig/net/socket.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/net/socket.c	2006-03-07 13:36:05.000000000 -0800
+@@ -110,10 +110,6 @@ static unsigned int sock_poll(struct fil
+ static long sock_ioctl(struct file *file,
+ 		      unsigned int cmd, unsigned long arg);
+ static int sock_fasync(int fd, struct file *filp, int on);
+-static ssize_t sock_readv(struct file *file, const struct iovec *vector,
+-			  unsigned long count, loff_t *ppos);
+-static ssize_t sock_writev(struct file *file, const struct iovec *vector,
+-			  unsigned long count, loff_t *ppos);
+ static ssize_t sock_sendpage(struct file *file, struct page *page,
+ 			     int offset, size_t size, loff_t *ppos, int more);
+ 
+@@ -134,8 +130,6 @@ static struct file_operations socket_fil
+ 	.open =		sock_no_open,	/* special open code to disallow open via /proc */
+ 	.release =	sock_close,
+ 	.fasync =	sock_fasync,
+-	.readv =	sock_readv,
+-	.writev =	sock_writev,
+ 	.sendpage =	sock_sendpage
+ };
+ 
+@@ -692,23 +686,6 @@ static ssize_t do_sock_read(struct msghd
+ 	return __sock_recvmsg(iocb, sock, msg, size, msg->msg_flags);
+ }
+ 
+-static ssize_t sock_readv(struct file *file, const struct iovec *iov,
+-			  unsigned long nr_segs, loff_t *ppos)
+-{
+-	struct kiocb iocb;
+-	struct sock_iocb siocb;
+-	struct msghdr msg;
+-	int ret;
+-
+-        init_sync_kiocb(&iocb, NULL);
+-	iocb.private = &siocb;
+-
+-	ret = do_sock_read(&msg, &iocb, file, iov, nr_segs);
+-	if (-EIOCBQUEUED == ret)
+-		ret = wait_on_sync_kiocb(&iocb);
+-	return ret;
+-}
+-
+ static ssize_t sock_aio_read(struct kiocb *iocb, const struct iovec *iov,
+ 			 unsigned long nr_segs, loff_t pos)
+ {
+@@ -751,23 +728,6 @@ static ssize_t do_sock_write(struct msgh
+ 	return __sock_sendmsg(iocb, sock, msg, size);
+ }
+ 
+-static ssize_t sock_writev(struct file *file, const struct iovec *iov,
+-			   unsigned long nr_segs, loff_t *ppos)
+-{
+-	struct msghdr msg;
+-	struct kiocb iocb;
+-	struct sock_iocb siocb;
+-	int ret;
+-
+-	init_sync_kiocb(&iocb, NULL);
+-	iocb.private = &siocb;
+-
+-	ret = do_sock_write(&msg, &iocb, file, iov, nr_segs);
+-	if (-EIOCBQUEUED == ret)
+-		ret = wait_on_sync_kiocb(&iocb);
+-	return ret;
+-}
+-
+ static ssize_t sock_aio_write(struct kiocb *iocb, const struct iovec *iov,
+ 			  unsigned long nr_segs, loff_t pos)
+ {
+Index: linux-2.6.16-rc5/sound/core/pcm_native.c
+===================================================================
+--- linux-2.6.16-rc5.orig/sound/core/pcm_native.c	2006-03-07 09:13:39.000000000 -0800
++++ linux-2.6.16-rc5/sound/core/pcm_native.c	2006-03-07 13:36:05.000000000 -0800
+@@ -2824,8 +2824,8 @@ static ssize_t snd_pcm_write(struct file
+ 	return result;
+ }
+ 
+-static ssize_t snd_pcm_readv(struct file *file, const struct iovec *_vector,
+-			     unsigned long count, loff_t * offset)
++static ssize_t snd_pcm_aio_read(struct kiocb *iocb, const struct iovec *iov,
++			     unsigned long nr_segs, loff_t pos)
+ 
+ {
+ 	struct snd_pcm_file *pcm_file;
+@@ -2836,22 +2836,22 @@ static ssize_t snd_pcm_readv(struct file
+ 	void __user **bufs;
+ 	snd_pcm_uframes_t frames;
+ 
+-	pcm_file = file->private_data;
++	pcm_file = iocb->ki_filp->private_data;
+ 	substream = pcm_file->substream;
+ 	snd_assert(substream != NULL, return -ENXIO);
+ 	runtime = substream->runtime;
+ 	if (runtime->status->state == SNDRV_PCM_STATE_OPEN)
+ 		return -EBADFD;
+-	if (count > 1024 || count != runtime->channels)
++	if (nr_segs > 1024 || nr_segs != runtime->channels)
+ 		return -EINVAL;
+-	if (!frame_aligned(runtime, _vector->iov_len))
++	if (!frame_aligned(runtime, iov->iov_len))
+ 		return -EINVAL;
+-	frames = bytes_to_samples(runtime, _vector->iov_len);
+-	bufs = kmalloc(sizeof(void *) * count, GFP_KERNEL);
++	frames = bytes_to_samples(runtime, iov->iov_len);
++	bufs = kmalloc(sizeof(void *) * nr_segs, GFP_KERNEL);
+ 	if (bufs == NULL)
+ 		return -ENOMEM;
+-	for (i = 0; i < count; ++i)
+-		bufs[i] = _vector[i].iov_base;
++	for (i = 0; i < nr_segs; ++i)
++		bufs[i] = iov[i].iov_base;
+ 	result = snd_pcm_lib_readv(substream, bufs, frames);
+ 	if (result > 0)
+ 		result = frames_to_bytes(runtime, result);
+@@ -2859,8 +2859,8 @@ static ssize_t snd_pcm_readv(struct file
+ 	return result;
+ }
+ 
+-static ssize_t snd_pcm_writev(struct file *file, const struct iovec *_vector,
+-			      unsigned long count, loff_t * offset)
++static ssize_t snd_pcm_aio_write(struct kiocb *iocb, const struct iovec *iov,
++			      unsigned long nr_segs, loff_t pos)
+ {
+ 	struct snd_pcm_file *pcm_file;
+ 	struct snd_pcm_substream *substream;
+@@ -2870,7 +2870,7 @@ static ssize_t snd_pcm_writev(struct fil
+ 	void __user **bufs;
+ 	snd_pcm_uframes_t frames;
+ 
+-	pcm_file = file->private_data;
++	pcm_file = iocb->ki_filp->private_data;
+ 	substream = pcm_file->substream;
+ 	snd_assert(substream != NULL, result = -ENXIO; goto end);
+ 	runtime = substream->runtime;
+@@ -2878,17 +2878,17 @@ static ssize_t snd_pcm_writev(struct fil
+ 		result = -EBADFD;
+ 		goto end;
+ 	}
+-	if (count > 128 || count != runtime->channels ||
+-	    !frame_aligned(runtime, _vector->iov_len)) {
++	if (nr_segs > 128 || nr_segs != runtime->channels ||
++	    !frame_aligned(runtime, iov->iov_len)) {
+ 		result = -EINVAL;
+ 		goto end;
+ 	}
+-	frames = bytes_to_samples(runtime, _vector->iov_len);
+-	bufs = kmalloc(sizeof(void *) * count, GFP_KERNEL);
++	frames = bytes_to_samples(runtime, iov->iov_len);
++	bufs = kmalloc(sizeof(void *) * nr_segs, GFP_KERNEL);
+ 	if (bufs == NULL)
+ 		return -ENOMEM;
+-	for (i = 0; i < count; ++i)
+-		bufs[i] = _vector[i].iov_base;
++	for (i = 0; i < nr_segs; ++i)
++		bufs[i] = iov[i].iov_base;
+ 	result = snd_pcm_lib_writev(substream, bufs, frames);
+ 	if (result > 0)
+ 		result = frames_to_bytes(runtime, result);
+@@ -3394,7 +3394,7 @@ struct file_operations snd_pcm_f_ops[2] 
+ 	{
+ 		.owner =		THIS_MODULE,
+ 		.write =		snd_pcm_write,
+-		.writev =		snd_pcm_writev,
++		.aio_write =		snd_pcm_aio_write,
+ 		.open =			snd_pcm_playback_open,
+ 		.release =		snd_pcm_release,
+ 		.poll =			snd_pcm_playback_poll,
+@@ -3406,7 +3406,7 @@ struct file_operations snd_pcm_f_ops[2] 
+ 	{
+ 		.owner =		THIS_MODULE,
+ 		.read =			snd_pcm_read,
+-		.readv =		snd_pcm_readv,
++		.aio_read =		snd_pcm_aio_read,
+ 		.open =			snd_pcm_capture_open,
+ 		.release =		snd_pcm_release,
+ 		.poll =			snd_pcm_capture_poll,
 
---=-dLEXWUOxgd91Lv2g1L18--
+--=-pFuVh3Tt+aNdR21GPYnN--
 

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751997AbWCHBVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751977AbWCHBYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751997AbWCHBVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWCHBVZ
+	id S1751977AbWCHBYr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752000AbWCHBYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:21:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17559 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751997AbWCHBVY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:21:24 -0500
-Date: Tue, 7 Mar 2006 17:23:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Message-Id: <20060307172337.1d97cd80.akpm@osdl.org>
-In-Reply-To: <200603081212.03223.kernel@kolivas.org>
-References: <200603081013.44678.kernel@kolivas.org>
-	<200603081151.13942.kernel@kolivas.org>
-	<20060307171134.59288092.akpm@osdl.org>
-	<200603081212.03223.kernel@kolivas.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 7 Mar 2006 20:24:47 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58285
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751977AbWCHBYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:24:46 -0500
+Date: Tue, 07 Mar 2006 17:23:36 -0800 (PST)
+Message-Id: <20060307.172336.107863253.davem@davemloft.net>
+To: rdreier@cisco.com
+Cc: mlleinin@hpcn.ca.sandia.gov, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       shemminger@osdl.org
+Subject: Re: [openib-general] Re: TSO and IPoIB performance degradation
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <adaacc1raz9.fsf@cisco.com>
+References: <1141776697.6119.938.camel@localhost>
+	<20060307.161808.60227862.davem@davemloft.net>
+	<adaacc1raz9.fsf@cisco.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> > but, but.  If prefetching is prefetching stuff which that game will soon
-> > use then it'll be an aggregate improvement.  If prefetch is prefetching
-> > stuff which that game _won't_ use then prefetch is busted.  Using yield()
-> > to artificially cripple kprefetchd is a rather sad workaround isn't it?
-> 
-> It's not the stuff that it prefetches that's the problem; it's the disk 
-> access.
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 07 Mar 2006 17:17:30 -0800
 
-But the prefetch code tries to avoid prefetching when the disk is otherwise
-busy (or it should - we discussed that a bit a while ago).
+> The reason TSO comes up is that reverting the patch described below
+> helps (or helped at some point at least) IPoIB throughput quite a bit.
 
-Sorry, I'm not trying to be awkward here - I think that nobbling prefetch
-when there's a lot of CPU activity is just the wrong thing to do and it'll
-harm other workloads.
+I wish you had started the thread by mentioning this specific
+patch, we wasted an enormous amount of precious developer time
+speculating and asking for arbitrary tests to be run in order
+to narrow down the problem, yet you knew the specific change
+that introduced the performance regression already...
+
+This is a good example of how not to report a bug.

@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752032AbWCHD5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWCHEC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752032AbWCHD5V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:57:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWCHD5U
+	id S1750890AbWCHEC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 23:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWCHEC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:57:20 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:11067 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752003AbWCHD5U convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:57:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z8cOESoRk4TXduhVX9pOWmM8tDTVRjyODLVldBBsVML6JE3ranl2Z7IX5kCJWOlh5OT56YJmRlb+ifJfCXe05na3mEUh8BOhgMKCBPWCq2JnS/5lF4+T3HGfGyfOXqZ5u+3XrlAQiiCDf1+V0to/xpSb6KCPxU7rNAyvzr5hsMM=
-Message-ID: <38c09b90603071957q28e6d4c6xe226ab8a7f0d581a@mail.gmail.com>
-Date: Wed, 8 Mar 2006 11:57:19 +0800
-From: "Lanslott Gish" <lanslott.gish@gmail.com>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       "Greg KH" <greg@kroah.com>
-Subject: Fwd: [PATCH] add support for PANJIT TouchSet USB Touchscreen Device
-In-Reply-To: <38c09b90603071742i4e1463b8sa332fb79dd67f10d@mail.gmail.com>
+	Tue, 7 Mar 2006 23:02:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8902 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750890AbWCHEC0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 23:02:26 -0500
+Date: Tue, 7 Mar 2006 20:01:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Fw: Re: oops in choose_configuration()
+In-Reply-To: <200603072230_MC3-1-BA18-21AC@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0603071959360.32577@g5.osdl.org>
+References: <200603072230_MC3-1-BA18-21AC@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <38c09b90603060114n79dcc45p499603b614bbbe20@mail.gmail.com>
-	 <200603062208.13922.dtor_core@ameritech.net>
-	 <38c09b90603071742i4e1463b8sa332fb79dd67f10d@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Forwarded message ----------
-From: Lanslott Gish <lanslott.gish@gmail.com>
-Date: Mar 8, 2006 9:42 AM
-Subject: Re: [PATCH] add support for PANJIT TouchSet USB Touchscreen Device
-To: Dmitry Torokhov <dtor_core@ameritech.net>
 
 
-yes, i wrote this module from the same source model.
+On Tue, 7 Mar 2006, Chuck Ebbert wrote:
+> 
+> [2] The snprintf() and print_modalias() calls don't check for errors and
+> thus don't return -ENOMEM when the buffer does fill up.  Shouldn't they
+> do that instead of returning a truncated env string?
 
-but as i know, there are two products designs from two corps.
+They try to act like the standard says "snprintf()" should act.
 
-or maybe modified a better name avoid mess?
-anybody any idea? ;)
+And yes, the standard says to return the number of bytes you _would_ have
+written, had not the buffer been to small.
 
-best rgds,
+(Of course, giving a negative buffer length is not ok, and the kernel 
+version checking for that is a kernel extension on the standard. In the 
+standard, the buffer size is a "size_t", which doesn't have the notion of 
+"negative", since it's an unsigned type. The kernel version is just being 
+safe and nice).
 
-Lanslott Gish
-
-On 3/7/06, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Monday 06 March 2006 04:14, Lanslott Gish wrote:
-> > hi,
-> >
-> > this is the first version of the patch from a newbie :)
-> > add support for PANJIT TouchSet USB touchscreen device.
-> >
->
-> Hi,
->
-> I am reading this and it looks like twin brother of touchkitusb.c
-> Is there any chance we can combine these together?
->
-> --
-> Dmitry
->
-
-
---
-L.G, Life is Good~
-
-
---
-L.G, Life is Good~
+		Linus

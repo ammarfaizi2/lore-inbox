@@ -1,195 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751627AbWCHOvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWCHOzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751627AbWCHOvI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 09:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751667AbWCHOvI
+	id S1751395AbWCHOzl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 09:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWCHOzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 09:51:08 -0500
-Received: from mx2.suse.de ([195.135.220.15]:1163 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751627AbWCHOvH (ORCPT
+	Wed, 8 Mar 2006 09:55:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36563 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751289AbWCHOzk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 09:51:07 -0500
-Date: Wed, 8 Mar 2006 15:51:05 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: akpm@osdl.org, viro@zeniv.linux.org.uk
-Cc: olh@suse.de, neilb@suse.de, dev@openvz.org, bsingharora@gmail.com,
+	Wed, 8 Mar 2006 09:55:40 -0500
+Date: Wed, 8 Mar 2006 09:55:06 -0500
+From: Alan Cox <alan@redhat.com>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (updated patch)
-Message-ID: <20060308145105.GA4243@hasse.suse.de>
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
+Message-ID: <20060308145506.GA5095@devserv.devel.redhat.com>
+References: <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <29826.1141828678@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 08, 2006 at 02:37:58PM +0000, David Howells wrote:
+> + (*) reads can be done speculatively, and then the result discarded should it
+> +     prove not to be required;
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+That might be worth an example with an if() because PPC will do this and if 
+its a read with a side effect (eg I/O space) you get singed..
 
-Andrew, I have test this patch for a while now and none of the users has seen
-the "busy inodes" message for a while now. Can you please apply and test it in
--mm?
+> +same set of data, but attempting not to use locks as locks are quite expensive.
 
-This is an updated version of the patch which adresses some issues that came
-up during discussion. Although sb->prunes usually is 0, I'm testing it now
-before calling wake_up(). Besides that, the shrink_dcache_parent() is only
-waiting for prunes if we are called through generic_shutdown_super() when
-sb->s_root is NULL.
+s/are quite/is quite
 
-Original patch description:
+and is quite confusing to read
 
-Kirill Korotaev <dev@sw.ru> discovered a race between shrink_dcache_parent()
-and shrink_dcache_memory() which leads to "Busy inodes after unmount".
-When unmounting a file system shrink_dcache_parent() is racing against a
-possible shrink_dcache_memory(). This might lead to the situation that
-shrink_dcache_parent() is returning too early. In this situation the
-super_block is destroyed before shrink_dcache_memory() could put the inode.
+> +SMP memory barriers are normally mere compiler barriers on a UP system because
 
-This patch fixes the problem through introducing a prunes counter which is
-incremented when a dentry is pruned but the corresponding inoded isn't put
-yet.When the prunes counter is not null, shrink_dcache_parent() is waiting and
-restarting its work.
+s/mere//
 
-Signed-off-by: Jan Blunck <jblunck@suse.de>
+Makes it easier to read if you are not 1st language English.
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="umount-prune_one_dentry-fix.diff"
+> +In addition, accesses to "volatile" memory locations and volatile asm
+> +statements act as implicit compiler barriers.
 
----
+Add
 
- fs/dcache.c        |   48 +++++++++++++++++++++++++++++++++++++++++++++++-
- fs/super.c         |    4 +++-
- include/linux/fs.h |    3 +++
- 3 files changed, 53 insertions(+), 2 deletions(-)
+The use of volatile generates poorer code and hides the serialization in 
+type declarations that may be far from the code. The Linux coding style therefore
+strongly favours the use of explicit barriers except in small and specific cases.
 
-Index: linux-2.6/fs/dcache.c
-===================================================================
---- linux-2.6.orig/fs/dcache.c
-+++ linux-2.6/fs/dcache.c
-@@ -364,17 +364,22 @@ restart:
-  */
- static inline void prune_one_dentry(struct dentry * dentry)
- {
-+	struct super_block *sb = dentry->d_sb;
- 	struct dentry * parent;
- 
- 	__d_drop(dentry);
- 	list_del(&dentry->d_u.d_child);
- 	dentry_stat.nr_dentry--;	/* For d_free, below */
-+	sb->s_prunes++;
- 	dentry_iput(dentry);
- 	parent = dentry->d_parent;
- 	d_free(dentry);
- 	if (parent != dentry)
- 		dput(parent);
- 	spin_lock(&dcache_lock);
-+	sb->s_prunes--;
-+	if (likely(!sb->s_prunes))
-+		wake_up(&sb->s_wait_prunes);
- }
- 
- /**
-@@ -623,19 +628,60 @@ out:
- 	return found;
- }
- 
-+/*
-+ * A special version of wait_event(!sb->s_prunes) which takes the dcache_lock
-+ * when checking the condition and gives feedback if we slept.
-+ */
-+static int wait_on_prunes(struct super_block *sb)
-+{
-+	DEFINE_WAIT(wait);
-+	int slept = 0;
-+
-+#ifdef DCACHE_DEBUG
-+	printk(KERN_DEBUG "%s: waiting for %d prunes\n", __FUNCTION__,
-+	       sb->s_prunes);
-+#endif
-+
-+	spin_lock(&dcache_lock);
-+	for (;;) {
-+		prepare_to_wait(&sb->s_wait_prunes, &wait,
-+				TASK_UNINTERRUPTIBLE);
-+		if (!sb->s_prunes)
-+			break;
-+		spin_unlock(&dcache_lock);
-+		schedule();
-+		slept = 1;
-+		spin_lock(&dcache_lock);
-+	}
-+	spin_unlock(&dcache_lock);
-+	finish_wait(&sb->s_wait_prunes, &wait);
-+	return slept;
-+}
-+
- /**
-  * shrink_dcache_parent - prune dcache
-  * @parent: parent of entries to prune
-  *
-  * Prune the dcache to remove unused children of the parent dentry.
-  */
-- 
-+/*
-+ * If we slept on waiting for other prunes to finish, there maybe are
-+ * some dentries the d_lru list that we have "overlooked" the last
-+ * time we called select_parent(). Therefor lets restart in this case.
-+ */
- void shrink_dcache_parent(struct dentry * parent)
- {
- 	int found;
-+	struct super_block *sb = parent->d_sb;
- 
-+ again:
- 	while ((found = select_parent(parent)) != 0)
- 		prune_dcache(found);
-+
-+	/* If we are called from generic_shutdown_super() during
-+	 * umount of a filesystem, we want to check for other prunes */
-+	if (!sb->s_root && wait_on_prunes(sb))
-+		goto again;
- }
- 
- /**
-Index: linux-2.6/fs/super.c
-===================================================================
---- linux-2.6.orig/fs/super.c
-+++ linux-2.6/fs/super.c
-@@ -80,6 +80,8 @@ static struct super_block *alloc_super(v
- 		sema_init(&s->s_dquot.dqio_sem, 1);
- 		sema_init(&s->s_dquot.dqonoff_sem, 1);
- 		init_rwsem(&s->s_dquot.dqptr_sem);
-+		s->s_prunes = 0;
-+		init_waitqueue_head(&s->s_wait_prunes);
- 		init_waitqueue_head(&s->s_wait_unfrozen);
- 		s->s_maxbytes = MAX_NON_LFS;
- 		s->dq_op = sb_dquot_ops;
-@@ -230,8 +232,8 @@ void generic_shutdown_super(struct super
- 
- 	if (root) {
- 		sb->s_root = NULL;
--		shrink_dcache_parent(root);
- 		shrink_dcache_anon(&sb->s_anon);
-+		shrink_dcache_parent(root);
- 		dput(root);
- 		fsync_super(sb);
- 		lock_super(sb);
-Index: linux-2.6/include/linux/fs.h
-===================================================================
---- linux-2.6.orig/include/linux/fs.h
-+++ linux-2.6/include/linux/fs.h
-@@ -835,6 +835,9 @@ struct super_block {
- 	struct list_head	s_instances;
- 	struct quota_info	s_dquot;	/* Diskquota specific options */
- 
-+	unsigned int		s_prunes;	/* protected by dcache_lock */
-+	wait_queue_head_t	s_wait_prunes;
-+
- 	int			s_frozen;
- 	wait_queue_head_t	s_wait_unfrozen;
- 
+> +SMP memory barriers are only compiler barriers on uniprocessor compiled systems
+> +because it is assumed that a CPU will be apparently self-consistent, and will
+> +order overlapping accesses correctly with respect to itself.
 
---6c2NcOVqGQ03X4Wi--
+Is this true of IA-64 ??
+
+> +There is no guarantee that some intervening piece of off-the-CPU hardware will
+> +not reorder the memory accesses.  CPU cache coherency mechanisms should
+> +propegate the indirect effects of a memory barrier between CPUs.
+
+[For information on bus mastering DMA and coherency please read ....]
+
+sincee have a doc on this
+
+> +There are some more advanced barriering functions:
+
+"barriering" ... ick,  barrier.
+
+> +LOCKING FUNCTIONS
+> +-----------------
+> +
+> +For instance all the following locking functions imply barriers:
+
+s/For instance//
+
+> + (*) spin locks
+> + (*) R/W spin locks
+> + (*) mutexes
+> + (*) semaphores
+> + (*) R/W semaphores
+> +
+> +In all cases there are variants on a LOCK operation and an UNLOCK operation.
+> +
+> + (*) LOCK operation implication:
+> +
+> +     Memory accesses issued after the LOCK will be completed after the LOCK
+> +     accesses have completed.
+> +
+> +     Memory accesses issued before the LOCK may be completed after the LOCK
+> +     accesses have completed.
+> +
+> + (*) UNLOCK operation implication:
+> +
+> +     Memory accesses issued before the UNLOCK will be completed before the
+> +     UNLOCK accesses have completed.
+> +
+> +     Memory accesses issued after the UNLOCK may be completed before the UNLOCK
+> +     accesses have completed.
+> +
+> + (*) LOCK vs UNLOCK implication:
+> +
+> +     The LOCK accesses will be completed before the UNLOCK accesses.
+> +
+> +And therefore an UNLOCK followed by a LOCK is equivalent to a full barrier, but
+> +a LOCK followed by an UNLOCK isn't.
+> +
+> +Locks and semaphores may not provide any guarantee of ordering on UP compiled
+> +systems, and so can't be counted on in such a situation to actually do anything
+> +at all, especially with respect to I/O barriering, unless combined with
+> +interrupt disablement operations.
+
+s/disablement/disabling/
+
+Should clarify local ordering v SMP ordering for locks implied here.
+
+
+> +INTERRUPT DISABLEMENT FUNCTIONS
+> +-------------------------------
+
+s/Disablement/Disabling/
+
+> +Interrupt disablement (LOCK equivalent) and enablement (UNLOCK equivalent) will
+
+disable
+
+> +===========================
+> +LINUX KERNEL I/O BARRIERING
+
+/barriering/barriers
+
+> + (*) inX(), outX():
+> +
+> +     These are intended to talk to legacy i386 hardware using an alternate bus
+> +     addressing mode.  They are synchronous as far as the x86 CPUs are
+
+Not really true. Lots of PCI devices use them. Need to talk about "I/O space"
+> +     concerned, but other CPUs and intermediary bridges may not honour that.
+> +
+> +     They are guaranteed to be fully ordered with respect to each other.
+
+And make clear I/O space is a CPU property and that inX()/outX() may well map
+to read/write variant functions on many processors
+
+> + (*) readX(), writeX():
+> +
+> +     These are guaranteed to be fully ordered and uncombined with respect to
+> +     each other on the issuing CPU, provided they're not accessing a
+
+MTRRs
+
+> +     prefetchable device.  However, intermediary hardware (such as a PCI
+> +     bridge) may indulge in deferral if it so wishes; to flush a write, a read
+> +     from the same location must be performed.
+
+False. Its not so tightly restricted and many devices the location you write
+is not safe to read so you must use another. I'd have to dig the PCI spec 
+out but I believe it says the same devfn. It also says stuff about rules for
+visibility of bus mastering relative to these accesses and PCI config space
+accesses relative to the lot (the latter serveral chipsets get wrong). We
+should probably point people at the PCI 2.2 spec .
+
+Looks much much better than the first version and just goes to prove how complex
+this all is
+

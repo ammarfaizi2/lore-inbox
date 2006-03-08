@@ -1,81 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWCHDWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbWCHDWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932421AbWCHDWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWCHDWQ
+	id S932425AbWCHDWe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932416AbWCHDWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:22:16 -0500
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:16224 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932421AbWCHDWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:22:15 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Fw: Re: oops in choose_configuration()
-Date: Tue, 7 Mar 2006 22:22:10 -0500
-User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200603071657_MC3-1-BA0F-6372@compuserve.com> <200603072013.29227.dtor_core@ameritech.net> <20060308012744.GA24739@kroah.com>
-In-Reply-To: <20060308012744.GA24739@kroah.com>
+	Tue, 7 Mar 2006 22:22:34 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:38927 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S932422AbWCHDWd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:22:33 -0500
+Date: Wed, 8 Mar 2006 03:22:19 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+Message-ID: <20060308032219.GD8094@deprecation.cyrius.com>
+References: <20060305180757.GA22121@deprecation.cyrius.com> <20060305185948.GA24765@electric-eye.fr.zoreil.com> <20060306143512.GI23669@deprecation.cyrius.com> <20060306191706.GA6947@deprecation.cyrius.com> <20060306211745.GD15728@electric-eye.fr.zoreil.com> <20060307051152.GA1244@deprecation.cyrius.com> <20060308001556.GA9362@electric-eye.fr.zoreil.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603072222.11504.dtor_core@ameritech.net>
+In-Reply-To: <20060308001556.GA9362@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 20:27, Greg KH wrote:
-> On Tue, Mar 07, 2006 at 08:13:28PM -0500, Dmitry Torokhov wrote:
-> > On Tuesday 07 March 2006 19:57, Linus Torvalds wrote:
-> > > 
-> > > On Tue, 7 Mar 2006, Chuck Ebbert wrote:
-> > > > 
-> > > > At least one susbsystem rolls its own method of adding env vars to the
-> > > > uevent buffer, and it's so broken it triggers the WARN_ON() in
-> > > > lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
-> > > 
-> > > Well, snprintf() should be safe, though. It will warn if the caller is 
-> > > lazy, but these days, the thing does
-> > > 
-> > > 	max(buf_size - len, 0)
-> > > 
-> > > which should mean that the input layer passes in 0 instead of a negative 
-> > > number. And snprintf() will then _not_ print anything. 
-> > > 
-> > > So I think input_add_uevent_bm_var() is safe, even if it's not pretty.
-> > > 
-> > > However, input_devices_read() doesn't do any sanity checking at all, and 
-> > > if that ever ends up printing more than a page, that would be bad. I 
-> > > didn't look very closely, but it looks worrisome.
-> > > 
-> > > Dmitry?
-> > 
-> > I had all this code converted to seq_file, but it depends on converting
-> > input handlers to class interfaces and it is not possible nowadays
-> > because with latest Greg's changes to class code we would try to
-> > register class devices while registering class devices/interfaces
-> > (psmouse creates input_dev which binds to mousedev interface which in
-> > turn tries to create mouseX which is also belongs to input class) and
-> > deadlocking. Greg promised current implementation is only a temporary
-> > solution.
-> > 
-> > I suppose I could separate those changes...
+* Francois Romieu <romieu@fr.zoreil.com> [2006-03-08 01:15]:
+> netdev watchdog events appear in the dmesg of the patched driver.
+> The driver survived it. So I'd say that the patch does its job.
 > 
-> That would probably be a good idea :)
-> 
+> OTOH, if you ever saw the unpatched driver survive this event, yell
+> now.
 
-Hmm, what is the policy for attr->show()? With hotplug variables we
-return -ENOMEM if there is not enough memory to store all data, but
-what about attributes? Should we also return error (and which one,
--ENOMEM, -ENOBUFS?) or fill as much as we can and return up to
-PAGE_SIZE? With sysfs not kernel nor application can really recover
-if attribute needs buffer larger than a page. Or just rely on BUG_ON
-in fs/sysfs/file.c::fill_read_buffer()?
-
+No, I've never seen the unpatched driver survive.
 -- 
-Dmitry
+Martin Michlmayr
+http://www.cyrius.com/

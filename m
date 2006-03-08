@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWCHAzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751940AbWCHA55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWCHAzK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWCHAzK
+	id S1751940AbWCHA55 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751952AbWCHA55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:55:10 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:11678 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751926AbWCHAzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:55:09 -0500
-Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences /
-	GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>,
-       opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060307233724.GB13357@merlin.emma.line.org>
-References: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
-	 <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
-	 <1141769422.767.99.camel@mindpipe>
-	 <20060307233724.GB13357@merlin.emma.line.org>
-Content-Type: text/plain
-Date: Tue, 07 Mar 2006 19:55:06 -0500
-Message-Id: <1141779307.767.107.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 19:57:57 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54927 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751940AbWCHA54 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:57:56 -0500
+Date: Tue, 7 Mar 2006 16:57:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: oops in choose_configuration()
+In-Reply-To: <200603071657_MC3-1-BA0F-6372@compuserve.com>
+Message-ID: <Pine.LNX.4.64.0603071648430.32577@g5.osdl.org>
+References: <200603071657_MC3-1-BA0F-6372@compuserve.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 00:37 +0100, Matthias Andree wrote:
-> On Tue, 07 Mar 2006, Lee Revell wrote:
+
+
+On Tue, 7 Mar 2006, Chuck Ebbert wrote:
 > 
-> > If they are doing serious realtime DSP then they should get better
-> > results in userspace anyway, because they get to use the floating point
-> > unit which isn't allowed in the kernel.
-> 
-> It's not as though every algorithm needed float just because it said DSP
-> (some of those are actually fixed-point or something like that) at a time.
+> At least one susbsystem rolls its own method of adding env vars to the
+> uevent buffer, and it's so broken it triggers the WARN_ON() in
+> lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
 
-I didn't mean to imply that, I was just pointing out it's another
-feature available in userspace that can't be used in the kernel.  Audio
-stuff like the AC3 encoder/decoders I've seen in Windows drivers use
-floating point instructions for example.
+Well, snprintf() should be safe, though. It will warn if the caller is 
+lazy, but these days, the thing does
 
-Lee
+	max(buf_size - len, 0)
 
+which should mean that the input layer passes in 0 instead of a negative 
+number. And snprintf() will then _not_ print anything. 
+
+So I think input_add_uevent_bm_var() is safe, even if it's not pretty.
+
+However, input_devices_read() doesn't do any sanity checking at all, and 
+if that ever ends up printing more than a page, that would be bad. I 
+didn't look very closely, but it looks worrisome.
+
+Dmitry?
+
+		Linus

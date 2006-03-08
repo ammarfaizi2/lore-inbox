@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWCHXlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWCHXpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751514AbWCHXlH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWCHXlH
+	id S932078AbWCHXpW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:45:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWCHXpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:41:07 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7563 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751514AbWCHXlF (ORCPT
+	Wed, 8 Mar 2006 18:45:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45746 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751092AbWCHXpV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:41:05 -0500
-Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store
-	buffers
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: akpm@osdl.org, ak@suse.de, paulus@samba.org, bcrl@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1141854208.27555.1.camel@localhost.localdomain>
-References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain>
-	 <1141853919.11221.183.camel@localhost.localdomain>
-	 <1141854208.27555.1.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 10:40:29 +1100
-Message-Id: <1141861230.11221.189.camel@localhost.localdomain>
+	Wed, 8 Mar 2006 18:45:21 -0500
+Date: Wed, 8 Mar 2006 15:43:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: kiran@scalex86.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
+       netdev@vger.kernel.org, shai@scalex86.org
+Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add
+ percpu_counter_mod_bh
+Message-Id: <20060308154321.0e779111.akpm@osdl.org>
+In-Reply-To: <20060308224140.GC5410@kvack.org>
+References: <20060308015808.GA9062@localhost.localdomain>
+	<20060308015934.GB9062@localhost.localdomain>
+	<20060307181301.4dd6aa96.akpm@osdl.org>
+	<20060308202656.GA4493@localhost.localdomain>
+	<20060308203642.GZ5410@kvack.org>
+	<20060308210726.GD4493@localhost.localdomain>
+	<20060308211733.GA5410@kvack.org>
+	<20060308222528.GE4493@localhost.localdomain>
+	<20060308224140.GC5410@kvack.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 13:43 -0800, Bryan O'Sullivan wrote:
-> On Thu, 2006-03-09 at 08:38 +1100, Benjamin Herrenschmidt wrote:
+Benjamin LaHaise <bcrl@kvack.org> wrote:
+>
+> On Wed, Mar 08, 2006 at 02:25:28PM -0800, Ravikiran G Thirumalai wrote:
+> > Then, for the batched percpu_counters, we could gain by using local_t only for 
+> > the UP case. But we will have to have a new local_long_t implementation 
+> > for that.  Do you think just one use case of local_long_t warrants for a new
+> > set of apis?
 > 
-> > I think people already don't undersatnd the existing gazillion of
-> > barriers we have with quite unclear semantics in some cases, it's not
-> > time to add a new one ...
+> I think it may make more sense to simply convert local_t into a long, given 
+> that most of the users will be things like stats counters.
 > 
-> What do you suggest I do, then?  This makes a substantial difference to
-> performance for us.  Should I confine this somehow to the ipath driver
-> directory and have a nest of ifdefs in an include file there?
 
-What bothers me is that because of that exact same argument "it makes
-substantial difference for us", we end up with basically barriers
-tailored for architectures... that is as many kind of barriers as we
-have architectuers... like mmiowb :)
+Yes, I agree that making local_t signed would be better.  It's consistent
+with atomic_t, atomic64_t and atomic_long_t and it's a bit more flexible.
 
-Currently, PowerPC is losing significant performances for example to try
-to "fit" in the linux barriers for things like IOs which would leak out
-of spinlocks if we didn't have a strong barrier in pretty much every
-writeX() or things like that. We could use the same argument you are
-making to come up with yet another set of barriers that are more
-friendly to ppc ...
-
-At the end of the day, however, the problem is that pretty much no
-driver write understand anything about any of the barriers and get them
-all wrong...
-
-Which makes me thing we are trying to use the wrong tool or providing
-the wrong level of abstraction or something there...
-
-Ben.
-
+Perhaps.  A lot of applications would just be upcounters for statistics,
+where unsigned is desired.  But I think the consistency argument wins out.
 

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWCHVy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWCHVzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWCHVy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWCHVy7
+	id S932583AbWCHVzE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWCHVzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:54:59 -0500
-Received: from host1.compusonic.fi ([195.238.198.242]:17945 "EHLO
-	minor.compusonic.fi") by vger.kernel.org with ESMTP
-	id S1751127AbWCHVy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:54:58 -0500
-Date: Wed, 8 Mar 2006 23:54:01 +0200 (EET)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-In-Reply-To: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0603082336410.11026@zeus.compusonic.fi>
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> 
- <20060308102731.GO27946@ftp.linux.org.uk>  <ec92bc30603080252v7e795b4dm5116d4fe78f92cc7@mail.gmail.com>
- <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
+	Wed, 8 Mar 2006 16:55:04 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:20362 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932583AbWCHVzC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:55:02 -0500
+Date: Wed, 8 Mar 2006 16:55:00 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: david-b@pacbell.net, <linux-usb-devel@lists.sourceforge.net>,
+       <greg@kroah.com>, <torvalds@osdl.org>, <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: Fw: Re: oops in choose_configuration()
+In-Reply-To: <20060308125407.2cd5d829.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0603081644520.5360-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Mar 2006, Dave Neuer wrote:
+On Wed, 8 Mar 2006, Andrew Morton wrote:
 
-> What is linux-specific in this context is that many people, like
-> myself, who have contributed code to the kernel under the GPL *don't
-> want* their code to be used in non-free software, period. Someone who
-> wants to leverage my work needs to do it under the terms that I allow.
-> That is the law. Whining is not going to change my mind.
+> Alan Stern <stern@rowland.harvard.edu> wrote:
+> >
+> > What about those scheduler changes you found through the bisection search?  
+> >  Any word on that?
 > 
-> If a company thinks they can make money selling hardware with
-> closed-source drivers (on some other OS), more power to them. If a
-> company thinks they can make money selling hardware with open-source
-> drivers on Linux and want to leverage my work, more power to them
-> (I'll even help them). But they can't use my work and not release the
-> code.
-You are mixing two different things. Binary driver is not the same thing 
-as binary-only driver. Being binary means just that the driver is 
-distributed as a precompiled module. However the driver may still be open 
-sourced (under GPL or whatever license you like). The full source 
-code may be shipped with the installable binary or be distributed in some 
-other way for users who want to compile it themselves. 
+> Ingo's gone over them pretty closely.  The current theory is that the CPU
+> scheduler change alters timing sufficiently for the bug to bite.
+> 
+> The machine passes memtest86.
+> 
+> Ingo's suspecting stack corruption.  Do you know whether USB anywhere does
+> DMA into automatically-allocated storage (ie: kernel stacks)?
 
-In fact all Linux distributions ship binary drivers. The user can install 
-the kernel/driver sources but most "ordinary" users don't install them. 
+We try to avoid doing that, but such things have been known to creep into
+the sources from time to time.  We fix them whenever they surface.  I'm
+pretty sure that usbcore and usb-storage are clean in this respect, and
+probably usbhid is also (I haven't gone through it to check personally;  
+presumably others have).  The only drivers listed in your
+/proc/bus/usb/devices were hub and usbhid, and the ALPS UGX device didn't
+have any drivers bound.
 
-Best regards,
+Have you tried running your test with the USB devices unplugged?  That 
+won't prevent usb_choose_configuration from getting called (since it's 
+used for the virtual root hubs exported by the host controller drivers) 
+but it should make everything more deterministic.
 
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
+Alan Stern
+

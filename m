@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWCHK1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWCHKwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbWCHK1f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 05:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWCHK1f
+	id S932415AbWCHKwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 05:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWCHKwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 05:27:35 -0500
-Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:48145
-	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
-	id S932374AbWCHK1e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 05:27:34 -0500
-Date: Wed, 8 Mar 2006 21:27:31 +1100
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] crypto: alignment fixes
-Message-ID: <20060308102731.GA32195@gondor.apana.org.au>
-References: <20060308.160529.37994551.nemoto@toshiba-tops.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 05:52:31 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:58856 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932415AbWCHKwa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 05:52:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CMhar6fFTZ6JYzVbo4bGY7/WrAzKQJBnV79ep9Y8x+RDedCXhHRAVQMhSOGXBp5jbvCS0ZhRs5mTHDwamCB9UECQo9YFJr6sjKBUJmLo7tXoIAnkYxZ4biQA8HadSXRV+5u9w/wQbRuA/cgMJX7j1FZC23XRr0EaWEaNy1FnQp0=
+Message-ID: <ec92bc30603080252v7e795b4dm5116d4fe78f92cc7@mail.gmail.com>
+Date: Wed, 8 Mar 2006 16:22:29 +0530
+From: "Anshuman Gholap" <anshu.pg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+Cc: "Al Viro" <viro@ftp.linux.org.uk>
+In-Reply-To: <20060308102731.GO27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060308.160529.37994551.nemoto@toshiba-tops.co.jp>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
+	 <20060308102731.GO27946@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 04:05:29PM +0900, Atsushi Nemoto wrote:
-> This patch fixes some alignment problem on crypto modules.
+well ya, I knew i was running the risk to be labelled like that, cause
+i thought to talk of this issue, more shake is needed that just stir.
 
-Thanks for the patch.  Please split this up and cc
-linux-crypto@vger.kernel.org.
+please dont get me wrong (even though i think most of you already
+have), i own my graditude for the livelihood i am having to
+linux,linus and co.
 
-> 1. Many cipher setkey functions load key words directly but the key
->    words might not be aligned.  Enforce correct alignment in the
->    setkey wrapper.
+this discussion is totally for betterment of the new users who should
+not be forced to become developers in order to get a trival thing
+running on their desktop/laptop, like device driver.
 
-This isn't right.  The alignmask applies to source/destination buffers
-only.  The only requirement on the key is that it must always be
-32-bit aligned.
+Now that i think of this, a more better person to speak on this would
+be device manufacturer's themselves, is it the state_of_current linux
+prohibiting them from developing drivers? do they hate oss so much?
+would their mentality and willingness change if binary/mixed license
+drivers were allowed to work with kernel.
 
-> 2. Some cipher modules lack cra_alignmask.
+if you can send this thread link to dlink or any other manufacturer, please do.
 
-Good catch.
+for now, i am going to shut my yapper.
 
-> 3. Some hash modules (and sha_transform() library function) load/store
->    data words directly.  Use get_unaligned()/put_unaligned() for them.
+Anshuman.
 
-We should extend alignmask to cover this and handle it in the digest
-layer.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+On 3/8/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Wed, Mar 08, 2006 at 03:05:11PM +0530, Anshuman Gholap wrote:
+> > 1) The people who have control over linux kernel as of now are
+> > countable on hands but cannot be held countable for work cause they do
+> > it as hobby/"insert anything which says working for free", now for a
+> > peice of code like linux kernel, such kind of aloofness regarding
+> > manpower and kind_of nazism in not allowing others to dynamically
+> > get_work_done (like binary driver) seems totally wrong.
+>
+> > This email is very raw and not polished at all
+>
+> Indeed - self-godwinated right in the opening salvo.  Tsk, tsk...  Trolls
+> these days...
+>

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751926AbWCHAzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWCHAzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751926AbWCHAzO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751940AbWCHAzO
+	id S964867AbWCHAzK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWCHAzK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:55:14 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:45273
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751926AbWCHAzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:55:13 -0500
-Date: Tue, 7 Mar 2006 16:54:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: oops in choose_configuration()
-Message-ID: <20060308005455.GA23921@kroah.com>
-References: <200603071657_MC3-1-BA0F-6372@compuserve.com>
+	Tue, 7 Mar 2006 19:55:10 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:11678 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751926AbWCHAzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:55:09 -0500
+Subject: Re: [opensuse-factory] Re[2]: 2.6.16 serious consequences /
+	GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Silviu Marin-Caea <silviu_marin-caea@fieldinsights.ro>,
+       opensuse-factory@opensuse.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060307233724.GB13357@merlin.emma.line.org>
+References: <OF2725219B.50D2AC48-ONC1257129.00416F63-C1257129.00464A42@avm.de>
+	 <200603070942.31774.silviu_marin-caea@fieldinsights.ro>
+	 <1141769422.767.99.camel@mindpipe>
+	 <20060307233724.GB13357@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Tue, 07 Mar 2006 19:55:06 -0500
+Message-Id: <1141779307.767.107.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603071657_MC3-1-BA0F-6372@compuserve.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 04:54:24PM -0500, Chuck Ebbert wrote:
-> In-Reply-To: <Pine.LNX.4.64.0603051840280.13139@g5.osdl.org>
+On Wed, 2006-03-08 at 00:37 +0100, Matthias Andree wrote:
+> On Tue, 07 Mar 2006, Lee Revell wrote:
 > 
-> On Sun, 5 Mar 2006 19:27:53 -0800, Linus Torvalds wrote:
+> > If they are doing serious realtime DSP then they should get better
+> > results in userspace anyway, because they get to use the floating point
+> > unit which isn't allowed in the kernel.
 > 
-> > So I'd be more inclined to blame a buffer overflow on a kmalloc, and the 
-> > obvious target is the "add_uevent_var()" thing, since all/many of the 
-> > corruptions seem to come from uevent environment variable strings.
-> 
-> At least one susbsystem rolls its own method of adding env vars to the
-> uevent buffer, and it's so broken it triggers the WARN_ON() in
-> lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
-> Start at drivers/input/input.c::input_dev_uevent() and watch the fun.
+> It's not as though every algorithm needed float just because it said DSP
+> (some of those are actually fixed-point or something like that) at a time.
 
-All of the INPUT_ADD_HOTPLUG_VAR() calls do use add_uevent_var(), so we
-should be safe there.  The other calls also look safe, if not a bit
-wierd...  So I don't see how we could change this to be any safer, do
-you?
+I didn't mean to imply that, I was just pointing out it's another
+feature available in userspace that can't be used in the kernel.  Audio
+stuff like the AC3 encoder/decoders I've seen in Windows drivers use
+floating point instructions for example.
 
-> I reported this to linux-kernel, the input maintainer and the author
-> of that code on Feb. 26:
-> 
->         http://lkml.org/lkml/2006/2/26/39
+Lee
 
-We should have fixed that already by increasing the size of the buffer,
-but yes, we should catch errors in the MODALIAS function, that would
-have stopped that previous overflow.  Are you still seeing problems now?
-
-thanks,
-
-greg k-h

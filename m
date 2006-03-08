@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWCHDTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWCHDVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWCHDTM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:19:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWCHDTM
+	id S932411AbWCHDVN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWCHDVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:19:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7100 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932405AbWCHDTK (ORCPT
+	Tue, 7 Mar 2006 22:21:13 -0500
+Received: from ozlabs.org ([203.10.76.45]:41380 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932418AbWCHDVM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:19:10 -0500
-Date: Tue, 7 Mar 2006 22:18:34 -0500
-From: Dave Jones <davej@redhat.com>
-To: Mark Lord <liml@rtr.ca>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       IDE/ATA development list <linux-ide@vger.kernel.org>, axboe@suse.de,
-       albertcc@tw.ibm.com
-Subject: Re: LibPATA code issues / 2.6.15.4
-Message-ID: <20060308031829.GB5411@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Mark Lord <liml@rtr.ca>,
-	Bill Davidsen <davidsen@tmr.com>, Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org,
-	IDE/ATA development list <linux-ide@vger.kernel.org>, axboe@suse.de,
-	albertcc@tw.ibm.com
-References: <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046013.7070503@rtr.ca> <4404BAD6.3060009@tmr.com> <440E4803.7070808@rtr.ca>
-Mime-Version: 1.0
+	Tue, 7 Mar 2006 22:21:12 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440E4803.7070808@rtr.ca>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17422.19865.635112.820824@cargo.ozlabs.ibm.com>
+Date: Wed, 8 Mar 2006 14:20:57 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, bcrl@linux.intel.com, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, mingo@redhat.com,
+       linuxppc64-dev@ozlabs.org, jblunck@suse.de
+Subject: Re: Memory barriers and spin_unlock safety
+In-Reply-To: <Pine.LNX.4.64.0603040914160.22647@g5.osdl.org>
+References: <32518.1141401780@warthog.cambridge.redhat.com>
+	<Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
+	<17417.29375.87604.537434@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.64.0603040914160.22647@g5.osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 09:57:07PM -0500, Mark Lord wrote:
- > Bill Davidsen wrote:
- > >
- > >Is there a version of that which will build on x86? I grabbed the 
- > >version offered at freshmeat, but it won't compile on any x86 distro or 
- > >gcc version to which I have access. RH8, RH9, FC1, FC3, FC4, ubuntu... 
- > >with or without using the suggested alternate header.
- > 
- > hdparm-6.5 is the current version now.  Both it, and 6.4,
- > build/install/run cleanly on Ubunutu-5.10, Debian-Sarge,
- > and SLES9-SP3.
- > 
- > You seem to be having trouble on only Redhat distros..
- > I guess they've done something unfriendly again.
- > 
- > Care to be more specific about what Redhat is doing?
+Linus Torvalds writes:
 
-looks like our userspace includes aren't up to date with some of the kernel
-changes, so currently they're lacking the ide_task_request_t and related
-taskfile bits.
+> So the rules from the PC side (and like it or not, they end up being 
+> what all the drivers are tested with) are:
+> 
+>  - regular stores are ordered by write barriers
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=184349
+I thought regular stores were always ordered anyway?
 
-		Dave
+>  - PIO stores are always synchronous
 
--- 
-http://www.codemonkey.org.uk
+By synchronous, do you mean ordered with respect to all other accesses
+(regular memory, MMIO, prefetchable MMIO, PIO)?
+
+In other words, if I store a value in regular memory, then do an
+outb() to a device, and the device does a DMA read to the location I
+just stored to, is the device guaranteed to see the value I just
+stored (assuming no other later store to the location)?
+
+>  - MMIO stores are ordered by IO semantics
+> 	- PCI ordering must be honored:
+> 	  * write combining is only allowed on PCI memory resources
+> 	    that are marked prefetchable. If your host bridge does write 
+> 	    combining in general, it's not a "host bridge", it's a "host 
+> 	    disaster".
+
+Presumably the host bridge doesn't know what sort of PCI resource is
+mapped at a given address, so that information (whether the resource
+is prefetchable) must come from the CPU, which would get it from the
+TLB entry or an MTRR entry - is that right?
+
+Or is there some gentleman's agreement between the host bridge and the
+BIOS that certain address ranges are only used for certain types of
+PCI memory resources?
+
+> 	  * for others, writes can always be posted, but they cannot
+> 	    be re-ordered wrt either reads or writes to that device
+> 	    (ie a read will always be fully synchronizing)
+> 	- io_wmb must be honored
+
+What ordering is there between stores to regular memory and stores to
+non-prefetchable MMIO?
+
+If a store to regular memory can be performed before a store to MMIO,
+does a wmb() suffice to enforce an ordering, or do you have to use
+mmiowb()?
+
+Do PCs ever use write-through caching on prefetchable MMIO resources?
+
+Thanks,
+Paul.

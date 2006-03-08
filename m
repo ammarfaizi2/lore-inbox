@@ -1,47 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWCHXe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWCHXfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWCHXe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWCHXe6
+	id S1751501AbWCHXfU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWCHXfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:34:58 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:31461 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751483AbWCHXe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:34:58 -0500
+	Wed, 8 Mar 2006 18:35:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62127 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751501AbWCHXfR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:35:17 -0500
+Date: Wed, 8 Mar 2006 15:29:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: gregkh@suse.de, bunk@stusta.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net,
+       Neil Brown <neilb@cse.unsw.edu.au>, mmokrejs@ribosome.natur.cuni.cz,
+       Dave Hansen <haveblue@us.ibm.com>, Nathan Scott <nathans@sgi.com>
 Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for
-	2.6.16-rc5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-In-Reply-To: <20060308232350.GA26929@suse.de>
+ 2.6.16-rc5
+Message-Id: <20060308152928.21afef81.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
 References: <20060306223545.GA20885@kroah.com>
-	 <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
-	 <20060308230519.GT4006@stusta.de> <1141859917.767.242.camel@mindpipe>
-	 <20060308232350.GA26929@suse.de>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 18:34:54 -0500
-Message-Id: <1141860895.767.251.camel@mindpipe>
+	<20060308222652.GR4006@stusta.de>
+	<20060308225029.GA26117@suse.de>
+	<Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 15:23 -0800, Greg KH wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
 > 
-> > That should not go in 2.6.16 - it's not a hardware bug but a (poor IMHO)
-> > design decision by the vendor.  And, it may break working setups when an
-> > extra sound device shows up.
 > 
-> Ah, good thing I held off :)
+> On Wed, 8 Mar 2006, Greg KH wrote:
+> > 
+> > None, as I am expecting 2.6.16 to be out any day now.
 > 
-> Any objections to it going in for 2.6.17?
+> Sadly, until the FC5 problems re at least somewhat more understood, I 
+> don't think that's going to happen.
+> 
+> Trying to chase down Andrew's "laptop from hell" has also delayed even 
+> doing a -rc6, although that is imminent.
+> 
 
-I can't think of a way to merge this and guarantee not to break
-userspace unless it could be disabled by default.
+Well..  That's a problem which only I can reproduce, and that only after
+applying sched patches while performing strange acts upon small animals.
+Plus I don't think we're close to fixing it.
 
-Lee
+More serious matters would be:
 
+- The x86_64-goes-oom-due-to-bio-using-GFP_DMA bug.  I'll send the patch
+  over today.
+
+- The some-ati-timers-go-too-fast bug.  I'll sndn that patch today as
+  well.
+
+- Neil is sitting on a radi1 BIO leak fix which we need.
+
+- It would be nice to get Martin MOKREJ
+  <mmokrejs@ribosome.natur.cuni.cz>'s full 16GB recognised again.  Dave
+  Hansen is working on that.
+
+- http://bugzilla.kernel.org/show_bug.cgi?id=6180 seems to be a recent
+  XFS regression.
+
+- Matthew Grant <grantma@anathoth.gen.nz>'s "rt_sigsuspend() does not
+  return EINTR on 2.6.16-rc2+" might be a new poll() bug, but that one's
+  hard and I suspect we'll need the extra testers which 2.6.16 will give to
+  be able to work out whether it's real and what the fix is.
+
+- http://bugzilla.kernel.org/show_bug.cgi?id=6177 _looks_ like a serious
+  TCP regression, but that happened between 2.6.14 and 2.6.15 and that's
+  the only report I've seen.
+
+Plus lots of other stuff, probably.

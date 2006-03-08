@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbWCHRUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWCHRfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030191AbWCHRUB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 12:20:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbWCHRUB
+	id S1751219AbWCHRfP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 12:35:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWCHRfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 12:20:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20613 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964799AbWCHRUA (ORCPT
+	Wed, 8 Mar 2006 12:35:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56721 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751219AbWCHRfO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 12:20:00 -0500
+	Wed, 8 Mar 2006 12:35:14 -0500
 From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060308154157.GI7301@parisc-linux.org> 
-References: <20060308154157.GI7301@parisc-linux.org>  <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com> 
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Alan Cox <alan@redhat.com>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2] 
+In-Reply-To: <Pine.LNX.4.64.0603080817500.5481@schroedinger.engr.sgi.com> 
+References: <Pine.LNX.4.64.0603080817500.5481@schroedinger.engr.sgi.com>  <31492.1141753245@warthog.cambridge.redhat.com> 
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers 
 X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 08 Mar 2006 17:19:41 +0000
-Message-ID: <10095.1141838381@warthog.cambridge.redhat.com>
+Date: Wed, 08 Mar 2006 17:35:08 +0000
+Message-ID: <10414.1141839308@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <matthew@wil.cx> wrote:
+Christoph Lameter <clameter@engr.sgi.com> wrote:
 
-> > That might be worth an example with an if() because PPC will do this and
-> > if its a read with a side effect (eg I/O space) you get singed..
-> 
-> PPC does speculative memory accesses to IO?  Are you *sure*?
+> You need to explain the difference between the compiler reordering and the 
+> control of the compilers arrangement of loads and stores and the cpu 
+> reordering of stores and loads.
 
-Can you do speculative reads from frame buffers?
+Hmmm... I would hope people looking at this doc would understand that, but
+I'll see what I can come up with.
 
-> # define smp_read_barrier_depends()     do { } while(0)
+> Note that IA64 has a much more complete set of means to reorder stores and
+> loads. i386 and x84_64 processors can only do limited reordering. So it may
+> make sense to deal with general reordering and then explain i386 as a
+> specific limited case.
 
-What's this one meant to do?
+Don't you need to use sacrifice_goat() for controlling the IA64? :-)
 
-> Port space is deprecated though.  PCI 2.3 says:
+Besides, I'm not sure that I need to explain that any CPU is a limited case;
+I'm primarily trying to define the basic minimal guarantees you can expect
+from using a memory barrier, and what might happen if you don't. It shouldn't
+matter which arch you're dealing with, especially if you're writing a driver.
 
-That's sort of irrelevant for the here. I still need to document the
-interaction.
+I tried to create arch-specific sections for describing arch-specific implicit
+barriers and the extent of the explicit memory barriers on each arch, but the
+i386 section was generating lots of exceptions that it looked infeasible to
+describe them; besides, you aren't allowed to rely on such features outside of
+arch code (I count arch-specific drivers as "arch code" for this).
 
-> Since memory write transactions may be posted in bridges anywhere
-> in the system, and I/O writes may be posted in the host bus bridge,
+> See the "Intel Itanium Architecture Software Developer's Manual" 
+> (available from intels website). Look at Volume 1 section 2.6 
+> "Speculation" and 4.4 "Memory Access"
 
-I'm not sure whether this is beyond the scope of this document. Maybe the
-document's scope needs to be expanded.
+I've added that to the refs, thanks.
+
+> Also the specific barrier functions of various locking elements varies to 
+> some extend.
+
+Please elaborate.
 
 David

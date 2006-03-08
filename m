@@ -1,130 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWCHB3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWCHBad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWCHB3T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWCHB3T
+	id S964829AbWCHBad (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWCHBad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:29:19 -0500
-Received: from web26501.mail.ukl.yahoo.com ([217.146.176.38]:8797 "HELO
-	web26501.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S964874AbWCHB3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:29:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=CRhOclI1uVQcNSvNRLteZpVGj6Axp2HCzvApXQiLXgMJIlI2iyLqRam/XKR6KWb5BJ4jaWRj2n2PEjM36jRRbtukWCaUtyQLHcr6CEM0p6tETbLGYXFIPvM0oonPWFk7j5UGWdJDb9QX/pn9Dinlz+dSOa60LKpCJsjmf8QkvEc=  ;
-Message-ID: <20060308012911.21985.qmail@web26501.mail.ukl.yahoo.com>
-Date: Wed, 8 Mar 2006 02:29:11 +0100 (CET)
-From: karsten wiese <annabellesgarden@yahoo.de>
-Subject: RE: [Alsa-devel] Re: 2.6.15-rt18, alsa sequencer, rosegarden -> alsa hangs
-To: Ingo Molnar <mingo@elte.hu>,
-       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       cc@ccrma.Stanford.EDU
-In-Reply-To: <20060307220628.GA27536@elte.hu>
+	Tue, 7 Mar 2006 20:30:33 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:8329 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964829AbWCHBac convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:30:32 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-714349146-1141781351=:15006"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: SATA ATAPI AHCI error messages?
+Date: Tue, 7 Mar 2006 17:30:29 -0800
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F50660ABA5@orsmsx410>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SATA ATAPI AHCI error messages?
+Thread-Index: AcZCT+JmHZLW8eXdSAKLHTmJ6khLDg==
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Mar 2006 01:30:30.0203 (UTC) FILETIME=[E2D3F8B0:01C6424F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-714349146-1141781351=:15006
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+Hello,
 
-
---- Ingo Molnar <mingo@elte.hu> schrieb:
-
-> 
-> * Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-> wrote:
-> 
-> > The symptoms are as follows:
-> >   - start jack using qjackctl
-> >   - start qsynth (gui front end for fluidsynth, a
-> synth)
-> >   - start rosegarden (midi sequencer and audio
-> recorder)
-> >   - load a midi file into rosegarden
-> >   - midi file plays successfully
-> >   - close rosegarden
-> > at this point one of the threads of rosegarden fails to
-> exit and stays
-> > forever in the process list, in a ps axuw it shows as:
-> > 
-> > nando 5484 0.0 0.0 0 0 pts/1    D    13:32   0:00
-> [rosegardenseque]
-> > 
-> > Anything else that I try to stop that touches the alsa
-> sequencer never
-> > dies (qjackctl, vkeybd, qsynth, etc). Anything I try to
-> start that tries
-> > to use it does not start. This happened with two widely
-> different
-> 
-> could you get a tasklist-dump? It's either SysRq-T, or:
-> 
-> 	echo t > /proc/sysrq-trigger
-> 
-> that should dump all tasks and their backtraces -
-> including the hung 
-> rosegardensequencer task.
-> 
-I had similar symptoms here (FC4) and cured them with
-attached patch against linux/2.6.15/rt18/kernel/softirq.c.
-Its in rt19 and ++ i think.
-
-      Karsten
-
-
-	
-
-	
-		
-___________________________________________________________ 
-Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de
---0-714349146-1141781351=:15006
-Content-Type: text/x-diff; name="patch_rt-18___tasklet_common_schedule.diff"
-Content-Description: 2951293989-patch_rt-18___tasklet_common_schedule.diff
-Content-Disposition: inline; filename="patch_rt-18___tasklet_common_schedule.diff"
-
---- /tmp/softirq.c~	2006-02-28 20:17:03.000000000 +0100
-+++ /tmp/softirq.c	2006-02-28 20:17:03.000000000 +0100
-@@ -351,13 +351,13 @@
- static DEFINE_PER_CPU(struct tasklet_head, tasklet_hi_vec) = { NULL };
+We are seeing the following error messages in dmesg with the 2.6.16-rc5
+kernel.  I have also tried to apply the git10 patch and still see the
+same errors.  This is seen using a Plextor PX-716SA or PX-712SA SATA
+DVDRW drive when in AHCI mode.  I do not see this message when the SATA
+controller is set to IDE mode, in the BIOS.  I have reproduced this
+using Intel ICH6R, ICH7R and ICH8 SATA controllers.  I have
+atapi_enabled=1 set in the libata-core.c file.  These error messages
+continue to be repeatedly logged about every 2 seconds.  Can someone
+tell me what is going on and if this will be addressed in the next RC
+release of the 2.6.16 kernel?
  
- static void inline
--__tasklet_common_schedule(struct tasklet_struct *t, struct tasklet_head *head)
-+__tasklet_common_schedule(struct tasklet_struct *t, struct tasklet_head *head, unsigned int nr)
- {
- 	if (tasklet_trylock(t)) {
- 		WARN_ON(t->next != NULL);
- 		t->next = head->list;
- 		head->list = t;
--		raise_softirq_irqoff(TASKLET_SOFTIRQ);
-+		raise_softirq_irqoff(nr);
- 		tasklet_unlock(t);
- 	}
- }
-@@ -367,7 +367,7 @@
- 	unsigned long flags;
- 
- 	raw_local_irq_save(flags);
--	__tasklet_common_schedule(t, &__get_cpu_var(tasklet_vec));
-+	__tasklet_common_schedule(t, &__get_cpu_var(tasklet_vec), TASKLET_SOFTIRQ);
- 	raw_local_irq_restore(flags);
- }
- 
-@@ -378,7 +378,7 @@
- 	unsigned long flags;
- 
- 	raw_local_irq_save(flags);
--	__tasklet_common_schedule(t, &__get_cpu_var(tasklet_hi_vec));
-+	__tasklet_common_schedule(t, &__get_cpu_var(tasklet_hi_vec), HI_SOFTIRQ);
- 	raw_local_irq_restore(flags);
- }
- 
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00 00
+sr: Current [descriptor]: sense key: Aborted Command
+    Additional sense: No additional sense information
 
---0-714349146-1141781351=:15006--
+Thanks,
+
+Jason
+

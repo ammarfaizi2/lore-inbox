@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWCHVbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWCHVc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWCHVbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWCHVbP
+	id S932521AbWCHVc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWCHVc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:31:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:38868 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932472AbWCHVbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:31:14 -0500
-Date: Wed, 8 Mar 2006 21:31:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: akpm@osdl.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/6] NFS: Add dentry materialisation op [try #7]
-Message-ID: <20060308213107.GC8042@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>, akpm@osdl.org,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060308203018.25493.23720.stgit@warthog.cambridge.redhat.com> <20060308203026.25493.17935.stgit@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308203026.25493.17935.stgit@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 8 Mar 2006 16:32:28 -0500
+Received: from xenotime.net ([66.160.160.81]:61056 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932521AbWCHVc1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:32:27 -0500
+Date: Wed, 8 Mar 2006 13:32:22 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Tim Tassonis <timtas@cubic.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+In-Reply-To: <440F4C80.6070907@cubic.ch>
+Message-ID: <Pine.LNX.4.58.0603081330420.10491@shark.he.net>
+References: <440F4C80.6070907@cubic.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  (*) _d_rehash() has been added as a wrapper around __d_rehash() to call it
->      with the most obvious hash list (the one from the name). d_rehash() now
->      calls _d_rehash().
+On Wed, 8 Mar 2006, Tim Tassonis wrote:
 
-We're not really kean on single _ prefix functions.  Could you give it a saner
-name instead (or a new one for __d_rehash and rename _d_reshash to that)
+>  >
+>  > if there was binary allowed (with any license) maybe dlink themself
+>  > would build a driver, make documentation and provide it on CD, just
+>  > see how much effort would be saved and in end he would get more time
+>  > to treat his patients.
+>  >
+>
+> Apart from all the other good arguments already posted:
+>
+> Are you really sure they will? Maybe dlink will, but I can tell from
+> personal expierience (whine, whine) that the majority of vendors still
+> won't release drivers. For the simple reason because they regard Linux a
+> market too small to support. That is the main reason for most of them,
+> not the license stuff.
 
+Right, what we really need IMO is specs and the right to produce
+GPL drivers from the specs.  Very little real work is required from the
+vendors aside from IP/legal.
+
+> Before Linux, I was an OS/2 user and although every vendor in the world
+> was allowed to provide OS/2 drivers, there were more or less the same
+> amount of vendor contributed drivers as there are now in Linux.
+>
+> I'm 100% sure that Linux supports more hardware than OS/2 did back then
+> and the user base (Desktop wise) was at least as big as Linux.
+>
+> OS/2 died exactly because software companies didn't write closed-source
+> software, hardware companies didn't write closed-source drivers, and IBM
+> couldn't write it all themselves.
+>
+> So why repeat this desaster?
+> Tim
+
+-- 
+~Randy

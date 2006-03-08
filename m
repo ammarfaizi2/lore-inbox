@@ -1,82 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWCHDFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964888AbWCHDFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWCHDFO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWCHDFO
+	id S964888AbWCHDFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWCHDFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:05:14 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:34503 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932387AbWCHDFL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:05:11 -0500
-Date: Wed, 8 Mar 2006 08:35:00 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Neil Brown <neilb@suse.de>
-Cc: Kirill Korotaev <dev@sw.ru>, Balbir Singh <bsingharora@gmail.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Olaf Hering <olh@suse.de>, Jan Blunck <jblunck@suse.de>,
-       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-Message-ID: <20060308030500.GB29327@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <17414.38749.886125.282255@cse.unsw.edu.au> <17419.53761.295044.78549@cse.unsw.edu.au> <661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com> <17420.59580.915759.44913@cse.unsw.edu.au> <440D2536.60005@sw.ru> <17422.9555.635650.460131@cse.unsw.edu.au> <20060308021731.GA29327@in.ibm.com> <17422.17387.691138.193521@cse.unsw.edu.au>
+	Tue, 7 Mar 2006 22:05:55 -0500
+Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:28303 "EHLO
+	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S964888AbWCHDFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:05:54 -0500
+References: <200603081013.44678.kernel@kolivas.org> <200603081322.02306.kernel@kolivas.org> <1141784834.767.134.camel@mindpipe> <200603081330.56548.kernel@kolivas.org> <b8bf37780603071852r6bf3821fr7610597a54ad305b@mail.gmail.com>
+Message-ID: <cone.1141787137.882268.19235.501@kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: =?ISO-8859-1?B?QW5kcuk=?= Goddard Rosa <andre.goddard@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+Subject: Re: [PATCH] mm: yield during swap prefetching
+Date: Wed, 08 Mar 2006 14:05:37 +1100
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17422.17387.691138.193521@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.10i
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-kolivas.org-19235-1141787137-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think that in most cases, the race doesn't matter if
-> shrink_dcache_memory misses a dentry because someone else is holding a
-> temporary reference, it really doesn't matter.
-> Similarly most callers of shrink_dcache_parent are happy with a
-> best-effort.
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
 
-I agree.
+--=_mimegpg-kolivas.org-19235-1141787137-0001
+Content-Type: text/plain; format=flowed; charset="ISO-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+X-Mime-Autoconverted: from 8bit to quoted-printable by mimegpg
 
+Andr=E9 Goddard Rosa writes:
+
+> [...]
+>> > > Because being a serious desktop operating system that we are
+>> > > (bwahahahaha) means the user should not have special privileges to ru=
+n
+>> > > something as simple as a game. Games should not need special scheduli=
+ng
+>> > > classes. We can always use 'nice' for a compile though. Real time aud=
+io
+>> > > is a completely different world to this.
+> [...]
+>> Well as I said in my previous reply, games should _not_ need special
+>> scheduling classes. They are not written in a real time smart way and the=
+y do
+>> not have any realtime constraints or requirements.
 > 
-> I should have been more explicit that the patch was against
-> 2.6.16-rc5-mm2.  This contains some dcache patches to allow nfs
-> filesystem to share superblocks, and one of the patches replaces the
-> calls to shrink_dcache_parent and shrink_dcache_anon with a single
-> call to a new function: shrink_dcache_sb.
->
+> Sorry Con, but I have to disagree with you on this.
+> 
+> Games are very complex software, involving heavy use of hardware resources
+> and they also have a lot of time constraints. So, I think they should
+> use RT priorities
+> if it is necessary to get the resources needed in time.
 
-shrink_dcache_parent() has been added back to generic_shutdown_super in
--mm3 (just checked). With that being the case, I have only one concern
-with your patch
+Excellent, I've opened the can of worms.
 
-wait_on_prunes() breaks out if sb->prunes == 0. What if shrink_dcache_parent()
-now calls select_parent(). select_parent() could still find entries 
-with d_count > 0 and skip them and shrink_dcache_memory() can still cause
-the race condition to occur.
+Yes, games are a in incredibly complex beast.
 
-I think pushing wait_on_prunes() to after shrink_dcache_parent() will
-most likely solve the race.
-
+No they shouldn't need real time scheduling to work well if they are coded 
+properly. However, witness the fact that most of our games are windows 
+ports, therefore being lower quality than the original. Witness also the 
+fact that at last with dual core support, lots and lots (but not all) of 
+windows games on _windows_ are having scheduling trouble and jerky playback,=
  
-> Thanks for the feedback
+forcing them to crappily force binding to one cpu. As much as I'd love to 
+blame windows, it is almost certainly due to the coding of the application 
+since better games don't exhibit this problem. Now the games in question 
+can't be trusted to even run on SMP; do you really think they could cope 
+with good real time code? Good -complex- real time coding is very difficult.=
+ 
+If you take any game out there that currently exists and throw real time 
+scheduling at it, almost certainly it will hang the machine. No, I don't 
+believe games need realtime scheduling to work well; they just need to be 
+written well and the kernel needs to be unintrusive enough to work well with=
+ 
+them. Otherwise gaming would have needed realtime scheduling from day 
+one on all operating systems. Generic kernel activities should not cause 
+game stuttering either as users have little control over them. I do expect 
+users to not run too many userspace programs while trying to play games 
+though. I do not believe we should make games work well in the presence of 
+updatedb running for example.
 
-Your welcome!
+Cheers,
+Con
 
-> 
-> NeilBrown
 
-Balbir
+--=_mimegpg-kolivas.org-19235-1141787137-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
 
--- 
-I'm extremely grateful that hundreds of you have taken time to read these
-patches, and to detect and report errors that you've found.
-Your comments have helped me improve enormously. But I must confess that
-I'm also disappointed to have had absolutely no feedback so far on several of
-the patches on which I worked hardest when I was preparing these patches.
-Could it be that (1) you've said nothing about them because I somehow managed
-to get the details perfect? Or is it that (2) you shy away and are busy, hence
-you are unable to spend more than a few minutes on any particular topic?
-Although I do like to think that readers like to provide feedback, I fear that
-hypothesis (1) is far less likely than hypothesis (2). 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Adapted from Don Knuth's comments on feedback for his exercises
+iD8DBQBEDkoBZUg7+tp6mRURAoszAJ92VIxqHRxyBVfHfIY7KUxBDGMzDgCfWsrt
+ABs88x3ldlS0BZE8WKrM110=
+=q1Ii
+-----END PGP SIGNATURE-----
 
+--=_mimegpg-kolivas.org-19235-1141787137-0001--

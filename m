@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWCHRfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751765AbWCHRgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWCHRfP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 12:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWCHRfP
+	id S1751765AbWCHRgS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 12:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWCHRgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 12:35:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56721 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751219AbWCHRfO (ORCPT
+	Wed, 8 Mar 2006 12:36:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7059 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751667AbWCHRgR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 12:35:14 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0603080817500.5481@schroedinger.engr.sgi.com> 
-References: <Pine.LNX.4.64.0603080817500.5481@schroedinger.engr.sgi.com>  <31492.1141753245@warthog.cambridge.redhat.com> 
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 08 Mar 2006 17:35:08 +0000
-Message-ID: <10414.1141839308@warthog.cambridge.redhat.com>
+	Wed, 8 Mar 2006 12:36:17 -0500
+Date: Wed, 8 Mar 2006 12:36:05 -0500
+From: Alan Cox <alan@redhat.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Alan Cox <alan@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
+Message-ID: <20060308173605.GB13063@devserv.devel.redhat.com>
+References: <20060308145506.GA5095@devserv.devel.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <9834.1141837491@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9834.1141837491@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
+On Wed, Mar 08, 2006 at 05:04:51PM +0000, David Howells wrote:
+> > [For information on bus mastering DMA and coherency please read ....]
+> > sincee have a doc on this
+> 
+> Documentation/pci.txt?
 
-> You need to explain the difference between the compiler reordering and the 
-> control of the compilers arrangement of loads and stores and the cpu 
-> reordering of stores and loads.
+and:
 
-Hmmm... I would hope people looking at this doc would understand that, but
-I'll see what I can come up with.
+Documentation/DMA-mapping.txt
+Documentation/DMA-API.txt
+> 
+> > The use of volatile generates poorer code and hides the serialization in 
+> > type declarations that may be far from the code.
+> 
+> I'm not sure what you mean by that.
 
-> Note that IA64 has a much more complete set of means to reorder stores and
-> loads. i386 and x84_64 processors can only do limited reordering. So it may
-> make sense to deal with general reordering and then explain i386 as a
-> specific limited case.
+in foo.h
 
-Don't you need to use sacrifice_goat() for controlling the IA64? :-)
+	struct blah {
+		volatile int x;	/* need serialization
+	}
 
-Besides, I'm not sure that I need to explain that any CPU is a limited case;
-I'm primarily trying to define the basic minimal guarantees you can expect
-from using a memory barrier, and what might happen if you don't. It shouldn't
-matter which arch you're dealing with, especially if you're writing a driver.
+2 million miles away
 
-I tried to create arch-specific sections for describing arch-specific implicit
-barriers and the extent of the explicit memory barriers on each arch, but the
-i386 section was generating lots of exceptions that it looked infeasible to
-describe them; besides, you aren't allowed to rely on such features outside of
-arch code (I count arch-specific drivers as "arch code" for this).
+	blah.x = 1;
+	blah.y = 4;
 
-> See the "Intel Itanium Architecture Software Developer's Manual" 
-> (available from intels website). Look at Volume 1 section 2.6 
-> "Speculation" and 4.4 "Memory Access"
+And you've no idea that its magically serialized due to a type declaration
+in a header you've never read. Hence the "dont use volatile" rule
 
-I've added that to the refs, thanks.
+> > Is this true of IA-64 ??
+> 
+> Are you referring to non-temporal loads and stores?
 
-> Also the specific barrier functions of various locking elements varies to 
-> some extend.
+Yep. But Matthew answered that
 
-Please elaborate.
+> > Should clarify local ordering v SMP ordering for locks implied here.
+> 
+> Do you mean explain what each sort of lock does?
 
-David
+spin_unlock ensures that local CPU writes before the lock are visible
+to all processors before the lock is dropped but it has no effect on 
+I/O ordering. Just a need for clarity.
+
+> > > + (*) inX(), outX():
+> > > +
+> > > +     These are intended to talk to legacy i386 hardware using an alternate bus
+> > > +     addressing mode.  They are synchronous as far as the x86 CPUs are
+> > 
+> > Not really true. Lots of PCI devices use them. Need to talk about "I/O space"
+> 
+> Which bit is not really true?
+
+The "legacy i386 hardware" bit. Many processors have an I/O space.
+

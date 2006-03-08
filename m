@@ -1,63 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751971AbWCHBOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWCHBRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751971AbWCHBOF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWCHBOF
+	id S1751353AbWCHBRg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWCHBRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:14:05 -0500
-Received: from colin.muc.de ([193.149.48.1]:29457 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751971AbWCHBOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:14:04 -0500
-Date: 8 Mar 2006 02:13:55 +0100
-Date: Wed, 8 Mar 2006 02:13:55 +0100
-From: Andi Kleen <ak@muc.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm2
-Message-ID: <20060308011355.GA79280@muc.de>
-References: <20060303045651.1f3b55ec.akpm@osdl.org> <200603052354.02828.dominik.karall@gmx.net> <20060306214357.0b299686.akpm@osdl.org> <200603071533.41430.dominik.karall@gmx.net> <1141752322.19827.3.camel@leatherman>
-Mime-Version: 1.0
+	Tue, 7 Mar 2006 20:17:36 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:42848 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1750952AbWCHBRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:17:35 -0500
+X-IronPort-AV: i="4.02,173,1139212800"; 
+   d="scan'208"; a="260258587:sNHT45303676"
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mlleinin@hpcn.ca.sandia.gov, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       shemminger@osdl.org
+Subject: Re: [openib-general] Re: TSO and IPoIB performance degradation
+X-Message-Flag: Warning: May contain useful information
+References: <1141767891.6119.903.camel@localhost>
+	<20060307134907.733d3d27@localhost.localdomain>
+	<1141776697.6119.938.camel@localhost>
+	<20060307.161808.60227862.davem@davemloft.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 07 Mar 2006 17:17:30 -0800
+In-Reply-To: <20060307.161808.60227862.davem@davemloft.net> (David S. Miller's message of "Tue, 07 Mar 2006 16:18:08 -0800 (PST)")
+Message-ID: <adaacc1raz9.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141752322.19827.3.camel@leatherman>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 08 Mar 2006 01:17:31.0954 (UTC) FILETIME=[12F49920:01C6424E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 09:25:12AM -0800, john stultz wrote:
-> On Tue, 2006-03-07 at 15:33 +0100, Dominik Karall wrote:
-> > On Tuesday, 7. March 2006 06:43, Andrew Morton wrote:
-> > > Dominik Karall <dominik.karall@gmx.net> wrote:
-> > > > On Friday, 3. March 2006 13:56, Andrew Morton wrote:
-> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc
-> > > > >5/2. 6.16-rc5-mm2/
-> > > >
-> > > > hi,
-> > > > I don't know why, but it seems that the kernel doesn't use the correct
-> > > > BIOS time. I set it to the 23:30 and after booting I got ~01:00 (next
-> > > > day).
-> > >
-> > > Is that new behaviour?  What's the most recent -mm kernel which that
-> > > machine ran?
-> > >
-> > > The full dmesg output might tell us something.
-> > 
-> > I bootet 2.6.16-rc5 now, but the bug is still present. I set BIOS time to 
-> > 15:07 and after booting linux showed 17:35.
-> 
-> Interesting. Right off, I'm not sure where this would be coming from.
-> >>From your dmesg it looks like this is running an x86-64 kernel, correct?
-> Andi, do you have any ideas?
+    David> How limited are the IPoIB devices, TX descriptor wise?
 
-Normally the time is read again in the startup scripts of the distribution.
-Sounds like he configured the wrong time zone. Usually distributions
-can be configured to assume UTC real clock time or local time RTC.
+    David> One side effect of the TSO changes is that one extra
+    David> descriptor will be used for outgoing packets.  This is
+    David> because we have to put the headers as well as the user
+    David> data, into page based buffers now.
 
-You can test that theory by commenting out any calls to hwclock
-in your boot scripts. 
+We have essentially no limit on TX descriptors.  However I think
+there's some confusion about TSO: IPoIB does _not_ do TSO -- generic
+InfiniBand hardware does not have any TSO capability.  In the future
+we might be able to implement TSO for certain hardware that does have
+support, but even that requires some firmware help from the from the
+HCA vendors, etc.  So right now the IPoIB driver does not do TSO.
 
-But that behaviour should be the same in all kernels.
+The reason TSO comes up is that reverting the patch described below
+helps (or helped at some point at least) IPoIB throughput quite a bit.
+Clearly this was a bug fix so we can't revert it in general but I
+think what Michael Tsirkin was suggesting at the beginning of this
+thread is to do what the last paragraph of the changelog says -- find
+some way to re-enable the trick.
 
--Andi
+diff-tree 3143241... (from e16fa6b...)
+Author: David S. Miller <davem@davemloft.net>
+Date:   Mon May 23 12:03:06 2005 -0700
+
+    [TCP]: Fix stretch ACK performance killer when doing ucopy.
+
+    When we are doing ucopy, we try to defer the ACK generation to
+    cleanup_rbuf().  This works most of the time very well, but if the
+    ucopy prequeue is large, this ACKing behavior kills performance.
+
+    With TSO, it is possible to fill the prequeue so large that by the
+    time the ACK is sent and gets back to the sender, most of the window
+    has emptied of data and performance suffers significantly.
+
+    This behavior does help in some cases, so we should think about
+    re-enabling this trick in the future, using some kind of limit in
+    order to avoid the bug case.
+
+ - R.

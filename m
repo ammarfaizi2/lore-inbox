@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWCHWtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWCHWuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWCHWtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:49:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWCHWtG
+	id S932440AbWCHWuy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:50:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbWCHWuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:49:06 -0500
-Received: from pat.uio.no ([129.240.130.16]:27779 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932256AbWCHWtE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:49:04 -0500
-Subject: Re: [PATCH 5/6] NFS: Unify NFS superblocks per-protocol per-server
-	[try #7]
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com, aviro@redhat.com,
-       linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060308203028.25493.84121.stgit@warthog.cambridge.redhat.com>
-References: <20060308203018.25493.23720.stgit@warthog.cambridge.redhat.com>
-	 <20060308203028.25493.84121.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 17:48:42 -0500
-Message-Id: <1141858122.11378.15.camel@lade.trondhjem.org>
+	Wed, 8 Mar 2006 17:50:54 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:26496
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932440AbWCHWuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:50:54 -0500
+Date: Wed, 8 Mar 2006 14:50:29 -0800
+From: Greg KH <gregkh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for 2.6.16-rc5
+Message-ID: <20060308225029.GA26117@suse.de>
+References: <20060306223545.GA20885@kroah.com> <20060308222652.GR4006@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.127, required 12,
-	autolearn=disabled, AWL 1.74, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060308222652.GR4006@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 20:30 +0000, David Howells wrote:
-> The attached patch makes NFS share superblocks between mounts from the same
-> server over the same protocol.
+On Wed, Mar 08, 2006 at 11:26:52PM +0100, Adrian Bunk wrote:
+> On Mon, Mar 06, 2006 at 02:35:45PM -0800, Greg KH wrote:
+> 
+> > Here's a summary of the current state of the Linux PCI and PCI Hotplug
+> > subsystems as of 2.6.16-rc5
+> > 
+> > If the information in here is incorrect, or anyone knows of any
+> > outstanding issues not listed here, please let me know.
+> >...
+> > Was this summary useful for people?  Anything that I should add to it?
+> 
+> It is useful, but one thing seems to be missing:
+> Which patches do you intend to forward for 2.6.16 (if any)?
 
-We want to make NFS share superblocks on a per-filesystem basis, rather
-than forcing it into a per-server basis. Cachefs may like the latter,
-but POSIX does not like a filesystem where inode numbers are not
-guaranteed to be unique.
-A unique per-server superblock also makes it hard to support features
-like failover onto replicated filesystems and/or migration of individual
-filesystems onto another server.
+None, as I am expecting 2.6.16 to be out any day now.
 
-Cheers,
-  Trond
+> (pci-pci-quirk-for-asus-a8v-and-a8v-deluxe-motherboards.patch seems to
+>  be a candidate.)
 
+Yes, if people really want it in I could send it, but I was just looking
+for "bugfixes only" at this late stage of the game.
+
+thanks,
+
+thanks,
+
+greg k-h

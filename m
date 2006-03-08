@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWCHUng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932458AbWCHUpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWCHUng (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWCHUnf
+	id S932458AbWCHUpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 15:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWCHUpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:43:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43949 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932211AbWCHUne (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:43:34 -0500
-Message-ID: <440F4130.5040703@redhat.com>
-Date: Wed, 08 Mar 2006 15:40:16 -0500
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 8 Mar 2006 15:45:03 -0500
+Received: from mailgateway.remaxtalk.com ([38.119.96.69]:43971 "EHLO
+	mailgateway.remaxtalk.com") by vger.kernel.org with ESMTP
+	id S932457AbWCHUpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 15:45:01 -0500
+Message-ID: <1141850253.440f408d72c38@mail.rmxtalk.com>
+Date: Wed,  8 Mar 2006 15:37:33 -0500
+From: =?iso-8859-1?b?RPZydGU=?= Engel <dorte@myHouseAngels.com>
+To: linux-kernel@vger.kernel.org
+Subject: Joern =?iso-8859-1?b?KEr2cm4p?= Engel
 MIME-Version: 1.0
-To: eranian@hpl.hp.com
-CC: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
-       perfctr-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Subject: Re: 2.6.16-rc5 perfmon2 new code base + libpfm with Montecito support
-References: <20060308155311.GD13168@frankl.hpl.hp.com>
-In-Reply-To: <20060308155311.GD13168@frankl.hpl.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Priority: 3
+X-Originating-IP: 69.140.183.97
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian wrote:
-> Hello,
-> 
-> I have released another version of the perfmon new base package.
-> This release is relative to 2.6.16-rc5
+Hi y'all,
 
-Hello Stephane,
+I am looking for my brother. If anyone has a good email address for him, could
+you pass it along? Thanks a million.
 
-Is there any thoughts on how perfmon2 is going to work with xen enabled 
-kernels or processors that support virtualization?
+Sincerely,
 
--Will
+Dörte Engel
+one of the House-Angels
+@ RE/MAX Allegiance
+Annapolis/Bowie, Maryland
+
+240-398-7875 (c)
+866-876-1118 (f)
+www.myHouseAngels.com

@@ -1,66 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWCHDbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWCHDoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932437AbWCHDbF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWCHDbF
+	id S1750735AbWCHDoU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWCHDoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:31:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30909 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932424AbWCHDbE (ORCPT
+	Tue, 7 Mar 2006 22:44:20 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:6829 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750735AbWCHDoT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:31:04 -0500
-Date: Tue, 7 Mar 2006 19:30:33 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, mingo@redhat.com,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers
-In-Reply-To: <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.64.0603071918460.32577@g5.osdl.org>
-References: <31492.1141753245@warthog.cambridge.redhat.com>
- <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
+	Tue, 7 Mar 2006 22:44:19 -0500
+Date: Tue, 7 Mar 2006 22:45:09 -0500 (EST)
+From: Wu Zhou <woodzltc@cn.ibm.com>
+X-X-Sender: woodzltc@localhost.localdomain
+To: andrea@suse.de
+cc: linux-kernel@vger.kernel.org
+Subject: About [PATCH] ptrace/coredump/exit_group deadlock
+Message-ID: <Pine.LNX.4.64.0603072158110.6316@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrea,
 
+I am recently tracking a problem showing first in kernel 2.6.15 that 
+ptraced multithreaded exec dies with a spurious SIGKILL (the url is 
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177240).
 
-On Wed, 8 Mar 2006, Paul Mackerras wrote:
-> 
-> Linus explained recently that wmb() on x86 does not order stores to
-> system memory w.r.t. stores to stores to prefetchable I/O memory (at
-> least that's what I think he said ;).
+In this case, the child thread calls execve to run a user specified 
+command. When running in ptraced environment (e.g. strace -f -o log 
+./threadexec /bin/echo hi), the process dies by SIGKILL immediately 
+after execing the command (/bin/echo in this example).
 
-In fact, it won't order stores to normal memory even wrt any 
-_non-prefetchable_ IO memory.
+After some tracking, I found that it might be related with your patch 
+in http://marc.theaimsgroup.com/?l=linux-kernel&m=112833915827432&w=2, 
+titled "ptrace/coredump/exit_group deadlock".  After reversing your
+patch, the case runs ok.
 
-PCI (and any other sane IO fabric, for that matter) will do IO posting, so 
-the fact that the CPU _core_ may order them due to a wmb() doesn't 
-actually mean anything.
+The SIGKILL is sent in ptrace_untrace when sys_execve call flush_old_exec
+to flush the old executable.  In that process, signal->flags of threadexec
+is set to SIGNAL_GROUP_EXIT by zap_other_threads.  And the following code 
+send the fatal SIGKILL to threadexec, so it dies.
 
-The only way to _really_ synchronize with a store to an IO device is 
-literally to read from that device (*). No amount of memory barriers will 
-do it.
++	if (child->signal->flags & SIGNAL_GROUP_EXIT) {
++		sigaddset(&child->pending.signal, SIGKILL);
++		signal_wake_up(child, 1);
++	}
 
-So you can really only order stores to regular memory wrt each other, and 
-stores to IO memory wrt each other. For the former, "smp_wmb()" does it.
+I am not sure if I understand all these code.  But I see that you 
+mentioned that "The __ptrace_unlink does nothing because the signal->flags 
+is set to SIGNAL_GROUP_EXIT|SIGNAL_STOP_DEQUEUED".  Maybe the above code 
+should change to something like this:
 
-For IO memory, normal IO memory is _always_ supposed to be in program 
-order (at least for PCI. It's part of how the bus is supposed to work), 
-unless the IO range allows prefetching (and you've set some MTRR). And if 
-you do, that, currently you're kind of screwed. mmiowb() should do it, but 
-nobody really uses it, and I think it's broken on x86 (it's a no-op, it 
-really should be an "sfence").
++       if (child->signal->flags & (SIGNAL_GROUP_EXIT|SIGNAL_STOP_DEQUEUED) ) {
++               sigaddset(&child->pending.signal, SIGKILL);
++               signal_wake_up(child, 1);
++       }
 
-A full "mb()" is probably most likely to work in practice. And yes, we 
-should clean this up.
+That is just my guess anyway.  Forgive me if it is incorrect.  
 
-		Linus
+BTW, you mentioned a gdb bug report which can reproduce the deadlock you are
+trying to fix.  Can you give me a pointer to that?  That will be helpful 
+for me to understand more cleanly about the problem.  Thanks in advance.
 
-(*) The "read" can of course be any event that tells you that the store 
-has happened - it doesn't necessarily have to be an actual "read[bwl]()" 
-operation. Eg the store might start a command, and when you get the 
-completion interrupt, you obviously know that the store is done, just from 
-a causal reason.
+Appended is the source code of the above mentioned testcase:
+
+#include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <stdlib.h>
+
+struct args {
+  char **argv;
+  char **envp;
+};
+
+// Child thread
+static void *
+exec_args (void *arg)
+{
+  struct args *args = arg;
+
+  printf ("this is in child thread\n");
+  execve (args->argv[1], args->argv + 1, args->envp);
+  /* Reaching here implies an error.  */
+  perror ("execve");
+  exit (1);
+
+}
+
+int
+main (int argc, char **argv, char **envp)
+{
+  if (argc < 2) {
+    printf ("Usage: %s command args ...\n", argv[0]);
+    return 1;
+  }
+
+  struct args args;
+  args.argv = argv;
+  args.envp = envp;
+  pthread_t thread;
+  if (pthread_create (&thread, NULL, exec_args, &args)) {
+    perror ("pthread_create");
+    exit (1);
+  }
+
+  void *retval;
+  if (pthread_join (thread, &retval)) {
+    perror ("pthread_join");
+    exit (1);
+  }
+
+  /* Should this ever be reached?  */
+  exit (1);
+}
+
+Just for you reference.
+
+Regards
+- Wu Zhou
+
+P.S: please include me in the cc-list.  I don't subscribe to the mail list 
+yet.

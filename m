@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWCHWYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWCHWYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWCHWYh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWCHWYh
+	id S1030233AbWCHWYu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWCHWYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:24:37 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14000 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030229AbWCHWYg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:24:36 -0500
-Date: Wed, 8 Mar 2006 23:24:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Message-ID: <20060308222404.GA4693@elf.ucw.cz>
-References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org> <cone.1141774323.5234.18683.501@kolivas.org> <20060307160515.0feba529.akpm@osdl.org>
+	Wed, 8 Mar 2006 17:24:50 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:28802 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1030233AbWCHWYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:24:48 -0500
+Date: Wed, 8 Mar 2006 14:25:28 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       davem@davemloft.net, netdev@vger.kernel.org, shai@scalex86.org
+Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
+Message-ID: <20060308222528.GE4493@localhost.localdomain>
+References: <20060308015808.GA9062@localhost.localdomain> <20060308015934.GB9062@localhost.localdomain> <20060307181301.4dd6aa96.akpm@osdl.org> <20060308202656.GA4493@localhost.localdomain> <20060308203642.GZ5410@kvack.org> <20060308210726.GD4493@localhost.localdomain> <20060308211733.GA5410@kvack.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060307160515.0feba529.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060308211733.GA5410@kvack.org>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 07-03-06 16:05:15, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> >
-> > > yield() really sucks if there are a lot of runnable tasks.  And the amount
-> > > of CPU which that thread uses isn't likely to matter anyway.
-> > > 
-> > > I think it'd be better to just not do this.  Perhaps alter the thread's
-> > > static priority instead?  Does the scheduler have a knob which can be used
-> > > to disable a tasks's dynamic priority boost heuristic?
-> > 
-> > We do have SCHED_BATCH but even that doesn't really have the desired effect. 
-> > I know how much yield sucks and I actually want it to suck as much as yield 
-> > does.
+On Wed, Mar 08, 2006 at 04:17:33PM -0500, Benjamin LaHaise wrote:
+> On Wed, Mar 08, 2006 at 01:07:26PM -0800, Ravikiran G Thirumalai wrote:
 > 
-> Why do you want that?
-> 
-> If prefetch is doing its job then it will save the machine from a pile of
-> major faults in the near future.  The fact that the machine happens
+> Last time I checked, all the major architectures had efficient local_t 
+> implementations.  Most of the RISC CPUs are able to do a load / store 
+> conditional implementation that is the same cost (since memory barriers 
+> tend to be explicite on powerpc).  So why not use it?
 
-Or maybe not.... it is prefetch, it may prefetch wrongly, and you
-definitely want it doing nothing when system is loaded.... It only
-makes sense to prefetch when system is idle.
-								Pavel
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Then, for the batched percpu_counters, we could gain by using local_t only for 
+the UP case. But we will have to have a new local_long_t implementation 
+for that.  Do you think just one use case of local_long_t warrants for a new
+set of apis?
+
+Kiran

@@ -1,32 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWCHTaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWCHTb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWCHTaM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 14:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWCHTaM
+	id S932127AbWCHTb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 14:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWCHTb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 14:30:12 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:55709 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932120AbWCHTaK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 14:30:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=OwHZC0pBSU3zBbxwuNEZdcTmghR3ZysgfBIn3vhbm5BequFdjYFJiVXhdPHIvY5qELGk76jn0q+x/o4yOyVLE0R1KByQD2RAVCaPL49cz+INIKdSSFia9BLcPrdDC81BBP+p8bGNKlbGKNHG1kENswmY146rdfFUcVqv8KE2R3k=
-Message-ID: <305c16960603081130g5367ddb3m4cbcf39a9253a087@mail.gmail.com>
-Date: Wed, 8 Mar 2006 16:30:09 -0300
-From: "Matheus Izvekov" <mizvekov@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: usbkbd not reporting unknown keys
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 8 Mar 2006 14:31:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64749 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932123AbWCHTby (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 14:31:54 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org> 
+References: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org>  <20060308184500.GA17716@devserv.devel.redhat.com> <20060308173605.GB13063@devserv.devel.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <9834.1141837491@warthog.cambridge.redhat.com> <11922.1141842907@warthog.cambridge.redhat.com> <14275.1141844922@warthog.cambridge.redhat.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@redhat.com>,
+       akpm@osdl.org, mingo@redhat.com, linux-arch@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 08 Mar 2006 19:31:42 +0000
+Message-ID: <19984.1141846302@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a multimedia keyboard with some keys not mapped in linux, which
-i intend to create mappings for. When i connect it to serio0, those
-unknown keys trigger messages on the console about it, but when its
-conncted to a usb port, nothing gets printed, and Ive even set console
-loglevel to 8. What am i missing?
+Linus Torvalds <torvalds@osdl.org> wrote:
+
+> Actually, since the different NUMA things may have different paths to the 
+> PCI thing, I don't think even the mmiowb() will really help. It has 
+> nothing to serialize _with_.
+
+On NUMA PowerPC, should mmiowb() be a SYNC or an EIEIO instruction then? Those
+do inter-component synchronisation.
+
+David

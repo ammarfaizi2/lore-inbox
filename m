@@ -1,71 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWCHWw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbWCHWxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWCHWw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWCHWw5
+	id S932607AbWCHWxp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:53:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWCHWxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:52:57 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:63164 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S932607AbWCHWw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:52:56 -0500
-Message-ID: <440F6048.1030709@t-online.de>
-Date: Wed, 08 Mar 2006 23:52:56 +0100
-From: Hartmut Hackmann <hartmut.hackmann@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Wed, 8 Mar 2006 17:53:45 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:53464 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932607AbWCHWxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:53:44 -0500
+X-Sasl-enc: 6vEqCeyK9LgH+M9GBRT9SxRN5tkQHoBxDPtp8cAHA4b9 1141858421
+Message-ID: <440F6078.9050004@imap.cc>
+Date: Wed, 08 Mar 2006 23:53:44 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
 MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: Brian Marete <bgmarete@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: [v4l-dvb-maintainer] 2.6.16-rc5: known regressions
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>	<20060227061354.GO3674@stusta.de> <1141308011.5884.5.camel@localhost>	<6dd519ae0603080313o4e7b8a61h5002125c33a0e008@mail.gmail.com> <1141849770.7534.55.camel@praia>
-In-Reply-To: <1141849770.7534.55.camel@praia>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ID: VylwmoZdoe6oTPXPLqXmM-DjwGiI+DNVwMcQP5JqzEe-GH3s-BFuQl
-X-TOI-MSGID: 22c33dea-54aa-47b5-9c27-b20419b57d60
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+CC: hjlipp@web.de, Greg KH <gregkh@suse.de>
+Subject: [PATCH] add macros notice(), dev_notice() (take 2)
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig288B3A557DCEEE083A545EEB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Brian
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig288B3A557DCEEE083A545EEB
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Mauro Carvalho Chehab wrote:
-> Wow! Lots of people being c/c here! Since all pertinent guys are at
-> lkml, I've just removed all those spam, keeping copied just the lists,
-> and Adrian, who warned me about it.
-> 
-> Em Qua, 2006-03-08 às 14:13 +0300, Brian Marete escreveu:
-> 
->>What you say is quite correct.
->>
->>However, my card is not known by the driver, and `card=3' has been working
->>for me all the while, with no problems at all. In any case, removing
->>`disable_ir=1' from the insmod options hides the problem for me. By the way,
->>that option was there since in an an earlier -rc, loading the driver without
->>it would cause an oops.
-> 
-> The option disable_ir is, in fact, a workaround. If this is not needed
-> anymore, this is a progress ;) Anyway, having an OOPS is really bad. We
-> should go further to avoid oops on it.
-> 
-> IR on some saa7134 cards are really a trouble. Sometimes, it just
-> generates lots of weird events, since you are gathering a generic io
-> port (GPIO) from hardware to generate keypressing. Using the wrong port
-> may generate troubles at the system, by sending wrong events to input.
-> With a wrong card, if somebody fixed the IR, it may broke for your
-> board.
+Both usb.h and device.h have collections of convenience macros for
+printk() with the KERN_ERR, KERN_WARNING, and KERN_NOTICE severity
+levels. This patch adds macros for the KERN_NOTICE level which was
+so far uncatered for.
 
-<snip>
+These macros already exist privately in drivers/isdn/gigaset/gigaset.h
+(currently in the process of being submitted for the kernel tree)
+but they really belong with their brothers and sisters in
+include/linux/{device,usb}.h.
 
-I tried to reproduce your problem but i didn't succeed yet. I also think
-that the IR support could be the problem. Card 3 defines a GPIO based
-remote support.  As Mauro mentioned above, this is - at least - dangerous
-if you force this card type but you don't have a remote control or just a
-different one. This type of remote can use a GPIO port of the SAA713x to
-generate interrupts. If this pin is floating on your card, the driver can
-just be flooded with IRQs. We should have a look whether we can prevent this
-in the IRQ handler.
+This patch applies to kernel 2.6.16-rc5. It replaces the one posted
+on 24 Feb 2006 11:05:45 +0100 which might cause compile errors in
+non-modular drivers.
 
-Best regards
-    Hartmut
+Signed-off-by: Tilman Schmidt <tilman@imap.cc>
+---
+
+ device.h |    2 ++
+ usb.h    |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff -ru linux-2.6.16-rc5/include/linux/device.h linux-2.6.16-rc5-patch-s=
+plitpoint/include/linux/device.h
+--- linux-2.6.16-rc5/include/linux/device.h	2006-02-27 06:09:35.000000000=
+ +0100
++++ linux-2.6.16-rc5-patch-splitpoint/include/linux/device.h	2006-03-08 1=
+2:31:51.000000000 +0100
+@@ -424,6 +424,8 @@
+ 	dev_printk(KERN_INFO , dev , format , ## arg)
+ #define dev_warn(dev, format, arg...)		\
+ 	dev_printk(KERN_WARNING , dev , format , ## arg)
++#define dev_notice(dev, format, arg...)		\
++	dev_printk(KERN_NOTICE , dev , format , ## arg)
+
+ /* Create alias, so I can be autoloaded. */
+ #define MODULE_ALIAS_CHARDEV(major,minor) \
+diff -ru linux-2.6.16-rc5/include/linux/usb.h linux-2.6.16-rc5-patch-spli=
+tpoint/include/linux/usb.h
+--- linux-2.6.16-rc5/include/linux/usb.h	2006-02-27 06:09:35.000000000 +0=
+100
++++ linux-2.6.16-rc5-patch-splitpoint/include/linux/usb.h	2006-03-08 12:3=
+6:03.000000000 +0100
+@@ -1205,6 +1205,8 @@
+ 	__FILE__ , ## arg)
+ #define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n" , \
+ 	__FILE__ , ## arg)
++#define notice(format, arg...) printk(KERN_NOTICE "%s: " format "\n" , \=
+
++	__FILE__ , ## arg)
+
+
+ #endif  /* __KERNEL__ */
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+
+
+--------------enig288B3A557DCEEE083A545EEB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFED2CCMdB4Whm86/kRAvh/AJ9xE/mWmstVGWWqm7A2wr0rtqj/3gCbBtDg
+UkWzTFzexYtwqRC2TKl7Cyg=
+=4HQg
+-----END PGP SIGNATURE-----
+
+--------------enig288B3A557DCEEE083A545EEB--

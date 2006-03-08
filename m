@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWCHPat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWCHPht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWCHPat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 10:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWCHPat
+	id S1750969AbWCHPht (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 10:37:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751013AbWCHPht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 10:30:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58326 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750753AbWCHPas (ORCPT
+	Wed, 8 Mar 2006 10:37:49 -0500
+Received: from mail.tmr.com ([64.65.253.246]:55050 "EHLO firewall2.tmr.com")
+	by vger.kernel.org with ESMTP id S1750883AbWCHPhs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 10:30:48 -0500
-Date: Wed, 8 Mar 2006 07:30:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Paul Mackerras <paulus@samba.org>, David Howells <dhowells@redhat.com>,
-       akpm@osdl.org, linux-arch@vger.kernel.org, bcrl@linux.intel.com,
-       matthew@wil.cx, linux-kernel@vger.kernel.org, mingo@redhat.com,
-       linuxppc64-dev@ozlabs.org, jblunck@suse.de
-Subject: Re: Memory barriers and spin_unlock safety
-In-Reply-To: <1141823577.7605.31.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0603080724180.32577@g5.osdl.org>
-References: <32518.1141401780@warthog.cambridge.redhat.com> 
- <Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>  <17417.29375.87604.537434@cargo.ozlabs.ibm.com>
-  <Pine.LNX.4.64.0603040914160.22647@g5.osdl.org>  <17422.19865.635112.820824@cargo.ozlabs.ibm.com>
-  <Pine.LNX.4.64.0603071930530.32577@g5.osdl.org> <1141823577.7605.31.camel@localhost.localdomain>
+	Wed, 8 Mar 2006 10:37:48 -0500
+Date: Wed, 8 Mar 2006 10:37:04 -0500 (EST)
+From: Bill Davidsen <tmrbill@tmr.com>
+Reply-To: davidsen@tmr.com
+To: Mark Lord <liml@rtr.ca>
+cc: Bill Davidsen <davidsen@tmr.com>, Jeff Garzik <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>,
+       IDE/ATA development list <linux-ide@vger.kernel.org>, <axboe@suse.de>,
+       <albertcc@tw.ibm.com>
+Subject: Re: LibPATA code issues / 2.6.15.4
+In-Reply-To: <440E4803.7070808@rtr.ca>
+Message-ID: <Pine.LNX.4.44.0603081034540.31895-100000@firewall2.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 7 Mar 2006, Mark Lord wrote:
 
-
-On Wed, 8 Mar 2006, Alan Cox wrote:
->
-> On Maw, 2006-03-07 at 19:54 -0800, Linus Torvalds wrote:
-> > Close, yes. HOWEVER, it's only really ordered wrt the "innermost" bus. I 
-> > don't think PCI bridges are supposed to post PIO writes, but a x86 CPU 
-> > basically won't stall for them forever.
+> Bill Davidsen wrote:
+> >
+> > Is there a version of that which will build on x86? I grabbed the 
+> > version offered at freshmeat, but it won't compile on any x86 distro or 
+> > gcc version to which I have access. RH8, RH9, FC1, FC3, FC4, ubuntu... 
+> > with or without using the suggested alternate header.
 > 
-> The bridges I have will stall forever. You can observe this directly if
-> an IDE device decides to hang the IORDY line on the IDE cable or you
-> crash the GPU on an S3 card.
+> hdparm-6.5 is the current version now.  Both it, and 6.4,
+> build/install/run cleanly on Ubunutu-5.10, Debian-Sarge,
+> and SLES9-SP3.
+> 
+> You seem to be having trouble on only Redhat distros..
+> I guess they've done something unfriendly again.
+> 
+> Care to be more specific about what Redhat is doing?
 
-Ok. The only thing I have tested is the timing of "outb()" on its own, 
-which is definitely long enough that it clearly waits for _some_ bus 
-activity (ie the CPU doesn't just post the write internally), but I don't 
-know exactly what the rules are as far as the core itself is concerned: I 
-suspect the core just waits until it has hit the northbridge or something.
+I'll mail you the first few hundred errors from the compiler after I go 
+find 6.5 and try that. My ubuntu tester reported similar results, so I'm 
+not sure what we are doing.
 
-In contrast, a MMIO write to a WC region at least will not necessarily 
-pause the core at all: it just hits the write queue in the core, and the 
-core continues on (and may generate other writes that will be combined in 
-the write buffers before the first one even hits the bus).
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+Doing interesting things with little computers since 1979
 
-		Linus

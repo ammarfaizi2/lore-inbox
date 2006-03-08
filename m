@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWCHVsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWCHVsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWCHVsq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWCHVsq
+	id S932240AbWCHVsg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWCHVsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:48:46 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:41386 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932467AbWCHVsp (ORCPT
+	Wed, 8 Mar 2006 16:48:36 -0500
+Received: from ns2.suse.de ([195.135.220.15]:63670 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932240AbWCHVsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:48:45 -0500
-Date: Wed, 8 Mar 2006 15:48:30 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: mulix@mulix.org, Andi Kleen <ak@muc.de>
-Subject: [PATCH] x86-64: Make GART_IOMMU kconfig help text more specific (trivial)
-Message-ID: <20060308214829.GJ28921@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 16:48:35 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store buffers
+Date: Wed, 8 Mar 2006 15:21:18 +0100
+User-Agent: KMail/1.9.1
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, akpm@osdl.org,
+       paulus@samba.org, bcrl@kvack.org, linux-kernel@vger.kernel.org
+References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain> <1141853919.11221.183.camel@localhost.localdomain> <1141854208.27555.1.camel@localhost.localdomain>
+In-Reply-To: <1141854208.27555.1.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200603081521.19693.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, forgot to CC lkml.
+On Wednesday 08 March 2006 22:43, Bryan O'Sullivan wrote:
+> On Thu, 2006-03-09 at 08:38 +1100, Benjamin Herrenschmidt wrote:
+> 
+> > I think people already don't undersatnd the existing gazillion of
+> > barriers we have with quite unclear semantics in some cases, it's not
+> > time to add a new one ...
+> 
+> What do you suggest I do, then?  This makes a substantial difference to
+> performance for us.  Should I confine this somehow to the ipath driver
+> directory and have a nest of ifdefs in an include file there?
 
------ Forwarded message from Jon Mason <jdmason@us.ibm.com> -----
+I think doing it privately is the better solution because I don't think you 
+have established it has an universal semantic that works
+on all X86-64 systems.
 
-User-Agent: Mutt/1.5.11
-From: Jon Mason <jdmason@us.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Date: Wed, 8 Mar 2006 15:45:49 -0600
-Subject: [PATCH] x86-64: Make GART_IOMMU kconfig help text more specific (trivial)
+And we don't have a portable way to do WC anyways, so there is 
+no portable way to use it.
 
-Have the GART_IOMMU help text specify that this is the hardware IOMMU in
-amd64 processors.  This will be significant if/when other IOMMUs are
-added to the x86-64 architecture. :-)
+So just put an ifdef in.
 
-Also, note that the previous help text stated that IOMMU was needed for
->3GB memory instead of >4GB.  This is fixed in the newer version.
-
-Thanks,
-Jon
-
-Signed-off-by: Jon Mason <jdmason@us.ibm.com>
-
-diff -r 149aa2a22913 arch/x86_64/Kconfig
---- a/arch/x86_64/Kconfig	Tue Feb 28 22:02:10 2006
-+++ b/arch/x86_64/Kconfig	Wed Mar  8 15:24:44 2006
-@@ -364,13 +364,14 @@
- 	select SWIOTLB
- 	depends on PCI
- 	help
--	  Support the IOMMU. Needed to run systems with more than 3GB of memory
--	  properly with 32-bit PCI devices that do not support DAC (Double Address
--	  Cycle). The IOMMU can be turned off at runtime with the iommu=off parameter.
--	  Normally the kernel will take the right choice by itself.
--	  This option includes a driver for the AMD Opteron/Athlon64 northbridge IOMMU
--	  and a software emulation used on other systems.
--	  If unsure, say Y.
-+	  Support for hardware IOMMU in AMD's Opteron/Athlon64 Processors.
-+	  Needed to run systems with more than 4GB of memory properly with
-+	  32-bit PCI devices that do not support DAC (Double Address Cycle).
-+	  The IOMMU can be turned off at runtime with the iommu=off parameter.
-+  	  Normally the kernel will take the right choice by itself.
-+  	  This option includes a driver for the AMD Opteron/Athlon64 IOMMU
-+  	  northbridge and a software emulation used on some other systems.
-+  	  If unsure, say Y.
- 
- # need this always enabled with GART_IOMMU for the VIA workaround
- config SWIOTLB
-
------ End forwarded message -----
+-Andi

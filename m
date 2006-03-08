@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWCHSjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWCHSjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932234AbWCHSjl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 13:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWCHSjl
+	id S932326AbWCHSjv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 13:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWCHSjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 13:39:41 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:57491 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932234AbWCHSjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 13:39:41 -0500
-Message-Id: <200603081838.k28Icwg10327@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>,
-       "Zhang, Yanmin" <yanmin.zhang@intel.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, "William Lee Irwin" <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: hugepage: Strict page reservation for hugepage inodes
-Date: Wed, 8 Mar 2006 10:38:58 -0800
+	Wed, 8 Mar 2006 13:39:51 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:59368 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932326AbWCHSju convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 13:39:50 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZCmrcLRpxa8vigQ7GBTa0cXrK8/AAQ/OFA
-In-Reply-To: <20060308102314.GB32571@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Transfer-Encoding: 8BIT
+Subject: RE: SATA ATAPI AHCI error messages?
+Date: Wed, 8 Mar 2006 10:39:45 -0800
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F50660B36F@orsmsx410>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SATA ATAPI AHCI error messages?
+Thread-Index: AcZC0fDmW8ymhqekTi+3MpdS/O6svgADX/ig
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>, <lkml@rtr.ca>
+Cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Mar 2006 18:39:46.0764 (UTC) FILETIME=[AC9B58C0:01C642DF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Wednesday, March 08, 2006 2:23 AM
-> Yes.  This is a simplifying assumption.  I know of no real application
-> that will waste pages because of this behaviour.  If you know one,
-> maybe we will need to reconsider.
-> 
-> > I have an idea. How about to record all the start/end address of
-> > huge page mmaping of the inode? Long long ago, there was a patch at 
-> > http://marc.theaimsgroup.com/?l=lse-tech&m=108187931924134&w=2.
-> > Of course, we need port it to the latest kernel if this idea is better.
-> 
-> I know the patch - I was going to port it to the current kernel, but
-> came up with my patch instead, because it seemed like a simpler
-> approach.
+>-----Original Message-----
+>From: Randy.Dunlap [mailto:rdunlap@xenotime.net]
+>Sent: Wednesday, March 08, 2006 9:00 AM
+>To: Gaston, Jason D
+>Cc: lkml@rtr.ca; alan@lxorguk.ukuu.org.uk; linux-kernel@vger.kernel.org
+>Subject: Re: SATA ATAPI AHCI error messages?
+>
+>On Wed, 8 Mar 2006 08:16:27 -0800 Gaston, Jason D wrote:
+>
+>> >-----Original Message-----
+>> >From: Mark Lord [mailto:lkml@rtr.ca]
+>> >Sent: Wednesday, March 08, 2006 5:27 AM
+>> >To: Alan Cox
+>> >Cc: Gaston, Jason D; linux-kernel@vger.kernel.org
+>> >Subject: Re: SATA ATAPI AHCI error messages?
+>> >
+>> >Alan Cox wrote:
+>> >..
+>> >>> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ
+0xb/00/00
+>> >>> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00
+00
+>> 00
+>> >>> sr: Current [descriptor]: sense key: Aborted Command
+>> >>>     Additional sense: No additional sense information
+>> >>
+>> >> TUR should not be getting aborted command replies off a CD. Most
+odd
+>> >
+>> >It's been a while, and my memory of such is fuzzy,
+>> >but I think I have commonly seen ATAPI drives (in the past)
+>> >that simply fail TUR as above when the drive is open
+>> >or media is not present (one of those two, forgot which).
+>> >
+>> >Cheers
+>>
+>> I have media in the drive and still see the error.  We are seeing the
+>> errors when the system is booting, before gnome or KDE is loaded.
+>
+>Yes, I have seen that also.  I posted a patch to rate-limit the
+>printk's but it wasn't accepted since they are mostly there for
+>debugging anyway.... or so it seems.
+>
+>---
+>~Randy
 
-I really think the Variable length reservation system is the way to go
-for tracking hugetlb commit.  It is more robust and in my opinion, it
-is better than traverse the page cache radix tree.  At least, you don't
-have to worry about all the race condition there.  Oh, it also can get
-rid of the hugetlb_instantiation_mutex that was introduced.  Someday,
-people is going to scream at you for serializing hugetlb fault path.
+I double checked and found that the messages do stop when media is
+inserted into the drive.  They pick up again as soon as the media is
+removed.
 
-- Ken
+Is there any way we can get this fixed?
+
+Thanks,
+
+Jason
 

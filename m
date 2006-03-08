@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWCHR5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751832AbWCHSBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWCHR5H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 12:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWCHR5H
+	id S1751832AbWCHSBa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 13:01:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWCHSBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 12:57:07 -0500
-Received: from are.twiddle.net ([64.81.246.98]:39297 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S1751498AbWCHR5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 12:57:05 -0500
-Date: Wed, 8 Mar 2006 09:56:52 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Problem on Alpha with "convert to generic irq framework"
-Message-ID: <20060308175652.GA28296@twiddle.net>
-Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Mathieu Chouquet-Stringer <mchouque@free.fr>,
-	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
-	Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru> <20060306135434.GA12829@localhost> <20060306191324.A1502@jurassic.park.msu.ru> <20060306163142.GA19833@localhost> <20060308142857.A4851@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 13:01:30 -0500
+Received: from pproxy.gmail.com ([64.233.166.183]:54893 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751826AbWCHSBa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 13:01:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Fr7RzLgrMarcf4JP4WMCGMiMuFoL0BezRQ3AxbIoH9FhDZzIdyeTs4mGkPAxk7/vTVhV+vvMNF2yqz4l2/SrfIUTtAhK6Rc7g2OB7PDyhIfWB4AgelU3uCOUlioIdUlKWYfSmSV4Kj7w6cRZCyhkjcnoHESRzh0X9YKVYysSXyM=
+Message-ID: <d120d5000603081001p717ce263t524397abd6c96040@mail.gmail.com>
+Date: Wed, 8 Mar 2006 13:01:28 -0500
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Matthew Garrett" <mjg59@srcf.ucam.org>
+Subject: Re: Extra keycodes
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <20060308173711.GA23254@srcf.ucam.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060308142857.A4851@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4.1i
+References: <20060223175328.GA25482@srcf.ucam.org>
+	 <200602242300.58815.dtor_core@ameritech.net>
+	 <20060226160730.GA5853@srcf.ucam.org>
+	 <20060308173711.GA23254@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 02:28:57PM +0300, Ivan Kokshaysky wrote:
->  	irq_enter();
->  	local_irq_disable();
->  	__do_IRQ(irq, regs);
-> -	local_irq_enable();
->  	irq_exit();
+On 3/8/06, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Sun, Feb 26, 2006 at 04:07:30PM +0000, Matthew Garrett wrote:
+>
+> > Patch included. We have code to pop up battery information in
+> > gnome-power-manager in response to this key being pressed, and evdev is
+> > the current interface for getting the keypress event.
+>
+> Hi - any feedback on this?
+>
 
-This will need commenting if it's to go in.
+Oh, I am sorry. I will add it to my tree.
 
-
-r~
+--
+Dmitry

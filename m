@@ -1,47 +1,47 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWCBEUy (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 1 Mar 2006 23:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWCBEUy
+	id S932248AbWCHC1m (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 7 Mar 2006 21:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbWCHC1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Mar 2006 23:20:54 -0500
-Received: from [60.10.81.247] ([60.10.81.247]:36870 "HELO 2ED8E88")
-	by vger.kernel.org with SMTP id S1751006AbWCBEUx convert rfc822-to-8bit
+	Tue, 7 Mar 2006 21:27:42 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:30889 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932248AbWCHC1l convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Mar 2006 23:20:53 -0500
-Date: Thu, 02 Mar 2006 06:20:49 +0200
-From: "Victor R. Scofield, II" <chickienickeqyds@yahoo.co.in>
+	Tue, 7 Mar 2006 21:27:41 -0500
+Date: Tue, 07 Mar 2006 21:21:07 -0500
+From: "Frances T. Crenshaw" <draconianovrk@yahoo.de>
 To: linux-kernel@vger.kernel.org
-Subject: Fwd:
-Message-ID: <sY359.XA94.3tp7.1Y6V8O9i@localhost>
+Subject: sup
+Message-ID: <242.BIoB02.5vp8.7U8J2H3r@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751006AbWCBEUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932248AbWCHC1m@vger.kernel.org>
 
 
 Good day,
 
-Your own private         ph@rm@cyy       - on the internet.
+March is the month to save 80%+ on all    pro_ducts. 
 
-D!sc_0unt       G ener!c            Dr_uGsSS. sa_ve over 70%.
+Have a look at our new Online    Ph@rm@cy    and retain up to 85%.
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+************************************************************************
 
-copy the address below and paste in u your web browser:
+copy the address below and paste in e your web browser:
 
-androgynal.iyodopack.com
+Amazonian.coralstrategy.com
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+************************************************************************
 
 
-After she'd done her ledger she would clamber into her hammock and read a book for a couple of hours..
-Proudly, fearfully, hesitatingly I exhibited him to my friends..
-Those burial-clouds that lower, victorious, soon to devour all, .
-Be sure you're sure -- you know --.
-His workbook is wedged in the window,.
+And make of those years a torch for tomorrow. .
+Who lived in a shoe..
+Unless it trembled with the strings..
+-- those with employee rolls of 75,000 or more -- reported average wage increases.
+Something that shall endure longer even than lustrous Jupiter,.
 
-Regards,
+TTYL,
 
-Elvis Hancock
+Coleen Salgado

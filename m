@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752031AbWCHCSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWCHCVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752031AbWCHCSF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 21:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752036AbWCHCSF
+	id S932300AbWCHCVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 21:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWCHCVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 21:18:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:32424 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752031AbWCHCSD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 21:18:03 -0500
-Date: Tue, 7 Mar 2006 18:16:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-       shai@scalex86.org
-Subject: Re: [patch 3/4] net: percpufy frequently used vars --
- proto.sockets_allocated
-Message-Id: <20060307181602.77030e2a.akpm@osdl.org>
-In-Reply-To: <20060308020227.GD9062@localhost.localdomain>
-References: <20060308015808.GA9062@localhost.localdomain>
-	<20060308020227.GD9062@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Mar 2006 21:21:36 -0500
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:60855 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932197AbWCHCVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 21:21:36 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH] mm: yield during swap prefetching
+Date: Wed, 8 Mar 2006 13:22:02 +1100
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, ck@vds.kolivas.org
+References: <200603081013.44678.kernel@kolivas.org> <200603081312.51058.kernel@kolivas.org> <1141784295.767.126.camel@mindpipe>
+In-Reply-To: <1141784295.767.126.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603081322.02306.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+On Wed, 8 Mar 2006 01:18 pm, Lee Revell wrote:
+> On Wed, 2006-03-08 at 13:12 +1100, Con Kolivas wrote:
+> > On Wed, 8 Mar 2006 01:08 pm, Lee Revell wrote:
+> > > On Wed, 2006-03-08 at 12:28 +1100, Con Kolivas wrote:
+> > > > I can't distinguish between when cpu activity is important (game) and
+> > > > when it is not (compile), and assuming worst case scenario and not
+> > > > doing any swap prefetching is my intent. I could add cpu accounting
+> > > > to prefetch_suitable() instead, but that gets rather messy and
+> > > > yielding achieves the same endpoint.
+> > >
+> > > Shouldn't the game be running with RT priority or at least at a low
+> > > nice value?
+> >
+> > No way. Games run nice 0 SCHED_NORMAL.
 >
-> --- linux-2.6.16-rc5mm3.orig/include/net/sock.h	2006-03-07 15:09:22.000000000 -0800
->  +++ linux-2.6.16-rc5mm3/include/net/sock.h	2006-03-07 15:09:52.000000000 -0800
->  @@ -543,7 +543,7 @@ struct proto {
->   	/* Memory pressure */
->   	void			(*enter_memory_pressure)(void);
->   	struct percpu_counter	*memory_allocated;	/* Current allocated memory. */
->  -	atomic_t		*sockets_allocated;	/* Current number of sockets. */
->  +	int                     *sockets_allocated;     /* Current number of sockets (percpu counter). */
->   
->   	/*
->   	 * Pressure flag: try to collapse.
->  @@ -579,6 +579,24 @@ struct proto {
->   	} stats[NR_CPUS];
->   };
->   
->  +static inline int read_sockets_allocated(struct proto *prot)
->  +{
->  +	int total = 0;
->  +	int cpu;
->  +	for_each_cpu(cpu)
->  +		total += *per_cpu_ptr(prot->sockets_allocated, cpu);
->  +	return total;
->  +}
+> Maybe this is a stupid/OT question (answer off list if you think so) but
+> why not?  Isn't that the standard way of telling the scheduler that you
+> have a realtime constraint?  It's how pro audio stuff works which I
+> would think has similar RT requirements.
+>
+> How is the scheduler supposed to know to penalize a kernel compile
+> taking 100% CPU but not a game using 100% CPU?
 
-This is likely too big to be inlined, plus sock.h doesn't include enough
-headers to reliably compile this code.
+Because being a serious desktop operating system that we are (bwahahahaha) 
+means the user should not have special privileges to run something as simple 
+as a game. Games should not need special scheduling classes. We can always 
+use 'nice' for a compile though. Real time audio is a completely different 
+world to this. 
 
->  +static inline void mod_sockets_allocated(int *sockets_allocated, int count)
->  +{
->  +	(*per_cpu_ptr(sockets_allocated, get_cpu())) += count;
->  +	put_cpu();
->  +}
->  +
-
-Ditto.
+Cheers,
+Con

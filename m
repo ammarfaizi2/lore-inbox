@@ -1,176 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbWCHVt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWCHVvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbWCHVt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:49:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWCHVt1
+	id S1751090AbWCHVvF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:51:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWCHVvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:49:27 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:31706 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932581AbWCHVtZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:49:25 -0500
-Message-ID: <440F50A7.EBAD87D5@tv-sign.ru>
-Date: Thu, 09 Mar 2006 00:46:15 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH rc5-mm] pids: kill PIDTYPE_TGID
-References: <440DEADB.72C3A8A6@tv-sign.ru>
-		<m11wxd27wx.fsf@ebiederm.dsl.xmission.com>
-		<440EED04.57FF5594@tv-sign.ru>
-		<m1slpsx61f.fsf@ebiederm.dsl.xmission.com>
-		<440F2F4A.3E91C272@tv-sign.ru> <m1irqovh8l.fsf@ebiederm.dsl.xmission.com>
+	Wed, 8 Mar 2006 16:51:05 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:43238 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1750841AbWCHVvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:51:03 -0500
+Date: Thu, 9 Mar 2006 00:51:01 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Problem on Alpha with "convert to generic irq framework"
+Message-ID: <20060309005101.B9651@jurassic.park.msu.ru>
+References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru> <20060306135434.GA12829@localhost> <20060306191324.A1502@jurassic.park.msu.ru> <20060306163142.GA19833@localhost> <20060308142857.A4851@jurassic.park.msu.ru> <20060308175652.GA28296@twiddle.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20060308175652.GA28296@twiddle.net>; from rth@twiddle.net on Wed, Mar 08, 2006 at 09:56:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
->
-> >               p->group_leader = current->group_leader;
-> > +             list_add_tail_rcu(&p->thread_group, &current->thread_group);
-> Can this be:
->                 list_add_tail_rcu(&p->thread_group, &current->group_leader->thread_group);
+On Wed, Mar 08, 2006 at 09:56:52AM -0800, Richard Henderson wrote:
+> This will need commenting if it's to go in.
 
-Done.
+Agreed. What about this?
 
-> That way at least the odds of missing a new task_struct when doing an
-> rcu traversal are reduced almost to 0.
+Ivan.
 
-Am I understand correctly? This change has effect when we are doing the
-traversal starting from ->group_leader in a "best effort" manner lockless,
-yes?
-
-[PATCH rc5-mm] pids: kill PIDTYPE_TGID
-
-depends on pidhash-dont-count-idle-threads.patch
-
-This patch kills PIDTYPE_TGID pid_type thus saving one hash table
-in kernel/pid.c and speeding up subthreads create/destroy a bit.
-It is also a preparation for the further tref/pids rework.
-
-This patch adds 'struct list_head thread_group' to 'struct task_struct'
-instead.
-
-We don't detach group leader from PIDTYPE_PID namespace until another
-thread inherits it's ->pid == ->tgid, so we are safe wrt premature
-free_pidmap(->tgid) call.
-
-Currently there are no users of find_task_by_pid_type(PIDTYPE_TGID).
-Should the need arise, we can use find_task_by_pid()->group_leader.
-
- include/linux/pid.h   |    1 -
- include/linux/sched.h |   11 ++++++++---
- kernel/exit.c         |   10 +---------
- kernel/fork.c         |    4 +++-
- 4 files changed, 12 insertions(+), 14 deletions(-)
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.16-rc5/include/linux/pid.h~1_TGID	2006-03-09 00:17:24.000000000 +0300
-+++ 2.6.16-rc5/include/linux/pid.h	2006-03-09 03:03:44.000000000 +0300
-@@ -4,7 +4,6 @@
- enum pid_type
- {
- 	PIDTYPE_PID,
--	PIDTYPE_TGID,
- 	PIDTYPE_PGID,
- 	PIDTYPE_SID,
- 	PIDTYPE_MAX
---- 2.6.16-rc5/include/linux/sched.h~1_TGID	2006-03-09 00:17:24.000000000 +0300
-+++ 2.6.16-rc5/include/linux/sched.h	2006-03-09 03:03:44.000000000 +0300
-@@ -748,6 +748,7 @@ struct task_struct {
- 
- 	/* PID/PID hash table linkage. */
- 	struct pid pids[PIDTYPE_MAX];
-+	struct list_head thread_group;
- 
- 	struct completion *vfork_done;		/* for vfork() */
- 	int __user *set_child_tid;		/* CLONE_CHILD_SETTID */
-@@ -1181,13 +1182,17 @@ extern void wait_task_inactive(task_t * 
- #define while_each_thread(g, t) \
- 	while ((t = next_thread(t)) != g)
- 
--extern task_t * FASTCALL(next_thread(const task_t *p));
--
- #define thread_group_leader(p)	(p->pid == p->tgid)
- 
-+static inline task_t *next_thread(task_t *p)
-+{
-+	return list_entry(rcu_dereference(p->thread_group.next),
-+				task_t, thread_group);
-+}
-+
- static inline int thread_group_empty(task_t *p)
- {
--	return list_empty(&p->pids[PIDTYPE_TGID].pid_list);
-+	return list_empty(&p->thread_group);
- }
- 
- #define delay_group_leader(p) \
---- 2.6.16-rc5/kernel/exit.c~1_TGID	2006-03-09 00:17:24.000000000 +0300
-+++ 2.6.16-rc5/kernel/exit.c	2006-03-09 00:42:26.000000000 +0300
-@@ -49,7 +49,6 @@ static void __unhash_process(struct task
- {
- 	nr_threads--;
- 	detach_pid(p, PIDTYPE_PID);
--	detach_pid(p, PIDTYPE_TGID);
- 	if (thread_group_leader(p)) {
- 		detach_pid(p, PIDTYPE_PGID);
- 		detach_pid(p, PIDTYPE_SID);
-@@ -57,7 +56,7 @@ static void __unhash_process(struct task
- 		list_del_init(&p->tasks);
- 		__get_cpu_var(process_counts)--;
+--- 2.6.16-rc5/arch/alpha/kernel/irq.c	Mon Mar  6 11:57:58 2006
++++ linux/arch/alpha/kernel/irq.c	Thu Mar  9 00:38:53 2006
+@@ -151,8 +151,13 @@ handle_irq(int irq, struct pt_regs * reg
  	}
--
-+	list_del_rcu(&p->thread_group);
- 	remove_parent(p);
+ 
+ 	irq_enter();
++	/*
++	 * __do_IRQ() must be called with IPL_MAX. Note that we do not
++	 * explicitly enable interrupts afterwards - some MILO PALcode
++	 * (namely LX164 one) seems to have severe problems with RTI
++	 * at IPL 0.
++	 */
+ 	local_irq_disable();
+ 	__do_IRQ(irq, regs);
+-	local_irq_enable();
+ 	irq_exit();
  }
- 
-@@ -953,13 +952,6 @@ asmlinkage long sys_exit(int error_code)
- 	do_exit((error_code&0xff)<<8);
- }
- 
--task_t fastcall *next_thread(const task_t *p)
--{
--	return pid_task(p->pids[PIDTYPE_TGID].pid_list.next, PIDTYPE_TGID);
--}
--
--EXPORT_SYMBOL(next_thread);
--
- /*
-  * Take down every thread in the group.  This is called by fatal signals
-  * as well as by sys_exit_group (below).
---- 2.6.16-rc5/kernel/fork.c~1_TGID	2006-03-09 00:17:24.000000000 +0300
-+++ 2.6.16-rc5/kernel/fork.c	2006-03-09 03:05:10.000000000 +0300
-@@ -1100,6 +1100,7 @@ static task_t *copy_process(unsigned lon
- 	 * We dont wake it up yet.
- 	 */
- 	p->group_leader = p;
-+	INIT_LIST_HEAD(&p->thread_group);
- 	INIT_LIST_HEAD(&p->ptrace_children);
- 	INIT_LIST_HEAD(&p->ptrace_list);
- 
-@@ -1153,7 +1154,9 @@ static task_t *copy_process(unsigned lon
- 			retval = -EAGAIN;
- 			goto bad_fork_cleanup_namespace;
- 		}
-+
- 		p->group_leader = current->group_leader;
-+		list_add_tail_rcu(&p->thread_group, &p->group_leader->thread_group);
- 
- 		if (current->signal->group_stop_count > 0) {
- 			/*
-@@ -1201,7 +1204,6 @@ static task_t *copy_process(unsigned lon
- 			list_add_tail(&p->tasks, &init_task.tasks);
- 			__get_cpu_var(process_counts)++;
- 		}
--		attach_pid(p, PIDTYPE_TGID, p->tgid);
- 		attach_pid(p, PIDTYPE_PID, p->pid);
- 		nr_threads++;
- 	}

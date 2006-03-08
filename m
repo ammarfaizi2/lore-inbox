@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751547AbWCHQxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751552AbWCHQ5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751547AbWCHQxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 11:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWCHQxW
+	id S1751552AbWCHQ5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 11:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWCHQ5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 11:53:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39142 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751514AbWCHQxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 11:53:21 -0500
-Subject: Re: [2.6.16-rc5-m3 PATCH] inotify: add the monitor for the event
-	source
-From: Arjan van de Ven <arjan@infradead.org>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <440F075F.1030404@gmail.com>
-References: <440F075F.1030404@gmail.com>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 17:53:18 +0100
-Message-Id: <1141836798.12175.1.camel@laptopd505.fenrus.org>
+	Wed, 8 Mar 2006 11:57:50 -0500
+Received: from xenotime.net ([66.160.160.81]:38628 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751514AbWCHQ5u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 11:57:50 -0500
+Date: Wed, 8 Mar 2006 08:59:34 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Gaston, Jason D" <jason.d.gaston@intel.com>
+Cc: lkml@rtr.ca, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: SATA ATAPI AHCI error messages?
+Message-Id: <20060308085934.d31bfee8.rdunlap@xenotime.net>
+In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F50660AFB6@orsmsx410>
+References: <26CEE2C804D7BE47BC4686CDE863D0F50660AFB6@orsmsx410>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 00:33 +0800, Yi Yang wrote:
-> Current inotify implementation only focus on change of file system, but it doesn't
->  know who results in this change, this patch adds three fields to struct inotify_event,
->  tgid, uid and gid, they will save process ID, user ID and user group ID of the process
->  which leads to change in the file system, such software as anti-virus can make use 
-> of this feature to monitor who is modifying a specific file.
+On Wed, 8 Mar 2006 08:16:27 -0800 Gaston, Jason D wrote:
 
+> >-----Original Message-----
+> >From: Mark Lord [mailto:lkml@rtr.ca]
+> >Sent: Wednesday, March 08, 2006 5:27 AM
+> >To: Alan Cox
+> >Cc: Gaston, Jason D; linux-kernel@vger.kernel.org
+> >Subject: Re: SATA ATAPI AHCI error messages?
+> >
+> >Alan Cox wrote:
+> >..
+> >>> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> >>> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00
+> 00
+> >>> sr: Current [descriptor]: sense key: Aborted Command
+> >>>     Additional sense: No additional sense information
+> >>
+> >> TUR should not be getting aborted command replies off a CD. Most odd
+> >
+> >It's been a while, and my memory of such is fuzzy,
+> >but I think I have commonly seen ATAPI drives (in the past)
+> >that simply fail TUR as above when the drive is open
+> >or media is not present (one of those two, forgot which).
+> >
+> >Cheers
+> 
+> I have media in the drive and still see the error.  We are seeing the
+> errors when the system is booting, before gnome or KDE is loaded.
 
-this patch appears to change the ABI! That is bad bad bad.
-Also, how can you guarantee that "current" is valid and meaningful at
-the place you use it to get the user id ??
-Also the process ID part is really bogus, after all the process may have
-exited by the time the inotify client gets to it, and the PID may even
-already have been reused.
+Yes, I have seen that also.  I posted a patch to rate-limit the
+printk's but it wasn't accepted since they are mostly there for
+debugging anyway.... or so it seems.
 
+---
+~Randy

@@ -1,197 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWCHDKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWCHDRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWCHDKM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWCHDKM
+	id S932220AbWCHDRD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:17:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWCHDRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:10:12 -0500
-Received: from ozlabs.org ([203.10.76.45]:21411 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932141AbWCHDKK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:10:10 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 7 Mar 2006 22:17:03 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:18882 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932220AbWCHDRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:17:01 -0500
+Subject: RE: [PATCH] hugetlb_no_page might break hugetlb quota
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: David Gibson <david@gibson.dropbear.id.au>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+In-Reply-To: <1141635963.29825.28.camel@ymzhang-perf.sh.intel.com>
+References: <200603060815.k268FXg07605@unix-os.sc.intel.com>
+	 <1141635963.29825.28.camel@ymzhang-perf.sh.intel.com>
+Content-Type: text/plain
+Message-Id: <1141787660.29825.83.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 08 Mar 2006 11:14:20 +0800
 Content-Transfer-Encoding: 7bit
-Message-ID: <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
-Date: Wed, 8 Mar 2006 14:10:01 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers
-In-Reply-To: <31492.1141753245@warthog.cambridge.redhat.com>
-References: <31492.1141753245@warthog.cambridge.redhat.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells writes:
+On Mon, 2006-03-06 at 17:06, Zhang, Yanmin wrote:
+> On Mon, 2006-03-06 at 16:15, Chen, Kenneth W wrote:
+> > Zhang, Yanmin wrote on Sunday, March 05, 2006 10:22 PM
+> > > In function hugetlb_no_page, backout path always calls hugetlb_put_quota.
+> > > It's incorrect when find_lock_page gets the page or the new page is added
+> > > into page cache.
+> > 
+> > While I acknowledge the bug, this patch is not complete.  It makes file
+> > system quota consistent with respect to page cache state. But such quota
+> > (more severely, the page cache state) is still buggy, for example under
+> > ftruncate case: if one ftrucate hugetlb file and then tries to fault a
+> > page outside ftruncate area, a new hugetlb page is allocated and then
+> > added into page cache along with file system quota; and at the end
+> > returning VM_FAULT_SIGBUS.  In this case, kernel traps an unreachable
+> > page until possibly next mmap that extends it.  That need to be fixed.
+> I have another patch to fix it. The second patch is to delete checking
+> (!(vma->vm_flags & VM_WRITE) && len > inode->i_size) in function
+> hugetlbfs_file_mmap, and add a checking in hugetlb_no_page,
+> to implement a capability for application to mmap
+> an zero-length huge page area. It's useful for process to protect one area.
+> As a side effect, the second patch also fixes the problem you said.
+> 
+Here is the second patch.
 
-> The attached patch documents the Linux kernel's memory barriers.
+From: Zhang Yanmin <yanmin.zhang@intel.com>
 
-Thanks for venturing into this particular lion's den. :)
+Sometimes, applications need below call to be successful although
+"/mnt/hugepages/file1" doesn't exist.
 
-> +Memory barriers are instructions to both the compiler and the CPU to impose a
-> +partial ordering between the memory access operations specified either side of
-> +the barrier.
+	fd = open("/mnt/hugepages/file1", O_CREAT|O_RDWR, 0755);
+ 	*addr = mmap(NULL, 0x1024*1024*256, PROT_NONE, MAP_SHARED, fd, 0);
 
-... as observed from another agent in the system - another CPU or a
-bus-mastering I/O device.  A given CPU will always see its own memory
-accesses in order.
+As for regular pages (or files), above call does work, but as for huge pages,
+above call would fail because hugetlbfs_file_mmap would fail if 
+(!(vma->vm_flags & VM_WRITE) && len > inode->i_size). 
 
-> + (*) reads are synchronous and may need to be done immediately to permit
+This capability on huge page is useful on ia64 when the process wants to 
+protect one area on region 4, so other threads couldn't read/write this
+area.
 
-Leave out the "are synchronous and".  It's not true.
+My patch against 2.6.16-rc5-mm3 implements it.
 
-I also think you need to avoid talking about "the bus".  Some systems
-don't have a bus, but rather have an interconnection fabric between
-the CPUs and the memories.  Talking about a bus implies that all
-memory accesses in fact get serialized (by having to be sent one after
-the other over the bus) and that you can therefore talk about the
-order in which they get to memory.  In some systems, no such order
-exists.
+In addition, my patch fixes a bug caught by Ken. Consider below scenario:
+Process A mmaps a hugetlb file with 5 huge pages, then process B truncates
+the file with length of 2 huge pages. Later on, process A still could fault
+on huge page 3-5, and these huge pages would be added into page cache.
+Then, no processes could access these huge pages. My patch fixes it by
+moving checking (idx >= size) to the begining of function hugetlb_no_page.
 
-It's possible to talk sensibly about the order in which memory
-accesses get done without talking about a bus or requiring a total
-ordering on the memory access.  The PowerPC architecture spec does
-this by specifying that in certain circumstances one load or store has
-to be "performed with respect to other processors and mechanisms"
-before another.  A load is said to be performed with respect to
-another agent when a store by that agent can no longer change the
-value returned by the load.  Similarly, a store is performed w.r.t.
-an agent when any load done by the agent will return the value stored
-(or a later value).
+Thanks for Ken's good suggestions.
 
-> +     The way to deal with this is to insert an I/O memory barrier between the
-> +     two accesses:
-> +
-> +	*ADR = ctl_reg_3;
-> +	mb();
-> +	reg = *DATA;
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
-Ummm, this implies mb() is "an I/O memory barrier".  I can see people
-getting confused if they read this and then see mb() being used when
-no I/O is being done.
+---
 
-> +The Linux kernel has six basic memory barriers:
-> +
-> +		MANDATORY (I/O)	SMP
-> +		===============	================
-> +	GENERAL	mb()		smp_mb()
-> +	READ	rmb()		smp_rmb()
-> +	WRITE	wmb()		smp_wmb()
-> +
-> +General memory barriers make a guarantee that all memory accesses specified
-> +before the barrier will happen before all memory accesses specified after the
-> +barrier.
+diff -Nraup linux-2.6.16-rc5-mm3/fs/hugetlbfs/inode.c linux-2.6.16-rc5-mm3_huge_check/fs/hugetlbfs/inode.c
+--- linux-2.6.16-rc5-mm3/fs/hugetlbfs/inode.c	2006-03-08 17:59:10.000000000 +0800
++++ linux-2.6.16-rc5-mm3_huge_check/fs/hugetlbfs/inode.c	2006-03-08 18:17:15.000000000 +0800
+@@ -84,8 +84,6 @@ static int hugetlbfs_file_mmap(struct fi
+ 
+ 	ret = -ENOMEM;
+ 	len = vma_len + ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
+-	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
+-		goto out;
+ 
+ 	if (vma->vm_flags & VM_MAYSHARE)
+ 		if (hugetlb_extend_reservation(info, len >> HPAGE_SHIFT) != 0)
+diff -Nraup linux-2.6.16-rc5-mm3/mm/hugetlb.c linux-2.6.16-rc5-mm3_huge_check/mm/hugetlb.c
+--- linux-2.6.16-rc5-mm3/mm/hugetlb.c	2006-03-08 17:59:11.000000000 +0800
++++ linux-2.6.16-rc5-mm3_huge_check/mm/hugetlb.c	2006-03-08 18:01:21.000000000 +0800
+@@ -555,6 +555,10 @@ int hugetlb_no_page(struct mm_struct *mm
+ 	idx = ((address - vma->vm_start) >> HPAGE_SHIFT)
+ 		+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
+ 
++	size = i_size_read(mapping->host) >> HPAGE_SHIFT;
++	if (idx >= size)
++		return ret;
++
+ 	/*
+ 	 * Use page lock to guard against racing truncation
+ 	 * before we get page_table_lock.
+@@ -588,9 +592,6 @@ retry:
+ 	}
+ 
+ 	spin_lock(&mm->page_table_lock);
+-	size = i_size_read(mapping->host) >> HPAGE_SHIFT;
+-	if (idx >= size)
+-		goto backout;
+ 
+ 	ret = VM_FAULT_MINOR;
+ 	if (!pte_none(*ptep))
 
-By "memory accesses" do you mean accesses to system memory, or do you
-mean loads and stores - which may be to system memory, memory on an I/O
-device (e.g. a framebuffer) or to memory-mapped I/O registers?
 
-Linus explained recently that wmb() on x86 does not order stores to
-system memory w.r.t. stores to stores to prefetchable I/O memory (at
-least that's what I think he said ;).
-
-> +Some of the other functions in the linux kernel imply memory barriers. For
-> +instance all the following (pseudo-)locking functions imply barriers.
-> +
-> + (*) interrupt disablement and/or interrupts
-
-Enabling/disabling interrupts doesn't imply a barrier on powerpc, and
-nor does taking an interrupt or returning from one.
-
-> + (*) spin locks
-
-I think it's still an open question as to whether spin locks do any
-ordering between accesses to system memory and accesses to I/O
-registers.
-
-> + (*) R/W spin locks
-> + (*) mutexes
-> + (*) semaphores
-> + (*) R/W semaphores
-> +
-> +In all cases there are variants on a LOCK operation and an UNLOCK operation.
-> +
-> + (*) LOCK operation implication:
-> +
-> +     Memory accesses issued after the LOCK will be completed after the LOCK
-> +     accesses have completed.
-> +
-> +     Memory accesses issued before the LOCK may be completed after the LOCK
-> +     accesses have completed.
-> +
-> + (*) UNLOCK operation implication:
-> +
-> +     Memory accesses issued before the UNLOCK will be completed before the
-> +     UNLOCK accesses have completed.
-> +
-> +     Memory accesses issued after the UNLOCK may be completed before the UNLOCK
-> +     accesses have completed.
-
-And therefore an UNLOCK followed by a LOCK is equivalent to a full
-barrier, but a LOCK followed by an UNLOCK isn't.
-
-> +Either interrupt disablement (LOCK) and enablement (UNLOCK) will barrier
-> +memory and I/O accesses individually, or interrupt handling will barrier
-> +memory and I/O accesses on entry and on exit. This prevents an interrupt
-> +routine interfering with accesses made in a disabled-interrupt section of code
-> +and vice versa.
-
-I don't think this is right, and I don't think it is necessary to
-achieve the end you state, since a CPU will always see its own memory
-accesses in program order.
-
-> +The following sequence of events on the bus is acceptable:
-> +
-> +	LOCK, *F+*A, *E, *C+*D, *B, UNLOCK
-
-What does *F+*A mean?
-
-> +Consider also the following (going back to the AMD PCnet example):
-> +
-> +	DISABLE IRQ
-> +	*ADR = ctl_reg_3;
-> +	mb();
-> +	x = *DATA;
-> +	*ADR = ctl_reg_4;
-> +	mb();
-> +	*DATA = y;
-> +	*ADR = ctl_reg_5;
-> +	mb();
-> +	z = *DATA;
-> +	ENABLE IRQ
-> +	<interrupt>
-> +	*ADR = ctl_reg_7;
-> +	mb();
-> +	q = *DATA
-> +	</interrupt>
-> +
-> +What's to stop "z = *DATA" crossing "*ADR = ctl_reg_7" and reading from the
-> +wrong register? (There's no guarantee that the process of handling an
-> +interrupt will barrier memory accesses in any way).
-
-Well, the driver should *not* be doing *ADR at all, it should be using
-read[bwl]/write[bwl].  The architecture code has to implement
-read*/write* in such a way that the accesses generated can't be
-reordered.  I _think_ it also has to make sure the write accesses
-can't be write-combined, but it would be good to have that clarified.
-
-> +======================
-> +POWERPC SPECIFIC NOTES
-> +======================
-> +
-> +The powerpc is weakly ordered, and its read and write accesses may be
-> +completed generally in any order. It's memory barriers are also to some extent
-> +more substantial than the mimimum requirement, and may directly effect
-> +hardware outside of the CPU.
-
-Unfortunately mb()/smp_mb() are quite expensive on PowerPC, since the
-only instruction we have that implies a strong enough barrier is sync,
-which also performs several other kinds of synchronization, such as
-waiting until all previous instructions have completed executing to
-the point where they can no longer cause an exception.
-
-Paul.

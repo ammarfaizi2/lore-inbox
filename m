@@ -1,57 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWCHVoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWCHVsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWCHVoH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWCHVoH
+	id S932467AbWCHVsq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWCHVsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:44:07 -0500
-Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:57617 "EHLO
-	smtp-vbr1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1751198AbWCHVoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:44:05 -0500
-From: Hans Verkuil <hverkuil@xs4all.nl>
-To: v4l-dvb-maintainer@linuxtv.org
-Subject: Re: [v4l-dvb-maintainer] Re: drivers/media/video/saa7115.c misreports max. value of contrast and saturation
-Date: Wed, 8 Mar 2006 22:42:54 +0100
-User-Agent: KMail/1.8.91
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Kyler Laird <kyler-keyword-lkml00.e701c2@lairds.com>,
-       mchehab@infradead.org, linux-kernel@vger.kernel.org
-References: <20060215051908.GF13033@snout> <20060308211900.GM4006@stusta.de>
-In-Reply-To: <20060308211900.GM4006@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Mar 2006 16:48:46 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:41386 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932467AbWCHVsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:48:45 -0500
+Date: Wed, 8 Mar 2006 15:48:30 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mulix@mulix.org, Andi Kleen <ak@muc.de>
+Subject: [PATCH] x86-64: Make GART_IOMMU kconfig help text more specific (trivial)
+Message-ID: <20060308214829.GJ28921@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603082242.54547.hverkuil@xs4all.nl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 March 2006 22:19, Adrian Bunk wrote:
-> On Wed, Feb 15, 2006 at 12:19:08AM -0500, Kyler Laird wrote:
-> > For changes to V4L2_CID_CONTRAST and V4L2_CID_SATURATION, the value
-> > is checked by "if (ctrl->value < 0 || ctrl->value > 127)" yet the
-> > maximum value in v4l2_queryctrl is set to 255 for both of these
-> > items.  This means that programs (like MythTV) which set the
-> > contrast and saturation to the midvalue (127) get *full* contrast
-> > and saturation.  (It's not pretty.)
-> >
-> > Setting the maximum values to 127 solves this problem.
->
-> Mauro, can you comment on this issue?
+Oops, forgot to CC lkml.
 
-It's fixed with the patch with subject '[PATCH 08/13] Fix maximum for 
-the saturation and contrast controls.' It was posted by Mauro to the 
-linux mailinglist a week ago. I hope it will be fixed in 2.6.16, but 
-Mauro should know more about it. It was a stupid copy-and-paste bug so 
-I see no reason why it shouldn't go in.
+----- Forwarded message from Jon Mason <jdmason@us.ibm.com> -----
 
-> > Please copy me on responses.
-> >
-> > Thank you.
-> >
-> > --kyler
->
-> cu
-> Adrian
+User-Agent: Mutt/1.5.11
+From: Jon Mason <jdmason@us.ibm.com>
+To: Andi Kleen <ak@muc.de>
+Date: Wed, 8 Mar 2006 15:45:49 -0600
+Subject: [PATCH] x86-64: Make GART_IOMMU kconfig help text more specific (trivial)
+
+Have the GART_IOMMU help text specify that this is the hardware IOMMU in
+amd64 processors.  This will be significant if/when other IOMMUs are
+added to the x86-64 architecture. :-)
+
+Also, note that the previous help text stated that IOMMU was needed for
+>3GB memory instead of >4GB.  This is fixed in the newer version.
+
+Thanks,
+Jon
+
+Signed-off-by: Jon Mason <jdmason@us.ibm.com>
+
+diff -r 149aa2a22913 arch/x86_64/Kconfig
+--- a/arch/x86_64/Kconfig	Tue Feb 28 22:02:10 2006
++++ b/arch/x86_64/Kconfig	Wed Mar  8 15:24:44 2006
+@@ -364,13 +364,14 @@
+ 	select SWIOTLB
+ 	depends on PCI
+ 	help
+-	  Support the IOMMU. Needed to run systems with more than 3GB of memory
+-	  properly with 32-bit PCI devices that do not support DAC (Double Address
+-	  Cycle). The IOMMU can be turned off at runtime with the iommu=off parameter.
+-	  Normally the kernel will take the right choice by itself.
+-	  This option includes a driver for the AMD Opteron/Athlon64 northbridge IOMMU
+-	  and a software emulation used on other systems.
+-	  If unsure, say Y.
++	  Support for hardware IOMMU in AMD's Opteron/Athlon64 Processors.
++	  Needed to run systems with more than 4GB of memory properly with
++	  32-bit PCI devices that do not support DAC (Double Address Cycle).
++	  The IOMMU can be turned off at runtime with the iommu=off parameter.
++  	  Normally the kernel will take the right choice by itself.
++  	  This option includes a driver for the AMD Opteron/Athlon64 IOMMU
++  	  northbridge and a software emulation used on some other systems.
++  	  If unsure, say Y.
+ 
+ # need this always enabled with GART_IOMMU for the VIA workaround
+ config SWIOTLB
+
+----- End forwarded message -----

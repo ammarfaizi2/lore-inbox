@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWCHOzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWCHO7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWCHOzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 09:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWCHOzP
+	id S932247AbWCHO7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 09:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWCHO7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 09:55:15 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:34955 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751076AbWCHOzO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 09:55:14 -0500
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Document Linux's memory barriers
-References: <5NONi-2hp-3@gated-at.bofh.it> <5NQ2U-462-29@gated-at.bofh.it>
-	<5NRLg-6LJ-31@gated-at.bofh.it> <5NRUR-6Yo-11@gated-at.bofh.it>
-	<5NUSF-30Z-5@gated-at.bofh.it> <440E2EE8.10708@shaw.ca>
-From: Andi Kleen <ak@suse.de>
-Date: 08 Mar 2006 15:55:08 +0100
-In-Reply-To: <440E2EE8.10708@shaw.ca>
-Message-ID: <p73fyltf0kz.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 8 Mar 2006 09:59:21 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:32126 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932247AbWCHO7U convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 09:59:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T/rESDCwnCKl+R3uc8fCDToADRqzKdj8W8Uyo2PwW1n4BIgvdSd6T7qSV4eVU9+CYhLDRzyZMBS0o48BGI12bcHJvezJffUxf08yvu9sq8xdWWg8C/wnF6CRfbBx+89u6RZ/Iozr9jwgLuDhQxrTROAotsOgrDzwbgDCPMTdELI=
+Message-ID: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
+Date: Wed, 8 Mar 2006 09:59:20 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+In-Reply-To: <ec92bc30603080252v7e795b4dm5116d4fe78f92cc7@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
+	 <20060308102731.GO27946@ftp.linux.org.uk>
+	 <ec92bc30603080252v7e795b4dm5116d4fe78f92cc7@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock <hancockr@shaw.ca> writes:
+On 3/8/06, Anshuman Gholap <anshu.pg@gmail.com> wrote:
+>
+> this discussion is totally for betterment of the new users who should
+> not be forced to become developers in order to get a trival thing
+> running on their desktop/laptop, like device driver.
 
-> Alan Cox wrote:
-> > On Maw, 2006-03-07 at 22:24 +0100, Andi Kleen wrote:
-> >>> But on most arches those accesses do indeed seem to happen in-order.  On
-> >>> i386 and x86_64, it's a natural consequence of program store ordering.
-> >> Not true for reads on x86.
-> > You must have a strange kernel Andi. Mine marks them as volatile
-> > unsigned char * references.
-> 
-> Well, that and the fact that IO memory should be mapped as uncacheable
-> in the MTRRs should ensure that readl and writel won't be reordered on
-> i386 and x86_64.. except in the case where CONFIG_UNORDERED_IO is
-> enabled on x86_64 which can reorder writes since it uses nontemporal
-> stores..
+So far, this discussion is not helping new users at all.
 
-CONFIG_UNORDERED_IO is a failed experiment. I just removed it.
+Users need to do a little research before buing hardware, period.
+Things are getting better across all platforms and operating systems
+(remember the bad old days of jumpers and IRQ conflicts?), it is not
+linux-specific.
 
--Andi
+What is linux-specific in this context is that many people, like
+myself, who have contributed code to the kernel under the GPL *don't
+want* their code to be used in non-free software, period. Someone who
+wants to leverage my work needs to do it under the terms that I allow.
+That is the law. Whining is not going to change my mind.
+
+If a company thinks they can make money selling hardware with
+closed-source drivers (on some other OS), more power to them. If a
+company thinks they can make money selling hardware with open-source
+drivers on Linux and want to leverage my work, more power to them
+(I'll even help them). But they can't use my work and not release the
+code.
+
+It's really that simple.
+
+
+Dave

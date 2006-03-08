@@ -1,69 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWCHIxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWCHJD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWCHIxH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 03:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWCHIxH
+	id S1751469AbWCHJD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 04:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751504AbWCHJD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 03:53:07 -0500
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:48047 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932525AbWCHIxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 03:53:06 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Subject: Re: [ck] Re: [PATCH] mm: yield during swap prefetching
-Date: Wed, 8 Mar 2006 19:52:42 +1100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, ck@vds.kolivas.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org> <20060308084824.GA4193@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060308084824.GA4193@rhlx01.fht-esslingen.de>
+	Wed, 8 Mar 2006 04:03:27 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:51108 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751469AbWCHJD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 04:03:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1J9vIk9HuRejviGMHJFOj6D63E7uyzr3rAZ4fxh0rqMNMrdAFChygVX2tNi4vcmNTBDjje/EK0YPOxY4bU2lng/C+P+IZ3hc25haCTdHUbsgVg3/oAm1cFdFUfxK2z6ezFeGNSVf+al7AwAfTxSqLr2y1nfG9giFygIyfTWtnls=  ;
+Message-ID: <440E9DBE.209@yahoo.com.au>
+Date: Wed, 08 Mar 2006 20:02:54 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: 76306.1226@compuserve.com, torvalds@osdl.org, lee.schermerhorn@hp.com,
+       michaelc@cs.wisc.edu, jesper.juhl@gmail.com,
+       linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+References: <200603080129_MC3-1-BA15-47C9@compuserve.com>	<440E969B.2080301@yahoo.com.au> <20060308004659.163b6e29.akpm@osdl.org>
+In-Reply-To: <20060308004659.163b6e29.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603081952.42853.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 March 2006 19:48, Andreas Mohr wrote:
-> Hi,
->
-> On Tue, Mar 07, 2006 at 03:26:36PM -0800, Andrew Morton wrote:
-> > Con Kolivas <kernel@kolivas.org> wrote:
-> > > Swap prefetching doesn't use very much cpu but spends a lot of time
-> > > waiting on disk in uninterruptible sleep. This means it won't get
-> > > preempted often even at a low nice level since it is seen as sleeping
-> > > most of the time. We want to minimise its cpu impact so yield where
-> > > possible.
-> >
-> > yield() really sucks if there are a lot of runnable tasks.  And the
-> > amount of CPU which that thread uses isn't likely to matter anyway.
-> >
-> > I think it'd be better to just not do this.  Perhaps alter the thread's
-> > static priority instead?  Does the scheduler have a knob which can be
-> > used to disable a tasks's dynamic priority boost heuristic?
->
-> This problem occurs due to giving a priority boost to processes that are
-> sleeping a lot (e.g. in this case, I/O, from disk), right?
-> Forgive me my possibly less insightful comments, but maybe instead of
-> adding crude specific hacks (namely, yield()) to each specific problematic
-> process as it comes along (it just happens to be the swap prefetch thread
-> this time) there is a *general way* to give processes with lots of disk I/O
-> sleeping much smaller amounts of boost in order to get them preempted more
-> often in favour of an actually much more critical process (game)?
->
-> >From the discussion here it seems this problem is caused by a *general*
->
-> miscalculation of processes sleeping on disk I/O a lot.
->
-> Thus IMHO this problem should be solved in a general way if at all
-> possible.
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
 
-No. We already do special things for tasks waiting on uninterruptible sleep. 
-This is more about what is exaggerated on a dual array expiring scheduler 
-design that mainline has.
+>>It isn't Andrew's job to make sure a patch gets to the right place
+>>until it is safely in -mm, and even then he's not always going to
+>>know the severity and importance unless he's told.
+> 
+> 
+> Is too!
+> 
 
-Cheers,
-Con
+OK, partially. As this case illustrates, everybody makes mistakes and
+you obviously can't go back and verify you got all the patches because.
+
+The guy who hits the bug and/or writes the patch can easily see it is
+still not merged and shout.
+
+> 
+>>If it was a patch to "restore" a regression in behaviour, CCs should
+>>at least have gone to the author of the patch that broke it, and the
+>>subsystem maintainers / list / etc as well.
+> 
+> 
+> I actually merged Lee's patch into -mm, copied James on it and then I
+> dropped it when I saw that it spat rejects against an updated version of
+> James's tree, assuming that it had been merged.
+> 
+> Often I'll check that a patch reverts successfully from the upstream tree
+> before dropping it, but for an obvious one like that I guess I didn't
+> bother, and assumed that James had taken it.  Only he hadn't - instead he'd
+> gone and merged something else, hence the rejects.   Oh well.
+> 
+
+You do a great job, but "push the work out to the end nodes", right?
+That's how we get this network to scale. It is trivial for people to
+verify their important patches have propogated as the release approaches.
+
+(A little harder for part-timers who aren't in the loop about exactly
+when the release will happen, thanks to our -ridiculous-count release
+system, but still easy compared with your having to double check
+everything).
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

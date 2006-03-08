@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWCHXIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWCHXIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbWCHXIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:08:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWCHXIP
+	id S1030277AbWCHXIy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:08:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbWCHXIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:08:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:43429 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030266AbWCHXIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:08:14 -0500
-Date: Wed, 8 Mar 2006 15:06:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: bcrl@kvack.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
-       netdev@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add
- percpu_counter_mod_bh
-Message-Id: <20060308150609.344c62fa.akpm@osdl.org>
-In-Reply-To: <20060308222528.GE4493@localhost.localdomain>
-References: <20060308015808.GA9062@localhost.localdomain>
-	<20060308015934.GB9062@localhost.localdomain>
-	<20060307181301.4dd6aa96.akpm@osdl.org>
-	<20060308202656.GA4493@localhost.localdomain>
-	<20060308203642.GZ5410@kvack.org>
-	<20060308210726.GD4493@localhost.localdomain>
-	<20060308211733.GA5410@kvack.org>
-	<20060308222528.GE4493@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 8 Mar 2006 18:08:54 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:63172 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S1030277AbWCHXIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:08:52 -0500
+Date: Thu, 9 Mar 2006 02:08:51 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Paul Mackerras <paulus@samba.org>
+Cc: David Howells <dhowells@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
+       Alan Cox <alan@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
+Message-ID: <20060309020851.D9651@jurassic.park.msu.ru>
+References: <20060308154157.GI7301@parisc-linux.org> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com> <10095.1141838381@warthog.cambridge.redhat.com> <17423.22121.254026.487964@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17423.22121.254026.487964@cargo.ozlabs.ibm.com>; from paulus@samba.org on Thu, Mar 09, 2006 at 09:10:49AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On Wed, Mar 08, 2006 at 04:17:33PM -0500, Benjamin LaHaise wrote:
-> > On Wed, Mar 08, 2006 at 01:07:26PM -0800, Ravikiran G Thirumalai wrote:
+On Thu, Mar 09, 2006 at 09:10:49AM +1100, Paul Mackerras wrote:
+> David Howells writes:
+> 
+> > > # define smp_read_barrier_depends()     do { } while(0)
 > > 
-> > Last time I checked, all the major architectures had efficient local_t 
-> > implementations.  Most of the RISC CPUs are able to do a load / store 
-> > conditional implementation that is the same cost (since memory barriers 
-> > tend to be explicite on powerpc).  So why not use it?
+> > What's this one meant to do?
 > 
-> Then, for the batched percpu_counters, we could gain by using local_t only for 
-> the UP case. But we will have to have a new local_long_t implementation 
-> for that.  Do you think just one use case of local_long_t warrants for a new
-> set of apis?
-> 
+> On most CPUs, if you load one value and use the value you get to
+> compute the address for a second load, there is an implicit read
+> barrier between the two loads because of the dependency.  That's not
+> true on alpha, apparently, because of the way their caches are
+> structured.
 
-local_t maps onto 32-bit values on 32-bit machines and onto 64-bit values
-on 64-bit machines.  unsigned longs.  I don't quite trust the signedness
-handling across all archs.
+Who said?! ;-)
 
-<looks>
+> The smp_read_barrier_depends is a read barrier that you
+> use between two loads when there is already a dependency between the
+> loads, and it is a no-op on everything except alpha (IIRC).
 
-Yes, alpha (for example) went and made its local_t's signed, which is wrong
-and dangerous.
+My "Compiler Writer's Guide for the Alpha 21264" says that if the
+result of the first load contributes to the address calculation
+of the second load, then the second load cannot issue until the data
+from the first load is available.
 
-ia64 is signed.
+Obviously, we don't care about earlier alphas as they are executing
+strictly in program order.
 
-mips is signed.
-
-parisc is signed.
-
-s390 is signed.
-
-sparc64 is signed.
-
-x86_64 is signed 32-bit!
-
-All other architectures use unsigned long.  A fiasco.
-
-Once decrapify-asm-generic-localh.patch is merged I think all architectures
-can and should use asm-generic/local.h.
-
-Until decrapify-asm-generic-localh.patch has been merged and the downstream
-arch consolidation has happened and the signedness problems have been
-carefully reviewed and fixed I wouldn't go within a mile of local_t.
-
-Once all that is sorted out then yes, it makes sense to convert per-cpu
-counters to local_t.  Note that local_t is unsigned, and percpu_counter
-needs to treat it as signed.
-
-We should also move the out-of-line percpu_counter implementation over to
-lib/something.c (in obj-y).
-
-But none of that has anything to do with these patches.
+Ivan.

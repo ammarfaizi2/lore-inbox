@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWCHASg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWCHATj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWCHASg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWCHASg
+	id S964807AbWCHATj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWCHATj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:18:36 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:39808 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750938AbWCHASf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:18:35 -0500
-Subject: [RFC PATCH 0/3]  VFS changes to collapse all the vectored and AIO
-	support
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Zach Brown <zach.brown@oracle.com>, christoph <hch@lst.de>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, pbadari@us.ibm.com
-Content-Type: text/plain
-Date: Tue, 07 Mar 2006 16:19:59 -0800
-Message-Id: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
+	Tue, 7 Mar 2006 19:19:39 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30857
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964807AbWCHATi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:19:38 -0500
+Date: Tue, 07 Mar 2006 16:18:08 -0800 (PST)
+Message-Id: <20060307.161808.60227862.davem@davemloft.net>
+To: mlleinin@hpcn.ca.sandia.gov
+Cc: shemminger@osdl.org, xma@us.ibm.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       mst@mellanox.co.il
+Subject: Re: [openib-general] Re: TSO and IPoIB performance degradation
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1141776697.6119.938.camel@localhost>
+References: <1141767891.6119.903.camel@localhost>
+	<20060307134907.733d3d27@localhost.localdomain>
+	<1141776697.6119.938.camel@localhost>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Matt Leininger <mlleinin@hpcn.ca.sandia.gov>
+Date: Tue, 07 Mar 2006 16:11:37 -0800
 
-These series of changes collapses all the vectored IO support 
-into single file-operation method using aio_read/aio_write. 
+>   I used the standard setting for tcp_rmem and tcp_wmem.   Here are a
+> few other runs that change those variables.  I was able to improve
+> performance by ~30MB/s to 403 MB/s, but this is still a ways from the
+> 474 MB/s before the TSO patches.
 
-This work was originally suggested & started by Christoph Hellwig, 
-when Zach Brown tried to add vectored support for AIO. 
+How limited are the IPoIB devices, TX descriptor wise?
 
-Christoph & Zach, comments/suggestions ? If you are happy with the
-work, can you add your Sign-off or Ack ? I addressed all the
-known issues, please review.
+One side effect of the TSO changes is that one extra descriptor
+will be used for outgoing packets.  This is because we have to
+put the headers as well as the user data, into page based
+buffers now.
 
-Here is the summary:
-
-[PATCH 1/3] Vectorize aio_read/aio_write methods
-
-[PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
-instead.
-
-[PATCH 3/3] Zach's core aio changes to support vectored AIO.
-
-NOTE: This is not ready for -mm or mainline consumption yet -
-since I am still doing basic testing. 
-
-Comments ?
-
-Thanks,
-Badari
-
+Perhaps you can experiment with increasing the transmit descriptor
+table size, if that's possible.

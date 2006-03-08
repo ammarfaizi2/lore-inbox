@@ -1,138 +1,351 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWCHROK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751641AbWCHRRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbWCHROK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 12:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbWCHROK
+	id S1751641AbWCHRRE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 12:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964777AbWCHRRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 12:14:10 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3816 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751233AbWCHRNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 12:13:48 -0500
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH rc5-mm] pids: kill PIDTYPE_TGID
-References: <440DEADB.72C3A8A6@tv-sign.ru>
-	<m11wxd27wx.fsf@ebiederm.dsl.xmission.com>
-	<440EED04.57FF5594@tv-sign.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 08 Mar 2006 09:19:56 -0700
-In-Reply-To: <440EED04.57FF5594@tv-sign.ru> (Oleg Nesterov's message of
- "Wed, 08 Mar 2006 17:41:08 +0300")
-Message-ID: <m1slpsx61f.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 8 Mar 2006 12:17:04 -0500
+Received: from smtp3.netcabo.pt ([212.113.174.30]:48495 "EHLO
+	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1751641AbWCHRRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 12:17:00 -0500
+Message-ID: <12249.195.245.190.93.1141838101.squirrel@www.rncbc.org>
+Date: Wed, 8 Mar 2006 17:15:01 -0000 (WET)
+Subject: Re: [PATCH] realtime-preempt patch-2.6.15-rt19 compile error (was: 
+          realtime-preempt patch-2.6.15-rt18 issues)
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Jan Altenberg" <tb10alj@tglx.de>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;boundary="----=_20060308171501_32278"
+X-OriginalArrivalTime: 08 Mar 2006 17:16:50.0375 (UTC) FILETIME=[1672A570:01C642D4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+------=_20060308171501_32278
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
 
-> Eric W. Biederman wrote:
->>
->> Oleg Nesterov <oleg@tv-sign.ru> writes:
->>
->> > depends on
->> >
->> > 	pidhash-dont-count-idle-threads.patch
->> > 	pidhash-kill-switch_exec_pids.patch
->> >
->> > otherwise (I think) it is orthogonal to all tref/proc changes.
->>
->> You also depend on your recent change to call __unhash_process
->> under the sighand lock.  Since the ->tgrp is protected by
->> the sighand lock.
->
-> Actually now I think it depends only on yours
-> 	pidhash-kill-switch_exec_pids.patch
->
-> This change (call __unhash_process under the sighand lock) does not
-> touch __unhash_process() itself, it only moves the callsite. So this
-> patch can go before or after this change. However it needs other
-> patches from -mm to avoid rejects.
+Hi,
 
-Agreed.  I misread the code and didn't see that we had the tasklist_lock where
-you did the list_add.  
+Still got the blues whenever I try to unplug a usb-storage stick on -rt20 ;)
 
->> > This patch kills PIDTYPE_TGID pid_type thus saving one hash table
->> > in kernel/pid.c and speeding up subthreads create/destroy a bit.
->> > It is also a preparation for the further tref/pids rework.
->> >
->> > This patch adds 'struct list_head tgrp' to 'struct task_struct'
->> > instead. Note that ->tgrp need not to be rcu safe.
->>
->> Is there a reason for this?  I think at least proc could easily
->> take advantage of an rcu safe implementation.
->>
->> Hmm.  At the moment proc is only taking the tasklist_lock during
->> traversal so we may have a problem with the list_add anyway.
->
-> tasklist or ->sighand is enough to do threads traversal. Yes,
-> adding _rcu suffix allows us to do it under rcu_read_lock().
-> However the thread group will not be stable during this traversal,
-> we can miss some newly created thread or hit an already unhashed
-> one.
+usb 2-1: new full speed USB device using ohci_hcd and address 2
+Initializing USB Mass Storage driver...
+scsi0 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 2
+usb-storage: waiting for device to settle before scanning
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+  Vendor: USB 2.0   Model: Flash Disk        Rev: 2.00
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 2031616 512-byte hdwr sectors (1040 MB)
+sda: Write Protect is off
+sda: Mode Sense: 0b 00 00 08
+sda: assuming drive cache: write through
+SCSI device sda: 2031616 512-byte hdwr sectors (1040 MB)
+sda: Write Protect is off
+sda: Mode Sense: 0b 00 00 08
+sda: assuming drive cache: write through
+ sda: sda1
+sd 0:0:0:0: Attached scsi removable disk sda
+usb-storage: device scan complete
+usb 2-1: USB disconnect, address 2
+slab error in kmem_cache_destroy(): cache `scsi_cmd_cache': Can't free all
+objects
+ [<c0141d1e>] kmem_cache_destroy+0x66/0xdb (8)
+ [<c020487c>] scsi_destroy_command_freelist+0x4e/0x5a (12)
+ [<c02054eb>] scsi_host_dev_release+0x4b/0x6e (12)
+ [<c01eaca7>] device_release+0x14/0x39 (12)
+ [<c019d07f>] kobject_cleanup+0x3e/0x5e (4)
+ [<c019d09f>] kobject_release+0x0/0x8 (8)
+ [<e053278c>] usb_stor_control_thread+0x0/0x183 [usb_storage] (8)
+ [<c019d7ce>] kref_put+0x3a/0x44 (4)
+ [<e05328ee>] usb_stor_control_thread+0x162/0x183 [usb_storage] (12)
+ [<c0272dc1>] schedule+0xd4/0xf5 (32)
+ [<c01226bf>] kthread+0x63/0x8f (20)
+ [<c012265c>] kthread+0x0/0x8f (12)
+ [<c0100d39>] kernel_thread_helper+0x5/0xb (16)
 
-Right so if what we are doing is needs to be atomic we can't drop
-the lock.  Which makes sense.
+BR
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+------=_20060308171501_32278
+Content-Type: application/x-gzip-compressed;
+      name="config-2.6.15.6-rt20.0.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config-2.6.15.6-rt20.0.gz"
 
-> Note also, that this loop:
-> 
-> 	t = task;
-> 	do {
-> 		...
-> 		t = next_thread(t);
-> 	} while (t != task);
->
-> requires that task->tgrp is stable (I mean, 'task' must not be
-> unhashed during this loop). And I can't see how this is possible
-> unless we take ->sighand or tasklist_lock or task == current.
->
-> Eric, I know nothing about proc/, so the question is: do you want
-> me to add _rcu right now, or do you think it's better to do this
-> later?
+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
+------=_20060308171501_32278
+Content-Type: application/x-gzip-compressed; name="dmesg-2.6.15.6-rt20.0.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="dmesg-2.6.15.6-rt20.0.gz"
 
-Let's add the manipulations right now, that way we have the option
-to convert the users that can take advantage of it.
+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
+aAFDahFQgylQAzDlGJppcgEAKrOx1wcxAAA=
+------=_20060308171501_32278--
 
-> grepping for next_thread in proc/ I have the feeling that we can
-> convert the code from:
->
-> 	read_lock(tasklist);
-> 	if (pid_alive(task)) {
-> 		do ... while (t != task);
-> 	}
-> 	read_unlock(tasklist);
->
-> to:
->
-> 	rcu_read_lock();
-> 	if (lock_task_sighand(task)) {
-> 		...
-> 		unlock_task_sighand(task);
-> 	}
-> 	rcu_read_unlock();
->
-> But again, I don't understand this code.
 
-For proc we don't even need the lock_task_sighand.  It is purely best
-effort.  The more we can remove lock contention from proc the harder it
-will be for a user space application to trigger long lock hold
-times.
-
->> Also could we name the member not ->tgrp but ->threads?
->> I keep half expecting tgrp to be a number, and have a hard
->> time not mispelling it tpgrp.
->
-> Agreed. I also started with 'threads' name, but we already have
-> 'struct thread_struct thread' in the task_struct. So may be
-> we could name it thread_group? I am rather agnostic and have nothing
-> against 'threads', will resend this patch after yours decision.
-
-Ok.  Let's go with thread_group.  It isn't a frequently used field
-so as long as the name doesn't get terribly long things will work,
-and thread_group is still much shorter than it's current name :)
-
-Eric

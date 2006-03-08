@@ -1,33 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWCHNT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWCHN0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWCHNT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 08:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWCHNT5
+	id S1750933AbWCHN0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 08:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWCHN0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 08:19:57 -0500
-Received: from verein.lst.de ([213.95.11.210]:61589 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751081AbWCHNT5 (ORCPT
+	Wed, 8 Mar 2006 08:26:48 -0500
+Received: from rtr.ca ([64.26.128.89]:5572 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750933AbWCHN0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 08:19:57 -0500
-Date: Wed, 8 Mar 2006 14:19:48 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       achim_leubner@adaptec.com
-Subject: HEADS UP for gdth driver users
-Message-ID: <20060308131948.GA4755@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Wed, 8 Mar 2006 08:26:48 -0500
+Message-ID: <440EDB91.90700@rtr.ca>
+Date: Wed, 08 Mar 2006 08:26:41 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Gaston, Jason D" <jason.d.gaston@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: SATA ATAPI AHCI error messages?
+References: <26CEE2C804D7BE47BC4686CDE863D0F50660ABA5@orsmsx410> <1141823834.7605.35.camel@localhost.localdomain>
+In-Reply-To: <1141823834.7605.35.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Alan Cox wrote:
+..
+>> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+>> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00 00
+>> sr: Current [descriptor]: sense key: Aborted Command
+>>     Additional sense: No additional sense information
+> 
+> TUR should not be getting aborted command replies off a CD. Most odd
 
-the gdth driver is the only driver using (and in this case abusing) the
-scsi_request interface we plan to kill for 2.6.17.  I've sent a patch
-that's a first step to convert the driver away from it a few weeks ago
-but didn't get any response.  I urgently need testers to keep the driver
-for 2.6.17+.  Else it'll be marked broken until we get a person to help
-testing the changes needed to resurrect it.
+It's been a while, and my memory of such is fuzzy,
+but I think I have commonly seen ATAPI drives (in the past)
+that simply fail TUR as above when the drive is open
+or media is not present (one of those two, forgot which).
+
+Cheers

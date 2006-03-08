@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWCHJId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWCHJIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbWCHJId (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 04:08:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCHJIc
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 04:08:32 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17671 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932516AbWCHJIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932523AbWCHJIb (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 8 Mar 2006 04:08:31 -0500
-Date: Wed, 8 Mar 2006 10:08:29 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCHJIa
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 8 Mar 2006 04:08:30 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16391 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932523AbWCHJI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 04:08:29 -0500
+Date: Wed, 8 Mar 2006 10:08:27 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
-Subject: [RFC: -mm patch] drivers/media/video/msp3400-kthreads.c: make 3 functions static
-Message-ID: <20060308090829.GB4006@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Latchesar Ionkov <lucho@ionkov.net>
+Cc: linux-kernel@vger.kernel.org, ericvh@ericvh.myip.org
+Subject: [-mm patch] add a prototype for v9fs_printfcall()
+Message-ID: <20060308090827.GA4006@stusta.de>
+References: <20060307021929.754329c9.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060307021929.754329c9.akpm@osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes three needlessly global functions static.
+On Tue, Mar 07, 2006 at 02:19:29AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc3-mm2:
+>...
+> +v9fs-print-9p-messages.patch
+>...
+>  Misc updates and fixes
+>...
+
+If you create a function in one file and call them from another file you 
+need a prototype in a header file or bad runtime errors can occur in 
+some cases.
+
+You mustn't ignore warnings about implicitely defined functions.
+This bug was found by the gcc -Werror-implicit-function-declaration flag 
+that turns such warnings into errors.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
-This patch was already sent on:
-- 4 Mar 2006
-
- drivers/media/video/msp3400-kthreads.c |    6 +++---
- drivers/media/video/msp3400.h          |    1 -
- 2 files changed, 3 insertions(+), 4 deletions(-)
-
---- linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400.h.old	2006-03-03 17:40:22.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400.h	2006-03-03 17:40:41.000000000 +0100
-@@ -104,7 +104,6 @@
- 
- /* msp3400-kthreads.c */
- const char *msp_standard_std_name(int std);
--void msp_set_source(struct i2c_client *client, u16 src);
- void msp_set_audmode(struct i2c_client *client);
- void msp_detect_stereo(struct i2c_client *client);
- int msp3400c_thread(void *data);
---- linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400-kthreads.c.old	2006-03-03 17:39:29.000000000 +0100
-+++ linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400-kthreads.c	2006-03-03 17:40:10.000000000 +0100
-@@ -154,7 +154,7 @@
- 	return "unknown";
- }
- 
--void msp_set_source(struct i2c_client *client, u16 src)
-+static void msp_set_source(struct i2c_client *client, u16 src)
- {
- 	struct msp_state *state = i2c_get_clientdata(client);
- 
-@@ -217,7 +217,7 @@
- 
- /* Set audio mode. Note that the pre-'G' models do not support BTSC+SAP,
-    nor do they support stereo BTSC. */
--void msp3400c_set_audmode(struct i2c_client *client)
-+static void msp3400c_set_audmode(struct i2c_client *client)
- {
- 	static char *strmode[] = { "mono", "stereo", "lang2", "lang1" };
- 	struct msp_state *state = i2c_get_clientdata(client);
-@@ -944,7 +944,7 @@
- 		status, is_stereo, is_bilingual, state->rxsubchans);
- }
- 
--void msp34xxg_set_audmode(struct i2c_client *client)
-+static void msp34xxg_set_audmode(struct i2c_client *client)
- {
- 	struct msp_state *state = i2c_get_clientdata(client);
- 	int source;
+--- linux-2.6.16-rc5-mm3-full/fs/9p/9p.h.old	2006-03-07 13:31:13.000000000 +0100
++++ linux-2.6.16-rc5-mm3-full/fs/9p/9p.h	2006-03-07 13:32:08.000000000 +0100
+@@ -372,3 +372,6 @@
+ int v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid, u64 offset,
+ 		 u32 count, const char __user * data,
+ 		 struct v9fs_fcall **rcall);
++
++int v9fs_printfcall(char *buf, int buflen, struct v9fs_fcall *fc, int extended);
++
 

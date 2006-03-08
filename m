@@ -1,100 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWCHUaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWCHUax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWCHUaX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWCHUaX
+	id S932403AbWCHUax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 15:30:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWCHUav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:30:23 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34266 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750737AbWCHUaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:30:22 -0500
-Subject: Re: [v4l-dvb-maintainer] 2.6.16-rc5: known regressions
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Brian Marete <bgmarete@gmail.com>
-Cc: video4linux-list@redhat.com, v4l-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-In-Reply-To: <6dd519ae0603080313o4e7b8a61h5002125c33a0e008@mail.gmail.com>
-References: <Pine.LNX.4.64.0602262122000.22647@g5.osdl.org>
-	 <20060227061354.GO3674@stusta.de> <1141308011.5884.5.camel@localhost>
-	 <6dd519ae0603080313o4e7b8a61h5002125c33a0e008@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 08 Mar 2006 17:29:30 -0300
-Message-Id: <1141849770.7534.55.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 8 Mar 2006 15:30:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40613 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750855AbWCHUap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 15:30:45 -0500
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 6/6] Optimise d_find_alias() [try #7]
+Date: Wed, 08 Mar 2006 20:30:31 +0000
+To: torvalds@osdl.org, akpm@osdl.org, steved@redhat.com,
+       trond.myklebust@fys.uio.no, aviro@redhat.com
+Cc: linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+       nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org
+Message-Id: <20060308203031.25493.43777.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060308203018.25493.23720.stgit@warthog.cambridge.redhat.com>
+References: <20060308203018.25493.23720.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wow! Lots of people being c/c here! Since all pertinent guys are at
-lkml, I've just removed all those spam, keeping copied just the lists,
-and Adrian, who warned me about it.
+The attached patch optimises d_find_alias() to only take the spinlock if
+there's anything in the the inode's alias list. If there isn't, it returns NULL
+immediately.
 
-Em Qua, 2006-03-08 às 14:13 +0300, Brian Marete escreveu:
-> What you say is quite correct.
-> 
-> However, my card is not known by the driver, and `card=3' has been working
-> for me all the while, with no problems at all. In any case, removing
-> `disable_ir=1' from the insmod options hides the problem for me. By the way,
-> that option was there since in an an earlier -rc, loading the driver without
-> it would cause an oops.
-The option disable_ir is, in fact, a workaround. If this is not needed
-anymore, this is a progress ;) Anyway, having an OOPS is really bad. We
-should go further to avoid oops on it.
+The following changes were made in [try #7]:
 
-IR on some saa7134 cards are really a trouble. Sometimes, it just
-generates lots of weird events, since you are gathering a generic io
-port (GPIO) from hardware to generate keypressing. Using the wrong port
-may generate troubles at the system, by sending wrong events to input.
-With a wrong card, if somebody fixed the IR, it may broke for your
-board.
-> 
-> If there are any hints about how I might discover the correct parameters for
-> my card to be added to `saa7134-cards.c' I would love to hear them.
-> I am tired of the FM radio not working anyway. Next time, I will make sure to
-> avoid the cheap, brand less cards made in God Knows Where :)
-El Cheapo boards are difficult to support. Most of they don't offer an
-unique PCI ID. Others are just OEM cards. The same card is selled on
-several different markets with different brand names (sometimes with
-different GPIO ports and/or tuners).
+ (*) The memory barrier was removed.
 
-For you to include it at kernel, you need to discover gpio ports used on
-it. There are some wiki pages at http://linuxtv.org explaining the
-process of identifying it using dscaler for m$. Dscaler is a freeware,
-and have a small app, called regspy, that enables reading what windoze
-is programming at some devices. For more details, please look at:
-http://linuxtv.org/v4lwiki/index.php/GPIO_pins
-> 
-> Thanks,
-> Brian Marete.
-> 
-> On 3/2/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> >
-> >
-> > > Subject    : Oops in Kernel 2.6.16-rc4 on Modprobe of saa7134.ko
-> > > References : http://lkml.org/lkml/2006/2/20/122
-> > > Submitter  : Brian Marete <bgmarete@gmail.com>
-> > > Status     : unknown
-> >
-> > This is not a regression, since the user is not configuring saa7134 with
-> > the right card.
-> >
-> > Cheers,
-> > Mauro.
-> >
-> >
-> 
-> 
-> --
-> B. Gitonga Marete
-> Tel: +254-722-151-590
-> _______________________________________________
-> v4l-dvb-maintainer mailing list
-> v4l-dvb-maintainer@linuxtv.org
-> http://www.linuxtv.org/cgi-bin/mailman/listinfo/v4l-dvb-maintainer
-Cheers, 
-Mauro.
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+
+ fs/dcache.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 9eb2698..bb309f5 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -325,10 +325,12 @@ static struct dentry * __d_find_alias(st
+ 
+ struct dentry * d_find_alias(struct inode *inode)
+ {
+-	struct dentry *de;
+-	spin_lock(&dcache_lock);
+-	de = __d_find_alias(inode, 0);
+-	spin_unlock(&dcache_lock);
++	struct dentry *de = NULL;
++	if (!list_empty(&inode->i_dentry)) {
++		spin_lock(&dcache_lock);
++		de = __d_find_alias(inode, 0);
++		spin_unlock(&dcache_lock);
++	}
+ 	return de;
+ }
+ 
 

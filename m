@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWCHADG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWCHAFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWCHADG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWCHADG
+	id S964812AbWCHAFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:05:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWCHAFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:03:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:23276 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964812AbWCHADE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:03:04 -0500
-Date: Tue, 7 Mar 2006 16:05:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Message-Id: <20060307160515.0feba529.akpm@osdl.org>
-In-Reply-To: <cone.1141774323.5234.18683.501@kolivas.org>
-References: <200603081013.44678.kernel@kolivas.org>
-	<20060307152636.1324a5b5.akpm@osdl.org>
-	<cone.1141774323.5234.18683.501@kolivas.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 19:05:09 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5424 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S964812AbWCHAFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:05:07 -0500
+Date: Tue, 07 Mar 2006 18:05:04 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: de2104x: interrupts before interrupt handler is registered
+In-reply-to: <Pine.LNX.4.61.0603071306070.9728@chaos.analogic.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <440E1FB0.6030300@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5N5Ql-30C-11@gated-at.bofh.it> <440D918D.2000502@shaw.ca>
+ <Pine.LNX.4.61.0603070908460.9133@chaos.analogic.com>
+ <200603071051.35791.bjorn.helgaas@hp.com>
+ <Pine.LNX.4.61.0603071306070.9728@chaos.analogic.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> > yield() really sucks if there are a lot of runnable tasks.  And the amount
-> > of CPU which that thread uses isn't likely to matter anyway.
-> > 
-> > I think it'd be better to just not do this.  Perhaps alter the thread's
-> > static priority instead?  Does the scheduler have a knob which can be used
-> > to disable a tasks's dynamic priority boost heuristic?
-> 
-> We do have SCHED_BATCH but even that doesn't really have the desired effect. 
-> I know how much yield sucks and I actually want it to suck as much as yield 
-> does.
+linux-os (Dick Johnson) wrote:
+> There are now other "standard" boards that seem to be experiencing
+> the same problem. Maybe it is time to make a procedure that turns
+> off interrupts for a specific device (not an unknown IRQ). Then
+> a subsequent call turns them on after the handler is in place.
+> This wouldn't affect current drivers. They would still turn on
+> hot by default.
 
-Why do you want that?
+How do you propose to do this? There's no way to mask interrupts from 
+just one device which is sharing an IRQ line, you have to mask 
+interrupts from all of those devices. That would be quite ugly IMHO if 
+one device could disable the interrupt used by another device for 
+however long it felt like.
 
-If prefetch is doing its job then it will save the machine from a pile of
-major faults in the near future.  The fact that the machine happens to be
-running a number of busy tasks doesn't alter that.  It's _worth_ stealing a
-few cycles from those tasks now to avoid lengthy D-state sleeps in the near
-future?
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWCHAoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWCHAur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964866AbWCHAoP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWCHAoP
+	id S1751661AbWCHAur (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWCHAur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:44:15 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10222 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964866AbWCHAoP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:44:15 -0500
-Date: Wed, 8 Mar 2006 01:43:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Tue, 7 Mar 2006 19:50:47 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:62388 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751661AbWCHAuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:50:46 -0500
+From: Con Kolivas <kernel@kolivas.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [patch] i386 spinlocks: disable interrupts only if we enabled them
-Message-ID: <20060308004308.GA16069@elte.hu>
-References: <200603071837_MC3-1-BA13-E5FB@compuserve.com> <20060307161550.27941df5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] mm: yield during swap prefetching
+Date: Wed, 8 Mar 2006 11:51:13 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
+References: <200603081013.44678.kernel@kolivas.org> <cone.1141774323.5234.18683.501@kolivas.org> <20060307160515.0feba529.akpm@osdl.org>
+In-Reply-To: <20060307160515.0feba529.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060307161550.27941df5.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -3.1
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-3.1 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_40 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	-1.1 BAYES_40               BODY: Bayesian spam probability is 20 to 40%
-	[score: 0.3999]
-	1.3 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200603081151.13942.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 Mar 2006 11:05 am, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > > yield() really sucks if there are a lot of runnable tasks.  And the
+> > > amount of CPU which that thread uses isn't likely to matter anyway.
+> > >
+> > > I think it'd be better to just not do this.  Perhaps alter the thread's
+> > > static priority instead?  Does the scheduler have a knob which can be
+> > > used to disable a tasks's dynamic priority boost heuristic?
+> >
+> > We do have SCHED_BATCH but even that doesn't really have the desired
+> > effect. I know how much yield sucks and I actually want it to suck as
+> > much as yield does.
+>
+> Why do you want that?
+>
+> If prefetch is doing its job then it will save the machine from a pile of
+> major faults in the near future.  The fact that the machine happens to be
+> running a number of busy tasks doesn't alter that.  It's _worth_ stealing a
+> few cycles from those tasks now to avoid lengthy D-state sleeps in the near
+> future?
 
-* Andrew Morton <akpm@osdl.org> wrote:
+The test case is the 3d (gaming) app that uses 100% cpu. It never sets delay 
+swap prefetch in any way so swap prefetching starts working. Once swap 
+prefetching starts reading it is mostly in uninterruptible sleep and always 
+wakes up on the active array ready for cpu, never expiring even with its 
+miniscule timeslice. The 3d app is always expiring and landing on the expired 
+array behind kprefetchd even though kprefetchd is nice 19. The practical 
+upshot of all this is that kprefetchd does a lot of prefetching with 3d 
+gaming going on, and no amount of priority fiddling stops it doing this. The 
+disk access is noticeable during 3d gaming unfortunately. Yielding regularly 
+means a heck of a lot less prefetching occurs and is no longer noticeable. 
+When idle, yield()ing doesn't seem to adversely affect the effectiveness of 
+the prefetching.
 
-> And it's increasing text size.  Which wouldn't be a big problem if the 
-> spinning code was still in an out-of-line section, but it isn't any 
-> more.
-> 
-> (I forget why we undid that optimisation.  What was wrong with it?)
-
-we dont inline that code anymore. So i think the optimization is fine.
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+Cheers,
+Con

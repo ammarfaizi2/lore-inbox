@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWCHCBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWCHCDP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964882AbWCHCBr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 21:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964883AbWCHCBr
+	id S964887AbWCHCDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 21:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWCHCDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 21:01:47 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:46267 "EHLO
+	Tue, 7 Mar 2006 21:03:15 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:58299 "EHLO
 	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S964882AbWCHCBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 21:01:46 -0500
-Date: Tue, 7 Mar 2006 18:02:27 -0800
+	id S964884AbWCHCDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 21:03:14 -0500
+Date: Tue, 7 Mar 2006 18:03:55 -0800
 From: Ravikiran G Thirumalai <kiran@scalex86.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
        shai@scalex86.org
-Subject: [patch 3/4] net: percpufy frequently used vars -- proto.sockets_allocated
-Message-ID: <20060308020227.GD9062@localhost.localdomain>
+Subject: [patch 4/4] net: percpufy frequently used vars -- proto.inuse
+Message-ID: <20060308020355.GE9062@localhost.localdomain>
 References: <20060308015808.GA9062@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,194 +33,146 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change the atomic_t sockets_allocated member of struct proto to a 
-per-cpu counter.
+This patch uses alloc_percpu to allocate per-CPU memory for the proto->inuse
+field.  The inuse field is currently per-CPU as in NR_CPUS * cacheline size -- 
+a big bloat on arches with large cachelines.  Also marks some frequently
+used protos read mostly.
 
 Signed-off-by: Pravin B. Shelar <pravins@calsoftinc.com>
 Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
 Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
-Index: linux-2.6.16-rc5mm3/include/net/sock.h
+Index: linux-2.6.16-rc2/include/net/sock.h
 ===================================================================
---- linux-2.6.16-rc5mm3.orig/include/net/sock.h	2006-03-07 15:09:22.000000000 -0800
-+++ linux-2.6.16-rc5mm3/include/net/sock.h	2006-03-07 15:09:52.000000000 -0800
-@@ -543,7 +543,7 @@ struct proto {
- 	/* Memory pressure */
- 	void			(*enter_memory_pressure)(void);
- 	struct percpu_counter	*memory_allocated;	/* Current allocated memory. */
--	atomic_t		*sockets_allocated;	/* Current number of sockets. */
-+	int                     *sockets_allocated;     /* Current number of sockets (percpu counter). */
- 
- 	/*
- 	 * Pressure flag: try to collapse.
-@@ -579,6 +579,24 @@ struct proto {
- 	} stats[NR_CPUS];
+--- linux-2.6.16-rc2.orig/include/net/sock.h	2006-02-09 15:01:47.000000000 -0800
++++ linux-2.6.16-rc2/include/net/sock.h	2006-02-09 15:01:52.000000000 -0800
+@@ -573,10 +573,7 @@ struct proto {
+ #ifdef SOCK_REFCNT_DEBUG
+ 	atomic_t		socks;
+ #endif
+-	struct {
+-		int inuse;
+-		u8  __pad[SMP_CACHE_BYTES - sizeof(int)];
+-	} stats[NR_CPUS];
++	int *inuse;
  };
  
-+static inline int read_sockets_allocated(struct proto *prot)
-+{
-+	int total = 0;
-+	int cpu;
-+	for_each_cpu(cpu)
-+		total += *per_cpu_ptr(prot->sockets_allocated, cpu);
-+	return total;
-+}
-+
-+static inline void mod_sockets_allocated(int *sockets_allocated, int count)
-+{
-+	(*per_cpu_ptr(sockets_allocated, get_cpu())) += count;
-+	put_cpu();
-+}
-+
-+#define inc_sockets_allocated(c) mod_sockets_allocated(c, 1)
-+#define dec_sockets_allocated(c) mod_sockets_allocated(c, -1)
-+
- extern int proto_register(struct proto *prot, int alloc_slab);
- extern void proto_unregister(struct proto *prot);
- 
-Index: linux-2.6.16-rc5mm3/include/net/tcp.h
-===================================================================
---- linux-2.6.16-rc5mm3.orig/include/net/tcp.h	2006-03-07 15:09:22.000000000 -0800
-+++ linux-2.6.16-rc5mm3/include/net/tcp.h	2006-03-07 15:09:52.000000000 -0800
-@@ -226,7 +226,7 @@ extern int sysctl_tcp_mtu_probing;
- extern int sysctl_tcp_base_mss;
- 
- extern struct percpu_counter tcp_memory_allocated;
--extern atomic_t tcp_sockets_allocated;
-+extern int *tcp_sockets_allocated;
- extern int tcp_memory_pressure;
- 
- /*
-Index: linux-2.6.16-rc5mm3/net/core/sock.c
-===================================================================
---- linux-2.6.16-rc5mm3.orig/net/core/sock.c	2006-03-07 15:09:22.000000000 -0800
-+++ linux-2.6.16-rc5mm3/net/core/sock.c	2006-03-07 15:09:52.000000000 -0800
-@@ -771,7 +771,7 @@ struct sock *sk_clone(const struct sock 
- 		newsk->sk_sleep	 = NULL;
- 
- 		if (newsk->sk_prot->sockets_allocated)
--			atomic_inc(newsk->sk_prot->sockets_allocated);
-+			inc_sockets_allocated(newsk->sk_prot->sockets_allocated); 
- 	}
- out:
- 	return newsk;
-@@ -1620,7 +1620,7 @@ static void proto_seq_printf(struct seq_
- 			"%2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c %2c\n",
- 		   proto->name,
- 		   proto->obj_size,
--		   proto->sockets_allocated != NULL ? atomic_read(proto->sockets_allocated) : -1,
-+		   proto->sockets_allocated != NULL ? read_sockets_allocated(proto) : -1,
- 		   proto->memory_allocated != NULL ?
- 				percpu_counter_read_positive(proto->memory_allocated) : -1,
- 		   proto->memory_pressure != NULL ? *proto->memory_pressure ? "yes" : "no" : "NI",
-Index: linux-2.6.16-rc5mm3/net/core/stream.c
-===================================================================
---- linux-2.6.16-rc5mm3.orig/net/core/stream.c	2006-03-07 15:09:22.000000000 -0800
-+++ linux-2.6.16-rc5mm3/net/core/stream.c	2006-03-07 15:09:52.000000000 -0800
-@@ -242,7 +242,7 @@ int sk_stream_mem_schedule(struct sock *
- 		return 1;
- 
- 	if (!*sk->sk_prot->memory_pressure ||
--	    sk->sk_prot->sysctl_mem[2] > atomic_read(sk->sk_prot->sockets_allocated) *
-+	    sk->sk_prot->sysctl_mem[2] > read_sockets_allocated(sk->sk_prot) *
- 				sk_stream_pages(sk->sk_wmem_queued +
- 						atomic_read(&sk->sk_rmem_alloc) +
- 						sk->sk_forward_alloc))
-Index: linux-2.6.16-rc5mm3/net/ipv4/proc.c
-===================================================================
---- linux-2.6.16-rc5mm3.orig/net/ipv4/proc.c	2006-03-07 15:09:22.000000000 -0800
-+++ linux-2.6.16-rc5mm3/net/ipv4/proc.c	2006-03-07 15:09:52.000000000 -0800
-@@ -63,7 +63,7 @@ static int sockstat_seq_show(struct seq_
- 	socket_seq_show(seq);
- 	seq_printf(seq, "TCP: inuse %d orphan %d tw %d alloc %d mem %lu\n",
- 		   fold_prot_inuse(&tcp_prot), atomic_read(&tcp_orphan_count),
--		   tcp_death_row.tw_count, atomic_read(&tcp_sockets_allocated),
-+		   tcp_death_row.tw_count, read_sockets_allocated(&tcp_prot),
- 		   percpu_counter_read_positive(&tcp_memory_allocated));
- 	seq_printf(seq, "UDP: inuse %d\n", fold_prot_inuse(&udp_prot));
- 	seq_printf(seq, "RAW: inuse %d\n", fold_prot_inuse(&raw_prot));
-Index: linux-2.6.16-rc5mm3/net/ipv4/tcp.c
-===================================================================
---- linux-2.6.16-rc5mm3.orig/net/ipv4/tcp.c	2006-03-07 15:09:22.000000000 -0800
-+++ linux-2.6.16-rc5mm3/net/ipv4/tcp.c	2006-03-07 15:09:52.000000000 -0800
-@@ -284,7 +284,7 @@ EXPORT_SYMBOL(sysctl_tcp_rmem);
- EXPORT_SYMBOL(sysctl_tcp_wmem);
- 
- struct percpu_counter tcp_memory_allocated;	/* Current allocated memory. */
--atomic_t tcp_sockets_allocated;	/* Current number of TCP sockets. */
-+int *tcp_sockets_allocated;   /* Current number of TCP sockets. */
- 
- EXPORT_SYMBOL(tcp_memory_allocated);
- EXPORT_SYMBOL(tcp_sockets_allocated);
-@@ -2055,6 +2055,12 @@ void __init tcp_init(void)
- 	if (!tcp_hashinfo.bind_bucket_cachep)
- 		panic("tcp_init: Cannot alloc tcp_bind_bucket cache.");
- 
-+	tcp_sockets_allocated = alloc_percpu(int);
-+	if (!tcp_sockets_allocated)
-+		panic("tcp_init: Cannot alloc tcp_sockets_allocated");
-+
-+	tcp_prot.sockets_allocated = tcp_sockets_allocated;
-+
- 	/* Size and allocate the main established and bind bucket
- 	 * hash tables.
- 	 *
-Index: linux-2.6.16-rc5mm3/net/ipv4/tcp_ipv4.c
-===================================================================
---- linux-2.6.16-rc5mm3.orig/net/ipv4/tcp_ipv4.c	2006-03-07 15:08:01.000000000 -0800
-+++ linux-2.6.16-rc5mm3/net/ipv4/tcp_ipv4.c	2006-03-07 15:09:52.000000000 -0800
-@@ -1273,7 +1273,7 @@ static int tcp_v4_init_sock(struct sock 
- 	sk->sk_sndbuf = sysctl_tcp_wmem[1];
- 	sk->sk_rcvbuf = sysctl_tcp_rmem[1];
- 
--	atomic_inc(&tcp_sockets_allocated);
-+	inc_sockets_allocated(tcp_sockets_allocated);
- 
- 	return 0;
- }
-@@ -1307,7 +1307,7 @@ int tcp_v4_destroy_sock(struct sock *sk)
- 		sk->sk_sndmsg_page = NULL;
- 	}
- 
--	atomic_dec(&tcp_sockets_allocated);
-+	dec_sockets_allocated(tcp_sockets_allocated);
- 
- 	return 0;
- }
-@@ -1815,7 +1815,6 @@ struct proto tcp_prot = {
- 	.unhash			= tcp_unhash,
- 	.get_port		= tcp_v4_get_port,
- 	.enter_memory_pressure	= tcp_enter_memory_pressure,
--	.sockets_allocated	= &tcp_sockets_allocated,
- 	.orphan_count		= &tcp_orphan_count,
- 	.memory_allocated	= &tcp_memory_allocated,
- 	.memory_pressure	= &tcp_memory_pressure,
-Index: linux-2.6.16-rc5mm3/net/ipv6/tcp_ipv6.c
-===================================================================
---- linux-2.6.16-rc5mm3.orig/net/ipv6/tcp_ipv6.c	2006-03-07 15:08:01.000000000 -0800
-+++ linux-2.6.16-rc5mm3/net/ipv6/tcp_ipv6.c	2006-03-07 15:11:43.000000000 -0800
-@@ -1375,7 +1375,7 @@ static int tcp_v6_init_sock(struct sock 
- 	sk->sk_sndbuf = sysctl_tcp_wmem[1];
- 	sk->sk_rcvbuf = sysctl_tcp_rmem[1];
- 
--	atomic_inc(&tcp_sockets_allocated);
-+	inc_sockets_allocated(tcp_sockets_allocated);
- 
- 	return 0;
- }
-@@ -1573,7 +1573,6 @@ struct proto tcpv6_prot = {
- 	.unhash			= tcp_unhash,
- 	.get_port		= tcp_v6_get_port,
- 	.enter_memory_pressure	= tcp_enter_memory_pressure,
--	.sockets_allocated	= &tcp_sockets_allocated,
- 	.memory_allocated	= &tcp_memory_allocated,
- 	.memory_pressure	= &tcp_memory_pressure,
- 	.orphan_count		= &tcp_orphan_count,
-@@ -1605,6 +1604,7 @@ static struct inet_protosw tcpv6_protosw
- 
- void __init tcpv6_init(void)
+ static inline int read_sockets_allocated(struct proto *prot)
+@@ -628,12 +625,12 @@ static inline void sk_refcnt_debug_relea
+ /* Called with local bh disabled */
+ static __inline__ void sock_prot_inc_use(struct proto *prot)
  {
-+	tcpv6_prot.sockets_allocated = tcp_sockets_allocated;
- 	/* register inet6 protocol */
- 	if (inet6_add_protocol(&tcpv6_protocol, IPPROTO_TCP) < 0)
- 		printk(KERN_ERR "tcpv6_init: Could not register protocol\n");
+-	prot->stats[smp_processor_id()].inuse++;
++	(*per_cpu_ptr(prot->inuse, smp_processor_id())) += 1;
+ }
+ 
+ static __inline__ void sock_prot_dec_use(struct proto *prot)
+ {
+-	prot->stats[smp_processor_id()].inuse--;
++	(*per_cpu_ptr(prot->inuse, smp_processor_id())) -= 1;
+ }
+ 
+ /* With per-bucket locks this operation is not-atomic, so that
+Index: linux-2.6.16-rc2/net/core/sock.c
+===================================================================
+--- linux-2.6.16-rc2.orig/net/core/sock.c	2006-02-09 15:01:47.000000000 -0800
++++ linux-2.6.16-rc2/net/core/sock.c	2006-02-09 15:01:52.000000000 -0800
+@@ -1508,12 +1508,21 @@ int proto_register(struct proto *prot, i
+ 		}
+ 	}
+ 
++	prot->inuse = alloc_percpu(int);
++	if (prot->inuse == NULL) {
++		if (alloc_slab)
++			goto out_free_timewait_sock_slab_name_cache;
++		else
++			goto out;
++	}
+ 	write_lock(&proto_list_lock);
+ 	list_add(&prot->node, &proto_list);
+ 	write_unlock(&proto_list_lock);
+ 	rc = 0;
+ out:
+ 	return rc;
++out_free_timewait_sock_slab_name_cache:
++	kmem_cache_destroy(prot->twsk_prot->twsk_slab);
+ out_free_timewait_sock_slab_name:
+ 	kfree(timewait_sock_slab_name);
+ out_free_request_sock_slab:
+@@ -1537,6 +1546,11 @@ void proto_unregister(struct proto *prot
+ 	list_del(&prot->node);
+ 	write_unlock(&proto_list_lock);
+ 
++	if (prot->inuse != NULL) {
++		free_percpu(prot->inuse);
++		prot->inuse = NULL;
++	}
++
+ 	if (prot->slab != NULL) {
+ 		kmem_cache_destroy(prot->slab);
+ 		prot->slab = NULL;
+Index: linux-2.6.16-rc2/net/ipv4/proc.c
+===================================================================
+--- linux-2.6.16-rc2.orig/net/ipv4/proc.c	2006-02-09 15:01:47.000000000 -0800
++++ linux-2.6.16-rc2/net/ipv4/proc.c	2006-02-09 15:01:52.000000000 -0800
+@@ -50,7 +50,7 @@ static int fold_prot_inuse(struct proto 
+ 	int cpu;
+ 
+ 	for_each_cpu(cpu)
+-		res += proto->stats[cpu].inuse;
++		res += (*per_cpu_ptr(proto->inuse, cpu));
+ 
+ 	return res;
+ }
+Index: linux-2.6.16-rc2/net/ipv4/raw.c
+===================================================================
+--- linux-2.6.16-rc2.orig/net/ipv4/raw.c	2006-02-07 23:14:04.000000000 -0800
++++ linux-2.6.16-rc2/net/ipv4/raw.c	2006-02-09 15:01:52.000000000 -0800
+@@ -718,7 +718,7 @@ static int raw_ioctl(struct sock *sk, in
+ 	}
+ }
+ 
+-struct proto raw_prot = {
++struct proto raw_prot __read_mostly = {
+ 	.name =		"RAW",
+ 	.owner =	THIS_MODULE,
+ 	.close =	raw_close,
+Index: linux-2.6.16-rc2/net/ipv4/tcp_ipv4.c
+===================================================================
+--- linux-2.6.16-rc2.orig/net/ipv4/tcp_ipv4.c	2006-02-09 15:01:47.000000000 -0800
++++ linux-2.6.16-rc2/net/ipv4/tcp_ipv4.c	2006-02-09 15:01:52.000000000 -0800
+@@ -1794,7 +1794,7 @@ void tcp4_proc_exit(void)
+ }
+ #endif /* CONFIG_PROC_FS */
+ 
+-struct proto tcp_prot = {
++struct proto tcp_prot __read_mostly = {
+ 	.name			= "TCP",
+ 	.owner			= THIS_MODULE,
+ 	.close			= tcp_close,
+Index: linux-2.6.16-rc2/net/ipv4/udp.c
+===================================================================
+--- linux-2.6.16-rc2.orig/net/ipv4/udp.c	2006-02-07 23:14:04.000000000 -0800
++++ linux-2.6.16-rc2/net/ipv4/udp.c	2006-02-09 15:01:52.000000000 -0800
+@@ -1340,7 +1340,7 @@ unsigned int udp_poll(struct file *file,
+ 	
+ }
+ 
+-struct proto udp_prot = {
++struct proto udp_prot __read_mostly = {
+  	.name =		"UDP",
+ 	.owner =	THIS_MODULE,
+ 	.close =	udp_close,
+Index: linux-2.6.16-rc2/net/ipv6/proc.c
+===================================================================
+--- linux-2.6.16-rc2.orig/net/ipv6/proc.c	2006-02-07 23:19:10.000000000 -0800
++++ linux-2.6.16-rc2/net/ipv6/proc.c	2006-02-09 15:01:52.000000000 -0800
+@@ -39,7 +39,7 @@ static int fold_prot_inuse(struct proto 
+ 	int cpu;
+ 
+ 	for_each_cpu(cpu)
+-		res += proto->stats[cpu].inuse;
++		res += (*per_cpu_ptr(proto->inuse, cpu));
+ 
+ 	return res;
+ }

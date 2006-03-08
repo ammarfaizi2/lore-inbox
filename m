@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWCHBdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWCHBej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWCHBdU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752004AbWCHBdU
+	id S1751803AbWCHBej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWCHBej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:33:20 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:36265
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751503AbWCHBdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:33:19 -0500
-Date: Tue, 7 Mar 2006 17:33:04 -0800
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Dave Peterson <dsp@llnl.gov>, Al Viro <viro@ftp.linux.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, dthompson@lnxi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Message-ID: <20060308013304.GC24739@kroah.com>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603070847.44417.dsp@llnl.gov> <20060307170401.GA6989@kroah.com> <200603072003.42327.dtor_core@ameritech.net>
-Mime-Version: 1.0
+	Tue, 7 Mar 2006 20:34:39 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:900 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1751803AbWCHBei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:34:38 -0500
+X-IronPort-AV: i="4.02,173,1139212800"; 
+   d="scan'208"; a="413328104:sNHT33222516"
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mlleinin@hpcn.ca.sandia.gov, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       shemminger@osdl.org
+Subject: Re: [openib-general] Re: TSO and IPoIB performance degradation
+X-Message-Flag: Warning: May contain useful information
+References: <1141776697.6119.938.camel@localhost>
+	<20060307.161808.60227862.davem@davemloft.net>
+	<adaacc1raz9.fsf@cisco.com>
+	<20060307.172336.107863253.davem@davemloft.net>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 07 Mar 2006 17:34:34 -0800
+In-Reply-To: <20060307.172336.107863253.davem@davemloft.net> (David S. Miller's message of "Tue, 07 Mar 2006 17:23:36 -0800 (PST)")
+Message-ID: <ada4q29ra6t.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603072003.42327.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 08 Mar 2006 01:34:34.0940 (UTC) FILETIME=[74B3DFC0:01C64250]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07, 2006 at 08:03:41PM -0500, Dmitry Torokhov wrote:
-> On Tuesday 07 March 2006 12:04, Greg KH wrote:
-> > On Tue, Mar 07, 2006 at 08:47:44AM -0800, Dave Peterson wrote:
-> > > Ok, how does this sound:
-> > > 
-> > >     - Modify EDAC so it uses kmalloc() to create the kobject.
-> > >     - Eliminate edac_memctrl_master_release().  Instead, use kfree() as
-> > >       the release method for the kobject.  Here, it's important to use a
-> > >       function -outside- of EDAC as the release method since the core
-> > >       EDAC module may have been unloaded by the time the release method
-> > >       is called.
-> > 
-> > No, if this happens then you are using the kobject incorrectly.  How
-> > could it be held if your module is unloaded?  Don't you have the module
-> > reference counting logic correct?
-> > 
-> 
-> It is pretty hard to implement kobject handling correctly. Consider the
-> following:
-> 
-> 	rmmod device_driver < /sys/devices/pci0000:00/...../power/state
-> 
-> for a driver that creates/destroys device objects.
+    David> I wish you had started the thread by mentioning this
+    David> specific patch, we wasted an enormous amount of precious
+    David> developer time speculating and asking for arbitrary tests
+    David> to be run in order to narrow down the problem, yet you knew
+    David> the specific change that introduced the performance
+    David> regression already...
 
-I agree, that's one reason I really hate the "default" attributes :(
+Sorry, you're right.  I was a little confused because I had a memory of
+Michael's original email (http://lkml.org/lkml/2006/3/6/150) quoting a
+changelog entry, but looking back at the message, it was quoting
+something completely different and misleading.
 
-To do this "right" we need to make the attributes dynamically created
-and the owner set to the proper module.  I did that for the module core
-code and it's on my todo list for the driver core too.
+I think the most interesting email in the old thread is
+http://openib.org/pipermail/openib-general/2005-October/012482.html
+which shows that reverting 314324121 (the "stretch ACK performance
+killer" fix) gives ~400 Mbit/sec in extra IPoIB performance.
 
-> Opening 'state' attribute will pin device structure into memory but will
-> not increase _your_ module's refcount. It is nice if you have a subsystem
-> core split from drivers code - then you can keep core module reference
-> until device objects are gone and allow individual drivers be unloaded
-> freely. But for single-module system it is pretty hard, that's why
-> platform devices are popular.
-
-They are popular for when you don't have a "bus", and rightfully so.
-
-thanks,
-
-greg k-h
+ - R.

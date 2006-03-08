@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWCHXkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWCHXlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751513AbWCHXkU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWCHXkU
+	id S1751514AbWCHXlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWCHXlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:40:20 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:18905
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751513AbWCHXkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:40:18 -0500
-Date: Wed, 8 Mar 2006 15:40:04 -0800
-From: Greg KH <gregkh@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>, bjdouma@xs4all.nl
-Cc: Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for 2.6.16-rc5
-Message-ID: <20060308234004.GA31309@suse.de>
-References: <20060306223545.GA20885@kroah.com> <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de> <20060308230519.GT4006@stusta.de> <1141859917.767.242.camel@mindpipe> <20060308232350.GA26929@suse.de> <1141860895.767.251.camel@mindpipe>
+	Wed, 8 Mar 2006 18:41:07 -0500
+Received: from gate.crashing.org ([63.228.1.57]:7563 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751514AbWCHXlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:41:05 -0500
+Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store
+	buffers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: akpm@osdl.org, ak@suse.de, paulus@samba.org, bcrl@kvack.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1141854208.27555.1.camel@localhost.localdomain>
+References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain>
+	 <1141853919.11221.183.camel@localhost.localdomain>
+	 <1141854208.27555.1.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 10:40:29 +1100
+Message-Id: <1141861230.11221.189.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141860895.767.251.camel@mindpipe>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 06:34:54PM -0500, Lee Revell wrote:
-> On Wed, 2006-03-08 at 15:23 -0800, Greg KH wrote:
-> > 
-> > > That should not go in 2.6.16 - it's not a hardware bug but a (poor IMHO)
-> > > design decision by the vendor.  And, it may break working setups when an
-> > > extra sound device shows up.
-> > 
-> > Ah, good thing I held off :)
-> > 
-> > Any objections to it going in for 2.6.17?
+On Wed, 2006-03-08 at 13:43 -0800, Bryan O'Sullivan wrote:
+> On Thu, 2006-03-09 at 08:38 +1100, Benjamin Herrenschmidt wrote:
 > 
-> I can't think of a way to merge this and guarantee not to break
-> userspace unless it could be disabled by default.
+> > I think people already don't undersatnd the existing gazillion of
+> > barriers we have with quite unclear semantics in some cases, it's not
+> > time to add a new one ...
+> 
+> What do you suggest I do, then?  This makes a substantial difference to
+> performance for us.  Should I confine this somehow to the ipath driver
+> directory and have a nest of ifdefs in an include file there?
 
-Ok, how about you and Bauke (CCed, and the author of the patch) work
-together on the problem and let me know what you decide on.
+What bothers me is that because of that exact same argument "it makes
+substantial difference for us", we end up with basically barriers
+tailored for architectures... that is as many kind of barriers as we
+have architectuers... like mmiowb :)
 
-thanks,
+Currently, PowerPC is losing significant performances for example to try
+to "fit" in the linux barriers for things like IOs which would leak out
+of spinlocks if we didn't have a strong barrier in pretty much every
+writeX() or things like that. We could use the same argument you are
+making to come up with yet another set of barriers that are more
+friendly to ppc ...
 
-greg k-h
+At the end of the day, however, the problem is that pretty much no
+driver write understand anything about any of the barriers and get them
+all wrong...
+
+Which makes me thing we are trying to use the wrong tool or providing
+the wrong level of abstraction or something there...
+
+Ben.
+
+

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWCHWYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWCHW0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbWCHWYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWCHWYu
+	id S1030234AbWCHW0z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWCHW0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:24:50 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:28802 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1030233AbWCHWYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:24:48 -0500
-Date: Wed, 8 Mar 2006 14:25:28 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, netdev@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
-Message-ID: <20060308222528.GE4493@localhost.localdomain>
-References: <20060308015808.GA9062@localhost.localdomain> <20060308015934.GB9062@localhost.localdomain> <20060307181301.4dd6aa96.akpm@osdl.org> <20060308202656.GA4493@localhost.localdomain> <20060308203642.GZ5410@kvack.org> <20060308210726.GD4493@localhost.localdomain> <20060308211733.GA5410@kvack.org>
-Mime-Version: 1.0
+	Wed, 8 Mar 2006 17:26:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54029 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030237AbWCHW0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:26:54 -0500
+Date: Wed, 8 Mar 2006 23:26:52 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <gregkh@suse.de>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for 2.6.16-rc5
+Message-ID: <20060308222652.GR4006@stusta.de>
+References: <20060306223545.GA20885@kroah.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060308211733.GA5410@kvack.org>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20060306223545.GA20885@kroah.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 04:17:33PM -0500, Benjamin LaHaise wrote:
-> On Wed, Mar 08, 2006 at 01:07:26PM -0800, Ravikiran G Thirumalai wrote:
+On Mon, Mar 06, 2006 at 02:35:45PM -0800, Greg KH wrote:
+
+> Here's a summary of the current state of the Linux PCI and PCI Hotplug
+> subsystems as of 2.6.16-rc5
 > 
-> Last time I checked, all the major architectures had efficient local_t 
-> implementations.  Most of the RISC CPUs are able to do a load / store 
-> conditional implementation that is the same cost (since memory barriers 
-> tend to be explicite on powerpc).  So why not use it?
+> If the information in here is incorrect, or anyone knows of any
+> outstanding issues not listed here, please let me know.
+>...
+> Was this summary useful for people?  Anything that I should add to it?
 
-Then, for the batched percpu_counters, we could gain by using local_t only for 
-the UP case. But we will have to have a new local_long_t implementation 
-for that.  Do you think just one use case of local_long_t warrants for a new
-set of apis?
+It is useful, but one thing seems to be missing:
+Which patches do you intend to forward for 2.6.16 (if any)?
 
-Kiran
+(pci-pci-quirk-for-asus-a8v-and-a8v-deluxe-motherboards.patch seems to
+ be a candidate.)
+
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

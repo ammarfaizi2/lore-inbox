@@ -1,81 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWCHUFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWCHUJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbWCHUFc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWCHUFc
+	id S932189AbWCHUJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 15:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWCHUJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:05:32 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49385 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932565AbWCHUFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:05:32 -0500
-To: Andrew Morton <akpm@osdl.org>
-CC: Oleg Nesterov <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Make setsid more robust.
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 08 Mar 2006 13:05:07 -0700
-Message-ID: <m1hd68vh1o.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 8 Mar 2006 15:09:09 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:55708 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932189AbWCHUJI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 15:09:08 -0500
+Date: Wed, 8 Mar 2006 15:09:07 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: David Brownell <david-b@pacbell.net>
+cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: Fw: Re: oops in choose_configuration()
+In-Reply-To: <200603081033.21584.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.44L0.0603081421250.5360-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 8 Mar 2006, David Brownell wrote:
 
-- Carefully allow init (pid == 1) to call setsid despite the kernel using
-  it's session.
-- Use find_task_by_pid instead of find_pid because find_pid taking a pidtype
-  is going away.
+> > In this case it wouldn't make any difference, since all the altsettings
+> > for a particular interface are supposed to have the same bInterfaceClass,
+> > bInterfaceSubClass, and bInterfaceProtocol.  Although I don't think the
+> > USB spec actually says this anywhere..
+> 
+> I'd have stopped at "wouldn't make any difference"; the kernel must make
+> some initial choice, but userspace is free to revise it.  Agreed it would
+> be odd if altsettings had different class/subclass/protocol, but I don't
+> see any good reason to make that illegal.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Agreed.  And like I said before, this is only a heuristic.
 
+> > The bMaxPower value could be different for different altsettings. 
+> 
+> Erm, no; that's a per-configuration thing, not a per-altsetting thing.
+> It's checking the config descriptor, not the interface descriptor,
+> for that particular concern.
 
----
+Whoops, yes.  I misread the code.  All the more reason not to worry about 
+any but the first altsetting.
 
-Andrew this can replaces my fork-allow-init-to-become-a-session-leader patch.
+> > > > b) How do we know that there's actually anything _there_?  The length of
+> > > >    that variable-sized array doesn't seem to have been stored anywhere
+> > > >    obvious by usb_parse_configuration() and choose_configuration() doesn't
+> > > >    check.  What happens if the length was zero?
+> > > 
+> > > I don't think it is allowed to be, as all USB devices have to have at
+> > > least 1 interface.
+> 
+> I think that's not true, and it would be worth verifying that it's not
+> a no-interfaces device even if the USB spec required it.  It's trivial
+> to create device firmware that advertises no-interfaces, and those should
+> never be able to make Linux hiccup (much less oops).
 
- kernel/sys.c |   19 +++++++++++++++----
- 1 files changed, 15 insertions(+), 4 deletions(-)
+Ha!  "should never be able" indeed.  It turns out the code doesn't like it 
+if a configuration has no interfaces.  How embarassing...
 
-a051dfe3df38b6cb1cc11209f1f8274531d761e3
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 6a8157e..5831641 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1384,18 +1384,29 @@ asmlinkage long sys_getsid(pid_t pid)
- asmlinkage long sys_setsid(void)
- {
- 	struct task_struct *group_leader = current->group_leader;
--	struct pid *pid;
-+	pid_t session;
- 	int err = -EPERM;
- 
- 	mutex_lock(&tty_mutex);
- 	write_lock_irq(&tasklist_lock);
- 
--	pid = find_pid(PIDTYPE_PGID, group_leader->pid);
--	if (pid)
-+	/* Fail if I am already a session leader */
-+	if (group_leader->signal->leader)
-+		goto out;
-+	
-+	session = group_leader->pid;
-+	/* Fail if a process group id already exists that equals the
-+	 * proposed session id.  
-+	 *
-+	 * Don't check if session id == 1 because kernel threads use this
-+	 * session id and so the check will always fail and make it so
-+	 * init cannot successfully call setsid.
-+	 */
-+	if (session > 1 && find_task_by_pid_type(PIDTYPE_PGID, session))
- 		goto out;
- 
- 	group_leader->signal->leader = 1;
--	__set_special_pids(group_leader->pid, group_leader->pid);
-+	__set_special_pids(session, session);
- 	group_leader->signal->tty = NULL;
- 	group_leader->signal->tty_old_pgrp = 0;
- 	err = process_group(group_leader);
--- 
-1.2.2.g709a-dirty
+Andrew, if you tell us what's in your /proc/bus/usb/devices we'll see
+whether that was the real problem.  In any case, a patch follows.
+
+Alan Stern
 

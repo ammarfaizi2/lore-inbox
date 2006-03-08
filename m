@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWCHWrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWCHWsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWCHWrI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWCHWrI
+	id S932448AbWCHWsh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWCHWsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:47:08 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:65191 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932513AbWCHWrG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:47:06 -0500
-Date: Wed, 8 Mar 2006 17:41:40 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, netdev@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
-Message-ID: <20060308224140.GC5410@kvack.org>
-References: <20060308015808.GA9062@localhost.localdomain> <20060308015934.GB9062@localhost.localdomain> <20060307181301.4dd6aa96.akpm@osdl.org> <20060308202656.GA4493@localhost.localdomain> <20060308203642.GZ5410@kvack.org> <20060308210726.GD4493@localhost.localdomain> <20060308211733.GA5410@kvack.org> <20060308222528.GE4493@localhost.localdomain>
+	Wed, 8 Mar 2006 17:48:37 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:4809 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932448AbWCHWsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:48:36 -0500
+Subject: Re: drivers/media/video/saa7115.c misreports max. value of
+	contrast and saturation
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Kyler Laird <kyler-keyword-lkml00.e701c2@lairds.com>,
+       linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
+In-Reply-To: <20060308211900.GM4006@stusta.de>
+References: <20060215051908.GF13033@snout> <20060308211900.GM4006@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 08 Mar 2006 19:47:43 -0300
+Message-Id: <1141858063.3133.2.camel@praia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308222528.GE4493@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 02:25:28PM -0800, Ravikiran G Thirumalai wrote:
-> Then, for the batched percpu_counters, we could gain by using local_t only for 
-> the UP case. But we will have to have a new local_long_t implementation 
-> for that.  Do you think just one use case of local_long_t warrants for a new
-> set of apis?
+Adrian,
 
-I think it may make more sense to simply convert local_t into a long, given 
-that most of the users will be things like stats counters.
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+Em Qua, 2006-03-08 às 22:19 +0100, Adrian Bunk escreveu:
+> On Wed, Feb 15, 2006 at 12:19:08AM -0500, Kyler Laird wrote:
+> 
+> > For changes to V4L2_CID_CONTRAST and V4L2_CID_SATURATION, the value is
+> > checked by "if (ctrl->value < 0 || ctrl->value > 127)" yet the maximum
+> > value in v4l2_queryctrl is set to 255 for both of these items.  This
+> > means that programs (like MythTV) which set the contrast and saturation
+> > to the midvalue (127) get *full* contrast and saturation.  (It's not
+> > pretty.)
+> > 
+> > Setting the maximum values to 127 solves this problem.
+> 
+> Mauro, can you comment on this issue?
+Yes. Patch is already available at both git and mercurial trees, fixing
+it for saa7115 and cx25840:
+
+http://linuxtv.org/hg/v4l-dvb?cmd=changeset;node=b77c2f933b620bccaa751d556c1aa2fca30de7ec;style=gitweb
+
+> 
+> > Please copy me on responses.
+> > 
+> > Thank you.
+> > 
+> > --kyler
+> 
+> cu
+> Adrian
+> 
+Cheers, 
+Mauro.
+

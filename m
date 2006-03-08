@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWCHAaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWCHAdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbWCHAaF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWCHAaE
+	id S964836AbWCHAdd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWCHAdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:30:04 -0500
-Received: from smtp-1.llnl.gov ([128.115.3.81]:5317 "EHLO smtp-1.llnl.gov")
-	by vger.kernel.org with ESMTP id S964842AbWCHAaA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:30:00 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Date: Tue, 7 Mar 2006 16:29:28 -0800
-User-Agent: KMail/1.5.3
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, arjan@infradead.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
-       gregkh@kroah.com
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603070903.19226.dsp@llnl.gov> <20060307172054.GA7293@kroah.com>
-In-Reply-To: <20060307172054.GA7293@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 7 Mar 2006 19:33:33 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2533 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751825AbWCHAdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:33:32 -0500
+Subject: Re: [PATCH] Document Linux's memory barriers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9551.1141762147@warthog.cambridge.redhat.com>
+References: <1141756825.31814.75.camel@localhost.localdomain>
+	 <31492.1141753245@warthog.cambridge.redhat.com>
+	 <9551.1141762147@warthog.cambridge.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603071629.28247.dsp@llnl.gov>
+Date: Wed, 08 Mar 2006 00:32:03 +0000
+Message-Id: <1141777924.2455.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 09:20, Greg KH wrote:
-> > Ok, I assume the comment refers to the following:
-> >
-> >     Attributes should be ASCII text files, preferably with only one value
-> >     per file. It is noted that it may not be efficient to contain only
-> >     value per file, so it is socially acceptable to express an array of
-> >     values of the same type.
-> >
-> > I was initially a bit confused because I thought the comment
-> > specifically pertained to the piece of code shown above.  I need to
-> > take a closer look at the EDAC sysfs code - I'm not as familiar with
-> > some of its details as I should be.  Thanks for pointing out the
-> > issue.
->
-> How else should we word the above text so that people realize that it
-> pertains to them?  You aren't the first person to ignore it, so there is
-> a real problem here :(
+On Maw, 2006-03-07 at 20:09 +0000, David Howells wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> > Better meaningful example would be barriers versus an IRQ handler. Which
+> > leads nicely onto section 2
+> 
+> Yes, except that I can't think of one that's feasible that doesn't have to do
+> with I/O - which isn't a problem if you are using the proper accessor
+> functions.
 
-I think it's written clearly as it is.  I didn't write the
-sysfs-specific parts of the EDAC code.  However I'll take the blame
-for not having reviewed it more carefully before it went upstream.
-I guess my attention has been divided among too many things lately.
+We get them off bus masters for one and you can construct silly versions
+of the other.
+
+
+There are several kernel instances of
+
+	while(*ptr != HAVE_RESPONDED && time_before(jiffies, timeout))
+		rmb();
+
+where we wait for hardware to bus master respond when it is fast and
+doesn't IRQ.
+
+

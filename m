@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWCHBxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWCHB5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751509AbWCHBxo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752029AbWCHBxo
+	id S964872AbWCHB5b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:57:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWCHB5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:53:44 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:55733 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751509AbWCHBxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:53:43 -0500
-From: Grant Coady <gcoady@gmail.com>
+	Tue, 7 Mar 2006 20:57:31 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:55722 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S964846AbWCHB5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:57:30 -0500
+Date: Tue, 7 Mar 2006 17:58:08 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm3
-Date: Wed, 08 Mar 2006 12:53:32 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <k1es029t4h08u3gcl00ie9q0qic8tu1fu4@4ax.com>
-References: <20060307021929.754329c9.akpm@osdl.org>
-In-Reply-To: <20060307021929.754329c9.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
+       shai@scalex86.org
+Subject: [patch 0/4] net: percpufy frequently used vars on struct proto
+Message-ID: <20060308015808.GA9062@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Mar 2006 02:19:29 -0800, Andrew Morton <akpm@osdl.org> wrote:
+Following patchset converts struct proto.memory_allocated to use batching
+per-cpu counters, struct proto.sockets_allocated to use per-cpu counters and
+changes the proto.inuse per-cpu variable to use alloc_percpu instead of the
+NR_CPUS x cacheline size padding. 
 
->
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/
->
->- A relatively small number of changes, although we're up to 9MB of diff
->  in the various git trees.
+We observed 5% improvement in apache bench requests per second with this 
+patchset on a multi NIC 8 way IBM x460 box.
 
-Hi there,
+(This was posted earlier
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113830220408812&w=2 )
 
--mm3 failed to boot on sempro box[1], after lilo, screen went blank, 
-no response... hit reset to reboot...  Same config as -mm2 which did 
-boot okay.
+Can this go into -mm please?
 
-Applying "revert-x86_64-mm-i386-early-alignment.patch" fixed it here too.
-(CPU is Sempron SktA 32-bit)
+Thanks,
+Kiran
 
-[1] http://bugsplatter.mine.nu/test/linux-2.6/sempro/ for dmesg & config
-from -mm2
-
-Grant.

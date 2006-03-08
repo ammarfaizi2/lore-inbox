@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbWCHDbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWCHDbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbWCHDbK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWCHDbK
+	id S932437AbWCHDbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWCHDbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:31:10 -0500
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:15504 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932426AbWCHDbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:31:09 -0500
-Date: Tue, 7 Mar 2006 22:29:03 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Fw: Re: oops in choose_configuration()
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Message-ID: <200603072230_MC3-1-BA18-21AC@compuserve.com>
+	Tue, 7 Mar 2006 22:31:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30909 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932424AbWCHDbE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:31:04 -0500
+Date: Tue, 7 Mar 2006 19:30:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, mingo@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers
+In-Reply-To: <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0603071918460.32577@g5.osdl.org>
+References: <31492.1141753245@warthog.cambridge.redhat.com>
+ <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060308005455.GA23921@kroah.com>
 
-On Tue, 7 Mar 2006 16:54:55 -0800, Greg KH wrote:
 
-> On Tue, Mar 07, 2006 at 04:54:24PM -0500, Chuck Ebbert wrote:
-> > At least one susbsystem rolls its own method of adding env vars to the
-> > uevent buffer, and it's so broken it triggers the WARN_ON() in
-> > lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
-> > Start at drivers/input/input.c::input_dev_uevent() and watch the fun.
+On Wed, 8 Mar 2006, Paul Mackerras wrote:
 > 
-> All of the INPUT_ADD_HOTPLUG_VAR() calls do use add_uevent_var(), so we
-> should be safe there.  The other calls also look safe, if not a bit
-> wierd...  So I don't see how we could change this to be any safer, do
-> you?
+> Linus explained recently that wmb() on x86 does not order stores to
+> system memory w.r.t. stores to stores to prefetchable I/O memory (at
+> least that's what I think he said ;).
 
-input.c line 747+ was recently added and caused the error message:
+In fact, it won't order stores to normal memory even wrt any 
+_non-prefetchable_ IO memory.
 
-[1]=>   envp[i++] = buffer + len;
-[2]=>   len += snprintf(buffer + len, buffer_size - len, "MODALIAS=");
-[2]=>   len += print_modalias(buffer + len, buffer_size - len, dev) + 1;
+PCI (and any other sane IO fabric, for that matter) will do IO posting, so 
+the fact that the CPU _core_ may order them due to a wmb() doesn't 
+actually mean anything.
 
-[1]=>   envp[i] = NULL;
-        return 0;
+The only way to _really_ synchronize with a store to an IO device is 
+literally to read from that device (*). No amount of memory barriers will 
+do it.
 
-[1] What is checking for enough space here?  This didn't overflow AFAICT
-but it could.
+So you can really only order stores to regular memory wrt each other, and 
+stores to IO memory wrt each other. For the former, "smp_wmb()" does it.
 
-[2] The snprintf() and print_modalias() calls don't check for errors and
-thus don't return -ENOMEM when the buffer does fill up.  Shouldn't they
-do that instead of returning a truncated env string?  Only the final
-sanity test in snprintf() keeps them from overrunning the buffer.
-(It was print_modalias_bits() that actually caused the overflow.)
+For IO memory, normal IO memory is _always_ supposed to be in program 
+order (at least for PCI. It's part of how the bus is supposed to work), 
+unless the IO range allows prefetching (and you've set some MTRR). And if 
+you do, that, currently you're kind of screwed. mmiowb() should do it, but 
+nobody really uses it, and I think it's broken on x86 (it's a no-op, it 
+really should be an "sfence").
 
-> Are you still seeing problems now?
+A full "mb()" is probably most likely to work in practice. And yes, we 
+should clean this up.
 
-Wasn't me, it was Horst Schirmeier <horst@schirmeier.com>
+		Linus
 
--- 
-Chuck
-"Penguins don't come from next door, they come from the Antarctic!"
+(*) The "read" can of course be any event that tells you that the store 
+has happened - it doesn't necessarily have to be an actual "read[bwl]()" 
+operation. Eg the store might start a command, and when you get the 
+completion interrupt, you obviously know that the store is done, just from 
+a causal reason.

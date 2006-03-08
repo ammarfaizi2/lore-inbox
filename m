@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWCHABX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWCHADG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWCHABX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWCHABX
+	id S964814AbWCHADG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:03:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWCHADG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:01:23 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:27371 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S964786AbWCHABW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:01:22 -0500
-Date: Tue, 07 Mar 2006 18:00:31 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-In-reply-to: <Pine.LNX.4.61.0603070908460.9133@chaos.analogic.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <440E1E9F.3020208@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5N5Ql-30C-11@gated-at.bofh.it> <5NnDE-44v-11@gated-at.bofh.it>
- <440CCD9A.3070907@shaw.ca>
- <Pine.LNX.4.61.0603070705490.8536@chaos.analogic.com>
- <440D918D.2000502@shaw.ca>
- <Pine.LNX.4.61.0603070908460.9133@chaos.analogic.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 7 Mar 2006 19:03:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23276 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964812AbWCHADE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:03:04 -0500
+Date: Tue, 7 Mar 2006 16:05:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
+Subject: Re: [PATCH] mm: yield during swap prefetching
+Message-Id: <20060307160515.0feba529.akpm@osdl.org>
+In-Reply-To: <cone.1141774323.5234.18683.501@kolivas.org>
+References: <200603081013.44678.kernel@kolivas.org>
+	<20060307152636.1324a5b5.akpm@osdl.org>
+	<cone.1141774323.5234.18683.501@kolivas.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> Thinking that a device powers ON in a stable state is naive.
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> > yield() really sucks if there are a lot of runnable tasks.  And the amount
+> > of CPU which that thread uses isn't likely to matter anyway.
+> > 
+> > I think it'd be better to just not do this.  Perhaps alter the thread's
+> > static priority instead?  Does the scheduler have a knob which can be used
+> > to disable a tasks's dynamic priority boost heuristic?
+> 
+> We do have SCHED_BATCH but even that doesn't really have the desired effect. 
+> I know how much yield sucks and I actually want it to suck as much as yield 
+> does.
 
-I don't think so.. if you build a device that connects to the PCI bus it 
-had better come up in a stable state if it wants to be compliant with 
-the spec. That's what the reset line and power-up reset interval is for.
+Why do you want that?
 
-> Many
-> complex devices will have FPGA devices with floating pins that don't
-> become stable until their contents are loaded serially. Others will
-> have IRQ requests based upon power-on states that need to be cleared
-> with a software reset. One can't issue a software reset until the
-> device is enabled and enabling the device may generate interrupts
-> with no handler in place so you have a "can't get there from here"
-> problem.
-
-You still aren't seeing my point. Why does enabling the device BARs 
-cause the device to generate interrupts? And if there's something you 
-need to do to prevent the device from generating interrupts, how can you 
-do it without enabling the device?
-
-Also, the device's ISR must clear the condition which is causing the 
-interrupt, otherwise interrupt storms will result. If your device can 
-enter a state where the interrupt cannot be reliably cleared, how can 
-you possibly comply with this?
-
-> Linux-2.4.x had IRQs that were stable. One could put
-> a handler in place that would handle the possible burst of interrupts
-> upon startup. Then this was changed so the IRQ value is wrong
-> until an unrelated and illogical event occurs. Now, you need to
-> make work-arounds that were never before necessary. My request
-> to fix this fell upon deaf ears.
-
-I don't think any workarounds are needed except for devices that don't 
-comply with the spec. Asserting interrupts that have not been 
-specifically enabled by the driver would meet that definition in my 
-view. If a device happens to do this then maybe a workaround would be 
-needed, but that's what it would be, a workaround for a broken device.
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+If prefetch is doing its job then it will save the machine from a pile of
+major faults in the near future.  The fact that the machine happens to be
+running a number of busy tasks doesn't alter that.  It's _worth_ stealing a
+few cycles from those tasks now to avoid lengthy D-state sleeps in the near
+future?

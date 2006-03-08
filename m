@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWCHXs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWCHXxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWCHXs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWCHXs2
+	id S932293AbWCHXxO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:53:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWCHXxO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:48:28 -0500
-Received: from threatwall.zlynx.org ([199.45.143.218]:23697 "EHLO zlynx.org")
-	by vger.kernel.org with ESMTP id S932296AbWCHXs1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:48:27 -0500
-Subject: Re: [PATCH] mm: yield during swap prefetching
-From: Zan Lynx <zlynx@acm.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: =?ISO-8859-1?Q?Andr=E9?= Goddard Rosa <andre.goddard@gmail.com>,
-       Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <cone.1141858802.179786.26372.501@kolivas.org>
-References: <200603081013.44678.kernel@kolivas.org>
-	 <200603081322.02306.kernel@kolivas.org> <1141784834.767.134.camel@mindpipe>
-	 <200603081330.56548.kernel@kolivas.org>
-	 <b8bf37780603071852r6bf3821fr7610597a54ad305b@mail.gmail.com>
-	 <cone.1141787137.882268.19235.501@kolivas.org>
-	 <1141852064.21958.28.camel@localhost>
-	 <cone.1141858802.179786.26372.501@kolivas.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-78/UWGx+zSDjgKJaXXV7"
-Date: Wed, 08 Mar 2006 16:48:13 -0700
-Message-Id: <1141861694.21958.66.camel@localhost>
+	Wed, 8 Mar 2006 18:53:14 -0500
+Received: from teetot.devrandom.net ([66.35.250.243]:43205 "EHLO
+	teetot.devrandom.net") by vger.kernel.org with ESMTP
+	id S932293AbWCHXxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:53:14 -0500
+Date: Wed, 8 Mar 2006 15:54:04 -0800
+From: thockin@hockin.org
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Greg KH <greg@kroah.com>, Tejun Heo <htejun@gmail.com>,
+       Jeff Garzik <jeff@garzik.org>, Kumar Gala <galak@kernel.crashing.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: proper way to assign fixed PCI resources to a "hotplug" device
+Message-ID: <20060308235404.GA31070@hockin.org>
+References: <Pine.LNX.4.44.0603031638050.30957-100000@gate.crashing.org> <4408CEC8.7040507@garzik.org> <20060308020028.GB26028@kroah.com> <440E4203.7040303@gmail.com> <20060308052723.GD29867@kroah.com> <20060308143952.B4851@jurassic.park.msu.ru> <20060308164041.GA31828@hockin.org> <20060309002153.A9651@jurassic.park.msu.ru> <20060308215734.GA22826@hockin.org> <20060309011147.C9651@jurassic.park.msu.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-Envelope-From: zlynx@acm.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060309011147.C9651@jurassic.park.msu.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 09, 2006 at 01:11:47AM +0300, Ivan Kokshaysky wrote:
+> On Wed, Mar 08, 2006 at 01:57:34PM -0800, thockin@hockin.org wrote:
+> > > Otherwise we have plenty of MMIO space.
+> > 
+> > Not true.  Plenty of root bridges have the same base/limit style
+> > configuration registers, but they are non-standard.  Even worse - the MMIO
+> > hole thatthe chipset carves out, is not guaranteed to be big enough for
+> > some new random allocation.
+> 
+> I'm intrigued. Care to give us an example of such system (where the
+> root bridge window is too small), please? lspci -vxxx?
 
---=-78/UWGx+zSDjgKJaXXV7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have systems where the BIOS sets up the IO hole to be the size of the
+BARs it finds at PCI enum time.  If I have a device that has a hidden BAR,
+the hole won't cover it.  Period.
 
-On Thu, 2006-03-09 at 10:00 +1100, Con Kolivas wrote:
-> Zan Lynx writes:
-[snip]
-> > Games and real-time go together like they were made for each other.
->=20
-> I guess every single well working windows game since the dawn of time is=20
-> some sort of anomaly then.
+> > Cleaning up and re-doing are not the same thing.  The plethora of x86
+> > chipsets makes this unpleasant at best and more likely unworkable.
+> 
+> Yes, re-doing is a LOT simpler. ;-)
+> If needed, we could introduce 'pci=totallyingnorefsckingbiossettings'
+> boot option - it would be 10 or less lines of code.
 
-Yes, those Windows games are anomalies that rely on the OS scheduling
-them AS IF they were real-time, but without actually claiming that
-priority.
-
-Because these games just assume they own the whole system and aren't
-explicitly telling the OS about their real-time requirements, the OS has
-to guess instead and can get it wrong, especially when hardware
-capabilities advance in ways that force changes to the task scheduler
-(multi-core, hyper-threading).  And you said it yourself, many old games
-don't work well on dual-core systems.
-
-I think your effort to improve the guessing is a good idea, and
-thanks. =20
-
-Just don't dismiss the idea that games do have real-time requirements
-and if they did things correctly, games would explicitly specify those
-requirements.
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-78/UWGx+zSDjgKJaXXV7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-
-iD8DBQBED209G8fHaOLTWwgRAlf9AKCQQoX7TBnsu8+x/ZjB2Wz3HmnZlwCeIl+V
-JrldF/RpZPpTGmbhEvg/CUE=
-=aCHK
------END PGP SIGNATURE-----
-
---=-78/UWGx+zSDjgKJaXXV7--
-
+Except for that whole chipset code thing.  Have you dealt with the
+fugliness that is the chipset?  You're really glossing over it.

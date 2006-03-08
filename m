@@ -1,56 +1,491 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWCHAXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbWCHAWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWCHAXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWCHAXE
+	id S964823AbWCHAWu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWCHAWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:23:04 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:45376 "EHLO
-	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S964826AbWCHAXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:23:02 -0500
-Date: Tue, 07 Mar 2006 18:22:55 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [PATCH] Document Linux's memory barriers
-In-reply-to: <5NPq4-34a-23@gated-at.bofh.it>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <440E23DF.8020703@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5NONi-2hp-3@gated-at.bofh.it> <5NOtZ-1FO-27@gated-at.bofh.it>
- <5NPgs-2Rw-37@gated-at.bofh.it> <5NPq4-34a-23@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 7 Mar 2006 19:22:49 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:49592 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964823AbWCHAWs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:22:48 -0500
+Subject: [PATCH 3/3] Zach's core aio changes to support vectored AIO
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: christoph <hch@lst.de>, lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
+References: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
+Content-Type: multipart/mixed; boundary="=-YKALR74joUmlvOOHI19a"
+Date: Tue, 07 Mar 2006 16:24:19 -0800
+Message-Id: <1141777459.17095.41.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Tuesday, March 7, 2006 10:30 am, David Howells wrote:
->> True, I suppose. I should make it clear that these accessor functions
->> imply memory barriers, if indeed they do, and that you should use them
->> rather than accessing I/O registers directly (at least, outside the
->> arch you should).
-> 
-> But they don't, that's why we have mmiowb().
 
-I don't think that is why that function exists.. It's a no-op on most 
-architectures, even where you would need to be able to do write barriers 
-on IO accesses (i.e. x86_64 using CONFIG_UNORDERED_IO). I believe that 
-function is intended for a more limited special case.
+--=-YKALR74joUmlvOOHI19a
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I think any complete memory barrier description should document that 
-function as well as EXPLICITLY specifying whether or not the 
-readX/writeX, etc. functions imply barriers or not.
+This work is initially done by Zach Brown to add support for
+vectored aio. These are the core changes for AIO to support
+IOCB_CMD_PREADV/IOCB_CMD_PWRITEV.
 
-> Btw, thanks for putting together this documentation, it's desperately 
-> needed.
 
-Seconded.. The fact that there's debate over what the rules even are 
-shows why this is needed so badly.
+--=-YKALR74joUmlvOOHI19a
+Content-Disposition: attachment; filename=aiocore-changes.patch
+Content-Type: text/x-patch; name=aiocore-changes.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+This work is initailly done by Zach Brown to add support for
+vectored aio. These are the core changes for AIO to support
+IOCB_CMD_PREADV/IOCB_CMD_PWRITEV. 
+
+Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+Index: linux-2.6.16-rc5/fs/aio.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/aio.c	2006-03-07 13:44:09.000000000 -0800
++++ linux-2.6.16-rc5/fs/aio.c	2006-03-07 13:59:17.000000000 -0800
+@@ -416,6 +416,7 @@ static struct kiocb fastcall *__aio_get_
+ 	req->ki_retry = NULL;
+ 	req->ki_dtor = NULL;
+ 	req->private = NULL;
++	req->ki_iovec = NULL;
+ 	INIT_LIST_HEAD(&req->ki_run_list);
+ 
+ 	/* Check if the completion queue has enough free space to
+@@ -461,6 +462,8 @@ static inline void really_put_req(struct
+ 
+ 	if (req->ki_dtor)
+ 		req->ki_dtor(req);
++	if (req->ki_iovec != &req->ki_inline_vec)
++		kfree(req->ki_iovec);
+ 	kmem_cache_free(kiocb_cachep, req);
+ 	ctx->reqs_active--;
+ 
+@@ -1302,69 +1305,63 @@ asmlinkage long sys_io_destroy(aio_conte
+ 	return -EINVAL;
+ }
+ 
+-/*
+- * aio_p{read,write} are the default  ki_retry methods for
+- * IO_CMD_P{READ,WRITE}.  They maintains kiocb retry state around potentially
+- * multiple calls to f_op->aio_read().  They loop around partial progress
+- * instead of returning -EIOCBRETRY because they don't have the means to call
+- * kick_iocb().
+- */
+-static ssize_t aio_pread(struct kiocb *iocb)
++static void aio_advance_iovec(struct kiocb *iocb, ssize_t ret)
+ {
+-	struct file *file = iocb->ki_filp;
+-	struct address_space *mapping = file->f_mapping;
+-	struct inode *inode = mapping->host;
+-	ssize_t ret = 0;
++	struct iovec *iov = &iocb->ki_iovec[iocb->ki_cur_seg];
+ 
+-	do {
+-		iocb->ki_inline_vec.iov_base = iocb->ki_buf;
+-		iocb->ki_inline_vec.iov_len = iocb->ki_left;
++	BUG_ON(ret <= 0);
+ 
+-		ret = file->f_op->aio_read(iocb, &iocb->ki_inline_vec,
+-						1, iocb->ki_pos);
+-		/*
+-		 * Can't just depend on iocb->ki_left to determine
+-		 * whether we are done. This may have been a short read.
+-		 */
+-		if (ret > 0) {
+-			iocb->ki_buf += ret;
+-			iocb->ki_left -= ret;
++	while (iocb->ki_cur_seg < iocb->ki_nr_segs && ret > 0) {
++		ssize_t this = min(iov->iov_len, (size_t)ret);
++		iov->iov_base += this;
++		iov->iov_len -= this;
++		iocb->ki_left -= this;
++		ret -= this;
++		if (iov->iov_len == 0) {
++			iocb->ki_cur_seg++;
++			iov++;
+ 		}
++	}
+ 
+-		/*
+-		 * For pipes and sockets we return once we have some data; for
+-		 * regular files we retry till we complete the entire read or
+-		 * find that we can't read any more data (e.g short reads).
+-		 */
+-	} while (ret > 0 && iocb->ki_left > 0 &&
+-		 !S_ISFIFO(inode->i_mode) && !S_ISSOCK(inode->i_mode));
+-
+-	/* This means we must have transferred all that we could */
+-	/* No need to retry anymore */
+-	if ((ret == 0) || (iocb->ki_left == 0))
+-		ret = iocb->ki_nbytes - iocb->ki_left;
+-
+-	return ret;
++	/* the caller should not have done more io than what fit in
++	 * the remaining iovecs */
++	BUG_ON(ret > 0 && iocb->ki_left == 0);
+ }
+ 
+-/* see aio_pread() */
+-static ssize_t aio_pwrite(struct kiocb *iocb)
++static ssize_t aio_rw_vect_retry(struct kiocb *iocb)
+ {
+ 	struct file *file = iocb->ki_filp;
++	struct address_space *mapping = file->f_mapping;
++	struct inode *inode = mapping->host;
++	ssize_t (*rw_op)(struct kiocb *, const struct iovec *,
++			 unsigned long, loff_t);
+ 	ssize_t ret = 0;
++	unsigned short opcode;
++
++	if ((iocb->ki_opcode == IOCB_CMD_PREADV) ||
++		(iocb->ki_opcode == IOCB_CMD_PREAD)) {
++		rw_op = file->f_op->aio_read;
++		opcode = IOCB_CMD_PREADV;
++	} else {
++		rw_op = file->f_op->aio_write;
++		opcode = IOCB_CMD_PWRITEV;
++	}
+ 
+ 	do {
+-		iocb->ki_inline_vec.iov_base = iocb->ki_buf;
+-		iocb->ki_inline_vec.iov_len = iocb->ki_left;
++		ret = rw_op(iocb, &iocb->ki_iovec[iocb->ki_cur_seg],
++			    iocb->ki_nr_segs - iocb->ki_cur_seg,
++			    iocb->ki_pos);
++		if (ret > 0)
++			aio_advance_iovec(iocb, ret);
+ 
+-		ret = file->f_op->aio_write(iocb, &iocb->ki_inline_vec,
+-						1, iocb->ki_pos);
+-		if (ret > 0) {
+-			iocb->ki_buf += ret;
+-			iocb->ki_left -= ret;
+-		}
+-	} while (ret > 0 && iocb->ki_left > 0);
++	/* retry all partial writes.  retry partial reads as long as its a
++	 * regular file. */
++	} while (ret > 0 && iocb->ki_left > 0 &&
++		 (opcode == IOCB_CMD_PWRITEV ||
++		  (!S_ISFIFO(inode->i_mode) && !S_ISSOCK(inode->i_mode))));
+ 
++	/* This means we must have transferred all that we could */
++	/* No need to retry anymore */
+ 	if ((ret == 0) || (iocb->ki_left == 0))
+ 		ret = iocb->ki_nbytes - iocb->ki_left;
+ 
+@@ -1391,6 +1388,38 @@ static ssize_t aio_fsync(struct kiocb *i
+ 	return ret;
+ }
+ 
++static ssize_t aio_setup_vectored_rw(struct kiocb *kiocb)
++{
++	ssize_t ret;
++
++	ret = rw_copy_check_uvector((struct iovec __user *)kiocb->ki_buf,
++				    kiocb->ki_nbytes, 1,
++				    &kiocb->ki_inline_vec, &kiocb->ki_iovec);
++	if (ret < 0)
++		goto out;
++
++	kiocb->ki_nr_segs = kiocb->ki_nbytes;
++	kiocb->ki_cur_seg = 0;
++	/* ki_nbytes/left now reflect bytes instead of segs */
++	kiocb->ki_nbytes = ret;
++	kiocb->ki_left = ret;
++
++	ret = 0;
++out:
++	return ret;
++}
++
++static ssize_t aio_setup_single_vector(struct kiocb *kiocb)
++{
++	kiocb->ki_iovec = &kiocb->ki_inline_vec;
++	kiocb->ki_iovec->iov_base = kiocb->ki_buf;
++	kiocb->ki_iovec->iov_len = kiocb->ki_left;
++	kiocb->ki_nr_segs = 1;
++	kiocb->ki_cur_seg = 0;
++	kiocb->ki_nbytes = kiocb->ki_left;
++	return 0;
++}
++
+ /*
+  * aio_setup_iocb:
+  *	Performs the initial checks and aio retry method
+@@ -1413,9 +1442,12 @@ static ssize_t aio_setup_iocb(struct kio
+ 		ret = security_file_permission(file, MAY_READ);
+ 		if (unlikely(ret))
+ 			break;
++		ret = aio_setup_single_vector(kiocb);
++		if (ret)
++			break;
+ 		ret = -EINVAL;
+ 		if (file->f_op->aio_read)
+-			kiocb->ki_retry = aio_pread;
++			kiocb->ki_retry = aio_rw_vect_retry;
+ 		break;
+ 	case IOCB_CMD_PWRITE:
+ 		ret = -EBADF;
+@@ -1428,9 +1460,34 @@ static ssize_t aio_setup_iocb(struct kio
+ 		ret = security_file_permission(file, MAY_WRITE);
+ 		if (unlikely(ret))
+ 			break;
++		ret = aio_setup_single_vector(kiocb);
++		if (ret)
++			break;
++		ret = -EINVAL;
++		if (file->f_op->aio_write)
++			kiocb->ki_retry = aio_rw_vect_retry;
++		break;
++	case IOCB_CMD_PREADV:
++		ret = -EBADF;
++		if (unlikely(!(file->f_mode & FMODE_READ)))
++			break;
++		ret = aio_setup_vectored_rw(kiocb);
++		if (ret)
++			break;
++		ret = -EINVAL;
++		if (file->f_op->aio_read)
++			kiocb->ki_retry = aio_rw_vect_retry;
++		break;
++	case IOCB_CMD_PWRITEV:
++		ret = -EBADF;
++		if (unlikely(!(file->f_mode & FMODE_WRITE)))
++			break;
++		ret = aio_setup_vectored_rw(kiocb);
++		if (ret)
++			break;
+ 		ret = -EINVAL;
+ 		if (file->f_op->aio_write)
+-			kiocb->ki_retry = aio_pwrite;
++			kiocb->ki_retry = aio_rw_vect_retry;
+ 		break;
+ 	case IOCB_CMD_FDSYNC:
+ 		ret = -EINVAL;
+Index: linux-2.6.16-rc5/include/linux/aio.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/aio.h	2006-03-07 13:44:09.000000000 -0800
++++ linux-2.6.16-rc5/include/linux/aio.h	2006-03-07 13:59:17.000000000 -0800
+@@ -7,6 +7,7 @@
+ #include <linux/uio.h>
+ 
+ #include <asm/atomic.h>
++#include <linux/uio.h>
+ 
+ #define AIO_MAXSEGS		4
+ #define AIO_KIOGRP_NR_ATOMIC	8
+@@ -114,6 +115,9 @@ struct kiocb {
+ 	long			ki_kicked; 	/* just for testing */
+ 	long			ki_queued; 	/* just for testing */
+ 	struct iovec		ki_inline_vec;	/* inline vector */
++ 	struct iovec		*ki_iovec;
++ 	unsigned long		ki_nr_segs;
++ 	unsigned long		ki_cur_seg;
+ 
+ 	struct list_head	ki_list;	/* the aio core uses this
+ 						 * for cancellation */
+Index: linux-2.6.16-rc5/include/linux/aio_abi.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/aio_abi.h	2006-03-07 13:44:09.000000000 -0800
++++ linux-2.6.16-rc5/include/linux/aio_abi.h	2006-03-07 13:59:17.000000000 -0800
+@@ -41,6 +41,8 @@ enum {
+ 	 * IOCB_CMD_POLL = 5,
+ 	 */
+ 	IOCB_CMD_NOOP = 6,
++	IOCB_CMD_PREADV = 7,
++	IOCB_CMD_PWRITEV = 8,
+ };
+ 
+ /* read() from /dev/aio returns these structures. */
+Index: linux-2.6.16-rc5/fs/read_write.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/read_write.c	2006-03-07 13:59:14.000000000 -0800
++++ linux-2.6.16-rc5/fs/read_write.c	2006-03-07 13:59:17.000000000 -0800
+@@ -513,72 +513,103 @@ ssize_t do_loop_readv_writev(struct file
+ /* A write operation does a read from user space and vice versa */
+ #define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
+ 
++ssize_t rw_copy_check_uvector(const struct iovec __user * uvector,
++			      unsigned long nr_segs, unsigned long fast_segs,
++			      struct iovec *fast_pointer,
++			      struct iovec **ret_pointer)
++  {
++	unsigned long seg;
++  	ssize_t ret;
++	struct iovec *iov = fast_pointer;
++
++  	/*
++  	 * SuS says "The readv() function *may* fail if the iovcnt argument
++  	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
++  	 * traditionally returned zero for zero segments, so...
++  	 */
++	if (nr_segs == 0) {
++		ret = 0;
++  		goto out;
++	}
++
++  	/*
++  	 * First get the "struct iovec" from user memory and
++  	 * verify all the pointers
++  	 */
++	if ((nr_segs > UIO_MAXIOV) || (nr_segs <= 0)) {
++		ret = -EINVAL;
++  		goto out;
++	}
++	if (nr_segs > fast_segs) {
++  		iov = kmalloc(nr_segs*sizeof(struct iovec), GFP_KERNEL);
++		if (iov == NULL) {
++			ret = -ENOMEM;
++  			goto out;
++		}
++  	}
++	if (copy_from_user(iov, uvector, nr_segs*sizeof(*uvector))) {
++		ret = -EFAULT;
++  		goto out;
++	}
++
++  	/*
++	 * According to the Single Unix Specification we should return EINVAL
++	 * if an element length is < 0 when cast to ssize_t or if the
++	 * total length would overflow the ssize_t return value of the
++	 * system call.
++  	 */
++	ret = 0;
++  	for (seg = 0; seg < nr_segs; seg++) {
++  		void __user *buf = iov[seg].iov_base;
++  		ssize_t len = (ssize_t)iov[seg].iov_len;
++
++		/* see if we we're about to use an invalid len or if
++		 * it's about to overflow ssize_t */
++		if (len < 0 || (ret + len < ret)) {
++			ret = -EINVAL;
++  			goto out;
++		}
++		if (unlikely(!access_ok(vrfy_dir(type), buf, len))) {
++			ret = -EFAULT;
++  			goto out;
++		}
++
++		ret += len;
++  	}
++out:
++	*ret_pointer = iov;
++	return ret;
++}
++
++/* A write operation does a read from user space and vice versa */
++#define vrfy_dir(type) ((type) == READ ? VERIFY_WRITE : VERIFY_READ)
++
+ static ssize_t do_readv_writev(int type, struct file *file,
+ 			       const struct iovec __user * uvector,
+ 			       unsigned long nr_segs, loff_t *pos)
+ {
+-	size_t tot_len;
++	ssize_t tot_len;
+ 	struct iovec iovstack[UIO_FASTIOV];
+ 	struct iovec *iov = iovstack;
+ 	ssize_t ret;
+-	int seg;
+ 	io_fn_t fn;
+ 	iov_fn_t fnv;
+ 
+-	/*
+-	 * SuS says "The readv() function *may* fail if the iovcnt argument
+-	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
+-	 * traditionally returned zero for zero segments, so...
+-	 */
+-	ret = 0;
+-	if (nr_segs == 0)
+-		goto out;
+-
+-	/*
+-	 * First get the "struct iovec" from user memory and
+-	 * verify all the pointers
+-	 */
+-	ret = -EINVAL;
+-	if ((nr_segs > UIO_MAXIOV) || (nr_segs <= 0))
+-		goto out;
+-	if (!file->f_op)
++	if (!file->f_op) {
++		ret = -EINVAL;
+ 		goto out;
+-	if (nr_segs > UIO_FASTIOV) {
+-		ret = -ENOMEM;
+-		iov = kmalloc(nr_segs*sizeof(struct iovec), GFP_KERNEL);
+-		if (!iov)
+-			goto out;
+ 	}
+-	ret = -EFAULT;
+-	if (copy_from_user(iov, uvector, nr_segs*sizeof(*uvector)))
++
++	ret = rw_copy_check_uvector(uvector, nr_segs, ARRAY_SIZE(iovstack),
++			iovstack, &iov);
++
++	if (ret < 0)
+ 		goto out;
+ 
+-	/*
+-	 * Single unix specification:
+-	 * We should -EINVAL if an element length is not >= 0 and fitting an
+-	 * ssize_t.  The total length is fitting an ssize_t
+-	 *
+-	 * Be careful here because iov_len is a size_t not an ssize_t
+-	 */
+-	tot_len = 0;
+-	ret = -EINVAL;
+-	for (seg = 0; seg < nr_segs; seg++) {
+-		void __user *buf = iov[seg].iov_base;
+-		ssize_t len = (ssize_t)iov[seg].iov_len;
+-
+-		if (len < 0)	/* size_t not fitting an ssize_t .. */
+-			goto out;
+-		if (unlikely(!access_ok(vrfy_dir(type), buf, len)))
+-			goto Efault;
+-		tot_len += len;
+-		if ((ssize_t)tot_len < 0) /* maths overflow on the ssize_t */
+-			goto out;
+-	}
+-	if (tot_len == 0) {
+-		ret = 0;
++	if (ret == 0)
+ 		goto out;
+-	}
+ 
++	tot_len = ret;
+ 	ret = rw_verify_area(type, file, pos, tot_len);
+ 	if (ret < 0)
+ 		goto out;
+@@ -610,9 +641,6 @@ out:
+ 			fsnotify_modify(file->f_dentry);
+ 	}
+ 	return ret;
+-Efault:
+-	ret = -EFAULT;
+-	goto out;
+ }
+ 
+ ssize_t vfs_readv(struct file *file, const struct iovec __user *vec,
+Index: linux-2.6.16-rc5/include/linux/fs.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/fs.h	2006-03-07 13:59:14.000000000 -0800
++++ linux-2.6.16-rc5/include/linux/fs.h	2006-03-07 13:59:17.000000000 -0800
+@@ -1050,6 +1050,11 @@ struct inode_operations {
+ 
+ struct seq_file;
+ 
++ssize_t rw_copy_check_uvector(const struct iovec __user * uvector,
++				unsigned long nr_segs, unsigned long fast_segs,
++				struct iovec *fast_pointer,
++				struct iovec **ret_pointer);
++
+ extern ssize_t vfs_read(struct file *, char __user *, size_t, loff_t *);
+ extern ssize_t vfs_write(struct file *, const char __user *, size_t, loff_t *);
+ extern ssize_t vfs_readv(struct file *, const struct iovec __user *,
+
+--=-YKALR74joUmlvOOHI19a--
 

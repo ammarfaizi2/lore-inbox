@@ -1,74 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWCHBRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWCHBSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWCHBRg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWCHBRg
+	id S1751185AbWCHBSw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:18:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751997AbWCHBSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:17:36 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:42848 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S1750952AbWCHBRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:17:35 -0500
-X-IronPort-AV: i="4.02,173,1139212800"; 
-   d="scan'208"; a="260258587:sNHT45303676"
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mlleinin@hpcn.ca.sandia.gov, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       shemminger@osdl.org
-Subject: Re: [openib-general] Re: TSO and IPoIB performance degradation
-X-Message-Flag: Warning: May contain useful information
-References: <1141767891.6119.903.camel@localhost>
-	<20060307134907.733d3d27@localhost.localdomain>
-	<1141776697.6119.938.camel@localhost>
-	<20060307.161808.60227862.davem@davemloft.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 07 Mar 2006 17:17:30 -0800
-In-Reply-To: <20060307.161808.60227862.davem@davemloft.net> (David S. Miller's message of "Tue, 07 Mar 2006 16:18:08 -0800 (PST)")
-Message-ID: <adaacc1raz9.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 7 Mar 2006 20:18:52 -0500
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:24537 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751185AbWCHBSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:18:51 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] mm: yield during swap prefetching
+Date: Wed, 8 Mar 2006 12:19:21 +1100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
+References: <200603081013.44678.kernel@kolivas.org> <20060307171134.59288092.akpm@osdl.org> <200603081212.03223.kernel@kolivas.org>
+In-Reply-To: <200603081212.03223.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 08 Mar 2006 01:17:31.0954 (UTC) FILETIME=[12F49920:01C6424E]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603081219.21786.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    David> How limited are the IPoIB devices, TX descriptor wise?
+On Wed, 8 Mar 2006 12:12 pm, Con Kolivas wrote:
+> On Wed, 8 Mar 2006 12:11 pm, Andrew Morton wrote:
+> > Con Kolivas <kernel@kolivas.org> wrote:
+> > > On Wed, 8 Mar 2006 11:05 am, Andrew Morton wrote:
+> > > > Con Kolivas <kernel@kolivas.org> wrote:
+> > > > > > yield() really sucks if there are a lot of runnable tasks.  And
+> > > > > > the amount of CPU which that thread uses isn't likely to matter
+> > > > > > anyway.
+> > > > > >
+> > > > > > I think it'd be better to just not do this.  Perhaps alter the
+> > > > > > thread's static priority instead?  Does the scheduler have a knob
+> > > > > > which can be used to disable a tasks's dynamic priority boost
+> > > > > > heuristic?
+> > > > >
+> > > > > We do have SCHED_BATCH but even that doesn't really have the
+> > > > > desired effect. I know how much yield sucks and I actually want it
+> > > > > to suck as much as yield does.
+> > > >
+> > > > Why do you want that?
+> > > >
+> > > > If prefetch is doing its job then it will save the machine from a
+> > > > pile of major faults in the near future.  The fact that the machine
+> > > > happens to be running a number of busy tasks doesn't alter that. 
+> > > > It's _worth_ stealing a few cycles from those tasks now to avoid
+> > > > lengthy D-state sleeps in the near future?
+> > >
+> > > The test case is the 3d (gaming) app that uses 100% cpu. It never sets
+> > > delay swap prefetch in any way so swap prefetching starts working. Once
+> > > swap prefetching starts reading it is mostly in uninterruptible sleep
+> > > and always wakes up on the active array ready for cpu, never expiring
+> > > even with its miniscule timeslice. The 3d app is always expiring and
+> > > landing on the expired array behind kprefetchd even though kprefetchd
+> > > is nice 19. The practical upshot of all this is that kprefetchd does a
+> > > lot of prefetching with 3d gaming going on, and no amount of priority
+> > > fiddling stops it doing this. The disk access is noticeable during 3d
+> > > gaming unfortunately. Yielding regularly means a heck of a lot less
+> > > prefetching occurs and is no longer noticeable. When idle, yield()ing
+> > > doesn't seem to adversely affect the effectiveness of the prefetching.
+> >
+> > but, but.  If prefetching is prefetching stuff which that game will soon
+> > use then it'll be an aggregate improvement.  If prefetch is prefetching
+> > stuff which that game _won't_ use then prefetch is busted.  Using yield()
+> > to artificially cripple kprefetchd is a rather sad workaround isn't it?
+>
+> It's not the stuff that it prefetches that's the problem; it's the disk
+> access.
 
-    David> One side effect of the TSO changes is that one extra
-    David> descriptor will be used for outgoing packets.  This is
-    David> because we have to put the headers as well as the user
-    David> data, into page based buffers now.
+I guess what I'm saying is there isn't enough information to delay swap 
+prefetch when cpu usage is high which was my intention as well. Yielding has 
+the desired effect without adding further accounting checks to swap_prefetch.
 
-We have essentially no limit on TX descriptors.  However I think
-there's some confusion about TSO: IPoIB does _not_ do TSO -- generic
-InfiniBand hardware does not have any TSO capability.  In the future
-we might be able to implement TSO for certain hardware that does have
-support, but even that requires some firmware help from the from the
-HCA vendors, etc.  So right now the IPoIB driver does not do TSO.
-
-The reason TSO comes up is that reverting the patch described below
-helps (or helped at some point at least) IPoIB throughput quite a bit.
-Clearly this was a bug fix so we can't revert it in general but I
-think what Michael Tsirkin was suggesting at the beginning of this
-thread is to do what the last paragraph of the changelog says -- find
-some way to re-enable the trick.
-
-diff-tree 3143241... (from e16fa6b...)
-Author: David S. Miller <davem@davemloft.net>
-Date:   Mon May 23 12:03:06 2005 -0700
-
-    [TCP]: Fix stretch ACK performance killer when doing ucopy.
-
-    When we are doing ucopy, we try to defer the ACK generation to
-    cleanup_rbuf().  This works most of the time very well, but if the
-    ucopy prequeue is large, this ACKing behavior kills performance.
-
-    With TSO, it is possible to fill the prequeue so large that by the
-    time the ACK is sent and gets back to the sender, most of the window
-    has emptied of data and performance suffers significantly.
-
-    This behavior does help in some cases, so we should think about
-    re-enabling this trick in the future, using some kind of limit in
-    order to avoid the bug case.
-
- - R.
+Cheers,
+Con

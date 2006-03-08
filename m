@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWCHWH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWCHWHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWCHWH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWCHWH3
+	id S1030225AbWCHWHO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:07:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWCHWHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:07:29 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:5817 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932286AbWCHWH2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:07:28 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store buffers
-Date: Wed, 8 Mar 2006 15:40:18 +0100
-User-Agent: KMail/1.9.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org, paulus@samba.org,
-       benh@kernel.crashing.org, bcrl@kvack.org, linux-kernel@vger.kernel.org
-References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain> <200603081535.25515.ak@suse.de> <1141855547.27555.16.camel@localhost.localdomain>
-In-Reply-To: <1141855547.27555.16.camel@localhost.localdomain>
+	Wed, 8 Mar 2006 17:07:13 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44045 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030225AbWCHWHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:07:12 -0500
+Date: Wed, 8 Mar 2006 23:07:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Miguel Blanco <mblancom@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: problem mounting a jffs2 filesystem
+Message-ID: <20060308220710.GQ4006@stusta.de>
+References: <8766c4ce0603050504h24b445c5t@mail.gmail.com> <1141652131.4110.47.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603081540.19284.ak@suse.de>
+In-Reply-To: <1141652131.4110.47.camel@pmac.infradead.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 March 2006 23:05, Bryan O'Sullivan wrote:
-> On Wed, 2006-03-08 at 15:35 +0100, Andi Kleen wrote:
+On Mon, Mar 06, 2006 at 01:35:31PM +0000, David Woodhouse wrote:
+> On Sun, 2006-03-05 at 14:04 +0100, Miguel Blanco wrote:
+> >  divide error: 0000 [#1]
+> >  EIP is at jffs2_scan_medium+0xdf/0x55e [jffs2]
 > 
-> > > How is this different to mmiowb() ?
-> > 
-> > I think he intends it to be a flush instead of an ordering.
-> > (something like CLFLUSH for WC areas)
-> 
-> Exactly.  mmiowb guarantees ordering, but says nothing about timing.
-> This would guarantee ordering, affect WC store buffers if present, and
-> try to work in a timely manner.
+> Can you try it with the attached patch? Or turn off
+> CONFIG_JFFS2_FS_WRITEBUFFER
 
-Well if you need the flush, not the ordering then I'm not convinced
-SFENCE will do that for you. My understanding is that it only guarantees
-ordering. 
+This patch seems to be 2.61.6 stuff?
 
-But at least in some earlier message you said you just needed ordering.
+> dwmw2
+>...
 
--Andi
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

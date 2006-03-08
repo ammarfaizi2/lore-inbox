@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWCHKRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCHKTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbWCHKRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 05:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWCHKRU
+	id S1751049AbWCHKTs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 05:19:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWCHKTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 05:17:20 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:4401 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932548AbWCHKRT (ORCPT
+	Wed, 8 Mar 2006 05:19:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:36480 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751049AbWCHKTr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 05:17:19 -0500
-Date: Wed, 8 Mar 2006 11:17:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mike Christie <michaelc@cs.wisc.edu>
+	Wed, 8 Mar 2006 05:19:47 -0500
+X-Authenticated: #14349625
+Subject: Re: 2.6.16-rc5-mm3 oopses on modprobe p4_clockmod
+From: Mike Galbraith <efault@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] update max_sectors documentation
-Message-ID: <20060308101659.GJ4595@suse.de>
-References: <1141777621.5594.3.camel@max>
+In-Reply-To: <20060308012347.47538bf4.akpm@osdl.org>
+References: <1141809107.7841.5.camel@homer>
+	 <20060308012347.47538bf4.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 08 Mar 2006 11:20:26 +0100
+Message-Id: <1141813226.7770.1.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141777621.5594.3.camel@max>
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 07 2006, Mike Christie wrote:
-> Hi Jens,
-> 
-> I was looking over Kai's scsi command size email and was going to try
-> and add it to some block docs and noticed I did not send the update to
-> the max_sectors biodoc.txt. Sorry about that. Here is the patch against
-> 2.6.16-rc5.
-> 
-> The max_sectors has been split into max_hw_sectors and max_sectors for some
-> time. A patch to have blk_queue_max_sectors enforce this was sent by
-> me and it broke IDE. This patch updates the documentation.
+On Wed, 2006-03-08 at 01:23 -0800, Andrew Morton wrote:
 
-Thanks Mike, committed.
+> err, I think this was me breaking stuff.
+> 
+> You have CONFIG_HOTPLUG_CPU=n, yes?
 
--- 
-Jens Axboe
+Yes, that fixed it.  I would have been back sooner with confirmation,
+but after touching that option, make decided to rebuild the galaxy.
+
+	-Mike
 

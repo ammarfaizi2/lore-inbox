@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752003AbWCHESG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWCHE3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752003AbWCHESG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 23:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCHESG
+	id S1751288AbWCHE3o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 23:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWCHE3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 23:18:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51168 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1752003AbWCHESF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 23:18:05 -0500
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mmlnx@us.ibm.com
-Subject: Re: [PATCH] fix kexec asm
-References: <200603072135.16116.mason@suse.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 07 Mar 2006 21:16:34 -0700
-In-Reply-To: <200603072135.16116.mason@suse.com> (Chris Mason's message of
- "Tue, 7 Mar 2006 21:35:15 -0500")
-Message-ID: <m1zmk1y3j1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 7 Mar 2006 23:29:44 -0500
+Received: from users.ccur.com ([66.10.65.2]:12239 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S1751288AbWCHE3o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 23:29:44 -0500
+Date: Tue, 7 Mar 2006 23:28:41 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: oops in choose_configuration()
+Message-ID: <20060308042841.GA16822@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <200603071657_MC3-1-BA0F-6372@compuserve.com> <Pine.LNX.4.64.0603071648430.32577@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0603071648430.32577@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason <mason@suse.com> writes:
+On Tue, Mar 07, 2006 at 04:57:39PM -0800, Linus Torvalds wrote:
 
-> From: Michael Matz <matz@suse.de>
->
-> While testing kexec and kdump we hit problems where the new kernel would
-> freeze or instantly reboot.  The easiest way to trigger it was to kexec a
-> kernel compiled for CONFIG_M586 on an athlon cpu.  Compiling
-> for CONFIG_MK7 instead would work fine.
->
-> The patch below fixes a few problems with the kexec inline asm.
+> Well, snprintf() should be safe, though. It will warn if the caller is 
+> lazy, but these days, the thing does
+> 
+> 	max(buf_size - len, 0)
+> 
+> which should mean that the input layer passes in 0 instead of a negative 
+> number. And snprintf() will then _not_ print anything. 
 
-Thanks.  Specifying the stomp of %eax in load_segments is definitely
-good.  The memory stomp looks excessive and if this was a fast path
-I would worry about it.  As it is better safe than sorry.
+I assume this is a typo, and you meant scnprintf?  AFAIK, snprintf has
+the same ol' bad behavior when #bytes-to-be-written > #bytes-in-buffer.
 
-Acked-By: Eric Biederman <ebiederm@xmission.com>
-
-Eric
+Joe

@@ -1,40 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbWCHVnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWCHVoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbWCHVnY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWCHVnY
+	id S932207AbWCHVoH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWCHVoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:43:24 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:13734 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932208AbWCHVnX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:43:23 -0500
-Date: Wed, 8 Mar 2006 16:37:56 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, akpm@osdl.org, ak@suse.de,
-       paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store buffers
-Message-ID: <20060308213756.GB5410@kvack.org>
-References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain> <1141853919.11221.183.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 16:44:07 -0500
+Received: from smtp-vbr1.xs4all.nl ([194.109.24.21]:57617 "EHLO
+	smtp-vbr1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S1751198AbWCHVoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:44:05 -0500
+From: Hans Verkuil <hverkuil@xs4all.nl>
+To: v4l-dvb-maintainer@linuxtv.org
+Subject: Re: [v4l-dvb-maintainer] Re: drivers/media/video/saa7115.c misreports max. value of contrast and saturation
+Date: Wed, 8 Mar 2006 22:42:54 +0100
+User-Agent: KMail/1.8.91
+Cc: Adrian Bunk <bunk@stusta.de>,
+       Kyler Laird <kyler-keyword-lkml00.e701c2@lairds.com>,
+       mchehab@infradead.org, linux-kernel@vger.kernel.org
+References: <20060215051908.GF13033@snout> <20060308211900.GM4006@stusta.de>
+In-Reply-To: <20060308211900.GM4006@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1141853919.11221.183.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200603082242.54547.hverkuil@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 08:38:39AM +1100, Benjamin Herrenschmidt wrote:
-> I think people already don't undersatnd the existing gazillion of
-> barriers we have with quite unclear semantics in some cases, it's not
-> time to add a new one ...
+On Wednesday 08 March 2006 22:19, Adrian Bunk wrote:
+> On Wed, Feb 15, 2006 at 12:19:08AM -0500, Kyler Laird wrote:
+> > For changes to V4L2_CID_CONTRAST and V4L2_CID_SATURATION, the value
+> > is checked by "if (ctrl->value < 0 || ctrl->value > 127)" yet the
+> > maximum value in v4l2_queryctrl is set to 255 for both of these
+> > items.  This means that programs (like MythTV) which set the
+> > contrast and saturation to the midvalue (127) get *full* contrast
+> > and saturation.  (It's not pretty.)
+> >
+> > Setting the maximum values to 127 solves this problem.
+>
+> Mauro, can you comment on this issue?
 
-We went over the details of this in a pretty long thread, and you can't 
-use any of the existing memory barriers to solve this particular problem.  
-I think the definition of this one is well done now.
+It's fixed with the patch with subject '[PATCH 08/13] Fix maximum for 
+the saturation and contrast controls.' It was posted by Mauro to the 
+linux mailinglist a week ago. I hope it will be fixed in 2.6.16, but 
+Mauro should know more about it. It was a stupid copy-and-paste bug so 
+I see no reason why it shouldn't go in.
 
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+> > Please copy me on responses.
+> >
+> > Thank you.
+> >
+> > --kyler
+>
+> cu
+> Adrian

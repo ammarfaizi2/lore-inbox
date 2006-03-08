@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWCHTfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWCHTg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbWCHTfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 14:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWCHTfu
+	id S932123AbWCHTg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 14:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWCHTg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 14:35:50 -0500
-Received: from mail.gmx.net ([213.165.64.20]:10376 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932159AbWCHTft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 14:35:49 -0500
-X-Authenticated: #30760622
-Subject: dynsched bug
-From: Gunter Fritz <gunter_fritz@gmx.de>
-To: linux-kernel@vger.kernel.org
+	Wed, 8 Mar 2006 14:36:28 -0500
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:11705 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S932123AbWCHTg1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 14:36:27 -0500
+Subject: 2.6.15-rt20, "bad page state", jackd
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: nando@ccrma.Stanford.EDU
 Content-Type: text/plain
-Date: Wed, 08 Mar 2006 21:14:19 +0100
-Message-Id: <1141848859.4446.12.camel@linux.site>
+Date: Wed, 08 Mar 2006 11:36:04 -0800
+Message-Id: <1141846564.5262.20.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey
+Hi all, I reported this in mid January (I thought I had sent to the list
+but the report went to Ingo and Steven off list)
 
-there is a bug in the dynsched patch.
-(http://sourceforge.net/projects/dynsched) the recalculation of the nice
-prio must be done before the new scheduler activate the running tasks. 
-if you had download it, change scheduler_switch in sched.c like
-following:
+I'm seeing the same problem in 2.6.15-rt21 in some of my machines. After
+a reboot into the kernel I just login as root in a terminal, start the
+jackd sound server ("jackd -d alsa -d hw") and when stopping it (just
+doing a <ctrl>c) I get a bunch of messages of this form:
 
-//add the running processes to the new rq
-for_each_process(p){
-        nice = sched_drvp->prio_to_nice(p);
-        p->static_prio = data->new_scheduler->nice_to_prio(nice);
-        p->prio = p->static_prio;
-        if(p->state == TASK_RUNNING){
-               data->new_scheduler->activate_task(p,rq, 1);
-               count_rq_processes++;
-        }
-}
+> Trying to fix it up, but a reboot is needed
+> Bad page state at __free_pages_ok (in process 'jackd', page c10012fc)
 
+Has anyone else seen this?
+
+I'm in the process of building an -rt21 kernel before posting more
+detailed error messages (this kernel is patched with some additional
+stuff). 
+
+Ingo had suggested at the time I enable DEBUG_PAGEALLOC and DEBUG_SLAB
+to get more information (Jan 21 or so), I was never able to get the
+machine to boot into that kernel, I kept getting oopses. Weird, I'm
+trying to find the post I sent to lkml (I have it in my mailbox) in the
+lkml archives to include a link and can't find it...
+
+More details later...
+-- Fernando
 
 

@@ -1,75 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWCHUQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWCHUQH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbWCHUQe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWCHUQd
+	id S1750952AbWCHUQH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 15:16:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWCHUQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:16:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3996 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932566AbWCHUQc (ORCPT
+	Wed, 8 Mar 2006 15:16:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9431 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750952AbWCHUQF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:16:32 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060308161829.GC3669@elf.ucw.cz> 
-References: <20060308161829.GC3669@elf.ucw.cz>  <31492.1141753245@warthog.cambridge.redhat.com> 
-To: Pavel Machek <pavel@ucw.cz>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 08 Mar 2006 20:16:11 +0000
-Message-ID: <24309.1141848971@warthog.cambridge.redhat.com>
+	Wed, 8 Mar 2006 15:16:05 -0500
+Date: Wed, 8 Mar 2006 12:14:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: david-b@pacbell.net, linux-usb-devel@lists.sourceforge.net, greg@kroah.com,
+       torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: Fw: Re: oops in choose_configuration()
+Message-Id: <20060308121401.7926bf02.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0603081421250.5360-100000@iolanthe.rowland.org>
+References: <200603081033.21584.david-b@pacbell.net>
+	<Pine.LNX.4.44L0.0603081421250.5360-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
+Alan Stern <stern@rowland.harvard.edu> wrote:
+>
+> Andrew, if you tell us what's in your /proc/bus/usb/devices we'll see
+>  whether that was the real problem.
 
-> > + (*) set_mb(var, value)
-> > + (*) set_wmb(var, value)
-> > +
-> > +     These assign the value to the variable and then insert at least a write
-> > +     barrier after it, depending on the function.
-> > +
-> 
-> I... don't understand what these do. Better explanation would
-> help.. .what is function?
+Below.
 
-I can only guess, and hope someone corrects me if I'm wrong.
+>  In any case, a patch follows.
 
-> Does it try to say that set_mb(var, value) is equivalent to var =
-> value; mb();
+ooh, I like patches.
 
-Yes.
+This crash manifests in several ways.  Pretty much any debugging patches
+seem to make it hide.
 
-> but here mb() affects that one variable, only?
 
-No. set_*mb() is simply a canned sequence of assignment, memory barrier.
 
-The type of barrier inserted depends on which function you choose. set_mb()
-inserts an mb() and set_wmb() inserts a wmb().
+T:  Bus=05 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.16-rc5-mm2 uhci_hcd
+S:  Product=UHCI Host Controller
+S:  SerialNumber=0000:00:1d.3
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-> "LOCK access"?
+T:  Bus=04 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.16-rc5-mm2 uhci_hcd
+S:  Product=UHCI Host Controller
+S:  SerialNumber=0000:00:1d.2
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-The LOCK and UNLOCK functions presumably make at least one memory write apiece
-to manipulate the target lock (on SMP at least).
+T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
+D:  Ver= 2.00 Cls=e0(unk. ) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=044e ProdID=300c Rev=19.15
+S:  Manufacturer=ALPS
+S:  Product=UGX
+C:* #Ifs= 3 Cfg#= 1 Atr=80 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:  If#= 1 Alt= 0 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(unk. ) Sub=01 Prot=01 Driver=(none)
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+I:  If#= 2 Alt= 0 #EPs= 0 Cls=fe(app. ) Sub=01 Prot=00 Driver=(none)
 
-> Does it try to say that ...will be completed after any access inside lock
-> region is completed?
+T:  Bus=03 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=106/900 us (12%), #Int=  1, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.16-rc5-mm2 uhci_hcd
+S:  Product=UHCI Host Controller
+S:  SerialNumber=0000:00:1d.1
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-No. What you get in effect is something like:
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=045e ProdID=00e1 Rev= 0.07
+S:  Manufacturer=Microsoft
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=usbhid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   6 Ivl=10ms
 
-	LOCK { *lock = q; }
-	*A = a;
-	*B = b;
-	UNLOCK { *lock = u; }
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.16-rc5-mm2 uhci_hcd
+S:  Product=UHCI Host Controller
+S:  SerialNumber=0000:00:1d.0
+C:* #Ifs= 1 Cfg#= 1 Atr=c0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
 
-Except that the accesses to the lock memory are made using special procedures
-(LOCK prefixed instructions, XCHG, CAS/CMPXCHG, LL/SC, etc).
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480 MxCh= 8
+B:  Alloc=  0/800 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.16-rc5-mm2 ehci_hcd
+S:  Product=EHCI Host Controller
+S:  SerialNumber=0000:00:1d.7
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=256ms
 
-> This makes it sound like pentium-III+ is incompatible with previous
-> CPUs. Is it really the case?
-
-Yes - hence the alternative instruction stuff.
-
-David

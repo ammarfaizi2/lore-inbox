@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWCHWF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWCHWH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWCHWF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWCHWFZ
+	id S932286AbWCHWH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:07:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbWCHWH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:05:25 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:47083 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1030220AbWCHWFY (ORCPT
+	Wed, 8 Mar 2006 17:07:29 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:5817 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932286AbWCHWH2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:05:24 -0500
-Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store
-	buffers
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andi Kleen <ak@suse.de>
+	Wed, 8 Mar 2006 17:07:28 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store buffers
+Date: Wed, 8 Mar 2006 15:40:18 +0100
+User-Agent: KMail/1.9.1
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org, paulus@samba.org,
        benh@kernel.crashing.org, bcrl@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200603081535.25515.ak@suse.de>
-References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain>
-	 <1141855591.10606.12.camel@localhost.localdomain>
-	 <200603081535.25515.ak@suse.de>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 14:05:47 -0800
-Message-Id: <1141855547.27555.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
+References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain> <200603081535.25515.ak@suse.de> <1141855547.27555.16.camel@localhost.localdomain>
+In-Reply-To: <1141855547.27555.16.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603081540.19284.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 15:35 +0100, Andi Kleen wrote:
-
-> > How is this different to mmiowb() ?
+On Wednesday 08 March 2006 23:05, Bryan O'Sullivan wrote:
+> On Wed, 2006-03-08 at 15:35 +0100, Andi Kleen wrote:
 > 
-> I think he intends it to be a flush instead of an ordering.
-> (something like CLFLUSH for WC areas)
+> > > How is this different to mmiowb() ?
+> > 
+> > I think he intends it to be a flush instead of an ordering.
+> > (something like CLFLUSH for WC areas)
+> 
+> Exactly.  mmiowb guarantees ordering, but says nothing about timing.
+> This would guarantee ordering, affect WC store buffers if present, and
+> try to work in a timely manner.
 
-Exactly.  mmiowb guarantees ordering, but says nothing about timing.
-This would guarantee ordering, affect WC store buffers if present, and
-try to work in a timely manner.
+Well if you need the flush, not the ordering then I'm not convinced
+SFENCE will do that for you. My understanding is that it only guarantees
+ordering. 
 
-	<b
+But at least in some earlier message you said you just needed ordering.
 
--- 
-Bryan O'Sullivan <bos@pathscale.com>
-
+-Andi

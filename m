@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWCHBNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751971AbWCHBOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWCHBNb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:13:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751971AbWCHBNb
+	id S1751971AbWCHBOF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:14:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWCHBOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:13:31 -0500
-Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:53665 "HELO
-	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751166AbWCHBNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:13:31 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Fw: Re: oops in choose_configuration()
-Date: Tue, 7 Mar 2006 20:13:28 -0500
-User-Agent: KMail/1.9.1
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200603071657_MC3-1-BA0F-6372@compuserve.com> <Pine.LNX.4.64.0603071648430.32577@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603071648430.32577@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 20:14:05 -0500
+Received: from colin.muc.de ([193.149.48.1]:29457 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751971AbWCHBOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:14:04 -0500
+Date: 8 Mar 2006 02:13:55 +0100
+Date: Wed, 8 Mar 2006 02:13:55 +0100
+From: Andi Kleen <ak@muc.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Dominik Karall <dominik.karall@gmx.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5-mm2
+Message-ID: <20060308011355.GA79280@muc.de>
+References: <20060303045651.1f3b55ec.akpm@osdl.org> <200603052354.02828.dominik.karall@gmx.net> <20060306214357.0b299686.akpm@osdl.org> <200603071533.41430.dominik.karall@gmx.net> <1141752322.19827.3.camel@leatherman>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603072013.29227.dtor_core@ameritech.net>
+In-Reply-To: <1141752322.19827.3.camel@leatherman>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 March 2006 19:57, Linus Torvalds wrote:
-> 
-> On Tue, 7 Mar 2006, Chuck Ebbert wrote:
+On Tue, Mar 07, 2006 at 09:25:12AM -0800, john stultz wrote:
+> On Tue, 2006-03-07 at 15:33 +0100, Dominik Karall wrote:
+> > On Tuesday, 7. March 2006 06:43, Andrew Morton wrote:
+> > > Dominik Karall <dominik.karall@gmx.net> wrote:
+> > > > On Friday, 3. March 2006 13:56, Andrew Morton wrote:
+> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc
+> > > > >5/2. 6.16-rc5-mm2/
+> > > >
+> > > > hi,
+> > > > I don't know why, but it seems that the kernel doesn't use the correct
+> > > > BIOS time. I set it to the 23:30 and after booting I got ~01:00 (next
+> > > > day).
+> > >
+> > > Is that new behaviour?  What's the most recent -mm kernel which that
+> > > machine ran?
+> > >
+> > > The full dmesg output might tell us something.
 > > 
-> > At least one susbsystem rolls its own method of adding env vars to the
-> > uevent buffer, and it's so broken it triggers the WARN_ON() in
-> > lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
+> > I bootet 2.6.16-rc5 now, but the bug is still present. I set BIOS time to 
+> > 15:07 and after booting linux showed 17:35.
 > 
-> Well, snprintf() should be safe, though. It will warn if the caller is 
-> lazy, but these days, the thing does
-> 
-> 	max(buf_size - len, 0)
-> 
-> which should mean that the input layer passes in 0 instead of a negative 
-> number. And snprintf() will then _not_ print anything. 
-> 
-> So I think input_add_uevent_bm_var() is safe, even if it's not pretty.
-> 
-> However, input_devices_read() doesn't do any sanity checking at all, and 
-> if that ever ends up printing more than a page, that would be bad. I 
-> didn't look very closely, but it looks worrisome.
-> 
-> Dmitry?
+> Interesting. Right off, I'm not sure where this would be coming from.
+> >>From your dmesg it looks like this is running an x86-64 kernel, correct?
+> Andi, do you have any ideas?
 
-I had all this code converted to seq_file, but it depends on converting
-input handlers to class interfaces and it is not possible nowadays
-because with latest Greg's changes to class code we would try to
-register class devices while registering class devices/interfaces
-(psmouse creates input_dev which binds to mousedev interface which in
-turn tries to create mouseX which is also belongs to input class) and
-deadlocking. Greg promised current implementation is only a temporary
-solution.
+Normally the time is read again in the startup scripts of the distribution.
+Sounds like he configured the wrong time zone. Usually distributions
+can be configured to assume UTC real clock time or local time RTC.
 
-I suppose I could separate those changes...
+You can test that theory by commenting out any calls to hwclock
+in your boot scripts. 
 
-BTW, what is ETA for 2.6.16 - I could not affort enought time getting
-psmouse resync logic working in all cases so I'd like to have it disabled
-for 2.6.16 final.
+But that behaviour should be the same in all kernels.
 
--- 
-Dmitry
+-Andi

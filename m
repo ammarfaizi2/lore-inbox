@@ -1,133 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWCHPmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWCHP5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbWCHPmA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 10:42:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWCHPmA
+	id S1751326AbWCHP5R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 10:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWCHP5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 10:42:00 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:10901 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751013AbWCHPl7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 10:41:59 -0500
-Date: Wed, 8 Mar 2006 08:41:57 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Alan Cox <alan@redhat.com>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
-Message-ID: <20060308154157.GI7301@parisc-linux.org>
-References: <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com>
+	Wed, 8 Mar 2006 10:57:16 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:41621 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1751326AbWCHP5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 10:57:15 -0500
+Date: Wed, 8 Mar 2006 07:53:11 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: perfmon@napali.hpl.hp.com, perfctr-devel@lists.sourceforge.net,
+       linux-ia64@vger.kernel.org
+Subject: 2.6.16-rc5 perfmon2 new code base + libpfm with Montecito support
+Message-ID: <20060308155311.GD13168@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060308145506.GA5095@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 09:55:06AM -0500, Alan Cox wrote:
-> On Wed, Mar 08, 2006 at 02:37:58PM +0000, David Howells wrote:
-> > + (*) reads can be done speculatively, and then the result discarded should it
-> > +     prove not to be required;
-> 
-> That might be worth an example with an if() because PPC will do this and if 
-> its a read with a side effect (eg I/O space) you get singed..
+Hello,
 
-PPC does speculative memory accesses to IO?  Are you *sure*?
+I have released another version of the perfmon new base package.
+This release is relative to 2.6.16-rc5
 
-> > +same set of data, but attempting not to use locks as locks are quite expensive.
-> 
-> s/are quite/is quite
-> 
-> and is quite confusing to read
+Due to the addition of a few system calls since 2.6.16-rc1, the
+system call base number for all perfmon calls has changed yet again
+on all architectures. As such you need to use the new version of
+libpfm: libpfm-3.2-060308. 
 
-His  grammar's right ... but I'd just leave out the 'as' part.  As
-you're right that it's confusing  ;-)
+This new kernel patch includes several important changes:
 
-> > +SMP memory barriers are normally mere compiler barriers on a UP system because
-> 
-> s/mere//
-> 
-> Makes it easier to read if you are not 1st language English.
+	- migrated all of /proc perfmon interface to /sys. The information
+	  is split between general and per-cpu. As such it is located in
+	  /sys/kernel/perfmon and /sys/devices/system/cpu*/perfmon/
 
-Maybe s/mere/only/?
+	- all data structures exchanged with the kernel now use fixed size
+	  data types. As such they can be used without any changes by a 32-bit
+	  application running on top on a 64-bit OS. The following changes took
+	  place:
+		* all bitvectors use u64 and have fixed number of bits
+		* size_t is now u64
+		* struct timespec (set timeout) replaced by u32 (unit in micro-seconds)
+		* default format sampling buffer IP (instruction pointer) is u64
 
-> > +SMP memory barriers are only compiler barriers on uniprocessor compiled systems
-> > +because it is assumed that a CPU will be apparently self-consistent, and will
-> > +order overlapping accesses correctly with respect to itself.
-> 
-> Is this true of IA-64 ??
+	- added 32-bit ABI support for x86-64 arch. As a consequence, it is now
+	  possible to run a 32-bit P4 tool on a 64-bit EM64T processor, assuming the
+	  tool know the specifics of EM64T PMU. That goes also for PEBS support.
 
-Yes:
+	- Simplified the PMU description data structures. The structure pfm_pmu_config
+	  is now split between a perfmon internal and PMU description version providing
+	  further isolation between the core and module-provided support. There is
+	  a simplification also in the struct pfm_reg_desc tables describing the mappings.
+	  Tables are much smaller because they only contain the actual register mappings
+	  for a particular PMU model as opposed to a fixed size table of 320 elements. The
+	  perfmon core now builds its internal representation based on this information as
+	  opposed to using it directly.
 
-#else
-# define smp_mb()       barrier()
-# define smp_rmb()      barrier()
-# define smp_wmb()      barrier()
-# define smp_read_barrier_depends()     do { } while(0)
-#endif
+	- removed extraneous locking and interrupt masking for the PMU interrupt handler
 
-> > + (*) inX(), outX():
-> > +
-> > +     These are intended to talk to legacy i386 hardware using an alternate bus
-> > +     addressing mode.  They are synchronous as far as the x86 CPUs are
-> 
-> Not really true. Lots of PCI devices use them. Need to talk about "I/O space"
+	- split kernel perfmon headers files based on functionality
 
-Port space is deprecated though.  PCI 2.3 says:
+	- added experimental support for smp_call_single() on i386. If the implementation
+	  is satisfactory, I'll push it as a separate patch to lkml.
 
-"Devices are recommended always to map control functions into Memory Space."
+There was not update to the MIPS specific patch. As such it is currently broken and
+cannot be used with the new libpfm.
 
-> > +
-> > +     These are guaranteed to be fully ordered and uncombined with respect to
-> > +     each other on the issuing CPU, provided they're not accessing a
-> 
-> MTRRs
-> 
-> > +     prefetchable device.  However, intermediary hardware (such as a PCI
-> > +     bridge) may indulge in deferral if it so wishes; to flush a write, a read
-> > +     from the same location must be performed.
-> 
-> False. Its not so tightly restricted and many devices the location you write
-> is not safe to read so you must use another. I'd have to dig the PCI spec 
-> out but I believe it says the same devfn. It also says stuff about rules for
-> visibility of bus mastering relative to these accesses and PCI config space
-> accesses relative to the lot (the latter serveral chipsets get wrong). We
-> should probably point people at the PCI 2.2 spec .
+The new version of the library, libpfm, includes the following changes:
 
-3.2.5 of PCI 2.3 seems most relevant:
+	- preliminary support for Dual-Core Itanium 2 (Montecito) based on
+	  publicly available documentation
 
-Since memory write transactions may be posted in bridges anywhere
-in the system, and I/O writes may be posted in the host bus bridge,
-a master cannot automatically tell when its write transaction completes
-at the final destination. For a device driver to guarantee that a write
-has completed at the actual target (and not at an intermediate bridge),
-it must complete a read to the same device that the write targeted. The
-read (memory or I/O) forces all bridges between the originating master
-and the actual target to flush all posted data before allowing the
-read to complete. For additional details on device drivers, refer to
-Section 6.5. Refer to Section 3.10., item 6, for other cases where a
-read is necessary.
+	- update to match 2.6.16-rc5 kernel patch
 
-Appendix E is also of interest:
+	- renamed all *gen_x86_64* files to *amd_x86_64* to avoid confusion
+	  with EM64T.
 
-2. Memory writes can be posted in both directions in a bridge. I/O and
-Configuration writes are not posted. (I/O writes can be posted in the
-Host Bridge, but some restrictions apply.) Read transactions (Memory,
-I/O, or Configuration) are not posted.
-
-5. A read transaction must push ahead of it through the bridge any posted
-writes originating on the same side of the bridge and posted before
-the read.  Before the read transaction can complete on its originating
-bus, it must pull out of the bridge any posted writes that originated
-on the opposite side and were posted before the read command completes
-on the read-destination bus.
+	- incorporated AMD provided event table for Opteron (Ray Bryant)
 
 
-I like the way they contradict each other slightly wrt config reads and
-whether you have to read from the same device, or merely the same bus.
-One thing that is clear is that a read of a status register on the bridge
-isn't enough, it needs to be *through* the bridge, not *to* the bridge.
-I wonder if a config read of a non-existent device on the other side of
-the bridge would force the write to complete ...
+The two packages can be downloaded from the SourceForge website at:
+
+	http://www.sf.net/projects/perfmon2
+
+Enjoy,
+
+-- 
+-Stephane

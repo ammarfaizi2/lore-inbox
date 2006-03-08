@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWCHAur@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751926AbWCHAzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751661AbWCHAur (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 19:50:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWCHAur
+	id S1751926AbWCHAzO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 19:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751940AbWCHAzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 19:50:47 -0500
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:62388 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751661AbWCHAuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 19:50:46 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Date: Wed, 8 Mar 2006 11:51:13 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
-References: <200603081013.44678.kernel@kolivas.org> <cone.1141774323.5234.18683.501@kolivas.org> <20060307160515.0feba529.akpm@osdl.org>
-In-Reply-To: <20060307160515.0feba529.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Mar 2006 19:55:14 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:45273
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751926AbWCHAzN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 19:55:13 -0500
+Date: Tue, 7 Mar 2006 16:54:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: oops in choose_configuration()
+Message-ID: <20060308005455.GA23921@kroah.com>
+References: <200603071657_MC3-1-BA0F-6372@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603081151.13942.kernel@kolivas.org>
+In-Reply-To: <200603071657_MC3-1-BA0F-6372@compuserve.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Mar 2006 11:05 am, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > > yield() really sucks if there are a lot of runnable tasks.  And the
-> > > amount of CPU which that thread uses isn't likely to matter anyway.
-> > >
-> > > I think it'd be better to just not do this.  Perhaps alter the thread's
-> > > static priority instead?  Does the scheduler have a knob which can be
-> > > used to disable a tasks's dynamic priority boost heuristic?
-> >
-> > We do have SCHED_BATCH but even that doesn't really have the desired
-> > effect. I know how much yield sucks and I actually want it to suck as
-> > much as yield does.
->
-> Why do you want that?
->
-> If prefetch is doing its job then it will save the machine from a pile of
-> major faults in the near future.  The fact that the machine happens to be
-> running a number of busy tasks doesn't alter that.  It's _worth_ stealing a
-> few cycles from those tasks now to avoid lengthy D-state sleeps in the near
-> future?
+On Tue, Mar 07, 2006 at 04:54:24PM -0500, Chuck Ebbert wrote:
+> In-Reply-To: <Pine.LNX.4.64.0603051840280.13139@g5.osdl.org>
+> 
+> On Sun, 5 Mar 2006 19:27:53 -0800, Linus Torvalds wrote:
+> 
+> > So I'd be more inclined to blame a buffer overflow on a kmalloc, and the 
+> > obvious target is the "add_uevent_var()" thing, since all/many of the 
+> > corruptions seem to come from uevent environment variable strings.
+> 
+> At least one susbsystem rolls its own method of adding env vars to the
+> uevent buffer, and it's so broken it triggers the WARN_ON() in
+> lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
+> Start at drivers/input/input.c::input_dev_uevent() and watch the fun.
 
-The test case is the 3d (gaming) app that uses 100% cpu. It never sets delay 
-swap prefetch in any way so swap prefetching starts working. Once swap 
-prefetching starts reading it is mostly in uninterruptible sleep and always 
-wakes up on the active array ready for cpu, never expiring even with its 
-miniscule timeslice. The 3d app is always expiring and landing on the expired 
-array behind kprefetchd even though kprefetchd is nice 19. The practical 
-upshot of all this is that kprefetchd does a lot of prefetching with 3d 
-gaming going on, and no amount of priority fiddling stops it doing this. The 
-disk access is noticeable during 3d gaming unfortunately. Yielding regularly 
-means a heck of a lot less prefetching occurs and is no longer noticeable. 
-When idle, yield()ing doesn't seem to adversely affect the effectiveness of 
-the prefetching.
+All of the INPUT_ADD_HOTPLUG_VAR() calls do use add_uevent_var(), so we
+should be safe there.  The other calls also look safe, if not a bit
+wierd...  So I don't see how we could change this to be any safer, do
+you?
 
-Cheers,
-Con
+> I reported this to linux-kernel, the input maintainer and the author
+> of that code on Feb. 26:
+> 
+>         http://lkml.org/lkml/2006/2/26/39
+
+We should have fixed that already by increasing the size of the buffer,
+but yes, we should catch errors in the MODALIAS function, that would
+have stopped that previous overflow.  Are you still seeing problems now?
+
+thanks,
+
+greg k-h

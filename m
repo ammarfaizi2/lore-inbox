@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752007AbWCHBva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWCHBtj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752007AbWCHBva (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752013AbWCHBva
+	id S1751344AbWCHBtj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWCHBtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:51:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24735 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752007AbWCHBv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:51:29 -0500
-Date: Tue, 7 Mar 2006 17:49:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, torvalds@osdl.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fw: Re: oops in choose_configuration()
-Message-Id: <20060307174927.39fbc475.akpm@osdl.org>
-In-Reply-To: <20060308013101.GB24739@kroah.com>
-References: <20060304121723.19fe9b4b.akpm@osdl.org>
-	<Pine.LNX.4.64.0603041235110.22647@g5.osdl.org>
-	<20060304213447.GA4445@kroah.com>
-	<20060304135138.613021bd.akpm@osdl.org>
-	<20060304221810.GA20011@kroah.com>
-	<20060305154858.0fb0006a.akpm@osdl.org>
-	<Pine.LNX.4.64.0603051840280.13139@g5.osdl.org>
-	<20060306004836.3db943e0.akpm@osdl.org>
-	<20060308013101.GB24739@kroah.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Mar 2006 20:49:39 -0500
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:18063 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751344AbWCHBtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:49:39 -0500
+Date: Tue, 7 Mar 2006 20:45:53 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch] i386 spinlocks: disable interrupts only if we
+  enabled them
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+Message-ID: <200603072049_MC3-1-BA0B-ED8F@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
->
-> > a) How come we're only considering the zeroth slot in that array in here?
-> 
->  We start out with the first interface setting, as we always know we have
->  one of them as per the USB spec (I think, anyone from linux-usb-devel
->  want to verify this?)
+In-Reply-To: <20060307161550.27941df5.akpm@osdl.org>
 
-I think that code has to be OK - it's longstanding stuff and slab
-debugging would have caught these sorts of things in a jiffy.
+On Tue, 7 Mar 2006 16:15:50, Andrew Morton wrote:
+
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > Fastpath before patch:
+> >         jle <keep looping>      not-taken conditional jump
+> >         cli                     disable interrupts
+> >         jmp <try for lock>      unconditional jump
+> > 
+> > Fastpath after patch, if interrupts were not enabled:
+> >         jg <try for lock>       taken conditional branch
+> > 
+> 
+> Well no.  The fastpath is:
+> 
+>       jns     4f              we got the lock.
+
+ That's debatable.  Once the spinlock is available, jumping back to
+try and get it becomes fastpath code, even though the spinloop itself
+is not.  Any delay seen here means lost cycles that could be doing work.
+
+ My only real question is how long 'cli' takes if interrupts are already
+disabled.
+
+> And it's increasing text size.  Which wouldn't be a big problem if the
+> spinning code was still in an out-of-line section, but it isn't any more.
+
+ __raw_spin_lock_flags is inlined, but only one place, in
+_spin_lock_irqsave(), which is no longer an inline.  So there's no real
+need to out-of-line the spin code anymore.  This adds nine bytes, which
+should be acceptable in an out-of-line function. (Only the unlock functions
+are inlined, and even then only if !CONFIG_PREEMPT).
+
+
+-- 
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"
 

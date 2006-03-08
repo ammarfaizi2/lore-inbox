@@ -1,98 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWCHMA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWCHMDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWCHMA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 07:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWCHMA1
+	id S964845AbWCHMDu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 07:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWCHMDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 07:00:27 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:57287 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932500AbWCHMA0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 07:00:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KQDB0oJ2ea72YWw714xod0xGEzCSjiSf3utw1io117lN1wy6mErsS8RgHvvz/fYWfToOQRo5x5bgVSxPATs1RYZef5UBgrHNguCPDuUlgh7c4nnm7qTohjLNhwyEXkftDegKP1DGPY3LKBEgqjj6wJWNGNP3rJNV9/ufTFcmJ2I=
-Message-ID: <ec92bc30603080400t5a4baf75v86cf6e11a4d464ed@mail.gmail.com>
-Date: Wed, 8 Mar 2006 17:30:25 +0530
-From: "Anshuman Gholap" <anshu.pg@gmail.com>
-To: "Matthias Schniedermeyer" <ms@citd.de>
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <440EC2BA.7010108@citd.de>
+	Wed, 8 Mar 2006 07:03:50 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:51871 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932505AbWCHMDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 07:03:49 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: linux-kernel@vger.kernel.org
+Subject: I'm not resigning.
+Date: Wed, 8 Mar 2006 22:01:02 +1000
+User-Agent: KMail/1.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
-	 <20060308102731.GO27946@ftp.linux.org.uk>
-	 <ec92bc30603080252v7e795b4dm5116d4fe78f92cc7@mail.gmail.com>
-	 <440EC2BA.7010108@citd.de>
+Content-Type: multipart/signed;
+  boundary="nextPart9601892.Fynohb1rkG";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603082201.05739.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks mathhais, this made huge sense to me.
+--nextPart9601892.Fynohb1rkG
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I will soon going to get a laptop ( centrino duo models are looking
-great, but kindof out_of_my budget). I will see the vendors who  dont
-have native linux drivers are not in that model, as a non-developer,
-this is the only thing in_my_hand.
+Hi all.
 
-i have no idea why did i make the horrible decision to get dlink
-router and pcmcia card, where as the linksys set has a working (some
-ppl complain) native driver support for its cards. wish i can turn the
-clock back.
+I seem to have created some confusion.
 
-again, thank you mattias for putting it into nice prespective :)
+I'm leaving Cyclades and switching occupations back to Christian ministry, =
+but=20
+I'm _not_ going to stop supporting Suspend2. I still love Linux and want to=
+=20
+help make it the best it can be, and I'm still going to be eating my own do=
+g=20
+food, so I'll be keeping it going on vanilla, and maybe -mm if I can find t=
+he=20
+time and it's trivial enough.
 
-Regards,
-Anshu.
-On 3/8/06, Matthias Schniedermeyer <ms@citd.de> wrote:
-> Anshuman Gholap wrote:
-> > well ya, I knew i was running the risk to be labelled like that, cause
-> > i thought to talk of this issue, more shake is needed that just stir.
-> >
-> > please dont get me wrong (even though i think most of you already
-> > have), i own my graditude for the livelihood i am having to
-> > linux,linus and co.
->
-> To get to the point of the others binary-only-discussions.
->
-> You only see that you can't use a device today.
-> I know that is annoying, but you have to see the "big picture":
->
-> Less hostility regarding binary-only drivers would lead to a "flood" of
-> binary-only-drivers which are undebuggable and unmaintanable by the kernel
-> developers. IOW you would be at the mercy of the vendor of the device to
-> make a compatible driver in the future.
->
-> But there is a planet-size catch:
-> Vendors think in money. So if you have a device that is end of line most
-> vendors couldn't care less if you can't use it anymore with current systems.
-> Given that the vendor is still in business after all!
->
-> So instead of having a paper-weight today you will have it a few years later.
-> I don't see the big difference.
->
-> IOW. A "new" device may be working today, but will be a paper-weight
-> later.
-> Whereas an "old" device will be a paper-weight today, if the vendor only
-> provided binary-only drivers "back then" when it was "new".
->
-> In contrast most times you have an OSS-driver it will work "indefinetly",
-> as it can be maintained over the years.
->
-> It's all a shifting of who is hurt and when. In the long run the current
-> model should be working better and better. Whereas binary-only drivers
-> would destroy/undermine the achievements we have now.
->
->
->
->
-> --
-> Real Programmers consider "what you see is what you get" to be just as
-> bad a concept in Text Editors as it is in women. No, the Real Programmer
-> wants a "you asked for it, you got it" text editor -- complicated,
-> cryptic, powerful, unforgiving, dangerous.
->
->
+Hope that helps.
+
+Nigel
+
+--nextPart9601892.Fynohb1rkG
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEDseBN0y+n1M3mo0RApORAJ9KG5ad6MGue+E+c7qyEk1pxDecWwCgpG02
+/IFA5rbNTMA2EopxzOYTiIg=
+=B6B+
+-----END PGP SIGNATURE-----
+
+--nextPart9601892.Fynohb1rkG--

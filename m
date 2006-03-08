@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932583AbWCHVzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932588AbWCHVz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932583AbWCHVzE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWCHVzE
+	id S932588AbWCHVz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbWCHVz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:55:04 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:20362 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932583AbWCHVzC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:55:02 -0500
-Date: Wed, 8 Mar 2006 16:55:00 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: david-b@pacbell.net, <linux-usb-devel@lists.sourceforge.net>,
-       <greg@kroah.com>, <torvalds@osdl.org>, <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: Fw: Re: oops in choose_configuration()
-In-Reply-To: <20060308125407.2cd5d829.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44L0.0603081644520.5360-100000@iolanthe.rowland.org>
+	Wed, 8 Mar 2006 16:55:59 -0500
+Received: from smtp.uaf.edu ([137.229.34.30]:29967 "EHLO smtp.uaf.edu")
+	by vger.kernel.org with ESMTP id S932582AbWCHVz6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:55:58 -0500
+From: Joshua Kugler <joshua.kugler@uaf.edu>
+Organization: UAF Center for Distance Education - IT
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: Nigel's work and the future of Suspend2.
+Date: Wed, 8 Mar 2006 12:55:41 -0900
+User-Agent: KMail/1.7.2
+Cc: suspend2-announce@lists.suspend2.net, linux-kernel@vger.kernel.org
+References: <200603071005.56453.nigel@suspend2.net>
+In-Reply-To: <200603071005.56453.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603081255.41254.joshua.kugler@uaf.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Mar 2006, Andrew Morton wrote:
+On Monday 06 March 2006 15:05, Nigel Cunningham wrote:
+> Hi all.
+>
+> I'm delighted to announce that I've accepted a call to serve a congregation
+> in Victoria, Australia, as a Home Missionary elder. As a result, some time
+> in the next month or two, I will stop working for Cyclades and make the
+> move.
 
-> Alan Stern <stern@rowland.harvard.edu> wrote:
-> >
-> > What about those scheduler changes you found through the bisection search?  
-> >  Any word on that?
-> 
-> Ingo's gone over them pretty closely.  The current theory is that the CPU
-> scheduler change alters timing sufficiently for the bug to bite.
-> 
-> The machine passes memtest86.
-> 
-> Ingo's suspecting stack corruption.  Do you know whether USB anywhere does
-> DMA into automatically-allocated storage (ie: kernel stacks)?
+That's a new term for me.  What is  "Home Missionary elder" and what church 
+will you be serving at?
 
-We try to avoid doing that, but such things have been known to creep into
-the sources from time to time.  We fix them whenever they surface.  I'm
-pretty sure that usbcore and usb-storage are clean in this respect, and
-probably usbhid is also (I haven't gone through it to check personally;  
-presumably others have).  The only drivers listed in your
-/proc/bus/usb/devices were hub and usbhid, and the ALPS UGX device didn't
-have any drivers bound.
+j----- k-----
 
-Have you tried running your test with the USB devices unplugged?  That 
-won't prevent usb_choose_configuration from getting called (since it's 
-used for the virtual root hubs exported by the host controller drivers) 
-but it should make everything more deterministic.
-
-Alan Stern
-
+-- 
+Joshua Kugler                 PGP Key: http://pgp.mit.edu/
+CDE System Administrator             ID 0xDB26D7CE
+http://distance.uaf.edu/

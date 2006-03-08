@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWCHLRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751523AbWCHLX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWCHLRu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 06:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751486AbWCHLRt
+	id S1751523AbWCHLX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 06:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWCHLX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 06:17:49 -0500
-Received: from mail01.verismonetworks.com ([164.164.99.228]:25003 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S1751440AbWCHLRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 06:17:49 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Large File size & Send file
-Date: Wed, 08 Mar 2006 16:39:40 +0530
-From: "Krishna Prasanth" <krishnap@verismonetworks.com>
-Organization: Verismo Networks
-Content-Type: text/plain; format=flowed; delsp=yes; charset=utf-8
+	Wed, 8 Mar 2006 06:23:56 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4360 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751486AbWCHLX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 06:23:56 -0500
+Date: Wed, 8 Mar 2006 12:23:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: chris@zankel.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] xtensa must set RWSEM_GENERIC_SPINLOCK=y
+Message-ID: <20060308112353.GC4006@stusta.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <op.s53daeq4wrt9q8@192.168.1.8>
-User-Agent: Opera M2/8.51 (Linux, build 1462)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-    I would like to use sendfile & LFS enabled(included  
--D_FILE_OFFSET_BITS=64).
-    I'm using glibc-2.2.5 & linux-2.4.x
-    But my compiler is throughing an error saying that sendfile is not  
-supported
-    with -D_FILE_OFFSET_BITS=64.
+This untested patch should fix the following compile error:
 
-    I need to support both LFS & sendfile(64).
-    Pls clarify me whether i can use sendfile(64) with LFS or not.
+<--  snip  -->
+
+...
+ CC      mm/rmap.o
+/usr/src/ctest/git/kernel/mm/rmap.c: In function `page_referenced_one':
+/usr/src/ctest/git/kernel/mm/rmap.c:354: warning: implicit declaration of function `rwsem_is_locked'
+...
+ LD      .tmp_vmlinux1
+mm/built-in.o:(.text+0x5a0): undefined reference to `rwsem_is_locked'
+make[1]: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
 
 
--- 
-Thanks & Regards
--Prasanth
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 4 Mar 2006
+
+--- linux-2.6.16-rc5-mm2-full/arch/xtensa/Kconfig.old	2006-03-04 00:03:32.000000000 +0100
++++ linux-2.6.16-rc5-mm2-full/arch/xtensa/Kconfig	2006-03-04 00:03:56.000000000 +0100
+@@ -34,6 +34,10 @@
+ 	bool
+ 	default y
+ 
++config RWSEM_GENERIC_SPINLOCK
++       bool
++       default y
++
+ source "init/Kconfig"
+ 
+ menu "Processor type and features"
+

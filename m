@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWCHBLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWCHBLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWCHBLd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:11:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWCHBLd
+	id S964876AbWCHBLr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWCHBLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:11:33 -0500
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:9148 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964870AbWCHBLc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:11:32 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Date: Wed, 8 Mar 2006 12:12:02 +1100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, ck@vds.kolivas.org
-References: <200603081013.44678.kernel@kolivas.org> <200603081151.13942.kernel@kolivas.org> <20060307171134.59288092.akpm@osdl.org>
-In-Reply-To: <20060307171134.59288092.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603081212.03223.kernel@kolivas.org>
+	Tue, 7 Mar 2006 20:11:47 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:24420 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S964873AbWCHBLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:11:46 -0500
+Date: Tue, 07 Mar 2006 19:10:00 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] Document Linux's memory barriers
+In-reply-to: <5NUSF-30Z-5@gated-at.bofh.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <440E2EE8.10708@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5NONi-2hp-3@gated-at.bofh.it> <5NQ2U-462-29@gated-at.bofh.it>
+ <5NRLg-6LJ-31@gated-at.bofh.it> <5NRUR-6Yo-11@gated-at.bofh.it>
+ <5NUSF-30Z-5@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Mar 2006 12:11 pm, Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > On Wed, 8 Mar 2006 11:05 am, Andrew Morton wrote:
-> > > Con Kolivas <kernel@kolivas.org> wrote:
-> > > > > yield() really sucks if there are a lot of runnable tasks.  And the
-> > > > > amount of CPU which that thread uses isn't likely to matter anyway.
-> > > > >
-> > > > > I think it'd be better to just not do this.  Perhaps alter the
-> > > > > thread's static priority instead?  Does the scheduler have a knob
-> > > > > which can be used to disable a tasks's dynamic priority boost
-> > > > > heuristic?
-> > > >
-> > > > We do have SCHED_BATCH but even that doesn't really have the desired
-> > > > effect. I know how much yield sucks and I actually want it to suck as
-> > > > much as yield does.
-> > >
-> > > Why do you want that?
-> > >
-> > > If prefetch is doing its job then it will save the machine from a pile
-> > > of major faults in the near future.  The fact that the machine happens
-> > > to be running a number of busy tasks doesn't alter that.  It's _worth_
-> > > stealing a few cycles from those tasks now to avoid lengthy D-state
-> > > sleeps in the near future?
-> >
-> > The test case is the 3d (gaming) app that uses 100% cpu. It never sets
-> > delay swap prefetch in any way so swap prefetching starts working. Once
-> > swap prefetching starts reading it is mostly in uninterruptible sleep and
-> > always wakes up on the active array ready for cpu, never expiring even
-> > with its miniscule timeslice. The 3d app is always expiring and landing
-> > on the expired array behind kprefetchd even though kprefetchd is nice 19.
-> > The practical upshot of all this is that kprefetchd does a lot of
-> > prefetching with 3d gaming going on, and no amount of priority fiddling
-> > stops it doing this. The disk access is noticeable during 3d gaming
-> > unfortunately. Yielding regularly means a heck of a lot less prefetching
-> > occurs and is no longer noticeable. When idle, yield()ing doesn't seem to
-> > adversely affect the effectiveness of the prefetching.
->
-> but, but.  If prefetching is prefetching stuff which that game will soon
-> use then it'll be an aggregate improvement.  If prefetch is prefetching
-> stuff which that game _won't_ use then prefetch is busted.  Using yield()
-> to artificially cripple kprefetchd is a rather sad workaround isn't it?
+Alan Cox wrote:
+> On Maw, 2006-03-07 at 22:24 +0100, Andi Kleen wrote:
+>>> But on most arches those accesses do indeed seem to happen in-order.  On
+>>> i386 and x86_64, it's a natural consequence of program store ordering.
+>> Not true for reads on x86.
+> 
+> You must have a strange kernel Andi. Mine marks them as volatile
+> unsigned char * references.
 
-It's not the stuff that it prefetches that's the problem; it's the disk 
-access.
+Well, that and the fact that IO memory should be mapped as uncacheable 
+in the MTRRs should ensure that readl and writel won't be reordered on 
+i386 and x86_64.. except in the case where CONFIG_UNORDERED_IO is 
+enabled on x86_64 which can reorder writes since it uses nontemporal 
+stores..
 
-Con
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

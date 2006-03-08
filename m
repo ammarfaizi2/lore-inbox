@@ -1,46 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWCHDDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWCHDEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWCHDDH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWCHDDH
+	id S964883AbWCHDEa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:04:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWCHDEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:03:07 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:28077 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932348AbWCHDDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:03:06 -0500
-Subject: Re: [ck] Re: [PATCH] mm: yield during swap prefetching
-From: Lee Revell <rlrevell@joe-job.com>
-To: =?ISO-8859-1?Q?Andr=E9?= Goddard Rosa <andre.goddard@gmail.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <b8bf37780603071852r6bf3821fr7610597a54ad305b@mail.gmail.com>
-References: <200603081013.44678.kernel@kolivas.org>
-	 <200603081322.02306.kernel@kolivas.org> <1141784834.767.134.camel@mindpipe>
-	 <200603081330.56548.kernel@kolivas.org>
-	 <b8bf37780603071852r6bf3821fr7610597a54ad305b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 07 Mar 2006 22:03:03 -0500
-Message-Id: <1141786983.767.150.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 8bit
+	Tue, 7 Mar 2006 22:04:30 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:19043 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964883AbWCHDE3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:04:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gCgO14tugUqv6BP4V9csspZgkYcfnmrY5ipxcvB43GffgaA+/1voMuvz27OMoAxrgN8CeukEVEm2+ZMetdizG/1dpNgbxCw2ei0Z2pTdKcxMAmbfrEhzKE0/3LccIEbMgTLCU7NYG1yhRgpvcnR0zUEfhum6wN97XY37064XT5Y=
+Message-ID: <aec7e5c30603071904x617f2897l7f9f8e4b444a6cc3@mail.gmail.com>
+Date: Wed, 8 Mar 2006 12:04:28 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Linda Walsh" <lkml@tlinx.org>
+Subject: Re: FWIW: Re: SMP and 101% cpu max?
+Cc: "Jesper Juhl" <jesper.juhl@gmail.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <440E467D.70804@tlinx.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <aec7e5c30603070434j7f326ad2r5f1b0e8046870941@mail.gmail.com>
+	 <9a8748490603070507h48e2fe02qbf9da7956e794161@mail.gmail.com>
+	 <440E467D.70804@tlinx.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-07 at 22:52 -0400, André Goddard Rosa wrote:
-> Sorry Con, but I have to disagree with you on this.
-> 
-> Games are very complex software, involving heavy use of hardware
-> resources
-> and they also have a lot of time constraints. So, I think they should
-> use RT priorities
-> if it is necessary to get the resources needed in time.
-> 
+On 3/8/06, Linda Walsh <lkml@tlinx.org> wrote:
+> FYI, running/compiling 2.6.15.5 on a 2x(1GHzxP-III), 1GB
+> times for "make" -jn bzImage (no modules):
+> (using export TIMEFORMAT="%2Rsec %2Uusr %2Ssys (%P%% cpu)" )
+>
+> -j1: 815.80sec 745.64usr 78.74sys (100.00% cpu)
+> -j2: 445.17sec 778.68usr 86.22sys (100.00% cpu)
+> -j3: 444.89sec 781.66usr 87.84sys (100.00% cpu)
+> -j4: 443.08sec 781.81usr 87.97sys (100.00% cpu)
+> -j5: 445.98sec 782.53usr 87.51sys (100.00% cpu)
+> -----
+>
+> I am not seeing the symptom you are describing.  The load
+> increases proportionately to the 'job limit', but it doesn't
+> radically change the overall cpu required.  As I have
+> only 2 cpu's, I can't expect much benefit beyond 2x, with
+> actual approaching closer to 1.8x.
 
-The main reason I assumed games would want to use the POSIX realtime
-features like priority scheduling etc. is that the simulation people all
-use them - it seems like a very similar problem.
+Yes, that's what I'm expecting to see. And I do see similar results
+for 2.6.15. But it looks like 2.6.16-rc6 is misbehaving somehow.
 
-Lee
+Thanks,
 
+/ magnus
+
+> -l
+>
+>
+> Jesper Juhl wrote:
+> > On 3/7/06, Magnus Damm <magnus.damm@gmail.com> wrote:
+> >
+> >> With 128MB and 256MB configurations, a majority of the tests never
+> >> make it over 101% CPU usage when I run "make -j 2 bzImage", building a
+> >> allnoconfig kernel. With 64MB memory, everything seems to be working
+> >> as expected. Also, running "make bzImage" works as expected too.
+> >>
+> > Hmm, I wonder if it's related to the problem I reported here :
+> > http://lkml.org/lkml/2006/2/28/219
+> > Where I need to run make -j 5 or higher to load both cores of my Athlon X2.
+> >
+>

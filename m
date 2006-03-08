@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWCHItc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWCHIwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWCHItc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 03:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbWCHItc
+	id S932518AbWCHIwW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 03:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWCHIwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 03:49:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:19638 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932512AbWCHItb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 03:49:31 -0500
-Date: Wed, 8 Mar 2006 00:46:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: 76306.1226@compuserve.com, torvalds@osdl.org, lee.schermerhorn@hp.com,
-       michaelc@cs.wisc.edu, jesper.juhl@gmail.com,
-       linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-Message-Id: <20060308004659.163b6e29.akpm@osdl.org>
-In-Reply-To: <440E969B.2080301@yahoo.com.au>
-References: <200603080129_MC3-1-BA15-47C9@compuserve.com>
-	<440E969B.2080301@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Mar 2006 03:52:22 -0500
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:37493 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932518AbWCHIwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 03:52:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=BFTLnBH3g4N5qLXxqXSKbkZEDW7p+B6Jhd1rjvgL7iWqhhs9jwzah4rjb2fGAHH+sOxHVCcFnAmbAzkHq/HzDzwortEM9PqS3f+0LtmYdj5pocqf2/NlIPZFhr6wVfzXB5HMuTEh9Q9Mp48KI9TLfxfqwKF+c1juv4LFVeWQ+18=  ;
+Message-ID: <440E9B41.9020708@yahoo.com.au>
+Date: Wed, 08 Mar 2006 19:52:17 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Benjamin LaHaise <bcrl@kvack.org>, mingo@elte.hu,
+       76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [patch] i386 spinlocks: disable interrupts only if we enabled
+ them
+References: <200603071837_MC3-1-BA13-E5FB@compuserve.com>	<20060307161550.27941df5.akpm@osdl.org>	<20060308004308.GA16069@elte.hu>	<20060308025227.GP5410@kvack.org> <20060307225556.75cee661.akpm@osdl.org>
+In-Reply-To: <20060307225556.75cee661.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Chuck Ebbert wrote:
-> > In-Reply-To: <Pine.LNX.4.64.0603061917330.3573@g5.osdl.org>
-> > 
-> > On Mon, 6 Mar 2006 19:20:13 -0800, Linus Torvalds wrote:
-> > 
-> > 
-> >>>When someone converted the *buffer* allocation to kzalloc they
-> >>>also removed the the memset for the *packet_cmmand* struct.
-> >>>
-> >>>The
-> >>>
-> >>>memset(&cgc, 0, sizeof(struct packet_command));
-> >>>
-> >>>should be added back I think.
-> >>
-> >>Good eyes. I bet that's it.
-> > 
-> > 
-> > Heh.  This exact fix was posted to linux-kernel by Lee Schermerhorn
-> > three weeks ago:
-> > 
-> >  Date: Wed, 15 Feb 2006 14:07:37 -0500
-> >  From: Lee Schermerhorn <lee.schermerhorn@hp.com>
-> >  Subject: [PATCH] 2.6.16-rc3-mm1 - restore zeroing of packet_command
-> >         struct  in sr_ioctl.c
-> >  To: linux-kernel <linux-kernel@vger.kernel.org>
-> >  Cc: Andrew Morton <akpm@osdl.org>
-> >  Message-ID: <1140030457.6619.3.camel@localhost.localdomain>
-> > 
-> > 
+Andrew Morton wrote:
+> Benjamin LaHaise <bcrl@kvack.org> wrote:
 > 
-> It isn't Andrew's job to make sure a patch gets to the right place
-> until it is safely in -mm, and even then he's not always going to
-> know the severity and importance unless he's told.
+>>On Wed, Mar 08, 2006 at 01:43:08AM +0100, Ingo Molnar wrote:
+>> > we dont inline that code anymore. So i think the optimization is fine.
+>>
+>> Why is that?  It adds memory traffic that has to be synchronized 
+>> before the lock occurs and clobbered registers now in the caller.
+> 
+> 
+> Is the inlined lock;decb+jns likely to worsen the text size?  I doubt it. 
+> Overall text will get bigger due to the out-of-line stuff, but that's OK.
+> 
+> I'm sure we went over all this, but I don't recall the thinking.
 
-Is too!
+Seems like a very good idea not to clobber any registers in
+lock fastpaths. I don't see how that could have been a win
+(especially for i386) but still, Ingo must have had a reason
+behind it.
 
-> If it was a patch to "restore" a regression in behaviour, CCs should
-> at least have gone to the author of the patch that broke it, and the
-> subsystem maintainers / list / etc as well.
-
-I actually merged Lee's patch into -mm, copied James on it and then I
-dropped it when I saw that it spat rejects against an updated version of
-James's tree, assuming that it had been merged.
-
-Often I'll check that a patch reverts successfully from the upstream tree
-before dropping it, but for an obvious one like that I guess I didn't
-bother, and assumed that James had taken it.  Only he hadn't - instead he'd
-gone and merged something else, hence the rejects.   Oh well.
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

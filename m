@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751772AbWCHQJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWCHQQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751772AbWCHQJd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 11:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbWCHQJc
+	id S1750712AbWCHQQo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 11:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWCHQQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 11:09:32 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:20468 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751772AbWCHQJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 11:09:31 -0500
-Message-ID: <440DDEE9.8090604@tmr.com>
-Date: Tue, 07 Mar 2006 14:28:41 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
+	Wed, 8 Mar 2006 11:16:44 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:62400 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750712AbWCHQQn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 11:16:43 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Jens Axboe <axboe@suse.de>, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-References: <200603060117.16484.jesper.juhl@gmail.com>  <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org>  <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>  <200603062136.17098.jesper.juhl@gmail.com>  <9a8748490603061253u5e4d7561vd4e566f5798a5f4@mail.gmail.com>  <9a8748490603061256h794c5af9wa6fbb616e8ddbd89@mail.gmail.com>  <Pine.LNX.4.64.0603061306300.13139@g5.osdl.org> <9a8748490603061354vaa53c72na161d26065b9302e@mail.gmail.com> <Pine.LNX.4.64.0603061402410.13139@g5.osdl.org> <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603061423160.13139@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: SATA ATAPI AHCI error messages?
+Date: Wed, 8 Mar 2006 08:16:27 -0800
+Message-ID: <26CEE2C804D7BE47BC4686CDE863D0F50660AFB6@orsmsx410>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SATA ATAPI AHCI error messages?
+Thread-Index: AcZCtDQ9pxMH068yRfyj3eUE0SLNRgAFb08Q
+From: "Gaston, Jason D" <jason.d.gaston@intel.com>
+To: "Mark Lord" <lkml@rtr.ca>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Mar 2006 16:16:28.0904 (UTC) FILETIME=[A7E20680:01C642CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+>-----Original Message-----
+>From: Mark Lord [mailto:lkml@rtr.ca]
+>Sent: Wednesday, March 08, 2006 5:27 AM
+>To: Alan Cox
+>Cc: Gaston, Jason D; linux-kernel@vger.kernel.org
+>Subject: Re: SATA ATAPI AHCI error messages?
+>
+>Alan Cox wrote:
+>..
+>>> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+>>> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00
+00
+>>> sr: Current [descriptor]: sense key: Aborted Command
+>>>     Additional sense: No additional sense information
+>>
+>> TUR should not be getting aborted command replies off a CD. Most odd
+>
+>It's been a while, and my memory of such is fuzzy,
+>but I think I have commonly seen ATAPI drives (in the past)
+>that simply fail TUR as above when the drive is open
+>or media is not present (one of those two, forgot which).
+>
+>Cheers
 
-> has been incorrectly translated for several reasons:
-> 
->  - we shouldn't check "cachep->num > offslab_limit". We should check just 
->    "num > offslab_limit" (cachep->num is the _previous_ number we tested).
-> 
->  - when we do "break", we've already incremented "gfporder", and we should 
->    correct for that.
-> 
-> Now, maybe I'm just off my rocker again (I've certainly been batting 0.000 
-> so far, even if I think I've been finding real bugs). So who knows. But I 
-> get the feeling that that patch is broken.
+I have media in the drive and still see the error.  We are seeing the
+errors when the system is booting, before gnome or KDE is loaded.
 
-I thought stumbling over bugs while looking for other things was part of 
-the new development model ;-)
-> 
-> Either revert it, or try this (TOTALLY UNTESTED!!!) patch..
-> 
-> And hey, maybe I'm just crazy.
-
-Being crazy and being right are not mutually exclusize.
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Jason
 

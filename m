@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWCHXSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWCHXTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWCHXSl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWCHXSl
+	id S1751444AbWCHXTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWCHXTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:18:41 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:34274 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751341AbWCHXSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:18:40 -0500
-Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for
-	2.6.16-rc5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+	Wed, 8 Mar 2006 18:19:04 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:54508
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751444AbWCHXTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:19:02 -0500
+Date: Wed, 8 Mar 2006 15:18:51 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
        pcihpd-discuss@lists.sourceforge.net
-In-Reply-To: <20060308230519.GT4006@stusta.de>
-References: <20060306223545.GA20885@kroah.com>
-	 <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
-	 <20060308230519.GT4006@stusta.de>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 18:18:36 -0500
-Message-Id: <1141859917.767.242.camel@mindpipe>
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for 2.6.16-rc5
+Message-ID: <20060308231851.GA26666@suse.de>
+References: <20060306223545.GA20885@kroah.com> <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de> <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 00:05 +0100, Adrian Bunk wrote:
-> > > (pci-pci-quirk-for-asus-a8v-and-a8v-deluxe-motherboards.patch seems to
-> > >  be a candidate.)
+On Wed, Mar 08, 2006 at 03:03:47PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 8 Mar 2006, Greg KH wrote:
 > > 
-> > Yes, if people really want it in I could send it, but I was just looking
-> > for "bugfixes only" at this late stage of the game.
+> > None, as I am expecting 2.6.16 to be out any day now.
 > 
-> It is a fix for a hardware bug, and IMHO 2.6.16 material (but I don't a 
-> very strong opinion on the latter).
-> 
+> Sadly, until the FC5 problems re at least somewhat more understood, I 
+> don't think that's going to happen.
 
-This is the patch that re-enabled the onboard sound card when a second
-one is present?
+Understood.  Wait, what FC5 issues?  Andrew's problems?  Or something
+else?
 
-That should not go in 2.6.16 - it's not a hardware bug but a (poor IMHO)
-design decision by the vendor.  And, it may break working setups when an
-extra sound device shows up.
+> Trying to chase down Andrew's "laptop from hell" has also delayed even 
+> doing a -rc6, although that is imminent.
 
-Lee
+Yeah, I'm thinking that just giving Andrew a different laptop might be
+the simpler solution for this issue right now :)
 
+thanks,
+
+greg k-h

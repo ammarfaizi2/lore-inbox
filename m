@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWCHRhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751475AbWCHRk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWCHRhi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 12:37:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWCHRhi
+	id S1751475AbWCHRk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 12:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWCHRk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 12:37:38 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:12236 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751243AbWCHRhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 12:37:38 -0500
-Date: Wed, 8 Mar 2006 17:37:11 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: Extra keycodes
-Message-ID: <20060308173711.GA23254@srcf.ucam.org>
-References: <20060223175328.GA25482@srcf.ucam.org> <200602242300.58815.dtor_core@ameritech.net> <20060226160730.GA5853@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 12:40:57 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:42901 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751475AbWCHRk4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 12:40:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TkkGdxvSnjK82SRN8bBwm6rRfsN4lLFEwiAI7NgMNXieGY1kSp0vJBZ1cDKCzeo00JVR/c5wEfEnE+jUvqoRfsHQZ/nTD4NohQR4RkbeLsqsgs259KgFbC24QpC38OL8EGL+mmQSiQ/yWIslsmaHuhIj6r16a0iwXUXFBmwU/bI=
+Message-ID: <6bffcb0e0603080940p391809b9x@mail.gmail.com>
+Date: Wed, 8 Mar 2006 18:40:55 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Jan Altenberg" <tb10alj@tglx.de>
+Subject: Re: [PATCH] 2.6.15-rt20 compilation errors
+Cc: "Ingo Molnar" <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <440E9F91.7080100@tglx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060226160730.GA5853@srcf.ucam.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+References: <6bffcb0e0603070919k64e325f6h@mail.gmail.com>
+	 <440E9F91.7080100@tglx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 26, 2006 at 04:07:30PM +0000, Matthew Garrett wrote:
+Hi,
 
-> Patch included. We have code to pop up battery information in 
-> gnome-power-manager in response to this key being pressed, and evdev is 
-> the current interface for getting the keypress event.
+On 08/03/06, Jan Altenberg <tb10alj@tglx.de> wrote:
+> Hi Ingo,
+>
+> could you have a look at this patch?
+> Maybe it helps...
+>
 
-Hi - any feedback on this?
+Thanks!
 
-Thanks,
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

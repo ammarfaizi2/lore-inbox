@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWCHF1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWCHGHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWCHF1c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 00:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWCHF1c
+	id S1750995AbWCHGHF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 01:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWCHGHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 00:27:32 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:50850
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750810AbWCHF1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 00:27:32 -0500
-Date: Tue, 7 Mar 2006 21:27:23 -0800
-From: Greg KH <greg@kroah.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jeff Garzik <jeff@garzik.org>, Kumar Gala <galak@kernel.crashing.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: proper way to assign fixed PCI resources to a "hotplug" device
-Message-ID: <20060308052723.GD29867@kroah.com>
-References: <Pine.LNX.4.44.0603031638050.30957-100000@gate.crashing.org> <4408CEC8.7040507@garzik.org> <20060308020028.GB26028@kroah.com> <440E4203.7040303@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 01:07:05 -0500
+Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:19817 "HELO
+	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750995AbWCHGHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 01:07:03 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Fw: Re: oops in choose_configuration()
+Date: Wed, 8 Mar 2006 01:06:59 -0500
+User-Agent: KMail/1.9.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200603071657_MC3-1-BA0F-6372@compuserve.com> <200603072222.11504.dtor_core@ameritech.net> <20060308052302.GA29867@kroah.com>
+In-Reply-To: <20060308052302.GA29867@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <440E4203.7040303@gmail.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200603080107.00289.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 11:31:31AM +0900, Tejun Heo wrote:
-> Greg KH wrote:
-> >On Fri, Mar 03, 2006 at 06:18:32PM -0500, Jeff Garzik wrote:
-> >
-> >>I have a similar situation:
-> >>
-> >>BIOS initializes PCI device to mode A, I need to switch it to mode B. 
-> >>To do this, I must assign a value to an MMIO PCI BAR that was not 
-> >>initialized at boot.
-> >>
-> >>How to do this?
-> >
-> >
-> >I really don't know, what kind of device wants to do this?
-> >
+On Wednesday 08 March 2006 00:23, Greg KH wrote:
+> > 
+> > Hmm, what is the policy for attr->show()? With hotplug variables we
+> > return -ENOMEM if there is not enough memory to store all data, but
+> > what about attributes? Should we also return error (and which one,
+> > -ENOMEM, -ENOBUFS?) or fill as much as we can and return up to
+> > PAGE_SIZE?
 > 
-> Jeff is probably talking about ABAR of ICH controllers. ABAR (AHCI BAR, 
-> memory mapped IO region covering all AHCI registers) isn't needed for 
-> IDE mode operation and the BAR register is disabled when the chip is in 
-> IDE mode. However, ABAR becomes necessary for 1. accessing SCR registers 
-> (for SATA phy monitor and control) or 2. switching on AHCI mode manually 
-> (some notebook BIOSes always initalize ICH6/7m's into IDE mode even when 
-> the controller does support AHCI mode.
+> Remember, sysfs files are supposed to be small, you are an "oddity" in
+> that you have a much larger buffer that you can return due to the wierd
+> aliases you have.
 > 
-> So, the problem is that the chip actually disables the PCI BAR if 
-> certain switches aren't turned on and thus BIOSes are likely not to 
-> reserve mmio address for the BAR. We can turn on proper switches during 
-> driver initialization but we don't know how to wiggle the BAR into mmio 
-> address space.
+> Truncating the buffer is probably good as we want userspace to get some
+> information, right?
+> 
+> > With sysfs not kernel nor application can really recover
+> > if attribute needs buffer larger than a page. Or just rely on BUG_ON
+> > in fs/sysfs/file.c::fill_read_buffer()?
+> 
+> How about just making this a binary attribute, then you can handle an
+> arbitrary size buffer and don't have to worry about the PAGE_SIZE stuff
+> (but it makes it more code that you have to write to handle it all,
+> there are tradeoffs...)
+> 
 
-Thanks for the explaination, that makes more sense.  Unfortunatly I do
-not know how to do this right now :(
+I really don't believe that we ever going to cross 4096 boundary for any
+single input attribute, but just to code defensively we need to decide
+what to do if we ever encounter a crazy device. Just truncating to
+PAGE_SIZE is easiest so that's what I am going to do.
 
-Anyone with any ideas?
-
-thanks,
-
-greg k-h
+-- 
+Dmitry

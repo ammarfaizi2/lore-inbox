@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWCHBEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWCHBDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751986AbWCHBEA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 20:04:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWCHBEA
+	id S1751952AbWCHBDp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 20:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWCHBDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 20:04:00 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:27092 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751986AbWCHBD7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 20:03:59 -0500
-Subject: Re: [Patch] Move swiotlb_init early on X86_64
-From: Zou Nan hai <nanhai.zou@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-In-Reply-To: <200603070939.03368.ak@suse.de>
-References: <1141175458.2642.78.camel@linux-znh>
-	 <200603070939.03368.ak@suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1141773788.2537.27.camel@linux-znh>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 08 Mar 2006 07:23:08 +0800
+	Tue, 7 Mar 2006 20:03:45 -0500
+Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:56463 "HELO
+	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751952AbWCHBDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 20:03:45 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Tue, 7 Mar 2006 20:03:41 -0500
+User-Agent: KMail/1.9.1
+Cc: Dave Peterson <dsp@llnl.gov>, Al Viro <viro@ftp.linux.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, dthompson@lnxi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603070847.44417.dsp@llnl.gov> <20060307170401.GA6989@kroah.com>
+In-Reply-To: <20060307170401.GA6989@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603072003.42327.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-07 at 16:39, Andi Kleen wrote:
-> On Wednesday 01 March 2006 02:10, Zou Nan hai wrote:
-> > on X86_64, swiotlb buffer is allocated in mem_init, after memmap and vfs cache allocation.
+On Tuesday 07 March 2006 12:04, Greg KH wrote:
+> On Tue, Mar 07, 2006 at 08:47:44AM -0800, Dave Peterson wrote:
+> > Ok, how does this sound:
 > > 
-> > On platforms with huge physical memory, 
-> > large memmap and vfs cache may eat up all usable system memory 
-> > under 4G.
-> > 
-> > Move swiotlb_init early before memmap is allocated can
-> > solve this issue.
-> > 
-> > Signed-off-by: Zou Nan hai <Nanhai.zou@intel.com>
+> >     - Modify EDAC so it uses kmalloc() to create the kobject.
+> >     - Eliminate edac_memctrl_master_release().  Instead, use kfree() as
+> >       the release method for the kobject.  Here, it's important to use a
+> >       function -outside- of EDAC as the release method since the core
+> >       EDAC module may have been unloaded by the time the release method
+> >       is called.
 > 
+> No, if this happens then you are using the kobject incorrectly.  How
+> could it be held if your module is unloaded?  Don't you have the module
+> reference counting logic correct?
 > 
-> I came up with a simpler change now that should fix the problem too.
-> It just try to move the memmap to the end of the node. I don't have a system
-> big enough to test the original problem though.
-> 
-> It should be fairly safe because if the allocation fails we just fallback
-> to the normal old way of allocating it near the beginning.
-> 
-> Try to allocate node memmap near the end of node
-> 
-> This fixes problems with very large nodes (over 128GB) filling up all of 
-> the first 4GB with their mem_map and not leaving enough
-> space for the swiotlb.
-> 
-> 
-> Signed-off-by: Andi Kleen <ak@suse.de>
-> 
-> ---
->  arch/x86_64/mm/numa.c   |   12 +++++++++++-
->  include/linux/bootmem.h |    3 +++
->  mm/bootmem.c            |    2 +-
->  3 files changed, 15 insertions(+), 2 deletions(-)
-> 
-> Index: linux/arch/x86_64/mm/numa.c
-> ===================================================================
-> --- linux.orig/arch/x86_64/mm/numa.c
-> +++ linux/arch/x86_64/mm/numa.c
-> @@ -172,7 +172,7 @@ void __init setup_node_bootmem(int nodei
->  /* Initialize final allocator for a zone */
->  void __init setup_node_zones(int nodeid)
->  { 
-> -	unsigned long start_pfn, end_pfn; 
-> +	unsigned long start_pfn, end_pfn, memmapsize, limit;
->  	unsigned long zones[MAX_NR_ZONES];
->  	unsigned long holes[MAX_NR_ZONES];
->  
-> @@ -182,6 +182,16 @@ void __init setup_node_zones(int nodeid)
->  	Dprintk(KERN_INFO "Setting up node %d %lx-%lx\n",
->  		nodeid, start_pfn, end_pfn);
->  
-> +	/* Try to allocate mem_map at end to not fill up precious <4GB
-> +	   memory. */
-> +	memmapsize = sizeof(struct page) * (end_pfn-start_pfn);
-> +	limit = end_pfn << PAGE_SHIFT;
-> +	NODE_DATA(nodeid)->node_mem_map = 
-> +		__alloc_bootmem_core(NODE_DATA(nodeid)->bdata, 
-> +				memmapsize, SMP_CACHE_BYTES, 
-> +				limit, 
-> +				round_down(limit - memmapsize, PAGE_SIZE));
-> +
 
-, round_down(limit - memmapsize, PAGE_SIZE), limit);?
+It is pretty hard to implement kobject handling correctly. Consider the
+following:
 
+	rmmod device_driver < /sys/devices/pci0000:00/...../power/state
 
-Zou Nan hai
+for a driver that creates/destroys device objects.
+ 
+Opening 'state' attribute will pin device structure into memory but will
+not increase _your_ module's refcount. It is nice if you have a subsystem
+core split from drivers code - then you can keep core module reference
+until device objects are gone and allow individual drivers be unloaded
+freely. But for single-module system it is pretty hard, that's why
+platform devices are popular.
 
-
-
+-- 
+Dmitry

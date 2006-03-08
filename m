@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752070AbWCHHlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWCHHpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752070AbWCHHlg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 02:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWCHHlg
+	id S932230AbWCHHpA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 02:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWCHHpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 02:41:36 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:21437 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751120AbWCHHlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 02:41:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=AEDZwj3eFq3FyqGnIwweTByXTcWp6LpQyRmVLbdR+8oIFEVI0bcLfY2mZeXTGqAa90nPPcOiHrVBWr3hLoF5U+zeC7B7xYUSqMUbh/i3C88vllzcdyKDJgzCNr/FFMHVNdf4BYlwsU8UdfCJBTTVeef0ghH/kpT4eYWEgxZEMKg=  ;
-Message-ID: <440E8AAA.9030609@yahoo.com.au>
-Date: Wed, 08 Mar 2006 18:41:30 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 8 Mar 2006 02:45:00 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:55963 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751120AbWCHHo7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 02:44:59 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers
-References: <31492.1141753245@warthog.cambridge.redhat.com> <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
-In-Reply-To: <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Date: Wed, 8 Mar 2006 15:44:56 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B22AB1A@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+thread-index: AcZCf6qO3fOTJFunSwCKZ2qecIxapgAAcNMQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Mar 2006 07:44:57.0321 (UTC) FILETIME=[32461D90:01C64284]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
-> David Howells writes:
+>I hope what I've explained above makes sense. To reiterate, if you
+>want me to do something with respect to hotkey, I still don't
+>understand how and where hotkey is involved. Perhaps you could help me
+>by elaborating further.
 
->>+     The way to deal with this is to insert an I/O memory barrier between the
->>+     two accesses:
->>+
->>+	*ADR = ctl_reg_3;
->>+	mb();
->>+	reg = *DATA;
-> 
-> 
-> Ummm, this implies mb() is "an I/O memory barrier".  I can see people
-> getting confused if they read this and then see mb() being used when
-> no I/O is being done.
-> 
+I know this user-defined region needs address space handler, but your
+address space handler below  is so weird that make me doubt
+the correctness.  The example of address space handler is:
+ec.c : acpi_ec_space_handler
 
-Isn't it? Why wouldn't you just use smp_mb() if no IO is being done?
+I suggest LCD support in hotkey.c like:
+http://bugzilla.kernel.org/attachment.cgi?id=6843&action=view
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Implement device ASIM  in a separate driver to support user-defined
+address space handler.
+
+Config userspace acpi daemon to respond events by evoking
+LCD._BCM with command:
+	echo -n xx > /sys/hotkey/brightness.
+
+If you do these, then the only specific thing would be ASIM.
+
+Thanks,
+Luming 

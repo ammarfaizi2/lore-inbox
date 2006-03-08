@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWCHVvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWCHVy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWCHVvF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWCHVvF
+	id S1751127AbWCHVy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWCHVy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:51:05 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:43238 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S1750841AbWCHVvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:51:03 -0500
-Date: Thu, 9 Mar 2006 00:51:01 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
-       linux-alpha@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Problem on Alpha with "convert to generic irq framework"
-Message-ID: <20060309005101.B9651@jurassic.park.msu.ru>
-References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru> <20060306135434.GA12829@localhost> <20060306191324.A1502@jurassic.park.msu.ru> <20060306163142.GA19833@localhost> <20060308142857.A4851@jurassic.park.msu.ru> <20060308175652.GA28296@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060308175652.GA28296@twiddle.net>; from rth@twiddle.net on Wed, Mar 08, 2006 at 09:56:52AM -0800
+	Wed, 8 Mar 2006 16:54:59 -0500
+Received: from host1.compusonic.fi ([195.238.198.242]:17945 "EHLO
+	minor.compusonic.fi") by vger.kernel.org with ESMTP
+	id S1751127AbWCHVy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:54:58 -0500
+Date: Wed, 8 Mar 2006 23:54:01 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: Dave Neuer <mr.fred.smoothie@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+In-Reply-To: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0603082336410.11026@zeus.compusonic.fi>
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> 
+ <20060308102731.GO27946@ftp.linux.org.uk>  <ec92bc30603080252v7e795b4dm5116d4fe78f92cc7@mail.gmail.com>
+ <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 09:56:52AM -0800, Richard Henderson wrote:
-> This will need commenting if it's to go in.
+On Wed, 8 Mar 2006, Dave Neuer wrote:
 
-Agreed. What about this?
+> What is linux-specific in this context is that many people, like
+> myself, who have contributed code to the kernel under the GPL *don't
+> want* their code to be used in non-free software, period. Someone who
+> wants to leverage my work needs to do it under the terms that I allow.
+> That is the law. Whining is not going to change my mind.
+> 
+> If a company thinks they can make money selling hardware with
+> closed-source drivers (on some other OS), more power to them. If a
+> company thinks they can make money selling hardware with open-source
+> drivers on Linux and want to leverage my work, more power to them
+> (I'll even help them). But they can't use my work and not release the
+> code.
+You are mixing two different things. Binary driver is not the same thing 
+as binary-only driver. Being binary means just that the driver is 
+distributed as a precompiled module. However the driver may still be open 
+sourced (under GPL or whatever license you like). The full source 
+code may be shipped with the installable binary or be distributed in some 
+other way for users who want to compile it themselves. 
 
-Ivan.
+In fact all Linux distributions ship binary drivers. The user can install 
+the kernel/driver sources but most "ordinary" users don't install them. 
 
---- 2.6.16-rc5/arch/alpha/kernel/irq.c	Mon Mar  6 11:57:58 2006
-+++ linux/arch/alpha/kernel/irq.c	Thu Mar  9 00:38:53 2006
-@@ -151,8 +151,13 @@ handle_irq(int irq, struct pt_regs * reg
- 	}
- 
- 	irq_enter();
-+	/*
-+	 * __do_IRQ() must be called with IPL_MAX. Note that we do not
-+	 * explicitly enable interrupts afterwards - some MILO PALcode
-+	 * (namely LX164 one) seems to have severe problems with RTI
-+	 * at IPL 0.
-+	 */
- 	local_irq_disable();
- 	__do_IRQ(irq, regs);
--	local_irq_enable();
- 	irq_exit();
- }
+Best regards,
+
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

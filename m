@@ -1,83 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWCHDVN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWCHDWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWCHDVN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:21:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWCHDVN
+	id S932421AbWCHDWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWCHDWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:21:13 -0500
-Received: from ozlabs.org ([203.10.76.45]:41380 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932418AbWCHDVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:21:12 -0500
+	Tue, 7 Mar 2006 22:22:16 -0500
+Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:16224 "HELO
+	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932421AbWCHDWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:22:15 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Fw: Re: oops in choose_configuration()
+Date: Tue, 7 Mar 2006 22:22:10 -0500
+User-Agent: KMail/1.9.1
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200603071657_MC3-1-BA0F-6372@compuserve.com> <200603072013.29227.dtor_core@ameritech.net> <20060308012744.GA24739@kroah.com>
+In-Reply-To: <20060308012744.GA24739@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17422.19865.635112.820824@cargo.ozlabs.ibm.com>
-Date: Wed, 8 Mar 2006 14:20:57 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
-       linux-arch@vger.kernel.org, bcrl@linux.intel.com, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, mingo@redhat.com,
-       linuxppc64-dev@ozlabs.org, jblunck@suse.de
-Subject: Re: Memory barriers and spin_unlock safety
-In-Reply-To: <Pine.LNX.4.64.0603040914160.22647@g5.osdl.org>
-References: <32518.1141401780@warthog.cambridge.redhat.com>
-	<Pine.LNX.4.64.0603030823200.22647@g5.osdl.org>
-	<17417.29375.87604.537434@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.64.0603040914160.22647@g5.osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Message-Id: <200603072222.11504.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-
-> So the rules from the PC side (and like it or not, they end up being 
-> what all the drivers are tested with) are:
+On Tuesday 07 March 2006 20:27, Greg KH wrote:
+> On Tue, Mar 07, 2006 at 08:13:28PM -0500, Dmitry Torokhov wrote:
+> > On Tuesday 07 March 2006 19:57, Linus Torvalds wrote:
+> > > 
+> > > On Tue, 7 Mar 2006, Chuck Ebbert wrote:
+> > > > 
+> > > > At least one susbsystem rolls its own method of adding env vars to the
+> > > > uevent buffer, and it's so broken it triggers the WARN_ON() in
+> > > > lib/vsprintf.c::vsnprintf() by passing a negative length to that function.
+> > > 
+> > > Well, snprintf() should be safe, though. It will warn if the caller is 
+> > > lazy, but these days, the thing does
+> > > 
+> > > 	max(buf_size - len, 0)
+> > > 
+> > > which should mean that the input layer passes in 0 instead of a negative 
+> > > number. And snprintf() will then _not_ print anything. 
+> > > 
+> > > So I think input_add_uevent_bm_var() is safe, even if it's not pretty.
+> > > 
+> > > However, input_devices_read() doesn't do any sanity checking at all, and 
+> > > if that ever ends up printing more than a page, that would be bad. I 
+> > > didn't look very closely, but it looks worrisome.
+> > > 
+> > > Dmitry?
+> > 
+> > I had all this code converted to seq_file, but it depends on converting
+> > input handlers to class interfaces and it is not possible nowadays
+> > because with latest Greg's changes to class code we would try to
+> > register class devices while registering class devices/interfaces
+> > (psmouse creates input_dev which binds to mousedev interface which in
+> > turn tries to create mouseX which is also belongs to input class) and
+> > deadlocking. Greg promised current implementation is only a temporary
+> > solution.
+> > 
+> > I suppose I could separate those changes...
 > 
->  - regular stores are ordered by write barriers
+> That would probably be a good idea :)
+> 
 
-I thought regular stores were always ordered anyway?
+Hmm, what is the policy for attr->show()? With hotplug variables we
+return -ENOMEM if there is not enough memory to store all data, but
+what about attributes? Should we also return error (and which one,
+-ENOMEM, -ENOBUFS?) or fill as much as we can and return up to
+PAGE_SIZE? With sysfs not kernel nor application can really recover
+if attribute needs buffer larger than a page. Or just rely on BUG_ON
+in fs/sysfs/file.c::fill_read_buffer()?
 
->  - PIO stores are always synchronous
-
-By synchronous, do you mean ordered with respect to all other accesses
-(regular memory, MMIO, prefetchable MMIO, PIO)?
-
-In other words, if I store a value in regular memory, then do an
-outb() to a device, and the device does a DMA read to the location I
-just stored to, is the device guaranteed to see the value I just
-stored (assuming no other later store to the location)?
-
->  - MMIO stores are ordered by IO semantics
-> 	- PCI ordering must be honored:
-> 	  * write combining is only allowed on PCI memory resources
-> 	    that are marked prefetchable. If your host bridge does write 
-> 	    combining in general, it's not a "host bridge", it's a "host 
-> 	    disaster".
-
-Presumably the host bridge doesn't know what sort of PCI resource is
-mapped at a given address, so that information (whether the resource
-is prefetchable) must come from the CPU, which would get it from the
-TLB entry or an MTRR entry - is that right?
-
-Or is there some gentleman's agreement between the host bridge and the
-BIOS that certain address ranges are only used for certain types of
-PCI memory resources?
-
-> 	  * for others, writes can always be posted, but they cannot
-> 	    be re-ordered wrt either reads or writes to that device
-> 	    (ie a read will always be fully synchronizing)
-> 	- io_wmb must be honored
-
-What ordering is there between stores to regular memory and stores to
-non-prefetchable MMIO?
-
-If a store to regular memory can be performed before a store to MMIO,
-does a wmb() suffice to enforce an ordering, or do you have to use
-mmiowb()?
-
-Do PCs ever use write-through caching on prefetchable MMIO resources?
-
-Thanks,
-Paul.
+-- 
+Dmitry

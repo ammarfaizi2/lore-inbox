@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWCHW0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWCHWcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWCHW0z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 17:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWCHW0z
+	id S1030237AbWCHWcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 17:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWCHWcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 17:26:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54029 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030237AbWCHW0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 17:26:54 -0500
-Date: Wed, 8 Mar 2006 23:26:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <gregkh@suse.de>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for 2.6.16-rc5
-Message-ID: <20060308222652.GR4006@stusta.de>
-References: <20060306223545.GA20885@kroah.com>
+	Wed, 8 Mar 2006 17:32:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22427 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030237AbWCHWcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 17:32:18 -0500
+Date: Wed, 8 Mar 2006 14:31:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+cc: paulus@samba.org, duncan.sands@math.u-psud.fr, dhowells@redhat.com,
+       akpm@osdl.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, linuxppc64-dev@ozlabs.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] Document Linux's memory barriers
+In-Reply-To: <20060308.142401.72886733.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0603081431160.32577@g5.osdl.org>
+References: <9551.1141762147@warthog.cambridge.redhat.com>
+ <200603080925.19425.duncan.sands@math.u-psud.fr> <17423.21837.304330.623519@cargo.ozlabs.ibm.com>
+ <20060308.142401.72886733.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060306223545.GA20885@kroah.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2006 at 02:35:45PM -0800, Greg KH wrote:
 
-> Here's a summary of the current state of the Linux PCI and PCI Hotplug
-> subsystems as of 2.6.16-rc5
+
+On Wed, 8 Mar 2006, David S. Miller wrote:
 > 
-> If the information in here is incorrect, or anyone knows of any
-> outstanding issues not listed here, please let me know.
->...
-> Was this summary useful for people?  Anything that I should add to it?
+> Just like for setjmp() I think you have to mark such things
+> as volatile.
 
-It is useful, but one thing seems to be missing:
-Which patches do you intend to forward for 2.6.16 (if any)?
+.. and sigatomic_t.
 
-(pci-pci-quirk-for-asus-a8v-and-a8v-deluxe-motherboards.patch seems to
- be a candidate.)
-
-> thanks,
-> 
-> greg k-h
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+		Linus

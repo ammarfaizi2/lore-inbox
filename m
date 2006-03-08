@@ -1,133 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWCHEC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWCHEHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWCHEC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 23:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWCHEC4
+	id S1750913AbWCHEHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 23:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752047AbWCHEHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 23:02:56 -0500
-Received: from rwcrmhc12.comcast.net ([204.127.192.82]:9874 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750863AbWCHECz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 23:02:55 -0500
-Message-ID: <440E5746.7070003@comcast.net>
-Date: Tue, 07 Mar 2006 23:02:14 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060213)
+	Tue, 7 Mar 2006 23:07:16 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44000 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750913AbWCHEHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 23:07:15 -0500
+To: vgoyal@in.ibm.com
+Cc: Andi Kleen <ak@muc.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] kdump: x86_64 timer interrupt lockup due to
+ pending interrupt
+References: <20060306164034.GB10594@in.ibm.com>
+	<20060306214332.GA18529@muc.de> <20060307222052.GD9106@in.ibm.com>
+	<m1hd69zur8.fsf@ebiederm.dsl.xmission.com>
+	<20060308012654.GB25543@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 07 Mar 2006 21:04:47 -0700
+In-Reply-To: <20060308012654.GB25543@in.ibm.com> (Vivek Goyal's message of
+ "Tue, 7 Mar 2006 20:26:54 -0500")
+Message-ID: <m18xrlzin4.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Sound userspace drivers (fishing for insight)
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Vivek Goyal <vgoyal@in.ibm.com> writes:
 
-This isn't really a serious question, but I just encountered some stuff
-about userspace sound drivers for Linux and was like O_o so now I'm
-curious as to the design aspect here.  I can't think of a good way to do
-it (where 'good' means something more than 'ugly hack').
+> On Tue, Mar 07, 2006 at 04:43:07PM -0700, Eric W. Biederman wrote:
+>> Vivek Goyal <vgoyal@in.ibm.com> writes:
+>> > On Mon, Mar 06, 2006 at 10:43:32PM +0100, Andi Kleen wrote:
+>> >> On Mon, Mar 06, 2006 at 11:40:34AM -0500, Vivek Goyal wrote:
+>> >> > 
+>
+> [..]
+>> >> > 
+>> >> > o In this patch, one extra EOI is being issued in check_timer() to unlock
+>> > the
+>> >> > vector. Please suggest if there is a better way to handle this situation.
+>> >> 
+>> >> Shouldn't we rather do this for all interrupts when the APIC is set up? 
+>> >> I don't see how the timer is special here.
+>> >>
+>> >
+>> > Timer is a special case here.
+>> >
+>> > In other cases, the moment interrupts are enabled on cpu, LAPIC pushes
+> pending
+>> > interrupts to cpu and it is ignored as bad irq using ack_bad_irq(). This
+>> > still sends EOI to LAPIC if LPAIC support is compiled in.
+>> >
+>> > But for timer, the moment pending interrupt is pushed to cpu, it is handled
+>> > as valid interrupt and cpu assumes that it came from 8259 and sends ack to
+>> > 8259 and not to LAPIC. Hence leads to missing EOI for timer vector and 
+>> > deadlock.
+>> >
+>> > But still doing it generic manner for all interrupts while setting up LAPIC
+>> > probably makes more sense. Please find attached the patch.
+>> 
+>> A couple of questions. 
+>> 
+>> Does this need to be in #ifdef CONFIG_CRASS_DUMP?
+>> If this code is truly safe I expect we could run it on every bootup
+>> simply to be more robust.
+>> 
+>
+> AFAIK, we can run this code safely on every bootup and can get rid of
+> CONFIG_CRASH_DUMP. I have simply put it under it because I observed it
+> only for crashdump scenarios. But removing this should be good as it
+> protectets agains buggy boards. Modified patch is attached.
+>
+>
+>> Why is APIC_ISR_NR a hard code?  I think there is an apic register
+>> that tells the count.
+>> 
+>
+> I did not find any such register. Basically ISR is a 256bit register. We
+> are reading 32 bits at a time, so logically we can view it as 8, 32 bit
+> registers. I had two options. Either I put a constant number in for()
+> loop or #define it. I chose later one.
+>
+>> Does ack_APIC_irq take an argument?  I am confused that we are calling
+>> ack_APIC_irq() potentially 8*32 times without passing it anything.
+>> 
+>
+> It does not take any argument. Whenever a zero is written to EOI register
+> LAPIC resets one ISR register bit corresponding to highest priority
+> interrupt. So if all the ISR bits are set, we will call ack_APIC_irq()
+> 8*32 times to reset them all.
 
-So here's my input on this, and if anyone cares to enlighten me maybe
-you can bounce some responses back.  It'll be a good learning experience
-for me.
+Ok.  That makes sense.
 
- - General transport and context switches
+Looks good to me.
 
-In general, transporting sound data in and out of kernel space is a
-horrid thought.  Consider the latencies, which all real-time audio
-people will quickly get angry about.  Write sound; context switch; sound
-in driver; context switch back.  This over and over?  Now we all know
-better than that.
-
-So my first impulse would be using the generic kernel-user transport
-facilities like NETLNK.  But at a glance this doesn't seem to do
-anything for me; this would still be writing to a socket, which causes a
-syscall into kernel space.  In short, you're stuck with context switches.
-
-On the up-side, in any scheme the user space program has to shift data
-into the kernel; with alsa it's written to a /proc interface, which
-causes a context switch into kernel space AFAIK because it calls write()
-to an fd.  Still, we're wasting time copying to another process' memory
-space.
-
-
- - Ring-1, Ring-2
-
-I have heard that these mysterious privilege levels allow bitmaps to
-give direct hardware access, i.e. to PCI devices.  Through this mystical
-magic, a driver could directly access a sound card.  This opens up new
-possibilities. . or does it?
-
-First off how the heck complex is userspace PCI control, and what gains
-do you really get?  Won't every syscall() become a sudden context
-switch?  Or (as I suspect and would like to find out) does the "overhead
-of context switching" mainly imply the copy_from_user() function and the
-process of rewriting a lot of PTEs into a new privilege level (kernel
-instead of user)?
-
-Assuming that you can implement direct hardware access or at least
-direct access to memory to avoid the context switch (in the manner I'm
-assuming the latency comes from), this may become actually faster.
-Still you're copying memory from Ring-3 (user) to Ring-1 or Ring-2, so
-there are no gains here.
-
-
- - Shared mapping?
-
-If my assumption on how this works is correct, then copy_from_user() is
-difficult because you have to walk the range of passed VM addresses and
-change/copy affected PTEs.  The old PTEs become non-writable
-(copy-on-write trigger) and the new PTEs are created (non-writable CoW
-and of course Ring-3 privilege) for the kernel.
-
-This assumption brings an interesting thought:  what about a shared
-mapping?  An area of memory writable by userspace and readable by the
-kernel?  This seems silly.  Under the assumptions I've made, this would
-still require CoWing existing PTEs or flat out copying things over.
-Obviously I lack understanding of the problem; none of this solves
-anything, and this is typical overhead whenever you allocate memory,
-even from userspace.
-
-
-
-
-So we come to an interesting thought:  I've found yet another
-interesting bit of kernel design that I don't understand, and am curious
-of.  I understand basic memory management concepts and preemptive
-multitasking just because of pestering the LKML from time to time; might
-as well go for a little more and see if you guys bite again.  Any takers?
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRA5XQws1xW0HCTEFAQLr7g//Yqnj5hIbANQR/SsiirkLhYAcM7DC3lGe
-vi50fu7YZSwaDNJ/NKWjHVmiuI1UWLehEe6n8BWHYR9tq0JzNzwwpEPUWUxIv7tp
-TsKKWR4uP8YYbFoFoNo8zK/kJQiV0ynVvuBCVCYm3OUqBi8hIqKut0GgyZc4qo7M
-aOmq3mFlw5zITfYV2pYVq9ttTU2ZJ36pXU4gJJi0+V5KVO51ZuAXDxDB6oaLewq7
-csayDae/yy9Aene44fSSuO+bfS6JPNq9uTXS42v0bcYkZm+DppSTaZcPetj1cMcU
-qM1d/0jh6bQwVpDRb7A7xumP+TfQM7J8/5rR2TFTpgc63qA1Fyzu5qd/hJ9xz28A
-pum/36ZbF/fiLR5qwMB3tlwN9z6f1MrEmEzOKtCap/Mq3IklSnyc429mpTs8smjZ
-WzbRaLU2rNxgL2KFDOZvhrfN0PP4nu+DDSauTmYdaSHfdNQ0tlvZAapq8SMQy5LU
-VAY3ZDEMP4qAIGMfXTRR49JAuM0OLWpV/fXeE9Uwv0KIyomfw/TJvW20O2vblN06
-Ryj4HGwELeaZpc+D8E6eWXSllX/16qp5zgXAFnNgvBAXfRnaKPzSnhNOdEozNhxM
-oFk3Kf9PoyEn3fqRFXJi+f9o02VvDAEY/6EOwsALUOAWADqbW+D/ku7MKEMt7pFT
-Jo/dyODrxfA=
-=YKVj
------END PGP SIGNATURE-----
-
+Eric

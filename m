@@ -1,102 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWCHEHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752047AbWCHENu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWCHEHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 23:07:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752047AbWCHEHQ
+	id S1752047AbWCHENu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 23:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752041AbWCHENt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 23:07:16 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44000 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750913AbWCHEHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 23:07:15 -0500
-To: vgoyal@in.ibm.com
-Cc: Andi Kleen <ak@muc.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] kdump: x86_64 timer interrupt lockup due to
- pending interrupt
-References: <20060306164034.GB10594@in.ibm.com>
-	<20060306214332.GA18529@muc.de> <20060307222052.GD9106@in.ibm.com>
-	<m1hd69zur8.fsf@ebiederm.dsl.xmission.com>
-	<20060308012654.GB25543@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 07 Mar 2006 21:04:47 -0700
-In-Reply-To: <20060308012654.GB25543@in.ibm.com> (Vivek Goyal's message of
- "Tue, 7 Mar 2006 20:26:54 -0500")
-Message-ID: <m18xrlzin4.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Tue, 7 Mar 2006 23:13:49 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:18149 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751313AbWCHENt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 23:13:49 -0500
+Message-ID: <440E59F3.6090200@garzik.org>
+Date: Tue, 07 Mar 2006 23:13:39 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Gaston, Jason D" <jason.d.gaston@intel.com>
+CC: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SATA ATAPI AHCI error messages?
+References: <26CEE2C804D7BE47BC4686CDE863D0F50660ABA5@orsmsx410>
+In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F50660ABA5@orsmsx410>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> writes:
+Gaston, Jason D wrote:
+> Hello,
+> 
+> We are seeing the following error messages in dmesg with the 2.6.16-rc5
+> kernel.  I have also tried to apply the git10 patch and still see the
+> same errors.  This is seen using a Plextor PX-716SA or PX-712SA SATA
+> DVDRW drive when in AHCI mode.  I do not see this message when the SATA
+> controller is set to IDE mode, in the BIOS.  I have reproduced this
+> using Intel ICH6R, ICH7R and ICH8 SATA controllers.  I have
+> atapi_enabled=1 set in the libata-core.c file.  These error messages
+> continue to be repeatedly logged about every 2 seconds.  Can someone
+> tell me what is going on and if this will be addressed in the next RC
+> release of the 2.6.16 kernel?
+>  
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
+> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00 00
+> sr: Current [descriptor]: sense key: Aborted Command
+>     Additional sense: No additional sense information
 
-> On Tue, Mar 07, 2006 at 04:43:07PM -0700, Eric W. Biederman wrote:
->> Vivek Goyal <vgoyal@in.ibm.com> writes:
->> > On Mon, Mar 06, 2006 at 10:43:32PM +0100, Andi Kleen wrote:
->> >> On Mon, Mar 06, 2006 at 11:40:34AM -0500, Vivek Goyal wrote:
->> >> > 
->
-> [..]
->> >> > 
->> >> > o In this patch, one extra EOI is being issued in check_timer() to unlock
->> > the
->> >> > vector. Please suggest if there is a better way to handle this situation.
->> >> 
->> >> Shouldn't we rather do this for all interrupts when the APIC is set up? 
->> >> I don't see how the timer is special here.
->> >>
->> >
->> > Timer is a special case here.
->> >
->> > In other cases, the moment interrupts are enabled on cpu, LAPIC pushes
-> pending
->> > interrupts to cpu and it is ignored as bad irq using ack_bad_irq(). This
->> > still sends EOI to LAPIC if LPAIC support is compiled in.
->> >
->> > But for timer, the moment pending interrupt is pushed to cpu, it is handled
->> > as valid interrupt and cpu assumes that it came from 8259 and sends ack to
->> > 8259 and not to LAPIC. Hence leads to missing EOI for timer vector and 
->> > deadlock.
->> >
->> > But still doing it generic manner for all interrupts while setting up LAPIC
->> > probably makes more sense. Please find attached the patch.
->> 
->> A couple of questions. 
->> 
->> Does this need to be in #ifdef CONFIG_CRASS_DUMP?
->> If this code is truly safe I expect we could run it on every bootup
->> simply to be more robust.
->> 
->
-> AFAIK, we can run this code safely on every bootup and can get rid of
-> CONFIG_CRASH_DUMP. I have simply put it under it because I observed it
-> only for crashdump scenarios. But removing this should be good as it
-> protectets agains buggy boards. Modified patch is attached.
->
->
->> Why is APIC_ISR_NR a hard code?  I think there is an apic register
->> that tells the count.
->> 
->
-> I did not find any such register. Basically ISR is a 256bit register. We
-> are reading 32 bits at a time, so logically we can view it as 8, 32 bit
-> registers. I had two options. Either I put a constant number in for()
-> loop or #define it. I chose later one.
->
->> Does ack_APIC_irq take an argument?  I am confused that we are calling
->> ack_APIC_irq() potentially 8*32 times without passing it anything.
->> 
->
-> It does not take any argument. Whenever a zero is written to EOI register
-> LAPIC resets one ISR register bit corresponding to highest priority
-> interrupt. So if all the ISR bits are set, we will call ack_APIC_irq()
-> 8*32 times to reset them all.
+Probably its just too chatty, since ATAPI throws a lot of errors...
 
-Ok.  That makes sense.
+	Jeff
 
-Looks good to me.
 
-Eric
+

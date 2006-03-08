@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWCHHhB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752070AbWCHHlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWCHHhB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 02:37:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752061AbWCHHhB
+	id S1752070AbWCHHlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 02:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWCHHlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 02:37:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26780 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751120AbWCHHhA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 02:37:00 -0500
-Date: Tue, 7 Mar 2006 23:35:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com
-Subject: Re: [PATCH][BUG] fix bug in ACPI based CPU hotplug
-Message-Id: <20060307233507.6ad0858f.akpm@osdl.org>
-In-Reply-To: <440E8723.7030008@soft.fujitsu.com>
-References: <440E8723.7030008@soft.fujitsu.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 8 Mar 2006 02:41:36 -0500
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:21437 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751120AbWCHHlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 02:41:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AEDZwj3eFq3FyqGnIwweTByXTcWp6LpQyRmVLbdR+8oIFEVI0bcLfY2mZeXTGqAa90nPPcOiHrVBWr3hLoF5U+zeC7B7xYUSqMUbh/i3C88vllzcdyKDJgzCNr/FFMHVNdf4BYlwsU8UdfCJBTTVeef0ghH/kpT4eYWEgxZEMKg=  ;
+Message-ID: <440E8AAA.9030609@yahoo.com.au>
+Date: Wed, 08 Mar 2006 18:41:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Mackerras <paulus@samba.org>
+CC: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers
+References: <31492.1141753245@warthog.cambridge.redhat.com> <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
+In-Reply-To: <17422.19209.60360.178668@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com> wrote:
->
-> This patch fixes a serious bug in ACPI based CPU hotplug code. Because
->  of this bug, ACPI based CPU hotplug will always fail if NR_CPUS is
->  equal to or more than 255.
+Paul Mackerras wrote:
+> David Howells writes:
 
-Looks rather similar to
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/broken-out/acpi-signedness-fix-2.patch
-;)
+>>+     The way to deal with this is to insert an I/O memory barrier between the
+>>+     two accesses:
+>>+
+>>+	*ADR = ctl_reg_3;
+>>+	mb();
+>>+	reg = *DATA;
+> 
+> 
+> Ummm, this implies mb() is "an I/O memory barrier".  I can see people
+> getting confused if they read this and then see mb() being used when
+> no I/O is being done.
+> 
 
-I think they're functionally equivalent - the only difference is the ==-1
-versus <0 comparisons.
+Isn't it? Why wouldn't you just use smp_mb() if no IO is being done?
 
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

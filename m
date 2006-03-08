@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751750AbWCHMxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751789AbWCHNEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751750AbWCHMxB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 07:53:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751755AbWCHMxB
+	id S1751789AbWCHNEm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 08:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWCHNEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 07:53:01 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:7844 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1751448AbWCHMxA (ORCPT
+	Wed, 8 Mar 2006 08:04:42 -0500
+Received: from mx2.suse.de ([195.135.220.15]:36076 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751789AbWCHNEl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 07:53:00 -0500
-Date: Wed, 8 Mar 2006 14:53:11 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rdreier@cisco.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       openib-general@openib.org, shemminger@osdl.org
-Subject: Re: Re: TSO and IPoIB performance degradation
-Message-ID: <20060308125311.GE17618@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <1141776697.6119.938.camel@localhost> <20060307.161808.60227862.davem@davemloft.net> <adaacc1raz9.fsf@cisco.com> <20060307.172336.107863253.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 08:04:41 -0500
+From: Andi Kleen <ak@muc.de>
+To: vgoyal@in.ibm.com
+Subject: Re: [RFC][PATCH] kdump: x86_64 timer interrupt lockup due to pending interrupt
+Date: Wed, 8 Mar 2006 06:31:55 +0100
+User-Agent: KMail/1.9.1
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060306164034.GB10594@in.ibm.com> <m1hd69zur8.fsf@ebiederm.dsl.xmission.com> <20060308012654.GB25543@in.ibm.com>
+In-Reply-To: <20060308012654.GB25543@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060307.172336.107863253.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 08 Mar 2006 12:55:20.0328 (UTC) FILETIME=[8E737880:01C642AF]
+Message-Id: <200603080631.56754.ak@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. David S. Miller <davem@davemloft.net>:
-> Subject: Re: Re: TSO and IPoIB performance degradation
-> 
-> From: Roland Dreier <rdreier@cisco.com>
-> Date: Tue, 07 Mar 2006 17:17:30 -0800
-> 
-> > The reason TSO comes up is that reverting the patch described below
-> > helps (or helped at some point at least) IPoIB throughput quite a bit.
-> 
-> I wish you had started the thread by mentioning this specific patch
 
-Er, since you mention it, the first message in thread did include this link:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=314324121f9b94b2ca657a494cf2b9cb0e4a28cc
-and I even pasted the patch description there, but oh well.
+> o Though today only timer seems to be the special case because in early
+>   boot it thinks interrupts are coming from i8259 and uses
+>   mask_and_ack_8259A() as ack handler and does not issue LAPIC EOI. But
+>   probably doing it in generic manner for all vectors makes sense.
 
-Now that Roland helped us clear it all up, and now that it has been clarified
-that reverting this patch gives us back most of the performance, is the answer
-to my question the same?
+Applied thanks. 
 
-What I was trying to figure out was, how can we re-enable the trick without
-hurting TSO? Could a solution be to simply look at the frame size, and call
-tcp_send_delayed_ack if the frame size is small?
+Not sure if this is still 2.6.16 material though. Might be too late for that.
 
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies
+-Andi

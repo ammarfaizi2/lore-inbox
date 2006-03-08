@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWCHXpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWCHXq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWCHXpW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751524AbWCHXpW
+	id S932087AbWCHXq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:46:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWCHXq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:45:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45746 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751092AbWCHXpV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:45:21 -0500
-Date: Wed, 8 Mar 2006 15:43:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: kiran@scalex86.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
-       netdev@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add
- percpu_counter_mod_bh
-Message-Id: <20060308154321.0e779111.akpm@osdl.org>
-In-Reply-To: <20060308224140.GC5410@kvack.org>
-References: <20060308015808.GA9062@localhost.localdomain>
-	<20060308015934.GB9062@localhost.localdomain>
-	<20060307181301.4dd6aa96.akpm@osdl.org>
-	<20060308202656.GA4493@localhost.localdomain>
-	<20060308203642.GZ5410@kvack.org>
-	<20060308210726.GD4493@localhost.localdomain>
-	<20060308211733.GA5410@kvack.org>
-	<20060308222528.GE4493@localhost.localdomain>
-	<20060308224140.GC5410@kvack.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Mar 2006 18:46:29 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:43790 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932087AbWCHXq2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:46:28 -0500
+Date: Thu, 9 Mar 2006 00:46:26 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mauro Carvalho Chehab <mchehab@infradead.org>
+Cc: Kyler Laird <kyler-keyword-lkml00.e701c2@lairds.com>,
+       linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
+Subject: Re: drivers/media/video/saa7115.c misreports max. value of contrast and saturation
+Message-ID: <20060308234626.GV4006@stusta.de>
+References: <20060215051908.GF13033@snout> <20060308211900.GM4006@stusta.de> <1141858063.3133.2.camel@praia>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1141858063.3133.2.camel@praia>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@kvack.org> wrote:
->
-> On Wed, Mar 08, 2006 at 02:25:28PM -0800, Ravikiran G Thirumalai wrote:
-> > Then, for the batched percpu_counters, we could gain by using local_t only for 
-> > the UP case. But we will have to have a new local_long_t implementation 
-> > for that.  Do you think just one use case of local_long_t warrants for a new
-> > set of apis?
+On Wed, Mar 08, 2006 at 07:47:43PM -0300, Mauro Carvalho Chehab wrote:
+> Adrian,
 > 
-> I think it may make more sense to simply convert local_t into a long, given 
-> that most of the users will be things like stats counters.
 > 
+> Em Qua, 2006-03-08 às 22:19 +0100, Adrian Bunk escreveu:
+> > On Wed, Feb 15, 2006 at 12:19:08AM -0500, Kyler Laird wrote:
+> > 
+> > > For changes to V4L2_CID_CONTRAST and V4L2_CID_SATURATION, the value is
+> > > checked by "if (ctrl->value < 0 || ctrl->value > 127)" yet the maximum
+> > > value in v4l2_queryctrl is set to 255 for both of these items.  This
+> > > means that programs (like MythTV) which set the contrast and saturation
+> > > to the midvalue (127) get *full* contrast and saturation.  (It's not
+> > > pretty.)
+> > > 
+> > > Setting the maximum values to 127 solves this problem.
+> > 
+> > Mauro, can you comment on this issue?
+> Yes. Patch is already available at both git and mercurial trees, fixing
+> it for saa7115 and cx25840:
+> 
+> http://linuxtv.org/hg/v4l-dvb?cmd=changeset;node=b77c2f933b620bccaa751d556c1aa2fca30de7ec;style=gitweb
 
-Yes, I agree that making local_t signed would be better.  It's consistent
-with atomic_t, atomic64_t and atomic_long_t and it's a bit more flexible.
+This patch seems to be 2.1.16 stuff?
 
-Perhaps.  A lot of applications would just be upcounters for statistics,
-where unsigned is desired.  But I think the consistency argument wins out.
+> Cheers, 
+> Mauro.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

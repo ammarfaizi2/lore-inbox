@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWCHSf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWCHSjl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWCHSf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 13:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWCHSf0
+	id S932234AbWCHSjl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 13:39:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWCHSjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 13:35:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26053 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932234AbWCHSfZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 13:35:25 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060308173605.GB13063@devserv.devel.redhat.com> 
-References: <20060308173605.GB13063@devserv.devel.redhat.com>  <20060308145506.GA5095@devserv.devel.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <9834.1141837491@warthog.cambridge.redhat.com> 
-To: Alan Cox <alan@redhat.com>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Wed, 08 Mar 2006 18:35:07 +0000
-Message-ID: <11922.1141842907@warthog.cambridge.redhat.com>
+	Wed, 8 Mar 2006 13:39:41 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:57491 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932234AbWCHSjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 13:39:41 -0500
+Message-Id: <200603081838.k28Icwg10327@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>,
+       "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, "William Lee Irwin" <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: hugepage: Strict page reservation for hugepage inodes
+Date: Wed, 8 Mar 2006 10:38:58 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZCmrcLRpxa8vigQ7GBTa0cXrK8/AAQ/OFA
+In-Reply-To: <20060308102314.GB32571@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@redhat.com> wrote:
+David Gibson wrote on Wednesday, March 08, 2006 2:23 AM
+> Yes.  This is a simplifying assumption.  I know of no real application
+> that will waste pages because of this behaviour.  If you know one,
+> maybe we will need to reconsider.
+> 
+> > I have an idea. How about to record all the start/end address of
+> > huge page mmaping of the inode? Long long ago, there was a patch at 
+> > http://marc.theaimsgroup.com/?l=lse-tech&m=108187931924134&w=2.
+> > Of course, we need port it to the latest kernel if this idea is better.
+> 
+> I know the patch - I was going to port it to the current kernel, but
+> came up with my patch instead, because it seemed like a simpler
+> approach.
 
-> spin_unlock ensures that local CPU writes before the lock are visible
-> to all processors before the lock is dropped but it has no effect on 
-> I/O ordering. Just a need for clarity.
+I really think the Variable length reservation system is the way to go
+for tracking hugetlb commit.  It is more robust and in my opinion, it
+is better than traverse the page cache radix tree.  At least, you don't
+have to worry about all the race condition there.  Oh, it also can get
+rid of the hugetlb_instantiation_mutex that was introduced.  Someday,
+people is going to scream at you for serializing hugetlb fault path.
 
-So I can't use spinlocks in my driver to make sure two different CPUs don't
-interfere with each other when trying to communicate with a device because the
-spinlocks don't guarantee that I/O operations will stay in effect within the
-locking section?
+- Ken
 
-David

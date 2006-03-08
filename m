@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWCHMWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWCHMZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWCHMWs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 07:22:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWCHMWr
+	id S964857AbWCHMZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 07:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932553AbWCHMZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 07:22:47 -0500
-Received: from math.ut.ee ([193.40.36.2]:8339 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S932513AbWCHMWq (ORCPT
+	Wed, 8 Mar 2006 07:25:15 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46035 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932540AbWCHMZO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 07:22:46 -0500
-Date: Wed, 8 Mar 2006 14:07:15 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: spontaneous reboots with latest 2.6.16 RC-s
-In-Reply-To: <20060305162905.GC20287@stusta.de>
-Message-ID: <Pine.SOC.4.61.0603081404020.1572@math.ut.ee>
-References: <Pine.SOC.4.61.0603021501560.23598@math.ut.ee>
- <20060305162905.GC20287@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 8 Mar 2006 07:25:14 -0500
+Date: Wed, 8 Mar 2006 13:25:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Thomas Maier <Thomas.Maier@uni-kassel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2-announce] Nigel's work and the future of Suspend2.
+Message-ID: <20060308122500.GB3274@elf.ucw.cz>
+References: <200603071005.56453.nigel@suspend2.net> <1141737241.5386.28.camel@marvin.se.eecs.uni-kassel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1141737241.5386.28.camel@marvin.se.eecs.uni-kassel.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It could be, but it could also be hardware.
-> Does the machine survive a night of memtest86?
+On Út 07-03-06 14:14:00, Thomas Maier wrote:
+> Hi Nigel,
+> 
+> congratulations and all the best, although this sounds like a sad
+> goodbye and resignation.  I always hoped for inclusion in mainline and
+> followed the "discussions" on lkml, although Pavel never made an effort
+> to hide his ignorant arrogance.  
 
-Yes, it survived.
+At least you can't say I was dishonest :-/.
 
-Though I found 3 bulging capacitors (no leak yet) ...
+> Mainline swsusp never worked for me and
+> so with you leaving I am tempted to leave Linux behind after more than
+> ten years and switch to that other OS that at least has working suspend
+> and resume.  
 
-> Please turn on all debugging options in the kernel.
+Your choice... But it would be more productive to read the docs, go to
+the latest kernel, and if it does not work there, file
+bugzilla.kernel.org report.
 
-Running this kernel since, still have not been able to reproduce the 
-problem.
-
+[stripped suspend2 lists -- I guess that's offtopic there.]
+								Pavel
 -- 
-Meelis Roos (mroos@linux.ee)
+Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

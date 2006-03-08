@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWCHXxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbWCHX6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWCHXxO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWCHXxO
+	id S932601AbWCHX6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWCHX6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:53:14 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:43205 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S932293AbWCHXxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:53:14 -0500
-Date: Wed, 8 Mar 2006 15:54:04 -0800
-From: thockin@hockin.org
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Greg KH <greg@kroah.com>, Tejun Heo <htejun@gmail.com>,
-       Jeff Garzik <jeff@garzik.org>, Kumar Gala <galak@kernel.crashing.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: proper way to assign fixed PCI resources to a "hotplug" device
-Message-ID: <20060308235404.GA31070@hockin.org>
-References: <Pine.LNX.4.44.0603031638050.30957-100000@gate.crashing.org> <4408CEC8.7040507@garzik.org> <20060308020028.GB26028@kroah.com> <440E4203.7040303@gmail.com> <20060308052723.GD29867@kroah.com> <20060308143952.B4851@jurassic.park.msu.ru> <20060308164041.GA31828@hockin.org> <20060309002153.A9651@jurassic.park.msu.ru> <20060308215734.GA22826@hockin.org> <20060309011147.C9651@jurassic.park.msu.ru>
+	Wed, 8 Mar 2006 18:58:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24247 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932601AbWCHX6X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:58:23 -0500
+Date: Wed, 8 Mar 2006 15:52:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: torvalds@osdl.org, gregkh@suse.de, bunk@stusta.de,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net, neilb@cse.unsw.edu.au,
+       mmokrejs@ribosome.natur.cuni.cz, nathans@sgi.com
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for
+ 2.6.16-rc5
+Message-Id: <20060308155247.76a4fcc0.akpm@osdl.org>
+In-Reply-To: <1141861551.8599.112.camel@localhost.localdomain>
+References: <20060306223545.GA20885@kroah.com>
+	<20060308222652.GR4006@stusta.de>
+	<20060308225029.GA26117@suse.de>
+	<Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
+	<20060308152928.21afef81.akpm@osdl.org>
+	<1141861551.8599.112.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060309011147.C9651@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 01:11:47AM +0300, Ivan Kokshaysky wrote:
-> On Wed, Mar 08, 2006 at 01:57:34PM -0800, thockin@hockin.org wrote:
-> > > Otherwise we have plenty of MMIO space.
-> > 
-> > Not true.  Plenty of root bridges have the same base/limit style
-> > configuration registers, but they are non-standard.  Even worse - the MMIO
-> > hole thatthe chipset carves out, is not guaranteed to be big enough for
-> > some new random allocation.
+Dave Hansen <haveblue@us.ibm.com> wrote:
+>
+> On Wed, 2006-03-08 at 15:29 -0800, Andrew Morton wrote:
+> > - It would be nice to get Martin MOKREJ
+> >   <mmokrejs@ribosome.natur.cuni.cz>'s full 16GB recognised again.  Dave
+> >   Hansen is working on that. 
 > 
-> I'm intrigued. Care to give us an example of such system (where the
-> root bridge window is too small), please? lspci -vxxx?
-
-I have systems where the BIOS sets up the IO hole to be the size of the
-BARs it finds at PCI enum time.  If I have a device that has a hidden BAR,
-the hole won't cover it.  Period.
-
-> > Cleaning up and re-doing are not the same thing.  The plethora of x86
-> > chipsets makes this unpleasant at best and more likely unworkable.
+> Martin, please step in here if your problem has come back...
 > 
-> Yes, re-doing is a LOT simpler. ;-)
-> If needed, we could introduce 'pci=totallyingnorefsckingbiossettings'
-> boot option - it would be 10 or less lines of code.
+> After Martin applied my debugging patch, the problem went away.  Last I
+> heard, he was going to boot back into a kernel without my patch to see
+> if it stayed fixed.
+> 
+> My guess is that it is be a screwy BIOS that is causing the problem
+> intermittently.  Otherwise, I can't imagine how some printks could
+> affect the problem.  It's not like this is happening in code where there
+> are SMP races.
+> 
+> I also checked around the office a bit to see if anyone else was having
+> memory detection issues on large memory x86 machines.  No luck.
 
-Except for that whole chipset code thing.  Have you dealt with the
-fugliness that is the chipset?  You're really glossing over it.
+OK, thanks Dave.
+
+> I'd put this into the "unreproducible" bucket for now.
+
+IBM must make big buckets.

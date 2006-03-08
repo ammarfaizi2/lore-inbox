@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030179AbWCHV5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbWCHV5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030179AbWCHV5i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWCHV5i
+	id S932598AbWCHV5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbWCHV5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:57:38 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:64234 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1030179AbWCHV5g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:57:36 -0500
-Subject: Re: [PATCH] Define flush_wc, a way to flush write combining store
-	buffers
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, akpm@osdl.org,
-       paulus@samba.org, bcrl@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200603081521.19693.ak@suse.de>
-References: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain>
-	 <1141853919.11221.183.camel@localhost.localdomain>
-	 <1141854208.27555.1.camel@localhost.localdomain>
-	 <200603081521.19693.ak@suse.de>
+	Wed, 8 Mar 2006 16:57:14 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:57552 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932598AbWCHV5L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:57:11 -0500
+Subject: Re: [PATCH] Document Linux's memory barriers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <24309.1141848971@warthog.cambridge.redhat.com>
+References: <20060308161829.GC3669@elf.ucw.cz>
+	 <31492.1141753245@warthog.cambridge.redhat.com>
+	 <24309.1141848971@warthog.cambridge.redhat.com>
 Content-Type: text/plain
-Date: Wed, 08 Mar 2006 13:57:54 -0800
-Message-Id: <1141855075.27555.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
 Content-Transfer-Encoding: 7bit
+Date: Wed, 08 Mar 2006 22:01:44 +0000
+Message-Id: <1141855305.10606.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 15:21 +0100, Andi Kleen wrote:
+On Mer, 2006-03-08 at 20:16 +0000, David Howells wrote:
+> The LOCK and UNLOCK functions presumably make at least one memory write apiece
+> to manipulate the target lock (on SMP at least).
 
-> I think doing it privately is the better solution because I don't think you 
-> have established it has an universal semantic that works
-> on all X86-64 systems.
+No they merely perform the bus transactions neccessary to perform an
+update atomically. They are however "serializing" instructions which
+means they do cause a certain amount of serialization (see the intel
+architecture manual on serializing instructions for detail).
 
-No, I quoted chapter and verse of the relevant Intel and AMD x86_64 docs
-for you, complete with URLs and page numbers so it wouldn't take any
-effort to verify what I was asserting.
+Athlon and later know how to turn it from locked memory accesses into
+merely an exclusive cache line grab.
 
-I don't know what else I could have done (it was enough for bcrl, at
-least), and you have come up any with suggestions as to what *would*
-satisfy you, so I'm stuck.
-
-> And we don't have a portable way to do WC anyways, so there is 
-> no portable way to use it.
+> > This makes it sound like pentium-III+ is incompatible with previous
+> > CPUs. Is it really the case?
 > 
-> So just put an ifdef in.
+> Yes - hence the alternative instruction stuff.
 
-That's fine.  Whatever satisfies reviewers :-)
-
-	<b
+It is the case for certain specialist instructions and the fences are
+provided to go with those but can also help in other cases. PIII and
+later in particular support explicit non temporal stores.
 

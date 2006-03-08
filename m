@@ -1,81 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWCHDYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWCHD1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWCHDYk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 22:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWCHDYj
+	id S932422AbWCHD1S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 22:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWCHD1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 22:24:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:27835 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932422AbWCHDYi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 22:24:38 -0500
-Date: Tue, 7 Mar 2006 19:22:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net, netdev@vger.kernel.org,
-       shai@scalex86.org
-Subject: Re: [patch 2/4] net: percpufy frequently used vars -- struct
- proto.memory_allocated
-Message-Id: <20060307192234.7efb1213.akpm@osdl.org>
-In-Reply-To: <20060308030803.GF9062@localhost.localdomain>
-References: <20060308015808.GA9062@localhost.localdomain>
-	<20060308020118.GC9062@localhost.localdomain>
-	<20060307181422.3e279ca1.akpm@osdl.org>
-	<20060308030803.GF9062@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 7 Mar 2006 22:27:18 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:52418 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932422AbWCHD1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 22:27:17 -0500
+Subject: [PATCH] ftruncate on huge page couldn't extend hugetlb file
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: David Gibson <david@gibson.dropbear.id.au>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+In-Reply-To: <1141787660.29825.83.camel@ymzhang-perf.sh.intel.com>
+References: <200603060815.k268FXg07605@unix-os.sc.intel.com>
+	 <1141635963.29825.28.camel@ymzhang-perf.sh.intel.com>
+	 <1141787660.29825.83.camel@ymzhang-perf.sh.intel.com>
+Content-Type: text/plain
+Message-Id: <1141788278.29825.89.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Wed, 08 Mar 2006 11:24:38 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On Tue, Mar 07, 2006 at 06:14:22PM -0800, Andrew Morton wrote:
-> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > >
-> > > -	if (atomic_read(sk->sk_prot->memory_allocated) < sk->sk_prot->sysctl_mem[0]) {
-> > >  +	if (percpu_counter_read(sk->sk_prot->memory_allocated) <
-> > >  +			sk->sk_prot->sysctl_mem[0]) {
-> > 
-> > Bear in mind that percpu_counter_read[_positive] can be inaccurate on large
-> > CPU counts.
-> > 
-> > It might be worth running percpu_counter_sum() to get the exact count if we
-> > think we're about to cause something to fail.
-> 
-> The problem is percpu_counter_sum has to read all the cpus cachelines.  If
-> we have to use percpu_counter_sum everywhere, then might as well use plain
-> per-cpu counters instead of  batching ones no?
+From: Zhang Yanmin <yanmin.zhang@intel.com>
 
-I didn't say "use it everywhere" ;)
+Currently, ftruncate on hugetlb files couldn't extend them. My patch enables it.
 
-Just in places like this:
+This patch is against 2.6.16-rc5-mm3 and on the top of the patch which
+implements mmap on zero-length hugetlb files with PROT_NONE.
 
-	if (percpu_counter_read(something) > something_else)
-		make_an_application_fail();
+Thanks for Ken's good idea.
 
-in that case it's worth running percpu_counter_sum().  And bear in mind
-that once we've done that, the following percpu_counter_read()s become
-accurate, so we won't run the expensive percpu_counter_sum() again
-for a while.  Unless we're really close to or over the limit, in which case
-blowing a few cycles is relatively unimportant.
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
-All that should be captured in library code (per_cpu_counter_exceeds(ptr,
-threshold), for example) rather than open-coded everywhere.
+---
 
-> sysctl_mem[0] is about 196K  and on a 16 cpu box variance is 512 bytes, which 
-> is OK with just percpu_counter_read I hope.
+diff -Nraup linux-2.6.16-rc5-mm3_huge_check/fs/hugetlbfs/inode.c linux-2.6.16-rc5-mm3_truncate/fs/hugetlbfs/inode.c
+--- linux-2.6.16-rc5-mm3_huge_check/fs/hugetlbfs/inode.c	2006-03-08 18:17:15.000000000 +0800
++++ linux-2.6.16-rc5-mm3_truncate/fs/hugetlbfs/inode.c	2006-03-08 18:50:40.000000000 +0800
+@@ -308,18 +308,22 @@ static int hugetlb_vmtruncate(struct ino
+ 	unsigned long pgoff;
+ 	struct address_space *mapping = inode->i_mapping;
+ 
+-	if (offset > inode->i_size)
+-		return -EINVAL;
+-
+ 	BUG_ON(offset & ~HPAGE_MASK);
+ 	pgoff = offset >> HPAGE_SHIFT;
+-
+-	inode->i_size = offset;
+-	spin_lock(&mapping->i_mmap_lock);
+-	if (!prio_tree_empty(&mapping->i_mmap))
+-		hugetlb_vmtruncate_list(&mapping->i_mmap, pgoff);
+-	spin_unlock(&mapping->i_mmap_lock);
+-	truncate_hugepages(inode, offset);
++        if (offset > inode->i_size) {
++        	if (hugetlb_extend_reservation(HUGETLBFS_I(inode), pgoff) != 0)
++			return -ENOMEM;
++		inode->i_size = offset;
++	}
++	else {
++
++		inode->i_size = offset;
++		spin_lock(&mapping->i_mmap_lock);
++		if (!prio_tree_empty(&mapping->i_mmap))
++			hugetlb_vmtruncate_list(&mapping->i_mmap, pgoff);
++		spin_unlock(&mapping->i_mmap_lock);
++		truncate_hugepages(inode, offset);
++	}
+ 	return 0;
+ }
+ 
 
-You mean a 16 CPU box with NR_CPUS=16 as well...
-
->  Maybe, on very large cpu counts, 
-> we should just change the FBC_BATCH so that variance does not go quadratic.
-> Something like 32.  So that variance is 32 * NR_CPUS in that case, instead
-> of (NR_CPUS * NR_CPUS * 2) currently.  Comments?
-
-Sure, we need to make that happen.  But it got all mixed up with the
-spinlock removal and it does need quite some thought and testing and
-documentation to help developers to choose the right settings and
-appropriate selection of defaults, etc.
 

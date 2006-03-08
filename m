@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752108AbWCHNmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751819AbWCHNls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752108AbWCHNmm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 08:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752106AbWCHNmk
+	id S1751819AbWCHNls (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 08:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751951AbWCHNls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 08:42:40 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:61882 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751951AbWCHNmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 08:42:14 -0500
-Date: Wed, 08 Mar 2006 22:42:11 +0900
+	Wed, 8 Mar 2006 08:41:48 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:46985 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751819AbWCHNli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 08:41:38 -0500
+Date: Wed, 08 Mar 2006 22:41:35 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
-       Dave Hansen <haveblue@us.ibm.com>, Joel Schopp <jschopp@austin.ibm.com>
-Subject: [PATCH: 008/017](RFC) Memory hotplug for new nodes v.3. (allocate pgdat for ia64)
+       Joel Schopp <jschopp@austin.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: [PATCH: 004/017](RFC) Memory hotplug for new nodes v.3. (generic alloc pgdat)
 Cc: linux-ia64@vger.kernel.org, Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060308213020.0032.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060308212719.002A.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -25,43 +25,101 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch to allocate pgdat and per node data area for ia64.
-The size for them can be calculated by compute_pernodesize().
+For node hotplug, basically we have to allocate new pgdat.
+But, there are several types of implementations of pgdat.
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+1. Allocate only pgdat.
+   This style allocate only pgdat area.
+   And its address is recorded in node_data[].
+   It is most popular style.
 
-Index: pgdat6/arch/ia64/mm/discontig.c
+2. Static array of pgdat
+   In this case, all of pgdats are static array.
+   Some archs use this style.
+
+3. Allocate not only pgdat, but also per node data.
+   To increase performance, each node has copy of some data as
+   a per node data. So, this area must be allocated too.
+
+   Ia64 is this style. Ia64 has the copies of node_data[] array
+   on each per node data to increase performance.
+
+In this series of patches, treat (1) as generic arch.
+
+generic archs can use generic function. (2) and (3) should have
+its own if necessary. 
+
+This patch defines pgdat allocator.
+Updating NODE_DATA() macro function is in other patch.
+
+( I'll post another patch for (3).
+  I don't know (2) which can use memory hotplug.
+  So, there is not patch for (2). )
+
+Signed-off-by: Yasonori Goto     <y-goto@jp.fujitsu.com>
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+Index: pgdat6/include/linux/memory_hotplug.h
 ===================================================================
---- pgdat6.orig/arch/ia64/mm/discontig.c	2006-03-06 18:26:11.000000000 +0900
-+++ pgdat6/arch/ia64/mm/discontig.c	2006-03-06 18:26:15.000000000 +0900
-@@ -115,7 +115,7 @@ static int __init early_nr_cpus_node(int
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __init compute_pernodesize(int node)
-+static unsigned long __meminit compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
- 
-@@ -728,6 +728,18 @@ void __init paging_init(void)
- 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
+--- pgdat6.orig/include/linux/memory_hotplug.h	2006-03-06 19:40:57.000000000 +0900
++++ pgdat6/include/linux/memory_hotplug.h	2006-03-06 19:42:21.000000000 +0900
+@@ -72,6 +72,56 @@ static inline int arch_nid_probe(u64 sta
  }
+ #endif
  
-+pg_data_t *arch_alloc_nodedata(int nid)
++#ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
++/*
++ * For supporint node-hotadd, we have to allocate new pgdat.
++ *
++ * If an arch have generic style NODE_DATA(),
++ * node_data[nid] = kzalloc() works well . But it depends on each arch.
++ *
++ * In general, generic_alloc_nodedata() is used.
++ * generic...is a local function in mm/memory_hotplug.c
++ *
++ * Now, arch_free_nodedata() is just defined for error path of node_hot_add.
++ *
++ */
++extern struct pglist_data * arch_alloc_nodedata(int nid);
++extern void arch_free_nodedata(pg_data_t *pgdat);
++
++#else /* !CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
++#define arch_alloc_nodedata(nid)	generic_alloc_nodedata(nid)
++#define arch_free_nodedata(pgdat)	generic_free_nodedata(pgdat)
++
++#ifdef CONFIG_NUMA
++/*
++ * If ARCH_HAS_NODEDATA_EXTENSION=n, this func is used to allocate pgdat.
++ */
++static inline struct pglist_data *generic_alloc_nodedata(int nid)
 +{
-+	unsigned long size = compute_pernodesize(nid);
-+
-+	return kzalloc(size, GFP_KERNEL);
++	return kzalloc(sizeof(struct pglist_data), GFP_ATOMIC);
 +}
-+
-+void arch_free_nodedata(pg_data_t *pgdat)
++/*
++ * This definition is just for error path in node hotadd.
++ * For node hotremove, we have to replace this.
++ */
++static inline void generic_free_nodedata(struct pglist_data *pgdat)
 +{
 +	kfree(pgdat);
 +}
 +
- void arch_refresh_nodedata(int update_node, pg_data_t *update_pgdat)
- {
- 	pgdat_list[update_node] = update_pgdat;
++#else /* !CONFIG_NUMA */
++/* never called */
++static inline struct pglist_data *generic_alloc_nodedata(int nid)
++{
++	BUG();
++	return NULL;
++}
++static inline void generic_free_nodedata(struct pglist_data *pgdat)
++{
++}
++#endif /* CONFIG_NUMA */
++#endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
++
+ #else /* ! CONFIG_MEMORY_HOTPLUG */
+ /*
+  * Stub functions for when hotplug is off
 
 -- 
 Yasunori Goto 

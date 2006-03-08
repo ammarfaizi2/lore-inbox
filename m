@@ -1,89 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWCIAIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932622AbWCIAIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWCIAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWCIAIM
+	id S932622AbWCIAIq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWCIAIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:08:12 -0500
-Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:45484 "EHLO
-	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932285AbWCIAIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:08:10 -0500
-References: <200603081013.44678.kernel@kolivas.org> <200603081322.02306.kernel@kolivas.org> <1141784834.767.134.camel@mindpipe> <200603081330.56548.kernel@kolivas.org> <b8bf37780603071852r6bf3821fr7610597a54ad305b@mail.gmail.com> <cone.1141787137.882268.19235.501@kolivas.org> <1141852064.21958.28.camel@localhost> <cone.1141858802.179786.26372.501@kolivas.org> <1141861694.21958.66.camel@localhost>
-Message-ID: <cone.1141862870.463023.26372.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Zan Lynx <zlynx@acm.org>
-Cc: =?ISO-8859-1?B?QW5kcuk=?= Goddard Rosa <andre.goddard@gmail.com>,
-       Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-Subject: Re: [PATCH] mm: yield during swap prefetching
-Date: Thu, 09 Mar 2006 11:07:50 +1100
+	Wed, 8 Mar 2006 19:08:46 -0500
+Received: from ozlabs.org ([203.10.76.45]:55962 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932622AbWCIAIo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:08:44 -0500
+Date: Thu, 9 Mar 2006 10:52:07 +1100
+From: "'David Gibson'" <david@gibson.dropbear.id.au>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: hugepage: Strict page reservation for hugepage inodes
+Message-ID: <20060308235207.GB17590@localhost.localdomain>
+Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	"Zhang, Yanmin" <yanmin.zhang@intel.com>,
+	Andrew Morton <akpm@osdl.org>,
+	William Lee Irwin <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20060308102314.GB32571@localhost.localdomain> <200603081838.k28Icwg10327@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-kolivas.org-26372-1141862870-0003";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603081838.k28Icwg10327@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-
---=_mimegpg-kolivas.org-26372-1141862870-0003
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-Zan Lynx writes:
-
-> On Thu, 2006-03-09 at 10:00 +1100, Con Kolivas wrote:
->> Zan Lynx writes:
-> [snip]
->> > Games and real-time go together like they were made for each other.
->> 
->> I guess every single well working windows game since the dawn of time is 
->> some sort of anomaly then.
+On Wed, Mar 08, 2006 at 10:38:58AM -0800, Chen, Kenneth W wrote:
+> David Gibson wrote on Wednesday, March 08, 2006 2:23 AM
+> > Yes.  This is a simplifying assumption.  I know of no real application
+> > that will waste pages because of this behaviour.  If you know one,
+> > maybe we will need to reconsider.
+> > 
+> > > I have an idea. How about to record all the start/end address of
+> > > huge page mmaping of the inode? Long long ago, there was a patch at 
+> > > http://marc.theaimsgroup.com/?l=lse-tech&m=108187931924134&w=2.
+> > > Of course, we need port it to the latest kernel if this idea is better.
+> > 
+> > I know the patch - I was going to port it to the current kernel, but
+> > came up with my patch instead, because it seemed like a simpler
+> > approach.
 > 
-> Yes, those Windows games are anomalies that rely on the OS scheduling
-> them AS IF they were real-time, but without actually claiming that
-> priority.
-> 
-> Because these games just assume they own the whole system and aren't
-> explicitly telling the OS about their real-time requirements, the OS has
-> to guess instead and can get it wrong, especially when hardware
-> capabilities advance in ways that force changes to the task scheduler
-> (multi-core, hyper-threading).  And you said it yourself, many old games
-> don't work well on dual-core systems.
-> 
-> I think your effort to improve the guessing is a good idea, and
-> thanks.  
-> 
-> Just don't dismiss the idea that games do have real-time requirements
-> and if they did things correctly, games would explicitly specify those
-> requirements.
+> I really think the Variable length reservation system is the way to go
+> for tracking hugetlb commit.  It is more robust and in my opinion, it
+> is better than traverse the page cache radix tree.  At least, you don't
+> have to worry about all the race condition there.  Oh, it also can get
+> rid of the hugetlb_instantiation_mutex that was introduced.  Someday,
+> people is going to scream at you for serializing hugetlb fault path.
 
-Games worked on windows for a decade on single core without real time 
-scheduling because that's what they were written for. 
+Well, not my decision, or yours I think.  wli?  akpm?
 
-Now that games are written for windows with dual core they work well - again 
-without real time scheduling. 
+But I don't see that recording all the mapped ranges will avoid the
+need for the fault serialization.  At least the version of apw's
+reservation patch I looked at most recently would certainly still
+suffer from the alloc/instantiate race on the last hugepage in the
+system.  This is a different bug from that addressed by reservation
+(of whichever form).
 
-Why should a port of these games to linux require real time?
-
-Cheers,
-Con
-
-
---=_mimegpg-kolivas.org-26372-1141862870-0003
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBED3HWZUg7+tp6mRURAg+1AJ0fB36N1qlMehnrYtdGfyepc2yd8QCggPBB
-paa/Q/lzpQGBwsahcK+7omo=
-=9TQX
------END PGP SIGNATURE-----
-
---=_mimegpg-kolivas.org-26372-1141862870-0003--
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

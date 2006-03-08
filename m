@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751552AbWCHQ5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWCHRFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751552AbWCHQ5u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 11:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbWCHQ5u
+	id S932265AbWCHRFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 12:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWCHRFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 11:57:50 -0500
-Received: from xenotime.net ([66.160.160.81]:38628 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751514AbWCHQ5u (ORCPT
+	Wed, 8 Mar 2006 12:05:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48611 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751233AbWCHRFR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 11:57:50 -0500
-Date: Wed, 8 Mar 2006 08:59:34 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Gaston, Jason D" <jason.d.gaston@intel.com>
-Cc: lkml@rtr.ca, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: SATA ATAPI AHCI error messages?
-Message-Id: <20060308085934.d31bfee8.rdunlap@xenotime.net>
-In-Reply-To: <26CEE2C804D7BE47BC4686CDE863D0F50660AFB6@orsmsx410>
-References: <26CEE2C804D7BE47BC4686CDE863D0F50660AFB6@orsmsx410>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Mar 2006 12:05:17 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060308145506.GA5095@devserv.devel.redhat.com> 
+References: <20060308145506.GA5095@devserv.devel.redhat.com>  <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> 
+To: Alan Cox <alan@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 08 Mar 2006 17:04:51 +0000
+Message-ID: <9834.1141837491@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Mar 2006 08:16:27 -0800 Gaston, Jason D wrote:
+Alan Cox <alan@redhat.com> wrote:
 
-> >-----Original Message-----
-> >From: Mark Lord [mailto:lkml@rtr.ca]
-> >Sent: Wednesday, March 08, 2006 5:27 AM
-> >To: Alan Cox
-> >Cc: Gaston, Jason D; linux-kernel@vger.kernel.org
-> >Subject: Re: SATA ATAPI AHCI error messages?
-> >
-> >Alan Cox wrote:
-> >..
-> >>> ata2: translated ATA stat/err 0x51/24 to SCSI SK/ASC/ASCQ 0xb/00/00
-> >>> sr0: CDROM (ioctl) error, command: <6>Test Unit Ready 00 00 00 00 00
-> 00
-> >>> sr: Current [descriptor]: sense key: Aborted Command
-> >>>     Additional sense: No additional sense information
-> >>
-> >> TUR should not be getting aborted command replies off a CD. Most odd
-> >
-> >It's been a while, and my memory of such is fuzzy,
-> >but I think I have commonly seen ATAPI drives (in the past)
-> >that simply fail TUR as above when the drive is open
-> >or media is not present (one of those two, forgot which).
-> >
-> >Cheers
+> [For information on bus mastering DMA and coherency please read ....]
 > 
-> I have media in the drive and still see the error.  We are seeing the
-> errors when the system is booting, before gnome or KDE is loaded.
+> sincee have a doc on this
 
-Yes, I have seen that also.  I posted a patch to rate-limit the
-printk's but it wasn't accepted since they are mostly there for
-debugging anyway.... or so it seems.
+Documentation/pci.txt?
 
----
-~Randy
+> The use of volatile generates poorer code and hides the serialization in 
+> type declarations that may be far from the code.
+
+I'm not sure what you mean by that.
+
+> Is this true of IA-64 ??
+
+Are you referring to non-temporal loads and stores?
+
+> > +There are some more advanced barriering functions:
+> 
+> "barriering" ... ick,  barrier.
+
+Picky:-)
+
+> Should clarify local ordering v SMP ordering for locks implied here.
+
+Do you mean explain what each sort of lock does?
+
+> > + (*) inX(), outX():
+> > +
+> > +     These are intended to talk to legacy i386 hardware using an alternate bus
+> > +     addressing mode.  They are synchronous as far as the x86 CPUs are
+> 
+> Not really true. Lots of PCI devices use them. Need to talk about "I/O space"
+
+Which bit is not really true?
+
+David

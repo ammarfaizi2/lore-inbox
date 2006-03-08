@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWCHXOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWCHXSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWCHXOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 18:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWCHXOQ
+	id S1751341AbWCHXSl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 18:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWCHXSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 18:14:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6056 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751270AbWCHXOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 18:14:15 -0500
-Date: Wed, 8 Mar 2006 15:12:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: kiran@scalex86.org, bcrl@kvack.org, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, netdev@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add
- percpu_counter_mod_bh
-Message-Id: <20060308151217.63cb44c3.akpm@osdl.org>
-In-Reply-To: <20060308150609.344c62fa.akpm@osdl.org>
-References: <20060308015808.GA9062@localhost.localdomain>
-	<20060308015934.GB9062@localhost.localdomain>
-	<20060307181301.4dd6aa96.akpm@osdl.org>
-	<20060308202656.GA4493@localhost.localdomain>
-	<20060308203642.GZ5410@kvack.org>
-	<20060308210726.GD4493@localhost.localdomain>
-	<20060308211733.GA5410@kvack.org>
-	<20060308222528.GE4493@localhost.localdomain>
-	<20060308150609.344c62fa.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 8 Mar 2006 18:18:41 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:34274 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751341AbWCHXSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 18:18:40 -0500
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for
+	2.6.16-rc5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+In-Reply-To: <20060308230519.GT4006@stusta.de>
+References: <20060306223545.GA20885@kroah.com>
+	 <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
+	 <20060308230519.GT4006@stusta.de>
+Content-Type: text/plain
+Date: Wed, 08 Mar 2006 18:18:36 -0500
+Message-Id: <1141859917.767.242.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Once decrapify-asm-generic-localh.patch is merged I think all architectures
->  can and should use asm-generic/local.h.
+On Thu, 2006-03-09 at 00:05 +0100, Adrian Bunk wrote:
+> > > (pci-pci-quirk-for-asus-a8v-and-a8v-deluxe-motherboards.patch seems to
+> > >  be a candidate.)
+> > 
+> > Yes, if people really want it in I could send it, but I was just looking
+> > for "bugfixes only" at this late stage of the game.
+> 
+> It is a fix for a hardware bug, and IMHO 2.6.16 material (but I don't a 
+> very strong opinion on the latter).
+> 
 
-err, no.  Because that's just atomic_long_t, and that's a locked instruction.
+This is the patch that re-enabled the onboard sound card when a second
+one is present?
 
-We need to review and fix up those architectures which have implemented the
-optimised versions.
+That should not go in 2.6.16 - it's not a hardware bug but a (poor IMHO)
+design decision by the vendor.  And, it may break working setups when an
+extra sound device shows up.
+
+Lee
+

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWCHLBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWCHLBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWCHLBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 06:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWCHLBQ
+	id S1751174AbWCHLBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 06:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWCHLBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 06:01:16 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32724 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750879AbWCHLBQ (ORCPT
+	Wed, 8 Mar 2006 06:01:39 -0500
+Received: from ns.suse.de ([195.135.220.2]:38804 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751313AbWCHLBi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 06:01:16 -0500
-Date: Wed, 8 Mar 2006 12:01:02 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Richard Mittendorfer <delist@gmx.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [SUSPEND] Screen slides down after STR / neomagic
-Message-ID: <20060308110102.GH1710@elf.ucw.cz>
-References: <20060306100905.0199e7b5.delist@gmx.net> <20060307214337.GA1777@elf.ucw.cz> <20060308004555.fe20b052.delist@gmx.net>
+	Wed, 8 Mar 2006 06:01:38 -0500
+Date: Wed, 8 Mar 2006 12:01:35 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Balbir Singh <balbir@in.ibm.com>
+Cc: Neil Brown <neilb@suse.de>, Kirill Korotaev <dev@sw.ru>,
+       Balbir Singh <bsingharora@gmail.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Olaf Hering <olh@suse.de>,
+       Kirill Korotaev <dev@openvz.org>, Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
+Message-ID: <20060308110135.GA21187@hasse.suse.de>
+References: <17414.38749.886125.282255@cse.unsw.edu.au> <17419.53761.295044.78549@cse.unsw.edu.au> <661de9470603052332s63fd9b2crd60346324af27fbf@mail.gmail.com> <17420.59580.915759.44913@cse.unsw.edu.au> <440D2536.60005@sw.ru> <17422.9555.635650.460131@cse.unsw.edu.au> <20060308021731.GA29327@in.ibm.com> <17422.17387.691138.193521@cse.unsw.edu.au> <20060308030500.GB29327@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060308004555.fe20b052.delist@gmx.net>
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060308030500.GB29327@in.ibm.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 08-03-06 00:45:55, Richard Mittendorfer wrote:
-> Also sprach Pavel Machek <pavel@ucw.cz> (Tue, 7 Mar 2006 22:43:37
-> +0100):
-> > On Po 06-03-06 10:09:05, Richard Mittendorfer wrote:
-> > > Hello,
-> > > 
-> > > Toshiba Libretto; Every time I suspend to RAM an come back to Console or
-> > > later exit Xorg (it's ok within X), the screen is somewhat displaced
-> > > downward:
-> > 
-> > Did you read Doc*/power/video.txt?
+On Wed, Mar 08, Balbir Singh wrote:
+
 > 
-> Oh, wasn't aware of this file. (Havn't looked there for a while now.)
-> Now I know what went wrong. :-)
+> wait_on_prunes() breaks out if sb->prunes == 0. What if shrink_dcache_parent()
+> now calls select_parent(). select_parent() could still find entries 
+> with d_count > 0 and skip them and shrink_dcache_memory() can still cause
+> the race condition to occur.
 > 
-> Finally the vbetool trick did it.
+> I think pushing wait_on_prunes() to after shrink_dcache_parent() will
+> most likely solve the race.
+> 
 
-Could you
+This is why I used to let shrink_dache_parent() only return after an
+unsuccessfull select_parent() after a wait.
 
-1) try to find out if acpi_sleep=* options can fix it too (they are
-better for debugging)
+Regards,
+	Jan
 
-2) submit patch for video.txt
-
-3) if possible, download s2ram from www.sf.net/projects/suspend (from
-CVS) and add your machine to whitelist?
-
-								Pavel
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

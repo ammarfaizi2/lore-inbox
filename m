@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWCHU4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWCHVGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWCHU4W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWCHU4W
+	id S1751013AbWCHVGr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWCHVGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:56:22 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24039 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932278AbWCHU4V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:56:21 -0500
-Date: Wed, 8 Mar 2006 12:54:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: david-b@pacbell.net, linux-usb-devel@lists.sourceforge.net, greg@kroah.com,
-       torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: Fw: Re: oops in choose_configuration()
-Message-Id: <20060308125407.2cd5d829.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44L0.0603081539300.5360-100000@iolanthe.rowland.org>
-References: <20060308121401.7926bf02.akpm@osdl.org>
-	<Pine.LNX.4.44L0.0603081539300.5360-100000@iolanthe.rowland.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 8 Mar 2006 16:06:47 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:45256 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1750992AbWCHVGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 16:06:46 -0500
+Date: Wed, 8 Mar 2006 13:07:26 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       davem@davemloft.net, netdev@vger.kernel.org, shai@scalex86.org
+Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
+Message-ID: <20060308210726.GD4493@localhost.localdomain>
+References: <20060308015808.GA9062@localhost.localdomain> <20060308015934.GB9062@localhost.localdomain> <20060307181301.4dd6aa96.akpm@osdl.org> <20060308202656.GA4493@localhost.localdomain> <20060308203642.GZ5410@kvack.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060308203642.GZ5410@kvack.org>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> wrote:
->
-> What about those scheduler changes you found through the bisection search?  
->  Any word on that?
+On Wed, Mar 08, 2006 at 03:36:42PM -0500, Benjamin LaHaise wrote:
+> On Wed, Mar 08, 2006 at 12:26:56PM -0800, Ravikiran G Thirumalai wrote:
+> > +static inline void percpu_counter_mod_bh(struct percpu_counter *fbc, long amount)
+> > +{
+> > +	local_bh_disable();
+> > +	fbc->count += amount;
+> > +	local_bh_enable();
+> > +}
+> 
+> Please use local_t instead, then you don't have to do the local_bh_disable() 
+> and enable() and the whole thing collapses down into 1 instruction on x86.
 
-Ingo's gone over them pretty closely.  The current theory is that the CPU
-scheduler change alters timing sufficiently for the bug to bite.
+But on non x86, local_bh_disable() is gonna be cheaper than a cli/atomic op no?
+(Even if they were switched over to do local_irq_save() and
+local_irq_restore() from atomic_t's that is).
 
-The machine passes memtest86.
+And if we use local_t, we will add the overhead for the non bh 
+percpu_counter_mod for non x86 arches.
 
-Ingo's suspecting stack corruption.  Do you know whether USB anywhere does
-DMA into automatically-allocated storage (ie: kernel stacks)?
-
-Am about to reboot into a stack-corruption-detector patch from Ingo.
-
+Thanks,
+Kiran

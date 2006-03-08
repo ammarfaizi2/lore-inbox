@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWCHCwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWCHC5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932349AbWCHCwH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Mar 2006 21:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWCHCwH
+	id S932378AbWCHC5O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Mar 2006 21:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWCHC5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Mar 2006 21:52:07 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:13940 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932349AbWCHCwG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Mar 2006 21:52:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=foUFSmb2zNhN6RV/JimDgpHstOR1Mu8pY9nriL+qZ49kNOK5uZC+/80y4W9ItN3jHUsg4E1r6fhUArl7fKS3WHI27Ks5CaFPSiqJpRJg1xyq66ezY9HSUGJwnLeoFfxlhJWEH46GGj60nnR6LUpwvB7VOyvWfw6FktmIPWwGkZQ=
-Message-ID: <b8bf37780603071852r6bf3821fr7610597a54ad305b@mail.gmail.com>
-Date: Tue, 7 Mar 2006 22:52:05 -0400
-From: "=?ISO-8859-1?Q?Andr=E9_Goddard_Rosa?=" <andre.goddard@gmail.com>
-To: "Con Kolivas" <kernel@kolivas.org>
-Subject: Re: [ck] Re: [PATCH] mm: yield during swap prefetching
-Cc: "Lee Revell" <rlrevell@joe-job.com>, "Andrew Morton" <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <200603081330.56548.kernel@kolivas.org>
+	Tue, 7 Mar 2006 21:57:14 -0500
+Received: from rtr.ca ([64.26.128.89]:35970 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S932378AbWCHC5N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Mar 2006 21:57:13 -0500
+Message-ID: <440E4803.7070808@rtr.ca>
+Date: Tue, 07 Mar 2006 21:57:07 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <200603081013.44678.kernel@kolivas.org>
-	 <200603081322.02306.kernel@kolivas.org>
-	 <1141784834.767.134.camel@mindpipe>
-	 <200603081330.56548.kernel@kolivas.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       IDE/ATA development list <linux-ide@vger.kernel.org>, axboe@suse.de,
+       albertcc@tw.ibm.com
+Subject: Re: LibPATA code issues / 2.6.15.4
+References: <Pine.LNX.4.64.0602140439580.3567@p34> <43F2050B.8020006@dgreaves.com> <Pine.LNX.4.64.0602141211350.10793@p34> <200602141300.37118.lkml@rtr.ca> <440040B4.8030808@dgreaves.com> <440083B4.3030307@rtr.ca> <Pine.LNX.4.64.0602251244070.20297@p34> <4400A1BF.7020109@rtr.ca> <4400B439.8050202@dgreaves.com> <4401122A.3010908@rtr.ca> <44017B4B.3030900@dgreaves.com> <4401B560.40702@rtr.ca> <4403704E.4090109@rtr.ca> <4403A84C.6010804@gmail.com> <4403CEA9.4080603@rtr.ca> <44042863.2050703@dgreaves.com> <44046013.7070503@rtr.ca> <4404BAD6.3060009@tmr.com>
+In-Reply-To: <4404BAD6.3060009@tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
-> > > Because being a serious desktop operating system that we are
-> > > (bwahahahaha) means the user should not have special privileges to run
-> > > something as simple as a game. Games should not need special scheduling
-> > > classes. We can always use 'nice' for a compile though. Real time audio
-> > > is a completely different world to this.
-[...]
-> Well as I said in my previous reply, games should _not_ need special
-> scheduling classes. They are not written in a real time smart way and they do
-> not have any realtime constraints or requirements.
+Bill Davidsen wrote:
+>
+> Is there a version of that which will build on x86? I grabbed the 
+> version offered at freshmeat, but it won't compile on any x86 distro or 
+> gcc version to which I have access. RH8, RH9, FC1, FC3, FC4, ubuntu... 
+> with or without using the suggested alternate header.
 
-Sorry Con, but I have to disagree with you on this.
+hdparm-6.5 is the current version now.  Both it, and 6.4,
+build/install/run cleanly on Ubunutu-5.10, Debian-Sarge,
+and SLES9-SP3.
 
-Games are very complex software, involving heavy use of hardware resources
-and they also have a lot of time constraints. So, I think they should
-use RT priorities
-if it is necessary to get the resources needed in time.
+You seem to be having trouble on only Redhat distros..
+I guess they've done something unfriendly again.
 
-Thanks,
---
-[]s,
+Care to be more specific about what Redhat is doing?
 
-André Goddard
+Cheers

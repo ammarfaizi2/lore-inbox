@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWCHRz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWCHR5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751822AbWCHRz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 12:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWCHRz2
+	id S1751498AbWCHR5H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 12:57:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWCHR5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 12:55:28 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:62119 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751822AbWCHRz0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 12:55:26 -0500
-Subject: Re: [Alsa-devel] Re: 2.6.15-rt18, alsa sequencer, rosegarden ->
-	alsa hangs
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nando@ccrma.Stanford.EDU, karsten wiese <annabellesgarden@yahoo.de>,
-       Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@lists.sourceforge.net, cc@ccrma.Stanford.EDU
-In-Reply-To: <20060308140635.GA16972@elte.hu>
-References: <1141800836.6150.3.camel@cmn3.stanford.edu>
-	 <20060308133635.96547.qmail@web26507.mail.ukl.yahoo.com>
-	 <20060308140635.GA16972@elte.hu>
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 09:54:59 -0800
-Message-Id: <1141840499.5262.8.camel@cmn3.stanford.edu>
+	Wed, 8 Mar 2006 12:57:07 -0500
+Received: from are.twiddle.net ([64.81.246.98]:39297 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S1751498AbWCHR5F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 12:57:05 -0500
+Date: Wed, 8 Mar 2006 09:56:52 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Mathieu Chouquet-Stringer <mchouque@free.fr>, linux-kernel@vger.kernel.org,
+       linux-alpha@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Problem on Alpha with "convert to generic irq framework"
+Message-ID: <20060308175652.GA28296@twiddle.net>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Mathieu Chouquet-Stringer <mchouque@free.fr>,
+	linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+	Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20060304111219.GA10532@localhost> <20060306155114.A8425@jurassic.park.msu.ru> <20060306135434.GA12829@localhost> <20060306191324.A1502@jurassic.park.msu.ru> <20060306163142.GA19833@localhost> <20060308142857.A4851@jurassic.park.msu.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060308142857.A4851@jurassic.park.msu.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 15:06 +0100, Ingo Molnar wrote:
-> * karsten wiese <annabellesgarden@yahoo.de> wrote:
-> 
-> > ALSA Midi sequencer uses tasklets. there are 2 kinds of
-> > them: lo and hi.
-> > In rt-18 PREEMPT-RT, tasklet_hi_schedule() didn't work,
-> > 'cause it woke up tasklet_lo's thread.
-> > Thats what my patch fixed.
-> 
-> ah - i thought that -rt18 had your fix already - but indeed it's -rt19 
-> that added it. So it's probably the same bug.
+On Wed, Mar 08, 2006 at 02:28:57PM +0300, Ivan Kokshaysky wrote:
+>  	irq_enter();
+>  	local_irq_disable();
+>  	__do_IRQ(irq, regs);
+> -	local_irq_enable();
+>  	irq_exit();
 
-I agree, I just booted into -rt20 and the problem seems to be gone. Let
-me know if you still want the trace, I can always boot again into the
-buggy kernel. 
-
-Thanks for the help!
--- Fernando
+This will need commenting if it's to go in.
 
 
+r~

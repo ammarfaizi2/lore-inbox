@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752105AbWCHNmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752100AbWCHNmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752105AbWCHNmj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 08:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752106AbWCHNmi
+	id S1752100AbWCHNmk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 08:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752097AbWCHNmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 08:42:38 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:8635 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1752105AbWCHNmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 08:42:22 -0500
-Date: Wed, 08 Mar 2006 22:42:19 +0900
+	Wed, 8 Mar 2006 08:42:07 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:23946 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751951AbWCHNl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 08:41:58 -0500
+Date: Wed, 08 Mar 2006 22:41:55 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        Joel Schopp <jschopp@austin.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
-Subject: [PATCH: 009/017](RFC) Memory hotplug for new nodes v.3. (add return code init_currently_empty_zone)
-Cc: linux-ia64@vger.kernel.org, Linux Kernel ML <linux-kernel@vger.kernel.org>,
+Subject: [PATCH: 006/017](RFC) Memory hotplug for new nodes v.3. (move out pgdat array from mem_data for ia64)
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org,
        linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060308213104.0034.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060308212845.002E.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -25,116 +25,103 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When add_zone() is called against empty zone (not populated zone),
-we have to initialize the zone which didn't initialize at boot time.
-But, init_currently_empty_zone() may fail due to allocation of 
-wait table. So, this patch is to catch its error code.
+This is preparing patch for updating of NODE_DATA() to make common code
+of ia64 between boottime and hotplug.
 
-Changes against wait_table is in the next patch.
+Current code remembers pgdat address in mem_data which is used at just boot
+time. But its information can be used at hotplug time
+by moving to global value.
+The following patche use this array.
 
 
-Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Index: pgdat6/mm/page_alloc.c
+Index: pgdat6/arch/ia64/mm/discontig.c
 ===================================================================
---- pgdat6.orig/mm/page_alloc.c	2006-03-06 18:25:37.000000000 +0900
-+++ pgdat6/mm/page_alloc.c	2006-03-06 18:26:22.000000000 +0900
-@@ -2107,8 +2107,9 @@ static __meminit void zone_pcp_init(stru
- 		zone->name, zone->present_pages, batch);
- }
+--- pgdat6.orig/arch/ia64/mm/discontig.c	2006-03-06 18:25:31.000000000 +0900
++++ pgdat6/arch/ia64/mm/discontig.c	2006-03-06 18:26:07.000000000 +0900
+@@ -33,7 +33,6 @@
+  */
+ struct early_node_data {
+ 	struct ia64_node_data *node_data;
+-	pg_data_t *pgdat;
+ 	unsigned long pernode_addr;
+ 	unsigned long pernode_size;
+ 	struct bootmem_data bootmem_data;
+@@ -46,6 +45,8 @@ struct early_node_data {
+ static struct early_node_data mem_data[MAX_NUMNODES] __initdata;
+ static nodemask_t memory_less_mask __initdata;
  
--static __meminit void init_currently_empty_zone(struct zone *zone,
--		unsigned long zone_start_pfn, unsigned long size)
-+__meminit int init_currently_empty_zone(struct zone *zone,
-+					unsigned long zone_start_pfn,
-+					unsigned long size)
- {
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 
-@@ -2120,6 +2121,8 @@ static __meminit void init_currently_emp
- 	memmap_init(size, pgdat->node_id, zone_idx(zone), zone_start_pfn);
- 
- 	zone_init_free_lists(pgdat, zone, zone->spanned_pages);
++static pg_data_t *pgdat_list[MAX_NUMNODES];
 +
-+	return 0;
- }
- 
  /*
-@@ -2134,6 +2137,7 @@ static void __init free_area_init_core(s
- 	unsigned long j;
- 	int nid = pgdat->node_id;
- 	unsigned long zone_start_pfn = pgdat->node_start_pfn;
-+	int ret;
+  * To prevent cache aliasing effects, align per-node structures so that they
+  * start at addresses that are strided by node number.
+@@ -175,13 +176,13 @@ static void __init fill_pernode(int node
+ 	pernode += PERCPU_PAGE_SIZE * cpus;
+ 	pernode += node * L1_CACHE_BYTES;
  
- 	pgdat_resize_init(pgdat);
- 	pgdat->nr_zones = 0;
-@@ -2175,7 +2179,8 @@ static void __init free_area_init_core(s
- 			continue;
+-	mem_data[node].pgdat = __va(pernode);
++	pgdat_list[node] = __va(pernode);
+ 	pernode += L1_CACHE_ALIGN(sizeof(pg_data_t));
  
- 		zonetable_add(zone, nid, j, zone_start_pfn, size);
--		init_currently_empty_zone(zone, zone_start_pfn, size);
-+		ret = init_currently_empty_zone(zone, zone_start_pfn, size);
-+		BUG_ON(ret);
- 		zone_start_pfn += size;
- 	}
- }
-Index: pgdat6/mm/memory_hotplug.c
-===================================================================
---- pgdat6.orig/mm/memory_hotplug.c	2006-03-06 18:26:17.000000000 +0900
-+++ pgdat6/mm/memory_hotplug.c	2006-03-06 18:26:22.000000000 +0900
-@@ -26,16 +26,23 @@
+ 	mem_data[node].node_data = __va(pernode);
+ 	pernode += L1_CACHE_ALIGN(sizeof(struct ia64_node_data));
  
- extern void zonetable_add(struct zone *zone, int nid, int zid, unsigned long pfn,
- 			  unsigned long size);
--static void __add_zone(struct zone *zone, unsigned long phys_start_pfn)
-+static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
+-	mem_data[node].pgdat->bdata = bdp;
++	pgdat_list[node]->bdata = bdp;
+ 	pernode += L1_CACHE_ALIGN(sizeof(pg_data_t));
+ 
+ 	cpu_data = per_cpu_node_setup(cpu_data, node);
+@@ -268,7 +269,7 @@ static int __init find_pernode_space(uns
+ static int __init free_node_bootmem(unsigned long start, unsigned long len,
+ 				    int node)
  {
- 	struct pglist_data *pgdat = zone->zone_pgdat;
- 	int nr_pages = PAGES_PER_SECTION;
- 	int nid = pgdat->node_id;
- 	int zone_type;
-+	int ret = 0;
+-	free_bootmem_node(mem_data[node].pgdat, start, len);
++	free_bootmem_node(pgdat_list[node], start, len);
  
- 	zone_type = zone - pgdat->node_zones;
-+	if (!populated_zone(zone)) {
-+		ret =init_currently_empty_zone(zone, phys_start_pfn , nr_pages);
-+		if (ret < 0)
-+			return ret;
-+	}
- 	memmap_init_zone(nr_pages, nid, zone_type, phys_start_pfn);
- 	zonetable_add(zone, nid, zone_type, phys_start_pfn, nr_pages);
-+	return 0;
+ 	return 0;
  }
+@@ -287,7 +288,7 @@ static void __init reserve_pernode_space
+ 	int node;
  
- extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
-@@ -50,7 +57,11 @@ static int __add_section(struct zone *zo
- 	if (ret < 0)
- 		return ret;
+ 	for_each_online_node(node) {
+-		pg_data_t *pdp = mem_data[node].pgdat;
++		pg_data_t *pdp = pgdat_list[node];
  
--	__add_zone(zone, phys_start_pfn);
-+	ret = __add_zone(zone, phys_start_pfn);
-+
-+	if (ret < 0)
-+		return ret;
-+
- 	return register_new_memory(__pfn_to_section(phys_start_pfn));
- }
+ 		if (node_isset(node, memory_less_mask))
+ 			continue;
+@@ -317,12 +318,8 @@ static void __init reserve_pernode_space
+  */
+ static void __init initialize_pernode_data(void)
+ {
+-	pg_data_t *pgdat_list[MAX_NUMNODES];
+ 	int cpu, node;
  
-Index: pgdat6/include/linux/mmzone.h
-===================================================================
---- pgdat6.orig/include/linux/mmzone.h	2006-03-06 18:25:37.000000000 +0900
-+++ pgdat6/include/linux/mmzone.h	2006-03-06 18:26:22.000000000 +0900
-@@ -332,6 +332,9 @@ void wakeup_kswapd(struct zone *zone, in
- int zone_watermark_ok(struct zone *z, int order, unsigned long mark,
- 		int classzone_idx, int alloc_flags);
+-	for_each_online_node(node)
+-		pgdat_list[node] = mem_data[node].pgdat;
+-
+ 	/* Copy the pg_data_t list to each node and init the node field */
+ 	for_each_online_node(node) {
+ 		memcpy(mem_data[node].node_data->pg_data_ptrs, pgdat_list,
+@@ -372,7 +369,7 @@ static void __init *memory_less_node_all
+ 	if (bestnode == -1)
+ 		bestnode = anynode;
  
-+extern int init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
-+				     unsigned long size);
-+
- #ifdef CONFIG_HAVE_MEMORY_PRESENT
- void memory_present(int nid, unsigned long start, unsigned long end);
- #else
+-	ptr = __alloc_bootmem_node(mem_data[bestnode].pgdat, pernodesize,
++	ptr = __alloc_bootmem_node(pgdat_list[bestnode], pernodesize,
+ 		PERCPU_PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
+ 
+ 	return ptr;
+@@ -476,7 +473,7 @@ void __init find_memory(void)
+ 		pernodesize = mem_data[node].pernode_size;
+ 		map = pernode + pernodesize;
+ 
+-		init_bootmem_node(mem_data[node].pgdat,
++		init_bootmem_node(pgdat_list[node],
+ 				  map>>PAGE_SHIFT,
+ 				  bdp->node_boot_start>>PAGE_SHIFT,
+ 				  bdp->node_low_pfn);
 
 -- 
 Yasunori Goto 

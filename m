@@ -1,90 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWCHULZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWCHUOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWCHULZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:11:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWCHULZ
+	id S1750749AbWCHUOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 15:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWCHUOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:11:25 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.192.81]:32384 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750749AbWCHULY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:11:24 -0500
-Message-ID: <440F3A40.2000306@comcast.net>
-Date: Wed, 08 Mar 2006 15:10:40 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060307)
+	Wed, 8 Mar 2006 15:14:11 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:27057 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750749AbWCHUOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 15:14:10 -0500
+Date: Wed, 8 Mar 2006 15:14:09 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: David Brownell <david-b@pacbell.net>
+cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] usbcore: Don't assume a USB configuration includes any
+ interfaces
+In-Reply-To: <200603081033.21584.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.44L0.0603081509100.5360-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Sound userspace drivers (fishing for insight)
-References: <440E5746.7070003@comcast.net>	<Pine.LNX.4.61.0603080939360.9337@tm8103.perex-int.cz>	<440F0396.4050905@comcast.net>	<s5h8xrkepxy.wl%tiwai@suse.de>	<440F28C6.6050508@comcast.net> <s5h64moeova.wl%tiwai@suse.de>
-In-Reply-To: <s5h64moeova.wl%tiwai@suse.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In a couple of places, usbcore assumes that a USB device configuration 
+will have a nonzero number of interfaces.  Having no interfaces may or may 
+not be allowed by the USB spec; in any event we shouldn't die if we 
+encounter such a thing.  This patch (as662) removes the assumptions.
 
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
+---
 
-Takashi Iwai wrote:
-> At Wed, 08 Mar 2006 13:56:06 -0500,
-> John Richard Moser wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Takashi Iwai wrote:
->>> At Wed, 08 Mar 2006 11:17:26 -0500,
->>> John Richard Moser wrote:
->>>>>> into the kernel; with alsa it's written to a /proc interface, which
->>>>> Using /proc? Where? I've not noticed it :-)
->>>> I thought that was what /proc/asound/card0/ was for?  :)
->>> /proc is not referred from alsa-lib, i.e. programs don't access them.
->>> It's just for users who want to read some information.
->>>
->> This makes me wonder then how stuff is set up.  There's no device, is
->> there a sound card syscall now?
-> 
-> You must have /dev/snd/* files, and the access is via normal
-> syscalls...  Check strace of your program.
-> 
+Index: usb-2.6/drivers/usb/core/hub.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/core/hub.c
++++ usb-2.6/drivers/usb/core/hub.c
+@@ -1179,8 +1179,11 @@ static int choose_configuration(struct u
+ 	c = udev->config;
+ 	num_configs = udev->descriptor.bNumConfigurations;
+ 	for (i = 0; i < num_configs; (i++, c++)) {
+-		struct usb_interface_descriptor	*desc =
+-				&c->intf_cache[0]->altsetting->desc;
++		struct usb_interface_descriptor	*desc = NULL;
++
++		/* It's possible that a config has no interfaces! */
++		if (c->desc.bNumInterfaces > 0)
++			desc = &c->intf_cache[0]->altsetting->desc;
+ 
+ 		/*
+ 		 * HP's USB bus-powered keyboard has only one configuration
+@@ -1215,7 +1218,8 @@ static int choose_configuration(struct u
+ 		/* If the first config's first interface is COMM/2/0xff
+ 		 * (MSFT RNDIS), rule it out unless Linux has host-side
+ 		 * RNDIS support. */
+-		if (i == 0 && desc->bInterfaceClass == USB_CLASS_COMM
++		if (i == 0 && desc
++				&& desc->bInterfaceClass == USB_CLASS_COMM
+ 				&& desc->bInterfaceSubClass == 2
+ 				&& desc->bInterfaceProtocol == 0xff) {
+ #ifndef CONFIG_USB_NET_RNDIS
+@@ -1231,8 +1235,8 @@ static int choose_configuration(struct u
+ 		 * than a vendor-specific driver. */
+ 		else if (udev->descriptor.bDeviceClass !=
+ 						USB_CLASS_VENDOR_SPEC &&
+-				desc->bInterfaceClass !=
+-						USB_CLASS_VENDOR_SPEC) {
++				(!desc || desc->bInterfaceClass !=
++						USB_CLASS_VENDOR_SPEC)) {
+ 			best = c;
+ 			break;
+ 		}
+@@ -3022,7 +3026,7 @@ int usb_reset_device(struct usb_device *
+ 	parent_hub = hdev_to_hub(parent_hdev);
+ 
+ 	/* If we're resetting an active hub, take some special actions */
+-	if (udev->actconfig &&
++	if (udev->actconfig && udev->actconfig->desc.bNumInterfaces > 0 &&
+ 			udev->actconfig->interface[0]->dev.driver ==
+ 				&hub_driver.driver &&
+ 			(hub = hdev_to_hub(udev)) != NULL) {
 
-Ahh nice, I was always looking for /dev/dsp :>
-
-> 
-> Takashi
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
-
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRA86Pws1xW0HCTEFAQIr9w//at9VpczxSKrCUzQGMYe33SW2vrksVVIg
-dTE12O1cc3gw0PK5UaD/QiN9+uoHKXY1YSkBBeCQQ2We50txjuy30jZ0j8PhkE22
-PmuMb2knq9isspAT6Mr0ErRLS1+2FEvVN52yWwustl8cMiGrq812bYq63YHhGTPe
-1b587S9+/wrEmswfA5/dvfJ+iEr3rHM0X7JPzJ721ayU1oeisAHw2GQCiXxQfwXZ
-aqOCnDRr7VgiPgnMC0nu8JVbNEdvJru4Dwgkc2siXoLnYmFYOiLv8JzujDJH3NfP
-aVxJ/NaoryvDSWXTcLOhm2nXKO7hD6id6wmd4ncSLedieK2Pw9WyAnVl40JguYgG
-OrTzmwJsYcc++isyLcYoDyJi861Urhly4Umnx8GQRxhpzJJ31eX+6pnNaic1f9Rv
-CNKOKrhLYG1AjqvDn0A1gyarMbXuXWu9D8Cjtv89nISr3AbGhq2Hz4oG78zRTiOX
-S56wnL8432RwhahQOkMSyJVdrxszN56FYiraWwfclrpAdE8TujV1YPYPG8qo2EGH
-9vk6O0ZVccZUiyt3WLnyl+r/PLdsEaiFzrG7l0HANWq6KcCES8FClhfrWueCFQlM
-4e7yAofQSKzJ1GrofaghVLloEJjoAoCWrJcVHMv6gAkPa8m8pwK9tUul3FRdDMD/
-1EHU/9tOMmY=
-=8+gV
------END PGP SIGNATURE-----

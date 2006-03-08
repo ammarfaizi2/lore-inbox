@@ -1,85 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWCHUOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbWCHUQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWCHUOL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 15:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWCHUOL
+	id S932577AbWCHUQe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 15:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbWCHUQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 15:14:11 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:27057 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750749AbWCHUOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 15:14:10 -0500
-Date: Wed, 8 Mar 2006 15:14:09 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: linux-usb-devel@lists.sourceforge.net, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] usbcore: Don't assume a USB configuration includes any
- interfaces
-In-Reply-To: <200603081033.21584.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0603081509100.5360-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Mar 2006 15:16:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3996 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932566AbWCHUQc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 15:16:32 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060308161829.GC3669@elf.ucw.cz> 
+References: <20060308161829.GC3669@elf.ucw.cz>  <31492.1141753245@warthog.cambridge.redhat.com> 
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 08 Mar 2006 20:16:11 +0000
+Message-ID: <24309.1141848971@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a couple of places, usbcore assumes that a USB device configuration 
-will have a nonzero number of interfaces.  Having no interfaces may or may 
-not be allowed by the USB spec; in any event we shouldn't die if we 
-encounter such a thing.  This patch (as662) removes the assumptions.
+Pavel Machek <pavel@ucw.cz> wrote:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> > + (*) set_mb(var, value)
+> > + (*) set_wmb(var, value)
+> > +
+> > +     These assign the value to the variable and then insert at least a write
+> > +     barrier after it, depending on the function.
+> > +
+> 
+> I... don't understand what these do. Better explanation would
+> help.. .what is function?
 
----
+I can only guess, and hope someone corrects me if I'm wrong.
 
-Index: usb-2.6/drivers/usb/core/hub.c
-===================================================================
---- usb-2.6.orig/drivers/usb/core/hub.c
-+++ usb-2.6/drivers/usb/core/hub.c
-@@ -1179,8 +1179,11 @@ static int choose_configuration(struct u
- 	c = udev->config;
- 	num_configs = udev->descriptor.bNumConfigurations;
- 	for (i = 0; i < num_configs; (i++, c++)) {
--		struct usb_interface_descriptor	*desc =
--				&c->intf_cache[0]->altsetting->desc;
-+		struct usb_interface_descriptor	*desc = NULL;
-+
-+		/* It's possible that a config has no interfaces! */
-+		if (c->desc.bNumInterfaces > 0)
-+			desc = &c->intf_cache[0]->altsetting->desc;
- 
- 		/*
- 		 * HP's USB bus-powered keyboard has only one configuration
-@@ -1215,7 +1218,8 @@ static int choose_configuration(struct u
- 		/* If the first config's first interface is COMM/2/0xff
- 		 * (MSFT RNDIS), rule it out unless Linux has host-side
- 		 * RNDIS support. */
--		if (i == 0 && desc->bInterfaceClass == USB_CLASS_COMM
-+		if (i == 0 && desc
-+				&& desc->bInterfaceClass == USB_CLASS_COMM
- 				&& desc->bInterfaceSubClass == 2
- 				&& desc->bInterfaceProtocol == 0xff) {
- #ifndef CONFIG_USB_NET_RNDIS
-@@ -1231,8 +1235,8 @@ static int choose_configuration(struct u
- 		 * than a vendor-specific driver. */
- 		else if (udev->descriptor.bDeviceClass !=
- 						USB_CLASS_VENDOR_SPEC &&
--				desc->bInterfaceClass !=
--						USB_CLASS_VENDOR_SPEC) {
-+				(!desc || desc->bInterfaceClass !=
-+						USB_CLASS_VENDOR_SPEC)) {
- 			best = c;
- 			break;
- 		}
-@@ -3022,7 +3026,7 @@ int usb_reset_device(struct usb_device *
- 	parent_hub = hdev_to_hub(parent_hdev);
- 
- 	/* If we're resetting an active hub, take some special actions */
--	if (udev->actconfig &&
-+	if (udev->actconfig && udev->actconfig->desc.bNumInterfaces > 0 &&
- 			udev->actconfig->interface[0]->dev.driver ==
- 				&hub_driver.driver &&
- 			(hub = hdev_to_hub(udev)) != NULL) {
+> Does it try to say that set_mb(var, value) is equivalent to var =
+> value; mb();
 
+Yes.
+
+> but here mb() affects that one variable, only?
+
+No. set_*mb() is simply a canned sequence of assignment, memory barrier.
+
+The type of barrier inserted depends on which function you choose. set_mb()
+inserts an mb() and set_wmb() inserts a wmb().
+
+> "LOCK access"?
+
+The LOCK and UNLOCK functions presumably make at least one memory write apiece
+to manipulate the target lock (on SMP at least).
+
+> Does it try to say that ...will be completed after any access inside lock
+> region is completed?
+
+No. What you get in effect is something like:
+
+	LOCK { *lock = q; }
+	*A = a;
+	*B = b;
+	UNLOCK { *lock = u; }
+
+Except that the accesses to the lock memory are made using special procedures
+(LOCK prefixed instructions, XCHG, CAS/CMPXCHG, LL/SC, etc).
+
+> This makes it sound like pentium-III+ is incompatible with previous
+> CPUs. Is it really the case?
+
+Yes - hence the alternative instruction stuff.
+
+David

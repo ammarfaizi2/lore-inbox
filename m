@@ -1,62 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWCHVc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWCHVcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWCHVc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 16:32:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWCHVc2
+	id S932573AbWCHVcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 16:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWCHVcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 16:32:28 -0500
-Received: from xenotime.net ([66.160.160.81]:61056 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932521AbWCHVc1 (ORCPT
+	Wed, 8 Mar 2006 16:32:50 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:7913 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932533AbWCHVct (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 16:32:27 -0500
-Date: Wed, 8 Mar 2006 13:32:22 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Tim Tassonis <timtas@cubic.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-In-Reply-To: <440F4C80.6070907@cubic.ch>
-Message-ID: <Pine.LNX.4.58.0603081330420.10491@shark.he.net>
-References: <440F4C80.6070907@cubic.ch>
+	Wed, 8 Mar 2006 16:32:49 -0500
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH] Define flush_wc, a way to flush write combining store buffers
+X-Mercurial-Node: e27c8e0061e03594b3e1e5603c7cc220e68f6380
+Message-Id: <e27c8e0061e03594b3e1.1141853501@localhost.localdomain>
+Date: Wed,  8 Mar 2006 13:31:41 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: akpm@osdl.org, ak@suse.de, paulus@samba.org, benh@kernel.crashing.org,
+       bcrl@kvack.org
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Mar 2006, Tim Tassonis wrote:
+In some circumstances, a CPU may perform stores to memory in non-program
+order, or held in on-chip store buffers for a potentially long time.
+These kinds of circumstances include:
 
->  >
->  > if there was binary allowed (with any license) maybe dlink themself
->  > would build a driver, make documentation and provide it on CD, just
->  > see how much effort would be saved and in end he would get more time
->  > to treat his patients.
->  >
->
-> Apart from all the other good arguments already posted:
->
-> Are you really sure they will? Maybe dlink will, but I can tell from
-> personal expierience (whine, whine) that the majority of vendors still
-> won't release drivers. For the simple reason because they regard Linux a
-> market too small to support. That is the main reason for most of them,
-> not the license stuff.
+- Stores to a PCI MMIO region that has write combining enabled
 
-Right, what we really need IMO is specs and the right to produce
-GPL drivers from the specs.  Very little real work is required from the
-vendors aside from IP/legal.
+- Use of non-temporal store instructions
 
-> Before Linux, I was an OS/2 user and although every vendor in the world
-> was allowed to provide OS/2 drivers, there were more or less the same
-> amount of vendor contributed drivers as there are now in Linux.
->
-> I'm 100% sure that Linux supports more hardware than OS/2 did back then
-> and the user base (Desktop wise) was at least as big as Linux.
->
-> OS/2 died exactly because software companies didn't write closed-source
-> software, hardware companies didn't write closed-source drivers, and IBM
-> couldn't write it all themselves.
->
-> So why repeat this desaster?
-> Tim
+- The CPU's memory model permitting weak store ordering
 
--- 
-~Randy
+This patch introduces a new macro, flush_wc(), that flushes any pending
+stores from the local CPU's write combining store buffers, if the CPU has
+such a capability.  If the CPU doesn't provide explicit control over write
+combining, flush_wc() is simply an alias for wmb().  Here is an example:
+
+    store A
+    store B
+    store C
+    flush_wc()
+    store D
+    store E
+    flush_wc()
+
+flush_wc() says nothing about whether {A,B,C} may be reordered with
+respect to each other, or whether {D,E} may, but it guarantees that
+{A,B,C} will make it off-CPU before {D,E}.  An arch that implements
+flush_wc() should make the stores occur immediately, if possible.
+
+In the case of writes to remote NUMA memory or PCI MMIO space, a
+bridge chip may still hold on to stores after they've been issued by
+the CPU. Thus flush_wc() makes no guarantees regarding the visibility
+of stores to other CPUs, remote memory, or PCI devices.
+
+The intention is that flush_wc() will typically be used for
+latency-sensitive MMIO writes where the full cost of guaranteeing that
+the writes have made it all the way to their target is not necessary
+or desirable.
+
+It is implemented by way of a new header file, <linux/system.h>.
+This header can be a site for oft-replicated code from <asm-*/system.h>,
+but isn't just yet.
+
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+
+diff -r c89918da5f7b -r e27c8e0061e0 include/asm-i386/system.h
+--- a/include/asm-i386/system.h	Sat Feb 25 08:01:07 2006 +0800
++++ b/include/asm-i386/system.h	Wed Mar  8 13:28:29 2006 -0800
+@@ -502,6 +502,12 @@ struct alt_instr {
+ #define wmb()	__asm__ __volatile__ ("": : :"memory")
+ #endif
+ 
++/*
++ * Flush the CPU's write combining store buffers.
++ */
++#define flush_wc() alternative("lock; addl $0,0(%%esp)", "sfence", \
++			       X86_FEATURE_XMM)
++
+ #ifdef CONFIG_SMP
+ #define smp_mb()	mb()
+ #define smp_rmb()	rmb()
+diff -r c89918da5f7b -r e27c8e0061e0 include/asm-powerpc/system.h
+--- a/include/asm-powerpc/system.h	Sat Feb 25 08:01:07 2006 +0800
++++ b/include/asm-powerpc/system.h	Wed Mar  8 13:28:29 2006 -0800
+@@ -53,6 +53,12 @@
+ #define smp_wmb()	barrier()
+ #define smp_read_barrier_depends()	do { } while(0)
+ #endif /* CONFIG_SMP */
++
++/*
++ * Guarantee store/store ordering.  On some arches, this flushes the CPU's
++ * write combining store buffers.
++ */
++#define flush_wc()	__asm__ __volatile__ ("eieio" : : : "memory")
+ 
+ struct task_struct;
+ struct pt_regs;
+diff -r c89918da5f7b -r e27c8e0061e0 include/asm-x86_64/system.h
+--- a/include/asm-x86_64/system.h	Sat Feb 25 08:01:07 2006 +0800
++++ b/include/asm-x86_64/system.h	Wed Mar  8 13:28:29 2006 -0800
+@@ -330,6 +330,11 @@ static inline unsigned long __cmpxchg(vo
+ #define set_mb(var, value) do { (void) xchg(&var, value); } while (0)
+ #define set_wmb(var, value) do { var = value; wmb(); } while (0)
+ 
++/*
++ * Flush the CPU's write combining store buffers.
++ */
++#define flush_wc()	asm volatile("sfence" ::: "memory")
++
+ #define warn_if_not_ulong(x) do { unsigned long foo; (void) (&(x) == &foo); } while (0)
+ 
+ /* interrupt control.. */
+diff -r c89918da5f7b -r e27c8e0061e0 include/linux/system.h
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/include/linux/system.h	Wed Mar  8 13:28:29 2006 -0800
+@@ -0,0 +1,27 @@
++/*
++ * Copyright 2006 PathScale, Inc.  All Rights Reserved.
++ *
++ * This file is free software; you can redistribute it and/or modify
++ * it under the terms of version 2 of the GNU General Public License
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
++ */
++
++#ifndef _LINUX_SYSTEM_H
++#define _LINUX_SYSTEM_H
++
++#include <asm/system.h>
++
++#ifndef flush_wc
++#define flush_wc() wmb()
++#endif
++
++#endif /* _LINUX_SYSTEM_H */

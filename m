@@ -1,65 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWCHJHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWCHJId@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWCHJHz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 04:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCHJHz
+	id S932516AbWCHJId (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 04:08:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCHJIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 04:07:55 -0500
-Received: from mail.gmx.de ([213.165.64.20]:56712 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932438AbWCHJHy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 04:07:54 -0500
-X-Authenticated: #704063
-Subject: [Patch] Fix dead code in cdrom/gscd.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: raupach@nwfs1.rz.fh-hannover.de
-Content-Type: text/plain
-Date: Wed, 08 Mar 2006 10:07:51 +0100
-Message-Id: <1141808871.6355.5.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 8 Mar 2006 04:08:32 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17671 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932516AbWCHJIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 04:08:31 -0500
+Date: Wed, 8 Mar 2006 10:08:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
+Subject: [RFC: -mm patch] drivers/media/video/msp3400-kthreads.c: make 3 functions static
+Message-ID: <20060308090829.GB4006@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+This patch makes three needlessly global functions static.
 
-this fixes Coverity Bugs #21 and #22. In both cases the
-do { ... } while (result != 6 || result == 0x0E) just
-finishes for result == 6, so the if(result != 6) doesnt
-make much sense.
 
-This patch simply removes the if statement, so the logic
-stays the same.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+---
 
---- linux-2.6.16-rc5-mm1/drivers/cdrom/gscd.c.orig	2006-03-08 09:56:30.000000000 +0100
-+++ linux-2.6.16-rc5-mm1/drivers/cdrom/gscd.c	2006-03-08 09:58:18.000000000 +0100
-@@ -695,10 +695,6 @@ static void cmd_read_b(char *pb, int cou
- 			result = wait_drv_ready();
- 		} while (result != 6 || result == 0x0E);
+This patch was already sent on:
+- 4 Mar 2006
+
+ drivers/media/video/msp3400-kthreads.c |    6 +++---
+ drivers/media/video/msp3400.h          |    1 -
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+--- linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400.h.old	2006-03-03 17:40:22.000000000 +0100
++++ linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400.h	2006-03-03 17:40:41.000000000 +0100
+@@ -104,7 +104,6 @@
  
--		if (result != 6) {
--			cmd_end();
--			return;
--		}
- #ifdef GSCD_DEBUG
- 		printk("LOC_191 ");
- #endif
-@@ -763,11 +759,6 @@ static void cmd_read_w(char *pb, int cou
- 			result = wait_drv_ready();
- 		} while (result != 6 || result == 0x0E);
+ /* msp3400-kthreads.c */
+ const char *msp_standard_std_name(int std);
+-void msp_set_source(struct i2c_client *client, u16 src);
+ void msp_set_audmode(struct i2c_client *client);
+ void msp_detect_stereo(struct i2c_client *client);
+ int msp3400c_thread(void *data);
+--- linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400-kthreads.c.old	2006-03-03 17:39:29.000000000 +0100
++++ linux-2.6.16-rc5-mm2-full/drivers/media/video/msp3400-kthreads.c	2006-03-03 17:40:10.000000000 +0100
+@@ -154,7 +154,7 @@
+ 	return "unknown";
+ }
  
--		if (result != 6) {
--			cmd_end();
--			return;
--		}
--
- 		for (i = 0; i < size; i++) {
- 			/* na, hier muss ich noch mal drueber nachdenken */
- 			*pb = inw(GSCDPORT(2));
-
+-void msp_set_source(struct i2c_client *client, u16 src)
++static void msp_set_source(struct i2c_client *client, u16 src)
+ {
+ 	struct msp_state *state = i2c_get_clientdata(client);
+ 
+@@ -217,7 +217,7 @@
+ 
+ /* Set audio mode. Note that the pre-'G' models do not support BTSC+SAP,
+    nor do they support stereo BTSC. */
+-void msp3400c_set_audmode(struct i2c_client *client)
++static void msp3400c_set_audmode(struct i2c_client *client)
+ {
+ 	static char *strmode[] = { "mono", "stereo", "lang2", "lang1" };
+ 	struct msp_state *state = i2c_get_clientdata(client);
+@@ -944,7 +944,7 @@
+ 		status, is_stereo, is_bilingual, state->rxsubchans);
+ }
+ 
+-void msp34xxg_set_audmode(struct i2c_client *client)
++static void msp34xxg_set_audmode(struct i2c_client *client)
+ {
+ 	struct msp_state *state = i2c_get_clientdata(client);
+ 	int source;
 

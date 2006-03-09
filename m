@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWCIRy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWCIR4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWCIRy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWCIRy7
+	id S1751199AbWCIR4p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWCIR4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:54:59 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:2569 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751026AbWCIRy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:54:58 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 2 of 20] ipath - core device driver
-X-Message-Flag: Warning: May contain useful information
-References: <75d0a170fc9b4f016f8b.1141922815@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 09:54:57 -0800
-In-Reply-To: <75d0a170fc9b4f016f8b.1141922815@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:46:55 -0800")
-Message-ID: <adazmjzjyfi.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 9 Mar 2006 12:56:45 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46034 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751199AbWCIR4o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 12:56:44 -0500
+Date: Thu, 9 Mar 2006 09:56:17 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
+       akpm@osdl.org, mingo@redhat.com, linux-arch@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers 
+In-Reply-To: <Pine.LNX.4.64.0603090947290.18022@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0603090954420.18022@g5.osdl.org>
+References: <Pine.LNX.4.64.0603090814530.18022@g5.osdl.org> 
+ <1141855305.10606.6.camel@localhost.localdomain> <20060308161829.GC3669@elf.ucw.cz>
+ <31492.1141753245@warthog.cambridge.redhat.com> <24309.1141848971@warthog.cambridge.redhat.com>
+ <24280.1141904462@warthog.cambridge.redhat.com>  <12101.1141925945@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0603090947290.18022@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 Mar 2006 17:54:57.0605 (UTC) FILETIME=[9427FF50:01C643A2]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +	/* setup the chip-specific functions, as early as possible. */
- > +	switch (ent->device) {
- > +	case PCI_DEVICE_ID_INFINIPATH_HT:
- > +		ipath_init_ht400_funcs(dd);
- > +		break;
- > +	case PCI_DEVICE_ID_INFINIPATH_PE800:
- > +		ipath_init_pe800_funcs(dd);
- > +		break;
 
-What happens if ht400 or pe800 support is not built?  How does this link?
 
- - R.
+On Thu, 9 Mar 2006, Linus Torvalds wrote:
+> 
+> So the fact that x86 SMP ops basically never guarantee any bus cycles 
+> basically means that they are fundamentally no-ops when it comes to IO 
+> serialization. That was really my only point.
+
+Side note: of course, locked cycles _do_ "serialize" the core. So they'll 
+stop at least the core write merging, and speculative reads. So they do 
+have some impact on IO, but they have no way of impacting things like 
+write posting etc that is outside the CPU.
+
+			Linus

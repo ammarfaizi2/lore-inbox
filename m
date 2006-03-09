@@ -1,80 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWCIRd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWCIRhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWCIRd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWCIRd0
+	id S1751114AbWCIRhd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWCIRhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:33:26 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:21080 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750981AbWCIRdZ convert rfc822-to-8bit
+	Thu, 9 Mar 2006 12:37:33 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:32732 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751114AbWCIRhc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:33:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=n+aL+62u4y69a8nh1T6cIv5esyLTbE6t24FShHZHd9Ym00xoWnwZ7V9TnAdQhMOGE3SF9nLGmYXQy2wyjgspmo7Sio6JezGtj2l1vRegnCLu/QKDOMpFce2kKDAkLCMi827VjKxtK4txsWNTbqSqIQINbOz9kgJk6l+tuXx6Eho=
-Message-ID: <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-Date: Thu, 9 Mar 2006 12:33:24 -0500
-From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-To: "Phillip Susi" <psusi@cfl.rr.com>
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Cc: Luke-Jr <luke@dashjr.org>, "Anshuman Gholap" <anshu.pg@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <441057D4.6030304@cfl.rr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
-	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
+	Thu, 9 Mar 2006 12:37:32 -0500
+Subject: Re: Oops on ibmasm
+From: Max Asbock <masbock@us.ibm.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, Vernon Mauery <vernux@us.ibm.com>
+In-Reply-To: <20060309132655.GA26354@redhat.com>
+References: <20060308224145.47332.qmail@web52607.mail.yahoo.com>
+	 <20060309014023.2caa42d2.akpm@osdl.org> <20060309132655.GA26354@redhat.com>
+Content-Type: text/plain
+Message-Id: <1141925840.6240.18.camel@w-amax>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 09 Mar 2006 09:37:20 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/9/06, Phillip Susi <psusi@cfl.rr.com> wrote:
-> Luke-Jr wrote:
-> > Or Linux can remain GPL'd, which prohibits binary drivers *legally*, and back
-> > this by keeping a non-stable API which prohibits binary drivers
-> > *technically*.
->
-> If binary drivers are illegal, then why have ATI and nvidia not been
-> sued yet?
+On Thu, 2006-03-09 at 05:26, Dave Jones wrote:
+> On Thu, Mar 09, 2006 at 01:40:23AM -0800, Andrew Morton wrote:
+> 
+>  > I assume this'll fix it?
+>  > 
+>  > I suspect there's no point in the locking around that kobject_put() anyway.
+>  > Or if there is, it wasn't the right way to fix the race.
+>  > 
+>  > diff -puN drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix drivers/misc/ibmasm/ibmasm.h
+>  > --- devel/drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix	2006-03-09 01:35:05.000000000 -0800
+>  > +++ devel-akpm/drivers/misc/ibmasm/ibmasm.h	2006-03-09 01:35:16.000000000 -0800
+>  > @@ -100,11 +100,7 @@ struct command {
+>  >  
+>  >  static inline void command_put(struct command *cmd)
+>  >  {
+>  > -	unsigned long flags;
+>  > -
+>  > -	spin_lock_irqsave(cmd->lock, flags);
+>  >          kobject_put(&cmd->kobj);
+>  > -	spin_unlock_irqrestore(cmd->lock, flags);
+>  >  }
+> 
+> I don't think this is right.  This is just a kobject-convoluted
+> use-after-free afaics.
+> 
+I put the locks around the kobject_put after reading
+Documentation/kref.txt and after realizing that there was a race. In the
+kref.txt example there is a lock around kref_put (only a mutex instead
+of a spinlock). 
+I still think there is a point in putting locks around kobject_put(). Or
+is there a better way?
+And btw, I am using kobject because this code predates kref. So maybe
+one day I should just convert it to kref.
+Anyway, I think the locks are necessary, the way they are implemented is
+probably ugly and caused me to make the mistake in the first place. But
+a while I ago posted the following patch that fixes the situation.
+cmd->lock points to a persistent lock that is not freed with cmd. 
 
-Because no sufficiently deep-pocketed plaintiff has chosen to do so
-yet. Don't incorrectly infer anything about the existence of a cause
-of action from a lack of legal proceedings so far.
+max
 
->
-> Interacting with the kernel does not make your software a derived work.
+Original patch:
 
-That may or may not be true, depending on the nature of the
-interaction, and the arbiter of truth in this case is the court
-system, not you or I.
+ibmasm driver:
+Fix the command_put() function which uses a pointer for a spinlock that
+can be freed before dereferencing it.
 
->  A derived work is if you make your own kernel that is very close to a
-> straight copy of the Linux kernel.  The right to create new works that
-> interact with others ( and therefore, require some understanding of how
-> the other work operates ) is specifically protected by the US copyright
-> act.
+Signed-off-by: Max Asbock masbock@us.ibm.com
 
-There are no dearth of legal opinions on this matter which differ
-quite radically from your interpretation here, quite a few from
-lawyers. As far as I am concerned (and the GPL too, if my
-interpretation of it is correct), any code is a derived work of my
-code if either a) it directly makes use of symbols in my code or b) it
-cannot execute unless my code executes, such that its distribution
-without my code would be useless.
+---
 
->
-> This is why it is legal to reverse engineer a binary driver to gain an
-> understanding of how the hardware operates, publish that information,
-> and then use that information to create new software to operate that
-> hardware.
+diff -burpN linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h
+--- linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h	2006-02-01 11:50:01.000000000 -0800
++++ linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h	2006-02-03 13:57:42.000000000 -0800
+@@ -101,10 +101,11 @@ struct command {
+ static inline void command_put(struct command *cmd)
+ {
+ 	unsigned long flags;
++	spinlock_t *lock = cmd->lock;
+ 
+-	spin_lock_irqsave(cmd->lock, flags);
++	spin_lock_irqsave(lock, flags);
+         kobject_put(&cmd->kobj);
+-	spin_unlock_irqrestore(cmd->lock, flags);
++	spin_unlock_irqrestore(lock, flags);
+ }
+ 
+ static inline void command_get(struct command *cmd)
 
-No, you are referring to a restriction on the limitations in software
-licenses which is separate from copyright. Copyright law does not talk
-about interoperability at all. And even the applicability of the
-restriction to which you refer is jurisdiction-dependant as well as
-context-dependant (see the DMCA).
-
-Regards,
-Dave

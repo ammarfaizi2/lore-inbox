@@ -1,68 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWCICit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWCIClO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWCICit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 21:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWCICit
+	id S1751102AbWCIClO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 21:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWCIClO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 21:38:49 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:34966 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750985AbWCICis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 21:38:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vSSRO91mkpiviZWWG3cazBVumk2T0KAhxt0UiuaJBv0syVFhoZpczUnoTRSie4TT9i0OBoEH/IYasGFuR86rYW4sYbT5aWd8eo9RvSe+pYGivgtsVsCdC2+kYN06g/JZ1XJF7XhEQUq8u7OZYFwWRUstynQmAs9R02UJCIpiZPQ=  ;
-Message-ID: <440F952E.90808@yahoo.com.au>
-Date: Thu, 09 Mar 2006 13:38:38 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, Alan Cox <alan@redhat.com>, linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
-References: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org> <20060308184500.GA17716@devserv.devel.redhat.com> <20060308173605.GB13063@devserv.devel.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <9834.1141837491@warthog.cambridge.redhat.com> <11922.1141842907@warthog.cambridge.redhat.com> <14275.1141844922@warthog.cambridge.redhat.com> <19984.1141846302@warthog.cambridge.redhat.com> <17423.30789.214209.462657@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081652430.32577@g5.osdl.org> <17423.32792.500628.226831@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Mar 2006 21:41:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:51923 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751102AbWCIClN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 21:41:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: 2.6.16-rc5-mm3
+Date: Thu, 09 Mar 2006 03:30:24 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2006.03.09.02.30.22.283978@smurf.noris.de>
+References: <20060307021929.754329c9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Cc: linux-kernel-announce@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hi, Andrew Morton wrote:
 
->
->On Thu, 9 Mar 2006, Paul Mackerras wrote:
->
->>... and x86 mmiowb is a no-op.  It's not x86 that I think is buggy.
->>
->
->x86 mmiowb would have to be a real op too if there were any multi-pathed 
->PCI buses out there for x86, methinks.
->
->Basically, the issue boils down to one thing: no "normal" barrier will 
->_ever_ show up on the bus on x86 (ie ia64, afaik). That, together with any 
->situation where there are multiple paths to one physical device means that 
->mmiowb() _has_ to be a special op, and no spinlocks etc will _ever_ do the 
->serialization you look for.
->
->Put another way: the only way to avoid mmiowb() being special is either 
->one of:
-> (a) have the bus fabric itself be synchronizing
-> (b) pay a huge expense on the much more critical _regular_ barriers
->
->Now, I claim that (b) is just broken. I'd rather take the hit when I need 
->to, than every time. 
->
+> - To fetch an -mm tree using git, use (for example)
+> 
+>   git fetch git://git.kernel.org/pub/scm/linux/kernel/git/smurf/linux-trees.git v2.6.16-rc2-mm1
 
-I'm not very driver-minded; would it make sense to have io versions of
-locks, which can provide critical sections for IO operations?
+The importer hit a snag and didn't get the last three -mm kernels or so.
+Should fix itself during the next few hours.
 
-The number of (uncommented) memory barriers sprinkled around drivers
-looks pretty scary...
+Please tell me directly if there's a problem; usually, new -mm releases
+should be available as git trees 2h after an announcement.
 
---
+-- 
+Matthias Urlichs
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 

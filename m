@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWCIWGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751929AbWCIWKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751910AbWCIWGF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 17:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbWCIWGF
+	id S1751929AbWCIWKf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 17:10:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751924AbWCIWKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 17:06:05 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5554 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751764AbWCIWGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 17:06:03 -0500
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Luke-Jr <luke@dashjr.org>,
-       Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <161717d50603091330j61850529xcd50382a55ccb6b3@mail.gmail.com>
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
-	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
-	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-	 <44108CCB.9080709@cfl.rr.com>
-	 <161717d50603091330j61850529xcd50382a55ccb6b3@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 17:06:00 -0500
-Message-Id: <1141941960.13319.79.camel@mindpipe>
+	Thu, 9 Mar 2006 17:10:35 -0500
+Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:30213
+	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
+	id S1751764AbWCIWKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 17:10:34 -0500
+Date: Fri, 10 Mar 2006 09:10:30 +1100
+To: Atsushi Nemoto <nemoto@toshiba-tops.co.jp>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] crypto: fix unaligned access in khazad module
+Message-ID: <20060309221030.GA11608@gondor.apana.org.au>
+References: <20060309.122638.07642914.nemoto@toshiba-tops.co.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060309.122638.07642914.nemoto@toshiba-tops.co.jp>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 16:30 -0500, Dave Neuer wrote:
-> At any rate, at the moment I'm getting paid software, not for legal
-> analysis which I'm not qualified to give. I'm certainly not getting
-> paid enough to sue anyone, so unless some other kernel hacker or
-> company is planning on initiating a lawsuit (to which I'd happily
-> join) it's fairly moot, and I'll let it drop at that. 
+On Thu, Mar 09, 2006 at 12:26:38PM +0900, Atsushi Nemoto wrote:
+>  
+> -	K2 = be64_to_cpu(key[0]);
+> -	K1 = be64_to_cpu(key[1]);
+> +	K2 = be64_to_cpu(get_unaligned(&key[0]));
+> +	K1 = be64_to_cpu(get_unaligned(&key[1]));
 
-I would think a lawsuit hasn't happened because it would be more
-productive to work with these vendors to move the parts of the driver
-that must remain closed to userspace.
+How about doing two 32-bit reads:
 
-Lee
+	const __be32 *key = (const __be32 *)in_key;
 
+	K2 = ((u64)be32_to_cpu(key[0])) << 32 + be32_to_cpu(key[1]);
+	K1 = ((u64)be32_to_cpu(key[2])) << 32 + be32_to_cpu(key[3]);
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

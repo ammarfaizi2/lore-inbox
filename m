@@ -1,75 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWCJFOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751807AbWCJFVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751591AbWCJFOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751587AbWCJFOg
+	id S1751807AbWCJFVe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 00:21:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWCJFVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:14:36 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:39007 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750707AbWCJFOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:14:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=kvHZvE059J+gvv5HzBKfa7WSh4r2GgniQ+7sUTimOoFMNs2dCwJrIgbRodrJHMkXrjmcUDftkj3Wenk+DBfr9kziMyJNxXbkM8MpeZ3yxhmx08LXptgSKLKu1tHVxXH9TUxjvUjEf2pd3EgH492iVxsYbiWB4z7XV17KsxxV+LU=  ;
-Message-ID: <44110B35.8040903@yahoo.com.au>
-Date: Fri, 10 Mar 2006 16:14:29 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 10 Mar 2006 00:21:34 -0500
+Received: from imp2-j.online.net ([212.27.37.65]:31104 "EHLO imp2-j.online.net")
+	by vger.kernel.org with ESMTP id S1750701AbWCJFVd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 00:21:33 -0500
+Message-ID: <1141922298.441059fa84d00@imp.online.net>
+Date: Thu, 09 Mar 2006 17:38:18 +0100
+From: LUCIEN DJEDJE <d.lucien@virgilio.it>
+Reply-To: djedje_lucien2002@yahoo.fr
+Subject: bonjour
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Daniel Phillips <phillips@google.com>,
-       Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
-Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
-References: <4408C2E8.4010600@google.com> <440FCA81.7090608@google.com> <440FDC8E.9060907@yahoo.com.au> <200603090519.37801.ak@suse.de> <44101FE8.9050105@yahoo.com.au>
-In-Reply-To: <44101FE8.9050105@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.2.6
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Andi Kleen wrote:
-> 
->> On Thursday 09 March 2006 08:43, Nick Piggin wrote:
->>  
->>
->>> Just interested: do the locks have any sort of locality of lookup?
->>> If so, then have you tried moving hot (ie. the one you've just found,
->>> or newly inserted) hash entries to the head of the hash list?
->>>
->>> In applications with really good locality you can sometimes get away
->>> with small hash tables (10s even 100s of collisions on average) without
->>> taking too big a hit this way, because your entries basically get sorted
->>> LRU for you.
->>
->>
->>
->> LRU hashes have really bad cache behaviour though if that is not the case
->> because you possibily need to bounce around the hash heads as DIRTY 
->> cache lines instead of keeping them in SHARED state.
->> My feeling would be that scalability is more important for this, which 
->> would
->> discourage this.
->>
-> 
-> That's true, it would have to have very good locality of reference to
-> be of use. In that case it is not always going to dirty the cachelines
-> because you now only have to make your hash table size appropriate for
-> your _working set_ rather than the entire set - if the working set is
-> small enough and you make your hash say 4 times bigger than it, then
-> you might expect to often hit the right lock at the head of the list.
-> 
+Monsieur DJEDJE Lucien
+Tél : 00229 97228573
+COTONOU-REPUBLIQUE DU BENIN
+( AFRIQUE DE L'OUEST )
+ email :  l.djedje@virgilio.it
 
-OTOH, I suspect it actually isn't all that bad. There is already a
-shared lock there, which will definitely have its cacheline invalidated.
 
-So adding an extra cacheline bounce is not like the bad problem of going
-from perfect scalability (no shared cachelines) to a single shared cacheline.
+OBJET : COLLABORATION
+                                             A VOTRE ATTENTION;
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+Tout le plaisir est pour moi de vous écrire ce méssage  afin de solliciter votre
+précieux partenariat pour la réalisation d'une affaire très importante qui doit
+être traitée dans la plus grande discrétion .Je vous prie par conséquent de
+prendre acte , sans vous étonner du choix que je porte sur votre personne en
+saisissant cette heureuse opportunité pour prendre contact de vous .
+
+
+Je vous prie d’emblée de m’excuser pour tous les désagréments que mon courrier
+pourrait vous causer.Mais même si nous ne nous connaissons pas personnellement
+et que nous ne nous sommes jamais rencontrés, je crois fermement que sur la
+base du droit d’assistance humanitaire qu'une confiance véritable peut naître
+de notre communication et favoriser ainsi un véritable partenariat entre vous
+et moi.
+
+Aussi c'est avec un réel plaisir que je vous contacte depuis Cotonou la capitale
+économique du Bénin(AFRIQUE de l’Ouest) où je vis présentement avec ma femme et
+mes enfants.
+
+En effet , je suis monsieur DJEDJE  Lucien , fils unique d'un homme d'affaire
+politique Ivoirien qui est porté disparut depuis les troubles politique en Côte
+d'Ivoire .
+
+
+Suite donc à cette douloureuse situation j'ai pris la décision de m'exiler de la
+Cote d'Ivoire mon pays vers le Bénin avec toute la richesse de mon père qui
+s'élevait à la somme de Trente six millions de Dollars Américains( 36.000.000
+USD) contenus dans Deux (2) malles métalliques de dix-huit millions de Dollars
+américains (18. 000. 000 USD) chacune qu'il avait en cash  à la maison.
+
+Avec l'aide de Dieu,j'ai  pu transporter les malles contenant les fonds de la
+C'ôte d'Ivoire à Cotonou au Bénin .
+Alors,j'ai fait consigner les malles dans une  Société de Sécurité et de
+Consigne ici à Cotonou au Bénin par mésure de prudence. j'ai pris le soins de
+déclarer les malles au moment du dépot de celles-ci dans cette Société de
+sécurité et de consigne ici à Cotonou au Bénin comme contenant des trésors de
+famille .
+
+
+Maintenant je désire transférer sur un compte à l'étranger cette somme pour des
+investissements dans de différents projets rémunératrices de révenu . Ceci
+étant la stricte confidentialité de cette opération, m'oblige à faire recours à
+vous qui saurez mieux apprécier la présente opportunité
+dans la mesure où :
+
+ Je vous garantis 20% pour l'aide que vous allez m'apporter et 5% pour les
+dépenses éffectuées lors de la réalisation du projet sur la totalité des fonds
+et une grande partie de ce qui va me revenir après le partage entre vous et moi
+sera desitinées à éffectuer des investissements dans des activités
+rémunératrices de revenu à l'étranger.
+
+
+ Par mésure de confiance entre vous et moi ,je me propose  de vous désigner
+auprès de cette société de sécurité comme bénéficiaire des malles,ce qui vous
+donne les mèmes droits que moi sur lesdites malles contenant les fonds et vous
+permettra d'avoir accès au sein de cette société de sécurité lorsque vous allez
+vénir ici à Cotonou au Bénin pourque ensemble vous et moi puissions éffectuer le
+retrait des malles.
+
+
+Je vous souhaite une bonne compréhension et vous prie de prendre contact avec
+moi soit par mon adresse email ou par téléphone au 00229 97228573 pour une
+conversation de vives voix avec vous pour vos suggestions et vos proposions.
+
+
+Mais le plus important est d'abord de pouvoir éffectuer le retrait des malles
+pourque vous et moi puissions  disposer des fonds.
+
+
+Pour le transfert des fonds, nous nous raprocherons vous et moi d'un cabinet
+financier ici à Cotonou pour solliciter son concours et ses services.Ce cabinet
+pourra nous aider à transferer les fonds sur vos comptes.
+
+
+Je vous prie donc de me dire le plus tôt possible du fait de l'augmentation jour
+après jour des frais de consigne desdites malles ,quand vous pourrez venir me
+rencontrer pour une programmation et le retrait des malles ici à Cotonou au
+Bénin.
+
+
+Bien de chose à vous et à votre famille
+Que Dieu vous bénisse
+
+
+Cordialement
+
+
+DJEDJE Lucien.
+Tél : 00229 97228573
+
+
+
+

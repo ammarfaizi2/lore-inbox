@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWCIXWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWCIXYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWCIXWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:22:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWCIXWZ
+	id S932118AbWCIXYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWCIXYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:22:25 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:13351 "EHLO
+	Thu, 9 Mar 2006 18:24:16 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:20540 "EHLO
 	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932109AbWCIXWY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:22:24 -0500
+	id S932118AbWCIXYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:24:15 -0500
 X-IronPort-AV: i="4.02,180,1139212800"; 
-   d="scan'208"; a="414157169:sNHT31069992"
+   d="scan'208"; a="414158496:sNHT41594512"
 To: "Bryan O'Sullivan" <bos@pathscale.com>
 Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
        linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 2 of 20] ipath - core device driver
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
 X-Message-Flag: Warning: May contain useful information
-References: <75d0a170fc9b4f016f8b.1141922815@localhost.localdomain>
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
 From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 15:22:22 -0800
-In-Reply-To: <75d0a170fc9b4f016f8b.1141922815@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:46:55 -0800")
-Message-ID: <adahd67fbkh.fsf@cisco.com>
+Date: Thu, 09 Mar 2006 15:24:13 -0800
+In-Reply-To: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:47:02 -0800")
+Message-ID: <adad5gvfbhe.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 Mar 2006 23:22:22.0681 (UTC) FILETIME=[5188B490:01C643D0]
+X-OriginalArrivalTime: 09 Mar 2006 23:24:13.0853 (UTC) FILETIME=[93CC34D0:01C643D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +	if (dd->ipath_unit >= atomic_read(&ipath_max))
- > +		atomic_set(&ipath_max, dd->ipath_unit + 1);
+ > +static int ipath_sma_open(struct inode *in, struct file *fp)
+ > +{
+ > +	int s;
+ > +
+ > +	if (ipath_sma_alive) {
+ > +		ipath_dbg("SMA already running (pid %u), failing\n",
+ > +			  ipath_sma_alive);
+ > +		return -EBUSY;
+ > +	}
+ > +
+ > +	for (s = 0; s < atomic_read(&ipath_max); s++) {
+ > +		struct ipath_devdata *dd = ipath_lookup(s);
+ > +		/* we need at least one infinipath device to be initialized. */
+ > +		if (dd && dd->ipath_flags & IPATH_INITTED) {
+ > +			ipath_sma_alive = current->pid;
 
-If this is the way you use ipath_max, why is it an atomic variable?  I
-can't find any uses of ipath_max that don't look racy if the only
-thing protecting it is the fact that it's an atomic_t, and if it has
-some other protection, then I don't think it needs to be atomic.
+It seems there's a window here where two processes can both pass the
+if (ipath_sma_alive) test and then proceed to step on each other.
 
  - R.

@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbWCIAR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWCIAT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932626AbWCIAR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbWCIARZ
+	id S932624AbWCIAT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:19:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWCIAT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:17:25 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:11731 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932308AbWCIARZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:17:25 -0500
-Date: Wed, 8 Mar 2006 16:18:03 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, netdev@vger.kernel.org, shai@scalex86.org
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
-Message-ID: <20060309001803.GF4493@localhost.localdomain>
-References: <20060308015808.GA9062@localhost.localdomain> <20060308015934.GB9062@localhost.localdomain> <20060307181301.4dd6aa96.akpm@osdl.org> <20060308202656.GA4493@localhost.localdomain> <20060308203642.GZ5410@kvack.org> <20060308210726.GD4493@localhost.localdomain> <20060308211733.GA5410@kvack.org> <20060308222528.GE4493@localhost.localdomain> <20060308224140.GC5410@kvack.org> <20060308154321.0e779111.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308154321.0e779111.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 8 Mar 2006 19:19:59 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:63178 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932624AbWCIAT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:19:59 -0500
+Message-Id: <200603090019.k290JDg13362@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>
+Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>, "Andrew Morton" <akpm@osdl.org>,
+       "William Lee Irwin" <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: hugepage: Strict page reservation for hugepage inodes
+Date: Wed, 8 Mar 2006 16:19:13 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZDDc9O9uuaIdR9SAecQcseiRSvrwAAE+yQ
+In-Reply-To: <20060308235207.GB17590@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 03:43:21PM -0800, Andrew Morton wrote:
-> Benjamin LaHaise <bcrl@kvack.org> wrote:
-> >
-> > I think it may make more sense to simply convert local_t into a long, given 
-> > that most of the users will be things like stats counters.
-> > 
-> 
-> Yes, I agree that making local_t signed would be better.  It's consistent
-> with atomic_t, atomic64_t and atomic_long_t and it's a bit more flexible.
-> 
-> Perhaps.  A lot of applications would just be upcounters for statistics,
-> where unsigned is desired.  But I think the consistency argument wins out.
+David Gibson wrote on Wednesday, March 08, 2006 3:52 PM
+> But I don't see that recording all the mapped ranges will avoid the
+> need for the fault serialization.  At least the version of apw's
+> reservation patch I looked at most recently would certainly still
+> suffer from the alloc/instantiate race on the last hugepage in the
+> system.
 
-It already is... for most of the arches except x86_64.
-And on -mm, the asm-generic version uses atomic_long_t for local_t (signed
-long) which seems right.
+No, it doesn't.  Because with strict commit accounting, you know that
+every hugetlb page is accounted for.  So there is no backout path for
+multiple instantiation race.  Thread that lost in the race will always
+go back to retry in hugetlb_no_page().  And since reservation is also
+accounted in a global variable, total hugetlb pool won't fall below
+what was reserved plus what is in use.  Even if sys admin tries to
+reduce hugetlb pool, kernel won't release any pages that are reserved.
 
-Although, I wonder why we use:
-
-#define local_read(l) ((unsigned long)atomic_long_read(&(l)->a))
-
-It would return a huge value if the local counter was even -1 no?
+- Ken
 

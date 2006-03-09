@@ -1,40 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752056AbWCIXgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWCIXjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752056AbWCIXgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752059AbWCIXgj
+	id S932116AbWCIXjS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWCIXjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:36:39 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:60243 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1752056AbWCIXgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:36:37 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 7 of 20] ipath - misc driver support code
-X-Message-Flag: Warning: May contain useful information
-References: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain>
-	<adau0a7fbzf.fsf@cisco.com>
-	<1141946942.10693.36.camel@serpentine.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 15:36:34 -0800
-In-Reply-To: <1141946942.10693.36.camel@serpentine.pathscale.com> (Bryan O'Sullivan's message of "Thu, 09 Mar 2006 15:29:02 -0800")
-Message-ID: <adaveundwcd.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 9 Mar 2006 18:39:18 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:27895 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932116AbWCIXjR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:39:17 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:content-type;
+	b=EE9PJGUWQB0Ba2/eLJI6ufcI1ARj71m/SAr3wj3A87HToUaopob2FnRlD76ocGPIX
+	QVOur2ha8NASpgw/cpo7Q==
+Message-ID: <4410BC90.1070108@google.com>
+Date: Thu, 09 Mar 2006 15:38:56 -0800
+From: Markus Gutschke <markus@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 Mar 2006 23:36:35.0118 (UTC) FILETIME=[4DA044E0:01C643D2]
+To: linux-kernel@vger.kernel.org
+CC: Daniel Kegel <dkegel@google.com>, Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH 1/1]: arm: _syscallX() macros must mark "memory" as clobbered
+Content-Type: multipart/mixed;
+ boundary="------------050503030202010600070004"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> It's purely a performance optimisation.  Since we tune very
-    Bryan> closely to each CPU, there's no point right now in
-    Bryan> sort-of-tuning for a CPU that doesn't yet exist :-)
+This is a multi-part message in MIME format.
+--------------050503030202010600070004
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I thought that if ipath_unordered_wc() returns false then you assume
-the writes through a WC mapping go in order.  If Via behaves like
-Intel and reorders writes, but ipath_unordered_wc() returns false,
-then won't your driver break in a subtle way?
+From: Markus Gutschke <markus@google.com>
 
- - R.
+While other platforms (including x86) have been fixed to mark memory as 
+clobbered by _syscallX()'s, this bug has not yet been fixed for ARM. 
+This patch adds the missing constraints and applies to version 2.6.15.6.
+
+The bug can be tracked at http://bugzilla.kernel.org/show_bug.cgi?id=6205
+
+Signed-off-by: Markus Gutschke <markus@google.com>
+
+---
+
+--------------050503030202010600070004
+Content-Type: text/x-patch;
+ name="arm-unistd.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="arm-unistd.h.diff"
+
+--- include/asm-arm/unistd.h.orig	2006-03-05 11:07:54.000000000 -0800
++++ include/asm-arm/unistd.h	2006-03-09 15:10:22.000000000 -0800
+@@ -415,7 +415,7 @@
+   __syscall(name)							\
+ 	: "=r" (__res_r0)						\
+ 	: "r" (__r0)							\
+-	: "lr");							\
++	: "lr", "memory");						\
+   __res = __res_r0;							\
+   __syscall_return(type,__res);						\
+ }
+@@ -430,7 +430,7 @@
+   __syscall(name)							\
+ 	: "=r" (__res_r0)						\
+ 	: "r" (__r0),"r" (__r1) 					\
+-	: "lr");							\
++	: "lr", "memory");						\
+   __res = __res_r0;							\
+   __syscall_return(type,__res);						\
+ }
+@@ -447,7 +447,7 @@
+   __syscall(name)							\
+ 	: "=r" (__res_r0)						\
+ 	: "r" (__r0),"r" (__r1),"r" (__r2)				\
+-	: "lr");							\
++	: "lr", "memory");						\
+   __res = __res_r0;							\
+   __syscall_return(type,__res);						\
+ }
+@@ -465,7 +465,7 @@
+   __syscall(name)							\
+ 	: "=r" (__res_r0)						\
+ 	: "r" (__r0),"r" (__r1),"r" (__r2),"r" (__r3)			\
+-	: "lr");							\
++	: "lr", "memory");						\
+   __res = __res_r0;							\
+   __syscall_return(type,__res);						\
+ }
+@@ -484,7 +484,7 @@
+   __syscall(name)							\
+ 	: "=r" (__res_r0)						\
+ 	: "r" (__r0),"r" (__r1),"r" (__r2),"r" (__r3),"r" (__r4)	\
+-	: "lr");							\
++	: "lr", "memory");						\
+   __res = __res_r0;							\
+   __syscall_return(type,__res);						\
+ }
+@@ -503,7 +503,7 @@
+   __syscall(name)							\
+ 	: "=r" (__res_r0)						\
+ 	: "r" (__r0),"r" (__r1),"r" (__r2),"r" (__r3), "r" (__r4),"r" (__r5)		\
+-	: "lr");							\
++	: "lr", "memory");						\
+   __res = __res_r0;							\
+   __syscall_return(type,__res);						\
+ }
+
+--------------050503030202010600070004--

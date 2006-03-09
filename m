@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWCIXYV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWCIX0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWCIXYV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:24:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbWCIXYV
+	id S1751312AbWCIX0q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWCIX0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:24:21 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:57870 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932131AbWCIXYU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:24:20 -0500
-Date: Fri, 10 Mar 2006 00:24:06 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, rolandd@cisco.com, gregkh@suse.de,
-       akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
-Message-ID: <20060309232406.GA24991@mars.ravnborg.org>
-References: <ac5354bb50d515de2a5c.1141922831@localhost.localdomain> <ada4q27ld33.fsf@cisco.com> <20060309185604.GA24004@mars.ravnborg.org> <adafylrigug.fsf@cisco.com>
-Mime-Version: 1.0
+	Thu, 9 Mar 2006 18:26:46 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:34391 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1751312AbWCIX0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:26:45 -0500
+X-IronPort-AV: i="4.02,180,1139212800"; 
+   d="scan'208"; a="313130754:sNHT30991548"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
+X-Message-Flag: Warning: May contain useful information
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 09 Mar 2006 15:26:43 -0800
+In-Reply-To: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:47:02 -0800")
+Message-ID: <ada8xrjfbd8.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <adafylrigug.fsf@cisco.com>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 09 Mar 2006 23:26:44.0416 (UTC) FILETIME=[ED8A4C00:01C643D0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 11:00:07AM -0800, Roland Dreier wrote:
->     Sam> Eventually - yes.  But not just now. Kbuild was introduced
->     Sam> because it was needed in the top-level directory and it made
->     Sam> good sense to do so.  But for now keeping Makefile is a good
->     Sam> choice. This is anyway what people are used to.
-> 
-> OK, disregard my suggestion then.  Should we patch
-> Documentation/kbuild/makefiles.txt to correct the current
-> documentation, which says:
-> 
->   The preferred name for the kbuild files is 'Kbuild' but 'Makefile'
->   will continue to be supported. All new developmen is expected to use
->   the Kbuild filename.
+ > +static int ipath_sma_release(struct inode *in, struct file *fp)
+ > +{
+ > +	int s;
+ > +
+ > +	ipath_sma_alive = 0;
+ > +	ipath_cdbg(SMA, "Closing SMA device\n");
+ > +	for (s = 0; s < atomic_read(&ipath_max); s++) {
+ > +		struct ipath_devdata *dd = ipath_lookup(s);
+ > +
+ > +		if (!dd || !(dd->ipath_flags & IPATH_INITTED))
+ > +			continue;
+ > +		*dd->ipath_statusp &= ~IPATH_STATUS_SMA;
+ > +		if (dd->verbs_layer.l_flags & IPATH_VERBS_KERNEL_SMA)
+ > +			*dd->ipath_statusp |= IPATH_STATUS_OIB_SMA;
+ > +	}
+ > +	return 0;
+ > +}
 
-I've just checked in the following patch:
+Similarly what protects against another process opening the device
+right after the ipath_sma_alive = 0 setting, but before you do all the
+cleanup that's after that?
 
-diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
-index 99d51a5..a9c00fa 100644
---- a/Documentation/kbuild/makefiles.txt
-+++ b/Documentation/kbuild/makefiles.txt
-@@ -106,9 +106,9 @@ This document is aimed towards normal de
- Most Makefiles within the kernel are kbuild Makefiles that use the
- kbuild infrastructure. This chapter introduce the syntax used in the
- kbuild makefiles.
--The preferred name for the kbuild files is 'Kbuild' but 'Makefile' will
--continue to be supported. All new developmen is expected to use the
--Kbuild filename.
-+The preferred name for the kbuild files are 'Makefile' but 'Kbuild' can
-+be used and if both a 'Makefile' and a 'Kbuild' file exists then the 'Kbuild'
-+file will be used.
- 
- Section 3.1 "Goal definitions" is a quick intro, further chapters provide
- more details, with real examples.
+And what protects against a hot unplug of a device after the test of s
+against ipath_max?
+
+ - R.

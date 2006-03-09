@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932624AbWCIAT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWCIAU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932624AbWCIAT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbWCIAT7
+	id S932311AbWCIAU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWCIAU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:19:59 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:63178 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932624AbWCIAT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:19:59 -0500
-Message-Id: <200603090019.k290JDg13362@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>, "Andrew Morton" <akpm@osdl.org>,
-       "William Lee Irwin" <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: hugepage: Strict page reservation for hugepage inodes
-Date: Wed, 8 Mar 2006 16:19:13 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZDDc9O9uuaIdR9SAecQcseiRSvrwAAE+yQ
-In-Reply-To: <20060308235207.GB17590@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 8 Mar 2006 19:20:57 -0500
+Received: from smtp-out-02.utu.fi ([130.232.202.172]:38055 "EHLO
+	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S932311AbWCIAU4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:20:56 -0500
+Date: Thu, 09 Mar 2006 02:20:50 +0200
+From: Jan Knutar <jk-lkml@sci.fi>
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+In-reply-to: <440F4C80.6070907@cubic.ch>
+To: Tim Tassonis <timtas@cubic.ch>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200603090220.50378.jk-lkml@sci.fi>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <440F4C80.6070907@cubic.ch>
+User-Agent: KMail/1.6.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Wednesday, March 08, 2006 3:52 PM
-> But I don't see that recording all the mapped ranges will avoid the
-> need for the fault serialization.  At least the version of apw's
-> reservation patch I looked at most recently would certainly still
-> suffer from the alloc/instantiate race on the last hugepage in the
-> system.
+On Wednesday 08 March 2006 23:28, Tim Tassonis wrote:
 
-No, it doesn't.  Because with strict commit accounting, you know that
-every hugetlb page is accounted for.  So there is no backout path for
-multiple instantiation race.  Thread that lost in the race will always
-go back to retry in hugetlb_no_page().  And since reservation is also
-accounted in a global variable, total hugetlb pool won't fall below
-what was reserved plus what is in use.  Even if sys admin tries to
-reduce hugetlb pool, kernel won't release any pages that are reserved.
+> OS/2 died exactly because software companies didn't write closed-source 
+> software, hardware companies didn't write closed-source drivers, and IBM 
+> couldn't write it all themselves.
 
-- Ken
+I read somewhere that the development kit was obscenely expensive and
+effectively locked out all hobbyists and small companies.
 

@@ -1,178 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWCIGz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751666AbWCIG4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751774AbWCIGz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751727AbWCIGxP
+	id S1751666AbWCIG4A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:56:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWCIGxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:53:15 -0500
-Received: from ns.suse.de ([195.135.220.2]:61360 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751693AbWCIGxM (ORCPT
+	Thu, 9 Mar 2006 01:53:01 -0500
+Received: from mail.suse.de ([195.135.220.2]:56752 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751666AbWCIGwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:53:12 -0500
+	Thu, 9 Mar 2006 01:52:46 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 9 Mar 2006 17:52:08 +1100
-Message-Id: <1060309065208.24617@suse.de>
+Date: Thu, 9 Mar 2006 17:51:43 +1100
+Message-Id: <1060309065143.24557@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 009 of 14] knfsd: Use new cache code for rsc cache
+Subject: [PATCH 004 of 14] knfsd: Create cache_lookup function instead of using a macro to declare one.
 References: <20060309174755.24381.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The C++-like 'template' approach proves to be too ugly and hard
+to work with.
+
+The old 'template' won't go away until all users are updated.
 
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./net/sunrpc/auth_gss/svcauth_gss.c |   74 +++++++++++++++++++++++++++++++-----
- 1 file changed, 64 insertions(+), 10 deletions(-)
+ ./include/linux/sunrpc/cache.h |   12 +++++
+ ./net/sunrpc/cache.c           |   98 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 110 insertions(+)
 
-diff ./net/sunrpc/auth_gss/svcauth_gss.c~current~ ./net/sunrpc/auth_gss/svcauth_gss.c
---- ./net/sunrpc/auth_gss/svcauth_gss.c~current~	2006-03-09 17:15:43.000000000 +1100
-+++ ./net/sunrpc/auth_gss/svcauth_gss.c	2006-03-09 17:15:58.000000000 +1100
-@@ -345,7 +345,8 @@ struct rsc {
+diff ./include/linux/sunrpc/cache.h~current~ ./include/linux/sunrpc/cache.h
+--- ./include/linux/sunrpc/cache.h~current~	2006-03-09 17:15:13.000000000 +1100
++++ ./include/linux/sunrpc/cache.h	2006-03-09 17:15:14.000000000 +1100
+@@ -81,6 +81,11 @@ struct cache_detail {
+ 					      struct cache_detail *cd,
+ 					      struct cache_head *h);
  
- static struct cache_head *rsc_table[RSC_HASHMAX];
- static struct cache_detail rsc_cache;
--static struct rsc *rsc_lookup(struct rsc *item, int set);
-+static struct rsc *rsc_update(struct rsc *new, struct rsc *old);
-+static struct rsc *rsc_lookup(struct rsc *item);
- 
- static void rsc_free(struct rsc *rsci)
- {
-@@ -372,15 +373,21 @@ rsc_hash(struct rsc *rsci)
- 	return hash_mem(rsci->handle.data, rsci->handle.len, RSC_HASHBITS);
- }
- 
--static inline int
--rsc_match(struct rsc *new, struct rsc *tmp)
-+static int
-+rsc_match(struct cache_head *a, struct cache_head *b)
- {
-+	struct rsc *new = container_of(a, struct rsc, h);
-+	struct rsc *tmp = container_of(b, struct rsc, h);
++	struct cache_head *	(*alloc)(void);
++	int			(*match)(struct cache_head *orig, struct cache_head *new);
++	void			(*init)(struct cache_head *orig, struct cache_head *new);
++	void			(*update)(struct cache_head *orig, struct cache_head *new);
 +
- 	return netobj_equal(&new->handle, &tmp->handle);
- }
+ 	/* fields below this comment are for internal use
+ 	 * and should not be touched by cache owners
+ 	 */
+@@ -237,6 +242,13 @@ RTN *FNAME ARGS										\
+ 	& FUNC##_cache, FUNC##_hash(item), FUNC##_match(item, tmp),	\
+ 	STRUCT##_init(new, item), STRUCT##_update(tmp, item))
  
--static inline void
--rsc_init(struct rsc *new, struct rsc *tmp)
-+static void
-+rsc_init(struct cache_head *cnew, struct cache_head *ctmp)
- {
-+	struct rsc *new = container_of(cnew, struct rsc, h);
-+	struct rsc *tmp = container_of(ctmp, struct rsc, h);
++extern struct cache_head *
++sunrpc_cache_lookup(struct cache_detail *detail,
++		    struct cache_head *key, int hash);
++extern struct cache_head *
++sunrpc_cache_update(struct cache_detail *detail,
++		    struct cache_head *new, struct cache_head *old, int hash);
 +
- 	new->handle.len = tmp->handle.len;
- 	tmp->handle.len = 0;
- 	new->handle.data = tmp->handle.data;
-@@ -389,9 +396,12 @@ rsc_init(struct rsc *new, struct rsc *tm
- 	new->cred.cr_group_info = NULL;
+ 
+ #define cache_for_each(pos, detail, index, member) 						\
+ 	for (({read_lock(&(detail)->hash_lock); index = (detail)->hash_size;}) ;		\
+
+diff ./net/sunrpc/cache.c~current~ ./net/sunrpc/cache.c
+--- ./net/sunrpc/cache.c~current~	2006-03-09 17:12:58.000000000 +1100
++++ ./net/sunrpc/cache.c	2006-03-09 17:15:14.000000000 +1100
+@@ -47,6 +47,104 @@ void cache_init(struct cache_head *h)
+ 	h->last_refresh = now;
  }
  
--static inline void
--rsc_update(struct rsc *new, struct rsc *tmp)
-+static void
-+update_rsc(struct cache_head *cnew, struct cache_head *ctmp)
- {
-+	struct rsc *new = container_of(cnew, struct rsc, h);
-+	struct rsc *tmp = container_of(ctmp, struct rsc, h);
-+
- 	new->mechctx = tmp->mechctx;
- 	tmp->mechctx = NULL;
- 	memset(&new->seqdata, 0, sizeof(new->seqdata));
-@@ -400,6 +410,16 @@ rsc_update(struct rsc *new, struct rsc *
- 	tmp->cred.cr_group_info = NULL;
- }
- 
-+static struct cache_head *
-+rsc_alloc(void)
++struct cache_head *sunrpc_cache_lookup(struct cache_detail *detail,
++				       struct cache_head *key, int hash)
 +{
-+	struct rsc *rsci = kmalloc(sizeof(*rsci), GFP_KERNEL);
-+	if (rsci)
-+		return &rsci->h;
-+	else
++	struct cache_head **head,  **hp;
++	struct cache_head *new = NULL;
++
++	head = &detail->hash_table[hash];
++
++	read_lock(&detail->hash_lock);
++
++	for (hp=head; *hp != NULL ; hp = &(*hp)->next) {
++		struct cache_head *tmp = *hp;
++		if (detail->match(tmp, key)) {
++			cache_get(tmp);
++			read_unlock(&detail->hash_lock);
++			return tmp;
++		}
++	}
++	read_unlock(&detail->hash_lock);
++	/* Didn't find anything, insert an empty entry */
++
++	new = detail->alloc();
++	if (!new)
 +		return NULL;
++	cache_init(new);
++
++	write_lock(&detail->hash_lock);
++
++	/* check if entry appeared while we slept */
++	for (hp=head; *hp != NULL ; hp = &(*hp)->next) {
++		struct cache_head *tmp = *hp;
++		if (detail->match(tmp, key)) {
++			cache_get(tmp);
++			write_unlock(&detail->hash_lock);
++			detail->cache_put(new, detail);
++			return tmp;
++		}
++	}
++	detail->init(new, key);
++	new->next = *head;
++	*head = new;
++	detail->entries++;
++	cache_get(new);
++	write_unlock(&detail->hash_lock);
++
++	return new;
 +}
++EXPORT_SYMBOL(sunrpc_cache_lookup);
 +
- static int rsc_parse(struct cache_detail *cd,
- 		     char *mesg, int mlen)
- {
-@@ -425,6 +445,10 @@ static int rsc_parse(struct cache_detail
- 	if (expiry == 0)
- 		goto out;
- 
-+	rscp = rsc_lookup(&rsci);
-+	if (!rscp)
-+		goto out;
-+
- 	/* uid, or NEGATIVE */
- 	rv = get_int(&mesg, &rsci.cred.cr_uid);
- 	if (rv == -EINVAL)
-@@ -480,12 +504,14 @@ static int rsc_parse(struct cache_detail
- 		gss_mech_put(gm);
- 	}
- 	rsci.h.expiry_time = expiry;
--	rscp = rsc_lookup(&rsci, 1);
-+	rscp = rsc_update(&rsci, rscp);
- 	status = 0;
- out:
- 	rsc_free(&rsci);
- 	if (rscp)
- 		rsc_put(&rscp->h, &rsc_cache);
-+	else
-+		status = -ENOMEM;
- 	return status;
- }
- 
-@@ -496,9 +522,37 @@ static struct cache_detail rsc_cache = {
- 	.name		= "auth.rpcsec.context",
- 	.cache_put	= rsc_put,
- 	.cache_parse	= rsc_parse,
-+	.match		= rsc_match,
-+	.init		= rsc_init,
-+	.update		= update_rsc,
-+	.alloc		= rsc_alloc,
- };
- 
--static DefineSimpleCacheLookup(rsc, rsc);
-+static struct rsc *rsc_lookup(struct rsc *item)
++struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
++				       struct cache_head *new, struct cache_head *old, int hash)
 +{
-+	struct cache_head *ch;
-+	int hash = rsc_hash(item);
++	/* The 'old' entry is to be replaced by 'new'.
++	 * If 'old' is not VALID, we update it directly,
++	 * otherwise we need to replace it
++	 */
++	struct cache_head **head;
++	struct cache_head *tmp;
 +
-+	ch = sunrpc_cache_lookup(&rsc_cache, &item->h, hash);
-+	if (ch)
-+		return container_of(ch, struct rsc, h);
-+	else
++	if (!test_bit(CACHE_VALID, &old->flags)) {
++		write_lock(&detail->hash_lock);
++		if (!test_bit(CACHE_VALID, &old->flags)) {
++			if (test_bit(CACHE_NEGATIVE, &new->flags))
++				set_bit(CACHE_NEGATIVE, &old->flags);
++			else
++				detail->update(old, new);
++			/* FIXME cache_fresh should come first */
++			write_unlock(&detail->hash_lock);
++			cache_fresh(detail, old, new->expiry_time);
++			return old;
++		}
++		write_unlock(&detail->hash_lock);
++	}
++	/* We need to insert a new entry */
++	tmp = detail->alloc();
++	if (!tmp) {
++		detail->cache_put(old, detail);
 +		return NULL;
-+}
++	}
++	cache_init(tmp);
++	detail->init(tmp, old);
++	head = &detail->hash_table[hash];
 +
-+static struct rsc *rsc_update(struct rsc *new, struct rsc *old)
-+{
-+	struct cache_head *ch;
-+	int hash = rsc_hash(new);
-+
-+	ch = sunrpc_cache_update(&rsc_cache, &new->h,
-+				 &old->h, hash);
-+	if (ch)
-+		return container_of(ch, struct rsc, h);
++	write_lock(&detail->hash_lock);
++	if (test_bit(CACHE_NEGATIVE, &new->flags))
++		set_bit(CACHE_NEGATIVE, &tmp->flags);
 +	else
-+		return NULL;
++		detail->update(tmp, new);
++	tmp->next = *head;
++	*head = tmp;
++	cache_get(tmp);
++	write_unlock(&detail->hash_lock);
++	cache_fresh(detail, tmp, new->expiry_time);
++	cache_fresh(detail, old, 0);
++	detail->cache_put(old, detail);
++	return tmp;
 +}
-+
++EXPORT_SYMBOL(sunrpc_cache_update);
  
- static struct rsc *
- gss_svc_searchbyctx(struct xdr_netobj *handle)
-@@ -509,7 +563,7 @@ gss_svc_searchbyctx(struct xdr_netobj *h
- 	memset(&rsci, 0, sizeof(rsci));
- 	if (dup_to_netobj(&rsci.handle, handle->data, handle->len))
- 		return NULL;
--	found = rsc_lookup(&rsci, 0);
-+	found = rsc_lookup(&rsci);
- 	rsc_free(&rsci);
- 	if (!found)
- 		return NULL;
+ static int cache_make_upcall(struct cache_detail *detail, struct cache_head *h);
+ /*

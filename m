@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWCINWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWCIN1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751771AbWCINWP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 08:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWCINWO
+	id S1751873AbWCIN1U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 08:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCIN1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 08:22:14 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:59114 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751771AbWCINWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 08:22:14 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Thu, 9 Mar 2006 14:18:28 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH] drivers/ieee1394/ohci1394.c: function calls without effect
-To: linux1394-devel@lists.sourceforge.net
-cc: Adrian Bunk <bunk@stusta.de>, bcollins@debian.org, scjody@modernduck.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060309114138.GA21864@stusta.de>
-Message-ID: <tkrat.be39a8854a3c82c0@s5r6.in-berlin.de>
-References: <20060309114138.GA21864@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (-0.154) AWL,BAYES_40
+	Thu, 9 Mar 2006 08:27:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60649 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751873AbWCIN1T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 08:27:19 -0500
+Date: Thu, 9 Mar 2006 08:26:55 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, Max Asbock <masbock@us.ibm.com>,
+       Vernon Mauery <vernux@us.ibm.com>
+Subject: Re: Oops on ibmasm
+Message-ID: <20060309132655.GA26354@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>,
+	linux-kernel@vger.kernel.org, Max Asbock <masbock@us.ibm.com>,
+	Vernon Mauery <vernux@us.ibm.com>
+References: <20060308224145.47332.qmail@web52607.mail.yahoo.com> <20060309014023.2caa42d2.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060309014023.2caa42d2.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ohci1394: Remove superfluous call to free_dma_rcv_ctx,
-spotted by Adrian Bunk. Also remove some superfluous comments.
+On Thu, Mar 09, 2006 at 01:40:23AM -0800, Andrew Morton wrote:
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+ > I assume this'll fix it?
+ > 
+ > I suspect there's no point in the locking around that kobject_put() anyway.
+ > Or if there is, it wasn't the right way to fix the race.
+ > 
+ > diff -puN drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix drivers/misc/ibmasm/ibmasm.h
+ > --- devel/drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix	2006-03-09 01:35:05.000000000 -0800
+ > +++ devel-akpm/drivers/misc/ibmasm/ibmasm.h	2006-03-09 01:35:16.000000000 -0800
+ > @@ -100,11 +100,7 @@ struct command {
+ >  
+ >  static inline void command_put(struct command *cmd)
+ >  {
+ > -	unsigned long flags;
+ > -
+ > -	spin_lock_irqsave(cmd->lock, flags);
+ >          kobject_put(&cmd->kobj);
+ > -	spin_unlock_irqrestore(cmd->lock, flags);
+ >  }
 
-Index: linux/drivers/ieee1394/ohci1394.c
-===================================================================
---- linux.orig/drivers/ieee1394/ohci1394.c     2006-03-06 20:04:10.000000000 +0100
-+++ linux/drivers/ieee1394/ohci1394.c  2006-03-09 14:09:21.000000000 +0100
-@@ -3462,24 +3462,13 @@ static void ohci1394_pci_remove(struct p
- 	case OHCI_INIT_HAVE_TXRX_BUFFERS__MAYBE:
- 		/* The ohci_soft_reset() stops all DMA contexts, so we
- 		 * dont need to do this.  */
--		/* Free AR dma */
- 		free_dma_rcv_ctx(&ohci->ar_req_context);
- 		free_dma_rcv_ctx(&ohci->ar_resp_context);
--
--		/* Free AT dma */
- 		free_dma_trm_ctx(&ohci->at_req_context);
- 		free_dma_trm_ctx(&ohci->at_resp_context);
--
--		/* Free IR dma */
- 		free_dma_rcv_ctx(&ohci->ir_legacy_context);
--
--		/* Free IT dma */
- 		free_dma_trm_ctx(&ohci->it_legacy_context);
- 
--		/* Free IR legacy dma */
--		free_dma_rcv_ctx(&ohci->ir_legacy_context);
--
--
- 	case OHCI_INIT_HAVE_SELFID_BUFFER:
- 		pci_free_consistent(ohci->dev, OHCI1394_SI_DMA_BUF_SIZE,
- 				    ohci->selfid_buf_cpu,
+I don't think this is right.  This is just a kobject-convoluted
+use-after-free afaics.
 
+		Dave
 
+-- 
+http://www.codemonkey.org.uk

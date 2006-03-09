@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWCIQVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWCIQWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWCIQVg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWCIQVg
+	id S932282AbWCIQWY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWCIQWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:21:36 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:24846 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S932371AbWCIQVf (ORCPT
+	Thu, 9 Mar 2006 11:22:24 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:25102 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932282AbWCIQWX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:21:35 -0500
+	Thu, 9 Mar 2006 11:22:23 -0500
 X-AuthUser: hirofumi@parknet.jp
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] freeze_bdev() cleanup
+Subject: [PATCH] Move cond_resched() after iput() in sync_sb_inodes()
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 10 Mar 2006 01:21:08 +0900
-Message-ID: <87k6b3zj0r.fsf@duaron.myhome.or.jp>
+Date: Fri, 10 Mar 2006 01:22:19 +0900
+Message-ID: <87fylrziys.fsf@duaron.myhome.or.jp>
 User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,68 +23,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-freeze_bdev() uses a fsync_super() without sync_blockdev(). This patch
-makes __fsync_super() for shareing it.
+In here, I think the following order is more cache-friendly. What do
+you think?
 
 Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 ---
 
- fs/buffer.c |   30 +++++++++++-------------------
- 1 file changed, 11 insertions(+), 19 deletions(-)
+ fs/fs-writeback.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN fs/buffer.c~freeze_bdev-cleanup fs/buffer.c
---- linux-2.6/fs/buffer.c~freeze_bdev-cleanup	2006-03-03 00:24:40.000000000 +0900
-+++ linux-2.6-hirofumi/fs/buffer.c	2006-03-03 00:24:40.000000000 +0900
-@@ -160,12 +160,7 @@ int sync_blockdev(struct block_device *b
- }
- EXPORT_SYMBOL(sync_blockdev);
- 
--/*
-- * Write out and wait upon all dirty data associated with this
-- * superblock.  Filesystem data as well as the underlying block
-- * device.  Takes the superblock lock.
-- */
--int fsync_super(struct super_block *sb)
-+static void __fsync_super(struct super_block *sb)
- {
- 	sync_inodes_sb(sb, 0);
- 	DQUOT_SYNC(sb);
-@@ -177,7 +172,16 @@ int fsync_super(struct super_block *sb)
- 		sb->s_op->sync_fs(sb, 1);
- 	sync_blockdev(sb->s_bdev);
- 	sync_inodes_sb(sb, 1);
-+}
- 
-+/*
-+ * Write out and wait upon all dirty data associated with this
-+ * superblock.  Filesystem data as well as the underlying block
-+ * device.  Takes the superblock lock.
-+ */
-+int fsync_super(struct super_block *sb)
-+{
-+	__fsync_super(sb);
- 	return sync_blockdev(sb->s_bdev);
- }
- 
-@@ -216,19 +220,7 @@ struct super_block *freeze_bdev(struct b
- 		sb->s_frozen = SB_FREEZE_WRITE;
- 		smp_wmb();
- 
--		sync_inodes_sb(sb, 0);
--		DQUOT_SYNC(sb);
--
--		lock_super(sb);
--		if (sb->s_dirt && sb->s_op->write_super)
--			sb->s_op->write_super(sb);
--		unlock_super(sb);
--
--		if (sb->s_op->sync_fs)
--			sb->s_op->sync_fs(sb, 1);
--
--		sync_blockdev(sb->s_bdev);
--		sync_inodes_sb(sb, 1);
-+		__fsync_super(sb);
- 
- 		sb->s_frozen = SB_FREEZE_TRANS;
- 		smp_wmb();
+diff -puN fs/fs-writeback.c~iput-before-cond_resched fs/fs-writeback.c
+--- linux-2.6/fs/fs-writeback.c~iput-before-cond_resched	2006-03-05 21:51:12.000000000 +0900
++++ linux-2.6-hirofumi/fs/fs-writeback.c	2006-03-05 21:51:12.000000000 +0900
+@@ -382,8 +382,8 @@ sync_sb_inodes(struct super_block *sb, s
+ 			list_move(&inode->i_list, &sb->s_dirty);
+ 		}
+ 		spin_unlock(&inode_lock);
+-		cond_resched();
+ 		iput(inode);
++		cond_resched();
+ 		spin_lock(&inode_lock);
+ 		if (wbc->nr_to_write <= 0)
+ 			break;
 _

@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbWCIAax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWCIAau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932631AbWCIAax (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWCIAax
+	id S932319AbWCIAau (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:30:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbWCIAau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:30:53 -0500
-Received: from ozlabs.org ([203.10.76.45]:9884 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932627AbWCIAav (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:30:51 -0500
-Date: Thu, 9 Mar 2006 11:30:13 +1100
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: hugepage: Strict page reservation for hugepage inodes
-Message-ID: <20060309003013.GF17590@localhost.localdomain>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	"Zhang, Yanmin" <yanmin.zhang@intel.com>,
-	Andrew Morton <akpm@osdl.org>,
-	William Lee Irwin <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20060308235207.GB17590@localhost.localdomain> <200603090019.k290JDg13362@unix-os.sc.intel.com>
+	Wed, 8 Mar 2006 19:30:50 -0500
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:40165 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S932319AbWCIAat
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:30:49 -0500
+Subject: Re: 2.6.15-rt20, "bad page state", jackd
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>
+Cc: nando@ccrma.Stanford.EDU,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1141854504.5262.36.camel@cmn3.stanford.edu>
+References: <1141846564.5262.20.camel@cmn3.stanford.edu>
+	 <1141854504.5262.36.camel@cmn3.stanford.edu>
+Content-Type: text/plain
+Date: Wed, 08 Mar 2006 16:30:32 -0800
+Message-Id: <1141864232.5262.47.camel@cmn3.stanford.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603090019.k290JDg13362@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 04:19:13PM -0800, Chen, Kenneth W wrote:
-> David Gibson wrote on Wednesday, March 08, 2006 3:52 PM
-> > But I don't see that recording all the mapped ranges will avoid the
-> > need for the fault serialization.  At least the version of apw's
-> > reservation patch I looked at most recently would certainly still
-> > suffer from the alloc/instantiate race on the last hugepage in the
-> > system.
+On Wed, 2006-03-08 at 13:48 -0800, Fernando Lopez-Lezcano wrote:
+> On Wed, 2006-03-08 at 11:36 -0800, Fernando Lopez-Lezcano wrote:
+> > Hi all, I reported this in mid January (I thought I had sent to the list
+> > but the report went to Ingo and Steven off list)
+> > 
+> > I'm seeing the same problem in 2.6.15-rt21 in some of my machines. After
+> > a reboot into the kernel I just login as root in a terminal, start the
+> > jackd sound server ("jackd -d alsa -d hw") and when stopping it (just
+> > doing a <ctrl>c) I get a bunch of messages of this form:
+> > 
+> > > Trying to fix it up, but a reboot is needed
+> > > Bad page state at __free_pages_ok (in process 'jackd', page c10012fc)
+> > 
+> > Has anyone else seen this?
+> > 
+> > I'm in the process of building an -rt21 kernel before posting more
+> > detailed error messages (this kernel is patched with some additional
+> > stuff). 
 > 
-> No, it doesn't.  Because with strict commit accounting, you know that
-> every hugetlb page is accounted for.  So there is no backout path for
-> multiple instantiation race.  Thread that lost in the race will always
-> go back to retry in hugetlb_no_page().  And since reservation is also
-> accounted in a global variable, total hugetlb pool won't fall below
-> what was reserved plus what is in use.  Even if sys admin tries to
-> reduce hugetlb pool, kernel won't release any pages that are
-> reserved.
+> This is what the errors look like (I'm attaching the whole dmesg output
+> and the .config file used to build the smp kernel):
+> 
+> Bad page state at __free_pages_ok (in process 'jackd', page c1013ce0)
+> flags:0x00000414 mapping:00000000 mapcount:0 count:0
+> Backtrace:
+>  [<c015947d>] bad_page+0x7d/0xc0 (8)
+>  [<c01598fd>] __free_pages_ok+0x9d/0x180 (36)
+>  [<c015a5ac>] __pagevec_free+0x3c/0x50 (40)
+>  [<c015db47>] release_pages+0x127/0x1a0 (16)
+>  [<c016c93d>] free_pages_and_swap_cache+0x7d/0xc0 (80)
+>  [<c01681ae>] unmap_region+0x13e/0x160 (28)
+>  [<c0168461>] do_munmap+0xe1/0x120 (48)
+>  [<c01684df>] sys_munmap+0x3f/0x60 (32)
+>  [<c01034a1>] syscall_call+0x7/0xb (16)
+> Trying to fix it up, but a reboot is needed
 
-Hrm..ok.  Clearly I'm looking at the wrong version of the patch - what
-I have is from the prefaulting days, anyway.
+[MUNCH]
 
-Though.. you must still need a backout path for PRIVATE mappings,
-which would make the logic rather complex.
+> I'm now building another -rt21 with DEBUG_PAGEALLOC and DEBUG_SLAB
+> enabled to see if I can pinpoint in more detail what's happening (if I
+> can get it to boot!). 
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+I'm not able to boot with those two options enabled. It looks like it is
+hanging after loading the sound drivers - this is on top of fc4. I can't
+even get to single user and I'm searching for a serial cable right now
+to see if I can get more information in a way that can be posted here. 
+Arghhh :-)
+-- Fernando
+
+

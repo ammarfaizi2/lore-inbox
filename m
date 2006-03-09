@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752011AbWCIQCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWCIQFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752011AbWCIQCE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752002AbWCIQCE
+	id S1751151AbWCIQFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:05:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752002AbWCIQFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:02:04 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:60116 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S1751099AbWCIQCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:02:03 -0500
-Date: Thu, 9 Mar 2006 19:02:01 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Paul Mackerras <paulus@samba.org>
-Cc: David Howells <dhowells@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
-       Alan Cox <alan@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Paul@ozlabs.org, E.McKenney@ozlabs.org,
-       " <paulmck@us.ibm.com>"@ozlabs.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
-Message-ID: <20060309190201.A19243@jurassic.park.msu.ru>
-References: <20060308154157.GI7301@parisc-linux.org> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com> <10095.1141838381@warthog.cambridge.redhat.com> <17423.22121.254026.487964@cargo.ozlabs.ibm.com> <20060309020851.D9651@jurassic.park.msu.ru> <17423.32377.460820.710578@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <17423.32377.460820.710578@cargo.ozlabs.ibm.com>; from paulus@samba.org on Thu, Mar 09, 2006 at 12:01:45PM +1100
+	Thu, 9 Mar 2006 11:05:04 -0500
+Received: from dvhart.com ([64.146.134.43]:12209 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751151AbWCIQFD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 11:05:03 -0500
+Message-ID: <44105227.8020503@mbligh.org>
+Date: Thu, 09 Mar 2006 08:04:55 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Dave Jones <davej@redhat.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+References: <200603060117.16484.jesper.juhl@gmail.com> <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org> <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org> <200603062124.42223.jesper.juhl@gmail.com> <20060306203036.GQ4595@suse.de> <9a8748490603061341l50febef9o3cb480bdbdcf925f@mail.gmail.com> <20060306215515.GE11565@redhat.com> <44104EB7.9090103@mbligh.org> <20060309155437.GE5410@kvack.org>
+In-Reply-To: <20060309155437.GE5410@kvack.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 12:01:45PM +1100, Paul Mackerras wrote:
-> If you do:
+Benjamin LaHaise wrote:
+> On Thu, Mar 09, 2006 at 07:50:15AM -0800, Martin J. Bligh wrote:
 > 
-> 	CPU 0			CPU 1
+>>Do we NOT want to have DEBUG_SLAB and DEBUG_PAGEALLOC both enabled?
+>>Running multiple permutations is going to get really painful on the
+>>systems involved. Any other requests for what gets enabled (I really
+>>want to just stick to one 'debug' setup if possible).
 > 
-> 	foo = val;
-> 	wmb();
-> 	p = &foo;
-> 				reg = p;
-> 				bar = *reg;
 > 
-> it is apparently possible for CPU 1 to see the new value of p
-> (i.e. &foo) but an old value of foo (i.e. not val).  This can happen
-> if p and foo are in different halves of the cache on CPU 1, and there
-> are a lot of updates coming in for the half containing foo but the
-> half containing p is quiet.
+> Debug kernels are incredibly slow, making hitting certain races next to 
+> impossible.  By all means non-DEBUG kernels should definately be getting 
+> tested.
 
-Indeed, this can happen according to architecture reference manual,
-so CPU 1 needs mb() as well.
+It'd still run a totally non-debug kernel as well - I want that for the
+perf tests etc anyway. I guess the question is whether the debug kernels
+should have most of the DEBUG_* turned on, or just a select few.
 
-Thanks for clarification.
-
-Ivan.
+M.

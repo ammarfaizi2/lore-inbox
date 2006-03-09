@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWCIVcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751894AbWCIVh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751617AbWCIVcO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 16:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWCIVcO
+	id S1751894AbWCIVh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 16:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751901AbWCIVh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 16:32:14 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:11926 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751617AbWCIVcO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 16:32:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l2ZWKhII0QTE8dYG9uiUxiE1NlbcYBLbalzas9v48vHHYOvCaY/QJOANBGMeqT/1Kc5Qml01+fkL4jbVx3zq2SJtp8b1wt7KCq3ZQVxee7C2aft/Ftrdq8rCXbGuVKRs41m3ZPHtTx//hq8j2vHTxZyjG4THnlJf9oF4AkGtgOY=
-Message-ID: <9f7850090603091332m7517eaafrd9f180ec5a358a55@mail.gmail.com>
-Date: Thu, 9 Mar 2006 13:32:12 -0800
-From: "marty fouts" <mf.danger@gmail.com>
-To: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Cc: "Xavier Bestel" <xavier.bestel@free.fr>, "Phillip Susi" <psusi@cfl.rr.com>,
-       Luke-Jr <luke@dashjr.org>, "Anshuman Gholap" <anshu.pg@gmail.com>,
+	Thu, 9 Mar 2006 16:37:28 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:19122 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751894AbWCIVh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 16:37:27 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Kasper Sandberg <lkml@metanurb.dk>
+Subject: Re: [Suspend2-announce] Nigel's work and the future of Suspend2.
+Date: Fri, 10 Mar 2006 07:34:36 +1000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, Thomas Maier <Thomas.Maier@uni-kassel.de>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <161717d50603091222p34b45065xdb8507cbf8191a3d@mail.gmail.com>
+References: <200603071005.56453.nigel@suspend2.net> <20060309114556.GE2813@elf.ucw.cz> <1141916144.1745.8.camel@localhost>
+In-Reply-To: <1141916144.1745.8.camel@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
-	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
-	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-	 <1141928755.7599.0.camel@bip.parateam.prv>
-	 <161717d50603091222p34b45065xdb8507cbf8191a3d@mail.gmail.com>
+Content-Type: multipart/signed;
+  boundary="nextPart15231004.bTIkignDcS";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603100734.42562.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But I stand by my assertion: many kernel developers on record stating
-> that they don't want their work used in binary-only modules, and the
-> reason that this hasn't been decided by a court yet is no sufficiently
-> deep-pocketed plaintiff (independantly wealthy kernel hackers or a big
-> corporation with copyright interest in the kernel) has decided to sue,
-> yet.
+--nextPart15231004.bTIkignDcS
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Friday 10 March 2006 00:55, Kasper Sandberg wrote:
+> > Except that suspend2 is not going to be merged, for variety of
+> > reasons. One of them is that noone is working on merging it...
 >
-> See Linus' statements here:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0670.html
-> and here: http://www.ussg.iu.edu/hypermail/linux/kernel/0312.1/0708.html
-> if you think I'm just pulling this stuff out of my butt.
->
+> one of them being the operative word, afaik, nigel was unwilling to work
+> on the issues needed for merging for the reason that it wouldnt be
+> merged..
 
-Looking at Linus' arguments, how would you say those kernel developers
-feel about the following scenario:
+Yes. The only reason I'm not going to commit myself to getting carried away=
+=20
+with seeking to merge it is that you've clearly stated that you don't want =
+to=20
+see it merged, and you haven't been overruled by other kernel maintainers=20
+(with perhaps the occasional exception, sometimes privately). If they came=
+=20
+along to the party and said "Pavel, get your act together. Suspend2 isn't a=
+s=20
+invasive or ugly as you're making it out to be." (or something similar), I'=
+d=20
+see some point to working on merging it. If they want to tell me to submit =
+it=20
+again or prove that's the case, I'm more than willing to hear that. But whi=
+le=20
+the only feedback is users saying "I wish it was merged" and Pavel saying=20
+"Ain't going to happen", what am I meant to do?
 
-I have access to a 3rd party file system, written not for Linux but
-for some completely different OS. But my license with that vendor does
-not allow me to distribute the file system.   I write the translation
-layer that they describe in their documentation that allows me to drop
-their file system, unchanged, into Linux. I GPL the translation layer
-and make the source available appropriately. (This is similar to the
-AFS point in Linus' email, but not exactly the same.) I do not, since
-I don't permission to, distribute the source for the third party OS.
+Regards,
 
-1) Have I met my legal obligation under the GPL? (Seems to me Linus
-would say yes, but I want to understand other people's view on this.)
+Nigel
 
-2) Will the developers you mention above be unhappy anyway, even if I have?
+--nextPart15231004.bTIkignDcS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEEJ9yN0y+n1M3mo0RAm02AKDcbL2B0R6bUw33mhmm+yapKNpztwCgjqJg
+yrjlGceUfi1WePbbX58I16k=
+=//9G
+-----END PGP SIGNATURE-----
+
+--nextPart15231004.bTIkignDcS--

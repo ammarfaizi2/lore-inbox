@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWCIKmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWCIKxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751809AbWCIKmh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 05:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWCIKmh
+	id S1750929AbWCIKxN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 05:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbWCIKxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 05:42:37 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:53446 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932093AbWCIKmg convert rfc822-to-8bit
+	Thu, 9 Mar 2006 05:53:13 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:9858 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750929AbWCIKxM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 05:42:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g0/49bzy7+HLGf8qpAfrRUAJeC3AfzXPQ8Np+LrtcdklOyVVV4nDnoLmBA64ObhdNH4RanBdsr5l7xApUJCrMRuTAWXgkgJEGGg/0Fl+zCHO26FBJHfOnewGti8UbO1KaLlA8EAHVJN4En6ccQqJux5EdkgOxU+ZHX/kZmoAhdU=
-Message-ID: <a03c9a270603090242o713fbe36s895da175bc53140f@mail.gmail.com>
-Date: Thu, 9 Mar 2006 11:42:35 +0100
-From: "Rudolf Randal" <rudolf.randal@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-In-Reply-To: <21d7e9970603090202v22205fc6ha5b4cec12f0a0507@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 9 Mar 2006 05:53:12 -0500
+Date: Thu, 9 Mar 2006 02:57:54 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Ram Gupta <ram.gupta5@gmail.com>
+Cc: linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] capability: Fix bug in checking capabilties in ptrace system call
+Message-ID: <20060309105754.GK27645@sorel.sous-sol.org>
+References: <728201270603081252v3cb2743dwcb18d99f132cf531@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
-	 <MDEHLPKNGKAHNMBLJOLKIELAKJAB.davids@webmaster.com>
-	 <21d7e9970603090202v22205fc6ha5b4cec12f0a0507@mail.gmail.com>
+In-Reply-To: <728201270603081252v3cb2743dwcb18d99f132cf531@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering how many direct letters from lkml people have been
-written to vendors asking for cooperation with regard to specs, joint
-development or other solutions for open source drivers for their
-devices.
-If there has been letters of this kind (there might have been many)-
-do they exist in the open? has there been replies?
-I dont know how many dlink people (or other vendors) are reading lkml
-or other linux related maillists/websites but I do know that the tone
-of lkml often isnt pleasant when it comes to licensing issues, closed
-vs open source (GPL). I too feel strongly about oss and GPL - but the
-tone on this list (often) might be too much to handle for some people!
-Maybe request for an open discussion with some of these vendors would
-bring about some of their concerns over IP and other issues and could
-maybe even open up for some progress ??
+* Ram Gupta (ram.gupta5@gmail.com) wrote:
+> This patch fixes a bug of ptrace for PTRACE_TRACEME request. In this
+> case the call is made by the child process & code needs to check the
+> capabilty of the parent process to trace the child process but code
+> incorrectly makes check for the child process.
 
-Rudolf
+Actually, that check is never triggered, for slightly subtle reason.
+
+> Signed-off-by: Ram Gupta <ram.gupta5@gmail.com>
+> 
+> --- linux-2.6.14-patch-2.6.15/security/commoncap.c.orig Wed Mar  8 13:54:06 2006
+> +++ linux-2.6.14-patch-2.6.15/security/commoncap.c      Wed Mar  8 13:57:07 2006
+> @@ -59,9 +59,13 @@ int cap_settime(struct timespec *ts, str
+>  int cap_ptrace (struct task_struct *parent, struct task_struct *child)
+>  {
+>         /* Derived from arch/i386/kernel/ptrace.c:sys_ptrace. */
+> -       if (!cap_issubset (child->cap_permitted, current->cap_permitted) &&
+
+In the context of TRACEME, child == current.
+
+Historically, there's been no default security check for TRACEME, so
+a change here has some small chance of breaking things (which would
+be fine for plugging a real security hole).  Parent less privileged
+than child which did TRACEME is a bit of a contrived case, so security
+implications aren't so worrisome.  Modules like SELinux will actually
+check this case, and should properly restrict.  We can try a change in
+-mm for a while.
+
+> -           !capable(CAP_SYS_PTRACE))
+> -               return -EPERM;
+> +       if (!cap_issubset (child->cap_permitted, current->cap_permitted)){
+> +               if(!security_ops->capable(parent,CAP_SYS_PTRACE)){
+
+This is not valid when !CONFIG_SECURITY.
+
+thanks,
+-chris
 --
-Rudolf Randal - Hässleholmsgatan 3B lgh 503 - 214 43 Malmö - Sweden -
-Phone: +46 (0)76 234 05 77

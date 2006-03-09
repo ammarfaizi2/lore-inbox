@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWCILlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWCILlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751817AbWCILlO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 06:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751831AbWCILlO
+	id S1751851AbWCILlk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 06:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWCILlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 06:41:14 -0500
-Received: from ping.uio.no ([129.240.78.2]:12216 "EHLO ping.uio.no")
-	by vger.kernel.org with ESMTP id S1751817AbWCILlN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 06:41:13 -0500
-To: linux-kernel@vger.kernel.org
-Cc: davids@webmaster.com
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-References: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
-	<MDEHLPKNGKAHNMBLJOLKIELAKJAB.davids@webmaster.com>
-From: ilmari@ilmari.org (=?utf-8?q?Dagfinn_Ilmari_Manns=C3=A5ker?=)
-Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
-Mail-Copies-To: nobody
-Date: Thu, 09 Mar 2006 12:41:08 +0100
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIELAKJAB.davids@webmaster.com> (David
- Schwartz's message of "Wed, 8 Mar 2006 20:41:16 -0800")
-Message-ID: <d8j64mnluaz.fsf@ritchie.ping.uio.no>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 9 Mar 2006 06:41:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8723 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751851AbWCILlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 06:41:39 -0500
+Date: Thu, 9 Mar 2006 12:41:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: bcollins@debian.org, scjody@modernduck.com
+Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: drivers/ieee1394/ohci1394.c: function calls without effect
+Message-ID: <20060309114138.GA21864@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Exiscan-Spam-Score: -7.8 (-------)
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Schwartz" <davids@webmaster.com> writes:
+While investigating two (incorrect) errors of the Coverity checker, I 
+found the following in drivers/ieee1394/ohci1394.c:ohci1394_pci_remove():
 
-> 	If the law allowed you to give your software away for free and
-> then put restrictions on use, you could drop copies of a poem from an
-> airplane (or put it up on a billboard) and then demand royalties from
-> everyone who read it.
+                /* Free IR dma */
+                free_dma_rcv_ctx(&ohci->ir_legacy_context);
 
-No. Copyright does not cover reading. It covers the distribution of
-copies (and derived works) of works. You could just fine drop copies of
-a poem from an airplain and then demand royalties from everoyone who
-distributes additional copies of it (copies they made, not the copies
-you dropped, cf. the doctrine of first sale).
+                /* Free IT dma */
+                free_dma_trm_ctx(&ohci->it_legacy_context);
+
+                /* Free IR legacy dma */
+                free_dma_rcv_ctx(&ohci->ir_legacy_context);
+
+
+Both functions contain:
+
+
+<--  snip  -->
+
+static void free_dma_rcv_ctx(struct dma_rcv_ctx *d)
+{
+        int i;
+        struct ti_ohci *ohci = d->ohci;
+
+        if (ohci == NULL)
+                return;
+...
+        /* Mark this context as freed. */
+        d->ohci = NULL;
+}
+
+<--  snip  -->
+
+
+There are no other return possibilities in these functions.
+
+
+Therefore, the latter two of the three function calls above aren't doing 
+anything.
+
+
+cu
+Adrian
 
 -- 
-ilmari
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

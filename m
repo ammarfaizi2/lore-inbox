@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWCIDUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWCID0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbWCIDUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 22:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161007AbWCIDUQ
+	id S1751590AbWCID0n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 22:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWCID0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 22:20:16 -0500
-Received: from smtp-2.llnl.gov ([128.115.3.82]:4318 "EHLO smtp-2.llnl.gov")
-	by vger.kernel.org with ESMTP id S1161006AbWCIDUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 22:20:14 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Date: Wed, 8 Mar 2006 19:19:59 -0800
-User-Agent: KMail/1.5.3
-Cc: Greg KH <greg@kroah.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061301.37923.dsp@llnl.gov> <1141679261.5568.13.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141679261.5568.13.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Wed, 8 Mar 2006 22:26:43 -0500
+Received: from topsns2.toshiba-tops.co.jp ([202.230.225.126]:6029 "EHLO
+	topsns2.toshiba-tops.co.jp") by vger.kernel.org with ESMTP
+	id S1751527AbWCID0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 22:26:42 -0500
+Date: Thu, 09 Mar 2006 12:26:38 +0900 (JST)
+Message-Id: <20060309.122638.07642914.nemoto@toshiba-tops.co.jp>
+To: linux-kernel@vger.kernel.org
+Cc: linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au, akpm@osdl.org
+Subject: [PATCH] crypto: fix unaligned access in khazad module
+From: Atsushi Nemoto <nemoto@toshiba-tops.co.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+Organization: TOSHIBA Personal Computer System Corporation
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603081919.59763.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 March 2006 13:07, Arjan van de Ven wrote:
-> > Is it more desirable to dynamically allocate kobjects than to declare
-> > them statically?
->
-> Yes
->
-> >  If so, I'd be curious to know why dynamic
-> > allocation is preferred over static allocation.
->
-> because the lifetime of the kobject is independent of the lifetime of
-> the memory of your static allocation.
-> Separate lifetimes -> separate memory is a very good design principle.
+On 64-bit platform, reading directly from keys (which supposed to be
+32-bit aligned) will result in unaligned access.
 
-I'm not familiar with the internals of the module unloading code.
-However, my understanding of the discussion so far is that the kernel
-will refuse to unload a module while any of its kobjects still have
-nonzero reference counts (either by waiting for the reference counts
-to hit 0 or returning -EBUSY).
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-If this is the case, then I don't see any harm in declaring kobjects
-statically.  Declaring a kobject statically is simpler than
-dynamically allocating and freeing it.  Am I still missing something?
+diff --git a/crypto/khazad.c b/crypto/khazad.c
+index 807f2bf..c7e1d25 100644
+--- a/crypto/khazad.c
++++ b/crypto/khazad.c
+@@ -26,6 +26,7 @@
+ #include <asm/scatterlist.h>
+ #include <linux/crypto.h>
+ #include <linux/types.h>
++#include <asm/unaligned.h>
+ 
+ #define KHAZAD_KEY_SIZE		16
+ #define KHAZAD_BLOCK_SIZE	8
+@@ -769,8 +770,8 @@ static int khazad_setkey(void *ctx_arg, 
+ 		return -EINVAL;
+ 	}
+ 
+-	K2 = be64_to_cpu(key[0]);
+-	K1 = be64_to_cpu(key[1]);
++	K2 = be64_to_cpu(get_unaligned(&key[0]));
++	K1 = be64_to_cpu(get_unaligned(&key[1]));
+ 
+ 	/* setup the encrypt key */
+ 	for (r = 0; r <= KHAZAD_ROUNDS; r++) {

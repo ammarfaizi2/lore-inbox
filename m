@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751020AbWCIRWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWCIR1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751020AbWCIRWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWCIRWQ
+	id S1750954AbWCIR1i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750962AbWCIR1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:22:16 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:24899 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751014AbWCIRWP (ORCPT
+	Thu, 9 Mar 2006 12:27:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36810 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750937AbWCIR1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:22:15 -0500
-Message-ID: <44106557.5010004@openvz.org>
-Date: Thu, 09 Mar 2006 20:26:47 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Reduce sched latency in shrink_dcache_sb()
-Content-Type: multipart/mixed;
- boundary="------------070805080607020407050805"
+	Thu, 9 Mar 2006 12:27:37 -0500
+Date: Thu, 9 Mar 2006 12:27:23 -0500
+From: Dave Jones <davej@redhat.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: filldir[64] oddness
+Message-ID: <20060309172722.GB9876@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Bryan O'Sullivan <bos@serpentine.com>,
+	Al Viro <viro@ftp.linux.org.uk>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20060309042744.GA23148@redhat.com> <20060308.203204.115109492.davem@davemloft.net> <20060309044025.GS27946@ftp.linux.org.uk> <1141923743.17294.8.camel@localhost.localdomain> <20060309170740.GA9876@redhat.com> <1141924514.17294.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141924514.17294.18.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070805080607020407050805
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Mar 09, 2006 at 09:15:14AM -0800, Bryan O'Sullivan wrote:
+ > On Thu, 2006-03-09 at 12:07 -0500, Dave Jones wrote:
+ > 
+ > >  > About half of the ~50 reports I've looked at so far in their database
+ > >  > have been false positives.  In most of those cases, it's not obvious how
+ > >  > a checker might have gotten them right instead, though.
+ > > 
+ > > It seems to stumble quite a bit when faced with things that are
+ > > free'd when refcounts drop to zero. (skbs, and kobjects).
+ > 
+ > Yes, or (in my case) stuff like "when this variable has value X, that
+ > pointer can't possibly be NULL".
 
-This patch reduces scheduling latency in shrink_dcache_sb()
-noticed during remounting of big partitions with many cached dentries.
-The same latency fix was applied to select_parent() long ago.
+*nod*
+It does call into question the "OMFG, there are 1000 bugs in the kernel"
+hysteria that has found its way through various news forums.
+The genuine bugs it does find are gold dust though.  There's a bunch
+of stuff that's sat there for an eternity. It's just painstaking to
+grovel through the reports weeding out the false positives.
 
-Signed-Off-By: Denis Lunev <den@sw.ru>
-Signed-Off-By: Pavel Emelianov <xemul@sw.ru>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+A lot of the 'bugs' it's found are also not really going to make
+the world stop turning soon. It even picked up a few cases of
+code doing like.
 
-Thanks,
-Kirill
+void foo()
+{
+	int x;
 
---------------070805080607020407050805
-Content-Type: text/plain;
- name="diff-ms-shrink-dcache-latency2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ms-shrink-dcache-latency2"
+	while (read status from hardware reg != READY)
+		x++;
+}
 
---- ./fs/dcache.c.lat	2006-03-09 16:03:44.000000000 +0300
-+++ ./fs/dcache.c	2006-03-09 20:19:41.000000000 +0300
-@@ -491,6 +491,7 @@ repeat:
- 			continue;
- 		}
- 		prune_one_dentry(dentry);
-+		cond_resched_lock(&dcache_lock);
- 		goto repeat;
- 	}
- 	spin_unlock(&dcache_lock);
+as uninitialised. Which is true, but as there's nothing
+dependant on it, it's harmless.
 
---------------070805080607020407050805--
+		Dave
 
+-- 
+http://www.codemonkey.org.uk

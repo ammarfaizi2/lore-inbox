@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751851AbWCILlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWCILoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751851AbWCILlk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 06:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWCILlk
+	id S932096AbWCILoT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 06:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWCILoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 06:41:40 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:8723 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751851AbWCILlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 06:41:39 -0500
-Date: Thu, 9 Mar 2006 12:41:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: bcollins@debian.org, scjody@modernduck.com
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: drivers/ieee1394/ohci1394.c: function calls without effect
-Message-ID: <20060309114138.GA21864@stusta.de>
+	Thu, 9 Mar 2006 06:44:19 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:45505 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S932096AbWCILoR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 06:44:17 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
+Date: Thu, 9 Mar 2006 12:44:09 +0100
+User-Agent: KMail/1.8.3
+References: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org> <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org> <17423.42185.78767.837295@cargo.ozlabs.ibm.com>
+In-Reply-To: <17423.42185.78767.837295@cargo.ozlabs.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, Alan Cox <alan@redhat.com>, linuxppc64-dev@ozlabs.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: multipart/signed;
+  boundary="nextPart1961345.meoHJZIQSV";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603091244.09621.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While investigating two (incorrect) errors of the Coverity checker, I 
-found the following in drivers/ieee1394/ohci1394.c:ohci1394_pci_remove():
+--nextPart1961345.meoHJZIQSV
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-                /* Free IR dma */
-                free_dma_rcv_ctx(&ohci->ir_legacy_context);
+On Thursday 09 March 2006 04:45, you wrote:
+> ... then I can remove the sync from write*, which would be nice, and
+> make mmiowb() be a sync.  I wonder how long we're going to spend
+> chasing driver bugs after that, though. :)
 
-                /* Free IT dma */
-                free_dma_trm_ctx(&ohci->it_legacy_context);
+Can you do a patch, which does the change, so people can actually
+test their drivers?
 
-                /* Free IR legacy dma */
-                free_dma_rcv_ctx(&ohci->ir_legacy_context);
+=2D-=20
+Greetings Michael.
 
+--nextPart1961345.meoHJZIQSV
+Content-Type: application/pgp-signature
 
-Both functions contain:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
+iD8DBQBEEBUJlb09HEdWDKgRAk/pAJ9pjsBhZ81hSzSg1kUCfW9QUcvCAgCfVm+/
+/2Z+9pH/To4hM1H6OJoPUf8=
+=FH+3
+-----END PGP SIGNATURE-----
 
-<--  snip  -->
-
-static void free_dma_rcv_ctx(struct dma_rcv_ctx *d)
-{
-        int i;
-        struct ti_ohci *ohci = d->ohci;
-
-        if (ohci == NULL)
-                return;
-...
-        /* Mark this context as freed. */
-        d->ohci = NULL;
-}
-
-<--  snip  -->
-
-
-There are no other return possibilities in these functions.
-
-
-Therefore, the latter two of the three function calls above aren't doing 
-anything.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--nextPart1961345.meoHJZIQSV--

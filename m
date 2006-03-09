@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWCIL0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWCIL16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWCIL0w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 06:26:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWCIL0w
+	id S1751855AbWCIL16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 06:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWCIL16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 06:26:52 -0500
-Received: from main.gmane.org ([80.91.229.2]:31962 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750886AbWCIL0v (ORCPT
+	Thu, 9 Mar 2006 06:27:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751850AbWCIL15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 06:26:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sergei Organov <osv@javad.com>
-Subject: Re: [PATCH] Document Linux's memory barriers
-Date: Thu, 09 Mar 2006 14:26:06 +0300
-Message-ID: <dup3ct$hvt$1@sea.gmane.org>
-References: <31492.1141753245@warthog.cambridge.redhat.com>
-	<1141756825.31814.75.camel@localhost.localdomain>
-	<Pine.LNX.4.61.0603071346540.9814@chaos.analogic.com>
-	<20060307190602.GE7301@parisc-linux.org>
-	<Pine.LNX.4.61.0603071408220.9899@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 87.236.81.130
-User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
-Cc: linuxppc64-dev@ozlabs.org
+	Thu, 9 Mar 2006 06:27:57 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1141858122.11378.15.camel@lade.trondhjem.org> 
+References: <1141858122.11378.15.camel@lade.trondhjem.org>  <20060308203018.25493.23720.stgit@warthog.cambridge.redhat.com> <20060308203028.25493.84121.stgit@warthog.cambridge.redhat.com> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       steved@redhat.com, aviro@redhat.com, linux-fsdevel@vger.kernel.org,
+       linux-cachefs@redhat.com, nfsv4@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/6] NFS: Unify NFS superblocks per-protocol per-server [try #7] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 09 Mar 2006 11:27:40 +0000
+Message-ID: <23847.1141903660@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"linux-os \(Dick Johnson\)" <linux-os@analogic.com> writes:
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> On Tue, 7 Mar 2006, Matthew Wilcox wrote:
->
->> On Tue, Mar 07, 2006 at 01:54:33PM -0500, linux-os (Dick Johnson) wrote:
->>> This might be a good place to document:
->>>     dummy = readl(&foodev->ctrl);
->>>
->>> Will flush all pending writes to the PCI bus and that:
->>>     (void) readl(&foodev->ctrl);
->>> ... won't because `gcc` may optimize it away. In fact, variable
->>> "dummy" should be global or `gcc` may make it go away as well.
->>
->> static inline unsigned int readl(const volatile void __iomem *addr)
->> {
->> 	return *(volatile unsigned int __force *) addr;
->> }
->>
->> The cast is volatile, so gcc knows not to optimise it away.
->>
->
-> When the assignment is not made a.k.a., cast to void, or when the
-> assignment is made to an otherwise unused variable, `gcc` does,
-> indeed make it go away.
+> > The attached patch makes NFS share superblocks between mounts from the same
+> > server over the same protocol.
+> 
+> We want to make NFS share superblocks on a per-filesystem basis, rather
+> than forcing it into a per-server basis.
 
-Wrong. From the GCC texinfo documentation:
+By "per-filesystem", I presume you mean per-server-mounted-filesystem?
+Something like what the kAFS client tries to do. As it happens the current NFS
+code doesn't do this either, but it has occurred to me that this would be
+useful, just not necessarily easy...
 
-" Less obvious expressions are where something which looks like an access
-is used in a void context.  An example would be,
+> Cachefs may like the latter, but POSIX does not like a filesystem where
+> inode numbers are not guaranteed to be unique.
 
-     volatile int *src = SOMEVALUE;
-     *src;
+I don't like it either, but the situation is already present.
 
- With C, such expressions are rvalues, and as rvalues cause a read of
-the object, GCC interprets this as a read of the volatile being pointed
-to. "
+Note that CacheFS would be happy with the former too, just as long as the keys
+it is given don't end up aliasing.
 
-So, did you report the bug to the GCC maintainers?
+> A unique per-server superblock also makes it hard to support features
+> like failover onto replicated filesystems and/or migration of individual
+> filesystems onto another server.
 
--- Sergei.
+So you want these patches dropping?
 
+Note that you can't necessarily do what you want with the current code either.
+
+David

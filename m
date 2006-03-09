@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWCIHLW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWCIH0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWCIHLW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 02:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbWCIHLW
+	id S1751197AbWCIH0T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 02:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbWCIH0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 02:11:22 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:44679 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751418AbWCIHLW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 02:11:22 -0500
-Message-ID: <440FD66D.6060308@in.ibm.com>
-Date: Thu, 09 Mar 2006 12:47:01 +0530
-From: Suzuki <suzuki@in.ibm.com>
-Organization: IBM Software Labs
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 9 Mar 2006 02:26:19 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:57496 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750806AbWCIH0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 02:26:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=olAXdQLQ9AbBMcTHBBOaM8Ymk2dyCx5PDo8VYaEA9n91sQqbGccDUfa6q+Ce6BpcsYyvUBCnacFpBWdJgTksL0J8PGLQJApYRqoYWHuCex8fNuHucUtl88Ok5DUU6oRFOlDspq6pIQH6582j7Iw/cyWPPfuQ0D0GtkudHyN54B0=  ;
+Message-ID: <440FD88F.4010603@yahoo.com.au>
+Date: Thu, 09 Mar 2006 18:26:07 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: suparna <suparna@in.ibm.com>, akpm@osdl.org
-Subject: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Daniel Phillips <phillips@google.com>
+CC: Mark Fasheh <mark.fasheh@oracle.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
+References: <4408C2E8.4010600@google.com>	<20060303233617.51718c8e.akpm@osdl.org>	<440B9035.1070404@google.com>	<20060306025800.GA27280@ca-server1.us.oracle.com>	<440BC1C6.1000606@google.com>	<20060306195135.GB27280@ca-server1.us.oracle.com>	<p733bhvgc7f.fsf@verdi.suse.de> <20060307045835.GF27280@ca-server1.us.oracle.com> <440FCA81.7090608@google.com>
+In-Reply-To: <440FCA81.7090608@google.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Daniel Phillips wrote:
 
+> After untarring four kernel trees, number of locks hits a peak of 128K.
+> With 64K buckets the hash, a typical region of the table looks like:
+> 
+>  3 0 3 6 1 2 2 1 2 6 1 0 1 2 1 0 0 3 1 2 2 3 1 2 5 3 2 2 1 0 3 1
+>  1 1 3 5 2 2 1 0 2 3 3 1 3 0 5 2 2 3 0 2 1 3 1 2 4 2 0 2 5 1 4 3
+>  5 3 3 3 3 1 4 1 2 1 2 6 2 1 3 0 2 2 2 8 1 2 2 2 3 1 0 1 3 2 1 1
+>  1 2 2 2 2 3 2 0 2 2 2 5 2 3 2 1 1 2 6 6 1 2 2 4 2 0 3 0 3 3 3 0
+>  2 2 1 1 2 3 2 0 2 3 3 1 3 3 3 1 4 2 8 3 2 2 2 4 3 0 1 2 3 4 2 0
+>  3 1 0 1 2 2 3 1 4 2 1 1 3 3 4 3 3 3 4 2 1 4 2 1 5 2 1 3 1 2 3 2
+>  1 0 1 5 3 2 1 2 3 0 1 1 2 3 4 4 4 1 3 1 4 3 2 2 4 4 1 3 1 0 0 1
+>  3 1 1 3 0 3 0 1 1 1 1 1 3 4 4 2 4 3 4 2 3 3 0 3 4 2 1 5 4 1 3 1
+>  1 0 1 0 1 4 1 2 1 4 2 0 2 2 5 2 1 1 1 2 3 6 4 5 5 1 1 2 3 1 5 1
+>  3 0 1 0 3 3 2 0 2 1 2 1 0 4 3 2 1 0 1 0 2 7 1 3 2 1 1 2 4 1 3 1
+>  2 2 3 1 3 3 1 2 0 2 1 3 1 2 0 4 4 1 2 1 2 3 3 6 0 5 2 1 1 0 3 0
+>  1 0 2 0 4 3 2 1 0 0 2 0 1 4 2 4 5 1 0 1 3 2 2 1 1 3 2 3 0 2 1 1
+>  3 0 0 0 2 5 3 1 0 2 0 1 0 0 2 0 4 2 1 2 4 3 0 1 2 4 1 3 0 0 1 4
+> 
+> A poor distribution as you already noticed[1].
+[...]
+ > [1] And this is our all-important dentry hash function.  Oops.
 
-I was working on an issue with getting "Badness in
-__mutex_unlock_slowpath" and hence a stack trace, while running FS
-stress tests on XFS on 2.6.16-rc5 kernel.
+Why do you say that? I don't think it is particularly bad. Your sample
+has an average of 2.06, and a standard deviation of 1.49 while a random
+assignment using glibc's random() here has a standard deviation of 1.44
 
-The dmesg looks like :
+I can't remember much stats, but I think that means in your sample of
+over 400, you're likely to find several instances of "6" and not
+unlikely to find some higher. Actually given that it is bound at zero
+and so not a normal distribution, that is likely to move results a bit
+further to the right [I'm sure there's a formula for that], which is
+pretty consistent with what you have, and you would hardly notice a
+difference using rand()
 
-Badness in __mutex_unlock_slowpath at kernel/mutex.c:207
-  [<c0103c0c>] show_trace+0x20/0x22
-  [<c0103d4b>] dump_stack+0x1e/0x20
-  [<c0473f1f>] __mutex_unlock_slowpath+0x12a/0x23b
-  [<c0473938>] mutex_unlock+0xb/0xd
-  [<c02a5720>] xfs_read+0x230/0x2d9
-  [<c02a1bed>] linvfs_aio_read+0x8d/0x98
-  [<c015f3df>] do_sync_read+0xb8/0x107
-  [<c015f4f7>] vfs_read+0xc9/0x19b
-  [<c015f8b2>] sys_read+0x47/0x6e
-  [<c0102db7>] sysenter_past_esp+0x54/0x75
-
-
-This happens with XFS DIO reads. xfs_read holds the i_mutex and issues a
-__generic_file_aio_read(), which falls into __blockdev_direct_IO with
-DIO_OWN_LOCKING flag (since xfs uses own_locking ). Now
-__blockdev_direct_IO releases the i_mutex for READs with
-DIO_OWN_LOCKING.When it returns to xfs_read, it tries to unlock the
-i_mutex ( which is now already unlocked), causing the "Badness".
-
-The possible solution which we can think of, is not to unlock the
-i_mutex for DIO_OWN_LOCKING. This will only affect the DIO_OWN_LOCKING 
-users (as of now, only XFS ) with concurrent DIO sync read requests. AIO 
-read requests would not suffer this problem since they would just return 
-once the DIO is submitted.
-
-Another work around for this can  be adding a check "mutex_is_locked"
-before trying to unlock i_mutex in xfs_read. But this seems to be an
-ugly hack. :(
-
-Comments ?
-
-
-thanks,
-
-Suzuki
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

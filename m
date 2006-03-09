@@ -1,65 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWCIBDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWCIBEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932690AbWCIBDz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 20:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWCIBDz
+	id S1030212AbWCIBEB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 20:04:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbWCIBEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 20:03:55 -0500
-Received: from ozlabs.org ([203.10.76.45]:34468 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932690AbWCIBDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 20:03:54 -0500
-Date: Thu, 9 Mar 2006 12:03:14 +1100
-From: "'David Gibson'" <david@gibson.dropbear.id.au>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ftruncate on huge page couldn't extend hugetlb file
-Message-ID: <20060309010314.GG17590@localhost.localdomain>
-Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	"'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
-	linux-kernel@vger.kernel.org
-References: <20060309002251.GE17590@localhost.localdomain> <200603090033.k290XBg13472@unix-os.sc.intel.com>
+	Wed, 8 Mar 2006 20:04:01 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:25736
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932693AbWCIBEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 20:04:00 -0500
+Date: Wed, 8 Mar 2006 17:03:42 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
+       mochel@digitalimplant.org
+Subject: Re: problem with duplicate sysfs directories and files
+Message-ID: <20060309010342.GA13910@kroah.com>
+References: <20060308075342.GA17718@kroah.com> <20060308010205.7e989a5a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603090033.k290XBg13472@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060308010205.7e989a5a.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 04:33:10PM -0800, Chen, Kenneth W wrote:
-> David Gibson wrote on Wednesday, March 08, 2006 4:23 PM
-> > > But you already make reservation at mmap time.  If you reserve it again
-> > > when extending the file, won't you double count?
+On Wed, Mar 08, 2006 at 01:02:05AM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
+> > Hi,
 > > 
-> > Well, I'd generally expect extending truncate() to come before mmap(),
-> > but in any case hugetlb_extend_reservation() is safe against double
-> > counting (it's idempotent if called twice with the same number of
-> > pages).  The semantics are "ensure the this many pages total are
-> > guaranteed available, that is, either reserved or already
-> > instantiated".
+> > I spent some time tonight trying to track down how to fix the issue of
+> > duplicate sysfs files and/or directories.  This happens when you try to
+> > create a kobject with the same name in the same directory.  The creation
+> > of the second kobject will fail, but the directory will remain in sysfs.
+> > 
+> > Now I know this isn't a normal operation, but it would be good to fix
+> > this eventually.  I traced the issue down to fs/sysfs/dir.c:create_dir()
+> > and the check for:
+> > 	if (error && (error != -EEXIST)) {
+> > 
+> > Problem is, error is set to -EEXIST, so we don't clean up properly.  Now
+> > I know we can't just not check for this, as if you do that error
+> > cleanup, the original kobject's sysfs entry gets very messed up (ls -l
+> > does not like it at all...)
+> > 
+> > But I can't seem to figure out what exactly we need to do to clean up
+> > properly here.
+> > 
+> > Do you, or anyone else, have any pointers or ideas?
+> > 
 > 
-> It's kind of peculiar that kernel reserve hugetlb page at the time of
-> extending truncate.  Maybe there is a close correlation between mmap
-> size to the file size.  But these two aren't the same and and shouldn't
-> be mixed.
+> Emit a loud warning and don't bother cleaning up - leave the current
+> behaviour as-is.  Whatever takes the least amount code and has the minimum
+> end-user impact, IMO.
 
-Indeed.  The fundamental basis of my approach as opposed to that in
-apw's old accounting patches is that reservation is related to
-filesize, not mmap() size.  The only connection to mmap() is that
-(shared writable) mmap() on hugetlbfs also extends filesize and
-reservation size as a side effect.
+Yeah, we do give a warning.  Well, we used to always do it, but now that
+more people are not using kobject_register() but only kobject_add(), it
+doesn't always show up...
 
-There's a slight wrinkle in the different between i_size and reserved
-pages.  i_size can be extended beyond the "reserved portion" of the
-file.  We need that behaviour because i_size also acts as a hard
-offset limit for MAP_PRIVATE mappings, but privately instantiated
-pages don't come from the file's reservation.
+Here's a patch that I've added to my queue that fixes the warn issue,
+but it still would be nice to fix up sysfs someday.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+thanks,
+
+greg k-h
+
+
+---
+ lib/kobject.c |   22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+--- gregkh-2.6.orig/lib/kobject.c
++++ gregkh-2.6/lib/kobject.c
+@@ -194,6 +194,17 @@ int kobject_add(struct kobject * kobj)
+ 		unlink(kobj);
+ 		if (parent)
+ 			kobject_put(parent);
++
++		/* be noisy on error issues */
++		if (error == -EEXIST)
++			printk("kobject_add failed for %s with -EEXIST, "
++			       "don't try to register things with the "
++			       "same name in the same directory.\n",
++			       kobject_name(kobj));
++		else
++			printk("kobject_add failed for %s (%d)\n",
++			       kobject_name(kobj), error);
++		dump_stack();
+ 	}
+ 
+ 	return error;
+@@ -207,18 +218,13 @@ int kobject_add(struct kobject * kobj)
+ 
+ int kobject_register(struct kobject * kobj)
+ {
+-	int error = 0;
++	int error = -EINVAL;
+ 	if (kobj) {
+ 		kobject_init(kobj);
+ 		error = kobject_add(kobj);
+-		if (error) {
+-			printk("kobject_register failed for %s (%d)\n",
+-			       kobject_name(kobj),error);
+-			dump_stack();
+-		} else
++		if (!error)
+ 			kobject_uevent(kobj, KOBJ_ADD);
+-	} else
+-		error = -EINVAL;
++	}
+ 	return error;
+ }
+ 

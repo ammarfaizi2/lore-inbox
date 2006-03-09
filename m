@@ -1,910 +1,786 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWCIU3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWCIUal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWCIU3n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 15:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWCIU3n
+	id S1751402AbWCIUal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 15:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWCIUal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 15:29:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:51937 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751393AbWCIU3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 15:29:41 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com
-Cc: linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Document Linux's memory barriers [try #4] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Thu, 09 Mar 2006 20:29:22 +0000
-Message-ID: <16835.1141936162@warthog.cambridge.redhat.com>
+	Thu, 9 Mar 2006 15:30:41 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:55942 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751402AbWCIUak convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 15:30:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L8tS+cZAoJWPngjqsiGEUKHrd8IQyIMJoMgVfkrMDwtDY3nLKhXyJIUHhXTYpwHOUM6dmQIXpxTJnUMufKxNhafqPyt7yWux655vPBzqw310oBUEoGYAYNtQu9fL5RrbvkY5h9Wt/ekX3kY2+TX/PxLfWu7xqkwYuX2fJXeNu9I=
+Message-ID: <305c16960603091230r32038a86mbefc6d80bedb24ab@mail.gmail.com>
+Date: Thu, 9 Mar 2006 17:30:38 -0300
+From: "Matheus Izvekov" <mizvekov@gmail.com>
+To: dtor_core@ameritech.net
+Subject: Re: usbkbd not reporting unknown keys
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <305c16960603081130g5367ddb3m4cbcf39a9253a087@mail.gmail.com>
+	 <305c16960603081225m68c26ff7wd3b73621cfb81d9a@mail.gmail.com>
+	 <d120d5000603081247i69f9e7dbm6ef614f50140227f@mail.gmail.com>
+	 <305c16960603081334k25ce9a89g132876d4c9246fc6@mail.gmail.com>
+	 <d120d5000603090543p3446b4a0sddaaa031ad2513ca@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3/9/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> No, not really. atkbd is a recommended (and only) driver when
+> connecting PS/2 keyboards. We do want user to know how to set up
+> additional keys, if any. usbkbd driver is only to be used when there
+> are issues with full HID driver. It will only provide "standard" keys
+> and is not expected to be modified.
+>
+> --
+> Dmitry
+>
 
-The attached patch documents the Linux kernel's memory barriers.
+Did that. keyboard in question here is a Microsoft Wireless Comfort
+Keyboard 1.0A + Wireless Optical Mouse 2.0. they share the same
+receiver, and it supports low battery and weak signal status for both
+the mouse and the keyboard. Here is the output of those debug messages
+in hid-input:
 
-I've updated it from the comments I've been given.
+Mapping: Keyboard.00a4 ---> Key.Unknown
+Mapping: Keyboard.00a5 ---> Key.Unknown
+Mapping: Keyboard.00a6 ---> Key.Unknown
+Mapping: Keyboard.00a7 ---> Key.Unknown
+Mapping: Keyboard.00a8 ---> Key.Unknown
+Mapping: Keyboard.00a9 ---> Key.Unknown
+Mapping: Keyboard.00aa ---> Key.Unknown
+Mapping: Keyboard.00ab ---> Key.Unknown
+Mapping: Keyboard.00ac ---> Key.Unknown
+Mapping: Keyboard.00ad ---> Key.Unknown
+Mapping: Keyboard.00ae ---> Key.Unknown
+Mapping: Keyboard.00af ---> Key.Unknown
+Mapping: Keyboard.00b0 ---> Key.Unknown
+Mapping: Keyboard.00b1 ---> Key.Unknown
+Mapping: Keyboard.00b2 ---> Key.Unknown
+Mapping: Keyboard.00b3 ---> Key.Unknown
+Mapping: Keyboard.00b4 ---> Key.Unknown
+Mapping: Keyboard.00b5 ---> Key.Unknown
+Mapping: Keyboard.00b6 ---> Key.Unknown
+Mapping: Keyboard.00b7 ---> Key.Unknown
+Mapping: Keyboard.00b8 ---> Key.Unknown
+Mapping: Keyboard.00b9 ---> Key.Unknown
+Mapping: Keyboard.00ba ---> Key.Unknown
+Mapping: Keyboard.00bb ---> Key.Unknown
+Mapping: Keyboard.00bc ---> Key.Unknown
+Mapping: Keyboard.00bd ---> Key.Unknown
+Mapping: Keyboard.00be ---> Key.Unknown
+Mapping: Keyboard.00bf ---> Key.Unknown
+Mapping: Keyboard.00c0 ---> Key.Unknown
+Mapping: Keyboard.00c1 ---> Key.Unknown
+Mapping: Keyboard.00c2 ---> Key.Unknown
+Mapping: Keyboard.00c3 ---> Key.Unknown
+Mapping: Keyboard.00c4 ---> Key.Unknown
+Mapping: Keyboard.00c5 ---> Key.Unknown
+Mapping: Keyboard.00c6 ---> Key.Unknown
+Mapping: Keyboard.00c7 ---> Key.Unknown
+Mapping: Keyboard.00c8 ---> Key.Unknown
+Mapping: Keyboard.00c9 ---> Key.Unknown
+Mapping: Keyboard.00ca ---> Key.Unknown
+Mapping: Keyboard.00cb ---> Key.Unknown
+Mapping: Keyboard.00cc ---> Key.Unknown
+Mapping: Keyboard.00cd ---> Key.Unknown
+Mapping: Keyboard.00ce ---> Key.Unknown
+Mapping: Keyboard.00cf ---> Key.Unknown
+Mapping: Keyboard.00d0 ---> Key.Unknown
+Mapping: Keyboard.00d1 ---> Key.Unknown
+Mapping: Keyboard.00d2 ---> Key.Unknown
+Mapping: Keyboard.00d3 ---> Key.Unknown
+Mapping: Keyboard.00d4 ---> Key.Unknown
+Mapping: Keyboard.00d5 ---> Key.Unknown
+Mapping: Keyboard.00d6 ---> Key.Unknown
+Mapping: Keyboard.00d7 ---> Key.Unknown
+Mapping: Keyboard.00d8 ---> Key.Unknown
+Mapping: Keyboard.00d9 ---> Key.Unknown
+Mapping: Keyboard.00da ---> Key.Unknown
+Mapping: Keyboard.00db ---> Key.Unknown
+Mapping: Keyboard.00dc ---> Key.Unknown
+Mapping: Keyboard.00dd ---> Key.Unknown
+Mapping: Keyboard.00de ---> Key.Unknown
+Mapping: Keyboard.00df ---> Key.Unknown
+Mapping: Keyboard.00e0 ---> Key.LeftControl
+Mapping: Keyboard.00e1 ---> Key.LeftShift
+Mapping: Keyboard.00e2 ---> Key.LeftAlt
+Mapping: Keyboard.00e3 ---> Key.LeftMeta
+Mapping: Keyboard.00e4 ---> Key.RightCtrl
+Mapping: Keyboard.00e5 ---> Key.RightShift
+Mapping: Keyboard.00e6 ---> Key.RightAlt
+Mapping: Keyboard.00e7 ---> Key.RightMeta
+Mapping: Keyboard.00e8 ---> Key.PlayPause
+Mapping: Keyboard.00e9 ---> Key.StopCD
+Mapping: Keyboard.00ea ---> Key.PreviousSong
+Mapping: Keyboard.00eb ---> Key.NextSong
+Mapping: Keyboard.00ec ---> Key.EjectCD
+Mapping: Keyboard.00ed ---> Key.VolumeUp
+Mapping: Keyboard.00ee ---> Key.VolumeDown
+Mapping: Keyboard.00ef ---> Key.Mute
+Mapping: Keyboard.00f0 ---> Key.WWW
+Mapping: Keyboard.00f1 ---> Key.Back
+Mapping: Keyboard.00f2 ---> Key.Forward
+Mapping: Keyboard.00f3 ---> Key.Stop
+Mapping: Keyboard.00f4 ---> Key.Find
+Mapping: Keyboard.00f5 ---> Key.ScrollUp
+Mapping: Keyboard.00f6 ---> Key.ScrollDown
+Mapping: Keyboard.00f7 ---> Key.Edit
+Mapping: Keyboard.00f8 ---> Key.Sleep
+Mapping: Keyboard.00f9 ---> Key.Coffee
+Mapping: Keyboard.00fa ---> Key.Refresh
+Mapping: Keyboard.00fb ---> Key.Calc
+Mapping: Keyboard.00fc ---> Key.Unknown
+Mapping: Keyboard.00fd ---> Key.Unknown
+Mapping: Keyboard.00fe ---> Key.Unknown
+Mapping: Keyboard.00ff ---> Key.Unknown
+Mapping: ff00.ff0e ---> IGNORED
+Mapping: ff00.fe03 ---> IGNORED
+Mapping: ff00.fe04 ---> IGNORED
+Mapping: ff00.ff05 ---> IGNORED
+Mapping: ff00.fd01 ---> IGNORED
+Mapping: ff00.fd02 ---> IGNORED
+Mapping: ff00.fd03 ---> IGNORED
+Mapping: ff00.fd04 ---> IGNORED
+Mapping: ff00.fd05 ---> IGNORED
+Mapping: ff00.fd06 ---> IGNORED
+Mapping: ff00.fd07 ---> IGNORED
+Mapping: ff00.fd08 ---> IGNORED
+Mapping: ff00.fd09 ---> IGNORED
+Mapping: ff00.fd0a ---> IGNORED
+Mapping: ff00.fd0b ---> IGNORED
+Mapping: ff00.fd0c ---> IGNORED
+Mapping: ff00.fd0d ---> IGNORED
+Mapping: ff00.fd0e ---> IGNORED
+Mapping: ff00.fd0f ---> IGNORED
+Mapping: ff00.fd10 ---> IGNORED
+Mapping: ff00.fd11 ---> IGNORED
+Mapping: ff00.fd12 ---> IGNORED
+Mapping: ff00.fd13 ---> IGNORED
+Mapping: ff00.fd14 ---> IGNORED
+Mapping: ff00.fd15 ---> IGNORED
+Mapping: ff00.fd16 ---> IGNORED
+Mapping: ff00.fd17 ---> IGNORED
+Mapping: ff00.fd18 ---> IGNORED
+Mapping: ff00.fd19 ---> IGNORED
+Mapping: ff00.fd1a ---> IGNORED
+Mapping: ff00.fd1b ---> IGNORED
+Mapping: ff00.fd1c ---> IGNORED
+Mapping: ff00.fd1d ---> IGNORED
+Mapping: ff00.fd1e ---> IGNORED
+Mapping: ff00.fd1f ---> IGNORED
+Mapping: ff00.fd20 ---> IGNORED
+Mapping: ff00.fd21 ---> IGNORED
+Mapping: ff00.fd22 ---> IGNORED
+Mapping: ff00.fd23 ---> IGNORED
+Mapping: ff00.fd24 ---> IGNORED
+Mapping: ff00.fd25 ---> IGNORED
+Mapping: ff00.fd26 ---> IGNORED
+Mapping: ff00.fd27 ---> IGNORED
+Mapping: ff00.fd28 ---> IGNORED
+Mapping: ff00.fd29 ---> IGNORED
+Mapping: ff00.fd2a ---> IGNORED
+Mapping: ff00.fd2b ---> IGNORED
+Mapping: ff00.fd2c ---> IGNORED
+Mapping: ff00.fd2d ---> IGNORED
+Mapping: ff00.fd2e ---> IGNORED
+Mapping: ff00.fd2f ---> IGNORED
+Mapping: ff00.fd30 ---> IGNORED
+Mapping: ff00.fd31 ---> IGNORED
+Mapping: ff00.fd32 ---> IGNORED
+Mapping: ff00.fd33 ---> IGNORED
+Mapping: ff00.fd34 ---> IGNORED
+Mapping: ff00.fd35 ---> IGNORED
+Mapping: ff00.fd36 ---> IGNORED
+Mapping: ff00.fd37 ---> IGNORED
+Mapping: ff00.fd38 ---> IGNORED
+Mapping: ff00.fd39 ---> IGNORED
+Mapping: ff00.fd3a ---> IGNORED
+Mapping: ff00.fd3b ---> IGNORED
+Mapping: ff00.fd3c ---> IGNORED
+Mapping: ff00.fd3d ---> IGNORED
+Mapping: ff00.fd3e ---> IGNORED
+Mapping: ff00.fd3f ---> IGNORED
+Mapping: ff00.fd40 ---> IGNORED
+Mapping: ff00.fd41 ---> IGNORED
+Mapping: ff00.fd42 ---> IGNORED
+Mapping: ff00.fd43 ---> IGNORED
+Mapping: ff00.fd44 ---> IGNORED
+Mapping: ff00.fd45 ---> IGNORED
+Mapping: ff00.fd46 ---> IGNORED
+Mapping: ff00.fd47 ---> IGNORED
+Mapping: ff00.fd48 ---> IGNORED
+Mapping: ff00.fd49 ---> IGNORED
+Mapping: ff00.fd4a ---> IGNORED
+Mapping: ff00.fd4b ---> IGNORED
+Mapping: ff00.fd4c ---> IGNORED
+Mapping: ff00.fd4d ---> IGNORED
+Mapping: ff00.fd4e ---> IGNORED
+Mapping: ff00.fd4f ---> IGNORED
+Mapping: ff00.fd50 ---> IGNORED
+Mapping: ff00.fd51 ---> IGNORED
+Mapping: ff00.fd52 ---> IGNORED
+Mapping: ff00.fd53 ---> IGNORED
+Mapping: ff00.fd54 ---> IGNORED
+Mapping: ff00.fd55 ---> IGNORED
+Mapping: ff00.fd56 ---> IGNORED
+Mapping: ff00.fd57 ---> IGNORED
+Mapping: ff00.fd58 ---> IGNORED
+Mapping: ff00.fd59 ---> IGNORED
+Mapping: ff00.fd5a ---> IGNORED
+Mapping: ff00.fd5b ---> IGNORED
+Mapping: ff00.fd5c ---> IGNORED
+Mapping: ff00.fd5d ---> IGNORED
+Mapping: ff00.fd5e ---> IGNORED
+Mapping: ff00.fd5f ---> IGNORED
+Mapping: ff00.fd60 ---> IGNORED
+Mapping: ff00.fd61 ---> IGNORED
+Mapping: ff00.fd62 ---> IGNORED
+Mapping: ff00.fd63 ---> IGNORED
+Mapping: ff00.fd64 ---> IGNORED
+Mapping: ff00.fd65 ---> IGNORED
+Mapping: ff00.fd66 ---> IGNORED
+Mapping: ff00.fd67 ---> IGNORED
+Mapping: ff00.fd68 ---> IGNORED
+Mapping: ff00.fd69 ---> IGNORED
+Mapping: ff00.fd6a ---> IGNORED
+Mapping: ff00.fd6b ---> IGNORED
+Mapping: ff00.fd6c ---> IGNORED
+Mapping: ff00.fd6d ---> IGNORED
+Mapping: ff00.fd6e ---> IGNORED
+Mapping: ff00.fd6f ---> IGNORED
+Mapping: ff00.fd70 ---> IGNORED
+Mapping: ff00.fd71 ---> IGNORED
+Mapping: ff00.fd72 ---> IGNORED
+Mapping: ff00.fd73 ---> IGNORED
+Mapping: ff00.fd74 ---> IGNORED
+Mapping: ff00.fd75 ---> IGNORED
+Mapping: ff00.fd76 ---> IGNORED
+Mapping: ff00.fd77 ---> IGNORED
+Mapping: ff00.fd78 ---> IGNORED
+Mapping: ff00.fd79 ---> IGNORED
+Mapping: ff00.fd7a ---> IGNORED
+Mapping: ff00.fd7b ---> IGNORED
+Mapping: ff00.fd7c ---> IGNORED
+Mapping: ff00.fd7d ---> IGNORED
+Mapping: ff00.fd7e ---> IGNORED
+Mapping: ff00.fd7f ---> IGNORED
+Mapping: ff00.fd80 ---> IGNORED
+Mapping: ff00.fd81 ---> IGNORED
+Mapping: ff00.fd82 ---> IGNORED
+Mapping: ff00.fd83 ---> IGNORED
+Mapping: ff00.fd84 ---> IGNORED
+Mapping: ff00.fd85 ---> IGNORED
+Mapping: ff00.fd86 ---> IGNORED
+Mapping: ff00.fd87 ---> IGNORED
+Mapping: ff00.fd88 ---> IGNORED
+Mapping: ff00.fd89 ---> IGNORED
+Mapping: ff00.fd8a ---> IGNORED
+Mapping: ff00.fd8b ---> IGNORED
+Mapping: ff00.fd8c ---> IGNORED
+Mapping: ff00.fd8d ---> IGNORED
+Mapping: ff00.fd8e ---> IGNORED
+Mapping: ff00.fd8f ---> IGNORED
+Mapping: ff00.fd90 ---> IGNORED
+Mapping: ff00.fd91 ---> IGNORED
+Mapping: ff00.fd92 ---> IGNORED
+Mapping: ff00.fd93 ---> IGNORED
+Mapping: ff00.fd94 ---> IGNORED
+Mapping: ff00.fd95 ---> IGNORED
+Mapping: ff00.fd96 ---> IGNORED
+Mapping: ff00.fd97 ---> IGNORED
+Mapping: ff00.fd98 ---> IGNORED
+Mapping: ff00.fd99 ---> IGNORED
+Mapping: ff00.fd9a ---> IGNORED
+Mapping: ff00.fd9b ---> IGNORED
+Mapping: ff00.fd9c ---> IGNORED
+Mapping: ff00.fd9d ---> IGNORED
+Mapping: ff00.fd9e ---> IGNORED
+Mapping: ff00.fd9f ---> IGNORED
+Mapping: ff00.fda0 ---> IGNORED
+Mapping: ff00.fda1 ---> IGNORED
+Mapping: ff00.fda2 ---> IGNORED
+Mapping: ff00.fda3 ---> IGNORED
+Mapping: ff00.fda4 ---> IGNORED
+Mapping: ff00.fda5 ---> IGNORED
+Mapping: ff00.fda6 ---> IGNORED
+Mapping: ff00.fda7 ---> IGNORED
+Mapping: ff00.fda8 ---> IGNORED
+Mapping: ff00.fda9 ---> IGNORED
+Mapping: ff00.fdaa ---> IGNORED
+Mapping: ff00.fdab ---> IGNORED
+Mapping: ff00.fdac ---> IGNORED
+Mapping: ff00.fdad ---> IGNORED
+Mapping: ff00.fdae ---> IGNORED
+Mapping: ff00.fdaf ---> IGNORED
+Mapping: ff00.fdb0 ---> IGNORED
+Mapping: ff00.fdb1 ---> IGNORED
+Mapping: ff00.fdb2 ---> IGNORED
+Mapping: ff00.fdb3 ---> IGNORED
+Mapping: ff00.fdb4 ---> IGNORED
+Mapping: ff00.fdb5 ---> IGNORED
+Mapping: ff00.fdb6 ---> IGNORED
+Mapping: ff00.fdb7 ---> IGNORED
+Mapping: ff00.fdb8 ---> IGNORED
+Mapping: ff00.fdb9 ---> IGNORED
+Mapping: ff00.fdba ---> IGNORED
+Mapping: ff00.fdbb ---> IGNORED
+Mapping: ff00.fdbc ---> IGNORED
+Mapping: ff00.fdbd ---> IGNORED
+Mapping: ff00.fdbe ---> IGNORED
+Mapping: ff00.fdbf ---> IGNORED
+Mapping: ff00.fdc0 ---> IGNORED
+Mapping: ff00.fdc1 ---> IGNORED
+Mapping: ff00.fdc2 ---> IGNORED
+Mapping: ff00.fdc3 ---> IGNORED
+Mapping: ff00.fdc4 ---> IGNORED
+Mapping: ff00.fdc5 ---> IGNORED
+Mapping: ff00.fdc6 ---> IGNORED
+Mapping: ff00.fdc7 ---> IGNORED
+Mapping: ff00.fdc8 ---> IGNORED
+Mapping: ff00.fdc9 ---> IGNORED
+Mapping: ff00.fdca ---> IGNORED
+Mapping: ff00.fdcb ---> IGNORED
+Mapping: ff00.fdcc ---> IGNORED
+Mapping: ff00.fdcd ---> IGNORED
+Mapping: ff00.fdce ---> IGNORED
+Mapping: ff00.fdcf ---> IGNORED
+Mapping: ff00.fdd0 ---> IGNORED
+Mapping: ff00.fdd1 ---> IGNORED
+Mapping: ff00.fdd2 ---> IGNORED
+Mapping: ff00.fdd3 ---> IGNORED
+Mapping: ff00.fdd4 ---> IGNORED
+Mapping: ff00.fdd5 ---> IGNORED
+Mapping: ff00.fdd6 ---> IGNORED
+Mapping: ff00.fdd7 ---> IGNORED
+Mapping: ff00.fdd8 ---> IGNORED
+Mapping: ff00.fdd9 ---> IGNORED
+Mapping: ff00.fdda ---> IGNORED
+Mapping: ff00.fddb ---> IGNORED
+Mapping: ff00.fddc ---> IGNORED
+Mapping: ff00.fddd ---> IGNORED
+Mapping: ff00.fdde ---> IGNORED
+Mapping: ff00.fddf ---> IGNORED
+Mapping: ff00.fde0 ---> IGNORED
+Mapping: ff00.fde1 ---> IGNORED
+Mapping: ff00.fde2 ---> IGNORED
+Mapping: ff00.fde3 ---> IGNORED
+Mapping: ff00.fde4 ---> IGNORED
+Mapping: ff00.fde5 ---> IGNORED
+Mapping: ff00.fde6 ---> IGNORED
+Mapping: ff00.fde7 ---> IGNORED
+Mapping: ff00.fde8 ---> IGNORED
+Mapping: ff00.fde9 ---> IGNORED
+Mapping: ff00.fdea ---> IGNORED
+Mapping: ff00.fdeb ---> IGNORED
+Mapping: ff00.fdec ---> IGNORED
+Mapping: ff00.fded ---> IGNORED
+Mapping: ff00.fdee ---> IGNORED
+Mapping: ff00.fdef ---> IGNORED
+Mapping: ff00.fdf0 ---> IGNORED
+Mapping: ff00.fdf1 ---> IGNORED
+Mapping: ff00.fdf2 ---> IGNORED
+Mapping: ff00.fdf3 ---> IGNORED
+Mapping: ff00.fdf4 ---> IGNORED
+Mapping: ff00.fdf5 ---> IGNORED
+Mapping: ff00.fdf6 ---> IGNORED
+Mapping: ff00.fdf7 ---> IGNORED
+Mapping: ff00.fdf8 ---> IGNORED
+Mapping: ff00.fdf9 ---> IGNORED
+Mapping: ff00.fdfa ---> IGNORED
+Mapping: ff00.fdfb ---> IGNORED
+Mapping: ff00.fdfc ---> IGNORED
+Mapping: ff00.fdfd ---> IGNORED
+Mapping: ff00.fdfe ---> IGNORED
+Mapping: ff00.fdff ---> IGNORED
+Mapping: ff00.ff02 ---> IGNORED
+Mapping: GenericDesktop.Wheel ---> Relative.?
+Mapping: Consumer.HorizontalWheel ---> Relative.?
+Mapping: ff00.ff02 ---> IGNORED
+Mapping: ff00.fe01 ---> IGNORED
+Mapping: ff00.fe02 ---> IGNORED
+Mapping: ff00.fe00 ---> IGNORED
+Mapping: ff00.ff03 ---> IGNORED
+Mapping: ff00.ff0b ---> IGNORED
+Mapping: ff00.ff0d ---> IGNORED
+Mapping: GenericDesktop.0000 ---> Absolute.Misc
+Mapping: GenericDesktop.Pointer ---> Absolute.?
+Mapping: GenericDesktop.Mouse ---> Absolute.?
+Mapping: GenericDesktop.0003 ---> Absolute.?
+Mapping: GenericDesktop.Joystick ---> Absolute.?
+Mapping: GenericDesktop.GamePad ---> Absolute.?
+Mapping: GenericDesktop.Keyboard ---> Absolute.?
+Mapping: GenericDesktop.Keypad ---> Absolute.?
+Mapping: GenericDesktop.MultiAxis ---> Absolute.?
+Mapping: GenericDesktop.0009 ---> Absolute.?
+Mapping: GenericDesktop.000a ---> Absolute.?
+Mapping: GenericDesktop.000b ---> Absolute.?
+Mapping: GenericDesktop.000c ---> Absolute.?
+Mapping: GenericDesktop.000d ---> Absolute.?
+Mapping: GenericDesktop.000e ---> Absolute.?
+Mapping: GenericDesktop.000f ---> Absolute.?
+Mapping: GenericDesktop.0010 ---> Absolute.?
+Mapping: GenericDesktop.0011 ---> Absolute.?
+Mapping: GenericDesktop.0012 ---> Absolute.?
+Mapping: GenericDesktop.0013 ---> Absolute.?
+Mapping: GenericDesktop.0014 ---> Absolute.?
+Mapping: GenericDesktop.0015 ---> Absolute.?
+Mapping: GenericDesktop.0016 ---> Absolute.?
+Mapping: GenericDesktop.0017 ---> Absolute.?
+Mapping: GenericDesktop.0018 ---> IGNORED
+Mapping: GenericDesktop.0019 ---> IGNORED
+Mapping: GenericDesktop.001a ---> IGNORED
+Mapping: GenericDesktop.001b ---> IGNORED
+Mapping: GenericDesktop.001c ---> IGNORED
+Mapping: GenericDesktop.001d ---> IGNORED
+Mapping: GenericDesktop.001e ---> IGNORED
+Mapping: GenericDesktop.001f ---> IGNORED
+Mapping: GenericDesktop.0020 ---> IGNORED
+Mapping: GenericDesktop.0021 ---> IGNORED
+Mapping: GenericDesktop.0022 ---> IGNORED
+Mapping: GenericDesktop.0023 ---> IGNORED
+Mapping: GenericDesktop.0024 ---> IGNORED
+Mapping: GenericDesktop.0025 ---> IGNORED
+Mapping: GenericDesktop.0026 ---> IGNORED
+Mapping: GenericDesktop.0027 ---> IGNORED
+Mapping: GenericDesktop.0028 ---> IGNORED
+Mapping: GenericDesktop.0029 ---> IGNORED
+Mapping: GenericDesktop.002a ---> IGNORED
+Mapping: GenericDesktop.002b ---> IGNORED
+Mapping: GenericDesktop.002c ---> IGNORED
+Mapping: GenericDesktop.002d ---> IGNORED
+Mapping: GenericDesktop.002e ---> IGNORED
+Mapping: GenericDesktop.002f ---> IGNORED
+Mapping: GenericDesktop.X ---> Absolute.X
+Mapping: GenericDesktop.Y ---> Absolute.Y
+Mapping: GenericDesktop.Z ---> Absolute.Z
+Mapping: GenericDesktop.Rx ---> Absolute.Rx
+Mapping: GenericDesktop.Ry ---> Absolute.Ry
+Mapping: GenericDesktop.Rz ---> Absolute.Rz
+Mapping: GenericDesktop.Slider ---> Absolute.Throttle
+Mapping: GenericDesktop.Dial ---> Absolute.Rudder
+Mapping: GenericDesktop.Wheel ---> Absolute.Wheel
+Mapping: GenericDesktop.HatSwitch ---> Absolute.Hat0X
+Mapping: GenericDesktop.CountedBuffer ---> IGNORED
+Mapping: GenericDesktop.ByteCount ---> IGNORED
+Mapping: GenericDesktop.MotionWakeup ---> IGNORED
+Mapping: GenericDesktop.Start ---> Key.BtnStart
+Mapping: GenericDesktop.Select ---> Key.BtnSelect
+Mapping: GenericDesktop.003f ---> IGNORED
+Mapping: GenericDesktop.Vx ---> IGNORED
+Mapping: GenericDesktop.Vy ---> IGNORED
+Mapping: GenericDesktop.Vz ---> IGNORED
+Mapping: GenericDesktop.Vbrx ---> IGNORED
+Mapping: GenericDesktop.Vbry ---> IGNORED
+Mapping: GenericDesktop.Vbrz ---> IGNORED
+Mapping: GenericDesktop.Vno ---> IGNORED
+Mapping: GenericDesktop.0047 ---> IGNORED
+Mapping: GenericDesktop.0048 ---> IGNORED
+Mapping: GenericDesktop.0049 ---> IGNORED
+Mapping: GenericDesktop.004a ---> IGNORED
+Mapping: GenericDesktop.004b ---> IGNORED
+Mapping: GenericDesktop.004c ---> IGNORED
+Mapping: GenericDesktop.004d ---> IGNORED
+Mapping: GenericDesktop.004e ---> IGNORED
+Mapping: GenericDesktop.004f ---> IGNORED
+Mapping: GenericDesktop.0050 ---> IGNORED
+Mapping: GenericDesktop.0051 ---> IGNORED
+Mapping: GenericDesktop.0052 ---> IGNORED
+Mapping: GenericDesktop.0053 ---> IGNORED
+Mapping: GenericDesktop.0054 ---> IGNORED
+Mapping: GenericDesktop.0055 ---> IGNORED
+Mapping: GenericDesktop.0056 ---> IGNORED
+Mapping: GenericDesktop.0057 ---> IGNORED
+Mapping: GenericDesktop.0058 ---> IGNORED
+Mapping: GenericDesktop.0059 ---> IGNORED
+Mapping: GenericDesktop.005a ---> IGNORED
+Mapping: GenericDesktop.005b ---> IGNORED
+Mapping: GenericDesktop.005c ---> IGNORED
+Mapping: GenericDesktop.005d ---> IGNORED
+Mapping: GenericDesktop.005e ---> IGNORED
+Mapping: GenericDesktop.005f ---> IGNORED
+Mapping: GenericDesktop.0060 ---> IGNORED
+Mapping: GenericDesktop.0061 ---> IGNORED
+Mapping: GenericDesktop.0062 ---> IGNORED
+Mapping: GenericDesktop.0063 ---> IGNORED
+Mapping: GenericDesktop.0064 ---> IGNORED
+Mapping: GenericDesktop.0065 ---> IGNORED
+Mapping: GenericDesktop.0066 ---> IGNORED
+Mapping: GenericDesktop.0067 ---> IGNORED
+Mapping: GenericDesktop.0068 ---> IGNORED
+Mapping: GenericDesktop.0069 ---> IGNORED
+Mapping: GenericDesktop.006a ---> IGNORED
+Mapping: GenericDesktop.006b ---> IGNORED
+Mapping: GenericDesktop.006c ---> IGNORED
+Mapping: GenericDesktop.006d ---> IGNORED
+Mapping: GenericDesktop.006e ---> IGNORED
+Mapping: GenericDesktop.006f ---> IGNORED
+Mapping: GenericDesktop.0070 ---> IGNORED
+Mapping: GenericDesktop.0071 ---> IGNORED
+Mapping: GenericDesktop.0072 ---> IGNORED
+Mapping: GenericDesktop.0073 ---> IGNORED
+Mapping: GenericDesktop.0074 ---> IGNORED
+Mapping: GenericDesktop.0075 ---> IGNORED
+Mapping: GenericDesktop.0076 ---> IGNORED
+Mapping: GenericDesktop.0077 ---> IGNORED
+Mapping: GenericDesktop.0078 ---> IGNORED
+Mapping: GenericDesktop.0079 ---> IGNORED
+Mapping: GenericDesktop.007a ---> IGNORED
+Mapping: GenericDesktop.007b ---> IGNORED
+Mapping: GenericDesktop.007c ---> IGNORED
+Mapping: GenericDesktop.007d ---> IGNORED
+Mapping: GenericDesktop.007e ---> IGNORED
+Mapping: GenericDesktop.007f ---> IGNORED
+Mapping: GenericDesktop.SystemControl ---> IGNORED
+Mapping: GenericDesktop.SystemPowerDown ---> Key.Power
+Mapping: GenericDesktop.SystemSleep ---> Key.Sleep
+Mapping: GenericDesktop.SystemWakeUp ---> Key.WakeUp
+Mapping: GenericDesktop.SystemContextMenu ---> IGNORED
+Mapping: GenericDesktop.SystemMainMenu ---> IGNORED
+Mapping: GenericDesktop.SystemAppMenu ---> IGNORED
+Mapping: GenericDesktop.SystemMenuHelp ---> IGNORED
+Mapping: GenericDesktop.SystemMenuExit ---> IGNORED
+Mapping: GenericDesktop.SystemMenuSelect ---> IGNORED
+Mapping: GenericDesktop.SystemMenuRight ---> IGNORED
+Mapping: GenericDesktop.SystemMenuLeft ---> IGNORED
+Mapping: GenericDesktop.SystemMenuUp ---> IGNORED
+Mapping: GenericDesktop.SystemMenuDown ---> IGNORED
+Mapping: GenericDesktop.008e ---> IGNORED
+Mapping: GenericDesktop.008f ---> IGNORED
+Mapping: GenericDesktop.D-PadUp ---> Absolute.Hat0Y
+Mapping: GenericDesktop.D-PadDown ---> IGNORED
+Mapping: GenericDesktop.D-PadRight ---> IGNORED
+Mapping: GenericDesktop.D-PadLeft ---> IGNORED
+Mapping: GenericDesktop.0094 ---> IGNORED
+Mapping: GenericDesktop.0095 ---> IGNORED
+Mapping: GenericDesktop.0096 ---> IGNORED
+Mapping: GenericDesktop.0097 ---> IGNORED
+Mapping: GenericDesktop.0098 ---> IGNORED
+Mapping: GenericDesktop.0099 ---> IGNORED
+Mapping: GenericDesktop.009a ---> IGNORED
+Mapping: GenericDesktop.009b ---> IGNORED
+Mapping: GenericDesktop.009c ---> IGNORED
+Mapping: GenericDesktop.009d ---> IGNORED
+Mapping: GenericDesktop.009e ---> IGNORED
+Mapping: GenericDesktop.009f ---> IGNORED
+Mapping: GenericDesktop.00a0 ---> IGNORED
+Mapping: GenericDesktop.00a1 ---> IGNORED
+Mapping: GenericDesktop.00a2 ---> IGNORED
+Mapping: GenericDesktop.00a3 ---> IGNORED
+Mapping: GenericDesktop.00a4 ---> IGNORED
+Mapping: GenericDesktop.00a5 ---> IGNORED
+Mapping: GenericDesktop.00a6 ---> IGNORED
+Mapping: GenericDesktop.00a7 ---> IGNORED
+Mapping: GenericDesktop.00a8 ---> IGNORED
+Mapping: GenericDesktop.00a9 ---> IGNORED
+Mapping: GenericDesktop.00aa ---> IGNORED
+Mapping: GenericDesktop.00ab ---> IGNORED
+Mapping: GenericDesktop.00ac ---> IGNORED
+Mapping: GenericDesktop.00ad ---> IGNORED
+Mapping: GenericDesktop.00ae ---> IGNORED
+Mapping: GenericDesktop.00af ---> IGNORED
+Mapping: GenericDesktop.00b0 ---> IGNORED
+Mapping: GenericDesktop.00b1 ---> IGNORED
+Mapping: GenericDesktop.00b2 ---> IGNORED
+Mapping: GenericDesktop.00b3 ---> IGNORED
+Mapping: GenericDesktop.00b4 ---> IGNORED
+Mapping: GenericDesktop.00b5 ---> IGNORED
+Mapping: GenericDesktop.00b6 ---> IGNORED
+Mapping: GenericDesktop.00b7 ---> IGNORED
+Mapping: GenericDesktop.00b8 ---> IGNORED
+Mapping: GenericDesktop.00b9 ---> IGNORED
+Mapping: GenericDesktop.00ba ---> IGNORED
+Mapping: GenericDesktop.00bb ---> IGNORED
+Mapping: GenericDesktop.00bc ---> IGNORED
+Mapping: GenericDesktop.00bd ---> IGNORED
+Mapping: GenericDesktop.00be ---> IGNORED
+Mapping: GenericDesktop.00bf ---> IGNORED
+Mapping: GenericDesktop.00c0 ---> IGNORED
+Mapping: GenericDesktop.00c1 ---> IGNORED
+Mapping: GenericDesktop.00c2 ---> IGNORED
+Mapping: GenericDesktop.00c3 ---> IGNORED
+Mapping: GenericDesktop.00c4 ---> IGNORED
+Mapping: GenericDesktop.00c5 ---> IGNORED
+Mapping: GenericDesktop.00c6 ---> IGNORED
+Mapping: GenericDesktop.00c7 ---> IGNORED
+Mapping: GenericDesktop.00c8 ---> IGNORED
+Mapping: GenericDesktop.00c9 ---> IGNORED
+Mapping: GenericDesktop.00ca ---> IGNORED
+Mapping: GenericDesktop.00cb ---> IGNORED
+Mapping: GenericDesktop.00cc ---> IGNORED
+Mapping: GenericDesktop.00cd ---> IGNORED
+Mapping: GenericDesktop.00ce ---> IGNORED
+Mapping: GenericDesktop.00cf ---> IGNORED
+Mapping: GenericDesktop.00d0 ---> IGNORED
+Mapping: GenericDesktop.00d1 ---> IGNORED
+Mapping: GenericDesktop.00d2 ---> IGNORED
+Mapping: GenericDesktop.00d3 ---> IGNORED
+Mapping: GenericDesktop.00d4 ---> IGNORED
+Mapping: GenericDesktop.00d5 ---> IGNORED
+Mapping: GenericDesktop.00d6 ---> IGNORED
+Mapping: GenericDesktop.00d7 ---> IGNORED
+Mapping: GenericDesktop.00d8 ---> IGNORED
+Mapping: GenericDesktop.00d9 ---> IGNORED
+Mapping: GenericDesktop.00da ---> IGNORED
+Mapping: GenericDesktop.00db ---> IGNORED
+Mapping: GenericDesktop.00dc ---> IGNORED
+Mapping: GenericDesktop.00dd ---> IGNORED
+Mapping: GenericDesktop.00de ---> IGNORED
+Mapping: GenericDesktop.00df ---> IGNORED
+Mapping: GenericDesktop.00e0 ---> IGNORED
+Mapping: GenericDesktop.00e1 ---> IGNORED
+Mapping: GenericDesktop.00e2 ---> IGNORED
+Mapping: GenericDesktop.00e3 ---> IGNORED
+Mapping: GenericDesktop.00e4 ---> IGNORED
+Mapping: GenericDesktop.00e5 ---> IGNORED
+Mapping: GenericDesktop.00e6 ---> IGNORED
+Mapping: GenericDesktop.00e7 ---> IGNORED
+Mapping: GenericDesktop.00e8 ---> IGNORED
+Mapping: GenericDesktop.00e9 ---> IGNORED
+Mapping: GenericDesktop.00ea ---> IGNORED
+Mapping: GenericDesktop.00eb ---> IGNORED
+Mapping: GenericDesktop.00ec ---> IGNORED
+Mapping: GenericDesktop.00ed ---> IGNORED
+Mapping: GenericDesktop.00ee ---> IGNORED
+Mapping: GenericDesktop.00ef ---> IGNORED
+Mapping: GenericDesktop.00f0 ---> IGNORED
+Mapping: GenericDesktop.00f1 ---> IGNORED
+Mapping: GenericDesktop.00f2 ---> IGNORED
+Mapping: GenericDesktop.00f3 ---> IGNORED
+Mapping: GenericDesktop.00f4 ---> IGNORED
+Mapping: GenericDesktop.00f5 ---> IGNORED
+Mapping: GenericDesktop.00f6 ---> IGNORED
+Mapping: GenericDesktop.00f7 ---> IGNORED
+Mapping: GenericDesktop.00f8 ---> IGNORED
+Mapping: GenericDesktop.00f9 ---> IGNORED
+Mapping: GenericDesktop.00fa ---> IGNORED
+Mapping: GenericDesktop.00fb ---> IGNORED
+Mapping: GenericDesktop.00fc ---> IGNORED
+Mapping: GenericDesktop.00fd ---> IGNORED
+Mapping: GenericDesktop.00fe ---> IGNORED
+Mapping: GenericDesktop.00ff ---> IGNORED
 
-The per-arch notes sections are gone because it's clear that there are so many
-exceptions, that it's not worth having them.
+There were so many messages that some of them were discarded in the
+begining, hope they arent interesting to you.
 
-I've added a list of references to other documents.
+This is the lsusb -v for that device:
 
-I've tried to get rid of the concept of memory accesses appearing on the bus;
-what matters is apparent behaviour with respect to other observers in the
-system.
+Bus 003 Device 002: ID 045e:00e3 Microsoft Corp.
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x045e Microsoft Corp.
+  idProduct          0x00e3
+  bcdDevice            0.53
+  iManufacturer           1 Microsft
+  iProduct                2 Microsoft Wireless Optical Desktop(r) 2.20
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           59
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xa0
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      63
+         Report Descriptors:
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     571
+         Report Descriptors:
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
 
-Interrupts barrier effects are now considered to be non-existent. They may be
-there, but you may not rely on them.
+This name microsoft wireless optical desktop is the same name that is
+written under the receiver, except that the version mentioned is 3.0A,
+not 2.20
 
-I've added a couple of definition sections at the top of the document: one to
-specify the minimum execution model that may be assumed, the other to specify
-what this document refers to by the term "memory".
+Hope im not putting too much information in just one email, but there
+is a weird issue with t he mouse. It registers a joystick interface as
+well, that has so many buttons and axes that it segfaults all the
+programs i know that report joystick events:
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 /tmp/mb.diff 
- Documentation/memory-barriers.txt |  855 ++++++++++++++++++++++++++++++++++++++
- 1 files changed, 855 insertions(+)
+~ $ jstest /dev/input/js0
+Driver version is 2.1.0.
+Joystick (Microsft Microsoft Wireless Optical Desktop 2.20) has 37
+axes (X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X,
+X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X)
+Segmentation fault
 
-diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-new file mode 100644
-index 0000000..04c5c88
---- /dev/null
-+++ b/Documentation/memory-barriers.txt
-@@ -0,0 +1,855 @@
-+			 ============================
-+			 LINUX KERNEL MEMORY BARRIERS
-+			 ============================
-+
-+Contents:
-+
-+ (*) Assumed minimum execution ordering model.
-+
-+ (*) What is considered memory?
-+
-+     - Cached interactions.
-+     - Uncached interactions.
-+
-+ (*) What are memory barriers?
-+
-+ (*) Where are memory barriers needed?
-+
-+     - Accessing devices.
-+     - Multiprocessor interaction.
-+     - Interrupts.
-+
-+ (*) Explicit kernel compiler barriers.
-+
-+ (*) Explicit kernel memory barriers.
-+
-+ (*) Implicit kernel memory barriers.
-+
-+     - Locking functions.
-+     - Interrupt disabling functions.
-+     - Miscellaneous functions.
-+
-+ (*) Inter-CPU locking barrier effects.
-+
-+     - Locks vs memory accesses.
-+     - Locks vs I/O accesses.
-+
-+ (*) Kernel I/O barrier effects.
-+
-+ (*) References.
-+
-+
-+========================================
-+ASSUMED MINIMUM EXECUTION ORDERING MODEL
-+========================================
-+
-+It has to be assumed that the conceptual CPU is weakly-ordered in all respects
-+but that it will maintain the appearance of program causality with respect to
-+itself.  Some CPUs (such as i386 or x86_64) are more constrained than others
-+(such as powerpc or frv), and so the worst case must be assumed.
-+
-+This means that it must be considered that the CPU will execute its instruction
-+stream in any order it feels like - or even in parallel - provided that if an
-+instruction in the stream depends on the an earlier instruction, then that
-+earlier instruction must be sufficiently complete[*] before the later
-+instruction may proceed.
-+
-+ [*] Some instructions have more than one effect[**] and different instructions
-+     may depend on different effects.
-+
-+ [**] Eg: changes to condition codes and registers; memory changes; barriers.
-+
-+A CPU may also discard any instruction sequence that ultimately winds up having
-+no effect.  For example if two adjacent instructions both load an immediate
-+value into the same register, the first may be discarded.
-+
-+
-+Similarly, it has to be assumed that compiler might reorder the instruction
-+stream in any way it sees fit, again provided the appearance of causality is
-+maintained.
-+
-+
-+==========================
-+WHAT IS CONSIDERED MEMORY?
-+==========================
-+
-+For the purpose of this specification what's meant by "memory" needs to be
-+defined, and the division between CPU and memory needs to be marked out.
-+
-+
-+CACHED INTERACTIONS
-+-------------------
-+
-+As far as cached CPU vs CPU[*] interactions go, "memory" has to include the CPU
-+caches in the system.  Although any particular read or write may not actually
-+appear outside of the CPU that issued it (the CPU may may have been able to
-+satisfy it from its own cache), it's still as if the memory access had taken
-+place as far as the other CPUs are concerned since the cache coherency and
-+ejection mechanisms will propegate the effects upon conflict.
-+
-+ [*] Also applies to CPU vs device when accessed through a cache.
-+
-+The system can be considered logically as:
-+
-+	    <--- CPU --->         :       <----------- Memory ----------->
-+	                          :
-+	+--------+    +--------+  :   +--------+    +-----------+
-+	|        |    |        |  :   |        |    |           |    +---------+
-+	|  CPU   |    | Memory |  :   | CPU    |    |           |    |	       |
-+	|  Core  |--->| Access |----->| Cache  |<-->|           |    |	       |
-+	|        |    | Queue  |  :   |        |    |           |--->| Memory  |
-+	|        |    |        |  :   |        |    |           |    |	       |
-+	+--------+    +--------+  :   +--------+    |           |    | 	       |
-+	                          :                 | Cache     |    +---------+
-+	                          :                 | Coherency |
-+	                          :                 | Mechanism |    +---------+
-+	+--------+    +--------+  :   +--------+    |           |    |	       |
-+	|        |    |        |  :   |        |    |           |    |         |
-+	|  CPU   |    | Memory |  :   | CPU    |    |           |--->| Device  |
-+	|  Core  |--->| Access |----->| Cache  |<-->|           |    | 	       |
-+	|        |    | Queue  |  :   |        |    |           |    | 	       |
-+	|        |    |        |  :   |        |    |           |    +---------+
-+	+--------+    +--------+  :   +--------+    +-----------+
-+	                          :
-+	                          :
-+
-+The CPU core may execute instructions in any order it deems fit, provided the
-+expected program causality appears to be maintained.  Some of the instructions
-+generate load and store operations which then go into the memory access queue
-+to be performed.  The core may place these in the queue in any order it wishes,
-+and continue execution until it is forced to wait for an instruction to
-+complete.
-+
-+What memory barriers are concerned with is controlling the order in which
-+accesses cross from the CPU side of things to the memory side of things, and
-+the order in which the effects are perceived to happen by the other observers
-+in the system.
-+
-+
-+UNCACHED INTERACTIONS
-+---------------------
-+
-+Note that the above model does not show uncached memory or I/O accesses.  These
-+procede directly from the queue to the memory or the devices, bypassing any
-+cache coherency:
-+
-+	    <--- CPU --->         :
-+       	                          :		+-----+
-+	+--------+    +--------+  :             |     |
-+	|        |    |        |  :             |     |              +---------+
-+	|  CPU   |    | Memory |  :             |     |              |	       |
-+	|  Core  |--->| Access |--------------->|     |              |	       |
-+	|        |    | Queue  |  :             |     |------------->| Memory  |
-+	|        |    |        |  :             |     |              |	       |
-+	+--------+    +--------+  :             |     |              | 	       |
-+	                          :             |     |              +---------+
-+	                          :             | Bus |
-+	                          :             |     |              +---------+
-+	+--------+    +--------+  :             |     |              |	       |
-+	|        |    |        |  :             |     |              |         |
-+	|  CPU   |    | Memory |  :             |     |<------------>| Device  |
-+	|  Core  |--->| Access |--------------->|     |              | 	       |
-+	|        |    | Queue  |  :             |     |              | 	       |
-+	|        |    |        |  :             |     |              +---------+
-+	+--------+    +--------+  :             |     |
-+	                          :		+-----+
-+	                          :
-+
-+
-+=========================
-+WHAT ARE MEMORY BARRIERS?
-+=========================
-+
-+Memory barriers are instructions to both the compiler and the CPU to impose an
-+apparent partial ordering between the memory access operations specified either
-+side of the barrier.  They request that the sequence of memory events generated
-+appears to other components of the system as if the barrier is effective on
-+that CPU.
-+
-+Note that:
-+
-+ (*) there's no guarantee that the sequence of memory events is _actually_ so
-+     ordered.  It's possible for the CPU to do out-of-order accesses _as long
-+     as no-one is looking_, and then fix up the memory if someone else tries to
-+     see what's going on (for instance a bus master device); what matters is
-+     the _apparent_ order as far as other processors and devices are concerned;
-+     and
-+
-+ (*) memory barriers are only guaranteed to act within the CPU processing them,
-+     and are not, for the most part, guaranteed to percolate down to other CPUs
-+     in the system or to any I/O hardware that that CPU may communicate with.
-+
-+
-+For example, a programmer might take it for granted that the CPU will perform
-+memory accesses in exactly the order specified, so that if a CPU is, for
-+example, given the following piece of code:
-+
-+	a = *A;
-+	*B = b;
-+	c = *C;
-+	d = *D;
-+	*E = e;
-+
-+They would then expect that the CPU will complete the memory access for each
-+instruction before moving on to the next one, leading to a definite sequence of
-+operations as seen by external observers in the system:
-+
-+	read *A, write *B, read *C, read *D, write *E.
-+
-+
-+Reality is, of course, much messier.  With many CPUs and compilers, this isn't
-+always true because:
-+
-+ (*) reads are more likely to need to be completed immediately to permit
-+     execution progress, whereas writes can often be deferred without a
-+     problem;
-+
-+ (*) reads can be done speculatively, and then the result discarded should it
-+     prove not to be required;
-+
-+ (*) the order of the memory accesses may be rearranged to promote better use
-+     of the CPU buses and caches;
-+
-+ (*) reads and writes may be combined to improve performance when talking to
-+     the memory or I/O hardware that can do batched accesses of adjacent
-+     locations, thus cutting down on transaction setup costs (memory and PCI
-+     devices may be able to do this); and
-+
-+ (*) the CPU's data cache may affect the ordering, though cache-coherency
-+     mechanisms should alleviate this - once the write has actually hit the
-+     cache.
-+
-+So what another CPU, say, might actually observe from the above piece of code
-+is:
-+
-+	read *A, read {*C,*D}, write *E, write *B
-+
-+	(By "read {*C,*D}" I mean a combined single read).
-+
-+
-+It is also guaranteed that a CPU will be self-consistent: it will see its _own_
-+accesses appear to be correctly ordered, without the need for a memory barrier.
-+For instance with the following code:
-+
-+	X = *A;
-+	*A = Y;
-+	Z = *A;
-+
-+assuming no intervention by an external influence, it can be taken that:
-+
-+ (*) X will hold the old value of *A, and will never happen after the write and
-+     thus end up being given the value that was assigned to *A from Y instead;
-+     and
-+
-+ (*) Z will always be given the value in *A that was assigned there from Y, and
-+     will never happen before the write, and thus end up with the same value
-+     that was in *A initially.
-+
-+(This is ignoring the fact that the value initially in *A may appear to be the
-+same as the value assigned to *A from Y).
-+
-+
-+=================================
-+WHERE ARE MEMORY BARRIERS NEEDED?
-+=================================
-+
-+Under normal operation, access reordering is probably not going to be a problem
-+as a linear program will still appear to operate correctly.  There are,
-+however, three circumstances where reordering definitely _could_ be a problem:
-+
-+
-+ACCESSING DEVICES
-+-----------------
-+
-+Many devices can be memory mapped, and so appear to the CPU as if they're just
-+memory locations.  However, to control the device, the driver has to make the
-+right accesses in exactly the right order.
-+
-+Consider, for example, an ethernet chipset such as the AMD PCnet32.  It
-+presents to the CPU an "address register" and a bunch of "data registers".  The
-+way it's accessed is to write the index of the internal register to be accessed
-+to the address register, and then read or write the appropriate data register
-+to access the chip's internal register, which could - theoretically - be done
-+by:
-+
-+	*ADR = ctl_reg_3;
-+	reg = *DATA;
-+
-+The problem with a clever CPU or a clever compiler is that the write to the
-+address register isn't guaranteed to happen before the access to the data
-+register, if the CPU or the compiler thinks it is more efficient to defer the
-+address write:
-+
-+	read *DATA, write *ADR
-+
-+then things will break.
-+
-+
-+In the Linux kernel, however, I/O should be done through the appropriate
-+accessor routines - such as inb() or writel() - which know how to make such
-+accesses appropriately sequential.
-+
-+On some systems, I/O writes are not strongly ordered across all CPUs, and so
-+locking should be used, and mmiowb() should be issued prior to unlocking the
-+critical section.
-+
-+See Documentation/DocBook/deviceiobook.tmpl for more information.
-+
-+
-+MULTIPROCESSOR INTERACTION
-+--------------------------
-+
-+When there's a system with more than one processor, the CPUs in the system may
-+be working on the same set of data at the same time.  This can cause
-+synchronisation problems, and the usual way of dealing with them is to use
-+locks - but locks are quite expensive, and so it may be preferable to operate
-+without the use of a lock if at all possible.  In such a case accesses that
-+affect both CPUs may have to be carefully ordered to prevent error.
-+
-+Consider the R/W semaphore slow path.  In that, a waiting process is queued on
-+the semaphore, as noted by it having a record on its stack linked to the
-+semaphore's list:
-+
-+	struct rw_semaphore {
-+		...
-+		struct list_head waiters;
-+	};
-+
-+	struct rwsem_waiter {
-+		struct list_head list;
-+		struct task_struct *task;
-+	};
-+
-+To wake up the waiter, the up_read() or up_write() functions have to read the
-+pointer from this record to know as to where the next waiter record is, clear
-+the task pointer, call wake_up_process() on the task, and release the reference
-+held on the waiter's task struct:
-+
-+	READ waiter->list.next;
-+	READ waiter->task;
-+	WRITE waiter->task;
-+	CALL wakeup
-+	RELEASE task
-+
-+If any of these steps occur out of order, then the whole thing may fail.
-+
-+Note that the waiter does not get the semaphore lock again - it just waits for
-+its task pointer to be cleared.  Since the record is on its stack, this means
-+that if the task pointer is cleared _before_ the next pointer in the list is
-+read, another CPU might start processing the waiter and it might clobber its
-+stack before up*() functions have a chance to read the next pointer.
-+
-+	CPU 0				CPU 1
-+	===============================	===============================
-+					down_xxx()
-+					Queue waiter
-+					Sleep
-+	up_yyy()
-+	READ waiter->task;
-+	WRITE waiter->task;
-+	<preempt>
-+					Resume processing
-+					down_xxx() returns
-+					call foo()
-+					foo() clobbers *waiter
-+	</preempt>
-+	READ waiter->list.next;
-+	--- OOPS ---
-+
-+This could be dealt with using a spinlock, but then the down_xxx() function has
-+to get the spinlock again after it's been woken up, which is a waste of
-+resources.
-+
-+The way to deal with this is to insert an SMP memory barrier:
-+
-+	READ waiter->list.next;
-+	READ waiter->task;
-+	smp_mb();
-+	WRITE waiter->task;
-+	CALL wakeup
-+	RELEASE task
-+
-+In this case, the barrier makes a guarantee that all memory accesses before the
-+barrier will appear to happen before all the memory accesses after the barrier
-+with respect to the other CPUs on the system.  It does _not_ guarantee that all
-+the memory accesses before the barrier will be complete by the time the barrier
-+itself is complete.
-+
-+SMP memory barriers are normally nothing more than compiler barriers on a
-+kernel compiled for a UP system because the CPU orders overlapping accesses
-+with respect to itself, and so CPU barriers aren't needed.
-+
-+
-+INTERRUPTS
-+----------
-+
-+A driver may be interrupted by its own interrupt service routine, and thus they
-+may interfere with each other's attempts to control or access the device.
-+
-+This may be alleviated - at least in part - by disabling interrupts (a form of
-+locking), such that the critical operations are all contained within the
-+interrupt-disabled section in the driver.  Whilst the driver's interrupt
-+routine is executing, the driver's core may not run on the same CPU, and its
-+interrupt is not permitted to happen again until the current interrupt has been
-+handled, thus the interrupt handler does not need to lock against that.
-+
-+However, consider a driver was talking to an ethernet card that sports an
-+address register and a data register.  If that driver's core is talks to the
-+card under interrupt-disablement and then the driver's interrupt handler is
-+invoked:
-+
-+	DISABLE IRQ
-+	writew(ADDR, ctl_reg_3);
-+	writew(DATA, y);
-+	ENABLE IRQ
-+	<interrupt>
-+	writew(ADDR, ctl_reg_4);
-+	q = readw(DATA);
-+	</interrupt>
-+
-+If ordering rules are sufficiently relaxed, the write to the data register
-+might happen after the second write to the address register.
-+
-+
-+It must be assumed that accesses done inside an interrupt disabled section may
-+leak outside of it and may interleave with accesses performed in an interrupt
-+and vice versa unless implicit or explicit barriers are used.
-+
-+Normally this won't be a problem because the I/O accesses done inside such
-+sections will include synchronous read operations on strictly ordered I/O
-+registers that form implicit I/O barriers. If this isn't sufficient then an
-+mmiowb() may need to be used explicitly.
-+
-+
-+A similar situation may occur between an interrupt routine and two routines
-+running on separate CPUs that communicate with each other. If such a case is
-+likely, then interrupt-disabling locks should be used to guarantee ordering.
-+
-+
-+=================================
-+EXPLICIT KERNEL COMPILER BARRIERS
-+=================================
-+
-+The Linux kernel has an explicit compiler barrier function that prevents the
-+compiler from moving the memory accesses either side of it to the other side:
-+
-+	barrier();
-+
-+This has no direct effect on the CPU, which may then reorder things however it
-+wishes.
-+
-+
-+In addition, accesses to "volatile" memory locations and volatile asm
-+statements act as implicit compiler barriers.  Note, however, that the use of
-+volatile has two negative consequences:
-+
-+ (1) it causes the generation of poorer code, and
-+
-+ (2) it can affect serialisation of events in code distant from the declaration
-+     (consider a structure defined in a header file that has a volatile member
-+     being accessed by the code in a source file).
-+
-+The Linux coding style therefore strongly favours the use of explicit barriers
-+except in small and specific cases.  In general, volatile should be avoided.
-+
-+
-+===============================
-+EXPLICIT KERNEL MEMORY BARRIERS
-+===============================
-+
-+The Linux kernel has six basic CPU memory barriers:
-+
-+		MANDATORY	SMP CONDITIONAL
-+		===============	===============
-+	GENERAL	mb()		smp_mb()
-+	READ	rmb()		smp_rmb()
-+	WRITE	wmb()		smp_wmb()
-+
-+General memory barriers give a guarantee that all memory accesses specified
-+before the barrier will appear to happen before all memory accesses specified
-+after the barrier with respect to the other components of the system.
-+
-+Read and write memory barriers give similar guarantees, but only for memory
-+reads versus memory reads and memory writes versus memory writes respectively.
-+
-+All memory barriers imply compiler barriers.
-+
-+SMP memory barriers are only compiler barriers on uniprocessor compiled systems
-+because it is assumed that a CPU will be apparently self-consistent, and will
-+order overlapping accesses correctly with respect to itself.
-+
-+There is no guarantee that any of the memory accesses specified before a memory
-+barrier will be complete by the completion of a memory barrier; the barrier can
-+be considered to draw a line in that CPU's access queue that accesses of the
-+appropriate type may not cross.
-+
-+There is no guarantee that issuing a memory barrier on one CPU will have any
-+direct effect on another CPU or any other hardware in the system.  The indirect
-+effect will be the order in which the second CPU sees the first CPU's accesses
-+occur.
-+
-+There is no guarantee that some intervening piece of off-the-CPU hardware[*]
-+will not reorder the memory accesses.  CPU cache coherency mechanisms should
-+propegate the indirect effects of a memory barrier between CPUs.
-+
-+ [*] For information on bus mastering DMA and coherency please read:
-+
-+	Documentation/pci.txt
-+	Documentation/DMA-mapping.txt
-+	Documentation/DMA-API.txt
-+
-+Note that these are the _minimum_ guarantees.  Different architectures may give
-+more substantial guarantees, but they may not be relied upon outside of arch
-+specific code.
-+
-+
-+There are some more advanced barrier functions:
-+
-+ (*) set_mb(var, value)
-+ (*) set_wmb(var, value)
-+
-+     These assign the value to the variable and then insert at least a write
-+     barrier after it, depending on the function.  They aren't guaranteed to
-+     insert anything more than a compiler barrier in a UP compilation.
-+
-+
-+===============================
-+IMPLICIT KERNEL MEMORY BARRIERS
-+===============================
-+
-+Some of the other functions in the linux kernel imply memory barriers, amongst
-+which are locking and scheduling functions.
-+
-+This specification is a _minimum_ guarantee; any particular architecture may
-+provide more substantial guarantees, but these may not be relied upon outside
-+of arch specific code.
-+
-+
-+LOCKING FUNCTIONS
-+-----------------
-+
-+All the following locking functions imply barriers:
-+
-+ (*) spin locks
-+ (*) R/W spin locks
-+ (*) mutexes
-+ (*) semaphores
-+ (*) R/W semaphores
-+
-+In all cases there are variants on a LOCK operation and an UNLOCK operation.
-+
-+ (*) LOCK operation implication:
-+
-+     Memory accesses issued after the LOCK will be completed after the LOCK
-+     accesses have completed.
-+
-+     Memory accesses issued before the LOCK may be completed after the LOCK
-+     accesses have completed.
-+
-+ (*) UNLOCK operation implication:
-+
-+     Memory accesses issued before the UNLOCK will be completed before the
-+     UNLOCK accesses have completed.
-+
-+     Memory accesses issued after the UNLOCK may be completed before the UNLOCK
-+     accesses have completed.
-+
-+ (*) LOCK vs UNLOCK implication:
-+
-+     The LOCK accesses will be completed before the UNLOCK accesses.
-+
-+     Therefore an UNLOCK followed by a LOCK is equivalent to a full barrier,
-+     but a LOCK followed by an UNLOCK is not.
-+
-+Locks and semaphores may not provide any guarantee of ordering on UP compiled
-+systems, and so can't be counted on in such a situation to actually do anything
-+at all, especially with respect to I/O accesses, unless combined with interrupt
-+disabling operations.
-+
-+See also the section on "Inter-CPU locking barrier effects".
-+
-+
-+As an example, consider the following:
-+
-+	*A = a;
-+	*B = b;
-+	LOCK
-+	*C = c;
-+	*D = d;
-+	UNLOCK
-+	*E = e;
-+	*F = f;
-+
-+The following sequence of events is acceptable:
-+
-+	LOCK, {*F,*A}, *E, {*C,*D}, *B, UNLOCK
-+
-+But none of the following are:
-+
-+	{*F,*A}, *B,	LOCK, *C, *D,	UNLOCK, *E
-+	*A, *B, *C,	LOCK, *D,	UNLOCK, *E, *F
-+	*A, *B,		LOCK, *C,	UNLOCK, *D, *E, *F
-+	*B,		LOCK, *C, *D,	UNLOCK, {*F,*A}, *E
-+
-+
-+INTERRUPT DISABLING FUNCTIONS
-+-----------------------------
-+
-+Functions that disable interrupts (LOCK equivalent) and enable interrupts
-+(UNLOCK equivalent) will act as compiler barriers only.  So if memory or I/O
-+barriers are required in such a situation, they must be provided from some
-+other means.
-+
-+
-+MISCELLANEOUS FUNCTIONS
-+-----------------------
-+
-+Other functions that imply barriers:
-+
-+ (*) schedule() and similar imply full memory barriers.
-+
-+
-+=================================
-+INTER-CPU LOCKING BARRIER EFFECTS
-+=================================
-+
-+On SMP systems locking primitives give a more substantial form of barrier: one
-+that does affect memory access ordering on other CPUs, within the context of
-+conflict on any particular lock.
-+
-+
-+LOCKS VS MEMORY ACCESSES
-+------------------------
-+
-+Consider the following: the system has a pair of spinlocks (N) and (Q), and
-+three CPUs; then should the following sequence of events occur:
-+
-+	CPU 1				CPU 2
-+	===============================	===============================
-+	*A = a;				*E = e;
-+	LOCK M				LOCK Q
-+	*B = b;				*F = f;
-+	*C = c;				*G = g;
-+	UNLOCK M			UNLOCK Q
-+	*D = d;				*H = h;
-+
-+Then there is no guarantee as to what order CPU #3 will see the accesses to *A
-+through *H occur in, other than the constraints imposed by the separate locks
-+on the separate CPUs. It might, for example, see:
-+
-+	*E, LOCK M, LOCK Q, *G, *C, *F, *A, *B, UNLOCK Q, *D, *H, UNLOCK M
-+
-+But it won't see any of:
-+
-+	*B, *C or *D preceding LOCK M
-+	*A, *B or *C following UNLOCK M
-+	*F, *G or *H preceding LOCK Q
-+	*E, *F or *G following UNLOCK Q
-+
-+
-+However, if the following occurs:
-+
-+	CPU 1				CPU 2
-+	===============================	===============================
-+	*A = a;
-+	LOCK M		[1]
-+	*B = b;
-+	*C = c;
-+	UNLOCK M	[1]
-+	*D = d;				*E = e;
-+					LOCK M		[2]
-+					*F = f;
-+					*G = g;
-+					UNLOCK M	[2]
-+					*H = h;
-+
-+CPU #3 might see:
-+
-+	*E, LOCK M [1], *C, *B, *A, UNLOCK M [1],
-+		LOCK M [2], *H, *F, *G, UNLOCK M [2], *D
-+
-+But assuming CPU #1 gets the lock first, it won't see any of:
-+
-+	*B, *C, *D, *F, *G or *H preceding LOCK M [1]
-+	*A, *B or *C following UNLOCK M [1]
-+	*F, *G or *H preceding LOCK M [2]
-+	*A, *B, *C, *E, *F or *G following UNLOCK M [2]
-+
-+
-+LOCKS VS I/O ACCESSES
-+---------------------
-+
-+Under certain circumstances (such as NUMA), I/O accesses within two spinlocked
-+sections on two different CPUs may be seen as interleaved by the PCI bridge.
-+
-+For example:
-+
-+	CPU 1				CPU 2
-+	===============================	===============================
-+	spin_lock(Q)
-+	writel(0, ADDR)
-+	writel(1, DATA);
-+	spin_unlock(Q);
-+					spin_lock(Q);
-+					writel(4, ADDR);
-+					writel(5, DATA);
-+					spin_unlock(Q);
-+
-+may be seen by the PCI bridge as follows:
-+
-+	WRITE *ADDR = 0, WRITE *ADDR = 4, WRITE *DATA = 1, WRITE *DATA = 5
-+
-+which would probably break.
-+
-+What is necessary here is to insert an mmiowb() before dropping the spinlock,
-+for example:
-+
-+	CPU 1				CPU 2
-+	===============================	===============================
-+	spin_lock(Q)
-+	writel(0, ADDR)
-+	writel(1, DATA);
-+	mmiowb();
-+	spin_unlock(Q);
-+					spin_lock(Q);
-+					writel(4, ADDR);
-+					writel(5, DATA);
-+					mmiowb();
-+					spin_unlock(Q);
-+
-+this will ensure that the two writes issued on CPU #1 appear at the PCI bridge
-+before either of the writes issued on CPU #2.
-+
-+
-+Furthermore, following a write by a read to the same device is okay, because
-+the read forces the write to complete before the read is performed:
-+
-+	CPU 1				CPU 2
-+	===============================	===============================
-+	spin_lock(Q)
-+	writel(0, ADDR)
-+	a = readl(DATA);
-+	spin_unlock(Q);
-+					spin_lock(Q);
-+					writel(4, ADDR);
-+					b = readl(DATA);
-+					spin_unlock(Q);
-+
-+
-+See Documentation/DocBook/deviceiobook.tmpl for more information.
-+
-+
-+==========================
-+KERNEL I/O BARRIER EFFECTS
-+==========================
-+
-+When accessing I/O memory, drivers should use the appropriate accessor
-+functions:
-+
-+ (*) inX(), outX():
-+
-+     These are intended to talk to I/O space rather than memory space, but
-+     that's primarily a CPU-specific concept. The i386 and x86_64 processors do
-+     indeed have special I/O space access cycles and instructions, but many
-+     CPUs don't have such a concept.
-+
-+     The PCI bus, amongst others, defines an I/O space concept - which on such
-+     CPUs as i386 and x86_64 cpus readily maps to the CPU's concept of I/O
-+     space.  However, it may also mapped as a virtual I/O space in the CPU's
-+     memory map, particularly on those CPUs that don't support alternate
-+     I/O spaces.
-+
-+     Accesses to this space may be fully synchronous (as on i386), but
-+     intermediary bridges (such as the PCI host bridge) may not fully honour
-+     that.
-+
-+     They are guaranteed to be fully ordered with respect to each other.
-+
-+     They are not guaranteed to be fully ordered with respect to other types of
-+     memory and I/O operation.
-+
-+ (*) readX(), writeX():
-+
-+     Whether these are guaranteed to be fully ordered and uncombined with
-+     respect to each other on the issuing CPU depends on the characteristics
-+     defined for the memory window through which they're accessing. On later
-+     i386 architecture machines, for example, this is controlled by way of the
-+     MTRR registers.
-+
-+     Ordinarily, these will be guaranteed to be fully ordered and uncombined,,
-+     provided they're not accessing a prefetchable device.
-+
-+     However, intermediary hardware (such as a PCI bridge) may indulge in
-+     deferral if it so wishes; to flush a write, a read from the same location
-+     is preferred[*], but a read from the same device or from configuration
-+     space should suffice for PCI.
-+
-+     [*] NOTE! attempting to read from the same location as was written to may
-+     	 cause a malfunction - consider the 16550 Rx/Tx serial registers for
-+     	 example.
-+
-+     Used with prefetchable I/O memory, an mmiowb() barrier may be required to
-+     force writes to be ordered.
-+
-+     Please refer to the PCI specification for more information on interactions
-+     between PCI transactions.
-+
-+ (*) readX_relaxed()
-+
-+     These are similar to readX(), but are not guaranteed to be ordered in any
-+     way. Be aware that there is no I/O read barrier available.
-+
-+ (*) ioreadX(), iowriteX()
-+
-+     These will perform as appropriate for the type of access they're actually
-+     doing, be it inX()/outX() or readX()/writeX().
-+
-+
-+==========
-+REFERENCES
-+==========
-+
-+AMD64 Architecture Programmer's Manual Volume 2: System Programming
-+	Chapter 7.1: Memory-Access Ordering
-+	Chapter 7.4: Buffering and Combining Memory Writes
-+
-+IA-32 Intel Architecture Software Developer's Manual, Volume 3:
-+System Programming Guide
-+	Chapter 7.1: Locked Atomic Operations
-+	Chapter 7.2: Memory Ordering
-+	Chapter 7.4: Serializing Instructions
-+
-+The SPARC Architecture Manual, Version 9
-+	Chapter 8: Memory Models
-+	Appendix D: Formal Specification of the Memory Models
-+	Appendix J: Programming with the Memory Models
-+
-+UltraSPARC Programmer Reference Manual
-+	Chapter 5: Memory Accesses and Cacheability
-+	Chapter 15: Sparc-V9 Memory Models
-+
-+UltraSPARC III Cu User's Manual
-+	Chapter 9: Memory Models
-+
-+UltraSPARC IIIi Processor User's Manual
-+	Chapter 8: Memory Models
-+
-+UltraSPARC Architecture 2005
-+	Chapter 9: Memory
-+	Appendix D: Formal Specifications of the Memory Models
-+
-+UltraSPARC T1 Supplment to the UltraSPARC Architecture 2005
-+	Chapter 8: Memory Models
-+	Appendix F: Caches and Cache Coherency
-+
-+Solaris Internals, Core Kernel Architecture, p63-68:
-+	Chapter 3.3: Hardware Considerations for Locks and
-+			Synchronization
-+
-+Unix Systems for Modern Architectures, Symmetric Multiprocessing and Caching
-+for Kernel Programmers:
-+	Chapter 13: Other Memory Models
-+
-+Intel Itanium Architecture Software Developer's Manual: Volume 1:
-+	Section 2.6: Speculation
-+	Section 4.4: Memory Access
+The only program i can use to watch the events is mplayer. There i can
+see for example that pressing the left right and middle mouse buttons
+also generates some joystick events, button presses to be more exact.
+This mouse also has side scrolls, which doesnt generate any events.
+
+This joystick interface behaves so badly and seems useless, it only
+causes problems at the moment, so i would rather have it blacklisted.
+
+Hope i didnt miss any information.

@@ -1,65 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751608AbWCIWCF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWCIWEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751608AbWCIWCF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 17:02:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751759AbWCIWCF
+	id S1751759AbWCIWEM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 17:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWCIWEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 17:02:05 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:9840 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751608AbWCIWCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 17:02:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=VF2O3Lre3dSOU9f5mp6IQI1KG2lDNqk5y9FrgjMJo9Gz0OxdhHeMVtExvs7sVBh8S6Au6kQLfX9aV9yc3OBFplpn7uB3auaZ+AIgNQodMfBn+wNEqjUr3VyBbYf1LaUUi8GC5vRY5kEoUqPCd6//KD9vheQLZLJEd4XFLgJBQK0=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix potential null deref in kallsyms::read_symbol
-Date: Thu, 9 Mar 2006 23:02:29 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
+	Thu, 9 Mar 2006 17:04:12 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:51462 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751759AbWCIWEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 17:04:12 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [future of drivers?] a proposal for binary drivers.
+Date: Thu, 9 Mar 2006 14:04:11 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEPBKJAB.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603092302.29634.jesper.juhl@gmail.com>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <21d7e9970603090202v22205fc6ha5b4cec12f0a0507@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 09 Mar 2006 14:00:33 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 09 Mar 2006 14:00:33 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The Coverity checker found that if malloc() fails in 
-scripts/kallsyms.c::read_symbol() then we end up dereferencing a NULL pointer.
+> > > What is linux-specific in this context is that many people, like
+> > > myself, who have contributed code to the kernel under the GPL *don't
+> > > want* their code to be used in non-free software, period. Someone who
+> > > wants to leverage my work needs to do it under the terms that I allow.
+> > > That is the law. Whining is not going to change my mind.
+> >
+> >         I'm sorry, that's not the law. You can wish it was, but
+> > it's not.
+> >
+> >         If the law allowed you to give your software away for
+> > free and then put
+> > restrictions on use, you could drop copies of a poem from an
+> > airplane (or
+> > put it up on a billboard) and then demand royalties from
+> > everyone who read
+> > it.
 
-Unlikely to happen, but we really should check the malloc() return value.
-This patch fixes the problem by checking the return value and printing a nice
-descriptive error message and exiting if malloc() did fail.
+> We don't give away our software for free,
 
-This fixes coverity error #397
+	Yes, you do. You can receive a copy of the Linux kernel without paying any
+fee or agreeing to any license. You do in fact give away the software for
+free.
 
+> we give it away under the
+> terms of the GPL,
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+	That is true. However, the GPL can only grant additional rights, it cannot
+take any away.
 
- scripts/kallsyms.c |    5 +++++
- 1 files changed, 5 insertions(+)
+> you must abide by the terms of the GPL to use it.
 
---- linux-2.6.16-rc5-git12-orig/scripts/kallsyms.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.16-rc5-git12/scripts/kallsyms.c	2006-03-09 22:57:13.000000000 +0100
-@@ -124,6 +124,11 @@ static int read_symbol(FILE *in, struct 
- 	 * compressed together */
- 	s->len = strlen(str) + 1;
- 	s->sym = malloc(s->len + 1);
-+	if (!s->sym) {
-+		fprintf(stderr, "kallsyms failure: "
-+			"unable to allocate required amount of memory\n");
-+		exit(EXIT_FAILURE);
-+	}
- 	strcpy((char *)s->sym + 1, str);
- 	s->sym[0] = stype;
- 
+	No, that's not true. The law permits the normal expected use simply by
+acquiring a copy of the work lawfully. Otherwise, you could buy a book and
+then discover that you still had to pay a royalty to read it. Or you could
+put a poem on a billboard and sue anyone who read it.
 
+> that is the law, you can wish it wasn't but it is.
 
+	You might try *reading* the law sometime.
+
+	DS
 
 

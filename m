@@ -1,210 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751895AbWCIN7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWCIOBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751895AbWCIN7r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 08:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWCIN7r
+	id S1751491AbWCIOBg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 09:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWCIOBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 08:59:47 -0500
-Received: from ns1.suse.de ([195.135.220.2]:51689 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751895AbWCIN7q (ORCPT
+	Thu, 9 Mar 2006 09:01:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:2966 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751491AbWCIOBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 08:59:46 -0500
-Date: Thu, 9 Mar 2006 14:59:44 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: akpm@osdl.org, viro@zeniv.linux.org.uk
-Cc: olh@suse.de, neilb@suse.de, dev@openvz.org, bsingharora@gmail.com,
+	Thu, 9 Mar 2006 09:01:35 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <21627.1141846631@warthog.cambridge.redhat.com> 
+References: <21627.1141846631@warthog.cambridge.redhat.com>  <29826.1141828678@warthog.cambridge.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> 
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (2nd updated patch)
-Message-ID: <20060309135943.GG4243@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="H8ygTp4AXg6deix2"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Subject: Re: [PATCH] Document Linux's memory barriers [try #3] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 09 Mar 2006 14:01:16 +0000
+Message-ID: <27749.1141912876@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I'm thinking of adding the attached to the document. Any comments or
+objections?
 
-This is an updated version of the patch which adresses some issues that came
-up during discussion.
+David
 
-Although sb->s_prunes usually is zero, I'm testing it now before calling
-wake_up(). Besides that, the shrink_dcache_parent() is only waiting for prunes
-if we are called through generic_shutdown_super() when sb->s_root is NULL.
-Recently updated the comments to be more verbose about the goals of the
-modification.
-
-Original patch description:
-
-Kirill Korotaev <dev@sw.ru> discovered a race between shrink_dcache_parent()
-and shrink_dcache_memory() which leads to "Busy inodes after unmount".
-When unmounting a file system shrink_dcache_parent() is racing against a
-possible shrink_dcache_memory(). This might lead to the situation that
-shrink_dcache_parent() is returning too early. In this situation the
-super_block is destroyed before shrink_dcache_memory() could put the inode.
-
-This patch fixes the problem through introducing a prunes counter which is
-incremented when a dentry is pruned but the corresponding inoded isn't put
-yet.When the prunes counter is not null, shrink_dcache_parent() is waiting and
-restarting its work.
-
-Signed-off-by: Jan Blunck <jblunck@suse.de>
-
---H8ygTp4AXg6deix2
-Content-Type: text/x-patch; charset=us-ascii
-Content-Disposition: attachment; filename="umount-prune_one_dentry-fix.diff"
-
----
-
- fs/dcache.c        |   66 ++++++++++++++++++++++++++++++++++++++++++++++++++---
- fs/super.c         |    4 ++-
- include/linux/fs.h |    3 ++
- 3 files changed, 69 insertions(+), 4 deletions(-)
-
-Index: linux-2.6/fs/dcache.c
-===================================================================
---- linux-2.6.orig/fs/dcache.c
-+++ linux-2.6/fs/dcache.c
-@@ -364,17 +364,22 @@ restart:
-  */
- static inline void prune_one_dentry(struct dentry * dentry)
- {
-+	struct super_block *sb = dentry->d_sb;
- 	struct dentry * parent;
+diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
+index 6eeb7e4..f9a9192 100644
+--- a/Documentation/memory-barriers.txt
++++ b/Documentation/memory-barriers.txt
+@@ -4,6 +4,8 @@
  
- 	__d_drop(dentry);
- 	list_del(&dentry->d_u.d_child);
- 	dentry_stat.nr_dentry--;	/* For d_free, below */
-+	sb->s_prunes++;
- 	dentry_iput(dentry);
- 	parent = dentry->d_parent;
- 	d_free(dentry);
- 	if (parent != dentry)
- 		dput(parent);
- 	spin_lock(&dcache_lock);
-+	sb->s_prunes--;
-+	if (likely(!sb->s_prunes))
-+		wake_up(&sb->s_wait_prunes);
- }
+ Contents:
  
- /**
-@@ -623,19 +628,74 @@ out:
- 	return found;
- }
- 
-+/*
-+ * A special version of wait_event(!sb->s_prunes) which takes the dcache_lock
-+ * when checking the condition and gives feedback if we have waited for
-+ * remaining prunes.
-+ *
-+ * While we are waiting for pruned dentries to iput() their inode, the
-+ * sb->s_prunes count is none zero. Since the s_prunes counter is modified
-+ * by prune_one_dentry() under dcache_lock, either the reference count on the
-+ * parent dentry is wrong (and therefore it isn't on the lru-list yet) and we
-+ * are waiting because s_prunes != 0 or the reference count is correct (and the
-+ * parent dentry might be found by select_parent()) and the s_prunes == 0. This
-+ * is the reason for that we have to restart loop on select_parent() and
-+ * prune_dcache() as long as we are waiting on pruned dentries here (see the
-+ * usage of wait_on_prunes() in shrink_dcache_parent()). This is not
-+ * live-locking because we only call wait_on_prunes() if we are umounting the
-+ * filesystem (sb->s_root == NULL), therefore noone is having a reference to
-+ * the vfsmount structure anymore and hence shouldn't have a reference to a
-+ * dentry.
-+ */
-+static int wait_on_prunes(struct super_block *sb)
-+{
-+	DEFINE_WAIT(wait);
-+	int prunes_remaining = 0;
++ (*) What do we consider memory?
 +
-+#ifdef DCACHE_DEBUG
-+	printk(KERN_DEBUG "%s: waiting for %d prunes\n", __FUNCTION__,
-+	       sb->s_prunes);
-+#endif
+  (*) What are memory barriers?
+ 
+  (*) Where are memory barriers needed?
+@@ -32,6 +34,82 @@ Contents:
+  (*) References.
+ 
+ 
++===========================
++WHAT DO WE CONSIDER MEMORY?
++===========================
 +
-+	spin_lock(&dcache_lock);
-+	for (;;) {
-+		prepare_to_wait(&sb->s_wait_prunes, &wait,
-+				TASK_UNINTERRUPTIBLE);
-+		if (!sb->s_prunes)
-+			break;
-+		spin_unlock(&dcache_lock);
-+		schedule();
-+		prunes_remaining = 1;
-+		spin_lock(&dcache_lock);
-+	}
-+	spin_unlock(&dcache_lock);
-+	finish_wait(&sb->s_wait_prunes, &wait);
-+	return prunes_remaining;
-+}
++For the purpose of this specification, "memory", at least as far as cached CPU
++vs CPU interactions go, has to include the CPU caches in the system.  Although
++any particular read or write may not actually appear outside of the CPU that
++issued it because the CPU was able to satisfy it from its own cache, it's still
++as if the memory access had taken place as far as the other CPUs are concerned
++since the cache coherency and ejection mechanisms will propegate the effects
++upon conflict.
 +
- /**
-  * shrink_dcache_parent - prune dcache
-  * @parent: parent of entries to prune
-  *
-  * Prune the dcache to remove unused children of the parent dentry.
-+ *
-+ * If we have waited for a pruned dentry which parent wasn't unhashed yet,
-+ * the parent will end up on the lru-list. Therefore, if we are called from
-+ * generic_shutdown_super() during umount of a filesystem, we need to run
-+ * select_parent() again after we waited for pruned dentries in
-+ * wait_on_prunes().
-+ *
-+ * NOTE: Also read the comment on wait_on_prunes() above.
-  */
-- 
- void shrink_dcache_parent(struct dentry * parent)
- {
- 	int found;
-+	struct super_block *sb = parent->d_sb;
- 
--	while ((found = select_parent(parent)) != 0)
--		prune_dcache(found);
-+	do {
-+		while ((found = select_parent(parent)) != 0)
-+			prune_dcache(found);
-+	} while(!sb->s_root && wait_on_prunes(sb));
- }
- 
- /**
-Index: linux-2.6/fs/super.c
-===================================================================
---- linux-2.6.orig/fs/super.c
-+++ linux-2.6/fs/super.c
-@@ -80,6 +80,8 @@ static struct super_block *alloc_super(v
- 		sema_init(&s->s_dquot.dqio_sem, 1);
- 		sema_init(&s->s_dquot.dqonoff_sem, 1);
- 		init_rwsem(&s->s_dquot.dqptr_sem);
-+		s->s_prunes = 0;
-+		init_waitqueue_head(&s->s_wait_prunes);
- 		init_waitqueue_head(&s->s_wait_unfrozen);
- 		s->s_maxbytes = MAX_NON_LFS;
- 		s->dq_op = sb_dquot_ops;
-@@ -230,8 +232,8 @@ void generic_shutdown_super(struct super
- 
- 	if (root) {
- 		sb->s_root = NULL;
--		shrink_dcache_parent(root);
- 		shrink_dcache_anon(&sb->s_anon);
-+		shrink_dcache_parent(root);
- 		dput(root);
- 		fsync_super(sb);
- 		lock_super(sb);
-Index: linux-2.6/include/linux/fs.h
-===================================================================
---- linux-2.6.orig/include/linux/fs.h
-+++ linux-2.6/include/linux/fs.h
-@@ -836,6 +836,9 @@ struct super_block {
- 	struct list_head	s_instances;
- 	struct quota_info	s_dquot;	/* Diskquota specific options */
- 
-+	unsigned int		s_prunes;	/* protected by dcache_lock */
-+	wait_queue_head_t	s_wait_prunes;
++Consider the system logically as:
 +
- 	int			s_frozen;
- 	wait_queue_head_t	s_wait_unfrozen;
++	    <--- CPU --->         :       <----------- Memory ----------->
++	                          :
++	+--------+    +--------+  :   +--------+    +-----------+
++	|        |    |        |  :   |        |    |           |    +---------+
++	|  CPU   |    | Memory |  :   | CPU    |    |           |    |	       |
++	|  Core  |--->| Access |----->| Cache  |<-->|           |    |	       |
++	|        |    | Queue  |  :   |        |    |           |--->| Memory  |
++	|        |    |        |  :   |        |    |           |    |	       |
++	+--------+    +--------+  :   +--------+    |           |    | 	       |
++	                          :                 | Cache     |    +---------+
++	                          :                 | Coherency |
++	                          :                 | Mechanism |    +---------+
++	+--------+    +--------+  :   +--------+    |           |    |	       |
++	|        |    |        |  :   |        |    |           |    |         |
++	|  CPU   |    | Memory |  :   | CPU    |    |           |--->| Device  |
++	|  Core  |--->| Access |----->| Cache  |<-->|           |    | 	       |
++	|        |    | Queue  |  :   |        |    |           |    | 	       |
++	|        |    |        |  :   |        |    |           |    +---------+
++	+--------+    +--------+  :   +--------+    +-----------+
++	                          :
++	                          :
++
++The CPU core may execute instructions in any order it deems fit, provided the
++expected program causality appears to be maintained.  Some of the instructions
++generate load and store operations which then go into the memory access queue
++to be performed.  The core may place these in the queue in any order it wishes,
++and continue execution until it is forced to wait for an instruction to
++complete.
++
++What memory barriers are concerned with is controlling the order in which
++accesses cross from the CPU side of things to the memory side of things, and
++the order in which the effects are perceived to happen by the other observers
++in the system.
++
++
++Note that the above model does not show uncached memory or I/O accesses.  These
++procede directly from the queue to the memory or the devices, bypassing any
++cache coherency:
++
++	    <--- CPU --->         :
++       	                          :		+-----+
++	+--------+    +--------+  :             |     |
++	|        |    |        |  :             |     |              +---------+
++	|  CPU   |    | Memory |  :             |     |              |	       |
++	|  Core  |--->| Access |--------------->|     |              |	       |
++	|        |    | Queue  |  :             |     |------------->| Memory  |
++	|        |    |        |  :             |     |              |	       |
++	+--------+    +--------+  :             |     |              | 	       |
++	                          :             |     |              +---------+
++	                          :             | Bus |
++	                          :             |     |              +---------+
++	+--------+    +--------+  :             |     |              |	       |
++	|        |    |        |  :             |     |              |         |
++	|  CPU   |    | Memory |  :             |     |<------------>| Device  |
++	|  Core  |--->| Access |--------------->|     |              | 	       |
++	|        |    | Queue  |  :             |     |              | 	       |
++	|        |    |        |  :             |     |              +---------+
++	+--------+    +--------+  :             |     |
++	                          :		+-----+
++	                          :
++
++
+ =========================
+ WHAT ARE MEMORY BARRIERS?
+ =========================
+@@ -448,8 +526,8 @@ In all cases there are variants on a LOC
  
+      The LOCK accesses will be completed before the UNLOCK accesses.
+ 
+-And therefore an UNLOCK followed by a LOCK is equivalent to a full barrier, but
+-a LOCK followed by an UNLOCK isn't.
++     Therefore an UNLOCK followed by a LOCK is equivalent to a full barrier,
++     but a LOCK followed by an UNLOCK is not.
+ 
+ Locks and semaphores may not provide any guarantee of ordering on UP compiled
+ systems, and so can't be counted on in such a situation to actually do anything
 
---H8ygTp4AXg6deix2--

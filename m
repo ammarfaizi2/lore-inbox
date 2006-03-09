@@ -1,259 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWCIGwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751692AbWCIGxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWCIGwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWCIGwc
+	id S1751692AbWCIGxr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751693AbWCIGxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:52:32 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:40163 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750948AbWCIGwb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:52:31 -0500
-From: NeilBrown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 9 Mar 2006 17:51:27 +1100
-Message-Id: <1060309065127.24521@suse.de>
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 001 of 14] knfsd: Change the store of auth_domains to not be a 'cache'.
-References: <20060309174755.24381.patches@notabene>
+	Thu, 9 Mar 2006 01:53:17 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:28326 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751692AbWCIGxL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 01:53:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mE52pXg2haJjFwT5obGwTN6MdMtExAsaEnojOLW/oNPTRrhj32y+7DAFbjsYlSBUse/jDlWs9aqWAJV1vensgWG7mOzfcqNVhoPfIYrIrRjTgFwAEvw67PdwtkhMlgSKg9UHZitTmu7P/7VkSY5Tt746surb2iXTXSUdyp6soms=
+Message-ID: <a44ae5cd0603082253sfb4a1e1q687c56a6f6a386fb@mail.gmail.com>
+Date: Wed, 8 Mar 2006 22:53:10 -0800
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+Subject: 2.6.16-rc5-mm3 -- BUG: sleeping function called from invalid context at include/linux/rwsem.h:43 in_atomic():0, irqs_disabled():1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Apologies.  This bug caused my video to get messed up.  I was able to
+run Gnome, but the apps weren't rendering correctly, so I couldn't be
+sure my subject line was correct.
+I would have edited out some of the context info, but that was tough
+as well.  Here's the BUG message by itself.  Perhaps all the dmesg
+output in the previous message will be helpful.
+As you can see in the dmesg output, I hit this by suspending and
+resuming.  I am running Fedora Core 5 Test 3 + all yum updates.
+Andrew, the full dmesg output is in the LKML message with the subject
+line set to "v".  Let me know if you would like me to send it directly
+to you.
 
-The 'auth_domain's are simply handles on internal data structures.
-They do not cache information from user-space, and forcing them
-into the mold of a 'cache' misrepresents their true nature and causes confusion.
-
-
-Signed-off-by: Neil Brown <neilb@suse.de>
-
-### Diffstat output
- ./fs/nfsd/export.c                  |    5 +-
- ./include/linux/sunrpc/svcauth.h    |   10 +++--
- ./net/sunrpc/auth_gss/svcauth_gss.c |   14 +++----
- ./net/sunrpc/svcauth_unix.c         |   66 ++++++++++++++++--------------------
- 4 files changed, 46 insertions(+), 49 deletions(-)
-
-diff ./fs/nfsd/export.c~current~ ./fs/nfsd/export.c
---- ./fs/nfsd/export.c~current~	2006-03-09 17:12:58.000000000 +1100
-+++ ./fs/nfsd/export.c	2006-03-09 17:13:01.000000000 +1100
-@@ -242,7 +242,7 @@ static inline int svc_expkey_match (stru
- 
- static inline void svc_expkey_init(struct svc_expkey *new, struct svc_expkey *item)
- {
--	cache_get(&item->ek_client->h);
-+	kref_get(&item->ek_client->ref);
- 	new->ek_client = item->ek_client;
- 	new->ek_fsidtype = item->ek_fsidtype;
- 	new->ek_fsid[0] = item->ek_fsid[0];
-@@ -474,7 +474,7 @@ static inline int svc_export_match(struc
- }
- static inline void svc_export_init(struct svc_export *new, struct svc_export *item)
- {
--	cache_get(&item->ex_client->h);
-+	kref_get(&item->ex_client->ref);
- 	new->ex_client = item->ex_client;
- 	new->ex_dentry = dget(item->ex_dentry);
- 	new->ex_mnt = mntget(item->ex_mnt);
-@@ -1129,7 +1129,6 @@ exp_delclient(struct nfsctl_client *ncp)
- 	 */
- 	if (dom) {
- 		err = auth_unix_forget_old(dom);
--		dom->h.expiry_time = get_seconds();
- 		auth_domain_put(dom);
- 	}
- 
-
-diff ./include/linux/sunrpc/svcauth.h~current~ ./include/linux/sunrpc/svcauth.h
---- ./include/linux/sunrpc/svcauth.h~current~	2006-03-09 17:12:58.000000000 +1100
-+++ ./include/linux/sunrpc/svcauth.h	2006-03-09 17:13:01.000000000 +1100
-@@ -45,9 +45,10 @@ struct svc_rqst;		/* forward decl */
-  * of ip addresses to the given client.
-  */
- struct auth_domain {
--	struct	cache_head	h;
-+	struct kref		ref;
-+	struct hlist_node	hash;
- 	char			*name;
--	int			flavour;
-+	struct auth_ops		*flavour;
- };
- 
- /*
-@@ -86,6 +87,9 @@ struct auth_domain {
-  *
-  * domain_release()
-  *   This call releases a domain.
-+ * set_client()
-+ *   Givens a pending request (struct svc_rqst), finds and assigns
-+ *   an appropriate 'auth_domain' as the client.
-  */
- struct auth_ops {
- 	char *	name;
-@@ -117,7 +121,7 @@ extern void	svc_auth_unregister(rpc_auth
- extern struct auth_domain *unix_domain_find(char *name);
- extern void auth_domain_put(struct auth_domain *item);
- extern int auth_unix_add_addr(struct in_addr addr, struct auth_domain *dom);
--extern struct auth_domain *auth_domain_lookup(struct auth_domain *item, int set);
-+extern struct auth_domain *auth_domain_lookup(char *name, struct auth_domain *new);
- extern struct auth_domain *auth_domain_find(char *name);
- extern struct auth_domain *auth_unix_lookup(struct in_addr addr);
- extern int auth_unix_forget_old(struct auth_domain *dom);
-
-diff ./net/sunrpc/auth_gss/svcauth_gss.c~current~ ./net/sunrpc/auth_gss/svcauth_gss.c
---- ./net/sunrpc/auth_gss/svcauth_gss.c~current~	2006-03-09 17:12:58.000000000 +1100
-+++ ./net/sunrpc/auth_gss/svcauth_gss.c	2006-03-09 17:13:54.000000000 +1100
-@@ -645,6 +645,8 @@ find_gss_auth_domain(struct gss_ctx *ctx
- 	return auth_domain_find(name);
- }
- 
-+static struct auth_ops svcauthops_gss;
-+
- int
- svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
- {
-@@ -655,20 +657,18 @@ svcauth_gss_register_pseudoflavor(u32 ps
- 	new = kmalloc(sizeof(*new), GFP_KERNEL);
- 	if (!new)
- 		goto out;
--	cache_init(&new->h.h);
-+	kref_init(&new->h.ref);
- 	new->h.name = kmalloc(strlen(name) + 1, GFP_KERNEL);
- 	if (!new->h.name)
- 		goto out_free_dom;
- 	strcpy(new->h.name, name);
--	new->h.flavour = RPC_AUTH_GSS;
-+	new->h.flavour = &svcauthops_gss;
- 	new->pseudoflavor = pseudoflavor;
--	new->h.h.expiry_time = NEVER;
- 
--	test = auth_domain_lookup(&new->h, 1);
--	if (test == &new->h) {
--		BUG_ON(atomic_dec_and_test(&new->h.h.refcnt));
--	} else { /* XXX Duplicate registration? */
-+	test = auth_domain_lookup(name, &new->h);
-+	if (test != &new->h) { /* XXX Duplicate registration? */
- 		auth_domain_put(&new->h);
-+		/* dangling ref-count... */
- 		goto out;
- 	}
- 	return 0;
-
-diff ./net/sunrpc/svcauth_unix.c~current~ ./net/sunrpc/svcauth_unix.c
---- ./net/sunrpc/svcauth_unix.c~current~	2006-03-09 17:12:58.000000000 +1100
-+++ ./net/sunrpc/svcauth_unix.c	2006-03-09 17:13:01.000000000 +1100
-@@ -27,41 +27,35 @@ struct unix_domain {
- 	/* other stuff later */
- };
- 
-+extern struct auth_ops svcauth_unix;
-+
- struct auth_domain *unix_domain_find(char *name)
- {
--	struct auth_domain *rv, ud;
--	struct unix_domain *new;
--
--	ud.name = name;
--	
--	rv = auth_domain_lookup(&ud, 0);
--
-- foundit:
--	if (rv && rv->flavour != RPC_AUTH_UNIX) {
--		auth_domain_put(rv);
--		return NULL;
--	}
--	if (rv)
--		return rv;
-+	struct auth_domain *rv;
-+	struct unix_domain *new = NULL;
- 
--	new = kmalloc(sizeof(*new), GFP_KERNEL);
--	if (new == NULL)
--		return NULL;
--	cache_init(&new->h.h);
--	new->h.name = kstrdup(name, GFP_KERNEL);
--	new->h.flavour = RPC_AUTH_UNIX;
--	new->addr_changes = 0;
--	new->h.h.expiry_time = NEVER;
--
--	rv = auth_domain_lookup(&new->h, 2);
--	if (rv == &new->h) {
--		if (atomic_dec_and_test(&new->h.h.refcnt)) BUG();
--	} else {
--		auth_domain_put(&new->h);
--		goto foundit;
-+	rv = auth_domain_lookup(name, NULL);
-+	while(1) {
-+		if (rv != &new->h) {
-+			if (new) auth_domain_put(&new->h);
-+			return rv;
-+		}
-+		if (rv && rv->flavour != &svcauth_unix) {
-+			auth_domain_put(rv);
-+			return NULL;
-+		}
-+		if (rv)
-+			return rv;
-+
-+		new = kmalloc(sizeof(*new), GFP_KERNEL);
-+		if (new == NULL)
-+			return NULL;
-+		kref_init(&new->h.ref);
-+		new->h.name = kstrdup(name, GFP_KERNEL);
-+		new->h.flavour = &svcauth_unix;
-+		new->addr_changes = 0;
-+		rv = auth_domain_lookup(name, &new->h);
- 	}
--
--	return rv;
- }
- 
- static void svcauth_unix_domain_release(struct auth_domain *dom)
-@@ -130,7 +124,7 @@ static inline void ip_map_init(struct ip
- }
- static inline void ip_map_update(struct ip_map *new, struct ip_map *item)
- {
--	cache_get(&item->m_client->h.h);
-+	kref_get(&item->m_client->h.ref);
- 	new->m_client = item->m_client;
- 	new->m_add_change = item->m_add_change;
- }
-@@ -272,7 +266,7 @@ int auth_unix_add_addr(struct in_addr ad
- 	struct unix_domain *udom;
- 	struct ip_map ip, *ipmp;
- 
--	if (dom->flavour != RPC_AUTH_UNIX)
-+	if (dom->flavour != &svcauth_unix)
- 		return -EINVAL;
- 	udom = container_of(dom, struct unix_domain, h);
- 	strcpy(ip.m_class, "nfsd");
-@@ -295,7 +289,7 @@ int auth_unix_forget_old(struct auth_dom
- {
- 	struct unix_domain *udom;
- 	
--	if (dom->flavour != RPC_AUTH_UNIX)
-+	if (dom->flavour != &svcauth_unix)
- 		return -EINVAL;
- 	udom = container_of(dom, struct unix_domain, h);
- 	udom->addr_changes++;
-@@ -323,7 +317,7 @@ struct auth_domain *auth_unix_lookup(str
- 		rv = NULL;
- 	} else {
- 		rv = &ipm->m_client->h;
--		cache_get(&rv->h);
-+		kref_get(&rv->ref);
- 	}
- 	ip_map_put(&ipm->h, &ip_map_cache);
- 	return rv;
-@@ -361,7 +355,7 @@ svcauth_unix_set_client(struct svc_rqst 
- 			return SVC_DENIED;
- 		case 0:
- 			rqstp->rq_client = &ipm->m_client->h;
--			cache_get(&rqstp->rq_client->h);
-+			kref_get(&rqstp->rq_client->ref);
- 			ip_map_put(&ipm->h, &ip_map_cache);
- 			break;
- 	}
+BUG: sleeping function called from invalid context at include/linux/rwsem.h:43
+in_atomic():0, irqs_disabled():1
+ <c1003f81> show_trace+0xd/0xf   <c100401b> dump_stack+0x17/0x19
+ <c1015f77> __might_sleep+0x86/0x90   <c1024738>
+blocking_notifier_call_chain+0x1b/0x4d
+ <c1183bb2> cpufreq_resume+0xf5/0x11d   <c112b27c> __sysdev_resume+0x23/0x57
+ <c112b3c9> sysdev_resume+0x19/0x4b   <c112f736> device_power_up+0x8/0xf
+ <c1033339> swsusp_suspend+0x6e/0x8b   <c1033918> pm_suspend_disk+0x51/0xf3
+ <c10328c7> enter_state+0x53/0x1c1   <c1032abe> state_store+0x89/0x97
+ <c108af00> subsys_attr_store+0x20/0x25   <c108b020> sysfs_write_file+0xb5/0xdc
+ <c1056578> vfs_write+0xab/0x154   <c1056aa3> sys_write+0x3b/0x60
+ <c1002b43> syscall_call+0x7/0xb
+PM: Image restored success

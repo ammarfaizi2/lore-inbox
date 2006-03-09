@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbWCIVIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751644AbWCIVPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751567AbWCIVIe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 16:08:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbWCIVIe
+	id S1751644AbWCIVPj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 16:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWCIVPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 16:08:34 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:13000 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751567AbWCIVId
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 16:08:33 -0500
-Subject: Re: 2.6.15-rt20, "bad page state", jackd
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: nando@ccrma.Stanford.EDU, Steven Rostedt <rostedt@goodmis.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060309084746.GB9408@osiris.boeblingen.de.ibm.com>
-References: <1141846564.5262.20.camel@cmn3.stanford.edu>
-	 <20060309084746.GB9408@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 13:08:08 -0800
-Message-Id: <1141938488.22708.28.camel@cmn3.stanford.edu>
+	Thu, 9 Mar 2006 16:15:39 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:31502 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751617AbWCIVPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 16:15:38 -0500
+Date: Thu, 9 Mar 2006 22:15:02 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, rolandd@cisco.com, gregkh@suse.de,
+       akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
+Message-ID: <20060309211502.GA24460@mars.ravnborg.org>
+References: <ac5354bb50d515de2a5c.1141922831@localhost.localdomain> <ada4q27ld33.fsf@cisco.com> <20060309185604.GA24004@mars.ravnborg.org> <adafylrigug.fsf@cisco.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <adafylrigug.fsf@cisco.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 09:47 +0100, Heiko Carstens wrote:
-> On Wed, Mar 08, 2006 at 11:36:04AM -0800, Fernando Lopez-Lezcano wrote:
-> > Hi all, I reported this in mid January (I thought I had sent to the list
-> > but the report went to Ingo and Steven off list)
-> > 
-> > I'm seeing the same problem in 2.6.15-rt21 in some of my machines. After
-> > a reboot into the kernel I just login as root in a terminal, start the
-> > jackd sound server ("jackd -d alsa -d hw") and when stopping it (just
-> > doing a <ctrl>c) I get a bunch of messages of this form:
-> > 
-> > > Trying to fix it up, but a reboot is needed
-> > > Bad page state at __free_pages_ok (in process 'jackd', page c10012fc)
-> > 
-> > Has anyone else seen this?
+On Thu, Mar 09, 2006 at 11:00:07AM -0800, Roland Dreier wrote:
+>     Sam> Eventually - yes.  But not just now. Kbuild was introduced
+>     Sam> because it was needed in the top-level directory and it made
+>     Sam> good sense to do so.  But for now keeping Makefile is a good
+>     Sam> choice. This is anyway what people are used to.
 > 
-> Actually I have a bug report that looks quite the same. Happens on s390x
-> with lots of I/O stress. But that is against vanilla 2.6.16-rc4 + additional
-> patches. I need to ask to reproduce that with a plain vanilla kernel, so
-> that a git bisect search might help to figure out what is wrong.
-> Unfortunately it seems to take hours before we hit the bug.
+> OK, disregard my suggestion then.  Should we patch
+> Documentation/kbuild/makefiles.txt to correct the current
+> documentation, which says:
+> 
+>   The preferred name for the kbuild files is 'Kbuild' but 'Makefile'
+>   will continue to be supported. All new developmen is expected to use
+>   the Kbuild filename.
+> 
+Yes - I will do so. Thanks.
 
-In my case it is completely repeatable. 
-Boot, start jackd, stop jackd -> problem appears. 
-
-This does not happen on all computers so it would seem to me it is
-related to the sound drivers. I'll try to see if there is a correlation
-with the sound card being used. 
-
-Is there anything else I could do to try to help resolve this?
--- Fernando
-
-
+	Sam

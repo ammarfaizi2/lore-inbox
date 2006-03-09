@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWCILCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWCILFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWCILCK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 06:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751826AbWCILCK
+	id S1751826AbWCILFF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 06:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751827AbWCILFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 06:02:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51730 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751821AbWCILCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 06:02:08 -0500
-Date: Thu, 9 Mar 2006 12:02:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: drivers/scsi/sata_vsc.c: inconsistent NULL checking
-Message-ID: <20060309110207.GA4006@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 9 Mar 2006 06:05:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15282 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751826AbWCILFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 06:05:02 -0500
+Date: Thu, 9 Mar 2006 03:02:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: linux-usb-devel@lists.sourceforge.net, hjlipp@web.de,
+       linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] reduce syslog clutter (take 2)
+Message-Id: <20060309030257.5c1e0f30.akpm@osdl.org>
+In-Reply-To: <440F609F.8090604@imap.cc>
+References: <440F609F.8090604@imap.cc>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found this inconsistent NULL checking recently 
-introduced by the following commit:
+Tilman Schmidt <tilman@imap.cc> wrote:
+>
+> The current versions of the err() / info() / warn() syslog macros
+>  insert __FILE__ at the beginning of the message, which expands to
+>  the complete path name of the source file within the kernel tree.
+> 
+>  With the following patch, when used in a module, they'll insert the
+>  module name instead, which is significantly shorter and also tends to
+>  be more useful to users trying to make sense of a particular message.
 
-  2ae5b30ff08cee422c7f6388a759f7
-  Author: Dan Williams <dan.j.williams@intel.com>
-  [PATCH] Necessary evil to get sata_vsc to initialize with Intel iq3124h hba
-
-
-In function vsc_sata_interrupt():
-
-	err_status = ap ? vsc_sata_scr_read(ap, SCR_ERROR) : 0;
-	vsc_sata_scr_write(ap, SCR_ERROR, err_status);
-
-
-vsc_sata_scr_write() always dereferences ap
-(since SCR_ERROR < SCR_CONTROL).
-
-Checking for NULL in one line and unconditionally dereferencing the 
-variable in the next line can't be right.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Personally, I prefer to see filenames.  Or function names.  Sometimes it's
+rather unobvious how to go from module name to filename, due to a) multiple
+.o files being linked together, b) subsystems which insist on #including .c
+files in .c files (usb...) and c) the module system's cute habit of
+replacing underscores with dashes in module names.
 

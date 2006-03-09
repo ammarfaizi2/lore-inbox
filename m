@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751660AbWCIVTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751845AbWCIVar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751660AbWCIVTW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 16:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbWCIVTW
+	id S1751845AbWCIVar (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 16:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWCIVar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 16:19:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12696 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751608AbWCIVTV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 16:19:21 -0500
-Date: Thu, 9 Mar 2006 13:18:47 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jesper.juhl@gmail.com, tilman@imap.cc, rdunlap@xenotime.net,
-       linux-usb-devel@lists.sourceforge.net, hjlipp@web.de,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] reduce syslog clutter (take 2)
-Message-Id: <20060309131847.44e1ab79.zaitcev@redhat.com>
-In-Reply-To: <20060309130327.32ef68de.akpm@osdl.org>
-References: <440F609F.8090604@imap.cc>
-	<20060309030257.5c1e0f30.akpm@osdl.org>
-	<20060309083412.95e145ea.rdunlap@xenotime.net>
-	<44107739.9070204@imap.cc>
-	<9a8748490603091058l75aacacsfc5fdba3981fb074@mail.gmail.com>
-	<20060309130327.32ef68de.akpm@osdl.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.13; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Thu, 9 Mar 2006 16:30:47 -0500
+Received: from xproxy.gmail.com ([66.249.82.195]:40760 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751845AbWCIVaq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 16:30:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sNCO11EVznyBX943nSdGX9xHB8WKTaoVt+Wdje9bT1IgEdEO1zd7nVbvW4fsUwOlwC3E1MTast8KKX+DrtFayKAmg9hX2UXnN0HMfW6QUijTpkCBlgJkh3npTMLTYl0OsHRNY/OqNkmd83WlG837lx4K0syyGx6r/ZGuLUrO9SU=
+Message-ID: <161717d50603091330j61850529xcd50382a55ccb6b3@mail.gmail.com>
+Date: Thu, 9 Mar 2006 16:30:45 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+Cc: Luke-Jr <luke@dashjr.org>, "Anshuman Gholap" <anshu.pg@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44108CCB.9080709@cfl.rr.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
+	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
+	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+	 <44108CCB.9080709@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Mar 2006 13:03:27 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> "Jesper Juhl" <jesper.juhl@gmail.com> wrote:
-> >
-> > > Feb 21 00:12:13 gx110 kernel: gigaset: ISDN_CMD_SETL3: invalid protocol 42
-> >  >
-> >  > do not provide any useful information for that clientele. They just push
-> > 
-> >  The filename may not be useful to the user, but the instant the user decides to
-> >  submit a bugreport to LKML or elsewhere it becomes useful.
-> 
-> But OTOH, there's a difference between messages-to-developers (usually "the
-> code went wrong") and messages-to-users (hopefully usually "the hardware
-> went wrong" or "you went wrong").
+On 3/9/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+>
+> That is correct, the final decision is up to a Judge, but we aren't in
+> court here, we're discussing it, and so I'm making an argument that I
+> believe any sane judge would side with.
+>
+<snip>
+>
+> A "derivative work" is a work based upon one or more preexisting works,
+> such as a translation, musical arrangement, dramatization,
+> fictionalization, motion picture version, sound recording, art
+> reproduction, abridgment, condensation, or any other form in which a
+> work may be recast, transformed, or adapted. A work consisting of
+> editorial revisions, annotations, elaborations, or other modifications,
+> which, as a whole, represent an original work of authorship, is a
+> "derivative work".
+>
+> No mention of either of your two conditions.
 
-Symbol names are generally unique. As a USB stack developer, I never saw
-the file name being useful for anything in the error message, let alone
-the full path! Always hated them, but never bothered to break spears
-over the issue. We have better things to do. I just quietly remove
-debugging printouts from the code I touch.
+A "work based on one or more preexisting works [in] any other form in
+which a work may be recast, transformed or adapted" sure sounds like
+it fits someone compiling software with my symbols in it to me.
+Elaboration sure sounds like it fits program code calling my program
+code to me.
 
--- Pete
+> You _might_ be able to
+> argue that they use your headers to compile their driver, so that
+> violates your copyright, but they are free to develop their own
+> compatible headers to produce compatible binaries which are in no way
+> derived from the Linux kernel.  See Wine's win32 compatible headers and
+> libraries for examples of this.
+
+I'm sorry, I don't think that analysis is correct for software, see
+for example: http://community.linux.com/article.pl?sid=02/11/13/117247&tid=87&tid=41&tid=12&tid=42,
+and Linus' previous explanations as I pointed out in my reply to
+Xavier.
+
+At any rate, at the moment I'm getting paid software, not for legal
+analysis which I'm not qualified to give. I'm certainly not getting
+paid enough to sue anyone, so unless some other kernel hacker or
+company is planning on initiating a lawsuit (to which I'd happily
+join) it's fairly moot, and I'll let it drop at that.
+
+ciao,
+Dave

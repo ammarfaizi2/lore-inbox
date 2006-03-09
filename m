@@ -1,162 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWCIGx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWCIGz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751713AbWCIGx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751716AbWCIGxs
+	id S1751767AbWCIGz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWCIGxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:53:48 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:51939 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751715AbWCIGxd (ORCPT
+	Thu, 9 Mar 2006 01:53:04 -0500
+Received: from ns2.suse.de ([195.135.220.15]:44259 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751668AbWCIGwv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:53:33 -0500
+	Thu, 9 Mar 2006 01:52:51 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 9 Mar 2006 17:52:29 +1100
-Message-Id: <1060309065229.24678@suse.de>
+Date: Thu, 9 Mar 2006 17:51:48 +1100
+Message-Id: <1060309065148.24569@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 013 of 14] knfsd: Unexport cache_fresh and fix a small race.
+Subject: [PATCH 005 of 14] knfsd: Convert ip_map cache to use the new lookup routine.
 References: <20060309174755.24381.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Cache_fresh is now only used in cache.c, so unexport it.
-
-Part of cache_fresh (setting CACHE_VALID) should really be done under the
-lock, while part (calling cache_revisit_request etc) must be done outside
-the lock.  So we split it up appropriately.
 
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./include/linux/sunrpc/cache.h |    2 -
- ./net/sunrpc/cache.c           |   51 ++++++++++++++++++++++++-----------------
- ./net/sunrpc/sunrpc_syms.c     |    1 
- 3 files changed, 30 insertions(+), 24 deletions(-)
+ ./net/sunrpc/svcauth_unix.c |  143 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 95 insertions(+), 48 deletions(-)
 
-diff ./include/linux/sunrpc/cache.h~current~ ./include/linux/sunrpc/cache.h
---- ./include/linux/sunrpc/cache.h~current~	2006-03-09 17:41:52.000000000 +1100
-+++ ./include/linux/sunrpc/cache.h	2006-03-09 17:33:29.000000000 +1100
-@@ -165,8 +165,6 @@ static inline int cache_put(struct cache
+diff ./net/sunrpc/svcauth_unix.c~current~ ./net/sunrpc/svcauth_unix.c
+--- ./net/sunrpc/svcauth_unix.c~current~	2006-03-09 17:15:13.000000000 +1100
++++ ./net/sunrpc/svcauth_unix.c	2006-03-09 17:15:14.000000000 +1100
+@@ -106,28 +106,38 @@ static inline int hash_ip(unsigned long 
+ 	return (hash ^ (hash>>8)) & 0xff;
  }
- 
- extern void cache_init(struct cache_head *h);
--extern void cache_fresh(struct cache_detail *detail,
--			struct cache_head *head, time_t expiry);
- extern int cache_check(struct cache_detail *detail,
- 		       struct cache_head *h, struct cache_req *rqstp);
- extern void cache_flush(void);
-
-diff ./net/sunrpc/cache.c~current~ ./net/sunrpc/cache.c
---- ./net/sunrpc/cache.c~current~	2006-03-09 17:41:52.000000000 +1100
-+++ ./net/sunrpc/cache.c	2006-03-09 17:45:46.000000000 +1100
-@@ -96,6 +96,27 @@ struct cache_head *sunrpc_cache_lookup(s
- }
- EXPORT_SYMBOL(sunrpc_cache_lookup);
- 
-+
-+static void queue_loose(struct cache_detail *detail, struct cache_head *ch);
-+
-+static int cache_fresh_locked(struct cache_head *head, time_t expiry)
-+{
-+	head->expiry_time = expiry;
-+	head->last_refresh = get_seconds();
-+	return !test_and_set_bit(CACHE_VALID, &head->flags);
-+}
-+
-+static void cache_fresh_unlocked(struct cache_head *head,
-+			struct cache_detail *detail, int new)
-+{
-+	if (new)
-+		cache_revisit_request(head);
-+	if (test_and_clear_bit(CACHE_PENDING, &head->flags)) {
-+		cache_revisit_request(head);
-+		queue_loose(detail, head);
-+	}
-+}
-+
- struct cache_head *sunrpc_cache_update(struct cache_detail *detail,
- 				       struct cache_head *new, struct cache_head *old, int hash)
- {
-@@ -105,6 +126,7 @@ struct cache_head *sunrpc_cache_update(s
- 	 */
- 	struct cache_head **head;
- 	struct cache_head *tmp;
-+	int is_new;
- 
- 	if (!test_bit(CACHE_VALID, &old->flags)) {
- 		write_lock(&detail->hash_lock);
-@@ -113,9 +135,9 @@ struct cache_head *sunrpc_cache_update(s
- 				set_bit(CACHE_NEGATIVE, &old->flags);
- 			else
- 				detail->update(old, new);
--			/* FIXME cache_fresh should come first */
-+			is_new = cache_fresh_locked(old, new->expiry_time);
- 			write_unlock(&detail->hash_lock);
--			cache_fresh(detail, old, new->expiry_time);
-+			cache_fresh_unlocked(old, detail, is_new);
- 			return old;
- 		}
- 		write_unlock(&detail->hash_lock);
-@@ -138,9 +160,11 @@ struct cache_head *sunrpc_cache_update(s
- 	tmp->next = *head;
- 	*head = tmp;
- 	cache_get(tmp);
-+	is_new = cache_fresh_locked(tmp, new->expiry_time);
-+	cache_fresh_locked(old, 0);
- 	write_unlock(&detail->hash_lock);
--	cache_fresh(detail, tmp, new->expiry_time);
--	cache_fresh(detail, old, 0);
-+	cache_fresh_unlocked(tmp, detail, is_new);
-+	cache_fresh_unlocked(old, detail, 0);
- 	detail->cache_put(old, detail);
- 	return tmp;
- }
-@@ -192,7 +216,8 @@ int cache_check(struct cache_detail *det
- 				clear_bit(CACHE_PENDING, &h->flags);
- 				if (rv == -EAGAIN) {
- 					set_bit(CACHE_NEGATIVE, &h->flags);
--					cache_fresh(detail, h, get_seconds()+CACHE_NEW_EXPIRY);
-+					cache_fresh_unlocked(h, detail,
-+					     cache_fresh_locked(h, get_seconds()+CACHE_NEW_EXPIRY));
- 					rv = -ENOENT;
- 				}
- 				break;
-@@ -213,22 +238,6 @@ int cache_check(struct cache_detail *det
- 	return rv;
- }
- 
--static void queue_loose(struct cache_detail *detail, struct cache_head *ch);
+ #endif
 -
--void cache_fresh(struct cache_detail *detail,
--		 struct cache_head *head, time_t expiry)
+-static inline int ip_map_hash(struct ip_map *item)
 -{
--
--	head->expiry_time = expiry;
--	head->last_refresh = get_seconds();
--	if (!test_and_set_bit(CACHE_VALID, &head->flags))
--		cache_revisit_request(head);
--	if (test_and_clear_bit(CACHE_PENDING, &head->flags)) {
--		cache_revisit_request(head);
--		queue_loose(detail, head);
--	}
+-	return hash_str(item->m_class, IP_HASHBITS) ^ 
+-		hash_ip((unsigned long)item->m_addr.s_addr);
 -}
+-static inline int ip_map_match(struct ip_map *item, struct ip_map *tmp)
++static int ip_map_match(struct cache_head *corig, struct cache_head *cnew)
+ {
+-	return strcmp(tmp->m_class, item->m_class) == 0
+-		&& tmp->m_addr.s_addr == item->m_addr.s_addr;
++	struct ip_map *orig = container_of(corig, struct ip_map, h);
++	struct ip_map *new = container_of(cnew, struct ip_map, h);
++	return strcmp(orig->m_class, new->m_class) == 0
++		&& orig->m_addr.s_addr == new->m_addr.s_addr;
+ }
+-static inline void ip_map_init(struct ip_map *new, struct ip_map *item)
++static void ip_map_init(struct cache_head *cnew, struct cache_head *citem)
+ {
++	struct ip_map *new = container_of(cnew, struct ip_map, h);
++	struct ip_map *item = container_of(citem, struct ip_map, h);
++
+ 	strcpy(new->m_class, item->m_class);
+ 	new->m_addr.s_addr = item->m_addr.s_addr;
+ }
+-static inline void ip_map_update(struct ip_map *new, struct ip_map *item)
++static void update(struct cache_head *cnew, struct cache_head *citem)
+ {
++	struct ip_map *new = container_of(cnew, struct ip_map, h);
++	struct ip_map *item = container_of(citem, struct ip_map, h);
++
+ 	kref_get(&item->m_client->h.ref);
+ 	new->m_client = item->m_client;
+ 	new->m_add_change = item->m_add_change;
+ }
++static struct cache_head *ip_map_alloc(void)
++{
++	struct ip_map *i = kmalloc(sizeof(*i), GFP_KERNEL);
++	if (i)
++		return &i->h;
++	else
++		return NULL;
++}
+ 
+ static void ip_map_request(struct cache_detail *cd,
+ 				  struct cache_head *h,
+@@ -148,7 +158,8 @@ static void ip_map_request(struct cache_
+ 	(*bpp)[-1] = '\n';
+ }
+ 
+-static struct ip_map *ip_map_lookup(struct ip_map *, int);
++static struct ip_map *ip_map_lookup(char *class, struct in_addr addr);
++static int ip_map_update(struct ip_map *ipm, struct unix_domain *udom, time_t expiry);
+ 
+ static int ip_map_parse(struct cache_detail *cd,
+ 			  char *mesg, int mlen)
+@@ -160,7 +171,11 @@ static int ip_map_parse(struct cache_det
+ 	int len;
+ 	int b1,b2,b3,b4;
+ 	char c;
+-	struct ip_map ipm, *ipmp;
++	char class[8];
++	struct in_addr addr;
++	int err;
++
++	struct ip_map *ipmp;
+ 	struct auth_domain *dom;
+ 	time_t expiry;
+ 
+@@ -169,7 +184,7 @@ static int ip_map_parse(struct cache_det
+ 	mesg[mlen-1] = 0;
+ 
+ 	/* class */
+-	len = qword_get(&mesg, ipm.m_class, sizeof(ipm.m_class));
++	len = qword_get(&mesg, class, sizeof(class));
+ 	if (len <= 0) return -EINVAL;
+ 
+ 	/* ip address */
+@@ -194,25 +209,22 @@ static int ip_map_parse(struct cache_det
+ 	} else
+ 		dom = NULL;
+ 
+-	ipm.m_addr.s_addr =
++	addr.s_addr =
+ 		htonl((((((b1<<8)|b2)<<8)|b3)<<8)|b4);
+-	ipm.h.flags = 0;
+-	if (dom) {
+-		ipm.m_client = container_of(dom, struct unix_domain, h);
+-		ipm.m_add_change = ipm.m_client->addr_changes;
++
++	ipmp = ip_map_lookup(class,addr);
++	if (ipmp) {
++		err = ip_map_update(ipmp,
++			     container_of(dom, struct unix_domain, h),
++			     expiry);
+ 	} else
+-		set_bit(CACHE_NEGATIVE, &ipm.h.flags);
+-	ipm.h.expiry_time = expiry;
++		err = -ENOMEM;
+ 
+-	ipmp = ip_map_lookup(&ipm, 1);
+-	if (ipmp)
+-		ip_map_put(&ipmp->h, &ip_map_cache);
+ 	if (dom)
+ 		auth_domain_put(dom);
+-	if (!ipmp)
+-		return -ENOMEM;
++
+ 	cache_flush();
+-	return 0;
++	return err;
+ }
+ 
+ static int ip_map_show(struct seq_file *m,
+@@ -256,32 +268,70 @@ struct cache_detail ip_map_cache = {
+ 	.cache_request	= ip_map_request,
+ 	.cache_parse	= ip_map_parse,
+ 	.cache_show	= ip_map_show,
++	.match		= ip_map_match,
++	.init		= ip_map_init,
++	.update		= update,
++	.alloc		= ip_map_alloc,
+ };
+ 
+-static DefineSimpleCacheLookup(ip_map, ip_map)
++static struct ip_map *ip_map_lookup(char *class, struct in_addr addr)
++{
++	struct ip_map ip;
++	struct cache_head *ch;
+ 
++	strcpy(ip.m_class, class);
++	ip.m_addr = addr;
++	ch = sunrpc_cache_lookup(&ip_map_cache, &ip.h,
++				 hash_str(class, IP_HASHBITS) ^
++				 hash_ip((unsigned long)addr.s_addr));
++
++	if (ch)
++		return container_of(ch, struct ip_map, h);
++	else
++		return NULL;
++}
++
++static int ip_map_update(struct ip_map *ipm, struct unix_domain *udom, time_t expiry)
++{
++	struct ip_map ip;
++	struct cache_head *ch;
++
++	ip.m_client = udom;
++	ip.h.flags = 0;
++	if (!udom)
++		set_bit(CACHE_NEGATIVE, &ip.h.flags);
++	else {
++		ip.m_add_change = udom->addr_changes;
++		/* if this is from the legacy set_client system call,
++		 * we need m_add_change to be one higher
++		 */
++		if (expiry == NEVER)
++			ip.m_add_change++;
++	}
++	ip.h.expiry_time = expiry;
++	ch = sunrpc_cache_update(&ip_map_cache,
++				 &ip.h, &ipm->h,
++				 hash_str(ipm->m_class, IP_HASHBITS) ^
++				 hash_ip((unsigned long)ipm->m_addr.s_addr));
++	if (!ch)
++		return -ENOMEM;
++	ip_map_put(ch, &ip_map_cache);
++	return 0;
++}
+ 
+ int auth_unix_add_addr(struct in_addr addr, struct auth_domain *dom)
+ {
+ 	struct unix_domain *udom;
+-	struct ip_map ip, *ipmp;
++	struct ip_map *ipmp;
+ 
+ 	if (dom->flavour != &svcauth_unix)
+ 		return -EINVAL;
+ 	udom = container_of(dom, struct unix_domain, h);
+-	strcpy(ip.m_class, "nfsd");
+-	ip.m_addr = addr;
+-	ip.m_client = udom;
+-	ip.m_add_change = udom->addr_changes+1;
+-	ip.h.flags = 0;
+-	ip.h.expiry_time = NEVER;
+-	
+-	ipmp = ip_map_lookup(&ip, 1);
++	ipmp = ip_map_lookup("nfsd", addr);
+ 
+-	if (ipmp) {
+-		ip_map_put(&ipmp->h, &ip_map_cache);
+-		return 0;
+-	} else
++	if (ipmp)
++		return ip_map_update(ipmp, udom, NEVER);
++	else
+ 		return -ENOMEM;
+ }
+ 
+@@ -304,7 +354,7 @@ struct auth_domain *auth_unix_lookup(str
+ 	strcpy(key.m_class, "nfsd");
+ 	key.m_addr = addr;
+ 
+-	ipm = ip_map_lookup(&key, 0);
++	ipm = ip_map_lookup("nfsd", addr);
+ 
+ 	if (!ipm)
+ 		return NULL;
+@@ -326,22 +376,19 @@ struct auth_domain *auth_unix_lookup(str
+ void svcauth_unix_purge(void)
+ {
+ 	cache_purge(&ip_map_cache);
+-	cache_purge(&auth_domain_cache);
+ }
+ 
+ static int
+ svcauth_unix_set_client(struct svc_rqst *rqstp)
+ {
+-	struct ip_map key, *ipm;
++	struct ip_map *ipm;
+ 
+ 	rqstp->rq_client = NULL;
+ 	if (rqstp->rq_proc == 0)
+ 		return SVC_OK;
+ 
+-	strcpy(key.m_class, rqstp->rq_server->sv_program->pg_class);
+-	key.m_addr = rqstp->rq_addr.sin_addr;
 -
- /*
-  * caches need to be periodically cleaned.
-  * For this we maintain a list of cache_detail and
-
-diff ./net/sunrpc/sunrpc_syms.c~current~ ./net/sunrpc/sunrpc_syms.c
---- ./net/sunrpc/sunrpc_syms.c~current~	2006-03-09 17:41:52.000000000 +1100
-+++ ./net/sunrpc/sunrpc_syms.c	2006-03-09 17:33:47.000000000 +1100
-@@ -105,7 +105,6 @@ EXPORT_SYMBOL(auth_unix_lookup);
- EXPORT_SYMBOL(cache_check);
- EXPORT_SYMBOL(cache_flush);
- EXPORT_SYMBOL(cache_purge);
--EXPORT_SYMBOL(cache_fresh);
- EXPORT_SYMBOL(cache_init);
- EXPORT_SYMBOL(cache_register);
- EXPORT_SYMBOL(cache_unregister);
+-	ipm = ip_map_lookup(&key, 0);
++	ipm = ip_map_lookup(rqstp->rq_server->sv_program->pg_class,
++			    rqstp->rq_addr.sin_addr);
+ 
+ 	if (ipm == NULL)
+ 		return SVC_DENIED;

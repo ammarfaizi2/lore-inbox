@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWCIRIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWCIRKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWCIRIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWCIRIJ
+	id S1750726AbWCIRKe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWCIRKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:08:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14011 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750714AbWCIRII (ORCPT
+	Thu, 9 Mar 2006 12:10:34 -0500
+Received: from pat.uio.no ([129.240.130.16]:35004 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750726AbWCIRKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:08:08 -0500
-Date: Thu, 9 Mar 2006 12:07:40 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, "David S. Miller" <davem@davemloft.net>,
+	Thu, 9 Mar 2006 12:10:34 -0500
+Subject: Re: [PATCH 000 of 14] knfsd: Introduction
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: filldir[64] oddness
-Message-ID: <20060309170740.GA9876@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Bryan O'Sullivan <bos@serpentine.com>,
-	Al Viro <viro@ftp.linux.org.uk>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org
-References: <20060309042744.GA23148@redhat.com> <20060308.203204.115109492.davem@davemloft.net> <20060309044025.GS27946@ftp.linux.org.uk> <1141923743.17294.8.camel@localhost.localdomain>
+In-Reply-To: <20060309174755.24381.patches@notabene>
+References: <20060309174755.24381.patches@notabene>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 12:10:11 -0500
+Message-Id: <1141924212.8293.52.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141923743.17294.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.037, required 12,
+	autolearn=disabled, AWL 1.78, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 09:02:22AM -0800, Bryan O'Sullivan wrote:
- > On Thu, 2006-03-09 at 04:40 +0000, Al Viro wrote:
- > > On Wed, Mar 08, 2006 at 08:32:04PM -0800, David S. Miller wrote:
- > > 
- > > > I think coverity is being trigger happy in this case :-)
- > > 
- > > If that's coverity, I'm very disappointed and more than a little
- > > suspicious about the quality of their results.
- > 
- > About half of the ~50 reports I've looked at so far in their database
- > have been false positives.  In most of those cases, it's not obvious how
- > a checker might have gotten them right instead, though.
+On Thu, 2006-03-09 at 17:51 +1100, NeilBrown wrote:
+>  [PATCH 000 of 14] knfsd: Introduction
+>  [PATCH 001 of 14] knfsd: Change the store of auth_domains to not be a 'cache'.
+>  [PATCH 002 of 14] knfsd: Break the hard linkage from svc_expkey to svc_export
+>  [PATCH 003 of 14] knfsd: Get rid of 'inplace' sunrpc caches
+>  [PATCH 004 of 14] knfsd: Create cache_lookup function instead of using a macro to declare one.
+>  [PATCH 005 of 14] knfsd: Convert ip_map cache to use the new lookup routine.
+>  [PATCH 006 of 14] knfsd: Use new cache_lookup for svc_export
+>  [PATCH 007 of 14] knfsd: Use new cache_lookup for svc_expkey cache.
+>  [PATCH 008 of 14] knfsd: Use new sunrpc cache for rsi cache
+>  [PATCH 009 of 14] knfsd: Use new cache code for rsc cache
+>  [PATCH 010 of 14] knfsd: Use new cache code for name/id lookup caches
+>  [PATCH 011 of 14] knfsd: An assortment of little fixes to the sunrpc cache code.
+>  [PATCH 012 of 14] knfsd: Remove DefineCacheLookup
+>  [PATCH 013 of 14] knfsd: Unexport cache_fresh and fix a small race.
+>  [PATCH 014 of 14] knfsd: Convert sunrpc_cache to use krefs
 
-It seems to stumble quite a bit when faced with things that are
-free'd when refcounts drop to zero. (skbs, and kobjects).
+Any plans to update Documentation/rpc-cache.txt?
 
-		Dave
+Cheers,
+  Trond
 
--- 
-http://www.codemonkey.org.uk

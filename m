@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWCIQJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWCIQJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbWCIQJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWCIQJ2
+	id S1751010AbWCIQJY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWCIQJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:09:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18359 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751269AbWCIQJ1 (ORCPT
+	Thu, 9 Mar 2006 11:09:24 -0500
+Received: from mail.suse.de ([195.135.220.2]:20897 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751010AbWCIQJX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:09:27 -0500
-Date: Thu, 9 Mar 2006 08:08:52 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: Dave Jones <davej@redhat.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-In-Reply-To: <44104EB7.9090103@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0603090802350.18022@g5.osdl.org>
-References: <200603060117.16484.jesper.juhl@gmail.com>
- <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org> <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org>
- <200603062124.42223.jesper.juhl@gmail.com> <20060306203036.GQ4595@suse.de>
- <9a8748490603061341l50febef9o3cb480bdbdcf925f@mail.gmail.com>
- <20060306215515.GE11565@redhat.com> <44104EB7.9090103@mbligh.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 9 Mar 2006 11:09:23 -0500
+Date: Thu, 9 Mar 2006 17:09:22 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Kirill Korotaev <dev@openvz.org>
+Cc: akpm@osdl.org, viro@zeniv.linux.org.uk, olh@suse.de, neilb@suse.de,
+       bsingharora@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (updated patch)
+Message-ID: <20060309160922.GI4243@hasse.suse.de>
+References: <20060308145105.GA4243@hasse.suse.de> <44103EE3.7040303@openvz.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <44103EE3.7040303@openvz.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 09, Kirill Korotaev wrote:
 
-
-On Thu, 9 Mar 2006, Martin J. Bligh wrote:
-> > 
-> > DEBUG_PAGEALLOC in particular is *fantastic* at making bugs hide.
-> > I've lost many an hour trying to pin bugs down due to that.
+> commented your patch a bit.
+> and attached a corrected version. please review it.
 > 
-> Is this backwards? We're saying DEBUG_PAGEALLOC is bad?
 
-DEBUG_PAGEALLOC is great for finding the really stupid kinds of bugs, and 
-it's definitely worth doing every once in a while.
+Thanks! I'll send the corrected patch.
 
-However, DEBUG_PAGEALLOC makes many things orders of magnitude slower, and 
-it eats memory like mad (because it turns some slabs into whole pages - 
-but it still doesn't help small allocation debugging that much). So unlike 
-DEBUG_SLAB, it's not reasonable to have it on all the time.
+So, everythings fine now?
 
-IOW, DEBUG_SLAB is something that a distro kernel can reasonably enable 
-for users by default (I think fedora-devel does, for example). In 
-contrast, DEBUG_PAGEALLOC is more of a "useful for special cases" thing, 
-where you want to validate that there's nothing _obviously_ bad going on.
 
-> Do we NOT want to have DEBUG_SLAB and DEBUG_PAGEALLOC both enabled?
+> > 	d_free(dentry);
+> > 	if (parent != dentry)
+> > 		dput(parent);
+> > 	spin_lock(&dcache_lock);
+> >+	sb->s_prunes--;
+> >+	if (likely(!sb->s_prunes))
+> <<< Is it possibe to do something like:
+> if (unlikely(!sb->s_root && !sb->s_prunes))
+> ?
 
-I suspect that once DEBUG_PAGEALLOC is on, whether you do DEBUG_SLAB or 
-not is a toss-up. The interesting cases tend to be
+Uh, I forgot about that one. You already complained about that before :(
 
- - neither: usable for benchmarking
- - DEBUG_SLAB: perfectly usable for normal work
- - DEBUG_PAGEALLOC (with or without DEBUG_SLAB): debugging tool only
+> > void shrink_dcache_parent(struct dentry * parent)
+> > {
+> > 	int found;
+> >+	struct super_block *sb = parent->d_sb;
+> > 
+> >+ again:
+> > 	while ((found = select_parent(parent)) != 0)
+> > 		prune_dcache(found);
+> >+
+> >+	/* If we are called from generic_shutdown_super() during
+> >+	 * umount of a filesystem, we want to check for other prunes */
+> >+	if (!sb->s_root && wait_on_prunes(sb))
+> >+		goto again;
+> <<<< I don't like this loop here as it looks like a hack for some 
+> special case.
+> better to move it to generic_shutdown() and omit sb->s_root check at all.
+> 
 
-At least that's my opinion, maybe others have other experiences.
+Yes, looks a little cleaner though.
 
-			Linus
+Regards,
+	Jan
+
+-- 
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

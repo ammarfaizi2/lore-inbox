@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751870AbWCIL6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWCIL7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751870AbWCIL6d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 06:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWCIL6d
+	id S1751871AbWCIL7V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 06:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWCIL7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 06:58:33 -0500
-Received: from mx2.suse.de ([195.135.220.15]:54415 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751870AbWCIL6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 06:58:32 -0500
-Date: Thu, 9 Mar 2006 12:58:27 +0100
-From: Jan Blunck <jblunck@suse.de>
+	Thu, 9 Mar 2006 06:59:21 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59863 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751871AbWCIL7U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 06:59:20 -0500
+Date: Thu, 9 Mar 2006 12:59:19 +0100
+From: Jan Kara <jack@suse.cz>
 To: Andrew Morton <akpm@osdl.org>
-Cc: balbir@in.ibm.com, viro@zeniv.linux.org.uk, olh@suse.de, neilb@suse.de,
-       dev@openvz.org, bsingharora@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (updated patch)
-Message-ID: <20060309115827.GF4243@hasse.suse.de>
-References: <20060308145105.GA4243@hasse.suse.de> <20060309063330.GA23256@in.ibm.com> <20060309110025.GE4243@hasse.suse.de> <20060309032157.0592153e.akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: Bug fixes in -mm that should go into 2.6.16
+Message-ID: <20060309115919.GB11524@atrey.karlin.mff.cuni.cz>
+References: <20060308220208.GP4006@stusta.de> <20060308151845.30b8d672.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060309032157.0592153e.akpm@osdl.org>
+In-Reply-To: <20060308151845.30b8d672.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, Andrew Morton wrote:
-
-> >  Hmm, right. Andrew, if you want a rediff against -mm just tell me. I'm
-> >  actually diff'ing against lates linux-2.6.git.
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > Hi Andrew,
+> > 
+> > the following two patches in -mm should IMHO go into 2.6.16:
+> >   fix-oops-in-invalidate_dquots.patch
 > 
-> I'll work it out.
-> 
+> Maybe.  I worry about the intrusiveness versus probability-of-oops.
+  Yes, I guess the oops is not very probable - at least the bug was
+there unnoticed for several months...
+  BTW Recently I found out in discussion with Neil Brown that probably
+there is a similar problem with umount. The problem is that an inode in
+both generic_delete_inode() and generic_forget_inode() is removed from
+i_sb_list and i_list. Then I_FREEING is set and inode_lock released. Now
+if umount is called, I did not find anything that protects
+invalidate_inodes() from missing those pending inodes. So it could
+happen that we succeed with unmounting the filesystem but there are
+still some live inodes... So we should either leave those inodes in some
+superblock list where invalidate_inodes() can reach them or we should
+implement some other measure that blocks umount from proceeding before
+all those pending inodes are really processed (one idea was some
+active_inode counter in the superblock). And if we solve this problem
+for umount, then quota can possibly use similar approach for handling
+the problem with invalidate_dquots().
+  Any ideas?
 
-Ok, so I'll just send an updated patch against linux-2.6.git adressing your
-issues later.
-
-> Cosmetically, I don't think wait_on_prunes() should be concerned about
-> whether or not it "slept".  That action is not significant and preemptible
-> kernels can "sleep" at just about any stage.  So I think the concept of
-> "slept" in there should be replaced with, say, "prunes_remaining" or
-> something like that.  Consequently the all-important comment over
-> wait_on_prunes() should be updated to provide a bit more information about
-> the significance of its return value, please.
-
-Ok, will do.
-
-> Also I think there should be some explanation somewhere which describes why
-> we can continue to assume that there aren't any prunes left to do after
-> wait_on_prunes() has dropped dcache_lock.  I mean, once you've dropped the
-> lock it's usually the case that anything which you examined while holding
-> that lock now becomes out-of-date and invalid.  I assume the thinking is
-> that because there's an unmount in progress, nothing can come in and add
-> new dentries?
-> 
-> IOW: why isn't there a race between wait_on_prunes() and prune_one_dentry()?
-
-Because outside dcache_lock, either the refcount on the parent dentry is wrong
-(therefore select_parent() might return 0) and sb_prunes != 0 or the refcount
-is correct and the sb_prunes == 0. Since sb_root == NULL when unmounting the
-filesystem there are no new dentries coming in.
-
-> Are we all happy with this patch now?
-
-I'll update the comments and come back to you with an updated patch. Then I'm
-fine with the patch.
-
-Regards,
-	Jan
+								Honza
 
 -- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

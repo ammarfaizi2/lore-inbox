@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbWCIQap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWCIQcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932662AbWCIQap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932684AbWCIQap
+	id S1422636AbWCIQcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbWCIQcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:30:45 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:9151 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S932663AbWCIQao (ORCPT
+	Thu, 9 Mar 2006 11:32:25 -0500
+Received: from xenotime.net ([66.160.160.81]:10424 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422636AbWCIQcZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:30:44 -0500
-Message-ID: <441057D4.6030304@cfl.rr.com>
-Date: Thu, 09 Mar 2006 11:29:08 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Luke-Jr <luke@dashjr.org>
-CC: Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> <200603091509.06173.luke@dashjr.org>
-In-Reply-To: <200603091509.06173.luke@dashjr.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Mar 2006 11:32:25 -0500
+Date: Thu, 9 Mar 2006 08:34:12 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tilman@imap.cc, linux-usb-devel@lists.sourceforge.net, hjlipp@web.de,
+       linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] reduce syslog clutter (take 2)
+Message-Id: <20060309083412.95e145ea.rdunlap@xenotime.net>
+In-Reply-To: <20060309030257.5c1e0f30.akpm@osdl.org>
+References: <440F609F.8090604@imap.cc>
+	<20060309030257.5c1e0f30.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Mar 2006 16:33:02.0521 (UTC) FILETIME=[2289B290:01C64397]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14313.000
-X-TM-AS-Result: No--1.750000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke-Jr wrote:
-> Or Linux can remain GPL'd, which prohibits binary drivers *legally*, and back 
-> this by keeping a non-stable API which prohibits binary drivers 
-> *technically*.
+On Thu, 9 Mar 2006 03:02:57 -0800 Andrew Morton wrote:
 
-If binary drivers are illegal, then why have ATI and nvidia not been 
-sued yet?
+> Tilman Schmidt <tilman@imap.cc> wrote:
+> >
+> > The current versions of the err() / info() / warn() syslog macros
+> >  insert __FILE__ at the beginning of the message, which expands to
+> >  the complete path name of the source file within the kernel tree.
+> > 
+> >  With the following patch, when used in a module, they'll insert the
+> >  module name instead, which is significantly shorter and also tends to
+> >  be more useful to users trying to make sense of a particular message.
+> 
+> Personally, I prefer to see filenames.  Or function names.  Sometimes it's
+> rather unobvious how to go from module name to filename, due to a) multiple
+> .o files being linked together, b) subsystems which insist on #including .c
+> files in .c files (usb...) and c) the module system's cute habit of
+> replacing underscores with dashes in module names.
 
-Interacting with the kernel does not make your software a derived work. 
-  A derived work is if you make your own kernel that is very close to a 
-straight copy of the Linux kernel.  The right to create new works that 
-interact with others ( and therefore, require some understanding of how 
-the other work operates ) is specifically protected by the US copyright 
-act.
+True, just using module->name or whatever means that we would
+(often?) have to do a lookup to see what source file it was in.
 
-This is why it is legal to reverse engineer a binary driver to gain an 
-understanding of how the hardware operates, publish that information, 
-and then use that information to create new software to operate that 
-hardware.
-
-
+---
+~Randy

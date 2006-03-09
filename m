@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWCIMdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWCIMe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWCIMdq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 07:33:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbWCIMdq
+	id S1751061AbWCIMe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 07:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751181AbWCIMe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 07:33:46 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:59582 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750740AbWCIMdq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 07:33:46 -0500
-Date: Thu, 9 Mar 2006 13:33:23 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org, rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] Add chip used in collie to jedec_probe
-Message-ID: <20060309123323.GA3601@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 9 Mar 2006 07:34:56 -0500
+Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:8610 "HELO
+	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751061AbWCIMe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 07:34:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=l14Gawl++L77d1JrPyaJxBLCUdzmpyYi17iWpJ4dKgisnS7pFTjAq2qKqr9DeELerDNf4jGgqjDewlm2bMSyCzUak1U5VDfUgWRUoul9RUblF/QqJVKij1qtg79rKLgFt6iNBbaHrjY2R7mcc+Tx+WCGzZnq3DqwtVEW5lZ1pQk=  ;
+Message-ID: <44101FE8.9050105@yahoo.com.au>
+Date: Thu, 09 Mar 2006 23:30:32 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Daniel Phillips <phillips@google.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
+References: <4408C2E8.4010600@google.com> <440FCA81.7090608@google.com> <440FDC8E.9060907@yahoo.com.au> <200603090519.37801.ak@suse.de>
+In-Reply-To: <200603090519.37801.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds flash chip used in Sharp Zaurus sl5500 (collie) to
-jedec_probe. Values work for read-only access, but I have not figured
-out how to do read-write.
+Andi Kleen wrote:
+> On Thursday 09 March 2006 08:43, Nick Piggin wrote:
+>  
+> 
+>>Just interested: do the locks have any sort of locality of lookup?
+>>If so, then have you tried moving hot (ie. the one you've just found,
+>>or newly inserted) hash entries to the head of the hash list?
+>>
+>>In applications with really good locality you can sometimes get away
+>>with small hash tables (10s even 100s of collisions on average) without
+>>taking too big a hit this way, because your entries basically get sorted
+>>LRU for you.
+> 
+> 
+> LRU hashes have really bad cache behaviour though if that is not the case
+> because you possibily need to bounce around the hash heads as DIRTY 
+> cache lines instead of keeping them in SHARED state.
+> My feeling would be that scalability is more important for this, which would
+> discourage this.
+> 
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+That's true, it would have to have very good locality of reference to
+be of use. In that case it is not always going to dirty the cachelines
+because you now only have to make your hash table size appropriate for
+your _working set_ rather than the entire set - if the working set is
+small enough and you make your hash say 4 times bigger than it, then
+you might expect to often hit the right lock at the head of the list.
 
---- a/drivers/mtd/chips/jedec_probe.c
-+++ b/drivers/mtd/chips/jedec_probe.c
-@@ -34,6 +34,7 @@
- #define MANUFACTURER_MACRONIX	0x00C2
- #define MANUFACTURER_NEC	0x0010
- #define MANUFACTURER_PMC	0x009D
-+#define MANUFACTURER_SHARP	0x00b0
- #define MANUFACTURER_SST	0x00BF
- #define MANUFACTURER_ST		0x0020
- #define MANUFACTURER_TOSHIBA	0x0098
-@@ -124,6 +125,9 @@
- #define PM49FL004	0x006E
- #define PM49FL008	0x006A
- 
-+/* Sharp */
-+#define LH28F640BF	0x00b0
-+
- /* ST - www.st.com */
- #define M29W800DT	0x00D7
- #define M29W800DB	0x005B
-@@ -1267,6 +1271,19 @@ static const struct amd_flash_info jedec
- 		.regions	= {
- 			ERASEINFO( 0x01000, 256 )
- 		}
-+	}, {
-+		.mfr_id		= MANUFACTURER_SHARP,
-+		.dev_id		= LH28F640BF,
-+		.name		= "LH28F640BF",
-+		.uaddr		= {
-+			[0] = MTD_UADDR_UNNECESSARY,    /* x8 */
-+		},
-+		.DevSize	= SIZE_4MiB,
-+		.CmdSet         = P_ID_INTEL_STD,
-+		.NumEraseRegions= 1,
-+		.regions        = {
-+			ERASEINFO(0x40000,16),
-+		}
-         }, {
- 		.mfr_id		= MANUFACTURER_SST,
- 		.dev_id		= SST39LF512,
+The other thing is: if the alternative is a 1MB hash, then that may
+result in more capacity cache misses than invalidate misses. Not to
+mention TLB misses if it is vmalloced :(
+
+Anyway you're absolutely right -- this is only going to work under
+select types of hash loads, so lots of testing would be required.
 
 -- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

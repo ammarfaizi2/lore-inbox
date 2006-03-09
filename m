@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWCIPPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751810AbWCIPYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWCIPPU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 10:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWCIPPU
+	id S1751810AbWCIPYk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 10:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWCIPYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 10:15:20 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:28942 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751029AbWCIPPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 10:15:19 -0500
-Date: Thu, 9 Mar 2006 15:14:59 +0000
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic on PC with broken hard drive, after DMA errors
-Message-ID: <20060309151459.GD2891@deprecation.cyrius.com>
-References: <5Okau-77g-9@gated-at.bofh.it> <440FA916.5070703@shaw.ca>
+	Thu, 9 Mar 2006 10:24:40 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:50564 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751810AbWCIPYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 10:24:40 -0500
+Date: Thu, 9 Mar 2006 10:24:38 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Horst Schirmeier <horst@schirmeier.com>
+cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] usbcore: usb_set_configuration oops (NULL ptr dereference)
+In-Reply-To: <20060309131048.GL22994@quickstop.soohrt.org>
+Message-ID: <Pine.LNX.4.44L0.0603091023430.5232-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <440FA916.5070703@shaw.ca>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Robert Hancock <hancockr@shaw.ca> [2006-03-08 22:03]:
-> Probably is a genuine bug. These kinds of reports have come up a few
-> times recently as I recall - it seems some of the error handling in
-> the drivers/ide code isn't quite so robust..
+On Thu, 9 Mar 2006, Horst Schirmeier wrote:
 
-Was the traceback I posted enough so someone can find out what's going
-on or do you need more information?  I can hook up a serial console
-and try to capture the full log, but I'm not sure I can reproduce this
-kernel panic.  The dying hard drive is quite arbitrary when it comes
-to showing errors or working fine...
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+> When trying to deconfigure a device via usb_set_configuration(dev, 0),
+> 2.6.16-rc kernels after 55c527187c9d78f840b284d596a0b298bc1493af oops
+> with "Unable to handle NULL pointer dereference at...". This is due to
+> an unchecked dereference of cp in the power budget part.
+> 
+> Signed-off-by: Horst Schirmeier <horst@schirmeier.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+
+> 
+> ---
+> 
+> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> index 7135e54..96cabeb 100644
+> --- a/drivers/usb/core/message.c
+> +++ b/drivers/usb/core/message.c
+> @@ -1388,11 +1388,13 @@ free_interfaces:
+>  	if (dev->state != USB_STATE_ADDRESS)
+>  		usb_disable_device (dev, 1);	// Skip ep0
+>  
+> -	i = dev->bus_mA - cp->desc.bMaxPower * 2;
+> -	if (i < 0)
+> -		dev_warn(&dev->dev, "new config #%d exceeds power "
+> -				"limit by %dmA\n",
+> -				configuration, -i);
+> +	if (cp) {
+> +		i = dev->bus_mA - cp->desc.bMaxPower * 2;
+> +		if (i < 0)
+> +			dev_warn(&dev->dev, "new config #%d exceeds power "
+> +					"limit by %dmA\n",
+> +					configuration, -i);
+> +	}
+>  
+>  	if ((ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+>  			USB_REQ_SET_CONFIGURATION, 0, configuration, 0,
+
+

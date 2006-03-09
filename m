@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751664AbWCIGmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWCIGw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751664AbWCIGmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWCIGmZ
+	id S1751249AbWCIGw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751600AbWCIGw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:42:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:54176 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751358AbWCIGmY (ORCPT
+	Thu, 9 Mar 2006 01:52:26 -0500
+Received: from ns.suse.de ([195.135.220.2]:54448 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750948AbWCIGwZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:42:24 -0500
-Date: Wed, 8 Mar 2006 22:41:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Jones <davej@redhat.com>, amax@us.ibm.com,
-       Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops on ibmasm
-Message-ID: <20060309064119.GA10546@kroah.com>
-References: <20060308224145.47332.qmail@web52607.mail.yahoo.com> <20060308225924.GB21130@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308225924.GB21130@redhat.com>
-User-Agent: Mutt/1.5.11
+	Thu, 9 Mar 2006 01:52:25 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Thu, 9 Mar 2006 17:51:22 +1100
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 14] knfsd: Introduction
+Message-ID: <20060309174755.24381.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 05:59:25PM -0500, Dave Jones wrote:
-> On Thu, Mar 09, 2006 at 09:41:45AM +1100, Srihari Vijayaraghavan wrote:
->  > command count: 1
->  > input: ibmasm RSA I remote mouse as
->  > /class/input/input2
->  > input: ibmasm RSA I remote keyboard as
->  > /class/input/input3
->  > ibmasm remote responding to events on RSA card 0
->  > command count: 2
->  > ibmasm_exec_command:130 at 1141819512.780778
->  > do_exec_command:107 at 1141819512.780787
->  > respond to interrupt at 1141819512.782055
->  > exec_next_command:150 at 1141819512.782094
->  > finished interrupt at   1141819512.782103
->  > command count: 1
->  > Unable to handle kernel paging request at virtual
->  > address 6b6b6b6b
-> 
-> the problem is we do this..
-> 
->     command_put(sp->current_command);
-> 	exec_next_command(sp);
-> 
-> command_put drops the refcount of the kobject in sp,
-> which then gets freed in the .release (free_command)
-> which ends up kfree'ing 'sp'.
-> 
-> unsurprisingly, it goes bang the next time something
-> tries to access it.  (Ie the 2nd line above)
-> 
-> It's totally busted.
+The following series of patches changes the code for lookup up
+authentication/authorisation caches in sunrpc as used by nfsd.  That
+than having a delightful macro that defines a function of a particular
+type of cache, the functions are coded on a more traditional manner
+using library routines.
 
-I think there's a patch floating around somewhere to actually fix up
-this driver so it works.  Max, any ideas about this?
+This will hopefully make the code more maintainable.
 
-thanks,
+This series should not effect the functionality at all -- except maybe
+to fix some very minor bugs
 
-greg k-h
+This is against 2.6.16-rc5-mm2 and is NOT suitable for 2.6.16, but maybe for .17
+(though holding it back to .18 wouldn't be a big problem if any issues came up).
+
+Thanks,
+NeilBrown
+
+
+ [PATCH 000 of 14] knfsd: Introduction
+ [PATCH 001 of 14] knfsd: Change the store of auth_domains to not be a 'cache'.
+ [PATCH 002 of 14] knfsd: Break the hard linkage from svc_expkey to svc_export
+ [PATCH 003 of 14] knfsd: Get rid of 'inplace' sunrpc caches
+ [PATCH 004 of 14] knfsd: Create cache_lookup function instead of using a macro to declare one.
+ [PATCH 005 of 14] knfsd: Convert ip_map cache to use the new lookup routine.
+ [PATCH 006 of 14] knfsd: Use new cache_lookup for svc_export
+ [PATCH 007 of 14] knfsd: Use new cache_lookup for svc_expkey cache.
+ [PATCH 008 of 14] knfsd: Use new sunrpc cache for rsi cache
+ [PATCH 009 of 14] knfsd: Use new cache code for rsc cache
+ [PATCH 010 of 14] knfsd: Use new cache code for name/id lookup caches
+ [PATCH 011 of 14] knfsd: An assortment of little fixes to the sunrpc cache code.
+ [PATCH 012 of 14] knfsd: Remove DefineCacheLookup
+ [PATCH 013 of 14] knfsd: Unexport cache_fresh and fix a small race.
+ [PATCH 014 of 14] knfsd: Convert sunrpc_cache to use krefs

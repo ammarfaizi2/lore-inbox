@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751907AbWCIXN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751888AbWCIXP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751907AbWCIXN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751888AbWCIXN1
+	id S1751888AbWCIXP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWCIXP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:13:27 -0500
-Received: from test-iport-1.cisco.com ([171.71.176.117]:54877 "EHLO
-	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751907AbWCIXN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:13:26 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 7 of 20] ipath - misc driver support code
-X-Message-Flag: Warning: May contain useful information
-References: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 15:13:24 -0800
-In-Reply-To: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:47:00 -0800")
-Message-ID: <adau0a7fbzf.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 9 Mar 2006 18:15:27 -0500
+Received: from mail.gmx.net ([213.165.64.20]:36834 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751888AbWCIXP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:15:26 -0500
+X-Authenticated: #20450766
+Date: Fri, 10 Mar 2006 00:15:24 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Sergei Steshenko <steshenko_sergei@list.ru>,
+       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       gregkh@suse.de, Adrian Bunk <bunk@stusta.de>
+Subject: Re: [Alsa-user] arecord under 2.6.15.4-rt17 ->overruns...
+In-Reply-To: <1141944417.13319.84.camel@mindpipe>
+Message-ID: <Pine.LNX.4.60.0603100011160.14584@poirot.grange>
+References: <Pine.LNX.4.60.0603022032040.4969@poirot.grange> 
+ <1141331113.3042.5.camel@mindpipe>  <Pine.LNX.4.60.0603022132160.4969@poirot.grange>
+  <1141333305.3042.14.camel@mindpipe>  <Pine.LNX.4.60.0603022207160.3033@poirot.grange>
+  <1141334604.3042.17.camel@mindpipe>  <Pine.LNX.4.60.0603022226130.3033@poirot.grange>
+  <1141335418.3042.25.camel@mindpipe>  <Pine.LNX.4.60.0603030012070.3397@poirot.grange>
+  <1141342018.3042.40.camel@mindpipe>  <Pine.LNX.4.60.0603030707270.2959@poirot.grange>
+  <1141410043.3042.116.camel@mindpipe>  <Pine.LNX.4.60.0603041429340.3283@poirot.grange>
+  <20060304154357.74f74cac@localhost>  <Pine.LNX.4.60.0603041823560.3601@poirot.grange>
+  <1141495123.3042.181.camel@mindpipe>  <Pine.LNX.4.60.0603042046450.3135@poirot.grange>
+  <1141509605.14714.11.camel@mindpipe>  <Pine.LNX.4.60.0603051915020.3204@poirot.grange>
+  <Pine.LNX.4.60.0603071851190.3662@poirot.grange>  <1141757284.767.56.camel@mindpipe>
+  <Pine.LNX.4.60.0603071955350.3662@poirot.grange>  <1141758903.767.62.camel@mindpipe>
+  <Pine.LNX.4.60.0603092336150.14584@poirot.grange> <1141944417.13319.84.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 Mar 2006 23:13:25.0463 (UTC) FILETIME=[1153BE70:01C643CF]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +/**
- > + * ipath_unordered_wc - indicate whether write combining is ordered
- > + *
- > + * Because our performance depends on our ability to do write combining mmio
- > + * writes in the most efficient way, we need to know if we are on an Intel
- > + * or AMD x86_64 processor.  AMD x86_64 processors flush WC buffers out in
- > + * the order completed, and so no special flushing is required to get
- > + * correct ordering.  Intel processors, however, will flush write buffers
- > + * out in "random" orders, and so explict ordering is needed at times.
- > + */
- > +int ipath_unordered_wc(void)
- > +{
- > +	return boot_cpu_data.x86_vendor == X86_VENDOR_INTEL;
- > +}
+On Thu, 9 Mar 2006, Lee Revell wrote:
 
-This is kind of theoritical, but it seems to me that it would be safer
-to write this as
+> OK, please file a report in the ALSA bug tracker against this driver.
 
-	int ipath_unordered_wc(void)
-	{
-		return boot_cpu_data.x86_vendor != X86_VENDOR_AMD;
-	}
+Yep, I will. I am afraid, I lied to you at one place - as I said that 
+2.4.32 didn't work either. I tested 2.4.32, but used drivers from 
+alsa-driver-1.0.3. I wasn't able to compile any recent version of 
+alsa-library against 2.4.x native alsa drivers. I might try some older 
+version of alsa-lib. I'll try to put as much information as possible in 
+the bug-report.
 
-after all, Via is probably going to have an x86-64 CPU one of these
-days, and I doubt you've checked that their WC flush is ordered.
-
- - R.
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski

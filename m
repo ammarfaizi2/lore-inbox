@@ -1,82 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWCISka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWCISnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWCISka (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 13:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWCISka
+	id S1751319AbWCISnP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 13:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWCISnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 13:40:30 -0500
-Received: from nsm.pl ([195.34.211.229]:28433 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S1751299AbWCISk3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 13:40:29 -0500
-Date: Thu, 9 Mar 2006 19:40:11 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for 2.6.16-rc5
-Message-ID: <20060309184010.GA4639@irc.pl>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org,
-	linux-pci@atrey.karlin.mff.cuni.cz,
-	pcihpd-discuss@lists.sourceforge.net
-References: <20060306223545.GA20885@kroah.com> <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de> <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org> <20060308231851.GA26666@suse.de> <Pine.LNX.4.64.0603081528040.32577@g5.osdl.org>
-Mime-Version: 1.0
+	Thu, 9 Mar 2006 13:43:15 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:20695 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751319AbWCISnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 13:43:15 -0500
+X-Sasl-enc: orPUbQDjChf90cdAI8MvAA+soVm8ABEcN2meefQB5sZC 1141929770
+Message-ID: <44107739.9070204@imap.cc>
+Date: Thu, 09 Mar 2006 19:43:05 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-usb-devel@lists.sourceforge.net,
+       hjlipp@web.de, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] reduce syslog clutter (take 2)
+References: <440F609F.8090604@imap.cc>	<20060309030257.5c1e0f30.akpm@osdl.org> <20060309083412.95e145ea.rdunlap@xenotime.net>
+In-Reply-To: <20060309083412.95e145ea.rdunlap@xenotime.net>
+X-Enigmail-Version: 0.93.0.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603081528040.32577@g5.osdl.org>
-User-Agent: Mutt/1.5.4i
+ protocol="application/pgp-signature";
+ boundary="------------enigE36BCAF9F70E8BFD5BD1AB9E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE36BCAF9F70E8BFD5BD1AB9E
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 08, 2006 at 03:30:22PM -0800, Linus Torvalds wrote:
->=20
->=20
-> On Wed, 8 Mar 2006, Greg KH wrote:
-> >=20
-> > Understood.  Wait, what FC5 issues?  Andrew's problems?  Or something
-> > else?
->=20
-> Something else.
->=20
-> Although it might be related, since DaveJ reports that there are some=20
-> weird bootup issues that come and go:
->=20
->   "Fedora rawhide kernel stopped booting for a bunch of people, all with=
-=20
->    686-SMP boxes. I saw it myself too, it hung just after the 'write=20
->    protecting kernel rodata'.
->=20
+On 09.03.2006 17:34, Randy.Dunlap wrote:
 
-  Ubuntu has similar problem:
-https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/29601
- I believe Ubuntu's 2.6.15 source is vanilla+git patches.
+> On Thu, 9 Mar 2006 03:02:57 -0800 Andrew Morton wrote:
+>=20
+>>Tilman Schmidt <tilman@imap.cc> wrote:
+>>
+>>>The current versions of the err() / info() / warn() syslog macros
+>>> insert __FILE__ at the beginning of the message, which expands to
+>>> the complete path name of the source file within the kernel tree.
+>>>
+>>> With the following patch, when used in a module, they'll insert the
+>>> module name instead, which is significantly shorter and also tends to=
+
+>>> be more useful to users trying to make sense of a particular message.=
+
+>>
+>>Personally, I prefer to see filenames.  Or function names.  Sometimes i=
+t's
+>>rather unobvious how to go from module name to filename, due to a) mult=
+iple
+>>.o files being linked together, b) subsystems which insist on #includin=
+g .c
+>>files in .c files (usb...) and c) the module system's cute habit of
+>>replacing underscores with dashes in module names.
+>=20
+> True, just using module->name or whatever means that we would
+> (often?) have to do a lookup to see what source file it was in.
+
+That would be a valid point for debugging messages. However, we are
+talking about messages to users here. I maintain that the additional 20
+characters in:
+
+Feb 21 00:12:13 gx110 kernel: drivers/isdn/gigaset/i4l.c:
+ISDN_CMD_SETL3: invalid protocol 42
+
+as opposed to:
+
+Feb 21 00:12:13 gx110 kernel: gigaset: ISDN_CMD_SETL3: invalid protocol 4=
+2
+
+do not provide any useful information for that clientele. They just push
+the actual interesting information farther to the right, in this case
+even causing a line wrap.
+
+If I want to include the function name in the message I can (and indeed
+I quite frequently do), but this only makes the clutter worse if the
+macros force the source path on me regardless.
 
 --=20
-Tomasz Torcz                "Funeral in the morning, IDE hacking
-zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
 
 
---EVF5PPMfhYS0aIcm
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--------------enigE36BCAF9F70E8BFD5BD1AB9E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFEEHaKThhlKowQALQRAmr6AKCeBLUl3frsYS0KocQuM3zJbmyr6QCg95pJ
-MmBrAoezjBM07DXQUMKHNI8=
-=/8PF
+iD8DBQFEEHc5MdB4Whm86/kRAtmXAKCA4fsRbAu2XKkTjhBaIDbKYsQajACfV6Yp
+/LbCHzwCyFkHhqVskQUIIXg=
+=6FYI
 -----END PGP SIGNATURE-----
 
---EVF5PPMfhYS0aIcm--
+--------------enigE36BCAF9F70E8BFD5BD1AB9E--

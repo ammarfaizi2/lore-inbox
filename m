@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422633AbWCIEeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932671AbWCIEfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422633AbWCIEeH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 23:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422632AbWCIEeG
+	id S932671AbWCIEfx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 23:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWCIEfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 23:34:06 -0500
-Received: from detroit.securenet-server.net ([209.51.153.26]:38586 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S1422630AbWCIEeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 23:34:04 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
-Date: Wed, 8 Mar 2006 20:34:00 -0800
-User-Agent: KMail/1.9.1
-Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, Alan Cox <alan@redhat.com>, linuxppc64-dev@ozlabs.org
-References: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org> <17423.32792.500628.226831@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603082034.00238.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 8 Mar 2006 23:35:53 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:50108 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S932671AbWCIEfx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 23:35:53 -0500
+Date: Thu, 9 Mar 2006 15:34:53 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: filldir[64] oddness
+Message-Id: <20060309153453.0027649a.sfr@canb.auug.org.au>
+In-Reply-To: <20060309042744.GA23148@redhat.com>
+References: <20060309042744.GA23148@redhat.com>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__9_Mar_2006_15_34_53_+1100_3J+a5QWJo4mN35em"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, March 08, 2006 5:27 pm, Linus Torvalds wrote:
-> That said, when I heard of the NUMA IO issues on the SGI platform, I
-> was initially pretty horrified. It seems to have worked out ok, and
-> as long as we're talking about machines where you can concentrate on
-> validating just a few drivers, it seems to be a good tradeoff.
+--Signature=_Thu__9_Mar_2006_15_34_53_+1100_3J+a5QWJo4mN35em
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It's actually not too bad.  We tried hard to make the arch code support 
-the semantics that Linux drivers expect.  mmiowb() was an optimization 
-we added (though it's much less of an optimization than read_relaxed() 
-was) to make things a little faster.  Like you say, the alternative was 
-to embed the same functionality into spin_unlock or something (IRIX 
-actually had an io_spin_unlock that did that iirc), but that would mean 
-an MMIO access on every unlock, which would be bad.
+On Wed, 8 Mar 2006 23:27:44 -0500 Dave Jones <davej@redhat.com> wrote:
+>
+> I'm puzzled by an aparent use of uninitialised memory
+> that coverity's checker picked up.
+>=20
+> fs/readdir.c
+>=20
+> #define NAME_OFFSET(de) ((int) ((de)->d_name - (char __user *) (de)))
+> #define ROUND_UP(x) (((x)+sizeof(long)-1) & ~(sizeof(long)-1))
+>=20
+> 140  	static int filldir(void * __buf, const char * name, int namlen, lof=
+f_t offset,
+> 141  			   ino_t ino, unsigned int d_type)
+> 142  	{
+> 143  		struct linux_dirent __user * dirent;
+> 144  		struct getdents_callback * buf =3D (struct getdents_callback *) __=
+buf
+> 145  		int reclen =3D ROUND_UP(NAME_OFFSET(dirent) + namlen + 2);
+>=20
+> How come that NAME_OFFSET isn't causing an oops when
+> it dereferences stackjunk->d_name ?
 
-So ultimately mmiowb() is the only thing drivers really have to care 
-about on Altix (assuming they do DMA mapping correctly), and the rules 
-for that are fairly simple.  Then they can additionally use 
-read_relaxed() to optimize performance a bit (quite a bit on big 
-systems).
+because d_name is an array, so the reference is really &(dirent->d_name[0])=
+ and no
+dereference occurs ...
 
-> Would I want the hard-to-think-about IO ordering on a regular desktop
-> platform? No.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-I guess you don't want anyone to send you an O2 then? :)
+--Signature=_Thu__9_Mar_2006_15_34_53_+1100_3J+a5QWJo4mN35em
+Content-Type: application/pgp-signature
 
-Jesse
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFED7BtFdBgD/zoJvwRAlVkAJ9+m0ooBFOJg1BvdoIlK4VmGIskMwCgnYET
+iUDJAbqiMGPO2ZTxm27JzDA=
+=bjDD
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__9_Mar_2006_15_34_53_+1100_3J+a5QWJo4mN35em--

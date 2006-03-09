@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWCIUQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWCIUWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWCIUQp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 15:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWCIUQo
+	id S1750949AbWCIUWb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 15:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWCIUWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 15:16:44 -0500
-Received: from iriserv.iradimed.com ([69.44.168.233]:57307 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751352AbWCIUQo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 15:16:44 -0500
-Message-ID: <44108CCB.9080709@cfl.rr.com>
-Date: Thu, 09 Mar 2006 15:15:07 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-CC: Luke-Jr <luke@dashjr.org>, Anshuman Gholap <anshu.pg@gmail.com>,
-       linux-kernel@vger.kernel.org
+	Thu, 9 Mar 2006 15:22:31 -0500
+Received: from xproxy.gmail.com ([66.249.82.200]:14700 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750949AbWCIUWa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 15:22:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PgmjZisk8r/xKc4M4C4mDkyli215hIFpLhwg40UhNiP7Z+j1aYhs8Mb68dtCdwqN/qV4GW2QTI0r39sHKDYKaQ2Tn0LyfHXYJ0e1Cxi41WrMYQm5zmG8mhybaOEROQVJ9195OzrMjIk4WPvKXo95AfZP480N8M5HMz+JZ51WNo8=
+Message-ID: <161717d50603091222p34b45065xdb8507cbf8191a3d@mail.gmail.com>
+Date: Thu, 9 Mar 2006 15:22:29 -0500
+From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
+To: "Xavier Bestel" <xavier.bestel@free.fr>
 Subject: Re: [future of drivers?] a proposal for binary drivers.
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>  <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com> <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-In-Reply-To: <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 09 Mar 2006 20:19:05.0244 (UTC) FILETIME=[B68CFDC0:01C643B6]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14314.000
-X-TM-AS-Result: No--7.800000-5.000000-31
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, Luke-Jr <luke@dashjr.org>,
+       "Anshuman Gholap" <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1141928755.7599.0.camel@bip.parateam.prv>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
+	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
+	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+	 <1141928755.7599.0.camel@bip.parateam.prv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Neuer wrote:
->> Interacting with the kernel does not make your software a derived work.
-> 
-> That may or may not be true, depending on the nature of the
-> interaction, and the arbiter of truth in this case is the court
-> system, not you or I.
-> 
+On 3/9/06, Xavier Bestel <xavier.bestel@free.fr> wrote:
+> Le jeudi 09 mars 2006 à 12:33 -0500, Dave Neuer a écrit :
+> > On 3/9/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> > > If binary drivers are illegal, then why have ATI and nvidia not been
+> > > sued yet?
+> >
+> > Because no sufficiently deep-pocketed plaintiff has chosen to do so
+> > yet.
+>
+> No. It's just because they don't distribute a kernel with their drivers.
 
-That is correct, the final decision is up to a Judge, but we aren't in 
-court here, we're discussing it, and so I'm making an argument that I 
-believe any sane judge would side with.
+IF their driver is a derivative work (which many have argued), then it
+does not matter that they don't distribute the kernel (which they
+would have a perfect right to do, like you or I or anyone else, under
+the terms of the GPL); what matters is that copyright law prevents the
+CREATION of derivative works without permission, and the GPL states
+that permission in this case is contingent upon distributing (*) said
+derivative works under the GPL (i.e., full source code availability).
 
-> There are no dearth of legal opinions on this matter which differ
-> quite radically from your interpretation here, quite a few from
-> lawyers. As far as I am concerned (and the GPL too, if my
-> interpretation of it is correct), any code is a derived work of my
-> code if either a) it directly makes use of symbols in my code or b) it
-> cannot execute unless my code executes, such that its distribution
-> without my code would be useless.
-> 
+Thus, if binary modules are in fact derivative works, ATI and NVidia
+are not legally allowed to distribute them. You may disagree about
+whether or not drivers are derivative works; to my knowledge no court
+has ruled on this yet.
 
-As you said above, your opinion doesn't matter, only the law and a 
-judge's interpretation of it, and the law says no such thing.  Take a 
-look at USC Title 17 Chapter 1 Section 101:
+But I stand by my assertion: many kernel developers on record stating
+that they don't want their work used in binary-only modules, and the
+reason that this hasn't been decided by a court yet is no sufficiently
+deep-pocketed plaintiff (independantly wealthy kernel hackers or a big
+corporation with copyright interest in the kernel) has decided to sue,
+yet.
 
-A “derivative work” is a work based upon one or more preexisting works, 
-such as a translation, musical arrangement, dramatization, 
-fictionalization, motion picture version, sound recording, art 
-reproduction, abridgment, condensation, or any other form in which a 
-work may be recast, transformed, or adapted. A work consisting of 
-editorial revisions, annotations, elaborations, or other modifications, 
-which, as a whole, represent an original work of authorship, is a 
-“derivative work”.
+See Linus' statements here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0670.html
+and here: http://www.ussg.iu.edu/hypermail/linux/kernel/0312.1/0708.html
+if you think I'm just pulling this stuff out of my butt.
 
-No mention of either of your two conditions.  You _might_ be able to 
-argue that they use your headers to compile their driver, so that 
-violates your copyright, but they are free to develop their own 
-compatible headers to produce compatible binaries which are in no way 
-derived from the Linux kernel.  See Wine's win32 compatible headers and 
-libraries for examples of this.
+Regards,
+Dave
 
-
->> This is why it is legal to reverse engineer a binary driver to gain an
->> understanding of how the hardware operates, publish that information,
->> and then use that information to create new software to operate that
->> hardware.
-> 
-> No, you are referring to a restriction on the limitations in software
-> licenses which is separate from copyright. Copyright law does not talk
-> about interoperability at all. And even the applicability of the
-> restriction to which you refer is jurisdiction-dependant as well as
-> context-dependant (see the DMCA).
-> 
-
-No, licenses do not enter the picture at all, I am referring to the Fair 
-Use clause of the copyright act and the body of precedence built on it. 
-Title 17 specifically states that the study of a copyright work falls 
-under fair use and therefore, is not an infringement.  Reverse 
-engineering is a form of study, and thus is protected as fair use.
-
-Copyright does not apply to a _process_ ( that's patents ), only to the 
-particular expression, therefore, it has been well established in the 
-courts that it is not infringing to create a new unique expression that 
-serves the same purpose and engages in the same process.  This is why it 
-is legal to reverse engineer a windows binary only driver to figure out 
-the hardware interface, and write your own driver for linux.
-
-
+* the GPL doesn't say you can't use modified or derived GPL software
+internally, so ATI and nVidia would presumably be OK if they didn't
+distribute the drivers.

@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751887AbWCIM20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWCIMbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751887AbWCIM20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 07:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751873AbWCIM2Z
+	id S1750778AbWCIMbz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 07:31:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWCIMbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 07:28:25 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43458 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751853AbWCIM2Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 07:28:24 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0603082127110.32577@g5.osdl.org> 
-References: <Pine.LNX.4.64.0603082127110.32577@g5.osdl.org>  <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org> <20060308184500.GA17716@devserv.devel.redhat.com> <20060308173605.GB13063@devserv.devel.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com> <9834.1141837491@warthog.cambridge.redhat.com> <11922.1141842907@warthog.cambridge.redhat.com> <14275.1141844922@warthog.cambridge.redhat.com> <19984.1141846302@warthog.cambridge.redhat.com> <17423.30789.214209.462657@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081652430.32577@g5.osdl.org> <17423.32792.500628.226831@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org> <17423.42185.78767.837295@cargo.ozlabs.ibm.com> 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, Alan Cox <alan@redhat.com>, linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Thu, 09 Mar 2006 12:27:54 +0000
-Message-ID: <25437.1141907274@warthog.cambridge.redhat.com>
+	Thu, 9 Mar 2006 07:31:55 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:50407 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750786AbWCIMby (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 07:31:54 -0500
+Message-Id: <200603091231.k29CV9g20079@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'David Gibson'" <david@gibson.dropbear.id.au>
+Cc: <wli@holomorphy.com>, "'Andrew Morton'" <akpm@osdl.org>,
+       <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] hugetlb strict commit accounting
+Date: Thu, 9 Mar 2006 04:31:11 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZDcsAlIF67TLt7Td6AEhu3/tLl1QAAaUwQ
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20060309120631.GC9479@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
-
-> > A spin_lock does show up on the bus, doesn't it?
+David Gibson wrote on Thursday, March 09, 2006 4:07 AM
+> > Well, the reservation is already done at mmap time for shared mapping. Why
+> > does kernel need to do anything at fault time?  Doing it at fault time is
+> > an indication of weakness (or brokenness) - you already promised at mmap
+> > time that there will be a page available for faulting.  Why check them
+> > again at fault time?
 > 
-> Nope.
+> You can't know (or bound) at mmap() time how many pages a PRIVATE
+> mapping will take (because of fork()).  So unless you have a test at
+> fault time (essentialy deciding whether to draw from "reserved" and
+> "unreserved" hugepage pool) a supposedly reserved SHARED mapping will
+> OOM later if there have been enough COW faults to use up all the
+> hugepages before it's instantiated.
 
-Yes, sort of, under some circumstances. If the CPU doing the spin_lock()
-doesn't own the cacheline with the lock, it'll have to resort to the bus to
-grab the cacheline from the current owner (so another CPU would at least see a
-read).
+I see. But that is easy to fix.  I just need to do exactly the same
+thing as what you did to alloc_huge_page.  I will then need to change
+definition of 'reservation' to needs-in-the future (also an easy thing
+to change).
 
-The effect of the spin_lock() might not be seen outside of the CPU before the
-spin_unlock() occurs, but it *will* be committed to the CPU's cache, and given
-cache coherency mechanisms, that's effectively the same as main memory.
+The real question or discussion I want to bring up is whether kernel
+should do it's own accounting or relying on traversing the page cache. 
+My opinion is that kernel should do it's own accounting because it is
+simpler: you just need to do that at mmap and ftruncate time.
 
-So it's in effect visible on the bus, given that it will be transferred to
-another CPU when requested; and as long as the other CPUs expect to see the
-effects and the ordering imposed, it's immaterial whether the content of the
-spinlock is actually ever committed to SDRAM or whether it remains perpetually
-in one or another's CPU cache.
+- Ken
 
-David

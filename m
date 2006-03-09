@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWCIX16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751968AbWCIX2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbWCIX16 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751972AbWCIX16
+	id S1751968AbWCIX2X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751972AbWCIX2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:27:58 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:62085 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751968AbWCIX16 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:27:58 -0500
-Subject: Re: [PATCH 7 of 20] ipath - misc driver support code
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
+	Thu, 9 Mar 2006 18:28:22 -0500
+Received: from test-iport-1.cisco.com ([171.71.176.117]:13473 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751968AbWCIX2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:28:21 -0500
+To: "Bryan O'Sullivan" <bos@pathscale.com>
 Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
        linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <aday7zjfc36.fsf@cisco.com>
-References: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain>
-	 <aday7zjfc36.fsf@cisco.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 09 Mar 2006 15:27:57 -0800
-Message-Id: <1141946877.10693.34.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core driver
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 09 Mar 2006 15:28:16 -0800
+In-Reply-To: <71644dd19420ddb07a75.1141922823@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:47:03 -0800")
+Message-ID: <ada4q27fban.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 09 Mar 2006 23:28:16.0713 (UTC) FILETIME=[248DB390:01C643D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 15:11 -0800, Roland Dreier wrote:
->  > +static unsigned handle_frequent_errors(struct ipath_devdata *dd,
->  > +				       ipath_err_t errs, char msg[512],
->  > +				       int *noprint)
+    Bryan> I suspect that our use of SetPageReserved in
+    Bryan> ipath_file_ops.c may be causing us problems, but I am not
+    Bryan> sure what correct behaviour would look like.  Suggestions
+    Bryan> appreciated.
 
-> Could this be replaced by printk_ratelimit()?
+Why are you doing SetPageReserved?  As I understand things, the
+reserved bit is deprecated because it doesn't really have any defined
+semantics...
 
-I looked into doing that a few weeks ago, and it really didn't look like
-a good fit at all.
-
-	<b
-
+ - R.

@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWCIOZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751919AbWCIObk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWCIOZW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 09:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWCIOZV
+	id S1751919AbWCIObk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 09:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751939AbWCIObj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 09:25:21 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:26053 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S1750974AbWCIOZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 09:25:21 -0500
-Message-ID: <44103A52.3090509@torque.net>
-Date: Thu, 09 Mar 2006 09:23:14 -0500
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 9 Mar 2006 09:31:39 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:35757 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751919AbWCIObj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 09:31:39 -0500
+Message-ID: <44103D50.7010108@sw.ru>
+Date: Thu, 09 Mar 2006 17:36:00 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Linux SCSI Error Question with SG Driver
-References: <Pine.LNX.4.64.0603090706370.15616@p34>
-In-Reply-To: <Pine.LNX.4.64.0603090706370.15616@p34>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=US-ASCII
+To: Jan Blunck <jblunck@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, balbir@in.ibm.com, viro@zeniv.linux.org.uk,
+       olh@suse.de, neilb@suse.de, dev@openvz.org, bsingharora@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory()
+ race (updated patch)
+References: <20060308145105.GA4243@hasse.suse.de> <20060309063330.GA23256@in.ibm.com> <20060309110025.GE4243@hasse.suse.de> <20060309032157.0592153e.akpm@osdl.org> <4410253E.3070101@sw.ru> <20060309140827.GH4243@hasse.suse.de>
+In-Reply-To: <20060309140827.GH4243@hasse.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> I have a tape library connected to a Linux box here and every once and a
-> while I see these in dmesg:
+>>>Are we all happy with this patch now?
+>>
+>>I can't see why we fix shrink_dcache_parent() only, why 
+>>shrink_dcache_anon() is totally missed?
+>>
 > 
-> sg_low_free: bad mem_src=0, buff=0xdb6a8000, rqSz=32768
-> sg_low_free: bad mem_src=0, buff=0xdb6b0000, rqSz=28672
-> sg_low_free: bad mem_src=0, buff=0xdb738000, rqSz=32768
-> sg_low_free: bad mem_src=0, buff=0xdb718000, rqSz=28672
-> sg_low_free: bad mem_src=0, buff=0xdb680000, rqSz=32768
-> sg_low_free: bad mem_src=0, buff=0xdb678000, rqSz=28672
-> sg_low_free: bad mem_src=0, buff=0xdb670000, rqSz=32768
-> sg_low_free: bad mem_src=0, buff=0xdb668000, rqSz=28672
-> sg_low_free: bad mem_src=0, buff=0xdb660000, rqSz=32768
-> sg_low_free: bad mem_src=0, buff=0xdb658000, rqSz=28672
-> sg_low_free: bad mem_src=0, buff=0xdb650000, rqSz=32768
-> sg_low_free: bad mem_src=0, buff=0xdb648000, rqSz=28672
 > 
-> Does anyone know what they refer to?
+> First of all because anon-dentries don't have a parent. So they are not a real
+> problem in don't restarting the shrink_dcache_anon() if we waited for prunes.
+> Since I've reordered the calls to shrink_dcache_anon() and
+> shrink_dcache_parent() in generic_shutdown_super() they are handled as normal
+> dentries if they are pruned through shrink_dcache_memory() from the d_lru list.
+This looks a bad idea to reorder calls to achieve such a behvaiour.
+I would move the loop outside of shrink_dcache_parent to 
+generic_shutdown_super instead.
 
-Justin,
-That looks like the sg driver in the lk 2.4 series.
-When it comes to free up some memory in sg_low_free()
-it checks where the memory was sourced from. A
-mem_src of 0 is not defined hence the error message.
+Thanks,
+Kirill
 
-Hard to say why this happens as the buff addresses
-and rqSz values look reasonable.
-
-Doug Gilbert
 

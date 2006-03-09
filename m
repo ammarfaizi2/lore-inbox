@@ -1,153 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751939AbWCIPkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWCIPuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751939AbWCIPkd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 10:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752002AbWCIPkd
+	id S1750700AbWCIPuX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 10:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWCIPuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 10:40:33 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:37272 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1751939AbWCIPkd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 10:40:33 -0500
-Date: Thu, 9 Mar 2006 15:40:30 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix scripts/namespace.pl portability
-Message-ID: <20060309154030.GA14682@linux-mips.org>
-References: <20060309130150.GA10275@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060309130150.GA10275@linux-mips.org>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 9 Mar 2006 10:50:23 -0500
+Received: from dvhart.com ([64.146.134.43]:6321 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750700AbWCIPuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 10:50:23 -0500
+Message-ID: <44104EB7.9090103@mbligh.org>
+Date: Thu, 09 Mar 2006 07:50:15 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Jens Axboe <axboe@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
+       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: Slab corruption in 2.6.16-rc5-mm2
+References: <200603060117.16484.jesper.juhl@gmail.com> <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org> <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org> <200603062124.42223.jesper.juhl@gmail.com> <20060306203036.GQ4595@suse.de> <9a8748490603061341l50febef9o3cb480bdbdcf925f@mail.gmail.com> <20060306215515.GE11565@redhat.com>
+In-Reply-To: <20060306215515.GE11565@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 01:01:50PM +0000, Ralf Baechle wrote:
-
-> scripts/namespace.pl was assuming the nm and objdump tools to use are
-> always just named that which breaks things in a crosscompilation
-> environment.
+Dave Jones wrote:
+> On Mon, Mar 06, 2006 at 10:41:07PM +0100, Jesper Juhl wrote:
 > 
-> Fixed by honouring $NM and $OBJDUMP if passed by make, otherwise
-> defaulting to just nm rsp. objdump just as we used to.
+>  > CONFIG_DEBUG_SLAB
+>  > CONFIG_PAGE_OWNER
+>  > CONFIG_DEBUG_VM
+>  > CONFIG_DEBUG_PAGEALLOC
+>  > 
+>  > The resulting kernel boots and runs just fine (no Oops) and leaves
+>  > nothing in dmesg.
+>  > So, without the debugging options it appears to the user that
+>  > everything is OK - nasty.
 > 
-> Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+> DEBUG_PAGEALLOC in particular is *fantastic* at making bugs hide.
+> I've lost many an hour trying to pin bugs down due to that.
 
-Atsushi Nemoto pointed me to http://lkml.org/lkml/2005/9/20/68.  This
-old patch which seems more complete than mine but made it into the kernel.
- I just refreshed the patch and added the bits to ensure namespace.pl
-uses the right nm binary also - Keith's original patch only fixed the
-objdump use.
+Is this backwards? We're saying DEBUG_PAGEALLOC is bad?
 
-From: Keith Owens <kaos@ocs.com.au>
+OK, what I'm going to try to do, given the recent comments re
+CONFIG_DEBUG_SLAB and also PAGEALLOC is to arrange with Andy to run
+a debug kernel as well as a normal kernel for every test, and then
+we can publish the results on http://test.kernel.org. For now it'll be
+a seperate matrix, until I work out how to fold the 3d cube nicely
+into 2d - I know I have to do that anyway, so no big deal.
 
-Those scripts are meant to work even when they are invoked by hand,
-without OBJDUMP being defined in the environment.  This is the correct
-fix.
+Do we NOT want to have DEBUG_SLAB and DEBUG_PAGEALLOC both enabled?
+Running multiple permutations is going to get really painful on the
+systems involved. Any other requests for what gets enabled (I really
+want to just stick to one 'debug' setup if possible).
 
-Signed-off-by: Keith Owens <kaos@ocs.com.au>
-Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+I have no idea why I didn't do this a year ago <slaps self>.
 
----
- scripts/namespace.pl           |   16 ++++++++++++++--
- scripts/reference_discarded.pl |   10 ++++++++--
- scripts/reference_init.pl      |   10 ++++++++--
- 3 files changed, 30 insertions(+), 6 deletions(-)
-
-Index: linux-mips/scripts/namespace.pl
-===================================================================
---- linux-mips.orig/scripts/namespace.pl	2006-03-09 15:27:52.000000000 +0000
-+++ linux-mips/scripts/namespace.pl	2006-03-09 15:33:59.000000000 +0000
-@@ -66,12 +66,24 @@ require 5;	# at least perl 5
- use strict;
- use File::Find;
- 
--my $nm = "/usr/bin/nm -p";
--my $objdump = "/usr/bin/objdump -s -j .comment";
- my $srctree = "";
- my $objtree = "";
- $srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
- $objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
-+my $nm;
-+if (exists($ENV{'NM'})) {
-+	$nm = $ENV{'NM'};
-+} else {
-+	$nm = 'nm';
-+}
-+$nm .= ' -p';
-+my $objdump;
-+if (exists($ENV{'OBJDUMP'})) {
-+	$objdump = $ENV{'OBJDUMP'};
-+} else {
-+	$objdump = 'objdump';
-+}
-+$objdump .= ' -s -j .comment';
- 
- if ($#ARGV != -1) {
- 	print STDERR "usage: $0 takes no parameters\n";
-Index: linux-mips/scripts/reference_discarded.pl
-===================================================================
---- linux-mips.orig/scripts/reference_discarded.pl	2006-02-20 21:48:11.000000000 +0000
-+++ linux-mips/scripts/reference_discarded.pl	2006-03-09 15:28:02.000000000 +0000
-@@ -14,11 +14,17 @@ my $object;
- my $line;
- my $ignore;
- my $errorcount;
-+my $objdump;
-+if (exists($ENV{'OBJDUMP'})) {
-+	$objdump = $ENV{'OBJDUMP'};
-+} else {
-+	$objdump = 'objdump';
-+}
- 
- $| = 1;
- 
- # printf("Finding objects, ");
--open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-+open(OBJDUMP_LIST, "find . -name '*.o' | xargs $objdump -h |") || die "getting objdump list failed";
- while (defined($line = <OBJDUMP_LIST>)) {
- 	chomp($line);
- 	if ($line =~ /:\s+file format/) {
-@@ -79,7 +85,7 @@ foreach $object (keys(%object)) {
- $errorcount = 0;
- foreach $object (keys(%object)) {
- 	my $from;
--	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-+	open(OBJDUMP, "$objdump -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
- 		chomp($line);
- 		if ($line =~ /RELOCATION RECORDS FOR /) {
-Index: linux-mips/scripts/reference_init.pl
-===================================================================
---- linux-mips.orig/scripts/reference_init.pl	2006-02-20 21:48:11.000000000 +0000
-+++ linux-mips/scripts/reference_init.pl	2006-03-09 15:28:02.000000000 +0000
-@@ -22,11 +22,17 @@ my %object;
- my $object;
- my $line;
- my $ignore;
-+my $objdump;
-+if (exists($ENV{'OBJDUMP'})) {
-+	$objdump = $ENV{'OBJDUMP'};
-+} else {
-+	$objdump = 'objdump';
-+}
- 
- $| = 1;
- 
- printf("Finding objects, ");
--open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
-+open(OBJDUMP_LIST, "find . -name '*.o' | xargs $objdump -h |") || die "getting objdump list failed";
- while (defined($line = <OBJDUMP_LIST>)) {
- 	chomp($line);
- 	if ($line =~ /:\s+file format/) {
-@@ -81,7 +87,7 @@ printf("ignoring %d conglomerate(s)\n", 
- printf("Scanning objects\n");
- foreach $object (sort(keys(%object))) {
- 	my $from;
--	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
-+	open(OBJDUMP, "$objdump -r $object|") || die "cannot objdump -r $object";
- 	while (defined($line = <OBJDUMP>)) {
- 		chomp($line);
- 		if ($line =~ /RELOCATION RECORDS FOR /) {
+M.

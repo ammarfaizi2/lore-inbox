@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWCIX3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751965AbWCIX3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752005AbWCIX3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCIX3F
+	id S1751965AbWCIX3n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751972AbWCIX3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:29:05 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:6278 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751972AbWCIX3D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:29:03 -0500
-Subject: Re: [PATCH 7 of 20] ipath - misc driver support code
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <adau0a7fbzf.fsf@cisco.com>
-References: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain>
-	 <adau0a7fbzf.fsf@cisco.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 09 Mar 2006 15:29:02 -0800
-Message-Id: <1141946942.10693.36.camel@serpentine.pathscale.com>
+	Thu, 9 Mar 2006 18:29:42 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:37352
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751965AbWCIX3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:29:41 -0500
+Date: Thu, 09 Mar 2006 15:29:34 -0800 (PST)
+Message-Id: <20060309.152934.99760924.davem@davemloft.net>
+To: dim@openvz.org
+Cc: arnd@arndb.de, akpm@osdl.org, dev@openvz.org,
+       netfilter-devel@lists.netfilter.org, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, devel@openvz.org
+Subject: Re: {get|set}sockopt compat layer
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200603091324.00362.dim@openvz.org>
+References: <200603071707.19138.dim@openvz.org>
+	<200603071605.39177.arnd@arndb.de>
+	<200603091324.00362.dim@openvz.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 15:13 -0800, Roland Dreier wrote:
+From: Dmitry Mishin <dim@openvz.org>
+Date: Thu, 9 Mar 2006 13:23:59 +0300
 
-> This is kind of theoritical, but it seems to me that it would be safer
-> to write this as
+> Hello, Arnd!
 > 
-> 	int ipath_unordered_wc(void)
-> 	{
-> 		return boot_cpu_data.x86_vendor != X86_VENDOR_AMD;
-> 	}
-> 
-> after all, Via is probably going to have an x86-64 CPU one of these
-> days, and I doubt you've checked that their WC flush is ordered.
+> > For the compat_ioctl stuff, we don't have the function pointer inside an
+> > #ifdef, the overhead is relatively small since there is only one of these
+> > structures per module implementing a protocol, but it avoids having to
+> > rebuild everything when changing CONFIG_COMPAT.
+> >
+> > It's probably not a big issue either way, maybe davem has a stronger
+> > opinion on it either way.
+> >
+> Done.
 
-It's purely a performance optimisation.  Since we tune very closely to
-each CPU, there's no point right now in sort-of-tuning for a CPU that
-doesn't yet exist :-)
+I think this looks fine but it doesn't apply cleanly to the
+current net-2.6.17 tree.
 
-	<b
+Could you cook up a fresh patch, and send it with a complete
+changelog entry and appropriate Signed-off-by: lines?
 
+Thanks a lot Dmitry.

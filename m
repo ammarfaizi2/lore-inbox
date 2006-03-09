@@ -1,66 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751898AbWCIMDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWCIMCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751898AbWCIMDK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 07:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWCIMCz
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 07:02:55 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:19429 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751879AbWCIMCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1751876AbWCIMCy (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 9 Mar 2006 07:02:54 -0500
-Message-Id: <200603091202.k29C24g19696@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: <wli@holomorphy.com>, "'Andrew Morton'" <akpm@osdl.org>,
-       <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] hugetlb strict commit accounting
-Date: Thu, 9 Mar 2006 04:02:06 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751885AbWCIMCy
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 9 Mar 2006 07:02:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60873 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751876AbWCIMCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 07:02:52 -0500
+Date: Thu, 9 Mar 2006 04:00:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: tony.luck@intel.com, ak@suse.de, jschopp@austin.ibm.com,
+       haveblue@us.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH: 004/017](RFC) Memory hotplug for new nodes v.3.
+ (generic alloc pgdat)
+Message-Id: <20060309040045.17dbf286.akpm@osdl.org>
+In-Reply-To: <20060308212719.002A.Y-GOTO@jp.fujitsu.com>
+References: <20060308212719.002A.Y-GOTO@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcZDbMghlXpYtzMfTSmocFe7P0uhNQAAvGNQ
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <20060309112635.GB9479@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote on Thursday, March 09, 2006 3:27 AM
-> Again, there are no changes to the fault handler.  Including the
-> promised changes which would mean my instantiation serialization path
-> isn't necessary ;-).
+Yasunori Goto <y-goto@jp.fujitsu.com> wrote:
+>
+> For node hotplug, basically we have to allocate new pgdat.
+> But, there are several types of implementations of pgdat.
+> 
+> 1. Allocate only pgdat.
+>    This style allocate only pgdat area.
+>    And its address is recorded in node_data[].
+>    It is most popular style.
+> 
+> 2. Static array of pgdat
+>    In this case, all of pgdats are static array.
+>    Some archs use this style.
+> 
+> 3. Allocate not only pgdat, but also per node data.
+>    To increase performance, each node has copy of some data as
+>    a per node data. So, this area must be allocated too.
+> 
+>    Ia64 is this style. Ia64 has the copies of node_data[] array
+>    on each per node data to increase performance.
+> 
+> In this series of patches, treat (1) as generic arch.
+> 
+> generic archs can use generic function. (2) and (3) should have
+> its own if necessary. 
+> 
+> This patch defines pgdat allocator.
+> Updating NODE_DATA() macro function is in other patch.
+> 
+> ( I'll post another patch for (3).
+>   I don't know (2) which can use memory hotplug.
+>   So, there is not patch for (2). )
+> 
+> ...
+>
+> +#ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
+> +/*
+> + * For supporint node-hotadd, we have to allocate new pgdat.
+> + *
+> + * If an arch have generic style NODE_DATA(),
+> + * node_data[nid] = kzalloc() works well . But it depends on each arch.
+> + *
+> + * In general, generic_alloc_nodedata() is used.
+> + * generic...is a local function in mm/memory_hotplug.c
+> + *
+> + * Now, arch_free_nodedata() is just defined for error path of node_hot_add.
+> + *
+> + */
+> +extern struct pglist_data * arch_alloc_nodedata(int nid);
+> +extern void arch_free_nodedata(pg_data_t *pgdat);
+> +
+> +#else /* !CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
+> +#define arch_alloc_nodedata(nid)	generic_alloc_nodedata(nid)
+> +#define arch_free_nodedata(pgdat)	generic_free_nodedata(pgdat)
+> +
+> +#ifdef CONFIG_NUMA
+> +/*
+> + * If ARCH_HAS_NODEDATA_EXTENSION=n, this func is used to allocate pgdat.
+> + */
+> +static inline struct pglist_data *generic_alloc_nodedata(int nid)
+> +{
+> +	return kzalloc(sizeof(struct pglist_data), GFP_ATOMIC);
+> +}
 
-This is the major portion that I omitted in the first patch and is the
-real kicker that fulfills the promise of guaranteed available hugetlb
-page for shared mapping.
+>From an interface design point of view it's usually best to pass the
+gfp_flags ito a function which performs memory allocation, rather than
+assuming the worst-case like this.
 
-You can shower me all over on the lock protection :-) yes, this is not
-perfect and was the reason I did not post it earlier, but I want to give
-you the concept on how I envision this route would work.
+If it's known that callers of generic_alloc_nodedata() can just never ever
+be permitted to sleep then OK.  But GFP_KERNEL allocations are always
+preferable.
 
-Again PRIVATE mapping is busted, you can't count them from inode.  You
-would have to count them via mm_struct (I think).
+> +/*
+> + * This definition is just for error path in node hotadd.
+> + * For node hotremove, we have to replace this.
+> + */
+> +static inline void generic_free_nodedata(struct pglist_data *pgdat)
+> +{
+> +	kfree(pgdat);
+> +}
+> +
+> +#else /* !CONFIG_NUMA */
+> +/* never called */
+> +static inline struct pglist_data *generic_alloc_nodedata(int nid)
+> +{
+> +	BUG();
+> +	return NULL;
+> +}
+> +static inline void generic_free_nodedata(struct pglist_data *pgdat)
+> +{
+> +}
+> +#endif /* CONFIG_NUMA */
+> +#endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
+> +
 
-- Ken
+Should the patch provide stubs for generic_alloc_nodedata() and
+generic_alloc_nodedata() if !CONFIG_HAVE_ARCH_NODEDATA_EXTENSION?
 
-Note: definition of "reservation" in earlier patch is total hugetlb pages
-needed for that file, including the one that is already faulted in.  Maybe
-that throw you off a bit because I'm guessing your definition is "needed
-in the future" and probably you are looking for a decrement of the counter
-in the fault path?
-
-
---- ./mm/hugetlb.c.orig	2006-03-09 04:46:38.965547435 -0800
-+++ ./mm/hugetlb.c	2006-03-09 04:48:20.804413375 -0800
-@@ -196,6 +196,8 @@ static unsigned long set_max_huge_pages(
- 		enqueue_huge_page(page);
- 		spin_unlock(&hugetlb_lock);
- 	}
-+	if (count < atomic_read(&resv_huge_pages))
-+		count = atomic_read(&resv_huge_pages);
- 	if (count >= nr_huge_pages)
- 		return nr_huge_pages;
- 
+(If all callers are also inside #ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
+then the answer would be "no").
 

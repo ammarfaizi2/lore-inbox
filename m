@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751759AbWCIWEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751760AbWCIWF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751759AbWCIWEM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 17:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWCIWEM
+	id S1751760AbWCIWF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 17:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751764AbWCIWF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 17:04:12 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:51462 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1751759AbWCIWEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 17:04:12 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [future of drivers?] a proposal for binary drivers.
-Date: Thu, 9 Mar 2006 14:04:11 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEPBKJAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Thu, 9 Mar 2006 17:05:27 -0500
+Received: from main.gmane.org ([80.91.229.2]:28072 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751760AbWCIWF0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 17:05:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: multimedia keys on dell inspiron 8200s.
+Date: Thu, 9 Mar 2006 23:03:02 +0100
+Message-ID: <171jjrcj2780l.1nazr87kzdc51$.dlg@40tude.net>
+References: <20060224014947.GA17397@redhat.com> <200602242257.54062.dtor_core@ameritech.net> <20060225042729.GB7851@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <21d7e9970603090202v22205fc6ha5b4cec12f0a0507@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 09 Mar 2006 14:00:33 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 09 Mar 2006 14:00:33 -0800
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: host-84-220-48-150.cust-adsl.tiscali.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 24 Feb 2006 23:27:29 -0500, Dave Jones wrote:
 
-> > > What is linux-specific in this context is that many people, like
-> > > myself, who have contributed code to the kernel under the GPL *don't
-> > > want* their code to be used in non-free software, period. Someone who
-> > > wants to leverage my work needs to do it under the terms that I allow.
-> > > That is the law. Whining is not going to change my mind.
-> >
-> >         I'm sorry, that's not the law. You can wish it was, but
-> > it's not.
-> >
-> >         If the law allowed you to give your software away for
-> > free and then put
-> > restrictions on use, you could drop copies of a poem from an
-> > airplane (or
-> > put it up on a billboard) and then demand royalties from
-> > everyone who read
-> > it.
+> On Fri, Feb 24, 2006 at 10:57:53PM -0500, Dmitry Torokhov wrote:
+>  > On Thursday 23 February 2006 20:49, Dave Jones wrote:
+>  > > We've been carrying this patch in Fedora for way too long.
+>  > > So long, I've forgotten a lot of the history.
+>  > > 
+>  > > Aparently, it makes multimedia buttons on Dell Inspiron 8200's
+>  > > produce keycodes.  The only reference to this I found was
+>  > > at http://linux.siprell.com/, but I don't know if that's its origin.
+>  > > 
+>  > 
+>  > Dave,
+>  > 
+>  > This patch was refused before. Any additional/non-standard mapping is
+>  > to be done in userspace (you need to properly adjust xorg.conf anyway):
+>  > 
+>  > http://bugzilla.kernel.org/show_bug.cgi?id=2817#c4
+> 
+> Ok, thanks, I'll make sure it gets dropped from the Fedora tree.
 
-> We don't give away our software for free,
+The patch looks remarkably like the one I originally submitted for
+comments.
 
-	Yes, you do. You can receive a copy of the Linux kernel without paying any
-fee or agreeing to any license. You do in fact give away the software for
-free.
+I'm still running Linux on my Dell Inspiron 8200 and I'm not using
+that patch anymore. Rather, I found a package that recently made it to
+the Debian unstable repository, hotkey-setup
 
-> we give it away under the
-> terms of the GPL,
+http://packages.debian.org/unstable/misc/hotkey-setup
 
-	That is true. However, the GPL can only grant additional rights, it cannot
-take any away.
+which you may want to consider for inclusion on Fedora too. On the
+Debian BTS you will also see a Bug/Wish from me
 
-> you must abide by the terms of the GPL to use it.
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=355223
 
-	No, that's not true. The law permits the normal expected use simply by
-acquiring a copy of the work lawfully. Otherwise, you could buy a book and
-then discover that you still had to pay a royalty to read it. Or you could
-put a poem on a billboard and sue anyone who read it.
+with additional definitions for the multimedia keys on my Dell and
+some comments.
 
-> that is the law, you can wish it wasn't but it is.
+(Sorry for the delay in my reply)
 
-	You might try *reading* the law sometime.
 
-	DS
+-- 
+Giuseppe "Oblomov" Bilotta
 
+[W]hat country can preserve its liberties, if its rulers are not
+warned from time to time that [the] people preserve the spirit of
+resistance? Let them take arms...The tree of liberty must be
+refreshed from time to time, with the blood of patriots and
+tyrants.
+	-- Thomas Jefferson, letter to Col. William S. Smith, 1787
 

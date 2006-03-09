@@ -1,59 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751796AbWCIKfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWCIKgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751796AbWCIKfA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 05:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWCIKfA
+	id S932095AbWCIKgc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 05:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWCIKgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 05:35:00 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9895 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751796AbWCIKfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 05:35:00 -0500
-Date: Thu, 9 Mar 2006 02:32:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: 2.6.16-rc5-mm3 -- BUG: sleeping function called from invalid
- context at include/linux/rwsem.h:43 in_atomic():0, irqs_disabled():1
-Message-Id: <20060309023234.02ba4517.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0603082253sfb4a1e1q687c56a6f6a386fb@mail.gmail.com>
-References: <a44ae5cd0603082253sfb4a1e1q687c56a6f6a386fb@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 05:36:32 -0500
+Received: from cirse.extra.cea.fr ([132.166.172.102]:27292 "EHLO
+	cirse.extra.cea.fr") by vger.kernel.org with ESMTP id S1751797AbWCIKgb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 05:36:31 -0500
+Message-Id: <200603091035.LAA04829@styx.bruyeres.cea.fr>
+Date: Thu, 09 Mar 2006 11:35:21 +0100
+From: Aurelien Degremont <aurelien.degremont@cea.fr>
+User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Jacques-Charles Lafoucriere <jc.lafoucriere@cea.fr>,
+       Bruno Faccini <bruno.faccini@bull.net>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix deadlock in RPC scheduling code.
+Content-Type: multipart/mixed;
+ boundary="------------010601080205090701070907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Miles Lane" <miles.lane@gmail.com> wrote:
->
-> Apologies.  This bug caused my video to get messed up.  I was able to
-> run Gnome, but the apps weren't rendering correctly, so I couldn't be
-> sure my subject line was correct.
-> I would have edited out some of the context info, but that was tough
-> as well.  Here's the BUG message by itself.  Perhaps all the dmesg
-> output in the previous message will be helpful.
-> As you can see in the dmesg output, I hit this by suspending and
-> resuming.  I am running Fedora Core 5 Test 3 + all yum updates.
-> Andrew, the full dmesg output is in the LKML message with the subject
-> line set to "v".  Let me know if you would like me to send it directly
-> to you.
-> 
-> BUG: sleeping function called from invalid context at include/linux/rwsem.h:43
-> in_atomic():0, irqs_disabled():1
->  <c1003f81> show_trace+0xd/0xf   <c100401b> dump_stack+0x17/0x19
->  <c1015f77> __might_sleep+0x86/0x90   <c1024738>
-> blocking_notifier_call_chain+0x1b/0x4d
->  <c1183bb2> cpufreq_resume+0xf5/0x11d   <c112b27c> __sysdev_resume+0x23/0x57
->  <c112b3c9> sysdev_resume+0x19/0x4b   <c112f736> device_power_up+0x8/0xf
->  <c1033339> swsusp_suspend+0x6e/0x8b   <c1033918> pm_suspend_disk+0x51/0xf3
->  <c10328c7> enter_state+0x53/0x1c1   <c1032abe> state_store+0x89/0x97
->  <c108af00> subsys_attr_store+0x20/0x25   <c108b020> sysfs_write_file+0xb5/0xdc
->  <c1056578> vfs_write+0xab/0x154   <c1056aa3> sys_write+0x3b/0x60
->  <c1002b43> syscall_call+0x7/0xb
-> PM: Image restored success
+This is a multi-part message in MIME format.
+--------------010601080205090701070907
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-ho-hum.  That's swsusp insisting on running things which it shouldn't run
-with local interrupts disabled.
+Hello,
 
-I wouldn't expect this to cause the display to get mucked up though.
+Here is a small patch which fixes a deadlock issue in RPC scheduling
+code (rpc_wake_up_task() is mainly concerned). This problem happens if a
+RPC task, waiting for the response of a sync request, is woken up by a
+signal, and, in the same time, the kernel tries to wake up some RPC
+tasks. If this is done, a deadlock could occurs due to an error in RPC
+workqueue lock management.
+
+This error was added by linux-2.6.8.1-49-rpc_workqueue.patch (included
+in 2.6.11). This code was not changed since. The issue was detected on
+linux-2.6.12.
+
+
+**DESCRIPTION**
+
+This deadlock is due to the wrong management of two locks: queue->lock
+and the bit RPC_TASK_WAKEUP in task->tk_runstate.
+When dealing with RPC workqueues, the code must take care of locking the
+associated queue lock before doing any modifications on it or its tasks.
+And it does it... except for one function. Nested locks should always be
+taken in the same order.
+
+As a consequence, in some circumstances (in fact, I noticed it several
+times), this code deadlocks. Moreover, when this code is called, by
+example by nfs_file_flush(), the lock_kernel() is held and so all the
+system hangs.
+
+
+**PATCH**
+
+To fix the problem, we only need to invert the lock hierarchy in
+rpc_wake_up_task() and taking care of checking the task is really queued
+before trying to grab the lock.
+
+This code becomes :
+
+void rpc_wake_up_task(struct rpc_task *task)
+{
+           struct rpc_wait_queue *queue = NULL;
+
+
+           /*
+            * The task must always be queued because __rpc_do_wake_up_task()
+            * modify it.
+            */
+           if (RPC_IS_QUEUED(task)) {
+
+
+                   /*
+                    * The queue lock must be taken BEFORE rpc_start_wakeup()
+                    * is called.
+                    */
+                   queue = task->u.tk_wait.rpc_waitq;
+                   spin_lock_bh(&queue->lock);
+
+
+                   /* Really wake up the specified RPC task */
+                   if (rpc_start_wakeup(task)) {
+                           __rpc_do_wake_up_task(task);
+                           rpc_finish_wakeup(task);
+                   }
+
+
+                   spin_unlock_bh(&queue->lock);
+           }
+}
+
+This patch was done with version 2.6.15.4. It works correctly with
+2.6.15.6.
+
+
+**NOTES**
+
+"The smaller the patch is, the better it is". So I kept it short. But,
+in fact, I think the groups of functions rpc_wake_up_task(),
+__rpc_wake_up_task() and __rpc_do_wake_up_task() could be simplified.
+
+
+**AUTHORS**
+
+The bug was worked out by Bruno Faccini bruno(dot)faccini(at)bull(dot)net
+I did the corresponding patch.
+
+-- 
+Aurelien Degremont
+
+
+
+--------------010601080205090701070907
+Content-Type: text/x-patch;
+ name="rpc_deadlock-2.6.15.6.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rpc_deadlock-2.6.15.6.patch"
+
+--- linux-2.6.15.4/net/sunrpc/sched.c.orig	2006-03-08 16:54:36.515804799 +0100
++++ linux-2.6.15.4/net/sunrpc/sched.c		2006-03-08 17:00:37.724637607 +0100
+@@ -353,7 +353,7 @@
+  */
+ static void __rpc_do_wake_up_task(struct rpc_task *task)
+ {
+-	dprintk("RPC: %4d __rpc_wake_up_task (now %ld)\n", task->tk_pid, jiffies);
++	dprintk("RPC: %4d __rpc_do_wake_up_task (now %ld)\n", task->tk_pid, jiffies);
+ 
+ #ifdef RPC_DEBUG
+ 	BUG_ON(task->tk_magic != RPC_TASK_MAGIC_ID);
+@@ -369,7 +369,7 @@
+ 
+ 	rpc_make_runnable(task);
+ 
+-	dprintk("RPC:      __rpc_wake_up_task done\n");
++	dprintk("RPC:      __rpc_do_wake_up_task done\n");
+ }
+ 
+ /*
+@@ -400,15 +400,28 @@
+  */
+ void rpc_wake_up_task(struct rpc_task *task)
+ {
+-	if (rpc_start_wakeup(task)) {
+-		if (RPC_IS_QUEUED(task)) {
+-			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
++	struct rpc_wait_queue *queue = NULL;
++
++	/* 
++	 * The task must always be queued because __rpc_do_wake_up_task() 
++	 * modify it.
++	 */
++	if (RPC_IS_QUEUED(task)) {
+ 
+-			spin_lock_bh(&queue->lock);
++		/* 
++		 * The queue lock must be taken BEFORE rpc_start_wakeup() 
++		 * is called.
++		 */
++		queue = task->u.tk_wait.rpc_waitq;
++		spin_lock_bh(&queue->lock);
++	
++		/* Really wake up the specified RPC task */
++		if (rpc_start_wakeup(task)) {
+ 			__rpc_do_wake_up_task(task);
+-			spin_unlock_bh(&queue->lock);
++			rpc_finish_wakeup(task);
+ 		}
+-		rpc_finish_wakeup(task);
++		
++		spin_unlock_bh(&queue->lock);
+ 	}
+ }
+ 
+
+
+
+--------------010601080205090701070907--

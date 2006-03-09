@@ -1,55 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWCIHnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWCIHnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWCIHnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 02:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWCIHnQ
+	id S1750770AbWCIHnq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 02:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWCIHnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 02:43:16 -0500
-Received: from smtp101.mail.mud.yahoo.com ([209.191.85.211]:47775 "HELO
-	smtp101.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750767AbWCIHnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 02:43:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xkN/K9WGLb0LSGFbN8vAGSu2Ki/vrGb5GRhLvJSbFDfCe0b8wK+PUA16SjNnGY+voaSJTz3epAfDFTQJ6MLOyQw+MIigzcvZgqGdDFK+TsIUCntU6+/9a/y+sAxWazo3pNuuEVfZpMDlxhBlxprrz+308IrvOT7TecsE7GI0Upc=  ;
-Message-ID: <440FDC8E.9060907@yahoo.com.au>
-Date: Thu, 09 Mar 2006 18:43:10 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 9 Mar 2006 02:43:46 -0500
+Received: from surfboard.ka.sara.nl ([145.100.6.3]:53350 "EHLO
+	surfboard.ka.sara.nl") by vger.kernel.org with ESMTP
+	id S1750941AbWCIHnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 02:43:45 -0500
+Message-ID: <440FDCA7.5050506@sara.nl>
+Date: Thu, 09 Mar 2006 08:43:35 +0100
+From: Bas van der Vlies <basv@sara.nl>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@google.com>
-CC: Mark Fasheh <mark.fasheh@oracle.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com
-Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
-References: <4408C2E8.4010600@google.com>	<20060303233617.51718c8e.akpm@osdl.org>	<440B9035.1070404@google.com>	<20060306025800.GA27280@ca-server1.us.oracle.com>	<440BC1C6.1000606@google.com>	<20060306195135.GB27280@ca-server1.us.oracle.com>	<p733bhvgc7f.fsf@verdi.suse.de> <20060307045835.GF27280@ca-server1.us.oracle.com> <440FCA81.7090608@google.com>
-In-Reply-To: <440FCA81.7090608@google.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nfsd/gfs  crashes/oops in 2.6.16-rc5
+References: <440EF1A7.8020400@sara.nl>
+In-Reply-To: <440EF1A7.8020400@sara.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Mar 2006 07:43:38.0980 (UTC) FILETIME=[2DFDFA40:01C6434D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-
-> A poor distribution as you already noticed[1].  Even if it was a great
-> distribution, we would still average a little over two nodes per bucket
-> twice as many as we should allow unless you believe that people running
-> cluster filesystems have too much time on their hands and need to waste
-> some of it waiting for the computer to chew its way through millions
-> of cold cache lines.
+Bas van der Vlies wrote:
+> uname: 2.6.16-rc5
+> libc: libc-2.3.2.so
+> Debian: Sarge
+> SMP system: 2 CPU's
 > 
+> On our 4 node GFS-cluster we use nfs to export the GFS filesystems to 
+> our 640 node cluster On our fileserver nodes we get an nfs crash/oops. 
+> We tried serveral kernels and they crashes/oops are the same. We node
+> installed 2.6.16-rc5 and here is the oops:
+> 
+> nable to handle kernel NULL pointer dereference at virtual address 00000038
+>  printing eip:
+> f89a4be3
+> *pde = 37809001
+> *pte = 00000000
+> Oops: 0000 [#1]
+> SMP
+> Modules linked in: lock_dlm dlm cman dm_round_robin dm_multipath sg 
+> ide_floppy ide_cd cdrom qla2xxx siimage piix e1000 gfs lock_harness dm_mod
+> CPU:    0
+> EIP:    0060:[<f89a4be3>]    Tainted: GF     VLI
+> EFLAGS: 00010246   (2.6.16-rc5-sara3 #1)
+> EIP is at gfs_create+0x6f/0x153 [gfs]
 
-Just interested: do the locks have any sort of locality of lookup?
-If so, then have you tried moving hot (ie. the one you've just found,
-or newly inserted) hash entries to the head of the hash list?
 
-In applications with really good locality you can sometimes get away
-with small hash tables (10s even 100s of collisions on average) without
-taking too big a hit this way, because your entries basically get sorted
-LRU for you.
+Is is an GFS-crash and just for the record the GFS guys have made a fix 
+in the CVS Stable branch:
+
+CVSROOT:    /cvs/cluster
+Module name:    cluster
+Branch:     STABLE
+Changes by:    bmarzins@sourceware.org    2006-03-08 20:47:09
+
+Modified files:
+     gfs-kernel/src/gfs: ops_inode.c
+
+Log message:
+  Really gross hack!!!
+  This is a workaround for one of the bugs the got lumped into 166701. It
+  breaks POSIX behavior in a corner case to avoid crashing... It's icky.
+  when NFS opens a file with O_CREAT, the kernel nfs daemon checks to see
+  if the file exists. If it does, nfsd does the *right thing* (either
+  opens the file, or if the file was opened with O_EXCL, returns an
+  error).  If the file doesn't exist, it passes the request down to the
+  underlying file system. Unfortunately, since nfs *knows* that the file
+  doesn't exist, it doesn't  bother to pass a nameidata structure, which
+  would include the intent information. However since gfs is a cluster
+  file system, the file could have been created on another node after nfs
+  checks for it. If this is the case, gfs needs the intent information to
+  do the *right thing*.  It panics when it finds a NULL pointer, instead
+  of the nameidata. Now, instead of panicing, if gfs finds a NULL
+  nameidata pointer. It assumes that the file was not created with _EXCL.
+
+  This assumption could be wrong, with the result that an application
+  could thing that it has created a new file, when in fact, it has opened
+  an existing one.
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--
+********************************************************************
+*                                                                  *
+*  Bas van der Vlies                     e-mail: basv@sara.nl      *
+*  SARA - Academic Computing Services    phone:  +31 20 592 8012   *
+*  Kruislaan 415                         fax:    +31 20 6683167    *
+*  1098 SJ Amsterdam                                               *
+*                                                                  *
+********************************************************************

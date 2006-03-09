@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWCIXKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751517AbWCIXLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWCIXKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWCIXKA
+	id S1751517AbWCIXLN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751553AbWCIXLN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:10:00 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44955
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750834AbWCIXJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:09:59 -0500
-Date: Thu, 09 Mar 2006 15:09:45 -0800 (PST)
-Message-Id: <20060309.150945.44837916.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] tg3.c:tg3_bus_string(): remove dead code
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060309230650.GJ21864@stusta.de>
-References: <20060309230650.GJ21864@stusta.de>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 18:11:13 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:51846 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1751394AbWCIXLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:11:12 -0500
+X-IronPort-AV: i="4.02,180,1139212800"; 
+   d="scan'208"; a="414152053:sNHT30524180"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 7 of 20] ipath - misc driver support code
+X-Message-Flag: Warning: May contain useful information
+References: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 09 Mar 2006 15:11:09 -0800
+In-Reply-To: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:47:00 -0800")
+Message-ID: <aday7zjfc36.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 09 Mar 2006 23:11:11.0197 (UTC) FILETIME=[C14C60D0:01C643CE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Fri, 10 Mar 2006 00:06:50 +0100
+ > +static unsigned handle_frequent_errors(struct ipath_devdata *dd,
+ > +				       ipath_err_t errs, char msg[512],
+ > +				       int *noprint)
+ > +{
+ > +	cycles_t nc;
+ > +	static cycles_t nextmsg_time;
+ > +	static unsigned nmsgs, supp_msgs;
+ > +
+ > +	/*
+ > +	 * throttle back "fast" messages to no more than 10 per 5 seconds
+ > +	 * (1.4-2GHz clock).  This isn't perfect, but it's a reasonable
+ > +	 * heuristic. If we get more than 10, give a 5x longer delay
+ > +	 */
 
-> The Coverity checker spotted this dead code (note that (clock_ctrl == 7) 
-> is already handled above).
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Could this be replaced by printk_ratelimit()?
 
-Applied, thanks Adrian.
+ - R.

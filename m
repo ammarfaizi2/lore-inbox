@@ -1,291 +1,259 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751699AbWCIG5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751745AbWCIG4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751699AbWCIG5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751727AbWCIGz7
+	id S1751745AbWCIG4j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWCIG4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:55:59 -0500
-Received: from mail.suse.de ([195.135.220.2]:62640 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751668AbWCIGxR (ORCPT
+	Thu, 9 Mar 2006 01:56:03 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:46051 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751699AbWCIGxC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:53:17 -0500
+	Thu, 9 Mar 2006 01:53:02 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 9 Mar 2006 17:52:14 +1100
-Message-Id: <1060309065214.24629@suse.de>
+Date: Thu, 9 Mar 2006 17:51:58 +1100
+Message-Id: <1060309065158.24593@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 010 of 14] knfsd: Use new cache code for name/id lookup caches
+Subject: [PATCH 007 of 14] knfsd: Use new cache_lookup for svc_expkey cache.
 References: <20060309174755.24381.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/nfs4idmap.c |  126 ++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 103 insertions(+), 23 deletions(-)
+ ./fs/nfsd/export.c |  136 ++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 99 insertions(+), 37 deletions(-)
 
-diff ./fs/nfsd/nfs4idmap.c~current~ ./fs/nfsd/nfs4idmap.c
---- ./fs/nfsd/nfs4idmap.c~current~	2006-03-09 17:15:13.000000000 +1100
-+++ ./fs/nfsd/nfs4idmap.c	2006-03-09 17:16:07.000000000 +1100
-@@ -82,9 +82,12 @@ struct ent {
- #define ENT_HASHMAX           (1 << ENT_HASHBITS)
- #define ENT_HASHMASK          (ENT_HASHMAX - 1)
+diff ./fs/nfsd/export.c~current~ ./fs/nfsd/export.c
+--- ./fs/nfsd/export.c~current~	2006-03-09 17:15:14.000000000 +1100
++++ ./fs/nfsd/export.c	2006-03-09 17:15:15.000000000 +1100
+@@ -57,17 +57,6 @@ static int		exp_verify_string(char *cp, 
+ #define	EXPKEY_HASHMASK		(EXPKEY_HASHMAX -1)
+ static struct cache_head *expkey_table[EXPKEY_HASHMAX];
  
--static inline void
--ent_init(struct ent *new, struct ent *itm)
-+static void
-+ent_init(struct cache_head *cnew, struct cache_head *citm)
- {
-+	struct ent *new = container_of(cnew, struct ent, h);
-+	struct ent *itm = container_of(citm, struct ent, h);
-+
- 	new->id = itm->id;
- 	new->type = itm->type;
- 
-@@ -92,12 +95,6 @@ ent_init(struct ent *new, struct ent *it
- 	strlcpy(new->authname, itm->authname, sizeof(new->name));
- }
- 
--static inline void
--ent_update(struct ent *new, struct ent *itm)
+-static inline int svc_expkey_hash(struct svc_expkey *item)
 -{
--	ent_init(new, itm);
+-	int hash = item->ek_fsidtype;
+-	char * cp = (char*)item->ek_fsid;
+-	int len = key_len(item->ek_fsidtype);
+-
+-	hash ^= hash_mem(cp, len, EXPKEY_HASHBITS);
+-	hash ^= hash_ptr(item->ek_client, EXPKEY_HASHBITS);
+-	return hash & EXPKEY_HASHMASK;
 -}
 -
- static void
- ent_put(struct cache_head *ch, struct cache_detail *cd)
+ void expkey_put(struct cache_head *item, struct cache_detail *cd)
  {
-@@ -107,6 +104,16 @@ ent_put(struct cache_head *ch, struct ca
- 	}
- }
- 
-+static struct cache_head *
-+ent_alloc(void)
-+{
-+	struct ent *e = kmalloc(sizeof(*e), GFP_KERNEL);
-+	if (e)
-+		return &e->h;
-+	else
-+		return NULL;
-+}
-+
- /*
-  * ID -> Name cache
-  */
-@@ -143,9 +150,12 @@ idtoname_request(struct cache_detail *cd
+ 	if (cache_put(item, cd)) {
+@@ -97,7 +86,8 @@ static void expkey_request(struct cache_
  	(*bpp)[-1] = '\n';
  }
  
--static inline int
--idtoname_match(struct ent *a, struct ent *b)
-+static int
-+idtoname_match(struct cache_head *ca, struct cache_head *cb)
+-static struct svc_expkey *svc_expkey_lookup(struct svc_expkey *, int);
++static struct svc_expkey *svc_expkey_update(struct svc_expkey *new, struct svc_expkey *old);
++static struct svc_expkey *svc_expkey_lookup(struct svc_expkey *);
+ static int expkey_parse(struct cache_detail *cd, char *mesg, int mlen)
  {
-+	struct ent *a = container_of(ca, struct ent, h);
-+	struct ent *b = container_of(cb, struct ent, h);
-+
- 	return (a->id == b->id && a->type == b->type &&
- 	    strcmp(a->authname, b->authname) == 0);
- }
-@@ -178,7 +188,8 @@ warn_no_idmapd(struct cache_detail *deta
+ 	/* client fsidtype fsid [path] */
+@@ -108,6 +98,7 @@ static int expkey_parse(struct cache_det
+ 	int fsidtype;
+ 	char *ep;
+ 	struct svc_expkey key;
++	struct svc_expkey *ek;
  
+ 	if (mesg[mlen-1] != '\n')
+ 		return -EINVAL;
+@@ -152,20 +143,25 @@ static int expkey_parse(struct cache_det
+ 	key.ek_fsidtype = fsidtype;
+ 	memcpy(key.ek_fsid, buf, len);
  
- static int         idtoname_parse(struct cache_detail *, char *, int);
--static struct ent *idtoname_lookup(struct ent *, int);
-+static struct ent *idtoname_lookup(struct ent *);
-+static struct ent *idtoname_update(struct ent *, struct ent *);
- 
- static struct cache_detail idtoname_cache = {
- 	.owner		= THIS_MODULE,
-@@ -190,6 +201,10 @@ static struct cache_detail idtoname_cach
- 	.cache_parse	= idtoname_parse,
- 	.cache_show	= idtoname_show,
- 	.warn_no_listener = warn_no_idmapd,
-+	.match		= idtoname_match,
-+	.init		= ent_init,
-+	.update		= ent_init,
-+	.alloc		= ent_alloc,
- };
- 
- int
-@@ -232,6 +247,11 @@ idtoname_parse(struct cache_detail *cd, 
- 	if (ent.h.expiry_time == 0)
- 		goto out;
- 
-+	error = -ENOMEM;
-+	res = idtoname_lookup(&ent);
-+	if (!res)
++	ek = svc_expkey_lookup(&key);
++	err = -ENOMEM;
++	if (!ek)
 +		goto out;
 +
- 	/* Name */
- 	error = qword_get(&buf, buf1, PAGE_SIZE);
- 	if (error == -EINVAL)
-@@ -246,7 +266,8 @@ idtoname_parse(struct cache_detail *cd, 
- 		memcpy(ent.name, buf1, sizeof(ent.name));
- 	}
- 	error = -ENOMEM;
--	if ((res = idtoname_lookup(&ent, 1)) == NULL)
-+	res = idtoname_update(&ent, res);
-+	if (res == NULL)
+ 	/* now we want a pathname, or empty meaning NEGATIVE  */
++	err = -EINVAL;
+ 	if ((len=qword_get(&mesg, buf, PAGE_SIZE)) < 0)
  		goto out;
- 
- 	ent_put(&res->h, &idtoname_cache);
-@@ -258,7 +279,31 @@ out:
- 	return error;
- }
- 
--static DefineSimpleCacheLookup(ent, idtoname);
-+
-+static struct ent *
-+idtoname_lookup(struct ent *item)
-+{
-+	struct cache_head *ch = sunrpc_cache_lookup(&idtoname_cache,
-+						    &item->h,
-+						    idtoname_hash(item));
-+	if (ch)
-+		return container_of(ch, struct ent, h);
-+	else
-+		return NULL;
-+}
-+
-+static struct ent *
-+idtoname_update(struct ent *new, struct ent *old)
-+{
-+	struct cache_head *ch = sunrpc_cache_update(&idtoname_cache,
-+						    &new->h, &old->h,
-+						    idtoname_hash(new));
-+	if (ch)
-+		return container_of(ch, struct ent, h);
-+	else
-+		return NULL;
-+}
-+
- 
- /*
-  * Name -> ID cache
-@@ -285,9 +330,12 @@ nametoid_request(struct cache_detail *cd
- 	(*bpp)[-1] = '\n';
- }
- 
--static inline int
--nametoid_match(struct ent *a, struct ent *b)
-+static int
-+nametoid_match(struct cache_head *ca, struct cache_head *cb)
- {
-+	struct ent *a = container_of(ca, struct ent, h);
-+	struct ent *b = container_of(cb, struct ent, h);
-+
- 	return (a->type == b->type && strcmp(a->name, b->name) == 0 &&
- 	    strcmp(a->authname, b->authname) == 0);
- }
-@@ -311,7 +359,8 @@ nametoid_show(struct seq_file *m, struct
+ 	dprintk("Path seems to be <%s>\n", buf);
+ 	err = 0;
+ 	if (len == 0) {
+-		struct svc_expkey *ek;
+ 		set_bit(CACHE_NEGATIVE, &key.h.flags);
+-		ek = svc_expkey_lookup(&key, 1);
++		ek = svc_expkey_update(&key, ek);
+ 		if (ek)
+ 			expkey_put(&ek->h, &svc_expkey_cache);
++		else err = -ENOMEM;
+ 	} else {
+ 		struct nameidata nd;
+-		struct svc_expkey *ek;
+ 		err = path_lookup(buf, 0, &nd);
+ 		if (err)
+ 			goto out;
+@@ -174,10 +170,11 @@ static int expkey_parse(struct cache_det
+ 		key.ek_mnt = nd.mnt;
+ 		key.ek_dentry = nd.dentry;
+ 		
+-		ek = svc_expkey_lookup(&key, 1);
++		ek = svc_expkey_update(&key, ek);
+ 		if (ek)
+ 			expkey_put(&ek->h, &svc_expkey_cache);
+-		err = 0;
++		else
++			err = -ENOMEM;
+ 		path_release(&nd);
+ 	}
+ 	cache_flush();
+@@ -213,29 +210,25 @@ static int expkey_show(struct seq_file *
+ 	seq_printf(m, "\n");
  	return 0;
  }
+-	
+-struct cache_detail svc_expkey_cache = {
+-	.owner		= THIS_MODULE,
+-	.hash_size	= EXPKEY_HASHMAX,
+-	.hash_table	= expkey_table,
+-	.name		= "nfsd.fh",
+-	.cache_put	= expkey_put,
+-	.cache_request	= expkey_request,
+-	.cache_parse	= expkey_parse,
+-	.cache_show	= expkey_show,
+-};
  
--static struct ent *nametoid_lookup(struct ent *, int);
-+static struct ent *nametoid_lookup(struct ent *);
-+static struct ent *nametoid_update(struct ent *, struct ent *);
- static int         nametoid_parse(struct cache_detail *, char *, int);
- 
- static struct cache_detail nametoid_cache = {
-@@ -324,6 +373,10 @@ static struct cache_detail nametoid_cach
- 	.cache_parse	= nametoid_parse,
- 	.cache_show	= nametoid_show,
- 	.warn_no_listener = warn_no_idmapd,
-+	.match		= nametoid_match,
-+	.init		= ent_init,
-+	.update		= ent_init,
-+	.alloc		= ent_alloc,
- };
- 
- static int
-@@ -373,7 +426,11 @@ nametoid_parse(struct cache_detail *cd, 
- 		set_bit(CACHE_NEGATIVE, &ent.h.flags);
- 
- 	error = -ENOMEM;
--	if ((res = nametoid_lookup(&ent, 1)) == NULL)
-+	res = nametoid_lookup(&ent);
-+	if (res == NULL)
-+		goto out;
-+	res = nametoid_update(&ent, res);
-+	if (res == NULL)
- 		goto out;
- 
- 	ent_put(&res->h, &nametoid_cache);
-@@ -384,7 +441,30 @@ out:
- 	return (error);
+-static inline int svc_expkey_match (struct svc_expkey *a, struct svc_expkey *b)
++static inline int expkey_match (struct cache_head *a, struct cache_head *b)
+ {
+-	if (a->ek_fsidtype != b->ek_fsidtype ||
+-	    a->ek_client != b->ek_client ||
+-	    memcmp(a->ek_fsid, b->ek_fsid, key_len(a->ek_fsidtype)) != 0)
++	struct svc_expkey *orig = container_of(a, struct svc_expkey, h);
++	struct svc_expkey *new = container_of(b, struct svc_expkey, h);
++
++	if (orig->ek_fsidtype != new->ek_fsidtype ||
++	    orig->ek_client != new->ek_client ||
++	    memcmp(orig->ek_fsid, new->ek_fsid, key_len(orig->ek_fsidtype)) != 0)
+ 		return 0;
+ 	return 1;
  }
  
--static DefineSimpleCacheLookup(ent, nametoid);
+-static inline void svc_expkey_init(struct svc_expkey *new, struct svc_expkey *item)
++static inline void expkey_init(struct cache_head *cnew,
++				   struct cache_head *citem)
+ {
++	struct svc_expkey *new = container_of(cnew, struct svc_expkey, h);
++	struct svc_expkey *item = container_of(citem, struct svc_expkey, h);
 +
-+static struct ent *
-+nametoid_lookup(struct ent *item)
+ 	kref_get(&item->ek_client->ref);
+ 	new->ek_client = item->ek_client;
+ 	new->ek_fsidtype = item->ek_fsidtype;
+@@ -244,13 +237,80 @@ static inline void svc_expkey_init(struc
+ 	new->ek_fsid[2] = item->ek_fsid[2];
+ }
+ 
+-static inline void svc_expkey_update(struct svc_expkey *new, struct svc_expkey *item)
++static inline void expkey_update(struct cache_head *cnew,
++				   struct cache_head *citem)
+ {
++	struct svc_expkey *new = container_of(cnew, struct svc_expkey, h);
++	struct svc_expkey *item = container_of(citem, struct svc_expkey, h);
++
+ 	new->ek_mnt = mntget(item->ek_mnt);
+ 	new->ek_dentry = dget(item->ek_dentry);
+ }
+ 
+-static DefineSimpleCacheLookup(svc_expkey, svc_expkey)
++static struct cache_head *expkey_alloc(void)
 +{
-+	struct cache_head *ch = sunrpc_cache_lookup(&nametoid_cache,
-+						    &item->h,
-+						    nametoid_hash(item));
-+	if (ch)
-+		return container_of(ch, struct ent, h);
++	struct svc_expkey *i = kmalloc(sizeof(*i), GFP_KERNEL);
++	if (i)
++		return &i->h;
 +	else
 +		return NULL;
 +}
 +
-+static struct ent *
-+nametoid_update(struct ent *new, struct ent *old)
++struct cache_detail svc_expkey_cache = {
++	.owner		= THIS_MODULE,
++	.hash_size	= EXPKEY_HASHMAX,
++	.hash_table	= expkey_table,
++	.name		= "nfsd.fh",
++	.cache_put	= expkey_put,
++	.cache_request	= expkey_request,
++	.cache_parse	= expkey_parse,
++	.cache_show	= expkey_show,
++	.match		= expkey_match,
++	.init		= expkey_init,
++	.update       	= expkey_update,
++	.alloc		= expkey_alloc,
++};
++
++static struct svc_expkey *
++svc_expkey_lookup(struct svc_expkey *item)
 +{
-+	struct cache_head *ch = sunrpc_cache_update(&nametoid_cache,
-+						    &new->h, &old->h,
-+						    nametoid_hash(new));
++	struct cache_head *ch;
++	int hash = item->ek_fsidtype;
++	char * cp = (char*)item->ek_fsid;
++	int len = key_len(item->ek_fsidtype);
++
++	hash ^= hash_mem(cp, len, EXPKEY_HASHBITS);
++	hash ^= hash_ptr(item->ek_client, EXPKEY_HASHBITS);
++	hash &= EXPKEY_HASHMASK;
++
++	ch = sunrpc_cache_lookup(&svc_expkey_cache, &item->h,
++				 hash);
 +	if (ch)
-+		return container_of(ch, struct ent, h);
++		return container_of(ch, struct svc_expkey, h);
 +	else
 +		return NULL;
 +}
++
++static struct svc_expkey *
++svc_expkey_update(struct svc_expkey *new, struct svc_expkey *old)
++{
++	struct cache_head *ch;
++	int hash = new->ek_fsidtype;
++	char * cp = (char*)new->ek_fsid;
++	int len = key_len(new->ek_fsidtype);
++
++	hash ^= hash_mem(cp, len, EXPKEY_HASHBITS);
++	hash ^= hash_ptr(new->ek_client, EXPKEY_HASHBITS);
++	hash &= EXPKEY_HASHMASK;
++
++	ch = sunrpc_cache_update(&svc_expkey_cache, &new->h,
++				 &old->h, hash);
++	if (ch)
++		return container_of(ch, struct svc_expkey, h);
++	else
++		return NULL;
++}
++
  
- /*
-  * Exported API
-@@ -452,24 +532,24 @@ idmap_defer(struct cache_req *req)
- }
+ #define	EXPORT_HASHBITS		8
+ #define	EXPORT_HASHMAX		(1<< EXPORT_HASHBITS)
+@@ -549,7 +609,7 @@ exp_find_key(svc_client *clp, int fsid_t
+ 	key.ek_fsidtype = fsid_type;
+ 	memcpy(key.ek_fsid, fsidv, key_len(fsid_type));
  
- static inline int
--do_idmap_lookup(struct ent *(*lookup_fn)(struct ent *, int), struct ent *key,
-+do_idmap_lookup(struct ent *(*lookup_fn)(struct ent *), struct ent *key,
- 		struct cache_detail *detail, struct ent **item,
- 		struct idmap_defer_req *mdr)
- {
--	*item = lookup_fn(key, 0);
-+	*item = lookup_fn(key);
- 	if (!*item)
- 		return -ENOMEM;
- 	return cache_check(detail, &(*item)->h, &mdr->req);
- }
+-	ek = svc_expkey_lookup(&key, 0);
++	ek = svc_expkey_lookup(&key);
+ 	if (ek != NULL)
+ 		if ((err = cache_check(&svc_expkey_cache, &ek->h, reqp)))
+ 			ek = ERR_PTR(err);
+@@ -569,7 +629,9 @@ static int exp_set_key(svc_client *clp, 
+ 	key.h.expiry_time = NEVER;
+ 	key.h.flags = 0;
  
- static inline int
--do_idmap_lookup_nowait(struct ent *(*lookup_fn)(struct ent *, int),
-+do_idmap_lookup_nowait(struct ent *(*lookup_fn)(struct ent *),
- 			struct ent *key, struct cache_detail *detail,
- 			struct ent **item)
- {
- 	int ret = -ENOMEM;
- 
--	*item = lookup_fn(key, 0);
-+	*item = lookup_fn(key);
- 	if (!*item)
- 		goto out_err;
- 	ret = -ETIMEDOUT;
-@@ -490,7 +570,7 @@ out_err:
- 
- static int
- idmap_lookup(struct svc_rqst *rqstp,
--		struct ent *(*lookup_fn)(struct ent *, int), struct ent *key,
-+		struct ent *(*lookup_fn)(struct ent *), struct ent *key,
- 		struct cache_detail *detail, struct ent **item)
- {
- 	struct idmap_defer_req *mdr;
+-	ek = svc_expkey_lookup(&key, 1);
++	ek = svc_expkey_lookup(&key);
++	if (ek)
++		ek = svc_expkey_update(&key,ek);
+ 	if (ek) {
+ 		expkey_put(&ek->h, &svc_expkey_cache);
+ 		return 0;

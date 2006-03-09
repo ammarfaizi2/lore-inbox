@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbWCIEgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbWCIEg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbWCIEgY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 23:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbWCIEgY
+	id S932674AbWCIEg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 23:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbWCIEg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 23:36:24 -0500
-Received: from detroit.securenet-server.net ([209.51.153.26]:34491 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S932675AbWCIEgX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 23:36:23 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
-Date: Wed, 8 Mar 2006 20:36:19 -0800
-User-Agent: KMail/1.9.1
-Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, Alan Cox <alan@redhat.com>, linuxppc64-dev@ozlabs.org
-References: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org> <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org> <17423.42185.78767.837295@cargo.ozlabs.ibm.com>
-In-Reply-To: <17423.42185.78767.837295@cargo.ozlabs.ibm.com>
+	Wed, 8 Mar 2006 23:36:28 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7042 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932674AbWCIEg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 23:36:27 -0500
+Date: Wed, 8 Mar 2006 20:36:20 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: No zone_reclaim if PF_MALLOC is set.
+Message-ID: <Pine.LNX.4.64.0603082027450.12877@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603082036.19811.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, March 08, 2006 7:45 pm, Paul Mackerras wrote:
-> If we can have the following rules:
->
-> * If you have stores to regular memory, followed by an MMIO store,
-> and you want the device to see the stores to regular memory at the
-> point where it receives the MMIO store, then you need a wmb() between
-> the stores to regular memory and the MMIO store.
->
-> * If you have PIO or MMIO accesses, and you need to ensure the
->   PIO/MMIO accesses don't get reordered with respect to PIO/MMIO
->   accesses on another CPU, put the accesses inside a spin-locked
->   region, and put a mmiowb() between the last access and the
->   spin_unlock.
->
-> * smp_wmb() doesn't necessarily do any ordering of MMIO accesses
->   vs. other accesses, and in that sense it is weaker than wmb().
+If the process has already set PF_MALLOC and is already using
+current->reclaim_state then do not try to reclaim memory from the zone.
+This is set by kswapd and/or synchrononous global reclaim which will not
+take it lightly if we zap the reclaim_state.
 
-This is a good set of rules.  Hopefully David can add something like 
-this to his doc.
+Signed-off-by: Christoph Lameter <clameter@sig.com>
 
-> ... then I can remove the sync from write*, which would be nice, and
-> make mmiowb() be a sync.  I wonder how long we're going to spend
-> chasing driver bugs after that, though. :)
-
-Hm, a static checker should be able to find this stuff, shouldn't it?
-
-Jesse
+Index: linux-2.6.16-rc5/mm/vmscan.c
+===================================================================
+--- linux-2.6.16-rc5.orig/mm/vmscan.c	2006-02-26 21:09:35.000000000 -0800
++++ linux-2.6.16-rc5/mm/vmscan.c	2006-03-08 20:35:47.000000000 -0800
+@@ -1883,7 +1883,8 @@ int zone_reclaim(struct zone *zone, gfp_
+ 
+ 	if (!(gfp_mask & __GFP_WAIT) ||
+ 		zone->all_unreclaimable ||
+-		atomic_read(&zone->reclaim_in_progress) > 0)
++		atomic_read(&zone->reclaim_in_progress) > 0 ||
++		(p->flags & PF_MEMALLOC))
+ 			return 0;
+ 
+ 	node_id = zone->zone_pgdat->node_id;

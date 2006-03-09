@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWCIACd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWCIADy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWCIACd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932616AbWCIACd
+	id S932616AbWCIADy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWCIADy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:02:33 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:31039 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932108AbWCIACc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:02:32 -0500
-Date: Wed, 08 Mar 2006 18:02:07 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: de2104x: interrupts before interrupt handler is registered
-In-reply-to: <5O23T-59S-15@gated-at.bofh.it>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <440F707F.8010001@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5Nz1Y-4hZ-25@gated-at.bofh.it> <5NKTG-4F7-21@gated-at.bofh.it>
- <5NLmp-5sk-5@gated-at.bofh.it> <5NODG-1RH-3@gated-at.bofh.it>
- <5O23T-59S-15@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 8 Mar 2006 19:03:54 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:56556 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932616AbWCIADx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:03:53 -0500
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for
+	2.6.16-rc5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Greg KH <gregkh@suse.de>
+Cc: bjdouma@xs4all.nl, Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+In-Reply-To: <20060308234004.GA31309@suse.de>
+References: <20060306223545.GA20885@kroah.com>
+	 <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
+	 <20060308230519.GT4006@stusta.de> <1141859917.767.242.camel@mindpipe>
+	 <20060308232350.GA26929@suse.de> <1141860895.767.251.camel@mindpipe>
+	 <20060308234004.GA31309@suse.de>
+Content-Type: text/plain
+Date: Wed, 08 Mar 2006 19:03:49 -0500
+Message-Id: <1141862630.767.264.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Brandeburg wrote:
-> FWIW, I'd be interested in following up on something like this in
-> another thread because e100 appears to have (at least in one
-> reporter's dual e100 machine) a similar "hardware problem" where a
-> shared interrupt line gets asserted too early and the kernel prints a
-> Nobody Cared message.
+On Wed, 2006-03-08 at 15:40 -0800, Greg KH wrote:
+> On Wed, Mar 08, 2006 at 06:34:54PM -0500, Lee Revell wrote:
+> > On Wed, 2006-03-08 at 15:23 -0800, Greg KH wrote:
+> > > 
+> > > > That should not go in 2.6.16 - it's not a hardware bug but a (poor IMHO)
+> > > > design decision by the vendor.  And, it may break working setups when an
+> > > > extra sound device shows up.
+> > > 
+> > > Ah, good thing I held off :)
+> > > 
+> > > Any objections to it going in for 2.6.17?
+> > 
+> > I can't think of a way to merge this and guarantee not to break
+> > userspace unless it could be disabled by default.
 > 
-> So we have a new way of doing things that exposes more broken
-> hardware, shouldn't we provide a way for that hardware to continue
-> working?
+> Ok, how about you and Bauke (CCed, and the author of the patch) work
+> together on the problem and let me know what you decide on.
 
-I'm not sure this is at all related to the case we're talking about - it 
-doesn't matter whether the request_irq or pci_enable_device comes first 
-as the device is pulling on the interrupt line before the driver is even 
-loaded. To fix that I'd think you'd need some kind of PCI quirk that 
-would shut off the interrupt on the e100 card before any devices request 
-the interrupt that it is sharing.
+The best option might be to just take a chance on breaking things - if
+userspace is so fragile that an extra sound device appearing breaks
+things, it could also be broken merely by adding a new driver to the
+kernel.  If we have to worry about this kind of breakage the "no
+incompatible changes" policy becomes "no new features".
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
+That's my $0.02, it's between the patch author and the maintainer what
+you want to do.
+
+Lee
 

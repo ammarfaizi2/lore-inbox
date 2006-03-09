@@ -1,111 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWCIKQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbWCIKUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWCIKQH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 05:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbWCIKQH
+	id S1751782AbWCIKUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 05:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWCIKUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 05:16:07 -0500
-Received: from posthamster.phnxsoft.com ([195.227.45.4]:12814 "EHLO
-	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
-	id S1751773AbWCIKQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 05:16:05 -0500
-Message-ID: <44100043.2020703@imap.cc>
-Date: Thu, 09 Mar 2006 11:15:31 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
-X-Accept-Language: de, en, fr
+	Thu, 9 Mar 2006 05:20:38 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:31675 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751782AbWCIKUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 05:20:38 -0500
+Date: Thu, 09 Mar 2006 19:20:33 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [Patch]Tiny bug fix of memory hotadd (pgdat->node_present_pages are not correct).
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060309191244.E607.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: linux-usb-devel@lists.sourceforge.net, hjlipp@web.de,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] reduce syslog clutter (take 2)
-References: <440F609F.8090604@imap.cc> <20060308214724.cf987bbf.rdunlap@xenotime.net>
-In-Reply-To: <20060308214724.cf987bbf.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCE6DCBF2E92E8DDAE7520CDB"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCE6DCBF2E92E8DDAE7520CDB
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Hello.
 
-Randy.Dunlap wrote:
+This patch is tiny bug fix for memory hotplug.
 
->> +#if defined(CONFIG_MODULES) && defined(THIS_MODULE)
->> +#define KMSG_LOCATION_PREFIX THIS_MODULE ? THIS_MODULE->name : __FILE__
->
-> Can we get parens around the expression, please?
+When pages are onlined, not only zone->present_pages 
+but also pgdat->node_present_pages should be refreshed.
 
-Will do.
+This parameter is used to show information at
+/sys/device/system/node/nodeX/meminfo 
+via si_meminfo_node().
 
-> and does it make sense to test
-> #if defined(THIS_MODULE)
-> #define KMSG_LOCATION_PREFIX (THIS_MODULE ? ...
+So, it shows strange value for MemUsed which is calculated
+(node_present_pages - all zones free pages).
 
-Unfortunately, it does.
+This patch is for 2.6.16-rc5-mm3.
+And I tested this on my hotplug emulation environment.
 
-> If that does make sense (the double testing of THIS_MODULE),
-> please explain why it does.
+Please apply.
 
-We have the following cases:
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-- compiling without module support, source file not including linux/module.h
-  -> !defined(CONFIG_MODULES) && !defined(THIS_MODULE)
-   -> compiling the expression (THIS_MODULE ? THIS_MODULE->name : __FILE__)
-      fails with undefined symbol THIS_MODULE
+Index: pgdat7/mm/memory_hotplug.c
+===================================================================
+--- pgdat7.orig/mm/memory_hotplug.c	2006-03-09 18:32:11.000000000 +0900
++++ pgdat7/mm/memory_hotplug.c	2006-03-09 18:34:34.000000000 +0900
+@@ -130,6 +130,7 @@ int online_pages(unsigned long pfn, unsi
+ 		onlined_pages++;
+ 	}
+ 	zone->present_pages += onlined_pages;
++	zone->zone_pgdat->node_present_pages += onlined_pages;
+ 
+ 	setup_per_zone_pages_min();
+ 
 
-- compiling with module support, source file not including linux/module.h
-  -> defined(CONFIG_MODULES) && !defined(THIS_MODULE)
-   -> compiling the expression (THIS_MODULE ? THIS_MODULE->name : __FILE__)
-      fails with undefined symbol THIS_MODULE
+-- 
+Yasunori Goto 
 
-- compiling without module support, source file including linux/module.h
-  -> !defined(CONFIG_MODULES) && defined(THIS_MODULE)
-   -> compiling the expression (THIS_MODULE ? THIS_MODULE->name : __FILE__)
-      fails because THIS_MODULE is defined as a NULL pointer to
-      struct module which in this case is an incomplete type (*sigh*)
 
-- compiling with module support, source file including linux/module.h,
-  not compiling as a module
-  -> defined(CONFIG_MODULES) && defined(THIS_MODULE)
-     && THIS_MODULE == ((struct module *)0)
-   -> compiling the expression (THIS_MODULE ? THIS_MODULE->name : __FILE__)
-      succeeds (hooray), but THIS_MODULE is a NULL pointer, though this
-      time the type it points to is at least completely defined
-
-- compiling with module support, source file including linux/module.h,
-  compiling as a module
-  -> defined(CONFIG_MODULES) && defined(THIS_MODULE)
-     && THIS_MODULE == &__this_module
-   -> compiling the expression (THIS_MODULE ? THIS_MODULE->name : __FILE__)
-      succeeds and THIS_MODULE can actualy be dereferenced
-
-I would like the code to compile and run successfully in all these cases.
-
---
-Tilman Schmidt                    E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeöffnet mindestens haltbar bis: (siehe Rückseite)
-
---------------enigCE6DCBF2E92E8DDAE7520CDB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEEABLMdB4Whm86/kRAjCvAJ9i8k/7RlXDDQx/ezlVUAHiEvmpsgCbBwQ/
-jgOgvIZwER+63GI++tOEhqA=
-=gO6D
------END PGP SIGNATURE-----
-
---------------enigCE6DCBF2E92E8DDAE7520CDB--

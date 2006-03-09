@@ -1,56 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWCIQSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWCIQVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWCIQSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWCIQSQ
+	id S932371AbWCIQVg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWCIQVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:18:16 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:60293 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932226AbWCIQSP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:18:15 -0500
-Message-ID: <4410551D.5000303@us.ibm.com>
-Date: Thu, 09 Mar 2006 08:17:33 -0800
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Thu, 9 Mar 2006 11:21:36 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:24846 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932371AbWCIQVf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 11:21:35 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] freeze_bdev() cleanup
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 10 Mar 2006 01:21:08 +0900
+Message-ID: <87k6b3zj0r.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: akpm@osdl.org
-CC: sct@redhat.com, lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, jack@suse.cz
-Subject: ext3_ordered_writepage() questions
-References: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com> <20060308124726.GC4128@lst.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I am trying to cleanup ext3_ordered and ext3_writeback_writepage() routines.
-I am confused on what ext3_ordered_writepage() is currently doing ? I hope
-you can help me understand it little better.
+freeze_bdev() uses a fsync_super() without sync_blockdev(). This patch
+makes __fsync_super() for shareing it.
 
-1) Why do we do journal_start() all the time ? I was hoping to skip
-journal_start()/stop() if the blocks are already allocated. Since we 
-allocated
-blocks in prepare_write() for most cases (non-mapped writes), I was
-hoping to avoid the whole journal stuff in writepage(), if blocks are
-already there. (we can check buffers attached to the page and find
-out if they are mapped or not).
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
 
-2) Why do we call journal_dirty_data_fn() on the buffers ? We already
-issued IO on all those buffers() in block_full_write_page(). Why do we
-need to add them to transaction ?  I understand we need to do this for
-block allocation case. But do we need it for non-allocation case also ?
+ fs/buffer.c |   30 +++++++++++-------------------
+ 1 file changed, 11 insertions(+), 19 deletions(-)
 
-Can we skip the whole journal start, journal_dirty_data, journal_stop
-for non-allocation cases ? I have coded up to do so, but I am confused
-on what am I missing here ?
-
-Please let me know.
-
-Thanks,
-Badari
-
-
+diff -puN fs/buffer.c~freeze_bdev-cleanup fs/buffer.c
+--- linux-2.6/fs/buffer.c~freeze_bdev-cleanup	2006-03-03 00:24:40.000000000 +0900
++++ linux-2.6-hirofumi/fs/buffer.c	2006-03-03 00:24:40.000000000 +0900
+@@ -160,12 +160,7 @@ int sync_blockdev(struct block_device *b
+ }
+ EXPORT_SYMBOL(sync_blockdev);
+ 
+-/*
+- * Write out and wait upon all dirty data associated with this
+- * superblock.  Filesystem data as well as the underlying block
+- * device.  Takes the superblock lock.
+- */
+-int fsync_super(struct super_block *sb)
++static void __fsync_super(struct super_block *sb)
+ {
+ 	sync_inodes_sb(sb, 0);
+ 	DQUOT_SYNC(sb);
+@@ -177,7 +172,16 @@ int fsync_super(struct super_block *sb)
+ 		sb->s_op->sync_fs(sb, 1);
+ 	sync_blockdev(sb->s_bdev);
+ 	sync_inodes_sb(sb, 1);
++}
+ 
++/*
++ * Write out and wait upon all dirty data associated with this
++ * superblock.  Filesystem data as well as the underlying block
++ * device.  Takes the superblock lock.
++ */
++int fsync_super(struct super_block *sb)
++{
++	__fsync_super(sb);
+ 	return sync_blockdev(sb->s_bdev);
+ }
+ 
+@@ -216,19 +220,7 @@ struct super_block *freeze_bdev(struct b
+ 		sb->s_frozen = SB_FREEZE_WRITE;
+ 		smp_wmb();
+ 
+-		sync_inodes_sb(sb, 0);
+-		DQUOT_SYNC(sb);
+-
+-		lock_super(sb);
+-		if (sb->s_dirt && sb->s_op->write_super)
+-			sb->s_op->write_super(sb);
+-		unlock_super(sb);
+-
+-		if (sb->s_op->sync_fs)
+-			sb->s_op->sync_fs(sb, 1);
+-
+-		sync_blockdev(sb->s_bdev);
+-		sync_inodes_sb(sb, 1);
++		__fsync_super(sb);
+ 
+ 		sb->s_frozen = SB_FREEZE_TRANS;
+ 		smp_wmb();
+_

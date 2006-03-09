@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWCINrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWCINvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWCINrb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 08:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWCINrb
+	id S932165AbWCINvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 08:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWCINvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 08:47:31 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:23922
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932153AbWCINra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 08:47:30 -0500
-Message-Id: <44104012.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 09 Mar 2006 14:47:46 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix time ordering of writes to .kconfig.d and
-	include/linux/autoconf.h
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 08:51:03 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:62468 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932165AbWCINvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 08:51:01 -0500
+Date: Thu, 9 Mar 2006 14:51:00 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+       scjody@modernduck.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/ieee1394/ohci1394.c: function calls without effect
+Message-ID: <20060309135100.GD21864@stusta.de>
+References: <20060309114138.GA21864@stusta.de> <tkrat.be39a8854a3c82c0@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <tkrat.be39a8854a3c82c0@s5r6.in-berlin.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since .kconfig.d is used as a make dependency of include/linux/autoconf.h, it
-should be written earlier than the header file, to avoid a subsequent rebuild
-to consider the header outdated.
+On Thu, Mar 09, 2006 at 02:18:28PM +0100, Stefan Richter wrote:
+> ohci1394: Remove superfluous call to free_dma_rcv_ctx,
+> spotted by Adrian Bunk. Also remove some superfluous comments.
+> 
+> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> 
+> Index: linux/drivers/ieee1394/ohci1394.c
+> ===================================================================
+> --- linux.orig/drivers/ieee1394/ohci1394.c     2006-03-06 20:04:10.000000000 +0100
+> +++ linux/drivers/ieee1394/ohci1394.c  2006-03-09 14:09:21.000000000 +0100
+> @@ -3462,24 +3462,13 @@ static void ohci1394_pci_remove(struct p
+>  	case OHCI_INIT_HAVE_TXRX_BUFFERS__MAYBE:
+>  		/* The ohci_soft_reset() stops all DMA contexts, so we
+>  		 * dont need to do this.  */
+> -		/* Free AR dma */
+>  		free_dma_rcv_ctx(&ohci->ar_req_context);
+>  		free_dma_rcv_ctx(&ohci->ar_resp_context);
+> -
+> -		/* Free AT dma */
+>  		free_dma_trm_ctx(&ohci->at_req_context);
+>  		free_dma_trm_ctx(&ohci->at_resp_context);
+> -
+> -		/* Free IR dma */
+>  		free_dma_rcv_ctx(&ohci->ir_legacy_context);
+> -
+> -		/* Free IT dma */
+>  		free_dma_trm_ctx(&ohci->it_legacy_context);
+>...
 
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+Unless I'm mireading the code, it's impossible after the call of 
+free_dma_rcv_ctx() that free_dma_trm_ctx() will do anything.
 
-diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/scripts/kconfig/confdata.c
-2.6.16-rc5-kconfig_d-deps/scripts/kconfig/confdata.c
---- /home/jbeulich/tmp/linux-2.6.16-rc5/scripts/kconfig/confdata.c	2006-02-28 08:41:04.000000000 +0100
-+++ 2.6.16-rc5-kconfig_d-deps/scripts/kconfig/confdata.c	2006-03-09 13:35:25.000000000 +0100
-@@ -374,6 +374,7 @@ int conf_write(const char *name)
- 		out_h = fopen(".tmpconfig.h", "w");
- 		if (!out_h)
- 			return 1;
-+		file_write_dep(NULL);
- 	}
- 	sym = sym_lookup("KERNELVERSION", 0);
- 	sym_calc_value(sym);
-@@ -512,7 +513,6 @@ int conf_write(const char *name)
- 	if (out_h) {
- 		fclose(out_h);
- 		rename(".tmpconfig.h", "include/linux/autoconf.h");
--		file_write_dep(NULL);
- 	}
- 	if (!name || basename != conf_def_filename) {
- 		if (!name)
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

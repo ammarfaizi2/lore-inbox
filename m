@@ -1,41 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWCIFLU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWCIFNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWCIFLU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 00:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750948AbWCIFLU
+	id S1751063AbWCIFNK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 00:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWCIFNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 00:11:20 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:44999 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750877AbWCIFLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 00:11:19 -0500
-Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for
-	2.6.16-rc5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Greg KH <gregkh@suse.de>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-In-Reply-To: <20060306223545.GA20885@kroah.com>
-References: <20060306223545.GA20885@kroah.com>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 00:11:16 -0500
-Message-Id: <1141881077.13319.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+	Thu, 9 Mar 2006 00:13:10 -0500
+Received: from mx3.mail.ru ([194.67.23.149]:3199 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S1750948AbWCIFNJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 00:13:09 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [trivial] Fix ACPI ML address in MAINTAINERS
+Date: Thu, 9 Mar 2006 08:12:49 +0300
+User-Agent: KMail/1.9.1
+Cc: linux-acpi@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603090812.50397.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-06 at 14:35 -0800, Greg KH wrote:
-> List of outstanding regressions from older kernel versions:
->         - some cardbus users still have issues with the change to the
->           PCI resource allocation stuff.
->           http://bugzilla.kernel.org/show_bug.cgi?id=5736 shows this
->           issue, but seems to be stalled for now :( 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hmm, this sounds like some recent reports on the ALSA lists, I'll ask
-those users to look at this.
 
-Lee
 
+    Posting of your message titled "System completely hangs using
+acpi_cpufreq"
+
+has been rejected by the list moderator.  The moderator gave the
+following reason for rejecting your request:
+
+"acpi-devel@lists.sourceforge.net is defunct, replaced by
+linux-acpi@vger.kernel.org. You can join here:
+http://vger.kernel.org/vger-lists.html#linux-acpi"
+
+regards
+
+- -andrey
+
+
+Subject: [PATCH] Fix ACPI ML address in MAINTAINERS
+
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+
+
+
+Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
+
+- ---
+
+ MAINTAINERS |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6af6830..07fd0a2 100644
+- --- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -182,7 +182,7 @@ S:	Supported
+ ACPI
+ P:	Len Brown
+ M:	len.brown@intel.com
+- -L:	acpi-devel@lists.sourceforge.net
++L:	linux-acpi@vger.kernel.org
+ W:	http://acpi.sourceforge.net/
+ T:	git kernel.org:/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git
+ S:	Maintained
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQFED7lSR6LMutpd94wRAjT9AJ9cVdfIALz5KW2ym3V/T0ZvQVZ9NgCeL/DK
+m4GVFQuO8sXaewc3YpngrJY=
+=nV7/
+-----END PGP SIGNATURE-----

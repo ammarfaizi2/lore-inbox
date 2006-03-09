@@ -1,223 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbWCIGxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751709AbWCIGw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751718AbWCIGxP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWCIGxG
+	id S1751709AbWCIGw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWCIGwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:53:06 -0500
-Received: from ns2.suse.de ([195.135.220.15]:45283 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751685AbWCIGw4 (ORCPT
+	Thu, 9 Mar 2006 01:52:45 -0500
+Received: from mail.suse.de ([195.135.220.2]:55984 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751666AbWCIGwl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:52:56 -0500
+	Thu, 9 Mar 2006 01:52:41 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 9 Mar 2006 17:51:53 +1100
-Message-Id: <1060309065153.24581@suse.de>
+Date: Thu, 9 Mar 2006 17:51:37 +1100
+Message-Id: <1060309065137.24545@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 006 of 14] knfsd: Use new cache_lookup for svc_export
+Subject: [PATCH 003 of 14] knfsd: Get rid of 'inplace' sunrpc caches
 References: <20060309174755.24381.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+These were an unnecessary wart.
+Also only have one 'DefineSimpleCache..' instead of two.
+
 
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/export.c |  125 +++++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 88 insertions(+), 37 deletions(-)
+ ./fs/nfsd/export.c                  |    4 ++--
+ ./fs/nfsd/nfs4idmap.c               |   10 ++--------
+ ./include/linux/sunrpc/cache.h      |   28 +++++++++++-----------------
+ ./net/sunrpc/auth_gss/svcauth_gss.c |    4 ++--
+ ./net/sunrpc/svcauth_unix.c         |    2 +-
+ 5 files changed, 18 insertions(+), 30 deletions(-)
 
 diff ./fs/nfsd/export.c~current~ ./fs/nfsd/export.c
 --- ./fs/nfsd/export.c~current~	2006-03-09 17:15:13.000000000 +1100
-+++ ./fs/nfsd/export.c	2006-03-09 17:15:14.000000000 +1100
-@@ -258,16 +258,6 @@ static DefineSimpleCacheLookup(svc_expke
- 
- static struct cache_head *export_table[EXPORT_HASHMAX];
- 
--static inline int svc_export_hash(struct svc_export *item)
--{
--	int rv;
--
--	rv = hash_ptr(item->ex_client, EXPORT_HASHBITS);
--	rv ^= hash_ptr(item->ex_dentry, EXPORT_HASHBITS);
--	rv ^= hash_ptr(item->ex_mnt, EXPORT_HASHBITS);
--	return rv;
--}
--
- void svc_export_put(struct cache_head *item, struct cache_detail *cd)
- {
- 	if (cache_put(item, cd)) {
-@@ -298,7 +288,8 @@ static void svc_export_request(struct ca
- 	(*bpp)[-1] = '\n';
++++ ./fs/nfsd/export.c	2006-03-09 17:15:13.000000000 +1100
+@@ -250,7 +250,7 @@ static inline void svc_expkey_update(str
+ 	new->ek_dentry = dget(item->ek_dentry);
  }
  
--static struct svc_export *svc_export_lookup(struct svc_export *, int);
-+struct svc_export *svc_export_update(struct svc_export *new, struct svc_export *old);
-+static struct svc_export *svc_export_lookup(struct svc_export *);
+-static DefineSimpleCacheLookup(svc_expkey,0) /* no inplace updates */
++static DefineSimpleCacheLookup(svc_expkey, svc_expkey)
  
- static int check_export(struct inode *inode, int flags)
- {
-@@ -411,11 +402,16 @@ static int svc_export_parse(struct cache
- 		if (err) goto out;
- 	}
- 
--	expp = svc_export_lookup(&exp, 1);
-+	expp = svc_export_lookup(&exp);
- 	if (expp)
--		exp_put(expp);
--	err = 0;
-+		expp = svc_export_update(&exp, expp);
-+	else
-+		err = -ENOMEM;
- 	cache_flush();
-+	if (expp == NULL)
-+		err = -ENOMEM;
-+	else
-+		exp_put(expp);
-  out:
- 	if (nd.dentry)
- 		path_release(&nd);
-@@ -449,40 +445,95 @@ static int svc_export_show(struct seq_fi
- 	seq_puts(m, ")\n");
- 	return 0;
- }
--struct cache_detail svc_export_cache = {
--	.owner		= THIS_MODULE,
--	.hash_size	= EXPORT_HASHMAX,
--	.hash_table	= export_table,
--	.name		= "nfsd.export",
--	.cache_put	= svc_export_put,
--	.cache_request	= svc_export_request,
--	.cache_parse	= svc_export_parse,
--	.cache_show	= svc_export_show,
--};
--
--static inline int svc_export_match(struct svc_export *a, struct svc_export *b)
-+static int svc_export_match(struct cache_head *a, struct cache_head *b)
- {
--	return a->ex_client == b->ex_client &&
--		a->ex_dentry == b->ex_dentry &&
--		a->ex_mnt == b->ex_mnt;
-+	struct svc_export *orig = container_of(a, struct svc_export, h);
-+	struct svc_export *new = container_of(b, struct svc_export, h);
-+	return orig->ex_client == new->ex_client &&
-+		orig->ex_dentry == new->ex_dentry &&
-+		orig->ex_mnt == new->ex_mnt;
- }
--static inline void svc_export_init(struct svc_export *new, struct svc_export *item)
-+
-+static void svc_export_init(struct cache_head *cnew, struct cache_head *citem)
- {
-+	struct svc_export *new = container_of(cnew, struct svc_export, h);
-+	struct svc_export *item = container_of(citem, struct svc_export, h);
-+
- 	kref_get(&item->ex_client->ref);
- 	new->ex_client = item->ex_client;
- 	new->ex_dentry = dget(item->ex_dentry);
- 	new->ex_mnt = mntget(item->ex_mnt);
- }
- 
--static inline void svc_export_update(struct svc_export *new, struct svc_export *item)
-+static void export_update(struct cache_head *cnew, struct cache_head *citem)
- {
-+	struct svc_export *new = container_of(cnew, struct svc_export, h);
-+	struct svc_export *item = container_of(citem, struct svc_export, h);
-+
- 	new->ex_flags = item->ex_flags;
- 	new->ex_anon_uid = item->ex_anon_uid;
- 	new->ex_anon_gid = item->ex_anon_gid;
+ #define	EXPORT_HASHBITS		8
+ #define	EXPORT_HASHMAX		(1<< EXPORT_HASHBITS)
+@@ -482,7 +482,7 @@ static inline void svc_export_update(str
  	new->ex_fsid = item->ex_fsid;
  }
  
--static DefineSimpleCacheLookup(svc_export, svc_export)
-+static struct cache_head *svc_export_alloc(void)
-+{
-+	struct svc_export *i = kmalloc(sizeof(*i), GFP_KERNEL);
-+	if (i)
-+		return &i->h;
-+	else
-+		return NULL;
-+}
-+
-+struct cache_detail svc_export_cache = {
-+	.owner		= THIS_MODULE,
-+	.hash_size	= EXPORT_HASHMAX,
-+	.hash_table	= export_table,
-+	.name		= "nfsd.export",
-+	.cache_put	= svc_export_put,
-+	.cache_request	= svc_export_request,
-+	.cache_parse	= svc_export_parse,
-+	.cache_show	= svc_export_show,
-+	.match		= svc_export_match,
-+	.init		= svc_export_init,
-+	.update		= export_update,
-+	.alloc		= svc_export_alloc,
-+};
-+
-+static struct svc_export *
-+svc_export_lookup(struct svc_export *exp)
-+{
-+	struct cache_head *ch;
-+	int hash;
-+	hash = hash_ptr(exp->ex_client, EXPORT_HASHBITS);
-+	hash ^= hash_ptr(exp->ex_dentry, EXPORT_HASHBITS);
-+	hash ^= hash_ptr(exp->ex_mnt, EXPORT_HASHBITS);
-+
-+	ch = sunrpc_cache_lookup(&svc_export_cache, &exp->h,
-+				 hash);
-+	if (ch)
-+		return container_of(ch, struct svc_export, h);
-+	else
-+		return NULL;
-+}
-+
-+struct svc_export *
-+svc_export_update(struct svc_export *new, struct svc_export *old)
-+{
-+	struct cache_head *ch;
-+	int hash;
-+	hash = hash_ptr(old->ex_client, EXPORT_HASHBITS);
-+	hash ^= hash_ptr(old->ex_dentry, EXPORT_HASHBITS);
-+	hash ^= hash_ptr(old->ex_mnt, EXPORT_HASHBITS);
-+
-+	ch = sunrpc_cache_update(&svc_export_cache, &new->h,
-+				 &old->h,
-+				 hash);
-+	if (ch)
-+		return container_of(ch, struct svc_export, h);
-+	else
-+		return NULL;
-+}
+-static DefineSimpleCacheLookup(svc_export,1) /* allow inplace updates */
++static DefineSimpleCacheLookup(svc_export, svc_export)
  
  
  struct svc_expkey *
-@@ -568,7 +619,7 @@ exp_get_by_name(svc_client *clp, struct 
- 	key.ex_mnt = mnt;
- 	key.ex_dentry = dentry;
+
+diff ./fs/nfsd/nfs4idmap.c~current~ ./fs/nfsd/nfs4idmap.c
+--- ./fs/nfsd/nfs4idmap.c~current~	2006-03-09 17:12:58.000000000 +1100
++++ ./fs/nfsd/nfs4idmap.c	2006-03-09 17:15:13.000000000 +1100
+@@ -76,12 +76,6 @@ struct ent {
+ 	char              authname[IDMAP_NAMESZ];
+ };
  
--	exp = svc_export_lookup(&key, 0);
-+	exp = svc_export_lookup(&key);
- 	if (exp != NULL) 
- 		switch (cache_check(&svc_export_cache, &exp->h, reqp)) {
- 		case 0: break;
-@@ -770,13 +821,13 @@ exp_export(struct nfsctl_export *nxp)
- 	new.ex_anon_gid = nxp->ex_anon_gid;
- 	new.ex_fsid = nxp->ex_dev;
- 
--	exp = svc_export_lookup(&new, 1);
-+	exp = svc_export_lookup(&new);
-+	if (exp)
-+		exp = svc_export_update(&new, exp);
- 
--	if (exp == NULL)
-+	if (!exp)
- 		goto finish;
- 
--	err = 0;
+-#define DefineSimpleCacheLookupMap(STRUCT, FUNC)			\
+-        DefineCacheLookup(struct STRUCT, h, FUNC##_lookup,		\
+-        (struct STRUCT *item, int set), /*no setup */,			\
+-	& FUNC##_cache, FUNC##_hash(item), FUNC##_match(item, tmp),	\
+-	STRUCT##_init(new, item), STRUCT##_update(tmp, item), 0)
 -
- 	if (exp_hash(clp, exp) ||
- 	    exp_fsid_hash(clp, exp)) {
- 		/* failed to create at least one index */
+ /* Common entry handling */
+ 
+ #define ENT_HASHBITS          8
+@@ -264,7 +258,7 @@ out:
+ 	return error;
+ }
+ 
+-static DefineSimpleCacheLookupMap(ent, idtoname);
++static DefineSimpleCacheLookup(ent, idtoname);
+ 
+ /*
+  * Name -> ID cache
+@@ -390,7 +384,7 @@ out:
+ 	return (error);
+ }
+ 
+-static DefineSimpleCacheLookupMap(ent, nametoid);
++static DefineSimpleCacheLookup(ent, nametoid);
+ 
+ /*
+  * Exported API
+
+diff ./include/linux/sunrpc/cache.h~current~ ./include/linux/sunrpc/cache.h
+--- ./include/linux/sunrpc/cache.h~current~	2006-03-09 17:12:58.000000000 +1100
++++ ./include/linux/sunrpc/cache.h	2006-03-09 17:15:13.000000000 +1100
+@@ -133,14 +133,11 @@ struct cache_deferred_req {
+  * If "set" == 0 :
+  *    If an entry is found, it is returned
+  *    If no entry is found, a new non-VALID entry is created.
+- * If "set" == 1 and INPLACE == 0 :
++ * If "set" == 1 :
+  *    If no entry is found a new one is inserted with data from "template"
+  *    If a non-CACHE_VALID entry is found, it is updated from template using UPDATE
+  *    If a CACHE_VALID entry is found, a new entry is swapped in with data
+  *       from "template"
+- * If set == 1, and INPLACE == 1 :
+- *    As above, except that if a CACHE_VALID entry is found, we UPDATE in place
+- *       instead of swapping in a new entry.
+  *
+  * If the passed handle has the CACHE_NEGATIVE flag set, then UPDATE is not
+  * run but insteead CACHE_NEGATIVE is set in any new item.
+@@ -159,13 +156,8 @@ struct cache_deferred_req {
+  * TEST  tests if "tmp" matches "item"
+  * INIT copies key information from "item" to "new"
+  * UPDATE copies content information from "item" to "tmp"
+- * INPLACE is true if updates can happen inplace rather than allocating a new structure
+- *
+- * WARNING: any substantial changes to this must be reflected in
+- *   net/sunrpc/svcauth.c(auth_domain_lookup)
+- *  which is a similar routine that is open-coded.
+  */
+-#define DefineCacheLookup(RTN,MEMBER,FNAME,ARGS,SETUP,DETAIL,HASHFN,TEST,INIT,UPDATE,INPLACE)	\
++#define DefineCacheLookup(RTN,MEMBER,FNAME,ARGS,SETUP,DETAIL,HASHFN,TEST,INIT,UPDATE)	\
+ RTN *FNAME ARGS										\
+ {											\
+ 	RTN *tmp, *new=NULL;								\
+@@ -179,13 +171,13 @@ RTN *FNAME ARGS										\
+ 		tmp = container_of(*hp, RTN, MEMBER);					\
+ 		if (TEST) { /* found a match */						\
+ 											\
+-			if (set && !INPLACE && test_bit(CACHE_VALID, &tmp->MEMBER.flags) && !new) \
++			if (set && test_bit(CACHE_VALID, &tmp->MEMBER.flags) && !new)	\
+ 				break;							\
+ 											\
+ 			if (new)							\
+ 				{INIT;}							\
+ 			if (set) {							\
+-				if (!INPLACE && test_bit(CACHE_VALID, &tmp->MEMBER.flags))\
++				if (test_bit(CACHE_VALID, &tmp->MEMBER.flags))\
+ 				{ /* need to swap in new */				\
+ 					RTN *t2;					\
+ 											\
+@@ -206,7 +198,7 @@ RTN *FNAME ARGS										\
+ 			else read_unlock(&(DETAIL)->hash_lock);				\
+ 			if (set)							\
+ 				cache_fresh(DETAIL, &tmp->MEMBER, item->MEMBER.expiry_time); \
+-			if (set && !INPLACE && new) cache_fresh(DETAIL, &new->MEMBER, 0);	\
++			if (set && new) cache_fresh(DETAIL, &new->MEMBER, 0);	\
+ 			if (new) (DETAIL)->cache_put(&new->MEMBER, DETAIL);		\
+ 			return tmp;							\
+ 		}									\
+@@ -239,10 +231,12 @@ RTN *FNAME ARGS										\
+ 	return NULL;									\
+ }
+ 
+-#define DefineSimpleCacheLookup(STRUCT,INPLACE)	\
+-	DefineCacheLookup(struct STRUCT, h, STRUCT##_lookup, (struct STRUCT *item, int set), /*no setup */,	\
+-			  & STRUCT##_cache, STRUCT##_hash(item), STRUCT##_match(item, tmp),\
+-			  STRUCT##_init(new, item), STRUCT##_update(tmp, item),INPLACE)
++#define DefineSimpleCacheLookup(STRUCT, FUNC)				\
++        DefineCacheLookup(struct STRUCT, h, FUNC##_lookup,		\
++        (struct STRUCT *item, int set), /*no setup */,			\
++	& FUNC##_cache, FUNC##_hash(item), FUNC##_match(item, tmp),	\
++	STRUCT##_init(new, item), STRUCT##_update(tmp, item))
++
+ 
+ #define cache_for_each(pos, detail, index, member) 						\
+ 	for (({read_lock(&(detail)->hash_lock); index = (detail)->hash_size;}) ;		\
+
+diff ./net/sunrpc/auth_gss/svcauth_gss.c~current~ ./net/sunrpc/auth_gss/svcauth_gss.c
+--- ./net/sunrpc/auth_gss/svcauth_gss.c~current~	2006-03-09 17:13:54.000000000 +1100
++++ ./net/sunrpc/auth_gss/svcauth_gss.c	2006-03-09 17:15:13.000000000 +1100
+@@ -259,7 +259,7 @@ static struct cache_detail rsi_cache = {
+ 	.cache_parse    = rsi_parse,
+ };
+ 
+-static DefineSimpleCacheLookup(rsi, 0)
++static DefineSimpleCacheLookup(rsi, rsi)
+ 
+ /*
+  * The rpcsec_context cache is used to store a context that is
+@@ -446,7 +446,7 @@ static struct cache_detail rsc_cache = {
+ 	.cache_parse	= rsc_parse,
+ };
+ 
+-static DefineSimpleCacheLookup(rsc, 0);
++static DefineSimpleCacheLookup(rsc, rsc);
+ 
+ static struct rsc *
+ gss_svc_searchbyctx(struct xdr_netobj *handle)
+
+diff ./net/sunrpc/svcauth_unix.c~current~ ./net/sunrpc/svcauth_unix.c
+--- ./net/sunrpc/svcauth_unix.c~current~	2006-03-09 17:13:01.000000000 +1100
++++ ./net/sunrpc/svcauth_unix.c	2006-03-09 17:15:13.000000000 +1100
+@@ -258,7 +258,7 @@ struct cache_detail ip_map_cache = {
+ 	.cache_show	= ip_map_show,
+ };
+ 
+-static DefineSimpleCacheLookup(ip_map, 0)
++static DefineSimpleCacheLookup(ip_map, ip_map)
+ 
+ 
+ int auth_unix_add_addr(struct in_addr addr, struct auth_domain *dom)

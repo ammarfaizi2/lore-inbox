@@ -1,50 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWCIQFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752002AbWCIQGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWCIQFE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:05:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752002AbWCIQFE
+	id S1752002AbWCIQGr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbWCIQGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:05:04 -0500
-Received: from dvhart.com ([64.146.134.43]:12209 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751151AbWCIQFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:05:03 -0500
-Message-ID: <44105227.8020503@mbligh.org>
-Date: Thu, 09 Mar 2006 08:04:55 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+	Thu, 9 Mar 2006 11:06:47 -0500
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:28393 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751535AbWCIQGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 11:06:46 -0500
+Message-ID: <44105293.2010803@watson.ibm.com>
+Date: Thu, 09 Mar 2006 11:06:43 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Dave Jones <davej@redhat.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, markhe@nextd.demon.co.uk,
-       Andrea Arcangeli <andrea@suse.de>, Mike Christie <michaelc@cs.wisc.edu>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: Slab corruption in 2.6.16-rc5-mm2
-References: <200603060117.16484.jesper.juhl@gmail.com> <Pine.LNX.4.64.0603061122270.13139@g5.osdl.org> <Pine.LNX.4.64.0603061147260.13139@g5.osdl.org> <200603062124.42223.jesper.juhl@gmail.com> <20060306203036.GQ4595@suse.de> <9a8748490603061341l50febef9o3cb480bdbdcf925f@mail.gmail.com> <20060306215515.GE11565@redhat.com> <44104EB7.9090103@mbligh.org> <20060309155437.GE5410@kvack.org>
-In-Reply-To: <20060309155437.GE5410@kvack.org>
+To: balbir@in.ibm.com
+CC: hadi@cyberus.ca, netdev <netdev@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [UPDATED PATCH] Re: [Lse-tech] Re: [Patch 7/7] Generic netlink
+ interface (delay	accounting)
+References: <1141026996.5785.38.camel@elinux04.optonline.net> <1141029060.5785.77.camel@elinux04.optonline.net> <1141045194.5363.12.camel@localhost.localdomain> <4403608E.1050304@watson.ibm.com> <1141652556.5185.64.camel@localhost.localdomain> <440C6AAA.9030301@watson.ibm.com> <1141742282.5171.55.camel@localhost.localdomain> <440F52FF.30908@watson.ibm.com> <20060309143759.GA4653@in.ibm.com>
+In-Reply-To: <20060309143759.GA4653@in.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> On Thu, Mar 09, 2006 at 07:50:15AM -0800, Martin J. Bligh wrote:
-> 
->>Do we NOT want to have DEBUG_SLAB and DEBUG_PAGEALLOC both enabled?
->>Running multiple permutations is going to get really painful on the
->>systems involved. Any other requests for what gets enabled (I really
->>want to just stick to one 'debug' setup if possible).
-> 
-> 
-> Debug kernels are incredibly slow, making hitting certain races next to 
-> impossible.  By all means non-DEBUG kernels should definately be getting 
-> tested.
+Balbir Singh wrote:
 
-It'd still run a totally non-debug kernel as well - I want that for the
-perf tests etc anyway. I guess the question is whether the debug kernels
-should have most of the DEBUG_* turned on, or just a select few.
+<snip>
 
-M.
+>Hello, Jamal,
+>
+>Please find the latest version of the patch for review. The genetlink
+>code has been updated as per your review comments. The changelog is provided
+>below
+>
+>1. Eliminated TASKSTATS_CMD_LISTEN and TASKSTATS_CMD_IGNORE
+>2. Provide generic functions called genlmsg_data() and genlmsg_len()
+>   in linux/net/genetlink.h
+>  
+>
+Balbir,
+it might be a good idea to split 2. out separately, since it has generic 
+value beyond the
+delay accounting patches (just like we did for the timespec_diff_ns change)
+
+
+Thanks,
+Shailabh
+
+>3. Do not multicast all replies, multicast only events generated due
+>   to task exit.
+>4. The taskstats and taskstats_reply structures are now 64 bit aligned.
+>5. Family id is dynamically generated.
+>
+>Please let us know if we missed something out.
+>
+>Thanks,
+>Balbir
+>
+>
+>Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+>Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+>
+>---
+>
+> include/linux/delayacct.h |    2 
+> include/linux/taskstats.h |  128 ++++++++++++++++++++++++
+> include/net/genetlink.h   |   20 +++
+> init/Kconfig              |   16 ++-
+> kernel/Makefile           |    1 
+> kernel/delayacct.c        |   56 ++++++++++
+> kernel/taskstats.c        |  244 ++++++++++++++++++++++++++++++++++++++++++++++
+> 7 files changed, 464 insertions(+), 3 deletions(-)
+>
+>  
+>
+<snip>
+

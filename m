@@ -1,58 +1,49 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWCHQCf (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 8 Mar 2006 11:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWCHQCd
+	id S1751074AbWCIItv (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 9 Mar 2006 03:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWCIItv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 11:02:33 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:15016 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S1751474AbWCHQCb (ORCPT
+	Thu, 9 Mar 2006 03:49:51 -0500
+Received: from [219.154.45.164] ([219.154.45.164]:13574 "EHLO bigpond.com")
+	by vger.kernel.org with ESMTP id S1751074AbWCIItu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 11:02:31 -0500
-Message-ID: <109da985060.drole0@virgilio.it>
-Date: Wed, 8 Mar 2006 17:02:28 +0100 (GMT+01:00)
-From: DR RICHARD <drole0@virgilio.it>
-Reply-To: richarddrmomudu@netscape.net
-Subject: urgent
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: 83.46.66.48
+	Thu, 9 Mar 2006 03:49:50 -0500
+X-Originating-IP: [58.217.254.169] via HTTP from webmail.163.net;
+	Thu, 09 Mar 2006 09:33:39
+Message-ID: <1141896816.5616@163.net>
+From: "Twila Minor" <twila_minorjq@163.net>
+Subject: Trade To Win, With Our Picks! 815nek
+Date: Thu, 09 Mar 2006 03:33:36 -0600
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751474AbWCHQCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751074AbWCIItv@vger.kernel.org>
 
-BDT Diplomatic Transfer Company S.A
-AVE 3 RUE 7, GONZAC
-PARIS FRANCE.
-TEL FAX +33-8-2146-2830
+Hello_
 
-E-MAIL..richarddrmomudu@netscape.net
-FROM :DR 
-RICHARD MOMUDU
+Our Hot Picks Are Breaking Records! 
 
+Our last pick was up over 450 percent! We have 
+two very hot picks that are on the verge of 
+exploding! We give you Real Picks that make 
+Real Money Fast! You can easily turn $500 into 
+$2,500 or more! Our two picks are: 
 
-DEAR SIR,
+1)WDCV - UP 116 Percent Today - 52 wk High .18 
+Current .01 - Buy Now! Huge Promotion expected 
+asap it will make a new 52 wk high! 
 
-I AM WRITING TO NOTIFY YOU OF YOUR FUNDS 
-THAT HAS BEEN IN OUR
-POSSECTION.
-THIS SAID FUNDS HAS BEEN IN OUR 
-POSSECTION , THIS IS THE REASON WHY YOU
-HAVE NOT RECEIVED THE FUNDS .
+2)GFDI Up 60 Percent Today - 52 wk high .15 
+Current .03 - Buy Now! Huge Promotion expected 
+asap it will make a new 52 wk high! 
 
-PLEASE CONFIRM WHICH OF THE FOLLOWING WAY YOU WANT TO RECEIVE THE
-FUNDS 
-.
-
-1) BY DIPLOMATIC MEANS OR 
-
-2) BY CHEQUE.
-
-YOUR EARLIEST RESPONCE 
-WILL BE APPRECIATED.
+These are two real winners you will see very fast 
+they will take off and you will profit HUGE! Don't 
+miss the boat get them immediately for excellent 
+earnings! 
 
 
-REGARDS
-
-DR RICHARD MOMUDU 
+Buy Low, Sell High Don't Miss Our Winners!

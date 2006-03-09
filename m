@@ -1,120 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWCIMm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWCIMtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWCIMm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 07:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWCIMm6
+	id S1751147AbWCIMtN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 07:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWCIMtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 07:42:58 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7872 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751181AbWCIMm5 (ORCPT
+	Thu, 9 Mar 2006 07:49:13 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:47035 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751147AbWCIMtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 07:42:57 -0500
-Date: Thu, 9 Mar 2006 13:42:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: rpurdie@rpsys.net, lenz@cs.wisc.edu,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [rfc] separate sharpsl_pm initialization from sysfs code
-Message-ID: <20060309124237.GA3794@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 9 Mar 2006 07:49:13 -0500
+Message-ID: <4410253E.3070101@sw.ru>
+Date: Thu, 09 Mar 2006 15:53:18 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Jan Blunck <jblunck@suse.de>, balbir@in.ibm.com, viro@zeniv.linux.org.uk,
+       olh@suse.de, neilb@suse.de, dev@openvz.org, bsingharora@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory()
+ race (updated patch)
+References: <20060308145105.GA4243@hasse.suse.de>	<20060309063330.GA23256@in.ibm.com>	<20060309110025.GE4243@hasse.suse.de> <20060309032157.0592153e.akpm@osdl.org>
+In-Reply-To: <20060309032157.0592153e.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>This change might conflict with the NFS patches in -mm.
+>>
+>> > 
+>>
+>> Hmm, right. Andrew, if you want a rediff against -mm just tell me. I'm
+>> actually diff'ing against lates linux-2.6.git.
+> 
+> 
+> I'll work it out.
+> 
+> Are we all happy with this patch now?
 
-On collie, battery sensing code is not on platform bus -- it is on
-ucb1x00. Is this acceptable way to make sharpsl_pm useful for collie?
-It separates code that is bus-independent, so collie can call only
-code it needs.
+I can't see why we fix shrink_dcache_parent() only, why 
+shrink_dcache_anon() is totally missed?
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Thanks,
+Kirill
 
-diff --git a/arch/arm/common/sharpsl_pm.c b/arch/arm/common/sharpsl_pm.c
-index 978d32e..3482cc0 100644
---- a/arch/arm/common/sharpsl_pm.c
-+++ b/arch/arm/common/sharpsl_pm.c
-@@ -765,18 +787,13 @@ static void sharpsl_apm_get_power_status
- 
- static struct pm_ops sharpsl_pm_ops = {
- 	.pm_disk_mode	= PM_DISK_FIRMWARE,
- 	.prepare	= pxa_pm_prepare,
- 	.enter		= corgi_pxa_pm_enter,
- 	.finish		= pxa_pm_finish,
- };
- 
--static int __init sharpsl_pm_probe(struct platform_device *pdev)
-+int sharpsl_pm_init(void)
- {
--	if (!pdev->dev.platform_data)
--		return -EINVAL;
--
--	sharpsl_pm.dev = &pdev->dev;
--	sharpsl_pm.machinfo = pdev->dev.platform_data;
- 	sharpsl_pm.charge_mode = CHRG_OFF;
- 	sharpsl_pm.flags = 0;
- 
-@@ -788,9 +807,6 @@ static int __init sharpsl_pm_probe(struc
- 
- 	sharpsl_pm.machinfo->init();
- 
--	device_create_file(&pdev->dev, &dev_attr_battery_percentage);
--	device_create_file(&pdev->dev, &dev_attr_battery_voltage);
--
- 	apm_get_power_status = sharpsl_apm_get_power_status;
- 
- 	pm_set_ops(&sharpsl_pm_ops);
-@@ -800,13 +816,10 @@ static int __init sharpsl_pm_probe(struc
- 	return 0;
- }
- 
--static int sharpsl_pm_remove(struct platform_device *pdev)
-+int sharpsl_pm_done(void)
- {
- 	pm_set_ops(NULL);
- 
--	device_remove_file(&pdev->dev, &dev_attr_battery_percentage);
--	device_remove_file(&pdev->dev, &dev_attr_battery_voltage);
--
- 	sharpsl_pm.machinfo->exit();
- 
- 	del_timer_sync(&sharpsl_pm.chrg_full_timer);
-@@ -815,6 +828,32 @@ static int sharpsl_pm_remove(struct plat
- 	return 0;
- }
- 
-+static int __init sharpsl_pm_probe(struct platform_device *pdev)
-+{
-+	if (!pdev->dev.platform_data)
-+		return -EINVAL;
-+
-+	sharpsl_pm.dev = &pdev->dev;
-+	sharpsl_pm.machinfo = pdev->dev.platform_data;
-+
-+	sharpsl_pm_init();
-+
-+	device_create_file(&pdev->dev, &dev_attr_battery_percentage);
-+	device_create_file(&pdev->dev, &dev_attr_battery_voltage);
-+
-+	return 0;
-+}
-+
-+static int sharpsl_pm_remove(struct platform_device *pdev)
-+{
-+	sharpsl_pm_done();
-+
-+	device_remove_file(&pdev->dev, &dev_attr_battery_percentage);
-+	device_remove_file(&pdev->dev, &dev_attr_battery_voltage);
-+
-+	return 0;
-+}
-+
- static struct platform_driver sharpsl_pm_driver = {
- 	.probe		= sharpsl_pm_probe,
- 	.remove		= sharpsl_pm_remove,
-
--- 
-Web maintainer for suspend.sf.net (www.sf.net/projects/suspend) wanted...

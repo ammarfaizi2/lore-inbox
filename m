@@ -1,112 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWCIHtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWCIIGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbWCIHtA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 02:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWCIHtA
+	id S1750896AbWCIIGO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 03:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWCIIGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 02:49:00 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:27623 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750778AbWCIHs7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 02:48:59 -0500
-Message-ID: <440FDF3E.8060400@in.ibm.com>
-Date: Thu, 09 Mar 2006 13:24:38 +0530
-From: Suzuki <suzuki@in.ibm.com>
-Organization: IBM Software Labs
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-fsdevel@vger.kernel.org, "linux-aio kvack.org" <linux-aio@kvack.org>,
-       lkml <linux-kernel@vger.kernel.org>
-CC: suparna <suparna@in.ibm.com>, akpm@osdl.org
-Subject: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
-Content-Type: multipart/mixed;
- boundary="------------080105000700070900030208"
+	Thu, 9 Mar 2006 03:06:14 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:14830 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1750786AbWCIIGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 03:06:13 -0500
+Date: Thu, 9 Mar 2006 00:06:51 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bcrl@kvack.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
+       netdev@vger.kernel.org, shai@scalex86.org, Andi Kleen <ak@suse.de>
+Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
+Message-ID: <20060309080651.GA3599@localhost.localdomain>
+References: <20060307181301.4dd6aa96.akpm@osdl.org> <20060308202656.GA4493@localhost.localdomain> <20060308203642.GZ5410@kvack.org> <20060308210726.GD4493@localhost.localdomain> <20060308211733.GA5410@kvack.org> <20060308222528.GE4493@localhost.localdomain> <20060308224140.GC5410@kvack.org> <20060308154321.0e779111.akpm@osdl.org> <20060309001803.GF4493@localhost.localdomain> <20060308163258.36f3bd79.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060308163258.36f3bd79.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080105000700070900030208
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Mar 08, 2006 at 04:32:58PM -0800, Andrew Morton wrote:
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> >
+> > On Wed, Mar 08, 2006 at 03:43:21PM -0800, Andrew Morton wrote:
+> > > Benjamin LaHaise <bcrl@kvack.org> wrote:
+> > > >
+> > > > I think it may make more sense to simply convert local_t into a long, given 
+> > > > that most of the users will be things like stats counters.
+> > > > 
+> > > 
+> > > Yes, I agree that making local_t signed would be better.  It's consistent
+> > > with atomic_t, atomic64_t and atomic_long_t and it's a bit more flexible.
+> > > 
+> > > Perhaps.  A lot of applications would just be upcounters for statistics,
+> > > where unsigned is desired.  But I think the consistency argument wins out.
+> > 
+> > It already is... for most of the arches except x86_64.
+> 
+> x86 uses unsigned long.
+
+Here's a patch making x86_64 local_t to 64 bits like other 64 bit arches.
+This keeps local_t unsigned long.  (We can change it to signed value 
+along with other arches later in one go I guess) 
+
+Thanks,
+Kiran
 
 
-Missed out linux-aio & linux-fs-devel lists. Forwarding.
+Change x86_64 local_t to 64 bits like all other arches.
 
-Comments ?
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
 
-
-Suzuki K P
-Linux Technology Center,
-IBM Software Labs, India.
-
---------------080105000700070900030208
-Content-Type: message/rfc822;
- name="[RFC] Badness in __mutex_unlock_slowpath with XFS stress tests.eml"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[RFC] Badness in __mutex_unlock_slowpath with XFS stress tests.eml"
-
-Message-ID: <440FD66D.6060308@in.ibm.com>
-Date: Thu, 09 Mar 2006 12:47:01 +0530
-From: Suzuki <suzuki@in.ibm.com>
-Organization: IBM Software Labs
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: suparna <suparna@in.ibm.com>,  akpm@osdl.org
-Subject: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Hi all,
-
-
-I was working on an issue with getting "Badness in
-__mutex_unlock_slowpath" and hence a stack trace, while running FS
-stress tests on XFS on 2.6.16-rc5 kernel.
-
-The dmesg looks like :
-
-Badness in __mutex_unlock_slowpath at kernel/mutex.c:207
-  [<c0103c0c>] show_trace+0x20/0x22
-  [<c0103d4b>] dump_stack+0x1e/0x20
-  [<c0473f1f>] __mutex_unlock_slowpath+0x12a/0x23b
-  [<c0473938>] mutex_unlock+0xb/0xd
-  [<c02a5720>] xfs_read+0x230/0x2d9
-  [<c02a1bed>] linvfs_aio_read+0x8d/0x98
-  [<c015f3df>] do_sync_read+0xb8/0x107
-  [<c015f4f7>] vfs_read+0xc9/0x19b
-  [<c015f8b2>] sys_read+0x47/0x6e
-  [<c0102db7>] sysenter_past_esp+0x54/0x75
-
-
-This happens with XFS DIO reads. xfs_read holds the i_mutex and issues a
-__generic_file_aio_read(), which falls into __blockdev_direct_IO with
-DIO_OWN_LOCKING flag (since xfs uses own_locking ). Now
-__blockdev_direct_IO releases the i_mutex for READs with
-DIO_OWN_LOCKING.When it returns to xfs_read, it tries to unlock the
-i_mutex ( which is now already unlocked), causing the "Badness".
-
-The possible solution which we can think of, is not to unlock the
-i_mutex for DIO_OWN_LOCKING. This will only affect the DIO_OWN_LOCKING 
-users (as of now, only XFS ) with concurrent DIO sync read requests. AIO 
-read requests would not suffer this problem since they would just return 
-once the DIO is submitted.
-
-Another work around for this can  be adding a check "mutex_is_locked"
-before trying to unlock i_mutex in xfs_read. But this seems to be an
-ugly hack. :(
-
-Comments ?
-
-
-thanks,
-
-Suzuki
-
-
-
-
---------------080105000700070900030208--
+Index: linux-2.6.16-rc5mm3/include/asm-x86_64/local.h
+===================================================================
+--- linux-2.6.16-rc5mm3.orig/include/asm-x86_64/local.h	2006-03-08 16:51:31.000000000 -0800
++++ linux-2.6.16-rc5mm3/include/asm-x86_64/local.h	2006-03-08 21:56:01.000000000 -0800
+@@ -5,18 +5,18 @@
+ 
+ typedef struct
+ {
+-	volatile unsigned int counter;
++	volatile long counter;
+ } local_t;
+ 
+ #define LOCAL_INIT(i)	{ (i) }
+ 
+-#define local_read(v)	((v)->counter)
++#define local_read(v)	((unsigned long)(v)->counter)
+ #define local_set(v,i)	(((v)->counter) = (i))
+ 
+ static __inline__ void local_inc(local_t *v)
+ {
+ 	__asm__ __volatile__(
+-		"incl %0"
++		"incq %0"
+ 		:"=m" (v->counter)
+ 		:"m" (v->counter));
+ }
+@@ -24,7 +24,7 @@ static __inline__ void local_inc(local_t
+ static __inline__ void local_dec(local_t *v)
+ {
+ 	__asm__ __volatile__(
+-		"decl %0"
++		"decq %0"
+ 		:"=m" (v->counter)
+ 		:"m" (v->counter));
+ }
+@@ -32,7 +32,7 @@ static __inline__ void local_dec(local_t
+ static __inline__ void local_add(unsigned int i, local_t *v)
+ {
+ 	__asm__ __volatile__(
+-		"addl %1,%0"
++		"addq %1,%0"
+ 		:"=m" (v->counter)
+ 		:"ir" (i), "m" (v->counter));
+ }
+@@ -40,7 +40,7 @@ static __inline__ void local_add(unsigne
+ static __inline__ void local_sub(unsigned int i, local_t *v)
+ {
+ 	__asm__ __volatile__(
+-		"subl %1,%0"
++		"subq %1,%0"
+ 		:"=m" (v->counter)
+ 		:"ir" (i), "m" (v->counter));
+ }
+@@ -71,4 +71,4 @@ static __inline__ void local_sub(unsigne
+ #define __cpu_local_add(i, v)	cpu_local_add((i), (v))
+ #define __cpu_local_sub(i, v)	cpu_local_sub((i), (v))
+ 
+-#endif /* _ARCH_I386_LOCAL_H */
++#endif /* _ARCH_X8664_LOCAL_H */

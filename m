@@ -1,107 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWCISnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWCISuv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWCISnP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 13:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWCISnP
+	id S1751331AbWCISuv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 13:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCISuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 13:43:15 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:20695 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751319AbWCISnP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 13:43:15 -0500
-X-Sasl-enc: orPUbQDjChf90cdAI8MvAA+soVm8ABEcN2meefQB5sZC 1141929770
-Message-ID: <44107739.9070204@imap.cc>
-Date: Thu, 09 Mar 2006 19:43:05 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
+	Thu, 9 Mar 2006 13:50:51 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:54795 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751331AbWCISuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 13:50:50 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: "Johnson, Richard" <rjohnson@analogic.com>
+Subject: Re: This was forwarded to me from somebody on yahoo
+Date: Thu, 9 Mar 2006 18:29:14 +0000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0603091119550.32008@quark.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0603091119550.32008@quark.analogic.com>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-usb-devel@lists.sourceforge.net,
-       hjlipp@web.de, linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] reduce syslog clutter (take 2)
-References: <440F609F.8090604@imap.cc>	<20060309030257.5c1e0f30.akpm@osdl.org> <20060309083412.95e145ea.rdunlap@xenotime.net>
-In-Reply-To: <20060309083412.95e145ea.rdunlap@xenotime.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE36BCAF9F70E8BFD5BD1AB9E"
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603091829.14571.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE36BCAF9F70E8BFD5BD1AB9E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Thursday 09 March 2006 16:21, Johnson, Richard wrote:
+> P.S. Don't kill the messenger!
+>
 
-On 09.03.2006 17:34, Randy.Dunlap wrote:
+Maybe Matt's got around to installing a troll-filter? Hurray!
 
-> On Thu, 9 Mar 2006 03:02:57 -0800 Andrew Morton wrote:
->=20
->>Tilman Schmidt <tilman@imap.cc> wrote:
->>
->>>The current versions of the err() / info() / warn() syslog macros
->>> insert __FILE__ at the beginning of the message, which expands to
->>> the complete path name of the source file within the kernel tree.
->>>
->>> With the following patch, when used in a module, they'll insert the
->>> module name instead, which is significantly shorter and also tends to=
+-- 
+Cheers,
+Alistair.
 
->>> be more useful to users trying to make sense of a particular message.=
-
->>
->>Personally, I prefer to see filenames.  Or function names.  Sometimes i=
-t's
->>rather unobvious how to go from module name to filename, due to a) mult=
-iple
->>.o files being linked together, b) subsystems which insist on #includin=
-g .c
->>files in .c files (usb...) and c) the module system's cute habit of
->>replacing underscores with dashes in module names.
->=20
-> True, just using module->name or whatever means that we would
-> (often?) have to do a lookup to see what source file it was in.
-
-That would be a valid point for debugging messages. However, we are
-talking about messages to users here. I maintain that the additional 20
-characters in:
-
-Feb 21 00:12:13 gx110 kernel: drivers/isdn/gigaset/i4l.c:
-ISDN_CMD_SETL3: invalid protocol 42
-
-as opposed to:
-
-Feb 21 00:12:13 gx110 kernel: gigaset: ISDN_CMD_SETL3: invalid protocol 4=
-2
-
-do not provide any useful information for that clientele. They just push
-the actual interesting information farther to the right, in this case
-even causing a line wrap.
-
-If I want to include the function name in the message I can (and indeed
-I quite frequently do), but this only makes the clutter worse if the
-macros force the source path on me regardless.
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
-
-
---------------enigE36BCAF9F70E8BFD5BD1AB9E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEEHc5MdB4Whm86/kRAtmXAKCA4fsRbAu2XKkTjhBaIDbKYsQajACfV6Yp
-/LbCHzwCyFkHhqVskQUIIXg=
-=6FYI
------END PGP SIGNATURE-----
-
---------------enigE36BCAF9F70E8BFD5BD1AB9E--
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

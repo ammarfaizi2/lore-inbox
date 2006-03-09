@@ -1,52 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWCIRKe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWCIRNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWCIRKe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWCIRKe
+	id S1750822AbWCIRNE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWCIRNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:10:34 -0500
-Received: from pat.uio.no ([129.240.130.16]:35004 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750726AbWCIRKe (ORCPT
+	Thu, 9 Mar 2006 12:13:04 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:29073 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750822AbWCIRNC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:10:34 -0500
-Subject: Re: [PATCH 000 of 14] knfsd: Introduction
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060309174755.24381.patches@notabene>
-References: <20060309174755.24381.patches@notabene>
+	Thu, 9 Mar 2006 12:13:02 -0500
+Subject: Re: [rfc] Collie battery status sensing code
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060305001254.GA2423@ucw.cz>
+References: <20060309123842.GA3619@elf.ucw.cz>
+	 <1141910391.10107.49.camel@localhost.localdomain>
+	 <20060305001254.GA2423@ucw.cz>
 Content-Type: text/plain
-Date: Thu, 09 Mar 2006 12:10:11 -0500
-Message-Id: <1141924212.8293.52.camel@lade.trondhjem.org>
+Date: Thu, 09 Mar 2006 17:12:51 +0000
+Message-Id: <1141924371.10107.75.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.037, required 12,
-	autolearn=disabled, AWL 1.78, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 17:51 +1100, NeilBrown wrote:
->  [PATCH 000 of 14] knfsd: Introduction
->  [PATCH 001 of 14] knfsd: Change the store of auth_domains to not be a 'cache'.
->  [PATCH 002 of 14] knfsd: Break the hard linkage from svc_expkey to svc_export
->  [PATCH 003 of 14] knfsd: Get rid of 'inplace' sunrpc caches
->  [PATCH 004 of 14] knfsd: Create cache_lookup function instead of using a macro to declare one.
->  [PATCH 005 of 14] knfsd: Convert ip_map cache to use the new lookup routine.
->  [PATCH 006 of 14] knfsd: Use new cache_lookup for svc_export
->  [PATCH 007 of 14] knfsd: Use new cache_lookup for svc_expkey cache.
->  [PATCH 008 of 14] knfsd: Use new sunrpc cache for rsi cache
->  [PATCH 009 of 14] knfsd: Use new cache code for rsc cache
->  [PATCH 010 of 14] knfsd: Use new cache code for name/id lookup caches
->  [PATCH 011 of 14] knfsd: An assortment of little fixes to the sunrpc cache code.
->  [PATCH 012 of 14] knfsd: Remove DefineCacheLookup
->  [PATCH 013 of 14] knfsd: Unexport cache_fresh and fix a small race.
->  [PATCH 014 of 14] knfsd: Convert sunrpc_cache to use krefs
+On Sun, 2006-03-05 at 00:12 +0000, Pavel Machek wrote:
+> > Just for my interest, can you summarise the status of PM and charging on
+> > collie with this code?
+> 
+> Well, with heavy ifdefs into sharpsl_pm, it can correctly sense
+> AC/battery. Voltmeters seem to return *some* values. Temperature is
+> probably okay, battery level is *extremely* noisy, and outside range
+> where sharp code expects it, but seems to correlate with actual
+> battery levels.
 
-Any plans to update Documentation/rpc-cache.txt?
+The sharp code often had delays in it to allow voltages to stablise etc.
+I still see noise issues on one of the devices. A particularly puzzling
+spitz noise issue is when I make the battery reading whilst suspended
+without loading the power supply line with an LED :-/. (the sharp code
+didn't do this but I can find now other way to make it work).
 
-Cheers,
-  Trond
+> > > +#include "../drivers/mfd/ucb1x00.h"
+> > > +#include <asm/mach/sharpsl_param.h>
+> > > +
+> > > +#ifdef CONFIG_MCP_UCB1200_TS
+> > > +#error Battery interferes with touchscreen
+> > > +#endif
+> > 
+> > Is this a case of bad locking or something more serious?
+> 
+> Original sharp code does some magic between TS and battery reading. It
+> seems AD0 is used by both, or something similary ugly. I'll have to
+> decipher sharp code and figure out how to do it properly.
+
+ok.
+
+> > > +static int __init collie_pm_add(struct ucb1x00_dev *pdev)
+> > > +{
+> > > +	sharpsl_pm.dev = NULL;
+> > > +	sharpsl_pm.machinfo = &collie_pm_machinfo;
+> > > +	ucb = pdev->ucb;
+> > > +	return sharpsl_pm_init();
+> > > +}
+> > 
+> > I don't understand how this is supposed to work at all. For a start,
+> > sharpsl_pm.c says "static int __devinit sharpsl_pm_init(void)" so that
+> > function isn't available. I've just noticed your further patches
+> > although I still don't like this.
+> > 
+> > The correct approach is to register a platform device called
+> > "sharpsl-pm" in collie_pm_add() which the driver will then see and
+> > attach to. I'd also not register the platform device if ucb is NULL for
+> > whatever reason.
+> 
+> I thought about it, and considered it quite ugly. Result would be all
+> data on the platform bus with half-empty device on ucb1x00 "bus". It
+> would bring me some problems with registering order: if platform
+> device is registered too soon, ucb will be NULL and it will crash and
+> burn. OTOH I already have static *ucb, so it is doable, and I can do
+> it if you prefer it that way...
+
+If you register the sharpsl-pm device in the collie_pm_add() function,
+ucb should always have registered by that point? As you say, you already
+have the static *ucb and I'm hoping using the platform device will mean
+less invasive changes in sharpsl_pm itself in the future?
+
+For the record, this patch from Dirk Opfer also exists. He's working on
+using sharpsl-pm on tosa.
+
+http://www.rpsys.net/openzaurus/patches/archive/sharpsl_pm-do-r2.patch
+
+Richard
+
 

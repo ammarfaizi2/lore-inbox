@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752059AbWCIXiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWCIXjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752059AbWCIXiw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWCIXiw
+	id S932179AbWCIXjq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWCIXjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:38:52 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:22007 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1752059AbWCIXiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:38:51 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
-	b=e8UlDRBw8ceFBCS6biM0Pieq7nv7b3eoe6KZMNxf/CLMLM/KgkwoIaUZBxNLfOz2o
-	dA7m6puvsHmLQg8F4x9dg==
-Message-ID: <4410BC6A.6020002@google.com>
-Date: Thu, 09 Mar 2006 15:38:18 -0800
-From: Markus Gutschke <markus@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Daniel Kegel <dkegel@google.com>, Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH 1/1]: arm: _syscallX() macros must mark "memory" as clobbered
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Mar 2006 18:39:45 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:43911 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932164AbWCIXjo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:39:44 -0500
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and
+	lightweight subnet management
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <adalkvjfbo0.fsf@cisco.com>
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
+	 <adalkvjfbo0.fsf@cisco.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 09 Mar 2006 15:39:41 -0800
+Message-Id: <1141947581.10693.45.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Markus Gutschke <markus@google.com>
+On Thu, 2006-03-09 at 15:20 -0800, Roland Dreier wrote:
 
-While other platforms (including x86) have been fixed to mark memory as 
-clobbered by _syscallX()'s, this bug has not yet been fixed for ARM. 
-This patch adds the missing constraints and applies to version 2.6.15.6.
+> I've never understood what forces you to maintain two separate SMAs.
+> Why can't you pick one of the two SMAs and use that unconditionally?
 
-The bug can be tracked at http://bugzilla.kernel.org/show_bug.cgi?id=6205
+Three reasons.
 
-Signed-off-by: Markus Gutschke <markus@google.com>
+      * OpenSM wasn't usable when we wrote our SMA.  We have customers
+        using ours now, so we have to support it.
+      * Our SMA does some setup for the layered ethernet emulation
+        driver.
+      * Our SMA works without an IB stack of any kind present.
 
----
+	<b
+

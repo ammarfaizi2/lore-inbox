@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWCIVtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbWCIV7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751918AbWCIVtt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 16:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751923AbWCIVtt
+	id S1751769AbWCIV7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 16:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751924AbWCIV7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 16:49:49 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16278 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751918AbWCIVtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 16:49:49 -0500
-Subject: Re: [alsa-cvslog] CVS: alsa-kernel/usb usbaudio.c,1.172,1.173
-From: Lee Revell <rlrevell@joe-job.com>
-To: Clemens Ladisch <cladisch@users.sourceforge.net>
-Cc: alsa-devel <alsa-devel@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1FHG2j-0001sX-Ln@sc8-pr-cvs1.sourceforge.net>
-References: <E1FHG2j-0001sX-Ln@sc8-pr-cvs1.sourceforge.net>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 16:49:46 -0500
-Message-Id: <1141940987.13319.71.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 16:59:00 -0500
+Received: from web52602.mail.yahoo.com ([206.190.48.205]:7575 "HELO
+	web52602.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751769AbWCIV7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 16:59:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=pOkaW8dwMlnMNvqgH7/ItCjFRkW/1mFzqsuIEylYYaqpUtJwc3uZp572WolwHJft0fVHOKDJ8wHySza111xhR3dOn2++DFDUe0fAQMBH8OWgd8i51OuF4UsAafnN2JqjCobCu55gI4BB2LKrjTepc3EBfhettbGCQLmtZyAJJ1M=  ;
+Message-ID: <20060309215857.73032.qmail@web52602.mail.yahoo.com>
+Date: Fri, 10 Mar 2006 08:58:57 +1100 (EST)
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: Re: Oops on ibmasm
+To: Max Asbock <masbock@us.ibm.com>
+Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Vernon Mauery <vernux@us.ibm.com>
+In-Reply-To: <1141925840.6240.18.camel@w-amax>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-08 at 23:58 -0800, Clemens Ladisch wrote:
-> +static const char *usb_error_string(int err)
-> +{
-> +	switch (err) {
-> +	case -ENODEV:
-> +		return "no device";
-> +	case -ENOENT:
-> +		return "endpoint not enabled";
-> +	case -EPIPE:
-> +		return "endpoint stalled";
-> +	case -ENOSPC:
-> +		return "not enough bandwidth";
-> +	case -ESHUTDOWN:
-> +		return "device disabled";
-> +	case -EHOSTUNREACH:
-> +		return "device suspended";
-> +	case -EINVAL:
-> +	case -EAGAIN:
-> +	case -EFBIG:
-> +	case -EMSGSIZE:
-> +		return "internal error";
-> +	default:
-> +		return "unknown error";
-> +	}
-> +}
+--- Max Asbock <masbock@us.ibm.com> wrote:
+> [...snip...]
+> cmd->lock points to a persistent lock that is not
+> freed with cmd. 
 
-Shouldn't a generic facility be created for this?  After all these are
-standard error codes and it seem like other parts of the kernel might
-want to do user friendly error reporting.
+Thanks for the patch Max.
 
-Lee
+> ibmasm driver:
+> Fix the command_put() function which uses a pointer
+> for a spinlock that
+> can be freed before dereferencing it.
+
+Yup, that patch fixes the oops when slab debug is
+enabled.
+
+Assuming there are no unforseen regressions, may I
+request for its inclusion in the upcoming 2.6.16?
+
+Hari.
+
+
+		
+____________________________________________________ 
+On Yahoo!7 
+Photos: Unlimited free storage – keep all your photos in one place! 
+http://au.photos.yahoo.com 
 

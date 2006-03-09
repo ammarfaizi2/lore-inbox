@@ -1,61 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbWCIQeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWCIQg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932444AbWCIQeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWCIQeI
+	id S1751186AbWCIQg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932664AbWCIQg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:34:08 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:35080 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751186AbWCIQeH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:34:07 -0500
-Date: Thu, 9 Mar 2006 17:33:45 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix scripts/namespace.pl portability
-Message-ID: <20060309163345.GA23215@mars.ravnborg.org>
-References: <20060309130150.GA10275@linux-mips.org> <20060309154030.GA14682@linux-mips.org>
+	Thu, 9 Mar 2006 11:36:58 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44258 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751321AbWCIQg5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 11:36:57 -0500
+Subject: Re: [RFC] Open letter to vendors? draft
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rudolf Randal <rudolf.randal@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a03c9a270603090517t114fd4c7r1b7a5d856f691b12@mail.gmail.com>
+References: <a03c9a270603090517t114fd4c7r1b7a5d856f691b12@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Mar 2006 16:42:32 +0000
+Message-Id: <1141922552.16745.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060309154030.GA14682@linux-mips.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 03:40:30PM +0000, Ralf Baechle wrote:
-> On Thu, Mar 09, 2006 at 01:01:50PM +0000, Ralf Baechle wrote:
-> 
-> > scripts/namespace.pl was assuming the nm and objdump tools to use are
-> > always just named that which breaks things in a crosscompilation
-> > environment.
-> > 
-> > Fixed by honouring $NM and $OBJDUMP if passed by make, otherwise
-> > defaulting to just nm rsp. objdump just as we used to.
-> > 
-> > Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
-> 
-> Atsushi Nemoto pointed me to http://lkml.org/lkml/2005/9/20/68.  This
-> old patch which seems more complete than mine but made it into the kernel.
->  I just refreshed the patch and added the bits to ensure namespace.pl
-> uses the right nm binary also - Keith's original patch only fixed the
-> objdump use.
-> 
-> From: Keith Owens <kaos@ocs.com.au>
-> 
-> Those scripts are meant to work even when they are invoked by hand,
-> without OBJDUMP being defined in the environment.  This is the correct
-> fix.
+On Iau, 2006-03-09 at 14:17 +0100, Rudolf Randal wrote:
+> This is a rough draft of an idea of an open letter to vendors - trying
+> to create a dialog for creating open source drivers for their
+> hardware.
 
-Hi Ralf. In my kbuild tree I have this fixed already:
-my $nm = ($ENV{'NM'} || "nm") . " -p";
-my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+It never does any harm asking and poking people politely. However what
+are you going to do if they reply "tell me more". It goes beyond an open
+letter - you need a process too.
 
-Patch is from Aaron Brooks.
 
-The reference_init.pl + reference_discarded.pl are subject for removal
-since the check has been moved to modpost.
-
-	Sam

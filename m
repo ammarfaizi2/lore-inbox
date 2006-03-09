@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422634AbWCIFfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932689AbWCIFi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422634AbWCIFfS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 00:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWCIFfS
+	id S932689AbWCIFi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 00:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbWCIFi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 00:35:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34731 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750705AbWCIFfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 00:35:17 -0500
-Subject: Re: [2.6.16-rc5-m3 PATCH] inotify: add the monitor for the event
-	source
-From: Arjan van de Ven <arjan@infradead.org>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <440FBA9C.3050109@gmail.com>
-References: <440F075F.1030404@gmail.com>
-	 <1141836798.12175.1.camel@laptopd505.fenrus.org>
-	 <440FBA9C.3050109@gmail.com>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 06:35:13 +0100
-Message-Id: <1141882513.2883.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 9 Mar 2006 00:38:57 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:34991 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932666AbWCIFi4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 00:38:56 -0500
+Date: Wed, 8 Mar 2006 21:38:36 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: akpm@osdl.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, Alan Cox <alan@redhat.com>, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #2] 
+In-Reply-To: <17423.42185.78767.837295@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.64.0603082127110.32577@g5.osdl.org>
+References: <Pine.LNX.4.64.0603081115300.32577@g5.osdl.org>
+ <20060308184500.GA17716@devserv.devel.redhat.com>
+ <20060308173605.GB13063@devserv.devel.redhat.com> <20060308145506.GA5095@devserv.devel.redhat.com>
+ <31492.1141753245@warthog.cambridge.redhat.com> <29826.1141828678@warthog.cambridge.redhat.com>
+ <9834.1141837491@warthog.cambridge.redhat.com> <11922.1141842907@warthog.cambridge.redhat.com>
+ <14275.1141844922@warthog.cambridge.redhat.com> <19984.1141846302@warthog.cambridge.redhat.com>
+ <17423.30789.214209.462657@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081652430.32577@g5.osdl.org>
+ <17423.32792.500628.226831@cargo.ozlabs.ibm.com> <Pine.LNX.4.64.0603081716400.32577@g5.osdl.org>
+ <17423.42185.78767.837295@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 13:18 +0800, Yi Yang wrote:
-> Arjan van de Ven wrote:
-> > On Thu, 2006-03-09 at 00:33 +0800, Yi Yang wrote:
-> >   
-> >> Current inotify implementation only focus on change of file system, but it doesn't
-> >>  know who results in this change, this patch adds three fields to struct inotify_event,
-> >>  tgid, uid and gid, they will save process ID, user ID and user group ID of the process
-> >>  which leads to change in the file system, such software as anti-virus can make use 
-> >> of this feature to monitor who is modifying a specific file.
-> >>     
-> >
-> >
-> > this patch appears to change the ABI! That is bad bad bad.
-> >   
-> a change of struct inotify_event can't change ABI, can you describe it 
-> more clear?
-
-it breaks ABI because this structure is communicated to userspace, and
-you change both the layout and the size of it. What else would ABI
-mean??
 
 
-> > Also, how can you guarantee that "current" is valid and meaningful at
-> > the place you use it to get the user id ??
-> >   
-> Of course, current process/thread never disappears before fsnotify_* 
-> returns.
+On Thu, 9 Mar 2006, Paul Mackerras wrote:
+> 
+> A spin_lock does show up on the bus, doesn't it?
 
-but... what makes you think it's not a kernel thread such as kjournald?
-(which have basically meaningless current)
+Nope.
 
+If the lock entity is in a exclusive cache-line, a spinlock does not show 
+up on the bus at _all_. It's all purely in the core. In fact, I think AMD 
+does a spinlock in ~15 CPU cycles (that's the serialization overhead in 
+the core). I think a P-M core is ~25, while the NetBurst (P4) core is much 
+more because they have horrible serialization issues (I think it's on the 
+order of 100 cycles there).
 
-> > Also the process ID part is really bogus, after all the process may have
-> > exited by the time the inotify client gets to it, and the PID may even
-> > already have been reused.
-> >
-> >   
-> Your concern is correct, but uid and git can give out some hints, I ever 
-> considered to
-> save the name of current process, however that needs a bigger and 
-> length-variable
-> inotify_event struct, moreover, to get the full path name of current 
-> process/thread
-> in kernel will have a big overhead, so I must select a comprise way.
+Anyway, try doing a spinlock in 15 CPU cycles and going out on the bus for 
+it..
 
-there is no "full path name" concept in linux like that. And even worse,
-many processes will not have *any* path because they have been deleted,
-especially the viruses will use this ;)
+(Couple that with spin_unlock basically being free).
 
+Now, if the spinlocks end up _bouncing_ between CPU's, they'll obviously 
+be a lot more expensive.
 
+		Linus

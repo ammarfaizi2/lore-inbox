@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWCISZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWCISbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbWCISZz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 13:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWCISZy
+	id S1751246AbWCISbk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 13:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWCISbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 13:25:54 -0500
-Received: from smtp8.wanadoo.fr ([193.252.22.23]:2665 "EHLO smtp8.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751131AbWCISZy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 13:25:54 -0500
-X-ME-UUID: 20060309182552897.DB1B81C000F0@mwinf0806.wanadoo.fr
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Dave Neuer <mr.fred.smoothie@pobox.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Luke-Jr <luke@dashjr.org>,
-       Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
-	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
-	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Thu, 09 Mar 2006 19:25:54 +0100
-Message-Id: <1141928755.7599.0.camel@bip.parateam.prv>
+	Thu, 9 Mar 2006 13:31:40 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:32233 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751246AbWCISbk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 13:31:40 -0500
+Subject: Re: Kernel panic on PC with broken hard drive, after DMA errors
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060309165357.GB10572@deprecation.cyrius.com>
+References: <5Okau-77g-9@gated-at.bofh.it> <440FA916.5070703@shaw.ca>
+	 <20060309151459.GD2891@deprecation.cyrius.com>
+	 <1141922743.16745.12.camel@localhost.localdomain>
+	 <20060309165357.GB10572@deprecation.cyrius.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Mar 2006 18:37:05 +0000
+Message-Id: <1141929425.16745.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 09 mars 2006 à 12:33 -0500, Dave Neuer a écrit :
-> On 3/9/06, Phillip Susi <psusi@cfl.rr.com> wrote:
-> > If binary drivers are illegal, then why have ATI and nvidia not been
-> > sued yet?
+On Iau, 2006-03-09 at 16:53 +0000, Martin Michlmayr wrote:
+> * Alan Cox <alan@lxorguk.ukuu.org.uk> [2006-03-09 16:45]:
+> > Ancient known problem. I'd be interested if you can however break
+> > libata and the PATA IDE patches the same way.
 > 
-> Because no sufficiently deep-pocketed plaintiff has chosen to do so
-> yet.
+> I can try, but like I said, the hard drive acts pretty arbitrarily and
+> won't always fail when I want it to.  Do you know if there's a way to
+> trigger the problem?  Otherwise I'll just try a couple of times,
+> but without a good way to trigger the problem I cannot really say if
+> it's gone with libata.
 
-No. It's just because they don't distribute a kernel with their drivers.
+You could try heavy I/O (find / -print type stuff), or if its specific
+problem blocks then cp /dev/hda (/dev/sda for libata) /dev/null.
 
-	Xav
-
+Libata should either error correctly or recover cleanly from the
+problems.
 

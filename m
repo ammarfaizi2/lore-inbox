@@ -1,97 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWCIRNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWCIROn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWCIRNE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:13:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750846AbWCIRNE
+	id S1750906AbWCIROn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWCIROn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:13:04 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:29073 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750822AbWCIRNC (ORCPT
+	Thu, 9 Mar 2006 12:14:43 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:22133 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750847AbWCIROm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:13:02 -0500
-Subject: Re: [rfc] Collie battery status sensing code
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060305001254.GA2423@ucw.cz>
-References: <20060309123842.GA3619@elf.ucw.cz>
-	 <1141910391.10107.49.camel@localhost.localdomain>
-	 <20060305001254.GA2423@ucw.cz>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 17:12:51 +0000
-Message-Id: <1141924371.10107.75.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 12:14:42 -0500
+Message-ID: <44106393.2050207@openvz.org>
+Date: Thu, 09 Mar 2006 20:19:15 +0300
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ext3: ext3_symlink should use GFP_NOFS allocations inside
+Content-Type: multipart/mixed;
+ boundary="------------030609020105070808080202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-05 at 00:12 +0000, Pavel Machek wrote:
-> > Just for my interest, can you summarise the status of PM and charging on
-> > collie with this code?
-> 
-> Well, with heavy ifdefs into sharpsl_pm, it can correctly sense
-> AC/battery. Voltmeters seem to return *some* values. Temperature is
-> probably okay, battery level is *extremely* noisy, and outside range
-> where sharp code expects it, but seems to correlate with actual
-> battery levels.
+This is a multi-part message in MIME format.
+--------------030609020105070808080202
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The sharp code often had delays in it to allow voltages to stablise etc.
-I still see noise issues on one of the devices. A particularly puzzling
-spitz noise issue is when I make the battery reading whilst suspended
-without loading the power supply line with an LED :-/. (the sharp code
-didn't do this but I can find now other way to make it work).
+This patch fixes illegal __GFP_FS allocation inside ext3
+transaction in ext3_symlink().
+Such allocation may re-enter ext3 code from
+try_to_free_pages. But JBD/ext3 code keeps a pointer to current
+journal handle in task_struct and, hence, is not reentrable.
 
-> > > +#include "../drivers/mfd/ucb1x00.h"
-> > > +#include <asm/mach/sharpsl_param.h>
-> > > +
-> > > +#ifdef CONFIG_MCP_UCB1200_TS
-> > > +#error Battery interferes with touchscreen
-> > > +#endif
-> > 
-> > Is this a case of bad locking or something more serious?
-> 
-> Original sharp code does some magic between TS and battery reading. It
-> seems AD0 is used by both, or something similary ugly. I'll have to
-> decipher sharp code and figure out how to do it properly.
+This bug led to "Assertion failure in journal_dirty_metadata()" messages.
 
-ok.
+http://bugzilla.openvz.org/show_bug.cgi?id=115
 
-> > > +static int __init collie_pm_add(struct ucb1x00_dev *pdev)
-> > > +{
-> > > +	sharpsl_pm.dev = NULL;
-> > > +	sharpsl_pm.machinfo = &collie_pm_machinfo;
-> > > +	ucb = pdev->ucb;
-> > > +	return sharpsl_pm_init();
-> > > +}
-> > 
-> > I don't understand how this is supposed to work at all. For a start,
-> > sharpsl_pm.c says "static int __devinit sharpsl_pm_init(void)" so that
-> > function isn't available. I've just noticed your further patches
-> > although I still don't like this.
-> > 
-> > The correct approach is to register a platform device called
-> > "sharpsl-pm" in collie_pm_add() which the driver will then see and
-> > attach to. I'd also not register the platform device if ucb is NULL for
-> > whatever reason.
-> 
-> I thought about it, and considered it quite ugly. Result would be all
-> data on the platform bus with half-empty device on ucb1x00 "bus". It
-> would bring me some problems with registering order: if platform
-> device is registered too soon, ucb will be NULL and it will crash and
-> burn. OTOH I already have static *ucb, so it is doable, and I can do
-> it if you prefer it that way...
+Signed-Off-By: Andrey Savochkin <saw@saw.sw.com.sg>
+Signed-Off-By: Kirill Korotaev <dev@openvz.org>
 
-If you register the sharpsl-pm device in the collie_pm_add() function,
-ucb should always have registered by that point? As you say, you already
-have the static *ucb and I'm hoping using the platform device will mean
-less invasive changes in sharpsl_pm itself in the future?
+Thanks,
+Kirill
+P.S. against 2.6.16-rc5
 
-For the record, this patch from Dirk Opfer also exists. He's working on
-using sharpsl-pm on tosa.
+--------------030609020105070808080202
+Content-Type: text/plain;
+ name="diff-ext3-nofssymlink-20060210"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff-ext3-nofssymlink-20060210"
 
-http://www.rpsys.net/openzaurus/patches/archive/sharpsl_pm-do-r2.patch
+--- ./fs/ext2/namei.c.symlnk	2006-03-03 10:51:01.000000000 +0300
++++ ./fs/ext2/namei.c	2006-03-09 19:38:49.000000000 +0300
+@@ -185,7 +185,7 @@ static int ext2_symlink (struct inode * 
+ 			inode->i_mapping->a_ops = &ext2_nobh_aops;
+ 		else
+ 			inode->i_mapping->a_ops = &ext2_aops;
+-		err = page_symlink(inode, symname, l);
++		err = page_symlink(inode, symname, l, GFP_KERNEL);
+ 		if (err)
+ 			goto out_fail;
+ 	} else {
+--- ./fs/ext3/namei.c.symlnk	2006-03-03 10:51:01.000000000 +0300
++++ ./fs/ext3/namei.c	2006-03-09 19:38:49.000000000 +0300
+@@ -2141,7 +2141,7 @@ retry:
+ 		 * We have a transaction open.  All is sweetness.  It also sets
+ 		 * i_size in generic_commit_write().
+ 		 */
+-		err = page_symlink(inode, symname, l);
++		err = page_symlink(inode, symname, l, GFP_NOFS);
+ 		if (err) {
+ 			ext3_dec_count(handle, inode);
+ 			ext3_mark_inode_dirty(handle, inode);
+--- ./fs/hfsplus/dir.c.symlnk	2006-03-03 10:51:01.000000000 +0300
++++ ./fs/hfsplus/dir.c	2006-03-09 19:38:49.000000000 +0300
+@@ -406,7 +406,7 @@ static int hfsplus_symlink(struct inode 
+ 	if (!inode)
+ 		return -ENOSPC;
+ 
+-	res = page_symlink(inode, symname, strlen(symname) + 1);
++	res = page_symlink(inode, symname, strlen(symname) + 1, GFP_KERNEL);
+ 	if (res) {
+ 		inode->i_nlink = 0;
+ 		hfsplus_delete_inode(inode);
+--- ./fs/hugetlbfs/inode.c.symlnk	2006-03-03 10:51:01.000000000 +0300
++++ ./fs/hugetlbfs/inode.c	2006-03-09 19:38:49.000000000 +0300
+@@ -482,7 +482,7 @@ static int hugetlbfs_symlink(struct inod
+ 					gid, S_IFLNK|S_IRWXUGO, 0);
+ 	if (inode) {
+ 		int l = strlen(symname)+1;
+-		error = page_symlink(inode, symname, l);
++		error = page_symlink(inode, symname, l, GFP_KERNEL);
+ 		if (!error) {
+ 			d_instantiate(dentry, inode);
+ 			dget(dentry);
+--- ./fs/minix/namei.c.symlnk	2006-01-03 06:21:10.000000000 +0300
++++ ./fs/minix/namei.c	2006-03-09 19:38:49.000000000 +0300
+@@ -116,7 +116,7 @@ static int minix_symlink(struct inode * 
+ 
+ 	inode->i_mode = S_IFLNK | 0777;
+ 	minix_set_inode(inode, 0);
+-	err = page_symlink(inode, symname, i);
++	err = page_symlink(inode, symname, i, GFP_KERNEL);
+ 	if (err)
+ 		goto out_fail;
+ 
+--- ./fs/namei.c.symlnk	2006-03-03 10:51:01.000000000 +0300
++++ ./fs/namei.c	2006-03-09 19:42:09.000000000 +0300
+@@ -2613,13 +2613,16 @@ void page_put_link(struct dentry *dentry
+ 	}
+ }
+ 
+-int page_symlink(struct inode *inode, const char *symname, int len)
++int page_symlink(struct inode *inode, const char *symname, int len,
++		gfp_t gfp_mask)
+ {
+ 	struct address_space *mapping = inode->i_mapping;
+-	struct page *page = grab_cache_page(mapping, 0);
++	struct page *page;
+ 	int err = -ENOMEM;
+ 	char *kaddr;
+ 
++	page = find_or_create_page(mapping, 0,
++			mapping_gfp_mask(mapping) | gfp_mask);
+ 	if (!page)
+ 		goto fail;
+ 	err = mapping->a_ops->prepare_write(NULL, page, 0, len-1);
+--- ./fs/ramfs/inode.c.symlnk	2006-03-03 10:51:01.000000000 +0300
++++ ./fs/ramfs/inode.c	2006-03-09 19:38:49.000000000 +0300
+@@ -131,7 +131,7 @@ static int ramfs_symlink(struct inode * 
+ 	inode = ramfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
+ 	if (inode) {
+ 		int l = strlen(symname)+1;
+-		error = page_symlink(inode, symname, l);
++		error = page_symlink(inode, symname, l, GFP_KERNEL);
+ 		if (!error) {
+ 			if (dir->i_mode & S_ISGID)
+ 				inode->i_gid = dir->i_gid;
+--- ./fs/sysv/namei.c.symlnk	2006-01-03 06:21:10.000000000 +0300
++++ ./fs/sysv/namei.c	2006-03-09 19:38:49.000000000 +0300
+@@ -114,7 +114,7 @@ static int sysv_symlink(struct inode * d
+ 		goto out;
+ 	
+ 	sysv_set_inode(inode, 0);
+-	err = page_symlink(inode, symname, l);
++	err = page_symlink(inode, symname, l, GFP_KERNEL);
+ 	if (err)
+ 		goto out_fail;
+ 
+--- ./fs/ufs/namei.c.symlnk	2006-01-03 06:21:10.000000000 +0300
++++ ./fs/ufs/namei.c	2006-03-09 19:38:49.000000000 +0300
+@@ -156,7 +156,7 @@ static int ufs_symlink (struct inode * d
+ 		/* slow symlink */
+ 		inode->i_op = &page_symlink_inode_operations;
+ 		inode->i_mapping->a_ops = &ufs_aops;
+-		err = page_symlink(inode, symname, l);
++		err = page_symlink(inode, symname, l, GFP_KERNEL);
+ 		if (err)
+ 			goto out_fail;
+ 	} else {
+--- ./include/linux/fs.h.symlnk	2006-03-09 16:03:44.000000000 +0300
++++ ./include/linux/fs.h	2006-03-09 19:41:25.000000000 +0300
+@@ -1669,7 +1669,8 @@ extern int vfs_follow_link(struct nameid
+ extern int page_readlink(struct dentry *, char __user *, int);
+ extern void *page_follow_link_light(struct dentry *, struct nameidata *);
+ extern void page_put_link(struct dentry *, struct nameidata *, void *);
+-extern int page_symlink(struct inode *inode, const char *symname, int len);
++extern int page_symlink(struct inode *inode, const char *symname, int len,
++		gfp_t gfp_mask);
+ extern struct inode_operations page_symlink_inode_operations;
+ extern int generic_readlink(struct dentry *, char __user *, int);
+ extern void generic_fillattr(struct inode *, struct kstat *);
 
-Richard
-
+--------------030609020105070808080202--
 

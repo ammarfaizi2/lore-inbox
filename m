@@ -1,97 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWCIRhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWCIRj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751114AbWCIRhd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 12:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWCIRhd
+	id S1751104AbWCIRj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 12:39:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWCIRj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 12:37:33 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:32732 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751114AbWCIRhc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 12:37:32 -0500
-Subject: Re: Oops on ibmasm
-From: Max Asbock <masbock@us.ibm.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, Vernon Mauery <vernux@us.ibm.com>
-In-Reply-To: <20060309132655.GA26354@redhat.com>
-References: <20060308224145.47332.qmail@web52607.mail.yahoo.com>
-	 <20060309014023.2caa42d2.akpm@osdl.org> <20060309132655.GA26354@redhat.com>
-Content-Type: text/plain
-Message-Id: <1141925840.6240.18.camel@w-amax>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 09 Mar 2006 09:37:20 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 12:39:26 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17106 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751104AbWCIRjZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 12:39:25 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0603090814530.18022@g5.osdl.org> 
+References: <Pine.LNX.4.64.0603090814530.18022@g5.osdl.org>  <1141855305.10606.6.camel@localhost.localdomain> <20060308161829.GC3669@elf.ucw.cz> <31492.1141753245@warthog.cambridge.redhat.com> <24309.1141848971@warthog.cambridge.redhat.com> <24280.1141904462@warthog.cambridge.redhat.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Machek <pavel@ucw.cz>, akpm@osdl.org, mingo@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Thu, 09 Mar 2006 17:39:05 +0000
+Message-ID: <12101.1141925945@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 05:26, Dave Jones wrote:
-> On Thu, Mar 09, 2006 at 01:40:23AM -0800, Andrew Morton wrote:
-> 
->  > I assume this'll fix it?
->  > 
->  > I suspect there's no point in the locking around that kobject_put() anyway.
->  > Or if there is, it wasn't the right way to fix the race.
->  > 
->  > diff -puN drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix drivers/misc/ibmasm/ibmasm.h
->  > --- devel/drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix	2006-03-09 01:35:05.000000000 -0800
->  > +++ devel-akpm/drivers/misc/ibmasm/ibmasm.h	2006-03-09 01:35:16.000000000 -0800
->  > @@ -100,11 +100,7 @@ struct command {
->  >  
->  >  static inline void command_put(struct command *cmd)
->  >  {
->  > -	unsigned long flags;
->  > -
->  > -	spin_lock_irqsave(cmd->lock, flags);
->  >          kobject_put(&cmd->kobj);
->  > -	spin_unlock_irqrestore(cmd->lock, flags);
->  >  }
-> 
-> I don't think this is right.  This is just a kobject-convoluted
-> use-after-free afaics.
-> 
-I put the locks around the kobject_put after reading
-Documentation/kref.txt and after realizing that there was a race. In the
-kref.txt example there is a lock around kref_put (only a mutex instead
-of a spinlock). 
-I still think there is a point in putting locks around kobject_put(). Or
-is there a better way?
-And btw, I am using kobject because this code predates kref. So maybe
-one day I should just convert it to kref.
-Anyway, I think the locks are necessary, the way they are implemented is
-probably ugly and caused me to make the mistake in the first place. But
-a while I ago posted the following patch that fixes the situation.
-cmd->lock points to a persistent lock that is not freed with cmd. 
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-max
+> Basically, as long as nobody else is reading the lock, the lock will stay 
+> in the caches.
 
-Original patch:
+I think for the purposes of talking about memory barriers, we consider the
+cache to be part of the memory since the cache coherency mechanisms will give
+the same effect.
 
-ibmasm driver:
-Fix the command_put() function which uses a pointer for a spinlock that
-can be freed before dereferencing it.
+I suppose the way the cache can be viewed as working is that bits of memory
+are shuttled around between the CPUs, RAM and any other devices that partake
+of the coherency mechanism.
 
-Signed-off-by: Max Asbock masbock@us.ibm.com
+> All modern CPU's do atomic operations entirely within the cache coherency 
+> logic.
 
----
+I know that, and I think it's irrelevant to specifying memory barriers.
 
-diff -burpN linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h
---- linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h	2006-02-01 11:50:01.000000000 -0800
-+++ linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h	2006-02-03 13:57:42.000000000 -0800
-@@ -101,10 +101,11 @@ struct command {
- static inline void command_put(struct command *cmd)
- {
- 	unsigned long flags;
-+	spinlock_t *lock = cmd->lock;
- 
--	spin_lock_irqsave(cmd->lock, flags);
-+	spin_lock_irqsave(lock, flags);
-         kobject_put(&cmd->kobj);
--	spin_unlock_irqrestore(cmd->lock, flags);
-+	spin_unlock_irqrestore(lock, flags);
- }
- 
- static inline void command_get(struct command *cmd)
+> I think x86 still support the notion of a "locked cycle" on the 
+> bus,
 
+I wonder if that's what XCHG and XADD do... There's no particular reason they
+should be that much slower than LOCK INCL/DECL. Of course, I've only measured
+this on my Dual-PPro test box, so other i386 arch CPUs may exhibit other
+behaviour.
+
+David

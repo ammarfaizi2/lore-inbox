@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWCISuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWCIS4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWCISuv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 13:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCISuv
+	id S1751118AbWCIS4m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 13:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWCIS4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 13:50:51 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:54795 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751331AbWCISuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 13:50:50 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: "Johnson, Richard" <rjohnson@analogic.com>
-Subject: Re: This was forwarded to me from somebody on yahoo
-Date: Thu, 9 Mar 2006 18:29:14 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0603091119550.32008@quark.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0603091119550.32008@quark.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 13:56:42 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:26384 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751118AbWCIS4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 13:56:42 -0500
+Date: Thu, 9 Mar 2006 19:56:04 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, rolandd@cisco.com, gregkh@suse.de,
+       akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
+Message-ID: <20060309185604.GA24004@mars.ravnborg.org>
+References: <ac5354bb50d515de2a5c.1141922831@localhost.localdomain> <ada4q27ld33.fsf@cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603091829.14571.s0348365@sms.ed.ac.uk>
+In-Reply-To: <ada4q27ld33.fsf@cisco.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 March 2006 16:21, Johnson, Richard wrote:
-> P.S. Don't kill the messenger!
->
+On Thu, Mar 09, 2006 at 09:53:04AM -0800, Roland Dreier wrote:
+>  > +	depends on 64BIT && (PCIEPORTBUS || X86_HT)
+> 
+ 
+>  > --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
+>  > +++ b/drivers/infiniband/hw/ipath/Makefile	Thu Mar  9 08:46:47 2006 -0800
+> 
+> I've been suggesting that new files be called "Kbuild", since Sam has
+> deprecated the "Makefile" name.
+Eventually - yes.
+But not just now. Kbuild was introduced because it was needed in the
+top-level directory and it made good sense to do so.
+But for now keeping Makefile is a good choice. This is anyway what
+people are used to.
 
-Maybe Matt's got around to installing a troll-filter? Hurray!
-
--- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+	Sam

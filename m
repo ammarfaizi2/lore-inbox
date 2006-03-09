@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932692AbWCIBB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWCIBDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932692AbWCIBB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 20:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWCIBB5
+	id S932690AbWCIBDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 20:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWCIBDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 20:01:57 -0500
-Received: from ozlabs.org ([203.10.76.45]:42403 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751233AbWCIBB4 (ORCPT
+	Wed, 8 Mar 2006 20:03:55 -0500
+Received: from ozlabs.org ([203.10.76.45]:34468 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932690AbWCIBDy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 20:01:56 -0500
-MIME-Version: 1.0
+	Wed, 8 Mar 2006 20:03:54 -0500
+Date: Thu, 9 Mar 2006 12:03:14 +1100
+From: "'David Gibson'" <david@gibson.dropbear.id.au>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ftruncate on huge page couldn't extend hugetlb file
+Message-ID: <20060309010314.GG17590@localhost.localdomain>
+Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	"'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
+	linux-kernel@vger.kernel.org
+References: <20060309002251.GE17590@localhost.localdomain> <200603090033.k290XBg13472@unix-os.sc.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17423.32377.460820.710578@cargo.ozlabs.ibm.com>
-Date: Thu, 9 Mar 2006 12:01:45 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: David Howells <dhowells@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
-       Alan Cox <alan@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, Paul@ozlabs.org, E.McKenney@ozlabs.org,
-       " <paulmck@us.ibm.com>"@ozlabs.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #2]
-In-Reply-To: <20060309020851.D9651@jurassic.park.msu.ru>
-References: <20060308154157.GI7301@parisc-linux.org>
-	<31492.1141753245@warthog.cambridge.redhat.com>
-	<29826.1141828678@warthog.cambridge.redhat.com>
-	<20060308145506.GA5095@devserv.devel.redhat.com>
-	<10095.1141838381@warthog.cambridge.redhat.com>
-	<17423.22121.254026.487964@cargo.ozlabs.ibm.com>
-	<20060309020851.D9651@jurassic.park.msu.ru>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <200603090033.k290XBg13472@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky writes:
-
-> On Thu, Mar 09, 2006 at 09:10:49AM +1100, Paul Mackerras wrote:
-> > David Howells writes:
+On Wed, Mar 08, 2006 at 04:33:10PM -0800, Chen, Kenneth W wrote:
+> David Gibson wrote on Wednesday, March 08, 2006 4:23 PM
+> > > But you already make reservation at mmap time.  If you reserve it again
+> > > when extending the file, won't you double count?
 > > 
-> > > > # define smp_read_barrier_depends()     do { } while(0)
-> > > 
-> > > What's this one meant to do?
-> > 
-> > On most CPUs, if you load one value and use the value you get to
-> > compute the address for a second load, there is an implicit read
-> > barrier between the two loads because of the dependency.  That's not
-> > true on alpha, apparently, because of the way their caches are
-> > structured.
+> > Well, I'd generally expect extending truncate() to come before mmap(),
+> > but in any case hugetlb_extend_reservation() is safe against double
+> > counting (it's idempotent if called twice with the same number of
+> > pages).  The semantics are "ensure the this many pages total are
+> > guaranteed available, that is, either reserved or already
+> > instantiated".
 > 
-> Who said?! ;-)
+> It's kind of peculiar that kernel reserve hugetlb page at the time of
+> extending truncate.  Maybe there is a close correlation between mmap
+> size to the file size.  But these two aren't the same and and shouldn't
+> be mixed.
 
-Paul McKenney, after much discussion with Alpha chip designers IIRC.
+Indeed.  The fundamental basis of my approach as opposed to that in
+apw's old accounting patches is that reservation is related to
+filesize, not mmap() size.  The only connection to mmap() is that
+(shared writable) mmap() on hugetlbfs also extends filesize and
+reservation size as a side effect.
 
-> > The smp_read_barrier_depends is a read barrier that you
-> > use between two loads when there is already a dependency between the
-> > loads, and it is a no-op on everything except alpha (IIRC).
-> 
-> My "Compiler Writer's Guide for the Alpha 21264" says that if the
-> result of the first load contributes to the address calculation
-> of the second load, then the second load cannot issue until the data
-> from the first load is available.
+There's a slight wrinkle in the different between i_size and reserved
+pages.  i_size can be extended beyond the "reserved portion" of the
+file.  We need that behaviour because i_size also acts as a hard
+offset limit for MAP_PRIVATE mappings, but privately instantiated
+pages don't come from the file's reservation.
 
-Sure, but because of the partitioned caches on some systems, the
-second load can get older data than the first load, even though it
-issues later.
-
-If you do:
-
-	CPU 0			CPU 1
-
-	foo = val;
-	wmb();
-	p = &foo;
-				reg = p;
-				bar = *reg;
-
-it is apparently possible for CPU 1 to see the new value of p
-(i.e. &foo) but an old value of foo (i.e. not val).  This can happen
-if p and foo are in different halves of the cache on CPU 1, and there
-are a lot of updates coming in for the half containing foo but the
-half containing p is quiet.
-
-I added Paul McKenney to the cc list so he can correct anything I have
-wrong here.
-
-Paul.
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

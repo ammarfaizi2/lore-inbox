@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWCIW4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWCIW5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWCIW4y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 17:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbWCIW4y
+	id S1751537AbWCIW5j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 17:57:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWCIW5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 17:56:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1034 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750846AbWCIW4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 17:56:53 -0500
-Date: Thu, 9 Mar 2006 23:56:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Sergei Steshenko <steshenko_sergei@list.ru>,
-       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: [Alsa-user] arecord under 2.6.15.4-rt17 ->overruns...
-Message-ID: <20060309225652.GH21864@stusta.de>
-References: <1141495123.3042.181.camel@mindpipe> <Pine.LNX.4.60.0603042046450.3135@poirot.grange> <1141509605.14714.11.camel@mindpipe> <Pine.LNX.4.60.0603051915020.3204@poirot.grange> <Pine.LNX.4.60.0603071851190.3662@poirot.grange> <1141757284.767.56.camel@mindpipe> <Pine.LNX.4.60.0603071955350.3662@poirot.grange> <1141758903.767.62.camel@mindpipe> <Pine.LNX.4.60.0603092336150.14584@poirot.grange> <1141944417.13319.84.camel@mindpipe>
+	Thu, 9 Mar 2006 17:57:39 -0500
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:5565 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751517AbWCIW5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 17:57:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=b3y1uB7bvu//8mQQaCkGviP5EF9/SDFglOhs/vYfOHl8+A9zfY7Hhx2iMIgQixUPGPpVL1anb/hx1lzD5iHWrpo73Rax6UER+nSEszJc4GVIg5S+CdIxgWmv+VLUTF+W4NuwXYFK+BxRn2onWPAXlDA5AuIV6pcUk/2qDaMEJ3s=  ;
+Message-ID: <4410B2D7.4090806@yahoo.com.au>
+Date: Fri, 10 Mar 2006 09:57:27 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141944417.13319.84.camel@mindpipe>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+CC: Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rt20, "bad page state", jackd
+References: <1141846564.5262.20.camel@cmn3.stanford.edu>	 <20060309084746.GB9408@osiris.boeblingen.de.ibm.com> <1141938488.22708.28.camel@cmn3.stanford.edu>
+In-Reply-To: <1141938488.22708.28.camel@cmn3.stanford.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 05:46:56PM -0500, Lee Revell wrote:
-> On Thu, 2006-03-09 at 23:41 +0100, Guennadi Liakhovetski wrote:
-> > On Tue, 7 Mar 2006, Lee Revell wrote:
-> > 
-> > > Does the OSS driver have the same problem?
-> > 
-> > Surprise - I was not able to reproduce the problem with oss. Whereas with 
-> > alsa I was able to lock my PC again. What I do - just load respective 
-> > drivers and either "jackd -v -d alsa" or "jackd -v -d oss". And then just 
-> > put some load in the background + try to start ardour... With alsa I 
-> > wasn't even able to start it. With oss it did run, and no xruns reported 
-> > from jackd. Normal non-rt kernel. jackd started without --realtime.
-> > 
-> > Ouch
-> > 
+Fernando Lopez-Lezcano wrote:
+
+> In my case it is completely repeatable. 
+> Boot, start jackd, stop jackd -> problem appears. 
 > 
-> OK, please file a report in the ALSA bug tracker against this driver.
+> This does not happen on all computers so it would seem to me it is
+> related to the sound drivers. I'll try to see if there is a correlation
+> with the sound card being used. 
 > 
-> Adrian, please add VIA to your list of OSS drivers that need to remain in the kernel.
+> Is there anything else I could do to try to help resolve this?
 
-As soon as I get a bug number from the ALSA bug tracker I'll add 
-SOUND_VIA82CXXX to my list of OSS drivers that should stay.
-
-> Lee
-
-cu
-Adrian
+Can you test with the latest mainline -git snapshot, or is it only
+the -rt tree that causes the warnings?
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751760AbWCIWF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751910AbWCIWGF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751760AbWCIWF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 17:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751764AbWCIWF1
+	id S1751910AbWCIWGF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 17:06:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbWCIWGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 17:05:27 -0500
-Received: from main.gmane.org ([80.91.229.2]:28072 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751760AbWCIWF0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 17:05:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: multimedia keys on dell inspiron 8200s.
-Date: Thu, 9 Mar 2006 23:03:02 +0100
-Message-ID: <171jjrcj2780l.1nazr87kzdc51$.dlg@40tude.net>
-References: <20060224014947.GA17397@redhat.com> <200602242257.54062.dtor_core@ameritech.net> <20060225042729.GB7851@redhat.com>
+	Thu, 9 Mar 2006 17:06:05 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5554 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751764AbWCIWGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 17:06:03 -0500
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dave Neuer <mr.fred.smoothie@pobox.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Luke-Jr <luke@dashjr.org>,
+       Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <161717d50603091330j61850529xcd50382a55ccb6b3@mail.gmail.com>
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
+	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
+	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+	 <44108CCB.9080709@cfl.rr.com>
+	 <161717d50603091330j61850529xcd50382a55ccb6b3@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 17:06:00 -0500
+Message-Id: <1141941960.13319.79.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: host-84-220-48-150.cust-adsl.tiscali.it
-User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Feb 2006 23:27:29 -0500, Dave Jones wrote:
+On Thu, 2006-03-09 at 16:30 -0500, Dave Neuer wrote:
+> At any rate, at the moment I'm getting paid software, not for legal
+> analysis which I'm not qualified to give. I'm certainly not getting
+> paid enough to sue anyone, so unless some other kernel hacker or
+> company is planning on initiating a lawsuit (to which I'd happily
+> join) it's fairly moot, and I'll let it drop at that. 
 
-> On Fri, Feb 24, 2006 at 10:57:53PM -0500, Dmitry Torokhov wrote:
->  > On Thursday 23 February 2006 20:49, Dave Jones wrote:
->  > > We've been carrying this patch in Fedora for way too long.
->  > > So long, I've forgotten a lot of the history.
->  > > 
->  > > Aparently, it makes multimedia buttons on Dell Inspiron 8200's
->  > > produce keycodes.  The only reference to this I found was
->  > > at http://linux.siprell.com/, but I don't know if that's its origin.
->  > > 
->  > 
->  > Dave,
->  > 
->  > This patch was refused before. Any additional/non-standard mapping is
->  > to be done in userspace (you need to properly adjust xorg.conf anyway):
->  > 
->  > http://bugzilla.kernel.org/show_bug.cgi?id=2817#c4
-> 
-> Ok, thanks, I'll make sure it gets dropped from the Fedora tree.
+I would think a lawsuit hasn't happened because it would be more
+productive to work with these vendors to move the parts of the driver
+that must remain closed to userspace.
 
-The patch looks remarkably like the one I originally submitted for
-comments.
-
-I'm still running Linux on my Dell Inspiron 8200 and I'm not using
-that patch anymore. Rather, I found a package that recently made it to
-the Debian unstable repository, hotkey-setup
-
-http://packages.debian.org/unstable/misc/hotkey-setup
-
-which you may want to consider for inclusion on Fedora too. On the
-Debian BTS you will also see a Bug/Wish from me
-
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=355223
-
-with additional definitions for the multimedia keys on my Dell and
-some comments.
-
-(Sorry for the delay in my reply)
-
-
--- 
-Giuseppe "Oblomov" Bilotta
-
-[W]hat country can preserve its liberties, if its rulers are not
-warned from time to time that [the] people preserve the spirit of
-resistance? Let them take arms...The tree of liberty must be
-refreshed from time to time, with the blood of patriots and
-tyrants.
-	-- Thomas Jefferson, letter to Col. William S. Smith, 1787
+Lee
 

@@ -1,139 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751491AbWCIOBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751903AbWCIOHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751491AbWCIOBg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 09:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWCIOBg
+	id S1751903AbWCIOHA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 09:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWCIOG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 09:01:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:2966 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751491AbWCIOBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 09:01:35 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <21627.1141846631@warthog.cambridge.redhat.com> 
-References: <21627.1141846631@warthog.cambridge.redhat.com>  <29826.1141828678@warthog.cambridge.redhat.com> <31492.1141753245@warthog.cambridge.redhat.com> 
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #3] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Thu, 09 Mar 2006 14:01:16 +0000
-Message-ID: <27749.1141912876@warthog.cambridge.redhat.com>
+	Thu, 9 Mar 2006 09:06:58 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13829 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751903AbWCIOG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 09:06:57 -0500
+Date: Thu, 9 Mar 2006 15:06:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+       scjody@modernduck.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/ieee1394/ohci1394.c: function calls without effect
+Message-ID: <20060309140656.GF21864@stusta.de>
+References: <20060309114138.GA21864@stusta.de> <tkrat.be39a8854a3c82c0@s5r6.in-berlin.de> <20060309135100.GD21864@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060309135100.GD21864@stusta.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 09, 2006 at 02:51:00PM +0100, Adrian Bunk wrote:
+> On Thu, Mar 09, 2006 at 02:18:28PM +0100, Stefan Richter wrote:
+> > ohci1394: Remove superfluous call to free_dma_rcv_ctx,
+> > spotted by Adrian Bunk. Also remove some superfluous comments.
+> > 
+> > Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+> > 
+> > Index: linux/drivers/ieee1394/ohci1394.c
+> > ===================================================================
+> > --- linux.orig/drivers/ieee1394/ohci1394.c     2006-03-06 20:04:10.000000000 +0100
+> > +++ linux/drivers/ieee1394/ohci1394.c  2006-03-09 14:09:21.000000000 +0100
+> > @@ -3462,24 +3462,13 @@ static void ohci1394_pci_remove(struct p
+> >  	case OHCI_INIT_HAVE_TXRX_BUFFERS__MAYBE:
+> >  		/* The ohci_soft_reset() stops all DMA contexts, so we
+> >  		 * dont need to do this.  */
+> > -		/* Free AR dma */
+> >  		free_dma_rcv_ctx(&ohci->ar_req_context);
+> >  		free_dma_rcv_ctx(&ohci->ar_resp_context);
+> > -
+> > -		/* Free AT dma */
+> >  		free_dma_trm_ctx(&ohci->at_req_context);
+> >  		free_dma_trm_ctx(&ohci->at_resp_context);
+> > -
+> > -		/* Free IR dma */
+> >  		free_dma_rcv_ctx(&ohci->ir_legacy_context);
+> > -
+> > -		/* Free IT dma */
+> >  		free_dma_trm_ctx(&ohci->it_legacy_context);
+> >...
+> 
+> Unless I'm mireading the code, it's impossible after the call of 
+> free_dma_rcv_ctx() that free_dma_trm_ctx() will do anything.
 
-I'm thinking of adding the attached to the document. Any comments or
-objections?
+Skip this, Ben already explained to me that an r (ir_) isn't a t (it_).
 
-David
+cu
+Adrian
 
-diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-index 6eeb7e4..f9a9192 100644
---- a/Documentation/memory-barriers.txt
-+++ b/Documentation/memory-barriers.txt
-@@ -4,6 +4,8 @@
- 
- Contents:
- 
-+ (*) What do we consider memory?
-+
-  (*) What are memory barriers?
- 
-  (*) Where are memory barriers needed?
-@@ -32,6 +34,82 @@ Contents:
-  (*) References.
- 
- 
-+===========================
-+WHAT DO WE CONSIDER MEMORY?
-+===========================
-+
-+For the purpose of this specification, "memory", at least as far as cached CPU
-+vs CPU interactions go, has to include the CPU caches in the system.  Although
-+any particular read or write may not actually appear outside of the CPU that
-+issued it because the CPU was able to satisfy it from its own cache, it's still
-+as if the memory access had taken place as far as the other CPUs are concerned
-+since the cache coherency and ejection mechanisms will propegate the effects
-+upon conflict.
-+
-+Consider the system logically as:
-+
-+	    <--- CPU --->         :       <----------- Memory ----------->
-+	                          :
-+	+--------+    +--------+  :   +--------+    +-----------+
-+	|        |    |        |  :   |        |    |           |    +---------+
-+	|  CPU   |    | Memory |  :   | CPU    |    |           |    |	       |
-+	|  Core  |--->| Access |----->| Cache  |<-->|           |    |	       |
-+	|        |    | Queue  |  :   |        |    |           |--->| Memory  |
-+	|        |    |        |  :   |        |    |           |    |	       |
-+	+--------+    +--------+  :   +--------+    |           |    | 	       |
-+	                          :                 | Cache     |    +---------+
-+	                          :                 | Coherency |
-+	                          :                 | Mechanism |    +---------+
-+	+--------+    +--------+  :   +--------+    |           |    |	       |
-+	|        |    |        |  :   |        |    |           |    |         |
-+	|  CPU   |    | Memory |  :   | CPU    |    |           |--->| Device  |
-+	|  Core  |--->| Access |----->| Cache  |<-->|           |    | 	       |
-+	|        |    | Queue  |  :   |        |    |           |    | 	       |
-+	|        |    |        |  :   |        |    |           |    +---------+
-+	+--------+    +--------+  :   +--------+    +-----------+
-+	                          :
-+	                          :
-+
-+The CPU core may execute instructions in any order it deems fit, provided the
-+expected program causality appears to be maintained.  Some of the instructions
-+generate load and store operations which then go into the memory access queue
-+to be performed.  The core may place these in the queue in any order it wishes,
-+and continue execution until it is forced to wait for an instruction to
-+complete.
-+
-+What memory barriers are concerned with is controlling the order in which
-+accesses cross from the CPU side of things to the memory side of things, and
-+the order in which the effects are perceived to happen by the other observers
-+in the system.
-+
-+
-+Note that the above model does not show uncached memory or I/O accesses.  These
-+procede directly from the queue to the memory or the devices, bypassing any
-+cache coherency:
-+
-+	    <--- CPU --->         :
-+       	                          :		+-----+
-+	+--------+    +--------+  :             |     |
-+	|        |    |        |  :             |     |              +---------+
-+	|  CPU   |    | Memory |  :             |     |              |	       |
-+	|  Core  |--->| Access |--------------->|     |              |	       |
-+	|        |    | Queue  |  :             |     |------------->| Memory  |
-+	|        |    |        |  :             |     |              |	       |
-+	+--------+    +--------+  :             |     |              | 	       |
-+	                          :             |     |              +---------+
-+	                          :             | Bus |
-+	                          :             |     |              +---------+
-+	+--------+    +--------+  :             |     |              |	       |
-+	|        |    |        |  :             |     |              |         |
-+	|  CPU   |    | Memory |  :             |     |<------------>| Device  |
-+	|  Core  |--->| Access |--------------->|     |              | 	       |
-+	|        |    | Queue  |  :             |     |              | 	       |
-+	|        |    |        |  :             |     |              +---------+
-+	+--------+    +--------+  :             |     |
-+	                          :		+-----+
-+	                          :
-+
-+
- =========================
- WHAT ARE MEMORY BARRIERS?
- =========================
-@@ -448,8 +526,8 @@ In all cases there are variants on a LOC
- 
-      The LOCK accesses will be completed before the UNLOCK accesses.
- 
--And therefore an UNLOCK followed by a LOCK is equivalent to a full barrier, but
--a LOCK followed by an UNLOCK isn't.
-+     Therefore an UNLOCK followed by a LOCK is equivalent to a full barrier,
-+     but a LOCK followed by an UNLOCK is not.
- 
- Locks and semaphores may not provide any guarantee of ordering on UP compiled
- systems, and so can't be counted on in such a situation to actually do anything
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

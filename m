@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWCIIp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWCIIsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWCIIp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 03:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbWCIIp5
+	id S1751052AbWCIIsH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 03:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWCIIsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 03:45:57 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:32855 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750862AbWCIIp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 03:45:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=qw+9o4LJAPf49j1PRnuAeheRYj6s/KlTIC7+lQLeL0U2m8sX8DxUQUEazxzOZYdRGcCXeSI0K2P+y3RvUREjLa/pv1kjAQNYGbJ2bjepnx+sP8bXPseqzCgyulYjY2dyeDe8eNV1BHTCbeWAjApgqBvHf4WF19QIYEXTi1zaNH0=  ;
-Message-ID: <440FEA24.3060307@yahoo.com.au>
-Date: Thu, 09 Mar 2006 19:41:08 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 9 Mar 2006 03:48:07 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:41004 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751052AbWCIIsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 03:48:06 -0500
+Date: Thu, 9 Mar 2006 09:47:46 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rt20, "bad page state", jackd
+Message-ID: <20060309084746.GB9408@osiris.boeblingen.de.ibm.com>
+References: <1141846564.5262.20.camel@cmn3.stanford.edu>
 MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-CC: Andrew Morton <akpm@osdl.org>, bcrl@kvack.org,
-       linux-kernel@vger.kernel.org, davem@davemloft.net,
-       netdev@vger.kernel.org, shai@scalex86.org, Andi Kleen <ak@suse.de>
-Subject: Re: [patch 1/4] net: percpufy frequently used vars -- add percpu_counter_mod_bh
-References: <20060308203642.GZ5410@kvack.org> <20060308210726.GD4493@localhost.localdomain> <20060308211733.GA5410@kvack.org> <20060308222528.GE4493@localhost.localdomain> <20060308224140.GC5410@kvack.org> <20060308154321.0e779111.akpm@osdl.org> <20060309001803.GF4493@localhost.localdomain> <20060308163258.36f3bd79.akpm@osdl.org> <20060309080651.GA3599@localhost.localdomain> <440FE3E2.1060307@yahoo.com.au> <20060309082251.GB3599@localhost.localdomain>
-In-Reply-To: <20060309082251.GB3599@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141846564.5262.20.camel@cmn3.stanford.edu>
+User-Agent: mutt-ng/devel-r781 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
-> On Thu, Mar 09, 2006 at 07:14:26PM +1100, Nick Piggin wrote:
+On Wed, Mar 08, 2006 at 11:36:04AM -0800, Fernando Lopez-Lezcano wrote:
+> Hi all, I reported this in mid January (I thought I had sent to the list
+> but the report went to Ingo and Steven off list)
 > 
->>Ravikiran G Thirumalai wrote:
->>
->>
->>>Here's a patch making x86_64 local_t to 64 bits like other 64 bit arches.
->>>This keeps local_t unsigned long.  (We can change it to signed value 
->>>along with other arches later in one go I guess) 
->>>
->>
->>Why not just keep naming and structure of interfaces consistent with
->>atomic_t?
->>
->>That would be signed and 32-bit. You then also have a local64_t.
+> I'm seeing the same problem in 2.6.15-rt21 in some of my machines. After
+> a reboot into the kernel I just login as root in a terminal, start the
+> jackd sound server ("jackd -d alsa -d hw") and when stopping it (just
+> doing a <ctrl>c) I get a bunch of messages of this form:
 > 
+> > Trying to fix it up, but a reboot is needed
+> > Bad page state at __free_pages_ok (in process 'jackd', page c10012fc)
 > 
-> No, local_t is supposed to be 64-bits on 64bits arches and 32 bit on 32 bit
-> arches.  x86_64 was the only exception, so this patch fixes that.
-> 
-> 
+> Has anyone else seen this?
 
-Right. If it wasn't I wouldn't have proposed the change.
+Actually I have a bug report that looks quite the same. Happens on s390x
+with lots of I/O stress. But that is against vanilla 2.6.16-rc4 + additional
+patches. I need to ask to reproduce that with a plain vanilla kernel, so
+that a git bisect search might help to figure out what is wrong.
+Unfortunately it seems to take hours before we hit the bug.
 
-Considering that local_t has been broken so that basically nobody
-is using it, now is a great time to rethink the types before it
-gets fixed and people start using it.
+<0>Bad page state in process 'blast'
+<0>page:0000000000507d00 flags:0x000000060000002a mapping:00000000007570b0 mapcount:1 count:8
+<0>Trying to fix it up, but a reboot is needed
+<0>Backtrace:
+<4>0000000006e93750 0000000000000000 0000000000773780 0700000000007c7a 
+<4>       0000000000000001 000000000025f878 000000000025f878 0000000000104840 
+<4>       0000000000000000 000000060000002a 0000000000000000 0000000000518d50 
+<4>       000000000000000c 0000000000000008 0000000006e936f8 0000000006e93770 
+<4>       000000000044e1f0 0000000000104840 0000000006e936f8 0000000006e93738 
+<4>Call Trace:
+<4>([<0000000000104870>] dump_stack+0x2b8/0x374)
+<4> [<00000000001a97de>] get_page_from_freelist+0x72e/0x8e8
+<4> [<00000000001a9aa8>] __alloc_pages+0x110/0x324
+<4> [<00000000001b37a0>] page_cache_readahead+0xf6c/0x11e4
+<4> [<000000000019f870>] do_generic_mapping_read+0x150/0x828
+<4> [<00000000001a07f4>] generic_file_aio_read+0x1f8/0x258
+<4> [<00000000001fa844>] do_sync_read+0x130/0x1bc
+<4> [<00000000001fc230>] sys_read+0x170/0x3b8
+<4> [<000000000010fb20>] sysc_tracego+0xe/0x14
+<4> [<0000020000043a84>] 0x20000043a84
 
-And modelling the type on the atomic types would make the most
-sense because everyone already knows them.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Heiko

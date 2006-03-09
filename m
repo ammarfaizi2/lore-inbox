@@ -1,1288 +1,492 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751783AbWCIKYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWCIKa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751783AbWCIKYF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 05:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWCIKYE
+	id S1751785AbWCIKa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 05:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWCIKa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 05:24:04 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:35482 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751783AbWCIKYB (ORCPT
+	Thu, 9 Mar 2006 05:30:59 -0500
+Received: from tao.natur.cuni.cz ([195.113.56.1]:36871 "EHLO tao.natur.cuni.cz")
+	by vger.kernel.org with ESMTP id S1751785AbWCIKa6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 05:24:01 -0500
-From: Dmitry Mishin <dim@openvz.org>
-Organization: SWsoft
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: {get|set}sockopt compat layer
-Date: Thu, 9 Mar 2006 13:23:59 +0300
-User-Agent: KMail/1.8
-Cc: devel@openvz.org, dev@openvz.org, akpm@osdl.org,
-       netfilter-devel@lists.netfilter.org, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-References: <200602201110.39092.dim@openvz.org> <200603071707.19138.dim@openvz.org> <200603071605.39177.arnd@arndb.de>
-In-Reply-To: <200603071605.39177.arnd@arndb.de>
+	Thu, 9 Mar 2006 05:30:58 -0500
+X-Obalka-From: mmokrejs@ribosome.natur.cuni.cz
+X-Obalka-To: <linux-kernel@vger.kernel.org>
+Message-ID: <441003E5.3090904@ribosome.natur.cuni.cz>
+Date: Thu, 09 Mar 2006 11:31:01 +0100
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051002
+X-Accept-Language: cs
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_AJAEE7t0EyQycyg"
-Message-Id: <200603091324.00362.dim@openvz.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5 huge memory detection regression
+References: <440D6581.9080000@ribosome.natur.cuni.cz>	 <20060307041532.3ef45392.akpm@osdl.org>	 <440D7BB8.40106@ribosome.natur.cuni.cz>	 <20060307113631.36ac029d.akpm@osdl.org> <1141765722.9274.105.camel@localhost.localdomain>
+In-Reply-To: <1141765722.9274.105.camel@localhost.localdomain>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/mixed;
+ boundary="------------020006060802030507040308"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_AJAEE7t0EyQycyg
-Content-Type: text/plain;
-  charset="iso-8859-1"
+This is a multi-part message in MIME format.
+--------------020006060802030507040308
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hello, Arnd!
+Hey, it happened on my third reboot retry. This time only 12GB detected.
 
-> For the compat_ioctl stuff, we don't have the function pointer inside an
-> #ifdef, the overhead is relatively small since there is only one of these
-> structures per module implementing a protocol, but it avoids having to
-> rebuild everything when changing CONFIG_COMPAT.
->
-> It's probably not a big issue either way, maybe davem has a stronger
-> opinion on it either way.
->
-Done.
+Dave Hansen wrote:
+> On Tue, 2006-03-07 at 11:36 -0800, Andrew Morton wrote:
+> 
+>>Because there was a change which could have affected this.  But it was
+>>merged in late October and was present in 2.6.15.
+> 
+> 
+> It certainly is possible that my patch caused the bug.  However, my
+> patch only affects limit_regions(), which is only called when the user
+> specifies a mem= argument on the command-line.  When they do this, in
+> addition to the BIOS-e820 printout, they should also see a "user-defined
+> physical RAM map:", which I don't see in the diff.  Also, I'm pretty
+> sure that this e820 printout runs before parse_cmdline_early(), where
+> limit_regions() is called.
+> 
+> Martin, in any case, I have debugged things in that code recently, and
+> I'd be happy to help you fix your problem.  I've attached a patch that
+> does a ton of e820 debug printks.  If you could get me a full copy of
+> your dmesg with that applied, I should be able to locate the problem a
+> bit more quickly.
 
--- 
-Thanks,
-Dmitry.
-
---Boundary-00=_AJAEE7t0EyQycyg
+--------------020006060802030507040308
 Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="diff-ms-sockopts-compat-20060309"
+ name="boot-2.6.16-rc5-git12-e820-patch"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff-ms-sockopts-compat-20060309"
+Content-Disposition: inline;
+ filename="boot-2.6.16-rc5-git12-e820-patch"
 
---- ./include/linux/net.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/linux/net.h	2006-03-09 12:58:53.000000000 +0300
-@@ -149,6 +149,10 @@ struct proto_ops {
- 				      int optname, char __user *optval, int optlen);
- 	int		(*getsockopt)(struct socket *sock, int level,
- 				      int optname, char __user *optval, int __user *optlen);
-+	int		(*compat_setsockopt)(struct socket *sock, int level,
-+				      int optname, char __user *optval, int optlen);
-+	int		(*compat_getsockopt)(struct socket *sock, int level,
-+				      int optname, char __user *optval, int __user *optlen);
- 	int		(*sendmsg)   (struct kiocb *iocb, struct socket *sock,
- 				      struct msghdr *m, size_t total_len);
- 	int		(*recvmsg)   (struct kiocb *iocb, struct socket *sock,
---- ./include/linux/netfilter.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/linux/netfilter.h	2006-03-09 12:59:44.000000000 +0300
-@@ -80,10 +80,14 @@ struct nf_sockopt_ops
- 	int set_optmin;
- 	int set_optmax;
- 	int (*set)(struct sock *sk, int optval, void __user *user, unsigned int len);
-+	int (*compat_set)(struct sock *sk, int optval,
-+			void __user *user, unsigned int len);
- 
- 	int get_optmin;
- 	int get_optmax;
- 	int (*get)(struct sock *sk, int optval, void __user *user, int *len);
-+	int (*compat_get)(struct sock *sk, int optval,
-+			void __user *user, int *len);
- 
- 	/* Number of users inside set() or get(). */
- 	unsigned int use;
-@@ -246,6 +250,11 @@ int nf_setsockopt(struct sock *sk, int p
- int nf_getsockopt(struct sock *sk, int pf, int optval, char __user *opt,
- 		  int *len);
- 
-+int compat_nf_setsockopt(struct sock *sk, int pf, int optval,
-+		char __user *opt, int len);
-+int compat_nf_getsockopt(struct sock *sk, int pf, int optval,
-+		char __user *opt, int *len);
-+
- /* Packet queuing */
- struct nf_queue_handler {
- 	int (*outfn)(struct sk_buff *skb, struct nf_info *info,
---- ./include/net/inet_connection_sock.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/net/inet_connection_sock.h	2006-03-09 12:59:58.000000000 +0300
-@@ -50,6 +50,12 @@ struct inet_connection_sock_af_ops {
- 				  char __user *optval, int optlen);
- 	int	    (*getsockopt)(struct sock *sk, int level, int optname, 
- 				  char __user *optval, int __user *optlen);
-+	int	    (*compat_setsockopt)(struct sock *sk,
-+				int level, int optname,
-+				char __user *optval, int optlen);
-+	int	    (*compat_getsockopt)(struct sock *sk,
-+				int level, int optname,
-+				char __user *optval, int __user *optlen);
- 	void	    (*addr2sockaddr)(struct sock *sk, struct sockaddr *);
- 	int sockaddr_len;
- };
---- ./include/net/ip.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/net/ip.h	2006-03-09 13:00:15.000000000 +0300
-@@ -356,6 +356,10 @@ extern void	ip_cmsg_recv(struct msghdr *
- extern int	ip_cmsg_send(struct msghdr *msg, struct ipcm_cookie *ipc);
- extern int	ip_setsockopt(struct sock *sk, int level, int optname, char __user *optval, int optlen);
- extern int	ip_getsockopt(struct sock *sk, int level, int optname, char __user *optval, int __user *optlen);
-+extern int	compat_ip_setsockopt(struct sock *sk, int level,
-+			int optname, char __user *optval, int optlen);
-+extern int	compat_ip_getsockopt(struct sock *sk, int level,
-+			int optname, char __user *optval, int __user *optlen);
- extern int	ip_ra_control(struct sock *sk, unsigned char on, void (*destructor)(struct sock *));
- 
- extern int 	ip_recv_error(struct sock *sk, struct msghdr *msg, int len);
---- ./include/net/sctp/structs.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/net/sctp/structs.h	2006-03-09 13:00:36.000000000 +0300
-@@ -514,6 +514,16 @@ struct sctp_af {
- 					 int optname,
- 					 char __user *optval,
- 					 int __user *optlen);
-+	int		(*compat_setsockopt)	(struct sock *sk,
-+					 int level,
-+					 int optname,
-+					 char __user *optval,
-+					 int optlen);
-+	int		(*compat_getsockopt)	(struct sock *sk,
-+					 int level,
-+					 int optname,
-+					 char __user *optval,
-+					 int __user *optlen);
- 	struct dst_entry *(*get_dst)	(struct sctp_association *asoc,
- 					 union sctp_addr *daddr,
- 					 union sctp_addr *saddr);
---- ./include/net/sock.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/net/sock.h	2006-03-09 13:01:10.000000000 +0300
-@@ -520,6 +520,14 @@ struct proto {
- 	int			(*getsockopt)(struct sock *sk, int level, 
- 					int optname, char __user *optval, 
- 					int __user *option);  	 
-+	int			(*compat_setsockopt)(struct sock *sk,
-+					int level,
-+					int optname, char __user *optval,
-+					int optlen);
-+	int			(*compat_getsockopt)(struct sock *sk,
-+					int level,
-+					int optname, char __user *optval,
-+					int __user *option);
- 	int			(*sendmsg)(struct kiocb *iocb, struct sock *sk,
- 					   struct msghdr *msg, size_t len);
- 	int			(*recvmsg)(struct kiocb *iocb, struct sock *sk,
-@@ -816,6 +824,10 @@ extern int sock_common_recvmsg(struct ki
- 			       struct msghdr *msg, size_t size, int flags);
- extern int sock_common_setsockopt(struct socket *sock, int level, int optname,
- 				  char __user *optval, int optlen);
-+extern int compat_sock_common_getsockopt(struct socket *sock, int level,
-+		int optname, char __user *optval, int __user *optlen);
-+extern int compat_sock_common_setsockopt(struct socket *sock, int level,
-+		int optname, char __user *optval, int optlen);
- 
- extern void sk_common_release(struct sock *sk);
- 
---- ./include/net/tcp.h.compat	2006-03-09 12:57:53.000000000 +0300
-+++ ./include/net/tcp.h	2006-03-09 13:02:50.000000000 +0300
-@@ -347,6 +347,12 @@ extern int			tcp_getsockopt(struct sock 
- extern int			tcp_setsockopt(struct sock *sk, int level, 
- 					       int optname, char __user *optval, 
- 					       int optlen);
-+extern int			compat_tcp_getsockopt(struct sock *sk,
-+					int level, int optname,
-+					char __user *optval, int __user *optlen);
-+extern int			compat_tcp_setsockopt(struct sock *sk,
-+					int level, int optname,
-+					char __user *optval, int optlen);
- extern void			tcp_set_keepalive(struct sock *sk, int val);
- extern int			tcp_recvmsg(struct kiocb *iocb, struct sock *sk,
- 					    struct msghdr *msg,
---- ./net/compat.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/compat.c	2006-03-09 12:58:23.000000000 +0300
-@@ -416,7 +416,7 @@ struct compat_sock_fprog {
- 	compat_uptr_t	filter;		/* struct sock_filter * */
- };
- 
--static int do_set_attach_filter(int fd, int level, int optname,
-+static int do_set_attach_filter(struct socket *sock, int level, int optname,
- 				char __user *optval, int optlen)
- {
- 	struct compat_sock_fprog __user *fprog32 = (struct compat_sock_fprog __user *)optval;
-@@ -432,11 +432,12 @@ static int do_set_attach_filter(int fd, 
- 	    __put_user(compat_ptr(ptr), &kfprog->filter))
- 		return -EFAULT;
- 
--	return sys_setsockopt(fd, level, optname, (char __user *)kfprog, 
-+	return sock_setsockopt(sock, level, optname, (char __user *)kfprog,
- 			      sizeof(struct sock_fprog));
- }
- 
--static int do_set_sock_timeout(int fd, int level, int optname, char __user *optval, int optlen)
-+static int do_set_sock_timeout(struct socket *sock, int level,
-+		int optname, char __user *optval, int optlen)
- {
- 	struct compat_timeval __user *up = (struct compat_timeval __user *) optval;
- 	struct timeval ktime;
-@@ -451,30 +452,61 @@ static int do_set_sock_timeout(int fd, i
- 		return -EFAULT;
- 	old_fs = get_fs();
- 	set_fs(KERNEL_DS);
--	err = sys_setsockopt(fd, level, optname, (char *) &ktime, sizeof(ktime));
-+	err = sock_setsockopt(sock, level, optname, (char *) &ktime, sizeof(ktime));
- 	set_fs(old_fs);
- 
- 	return err;
- }
- 
-+static int compat_sock_setsockopt(struct socket *sock, int level, int optname,
-+				char __user *optval, int optlen)
-+{
-+	if (optname == SO_ATTACH_FILTER)
-+		return do_set_attach_filter(sock, level, optname,
-+					    optval, optlen);
-+	if (optname == SO_RCVTIMEO || optname == SO_SNDTIMEO)
-+		return do_set_sock_timeout(sock, level, optname, optval, optlen);
-+
-+	return sock_setsockopt(sock, level, optname, optval, optlen);
-+}
-+
- asmlinkage long compat_sys_setsockopt(int fd, int level, int optname,
- 				char __user *optval, int optlen)
- {
-+	int err;
-+	struct socket *sock;
-+
- 	/* SO_SET_REPLACE seems to be the same in all levels */
- 	if (optname == IPT_SO_SET_REPLACE)
- 		return do_netfilter_replace(fd, level, optname,
- 					    optval, optlen);
--	if (level == SOL_SOCKET && optname == SO_ATTACH_FILTER)
--		return do_set_attach_filter(fd, level, optname,
--					    optval, optlen);
--	if (level == SOL_SOCKET &&
--	    (optname == SO_RCVTIMEO || optname == SO_SNDTIMEO))
--		return do_set_sock_timeout(fd, level, optname, optval, optlen);
- 
--	return sys_setsockopt(fd, level, optname, optval, optlen);
-+	if (optlen < 0)
-+		return -EINVAL;
-+
-+	if ((sock = sockfd_lookup(fd, &err))!=NULL)
-+	{
-+		err = security_socket_setsockopt(sock,level,optname);
-+		if (err) {
-+			sockfd_put(sock);
-+			return err;
-+		}
-+
-+		if (level == SOL_SOCKET)
-+			err = compat_sock_setsockopt(sock, level,
-+					optname, optval, optlen);
-+		else if (sock->ops->compat_setsockopt)
-+			err = sock->ops->compat_setsockopt(sock, level,
-+					optname, optval, optlen);
-+		else
-+			err = sock->ops->setsockopt(sock, level,
-+					optname, optval, optlen);
-+		sockfd_put(sock);
-+	}
-+	return err;
- }
- 
--static int do_get_sock_timeout(int fd, int level, int optname,
-+static int do_get_sock_timeout(struct socket *sock, int level, int optname,
- 		char __user *optval, int __user *optlen)
- {
- 	struct compat_timeval __user *up;
-@@ -490,7 +522,7 @@ static int do_get_sock_timeout(int fd, i
- 	len = sizeof(ktime);
- 	old_fs = get_fs();
- 	set_fs(KERNEL_DS);
--	err = sys_getsockopt(fd, level, optname, (char *) &ktime, &len);
-+	err = sock_getsockopt(sock, level, optname, (char *) &ktime, &len);
- 	set_fs(old_fs);
- 
- 	if (!err) {
-@@ -503,15 +535,42 @@ static int do_get_sock_timeout(int fd, i
- 	return err;
- }
- 
--asmlinkage long compat_sys_getsockopt(int fd, int level, int optname,
-+static int compat_sock_getsockopt(struct socket *sock, int level, int optname,
- 				char __user *optval, int __user *optlen)
- {
--	if (level == SOL_SOCKET &&
--	    (optname == SO_RCVTIMEO || optname == SO_SNDTIMEO))
--		return do_get_sock_timeout(fd, level, optname, optval, optlen);
--	return sys_getsockopt(fd, level, optname, optval, optlen);
-+	if (optname == SO_RCVTIMEO || optname == SO_SNDTIMEO)
-+		return do_get_sock_timeout(sock, level, optname, optval, optlen);
-+	return sock_getsockopt(sock, level, optname, optval, optlen);
- }
- 
-+asmlinkage long compat_sys_getsockopt(int fd, int level, int optname,
-+				char __user *optval, int __user *optlen)
-+{
-+	int err;
-+	struct socket *sock;
-+
-+	if ((sock = sockfd_lookup(fd, &err))!=NULL)
-+	{
-+		err = security_socket_getsockopt(sock, level,
-+							   optname);
-+		if (err) {
-+			sockfd_put(sock);
-+			return err;
-+		}
-+
-+		if (level == SOL_SOCKET)
-+			err = compat_sock_getsockopt(sock, level,
-+					optname, optval, optlen);
-+		else if (sock->ops->compat_getsockopt)
-+			err = sock->ops->compat_getsockopt(sock, level,
-+					optname, optval, optlen);
-+		else
-+			err = sock->ops->getsockopt(sock, level,
-+					optname, optval, optlen);
-+		sockfd_put(sock);
-+	}
-+	return err;
-+}
- /* Argument list sizes for compat_sys_socketcall */
- #define AL(x) ((x) * sizeof(u32))
- static unsigned char nas[18]={AL(0),AL(3),AL(3),AL(3),AL(2),AL(3),
---- ./net/core/sock.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/core/sock.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1385,6 +1385,20 @@ int sock_common_getsockopt(struct socket
- 
- EXPORT_SYMBOL(sock_common_getsockopt);
- 
-+#ifdef CONFIG_COMPAT
-+int compat_sock_common_getsockopt(struct socket *sock, int level,
-+		int optname, char __user *optval, int __user *optlen)
-+{
-+	struct sock *sk = sock->sk;
-+
-+	if (sk->sk_prot->compat_setsockopt)
-+		return sk->sk_prot->compat_getsockopt(sk, level,
-+			optname, optval, optlen);
-+	return sk->sk_prot->getsockopt(sk, level, optname, optval, optlen);
-+}
-+EXPORT_SYMBOL(compat_sock_common_getsockopt);
-+#endif
-+
- int sock_common_recvmsg(struct kiocb *iocb, struct socket *sock,
- 			struct msghdr *msg, size_t size, int flags)
- {
-@@ -1414,6 +1428,20 @@ int sock_common_setsockopt(struct socket
- 
- EXPORT_SYMBOL(sock_common_setsockopt);
- 
-+#ifdef CONFIG_COMPAT
-+int compat_sock_common_setsockopt(struct socket *sock,
-+		int level, int optname, char __user *optval, int optlen)
-+{
-+	struct sock *sk = sock->sk;
-+
-+	if (sk->sk_prot->compat_setsockopt)
-+		return sk->sk_prot->compat_setsockopt(sk, level,
-+			optname, optval, optlen);
-+	return sk->sk_prot->setsockopt(sk, level, optname, optval, optlen);
-+}
-+EXPORT_SYMBOL(compat_sock_common_setsockopt);
-+#endif
-+
- void sk_common_release(struct sock *sk)
- {
- 	if (sk->sk_prot->destroy)
---- ./net/dccp/dccp.h.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/dccp/dccp.h	2006-03-09 12:58:23.000000000 +0300
-@@ -246,6 +246,14 @@ extern int	   dccp_getsockopt(struct soc
- 				   char __user *optval, int __user *optlen);
- extern int	   dccp_setsockopt(struct sock *sk, int level, int optname,
- 				   char __user *optval, int optlen);
-+#ifdef CONFIG_COMPAT
-+extern int	   compat_dccp_getsockopt(struct sock *sk,
-+				int level, int optname,
-+				char __user *optval, int __user *optlen);
-+extern int	   compat_dccp_setsockopt(struct sock *sk,
-+				int level, int optname,
-+				char __user *optval, int optlen);
-+#endif
- extern int	   dccp_ioctl(struct sock *sk, int cmd, unsigned long arg);
- extern int	   dccp_sendmsg(struct kiocb *iocb, struct sock *sk,
- 				struct msghdr *msg, size_t size);
---- ./net/dccp/ipv4.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/dccp/ipv4.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1028,6 +1028,10 @@ struct inet_connection_sock_af_ops dccp_
- 	.net_header_len	= sizeof(struct iphdr),
- 	.setsockopt	= ip_setsockopt,
- 	.getsockopt	= ip_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_ip_setsockopt,
-+	.compat_getsockopt	= compat_ip_getsockopt,
-+#endif
- 	.addr2sockaddr	= inet_csk_addr2sockaddr,
- 	.sockaddr_len	= sizeof(struct sockaddr_in),
- };
-@@ -1152,6 +1156,10 @@ struct proto dccp_prot = {
- 	.init			= dccp_v4_init_sock,
- 	.setsockopt		= dccp_setsockopt,
- 	.getsockopt		= dccp_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_dccp_setsockopt,
-+	.compat_getsockopt	= compat_dccp_getsockopt,
-+#endif
- 	.sendmsg		= dccp_sendmsg,
- 	.recvmsg		= dccp_recvmsg,
- 	.backlog_rcv		= dccp_v4_do_rcv,
---- ./net/dccp/ipv6.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/dccp/ipv6.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1170,6 +1170,10 @@ static struct proto dccp_v6_prot = {
- 	.init			= dccp_v6_init_sock,
- 	.setsockopt		= dccp_setsockopt,
- 	.getsockopt		= dccp_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_dccp_setsockopt,
-+	.compat_getsockopt	= compat_dccp_getsockopt,
-+#endif
- 	.sendmsg		= dccp_sendmsg,
- 	.recvmsg		= dccp_recvmsg,
- 	.backlog_rcv		= dccp_v6_do_rcv,
-@@ -1207,6 +1211,10 @@ static struct proto_ops inet6_dccp_ops =
- 	.shutdown	= inet_shutdown,
- 	.setsockopt	= sock_common_setsockopt,
- 	.getsockopt	= sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg	= inet_sendmsg,
- 	.recvmsg	= sock_common_recvmsg,
- 	.mmap		= sock_no_mmap,
---- ./net/dccp/proto.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/dccp/proto.c	2006-03-09 12:58:23.000000000 +0300
-@@ -255,18 +255,13 @@ static int dccp_setsockopt_service(struc
- 	return 0;
- }
- 
--int dccp_setsockopt(struct sock *sk, int level, int optname,
--		    char __user *optval, int optlen)
-+static int do_dccp_setsockopt(struct sock *sk, int level, int optname,
-+		char __user *optval, int optlen)
- {
- 	struct dccp_sock *dp;
- 	int err;
- 	int val;
- 
--	if (level != SOL_DCCP)
--		return inet_csk(sk)->icsk_af_ops->setsockopt(sk, level,
--							     optname, optval,
--							     optlen);
--
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
- 
-@@ -293,8 +288,34 @@ int dccp_setsockopt(struct sock *sk, int
- 	return err;
- }
- 
-+int dccp_setsockopt(struct sock *sk, int level, int optname,
-+		    char __user *optval, int optlen)
-+{
-+	if (level != SOL_DCCP)
-+		return inet_csk(sk)->icsk_af_ops->setsockopt(sk, level,
-+							     optname, optval,
-+							     optlen);
-+	return do_dccp_setsockopt(sk, level, optname, optval, optlen);
-+}
- EXPORT_SYMBOL_GPL(dccp_setsockopt);
- 
-+#ifdef CONFIG_COMPAT
-+int compat_dccp_setsockopt(struct sock *sk, int level, int optname,
-+		    char __user *optval, int optlen)
-+{
-+	if (level != SOL_DCCP) {
-+		if (inet_csk(sk)->icsk_af_ops->compat_setsockopt)
-+			return inet_csk(sk)->icsk_af_ops->compat_setsockopt(sk,
-+				level, optname, optval, optlen);
-+		else
-+			return inet_csk(sk)->icsk_af_ops->setsockopt(sk,
-+				level, optname, optval, optlen);
-+	}
-+	return do_dccp_setsockopt(sk, level, optname, optval, optlen);
-+}
-+EXPORT_SYMBOL_GPL(compat_dccp_setsockopt);
-+#endif
-+
- static int dccp_getsockopt_service(struct sock *sk, int len,
- 				   u32 __user *optval,
- 				   int __user *optlen)
-@@ -326,16 +347,12 @@ out:
- 	return err;
- }
- 
--int dccp_getsockopt(struct sock *sk, int level, int optname,
-+static int do_dccp_getsockopt(struct sock *sk, int level, int optname,
- 		    char __user *optval, int __user *optlen)
- {
- 	struct dccp_sock *dp;
- 	int val, len;
- 
--	if (level != SOL_DCCP)
--		return inet_csk(sk)->icsk_af_ops->getsockopt(sk, level,
--							     optname, optval,
--							     optlen);
- 	if (get_user(len, optlen))
- 		return -EFAULT;
- 
-@@ -368,8 +385,34 @@ int dccp_getsockopt(struct sock *sk, int
- 	return 0;
- }
- 
-+int dccp_getsockopt(struct sock *sk, int level, int optname,
-+		    char __user *optval, int __user *optlen)
-+{
-+	if (level != SOL_DCCP)
-+		return inet_csk(sk)->icsk_af_ops->getsockopt(sk, level,
-+							     optname, optval,
-+							     optlen);
-+	return do_dccp_getsockopt(sk, level, optname, optval, optlen);
-+}
- EXPORT_SYMBOL_GPL(dccp_getsockopt);
- 
-+#ifdef CONFIG_COMPAT
-+int compat_dccp_getsockopt(struct sock *sk, int level, int optname,
-+		    char __user *optval, int __user *optlen)
-+{
-+	if (level != SOL_DCCP) {
-+		if (inet_csk(sk)->icsk_af_ops->compat_setsockopt)
-+			return inet_csk(sk)->icsk_af_ops->compat_getsockopt(sk,
-+				level, optname, optval, optlen);
-+		else
-+			return inet_csk(sk)->icsk_af_ops->getsockopt(sk,
-+				level, optname, optval, optlen);
-+	}
-+	return do_dccp_getsockopt(sk, level, optname, optval, optlen);
-+}
-+EXPORT_SYMBOL_GPL(compat_dccp_getsockopt);
-+#endif
-+
- int dccp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg,
- 		 size_t len)
- {
-@@ -696,6 +739,10 @@ static const struct proto_ops inet_dccp_
- 	.shutdown	= inet_shutdown,
- 	.setsockopt	= sock_common_setsockopt,
- 	.getsockopt	= sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg	= inet_sendmsg,
- 	.recvmsg	= sock_common_recvmsg,
- 	.mmap		= sock_no_mmap,
---- ./net/ipv4/af_inet.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv4/af_inet.c	2006-03-09 12:58:23.000000000 +0300
-@@ -802,6 +802,10 @@ const struct proto_ops inet_stream_ops =
- 	.shutdown =	inet_shutdown,
- 	.setsockopt =	sock_common_setsockopt,
- 	.getsockopt =	sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg =	inet_sendmsg,
- 	.recvmsg =	sock_common_recvmsg,
- 	.mmap =		sock_no_mmap,
-@@ -823,6 +827,10 @@ const struct proto_ops inet_dgram_ops = 
- 	.shutdown =	inet_shutdown,
- 	.setsockopt =	sock_common_setsockopt,
- 	.getsockopt =	sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg =	inet_sendmsg,
- 	.recvmsg =	sock_common_recvmsg,
- 	.mmap =		sock_no_mmap,
-@@ -848,6 +856,10 @@ static const struct proto_ops inet_sockr
- 	.shutdown =	inet_shutdown,
- 	.setsockopt =	sock_common_setsockopt,
- 	.getsockopt =	sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg =	inet_sendmsg,
- 	.recvmsg =	sock_common_recvmsg,
- 	.mmap =		sock_no_mmap,
---- ./net/ipv4/ip_sockglue.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv4/ip_sockglue.c	2006-03-09 12:58:23.000000000 +0300
-@@ -380,14 +380,12 @@ out:
-  *	an IP socket.
-  */
- 
--int ip_setsockopt(struct sock *sk, int level, int optname, char __user *optval, int optlen)
-+static int do_ip_setsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int optlen)
- {
- 	struct inet_sock *inet = inet_sk(sk);
- 	int val=0,err;
- 
--	if (level != SOL_IP)
--		return -ENOPROTOOPT;
--
- 	if (((1<<optname) & ((1<<IP_PKTINFO) | (1<<IP_RECVTTL) | 
- 			    (1<<IP_RECVOPTS) | (1<<IP_RECVTOS) | 
- 			    (1<<IP_RETOPTS) | (1<<IP_TOS) | 
-@@ -849,12 +847,7 @@ mc_msf_out:
- 			break;
- 
- 		default:
--#ifdef CONFIG_NETFILTER
--			err = nf_setsockopt(sk, PF_INET, optname, optval, 
--					    optlen);
--#else
- 			err = -ENOPROTOOPT;
--#endif
- 			break;
- 	}
- 	release_sock(sk);
-@@ -865,12 +858,66 @@ e_inval:
- 	return -EINVAL;
- }
- 
-+int ip_setsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int optlen)
-+{
-+	int err;
-+
-+	if (level != SOL_IP)
-+		return -ENOPROTOOPT;
-+
-+	err = do_ip_setsockopt(sk, level, optname, optval, optlen);
-+#ifdef CONFIG_NETFILTER
-+	/* we need to exclude all possible ENOPROTOOPTs except default case */
-+	if (err == -ENOPROTOOPT && optname != IP_HDRINCL &&
-+		optname != IP_IPSEC_POLICY && optname != IP_XFRM_POLICY
-+#ifdef CONFIG_IP_MROUTE
-+		&& (optname < MRT_BASE || optname > (MRT_BASE + 10))
-+#endif
-+	   ) {
-+		lock_sock(sk);
-+		err = nf_setsockopt(sk, PF_INET, optname, optval, optlen);
-+		release_sock(sk);
-+	}
-+#endif
-+	return err;
-+}
-+
-+#ifdef CONFIG_COMPAT
-+int compat_ip_setsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int optlen)
-+{
-+	int err;
-+
-+	if (level != SOL_IP)
-+		return -ENOPROTOOPT;
-+
-+	err = do_ip_setsockopt(sk, level, optname, optval, optlen);
-+#ifdef CONFIG_NETFILTER
-+	/* we need to exclude all possible ENOPROTOOPTs except default case */
-+	if (err == -ENOPROTOOPT && optname != IP_HDRINCL &&
-+		optname != IP_IPSEC_POLICY && optname != IP_XFRM_POLICY
-+#ifdef CONFIG_IP_MROUTE
-+		&& (optname < MRT_BASE || optname > (MRT_BASE + 10))
-+#endif
-+	   ) {
-+		lock_sock(sk);
-+		err = compat_nf_setsockopt(sk, PF_INET,
-+				optname, optval, optlen);
-+		release_sock(sk);
-+	}
-+#endif
-+	return err;
-+}
-+#endif
-+
- /*
-  *	Get the options. Note for future reference. The GET of IP options gets the
-  *	_received_ ones. The set sets the _sent_ ones.
-  */
- 
--int ip_getsockopt(struct sock *sk, int level, int optname, char __user *optval, int __user *optlen)
-+static int do_ip_getsockopt(struct sock *sk, int level, int optname,
-+		char __user *optval, int __user *optlen)
- {
- 	struct inet_sock *inet = inet_sk(sk);
- 	int val;
-@@ -1051,17 +1098,8 @@ int ip_getsockopt(struct sock *sk, int l
- 			val = inet->freebind; 
- 			break; 
- 		default:
--#ifdef CONFIG_NETFILTER
--			val = nf_getsockopt(sk, PF_INET, optname, optval, 
--					    &len);
--			release_sock(sk);
--			if (val >= 0)
--				val = put_user(len, optlen);
--			return val;
--#else
- 			release_sock(sk);
- 			return -ENOPROTOOPT;
--#endif
- 	}
- 	release_sock(sk);
- 	
-@@ -1082,7 +1120,73 @@ int ip_getsockopt(struct sock *sk, int l
- 	return 0;
- }
- 
-+int ip_getsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int __user *optlen)
-+{
-+	int err;
-+
-+	err = do_ip_getsockopt(sk, level, optname, optval, optlen);
-+#ifdef CONFIG_NETFILTER
-+	/* we need to exclude all possible ENOPROTOOPTs except default case */
-+	if (err == -ENOPROTOOPT && optname != IP_PKTOPTIONS
-+#ifdef CONFIG_IP_MROUTE
-+		&& (optname < MRT_BASE || optname > MRT_BASE+10)
-+#endif
-+	   ) {
-+	   	int len;
-+
-+		if(get_user(len,optlen))
-+			return -EFAULT;
-+
-+		lock_sock(sk);
-+		err = nf_getsockopt(sk, PF_INET, optname, optval,
-+				&len);
-+		release_sock(sk);
-+		if (err >= 0)
-+			err = put_user(len, optlen);
-+		return err;
-+	}
-+#endif
-+	return err;
-+}
-+
-+#ifdef CONFIG_COMPAT
-+int compat_ip_getsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int __user *optlen)
-+{
-+	int err;
-+
-+	err = do_ip_getsockopt(sk, level, optname, optval, optlen);
-+#ifdef CONFIG_NETFILTER
-+	/* we need to exclude all possible ENOPROTOOPTs except default case */
-+	if (err == -ENOPROTOOPT && optname != IP_PKTOPTIONS
-+#ifdef CONFIG_IP_MROUTE
-+		&& (optname < MRT_BASE || optname > MRT_BASE+10)
-+#endif
-+	   ) {
-+	   	int len;
-+
-+		if(get_user(len,optlen))
-+			return -EFAULT;
-+
-+		lock_sock(sk);
-+		err = compat_nf_getsockopt(sk, PF_INET,
-+				optname, optval, &len);
-+		release_sock(sk);
-+		if (err >= 0)
-+			err = put_user(len, optlen);
-+		return err;
-+	}
-+#endif
-+	return err;
-+}
-+#endif
-+
- EXPORT_SYMBOL(ip_cmsg_recv);
- 
- EXPORT_SYMBOL(ip_getsockopt);
- EXPORT_SYMBOL(ip_setsockopt);
-+#ifdef CONFIG_COMPAT
-+EXPORT_SYMBOL(compat_ip_getsockopt);
-+EXPORT_SYMBOL(compat_ip_setsockopt);
-+#endif
---- ./net/ipv4/raw.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv4/raw.c	2006-03-09 12:58:23.000000000 +0300
-@@ -660,12 +660,9 @@ static int raw_geticmpfilter(struct sock
- out:	return ret;
- }
- 
--static int raw_setsockopt(struct sock *sk, int level, int optname, 
-+static int do_raw_setsockopt(struct sock *sk, int level, int optname,
- 			  char __user *optval, int optlen)
- {
--	if (level != SOL_RAW)
--		return ip_setsockopt(sk, level, optname, optval, optlen);
--
- 	if (optname == ICMP_FILTER) {
- 		if (inet_sk(sk)->num != IPPROTO_ICMP)
- 			return -EOPNOTSUPP;
-@@ -675,12 +672,28 @@ static int raw_setsockopt(struct sock *s
- 	return -ENOPROTOOPT;
- }
- 
--static int raw_getsockopt(struct sock *sk, int level, int optname, 
--			  char __user *optval, int __user *optlen)
-+static int raw_setsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int optlen)
- {
- 	if (level != SOL_RAW)
--		return ip_getsockopt(sk, level, optname, optval, optlen);
-+		return ip_setsockopt(sk, level, optname, optval, optlen);
-+	return do_raw_setsockopt(sk, level, optname, optval, optlen);
-+}
- 
-+#ifdef CONFIG_COMPAT
-+static int compat_raw_setsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int optlen)
-+{
-+	if (level != SOL_RAW)
-+		return compat_ip_setsockopt(sk, level,
-+				optname, optval, optlen);
-+	return do_raw_setsockopt(sk, level, optname, optval, optlen);
-+}
-+#endif
-+
-+static int do_raw_getsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int __user *optlen)
-+{
- 	if (optname == ICMP_FILTER) {
- 		if (inet_sk(sk)->num != IPPROTO_ICMP)
- 			return -EOPNOTSUPP;
-@@ -690,6 +703,25 @@ static int raw_getsockopt(struct sock *s
- 	return -ENOPROTOOPT;
- }
- 
-+static int raw_getsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int __user *optlen)
-+{
-+	if (level != SOL_RAW)
-+		return ip_getsockopt(sk, level, optname, optval, optlen);
-+	return do_raw_getsockopt(sk, level, optname, optval, optlen);
-+}
-+
-+#ifdef CONFIG_COMPAT
-+static int compat_raw_getsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int __user *optlen)
-+{
-+	if (level != SOL_RAW)
-+		return compat_ip_getsockopt(sk, level,
-+				optname, optval, optlen);
-+	return do_raw_getsockopt(sk, level, optname, optval, optlen);
-+}
-+#endif
-+
- static int raw_ioctl(struct sock *sk, int cmd, unsigned long arg)
- {
- 	switch (cmd) {
-@@ -728,6 +760,10 @@ struct proto raw_prot = {
- 	.init =		raw_init,
- 	.setsockopt =	raw_setsockopt,
- 	.getsockopt =	raw_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt =	compat_raw_setsockopt,
-+	.compat_getsockopt =	compat_raw_getsockopt,
-+#endif
- 	.sendmsg =	raw_sendmsg,
- 	.recvmsg =	raw_recvmsg,
- 	.bind =		raw_bind,
---- ./net/ipv4/tcp.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv4/tcp.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1687,18 +1687,14 @@ int tcp_disconnect(struct sock *sk, int 
- /*
-  *	Socket option code for TCP.
-  */
--int tcp_setsockopt(struct sock *sk, int level, int optname, char __user *optval,
--		   int optlen)
-+static int do_tcp_setsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int optlen)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	int val;
- 	int err = 0;
- 
--	if (level != SOL_TCP)
--		return icsk->icsk_af_ops->setsockopt(sk, level, optname,
--						     optval, optlen);
--
- 	/* This is a string value all the others are int's */
- 	if (optname == TCP_CONGESTION) {
- 		char name[TCP_CA_NAME_MAX];
-@@ -1871,6 +1867,35 @@ int tcp_setsockopt(struct sock *sk, int 
- 	return err;
- }
- 
-+int tcp_setsockopt(struct sock *sk, int level, int optname, char __user *optval,
-+		   int optlen)
-+{
-+	struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (level != SOL_TCP)
-+		return icsk->icsk_af_ops->setsockopt(sk, level, optname,
-+						     optval, optlen);
-+	return do_tcp_setsockopt(sk, level, optname, optval, optlen);
-+}
-+
-+#ifdef CONFIG_COMPAT
-+int compat_tcp_setsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int optlen)
-+{
-+	struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (level != SOL_TCP) {
-+		if (icsk->icsk_af_ops->compat_setsockopt)
-+			return icsk->icsk_af_ops->compat_setsockopt(sk,
-+				level, optname, optval, optlen);
-+		else
-+			return icsk->icsk_af_ops->setsockopt(sk,
-+				level, optname, optval, optlen);
-+	}
-+	return do_tcp_setsockopt(sk, level, optname, optval, optlen);
-+}
-+#endif
-+
- /* Return information about state of tcp endpoint in API format. */
- void tcp_get_info(struct sock *sk, struct tcp_info *info)
- {
-@@ -1931,17 +1956,13 @@ void tcp_get_info(struct sock *sk, struc
- 
- EXPORT_SYMBOL_GPL(tcp_get_info);
- 
--int tcp_getsockopt(struct sock *sk, int level, int optname, char __user *optval,
--		   int __user *optlen)
-+static int do_tcp_getsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int __user *optlen)
- {
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	int val, len;
- 
--	if (level != SOL_TCP)
--		return icsk->icsk_af_ops->getsockopt(sk, level, optname,
--						     optval, optlen);
--
- 	if (get_user(len, optlen))
- 		return -EFAULT;
- 
-@@ -2025,6 +2046,34 @@ int tcp_getsockopt(struct sock *sk, int 
- 	return 0;
- }
- 
-+int tcp_getsockopt(struct sock *sk, int level, int optname, char __user *optval,
-+		   int __user *optlen)
-+{
-+	struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (level != SOL_TCP)
-+		return icsk->icsk_af_ops->getsockopt(sk, level, optname,
-+						     optval, optlen);
-+	return do_tcp_getsockopt(sk, level, optname, optval, optlen);
-+}
-+
-+#ifdef CONFIG_COMPAT
-+int compat_tcp_getsockopt(struct sock *sk, int level,
-+		int optname, char __user *optval, int __user *optlen)
-+{
-+	struct inet_connection_sock *icsk = inet_csk(sk);
-+
-+	if (level != SOL_TCP) {
-+		if (icsk->icsk_af_ops->compat_getsockopt)
-+			return icsk->icsk_af_ops->compat_getsockopt(sk,
-+				level, optname, optval, optlen);
-+		else
-+			return icsk->icsk_af_ops->getsockopt(sk,
-+				level, optname, optval, optlen);
-+	}
-+	return do_tcp_getsockopt(sk, level, optname, optval, optlen);
-+}
-+#endif
- 
- extern void __skb_cb_too_small_for_tcp(int, int);
- extern struct tcp_congestion_ops tcp_reno;
-@@ -2142,3 +2191,7 @@ EXPORT_SYMBOL(tcp_sendpage);
- EXPORT_SYMBOL(tcp_setsockopt);
- EXPORT_SYMBOL(tcp_shutdown);
- EXPORT_SYMBOL(tcp_statistics);
-+#ifdef CONFIG_COMPAT
-+EXPORT_SYMBOL(compat_tcp_setsockopt);
-+EXPORT_SYMBOL(compat_tcp_getsockopt);
-+#endif
---- ./net/ipv4/tcp_ipv4.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv4/tcp_ipv4.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1225,6 +1225,10 @@ struct inet_connection_sock_af_ops ipv4_
- 	.net_header_len	=	sizeof(struct iphdr),
- 	.setsockopt	=	ip_setsockopt,
- 	.getsockopt	=	ip_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt =	compat_ip_setsockopt,
-+	.compat_getsockopt =	compat_ip_getsockopt,
-+#endif
- 	.addr2sockaddr	=	inet_csk_addr2sockaddr,
- 	.sockaddr_len	=	sizeof(struct sockaddr_in),
- };
-@@ -1807,6 +1811,10 @@ struct proto tcp_prot = {
- 	.shutdown		= tcp_shutdown,
- 	.setsockopt		= tcp_setsockopt,
- 	.getsockopt		= tcp_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_tcp_setsockopt,
-+	.compat_getsockopt	= compat_tcp_getsockopt,
-+#endif
- 	.sendmsg		= tcp_sendmsg,
- 	.recvmsg		= tcp_recvmsg,
- 	.backlog_rcv		= tcp_v4_do_rcv,
---- ./net/ipv4/udp.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv4/udp.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1207,16 +1207,13 @@ static int udp_destroy_sock(struct sock 
- /*
-  *	Socket option code for UDP
-  */
--static int udp_setsockopt(struct sock *sk, int level, int optname, 
-+static int do_udp_setsockopt(struct sock *sk, int level, int optname,
- 			  char __user *optval, int optlen)
- {
- 	struct udp_sock *up = udp_sk(sk);
- 	int val;
- 	int err = 0;
- 
--	if (level != SOL_UDP)
--		return ip_setsockopt(sk, level, optname, optval, optlen);
--
- 	if(optlen<sizeof(int))
- 		return -EINVAL;
- 
-@@ -1256,15 +1253,31 @@ static int udp_setsockopt(struct sock *s
- 	return err;
- }
- 
--static int udp_getsockopt(struct sock *sk, int level, int optname, 
-+static int udp_setsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int optlen)
-+{
-+	if (level != SOL_UDP)
-+		return ip_setsockopt(sk, level, optname, optval, optlen);
-+	return do_udp_setsockopt(sk, level, optname, optval, optlen);
-+}
-+
-+#ifdef CONFIG_COMPAT
-+static int compat_udp_setsockopt(struct sock *sk, int level, int optname,
-+		char __user *optval, int optlen)
-+{
-+	if (level != SOL_UDP)
-+		return compat_ip_setsockopt(sk, level,
-+				optname, optval, optlen);
-+	return do_udp_setsockopt(sk, level, optname, optval, optlen);
-+}
-+#endif
-+
-+static int do_udp_getsockopt(struct sock *sk, int level, int optname,
- 			  char __user *optval, int __user *optlen)
- {
- 	struct udp_sock *up = udp_sk(sk);
- 	int val, len;
- 
--	if (level != SOL_UDP)
--		return ip_getsockopt(sk, level, optname, optval, optlen);
--
- 	if(get_user(len,optlen))
- 		return -EFAULT;
- 
-@@ -1293,6 +1306,24 @@ static int udp_getsockopt(struct sock *s
-   	return 0;
- }
- 
-+static int udp_getsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int __user *optlen)
-+{
-+	if (level != SOL_UDP)
-+		return ip_getsockopt(sk, level, optname, optval, optlen);
-+	return do_udp_getsockopt(sk, level, optname, optval, optlen);
-+}
-+
-+#ifdef CONFIG_COMPAT
-+static int compat_udp_getsockopt(struct sock *sk, int level, int optname,
-+			  char __user *optval, int __user *optlen)
-+{
-+	if (level != SOL_UDP)
-+		return compat_ip_getsockopt(sk, level,
-+				optname, optval, optlen);
-+	return do_udp_getsockopt(sk, level, optname, optval, optlen);
-+}
-+#endif
- /**
-  * 	udp_poll - wait for a UDP event.
-  *	@file - file struct
-@@ -1350,6 +1381,10 @@ struct proto udp_prot = {
- 	.destroy =	udp_destroy_sock,
- 	.setsockopt =	udp_setsockopt,
- 	.getsockopt =	udp_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt =	compat_udp_setsockopt,
-+	.compat_getsockopt =	compat_udp_getsockopt,
-+#endif
- 	.sendmsg =	udp_sendmsg,
- 	.recvmsg =	udp_recvmsg,
- 	.sendpage =	udp_sendpage,
---- ./net/ipv6/af_inet6.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv6/af_inet6.c	2006-03-09 12:58:23.000000000 +0300
-@@ -470,6 +470,10 @@ const struct proto_ops inet6_stream_ops 
- 	.shutdown =	inet_shutdown,			/* ok		*/
- 	.setsockopt =	sock_common_setsockopt,		/* ok		*/
- 	.getsockopt =	sock_common_getsockopt,		/* ok		*/
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg =	inet_sendmsg,			/* ok		*/
- 	.recvmsg =	sock_common_recvmsg,		/* ok		*/
- 	.mmap =		sock_no_mmap,
-@@ -491,6 +495,10 @@ const struct proto_ops inet6_dgram_ops =
- 	.shutdown =	inet_shutdown,			/* ok		*/
- 	.setsockopt =	sock_common_setsockopt,		/* ok		*/
- 	.getsockopt =	sock_common_getsockopt,		/* ok		*/
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg =	inet_sendmsg,			/* ok		*/
- 	.recvmsg =	sock_common_recvmsg,		/* ok		*/
- 	.mmap =		sock_no_mmap,
-@@ -519,6 +527,10 @@ static const struct proto_ops inet6_sock
- 	.shutdown =	inet_shutdown,			/* ok		*/
- 	.setsockopt =	sock_common_setsockopt,		/* ok		*/
- 	.getsockopt =	sock_common_getsockopt,		/* ok		*/
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg =	inet_sendmsg,			/* ok		*/
- 	.recvmsg =	sock_common_recvmsg,		/* ok		*/
- 	.mmap =		sock_no_mmap,
---- ./net/ipv6/tcp_ipv6.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/ipv6/tcp_ipv6.c	2006-03-09 12:58:23.000000000 +0300
-@@ -1565,6 +1565,10 @@ struct proto tcpv6_prot = {
- 	.shutdown		= tcp_shutdown,
- 	.setsockopt		= tcp_setsockopt,
- 	.getsockopt		= tcp_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_tcp_setsockopt,
-+	.compat_getsockopt	= compat_tcp_getsockopt,
-+#endif
- 	.sendmsg		= tcp_sendmsg,
- 	.recvmsg		= tcp_recvmsg,
- 	.backlog_rcv		= tcp_v6_do_rcv,
---- ./net/netfilter/nf_sockopt.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/netfilter/nf_sockopt.c	2006-03-09 12:58:23.000000000 +0300
-@@ -130,3 +130,72 @@ int nf_getsockopt(struct sock *sk, int p
- }
- EXPORT_SYMBOL(nf_getsockopt);
- 
-+#ifdef CONFIG_COMPAT
-+static int compat_nf_sockopt(struct sock *sk, int pf, int val,
-+		      char __user *opt, int *len, int get)
-+{
-+	struct list_head *i;
-+	struct nf_sockopt_ops *ops;
-+	int ret;
-+
-+	if (down_interruptible(&nf_sockopt_mutex) != 0)
-+		return -EINTR;
-+
-+	list_for_each(i, &nf_sockopts) {
-+		ops = (struct nf_sockopt_ops *)i;
-+		if (ops->pf == pf) {
-+			if (get) {
-+				if (val >= ops->get_optmin
-+				    && val < ops->get_optmax) {
-+					ops->use++;
-+					up(&nf_sockopt_mutex);
-+					if (ops->compat_get)
-+						ret = ops->compat_get(sk,
-+							val, opt, len);
-+					else
-+						ret = ops->get(sk,
-+							val, opt, len);
-+					goto out;
-+				}
-+			} else {
-+				if (val >= ops->set_optmin
-+				    && val < ops->set_optmax) {
-+					ops->use++;
-+					up(&nf_sockopt_mutex);
-+					if (ops->compat_set)
-+						ret = ops->compat_set(sk,
-+							val, opt, *len);
-+					else
-+						ret = ops->set(sk,
-+							val, opt, *len);
-+					goto out;
-+				}
-+			}
-+		}
-+	}
-+	up(&nf_sockopt_mutex);
-+	return -ENOPROTOOPT;
-+
-+ out:
-+	down(&nf_sockopt_mutex);
-+	ops->use--;
-+	if (ops->cleanup_task)
-+		wake_up_process(ops->cleanup_task);
-+	up(&nf_sockopt_mutex);
-+	return ret;
-+}
-+
-+int compat_nf_setsockopt(struct sock *sk, int pf,
-+		int val, char __user *opt, int len)
-+{
-+	return compat_nf_sockopt(sk, pf, val, opt, &len, 0);
-+}
-+EXPORT_SYMBOL(compat_nf_setsockopt);
-+
-+int compat_nf_getsockopt(struct sock *sk, int pf,
-+		int val, char __user *opt, int *len)
-+{
-+	return compat_nf_sockopt(sk, pf, val, opt, len, 1);
-+}
-+EXPORT_SYMBOL(compat_nf_getsockopt);
-+#endif
---- ./net/sctp/ipv6.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/sctp/ipv6.c	2006-03-09 12:58:23.000000000 +0300
-@@ -875,6 +875,10 @@ static const struct proto_ops inet6_seqp
- 	.shutdown   = inet_shutdown,
- 	.setsockopt = sock_common_setsockopt,
- 	.getsockopt = sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt	= compat_sock_common_setsockopt,
-+	.compat_getsockopt	= compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg    = inet_sendmsg,
- 	.recvmsg    = sock_common_recvmsg,
- 	.mmap       = sock_no_mmap,
---- ./net/sctp/protocol.c.compat	2006-03-09 12:57:54.000000000 +0300
-+++ ./net/sctp/protocol.c	2006-03-09 12:58:23.000000000 +0300
-@@ -845,6 +845,10 @@ static const struct proto_ops inet_seqpa
- 	.shutdown    = inet_shutdown,     /* Looks harmless.  */
- 	.setsockopt  = sock_common_setsockopt,   /* IP_SOL IP_OPTION is a problem. */
- 	.getsockopt  = sock_common_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt  = compat_sock_common_setsockopt,
-+	.compat_getsockopt  = compat_sock_common_getsockopt,
-+#endif
- 	.sendmsg     = inet_sendmsg,
- 	.recvmsg     = sock_common_recvmsg,
- 	.mmap        = sock_no_mmap,
-@@ -883,6 +887,10 @@ static struct sctp_af sctp_ipv4_specific
- 	.sctp_xmit      = sctp_v4_xmit,
- 	.setsockopt     = ip_setsockopt,
- 	.getsockopt     = ip_getsockopt,
-+#ifdef CONFIG_COMPAT
-+	.compat_setsockopt     = compat_ip_setsockopt,
-+	.compat_getsockopt     = compat_ip_getsockopt,
-+#endif
- 	.get_dst	= sctp_v4_get_dst,
- 	.get_saddr	= sctp_v4_get_saddr,
- 	.copy_addrlist  = sctp_v4_copy_addrlist,
+Linux version 2.6.16-rc5-git12 (root@phylo) (gcc version 3.4.5 (Gentoo 3.4.5-r1, ssp-3.4.5-1.0, pie-8.7.9)) #5 SMP Thu Mar 9 11:22:22 MET 2006
+BIOS-provided physical RAM map:
+sanitize start
+sanitize end
+copy_e820_map() start: 0000000000000000 size: 000000000009a800 end: 000000000009a800 type: 1
+copy_e820_map() type is E820_RAM
+add_memory_region(0000000000000000, 000000000009a800, 1)
+copy_e820_map() start: 000000000009a800 size: 0000000000005800 end: 00000000000a0000 type: 2
+add_memory_region(000000000009a800, 0000000000005800, 2)
+copy_e820_map() start: 00000000000e0000 size: 0000000000020000 end: 0000000000100000 type: 2
+add_memory_region(00000000000e0000, 0000000000020000, 2)
+copy_e820_map() start: 0000000000100000 size: 00000000cfe70000 end: 00000000cff70000 type: 1
+copy_e820_map() type is E820_RAM
+add_memory_region(0000000000100000, 00000000cfe70000, 1)
+copy_e820_map() start: 00000000cff70000 size: 0000000000007000 end: 00000000cff77000 type: 3
+add_memory_region(00000000cff70000, 0000000000007000, 3)
+copy_e820_map() start: 00000000cff77000 size: 0000000000009000 end: 00000000cff80000 type: 4
+add_memory_region(00000000cff77000, 0000000000009000, 4)
+copy_e820_map() start: 00000000cff80000 size: 0000000000080000 end: 00000000d0000000 type: 2
+add_memory_region(00000000cff80000, 0000000000080000, 2)
+copy_e820_map() start: 00000000e0000000 size: 0000000010000000 end: 00000000f0000000 type: 2
+add_memory_region(00000000e0000000, 0000000010000000, 2)
+copy_e820_map() start: 00000000fec00000 size: 0000000000010000 end: 00000000fec10000 type: 2
+add_memory_region(00000000fec00000, 0000000000010000, 2)
+copy_e820_map() start: 00000000fee00000 size: 0000000000001000 end: 00000000fee01000 type: 2
+add_memory_region(00000000fee00000, 0000000000001000, 2)
+copy_e820_map() start: 00000000ff800000 size: 0000000000400000 end: 00000000ffc00000 type: 2
+add_memory_region(00000000ff800000, 0000000000400000, 2)
+copy_e820_map() start: 00000000fffffc00 size: 0000000000000400 end: 0000000100000000 type: 2
+add_memory_region(00000000fffffc00, 0000000000000400, 2)
+copy_e820_map() start: 0000000100000000 size: 0000000230000000 end: 0000000330000000 type: 1
+copy_e820_map() type is E820_RAM
+add_memory_region(0000000100000000, 0000000230000000, 1)
+ BIOS-e820: 0000000000000000 - 000000000009a800 (usable)
+ BIOS-e820: 000000000009a800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 00000000cff70000 (usable)
+ BIOS-e820: 00000000cff70000 - 00000000cff77000 (ACPI data)
+ BIOS-e820: 00000000cff77000 - 00000000cff80000 (ACPI NVS)
+ BIOS-e820: 00000000cff80000 - 00000000d0000000 (reserved)
+ BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
+ BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+ BIOS-e820: 00000000ff800000 - 00000000ffc00000 (reserved)
+ BIOS-e820: 00000000fffffc00 - 0000000100000000 (reserved)
+ BIOS-e820: 0000000100000000 - 0000000330000000 (usable)
+12160MB HIGHMEM available.
+896MB LOWMEM available.
+found SMP MP-table at 000f6af0
+NX (Execute Disable) protection: active
+On node 0 totalpages: 3342336
+  DMA zone: 4096 pages, LIFO batch:0
+  DMA32 zone: 0 pages, LIFO batch:0
+  Normal zone: 225280 pages, LIFO batch:31
+  HighMem zone: 3112960 pages, LIFO batch:31
+DMI 2.3 present.
+ACPI: RSDP (v000 PTLTD                                 ) @ 0x000f6a70
+ACPI: RSDT (v001 PTLTD    RSDT   0x06040000  LTP 0x00000000) @ 0xcff726a2
+ACPI: FADT (v001 INTEL  LINDHRST 0x06040000 PTL  0x00000003) @ 0xcff76e61
+ACPI: SPCR (v001 PTLTD  $UCRTBL$ 0x06040000 PTL  0x00000001) @ 0xcff76ed5
+ACPI: MADT (v001 PTLTD  	 APIC   0x06040000  LTP 0x00000000) @ 0xcff76f25
+ACPI: BOOT (v001 PTLTD  $SBFTBL$ 0x06040000  LTP 0x00000001) @ 0xcff76f99
+ACPI: MCFG (v001 PTLTD  	 MCFG   0x06040000  LTP 0x00000000) @ 0xcff76fc1
+ACPI: DSDT (v001  Intel LINDHRST 0x06040000 MSFT 0x0100000e) @ 0x00000000
+ACPI: PM-Timer IO Port: 0x1008
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:4 APIC version 20
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x06] enabled)
+Processor #6 15:4 APIC version 20
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
+ACPI: IOAPIC (id[0x03] address[0xfec10000] gsi_base[24])
+IOAPIC[1]: apic_id 3, version 32, address 0xfec10000, GSI 24-47
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 high edge)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+ACPI: IRQ0 used by override.
+ACPI: IRQ2 used by override.
+ACPI: IRQ9 used by override.
+Enabling APIC mode:  Flat.  Using 2 I/O APICs
+Using ACPI (MADT) for SMP configuration information
+Allocating PCI resources starting at d1000000 (gap: d0000000:10000000)
+Built 1 zonelists
+Kernel command line: root=/dev/sda4 ide=reverse console=ttyS0,57600n8 console=tty0 idebus=66 udev
+ide_setup: ide=reverse : Enabled support for IDE inverse scan order.
+ide_setup: idebus=66
+mapped APIC to ffffd000 (fee00000)
+mapped IOAPIC to ffffc000 (fec00000)
+mapped IOAPIC to ffffb000 (fec10000)
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Initializing CPU#0
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 2993.119 MHz processor.
+Using pmtmr for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 12470940k/13369344k available (2725k kernel code, 110224k reserved, 1415k data, 200k init, 11664832k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay using timer specific routine.. 5995.45 BogoMIPS (lpj=11990905)
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: bfebfbff 20100000 00000000 00000000 0000641d 00000000 00000000
+CPU: After vendor identify, caps: bfebfbff 20100000 00000000 00000000 0000641d 00000000 00000000
+monitor/mwait feature present.
+using mwait in idle threads.
+CPU: Trace cache: 12K uops, L1 D cache: 16K
+CPU: L2 cache: 1024K
+CPU: Physical Processor ID: 0
+CPU: After all inits, caps: bfebfbff 20100000 00000000 00000180 0000641d 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (24) available
+CPU0: Thermal monitoring enabled
+Checking 'hlt' instruction... OK.
+ tbxface-0109 [02] load_tables           : ACPI Tables successfully acquired
+Parsing all Control Methods:
+Table [DSDT](id 0005) - 404 Objects with 54 Devices 136 Methods 12 Regions
+ACPI Namespace successfully loaded at root c0588170
+evxfevnt-0091 [03] enable                : Transition to ACPI mode successful
+CPU0: Intel(R) Xeon(TM) CPU 3.00GHz stepping 01
+Booting processor 1/6 eip 2000
+Initializing CPU#1
+Calibrating delay using timer specific routine.. 5985.56 BogoMIPS (lpj=11971132)
+CPU: After generic identify, caps: bfebfbff 20100000 00000000 00000000 0000641d 00000000 00000000
+CPU: After vendor identify, caps: bfebfbff 20100000 00000000 00000000 0000641d 00000000 00000000
+monitor/mwait feature present.
+CPU: Trace cache: 12K uops, L1 D cache: 16K
+CPU: L2 cache: 1024K
+CPU: Physical Processor ID: 3
+CPU: After all inits, caps: bfebfbff 20100000 00000000 00000180 0000641d 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#1.
+CPU1: Intel P4/Xeon Extended MCE MSRs (24) available
+CPU1: Thermal monitoring enabled
+CPU1: Intel(R) Xeon(TM) CPU 3.00GHz stepping 01
+Total of 2 processors activated (11981.01 BogoMIPS).
+ENABLING IO-APIC IRQs
+..TIMER: vector=0x31 apic1=0 pin1=2 apic2=-1 pin2=-1
+checking TSC synchronization across 2 CPUs: passed.
+Brought up 2 CPUs
+migration_cost=4000
+NET: Registered protocol family 16
+ACPI: bus type pci registered
+PCI: PCI BIOS revision 3.00 entry at 0xfd663, last bus=9
+PCI: Using MMCONFIG
+ACPI: Subsystem revision 20060127
+evgpeblk-0941 [06] ev_create_gpe_block   : GPE 00 to 1F [_GPE] 4 regs on int 0x9
+evgpeblk-1037 [05] ev_initialize_gpe_bloc: Found 5 Wake, Enabled 2 Runtime GPEs in this block
+Completing Region/Field/Buffer/Package initialization:...................................................
+Initialized 12/12 Regions 0/0 Fields 36/36 Buffers 3/15 Packages (413 nodes)
+Executing all Device _STA and_INI methods:............................................................
+60 Devices found - executed 1 _STA, 2 _INI methods
+ACPI: Interpreter enabled
+ACPI: Using IOAPIC for interrupt routing
+ACPI: PCI Root Bridge [PCI0] (0000:00)
+PCI: Probing PCI hardware (bus 00)
+PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
+PCI quirk: region 1180-11bf claimed by ICH4 GPIO
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+PCI: PXH quirk detected, disabling MSI for SHPC device
+PCI: PXH quirk detected, disabling MSI for SHPC device
+Boot video device is 0000:08:01.0
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE1A._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE1A.PXHA._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE1A.PXHB._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE2A._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE2B._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE3A._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PE3B._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIB._PRT]
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCIX._PRT]
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 *10 11 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 *10 11 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 *10 11 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *10 11 14 15)
+ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 10 11 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKF] (IRQs 4 5 6 7 10 11 14 15) *0, disabled.
+ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 10 11 14 15) *9
+ACPI: PCI Interrupt Link [LNKH] (IRQs 4 5 6 7 *10 11 14 15)
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnPACPI: METHOD_NAME__CRS failure for PNP0401
+pnp: PnP ACPI: found 11 devices
+Generic PHY: Registered new driver
+SCSI subsystem initialized
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+PCI: Bridge: 0000:01:00.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:01:00.2
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:02.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:04.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:05.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:06.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:07.0
+  IO window: disabled.
+  MEM window: disabled.
+  PREFETCH window: disabled.
+PCI: Bridge: 0000:00:1c.0
+  IO window: 2000-2fff
+  MEM window: d0100000-d01fffff
+  PREFETCH window: d8000000-dfffffff
+PCI: Bridge: 0000:00:1e.0
+  IO window: 3000-3fff
+  MEM window: d0200000-d02fffff
+  PREFETCH window: d1000000-d10fffff
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:02.0 to 64
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+PCI: Setting latency timer of device 0000:01:00.0 to 64
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+PCI: Setting latency timer of device 0000:01:00.2 to 64
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:00:04.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:04.0 to 64
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:00:05.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:05.0 to 64
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:00:06.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:06.0 to 64
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:00:07.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:07.0 to 64
+PCI: Setting latency timer of device 0000:00:1e.0 to 64
+Simple Boot Flag at 0x3a set to 0x1
+Machine check exception polling timer started.
+IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
+highmem bounce pool size: 64 pages
+SGI XFS with no debug enabled
+Initializing Cryptographic API
+io scheduler noop registered
+io scheduler anticipatory registered (default)
+io scheduler deadline registered
+io scheduler cfq registered
+radeonfb_pci_register BEGIN
+ACPI: PCI Interrupt 0000:08:01.0[A] -> GSI 24 (level, low) -> IRQ 17
+radeonfb (0000:08:01.0): Found 0k of DDR 32 bits wide videoram
+radeonfb (0000:08:01.0): cannot map FB
+ACPI: PCI interrupt for device 0000:08:01.0 disabled
+radeonfb: probe of 0000:08:01.0 failed with error -5
+ACPI: Power Button (FF) [PWRF]
+ACPI: Power Button (CM) [PWRB]
+ACPI: Processor [CPU0] (supports 8 throttling states)
+ACPI: Processor [CPU1] (supports 8 throttling states)
+acpi_processor-0495 [06] processor_get_info    : Error getting cpuindex for acpiid 0x2
+acpi_processor-0495 [06] processor_get_info    : Error getting cpuindex for acpiid 0x3
+Real Time Clock Driver v1.12ac
+Non-volatile memory driver v1.2
+Hangcheck: starting hangcheck timer 0.9.0 (tick is 180 seconds, margin is 60 seconds).
+Hangcheck: Using monotonic_clock().
+PNP: PS/2 Controller [PNP0303:KBC0,PNP0f13:MSE0] at 0x60,0x64 irq 1,12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing enabled
+serial8250: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+serial8250: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+serial8250: ttyS1 at I/O 0x2f8 (irq = 0) is a 16550A
+serial8250: ttyS0 at I/O 0x3f8 (irq = 0) is a 16550A
+00:09: ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+00:0a: ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+FDC 0 is a National Semiconductor PC87306
+loop: loaded (max 8 devices)
+Intel(R) PRO/1000 Network Driver - version 6.3.9-k4
+Copyright (c) 1999-2005 Intel Corporation.
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:08:02.0[A] -> GSI 25 (level, low) -> IRQ 18
+e1000: 0000:08:02.0: e1000_probe: (PCI:66MHz:32-bit) 00:11:09:b6:c1:7a
+e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:08:03.0[A] -> GSI 26 (level, low) -> IRQ 19
+e1000: 0000:08:03.0: e1000_probe: (PCI:66MHz:32-bit) 00:11:09:b6:c1:7b
+e1000: eth1: e1000_probe: Intel(R) PRO/1000 Network Connection
+acpi_bus-0201 [01] bus_set_power         : Device is not power manageable
+ACPI: PCI Interrupt 0000:09:01.0[A] -> GSI 17 (level, low) -> IRQ 20
+e1000: 0000:09:01.0: e1000_probe: (PCI:33MHz:32-bit) 00:0e:0c:84:83:71
+e1000: eth2: e1000_probe: Intel(R) PRO/1000 Network Connection
+LXT970: Registered new driver
+LXT971: Registered new driver
+Linux video capture interface: v1.00
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 66MHz system bus speed for PIO modes
+ICH5: IDE controller at PCI slot 0000:00:1f.1
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 21
+ICH5: chipset revision 2
+ICH5: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1460-0x1467, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1468-0x146f, BIOS settings: hdc:pio, hdd:pio
+Probing IDE interface ide0...
+hda: SONY DVD-ROM DDU1615, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hda: ATAPI 40X DVD-ROM drive, 254kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+libata version 1.20 loaded.
+ata_piix 0000:00:1f.2: version 1.05
+ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 21
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0x14A8 ctl 0x149E bmdma 0x1470 irq 21
+ata2: SATA max UDMA/133 cmd 0x14A0 ctl 0x149A bmdma 0x1478 irq 21
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4023 85:3469 86:3c01 87:4023 88:207f
+ata1: dev 0 ATA-7, max UDMA/133, 390721968 sectors: LBA48
+ata1: dev 0 configured for UDMA/133
+scsi0 : ata_piix
+ata2: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4023 85:3469 86:3c01 87:4023 88:207f
+ata2: dev 0 ATA-7, max UDMA/133, 390721968 sectors: LBA48
+ata2: dev 0 configured for UDMA/133
+scsi1 : ata_piix
+  Vendor: ATA       Model: ST3200826AS       Rev: 3.03
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+  Vendor: ATA       Model: ST3200826AS       Rev: 3.03
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+st: Version 20050830, fixed bufsize 32768, s/g segs 256
+SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+sda: Write Protect is off
+sda: Mode Sense: 00 3a 00 00
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3 sda4
+sd 0:0:0:0: Attached scsi disk sda
+SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 00 3a 00 00
+SCSI device sdb: drive cache: write back
+ sdb: sdb1
+sd 1:0:0:0: Attached scsi disk sdb
+sd 0:0:0:0: Attached scsi generic sg0 type 0
+sd 1:0:0:0: Attached scsi generic sg1 type 0
+ieee1394: Initialized config rom entry `ip1394'
+video1394: Installed video1394 module
+ieee1394: raw1394: /dev/raw1394 device initialized
+ieee1394: sbp2: Driver forced to serialize I/O (serialize_io=1)
+ieee1394: sbp2: Try serialize_io=0 for better performance
+usbmon: debugfs is not available
+usbcore: registered new driver hiddev
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.6:USB HID core driver
+mice: PS/2 mouse device common for all mice
+input: PC Speaker as /class/input/input0
+i2c /dev entries driver
+NET: Registered protocol family 2
+IP route cache hash table entries: 524288 (order: 9, 2097152 bytes)
+TCP established hash table entries: 524288 (order: 10, 4194304 bytes)
+TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
+TCP: Hash tables configured (established 524288 bind 65536)
+TCP reno registered
+TCP bic registered
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
+Starting balanced_irq
+Using IPI Shortcut mode
+BIOS EDD facility v0.16 2004-Jun-25, 2 devices found
+UDF-fs: No VRS found
+XFS mounting filesystem sda4
+Ending clean XFS mount for filesystem: sda4
+VFS: Mounted root (xfs filesystem) readonly.
+Freeing unused kernel memory: 200k freed
+Adding 31254448k swap on /dev/sda2.  Priority:-1 extents:1 across:31254448k
+XFS mounting filesystem sdb1
+Ending clean XFS mount for filesystem: sdb1
+EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
+USB Universal Host Controller Interface driver v2.3
+ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 16 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+uhci_hcd 0000:00:1d.0: UHCI Host Controller
+uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 1
+uhci_hcd 0000:00:1d.0: irq 16, io base 0x00001400
+usb usb1: configuration #1 chosen from 1 choice
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 2 ports detected
+ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 19 (level, low) -> IRQ 22
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+uhci_hcd 0000:00:1d.1: UHCI Host Controller
+uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 2
+uhci_hcd 0000:00:1d.1: irq 22, io base 0x00001420
+usb usb2: configuration #1 chosen from 1 choice
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+ehci_hcd 0000:00:1d.7: EHCI Host Controller
+ehci_hcd 0000:00:1d.7: debug port 1
+PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 3
+ehci_hcd 0000:00:1d.7: irq 23, io mem 0xd0001400
+ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+usb usb3: configuration #1 chosen from 1 choice
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 4 ports detected
+ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
+process `named' is using obsolete setsockopt SO_BSDCOMPAT
 
---Boundary-00=_AJAEE7t0EyQycyg--
+--------------020006060802030507040308--

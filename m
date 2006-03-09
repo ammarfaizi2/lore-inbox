@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWCIQtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751705AbWCIQyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751460AbWCIQtW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751705AbWCIQtV
+	id S1751705AbWCIQyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWCIQyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:49:21 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:11524 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751460AbWCIQtV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:49:21 -0500
-Date: Thu, 9 Mar 2006 17:49:12 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: Luke-Jr <luke@dashjr.org>, Anshuman Gholap <anshu.pg@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Message-ID: <20060309164912.GA58229@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Phillip Susi <psusi@cfl.rr.com>, Luke-Jr <luke@dashjr.org>,
-	Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
-Mime-Version: 1.0
+	Thu, 9 Mar 2006 11:54:11 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:27407 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751705AbWCIQyK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 11:54:10 -0500
+Date: Thu, 9 Mar 2006 16:53:57 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Robert Hancock <hancockr@shaw.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic on PC with broken hard drive, after DMA errors
+Message-ID: <20060309165357.GB10572@deprecation.cyrius.com>
+References: <5Okau-77g-9@gated-at.bofh.it> <440FA916.5070703@shaw.ca> <20060309151459.GD2891@deprecation.cyrius.com> <1141922743.16745.12.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <441057D4.6030304@cfl.rr.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1141922743.16745.12.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 11:29:08AM -0500, Phillip Susi wrote:
-> This is why it is legal to reverse engineer a binary driver to gain an 
-> understanding of how the hardware operates, publish that information, 
-> and then use that information to create new software to operate that 
-> hardware.
+* Alan Cox <alan@lxorguk.ukuu.org.uk> [2006-03-09 16:45]:
+> Ancient known problem. I'd be interested if you can however break
+> libata and the PATA IDE patches the same way.
 
-Hardware is not a copyrightable work.
-
-  OG.
+I can try, but like I said, the hard drive acts pretty arbitrarily and
+won't always fail when I want it to.  Do you know if there's a way to
+trigger the problem?  Otherwise I'll just try a couple of times,
+but without a good way to trigger the problem I cannot really say if
+it's gone with libata.
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

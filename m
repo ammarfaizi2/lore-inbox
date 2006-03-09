@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWCIUuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWCIUwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751506AbWCIUuj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 15:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWCIUuj
+	id S1751521AbWCIUwn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 15:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751519AbWCIUwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 15:50:39 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25617 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751506AbWCIUui
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 15:50:38 -0500
-Date: Sun, 5 Mar 2006 00:37:59 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Cc: Thomas Maier <Thomas.Maier@uni-kassel.de>, linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2-announce] Nigel's work and the future of Suspend2.
-Message-ID: <20060305003758.GA2669@ucw.cz>
-References: <200603071005.56453.nigel@suspend2.net> <1141737241.5386.28.camel@marvin.se.eecs.uni-kassel.de> <20060308122500.GB3274@elf.ucw.cz> <1141903990.1745.5.camel@localhost> <20060309114556.GE2813@elf.ucw.cz> <1141916144.1745.8.camel@localhost>
+	Thu, 9 Mar 2006 15:52:42 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52641 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751439AbWCIUwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 15:52:42 -0500
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems
+	for	2.6.16-rc5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Tomasz Torcz <zdzichu@irc.pl>,
+       Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+In-Reply-To: <1141935002.6072.40.camel@grayson>
+References: <20060306223545.GA20885@kroah.com>
+	 <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
+	 <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
+	 <20060308231851.GA26666@suse.de>
+	 <Pine.LNX.4.64.0603081528040.32577@g5.osdl.org>
+	 <20060309184010.GA4639@irc.pl>
+	 <Pine.LNX.4.64.0603091137180.18022@g5.osdl.org>
+	 <1141935002.6072.40.camel@grayson>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 15:52:35 -0500
+Message-Id: <1141937556.13319.64.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141916144.1745.8.camel@localhost>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 09-03-06 15:55:44, Kasper Sandberg wrote:
-> On Thu, 2006-03-09 at 12:45 +0100, Pavel Machek wrote:
-> > > > > Mainline swsusp never worked for me and
-> > > > > so with you leaving I am tempted to leave Linux behind after more than
-> > > > > ten years and switch to that other OS that at least has working suspend
-> > > > > and resume.  
-> > > didnt work on my laptop either, or one of my friends where i tried..
-> > > however, swsusp2 does..
-> > 
-> > bugzilla IDs?
-> have none, and i know this is very bad, however i didnt feel like i had
-> any useful information to contribute, all i get is black screen, nothing
-> to syslog, i have no serial port on my laptop..
+On Thu, 2006-03-09 at 15:10 -0500, Ben Collins wrote:
+> The difference between our 2.6.15 386 and 686 kernels is actually pretty
+> huge. The 386 is M486, and UP, while our 686 kernel is M686, and SMP.
+> The SMP is also complicated by our use of the SMP-alternatives patch,
+> but I believe I had this user test with this disabled (kernel command
+> line option that leaves all the SMP code intact for testing). It didn't
+> alter the problem. 
 
-printk/mdelay seems to work pretty well for swsusp debugging. As does
-trying it again with as little modules as possible.
+Ubuntu doesn't provide a UP 686 kernel?
 
-> > Except that suspend2 is not going to be merged, for variety of
-> > reasons. One of them is that noone is working on merging it...
-> > 
-> one of them being the operative word, afaik, nigel was unwilling to work
-> on the issues needed for merging for the reason that it wouldnt be
-> merged..
-> 
-> out of personal interrest, why is it that prevents suspend2 from being
-> merged?
+Isn't there a performance hit running an SMP kernel on UP?
 
-Mostly doing too much stuff in kernel, see archives for details.
+Lee
 
--- 
-Thanks, Sharp!

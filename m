@@ -1,95 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWCIHnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWCIHtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWCIHnq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 02:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWCIHnq
+	id S1751538AbWCIHtA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 02:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbWCIHtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 02:43:46 -0500
-Received: from surfboard.ka.sara.nl ([145.100.6.3]:53350 "EHLO
-	surfboard.ka.sara.nl") by vger.kernel.org with ESMTP
-	id S1750941AbWCIHnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 02:43:45 -0500
-Message-ID: <440FDCA7.5050506@sara.nl>
-Date: Thu, 09 Mar 2006 08:43:35 +0100
-From: Bas van der Vlies <basv@sara.nl>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 9 Mar 2006 02:49:00 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:27623 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750778AbWCIHs7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 02:48:59 -0500
+Message-ID: <440FDF3E.8060400@in.ibm.com>
+Date: Thu, 09 Mar 2006 13:24:38 +0530
+From: Suzuki <suzuki@in.ibm.com>
+Organization: IBM Software Labs
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nfsd/gfs  crashes/oops in 2.6.16-rc5
-References: <440EF1A7.8020400@sara.nl>
-In-Reply-To: <440EF1A7.8020400@sara.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Mar 2006 07:43:38.0980 (UTC) FILETIME=[2DFDFA40:01C6434D]
+To: linux-fsdevel@vger.kernel.org, "linux-aio kvack.org" <linux-aio@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>
+CC: suparna <suparna@in.ibm.com>, akpm@osdl.org
+Subject: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+Content-Type: multipart/mixed;
+ boundary="------------080105000700070900030208"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bas van der Vlies wrote:
-> uname: 2.6.16-rc5
-> libc: libc-2.3.2.so
-> Debian: Sarge
-> SMP system: 2 CPU's
-> 
-> On our 4 node GFS-cluster we use nfs to export the GFS filesystems to 
-> our 640 node cluster On our fileserver nodes we get an nfs crash/oops. 
-> We tried serveral kernels and they crashes/oops are the same. We node
-> installed 2.6.16-rc5 and here is the oops:
-> 
-> nable to handle kernel NULL pointer dereference at virtual address 00000038
->  printing eip:
-> f89a4be3
-> *pde = 37809001
-> *pte = 00000000
-> Oops: 0000 [#1]
-> SMP
-> Modules linked in: lock_dlm dlm cman dm_round_robin dm_multipath sg 
-> ide_floppy ide_cd cdrom qla2xxx siimage piix e1000 gfs lock_harness dm_mod
-> CPU:    0
-> EIP:    0060:[<f89a4be3>]    Tainted: GF     VLI
-> EFLAGS: 00010246   (2.6.16-rc5-sara3 #1)
-> EIP is at gfs_create+0x6f/0x153 [gfs]
+This is a multi-part message in MIME format.
+--------------080105000700070900030208
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Is is an GFS-crash and just for the record the GFS guys have made a fix 
-in the CVS Stable branch:
+Missed out linux-aio & linux-fs-devel lists. Forwarding.
 
-CVSROOT:    /cvs/cluster
-Module name:    cluster
-Branch:     STABLE
-Changes by:    bmarzins@sourceware.org    2006-03-08 20:47:09
-
-Modified files:
-     gfs-kernel/src/gfs: ops_inode.c
-
-Log message:
-  Really gross hack!!!
-  This is a workaround for one of the bugs the got lumped into 166701. It
-  breaks POSIX behavior in a corner case to avoid crashing... It's icky.
-  when NFS opens a file with O_CREAT, the kernel nfs daemon checks to see
-  if the file exists. If it does, nfsd does the *right thing* (either
-  opens the file, or if the file was opened with O_EXCL, returns an
-  error).  If the file doesn't exist, it passes the request down to the
-  underlying file system. Unfortunately, since nfs *knows* that the file
-  doesn't exist, it doesn't  bother to pass a nameidata structure, which
-  would include the intent information. However since gfs is a cluster
-  file system, the file could have been created on another node after nfs
-  checks for it. If this is the case, gfs needs the intent information to
-  do the *right thing*.  It panics when it finds a NULL pointer, instead
-  of the nameidata. Now, instead of panicing, if gfs finds a NULL
-  nameidata pointer. It assumes that the file was not created with _EXCL.
-
-  This assumption could be wrong, with the result that an application
-  could thing that it has created a new file, when in fact, it has opened
-  an existing one.
+Comments ?
 
 
--- 
---
-********************************************************************
-*                                                                  *
-*  Bas van der Vlies                     e-mail: basv@sara.nl      *
-*  SARA - Academic Computing Services    phone:  +31 20 592 8012   *
-*  Kruislaan 415                         fax:    +31 20 6683167    *
-*  1098 SJ Amsterdam                                               *
-*                                                                  *
-********************************************************************
+Suzuki K P
+Linux Technology Center,
+IBM Software Labs, India.
+
+--------------080105000700070900030208
+Content-Type: message/rfc822;
+ name="[RFC] Badness in __mutex_unlock_slowpath with XFS stress tests.eml"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="[RFC] Badness in __mutex_unlock_slowpath with XFS stress tests.eml"
+
+Message-ID: <440FD66D.6060308@in.ibm.com>
+Date: Thu, 09 Mar 2006 12:47:01 +0530
+From: Suzuki <suzuki@in.ibm.com>
+Organization: IBM Software Labs
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+CC: suparna <suparna@in.ibm.com>,  akpm@osdl.org
+Subject: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi all,
+
+
+I was working on an issue with getting "Badness in
+__mutex_unlock_slowpath" and hence a stack trace, while running FS
+stress tests on XFS on 2.6.16-rc5 kernel.
+
+The dmesg looks like :
+
+Badness in __mutex_unlock_slowpath at kernel/mutex.c:207
+  [<c0103c0c>] show_trace+0x20/0x22
+  [<c0103d4b>] dump_stack+0x1e/0x20
+  [<c0473f1f>] __mutex_unlock_slowpath+0x12a/0x23b
+  [<c0473938>] mutex_unlock+0xb/0xd
+  [<c02a5720>] xfs_read+0x230/0x2d9
+  [<c02a1bed>] linvfs_aio_read+0x8d/0x98
+  [<c015f3df>] do_sync_read+0xb8/0x107
+  [<c015f4f7>] vfs_read+0xc9/0x19b
+  [<c015f8b2>] sys_read+0x47/0x6e
+  [<c0102db7>] sysenter_past_esp+0x54/0x75
+
+
+This happens with XFS DIO reads. xfs_read holds the i_mutex and issues a
+__generic_file_aio_read(), which falls into __blockdev_direct_IO with
+DIO_OWN_LOCKING flag (since xfs uses own_locking ). Now
+__blockdev_direct_IO releases the i_mutex for READs with
+DIO_OWN_LOCKING.When it returns to xfs_read, it tries to unlock the
+i_mutex ( which is now already unlocked), causing the "Badness".
+
+The possible solution which we can think of, is not to unlock the
+i_mutex for DIO_OWN_LOCKING. This will only affect the DIO_OWN_LOCKING 
+users (as of now, only XFS ) with concurrent DIO sync read requests. AIO 
+read requests would not suffer this problem since they would just return 
+once the DIO is submitted.
+
+Another work around for this can  be adding a check "mutex_is_locked"
+before trying to unlock i_mutex in xfs_read. But this seems to be an
+ugly hack. :(
+
+Comments ?
+
+
+thanks,
+
+Suzuki
+
+
+
+
+--------------080105000700070900030208--

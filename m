@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWCISHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWCISZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWCISHS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 13:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbWCISHS
+	id S1751131AbWCISZz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 13:25:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWCISZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 13:07:18 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:27812 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750751AbWCISHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 13:07:16 -0500
-X-Sasl-enc: QK6T57VuKMWMYHB6cHsOAemIumUIzklGWE/J480qz3CB 1141927633
-Message-ID: <44106EDB.5020905@imap.cc>
-Date: Thu, 09 Mar 2006 19:07:23 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm3
-References: <5NHCi-8jp-5@gated-at.bofh.it>	<44101B83.9060503@imap.cc> <20060309041809.028c8c6a.akpm@osdl.org>
-In-Reply-To: <20060309041809.028c8c6a.akpm@osdl.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigF25BA08337B75162034FCF55"
+	Thu, 9 Mar 2006 13:25:54 -0500
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:2665 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751131AbWCISZy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 13:25:54 -0500
+X-ME-UUID: 20060309182552897.DB1B81C000F0@mwinf0806.wanadoo.fr
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Dave Neuer <mr.fred.smoothie@pobox.com>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Luke-Jr <luke@dashjr.org>,
+       Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
+	 <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com>
+	 <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 09 Mar 2006 19:25:54 +0100
+Message-Id: <1141928755.7599.0.camel@bip.parateam.prv>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigF25BA08337B75162034FCF55
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Le jeudi 09 mars 2006 à 12:33 -0500, Dave Neuer a écrit :
+> On 3/9/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> > If binary drivers are illegal, then why have ATI and nvidia not been
+> > sued yet?
+> 
+> Because no sufficiently deep-pocketed plaintiff has chosen to do so
+> yet.
 
-On 09.03.2006 13:18, Andrew Morton wrote:
+No. It's just because they don't distribute a kernel with their drivers.
 
-> Tilman Schmidt <tilman@imap.cc> wrote:
->=20
->>Andrew Morton wrote:
->>
->> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16=
--rc5/2.6.16-rc5-mm3/
->>
->> This panics and dies during early boot with a divide error in kmem_cac=
-he_init
->> on my Dell GX110.
->=20
-> Yup, please apply ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/pat=
-ches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/hot-fixes/revert-x86_64-mm-i386-early-=
-alignment.patch
-
-That fixed it. Thanks!
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+	Xav
 
 
---------------enigF25BA08337B75162034FCF55
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFEEG7jMdB4Whm86/kRAv+vAJsGJu7B8Tn6KsREB3lA/0OrWBvCKwCfV/c4
-jXVI8D2sIxCwJNANA5KREUM=
-=2+hM
------END PGP SIGNATURE-----
-
---------------enigF25BA08337B75162034FCF55--

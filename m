@@ -1,218 +1,223 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751600AbWCIGwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbWCIGxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751600AbWCIGwo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 01:52:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751677AbWCIGwo
+	id S1751718AbWCIGxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 01:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751668AbWCIGxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 01:52:44 -0500
-Received: from mx2.suse.de ([195.135.220.15]:41699 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751600AbWCIGwg (ORCPT
+	Thu, 9 Mar 2006 01:53:06 -0500
+Received: from ns2.suse.de ([195.135.220.15]:45283 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751685AbWCIGw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 01:52:36 -0500
+	Thu, 9 Mar 2006 01:52:56 -0500
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 9 Mar 2006 17:51:32 +1100
-Message-Id: <1060309065132.24533@suse.de>
+Date: Thu, 9 Mar 2006 17:51:53 +1100
+Message-Id: <1060309065153.24581@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 002 of 14] knfsd: Break the hard linkage from svc_expkey to svc_export
+Subject: [PATCH 006 of 14] knfsd: Use new cache_lookup for svc_export
 References: <20060309174755.24381.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Current svc_expkey holds a pointer to the svc_export
-structure, so updates to that structure have to be in-place,
-which is a wart on the whole cache infrastruct.
-So we break that linkage and just do a second lookup.
-
-If this became a performance issue, it would be possible to put a
-direct link back in which was only used conditionally.
-i.e. when an object is replaced in the cache, we set a flag in the old 
-object.  When dereferencing the link from svc_expkey, if the flag is set,
-we drop the reference and do a fresh lookup.
 
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/export.c            |   60 ++++++++++++++++++++++++++++--------------
- ./include/linux/nfsd/export.h |   20 ++------------
- 2 files changed, 44 insertions(+), 36 deletions(-)
+ ./fs/nfsd/export.c |  125 +++++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 88 insertions(+), 37 deletions(-)
 
 diff ./fs/nfsd/export.c~current~ ./fs/nfsd/export.c
---- ./fs/nfsd/export.c~current~	2006-03-09 17:13:01.000000000 +1100
-+++ ./fs/nfsd/export.c	2006-03-09 17:15:13.000000000 +1100
-@@ -73,8 +73,10 @@ void expkey_put(struct cache_head *item,
- 	if (cache_put(item, cd)) {
- 		struct svc_expkey *key = container_of(item, struct svc_expkey, h);
- 		if (test_bit(CACHE_VALID, &item->flags) &&
--		    !test_bit(CACHE_NEGATIVE, &item->flags))
--			exp_put(key->ek_export);
-+		    !test_bit(CACHE_NEGATIVE, &item->flags)) {
-+			dput(key->ek_dentry);
-+			mntput(key->ek_mnt);
-+		}
- 		auth_domain_put(key->ek_client);
- 		kfree(key);
- 	}
-@@ -164,26 +166,18 @@ static int expkey_parse(struct cache_det
- 	} else {
- 		struct nameidata nd;
- 		struct svc_expkey *ek;
--		struct svc_export *exp;
- 		err = path_lookup(buf, 0, &nd);
- 		if (err)
- 			goto out;
+--- ./fs/nfsd/export.c~current~	2006-03-09 17:15:13.000000000 +1100
++++ ./fs/nfsd/export.c	2006-03-09 17:15:14.000000000 +1100
+@@ -258,16 +258,6 @@ static DefineSimpleCacheLookup(svc_expke
  
- 		dprintk("Found the path %s\n", buf);
--		exp = exp_get_by_name(dom, nd.mnt, nd.dentry, NULL);
+ static struct cache_head *export_table[EXPORT_HASHMAX];
+ 
+-static inline int svc_export_hash(struct svc_export *item)
+-{
+-	int rv;
 -
--		err = -ENOENT;
--		if (!exp)
--			goto out_nd;
--		key.ek_export = exp;
--		dprintk("And found export\n");
-+		key.ek_mnt = nd.mnt;
-+		key.ek_dentry = nd.dentry;
- 		
- 		ek = svc_expkey_lookup(&key, 1);
- 		if (ek)
- 			expkey_put(&ek->h, &svc_expkey_cache);
--		exp_put(exp);
- 		err = 0;
--	out_nd:
- 		path_release(&nd);
- 	}
- 	cache_flush();
-@@ -214,7 +208,7 @@ static int expkey_show(struct seq_file *
- 	if (test_bit(CACHE_VALID, &h->flags) && 
- 	    !test_bit(CACHE_NEGATIVE, &h->flags)) {
- 		seq_printf(m, " ");
--		seq_path(m, ek->ek_export->ex_mnt, ek->ek_export->ex_dentry, "\\ \t\n");
-+		seq_path(m, ek->ek_mnt, ek->ek_dentry, "\\ \t\n");
- 	}
- 	seq_printf(m, "\n");
- 	return 0;
-@@ -252,8 +246,8 @@ static inline void svc_expkey_init(struc
- 
- static inline void svc_expkey_update(struct svc_expkey *new, struct svc_expkey *item)
+-	rv = hash_ptr(item->ex_client, EXPORT_HASHBITS);
+-	rv ^= hash_ptr(item->ex_dentry, EXPORT_HASHBITS);
+-	rv ^= hash_ptr(item->ex_mnt, EXPORT_HASHBITS);
+-	return rv;
+-}
+-
+ void svc_export_put(struct cache_head *item, struct cache_detail *cd)
  {
--	cache_get(&item->ek_export->h);
--	new->ek_export = item->ek_export;
-+	new->ek_mnt = mntget(item->ek_mnt);
-+	new->ek_dentry = dget(item->ek_dentry);
+ 	if (cache_put(item, cd)) {
+@@ -298,7 +288,8 @@ static void svc_export_request(struct ca
+ 	(*bpp)[-1] = '\n';
  }
  
- static DefineSimpleCacheLookup(svc_expkey,0) /* no inplace updates */
-@@ -519,7 +513,8 @@ static int exp_set_key(svc_client *clp, 
- 	key.ek_client = clp;
- 	key.ek_fsidtype = fsid_type;
- 	memcpy(key.ek_fsid, fsidv, key_len(fsid_type));
--	key.ek_export = exp;
-+	key.ek_mnt = exp->ex_mnt;
-+	key.ek_dentry = exp->ex_dentry;
- 	key.h.expiry_time = NEVER;
- 	key.h.flags = 0;
+-static struct svc_export *svc_export_lookup(struct svc_export *, int);
++struct svc_export *svc_export_update(struct svc_export *new, struct svc_export *old);
++static struct svc_export *svc_export_lookup(struct svc_export *);
  
-@@ -741,8 +736,8 @@ exp_export(struct nfsctl_export *nxp)
- 	if ((nxp->ex_flags & NFSEXP_FSID) &&
- 	    (fsid_key = exp_get_fsid_key(clp, nxp->ex_dev)) &&
- 	    !IS_ERR(fsid_key) &&
--	    fsid_key->ek_export &&
--	    fsid_key->ek_export != exp)
-+	    fsid_key->ek_mnt &&
-+	    (fsid_key->ek_mnt != nd.mnt || fsid_key->ek_dentry != nd.dentry) )
- 		goto finish;
+ static int check_export(struct inode *inode, int flags)
+ {
+@@ -411,11 +402,16 @@ static int svc_export_parse(struct cache
+ 		if (err) goto out;
+ 	}
  
- 	if (exp) {
-@@ -912,6 +907,24 @@ out:
- 	return err;
+-	expp = svc_export_lookup(&exp, 1);
++	expp = svc_export_lookup(&exp);
+ 	if (expp)
+-		exp_put(expp);
+-	err = 0;
++		expp = svc_export_update(&exp, expp);
++	else
++		err = -ENOMEM;
+ 	cache_flush();
++	if (expp == NULL)
++		err = -ENOMEM;
++	else
++		exp_put(expp);
+  out:
+ 	if (nd.dentry)
+ 		path_release(&nd);
+@@ -449,40 +445,95 @@ static int svc_export_show(struct seq_fi
+ 	seq_puts(m, ")\n");
+ 	return 0;
+ }
+-struct cache_detail svc_export_cache = {
+-	.owner		= THIS_MODULE,
+-	.hash_size	= EXPORT_HASHMAX,
+-	.hash_table	= export_table,
+-	.name		= "nfsd.export",
+-	.cache_put	= svc_export_put,
+-	.cache_request	= svc_export_request,
+-	.cache_parse	= svc_export_parse,
+-	.cache_show	= svc_export_show,
+-};
+-
+-static inline int svc_export_match(struct svc_export *a, struct svc_export *b)
++static int svc_export_match(struct cache_head *a, struct cache_head *b)
+ {
+-	return a->ex_client == b->ex_client &&
+-		a->ex_dentry == b->ex_dentry &&
+-		a->ex_mnt == b->ex_mnt;
++	struct svc_export *orig = container_of(a, struct svc_export, h);
++	struct svc_export *new = container_of(b, struct svc_export, h);
++	return orig->ex_client == new->ex_client &&
++		orig->ex_dentry == new->ex_dentry &&
++		orig->ex_mnt == new->ex_mnt;
+ }
+-static inline void svc_export_init(struct svc_export *new, struct svc_export *item)
++
++static void svc_export_init(struct cache_head *cnew, struct cache_head *citem)
+ {
++	struct svc_export *new = container_of(cnew, struct svc_export, h);
++	struct svc_export *item = container_of(citem, struct svc_export, h);
++
+ 	kref_get(&item->ex_client->ref);
+ 	new->ex_client = item->ex_client;
+ 	new->ex_dentry = dget(item->ex_dentry);
+ 	new->ex_mnt = mntget(item->ex_mnt);
  }
  
-+struct svc_export *
-+exp_find(struct auth_domain *clp, int fsid_type, u32 *fsidv,
-+	 struct cache_req *reqp)
+-static inline void svc_export_update(struct svc_export *new, struct svc_export *item)
++static void export_update(struct cache_head *cnew, struct cache_head *citem)
+ {
++	struct svc_export *new = container_of(cnew, struct svc_export, h);
++	struct svc_export *item = container_of(citem, struct svc_export, h);
++
+ 	new->ex_flags = item->ex_flags;
+ 	new->ex_anon_uid = item->ex_anon_uid;
+ 	new->ex_anon_gid = item->ex_anon_gid;
+ 	new->ex_fsid = item->ex_fsid;
+ }
+ 
+-static DefineSimpleCacheLookup(svc_export, svc_export)
++static struct cache_head *svc_export_alloc(void)
 +{
-+	struct svc_export *exp;
-+	struct svc_expkey *ek = exp_find_key(clp, fsid_type, fsidv, reqp);
-+	if (!ek || IS_ERR(ek))
-+		return ERR_PTR(PTR_ERR(ek));
-+
-+	exp = exp_get_by_name(clp, ek->ek_mnt, ek->ek_dentry, reqp);
-+	expkey_put(&ek->h, &svc_expkey_cache);
-+
-+	if (!exp || IS_ERR(exp))
-+		return ERR_PTR(PTR_ERR(exp));
-+	return exp;
++	struct svc_export *i = kmalloc(sizeof(*i), GFP_KERNEL);
++	if (i)
++		return &i->h;
++	else
++		return NULL;
 +}
 +
++struct cache_detail svc_export_cache = {
++	.owner		= THIS_MODULE,
++	.hash_size	= EXPORT_HASHMAX,
++	.hash_table	= export_table,
++	.name		= "nfsd.export",
++	.cache_put	= svc_export_put,
++	.cache_request	= svc_export_request,
++	.cache_parse	= svc_export_parse,
++	.cache_show	= svc_export_show,
++	.match		= svc_export_match,
++	.init		= svc_export_init,
++	.update		= export_update,
++	.alloc		= svc_export_alloc,
++};
 +
- /*
-  * Called when we need the filehandle for the root of the pseudofs,
-  * for a given NFSv4 client.   The root is defined to be the
-@@ -922,6 +935,7 @@ exp_pseudoroot(struct auth_domain *clp, 
- 	       struct cache_req *creq)
- {
- 	struct svc_expkey *fsid_key;
-+	struct svc_export *exp;
- 	int rv;
- 	u32 fsidv[2];
- 
-@@ -933,8 +947,14 @@ exp_pseudoroot(struct auth_domain *clp, 
- 	if (!fsid_key || IS_ERR(fsid_key))
- 		return nfserr_perm;
- 
--	rv = fh_compose(fhp, fsid_key->ek_export, 
--			  fsid_key->ek_export->ex_dentry, NULL);
-+	exp = exp_get_by_name(clp, fsid_key->ek_mnt, fsid_key->ek_dentry, creq);
-+	if (exp == NULL)
-+		rv = nfserr_perm;
-+	else if (IS_ERR(exp))
-+		rv = nfserrno(PTR_ERR(exp));
++static struct svc_export *
++svc_export_lookup(struct svc_export *exp)
++{
++	struct cache_head *ch;
++	int hash;
++	hash = hash_ptr(exp->ex_client, EXPORT_HASHBITS);
++	hash ^= hash_ptr(exp->ex_dentry, EXPORT_HASHBITS);
++	hash ^= hash_ptr(exp->ex_mnt, EXPORT_HASHBITS);
++
++	ch = sunrpc_cache_lookup(&svc_export_cache, &exp->h,
++				 hash);
++	if (ch)
++		return container_of(ch, struct svc_export, h);
 +	else
-+		rv = fh_compose(fhp, exp,
-+				fsid_key->ek_dentry, NULL);
- 	expkey_put(&fsid_key->h, &svc_expkey_cache);
- 	return rv;
- }
-
-diff ./include/linux/nfsd/export.h~current~ ./include/linux/nfsd/export.h
---- ./include/linux/nfsd/export.h~current~	2006-03-09 17:12:58.000000000 +1100
-+++ ./include/linux/nfsd/export.h	2006-03-09 17:15:13.000000000 +1100
-@@ -67,7 +67,8 @@ struct svc_expkey {
- 	int			ek_fsidtype;
- 	u32			ek_fsid[3];
++		return NULL;
++}
++
++struct svc_export *
++svc_export_update(struct svc_export *new, struct svc_export *old)
++{
++	struct cache_head *ch;
++	int hash;
++	hash = hash_ptr(old->ex_client, EXPORT_HASHBITS);
++	hash ^= hash_ptr(old->ex_dentry, EXPORT_HASHBITS);
++	hash ^= hash_ptr(old->ex_mnt, EXPORT_HASHBITS);
++
++	ch = sunrpc_cache_update(&svc_export_cache, &new->h,
++				 &old->h,
++				 hash);
++	if (ch)
++		return container_of(ch, struct svc_export, h);
++	else
++		return NULL;
++}
  
--	struct svc_export *	ek_export;
-+	struct vfsmount *	ek_mnt;
-+	struct dentry *		ek_dentry;
- };
  
- #define EX_SECURE(exp)		(!((exp)->ex_flags & NFSEXP_INSECURE_PORT))
-@@ -114,22 +115,9 @@ static inline void exp_get(struct svc_ex
- {
- 	cache_get(&exp->h);
- }
--static inline struct svc_export *
-+extern struct svc_export *
- exp_find(struct auth_domain *clp, int fsid_type, u32 *fsidv,
--	 struct cache_req *reqp)
--{
--	struct svc_expkey *ek = exp_find_key(clp, fsid_type, fsidv, reqp);
--	if (ek && !IS_ERR(ek)) {
--		struct svc_export *exp = ek->ek_export;
--		int err;
--		exp_get(exp);
--		expkey_put(&ek->h, &svc_expkey_cache);
--		if ((err = cache_check(&svc_export_cache, &exp->h, reqp)))
--			exp = ERR_PTR(err);
--		return exp;
--	} else
--		return ERR_PTR(PTR_ERR(ek));
--}
-+	 struct cache_req *reqp);
+ struct svc_expkey *
+@@ -568,7 +619,7 @@ exp_get_by_name(svc_client *clp, struct 
+ 	key.ex_mnt = mnt;
+ 	key.ex_dentry = dentry;
  
- #endif /* __KERNEL__ */
+-	exp = svc_export_lookup(&key, 0);
++	exp = svc_export_lookup(&key);
+ 	if (exp != NULL) 
+ 		switch (cache_check(&svc_export_cache, &exp->h, reqp)) {
+ 		case 0: break;
+@@ -770,13 +821,13 @@ exp_export(struct nfsctl_export *nxp)
+ 	new.ex_anon_gid = nxp->ex_anon_gid;
+ 	new.ex_fsid = nxp->ex_dev;
  
+-	exp = svc_export_lookup(&new, 1);
++	exp = svc_export_lookup(&new);
++	if (exp)
++		exp = svc_export_update(&new, exp);
+ 
+-	if (exp == NULL)
++	if (!exp)
+ 		goto finish;
+ 
+-	err = 0;
+-
+ 	if (exp_hash(clp, exp) ||
+ 	    exp_fsid_hash(clp, exp)) {
+ 		/* failed to create at least one index */

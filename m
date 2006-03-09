@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932628AbWCIAWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbWCIAXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932628AbWCIAWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbWCIAWQ
+	id S932630AbWCIAXa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbWCIAXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:22:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:25832 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932628AbWCIAWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:22:15 -0500
-Subject: Re: drivers/media/video/saa7115.c misreports max. value of
-	contrast and saturation
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Kyler Laird <kyler-keyword-lkml00.e701c2@lairds.com>,
-       linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
-In-Reply-To: <20060308234626.GV4006@stusta.de>
-References: <20060215051908.GF13033@snout> <20060308211900.GM4006@stusta.de>
-	 <1141858063.3133.2.camel@praia>  <20060308234626.GV4006@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 08 Mar 2006 21:21:19 -0300
-Message-Id: <1141863679.3133.13.camel@praia>
+	Wed, 8 Mar 2006 19:23:30 -0500
+Received: from ozlabs.org ([203.10.76.45]:4764 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932630AbWCIAX3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:23:29 -0500
+Date: Thu, 9 Mar 2006 11:22:51 +1100
+From: "'David Gibson'" <david@gibson.dropbear.id.au>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ftruncate on huge page couldn't extend hugetlb file
+Message-ID: <20060309002251.GE17590@localhost.localdomain>
+Mail-Followup-To: 'David Gibson' <david@gibson.dropbear.id.au>,
+	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+	"'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
+	linux-kernel@vger.kernel.org
+References: <20060308235805.GC17590@localhost.localdomain> <200603090012.k290CDg13307@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603090012.k290CDg13307@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2006-03-09 às 00:46 +0100, Adrian Bunk escreveu:
-> On Wed, Mar 08, 2006 at 07:47:43PM -0300, Mauro Carvalho Chehab wrote:
-> > Adrian,
+On Wed, Mar 08, 2006 at 04:12:13PM -0800, Chen, Kenneth W wrote:
+> David Gibson wrote on Wednesday, March 08, 2006 3:58 PM
+> > > Hmm??  I don't think you need to extend the reservation when extending
+> > > hugetlb file via ftruncate.  You don't have any vma that pass beyond
+> > > current size.  So making a reservation is a wrong thing to do here.
 > > 
-> > 
-> > Em Qua, 2006-03-08 às 22:19 +0100, Adrian Bunk escreveu:
-> > > On Wed, Feb 15, 2006 at 12:19:08AM -0500, Kyler Laird wrote:
-> > > 
-> > > > For changes to V4L2_CID_CONTRAST and V4L2_CID_SATURATION, the value is
-> > > > checked by "if (ctrl->value < 0 || ctrl->value > 127)" yet the maximum
-> > > > value in v4l2_queryctrl is set to 255 for both of these items.  This
-> > > > means that programs (like MythTV) which set the contrast and saturation
-> > > > to the midvalue (127) get *full* contrast and saturation.  (It's not
-> > > > pretty.)
-> > > > 
-> > > > Setting the maximum values to 127 solves this problem.
-> > > 
-> > > Mauro, can you comment on this issue?
-> > Yes. Patch is already available at both git and mercurial trees, fixing
-> > it for saa7115 and cx25840:
-> > 
-> > http://linuxtv.org/hg/v4l-dvb?cmd=changeset;node=b77c2f933b620bccaa751d556c1aa2fca30de7ec;style=gitweb
+> > Fwiw, I think truncate *should* extend the reservation.  We have a
+> > separate thread arguing about whether we should be reserving by inode
+> > length, as I've implemented, or by which ranges are actually mapped
+> > (as apw's old path implemented).  As long as it *is* by inode length -
+> > so it's conceptually all about the logical file in hugetlbfs, not
+> > about any of its mappings - I think it makes sense for an extending
+> > truncate() to extend the reservation.  It's not reserving them for any
+> > particular mapping, it's reserving them for page cache pages.
 > 
-> This patch seems to be 2.1.16 stuff?
-I think you meant 2.6.16 :) Yes, it is. I've already sent an email to
-Linus for him to pull it, among with some other pending patches.
-> 
-> > Cheers, 
-> > Mauro.
-> 
-> cu
-> Adrian
-> 
-Cheers, 
-Mauro.
+> But you already make reservation at mmap time.  If you reserve it again
+> when extending the file, won't you double count?
 
+Well, I'd generally expect extending truncate() to come before mmap(),
+but in any case hugetlb_extend_reservation() is safe against double
+counting (it's idempotent if called twice with the same number of
+pages).  The semantics are "ensure the this many pages total are
+guaranteed available, that is, either reserved or already
+instantiated".
+
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

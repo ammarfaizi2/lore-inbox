@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbWCIAbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932652AbWCIAdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932632AbWCIAbl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 19:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbWCIAbl
+	id S932652AbWCIAdO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 19:33:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbWCIAdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 19:31:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21956 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932632AbWCIAbk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 19:31:40 -0500
-Date: Wed, 8 Mar 2006 16:29:32 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Wed, 8 Mar 2006 19:33:14 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:23756 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932652AbWCIAdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Mar 2006 19:33:13 -0500
+Message-Id: <200603090033.k290XBg13472@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
 To: "'David Gibson'" <david@gibson.dropbear.id.au>
-Cc: kenneth.w.chen@intel.com, yanmin.zhang@intel.com, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: hugepage: Strict page reservation for hugepage inodes
-Message-Id: <20060308162932.07a05650.akpm@osdl.org>
-In-Reply-To: <20060308235207.GB17590@localhost.localdomain>
-References: <20060308102314.GB32571@localhost.localdomain>
-	<200603081838.k28Icwg10327@unix-os.sc.intel.com>
-	<20060308235207.GB17590@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Cc: "'Zhang, Yanmin'" <yanmin_zhang@linux.intel.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] ftruncate on huge page couldn't extend hugetlb file
+Date: Wed, 8 Mar 2006 16:33:10 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcZDD739y2SyqJA7QGu+ICUowBTjaQAAIjfQ
+In-Reply-To: <20060309002251.GE17590@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"'David Gibson'" <david@gibson.dropbear.id.au> wrote:
->
-> On Wed, Mar 08, 2006 at 10:38:58AM -0800, Chen, Kenneth W wrote:
-> > David Gibson wrote on Wednesday, March 08, 2006 2:23 AM
-> > > Yes.  This is a simplifying assumption.  I know of no real application
-> > > that will waste pages because of this behaviour.  If you know one,
-> > > maybe we will need to reconsider.
-> > > 
-> > > > I have an idea. How about to record all the start/end address of
-> > > > huge page mmaping of the inode? Long long ago, there was a patch at 
-> > > > http://marc.theaimsgroup.com/?l=lse-tech&m=108187931924134&w=2.
-> > > > Of course, we need port it to the latest kernel if this idea is better.
-> > > 
-> > > I know the patch - I was going to port it to the current kernel, but
-> > > came up with my patch instead, because it seemed like a simpler
-> > > approach.
-> > 
-> > I really think the Variable length reservation system is the way to go
-> > for tracking hugetlb commit.  It is more robust and in my opinion, it
-> > is better than traverse the page cache radix tree.  At least, you don't
-> > have to worry about all the race condition there.  Oh, it also can get
-> > rid of the hugetlb_instantiation_mutex that was introduced.  Someday,
-> > people is going to scream at you for serializing hugetlb fault path.
+David Gibson wrote on Wednesday, March 08, 2006 4:23 PM
+> > But you already make reservation at mmap time.  If you reserve it again
+> > when extending the file, won't you double count?
 > 
-> Well, not my decision, or yours I think.  wli?  akpm?
+> Well, I'd generally expect extending truncate() to come before mmap(),
+> but in any case hugetlb_extend_reservation() is safe against double
+> counting (it's idempotent if called twice with the same number of
+> pages).  The semantics are "ensure the this many pages total are
+> guaranteed available, that is, either reserved or already
+> instantiated".
 
-You're the guy who's doing all the work...
+It's kind of peculiar that kernel reserve hugetlb page at the time of
+extending truncate.  Maybe there is a close correlation between mmap
+size to the file size.  But these two aren't the same and and shouldn't
+be mixed.
 
-The linear list walk is a worry.  Every time we have one of those someone
-gets bitten by it.
-
-It's rather similar to the vma rbtree.
-
-The radix-tree supports both in-order traversal and O(log(n)) lookup.  For
-non-duplicated-key items it _should_ be OK?  (It could be used for
-duplicated-key items too, btw).
-
+- Ken
 

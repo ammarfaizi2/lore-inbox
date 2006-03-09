@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWCIX0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWCIX16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWCIX0q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751968AbWCIX0q
+	id S932135AbWCIX16 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751972AbWCIX16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:26:46 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:34391 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1751312AbWCIX0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:26:45 -0500
-X-IronPort-AV: i="4.02,180,1139212800"; 
-   d="scan'208"; a="313130754:sNHT30991548"
-To: "Bryan O'Sullivan" <bos@pathscale.com>
+	Thu, 9 Mar 2006 18:27:58 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:62085 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751968AbWCIX16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:27:58 -0500
+Subject: Re: [PATCH 7 of 20] ipath - misc driver support code
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
 Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
        linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
-X-Message-Flag: Warning: May contain useful information
-References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 15:26:43 -0800
-In-Reply-To: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain> (Bryan O'Sullivan's message of "Thu,  9 Mar 2006 08:47:02 -0800")
-Message-ID: <ada8xrjfbd8.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 09 Mar 2006 23:26:44.0416 (UTC) FILETIME=[ED8A4C00:01C643D0]
+In-Reply-To: <aday7zjfc36.fsf@cisco.com>
+References: <2f16f504dd4b98c2ce7c.1141922820@localhost.localdomain>
+	 <aday7zjfc36.fsf@cisco.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 09 Mar 2006 15:27:57 -0800
+Message-Id: <1141946877.10693.34.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > +static int ipath_sma_release(struct inode *in, struct file *fp)
- > +{
- > +	int s;
- > +
- > +	ipath_sma_alive = 0;
- > +	ipath_cdbg(SMA, "Closing SMA device\n");
- > +	for (s = 0; s < atomic_read(&ipath_max); s++) {
- > +		struct ipath_devdata *dd = ipath_lookup(s);
- > +
- > +		if (!dd || !(dd->ipath_flags & IPATH_INITTED))
- > +			continue;
- > +		*dd->ipath_statusp &= ~IPATH_STATUS_SMA;
- > +		if (dd->verbs_layer.l_flags & IPATH_VERBS_KERNEL_SMA)
- > +			*dd->ipath_statusp |= IPATH_STATUS_OIB_SMA;
- > +	}
- > +	return 0;
- > +}
+On Thu, 2006-03-09 at 15:11 -0800, Roland Dreier wrote:
+>  > +static unsigned handle_frequent_errors(struct ipath_devdata *dd,
+>  > +				       ipath_err_t errs, char msg[512],
+>  > +				       int *noprint)
 
-Similarly what protects against another process opening the device
-right after the ipath_sma_alive = 0 setting, but before you do all the
-cleanup that's after that?
+> Could this be replaced by printk_ratelimit()?
 
-And what protects against a hot unplug of a device after the test of s
-against ipath_max?
+I looked into doing that a few weeks ago, and it really didn't look like
+a good fit at all.
 
- - R.
+	<b
+

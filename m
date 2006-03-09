@@ -1,115 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWCIJmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWCIJyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751780AbWCIJmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 04:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751781AbWCIJmY
+	id S1750989AbWCIJyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 04:54:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWCIJyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 04:42:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22166 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751780AbWCIJmX (ORCPT
+	Thu, 9 Mar 2006 04:54:10 -0500
+Received: from pproxy.gmail.com ([64.233.166.182]:7641 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750989AbWCIJyI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 04:42:23 -0500
-Date: Thu, 9 Mar 2006 01:40:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Max Asbock <masbock@us.ibm.com>,
-       Vernon Mauery <vernux@us.ibm.com>
-Subject: Re: Oops on ibmasm
-Message-Id: <20060309014023.2caa42d2.akpm@osdl.org>
-In-Reply-To: <20060308224145.47332.qmail@web52607.mail.yahoo.com>
-References: <20060308224145.47332.qmail@web52607.mail.yahoo.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 9 Mar 2006 04:54:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=k1g8tarS8UZlQmzM75jJfsIQYmOPTYTi7e3I76cDbVh18AT2lVJjInZ0HynljLBmueZci34uhZDe4JSEjPmaUVV07TZ4efBT3A/LeNN04OohFA9l+whkg38KCmZtEg6eI5bq8KJhOtQ0A/kGuTyRw5LMj6B8PY429BJRU84jnXs=
+Message-ID: <440FFB7F.8050902@gmail.com>
+Date: Thu, 09 Mar 2006 17:55:11 +0800
+From: Yi Yang <yang.y.yi@gmail.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.16-rc5-m3 PATCH] inotify: add the monitor for the event
+ source
+References: <440F075F.1030404@gmail.com>	 <1141836798.12175.1.camel@laptopd505.fenrus.org>	 <440FBA9C.3050109@gmail.com> <1141882513.2883.2.camel@laptopd505.fenrus.org>
+In-Reply-To: <1141882513.2883.2.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au> wrote:
+Arjan van de Ven wrote:
+> On Thu, 2006-03-09 at 13:18 +0800, Yi Yang wrote:
+>   
+>> Arjan van de Ven wrote:
+>>     
+>>> On Thu, 2006-03-09 at 00:33 +0800, Yi Yang wrote:
+>>>   
+>>>       
+>>>> Current inotify implementation only focus on change of file system, but it doesn't
+>>>>  know who results in this change, this patch adds three fields to struct inotify_event,
+>>>>  tgid, uid and gid, they will save process ID, user ID and user group ID of the process
+>>>>  which leads to change in the file system, such software as anti-virus can make use 
+>>>> of this feature to monitor who is modifying a specific file.
+>>>>     
+>>>>         
+>>> this patch appears to change the ABI! That is bad bad bad.
+>>>   
+>>>       
+>> a change of struct inotify_event can't change ABI, can you describe it 
+>> more clear?
+>>     
 >
-> When ibmasm kernel module is loaded on a slab debug
-> enabled kernel, it oopses. Yes, it's fine when there's
-> no slab debug.
+> it breaks ABI because this structure is communicated to userspace, and
+> you change both the layout and the size of it. What else would ABI
+> mean??
+>   
+Many structures exported to user space in kernel  are undergoing some 
+change, A good application shouldn't count on invariability forever,
+My test application hasn't any problem before change and after change.
+
 >
-> ...
-> 
-> md: ... autorun DONE.
-> kjournald starting.  Commit interval 5 seconds
-> EXT3-fs: mounted filesystem with ordered data mode.
-> ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 17 (level,
-> low) -> IRQ 18
-> command count: 1
-> input: ibmasm RSA I remote mouse as
-> /class/input/input2
-> input: ibmasm RSA I remote keyboard as
-> /class/input/input3
-> ibmasm remote responding to events on RSA card 0
-> command count: 2
-> ibmasm_exec_command:130 at 1141819512.780778
-> do_exec_command:107 at 1141819512.780787
-> respond to interrupt at 1141819512.782055
-> exec_next_command:150 at 1141819512.782094
-> finished interrupt at   1141819512.782103
-> command count: 1
-> Unable to handle kernel paging request at virtual
-> address 6b6b6b6b
->  printing eip:
-> c0261af6
-> *pde = 00000000
-> Oops: 0002 [#1]
-> SMP 
-> Modules linked in: ibmasm dm_snapshot dm_zero
-> dm_mirror dm_mod raid0 ext3 mbcache jbd ide_disk
-> ide_core ips aic7xxx scsi_transport_spi sd_mod
-> scsi_mod
-> CPU:    1
-> EIP:    0060:[<c0261af6>]    Not tainted VLI
-> EFLAGS: 00010046   (2.6.16-rc5 #4) 
-> EIP is at _spin_unlock_irqrestore+0x2/0x7
-> eax: 6b6b6b6b   ebx: 00000246   ecx: 00000001   edx:
-> 00000246
-> esi: 00000000   edi: f7c56bdb   ebp: f7cc2ad0   esp:
-> f746cda8
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 429, threadinfo=f746c000
-> task=f7f82570)
-> Stack: <0>f88dee8c c339f0b0 00000000 c339f0b0 00000000
-> c339f0e8 f7c14ee0 f88dd3aa 
->        00000001 f88e24ec f88e24c0 f7c14ee0 c01f4439
-> c01b9410 f7c14f28 f7c14f28 
->        f88e24ec c01f4389 f7c14f28 c316092c f88e24ec
-> c01f4491 00000000 c02af580 
-> Call Trace:
->  [<f88dee8c>] ibmasm_send_driver_vpd+0xb7/0xc3
-> [ibmasm]
->  [<f88dd3aa>] ibmasm_init_one+0x2a6/0x37c [ibmasm]
->  [<c01f4439>] __driver_attach+0x0/0x7f
->  [<c01b9410>] pci_device_probe+0x36/0x57
->  [<c01f4389>] driver_probe_device+0x42/0x8b
->  [<c01f4491>] __driver_attach+0x58/0x7f
->  [<c01f3ead>] bus_for_each_dev+0x37/0x59
->  [<c01f42f3>] driver_attach+0x11/0x13
-
-I assume this'll fix it?
-
-I suspect there's no point in the locking around that kobject_put() anyway.
-Or if there is, it wasn't the right way to fix the race.
-
-diff -puN drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix drivers/misc/ibmasm/ibmasm.h
---- devel/drivers/misc/ibmasm/ibmasm.h~ibmasm-use-after-free-fix	2006-03-09 01:35:05.000000000 -0800
-+++ devel-akpm/drivers/misc/ibmasm/ibmasm.h	2006-03-09 01:35:16.000000000 -0800
-@@ -100,11 +100,7 @@ struct command {
- 
- static inline void command_put(struct command *cmd)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(cmd->lock, flags);
-         kobject_put(&cmd->kobj);
--	spin_unlock_irqrestore(cmd->lock, flags);
- }
- 
- static inline void command_get(struct command *cmd)
-_
-
+>   
+>>> Also, how can you guarantee that "current" is valid and meaningful at
+>>> the place you use it to get the user id ??
+>>>   
+>>>       
+>> Of course, current process/thread never disappears before fsnotify_* 
+>> returns.
+>>     
+>
+> but... what makes you think it's not a kernel thread such as kjournald?
+> (which have basically meaningless current)
+>   
+you can get  values of these fields without any problem for kernel 
+thread although they are useless.
+>
+>   
+>>> Also the process ID part is really bogus, after all the process may have
+>>> exited by the time the inotify client gets to it, and the PID may even
+>>> already have been reused.
+>>>
+>>>   
+>>>       
+>> Your concern is correct, but uid and git can give out some hints, I ever 
+>> considered to
+>> save the name of current process, however that needs a bigger and 
+>> length-variable
+>> inotify_event struct, moreover, to get the full path name of current 
+>> process/thread
+>> in kernel will have a big overhead, so I must select a comprise way.
+>>     
+>
+> there is no "full path name" concept in linux like that. And even worse,
+> many processes will not have *any* path because they have been deleted,
+> especially the viruses will use this ;)
+>   
+For this case you said, this patch has now way really, do you have a 
+good way to handle this case?
+>
+>
+>   
 

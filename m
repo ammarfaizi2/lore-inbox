@@ -1,151 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWCIXdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWCIXdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751631AbWCIXdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWCIXdU
+	id S932146AbWCIXdt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 18:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWCIXds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:33:20 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:7670 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751631AbWCIXdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:33:19 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type;
-	b=IR9IXfX94e0qIvE3qt+ORV2JhiLuWTsjC41+pf3kdi+ifyzp+fgrdv4J9r9bLNro/
-	tolfq7Gwmyr+KEYN4SMpA==
-Message-ID: <4410BB32.1020905@google.com>
-Date: Thu, 09 Mar 2006 15:33:06 -0800
-From: Markus Gutschke <markus@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Debian/1.7.12-0ubuntu05.04
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Daniel Kegel <dkegel@google.com>
-Subject: [PATCH 1/1] x86: Make _syscallX() macros compile in PIC mode on i386
-Content-Type: multipart/mixed;
- boundary="------------040207090002060208070706"
+	Thu, 9 Mar 2006 18:33:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45754 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932116AbWCIXdq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 18:33:46 -0500
+Date: Thu, 9 Mar 2006 15:35:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, jack@suse.cz
+Subject: Re: ext3_ordered_writepage() questions
+Message-Id: <20060309153550.379516e1.akpm@osdl.org>
+In-Reply-To: <4410551D.5000303@us.ibm.com>
+References: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
+	<20060308124726.GC4128@lst.de>
+	<4410551D.5000303@us.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040207090002060208070706
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> Hi,
+> 
+> I am trying to cleanup ext3_ordered and ext3_writeback_writepage() routines.
+> I am confused on what ext3_ordered_writepage() is currently doing ? I hope
+> you can help me understand it little better.
+> 
+> 1) Why do we do journal_start() all the time ?
 
-From: Markus Gutschke <markus@google.com>
+Because we're lame.
 
-Gcc reserves %ebx when compiling position-independent-code on i386. This 
-means, the _syscallX() macros in include/asm-i386/unistd.h will not 
-compile. This patch is against 2.6.15.6 and adds a new set of macros 
-which will be used in PIC mode. These macros take special care to 
-preserve %ebx.
+> 2) Why do we call journal_dirty_data_fn() on the buffers ? We already
+> issued IO on all those buffers() in block_full_write_page(). Why do we
+> need to add them to transaction ?  I understand we need to do this for
+> block allocation case. But do we need it for non-allocation case also ?
 
-The bug can be tracked at http://bugzilla.kernel.org/show_bug.cgi?id=6204
+Yup.  Ordered-mode JBD commit needs to write and wait upon all dirty
+file-data buffers prior to journalling the metadata.  If we didn't run
+journal_dirty_data_fn() against those buffers then they'd still be under
+I/O after commit had completed.
 
-Signed-off-by: Markus Gutschke <markus@google.com>
+Consequently a crash+recover would occasionally allow a read() to read
+uninitialised data blocks - those blocks for which we had a) started the
+I/O, b) journalled the metadata which refers to that block and c) not yet
+completed the I/O when the crash happened.
 
----
+Now, if the write was known to be an overwrite then we know that the block
+isn't uninitialised, so we could perhaps avoid writing that block in the
+next commit - just let pdflush handle it.  We'd need to work out whether a
+particular block has initialised data on-disk under it when we dirty it,
+then track that all the way through to writepage.  It's all possible, and
+adds a significant semantic change to ordered-mode.
 
---------------040207090002060208070706
-Content-Type: text/x-patch;
- name="i386-unistd.h.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386-unistd.h.diff"
+If that change offered significant performance benefits then yeah, we could
+scratch our heads over it.
 
---- linux/include/asm-i386/unistd.h.orig	2006-03-05 11:07:54.000000000 -0800
-+++ linux/include/asm-i386/unistd.h	2006-03-09 14:25:45.000000000 -0800
-@@ -326,6 +326,7 @@
- __syscall_return(type,__res); \
- }
- 
-+#ifndef __PIC__
- #define _syscall1(type,name,type1,arg1) \
- type name(type1 arg1) \
- { \
-@@ -393,6 +394,82 @@
- __syscall_return(type,__res); \
- }
- 
-+#else /* __PIC__ */
-+
-+#define _syscall1(type,name,type1,arg1) \
-+type name(type1 arg1) \
-+{ \
-+long __res; \
-+__asm__ volatile ("push %%ebx ; movl %2,%%ebx ; int $0x80 ; pop %%ebx" \
-+	: "=a" (__res) \
-+	: "0" (__NR_##name),"ri" ((long)(arg1)) : "memory"); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall2(type,name,type1,arg1,type2,arg2) \
-+type name(type1 arg1,type2 arg2) \
-+{ \
-+long __res; \
-+__asm__ volatile ("push %%ebx ; movl %2,%%ebx ; int $0x80 ; pop %%ebx" \
-+	: "=a" (__res) \
-+	: "0" (__NR_##name),"ri" ((long)(arg1)),"c" ((long)(arg2)) \
-+	: "memory"); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-+type name(type1 arg1,type2 arg2,type3 arg3) \
-+{ \
-+long __res; \
-+__asm__ volatile ("push %%ebx ; movl %2,%%ebx ; int $0x80 ; pop %%ebx" \
-+	: "=a" (__res) \
-+	: "0" (__NR_##name),"ri" ((long)(arg1)),"c" ((long)(arg2)), \
-+		  "d" ((long)(arg3)) : "memory"); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
-+type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
-+{ \
-+long __res; \
-+__asm__ volatile ("push %%ebx ; movl %2,%%ebx ; int $0x80 ; pop %%ebx" \
-+	: "=a" (__res) \
-+	: "0" (__NR_##name),"ri" ((long)(arg1)),"c" ((long)(arg2)), \
-+	  "d" ((long)(arg3)),"S" ((long)(arg4)) : "memory"); \
-+__syscall_return(type,__res); \
-+} 
-+
-+#define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-+	  type5,arg5) \
-+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
-+{ \
-+long __res; \
-+__asm__ volatile ("push %%ebx ; movl %2,%%ebx ; movl %1,%%eax ; " \
-+                  "int $0x80 ; pop %%ebx" \
-+	: "=a" (__res) \
-+	: "i" (__NR_##name),"ri" ((long)(arg1)),"c" ((long)(arg2)), \
-+	  "d" ((long)(arg3)),"S" ((long)(arg4)),"D" ((long)(arg5)) \
-+	: "memory"); \
-+__syscall_return(type,__res); \
-+}
-+
-+#define _syscall6(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
-+	  type5,arg5,type6,arg6) \
-+type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,type6 arg6) \
-+{ \
-+long __res; \
-+  struct { long __a1; long __a6; } __s = { (long)arg1, (long)arg6 }; \
-+__asm__ volatile ("push %%ebp ; push %%ebx ; movl 4(%2),%%ebp ; " \
-+                  "movl 0(%2),%%ebx ; movl %1,%%eax ; int $0x80 ; " \
-+                  "pop %%ebx ;  pop %%ebp" \
-+	: "=a" (__res) \
-+	: "i" (__NR_##name),"0" ((long)(&__s)),"c" ((long)(arg2)), \
-+	  "d" ((long)(arg3)),"S" ((long)(arg4)),"D" ((long)(arg5)) \
-+	: "memory"); \
-+__syscall_return(type,__res); \
-+}
-+#endif /* __PIC__ */
-+
- #ifdef __KERNEL__
- #define __ARCH_WANT_IPC_PARSE_VERSION
- #define __ARCH_WANT_OLD_READDIR
+But I think if you're looking for CPU consumption reductions, you'd be much
+better off attacking prepare_write() and commit_write(), rather than
+writepage().
 
---------------040207090002060208070706--
+

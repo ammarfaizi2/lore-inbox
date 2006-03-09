@@ -1,94 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWCINqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWCINrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWCINqr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 08:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWCINqq
+	id S932153AbWCINrb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 08:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932121AbWCINrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 08:46:46 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:48040 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932081AbWCINqq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 08:46:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SndWE1BUbEsY4aMVt2Q6l/d2lUA2de1UF6jCMchVThez1vIOxzBBPX5EdIPIIy/pPtDYb/aVI1/XYwWOhf6s2fMS7px3xj7GC6yUbsuXozX0APpVenwZPPA+iiAJhSHdCh0FydMwfu+mN8U0+qZlRKC0pTYdxDx4kNWL8m6oC6o=
-Message-ID: <a44ae5cd0603090546o3b6e485atf6e1b67180234429@mail.gmail.com>
-Date: Thu, 9 Mar 2006 05:46:44 -0800
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: 2.6.16-rc5-mm3 -- BUG: sleeping function called from invalid context at include/linux/rwsem.h:43 in_atomic():0, irqs_disabled():1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Alan Stern" <stern@rowland.harvard.edu>
-In-Reply-To: <200603091306.48110.rjw@sisk.pl>
-MIME-Version: 1.0
+	Thu, 9 Mar 2006 08:47:31 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:23922
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932153AbWCINra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 08:47:30 -0500
+Message-Id: <44104012.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Thu, 09 Mar 2006 14:47:46 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix time ordering of writes to .kconfig.d and
+	include/linux/autoconf.h
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <a44ae5cd0603082253sfb4a1e1q687c56a6f6a386fb@mail.gmail.com>
-	 <20060309023234.02ba4517.akpm@osdl.org>
-	 <200603091306.48110.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/9/06, Rafael J. Wysocki <rjw@sisk.pl> wrote:
-> On Thursday 09 March 2006 11:32, Andrew Morton wrote:
-> > "Miles Lane" <miles.lane@gmail.com> wrote:
-> > >
-> > > Apologies.  This bug caused my video to get messed up.  I was able to
-> > > run Gnome, but the apps weren't rendering correctly, so I couldn't be
-> > > sure my subject line was correct.
-> > > I would have edited out some of the context info, but that was tough
-> > > as well.  Here's the BUG message by itself.  Perhaps all the dmesg
-> > > output in the previous message will be helpful.
-> > > As you can see in the dmesg output, I hit this by suspending and
-> > > resuming.  I am running Fedora Core 5 Test 3 + all yum updates.
-> > > Andrew, the full dmesg output is in the LKML message with the subject
-> > > line set to "v".  Let me know if you would like me to send it directly
-> > > to you.
-> > >
-> > > BUG: sleeping function called from invalid context at include/linux/rwsem.h:43
-> > > in_atomic():0, irqs_disabled():1
-> > >  <c1003f81> show_trace+0xd/0xf   <c100401b> dump_stack+0x17/0x19
-> > >  <c1015f77> __might_sleep+0x86/0x90   <c1024738>
-> > > blocking_notifier_call_chain+0x1b/0x4d
-> > >  <c1183bb2> cpufreq_resume+0xf5/0x11d   <c112b27c> __sysdev_resume+0x23/0x57
-> > >  <c112b3c9> sysdev_resume+0x19/0x4b   <c112f736> device_power_up+0x8/0xf
-> > >  <c1033339> swsusp_suspend+0x6e/0x8b   <c1033918> pm_suspend_disk+0x51/0xf3
-> > >  <c10328c7> enter_state+0x53/0x1c1   <c1032abe> state_store+0x89/0x97
-> > >  <c108af00> subsys_attr_store+0x20/0x25   <c108b020> sysfs_write_file+0xb5/0xdc
-> > >  <c1056578> vfs_write+0xab/0x154   <c1056aa3> sys_write+0x3b/0x60
-> > >  <c1002b43> syscall_call+0x7/0xb
-> > > PM: Image restored success
-> >
-> > ho-hum.  That's swsusp insisting on running things which it shouldn't run
-> > with local interrupts disabled.
->
-> Well, there seems to be a bug in  cpufreq_resume which should not call
-> sleeping functions, because it's called with irqs disabled.
+Since .kconfig.d is used as a make dependency of include/linux/autoconf.h, it
+should be written earlier than the header file, to avoid a subsequent rebuild
+to consider the header outdated.
 
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=y
-CONFIG_CPU_FREQ_DEBUG=y
-CONFIG_CPU_FREQ_STAT=y
-CONFIG_CPU_FREQ_STAT_DETAILS=y
-# CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE is not set
-CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=m
-CONFIG_CPU_FREQ_GOV_POWERSAVE=m
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_ONDEMAND=y
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
-#
-# CPUFreq processor drivers
-#
-CONFIG_X86_ACPI_CPUFREQ=y
-CONFIG_X86_SPEEDSTEP_CENTRINO=y
-CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
-CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
-CONFIG_X86_SPEEDSTEP_ICH=y
-CONFIG_X86_SPEEDSTEP_SMI=y
-CONFIG_X86_P4_CLOCKMOD=y
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc5/scripts/kconfig/confdata.c
+2.6.16-rc5-kconfig_d-deps/scripts/kconfig/confdata.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc5/scripts/kconfig/confdata.c	2006-02-28 08:41:04.000000000 +0100
++++ 2.6.16-rc5-kconfig_d-deps/scripts/kconfig/confdata.c	2006-03-09 13:35:25.000000000 +0100
+@@ -374,6 +374,7 @@ int conf_write(const char *name)
+ 		out_h = fopen(".tmpconfig.h", "w");
+ 		if (!out_h)
+ 			return 1;
++		file_write_dep(NULL);
+ 	}
+ 	sym = sym_lookup("KERNELVERSION", 0);
+ 	sym_calc_value(sym);
+@@ -512,7 +513,6 @@ int conf_write(const char *name)
+ 	if (out_h) {
+ 		fclose(out_h);
+ 		rename(".tmpconfig.h", "include/linux/autoconf.h");
+-		file_write_dep(NULL);
+ 	}
+ 	if (!name || basename != conf_def_filename) {
+ 		if (!name)
+

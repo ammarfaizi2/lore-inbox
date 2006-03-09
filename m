@@ -1,38 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWCIDoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWCIDsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932605AbWCIDoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Mar 2006 22:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751527AbWCIDoj
+	id S1750807AbWCIDsS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Mar 2006 22:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751274AbWCIDsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Mar 2006 22:44:39 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:11994 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751274AbWCIDoj
+	Wed, 8 Mar 2006 22:48:18 -0500
+Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:39950 "EHLO
+	mail.icequake.net") by vger.kernel.org with ESMTP id S1750807AbWCIDsR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Mar 2006 22:44:39 -0500
-Date: Thu, 9 Mar 2006 03:44:35 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Message-ID: <20060309034435.GQ27946@ftp.linux.org.uk>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603061301.37923.dsp@llnl.gov> <1141679261.5568.13.camel@laptopd505.fenrus.org> <200603081919.59763.dsp@llnl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Mar 2006 22:48:17 -0500
+Date: Wed, 8 Mar 2006 21:48:13 -0600
+From: Ryan Underwood <nemesis-lists@icequake.net>
+To: linux-kernel@vger.kernel.org
+Subject: opinions on bigphysarea and DSDT-in-initrd patches
+Message-ID: <20060309034813.GA5300@dbz.icequake.net>
+Reply-To: nemesis@icequake.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
 Content-Disposition: inline
-In-Reply-To: <200603081919.59763.dsp@llnl.gov>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 08, 2006 at 07:19:59PM -0800, Dave Peterson wrote:
-> I'm not familiar with the internals of the module unloading code.
-> However, my understanding of the discussion so far is that the kernel
-> will refuse to unload a module while any of its kobjects still have
-> nonzero reference counts (either by waiting for the reference counts
-> to hit 0 or returning -EBUSY).
-> 
-> If this is the case,
 
-... the world you are living in is drastically different from the one
-where the rest of us lives.
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+Hi,
+
+I grepped through the latest ML digests and didn't see any mention of
+these patches recently.  I was wondering what the general opinion was on
+potentially merging them.  They are both hardware support patches.  I
+asked about the Debian kernel team maintaining them of instead
+linux-kernel, but met with a lack of response there.
+
+First is bigphysarea:
+http://pv105234.reshsg.uci.edu/~jfeise/Downloads/zr36120/
+This is necessary for hardware which doesn't support scatter gather DMA.
+It is non invasive since it only becomes activated when the user
+supplies a kernel cmdline argument.  I've tested the latest version and
+it works fine.
+
+Also, I'm wondering if it is possible to include ACPI DSDT-in-initrd
+patch on ACPI-supported platforms (i386, x86-64 and ia64 AFAIK).
+http://gaugusch.at/kernel.shtml
+
+This saves a user from having to rebuild the entire kernel when his
+firmware DSDT either has known bugs, or he is in the process of
+debugging it.  In fact it would have saved me a whole lot of time this
+week.
+
+Note that this is different from the DSDT-append-to-initrd approach that
+was discussed previously.  I think it is a better design now, but
+curious about your thoughts.
+
+Thanks,
+
+--=20
+Ryan Underwood, <nemesis@icequake.net>
+
+--Kj7319i9nmIyA2yE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFED6V9IonHnh+67jkRAtJUAKCldUmBKJ1HKJR1jJEe55WGlGVdawCgv1EO
+eujFbn800wHDFSXXtyZLNY4=
+=fTAZ
+-----END PGP SIGNATURE-----
+
+--Kj7319i9nmIyA2yE--

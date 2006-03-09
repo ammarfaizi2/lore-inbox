@@ -1,126 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbWCIQXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWCIQYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932660AbWCIQXa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbWCIQX3
+	id S932659AbWCIQYE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWCIQYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:23:29 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:25614 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S932659AbWCIQX2 (ORCPT
+	Thu, 9 Mar 2006 11:24:04 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:23742 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932659AbWCIQYA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:23:28 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix a race condition between ->i_mapping and iput()
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 10 Mar 2006 01:23:25 +0900
-Message-ID: <877j73ziwy.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+	Thu, 9 Mar 2006 11:24:00 -0500
+Message-ID: <4410563E.9030409@cfl.rr.com>
+Date: Thu, 09 Mar 2006 11:22:22 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Luke-Jr <luke@dashjr.org>
+CC: Jan Knutar <jk-lkml@sci.fi>, Anshuman Gholap <anshu.pg@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> <ec92bc30603080203rb4f5e7bvea993a44ceb5d3ca@mail.gmail.com> <200603081311.42080.jk-lkml@sci.fi> <200603091517.31121.luke@dashjr.org>
+In-Reply-To: <200603091517.31121.luke@dashjr.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Mar 2006 16:26:16.0267 (UTC) FILETIME=[306441B0:01C64396]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14313.000
+X-TM-AS-Result: No--3.100000-5.000000-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Luke-Jr wrote:
+> Fund a project to implement a software modem. While a "real" modem might have 
+> better performance, softmodems are more of a raw interface which can be 
+> better in the long run-- for example, if some new super modulation is 
+> produced for 1mbit over regular phone lines, you could possibly just upgrade 
+> your modem software for the new feature. You can also use the modem for voice
 
-This race became a cause of oops, and can reproduce by the following.
-
-    while true; do
-	dd if=/dev/zero of=/dev/.static/dev/hdg1 bs=512 count=1000 & sync
-    done
-
-
-This race condition was between __sync_single_inode() and iput().
-
-          cpu0 (fs's inode)                 cpu1 (bdev's inode)
-------------------------------------------------------------------------
-                                       close("/dev/hda2")
-                                       [...]
-__sync_single_inode()
-   /* copy the bdev's ->i_mapping */
-   mapping = inode->i_mapping;
-
-                                       generic_forget_inode()
-                                          bdev_clear_inode()
-					     /* restre the fs's ->i_mapping */
-				             inode->i_mapping = &inode->i_data;
-				          /* bdev's inode was freed */
-                                          destroy_inode(inode);
-
-   if (wait) {
-      /* dereference a freed bdev's mapping->host */
-      filemap_fdatawait(mapping);  /* Oops */
-
-Since __sync_signle_inode() is only taking a ref-count of fs's inode,
-the another process can be close() and freeing the bdev's inode while
-writing fs's inode.  So, __sync_signle_inode() accesses the freed
-->i_mapping, oops.
-
-This patch takes ref-count of bdev's inode for fs's inode before
-setting a ->i_mapping, and the clear_inode() of fs's inode does iput().
-So, if fs's inode is still living, bdev's inode shouldn't be freed.
-
-This lifetime rule may be a poor, but very simple.
-
-Umm... should we use an another rule to free it more early?
-(e.g. if bdev's inode become I_FREEING, it should call bd_forget()
-before releasing the inode_lock. And some place should call
-igrab(->i_mapping->host->i_count) and iput())
+Except that is not going to happen because there are laws of physics 
+that must be obeyed.  The phone line is encoded with 64 Kbps inside the 
+digital phone network so there is no possible way to modulate more data 
+than that.  There is also the problem that the A/D converter ( which is 
+all the "software modem" is -- it's basically a stripped down sound card 
+) only runs fast enough to support 56,000 bps.  Even if it could run 
+faster, that would place even _more_ load on the cpu.
 
 
-What do you think, comment?
+> capabilities, and have your computer act as an answering machine while you're 
+> not using it for the internet.
+> (Note this is all theoretically possible, and might require actual coding to 
+> achieve; just pointing out that softmodem isn't necessarilly worse than 
+> hardmodems)
 
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
----
+They ARE necessarily worse than real modems in that they require a fair 
+amount of cpu cycles to perform all the DSP.  IIRC, this also has to be 
+done in interrupt context to maintain the low latency required, which 
+lowers the interactive responsiveness of the system - even when you are 
+not transferring much data.
 
- fs/block_dev.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff -puN fs/block_dev.c~i_mapping-race-fix-2 fs/block_dev.c
---- linux-2.6/fs/block_dev.c~i_mapping-race-fix-2	2006-03-09 03:08:54.000000000 +0900
-+++ linux-2.6-hirofumi/fs/block_dev.c	2006-03-09 03:08:54.000000000 +0900
-@@ -441,13 +441,22 @@ static struct block_device *bd_acquire(s
- 	spin_unlock(&bdev_lock);
- 	bdev = bdget(inode->i_rdev);
- 	if (bdev) {
-+		struct block_device *old = NULL;
-+
-+		BUG_ON(inode->i_sb == blockdev_superblock);
- 		spin_lock(&bdev_lock);
--		if (inode->i_bdev)
-+		if (inode->i_bdev) {
-+			old = inode->i_bdev;
- 			__bd_forget(inode);
-+		}
-+		atomic_inc(&bdev->bd_inode->i_count);
- 		inode->i_bdev = bdev;
- 		inode->i_mapping = bdev->bd_inode->i_mapping;
- 		list_add(&inode->i_devices, &bdev->bd_inodes);
- 		spin_unlock(&bdev_lock);
-+
-+		if (old)
-+			iput(old->bd_inode);
- 	}
- 	return bdev;
- }
-@@ -456,10 +465,18 @@ static struct block_device *bd_acquire(s
- 
- void bd_forget(struct inode *inode)
- {
-+	struct block_device *old = NULL;
-+
- 	spin_lock(&bdev_lock);
--	if (inode->i_bdev)
-+	if (inode->i_bdev) {
-+		if (inode->i_sb != blockdev_superblock)
-+			old = inode->i_bdev;
- 		__bd_forget(inode);
-+	}
- 	spin_unlock(&bdev_lock);
-+
-+	if (old)
-+		iput(old->bd_inode);
- }
- 
- int bd_claim(struct block_device *bdev, void *holder)
-_

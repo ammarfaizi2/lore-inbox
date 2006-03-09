@@ -1,150 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWCITBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWCITSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWCITBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 14:01:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCITBQ
+	id S1751345AbWCITSv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 14:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWCITSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 14:01:16 -0500
-Received: from mail.host.bg ([87.120.40.5]:49798 "EHLO mail.host.bg")
-	by vger.kernel.org with ESMTP id S1751355AbWCITBP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 14:01:15 -0500
-Subject: Software raid not kicking devices out of the array
-From: Anton Titov <a.titov@host.bg>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-7yy7PoBHNNFEk9hM9sXs"
-Organization: Host.bg
-Date: Thu, 09 Mar 2006 21:01:05 +0200
-Message-Id: <1141930865.7185.14.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Thu, 9 Mar 2006 14:18:51 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:16287 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751345AbWCITSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 14:18:50 -0500
+X-Sasl-enc: CNvplz6CKi1ufWPyYQANWAqCdVw8nDcNGtbfwCsUh5o5 1141931826
+Message-ID: <44107F40.4000500@imap.cc>
+Date: Thu, 09 Mar 2006 20:17:20 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Andrew Morton <akpm@osdl.org>,
+       linux-usb-devel@lists.sourceforge.net, hjlipp@web.de,
+       linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] reduce syslog clutter (take 2)
+References: <440F609F.8090604@imap.cc> <20060309030257.5c1e0f30.akpm@osdl.org>	 <20060309083412.95e145ea.rdunlap@xenotime.net>	 <44107739.9070204@imap.cc> <9a8748490603091058l75aacacsfc5fdba3981fb074@mail.gmail.com>
+In-Reply-To: <9a8748490603091058l75aacacsfc5fdba3981fb074@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigAB46A137F009E60203B570FA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigAB46A137F009E60203B570FA
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
---=-7yy7PoBHNNFEk9hM9sXs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On 09.03.2006 19:58, Jesper Juhl wrote:
 
-Hello,
+> On 3/9/06, Tilman Schmidt <tilman@imap.cc> wrote:
+>=20
+>>On 09.03.2006 17:34, Randy.Dunlap wrote:
+>>
+>>>On Thu, 9 Mar 2006 03:02:57 -0800 Andrew Morton wrote:
+>>>
+>>>>Tilman Schmidt <tilman@imap.cc> wrote:
+>>>>
+>>>>>The current versions of the err() / info() / warn() syslog macros
+>>>>>insert __FILE__ at the beginning of the message, which expands to
+>>>>>the complete path name of the source file within the kernel tree.
+>>>>>
+>>>>>With the following patch, when used in a module, they'll insert the
+>>>>>module name instead, which is significantly shorter and also tends t=
+o
+>>>>>be more useful to users trying to make sense of a particular message=
+=2E
+>>>>
+>>>>Personally, I prefer to see filenames.  Or function names.  Sometimes=
+ it's
+>>>>rather unobvious how to go from module name to filename, due to a) mu=
+ltiple
+>>>>.o files being linked together, b) subsystems which insist on #includ=
+ing .c
+>>>>files in .c files (usb...) and c) the module system's cute habit of
+>>>>replacing underscores with dashes in module names.
+>>>
+>>>True, just using module->name or whatever means that we would
+>>>(often?) have to do a lookup to see what source file it was in.
+>>
+>>That would be a valid point for debugging messages. However, we are
+>>talking about messages to users here. I maintain that the additional 20=
 
-I have a server with 5 serial ata disks, 4 of them connected into 2
-software raid1 devices. Today this server stopped responding (no ping,
-nothing on the screen, even numlock not working) and after inspecting
-logs I found 5 records like:
+>>characters in:
+>>
+>>Feb 21 00:12:13 gx110 kernel: drivers/isdn/gigaset/i4l.c:
+>>ISDN_CMD_SETL3: invalid protocol 42
+>>
+>>as opposed to:
+>>
+>>Feb 21 00:12:13 gx110 kernel: gigaset: ISDN_CMD_SETL3: invalid protocol=
+ 42
+>>
+>>do not provide any useful information for that clientele. They just pus=
+h
+>=20
+> The filename may not be useful to the user, but the instant the user de=
+cides to
+> submit a bugreport to LKML or elsewhere it becomes useful.
 
-Mar  9 19:30:00 shaman ata5: status=0x51 { DriveReady SeekComplete
-Error }
-Mar  9 19:30:00 shaman ata5: error=0x0c { DriveStatusError }
+Then why does the majority of kernel messages not include a filename?
 
-(not consequent) before the freeze. First one was at 19:03 - about half
-an hour before the freeze. I'm pretty sure, that the reason for server
-stopping responding is hard drive failure.
-
-So the question is, isn't raid supposed to kick the device out of the
-array in case of io error? Surely I can write a script that monitors the
-logs and kicks drives out, but this does not sound like a good solution.
-
-The drive was still in the array after the reboot and after the reboot
-it continued to issue such errors until I removed the drive from array
-with mdadm -f.
-
-I'm attaching dmesg of the machine after reboot.
-
-Anton Titov
-Host.bg
-
---=-7yy7PoBHNNFEk9hM9sXs
-Content-Disposition: attachment; filename=dmesg.shaman.gz
-Content-Type: application/x-gzip; name=dmesg.shaman.gz
-Content-Transfer-Encoding: base64
-
-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
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
 
 
---=-7yy7PoBHNNFEk9hM9sXs--
+--------------enigAB46A137F009E60203B570FA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFEEH9AMdB4Whm86/kRAsT4AJ9xD0GqBLIkgXXCiyO9fn/o5ul7mwCfaJcx
+uT9ohq0ud5hMPu6CHHSAVd8=
+=smPn
+-----END PGP SIGNATURE-----
+
+--------------enigAB46A137F009E60203B570FA--

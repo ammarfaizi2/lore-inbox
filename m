@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932653AbWCIMUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751854AbWCIMXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932653AbWCIMUL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 07:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbWCIMUK
+	id S1751854AbWCIMXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 07:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751846AbWCIMXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 07:20:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63697 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932513AbWCIMUI (ORCPT
+	Thu, 9 Mar 2006 07:23:20 -0500
+Received: from mx2.suse.de ([195.135.220.15]:26514 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751848AbWCIMXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 07:20:08 -0500
-Date: Thu, 9 Mar 2006 04:18:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm3
-Message-Id: <20060309041809.028c8c6a.akpm@osdl.org>
-In-Reply-To: <44101B83.9060503@imap.cc>
-References: <5NHCi-8jp-5@gated-at.bofh.it>
-	<44101B83.9060503@imap.cc>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 9 Mar 2006 07:23:19 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH: 010/017](RFC) Memory hotplug for new nodes v.3. (allocate wait table)
+Date: Thu, 9 Mar 2006 05:56:04 +0100
+User-Agent: KMail/1.9.1
+Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, tony.luck@intel.com,
+       jschopp@austin.ibm.com, haveblue@us.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20060308213301.0036.Y-GOTO@jp.fujitsu.com> <20060309040055.21f3ec2d.akpm@osdl.org>
+In-Reply-To: <20060309040055.21f3ec2d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603090556.06226.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tilman Schmidt <tilman@imap.cc> wrote:
->
-> Andrew Morton wrote:
+On Thursday 09 March 2006 13:00, Andrew Morton wrote:
+> Yasunori Goto <y-goto@jp.fujitsu.com> wrote:
+> >
+> >  +		/* we can use kmalloc() in run time */
+> >  +		do {
+> >  +			table_size = zone->wait_table_size
+> >  +					* sizeof(wait_queue_head_t);
+> >  +			zone->wait_table = kmalloc(table_size, GFP_ATOMIC);
 > 
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/
+> Again, GFP_KERNEL would be better is possible.
 > 
->  This panics and dies during early boot with a divide error in kmem_cache_init
->  on my Dell GX110.
+> Won't this place the node's wait_table into a different node's memory?
 
-Yup, please apply ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc5/2.6.16-rc5-mm3/hot-fixes/revert-x86_64-mm-i386-early-alignment.patch
+Yes, kmalloc_node would be better.
+
+-Andi
+
+

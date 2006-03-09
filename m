@@ -1,148 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWCIQV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWCIQW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWCIQV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 11:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbWCIQV7
+	id S1422637AbWCIQW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 11:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422636AbWCIQW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 11:21:59 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:56837 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932648AbWCIQV6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 11:21:58 -0500
+	Thu, 9 Mar 2006 11:22:58 -0500
+Received: from mail.parknet.jp ([210.171.160.80]:25358 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S1422637AbWCIQW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 11:22:56 -0500
+X-AuthUser: hirofumi@parknet.jp
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Write the inode itself in block_fsync()
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 10 Mar 2006 01:22:53 +0900
+Message-ID: <87bqwfzixu.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C64395.95DB4080"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-x-originalarrivaltime: 09 Mar 2006 16:21:57.0676 (UTC) FILETIME=[964266C0:01C64395]
-Content-class: urn:content-classes:message
-Subject: This was forwarded to me from somebody on yahoo
-Date: Thu, 9 Mar 2006 11:21:54 -0500
-Message-ID: <Pine.LNX.4.61.0603091119550.32008@quark.analogic.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: This was forwarded to me from somebody on yahoo
-Thread-Index: AcZDlZZLMZ9xd+2eQL2bCcXlmKsXpg==
-From: "Johnson, Richard" <rjohnson@analogic.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
-------_=_NextPart_001_01C64395.95DB4080
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+For block device's inode, we don't write a inode's meta data
+itself. But, I think we should write inode's meta data for fsync().
 
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
 
-P.S. Don't kill the messenger!
+ fs/block_dev.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-Richard B. Johnson
-Project Engineer
-Analogic Corporation
-Penguin : Linux version 2.2.15 on an i586 machine (330.14 BogoMips).
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be=
- privileged.  Any review, retransmission, dissemination, or other use of=
- this information by persons or entities other than the intended recipient=
- is prohibited.  If you are not the intended recipient, please notify=
- Analogic Corporation immediately - by replying to this message or by=
- sending an email to DeliveryErrors@analogic.com - and destroy all copies=
- of this information, including any attachments, without reading or=
- disclosing them.
-
-Thank you.
-------_=_NextPart_001_01C64395.95DB4080
-Content-Type: TEXT/plain;
-	name="fwd.txt"
-Content-Transfer-Encoding: base64
-Content-Description: fwd.txt
-Content-Disposition: attachment;
-	filename="fwd.txt"
-
-RnJvbSBseW1hbl9naG9zdEB5YWhvby5jb20gVGh1IE1hciAgOSAxMToxMzozNiAyMDA2DQpUbzog
-IkpvaG5zb24sIFJpY2hhcmQiIDxyam9obnNvbkBhbmFsb2dpYy5jb20+DQpGcm9tOiBTa2lwIEFu
-ZGVyc29uIDxseW1hbl9naG9zdEB5YWhvby5jb20+DQpTdWJqZWN0OiBGd2Q6IGZhaWx1cmUgbm90
-aWNlDQoNCk5vdGU6IGZvcndhcmRlZCBtZXNzYWdlIGF0dGFjaGVkLg0KDQpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KRG8gWW91IFlhaG9vIT8NClRp
-cmVkIG9mIHNwYW0/ICBZYWhvbyEgTWFpbCBoYXMgdGhlIGJlc3Qgc3BhbSBwcm90ZWN0aW9uIGFy
-b3VuZCANCmh0dHA6Ly9tYWlsLnlhaG9vLmNvbSANCg0KICAgIFsgUGFydCAyOiAiSW5jbHVkZWQg
-TWVzc2FnZSIgXQ0KDQpUbzogbHltYW5fZ2hvc3RAeWFob28uY29tDQpGcm9tOiBNQUlMRVItREFF
-TU9OQHlhaG9vLmNvbQ0KU3ViamVjdDogZmFpbHVyZSBub3RpY2UNCg0KSGkuIFRoaXMgaXMgdGhl
-IHFtYWlsLXNlbmQgcHJvZ3JhbSBhdCB5YWhvby5jb20uDQpJJ20gYWZyYWlkIEkgd2Fzbid0IGFi
-bGUgdG8gZGVsaXZlciB5b3VyIG1lc3NhZ2UgdG8gdGhlIGZvbGxvd2luZyBhZGRyZXNzZXMuDQpU
-aGlzIGlzIGEgcGVybWFuZW50IGVycm9yOyBJJ3ZlIGdpdmVuIHVwLiBTb3JyeSBpdCBkaWRuJ3Qg
-d29yayBvdXQuDQoNCjxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPjoNCjIwOS4xMzIuMTc2
-LjE2NyBmYWlsZWQgYWZ0ZXIgSSBzZW50IHRoZSBtZXNzYWdlLg0KUmVtb3RlIGhvc3Qgc2FpZDog
-NTUwIDUuNy4xIENvbnRlbnQtUG9saWN5IHJlamVjdCBtc2c6IFRoZSBtZXNzYWdlIGNvbnRhaW5z
-IEhUTUwgc3VicGFydCwgdGhlcmVmb3JlIHdlIGNvbnNpZGVyIGl0IFNQQU0gb3IgT3V0bG9vayBW
-aXJ1cy4gIFRFWFQvUExBSU4gaXMgYWNjZXB0ZWQuITsgUzE3NTE5MDdBYldDSVBLMg0KDQotLS0g
-QmVsb3cgdGhpcyBsaW5lIGlzIGEgY29weSBvZiB0aGUgbWVzc2FnZS4NCg0KUmV0dXJuLVBhdGg6
-IDxseW1hbl9naG9zdEB5YWhvby5jb20+DQpSZWNlaXZlZDogKHFtYWlsIDYwODU1IGludm9rZWQg
-YnkgdWlkIDYwMDAxKTsgOSBNYXIgMjAwNiAxNTowNjowMyAtMDAwMA0KRG9tYWluS2V5LVNpZ25h
-dHVyZTogYT1yc2Etc2hhMTsgcT1kbnM7IGM9bm9md3M7DQogIHM9czEwMjQ7IGQ9eWFob28uY29t
-Ow0KICBoPU1lc3NhZ2UtSUQ6UmVjZWl2ZWQ6RGF0ZTpGcm9tOlN1YmplY3Q6VG86TUlNRS1WZXJz
-aW9uOkNvbnRlbnQtVHlwZTpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOw0KICBiPWJ2ZVRBdFRa
-WE1reVIwR0lpVlBZaHQyVUNhY3djOFRpMjlsQ2pEcHMyaHlGSXhtMWRhTnRVZlNpcnd5MmFHOFFw
-OEFMQkgvL0pDdUZPdUxBdTdWMDkvZFNvajV2MnN5UGhmWElUcjN6SHJ6Nm1YaUFqV1Q4TW1KdGsz
-aXFReUxaUGdKa2t1bnZSOGp1c3hlVjZRWDNlekpzMkltTExVLzBrekFsMHRORUtKZz0gIDsNCk1l
-c3NhZ2UtSUQ6IDwyMDA2MDMwOTE1MDYwMy42MDg1Mi5xbWFpbEB3ZWIzNzQxMS5tYWlsLm11ZC55
-YWhvby5jb20+DQpSZWNlaXZlZDogZnJvbSBbMjA4LjIyNC4yMjMuMjQwXSBieSB3ZWIzNzQxMS5t
-YWlsLm11ZC55YWhvby5jb20gdmlhIEhUVFA7IFRodSwgMDkgTWFyIDIwMDYgMDc6MDY6MDMgUFNU
-DQpEYXRlOiBUaHUsIDkgTWFyIDIwMDYgMDc6MDY6MDMgLTA4MDAgKFBTVCkNCkZyb206IFNraXAg
-QW5kZXJzb24gPGx5bWFuX2dob3N0QHlhaG9vLmNvbT4NClN1YmplY3Q6IEZ3ZDogRHJpdmVycyBm
-b3IgTGludXgNClRvOiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQpNSU1FLVZlcnNpb246
-IDEuMA0KQ29udGVudC1UeXBlOiBtdWx0aXBhcnQvbWl4ZWQ7IGJvdW5kYXJ5PSIwLTI2NTM1NTkw
-MS0xMTQxOTE2NzYzPTo1Mjc1MiINCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQNCg0K
-LS0wLTI2NTM1NTkwMS0xMTQxOTE2NzYzPTo1Mjc1Mg0KQ29udGVudC1UeXBlOiB0ZXh0L3BsYWlu
-OyBjaGFyc2V0PWlzby04ODU5LTENCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQNCkNv
-bnRlbnQtSWQ6IA0KQ29udGVudC1EaXNwb3NpdGlvbjogaW5saW5lDQoNCg0KVGhpcyBtZXNzYWdl
-IHdhcyBwcmV2aW91c2x5IHJlZnVzZWQuDQpJIHdpbGwgcmV0cnkgdW50aWwgSSBnZXRzIHRocm91
-Z2guDQoNCk5vdGU6IGZvcndhcmRlZCBtZXNzYWdlIGF0dGFjaGVkLg0KDQoNCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fDQpEbyBZb3UgWWFob28hPw0K
-VGlyZWQgb2Ygc3BhbT8gIFlhaG9vISBNYWlsIGhhcyB0aGUgYmVzdCBzcGFtIHByb3RlY3Rpb24g
-YXJvdW5kIA0KaHR0cDovL21haWwueWFob28uY29tIA0KLS0wLTI2NTM1NTkwMS0xMTQxOTE2NzYz
-PTo1Mjc1Mg0KQ29udGVudC1UeXBlOiBtZXNzYWdlL3JmYzgyMg0KQ29udGVudC1UcmFuc2Zlci1F
-bmNvZGluZzogOGJpdA0KDQpSZWNlaXZlZDogZnJvbSBbMjA4LjIyNC4yMjIuMjMyXSBieSB3ZWIz
-NzQxMi5tYWlsLm11ZC55YWhvby5jb20gdmlhIEhUVFA7IFRodSwgMDkgTWFyIDIwMDYgMDY6MTM6
-MzIgUFNUDQpEYXRlOiBUaHUsIDkgTWFyIDIwMDYgMDY6MTM6MzIgLTA4MDAgKFBTVCkNCkZyb206
-IFNraXAgQW5kZXJzb24gPGx5bWFuX2dob3N0QHlhaG9vLmNvbT4NClN1YmplY3Q6IERyaXZlcnMg
-Zm9yIExpbnV4DQpUbzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KTUlNRS1WZXJzaW9u
-OiAxLjANCkNvbnRlbnQtVHlwZTogbWVzc2FnZS9yZmM4MjINCkNvbnRlbnQtVHJhbnNmZXItRW5j
-b2Rpbmc6IDhiaXQNCkNvbnRlbnQtTGVuZ3RoOiAxMjUzDQoNCi0tMC0xNTg1OTkyOTY0LTExNDE5
-MTM2MTI9OjIxNjU4DQpDb250ZW50LVR5cGU6IHRleHQvcGxhaW47IGNoYXJzZXQ9aXNvLTg4NTkt
-MQ0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzogOGJpdA0KDQogDQogIFNvbWUgb24gdGhpcyBs
-aXN0IHRoaW5rIHRoYXQgaGFyZHdhcmUgdmVuZG9ycyBhcmUgYWZyYWlkIG9mIGdpdmluZyBhd2F5
-DQogIHRyYWRlIHNlY3JldHMgYnkgZGV2ZWxvcGluZyBvcGVuIHNvdXJjZSBkcml2ZXJzLiBJIGRv
-bid0IHRoaW5rIHRoYXQgaXMNCiAgdGhlIGNhc2UgYXQgYWxsLiBNYW55IHZlbmRvcnMganVzdCBk
-b24ndCB3YW50IHRvIGJlIGFzc29jaWF0ZWQgd2l0aA0KICBhbnl0aGluZyBhcyB1bnByb2Zlc3Np
-b25hbCBhcyBMaW51eCBhbmQsIGluIHBhcnRpY3VsYXIsIExpbnV4IGRldmVsb3BlcnMuDQogICAN
-CiAgSXQgcmVhbGx5IGRvZXNuJ3QgbWF0dGVyIGlmIHNvbWVib2R5IG1ha2VzIHRoZSB3b3JsZCdz
-IGdyZWF0ZXN0IG9wZXJhdGluZw0KICBzeXN0ZW0uIFRvIGEgdmVuZG9yLCBpdCdzIGp1c3Qgc3R1
-ZmYgdGhhdCBmaXRzIGluIHRoZSBib3guIFdoYXQgZG9lcyBtYXR0ZXINCiAgaXMgdGhlIHBlcmNl
-cHRpb24gdGhhdCBjdXN0b21lcnMgaGF2ZS4gQ3VzdG9tZXJzIGp1c3QgZG9uJ3QgbmVlZCB0byBk
-ZWFsDQogIHdpdGggYSBidW5jaCBvZiBhcnJvZ2FudCBzbmlwZXJzIHdobywgbGlrZSBzbWFsbCBj
-aGlsZHJlbiwga2VlcCBzbmFwcGluZw0KICBhdCBlYWNoIG90aGVyIGFzIGluIHNvbWUgc25pdmVs
-aW5nIHNpYmxpbmcgcml2YWxyeS4NCiAgIA0KICBUaGV5IGFsc28gZG9uJ3QgbmVlZCB0byBkZWFs
-IHdpdGgga2VybmVsIGludGVyZmFjZXMgd2hpY2ggY29udGludWFsbHkNCiAgY2hhbmdlLCBvbmx5
-IGZvciB0aGUgYXJyb2dhbmNlIGFuZCB2aWNpc3NpdHVkZXMgb2YgdGhlIGNoYW5nZXIsIHRvDQog
-IGJlIGNoYW5nZWQgYWdhaW4gd2hlbiB0aGF0IGNoYW5nZXIgaXMgb3V0LXNob3V0ZWQuDQogICAN
-CiAgSWYgTGludXggd2FudHMgdG8gYXR0cmFjdCBwcm9mZXNzaW9uYWxzLCBMaW51eCBtdXN0IGFj
-dCBpbiBhIHByb2Zlc3Npb25hbA0KICBtYW5uZXIuIFRvIHF1b3RlLCAiTm9ib2R5IGV2ZXIgZ290
-IGZpcmVkIGZvciBzcGVjaWZ5aW5nIElCTS4iIFF1aXRlDQogIHRoZSBvcHBvc2l0ZSBpcyB0cnVl
-IG9mIExpbnV4Lg0KICAgDQogIFRoZSBhbWF0ZXVyICJHUEwiIGZpYXNjbyB3aGVyZSwgbGlrZSBs
-ZW1taW5ncyBsZWQgdG8gdGhlIHNlYSwgZGV2ZWxvcGVycw0KICBoYXZlIGdpdmVuIHRoZWlyIHdv
-cmsgdG8gc29tZSBjdWx0IGZpZ3VyZS4gSW4gYWRkaXRpb24sIHNvbWUgd2hvIGhhdmUgbm8NCiAg
-cmlnaHRzIHRvIGRvIHNvLCBoYXZlIGFsc28gc2lnbmVkIG92ZXIgdGhlIHdvcmsgb2Ygb3RoZXJz
-IHRvIHRoaXMgc2FtZQ0KICBjdWx0IGxlYWRlci4gU3VjaCBhY3Rpdml0eSBpbnZhbGlkYXRlcyBh
-bnkgImxpY2Vuc2UiIHRoYXQgYW55Ym9keSBtaWdodA0KICBoYXZlIHRob3VnaHQgdGhleSBoYWQu
-DQogICANCiAgU28sIGlmIHlvdSB3YW50IHRvIHBsYXkgd2l0aCB0aGUgYmlnIGJveXMsIEdyb3cg
-dXAhDQogICANCiAgVmVyeSBUcnVseSBZb3VycywNCiAgIA0KICBTa2lwIEFuZGVyc29uDQogICAN
-CiAgIA0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18N
-CkRvIFlvdSBZYWhvbyE/DQpUaXJlZCBvZiBzcGFtPyAgWWFob28hIE1haWwgaGFzIHRoZSBiZXN0
-IHNwYW0gcHJvdGVjdGlvbiBhcm91bmQgDQogICANCiAgIA0K
-
-------_=_NextPart_001_01C64395.95DB4080--
+diff -puN fs/block_dev.c~block_fsync-write-inode fs/block_dev.c
+--- linux-2.6/fs/block_dev.c~block_fsync-write-inode	2006-03-05 21:51:15.000000000 +0900
++++ linux-2.6-hirofumi/fs/block_dev.c	2006-03-05 22:28:28.000000000 +0900
+@@ -19,6 +19,7 @@
+ #include <linux/module.h>
+ #include <linux/blkpg.h>
+ #include <linux/buffer_head.h>
++#include <linux/writeback.h>
+ #include <linux/mpage.h>
+ #include <linux/mount.h>
+ #include <linux/uio.h>
+@@ -232,7 +233,20 @@ static loff_t block_llseek(struct file *
+  
+ static int block_fsync(struct file *filp, struct dentry *dentry, int datasync)
+ {
+-	return sync_blockdev(I_BDEV(filp->f_mapping->host));
++	struct inode *inode = dentry->d_inode;
++	int ret = 0, err;
++
++	if (!datasync || (inode->i_state & I_DIRTY_DATASYNC)) {
++		struct writeback_control wbc = {
++			.sync_mode = WB_SYNC_ALL,
++			.nr_to_write = 0,	/* sys_fsync did this */
++		};
++		ret = sync_inode(inode, &wbc);
++	}
++	err = sync_blockdev(I_BDEV(filp->f_mapping->host));
++	if (!ret)
++		ret = err;
++	return err;
+ }
+ 
+ /*
+_

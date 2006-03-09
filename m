@@ -1,410 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751117AbWCINUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751771AbWCINWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751117AbWCINUF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 08:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbWCINUE
+	id S1751771AbWCINWP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 08:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWCINWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 08:20:04 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:47247 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751117AbWCINUC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 08:20:02 -0500
-Subject: Re: [rfc] Collie battery status sensing code
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060309123842.GA3619@elf.ucw.cz>
-References: <20060309123842.GA3619@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 09 Mar 2006 13:19:50 +0000
-Message-Id: <1141910391.10107.49.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 08:22:14 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:59114 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751771AbWCINWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 08:22:14 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Thu, 9 Mar 2006 14:18:28 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH] drivers/ieee1394/ohci1394.c: function calls without effect
+To: linux1394-devel@lists.sourceforge.net
+cc: Adrian Bunk <bunk@stusta.de>, bcollins@debian.org, scjody@modernduck.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060309114138.GA21864@stusta.de>
+Message-ID: <tkrat.be39a8854a3c82c0@s5r6.in-berlin.de>
+References: <20060309114138.GA21864@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (-0.154) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 13:38 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> This is collie battery sensing code. It differs from sharpsl code a
-> bit -- because it is dependend on ucb1x00, not on platform bus.
-> 
-> I guess I should reorganize #include's and remove #if 0-ed
-> code. Anything else
+ohci1394: Remove superfluous call to free_dma_rcv_ctx,
+spotted by Adrian Bunk. Also remove some superfluous comments.
 
-Basically looks good. Could probably use a
-s/printk/dev_dbg(sharpsl_pm.dev, /. I've made a few other comments
-below. 
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-Just for my interest, can you summarise the status of PM and charging on
-collie with this code?
+Index: linux/drivers/ieee1394/ohci1394.c
+===================================================================
+--- linux.orig/drivers/ieee1394/ohci1394.c     2006-03-06 20:04:10.000000000 +0100
++++ linux/drivers/ieee1394/ohci1394.c  2006-03-09 14:09:21.000000000 +0100
+@@ -3462,24 +3462,13 @@ static void ohci1394_pci_remove(struct p
+ 	case OHCI_INIT_HAVE_TXRX_BUFFERS__MAYBE:
+ 		/* The ohci_soft_reset() stops all DMA contexts, so we
+ 		 * dont need to do this.  */
+-		/* Free AR dma */
+ 		free_dma_rcv_ctx(&ohci->ar_req_context);
+ 		free_dma_rcv_ctx(&ohci->ar_resp_context);
+-
+-		/* Free AT dma */
+ 		free_dma_trm_ctx(&ohci->at_req_context);
+ 		free_dma_trm_ctx(&ohci->at_resp_context);
+-
+-		/* Free IR dma */
+ 		free_dma_rcv_ctx(&ohci->ir_legacy_context);
+-
+-		/* Free IT dma */
+ 		free_dma_trm_ctx(&ohci->it_legacy_context);
+ 
+-		/* Free IR legacy dma */
+-		free_dma_rcv_ctx(&ohci->ir_legacy_context);
+-
+-
+ 	case OHCI_INIT_HAVE_SELFID_BUFFER:
+ 		pci_free_consistent(ohci->dev, OHCI1394_SI_DMA_BUF_SIZE,
+ 				    ohci->selfid_buf_cpu,
 
-> diff --git a/arch/arm/mach-sa1100/collie_pm.c b/arch/arm/mach-sa1100/collie_pm.c
-> new file mode 100644
-> index 0000000..491d03a
-> --- /dev/null
-> +++ b/arch/arm/mach-sa1100/collie_pm.c
-> @@ -0,0 +1,324 @@
-> +/*
-> + * Based on spitz_pm.c and sharp code.
-> + *
-> + * Copyright (C) 2001  SHARP
-> + * Copyright 2005 Pavel Machek <pavel@suse.cz>
-> + *
-> + * Distribute under GPLv2.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/stat.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/delay.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/device.h>
-> +#include <asm/apm.h>
-> +#include <asm/irq.h>
-> +#include <asm/mach-types.h>
-> +#include <asm/hardware.h>
-> +#include <asm/hardware/scoop.h>
-> +#include <asm/dma.h>
-> +#include <linux/platform_device.h>
-> +
-> +#include <asm/arch/collie.h>
-> +#include "../mach-pxa/sharpsl.h"
-
-Do you need anything in the above header? If so, it should probably be
-in asm/hardware/sharpsl_pm.h
-
-> +#include "../drivers/mfd/ucb1x00.h"
-> +#include <asm/mach/sharpsl_param.h>
-> +
-> +#ifdef CONFIG_MCP_UCB1200_TS
-> +#error Battery interferes with touchscreen
-> +#endif
-
-Is this a case of bad locking or something more serious?
-
-> +static struct ucb1x00 *ucb;
-> +
-> +#define ConvRevise(x)          ( ( ad_revise * x ) / 652 )
-> +#define ADCtoPower(x)	       (( 330 * x * 2 ) / 1024 )
-> +
-> +static int ad_revise = 0;
-
-The = 0 is unneeded.
-
-> +static void collie_charger_init(void)
-> +{
-> +	int err;
-> +
-> +	/* get ad revise */
-> +	if (sharpsl_param.adadj != -1) {
-> +		ad_revise = sharpsl_param.adadj;
-> +	} else {
-> +		ad_revise = 0;
-> +	}
-
-ad_revise is already 0...
-
-> +
-> +	/* Register interrupt handler. */
-> +	if ((err = request_irq(COLLIE_IRQ_GPIO_AC_IN, sharpsl_ac_isr, SA_INTERRUPT,
-> +			       "ACIN", sharpsl_ac_isr))) {
-> +		printk("Could not get irq %d.\n", COLLIE_IRQ_GPIO_AC_IN);
-> +		return;
-> +	}
-> +
-> +	/* Register interrupt handler. */
-> +	if ((err = request_irq(COLLIE_IRQ_GPIO_CO, sharpsl_chrg_full_isr, SA_INTERRUPT,
-> +			       "CO", sharpsl_chrg_full_isr))) {
-> +		free_irq(COLLIE_IRQ_GPIO_AC_IN, sharpsl_ac_isr);
-> +		printk("Could not get irq %d.\n", COLLIE_IRQ_GPIO_CO);
-> +		return;
-> +	}
-> +
-> +	if (!ucb)
-> +		printk(KERN_CRIT "ucb is null!\n");
-
-Should it return here? Given this, We might need to think about error
-handling in the init function.
-
-> +	/* Set transition detect */
-> +	ucb1x00_enable_irq(ucb, COLLIE_GPIO_AC_IN, UCB_RISING);
-> +	ucb1x00_enable_irq(ucb, COLLIE_GPIO_CO, UCB_RISING);
-> +
-> +	ucb1x00_adc_enable(ucb);
-> +	ucb1x00_io_set_dir(ucb, 0, COLLIE_TC35143_GPIO_MBAT_ON |  COLLIE_TC35143_GPIO_TMP_ON |
-> +			           COLLIE_TC35143_GPIO_BBAT_ON);
-> +	return;
-> +}
-> +
-> +static void collie_charge_led(int val)
-> +{
-> +	if (val == SHARPSL_LED_ERROR) {
-> +		dev_dbg(sharpsl_pm.dev, "Charge LED Error\n");
-> +	} else if (val == SHARPSL_LED_ON) {
-> +		dev_dbg(sharpsl_pm.dev, "Charge LED On\n");
-> +	} else {
-> +		dev_dbg(sharpsl_pm.dev, "Charge LED Off\n");
-> +	}
-> +}
-
-For reference, we can move this into the core if the LED subsystem is
-accepted into mainline as we'll just need a platform independent
-trigger.
-
-> +static void collie_charge(int on)
-> +{
-> +	if (on) {
-> +		printk("Should start charger\n");
-> +	} else {
-> +		printk("Should stop charger\n");
-> +	}
-This can be removed before mainline?
-
-> +#ifdef I_AM_SURE
-> +#define CF_BUF_CTRL_BASE 0xF0800000
-> +#define        SCOOP_REG(adr) (*(volatile unsigned short*)(CF_BUF_CTRL_BASE+(adr)))
-> +#define        SCOOP_REG_GPWR    SCOOP_REG(SCOOP_GPWR)
-> +
-> +	if (on) {
-> +		SCOOP_REG_GPWR |= COLLIE_SCP_CHARGE_ON;
-> +	} else {
-> +		SCOOP_REG_GPWR &= ~COLLIE_SCP_CHARGE_ON;
-
-Ick. Use arch/arm/common/scoop.c to do this. Something like:
-
-#include <asm/hardware/scoop.h>
-if (on) {
-	set_scoop_gpio(&colliescoop_device.dev, COLLIE_SCP_CHARGE_ON);
-} else {
-	reset_scoop_gpio(&colliescoop_device.dev, COLLIE_SCP_CHARGE_ON);
-}
-> +#endif
-> +}
-> +
-> +static void collie_discharge(int on)
-> +{
-> +}
-> +
-> +static void collie_discharge1(int on)
-> +{
-> +}
-> +
-> +static void collie_presuspend(void)
-> +{
-> +}
-> +
-> +static void collie_postsuspend(void)
-> +{
-> +}
-> +
-> +static int collie_should_wakeup(unsigned int resume_on_alarm)
-> +{
-> +	return 0;
-> +}
-> +
-> +static unsigned long collie_charger_wakeup(void)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int collie_acin_status(void)
-> +{
-> +	int ret = GPLR & COLLIE_GPIO_AC_IN;
-> +	printk("AC status = %d\n", ret);
-> +	return ret;
-> +}
-> +
-> +int collie_read_backup_battery(void)
-> +{
-> +	int voltage;
-> +
-> +	/* Gives 75..130 */
-> +	ucb1x00_io_write(ucb, COLLIE_TC35143_GPIO_BBAT_ON, 0);
-> +	voltage = ucb1x00_adc_read(ucb, UCB_ADC_INP_AD1, UCB_SYNC);
-> +
-> +	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_BBAT_ON);
-> +
-> +	printk("Backup battery = %d(%d)\n", ADCtoPower(voltage), voltage);
-> +
-> +	return ADCtoPower(voltage);
-> +}
-> +
-> +int collie_read_main_battery(void)
-> +{
-> +	int voltage;
-> +
-> +	collie_read_temp();
-> +	collie_read_backup_battery();
-> +	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_BBAT_ON);
-> +	ucb1x00_io_write(ucb, COLLIE_TC35143_GPIO_MBAT_ON, 0);
-> +	voltage = ucb1x00_adc_read(ucb, UCB_ADC_INP_AD1, UCB_SYNC);
-> +
-> +	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_MBAT_ON);
-> +
-> +	/*
-> +	   gives values 160..255 with battery removed... and
-> +	   145..255 with battery inserted. (on AC)
-> +
-> +	   On battery, it goes as low as 80.
-> +	*/
-> +
-> +	printk("Main battery = %d(%d)\n",ADCtoPower((voltage+ConvRevise(voltage))),voltage);
-> +
-> +	if ( voltage != -1 ) {
-> +		return ADCtoPower((voltage+ConvRevise(voltage)));
-> +	} else {
-> +		return voltage;
-> +	}
-> +}
-> +
-> +int collie_read_temp(void)
-> +{
-> +	int voltage;
-> +
-> +	/* temp must be > 973, main battery must be < 465 */
-> +	/* FIXME sharpsl_pm.c has both conditions negated? */
-> +
-> +	ucb1x00_io_write(ucb, COLLIE_TC35143_GPIO_TMP_ON, 0);
-> +	voltage = ucb1x00_adc_read(ucb, UCB_ADC_INP_AD0, UCB_SYNC);
-> +	ucb1x00_io_write(ucb, 0, COLLIE_TC35143_GPIO_TMP_ON);
-> +
-> +	/* >1010 = battery removed.
-> +	   460 = 22C ?
-> +	   higer = lower temp ?
-> +	*/
-> +
-> +	printk("Battery temp = %d\n", voltage);
-> +	return voltage;
-> +}
-> +
-> +static int collie_read_acin(void)
-> +{
-> +	return 0x1;
-> +}
-> +
-> +static unsigned long read_devdata(int which)
-> +{
-> +	switch (which) {
-> +	case SHARPSL_BATT_VOLT:
-> +		return collie_read_main_battery();
-> +	case SHARPSL_BATT_TEMP:
-> +		return collie_read_temp();
-> +	case SHARPSL_ACIN_VOLT:
-> +		return collie_read_acin();
-> +	case SHARPSL_STATUS_ACIN:
-> +	case SHARPSL_STATUS_LOCK:
-> +	case SHARPSL_STATUS_CHRGFULL:
-> +	case SHARPSL_STATUS_FATAL:
-> +	default:
-> +		return ~0;
-> +	}
-> +#if 0
-> +It should be okay. Nobody really needs those.
-> +	.gpio_batlock     = COLLIE_GPIO_BAT_COVER,
-> +	.gpio_acin        = COLLIE_GPIO_AC_IN,
-> +	.gpio_batfull     = COLLIE_GPIO_CHRG_FULL,
-> +	.gpio_fatal       = COLLIE_GPIO_FATAL_BAT,
-> +#endif
-> +}
-> +
-> +struct battery_thresh spitz_battery_levels_noac[] = {
-> +#ifdef FOO_FRONTLIGHT
-> +	{ 368, 100},
-> +	{ 358,  25},
-> +	{ 356,   5},
-> +	{   0,   0},
-> +#else
-> +	{ 378, 100},
-> +	{ 365,  25},
-> +	{ 363,   5},
-> +	{   0,   0},
-> +#endif	
-> +};
-> +
-> +struct battery_thresh spitz_battery_levels_acin[] = {
-> +#ifdef FOO_FRONTLIGHT
-> +	{ 368, 100},
-> +	{ 358,  25},
-> +	{ 356,   5},
-> +	{   0,   0},
-> +#else
-> +	{ 378, 100},
-> +	{ 365,  25},
-> +	{ 363,   5},
-> +	{   0,   0},
-> +#endif	
-> +};
-> +
-> +struct sharpsl_charger_machinfo collie_pm_machinfo = {
-> +	.init             = collie_charger_init,
-> +	.read_devdata	  = read_devdata,
-> +	.discharge        = collie_discharge,
-> +	.discharge1       = collie_discharge1,
-> +	.charge           = collie_charge,
-> +	.measure_temp     = collie_measure_temp,
-> +	.presuspend       = collie_presuspend,
-> +	.postsuspend      = collie_postsuspend,
-> +	.charger_wakeup   = collie_charger_wakeup,
-> +	.should_wakeup    = collie_should_wakeup,
-> +	.bat_levels       = 3,
-> +	.bat_levels_noac  = spitz_battery_levels_noac,
-> +	.bat_levels_acin  = spitz_battery_levels_acin,
-> +	.status_high_acin = 368,
-> +	.status_low_acin  = 358,
-> +	.status_high_noac = 368,
-> +	.status_low_noac  = 358,
-> +};
-> +
-> +extern struct sharpsl_pm_status sharpsl_pm;
-> +
-> +static int __init collie_pm_add(struct ucb1x00_dev *pdev)
-> +{
-> +	sharpsl_pm.dev = NULL;
-> +	sharpsl_pm.machinfo = &collie_pm_machinfo;
-> +	ucb = pdev->ucb;
-> +	return sharpsl_pm_init();
-> +}
-
-I don't understand how this is supposed to work at all. For a start,
-sharpsl_pm.c says "static int __devinit sharpsl_pm_init(void)" so that
-function isn't available. I've just noticed your further patches
-although I still don't like this.
-
-The correct approach is to register a platform device called
-"sharpsl-pm" in collie_pm_add() which the driver will then see and
-attach to. I'd also not register the platform device if ucb is NULL for
-whatever reason.
-
-By setting sharpsl_pm.dev = NULL you're also going to miss out on
-suspend/resume calls and risk breaking things like
-dev_dbg(sharpsl_pm.dev, xxx). 
-
-Richard
-
-> +static int collie_pm_remove(struct ucb1x00_dev *pdev)
-> +{
-> +	return sharpsl_pm_done();
-> +}
-> +
-> +static struct ucb1x00_driver collie_pm_driver = {
-> +	.add            = collie_pm_add,
-> +        .remove         = collie_pm_remove,
-> +};
-> +
-> +static int __init collie_pm_init(void)
-> +{
-> +	return ucb1x00_register_driver(&collie_pm_driver);
-> +}
-> +
-> +static void __exit collie_pm_exit(void)
-> +{
-> +	ucb1x00_unregister_driver(&collie_pm_driver);
-> +}
-> +
-> +late_initcall(collie_pm_init);
-> +module_exit(collie_pm_exit);
-> 
 

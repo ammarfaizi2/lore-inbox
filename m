@@ -1,186 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWCIKgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751809AbWCIKmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWCIKgc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 05:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWCIKgc
+	id S1751809AbWCIKmh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 05:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWCIKmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 05:36:32 -0500
-Received: from cirse.extra.cea.fr ([132.166.172.102]:27292 "EHLO
-	cirse.extra.cea.fr") by vger.kernel.org with ESMTP id S1751797AbWCIKgb
+	Thu, 9 Mar 2006 05:42:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:53446 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932093AbWCIKmg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 05:36:31 -0500
-Message-Id: <200603091035.LAA04829@styx.bruyeres.cea.fr>
-Date: Thu, 09 Mar 2006 11:35:21 +0100
-From: Aurelien Degremont <aurelien.degremont@cea.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
-X-Accept-Language: en-us, en
+	Thu, 9 Mar 2006 05:42:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=g0/49bzy7+HLGf8qpAfrRUAJeC3AfzXPQ8Np+LrtcdklOyVVV4nDnoLmBA64ObhdNH4RanBdsr5l7xApUJCrMRuTAWXgkgJEGGg/0Fl+zCHO26FBJHfOnewGti8UbO1KaLlA8EAHVJN4En6ccQqJux5EdkgOxU+ZHX/kZmoAhdU=
+Message-ID: <a03c9a270603090242o713fbe36s895da175bc53140f@mail.gmail.com>
+Date: Thu, 9 Mar 2006 11:42:35 +0100
+From: "Rudolf Randal" <rudolf.randal@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+In-Reply-To: <21d7e9970603090202v22205fc6ha5b4cec12f0a0507@mail.gmail.com>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Jacques-Charles Lafoucriere <jc.lafoucriere@cea.fr>,
-       Bruno Faccini <bruno.faccini@bull.net>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix deadlock in RPC scheduling code.
-Content-Type: multipart/mixed;
- boundary="------------010601080205090701070907"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com>
+	 <MDEHLPKNGKAHNMBLJOLKIELAKJAB.davids@webmaster.com>
+	 <21d7e9970603090202v22205fc6ha5b4cec12f0a0507@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010601080205090701070907
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I was wondering how many direct letters from lkml people have been
+written to vendors asking for cooperation with regard to specs, joint
+development or other solutions for open source drivers for their
+devices.
+If there has been letters of this kind (there might have been many)-
+do they exist in the open? has there been replies?
+I dont know how many dlink people (or other vendors) are reading lkml
+or other linux related maillists/websites but I do know that the tone
+of lkml often isnt pleasant when it comes to licensing issues, closed
+vs open source (GPL). I too feel strongly about oss and GPL - but the
+tone on this list (often) might be too much to handle for some people!
+Maybe request for an open discussion with some of these vendors would
+bring about some of their concerns over IP and other issues and could
+maybe even open up for some progress ??
 
-Hello,
-
-Here is a small patch which fixes a deadlock issue in RPC scheduling
-code (rpc_wake_up_task() is mainly concerned). This problem happens if a
-RPC task, waiting for the response of a sync request, is woken up by a
-signal, and, in the same time, the kernel tries to wake up some RPC
-tasks. If this is done, a deadlock could occurs due to an error in RPC
-workqueue lock management.
-
-This error was added by linux-2.6.8.1-49-rpc_workqueue.patch (included
-in 2.6.11). This code was not changed since. The issue was detected on
-linux-2.6.12.
-
-
-**DESCRIPTION**
-
-This deadlock is due to the wrong management of two locks: queue->lock
-and the bit RPC_TASK_WAKEUP in task->tk_runstate.
-When dealing with RPC workqueues, the code must take care of locking the
-associated queue lock before doing any modifications on it or its tasks.
-And it does it... except for one function. Nested locks should always be
-taken in the same order.
-
-As a consequence, in some circumstances (in fact, I noticed it several
-times), this code deadlocks. Moreover, when this code is called, by
-example by nfs_file_flush(), the lock_kernel() is held and so all the
-system hangs.
-
-
-**PATCH**
-
-To fix the problem, we only need to invert the lock hierarchy in
-rpc_wake_up_task() and taking care of checking the task is really queued
-before trying to grab the lock.
-
-This code becomes :
-
-void rpc_wake_up_task(struct rpc_task *task)
-{
-           struct rpc_wait_queue *queue = NULL;
-
-
-           /*
-            * The task must always be queued because __rpc_do_wake_up_task()
-            * modify it.
-            */
-           if (RPC_IS_QUEUED(task)) {
-
-
-                   /*
-                    * The queue lock must be taken BEFORE rpc_start_wakeup()
-                    * is called.
-                    */
-                   queue = task->u.tk_wait.rpc_waitq;
-                   spin_lock_bh(&queue->lock);
-
-
-                   /* Really wake up the specified RPC task */
-                   if (rpc_start_wakeup(task)) {
-                           __rpc_do_wake_up_task(task);
-                           rpc_finish_wakeup(task);
-                   }
-
-
-                   spin_unlock_bh(&queue->lock);
-           }
-}
-
-This patch was done with version 2.6.15.4. It works correctly with
-2.6.15.6.
-
-
-**NOTES**
-
-"The smaller the patch is, the better it is". So I kept it short. But,
-in fact, I think the groups of functions rpc_wake_up_task(),
-__rpc_wake_up_task() and __rpc_do_wake_up_task() could be simplified.
-
-
-**AUTHORS**
-
-The bug was worked out by Bruno Faccini bruno(dot)faccini(at)bull(dot)net
-I did the corresponding patch.
-
--- 
-Aurelien Degremont
-
-
-
---------------010601080205090701070907
-Content-Type: text/x-patch;
- name="rpc_deadlock-2.6.15.6.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rpc_deadlock-2.6.15.6.patch"
-
---- linux-2.6.15.4/net/sunrpc/sched.c.orig	2006-03-08 16:54:36.515804799 +0100
-+++ linux-2.6.15.4/net/sunrpc/sched.c		2006-03-08 17:00:37.724637607 +0100
-@@ -353,7 +353,7 @@
-  */
- static void __rpc_do_wake_up_task(struct rpc_task *task)
- {
--	dprintk("RPC: %4d __rpc_wake_up_task (now %ld)\n", task->tk_pid, jiffies);
-+	dprintk("RPC: %4d __rpc_do_wake_up_task (now %ld)\n", task->tk_pid, jiffies);
- 
- #ifdef RPC_DEBUG
- 	BUG_ON(task->tk_magic != RPC_TASK_MAGIC_ID);
-@@ -369,7 +369,7 @@
- 
- 	rpc_make_runnable(task);
- 
--	dprintk("RPC:      __rpc_wake_up_task done\n");
-+	dprintk("RPC:      __rpc_do_wake_up_task done\n");
- }
- 
- /*
-@@ -400,15 +400,28 @@
-  */
- void rpc_wake_up_task(struct rpc_task *task)
- {
--	if (rpc_start_wakeup(task)) {
--		if (RPC_IS_QUEUED(task)) {
--			struct rpc_wait_queue *queue = task->u.tk_wait.rpc_waitq;
-+	struct rpc_wait_queue *queue = NULL;
-+
-+	/* 
-+	 * The task must always be queued because __rpc_do_wake_up_task() 
-+	 * modify it.
-+	 */
-+	if (RPC_IS_QUEUED(task)) {
- 
--			spin_lock_bh(&queue->lock);
-+		/* 
-+		 * The queue lock must be taken BEFORE rpc_start_wakeup() 
-+		 * is called.
-+		 */
-+		queue = task->u.tk_wait.rpc_waitq;
-+		spin_lock_bh(&queue->lock);
-+	
-+		/* Really wake up the specified RPC task */
-+		if (rpc_start_wakeup(task)) {
- 			__rpc_do_wake_up_task(task);
--			spin_unlock_bh(&queue->lock);
-+			rpc_finish_wakeup(task);
- 		}
--		rpc_finish_wakeup(task);
-+		
-+		spin_unlock_bh(&queue->lock);
- 	}
- }
- 
-
-
-
---------------010601080205090701070907--
+Rudolf
+--
+Rudolf Randal - Hässleholmsgatan 3B lgh 503 - 214 43 Malmö - Sweden -
+Phone: +46 (0)76 234 05 77

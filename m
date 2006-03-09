@@ -1,73 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWCIULI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWCIUQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWCIULI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 15:11:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWCIULI
+	id S1751352AbWCIUQp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 15:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWCIUQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 15:11:08 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:56132 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751009AbWCIULH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 15:11:07 -0500
-Date: Thu, 09 Mar 2006 15:10:02 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for	2.6.16-rc5
-In-reply-to: <Pine.LNX.4.64.0603091137180.18022@g5.osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tomasz Torcz <zdzichu@irc.pl>, Greg KH <gregkh@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       pcihpd-discuss@lists.sourceforge.net
-Message-id: <1141935002.6072.40.camel@grayson>
-Organization: Ubuntu
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.92
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20060306223545.GA20885@kroah.com>
- <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
- <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
- <20060308231851.GA26666@suse.de>
- <Pine.LNX.4.64.0603081528040.32577@g5.osdl.org> <20060309184010.GA4639@irc.pl>
- <Pine.LNX.4.64.0603091137180.18022@g5.osdl.org>
+	Thu, 9 Mar 2006 15:16:44 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:57307 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751352AbWCIUQo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 15:16:44 -0500
+Message-ID: <44108CCB.9080709@cfl.rr.com>
+Date: Thu, 09 Mar 2006 15:15:07 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Dave Neuer <mr.fred.smoothie@pobox.com>
+CC: Luke-Jr <luke@dashjr.org>, Anshuman Gholap <anshu.pg@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>  <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com> <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+In-Reply-To: <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 09 Mar 2006 20:19:05.0244 (UTC) FILETIME=[B68CFDC0:01C643B6]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14314.000
+X-TM-AS-Result: No--7.800000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 11:49 -0800, Linus Torvalds wrote:
+Dave Neuer wrote:
+>> Interacting with the kernel does not make your software a derived work.
 > 
-> On Thu, 9 Mar 2006, Tomasz Torcz wrote:
-> > > 
-> > >   "Fedora rawhide kernel stopped booting for a bunch of people, all with 
-> > >    686-SMP boxes. I saw it myself too, it hung just after the 'write 
-> > >    protecting kernel rodata'.
-> > > 
-> > 
-> >   Ubuntu has similar problem:
-> > https://launchpad.net/distros/ubuntu/+source/linux-source-2.6.15/+bug/29601
-> >  I believe Ubuntu's 2.6.15 source is vanilla+git patches.
+> That may or may not be true, depending on the nature of the
+> interaction, and the arbiter of truth in this case is the court
+> system, not you or I.
 > 
-> Interesting. He also apparently boots with "noapic nolapic" on the "386" 
-> kernel, but not the "686" kernel. I wonder what the differences in Kubuntu 
-> kernels are between 386/686 kernels. Is it _just_ the CPU type? If so, the 
-> largest difference is probably just compiler instruction usage/scheduling.
+
+That is correct, the final decision is up to a Judge, but we aren't in 
+court here, we're discussing it, and so I'm making an argument that I 
+believe any sane judge would side with.
+
+> There are no dearth of legal opinions on this matter which differ
+> quite radically from your interpretation here, quite a few from
+> lawyers. As far as I am concerned (and the GPL too, if my
+> interpretation of it is correct), any code is a derived work of my
+> code if either a) it directly makes use of symbols in my code or b) it
+> cannot execute unless my code executes, such that its distribution
+> without my code would be useless.
 > 
-> Ben?
 
-The difference between our 2.6.15 386 and 686 kernels is actually pretty
-huge. The 386 is M486, and UP, while our 686 kernel is M686, and SMP.
-The SMP is also complicated by our use of the SMP-alternatives patch,
-but I believe I had this user test with this disabled (kernel command
-line option that leaves all the SMP code intact for testing). It didn't
-alter the problem.
+As you said above, your opinion doesn't matter, only the law and a 
+judge's interpretation of it, and the law says no such thing.  Take a 
+look at USC Title 17 Chapter 1 Section 101:
 
-So the problem would seem to be narrowed down to between M486 and M686.
-Also, we are using gcc 4.0.3, for reference. No special compile options
-are added, it's all kbuild generated stuff.
+A “derivative work” is a work based upon one or more preexisting works, 
+such as a translation, musical arrangement, dramatization, 
+fictionalization, motion picture version, sound recording, art 
+reproduction, abridgment, condensation, or any other form in which a 
+work may be recast, transformed, or adapted. A work consisting of 
+editorial revisions, annotations, elaborations, or other modifications, 
+which, as a whole, represent an original work of authorship, is a 
+“derivative work”.
 
--- 
-Ubuntu     - http://www.ubuntu.com/
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-SwissDisk  - http://www.swissdisk.com/
+No mention of either of your two conditions.  You _might_ be able to 
+argue that they use your headers to compile their driver, so that 
+violates your copyright, but they are free to develop their own 
+compatible headers to produce compatible binaries which are in no way 
+derived from the Linux kernel.  See Wine's win32 compatible headers and 
+libraries for examples of this.
+
+
+>> This is why it is legal to reverse engineer a binary driver to gain an
+>> understanding of how the hardware operates, publish that information,
+>> and then use that information to create new software to operate that
+>> hardware.
+> 
+> No, you are referring to a restriction on the limitations in software
+> licenses which is separate from copyright. Copyright law does not talk
+> about interoperability at all. And even the applicability of the
+> restriction to which you refer is jurisdiction-dependant as well as
+> context-dependant (see the DMCA).
+> 
+
+No, licenses do not enter the picture at all, I am referring to the Fair 
+Use clause of the copyright act and the body of precedence built on it. 
+Title 17 specifically states that the study of a copyright work falls 
+under fair use and therefore, is not an infringement.  Reverse 
+engineering is a form of study, and thus is protected as fair use.
+
+Copyright does not apply to a _process_ ( that's patents ), only to the 
+particular expression, therefore, it has been well established in the 
+courts that it is not infringing to create a new unique expression that 
+serves the same purpose and engages in the same process.  This is why it 
+is legal to reverse engineer a windows binary only driver to figure out 
+the hardware interface, and write your own driver for linux.
+
 

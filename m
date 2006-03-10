@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWCJSDN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751620AbWCJSEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751604AbWCJSDN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 13:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWCJSDN
+	id S1751620AbWCJSEk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 13:04:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751629AbWCJSEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 13:03:13 -0500
-Received: from [69.90.147.196] ([69.90.147.196]:32651 "EHLO mail.kenati.com")
-	by vger.kernel.org with ESMTP id S1751053AbWCJSDL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 13:03:11 -0500
-Message-ID: <4411C07C.4000005@kenati.com>
-Date: Fri, 10 Mar 2006 10:07:56 -0800
-From: Carlos Munoz <carlos@kenati.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 10 Mar 2006 13:04:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44305 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751565AbWCJSEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 13:04:39 -0500
+Date: Fri, 10 Mar 2006 19:04:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: wim@iguana.be
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/char/watchdog/pcwd_usb.c: fix a NULL pointer dereference
+Message-ID: <20060310180438.GQ21864@stusta.de>
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: Lee Revell <rlrevell@joe-job.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: How can I link the kernel with libgcc ?
-References: <4410D9F0.6010707@kenati.com>	<200603100145.k2A1jMem005323@turing-police.cc.vt.edu>	<1141956362.13319.105.camel@mindpipe> <4410EC0D.3090303@kenati.com>	<4410F1BE.7000904@kenati.com> <yq0ek1a38n2.fsf@jaguar.mkp.net>
-In-Reply-To: <yq0ek1a38n2.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
+The Coverity checker noted that this resulted in a NULL pointer 
+reference if we were coming from
 
->>>>>>"Carlos" == Carlos Munoz <carlos@kenati.com> writes:
->>>>>>            
->>>>>>
->
->Carlos> I figured out how to get the driver to use floating point
->Carlos> operations. I included source code (from an open source math
->Carlos> library) for the log10 function in the driver. Then I added
->Carlos> the following lines to the file arch/sh/kernel/sh_ksyms.c:
->
->Bad bad bad!
->
->You shouldn't be using floating point in the kernel at all! Most
->architectures do not save the full floating point register set on
->entry so if you start messing with the fp registers you may corrupt
->user space applications.
->
->You need to either write a customer user space app or use a table as
->Arjan suggested.
->E_OK
->Cheers,
->Jes
->  
->
-Hi Jes,
-
-I wasn't aware that floating point registers are not save. I guess I 
-have no choice but to use a table.
-
-Thanks,
+        if (usb_pcwd == NULL) {
+                printk(KERN_ERR PFX "Out of memory\n");
+                goto error;
+        }
 
 
-Carlos Munoz
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-rc5-mm3-full/drivers/char/watchdog/pcwd_usb.c.old	2006-03-10 18:18:00.000000000 +0100
++++ linux-2.6.16-rc5-mm3-full/drivers/char/watchdog/pcwd_usb.c	2006-03-10 18:18:45.000000000 +0100
+@@ -705,7 +705,8 @@ err_out_misc_deregister:
+ err_out_unregister_reboot:
+ 	unregister_reboot_notifier(&usb_pcwd_notifier);
+ error:
+-	usb_pcwd_delete (usb_pcwd);
++	if (usb_pcwd)
++		usb_pcwd_delete(usb_pcwd);
+ 	usb_pcwd_device = NULL;
+ 	return retval;
+ }
+

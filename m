@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWCJAsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWCJAsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422661AbWCJAsu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422660AbWCJAst
+	id S932195AbWCJAsd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWCJAsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:48:49 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:50319 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1422659AbWCJAsq (ORCPT
+	Thu, 9 Mar 2006 19:48:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59561 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752146AbWCJAsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:48:46 -0500
-Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and
-	lightweight subnet management
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20060310004505.GB17050@suse.de>
-References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
-	 <ada8xrjfbd8.fsf@cisco.com>
-	 <1141948367.10693.53.camel@serpentine.pathscale.com>
-	 <20060310004505.GB17050@suse.de>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 09 Mar 2006 16:48:45 -0800
-Message-Id: <1141951725.10693.88.camel@serpentine.pathscale.com>
+	Thu, 9 Mar 2006 19:48:30 -0500
+Date: Thu, 9 Mar 2006 19:48:15 -0500
+From: Alan Cox <alan@redhat.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, alan@redhat.com, linux-arch@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+Message-ID: <20060310004815.GD24904@devserv.devel.redhat.com>
+References: <16835.1141936162@warthog.cambridge.redhat.com> <17424.48029.481013.502855@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17424.48029.481013.502855@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 16:45 -0800, Greg KH wrote:
+On Fri, Mar 10, 2006 at 10:34:53AM +1100, Paul Mackerras wrote:
+> MMIO accesses are done under a spinlock, and that if your driver is
+> missing them then that is a bug.  I don't think it makes sense to say
+> that mmiowb is required "on some systems".
 
-> > We don't support hotplugged devices at the moment.
-> 
-> Why not?  Your cards can't be placed in a machine that supports PCI
-> Hotplug (or PCI-E hotplug)?
-
-No, the driver and userspace code doesn't support it yet.  That's all.
-
-> You can't really tell users that (no matter
-> how often I have wished I could...)
-
-I don't expect this to be a practical problem.  We're planning to add
-hotplug support to the driver once we have some cycles free.
-
-	<b
+Agreed. But if it is missing it may not be a bug. It depends what the lock
+actually protects.
 

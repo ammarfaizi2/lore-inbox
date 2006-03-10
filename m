@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWCJVMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWCJVNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWCJVMu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 16:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWCJVMu
+	id S932267AbWCJVNs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 16:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCJVNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 16:12:50 -0500
-Received: from gold.veritas.com ([143.127.12.110]:59522 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932259AbWCJVMt (ORCPT
+	Fri, 10 Mar 2006 16:13:48 -0500
+Received: from smtp-4.llnl.gov ([128.115.41.84]:30711 "EHLO smtp-4.llnl.gov")
+	by vger.kernel.org with ESMTP id S932269AbWCJVNr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 16:12:49 -0500
-X-IronPort-AV: i="4.02,181,1139212800"; 
-   d="scan'208"; a="56993551:sNHT31228408"
-Date: Fri, 10 Mar 2006 21:13:44 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] fix pcmcia_device_probe oops
-Message-ID: <Pine.LNX.4.61.0603102111460.4517@goblin.wat.veritas.com>
+	Fri, 10 Mar 2006 16:13:47 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Fri, 10 Mar 2006 13:13:09 -0800
+User-Agent: KMail/1.5.3
+Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
+       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
+       bluesmoke-devel@lists.sourceforge.net
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603101107.27244.dsp@llnl.gov> <1142019195.2876.100.camel@laptopd505.fenrus.org>
+In-Reply-To: <1142019195.2876.100.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Mar 2006 21:12:47.0502 (UTC) FILETIME=[61944AE0:01C64487]
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603101313.09754.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix pcmcia_device_probe NULL pointer dereference at startup.
+On Friday 10 March 2006 11:33, Arjan van de Ven wrote:
+> > Regarding the actual call to run it, I guess it depends on which of
+> > the following you prefer:
+> >
+> >     Scenario A
+> >     ----------
+> >     A more decentralized layout.  Here, the controls that govern the
+> >     error handling behavior for a given category of hardware (a
+> >     category might be "PCI devices" or "devices that use bus
+> >     technology XYZ") are grouped together with other stuff for that
+> >     category.
+>
+> this would basically make edac a place to report "help something went to
+> the gutter". Sure. I see that useful.
+>
+> In fact there are 3 layers then
+>
+> 1) low level "do check" function
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
-This oops was in -mm for a long time, sorry, I never got around to
-investigating it then; but now it has graduated to mainline -rc5-git.
-It may well be a consequence of my ignoring pcmcia's "please expect
-breakage unless you upgrade to new tools" - but I think this is not a
-permissible kind of breakage, and my cards work as before with the fix.
+I'm a bit unclear here.  Are you thinking of a single "do check"
+function that bus-specific code and chipset-specific code can hook
+into, or individual "do check" functions for various bus-specific and
+chipset-specific modules?
 
- drivers/pcmcia/ds.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> 2) per bus code that calls the do check functions and whatever is needed
+> for bus checks
+>
+> 3) "EDAC" central command, which basically gathers all failure reports
+> and does something with them (push them to userspace or implement the
+> userspace chosen policy (panic/reboot/etc))
 
---- 2.6.16-rc5-git14/drivers/pcmcia/ds.c	2006-03-10 10:07:30.000000000 +0000
-+++ linux/drivers/pcmcia/ds.c	2006-03-10 17:16:27.000000000 +0000
-@@ -411,7 +411,7 @@ static int pcmcia_device_probe(struct de
- 	 * pseudo devices, and if not, add the second one.
- 	 */
- 	did = (struct pcmcia_device_id *) p_dev->dev.driver_data;
--	if ((did->match_flags & PCMCIA_DEV_ID_MATCH_DEVICE_NO) &&
-+	if (did && (did->match_flags & PCMCIA_DEV_ID_MATCH_DEVICE_NO) &&
- 	    (p_dev->socket->device_count == 1) && (p_dev->device_no == 0))
- 		pcmcia_add_pseudo_device(p_dev->socket);
- 
+Are you suggesting something like the following?
+
+    - The controls that determine how the error checking is done are
+      located within the various hardware subsystems.  For instance,
+      with PCI parity checking, this would include stuff like setting
+      the polling frequency and determining which devices to check.
+
+    - When an error is actually detected, the subsystem that detected
+      the error (for instance, PCI) would feed the error information
+      to EDAC.  Then EDAC would determine how to respond to the error
+      (for instance, push it to userspace or implement the
+      userspace-chosen policy (panic/reboot/etc))

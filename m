@@ -1,75 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbWCJFzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWCJGAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751816AbWCJFzH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWCJFzG
+	id S1751756AbWCJGAq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 01:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWCJGAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:55:06 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:32854 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1751972AbWCJFzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:55:05 -0500
-X-IronPort-AV: i="4.02,180,1139212800"; 
-   d="scan'208"; a="313218886:sNHT33277508"
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Greg KH <gregkh@suse.de>, rolandd@cisco.com, akpm@osdl.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
-X-Message-Flag: Warning: May contain useful information
-References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
-	<ada8xrjfbd8.fsf@cisco.com>
-	<1141948367.10693.53.camel@serpentine.pathscale.com>
-	<20060310004505.GB17050@suse.de>
-	<1141951725.10693.88.camel@serpentine.pathscale.com>
-	<20060310010403.GC9945@suse.de>
-	<1141965696.14517.4.camel@camp4.serpentine.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 21:55:02 -0800
-In-Reply-To: <1141965696.14517.4.camel@camp4.serpentine.com> (Bryan O'Sullivan's message of "Thu, 09 Mar 2006 20:41:36 -0800")
-Message-ID: <ada7j72detl.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Fri, 10 Mar 2006 01:00:46 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:18913 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751388AbWCJGAp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 01:00:45 -0500
+Message-ID: <4411175F.8040504@in.ibm.com>
+Date: Fri, 10 Mar 2006 11:36:23 +0530
+From: Suzuki <suzuki@in.ibm.com>
+Organization: IBM Software Labs
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Mar 2006 05:55:03.0237 (UTC) FILETIME=[2CB83F50:01C64407]
+To: Nathan Scott <nathans@sgi.com>
+CC: lkml <linux-kernel@vger.kernel.org>, suparna <suparna@in.ibm.com>,
+       akpm@osdl.org, linux-xfs@oss.sgi.com
+Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+References: <440FD66D.6060308@in.ibm.com> <20060309222232.GB1135@frodo>
+In-Reply-To: <20060309222232.GB1135@frodo>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> I *assumed* that there was something more that we would
-    Bryan> need to do in order to support real hotplug of actual
-    Bryan> physical cards, but now that I look more closely, it
-    Bryan> doesn't appear that there is.  At least, there's nothing in
-    Bryan> Documentation/pci.txt or LDD3 that indicates to me that we
-    Bryan> ought to be doing more.
+Hi Nathan,
 
-    Bryan> Am I missing something?
+Nathan Scott wrote:
+> On Thu, Mar 09, 2006 at 12:47:01PM +0530, Suzuki wrote:
+> 
+>>Hi all,
+> 
+> 
+> Hi there Suzuki,
+> 
+> 
+>>I was working on an issue with getting "Badness in
+>>__mutex_unlock_slowpath" and hence a stack trace, while running FS
+>>stress tests on XFS on 2.6.16-rc5 kernel.
+> 
+> 
+> Thanks for looking into this.
+> 
+> 
+>>The dmesg looks like :
+>>
+>>Badness in __mutex_unlock_slowpath at kernel/mutex.c:207
+>> [<c0103c0c>] show_trace+0x20/0x22
+>> [<c0103d4b>] dump_stack+0x1e/0x20
+>> [<c0473f1f>] __mutex_unlock_slowpath+0x12a/0x23b
+>> [<c0473938>] mutex_unlock+0xb/0xd
+>> [<c02a5720>] xfs_read+0x230/0x2d9
+>> [<c02a1bed>] linvfs_aio_read+0x8d/0x98
+>> [<c015f3df>] do_sync_read+0xb8/0x107
+>> [<c015f4f7>] vfs_read+0xc9/0x19b
+>> [<c015f8b2>] sys_read+0x47/0x6e
+>> [<c0102db7>] sysenter_past_esp+0x54/0x75
+> 
+> 
+> Yeah, test 008 from the xfstests suite was reliably hitting this for
+> me, it'd just not percolated to the top of my todo list yet.
+> 
+> 
+>>This happens with XFS DIO reads. xfs_read holds the i_mutex and issues a
+>>__generic_file_aio_read(), which falls into __blockdev_direct_IO with
+>>DIO_OWN_LOCKING flag (since xfs uses own_locking ). Now
+>>__blockdev_direct_IO releases the i_mutex for READs with
+>>DIO_OWN_LOCKING.When it returns to xfs_read, it tries to unlock the
+>>i_mutex ( which is now already unlocked), causing the "Badness".
+> 
+> 
+> Indeed.  And there's the problem - why is XFS releasing i_mutex
+> for the direct read in xfs_read?  Shouldn't be - fs/direct-io.c
+> will always release i_mutex for a direct read in the own-locking
+> case, so XFS shouldn't be doing it too (thats what the code does
+> and thats what the comment preceding __blockdev_direct_IO says).
+> 
+> The only piece of the puzzle I don't understand is why we don't
+> always get that badness message at the end of every direct read.
+> Perhaps its some subtle fastpath/slowpath difference, or maybe
+> "debug_mutex_on" gets switched off after the first occurance...
 
-No, the only problems are with the way the various pieces of your
-drivers refer to devices by index.  There are obvious races such as
+Yes, the debug_mutex_on gets switched off after the first occurence.
 
- > +int __init ipath_verbs_init(void)
- > +{
- > +	int i;
- > +
- > +	number_of_devices = ipath_layer_get_num_of_dev();
- > +	i = number_of_devices * sizeof(struct ipath_ibdev *);
- > +	ipath_devices = kmalloc(i, GFP_ATOMIC);
- > +	if (ipath_devices == NULL)
- > +		return -ENOMEM;
- > +
- > +	for (i = 0; i < number_of_devices; i++) {
- > +		struct ipath_devdata *dd;
- > +		int ret = ipath_verbs_register(i, ipath_ib_piobufavail,
- > +					       ipath_ib_rcv, ipath_ib_timer,
- > +					       &dd);
+> 
+> Anyway, with the above change (remove 2 lines near xfs_read end),
+> I can no longer reproduce the problem in that previously-warning
+> test case, and all the other XFS tests seem to be chugging along
+> OK (which includes a healthy mix of dio testing).
+> 
+> 
+>>The possible solution which we can think of, is not to unlock the
+>>i_mutex for DIO_OWN_LOCKING. This will only affect the DIO_OWN_LOCKING 
+>>users (as of now, only XFS ) with concurrent DIO sync read requests. AIO 
+>>read requests would not suffer this problem since they would just return 
+>>once the DIO is submitted.
+> 
+> 
+> I don't think that level of invasiveness is necessary at this stage,
+> but perhaps you're seeing something that I've missed?  Do you see
+> any reason why removing the xfs_read unlock wont work?
+> 
 
-suppose number_of_devices gets set to 5 but by the time you call
-ipath_verbs_register(5,...), the 5th device has been unplugged?
+But, what happens if __generic_file_aio_read() hits some error before 
+doing the aops->direct_IO ?
 
-Also you only do this when the module is loaded, so you won't handle
-devices that are hot-plugged later.  And I don't see anything that
-would handle hot unplug either.
+> 
+>>Another work around for this can  be adding a check "mutex_is_locked"
+>>before trying to unlock i_mutex in xfs_read. But this seems to be an
+>>ugly hack. :(
+> 
+> 
+> Hmm, that just plain wouldn't work - what if the lock was released
+> in generic direct IO code, and someone else had acquired it before
+> we got to the end of xfs_read?  Badness for sure.
+> 
+> cheers.
+> 
 
-Pretty much any use of ipath_max is probably broken by hot plug.
-
- - R.
+Suzuki.

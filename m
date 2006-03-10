@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWCJPUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWCJPYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWCJPUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 10:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbWCJPTp
+	id S1750965AbWCJPYd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 10:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWCJPYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 10:19:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25241 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750792AbWCJPT1 (ORCPT
+	Fri, 10 Mar 2006 10:24:33 -0500
+Received: from pat.uio.no ([129.240.130.16]:28851 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750965AbWCJPYc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 10:19:27 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <17424.48029.481013.502855@cargo.ozlabs.ibm.com> 
-References: <17424.48029.481013.502855@cargo.ozlabs.ibm.com>  <16835.1141936162@warthog.cambridge.redhat.com> 
-To: Paul Mackerras <paulus@samba.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, alan@redhat.com, linux-arch@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
-X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
-Date: Fri, 10 Mar 2006 15:19:10 +0000
-Message-ID: <26486.1142003950@warthog.cambridge.redhat.com>
+	Fri, 10 Mar 2006 10:24:32 -0500
+Subject: Re: [PATCH] Fix deadlock in RPC scheduling code.
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Aurelien Degremont <aurelien.degremont@cea.fr>
+Cc: Jacques-Charles Lafoucriere <jc.lafoucriere@cea.fr>,
+       Bruno Faccini <bruno.faccini@bull.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200603101510.QAA17788@styx.bruyeres.cea.fr>
+References: <200603091035.LAA04829@styx.bruyeres.cea.fr>
+	 <1141915219.8293.5.camel@lade.trondhjem.org>
+	 <200603101510.QAA17788@styx.bruyeres.cea.fr>
+Content-Type: text/plain
+Date: Fri, 10 Mar 2006 10:24:15 -0500
+Message-Id: <1142004255.8041.26.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.032, required 12,
+	autolearn=disabled, AWL 1.78, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> wrote:
-
-> > +On some systems, I/O writes are not strongly ordered across all CPUs, and
-> > so +locking should be used, and mmiowb() should be issued prior to
-> > unlocking the +critical section.
+On Fri, 2006-03-10 at 16:10 +0100, Aurelien Degremont wrote:
+> Trond Myklebust wrote:
 > 
-> I think we should say more strongly that mmiowb() is required where
-> MMIO accesses are done under a spinlock, and that if your driver is
-> missing them then that is a bug.  I don't think it makes sense to say
-> that mmiowb is required "on some systems".
+> > The real fix is the one I posted in response to this thread last week.
+> 
+> Oops, I missed it.
+> 
+> Ok for the patch, the list iteration will be better, but I don't
+> understand how this will prevent the race condition?
+> 
+> I do not think it is not a good idea to keep this lock order in
+> rpc_wake_up_task() anyway. I must be missing something but I
+> think this function should be modified in order to be in accordance with
+> the lock hierarchy in rpc code. It seems to me that the potential race 
+> is still there.
+> 
+> Even if we cannot certify task->u.tk_wait.rpc_waitq is valid, the
+> current kernel code cannot either (err... I think it can't). So let's 
+> try at least to improve it, even if we cannot set it totally harmless.
+> Warn me if I'm wrong :
+>     When rpc_wake_up_task() is called, the calling context is helpless. 
+> So we have absolutely no information on the task queue. We must 
+> atomically check the "queued-ness" of the task and grab the queue lock 
+> to prevent any error? Hmmm... So the matter is : the queue mustn't be 
+> modified between the test and the lock? Have we some "magical" lock 
+> somewhere which could help up? I didn't find it.
 
-The point I was trying to make was that on some systems writes are not
-strongly ordered, so we need mmiowb() on _all_ systems. I'll fix the text to
-make that point.
+Yes. The RPC_TASK_QUEUED bit can only be cleared when both the
+RPC_TASK_WAKEUP bit _and_ the queue spinlock are held.
+If you are holding either one of those two, then it is safe to test for
+RPC_IS_QUEUED(). If the latter is true, then it is also safe to
+dereference the value of task->u.tk_wait.rpc_waitq.
 
-> There shouldn't be any problem here, because readw/writew _must_
-> ensure that the device accesses are serialized.
+Cheers,
+  Trond
 
-No. That depends on the properties of the memory window readw/writew write
-through, the properties of the CPU wrt memory accesses, and what explicit
-barriers at interpolated inside readw/writew themselves.
-
-If we're accessing a frame buffer, for instance, we might want it to be able
-to reorder and combine reads and writes.
-
-> Of course, on an SMP system it would be quite possible for the
-> interrupt to be taken on another CPU, and in that case disabling
-> interrupts (I assume that by "DISABLE IRQ" you mean
-> local_irq_disable() or some such)
-
-Yes. There are quite a few different ways to disable interrupts.
-
-> gets you absolutely nothing; you need to use a spinlock, and then the mmiowb
-> is required.
-
-I believe I've said that, though perhaps not sufficiently clearly.
-
-> You may like to include these words describing some of the rules:
-
-Thanks, I probably will.
-
-David

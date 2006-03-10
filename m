@@ -1,50 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752248AbWCJXEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752234AbWCJXKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752248AbWCJXEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 18:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752247AbWCJXEQ
+	id S1752234AbWCJXKm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 18:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752235AbWCJXKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 18:04:16 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29444 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751257AbWCJXEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 18:04:15 -0500
-Date: Sat, 11 Mar 2006 00:04:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
-Subject: [2.6 patch] net/sunrpc/clnt.c: fix a NULL pointer dereference
-Message-ID: <20060310230414.GC21864@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 10 Mar 2006 18:10:42 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:63136 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1752233AbWCJXKl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 18:10:41 -0500
+Subject: Re: [Alsa-devel] Re: 2.6.15-rt20, "bad page state", jackd
+From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: nando@ccrma.Stanford.EDU, alsa-devel@lists.sourceforge.net,
+       Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1142016627.6124.33.camel@cmn3.stanford.edu>
+References: <1141846564.5262.20.camel@cmn3.stanford.edu>
+	 <20060309084746.GB9408@osiris.boeblingen.de.ibm.com>
+	 <1141938488.22708.28.camel@cmn3.stanford.edu>
+	 <4410B2D7.4090806@yahoo.com.au>
+	 <1141958866.22708.69.camel@cmn3.stanford.edu>
+	 <441109BC.9070705@yahoo.com.au>
+	 <1142016627.6124.33.camel@cmn3.stanford.edu>
+Content-Type: text/plain
+Date: Fri, 10 Mar 2006 15:10:02 -0800
+Message-Id: <1142032202.6124.59.camel@cmn3.stanford.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted this possible NULL pointer dereference in 
-rpc_new_client().
+On Fri, 2006-03-10 at 10:50 -0800, Fernando Lopez-Lezcano wrote:
+> On Fri, 2006-03-10 at 16:08 +1100, Nick Piggin wrote:
+> > Fernando Lopez-Lezcano wrote:
+> > > On Fri, 2006-03-10 at 09:57 +1100, Nick Piggin wrote:
+> > >>Fernando Lopez-Lezcano wrote:
+> > >>Can you test with the latest mainline -git snapshot, or is it only
+> > >>the -rt tree that causes the warnings?
+> > > 
+> > > I found something strange although I don't know why it happens yet:
+> > > 
+> > >   Fedora Core 4 kernel (2.6.15 + patches) works fine.
+> > >   Fedora Core 4 kernel + -rt21, [ahem... sorry], works fine.
+> > >   Fedora Core 4 kernel + -rt21 + alsa kernel modules from 1.0.10 or
+> > >      1.0.11rc3, fails[*]
+> > >   Plain vanilla 2.6.15 + -rt21, works fine
+> > >   Plain vanilla 2.6.15 + -rt21 + alsa kernel modules from 1.0.10 or
+> > >      1.0.11rc3, fails[*]
+> > > 
+> > > So, it looks like it is some weird interaction between kernel modules
+> > > that were not compiled as part of the kernel and the kernel itself. The
+> > > "updated" modules are installed in a separate location (not on top of
+> > > the built in kernel modules) and are found before the ones in the kernel
+> > > tree.
+> > > 
+> > > I have been building this combination for a long long time with no
+> > > problems, I don't know what might have happened that changed things.
+> > > 
+> > > Could be:
+> > > - configuration problems?
+> > 
+> > No. It shouldn't do this even if there is a configuration problem.
+> > 
+> > > - the alsa tree is somehow incompatible with the kernel alsa tree, is
+> > >   that even possible?
+> >
+> > Yes. Most likely this. It should be fixed before the new ALSA code is
+> > pushed upstream.
+> > 
+> > It is probably not so much a matter of somebody breaking the ALSA code
+> > as that it hasn't been updated for the new kernel refcounting rules.
+> 
+> Takashi and other gurus in alsa-devel, any comments on this? The
+> original problem - not quoted in this email - is that when I stop jackd
+> in the affected configurations I get errors similar to this one:
+> 
+> > Bad page state at __free_pages_ok (in process 'jackd', page c1013ce0)
+> > flags:0x00000414 mapping:00000000 mapcount:0 count:0
+> > Backtrace:
+> >  [<c015947d>] bad_page+0x7d/0xc0 (8)
+> >  [<c01598fd>] __free_pages_ok+0x9d/0x180 (36)
+> >  [<c015a5ac>] __pagevec_free+0x3c/0x50 (40)
+> >  [<c015db47>] release_pages+0x127/0x1a0 (16)
+> >  [<c016c93d>] free_pages_and_swap_cache+0x7d/0xc0 (80)
+> >  [<c01681ae>] unmap_region+0x13e/0x160 (28)
+> >  [<c0168461>] do_munmap+0xe1/0x120 (48)
+> >  [<c01684df>] sys_munmap+0x3f/0x60 (32)
+> >  [<c01034a1>] syscall_call+0x7/0xb (16)
+> > Trying to fix it up, but a reboot is needed
+> 
+> One other thing occurred to me (not tested yet)
+> 
+> - userspace regression in the module load code (so that in the end
+> modules from the in kernel tree get mixed with modules coming from the
+> externally compiled alsa tree). Very unlikely, I think, I could test for
+> this by removing the in kernel modules temporarily. 
 
+I just tested this and no, it is not the problem. I removed all
+in-kernel modules that started with snd-* and reloaded alsa (making sure
+that nothing remained loaded from the previous drivers): same problem.
+It really starts to looks like it is an incompatibility between the
+current alsa tree (outside of the kernel) and the current kernels. 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+-- Fernando
 
---- linux-2.6.16-rc5-mm3-full/net/sunrpc/clnt.c.old	2006-03-10 23:39:20.000000000 +0100
-+++ linux-2.6.16-rc5-mm3-full/net/sunrpc/clnt.c	2006-03-10 23:40:03.000000000 +0100
-@@ -112,7 +112,7 @@ rpc_new_client(struct rpc_xprt *xprt, ch
- 
- 	err = -EINVAL;
- 	if (!xprt)
--		goto out_err;
-+		goto out_no_xprt;
- 	if (vers >= program->nrvers || !(version = program->version[vers]))
- 		goto out_err;
- 
-@@ -182,6 +182,7 @@ out_no_path:
- 	kfree(clnt);
- out_err:
- 	xprt_destroy(xprt);
-+out_no_xprt:
- 	return ERR_PTR(err);
- }
- 
 

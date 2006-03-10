@@ -1,103 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWCJEaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWCJEfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWCJEaB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 23:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWCJEaB
+	id S1751148AbWCJEfd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 23:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWCJEfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 23:30:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63367 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751116AbWCJEaA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 23:30:00 -0500
-Date: Thu, 9 Mar 2006 20:27:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix a race condition between ->i_mapping and iput()
-Message-Id: <20060309202757.004a7f06.akpm@osdl.org>
-In-Reply-To: <877j73ziwy.fsf@duaron.myhome.or.jp>
-References: <877j73ziwy.fsf@duaron.myhome.or.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 23:35:33 -0500
+Received: from web52604.mail.yahoo.com ([206.190.48.207]:15014 "HELO
+	web52604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751148AbWCJEfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 23:35:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=RzkLnGQ4foiSk+YFJw0b8h5cUkeTL8YP0vJ11zuIPbTyC5kc68C39TniaiZHUws/Jz4tLEyI8T8cF9hl/Y5Td7k272gfAmsgV7DVLtpQX7YPweQ2wdwWyyQ+Z7ebnBETyFy+7O6RHDLNKi0R8k0fNgyvZtVNd7IgytC9Ua7b8as=  ;
+Message-ID: <20060310043531.61412.qmail@web52604.mail.yahoo.com>
+Date: Fri, 10 Mar 2006 15:35:31 +1100 (EST)
+From: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Subject: Re: Oops on ibmasm
+To: Andrew Morton <akpm@osdl.org>
+Cc: Max Asbock <masbock@us.ibm.com>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, Vernon Mauery <vernux@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
-> Hi,
-> 
-> This race became a cause of oops, and can reproduce by the following.
-> 
->     while true; do
-> 	dd if=/dev/zero of=/dev/.static/dev/hdg1 bs=512 count=1000 & sync
->     done
-> 
-> 
-> This race condition was between __sync_single_inode() and iput().
-> 
->           cpu0 (fs's inode)                 cpu1 (bdev's inode)
-> ------------------------------------------------------------------------
->                                        close("/dev/hda2")
->                                        [...]
-> __sync_single_inode()
->    /* copy the bdev's ->i_mapping */
->    mapping = inode->i_mapping;
-> 
->                                        generic_forget_inode()
->                                           bdev_clear_inode()
-> 					     /* restre the fs's ->i_mapping */
-> 				             inode->i_mapping = &inode->i_data;
-> 				          /* bdev's inode was freed */
->                                           destroy_inode(inode);
-> 
->    if (wait) {
->       /* dereference a freed bdev's mapping->host */
->       filemap_fdatawait(mapping);  /* Oops */
-> 
-> Since __sync_signle_inode() is only taking a ref-count of fs's inode,
-> the another process can be close() and freeing the bdev's inode while
-> writing fs's inode.  So, __sync_signle_inode() accesses the freed
-> ->i_mapping, oops.
-> 
-> This patch takes ref-count of bdev's inode for fs's inode before
-> setting a ->i_mapping, and the clear_inode() of fs's inode does iput().
-> So, if fs's inode is still living, bdev's inode shouldn't be freed.
-> 
-> This lifetime rule may be a poor, but very simple.
-> 
-> Umm... should we use an another rule to free it more early?
-> (e.g. if bdev's inode become I_FREEING, it should call bd_forget()
-> before releasing the inode_lock. And some place should call
-> igrab(->i_mapping->host->i_count) and iput())
-> 
-> 
-> What do you think, comment?
+Thanks Andrew & everybody! Glad to see that the fix
+found its way to Linus's tree.
 
-Maybe.   This code seems relatively straightforward though.
+I'll keep an eye on ibmasm throughout 2.6.16-rc*.
 
-It would be preferable to have a couple of comments in there explaining
-what the new refcounting is there for.
+Hari
 
->  
->...
->
->  void bd_forget(struct inode *inode)
->  {
-> +	struct block_device *old = NULL;
-> +
->  	spin_lock(&bdev_lock);
-> -	if (inode->i_bdev)
-> +	if (inode->i_bdev) {
-> +		if (inode->i_sb != blockdev_superblock)
-> +			old = inode->i_bdev;
->  		__bd_forget(inode);
-> +	}
->  	spin_unlock(&bdev_lock);
-> +
-> +	if (old)
-> +		iput(old->bd_inode);
->  }
 
-We're missing an atomic_inc(i_count) here?
+
+		
+____________________________________________________ 
+On Yahoo!7 
+Photos: Unlimited free storage – keep all your photos in one place! 
+http://au.photos.yahoo.com 
+

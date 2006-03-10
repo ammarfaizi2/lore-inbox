@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWCJLos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752017AbWCJL4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWCJLos (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 06:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWCJLos
+	id S1752017AbWCJL4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 06:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWCJL4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 06:44:48 -0500
-Received: from lucidpixels.com ([66.45.37.187]:54924 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932111AbWCJLor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 06:44:47 -0500
-Date: Fri, 10 Mar 2006 06:44:46 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: linux-kernel@vger.kernel.org
-Subject: MCE Errors, Bad CPU, Memory or Motherboard?
-Message-ID: <Pine.LNX.4.64.0603100642220.1165@p34>
+	Fri, 10 Mar 2006 06:56:23 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4755 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751818AbWCJL4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 06:56:23 -0500
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com
+Subject: Re: sysctls inside containers
+References: <43F9E411.1060305@sw.ru>
+	<m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
+	<1141062132.8697.161.camel@localhost.localdomain>
+	<m1ek1owllf.fsf@ebiederm.dsl.xmission.com>
+	<1141442246.9274.14.camel@localhost.localdomain>
+	<441152C0.2030501@sw.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 10 Mar 2006 04:55:34 -0700
+In-Reply-To: <441152C0.2030501@sw.ru> (Kirill Korotaev's message of "Fri, 10
+ Mar 2006 13:19:44 +0300")
+Message-ID: <m1d5guldjd.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the first time I have seen an MCE error, googling the EIP value at 
-the time of the panic does not return any useful results.
+Kirill Korotaev <dev@sw.ru> writes:
 
-Does anyone know whether it is the CPU or MEMORY that is bad in this 
-machine?  As it shows some problems with BANK4; however, if the CPU is 
-bad, then it is possible to get all sorts of unpredictable results, right?
+>> On another note, after messing with putting data in the init_task for
+>> these things, I'm a little more convinced that we aren't going to want
+>> to clutter up the task_struct with all kinds of containerized resources,
+>> _plus_ make all of the interfaces to share or unshare each of those.
+>> That global 'struct container' is looking a bit more attractive.
+> BTW, Dave,
+>
+> have you noticed that ipc/mqueue.c uses netlink to send messages?
+> This essentially means that they are tied as well...
 
-Dec  9 23:21:25 box  CPU 0: Machine Check Exception
-Dec  9 23:21:25 box  Bank 4: f62ba001c0080813 at 00000000a6e6c2c0
-Dec  9 23:21:25 box  Kernel panic: CPU context corrupt
-Dec  9 23:21:25 box kernel: CPU 0
-Dec  9 23:21:25 box kernel: CPU 0
-Dec  9 23:21:25 box kernel: Bank 4
-Dec  9 23:21:25 box kernel: Bank 4
-Dec  9 23:21:25 box kernel: Kernel panic
-Dec  9 23:21:25 box kernel: Kernel panic
-Dec  9 23:21:26 box  kernel BUG at panic.c:66!
-Dec  9 23:21:26 box  invalid operand: 0000
-Dec  9 23:21:26 box  CPU:    0
-Dec  9 23:21:26 box  EIP:    0010
-Dec  9 23:21:26 box  EFLAGS: 00010282
-Dec  9 23:21:26 box  eax: f895c1d0   ebx
-Dec  9 23:21:26 box  esi: 00000415   edi
-Dec  9 23:21:26 box  ds: 0018   es
-Dec  9 23:21:26 box  Process java (pid: 6852, stackpage=e0ec5000)
-Dec  9 23:21:26 box  Stack: 04000000 e0ec5fa4 c010fc28 c02942b8 00000005 
-c0080813 00000417 00000416
-Dec  9 23:21:26 box         00000005 00000000 00000004 e0ec4000 00000000 
-c010fd00 e0ec5fb4 c010fd11
-Dec  9 23:21:26 box         e0ec5fc4 00000000 bfffc090 c0108ed4 e0ec5fc4 
-00000000 00000023 44841510
-Dec  9 23:21:26 box  Call Trace:    [<c010fc28>] [<c010fd00>] [<c010fd11>] 
-[<c0108ed4>]
-Dec  9 23:21:26 box
-Dec  9 23:21:26 box  Code: 0f 0b 42 00 28 6a 29 c0 b9 00 e0 ff ff 21 e1 8b 
-51 30 c1 e2
+Yes, netlink is something to be considered in the great untangling.
 
-Thanks,
+However for a sysvipc namespace ipc/mqueue.c is something that doesn't
+need to be handled because that is the implementation of posix message
+queues not sysv ipc.
 
-Justin.
+I think I succeeded in untagling the worst of netlink in my proof of
+concept implementation, but certainly there is more todo.
+
+Eric

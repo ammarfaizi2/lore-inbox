@@ -1,57 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbWCJR6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWCJR7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbWCJR6H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWCJR6H
+	id S1751375AbWCJR7T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:59:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWCJR7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:58:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:56741 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751295AbWCJR6G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:58:06 -0500
-Subject: Re: [PATCH] EDAC: core EDAC support code
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
-       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
-       bluesmoke-devel@lists.sourceforge.net
-In-Reply-To: <200603100946.12448.dsp@llnl.gov>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org>
-	 <200603091746.51686.dsp@llnl.gov>
-	 <1141976218.2876.2.camel@laptopd505.fenrus.org>
-	 <200603100946.12448.dsp@llnl.gov>
-Content-Type: text/plain
-Date: Fri, 10 Mar 2006 18:58:01 +0100
-Message-Id: <1142013481.2876.89.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 10 Mar 2006 12:59:19 -0500
+Received: from [69.90.147.196] ([69.90.147.196]:31371 "EHLO mail.kenati.com")
+	by vger.kernel.org with ESMTP id S1751375AbWCJR7T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 12:59:19 -0500
+Message-ID: <4411BF8E.4080306@kenati.com>
+Date: Fri, 10 Mar 2006 10:03:58 -0800
+From: Carlos Munoz <carlos@kenati.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: Lee Revell <rlrevell@joe-job.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: How can I link the kernel with libgcc ?
+References: <4410D9F0.6010707@kenati.com> <1141961152.13319.118.camel@mindpipe> <4410F6CB.8070907@kenati.com> <200603101237.35687.vda@ilport.com.ua>
+In-Reply-To: <200603101237.35687.vda@ilport.com.ua>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 09:46 -0800, Dave Peterson wrote:
-> On Thursday 09 March 2006 23:36, Arjan van de Ven wrote:
-> > ok so this is actually a per pci device property!
-> > I would suggest moving this property to the pci device itself, not doing
-> > it inside an edac directory.
-> >
-> > by doing that you get the advantage that 1) it's a more logical place,
-> > and 2) users can do it even for 1 of 2 cards, if they have 2 cards of
-> > the same make and 3) you can use the generic kernel quirk interface for
-> > this and 4) drivers can in principle control this for their hardware in
-> > complex cases
-> >
-> > I understand that on a PC, EDAC is the only user. but ppc has a similar
-> > mechanism I suspect, and they more than likely would be able to share
-> > this property....
-> 
-> I'd be curious to hear people's opinions on the following idea:
-> move the PCI bus parity error checking functionality from EDAC
-> to the PCI subsystem.
+Denis Vlasenko wrote:
 
-I can see the point on at least moving all the infrastructure there. 
-The actual call to run it... maybe. that's more debatable I suppose. 
+>On Friday 10 March 2006 05:47, Carlos Munoz wrote:
+>  
+>
+>>Lee Revell wrote:
+>>
+>>    
+>>
+>>>On Thu, 2006-03-09 at 19:25 -0800, Carlos Munoz wrote:
+>>> 
+>>>
+>>>      
+>>>
+>>>>I figured out how to get the driver to use floating point operations.
+>>>>I included source code (from an open source math library) for the
+>>>>log10 function in the driver. Then I added the following lines to the
+>>>>file arch/sh/kernel/sh_ksyms.c: 
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>Where is the source code to your driver?
+>>>
+>>>Lee
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>Hi Lee,
+>>
+>>Be warned. This driver is in the early stages of development. There is 
+>>still a lot of work that needs to be done (interrupt, dma, etc, etc).
+>>    
+>>
+>
+>What? You are using log10 only twice!
+>
+>        if (!(siu_obj_status & ST_OPEN)) {
+>		...
+>                /* = log2(over) */
+>                ydef[22] = (u_int32_t)(log10((double)(over & 0x0000003f)) /
+>                                       log10(2));
+>		...
+>        }
+>        else {
+>		...
+>                if (coef) {
+>                        ydef[16] = 0x03045000 | (over << 26) | (tap - 4);
+>                        ydef[17] = (tap * 2 + 1);
+>                        /* = log2(over) */
+>                        ydef[22] = (u_int32_t)
+>                                (log10((double)(over & 0x0000003f)) / log10(2));
+>                }
+>
+>Don't you think that log10((double)(over & 0x0000003f)) / log10(2)
+>can have only 64 different values depending on the result of (over & 0x3f)?
+>
+>Obtain them from precomputed uint32_t log10table[64].
+>--
+>vda
+>  
+>
+Hi Denis,
 
+Yes, the driver code so far only uses log10 twice, but there will be 
+more uses for it as I populate the rest of the tables. However, I think 
+its use will be some what limited. I wasn't aware that the floating 
+point registers are not saved. I'll investigate a way to create a table 
+with pre-calculated log10 values.
+
+Thanks,
+
+
+Carlos

@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbWCJLEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbWCJLEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbWCJLEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 06:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932722AbWCJLEZ
+	id S932725AbWCJLEs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 06:04:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWCJLEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 06:04:25 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:59353
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932719AbWCJLEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 06:04:24 -0500
-Date: Fri, 10 Mar 2006 03:04:22 -0800 (PST)
-Message-Id: <20060310.030422.127226482.davem@davemloft.net>
-To: hadi@cyberus.ca
-Cc: kaber@trash.net, bunk@stusta.de, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] let NET_CLS_ACT no longer depend on
- EXPERIMENTAL
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1141498341.5185.32.camel@localhost.localdomain>
-References: <20060304160755.GB9295@stusta.de>
-	<4409C6BA.60803@trash.net>
-	<1141498341.5185.32.camel@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Mar 2006 06:04:47 -0500
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:39900 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S932724AbWCJLEp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 06:04:45 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: HEADS UP for gdth driver users
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Date: Fri, 10 Mar 2006 12:04:41 +0100
+Message-ID: <B51CDBDEB98C094BB6E1985861F53AF374EAED@nkse2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: HEADS UP for gdth driver users
+Thread-Index: AcZCsv/B8NzQ1nn/QDC/U+m8qk7CyABfxnKQ
+From: "Leubner, Achim" <Achim_Leubner@adaptec.com>
+To: "Christoph Hellwig" <hch@lst.de>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: jamal <hadi@cyberus.ca>
-Date: Sat, 04 Mar 2006 13:52:21 -0500
+We are willing to test the changes. Could you please send the latest patch to me? 
 
-> So on Adrian's patch and above reasoning:
-> 
-> ACKed-by: Jamal Hadi Salim <hadi@cyberus.ca>
+Thanks,
+Achim Leubner
 
-Applied, thanks Adrian.
+=======================
+Achim Leubner
+Software Engineer / RAID drivers
+ICP vortex GmbH / Adaptec Inc.
+Phone: +49-351-8718291
+ 
+-----Original Message-----
+From: Christoph Hellwig [mailto:hch@lst.de] 
+Sent: Mittwoch, 8. März 2006 14:20
+To: linux-scsi@vger.kernel.org; linux-kernel@vger.kernel.org; Leubner, Achim
+Subject: HEADS UP for gdth driver users
+
+Hi folks,
+
+the gdth driver is the only driver using (and in this case abusing) the
+scsi_request interface we plan to kill for 2.6.17.  I've sent a patch
+that's a first step to convert the driver away from it a few weeks ago
+but didn't get any response.  I urgently need testers to keep the driver
+for 2.6.17+.  Else it'll be marked broken until we get a person to help
+testing the changes needed to resurrect it.
+
+

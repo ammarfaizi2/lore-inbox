@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWCJRqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWCJRsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWCJRqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWCJRqz
+	id S1751146AbWCJRsA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWCJRsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:46:55 -0500
-Received: from smtp-4.llnl.gov ([128.115.41.84]:39323 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S1751095AbWCJRqy (ORCPT
+	Fri, 10 Mar 2006 12:48:00 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:47247 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1751146AbWCJRr7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:46:54 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Date: Fri, 10 Mar 2006 09:46:12 -0800
-User-Agent: KMail/1.5.3
-Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
-       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
-       bluesmoke-devel@lists.sourceforge.net
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603091746.51686.dsp@llnl.gov> <1141976218.2876.2.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141976218.2876.2.camel@laptopd505.fenrus.org>
+	Fri, 10 Mar 2006 12:47:59 -0500
+Date: Fri, 10 Mar 2006 09:48:06 -0800
+From: Grant Grundler <iod00d@hp.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, akpm@osdl.org, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       davem@davemloft.net
+Subject: Re: [openib-general] [PATCH 0 of 20] [RFC] ipath driver - another round for review
+Message-ID: <20060310174806.GA13969@esmail.cup.hp.com>
+References: <patchbomb.1141950930@eng-12.pathscale.com> <20060310153559.GA12778@mellanox.co.il> <1142006537.29925.13.camel@serpentine.pathscale.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603100946.12448.dsp@llnl.gov>
+In-Reply-To: <1142006537.29925.13.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 March 2006 23:36, Arjan van de Ven wrote:
-> ok so this is actually a per pci device property!
-> I would suggest moving this property to the pci device itself, not doing
-> it inside an edac directory.
->
-> by doing that you get the advantage that 1) it's a more logical place,
-> and 2) users can do it even for 1 of 2 cards, if they have 2 cards of
-> the same make and 3) you can use the generic kernel quirk interface for
-> this and 4) drivers can in principle control this for their hardware in
-> complex cases
->
-> I understand that on a PC, EDAC is the only user. but ppc has a similar
-> mechanism I suspect, and they more than likely would be able to share
-> this property....
+On Fri, Mar 10, 2006 at 08:02:16AM -0800, Bryan O'Sullivan wrote:
+> > Two questions on this
+> > 1. It is not standard ethernet nor standard IP over Infiniband either, is it?
+> 
+> Correct.
+> 
+> > Is there some documentation on the wire protocol that you use?
+> 
+> No, but the encapsulation is very simple and easy to figure out from
+> reading the code.
+> 
+...
+> > 2. Are there practical reasons why you get lower latency and higher
+> > bandwidth with this than with IPoIB?
+> 
+> The principal reason is that we haven't had time to pay attention to
+> IPoIB performance yet.  The ipath_ether driver was developed before
+> IPoIB was usable for any real work.
 
-I'd be curious to hear people's opinions on the following idea:
-move the PCI bus parity error checking functionality from EDAC
-to the PCI subsystem.
+My gut feeling is you want to look at SDP first.
+I'm skeptical that yet another wire protocol will get
+accepted into the linux kernel.
+
+grant

@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752168AbWCJKSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751961AbWCJK10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752168AbWCJKSz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 05:18:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752191AbWCJKSy
+	id S1751961AbWCJK10 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 05:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752200AbWCJK1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 05:18:54 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:65226 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1752168AbWCJKSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 05:18:54 -0500
-To: Carlos Munoz <carlos@kenati.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: How can I link the kernel with libgcc ?
-References: <4410D9F0.6010707@kenati.com>
-	<200603100145.k2A1jMem005323@turing-police.cc.vt.edu>
-	<1141956362.13319.105.camel@mindpipe> <4410EC0D.3090303@kenati.com>
-	<4410F1BE.7000904@kenati.com>
-From: Jes Sorensen <jes@sgi.com>
-Date: 10 Mar 2006 05:18:41 -0500
-In-Reply-To: <4410F1BE.7000904@kenati.com>
-Message-ID: <yq0ek1a38n2.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Fri, 10 Mar 2006 05:27:25 -0500
+Received: from smtp-out.google.com ([216.239.45.12]:45894 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751961AbWCJK1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 05:27:25 -0500
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=bIpEm5Ytek9q3CwIiOroow+0IR55qMtvR+Ev3QcQMu8nN9ksPYHIO0YaWsyg5mdjQ
+	B+Pm50K5VukT5aOaylByA==
+Message-ID: <44115475.7040804@google.com>
+Date: Fri, 10 Mar 2006 02:27:01 -0800
+From: Daniel Phillips <phillips@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "J. Bruce Fields" <bfields@fieldses.org>
+CC: Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, ocfs2-devel@oss.oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
+References: <4408C2E8.4010600@google.com> <20060303233617.51718c8e.akpm@osdl.org> <440B9035.1070404@google.com> <20060306025800.GA27280@ca-server1.us.oracle.com> <440BC1C6.1000606@google.com> <20060306195135.GB27280@ca-server1.us.oracle.com> <p733bhvgc7f.fsf@verdi.suse.de> <20060307045835.GF27280@ca-server1.us.oracle.com> <440FCA81.7090608@google.com> <20060310023305.GB28722@fieldses.org>
+In-Reply-To: <20060310023305.GB28722@fieldses.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Carlos" == Carlos Munoz <carlos@kenati.com> writes:
+J. Bruce Fields wrote:
+> On Wed, Mar 08, 2006 at 10:26:09PM -0800, Daniel Phillips wrote:
+>>A poor distribution as you already noticed[1].
+> 
+> How did you decide that?
 
-Carlos> I figured out how to get the driver to use floating point
-Carlos> operations. I included source code (from an open source math
-Carlos> library) for the log10 function in the driver. Then I added
-Carlos> the following lines to the file arch/sh/kernel/sh_ksyms.c:
+I looked at it and jumped to the wrong conclusion :-)
 
-Bad bad bad!
+When I actually simulated it I found that the distribution is in fact
+not much different from what I get from rand.  So much for trying to
+pin the blame on the hash function.  Next lets try to pin the blame
+on vmalloc.  (Spoiler: it's not vmalloc's fault either.)
 
-You shouldn't be using floating point in the kernel at all! Most
-architectures do not save the full floating point register set on
-entry so if you start messing with the fp registers you may corrupt
-user space applications.
+Regards,
 
-You need to either write a customer user space app or use a table as
-Arjan suggested.
-
-Cheers,
-Jes
+Daniel

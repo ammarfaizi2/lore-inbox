@@ -1,74 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWCJPyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751669AbWCJPz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751656AbWCJPyT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 10:54:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWCJPyT
+	id S1751669AbWCJPz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 10:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751670AbWCJPz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 10:54:19 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:26784 "EHLO mtlexch01.mtl.com")
-	by vger.kernel.org with ESMTP id S1751656AbWCJPyS (ORCPT
+	Fri, 10 Mar 2006 10:55:28 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:37072 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751669AbWCJPz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 10:54:18 -0500
-Date: Fri, 10 Mar 2006 17:54:34 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Roland Dreier <rdreier@cisco.com>, akpm@osdl.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       davem@davemloft.net
-Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
-Message-ID: <20060310155434.GB12778@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain> <adalkvjfbo0.fsf@cisco.com> <1141947581.10693.45.camel@serpentine.pathscale.com>
+	Fri, 10 Mar 2006 10:55:27 -0500
+Subject: Re: Revenge of the sysfs maintainer! (was Re: [PATCH 8 of 20]
+	ipath - sysfs support for core driver)
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Greg KH <gregkh@suse.de>, Roland Dreier <rdreier@cisco.com>,
+       rolandd@cisco.com, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <1141999569.2876.47.camel@laptopd505.fenrus.org>
+References: <ef8042c934401522ed3f.1141922821@localhost.localdomain>
+	 <adapskvfbqe.fsf@cisco.com>
+	 <1141947143.10693.40.camel@serpentine.pathscale.com>
+	 <20060310003513.GA17050@suse.de>
+	 <1141951589.10693.84.camel@serpentine.pathscale.com>
+	 <20060310010050.GA9945@suse.de>
+	 <1141966693.14517.20.camel@camp4.serpentine.com>
+	 <1141977431.2876.18.camel@laptopd505.fenrus.org>
+	 <1141998702.28926.15.camel@localhost.localdomain>
+	 <1141999569.2876.47.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Fri, 10 Mar 2006 07:55:21 -0800
+Message-Id: <1142006121.29925.5.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141947581.10693.45.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 10 Mar 2006 15:56:42.0859 (UTC) FILETIME=[39C56BB0:01C6445B]
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting r. Bryan O'Sullivan <bos@pathscale.com>:
-> Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
+On Fri, 2006-03-10 at 15:06 +0100, Arjan van de Ven wrote:
+
+> > They mightn't be exactly today's kernels, but they're no more than two
+> > or three weeks old.  CONFIG_DEBUG_FS has been in the kernel for a long
+> > time, and it's still not being picked up.
 > 
-> On Thu, 2006-03-09 at 15:20 -0800, Roland Dreier wrote:
-> 
-> > I've never understood what forces you to maintain two separate SMAs.
-> > Why can't you pick one of the two SMAs and use that unconditionally?
-> 
-> Three reasons.
-> 
->       * OpenSM wasn't usable when we wrote our SMA.  We have customers
->         using ours now, so we have to support it.
+> but it's a module; you can ship it no problem yourself if you go through
+> the hell of shipping external modules
 
-Presumably you mean the ib_mad SMA - OpenSM is not an SMA.
-I don't understand this. You don't talk to an SMA directly -
-its jobs is to receive and send management packets that the card
-gets from a subnet manager. So what do customers care which SMA
-implementation is used, as long as it formats the management packets
-correctly?
+Yes, we can ship it ourselves.  But a significant point of this exercise
+is to have the drivers be available to people who use unmodified
+distros, and don't want to download other bits to do so.
 
-If you want to extend the SMA in non-standard ways, you can
-snoop and send management packets by loading ib_umad.
+If Greg can get SUSE to turn on debugfs, that's great.  I can ask Dave
+Jones or Doug Ledford or some other Fedora/RedHat kernel person to do
+likewise, but they're not beholden to me in any way, so god knows what
+my chances are :-)
 
->       * Our SMA does some setup for the layered ethernet emulation
->         driver.
+The "have it just work in vendor distros" notion is also why the OpenIB
+community as a whole is focusing on rolling out a 1.0 release of the IB
+userspace code, so that people can expect their distros to simply work
+with Infiniband hardware.
 
-You are doing this from userspace, right? But you can already send/receive MADs
-from userspace by loading ib_umad.  What is there that is not sufficient for
-your purposes?
+	<b
 
-By the way, this might also be a clean way for you to get at the port info
-node info and port counters atomically like you wanted to in another thread:
-post a management packet to the local device, get a packet back.
-No need for extra sysfs files.
-
->       * Our SMA works without an IB stack of any kind present.
-
-The stack is pretty slim, AFAIK it mostly consists of an SMA implementation.
-So where's the benefit in avoiding it? Just link against ib_mad, it will
-get loaded atomatically.
-
--- 
-Michael S. Tsirkin
-Staff Engineer, Mellanox Technologies

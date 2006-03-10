@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWCJNXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWCJN1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbWCJNXa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 08:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWCJNXa
+	id S1751037AbWCJN1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 08:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWCJN1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 08:23:30 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63891 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750774AbWCJNX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 08:23:29 -0500
-To: Kirill Korotaev <dev@openvz.org>
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com
-Subject: Re: sysctls inside containers
-References: <43F9E411.1060305@sw.ru>
-	<m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
-	<1141062132.8697.161.camel@localhost.localdomain>
-	<m1ek1owllf.fsf@ebiederm.dsl.xmission.com>
-	<1141442246.9274.14.camel@localhost.localdomain>
-	<4411524B.1000707@openvz.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 10 Mar 2006 06:22:34 -0700
-In-Reply-To: <4411524B.1000707@openvz.org> (Kirill Korotaev's message of
- "Fri, 10 Mar 2006 13:17:47 +0300")
-Message-ID: <m1zmjyjuxx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Mar 2006 08:27:24 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:1760 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1750806AbWCJN1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 08:27:23 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Fri, 10 Mar 2006 14:46:29 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B280323@pdsmsx403> 
+Date: Fri, 10 Mar 2006 13:27:20 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FHheK-0002iN-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@openvz.org> writes:
+> What do you mean of "slither away" ? 
+> bug go away?
 
-> After checking proposed yours, Eric and vserver solutions, I must say that these
-> all are hacks.
-> If we want to virtualize sysctl we need to do it in honest way:
-> multiple sysctl trees, which can be different in different namespaces.
-> For example, one namespace can see /proc/sys/net/route and the other one
-> not.
+I can no longer trigger it, at least not with the usual procedure.  I
+doubt that it goes away (i.e. that it is solved), only that it
+slithers into hiding, like bugs that disappear when compiling a C
+program with -g but show up when compiling without -g.
 
-At least a different copy of /proc/sys/net/route :)
+> echo -n 0x10 > /proc/acpi/debug_layer
+> echo -n 0x10 > /proc/acpi/debug_level
 
-> Introducing helpers/handlers etc. doesn't fully solve the problem of
-> visibility of different parts of sysctl tree and it's access rights.
+Oh, I always have more info turned on in my sleep.sh script
+(debug_layer = 0xFFFF3FFF to begin with, and the script sets
+debug_level to 0x1F).  I'll attach the slightly trimmed log file to
+the bugme report.  If it's too much information, let me know and I'll
+retest with just the above settings.
 
-I need to look a little deeper but I think if we add two helper
-functions: One that returns the address of a value based upon our state,
-and another that returns a subdirectory based upon our state I think we
-should be ok.
+-Sanjoy
 
-Both of them taking a struct task_struct argument so we can make the decision
-what to show based upon the calling process.
-
-> Another example, the same network device can present in 2 namespaces and these
-> are dynamically(!) created entries in sysctl.
->
-> So we need to address actually 2 issues:
-> - ability to limit parts of sysctl tree visibility to namespace
-> - ability to limit/change sysctl access rights in namespace
->
-> You can check OpenVZ for cloning sysctl tree code. It is not clean, nor elegant,
-> but can be cleanuped.
-
-Sounds like a decent idea.
-
-What I have found so far with access rights is that if you dig deep enough
-you don't need magic to make it safe.  But this may only be because I have
-not hit something that is fundamentally different.
-
-
-Eric
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

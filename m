@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751958AbWCJTZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752038AbWCJTdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751958AbWCJTZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 14:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWCJTZ1
+	id S1752038AbWCJTdU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 14:33:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752010AbWCJTdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 14:25:27 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:57734
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1751958AbWCJTZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 14:25:27 -0500
-Subject: Re: 2.6.16-rc5 pppd oops on disconnects
-From: Paul Fulghum <paulkf@microgate.com>
-To: Bob Copeland <email@bobcopeland.com>
-Cc: paulus@samba.org, Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <b6c5339f0603101048l1c362582xc4d2570bc9d569b@mail.gmail.com>
-References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>
-	 <1142011340.3220.4.camel@amdx2.microgate.com>
-	 <b6c5339f0603101048l1c362582xc4d2570bc9d569b@mail.gmail.com>
+	Fri, 10 Mar 2006 14:33:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8588 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752038AbWCJTdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 14:33:20 -0500
+Subject: Re: [PATCH] EDAC: core EDAC support code
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
+       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
+       bluesmoke-devel@lists.sourceforge.net
+In-Reply-To: <200603101107.27244.dsp@llnl.gov>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org>
+	 <200603100946.12448.dsp@llnl.gov>
+	 <1142013481.2876.89.camel@laptopd505.fenrus.org>
+	 <200603101107.27244.dsp@llnl.gov>
 Content-Type: text/plain
-Date: Fri, 10 Mar 2006 13:25:09 -0600
-Message-Id: <1142018709.26063.5.camel@amdx2.microgate.com>
+Date: Fri, 10 Mar 2006 20:33:15 +0100
+Message-Id: <1142019195.2876.100.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 13:48 -0500, Bob Copeland wrote:
-> > > Call Trace:
-> > >  [<c017592e>] sysfs_hash_and_remove+0x34/0x10a
-> > >  [<c01e756e>] class_device_del+0xa0/0x11c
-> > >  [<c01e75f5>] class_device_unregister+0xb/0x16
-> > >  [<d01f81f3>] acm_tty_unregister+0x1d/0x63 [cdc_acm]
+On Fri, 2006-03-10 at 11:07 -0800, Dave Peterson wrote:
+> On Friday 10 March 2006 09:58, Arjan van de Ven wrote:
+> > > I'd be curious to hear people's opinions on the following idea:
+> > > move the PCI bus parity error checking functionality from EDAC
+> > > to the PCI subsystem.
 > >
-> > This looks more like
-> > http://bugzilla.kernel.org/show_bug.cgi?id=5876
+> > I can see the point on at least moving all the infrastructure there.
+> > The actual call to run it... maybe. that's more debatable I suppose.
 > 
-> Hmm... it looks different from that bug - in that case the root cause
-> was sysfs_make_dirent failing, presumably when the sysfs node for the
-> device was being set up, by unplugging and re-plugging the device a
-> lot.  Here it's oopsing when the node is being removed, after it's
-> been in use a while and unplugged only once.  But yes ppp may not have
-> anything to do with it.  I'll try it on an older kernel to see if I
-> can reproduce there...
+> Regarding the actual call to run it, I guess it depends on which of
+> the following you prefer:
+> 
+>     Scenario A
+>     ----------
+>     A more decentralized layout.  Here, the controls that govern the
+>     error handling behavior for a given category of hardware (a
+>     category might be "PCI devices" or "devices that use bus
+>     technology XYZ") are grouped together with other stuff for that
+>     category.
 
-The i_sem to i_mutex change started in the 2.6.16 series.
-Running against 2.6.15 would be interesting. Being able
-to repeat every time is a plus. I'm not that familiar
-with the sysfs stuff, but the slab poisoning is pretty
-damning. The dentry was released and then accessed.
+this would basically make edac a place to report "help something went to
+the gutter". Sure. I see that useful. 
 
-I looked at cdc_acm for disconnect and close and
-did not see any problems (such as trying to call
-tty_unregister_device twice for a device).
+In fact there are 3 layers then
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd
+1) low level "do check" function
+
+2) per bus code that calls the do check functions and whatever is needed
+for bus checks
+
+3) "EDAC" central command, which basically gathers all failure reports
+and does something with them (push them to userspace or implement the
+userspace chosen policy (panic/reboot/etc))
+
+
+having 1) separate from 2) is useful, it means that drivers can do
+synchronous checks in addition to the checks in 2) which will tend to be
+asynchronous....
+
+
 

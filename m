@@ -1,99 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWCJBCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWCJBDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422669AbWCJBCo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 20:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422672AbWCJBCo
+	id S1422672AbWCJBDU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 20:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422673AbWCJBDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 20:02:44 -0500
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:62746 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S1422669AbWCJBCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 20:02:43 -0500
-Date: Thu, 9 Mar 2006 19:02:30 -0600
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Jon Mason <jdmason@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mulix@mulix.org, Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] x86-64: Make GART_IOMMU kconfig help text more specific (trivial)
-Message-ID: <20060310010230.GV8626@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <20060308214829.GJ28921@us.ibm.com>
-Mime-Version: 1.0
+	Thu, 9 Mar 2006 20:03:20 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:30638 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1422672AbWCJBDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 20:03:18 -0500
+Message-ID: <4410D053.1000303@vilain.net>
+Date: Fri, 10 Mar 2006 14:03:15 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horms <horms@verge.net.au>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] NFS Client: remove supurflous goto from nfs_create_client()
+References: <20060309092341.GA26949@verge.net.au>
+In-Reply-To: <20060309092341.GA26949@verge.net.au>
+X-Enigmail-Version: 0.92.1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308214829.GJ28921@us.ibm.com>
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.12-10-386 
-User-Agent: Mutt/1.5.9i
-X-OriginalArrivalTime: 10 Mar 2006 01:02:31.0132 (UTC) FILETIME=[4ED991C0:01C643DE]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, note that the previous help text stated that IOMMU was needed for
-> >3GB memory instead of >4GB.  This is fixed in the newer version.
+Horms wrote:
 
-note that many system bioses have memory remapping, to accomodate pci
-i/o ranges. some address space is reserved by the bios for these i/o
-ranges, and as system memory approaches this reserved space, the
-memory is remapped to >4GB. this usually happens around 3.25GB -
-3.5GB, but probably varies based on bios and pci devices. once this
-memory is remapped to >4GB, the IOMMU kicks in.
-
-so the original text is probably more accurate.
-
-On Wed, Mar 08, 2006 at 03:48:30PM -0600, jdmason@us.ibm.com wrote:
-> Oops, forgot to CC lkml.
+>--- a/fs/nfs/inode.c
+>+++ b/fs/nfs/inode.c
+>@@ -408,16 +408,13 @@ nfs_create_client(struct nfs_server *ser
+> 	if (IS_ERR(clnt)) {
+> 		dprintk("%s: cannot create RPC client. Error = %ld\n",
+> 				__FUNCTION__, PTR_ERR(xprt));
+>-		goto out_fail;
+>+		return clnt;
+> 	}
 > 
-> ----- Forwarded message from Jon Mason <jdmason@us.ibm.com> -----
+> 	clnt->cl_intr     = 1;
+> 	clnt->cl_softrtry = 1;
 > 
-> User-Agent: Mutt/1.5.11
-> From: Jon Mason <jdmason@us.ibm.com>
-> To: Andi Kleen <ak@muc.de>
-> Date: Wed, 8 Mar 2006 15:45:49 -0600
-> Subject: [PATCH] x86-64: Make GART_IOMMU kconfig help text more specific (trivial)
-> 
-> Have the GART_IOMMU help text specify that this is the hardware IOMMU in
-> amd64 processors.  This will be significant if/when other IOMMUs are
-> added to the x86-64 architecture. :-)
-> 
-> Also, note that the previous help text stated that IOMMU was needed for
-> >3GB memory instead of >4GB.  This is fixed in the newer version.
-> 
-> Thanks,
-> Jon
-> 
-> Signed-off-by: Jon Mason <jdmason@us.ibm.com>
-> 
-> diff -r 149aa2a22913 arch/x86_64/Kconfig
-> --- a/arch/x86_64/Kconfig	Tue Feb 28 22:02:10 2006
-> +++ b/arch/x86_64/Kconfig	Wed Mar  8 15:24:44 2006
-> @@ -364,13 +364,14 @@
->  	select SWIOTLB
->  	depends on PCI
->  	help
-> -	  Support the IOMMU. Needed to run systems with more than 3GB of memory
-> -	  properly with 32-bit PCI devices that do not support DAC (Double Address
-> -	  Cycle). The IOMMU can be turned off at runtime with the iommu=off parameter.
-> -	  Normally the kernel will take the right choice by itself.
-> -	  This option includes a driver for the AMD Opteron/Athlon64 northbridge IOMMU
-> -	  and a software emulation used on other systems.
-> -	  If unsure, say Y.
-> +	  Support for hardware IOMMU in AMD's Opteron/Athlon64 Processors.
-> +	  Needed to run systems with more than 4GB of memory properly with
-> +	  32-bit PCI devices that do not support DAC (Double Address Cycle).
-> +	  The IOMMU can be turned off at runtime with the iommu=off parameter.
-> +  	  Normally the kernel will take the right choice by itself.
-> +  	  This option includes a driver for the AMD Opteron/Athlon64 IOMMU
-> +  	  northbridge and a software emulation used on some other systems.
-> +  	  If unsure, say Y.
+> 	return clnt;
+>-
+>-out_fail:
+>-	return clnt;
+> }
 >  
->  # need this always enabled with GART_IOMMU for the VIA workaround
->  config SWIOTLB
-> 
-> ----- End forwarded message -----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+>
+
+Why not just move the label?
+
+I think it is nicer if all of the exit points of a function are at the
+end, I've observed this to be a common convention and its success has
+actually made me jump off the 'goto=hell' bandwagon.
+
+gcc might even be optimising those duplicate instructions to a single
+one, so the duplication would be good documentation.
+
+Sam.

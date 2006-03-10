@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWCJMb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWCJMa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750850AbWCJMb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 07:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWCJMb4
+	id S1750817AbWCJMa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 07:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWCJMa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 07:31:56 -0500
-Received: from ns2.suse.de ([195.135.220.15]:1767 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750837AbWCJMbz (ORCPT
+	Fri, 10 Mar 2006 07:30:27 -0500
+Received: from smtp.amirix.com ([142.176.159.6]:22460 "EHLO smtp.amirix.com")
+	by vger.kernel.org with ESMTP id S1750817AbWCJMa1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 07:31:55 -0500
-Date: Fri, 10 Mar 2006 13:31:53 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: Neil Brown <neilb@suse.de>
-Cc: Kirill Korotaev <dev@openvz.org>, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       olh@suse.de, bsingharora@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (3rd updated patch)]
-Message-ID: <20060310123153.GN4243@hasse.suse.de>
-References: <20060309165833.GK4243@hasse.suse.de> <441060D2.6090800@openvz.org> <17425.2594.967505.22336@cse.unsw.edu.au> <441138B7.9060809@sw.ru> <20060310105950.GL4243@hasse.suse.de> <17425.26668.678359.918399@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <17425.26668.678359.918399@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.9i
+	Fri, 10 Mar 2006 07:30:27 -0500
+Message-ID: <019601c6443e$55043cc0$89a74bc0@delleb1186>
+From: "Kevin Winchester" <kwin@ns.sympatico.ca>
+To: "Andrew Morton" <akpm@osdl.org>, "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: <ak@muc.de>, <linux-kernel@vger.kernel.org>
+References: <4410BDFB.3070401@ns.sympatico.ca><20060309172854.ae8eeec9.rdunlap@xenotime.net> <20060309173738.6a97d0eb.akpm@osdl.org>
+Subject: Re: [PATCH -mm3] x86-64: Eliminate register_die_notifier symbol exported twice
+Date: Fri, 10 Mar 2006 08:29:53 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 10, Neil Brown wrote:
 
-> -static void prune_dcache(int count)
-> +static void prune_dcache(int count, struct super_block *sb)
->  {
->  	spin_lock(&dcache_lock);
->  	for (; count ; count--) {
-> @@ -417,8 +425,10 @@ static void prune_dcache(int count)
->   			spin_unlock(&dentry->d_lock);
->  			continue;
->  		}
-> -		/* If the dentry was recently referenced, don't free it. */
-> -		if (dentry->d_flags & DCACHE_REFERENCED) {
-> +		/* If the dentry was recently referenced, or is for
-> +		 * a unmounting filesystem, don't free it. */
-> +		if ((dentry->d_flags & DCACHE_REFERENCED) ||
-> +		    (dentry->d_sb != sb && dentry->d_sb->s_root == NULL)) {
->  			dentry->d_flags &= ~DCACHE_REFERENCED;
->   			list_add(&dentry->d_lru, &dentry_unused);
->   			dentry_stat.nr_unused++;
+"Andrew Morton" <akpm@osdl.org> wrote:
+> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> >
+> > On Thu, 09 Mar 2006 19:44:59 -0400 Kevin Winchester wrote:
+> >
+> > >
+> > > register_die_notifier is exported twice, once in traps.c and once in
+> > > x8664_ksyms.c.  This results in a warning on build.
+> > >
+> > > Signed-Off-By: Kevin Winchester <kwin@ns.sympatico.ca>
+> > >
+> > > --- v2.6.16-rc5-mm3.orig/arch/x86_64/kernel/x8664_ksyms.c
+> > > 2006-03-09 19:34:11.000000000 -0400
+> > > +++ v2.6.16-rc5-mm3/arch/x86_64/kernel/x8664_ksyms.c    2006-03-09
+> > > 19:40:46.000000000 -0400
+> > > @@ -142,7 +142,6 @@ EXPORT_SYMBOL(rwsem_down_write_failed_th
+> > >  EXPORT_SYMBOL(empty_zero_page);
+> > >
+> > >  EXPORT_SYMBOL(die_chain);
+> > > -EXPORT_SYMBOL(register_die_notifier);
+> > >
+> > >  #ifdef CONFIG_SMP
+> > >  EXPORT_SYMBOL(cpu_sibling_map);
+> >
+> > Thanks for that.  However, I see 2 such warnings:
+> >
+> > WARNING: vmlinux: 'register_die_notifier' exported twice. Previous
+export was in vmlinux
+> > WARNING: vmlinux: 'strlen' exported twice. Previous export was in
+vmlinux
+> >
+>
+> They're all over the place.  Some of them are due to -mm-only patches.
+>
+> It's not very urgent.  Let's get Sam's stuff settled down into mainline
+and
+> get all such warnings in mainline fixed up first.  That way, people will
+> then know when their new patches are being bad and I'll know when -mm
+> patches need fixups.
 
-You have to down_read the rw-semaphore sb->s_umount since sb->s_root is
-protected by it :(
+Fixing warnings like this is about the extent of my kernel abilities, so I
+figured I'd do it even if it isn't high priority.  I do get the strlen
+warning as well, that was going to be tonight's task.
 
-Regards,
-	Jan
+If it helps, I don't see any warnings on the -rc5 kernel.  These two are the
+only ones I see.
 
--- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+Kevin
+
+

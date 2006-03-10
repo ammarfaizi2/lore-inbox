@@ -1,122 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWCJO5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWCJO7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWCJO5v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 09:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751468AbWCJO5v
+	id S1751494AbWCJO7U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 09:59:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWCJO7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 09:57:51 -0500
-Received: from gate.crashing.org ([63.228.1.57]:3502 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751323AbWCJO5u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 09:57:50 -0500
-Date: Fri, 10 Mar 2006 08:47:14 -0600 (CST)
-From: Kumar Gala <galak@kernel.crashing.org>
-X-X-Sender: galak@gate.crashing.org
-To: Greg KH <greg@kroah.com>
-cc: linux-pci@atrey.karlin.mff.cuni.cz, <linux-kernel@vger.kernel.org>
-Subject: [PATCH]
-Message-ID: <Pine.LNX.4.44.0603100844540.28974-100000@gate.crashing.org>
+	Fri, 10 Mar 2006 09:59:20 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:11551 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1751494AbWCJO7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 09:59:19 -0500
+X-IronPort-AV: i="4.02,181,1139212800"; 
+   d="scan'208"; a="1783886033:sNHT30936300"
+To: Greg KH <gregkh@suse.de>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, rolandd@cisco.com, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 8 of 20] ipath - sysfs support for core driver
+X-Message-Flag: Warning: May contain useful information
+References: <patchbomb.1141950930@eng-12.pathscale.com>
+	<1123028ac13ac1de2457.1141950938@eng-12.pathscale.com>
+	<20060310011106.GD9945@suse.de>
+	<1141967377.14517.32.camel@camp4.serpentine.com>
+	<20060310063724.GB30968@suse.de>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 10 Mar 2006 06:59:15 -0800
+Message-ID: <adairqmbb24.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 10 Mar 2006 14:59:16.0497 (UTC) FILETIME=[33945010:01C64453]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PCI: Add pci_assign_resource_fixed -- allow fixed address assignments
+    Greg> The main issue is that if you create a sysfs file like this,
+    Greg> and then in 3 months realize that you need to change one of
+    Greg> those characters to be something else, you are in big
+    Greg> trouble...
 
-On some embedded systems the PCI address for hotplug devices are not only
-known a priori but are required to be at a given PCI address for other
-master in the system to be able to access.
+I think that PortInfo and NodeInfo might be fair game for sysfs files,
+because they are actually defined in the IB spec with a binary format
+that is sent on the wire.  So they're not going to change.
 
-An example of such a system would be an FPGA which is setup from user space
-after the system has booted.  The FPGA may be access by DSPs in the system
-and those DSPs expect the FPGA at a fixed PCI address.
+On the other hand it's not clear to me why using that wire protocol as
+an interface to userspace is a good idea...
 
-Added pci_assign_resource_fixed() as a way to allow assignment of the PCI
-devices's BARs at fixed PCI addresses.
-
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
-
----
-commit 45d4a23317c459865ec740c80b6e2a2ad9f53fd3
-tree 432b5e41ef5f231dd57eb1a98f103239c62d63a0
-parent 8176dee014ec6ad1039b8c0075c9c1d02147c2c8
-author Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006 12:34:25 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006 12:34:25 -0600
-
- drivers/pci/pci.c       |    1 +
- drivers/pci/setup-res.c |   35 +++++++++++++++++++++++++++++++++++
- include/linux/pci.h     |    1 +
- 3 files changed, 37 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d2d1879..2557e86 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -935,6 +935,7 @@ EXPORT_SYMBOL_GPL(pci_intx);
- EXPORT_SYMBOL(pci_set_dma_mask);
- EXPORT_SYMBOL(pci_set_consistent_dma_mask);
- EXPORT_SYMBOL(pci_assign_resource);
-+EXPORT_SYMBOL(pci_assign_resource_fixed);
- EXPORT_SYMBOL(pci_find_parent_resource);
- 
- EXPORT_SYMBOL(pci_set_power_state);
-diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
-index ea9277b..f485958 100644
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -155,6 +155,41 @@ int pci_assign_resource(struct pci_dev *
- 	return ret;
- }
- 
-+int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
-+{
-+	struct pci_bus *bus = dev->bus;
-+	struct resource *res = dev->resource + resno;
-+	unsigned int type_mask;
-+	int i, ret = -EBUSY;
-+
-+	type_mask = IORESOURCE_IO | IORESOURCE_MEM | IORESOURCE_PREFETCH;
-+
-+	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
-+		struct resource *r = bus->resource[i];
-+		if (!r)
-+			continue;
-+
-+		/* type_mask must match */
-+		if ((res->flags ^ r->flags) & type_mask)
-+			continue;
-+
-+		ret = request_resource(r, res);
-+
-+		if (ret == 0)
-+			break;
-+	}
-+
-+	if (ret) {
-+		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@%lx for %s\n",
-+		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
-+		       resno, res->end - res->start + 1, res->start, pci_name(dev));
-+	} else if (resno < PCI_BRIDGE_RESOURCES) {
-+		pci_update_resource(dev, res, resno);
-+	}
-+
-+	return ret;
-+}
-+
- /* Sort resources by alignment */
- void __devinit
- pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index fe1a2b0..0db1e2d 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -460,6 +460,7 @@ int pci_set_dma_mask(struct pci_dev *dev
- int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
- void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
- int pci_assign_resource(struct pci_dev *dev, int i);
-+int pci_assign_resource_fixed(struct pci_dev *dev, int i);
- void pci_restore_bars(struct pci_dev *dev);
- 
- /* ROM control related routines */
-
-
+ - R.

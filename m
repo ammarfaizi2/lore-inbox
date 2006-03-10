@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWCJOhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWCJOjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWCJOhP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 09:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWCJOhO
+	id S1751360AbWCJOjx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 09:39:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWCJOjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 09:37:14 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:29636 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751356AbWCJOhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 09:37:13 -0500
-Date: Fri, 10 Mar 2006 15:37:03 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: Markus Gutschke <markus@google.com>, linux-kernel@vger.kernel.org,
-       dkegel@google.com
-Subject: Re: [PATCH 1/1] x86: Make _syscallX() macros compile in PIC mode on
- i386
-In-Reply-To: <20060309184759.591e3551.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0603101536320.23690@yvahk01.tjqt.qr>
-References: <4410BB32.1020905@google.com> <20060309184759.591e3551.akpm@osdl.org>
+	Fri, 10 Mar 2006 09:39:53 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:272 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751360AbWCJOjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 09:39:52 -0500
+Date: Fri, 10 Mar 2006 15:39:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: reiserfs-dev@namesys.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] reiserfs/xattr_acl.c:reiserfs_get_acl(): make size an int
+Message-ID: <20060310143950.GN21864@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Gcc reserves %ebx when compiling position-independent-code on i386. This 
->>  means, the _syscallX() macros in include/asm-i386/unistd.h will not 
->>  compile. This patch is against 2.6.15.6 and adds a new set of macros 
->>  which will be used in PIC mode. These macros take special care to 
->>  preserve %ebx.
->
->But we don't compile the kernel with -fpic...  We might want to, for kdump
->convenience at some stage, perhaps.
->
-UML. Maybe it does not build with -fpic/-fPIC either, but it's one case 
-where it's more likely than with a "true" kernel.
+The Coverity checker wasn't happy seeing a size_t compared with -ENODATA 
+and -ENOSYS.
+
+Since the only place where size is set is through the result of 
+reiserfs_xattr_get() which is an int, we could simply make size an int.
 
 
-Jan Engelhardt
--- 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-rc5-mm3-full/fs/reiserfs/xattr_acl.c.old	2006-03-10 15:30:47.000000000 +0100
++++ linux-2.6.16-rc5-mm3-full/fs/reiserfs/xattr_acl.c	2006-03-10 15:31:49.000000000 +0100
+@@ -182,7 +182,7 @@ struct posix_acl *reiserfs_get_acl(struc
+ {
+ 	char *name, *value;
+ 	struct posix_acl *acl, **p_acl;
+-	size_t size;
++	int size;
+ 	int retval;
+ 	struct reiserfs_inode_info *reiserfs_i = REISERFS_I(inode);
+ 
+@@ -206,7 +206,7 @@ struct posix_acl *reiserfs_get_acl(struc
+ 		return posix_acl_dup(*p_acl);
+ 
+ 	size = reiserfs_xattr_get(inode, name, NULL, 0);
+-	if ((int)size < 0) {
++	if (size < 0) {
+ 		if (size == -ENODATA || size == -ENOSYS) {
+ 			*p_acl = ERR_PTR(-ENODATA);
+ 			return NULL;
+

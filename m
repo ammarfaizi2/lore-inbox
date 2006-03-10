@@ -1,91 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752181AbWCJIzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWCJIzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752181AbWCJIzr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 03:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752180AbWCJIzr
+	id S1750980AbWCJIzg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 03:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752178AbWCJIzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 03:55:47 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26050 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752181AbWCJIzq (ORCPT
+	Fri, 10 Mar 2006 03:55:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14522 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750944AbWCJIzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 03:55:46 -0500
-Date: Fri, 10 Mar 2006 09:55:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] Collie battery status sensing code
-Message-ID: <20060310085530.GA4903@elf.ucw.cz>
-References: <20060309123842.GA3619@elf.ucw.cz> <1141910391.10107.49.camel@localhost.localdomain>
+	Fri, 10 Mar 2006 03:55:35 -0500
+Date: Fri, 10 Mar 2006 00:53:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: pbadari@us.ibm.com, sct@redhat.com, jack@suse.cz,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
+Message-Id: <20060310005306.428b13ee.akpm@osdl.org>
+In-Reply-To: <1141980238.2876.27.camel@laptopd505.fenrus.org>
+References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com>
+	<20060309152254.743f4b52.akpm@osdl.org>
+	<1141977557.2876.20.camel@laptopd505.fenrus.org>
+	<20060310002337.489265a3.akpm@osdl.org>
+	<1141980238.2876.27.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141910391.10107.49.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > This is collie battery sensing code. It differs from sharpsl code a
-> > bit -- because it is dependend on ucb1x00, not on platform bus.
-> > 
-> > I guess I should reorganize #include's and remove #if 0-ed
-> > code. Anything else
+Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> On Fri, 2006-03-10 at 00:23 -0800, Andrew Morton wrote:
+>  > Arjan van de Ven <arjan@infradead.org> wrote:
+>  > >
+>  > > 
+>  > > > I'm not sure that PageMappedToDisk() gets set in all the right places
+>  > > > though - it's mainly for the `nobh' handling and block_prepare_write()
+>  > > > would need to be taught to set it.  I guess that'd be a net win, even if
+>  > > > only ext3 uses it..
+>  > > 
+>  > > btw is nobh mature enough yet to become the default, or to just go away
+>  > > entirely as option ?
+>  > 
+>  > I don't know how much usage it's had, sorry.  It's only allowed in
+>  > data=writeback mode and not many people seem to use even that.
 > 
-> Basically looks good. Could probably use a
-> s/printk/dev_dbg(sharpsl_pm.dev, /. I've made a few other comments
-> below. 
+>  would you be prepared to turn it on by default in -mm for a bit to see
+>  how it holds up?
 
-Ok, comments below.
+spose so.  One would have to test it a bit first, make sure that it still
+works.  Performance testing with PAGE_SIZE much-greater-than blocksize
+would be needed.
 
-> > +#include <asm/arch/collie.h>
-> > +#include "../mach-pxa/sharpsl.h"
-> 
-> Do you need anything in the above header? If so, it should probably be
-> in asm/hardware/sharpsl_pm.h
+Unfortunately there's no `-o bh' (nonobh?) to turn it back on again if it
+causes problems..
 
-Thanks, fixed.
-
-> > +#ifdef I_AM_SURE
-> > +#define CF_BUF_CTRL_BASE 0xF0800000
-> > +#define        SCOOP_REG(adr) (*(volatile unsigned short*)(CF_BUF_CTRL_BASE+(adr)))
-> > +#define        SCOOP_REG_GPWR    SCOOP_REG(SCOOP_GPWR)
-> > +
-> > +	if (on) {
-> > +		SCOOP_REG_GPWR |= COLLIE_SCP_CHARGE_ON;
-> > +	} else {
-> > +		SCOOP_REG_GPWR &= ~COLLIE_SCP_CHARGE_ON;
-> 
-> Ick. Use arch/arm/common/scoop.c to do this. Something like:
-
-Thanks, fixed.
-
-> > +extern struct sharpsl_pm_status sharpsl_pm;
-> > +
-> > +static int __init collie_pm_add(struct ucb1x00_dev *pdev)
-> > +{
-> > +	sharpsl_pm.dev = NULL;
-> > +	sharpsl_pm.machinfo = &collie_pm_machinfo;
-> > +	ucb = pdev->ucb;
-> > +	return sharpsl_pm_init();
-> > +}
-> 
-> I don't understand how this is supposed to work at all. For a start,
-> sharpsl_pm.c says "static int __devinit sharpsl_pm_init(void)" so that
-> function isn't available. I've just noticed your further patches
-> although I still don't like this.
-> 
-> The correct approach is to register a platform device called
-> "sharpsl-pm" in collie_pm_add() which the driver will then see and
-> attach to. I'd also not register the platform device if ucb is NULL for
-> whatever reason.
-> 
-> By setting sharpsl_pm.dev = NULL you're also going to miss out on
-> suspend/resume calls and risk breaking things like
-> dev_dbg(sharpsl_pm.dev, xxx). 
-
-Ok, I'll try to switch it to two-device config.
-								Pavel
--- 
-28:class DeDRMS

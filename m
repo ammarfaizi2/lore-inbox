@@ -1,103 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWCJUzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWCJVCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWCJUzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 15:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWCJUzf
+	id S932239AbWCJVCb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 16:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWCJVCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 15:55:35 -0500
-Received: from ns2.suse.de ([195.135.220.15]:9399 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932094AbWCJUzf (ORCPT
+	Fri, 10 Mar 2006 16:02:31 -0500
+Received: from xenotime.net ([66.160.160.81]:19090 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932239AbWCJVCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 15:55:35 -0500
-Date: Fri, 10 Mar 2006 21:55:33 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-git14 crash in spin_bug on ppc64
-Message-ID: <20060310205532.GA15596@suse.de>
-References: <20060310173842.GA14924@suse.de>
+	Fri, 10 Mar 2006 16:02:31 -0500
+Date: Fri, 10 Mar 2006 13:04:16 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed
+ address assignments
+Message-Id: <20060310130416.04ecb543.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.44.0603100906020.29294-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0603100906020.29294-100000@gate.crashing.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060310173842.GA14924@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Mar 10, Olaf Hering wrote:
+On Fri, 10 Mar 2006 09:06:32 -0600 (CST) Kumar Gala wrote:
 
+> On some embedded systems the PCI address for hotplug devices are not only
+> known a priori but are required to be at a given PCI address for other
+> master in the system to be able to access.
 > 
-> I got this crash while hunting some other bug. dualcore 970mp. 
+> An example of such a system would be an FPGA which is setup from user space
+> after the system has booted.  The FPGA may be access by DSPs in the system
+> and those DSPs expect the FPGA at a fixed PCI address.
 > 
-> Welcome to SUSE Linux Enterprise Server 9.90 Beta7 (ppc) - Kernel 2.6.16-rc5-git
-> 14-ppc64-defconfig (console).
+> Added pci_assign_resource_fixed() as a way to allow assignment of the PCI
+> devices's BARs at fixed PCI addresses.
 > 
+> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 > 
-> wels login: BUG: spinlock bad magic on CPU#1, gdm/4568
-> cpu 0x1: Vector: 300 (Data Access) at [c0000000f3c2f5c0]
->     pc: c00000000020a7ec: .spin_bug+0x94/0x100
+> ---
+> commit 45d4a23317c459865ec740c80b6e2a2ad9f53fd3
+> tree 432b5e41ef5f231dd57eb1a98f103239c62d63a0
+> parent 8176dee014ec6ad1039b8c0075c9c1d02147c2c8
+> author Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006 12:34:25 -0600
+> committer Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006 12:34:25 -0600
+> 
+>  drivers/pci/pci.c       |    1 +
+>  drivers/pci/setup-res.c |   35 +++++++++++++++++++++++++++++++++++
+>  include/linux/pci.h     |    1 +
+>  3 files changed, 37 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+> index d2d1879..2557e86 100644
+> --- a/drivers/pci/pci.c
+> +++ b/drivers/pci/pci.c
+> @@ -935,6 +935,7 @@ EXPORT_SYMBOL_GPL(pci_intx);
+>  EXPORT_SYMBOL(pci_set_dma_mask);
+>  EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+>  EXPORT_SYMBOL(pci_assign_resource);
+> +EXPORT_SYMBOL(pci_assign_resource_fixed);
+>  EXPORT_SYMBOL(pci_find_parent_resource);
+>  
+>  EXPORT_SYMBOL(pci_set_power_state);
+> diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+> index ea9277b..f485958 100644
+> --- a/drivers/pci/setup-res.c
+> +++ b/drivers/pci/setup-res.c
+> @@ -155,6 +155,41 @@ int pci_assign_resource(struct pci_dev *
+>  	return ret;
+>  }
+>  
+> +int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
+> +{
+> +	struct pci_bus *bus = dev->bus;
+> +	struct resource *res = dev->resource + resno;
+> +	unsigned int type_mask;
+> +	int i, ret = -EBUSY;
+> +
+> +	type_mask = IORESOURCE_IO | IORESOURCE_MEM | IORESOURCE_PREFETCH;
 
-c0000000f40001f0 is *lock at 0xc0000000f217b738:
-1:mon> d c0000000f40001f0
-c0000000f40001f0 ffff000000000000 ffff000000000000  |................|
-c0000000f4000200 ffff000000000000 ffff000000000000  |................|
-c0000000f4000210 ffff000000000000 ffff000000000000  |................|
-c0000000f4000220 ffff000000000000 ffff000000000000  |................|
+If type_mask must match (as in comment below), should it be a
+parameter instead of hard-coded here?  Does this match your FPGA
+resource?  It may not match my <hypothetical> resource.
+
+> +	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
+> +		struct resource *r = bus->resource[i];
+> +		if (!r)
+> +			continue;
+> +
+> +		/* type_mask must match */
+> +		if ((res->flags ^ r->flags) & type_mask)
+> +			continue;
+> +
+> +		ret = request_resource(r, res);
+> +
+> +		if (ret == 0)
+> +			break;
+> +	}
+> +
+> +	if (ret) {
+> +		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@%lx for %s\n",
+> +		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
+> +		       resno, res->end - res->start + 1, res->start, pci_name(dev));
+> +	} else if (resno < PCI_BRIDGE_RESOURCES) {
+> +		pci_update_resource(dev, res, resno);
+> +	}
+
+braces not needed.
+
+> +
+> +	return ret;
+> +}
+> +
 
 
-
-anon_vma_link() *vma is 
-1:mon> d c0000000f217b6b8 100
-c0000000f217b6b8 c0000000f4c51800 000000000f6e5000  |.............nP.|
-c0000000f217b6c8 000000000f6e9000 0000000000000000  |.....n..........|
-c0000000f217b6d8 0000000000000113 0000000000100073  |...............s|
-c0000000f217b6e8 c0000000f4edde78 0000000100000000  |.......x........|
-c0000000f217b6f8 c000000007960d18 c00000000ff799a8  |................|
-c0000000f217b708 c0000000f217cde8 c0000000f217cde8  |................|
-c0000000f217b718 0000000000000000 c0000000f4f644a8  |..............D.|
-c0000000f217b728 c0000000f4f64518 c0000000f4000208  |......E.........|
-c0000000f217b738 c0000000f40001f0 c000000000607600  |.............`v.|
-c0000000f217b748 000000000000007b c0000000f953fc80  |.......{.....S..|
-c0000000f217b758 0000000000000000 0000000000000000  |................|
-c0000000f217b768 c0000000f2186180 00000000f7fe1000  |......a.........|
-c0000000f217b778 00000000f7fff000 c0000000f9127088  |..............p.|
-c0000000f217b788 0000000000000117 0000000000000875  |...............u|
-c0000000f217b798 c00000000ff79d18 0000000000000000  |................|
-c0000000f217b7a8 0000000000000000 0000000000000000  |................|
-1:mon> 
-
-The whole area looks broken:
-
-
-1:mon> d c0000000f4000000 400
-c0000000f4000000 ffff000000000000 ffff000000000000  |................|
-c0000000f4000010 ffff000000000000 ffff000000000000  |................|
-...
-c0000000f4000260 ffff000000000000 ffff000000000000  |................|
-c0000000f4000270 ffff000000000000 ffff000000000000  |................|
-c0000000f4000280 c0000000f4000280 c0000000f4000280  |................|
-c0000000f4000290 00000000dead4ead ffffffff00000000  |......N.........|
-c0000000f40002a0 ffffffffffffffff c0000000f40002a8  |................|
-c0000000f40002b0 c0000000f40002a8 00000000dead4ead  |..............N.|
-c0000000f40002c0 ffffffff00000000 ffffffffffffffff  |................|
-c0000000f40002d0 c0000000f4f58a98 c0000000f4f58a98  |................|
-c0000000f40002e0 00000000dead4ead ffffffff00000000  |......N.........|
-c0000000f40002f0 ffffffffffffffff c0000000f21eaf68  |...............h|
-c0000000f4000300 c0000000f21eaf68 00000000dead4ead  |.......h......N.|
-c0000000f4000310 ffffffff00000000 ffffffffffffffff  |................|
-c0000000f4000320 c0000000f4000320 c0000000f4000320  |....... ....... |
-c0000000f4000330 00000000dead4ead ffffffff00000000  |......N.........|
-c0000000f4000340 ffffffffffffffff c0000000f4000348  |...............H|
-c0000000f4000350 c0000000f4000348 00000000dead4ead  |.......H......N.|
-c0000000f4000360 ffffffff00000000 ffffffffffffffff  |................|
-c0000000f4000370 c0000000f4000370 c0000000f4000370  |.......p.......p|
-c0000000f4000380 00000000dead4ead ffffffff00000000  |......N.........|
-c0000000f4000390 ffffffffffffffff c0000000f4442ca8  |.............D,.|
-c0000000f40003a0 c0000000f4efeb48 00000000dead4ead  |.......H......N.|
-c0000000f40003b0 ffffffff00000000 ffffffffffffffff  |................|
-c0000000f40003c0 c0000000f40003c0 c0000000f40003c0  |................|
-c0000000f40003d0 00000000dead4ead ffffffff00000000  |......N.........|
-c0000000f40003e0 ffffffffffffffff c00000000f335e08  |.............3^.|
-c0000000f40003f0 c00000000f3979e8 00000000dead4ead  |.....9y.......N.|
-
+---
+~Randy
+Please use an email client that implements proper (compliant) threading.
+(You know who you are.)

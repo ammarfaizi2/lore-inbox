@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752119AbWCJCdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752121AbWCJCdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752119AbWCJCdL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 21:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752121AbWCJCdL
+	id S1752121AbWCJCdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 21:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752159AbWCJCdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 21:33:11 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:31896 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1752119AbWCJCdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 21:33:09 -0500
-Date: Thu, 09 Mar 2006 20:32:43 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: How can I link the kernel with libgcc ?
-In-reply-to: <5OEVB-3GX-15@gated-at.bofh.it>
-To: Carlos Munoz <carlos@kenati.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4410E54B.6020400@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5OEVB-3GX-15@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 9 Mar 2006 21:33:16 -0500
+Received: from mail.fieldses.org ([66.93.2.214]:12459 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP
+	id S1752121AbWCJCdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 21:33:15 -0500
+Date: Thu, 9 Mar 2006 21:33:05 -0500
+To: Daniel Phillips <phillips@google.com>
+Cc: Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, ocfs2-devel@oss.oracle.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
+Message-ID: <20060310023305.GB28722@fieldses.org>
+References: <4408C2E8.4010600@google.com> <20060303233617.51718c8e.akpm@osdl.org> <440B9035.1070404@google.com> <20060306025800.GA27280@ca-server1.us.oracle.com> <440BC1C6.1000606@google.com> <20060306195135.GB27280@ca-server1.us.oracle.com> <p733bhvgc7f.fsf@verdi.suse.de> <20060307045835.GF27280@ca-server1.us.oracle.com> <440FCA81.7090608@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <440FCA81.7090608@google.com>
+User-Agent: Mutt/1.5.11+cvs20060126
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Munoz wrote:
-> Hi all,
+On Wed, Mar 08, 2006 at 10:26:09PM -0800, Daniel Phillips wrote:
+> After untarring four kernel trees, number of locks hits a peak of 128K.
+> With 64K buckets the hash, a typical region of the table looks like:
 > 
-> I'm writing an audio driver and the hardware requires floating point 
-> arithmetic.  When I build the kernel I get the following errors at link 
-> time:
+>   3 0 3 6 1 2 2 1 2 6 1 0 1 2 1 0 0 3 1 2 2 3 1 2 5 3 2 2 1 0 3 1
+>   1 1 3 5 2 2 1 0 2 3 3 1 3 0 5 2 2 3 0 2 1 3 1 2 4 2 0 2 5 1 4 3
+>   5 3 3 3 3 1 4 1 2 1 2 6 2 1 3 0 2 2 2 8 1 2 2 2 3 1 0 1 3 2 1 1
+>   1 2 2 2 2 3 2 0 2 2 2 5 2 3 2 1 1 2 6 6 1 2 2 4 2 0 3 0 3 3 3 0
+>   2 2 1 1 2 3 2 0 2 3 3 1 3 3 3 1 4 2 8 3 2 2 2 4 3 0 1 2 3 4 2 0
+>   3 1 0 1 2 2 3 1 4 2 1 1 3 3 4 3 3 3 4 2 1 4 2 1 5 2 1 3 1 2 3 2
+>   1 0 1 5 3 2 1 2 3 0 1 1 2 3 4 4 4 1 3 1 4 3 2 2 4 4 1 3 1 0 0 1
+>   3 1 1 3 0 3 0 1 1 1 1 1 3 4 4 2 4 3 4 2 3 3 0 3 4 2 1 5 4 1 3 1
+>   1 0 1 0 1 4 1 2 1 4 2 0 2 2 5 2 1 1 1 2 3 6 4 5 5 1 1 2 3 1 5 1
+>   3 0 1 0 3 3 2 0 2 1 2 1 0 4 3 2 1 0 1 0 2 7 1 3 2 1 1 2 4 1 3 1
+>   2 2 3 1 3 3 1 2 0 2 1 3 1 2 0 4 4 1 2 1 2 3 3 6 0 5 2 1 1 0 3 0
+>   1 0 2 0 4 3 2 1 0 0 2 0 1 4 2 4 5 1 0 1 3 2 2 1 1 3 2 3 0 2 1 1
+>   3 0 0 0 2 5 3 1 0 2 0 1 0 0 2 0 4 2 1 2 4 3 0 1 2 4 1 3 0 0 1 4
+> 
+> A poor distribution as you already noticed[1].
 
-Floating point + kernel = no no. If the hardware requires floating point 
-manipulations this should go in userspace.
+How did you decide that? The distribution of bucket sizes is:
 
-> These symbols are coming from gcc. What I would like to do is link the 
-> kernel with libgcc to solve this errors. I'm looking at the kernel 
-> makefiles and it doesn't seem obvious to me how to do it. Does anyone 
-> know how I can link the kernel with libgcc, or point me in the right 
-> direction ?
+0: 58
+1: 108
+2: 105
+3: 82
+4: 37
+5: 16
+6: 7
+7: 1
+8: 2
 
-This is almost certainly a bad idea. The functions inside libgcc are not 
-designed to run inside a kernel.
+which, without running any statistics, looks pretty close to a binomial
+distribution:
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+0 52.884
+1 109.21
+2 112.63
+3 77.349
+4 39.793
+5 16.358
+6 5.5972
+7 1.6397
+8 0.41980
 
+so it's probably about what you'd get if the hash function were choosing
+buckets uniformly at random, which is the best I'd think you could do
+without special knowledge of the inputs.
+
+--b.

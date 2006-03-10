@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWCJE5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751392AbWCJE6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWCJE5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 23:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWCJE5P
+	id S1751392AbWCJE6P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 23:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWCJE6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 23:57:15 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:49550 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751384AbWCJE5P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 23:57:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=f85DNnkCadIVpI7wP0eKzfYcJnFzykr8zAp+wrsL/LWkVFv9+jPm8QDJh+lYva/I+sLDFIFHWQYNW+uWmTSuejb/nfqQfv8yTapRzgb4TbFp1NbGnPO2wrV7fiyEOmmU/XdUQ7E5y9owwlI1X7gehYCRp+UW/DUBFkfj/Eib+wo=  ;
-Message-ID: <44110727.802@yahoo.com.au>
-Date: Fri, 10 Mar 2006 15:57:11 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Magnus Damm <magnus@valinux.co.jp>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH 03/03] Unmapped: Add guarantee code
-References: <20060310034412.8340.90939.sendpatchset@cherry.local> <20060310034429.8340.61997.sendpatchset@cherry.local>
-In-Reply-To: <20060310034429.8340.61997.sendpatchset@cherry.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Mar 2006 23:58:15 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:53666 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751392AbWCJE6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 23:58:14 -0500
+Subject: Re: Revenge of the sysfs maintainer! (was Re: [PATCH 8 of 20]
+	ipath - sysfs support for core driver)
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20060310010050.GA9945@suse.de>
+References: <ef8042c934401522ed3f.1141922821@localhost.localdomain>
+	 <adapskvfbqe.fsf@cisco.com>
+	 <1141947143.10693.40.camel@serpentine.pathscale.com>
+	 <20060310003513.GA17050@suse.de>
+	 <1141951589.10693.84.camel@serpentine.pathscale.com>
+	 <20060310010050.GA9945@suse.de>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 20:58:13 -0800
+Message-Id: <1141966693.14517.20.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Damm wrote:
-> Implement per-LRU guarantee through sysctl.
-> 
-> This patch introduces the two new sysctl files "node_mapped_guar" and
-> "node_unmapped_guar". Each file contains one percentage per node and tells
-> the system how many percentage of all pages that should be kept in RAM as 
-> unmapped or mapped pages.
-> 
+On Thu, 2006-03-09 at 17:00 -0800, Greg KH wrote:
 
-The whole Linux VM philosophy until now has been to get away from stuff
-like this.
+> They are in the latest -mm tree if you wish to use them.  Unfortunatly
+> it might look like they will not work out, due to the per-cpu relay
+> files not working properly with Paul's patches at the moment.
 
-If your app is really that specialised then maybe it can use mlock. If
-not, maybe the VM is currently broken.
+Hmm, OK.
 
-You do have a real-world workload that is significantly improved by this,
-right?
+> What's wrong with debugfs?
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+It's not configured into the kernels of either of the distros I use (Red
+Hat or SUSE).  I can't have a required part of my driver depend on a
+feature that's not enabled in the major distro kernels.
+
+I'd like a mechanism that is (a) always there (b) easy for kernel to use
+and (c) easy for userspace to use.  A sysfs file satisfies a, b, and c,
+but I can't use it; a sysfs bin file satisfies all three (a bit worse on
+b), but I can't use it; debugfs isn't there, so I can't use it.
+
+That leaves me with few options, I think.  What do you suggest?  (Please
+don't say netlink.)
+
+	<b
+

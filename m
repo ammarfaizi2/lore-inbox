@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWCJAgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752152AbWCJAg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWCJAgG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:36:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWCJAgF
+	id S1752152AbWCJAg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752147AbWCJAg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:36:05 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:16526 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1752160AbWCJAfv (ORCPT
+	Thu, 9 Mar 2006 19:36:57 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:14990 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1752149AbWCJAfr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:35:51 -0500
+	Thu, 9 Mar 2006 19:35:47 -0500
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 15 of 20] ipath - misc infiniband code, part 1
-X-Mercurial-Node: 44cd07539d66a6382882e4ee4d3572272dacf0b3
-Message-Id: <44cd07539d66a6382882.1141950945@eng-12.pathscale.com>
+Subject: [PATCH 11 of 20] ipath - layering interfaces used by higher-level
+	driver code
+X-Mercurial-Node: f0b2f6d5848072ef783dc7da82e6080997f71dc9
+Message-Id: <f0b2f6d5848072ef783d.1141950941@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1141950930@eng-12.pathscale.com>
-Date: Thu,  9 Mar 2006 16:35:45 -0800
+Date: Thu,  9 Mar 2006 16:35:41 -0800
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Completion queues, local and remote memory keys, and memory region
-support.
+These are used to implement the Infiniband protocols and the ethernet
+emulation driver.
 
 Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-diff -r 70e3edb0d82d -r 44cd07539d66 drivers/infiniband/hw/ipath/ipath_cq.c
+diff -r d1da4154aae1 -r f0b2f6d58480 drivers/infiniband/hw/ipath/ipath_layer.c
 --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_cq.c	Thu Mar  9 16:16:44 2006 -0800
-@@ -0,0 +1,277 @@
++++ b/drivers/infiniband/hw/ipath/ipath_layer.c	Thu Mar  9 16:16:17 2006 -0800
+@@ -0,0 +1,1266 @@
 +/*
-+ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
 + *
 + * This software is available to you under a choice of one of two
 + * licenses.  You may choose to be licensed under the terms of the GNU
@@ -64,830 +65,1246 @@ diff -r 70e3edb0d82d -r 44cd07539d66 drivers/infiniband/hw/ipath/ipath_cq.c
 + * SOFTWARE.
 + */
 +
-+#include <linux/err.h>
-+#include <linux/vmalloc.h>
-+
-+#include "ipath_verbs.h"
-+
-+/**
-+ * ipath_cq_enter - add a new entry to the completion queue
-+ * @cq: completion queue
-+ * @entry: work completion entry to add
-+ * @sig: true if @entry is a solicitated entry
-+ *
-+ * This may be called with one of the qp->s_lock or qp->r_rq.lock held.
-+ */
-+void ipath_cq_enter(struct ipath_cq *cq, struct ib_wc *entry, int solicited)
-+{
-+	unsigned long flags;
-+	u32 next;
-+
-+	spin_lock_irqsave(&cq->lock, flags);
-+
-+	if (cq->head == cq->ibcq.cqe)
-+		next = 0;
-+	else
-+		next = cq->head + 1;
-+	if (unlikely(next == cq->tail)) {
-+		spin_unlock_irqrestore(&cq->lock, flags);
-+		if (cq->ibcq.event_handler) {
-+			struct ib_event ev;
-+
-+			ev.device = cq->ibcq.device;
-+			ev.element.cq = &cq->ibcq;
-+			ev.event = IB_EVENT_CQ_ERR;
-+			cq->ibcq.event_handler(&ev, cq->ibcq.cq_context);
-+		}
-+		return;
-+	}
-+	cq->queue[cq->head] = *entry;
-+	cq->head = next;
-+
-+	if (cq->notify == IB_CQ_NEXT_COMP ||
-+	    (cq->notify == IB_CQ_SOLICITED && solicited)) {
-+		cq->notify = IB_CQ_NONE;
-+		cq->triggered++;
-+		/*
-+		 * This will cause send_complete() to be called in
-+		 * another thread.
-+		 */
-+		tasklet_hi_schedule(&cq->comptask);
-+	}
-+
-+	spin_unlock_irqrestore(&cq->lock, flags);
-+
-+	if (entry->status != IB_WC_SUCCESS)
-+		to_idev(cq->ibcq.device)->n_wqe_errs++;
-+}
-+
-+/**
-+ * ipath_poll_cq - poll for work completion entries
-+ * @ibcq: the completion queue to poll
-+ * @num_entries: the maximum number of entries to return
-+ * @entry: pointer to array where work completions are placed
-+ *
-+ * Returns the number of completion entries polled.
-+ *
-+ * This may be called from interrupt context.  Also called by ib_poll_cq()
-+ * in the generic verbs code.
-+ */
-+int ipath_poll_cq(struct ib_cq *ibcq, int num_entries, struct ib_wc *entry)
-+{
-+	struct ipath_cq *cq = to_icq(ibcq);
-+	unsigned long flags;
-+	int npolled;
-+
-+	spin_lock_irqsave(&cq->lock, flags);
-+
-+	for (npolled = 0; npolled < num_entries; ++npolled, ++entry) {
-+		if (cq->tail == cq->head)
-+			break;
-+		*entry = cq->queue[cq->tail];
-+		if (cq->tail == cq->ibcq.cqe)
-+			cq->tail = 0;
-+		else
-+			cq->tail++;
-+	}
-+
-+	spin_unlock_irqrestore(&cq->lock, flags);
-+
-+	return npolled;
-+}
-+
-+static void send_complete(unsigned long data)
-+{
-+	struct ipath_cq *cq = (struct ipath_cq *)data;
-+
-+	/*
-+	 * The completion handler will most likely rearm the notification
-+	 * and poll for all pending entries.  If a new completion entry
-+	 * is added while we are in this routine, tasklet_hi_schedule()
-+	 * won't call us again until we return so we check triggered to
-+	 * see if we need to call the handler again.
-+	 */
-+	for (;;) {
-+		u8 triggered = cq->triggered;
-+
-+		cq->ibcq.comp_handler(&cq->ibcq, cq->ibcq.cq_context);
-+
-+		if (cq->triggered == triggered)
-+			return;
-+	}
-+}
-+
-+/**
-+ * ipath_create_cq - create a completion queue
-+ * @ibdev: the device this completion queue is attached to
-+ * @entries: the minimum size of the completion queue
-+ * @context: unused by the InfiniPath driver
-+ * @udata: unused by the InfiniPath driver
-+ *
-+ * Returns a pointer to the completion queue or negative errno values
-+ * for failure.
-+ *
-+ * Called by ib_create_cq() in the generic verbs code.
-+ */
-+struct ib_cq *ipath_create_cq(struct ib_device *ibdev, int entries,
-+			      struct ib_ucontext *context,
-+			      struct ib_udata *udata)
-+{
-+	struct ipath_cq *cq;
-+	struct ib_wc *wc;
-+
-+	/*
-+	 * Need to use vmalloc() if we want to support large #s of
-+	 * entries.
-+	 */
-+	cq = vmalloc(sizeof(*cq));
-+	if (!cq)
-+		return ERR_PTR(-ENOMEM);
-+
-+	/* Need to use vmalloc() if we want to support large #s of entries. */
-+	wc = vmalloc(sizeof(*wc) * (entries + 1));
-+	if (!wc) {
-+		kfree(cq);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+	/*
-+	 * ib_create_cq() will initialize cq->ibcq except for cq->ibcq.cqe.
-+	 * The number of entries should be >= the number requested or return
-+	 * an error.
-+	 */
-+	cq->ibcq.cqe = entries;
-+	cq->notify = IB_CQ_NONE;
-+	cq->triggered = 0;
-+	spin_lock_init(&cq->lock);
-+	tasklet_init(&cq->comptask, send_complete, (unsigned long)cq);
-+	cq->head = 0;
-+	cq->tail = 0;
-+	cq->queue = wc;
-+
-+	return &cq->ibcq;
-+}
-+
-+/**
-+ * ipath_destroy_cq - destroy a completion queue
-+ * @ibcq: the completion queue to destroy.
-+ *
-+ * Returns 0 for success.
-+ *
-+ * Called by ib_destroy_cq() in the generic verbs code.
-+ */
-+int ipath_destroy_cq(struct ib_cq *ibcq)
-+{
-+	struct ipath_cq *cq = to_icq(ibcq);
-+
-+	tasklet_kill(&cq->comptask);
-+	vfree(cq->queue);
-+	kfree(cq);
-+
-+	return 0;
-+}
-+
-+/**
-+ * ipath_req_notify_cq - change the notification type for a completion queue
-+ * @ibcq: the completion queue
-+ * @notify: the type of notification to request
-+ *
-+ * Returns 0 for success.
-+ *
-+ * This may be called from interrupt context.  Also called by
-+ * ib_req_notify_cq() in the generic verbs code.
-+ */
-+int ipath_req_notify_cq(struct ib_cq *ibcq, enum ib_cq_notify notify)
-+{
-+	struct ipath_cq *cq = to_icq(ibcq);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&cq->lock, flags);
-+	/*
-+	 * Don't change IB_CQ_NEXT_COMP to IB_CQ_SOLICITED but allow
-+	 * any other transitions.
-+	 */
-+	if (cq->notify != IB_CQ_NEXT_COMP)
-+		cq->notify = notify;
-+	spin_unlock_irqrestore(&cq->lock, flags);
-+	return 0;
-+}
-+
-+int ipath_resize_cq(struct ib_cq *ibcq, int cqe, struct ib_udata *udata)
-+{
-+	struct ipath_cq *cq = to_icq(ibcq);
-+	struct ib_wc *wc, *old_wc;
-+	u32 n;
-+
-+	/* Need to use vmalloc() if we want to support large #s of entries. */
-+	wc = vmalloc(sizeof(*wc) * (cqe + 1));
-+	if (!wc)
-+		return -ENOMEM;
-+
-+	spin_lock_irq(&cq->lock);
-+	if (cq->head < cq->tail)
-+		n = cq->ibcq.cqe + 1 + cq->head - cq->tail;
-+	else
-+		n = cq->head - cq->tail;
-+	if (unlikely((u32)cqe < n)) {
-+		spin_unlock_irq(&cq->lock);
-+		vfree(wc);
-+		return -EOVERFLOW;
-+	}
-+	for (n = 0; cq->tail != cq->head; n++) {
-+		wc[n] = cq->queue[cq->tail];
-+		if (cq->tail == cq->ibcq.cqe)
-+			cq->tail = 0;
-+		else
-+			cq->tail++;
-+	}
-+	cq->ibcq.cqe = cqe;
-+	cq->head = n;
-+	cq->tail = 0;
-+	old_wc = cq->queue;
-+	cq->queue = wc;
-+	spin_unlock_irq(&cq->lock);
-+
-+	vfree(old_wc);
-+
-+	return 0;
-+}
-diff -r 70e3edb0d82d -r 44cd07539d66 drivers/infiniband/hw/ipath/ipath_keys.c
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_keys.c	Thu Mar  9 16:16:44 2006 -0800
-@@ -0,0 +1,212 @@
 +/*
-+ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
++ * These are the routines used by layered drivers, currently just the
++ * layered ethernet driver and verbs layer.
 + */
 +
-+#include <asm/io.h>
++#include <linux/io.h>
++#include <linux/pci.h>
++#include <asm/byteorder.h>
 +
-+#include "ipath_verbs.h"
++#include "ipath_kernel.h"
++#include "ips_common.h"
++#include "ipath_layer.h"
 +
-+/**
-+ * ipath_alloc_lkey - allocate an lkey
-+ * @rkt: lkey table in which to allocate the lkey
-+ * @mr: memory region that this lkey protects
-+ *
-+ * Returns 1 if successful, otherwise returns 0.
-+ */
-+
-+int ipath_alloc_lkey(struct ipath_lkey_table *rkt, struct ipath_mregion *mr)
++int ipath_layer_set_linkstate(struct ipath_devdata *dd, u8 newstate)
 +{
-+	unsigned long flags;
-+	u32 r;
-+	u32 n;
++	u32 lstate;
 +
-+	spin_lock_irqsave(&rkt->lock, flags);
++	switch (newstate) {
++	case IPATH_IB_LINKDOWN:
++		ipath_set_ib_lstate(dd, INFINIPATH_IBCC_LINKINITCMD_POLL <<
++				    INFINIPATH_IBCC_LINKINITCMD_SHIFT);
++		/* don't wait */
++		return 0;
 +
-+	/* Find the next available LKEY */
-+	r = n = rkt->next;
-+	for (;;) {
-+		if (rkt->table[r] == NULL)
-+			break;
-+		r = (r + 1) & (rkt->max - 1);
-+		if (r == n) {
-+			spin_unlock_irqrestore(&rkt->lock, flags);
-+			_VERBS_INFO("LKEY table full\n");
++	case IPATH_IB_LINKDOWN_SLEEP:
++		ipath_set_ib_lstate(dd, INFINIPATH_IBCC_LINKINITCMD_SLEEP <<
++				    INFINIPATH_IBCC_LINKINITCMD_SHIFT);
++		/* don't wait */
++		return 0;
++
++	case IPATH_IB_LINKDOWN_DISABLE:
++		ipath_set_ib_lstate(dd, INFINIPATH_IBCC_LINKINITCMD_DISABLE <<
++				    INFINIPATH_IBCC_LINKINITCMD_SHIFT);
++		/* don't wait */
++		return 0;
++
++	case IPATH_IB_LINKINIT:
++		if (dd->ipath_flags & IPATH_LINKINIT)
 +			return 0;
-+		}
-+	}
-+	rkt->next = (r + 1) & (rkt->max - 1);
-+	/*
-+	 * Make sure lkey is never zero which is reserved to indicate an
-+	 * unrestricted LKEY.
-+	 */
-+	rkt->gen++;
-+	mr->lkey = (r << (32 - ib_ipath_lkey_table_size)) |
-+		((((1 << (24 - ib_ipath_lkey_table_size)) - 1) & rkt->gen)
-+		 << 8);
-+	if (mr->lkey == 0) {
-+		mr->lkey |= 1 << 8;
-+		rkt->gen++;
-+	}
-+	rkt->table[r] = mr;
-+	spin_unlock_irqrestore(&rkt->lock, flags);
++		ipath_set_ib_lstate(dd, INFINIPATH_IBCC_LINKCMD_INIT <<
++				    INFINIPATH_IBCC_LINKCMD_SHIFT);
++		lstate = IPATH_LINKINIT;
++		break;
 +
-+	return 1;
++	case IPATH_IB_LINKARM:
++		if (dd->ipath_flags & IPATH_LINKARMED)
++			return 0;
++		if (!(dd->ipath_flags & (IPATH_LINKINIT | IPATH_LINKACTIVE)))
++			return -EINVAL;
++		ipath_set_ib_lstate(dd, INFINIPATH_IBCC_LINKCMD_ARMED <<
++				    INFINIPATH_IBCC_LINKCMD_SHIFT);
++		/*
++		 * Since the port can transition to ACTIVE by receiving
++		 * a non VL 15 packet, wait for either state.
++		 */
++		lstate = IPATH_LINKARMED | IPATH_LINKACTIVE;
++		break;
++
++	case IPATH_IB_LINKACTIVE:
++		if (dd->ipath_flags & IPATH_LINKACTIVE)
++			return 0;
++		if (!(dd->ipath_flags & IPATH_LINKARMED))
++			return -EINVAL;
++		ipath_set_ib_lstate(dd, INFINIPATH_IBCC_LINKCMD_ACTIVE <<
++				    INFINIPATH_IBCC_LINKCMD_SHIFT);
++		lstate = IPATH_LINKACTIVE;
++		break;
++
++	default:
++		ipath_dbg("Invalid linkstate 0x%x requested\n", newstate);
++		return -EINVAL;
++	}
++	return ipath_wait_linkstate(dd, lstate, 2000);
 +}
 +
-+/**
-+ * ipath_free_lkey - free an lkey
-+ * @rkt: table from which to free the lkey
-+ * @lkey: lkey id to free
-+ */
-+void ipath_free_lkey(struct ipath_lkey_table *rkt, u32 lkey)
-+{
-+	unsigned long flags;
-+	u32 r;
-+
-+	if (lkey == 0)
-+		return;
-+	r = lkey >> (32 - ib_ipath_lkey_table_size);
-+	spin_lock_irqsave(&rkt->lock, flags);
-+	rkt->table[r] = NULL;
-+	spin_unlock_irqrestore(&rkt->lock, flags);
-+}
++EXPORT_SYMBOL_GPL(ipath_layer_set_linkstate);
 +
 +/**
-+ * ipath_lkey_ok - check IB SGE for validity and initialize
-+ * @rkt: table containing lkey to check SGE against
-+ * @isge: outgoing internal SGE
-+ * @sge: SGE to check
-+ * @acc: access flags
++ * ipath_layer_set_mtu - set the MTU
++ * @dd: the infinipath device
++ * @arg: the new MTU
 + *
-+ * Return 1 if valid and successful, otherwise returns 0.
-+ *
-+ * Check the IB SGE for validity and initialize our internal version
-+ * of it.
++ * we can handle "any" incoming size, the issue here is whether we
++ * need to restrict our outgoing size.   For now, we don't do any
++ * sanity checking on this, and we don't deal with what happens to
++ * programs that are already running when the size changes.
++ * NOTE: changing the MTU will usually cause the IBC to go back to
++ * link initialize (IPATH_IBSTATE_INIT) state...
 + */
-+int ipath_lkey_ok(struct ipath_lkey_table *rkt, struct ipath_sge *isge,
-+		  struct ib_sge *sge, int acc)
++int ipath_layer_set_mtu(struct ipath_devdata *dd, u16 arg)
 +{
-+	struct ipath_mregion *mr;
-+	size_t off;
++	u32 piosize;
++	int changed = 0;
 +
 +	/*
-+	 * We use LKEY == zero to mean a physical kmalloc() address.
-+	 * This is a bit of a hack since we rely on dma_map_single()
-+	 * being reversible by calling bus_to_virt().
++	 * mtu is IB data payload max.  It's the largest power of 2 less
++	 * than piosize (or even larger, since it only really controls the
++	 * largest we can receive; we can send the max of the mtu and piosize).
++	 * We check that it's one of the valid IB sizes.
 +	 */
-+	if (sge->lkey == 0) {
-+		isge->mr = NULL;
-+		isge->vaddr = bus_to_virt(sge->addr);
-+		isge->length = sge->length;
-+		isge->sge_length = sge->length;
-+		return 1;
++	if (arg != 256 && arg != 512 && arg != 1024 && arg != 2048 &&
++	    arg != 4096) {
++		ipath_dbg("Trying to set invalid mtu %u, failing\n", arg);
++		return -EINVAL;
 +	}
-+	spin_lock(&rkt->lock);
-+	mr = rkt->table[(sge->lkey >> (32 - ib_ipath_lkey_table_size))];
-+	spin_unlock(&rkt->lock);
-+	if (unlikely(mr == NULL || mr->lkey != sge->lkey))
-+		return 0;
++	if (dd->ipath_ibmtu == arg)
++		return 0;	/* same as current */
 +
-+	off = sge->addr - mr->user_base;
-+	if (unlikely(sge->addr < mr->user_base ||
-+		     off + sge->length > mr->length ||
-+		     (mr->access_flags & acc) != acc))
-+		return 0;
++	piosize = dd->ipath_ibmaxlen;
++	dd->ipath_ibmtu = arg;
 +
-+	off += mr->offset;
-+	isge->mr = mr;
-+	isge->m = 0;
-+	isge->n = 0;
-+	while (off >= mr->map[isge->m]->segs[isge->n].length) {
-+		off -= mr->map[isge->m]->segs[isge->n].length;
-+		isge->n++;
-+		if (isge->n >= IPATH_SEGSZ) {
-+			isge->m++;
-+			isge->n = 0;
++	if (arg >= (piosize - IPATH_PIO_MAXIBHDR)) {
++		/* Only if it's not the initial value (or reset to it) */
++		if (piosize != dd->ipath_init_ibmaxlen) {
++			dd->ipath_ibmaxlen = piosize;
++			changed = 1;
 +		}
++	} else if ((arg + IPATH_PIO_MAXIBHDR) != dd->ipath_ibmaxlen) {
++		piosize = arg + IPATH_PIO_MAXIBHDR;
++		ipath_cdbg(VERBOSE, "ibmaxlen was 0x%x, setting to 0x%x (mtu 0x%x)\n",
++			   dd->ipath_ibmaxlen, piosize, arg);
++		dd->ipath_ibmaxlen = piosize;
++		changed = 1;
 +	}
-+	isge->vaddr = mr->map[isge->m]->segs[isge->n].vaddr + off;
-+	isge->length = mr->map[isge->m]->segs[isge->n].length - off;
-+	isge->sge_length = sge->length;
-+	return 1;
++
++	if (changed) {
++		/*
++		 * set the IBC maxpktlength to the size of our pio
++		 * buffers in words
++		 */
++		u64 ibc = dd->ipath_ibcctrl;
++		ibc &= ~(INFINIPATH_IBCC_MAXPKTLEN_MASK <<
++			 INFINIPATH_IBCC_MAXPKTLEN_SHIFT);
++
++		piosize = piosize - 2 * sizeof(u32);	/* ignore pbc */
++		dd->ipath_ibmaxlen = piosize;
++		piosize /= sizeof(u32);	/* in words */
++		/*
++		 * for ICRC, which we only send in diag test pkt mode, and we
++		 * don't need to worry about that for mtu
++		 */
++		piosize += 1;
++
++		ibc |= piosize << INFINIPATH_IBCC_MAXPKTLEN_SHIFT;
++		dd->ipath_ibcctrl = ibc;
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_ibcctrl,
++				 dd->ipath_ibcctrl);
++		dd->ipath_f_tidtemplate(dd);
++	}
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_set_mtu);
++
++int ipath_set_sps_lid(struct ipath_devdata *dd, u32 arg, u8 lmc)
++{
++	ipath_stats.sps_lid[dd->ipath_unit] = arg;
++	dd->ipath_lid = arg;
++	dd->ipath_lmc = lmc;
++	if (dd->ipath_layer.l_intr)
++		dd->ipath_layer.l_intr(dd->ipath_unit, IPATH_LAYER_INT_LID);
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_set_sps_lid);
++
++int ipath_layer_set_guid(struct ipath_devdata *dd, u64 guid)
++{
++	/* XXX - need to inform anyone who cares this just happened. */
++	dd->ipath_guid = guid;
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_set_guid);
++
++u64 ipath_layer_get_guid(struct ipath_devdata *dd)
++{
++	return dd->ipath_guid;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_guid);
++
++u32 ipath_layer_get_nguid(struct ipath_devdata *dd)
++{
++	return dd->ipath_nguid;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_nguid);
++
++int ipath_layer_query_device(struct ipath_devdata *dd, u32 * vendor,
++			     u32 * boardrev, u32 * majrev, u32 * minrev)
++{
++	*vendor = dd->ipath_vendorid;
++	*boardrev = dd->ipath_boardrev;
++	*majrev = dd->ipath_majrev;
++	*minrev = dd->ipath_minrev;
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_query_device);
++
++u32 ipath_layer_get_flags(struct ipath_devdata *dd)
++{
++	return dd->ipath_flags;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_flags);
++
++struct device *ipath_layer_get_device(struct ipath_devdata *dd)
++{
++	return &dd->pcidev->dev;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_device);
++
++u16 ipath_layer_get_deviceid(struct ipath_devdata *dd)
++{
++	return dd->ipath_deviceid;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_deviceid);
++
++u64 ipath_layer_get_lastibcstat(struct ipath_devdata *dd)
++{
++	return dd->ipath_lastibcstat;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_lastibcstat);
++
++u32 ipath_layer_get_ibmtu(struct ipath_devdata *dd)
++{
++	return dd->ipath_ibmtu;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_ibmtu);
++
++int ipath_layer_register(const int device,
++			 int (*l_intr) (const int, u32),
++			 int (*l_rcv) (const int, void *,
++				       struct sk_buff *), u16 l_rcv_opcode,
++			 int (*l_rcv_lid) (const int, void *),
++			 u16 l_rcv_lid_opcode,
++			 struct ipath_devdata **ddp)
++{
++	struct ipath_devdata *dd;
++	int ret;
++
++	dd = ipath_lookup(device);
++
++	if (!dd) {
++		ret = -ENODEV;
++		goto bail;
++	}
++
++	*ddp = dd;
++	if (!(dd->ipath_flags & IPATH_INITTED)) {
++		ret = -EAGAIN;
++		goto bail;
++	}
++
++	ipath_cdbg(VERBOSE, "intr %p rx %p, rx_lid %p\n", l_intr, l_rcv, l_rcv_lid);
++	if (dd->ipath_layer.l_intr || dd->ipath_layer.l_rcv) {
++		ret = -EBUSY;
++		goto bail;
++	}
++
++	if (!(*dd->ipath_statusp & IPATH_STATUS_SMA))
++		*dd->ipath_statusp |= IPATH_STATUS_OIB_SMA;
++	dd->ipath_layer.l_intr = l_intr;
++	dd->ipath_layer.l_rcv = l_rcv;
++	dd->ipath_layer.l_rcv_lid = l_rcv_lid;
++	dd->ipath_layer.l_rcv_opcode = l_rcv_opcode;
++	dd->ipath_layer.l_rcv_lid_opcode = l_rcv_lid_opcode;
++
++	ret = 0;
++bail:
++	return ret;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_register);
++
++static void ipath_verbs_timer(unsigned long arg)
++{
++	struct ipath_devdata *dd = (struct ipath_devdata *) arg;
++
++	/*
++	 * If port 0 receive packet interrupts are not available, or
++	 * can be missed, poll the receive queue
++	 */
++	if (dd->ipath_flags & IPATH_POLL_RX_INTR)
++		ipath_kreceive(dd);
++
++	/* Handle verbs layer timeouts. */
++	if (dd->verbs_layer.l_timer_cb)
++		dd->verbs_layer.l_timer_cb(dd->ipath_unit);
++
++	mod_timer(&dd->verbs_layer.l_timer, jiffies + 1);
 +}
 +
 +/**
-+ * ipath_rkey_ok - check the IB virtual address, length, and RKEY
-+ * @dev: infiniband device
-+ * @ss: SGE state
-+ * @len: length of data
-+ * @vaddr: virtual address to place data
-+ * @rkey: rkey to check
-+ * @acc: access flags
-+ *
-+ * Return 1 if successful, otherwise 0.
-+ *
-+ * The QP r_rq.lock should be held.
++ * ipath_verbs_register - verbs layer registration
++ * @device: the infinipath device number
++ * @l_piobufavail: callback for when PIO buffers become available
++ * @l_rcv: callback for receiving a packet
++ * @l_timer_cb: timer callback
++ * @ipath_devdata: device data structure is put here
 + */
-+int ipath_rkey_ok(struct ipath_ibdev *dev, struct ipath_sge_state *ss,
-+		  u32 len, u64 vaddr, u32 rkey, int acc)
++int ipath_verbs_register(const int device,
++			 int (*l_piobufavail) (const int device),
++			 void (*l_rcv) (const int device, void *rhdr,
++					void *data, u32 tlen),
++			 void (*l_timer_cb) (const int device),
++			 struct ipath_devdata **ddp)
 +{
-+	struct ipath_lkey_table *rkt = &dev->lk_table;
++	struct ipath_devdata *dd = ipath_lookup(device);
++	int ret;
++
++	if (!dd) {
++		ret = -ENODEV;
++		goto bail;
++	}
++
++	*ddp = dd;
++
++	if (!(dd->ipath_flags & IPATH_INITTED)) {
++		ret = -EAGAIN;
++		goto bail;
++	}
++
++	ipath_cdbg(VERBOSE, "piobufavail %p rx %p\n", l_piobufavail, l_rcv);
++	if (dd->verbs_layer.l_piobufavail || dd->verbs_layer.l_rcv) {
++		ret = -EBUSY;
++		goto bail;
++	}
++
++	dd->verbs_layer.l_piobufavail = l_piobufavail;
++	dd->verbs_layer.l_rcv = l_rcv;
++	dd->verbs_layer.l_timer_cb = l_timer_cb;
++	dd->verbs_layer.l_flags = 0;
++
++	ret = 0;
++bail:
++	return ret;
++}
++
++EXPORT_SYMBOL_GPL(ipath_verbs_register);
++
++int ipath_verbs_unregister(struct ipath_devdata *dd)
++{
++	*dd->ipath_statusp &= ~IPATH_STATUS_OIB_SMA;
++	dd->verbs_layer.l_piobufavail = NULL;
++	dd->verbs_layer.l_rcv = NULL;
++	dd->verbs_layer.l_timer_cb = NULL;
++	dd->verbs_layer.l_flags = 0;
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_verbs_unregister);
++
++int ipath_layer_open(struct ipath_devdata *dd, u32 * pktmax)
++{
++	int ret;
++	u32 intval = 0;
++
++	if (!dd->ipath_layer.l_intr || !dd->ipath_layer.l_rcv) {
++		ret = -EINVAL;
++		goto bail;
++	}
++
++	ret = ipath_setrcvhdrsize(dd, NUM_OF_EXTRA_WORDS_IN_HEADER_QUEUE);
++
++	if (ret < 0)
++		goto bail;
++
++	*pktmax = dd->ipath_ibmaxlen;
++
++	if (*dd->ipath_statusp & IPATH_STATUS_IB_READY)
++		intval |= IPATH_LAYER_INT_IF_UP;
++	if (ipath_stats.sps_lid[dd->ipath_unit])
++		intval |= IPATH_LAYER_INT_LID;
++	if (ipath_stats.sps_mlid[dd->ipath_unit])
++		intval |= IPATH_LAYER_INT_BCAST;
++	/*
++	 * do this on open, in case low level is already up and
++	 * just layered driver was reloaded, etc.
++	 */
++	if (intval)
++		dd->ipath_layer.l_intr(dd->ipath_unit, intval);
++
++	ret = 0;
++bail:
++	return ret;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_open);
++
++u16 ipath_layer_get_lid(struct ipath_devdata *dd)
++{
++	return dd->ipath_lid;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_lid);
++
++/**
++ * ipath_layer_get_mac - get the MAC address
++ * @dd: the infinipath device
++ * @mac: the MAC is put here
++ *
++ * This is the EUID-64 OUI octets (top 3), then
++ * skip the next 2 (which should both be zero or 0xff).
++ * The returned MAC is in network order
++ * mac points to at least 6 bytes of buffer
++ * We assume that by the time the LID is set, that the GUID is as valid
++ * as it's ever going to be, rather than adding yet another status bit.
++ */
++
++int ipath_layer_get_mac(struct ipath_devdata *dd, u8 * mac)
++{
++	u8 *guid;
++
++	guid = (u8 *) &dd->ipath_guid;
++
++	mac[0] = guid[0];
++	mac[1] = guid[1];
++	mac[2] = guid[2];
++	mac[3] = guid[5];
++	mac[4] = guid[6];
++	mac[5] = guid[7];
++	if ((guid[3] || guid[4]) && !(guid[3] == 0xff && guid[4] == 0xff))
++		ipath_dbg("Warning, guid bytes 3 and 4 not 0 or 0xffff: %x %x\n",
++			  guid[3], guid[4]);
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_mac);
++
++u16 ipath_layer_get_bcast(struct ipath_devdata *dd)
++{
++	return dd->ipath_mlid;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_bcast);
++
++int ipath_layer_get_num_of_dev(void)
++{
++	return ipath_count_units(NULL, NULL, NULL);
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_num_of_dev);
++
++u32 ipath_layer_get_cr_errpkey(struct ipath_devdata *dd)
++{
++	return ipath_read_creg32(dd, dd->ipath_cregs->cr_errpkey);
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_cr_errpkey);
++
++int ipath_layer_close(struct ipath_devdata *dd)
++{
++	if (!dd->ipath_layer.l_intr || !dd->ipath_layer.l_rcv) {
++		/* normal if not all chips are present */
++		ipath_cdbg(VERBOSE, "layer close without open\n");
++	} else {
++		dd->ipath_layer.l_intr = NULL;
++		dd->ipath_layer.l_rcv = NULL;
++		dd->ipath_layer.l_rcv_lid = NULL;
++		dd->ipath_layer.l_rcv_opcode = 0;
++		dd->ipath_layer.l_rcv_lid_opcode = 0;
++	}
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_close);
++
++static inline void update_sge(struct ipath_sge_state *ss, u32 length)
++{
 +	struct ipath_sge *sge = &ss->sge;
-+	struct ipath_mregion *mr;
-+	size_t off;
 +
-+	spin_lock(&rkt->lock);
-+	mr = rkt->table[(rkey >> (32 - ib_ipath_lkey_table_size))];
-+	spin_unlock(&rkt->lock);
-+	if (unlikely(mr == NULL || mr->lkey != rkey))
-+		return 0;
-+
-+	off = vaddr - mr->iova;
-+	if (unlikely(vaddr < mr->iova || off + len > mr->length ||
-+		     (mr->access_flags & acc) == 0))
-+		return 0;
-+
-+	off += mr->offset;
-+	sge->mr = mr;
-+	sge->m = 0;
-+	sge->n = 0;
-+	while (off >= mr->map[sge->m]->segs[sge->n].length) {
-+		off -= mr->map[sge->m]->segs[sge->n].length;
-+		sge->n++;
-+		if (sge->n >= IPATH_SEGSZ) {
-+			sge->m++;
++	sge->vaddr += length;
++	sge->length -= length;
++	sge->sge_length -= length;
++	if (sge->sge_length == 0) {
++		if (--ss->num_sge)
++			*sge = *ss->sg_list++;
++	} else if (sge->length == 0 && sge->mr != NULL) {
++		if (++sge->n >= IPATH_SEGSZ) {
++			if (++sge->m >= sge->mr->mapsz)
++				return;
 +			sge->n = 0;
 +		}
++		sge->vaddr = sge->mr->map[sge->m]->segs[sge->n].vaddr;
++		sge->length = sge->mr->map[sge->m]->segs[sge->n].length;
 +	}
-+	sge->vaddr = mr->map[sge->m]->segs[sge->n].vaddr + off;
-+	sge->length = mr->map[sge->m]->segs[sge->n].length - off;
-+	sge->sge_length = len;
-+	ss->sg_list = NULL;
-+	ss->num_sge = 1;
-+	return 1;
 +}
-diff -r 70e3edb0d82d -r 44cd07539d66 drivers/infiniband/hw/ipath/ipath_mr.c
---- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_mr.c	Thu Mar  9 16:16:44 2006 -0800
-@@ -0,0 +1,353 @@
-+/*
-+ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
 +
-+#include <rdma/ib_pack.h>
-+#include <rdma/ib_smi.h>
++#ifdef __LITTLE_ENDIAN
++static inline u32 get_upper_bits(u32 data, u32 shift)
++{
++	return data >> shift;
++}
 +
-+#include "ipath_verbs.h"
++static inline u32 set_upper_bits(u32 data, u32 shift)
++{
++	return data << shift;
++}
++
++static inline u32 clear_upper_bytes(u32 data, u32 n, u32 off)
++{
++	data <<= ((sizeof(u32) - n) * BITS_PER_BYTE);
++	data >>= ((sizeof(u32) - n - off) * BITS_PER_BYTE);
++	return data;
++}
++#else
++static inline u32 get_upper_bits(u32 data, u32 shift)
++{
++	return data << shift;
++}
++
++static inline u32 set_upper_bits(u32 data, u32 shift)
++{
++	return data >> shift;
++}
++
++static inline u32 clear_upper_bytes(u32 data, u32 n, u32 off)
++{
++	data >>= ((sizeof(u32) - n) * BITS_PER_BYTE);
++	data <<= ((sizeof(u32) - n - off) * BITS_PER_BYTE);
++	return data;
++}
++#endif
++
++static inline void copy_io(u32 __iomem *piobuf,
++			   struct ipath_sge_state *ss, u32 length)
++{
++	u32 extra = 0;
++	u32 data = 0;
++	u32 last;
++
++	while (1) {
++		u32 len = ss->sge.length;
++		u32 off;
++
++		BUG_ON(len == 0);
++		if (len > length)
++			len = length;
++		if (len > ss->sge.sge_length)
++			len = ss->sge.sge_length;
++		/* If the source address is not aligned, try to align it. */
++		off = (unsigned long)ss->sge.vaddr & (sizeof(u32) - 1);
++		if (off) {
++			u32 *addr = (u32 *)((unsigned long)ss->sge.vaddr &
++					    ~(sizeof(u32) - 1));
++			u32 v = get_upper_bits(*addr, off * BITS_PER_BYTE);
++			u32 y;
++
++			y = sizeof(u32) - off;
++			if (len > y)
++				len = y;
++			if (len + extra >= sizeof(u32)) {
++				data |= set_upper_bits(v, extra * BITS_PER_BYTE);
++				len = sizeof(u32) - extra;
++				if (len == length) {
++					last = data;
++					break;
++				}
++				__raw_writel(data, piobuf);
++				piobuf++;
++				extra = 0;
++				data = 0;
++			} else {
++				/* Clear unused upper bytes */
++				data |= clear_upper_bytes(v, len, extra);
++				if (len == length) {
++					last = data;
++					break;
++				}
++				extra += len;
++			}
++		} else if (extra) {
++			/* Source address is aligned. */
++			u32 *addr = (u32 *) ss->sge.vaddr;
++			int shift = extra * BITS_PER_BYTE;
++			int ushift = 32 - shift;
++			u32 l = len;
++
++			while (l >= sizeof(u32)) {
++				u32 v = *addr;
++
++				data |= set_upper_bits(v, shift);
++				__raw_writel(data, piobuf);
++				data = get_upper_bits(v, ushift);
++				piobuf++;
++				addr++;
++				l -= sizeof(u32);
++			}
++			/* We still have 'extra' number of bytes leftover. */
++			if (l) {
++				u32 v = *addr;
++
++				if (l + extra >= sizeof(u32)) {
++					data |= set_upper_bits(v, shift);
++					len -= l + extra - sizeof(u32);
++					if (len == length) {
++						last = data;
++						break;
++					}
++					__raw_writel(data, piobuf);
++					piobuf++;
++					extra = 0;
++					data = 0;
++				} else {
++					/* Clear unused upper bytes */
++					data |= clear_upper_bytes(v, l, extra);
++					if (len == length) {
++						last = data;
++						break;
++					}
++					extra += l;
++				}
++			} else if (len == length) {
++				last = data;
++				break;
++			}
++		} else if (len == length) {
++			u32 w;
++
++			/* Need to round up for the last dword in the packet. */
++			w = (len + 3) >> 2;
++			__iowrite32_copy(piobuf, ss->sge.vaddr, w - 1);
++			piobuf += w - 1;
++			last = ((u32 *) ss->sge.vaddr)[w - 1];
++			break;
++		} else {
++			u32 w = len >> 2;
++
++			__iowrite32_copy(piobuf, ss->sge.vaddr, w);
++			piobuf += w;
++
++			extra = len & (sizeof(u32) - 1);
++			if (extra) {
++				u32 v = ((u32 *) ss->sge.vaddr)[w];
++
++				/* Clear unused upper bytes */
++				data = clear_upper_bytes(v, extra, 0);
++			}
++		}
++		update_sge(ss, len);
++		length -= len;
++	}
++	ipath_flush_wc();	/* must flush early everything before trigger word */
++	__raw_writel(last, piobuf);
++	ipath_flush_wc();	/* be sure trigger word is written */
++	update_sge(ss, length);
++}
 +
 +/**
-+ * ipath_get_dma_mr - get a DMA memory region
-+ * @pd: protection domain for this memory region
-+ * @acc: access flags
++ * ipath_verbs_send - send a packet from the verbs layer
++ * @dd: the infinipath device
++ * @hdrwords: the number of works in the header
++ * @hdr: the packet header
++ * @len: the length of the packet in bytes
++ * @ss: the SGE to send
 + *
-+ * Returns the memory region on success, otherwise returns an errno.
++ * This is like ipath_sma_send_pkt() in that we need to be able to send
++ * packets after the chip is initialized (MADs) but also like
++ * ipath_layer_send_hdr() since its used by the verbs layer.
 + */
-+struct ib_mr *ipath_get_dma_mr(struct ib_pd *pd, int acc)
++int ipath_verbs_send(struct ipath_devdata *dd, u32 hdrwords,
++		     u32 *hdr, u32 len, struct ipath_sge_state *ss)
 +{
-+	struct ipath_mr *mr;
++	u32 __iomem *piobuf;
++	u32 plen;
 +
-+	mr = kzalloc(sizeof *mr, GFP_KERNEL);
-+	if (!mr)
-+		return ERR_PTR(-ENOMEM);
++	/* +1 is for the qword padding of pbc */
++	plen = hdrwords + ((len + 3) >> 2) + 1;
++	if (unlikely((plen << 2) > dd->ipath_ibmaxlen)) {
++		ipath_dbg("packet len 0x%x too long, failing\n", plen);
++		return -EINVAL;
++	}
 +
-+	mr->mr.access_flags = acc;
-+	return &mr->ibmr;
++	/* Get a PIO buffer to use. */
++	piobuf = ipath_getpiobuf(dd, NULL);
++	if (unlikely(piobuf == NULL))
++		return -EBUSY;
++
++	/*
++	 * Write len to control qword, no flags.
++	 * We have to flush after the PBC for correctness on some cpus
++	 * or WC buffer can be written out of order.
++	 */
++	writeq(plen, piobuf);
++	ipath_flush_wc();
++	piobuf += 2;
++	if (len == 0) {
++		/*
++		 * If there is just the header portion, must flush before
++		 * writing last word of header for correctness, and after
++		 * the last header word (trigger word).
++		 */
++		__iowrite32_copy(piobuf, hdr, hdrwords - 1);
++		ipath_flush_wc();
++		__raw_writel(hdr[hdrwords - 1], piobuf + hdrwords - 1);
++		ipath_flush_wc();
++		return 0;
++	}
++
++	__iowrite32_copy(piobuf, hdr, hdrwords);
++	piobuf += hdrwords;
++
++	/* The common case is aligned and contained in one segment. */
++	if (likely(ss->num_sge == 1 && len <= ss->sge.length &&
++		   !((unsigned long)ss->sge.vaddr & (sizeof(u32) - 1)))) {
++		u32 w;
++
++		/* Need to round up for the last dword in the packet. */
++		w = (len + 3) >> 2;
++		__iowrite32_copy(piobuf, ss->sge.vaddr, w - 1);
++		ipath_flush_wc();	/* must flush early everything before trigger word */
++		__raw_writel(((u32 *) ss->sge.vaddr)[w - 1], piobuf + w - 1);
++		ipath_flush_wc();	/* be sure trigger word is written */
++		update_sge(ss, len);
++		return 0;
++	}
++	copy_io(piobuf, ss, len);
++	return 0;
 +}
 +
-+static struct ipath_mr *alloc_mr(int count,
-+				 struct ipath_lkey_table *lk_table)
-+{
-+	struct ipath_mr *mr;
-+	int m, i = 0;
++EXPORT_SYMBOL_GPL(ipath_verbs_send);
 +
-+	/* Allocate struct plus pointers to first level page tables. */
-+	m = (count + IPATH_SEGSZ - 1) / IPATH_SEGSZ;
-+	mr = kmalloc(sizeof *mr + m * sizeof mr->mr.map[0], GFP_KERNEL);
-+	if (!mr)
++int ipath_layer_snapshot_counters(struct ipath_devdata *dd, u64 *swords,
++				  u64 *rwords, u64 *spkts, u64 *rpkts,
++				  u64 *xmit_wait)
++{
++	if (!(dd->ipath_flags & IPATH_INITTED)) {
++		/* no hardware, freeze, etc. */
++		ipath_dbg("unit %u not usable\n", dd->ipath_unit);
++		return -EINVAL;
++	}
++	*swords = ipath_snap_cntr(dd, dd->ipath_cregs->cr_wordsendcnt);
++	*rwords = ipath_snap_cntr(dd, dd->ipath_cregs->cr_wordrcvcnt);
++	*spkts = ipath_snap_cntr(dd, dd->ipath_cregs->cr_pktsendcnt);
++	*rpkts = ipath_snap_cntr(dd, dd->ipath_cregs->cr_pktrcvcnt);
++	*xmit_wait = ipath_snap_cntr(dd, dd->ipath_cregs->cr_sendstallcnt);
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_snapshot_counters);
++
++/**
++ * ipath_layer_get_counters - get various chip counters
++ * @dd: the infinipath device
++ * @cntrs: counters are placed here
++ *
++ * Return the counters needed by recv_pma_get_portcounters().
++ */
++int ipath_layer_get_counters(struct ipath_devdata *dd,
++			      struct ipath_layer_counters *cntrs)
++{
++	if (!(dd->ipath_flags & IPATH_INITTED)) {
++		/* no hardware, freeze, etc. */
++		ipath_dbg("unit %u not usable\n", dd->ipath_unit);
++		return -EINVAL;
++	}
++	cntrs->symbol_error_counter =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_ibsymbolerrcnt);
++	cntrs->link_error_recovery_counter =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_iblinkerrrecovcnt);
++	cntrs->link_downed_counter =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_iblinkdowncnt);
++	cntrs->port_rcv_errors =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_rxdroppktcnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_rcvovflcnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_portovflcnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_errrcvflowctrlcnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_err_rlencnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_invalidrlencnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_erricrccnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_errvcrccnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_errlpcrccnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_errlinkcnt) +
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_badformatcnt);
++	cntrs->port_rcv_remphys_errors =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_rcvebpcnt);
++	cntrs->port_xmit_discards =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_unsupvlcnt);
++	cntrs->port_xmit_data =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_wordsendcnt);
++	cntrs->port_rcv_data =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_wordrcvcnt);
++	cntrs->port_xmit_packets =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_pktsendcnt);
++	cntrs->port_rcv_packets =
++		ipath_snap_cntr(dd, dd->ipath_cregs->cr_pktrcvcnt);
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_counters);
++
++int ipath_layer_want_buffer(struct ipath_devdata *dd)
++{
++	set_bit(IPATH_S_PIOINTBUFAVAIL, &dd->ipath_sendctrl);
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_sendctrl,
++			 dd->ipath_sendctrl);
++
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_want_buffer);
++
++int ipath_layer_send_hdr(struct ipath_devdata *dd, struct ether_header *hdr)
++{
++	int ret = 0;
++	u32 __iomem *piobuf;
++	u32 plen, *uhdr;
++	size_t count;
++	u16 vlsllnh;
++
++	if (!(dd->ipath_flags & IPATH_RCVHDRSZ_SET)) {
++		ipath_dbg("send while not open\n");
++		ret = -EINVAL;
++	} else
++		if ((dd->ipath_flags & (IPATH_LINKUNK | IPATH_LINKDOWN))
++		    || dd->ipath_lid == 0) {
++			/* lid check is for when sma hasn't yet configured */
++			ret = -ENETDOWN;
++			ipath_cdbg(VERBOSE, "send while not ready, mylid=%u, flags=0x%x\n",
++				   dd->ipath_lid,
++				   dd->ipath_flags);
++		}
++
++	vlsllnh = *((u16 *) hdr);
++	if (vlsllnh != htons(IPS_LRH_BTH)) {
++		ipath_dbg("Warning: lrh[0] wrong (%x, not %x); not sending\n",
++			  vlsllnh, htons(IPS_LRH_BTH));
++		ret = -EINVAL;
++	}
++	if (ret)
 +		goto done;
 +
-+	/* Allocate first level page tables. */
-+	for (; i < m; i++) {
-+		mr->mr.map[i] = kmalloc(sizeof *mr->mr.map[0], GFP_KERNEL);
-+		if (!mr->mr.map[i])
-+			goto bail;
++	/* Get a PIO buffer to use. */
++	piobuf = ipath_getpiobuf(dd, NULL);
++	if (piobuf == NULL) {
++		ret = -EBUSY;
++		goto done;
 +	}
-+	mr->mr.mapsz = m;
 +
-+	/*
-+	 * ib_reg_phys_mr() will initialize mr->ibmr except for
-+	 * lkey and rkey.
-+	 */
-+	if (!ipath_alloc_lkey(lk_table, &mr->mr))
-+		goto bail;
-+	mr->ibmr.rkey = mr->ibmr.lkey = mr->mr.lkey;
++	plen = (sizeof(*hdr) >> 2); /* actual length */
++	ipath_cdbg(EPKT, "0x%x+1w pio %p\n", plen, piobuf);
 +
-+	goto done;
++	writeq(plen+1, piobuf); /* len (+1 for pad) to pbc, no flags */
++	ipath_flush_wc();
++	piobuf += 2;
++	uhdr = (u32 *)hdr;
++	count = plen-1; /* amount we can copy before trigger word */
++	__iowrite32_copy(piobuf, uhdr, count);
++	ipath_flush_wc();
++	__raw_writel(uhdr[count], piobuf + count);
++	ipath_flush_wc(); /* ensure it's sent, now */
 +
-+bail:
-+	while (i) {
-+		i--;
-+		kfree(mr->mr.map[i]);
-+	}
-+	kfree(mr);
-+	mr = NULL;
++	ipath_stats.sps_ether_spkts++;	/* ether packet sent */
 +
 +done:
-+	return mr;
++	return ret;
 +}
 +
-+/**
-+ * ipath_reg_phys_mr - register a physical memory region
-+ * @pd: protection domain for this memory region
-+ * @buffer_list: pointer to the list of physical buffers to register
-+ * @num_phys_buf: the number of physical buffers to register
-+ * @iova_start: the starting address passed over IB which maps to this MR
-+ *
-+ * Returns the memory region on success, otherwise returns an errno.
-+ */
-+struct ib_mr *ipath_reg_phys_mr(struct ib_pd *pd,
-+				struct ib_phys_buf *buffer_list,
-+				int num_phys_buf, int acc, u64 *iova_start)
++EXPORT_SYMBOL_GPL(ipath_layer_send_hdr);
++
++int ipath_layer_set_piointbufavail_int(struct ipath_devdata *dd)
 +{
-+	struct ipath_mr *mr;
-+	int n, m, i;
++	set_bit(IPATH_S_PIOINTBUFAVAIL, &dd->ipath_sendctrl);
 +
-+	mr = alloc_mr(num_phys_buf, &to_idev(pd->device)->lk_table);
-+	if (mr == NULL)
-+		return ERR_PTR(-ENOMEM);
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_sendctrl,
++			 dd->ipath_sendctrl);
++	return 0;
++}
 +
-+	mr->mr.user_base = *iova_start;
-+	mr->mr.iova = *iova_start;
-+	mr->mr.length = 0;
-+	mr->mr.offset = 0;
-+	mr->mr.access_flags = acc;
-+	mr->mr.max_segs = num_phys_buf;
++EXPORT_SYMBOL_GPL(ipath_layer_set_piointbufavail_int);
 +
-+	m = 0;
-+	n = 0;
-+	for (i = 0; i < num_phys_buf; i++) {
-+		mr->mr.map[m]->segs[n].vaddr =
-+			phys_to_virt(buffer_list[i].addr);
-+		mr->mr.map[m]->segs[n].length = buffer_list[i].size;
-+		mr->mr.length += buffer_list[i].size;
-+		n++;
-+		if (n == IPATH_SEGSZ) {
-+			m++;
-+			n = 0;
-+		}
++int ipath_layer_enable_timer(struct ipath_devdata *dd)
++{
++	/*
++	 * HT-400 has a design flaw where the chip and kernel idea
++	 * of the tail register don't always agree, and therefore we won't
++	 * get an interrupt on the next packet received.
++	 * If the board supports per packet receive interrupts, use it.
++	 * Otherwise, the timer function periodically checks for packets
++	 * to cover this case.
++	 * Either way, the timer is needed for verbs layer related
++	 * processing.
++	 */
++	if (dd->ipath_flags & IPATH_GPIO_INTR) {
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_debugportselect,
++				 0x2074076542310ULL);
++		/* Enable GPIO bit 2 interrupt */
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_mask,
++				 (u64) (1 << 2));
 +	}
 +
-+	return &mr->ibmr;
++	init_timer(&dd->verbs_layer.l_timer);
++	dd->verbs_layer.l_timer.function = ipath_verbs_timer;
++	dd->verbs_layer.l_timer.data = (unsigned long)dd;
++	dd->verbs_layer.l_timer.expires = jiffies + 1;
++	add_timer(&dd->verbs_layer.l_timer);
++
++	return 0;
 +}
 +
-+/**
-+ * ipath_reg_user_mr - register a userspace memory region
-+ * @pd: protection domain for this memory region
-+ * @region: the user memory region
-+ * @mr_access_flags: access flags for this memory region
-+ * @udata: unused by the InfiniPath driver
-+ *
-+ * Returns the memory region on success, otherwise returns an errno.
-+ */
-+struct ib_mr *ipath_reg_user_mr(struct ib_pd *pd, struct ib_umem *region,
-+				int mr_access_flags, struct ib_udata *udata)
++EXPORT_SYMBOL_GPL(ipath_layer_enable_timer);
++
++int ipath_layer_disable_timer(struct ipath_devdata *dd)
 +{
-+	struct ipath_mr *mr;
-+	struct ib_umem_chunk *chunk;
-+	int n, m, i;
++	/* Disable GPIO bit 2 interrupt */
++	if (dd->ipath_flags & IPATH_GPIO_INTR)
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_gpio_mask, 0);
 +
-+	n = 0;
-+	list_for_each_entry(chunk, &region->chunk_list, list)
-+		n += chunk->nents;
++	del_timer_sync(&dd->verbs_layer.l_timer);
 +
-+	mr = alloc_mr(n, &to_idev(pd->device)->lk_table);
-+	if (!mr)
-+		return ERR_PTR(-ENOMEM);
-+
-+	mr->mr.user_base = region->user_base;
-+	mr->mr.iova = region->virt_base;
-+	mr->mr.length = region->length;
-+	mr->mr.offset = region->offset;
-+	mr->mr.access_flags = mr_access_flags;
-+	mr->mr.max_segs = n;
-+
-+	m = 0;
-+	n = 0;
-+	list_for_each_entry(chunk, &region->chunk_list, list) {
-+		for (i = 0; i < chunk->nmap; i++) {
-+			mr->mr.map[m]->segs[n].vaddr =
-+				page_address(chunk->page_list[i].page);
-+			mr->mr.map[m]->segs[n].length = region->page_size;
-+			n++;
-+			if (n == IPATH_SEGSZ) {
-+				m++;
-+				n = 0;
-+			}
-+		}
-+	}
-+	return &mr->ibmr;
++	return 0;
 +}
 +
++EXPORT_SYMBOL_GPL(ipath_layer_disable_timer);
++
 +/**
-+ * ipath_dereg_mr - unregister and free a memory region
-+ * @ibmr: the memory region to free
-+ *
-+ * Returns 0 on success.
-+ *
-+ * Note that this is called to free MRs created by ipath_get_dma_mr()
-+ * or ipath_reg_user_mr().
++ * ipath_layer_set_verbs_flags - set the verbs layer flags
++ * @dd: the infinipath device
++ * @flags: the flags to set
 + */
-+int ipath_dereg_mr(struct ib_mr *ibmr)
++int ipath_layer_set_verbs_flags(struct ipath_devdata *dd, unsigned flags)
 +{
-+	struct ipath_mr *mr = to_imr(ibmr);
 +	int i;
 +
-+	ipath_free_lkey(&to_idev(ibmr->device)->lk_table, ibmr->lkey);
-+	i = mr->mr.mapsz;
-+	while (i) {
-+		i--;
-+		kfree(mr->mr.map[i]);
++	dd->verbs_layer.l_flags = flags;
++
++	for (i = 0; i < atomic_read(&ipath_max); i++) {
++		struct ipath_devdata *ss = ipath_lookup(i);
++
++		if (!ss || !(ss->ipath_flags & IPATH_INITTED))
++			continue;
++		if ((flags & IPATH_VERBS_KERNEL_SMA) &&
++		    !(*ss->ipath_statusp & IPATH_STATUS_SMA))
++			*ss->ipath_statusp |= IPATH_STATUS_OIB_SMA;
++		else
++			*ss->ipath_statusp &= ~IPATH_STATUS_OIB_SMA;
 +	}
-+	kfree(mr);
++
 +	return 0;
 +}
 +
++EXPORT_SYMBOL_GPL(ipath_layer_set_verbs_flags);
++
 +/**
-+ * ipath_alloc_fmr - allocate a fast memory region
-+ * @pd: the protection domain for this memory region
-+ * @mr_access_flags: access flags for this memory region
-+ * @fmr_attr: fast memory region attributes
-+ *
-+ * Returns the memory region on success, otherwise returns an errno.
++ * ipath_layer_get_npkeys - return the size of the PKEY table for port 0
++ * @dd: the infinipath device
 + */
-+struct ib_fmr *ipath_alloc_fmr(struct ib_pd *pd, int mr_access_flags,
-+			       struct ib_fmr_attr *fmr_attr)
++unsigned ipath_layer_get_npkeys(struct ipath_devdata *dd)
 +{
-+	struct ipath_fmr *fmr;
-+	int m, i = 0;
-+
-+	/* Allocate struct plus pointers to first level page tables. */
-+	m = (fmr_attr->max_pages + IPATH_SEGSZ - 1) / IPATH_SEGSZ;
-+	fmr = kmalloc(sizeof *fmr + m * sizeof fmr->mr.map[0], GFP_KERNEL);
-+	if (!fmr)
-+		goto bail;
-+
-+	/* Allocate first level page tables. */
-+	for (; i < m; i++) {
-+		fmr->mr.map[i] = kmalloc(sizeof *fmr->mr.map[0],
-+					 GFP_KERNEL);
-+		if (!fmr->mr.map[i])
-+			goto bail;
-+	}
-+	fmr->mr.mapsz = m;
-+
-+	/*
-+	 * ib_alloc_fmr() will initialize fmr->ibfmr except for lkey &
-+	 * rkey.
-+	 */
-+	if (!ipath_alloc_lkey(&to_idev(pd->device)->lk_table, &fmr->mr))
-+		goto bail;
-+	fmr->ibfmr.rkey = fmr->ibfmr.lkey = fmr->mr.lkey;
-+	/*
-+	 * Resources are allocated but no valid mapping (RKEY can't be
-+	 * used).
-+	 */
-+	fmr->mr.user_base = 0;
-+	fmr->mr.iova = 0;
-+	fmr->mr.length = 0;
-+	fmr->mr.offset = 0;
-+	fmr->mr.access_flags = mr_access_flags;
-+	fmr->mr.max_segs = fmr_attr->max_pages;
-+	fmr->page_shift = fmr_attr->page_shift;
-+
-+	return &fmr->ibfmr;
-+bail:
-+	while (i)
-+		kfree(fmr->mr.map[--i]);
-+	kfree(fmr);
-+	return ERR_PTR(-ENOMEM);
++	return ARRAY_SIZE(dd->ipath_pd[0]->port_pkeys);
 +}
 +
++EXPORT_SYMBOL_GPL(ipath_layer_get_npkeys);
++
 +/**
-+ * ipath_map_phys_fmr - set up a fast memory region
-+ * @ibmfr: the fast memory region to set up
-+ * @page_list: the list of pages to associate with the fast memory region
-+ * @list_len: the number of pages to associate with the fast memory region
-+ * @iova: the virtual address of the start of the fast memory region
-+ *
-+ * This may be called from interrupt context.
++ * ipath_layer_get_pkey - return the indexed PKEY from the port 0 PKEY table
++ * @dd: the infinipath device
++ * @index: the PKEY index
 + */
-+
-+int ipath_map_phys_fmr(struct ib_fmr *ibfmr, u64 * page_list,
-+		       int list_len, u64 iova)
++unsigned ipath_layer_get_pkey(struct ipath_devdata *dd, unsigned index)
 +{
-+	struct ipath_fmr *fmr = to_ifmr(ibfmr);
-+	struct ipath_lkey_table *rkt;
-+	unsigned long flags;
-+	int m, n, i;
-+	u32 ps;
++	if (index >= ARRAY_SIZE(dd->ipath_pd[0]->port_pkeys))
++		return 0;
 +
-+	if (list_len > fmr->mr.max_segs)
-+		return -EINVAL;
-+	rkt = &to_idev(ibfmr->device)->lk_table;
-+	spin_lock_irqsave(&rkt->lock, flags);
-+	fmr->mr.user_base = iova;
-+	fmr->mr.iova = iova;
-+	ps = 1 << fmr->page_shift;
-+	fmr->mr.length = list_len * ps;
-+	m = 0;
-+	n = 0;
-+	ps = 1 << fmr->page_shift;
-+	for (i = 0; i < list_len; i++) {
-+		fmr->mr.map[m]->segs[n].vaddr = phys_to_virt(page_list[i]);
-+		fmr->mr.map[m]->segs[n].length = ps;
-+		if (++n == IPATH_SEGSZ) {
-+			m++;
-+			n = 0;
-+		}
-+	}
-+	spin_unlock_irqrestore(&rkt->lock, flags);
++	return dd->ipath_pd[0]->port_pkeys[index];
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_pkey);
++
++/**
++ * ipath_layer_get_pkeys - return the PKEY table for port 0
++ * @dd: the infinipath device
++ * @pkeys: the pkey table is placed here
++ */
++int ipath_layer_get_pkeys(struct ipath_devdata *dd, u16 * pkeys)
++{
++	struct ipath_portdata *pd = dd->ipath_pd[0];
++
++	memcpy(pkeys, pd->port_pkeys, sizeof(pd->port_pkeys));
++
 +	return 0;
 +}
 +
-+/**
-+ * ipath_unmap_fmr - unmap fast memory regions
-+ * @fmr_list: the list of fast memory regions to unmap
-+ *
-+ * Returns 0 on success.
-+ */
-+int ipath_unmap_fmr(struct list_head *fmr_list)
-+{
-+	struct ipath_fmr *fmr;
-+	struct ipath_lkey_table *rkt;
-+	unsigned long flags;
-+
-+	list_for_each_entry(fmr, fmr_list, ibfmr.list) {
-+		rkt = &to_idev(fmr->ibfmr.device)->lk_table;
-+		spin_lock_irqsave(&rkt->lock, flags);
-+		fmr->mr.user_base = 0;
-+		fmr->mr.iova = 0;
-+		fmr->mr.length = 0;
-+		spin_unlock_irqrestore(&rkt->lock, flags);
-+	}
-+	return 0;
-+}
++EXPORT_SYMBOL_GPL(ipath_layer_get_pkeys);
 +
 +/**
-+ * ipath_dealloc_fmr - deallocate a fast memory region
-+ * @ibfmr: the fast memory region to deallocate
++ * rm_pkey - decrecment the reference count for the given PKEY
++ * @dd: the infinipath device
++ * @key: the PKEY index
 + *
-+ * Returns 0 on success.
++ * Return true if this was the last reference and the hardware table entry
++ * needs to be changed.
 + */
-+int ipath_dealloc_fmr(struct ib_fmr *ibfmr)
++static inline int rm_pkey(struct ipath_devdata *dd, u16 key)
 +{
-+	struct ipath_fmr *fmr = to_ifmr(ibfmr);
 +	int i;
 +
-+	ipath_free_lkey(&to_idev(ibfmr->device)->lk_table, ibfmr->lkey);
-+	i = fmr->mr.mapsz;
-+	while (i)
-+		kfree(fmr->mr.map[--i]);
-+	kfree(fmr);
++	for (i = 0; i < ARRAY_SIZE(dd->ipath_pkeys); i++) {
++		if (dd->ipath_pkeys[i] != key)
++			continue;
++		if (atomic_dec_and_test(&dd->ipath_pkeyrefs[i])) {
++			dd->ipath_pkeys[i] = 0;
++			return 1;
++		}
++		break;
++	}
 +	return 0;
 +}
-diff -r 70e3edb0d82d -r 44cd07539d66 drivers/infiniband/hw/ipath/ipath_srq.c
++
++/**
++ * add_pkey - add the given PKEY to the hardware table
++ * @dd: the infinipath device
++ * @key: the PKEY
++ *
++ * Return an error code if unable to add the entry, zero if no change,
++ * or 1 if the hardware PKEY register needs to be updated.
++ */
++static inline int add_pkey(struct ipath_devdata *dd, u16 key)
++{
++	int i;
++	u16 lkey = key & 0x7FFF;
++	int any = 0;
++
++	if (lkey == 0x7FFF)
++		return 0;
++
++	/* Look for an empty slot or a matching PKEY. */
++	for (i = 0; i < ARRAY_SIZE(dd->ipath_pkeys); i++) {
++		if (!dd->ipath_pkeys[i]) {
++			any++;
++			continue;
++		}
++		/* If it matches exactly, try to increment the ref count */
++		if (dd->ipath_pkeys[i] == key) {
++			if (atomic_inc_return(&dd->ipath_pkeyrefs[i]) > 1)
++				return 0;
++			/* Lost the race. Look for an empty slot below. */
++			atomic_dec(&dd->ipath_pkeyrefs[i]);
++			any++;
++		}
++		/*
++		 * It makes no sense to have both the limited and unlimited
++		 * PKEY set at the same time since the unlimited one will
++		 * disable the limited one.
++		 */
++		if ((dd->ipath_pkeys[i] & 0x7FFF) == lkey)
++			return -EEXIST;
++	}
++	if (!any)
++		return -EBUSY;
++	for (i = 0; i < ARRAY_SIZE(dd->ipath_pkeys); i++) {
++		if (!dd->ipath_pkeys[i] &&
++		    atomic_inc_return(&dd->ipath_pkeyrefs[i]) == 1) {
++			/* for ipathstats, etc. */
++			ipath_stats.sps_pkeys[i] = lkey;
++			dd->ipath_pkeys[i] = key;
++			return 1;
++		}
++	}
++	return -EBUSY;
++}
++
++/**
++ * ipath_layer_set_pkeys - set the PKEY table for port 0
++ * @dd: the infinipath device
++ * @pkeys: the PKEY table
++ */
++int ipath_layer_set_pkeys(struct ipath_devdata *dd, u16 * pkeys)
++{
++	struct ipath_portdata *pd;
++	int i;
++	int changed = 0;
++
++	pd = dd->ipath_pd[0];
++
++	for (i = 0; i < ARRAY_SIZE(pd->port_pkeys); i++) {
++		u16 key = pkeys[i];
++		u16 okey = pd->port_pkeys[i];
++
++		if (key == okey)
++			continue;
++		/*
++		 * The value of this PKEY table entry is changing.
++		 * Remove the old entry in the hardware's array of PKEYs.
++		 */
++		if (okey & 0x7FFF)
++			changed |= rm_pkey(dd, okey);
++		if (key & 0x7FFF) {
++			int ret = add_pkey(dd, key);
++
++			if (ret < 0)
++				key = 0;
++			else
++				changed |= ret;
++		}
++		pd->port_pkeys[i] = key;
++	}
++	if (changed) {
++		u64 pkey;
++
++		pkey = (u64) dd->ipath_pkeys[0] |
++			((u64) dd->ipath_pkeys[1] << 16) |
++			((u64) dd->ipath_pkeys[2] << 32) |
++			((u64) dd->ipath_pkeys[3] << 48);
++		ipath_cdbg(VERBOSE, "p0 new pkey reg %llx\n", (unsigned long long) pkey);
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_partitionkey,
++				 pkey);
++	}
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_set_pkeys);
++
++/**
++ * ipath_layer_get_linkdowndefaultstate - get the default linkdown state
++ * @dd: the infinipath device
++ *
++ * Returns zero if the default is POLL, 1 if the default is SLEEP.
++ */
++int ipath_layer_get_linkdowndefaultstate(struct ipath_devdata *dd)
++{
++	return !!(dd->ipath_ibcctrl & INFINIPATH_IBCC_LINKDOWNDEFAULTSTATE);
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_linkdowndefaultstate);
++
++/**
++ * ipath_layer_set_linkdowndefaultstate - set the default linkdown state
++ * @dd: the infinipath device
++ * @sleep: the new state
++ *
++ * Note that this will only take effect when the link state changes.
++ */
++int ipath_layer_set_linkdowndefaultstate(struct ipath_devdata *dd, int sleep)
++{
++	if (sleep)
++		dd->ipath_ibcctrl |= INFINIPATH_IBCC_LINKDOWNDEFAULTSTATE;
++	else
++		dd->ipath_ibcctrl &= ~INFINIPATH_IBCC_LINKDOWNDEFAULTSTATE;
++	ipath_write_kreg(dd, dd->ipath_kregs->kr_ibcctrl, dd->ipath_ibcctrl);
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_set_linkdowndefaultstate);
++
++int ipath_layer_get_phyerrthreshold(struct ipath_devdata *dd)
++{
++	return (dd->ipath_ibcctrl >> INFINIPATH_IBCC_PHYERRTHRESHOLD_SHIFT) &
++		INFINIPATH_IBCC_PHYERRTHRESHOLD_MASK;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_phyerrthreshold);
++
++/**
++ * ipath_layer_set_phyerrthreshold - set the physical error threshold
++ * @dd: the infinipath device
++ * @n: the new threshold
++ *
++ * Note that this will only take effect when the link state changes.
++ */
++int ipath_layer_set_phyerrthreshold(struct ipath_devdata *dd, unsigned n)
++{
++	unsigned v;
++
++	v = (dd->ipath_ibcctrl >> INFINIPATH_IBCC_PHYERRTHRESHOLD_SHIFT) &
++		INFINIPATH_IBCC_PHYERRTHRESHOLD_MASK;
++	if (v != n) {
++		dd->ipath_ibcctrl &=
++			~(INFINIPATH_IBCC_PHYERRTHRESHOLD_MASK <<
++			  INFINIPATH_IBCC_PHYERRTHRESHOLD_SHIFT);
++		dd->ipath_ibcctrl |=
++			(u64) n << INFINIPATH_IBCC_PHYERRTHRESHOLD_SHIFT;
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_ibcctrl,
++				 dd->ipath_ibcctrl);
++	}
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_set_phyerrthreshold);
++
++int ipath_layer_get_overrunthreshold(struct ipath_devdata *dd)
++{
++	return (dd->ipath_ibcctrl >> INFINIPATH_IBCC_OVERRUNTHRESHOLD_SHIFT) &
++		INFINIPATH_IBCC_OVERRUNTHRESHOLD_MASK;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_get_overrunthreshold);
++
++/**
++ * ipath_layer_set_overrunthreshold - set the overrun threshold
++ * @dd: the infinipath device
++ * @n: the new threshold
++ *
++ * Note that this will only take effect when the link state changes.
++ */
++int ipath_layer_set_overrunthreshold(struct ipath_devdata *dd, unsigned n)
++{
++	unsigned v;
++
++	v = (dd->ipath_ibcctrl >> INFINIPATH_IBCC_OVERRUNTHRESHOLD_SHIFT) &
++		INFINIPATH_IBCC_OVERRUNTHRESHOLD_MASK;
++	if (v != n) {
++		dd->ipath_ibcctrl &=
++			~(INFINIPATH_IBCC_OVERRUNTHRESHOLD_MASK <<
++			  INFINIPATH_IBCC_OVERRUNTHRESHOLD_SHIFT);
++		dd->ipath_ibcctrl |=
++			(u64) n << INFINIPATH_IBCC_OVERRUNTHRESHOLD_SHIFT;
++		ipath_write_kreg(dd, dd->ipath_kregs->kr_ibcctrl,
++				 dd->ipath_ibcctrl);
++	}
++	return 0;
++}
++
++EXPORT_SYMBOL_GPL(ipath_layer_set_overrunthreshold);
++
++int ipath_layer_get_boardname(struct ipath_devdata *dd, char *name,
++			      size_t namelen)
++{
++	return dd->ipath_f_get_boardname(dd, name, namelen);
++}
++EXPORT_SYMBOL_GPL(ipath_layer_get_boardname);
+diff -r d1da4154aae1 -r f0b2f6d58480 drivers/infiniband/hw/ipath/ipath_layer.h
 --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-+++ b/drivers/infiniband/hw/ipath/ipath_srq.c	Thu Mar  9 16:16:44 2006 -0800
-@@ -0,0 +1,246 @@
++++ b/drivers/infiniband/hw/ipath/ipath_layer.h	Thu Mar  9 16:16:17 2006 -0800
+@@ -0,0 +1,183 @@
 +/*
-+ * Copyright (c) 2005, 2006 PathScale, Inc. All rights reserved.
++ * Copyright (c) 2003, 2004, 2005, 2006 PathScale, Inc. All rights reserved.
 + *
 + * This software is available to you under a choice of one of two
 + * licenses.  You may choose to be licensed under the terms of the GNU
@@ -918,217 +1335,154 @@ diff -r 70e3edb0d82d -r 44cd07539d66 drivers/infiniband/hw/ipath/ipath_srq.c
 + * SOFTWARE.
 + */
 +
-+#include <linux/err.h>
-+#include <linux/vmalloc.h>
++#ifndef _IPATH_LAYER_H
++#define _IPATH_LAYER_H
 +
-+#include "ipath_verbs.h"
-+
-+/**
-+ * ipath_post_srq_receive - post a receive on a shared receive queue
-+ * @ibsrq: the SRQ to post the receive on
-+ * @wr: the list of work requests to post
-+ * @bad_wr: the first WR to cause a problem is put here
-+ *
-+ * This may be called from interrupt context.
++/*
++ * This header file is for symbols shared between the infinipath driver
++ * and drivers layered upon it (such as ipath).
 + */
-+int ipath_post_srq_receive(struct ib_srq *ibsrq, struct ib_recv_wr *wr,
-+			   struct ib_recv_wr **bad_wr)
-+{
-+	struct ipath_srq *srq = to_isrq(ibsrq);
-+	struct ipath_ibdev *dev = to_idev(ibsrq->device);
-+	unsigned long flags;
 +
-+	for (; wr; wr = wr->next) {
-+		struct ipath_rwqe *wqe;
-+		u32 next;
-+		int i, j;
++struct sk_buff;
++struct ipath_sge_state;
++struct ipath_devdata;
++struct ether_header;
 +
-+		if (wr->num_sge > srq->rq.max_sge) {
-+			*bad_wr = wr;
-+			return -ENOMEM;
-+		}
++struct ipath_layer_counters {
++	u64 symbol_error_counter;
++	u64 link_error_recovery_counter;
++	u64 link_downed_counter;
++	u64 port_rcv_errors;
++	u64 port_rcv_remphys_errors;
++	u64 port_xmit_discards;
++	u64 port_xmit_data;
++	u64 port_rcv_data;
++	u64 port_xmit_packets;
++	u64 port_rcv_packets;
++};
 +
-+		spin_lock_irqsave(&srq->rq.lock, flags);
-+		next = srq->rq.head + 1;
-+		if (next >= srq->rq.size)
-+			next = 0;
-+		if (next == srq->rq.tail) {
-+			spin_unlock_irqrestore(&srq->rq.lock, flags);
-+			*bad_wr = wr;
-+			return -ENOMEM;
-+		}
-+
-+		wqe = get_rwqe_ptr(&srq->rq, srq->rq.head);
-+		wqe->wr_id = wr->wr_id;
-+		wqe->sg_list[0].mr = NULL;
-+		wqe->sg_list[0].vaddr = NULL;
-+		wqe->sg_list[0].length = 0;
-+		wqe->sg_list[0].sge_length = 0;
-+		wqe->length = 0;
-+		for (i = 0, j = 0; i < wr->num_sge; i++) {
-+			/* Check LKEY */
-+			if (to_ipd(srq->ibsrq.pd)->user &&
-+			    wr->sg_list[i].lkey == 0) {
-+				spin_unlock_irqrestore(&srq->rq.lock,
-+						       flags);
-+				*bad_wr = wr;
-+				return -EINVAL;
-+			}
-+			if (wr->sg_list[i].length == 0)
-+				continue;
-+			if (!ipath_lkey_ok(&dev->lk_table,
-+					   &wqe->sg_list[j],
-+					   &wr->sg_list[i],
-+					   IB_ACCESS_LOCAL_WRITE)) {
-+				spin_unlock_irqrestore(&srq->rq.lock,
-+						       flags);
-+				*bad_wr = wr;
-+				return -EINVAL;
-+			}
-+			wqe->length += wr->sg_list[i].length;
-+			j++;
-+		}
-+		wqe->num_sge = j;
-+		srq->rq.head = next;
-+		spin_unlock_irqrestore(&srq->rq.lock, flags);
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * ipath_create_srq - create a shared receive queue
-+ * @ibpd: the protection domain of the SRQ to create
-+ * @attr: the attributes of the SRQ
-+ * @udata: not used by the InfiniPath verbs driver
++/*
++ * A segment is a linear region of low physical memory.
++ * XXX Maybe we should use phys addr here and kmap()/kunmap().
++ * Used by the verbs layer.
 + */
-+struct ib_srq *ipath_create_srq(struct ib_pd *ibpd,
-+				struct ib_srq_init_attr *srq_init_attr,
-+				struct ib_udata *udata)
-+{
-+	struct ipath_srq *srq;
-+	u32 sz;
++struct ipath_seg {
++	void *vaddr;
++	size_t length;
++};
 +
-+	if (srq_init_attr->attr.max_sge < 1)
-+		return ERR_PTR(-EINVAL);
++/* The number of ipath_segs that fit in a page. */
++#define IPATH_SEGSZ     (PAGE_SIZE / sizeof (struct ipath_seg))
 +
-+	srq = kmalloc(sizeof(*srq), GFP_KERNEL);
-+	if (!srq)
-+		return ERR_PTR(-ENOMEM);
++struct ipath_segarray {
++	struct ipath_seg segs[IPATH_SEGSZ];
++};
 +
-+	/*
-+	 * Need to use vmalloc() if we want to support large #s of entries.
-+	 */
-+	srq->rq.size = srq_init_attr->attr.max_wr + 1;
-+	sz = sizeof(struct ipath_sge) * srq_init_attr->attr.max_sge +
-+		sizeof(struct ipath_rwqe);
-+	srq->rq.wq = vmalloc(srq->rq.size * sz);
-+	if (!srq->rq.wq) {
-+		kfree(srq);
-+		return ERR_PTR(-ENOMEM);
-+	}
++struct ipath_mregion {
++	u64 user_base;		/* User's address for this region */
++	u64 iova;		/* IB start address of this region */
++	size_t length;
++	u32 lkey;
++	u32 offset;		/* offset (bytes) to start of region */
++	int access_flags;
++	u32 max_segs;		/* number of ipath_segs in all the arrays */
++	u32 mapsz;		/* size of the map array */
++	struct ipath_segarray *map[0];	/* the segments */
++};
 +
-+	/*
-+	 * ib_create_srq() will initialize srq->ibsrq.
-+	 */
-+	spin_lock_init(&srq->rq.lock);
-+	srq->rq.head = 0;
-+	srq->rq.tail = 0;
-+	srq->rq.max_sge = srq_init_attr->attr.max_sge;
-+	srq->limit = srq_init_attr->attr.srq_limit;
-+
-+	return &srq->ibsrq;
-+}
-+
-+/**
-+ * ipath_modify_srq - modify a shared receive queue
-+ * @ibsrq: the SRQ to modify
-+ * @attr: the new attributes of the SRQ
-+ * @attr_mask: indicates which attributes to modify
++/*
++ * These keep track of the copy progress within a memory region.
++ * Used by the verbs layer.
 + */
-+int ipath_modify_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr,
-+		     enum ib_srq_attr_mask attr_mask)
-+{
-+	struct ipath_srq *srq = to_isrq(ibsrq);
-+	unsigned long flags;
++struct ipath_sge {
++	struct ipath_mregion *mr;
++	void *vaddr;		/* current pointer into the segment */
++	u32 sge_length;		/* length of the SGE */
++	u32 length;		/* remaining length of the segment */
++	u16 m;			/* current index: mr->map[m] */
++	u16 n;			/* current index: mr->map[m]->segs[n] */
++};
 +
-+	if (attr_mask & IB_SRQ_LIMIT) {
-+		spin_lock_irqsave(&srq->rq.lock, flags);
-+		srq->limit = attr->srq_limit;
-+		spin_unlock_irqrestore(&srq->rq.lock, flags);
-+	}
-+	if (attr_mask & IB_SRQ_MAX_WR) {
-+		u32 size = attr->max_wr + 1;
-+		struct ipath_rwqe *wq, *p;
-+		u32 n;
-+		u32 sz;
++struct ipath_sge_state {
++	struct ipath_sge *sg_list;	/* next SGE to be used if any */
++	struct ipath_sge sge;	/* progress state for the current SGE */
++	u8 num_sge;
++};
 +
-+		if (attr->max_sge < srq->rq.max_sge)
-+			return -EINVAL;
++int ipath_layer_register(int device,
++			 int (*l_intr)(int, u32),
++			 int (*l_rcv)(int, void *,
++				      struct sk_buff *),
++			 u16 rcv_opcode,
++			 int (*l_rcv_lid)(int, void *),
++			 u16 rcv_lid_opcode,
++			 struct ipath_devdata **dd);
++int ipath_verbs_register(int device,
++			 int (*l_piobufavail)(int device),
++			 void (*l_rcv)(int device,
++				       void *rhdr, void *data,
++				       u32 tlen),
++			 void (*l_timer_cb)(int device),
++			 struct ipath_devdata **dd);
++int ipath_verbs_unregister(struct ipath_devdata *dd);
++int ipath_layer_open(struct ipath_devdata *, u32 * pktmax);
++int ipath_layer_close(struct ipath_devdata *);
++u16 ipath_layer_get_lid(struct ipath_devdata *dd);
++int ipath_layer_get_mac(struct ipath_devdata *dd, u8 *);
++u16 ipath_layer_get_bcast(struct ipath_devdata *dd);
++int ipath_layer_get_num_of_dev(void);
++u32 ipath_layer_get_cr_errpkey(struct ipath_devdata *dd);
++int ipath_layer_set_linkstate(struct ipath_devdata *dd, u8 state);
++int ipath_layer_set_mtu(struct ipath_devdata *, u16);
++int ipath_set_sps_lid(struct ipath_devdata *, u32, u8);
++int ipath_layer_send_hdr(struct ipath_devdata *dd, struct ether_header *hdr);
++int ipath_verbs_send(struct ipath_devdata *dd, u32 hdrwords,
++		     u32 * hdr, u32 len, struct ipath_sge_state *ss);
++struct copy_data_s;
++int ipath_layer_send_skb(struct ipath_devdata *dd, struct copy_data_s *cdata);
++int ipath_layer_set_piointbufavail_int(struct ipath_devdata *dd);
++int ipath_layer_get_boardname(struct ipath_devdata *dd, char *name,
++			      size_t namelen);
++int ipath_layer_snapshot_counters(struct ipath_devdata *dd, u64 *swords,
++				  u64 *rwords, u64 *spkts, u64 *rpkts,
++				  u64 *xmit_wait);
++int ipath_layer_get_counters(struct ipath_devdata *dd,
++			     struct ipath_layer_counters *cntrs);
++int ipath_layer_want_buffer(struct ipath_devdata *dd);
++int ipath_layer_set_guid(struct ipath_devdata *, u64 guid);
++u64 ipath_layer_get_guid(struct ipath_devdata *);
++u32 ipath_layer_get_nguid(struct ipath_devdata *);
++int ipath_layer_query_device(struct ipath_devdata *, u32 * vendor,
++			     u32 * boardrev, u32 * majrev, u32 * minrev);
++u32 ipath_layer_get_flags(struct ipath_devdata *dd);
++struct device *ipath_layer_get_device(struct ipath_devdata *dd);
++u16 ipath_layer_get_deviceid(struct ipath_devdata *dd);
++u64 ipath_layer_get_lastibcstat(struct ipath_devdata *dd);
++u32 ipath_layer_get_ibmtu(struct ipath_devdata *dd);
++int ipath_layer_enable_timer(struct ipath_devdata *dd);
++int ipath_layer_disable_timer(struct ipath_devdata *dd);
++int ipath_layer_set_verbs_flags(struct ipath_devdata *dd, unsigned flags);
++unsigned ipath_layer_get_npkeys(struct ipath_devdata *dd);
++unsigned ipath_layer_get_pkey(struct ipath_devdata *dd, unsigned index);
++int ipath_layer_get_pkeys(struct ipath_devdata *dd, u16 * pkeys);
++int ipath_layer_set_pkeys(struct ipath_devdata *dd, u16 * pkeys);
++int ipath_layer_get_linkdowndefaultstate(struct ipath_devdata *dd);
++int ipath_layer_set_linkdowndefaultstate(struct ipath_devdata *dd, int sleep);
++int ipath_layer_get_phyerrthreshold(struct ipath_devdata *dd);
++int ipath_layer_set_phyerrthreshold(struct ipath_devdata *dd, unsigned n);
++int ipath_layer_get_overrunthreshold(struct ipath_devdata *dd);
++int ipath_layer_set_overrunthreshold(struct ipath_devdata *dd, unsigned n);
 +
-+		sz = sizeof(struct ipath_rwqe) +
-+			attr->max_sge * sizeof(struct ipath_sge);
-+		wq = vmalloc(size * sz);
-+		if (!wq)
-+			return -ENOMEM;
++/* ipath_ether interrupt values */
++#define IPATH_LAYER_INT_IF_UP 0x2
++#define IPATH_LAYER_INT_IF_DOWN 0x4
++#define IPATH_LAYER_INT_LID 0x8
++#define IPATH_LAYER_INT_SEND_CONTINUE 0x10
++#define IPATH_LAYER_INT_BCAST 0x40
 +
-+		spin_lock_irqsave(&srq->rq.lock, flags);
-+		if (srq->rq.head < srq->rq.tail)
-+			n = srq->rq.size + srq->rq.head - srq->rq.tail;
-+		else
-+			n = srq->rq.head - srq->rq.tail;
-+		if (size <= n || size <= srq->limit) {
-+			spin_unlock_irqrestore(&srq->rq.lock, flags);
-+			vfree(wq);
-+			return -EINVAL;
-+		}
-+		n = 0;
-+		p = wq;
-+		while (srq->rq.tail != srq->rq.head) {
-+			struct ipath_rwqe *wqe;
-+			int i;
++/* _verbs_layer.l_flags */
++#define IPATH_VERBS_KERNEL_SMA 0x1
 +
-+			wqe = get_rwqe_ptr(&srq->rq, srq->rq.tail);
-+			p->wr_id = wqe->wr_id;
-+			p->length = wqe->length;
-+			p->num_sge = wqe->num_sge;
-+			for (i = 0; i < wqe->num_sge; i++)
-+				p->sg_list[i] = wqe->sg_list[i];
-+			n++;
-+			p = (struct ipath_rwqe *)((char *) p + sz);
-+			if (++srq->rq.tail >= srq->rq.size)
-+				srq->rq.tail = 0;
-+		}
-+		vfree(srq->rq.wq);
-+		srq->rq.wq = wq;
-+		srq->rq.size = size;
-+		srq->rq.head = n;
-+		srq->rq.tail = 0;
-+		srq->rq.max_sge = attr->max_sge;
-+		spin_unlock_irqrestore(&srq->rq.lock, flags);
-+	}
-+	return 0;
-+}
++extern unsigned ipath_debug; /* debugging bit mask */
 +
-+int ipath_query_srq(struct ib_srq *ibsrq, struct ib_srq_attr *attr)
-+{
-+	struct ipath_srq *srq = to_isrq(ibsrq);
-+
-+	attr->max_wr = srq->rq.size - 1;
-+	attr->max_sge = srq->rq.max_sge;
-+	attr->srq_limit = srq->limit;
-+	return 0;
-+}
-+
-+/**
-+ * ipath_destroy_srq - destroy a shared receive queue
-+ * @ibsrq: the SRQ to destroy
-+ */
-+int ipath_destroy_srq(struct ib_srq *ibsrq)
-+{
-+	struct ipath_srq *srq = to_isrq(ibsrq);
-+
-+	vfree(srq->rq.wq);
-+	kfree(srq);
-+
-+	return 0;
-+}
++#endif				/* _IPATH_LAYER_H */

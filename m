@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWCJQw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWCJQzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWCJQw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 11:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWCJQw2
+	id S1751193AbWCJQzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 11:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWCJQzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 11:52:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26599 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932073AbWCJQw1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 11:52:27 -0500
-Date: Fri, 10 Mar 2006 11:51:57 -0500
-From: Dave Jones <davej@redhat.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       sct@redhat.com, jack@suse.cz,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>
-Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
-Message-ID: <20060310165157.GD18755@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, sct@redhat.com, jack@suse.cz,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>,
-	ext2-devel <Ext2-devel@lists.sourceforge.net>
-References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com> <20060309152254.743f4b52.akpm@osdl.org> <1141977557.2876.20.camel@laptopd505.fenrus.org> <20060310002337.489265a3.akpm@osdl.org> <1141980238.2876.27.camel@laptopd505.fenrus.org> <20060310161940.GA18755@redhat.com> <1142008847.21442.17.camel@dyn9047017100.beaverton.ibm.com>
+	Fri, 10 Mar 2006 11:55:09 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:60820
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751193AbWCJQzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 11:55:07 -0500
+Date: Fri, 10 Mar 2006 08:54:52 -0800
+From: Greg KH <gregkh@suse.de>
+To: Hal Rosenstock <halr@voltaire.com>
+Cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       davem@davemloft.net
+Subject: Re: [openib-general] Re: [PATCH 8 of 20] ipath - sysfs support for core driver
+Message-ID: <20060310165452.GA11382@suse.de>
+References: <patchbomb.1141950930@eng-12.pathscale.com> <1123028ac13ac1de2457.1141950938@eng-12.pathscale.com> <20060310011106.GD9945@suse.de> <1141967377.14517.32.camel@camp4.serpentine.com> <20060310063724.GB30968@suse.de> <adairqmbb24.fsf@cisco.com> <1142003287.4331.28584.camel@hal.voltaire.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142008847.21442.17.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1142003287.4331.28584.camel@hal.voltaire.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 10, 2006 at 08:40:47AM -0800, Badari Pulavarty wrote:
+On Fri, Mar 10, 2006 at 10:08:10AM -0500, Hal Rosenstock wrote:
+> On Fri, 2006-03-10 at 09:59, Roland Dreier wrote:
+> >     Greg> The main issue is that if you create a sysfs file like this,
+> >     Greg> and then in 3 months realize that you need to change one of
+> >     Greg> those characters to be something else, you are in big
+> >     Greg> trouble...
+> > 
+> > I think that PortInfo and NodeInfo might be fair game for sysfs files,
+> > because they are actually defined in the IB spec with a binary format
+> > that is sent on the wire.  So they're not going to change.
+> 
+> Not true; There have been and likely will be more upward compatible
+> changes (especially to PortInfo).
 
- > >  > > I don't know how much usage it's had, sorry.  It's only allowed in
- > >  > > data=writeback mode and not many people seem to use even that.
- > >  > 
- > >  > would you be prepared to turn it on by default in -mm for a bit to see
- > >  > how it holds up? The concept seems valuable in itself, so much so that I
- > >  > feel this should be 1) on always by default when possible and 2) isn't
- > >  > really the kind of thing that should be a long term option; not having
- > >  > it almost is a -o pleaseAddThisBug option for each bug fixed.
- > > 
- > > It'd be good to get that hammered on, as it doesn't see hardly any testing
- > > based upon the experiments I did sometime last year.  It left me with
- > > an unmountable root filesystem :-/
- > 
- > Yuck. You are talking about "nobh" option for writeback mode, correct ?
- > Have any idea on what you were doing ?
+Great, that means they should NOT be exported to userspace in this
+fashion...
 
-Actually, I think I may have neglected to make those mounts writeback.
-In retrospect, it was silly, I basically forced nobh on for all mounts.
-A few boots later my / reached its maximum mount count, and got a fsck,
-which moved a bunch of useful things like /lib/ld-linux.so.2 to lost+found.
-There was so much mess that it was easier to reinstall the box than
-to pick through it. (Thankfully I tested it on a scratch box ;-)
+> > On the other hand it's not clear to me why using that wire protocol as
+> > an interface to userspace is a good idea...
 
-		Dave
--- 
-http://www.codemonkey.org.uk
+Agreed.
+
+thanks,
+
+greg k-h

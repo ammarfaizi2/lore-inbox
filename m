@@ -1,119 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWCJUvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWCJUzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWCJUvo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 15:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWCJUvo
+	id S932094AbWCJUzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 15:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWCJUzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 15:51:44 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:25739
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932233AbWCJUvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 15:51:44 -0500
-Date: Fri, 10 Mar 2006 12:51:21 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: bluesmoke-devel@lists.sourceforge.net, Doug Thompson <dthompson@lnxi.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] disable a few edac sysfs files to avoid them becoming an ABI
-Message-ID: <20060310205121.GA32170@kroah.com>
-References: <1142013041.2876.86.camel@laptopd505.fenrus.org>
+	Fri, 10 Mar 2006 15:55:35 -0500
+Received: from ns2.suse.de ([195.135.220.15]:9399 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932094AbWCJUzf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 15:55:35 -0500
+Date: Fri, 10 Mar 2006 21:55:33 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc5-git14 crash in spin_bug on ppc64
+Message-ID: <20060310205532.GA15596@suse.de>
+References: <20060310173842.GA14924@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1142013041.2876.86.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060310173842.GA14924@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arjan van de Ven <arjan@linux.intel.com>
+ On Fri, Mar 10, Olaf Hering wrote:
 
-the patch below disables (via ugly #if 0's) the 3 sysfs files that I
-think by now we all agree are very much wrong. These files shouldn't
-become part of the ABI by the 2.6.16 release, so I rather have this
-minimal patch merged to disable them for now, the real fix can then come
-during the 2.6.17 devel window.
+> 
+> I got this crash while hunting some other bug. dualcore 970mp. 
+> 
+> Welcome to SUSE Linux Enterprise Server 9.90 Beta7 (ppc) - Kernel 2.6.16-rc5-git
+> 14-ppc64-defconfig (console).
+> 
+> 
+> wels login: BUG: spinlock bad magic on CPU#1, gdm/4568
+> cpu 0x1: Vector: 300 (Data Access) at [c0000000f3c2f5c0]
+>     pc: c00000000020a7ec: .spin_bug+0x94/0x100
+
+c0000000f40001f0 is *lock at 0xc0000000f217b738:
+1:mon> d c0000000f40001f0
+c0000000f40001f0 ffff000000000000 ffff000000000000  |................|
+c0000000f4000200 ffff000000000000 ffff000000000000  |................|
+c0000000f4000210 ffff000000000000 ffff000000000000  |................|
+c0000000f4000220 ffff000000000000 ffff000000000000  |................|
 
 
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
----
- drivers/edac/edac_mc.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+anon_vma_link() *vma is 
+1:mon> d c0000000f217b6b8 100
+c0000000f217b6b8 c0000000f4c51800 000000000f6e5000  |.............nP.|
+c0000000f217b6c8 000000000f6e9000 0000000000000000  |.....n..........|
+c0000000f217b6d8 0000000000000113 0000000000100073  |...............s|
+c0000000f217b6e8 c0000000f4edde78 0000000100000000  |.......x........|
+c0000000f217b6f8 c000000007960d18 c00000000ff799a8  |................|
+c0000000f217b708 c0000000f217cde8 c0000000f217cde8  |................|
+c0000000f217b718 0000000000000000 c0000000f4f644a8  |..............D.|
+c0000000f217b728 c0000000f4f64518 c0000000f4000208  |......E.........|
+c0000000f217b738 c0000000f40001f0 c000000000607600  |.............`v.|
+c0000000f217b748 000000000000007b c0000000f953fc80  |.......{.....S..|
+c0000000f217b758 0000000000000000 0000000000000000  |................|
+c0000000f217b768 c0000000f2186180 00000000f7fe1000  |......a.........|
+c0000000f217b778 00000000f7fff000 c0000000f9127088  |..............p.|
+c0000000f217b788 0000000000000117 0000000000000875  |...............u|
+c0000000f217b798 c00000000ff79d18 0000000000000000  |................|
+c0000000f217b7a8 0000000000000000 0000000000000000  |................|
+1:mon> 
 
---- gregkh-2.6.orig/drivers/edac/edac_mc.c
-+++ gregkh-2.6/drivers/edac/edac_mc.c
-@@ -132,11 +132,13 @@ static struct kobject edac_pci_kobj;
-  * /sys/devices/system/edac/mc;
-  * 	data structures and methods
-  */
-+#if 0
- static ssize_t memctrl_string_show(void *ptr, char *buffer)
- {
- 	char *value = (char*) ptr;
- 	return sprintf(buffer, "%s\n", value);
- }
-+#endif
- 
- static ssize_t memctrl_int_show(void *ptr, char *buffer)
- {
-@@ -207,7 +209,9 @@ struct memctrl_dev_attribute attr_##_nam
- };
- 
- /* cwrow<id> attribute f*/
-+#if 0
- MEMCTRL_STRING_ATTR(mc_version,EDAC_MC_VERSION,S_IRUGO,memctrl_string_show,NULL);
-+#endif
- 
- /* csrow<id> control files */
- MEMCTRL_ATTR(panic_on_ue,S_IRUGO|S_IWUSR,memctrl_int_show,memctrl_int_store);
-@@ -222,7 +226,6 @@ static struct memctrl_dev_attribute *mem
- 	&attr_log_ue,
- 	&attr_log_ce,
- 	&attr_poll_msec,
--	&attr_mc_version,
- 	NULL,
- };
- 
-@@ -309,6 +312,8 @@ struct list_control {
- 	int *count;
- };
- 
-+
-+#if 0
- /* Output the list as:  vendor_id:device:id<,vendor_id:device_id> */
- static ssize_t edac_pci_list_string_show(void *ptr, char *buffer)
- {
-@@ -430,6 +435,7 @@ static ssize_t edac_pci_list_string_stor
- 	return count;
- }
- 
-+#endif
- static ssize_t edac_pci_int_show(void *ptr, char *buffer)
- {
- 	int *value = ptr;
-@@ -498,6 +504,7 @@ struct edac_pci_dev_attribute edac_pci_a
- 	.store  = _store,					\
- };
- 
-+#if 0
- static struct list_control pci_whitelist_control = {
- 	.list = pci_whitelist,
- 	.count = &pci_whitelist_count
-@@ -520,6 +527,7 @@ EDAC_PCI_STRING_ATTR(pci_parity_blacklis
- 	S_IRUGO|S_IWUSR,
- 	edac_pci_list_string_show,
- 	edac_pci_list_string_store);
-+#endif
- 
- /* PCI Parity control files */
- EDAC_PCI_ATTR(check_pci_parity,S_IRUGO|S_IWUSR,edac_pci_int_show,edac_pci_int_store);
-@@ -531,8 +539,6 @@ static struct edac_pci_dev_attribute *ed
- 	&edac_pci_attr_check_pci_parity,
- 	&edac_pci_attr_panic_on_pci_parity,
- 	&edac_pci_attr_pci_parity_count,
--	&edac_pci_attr_pci_parity_whitelist,
--	&edac_pci_attr_pci_parity_blacklist,
- 	NULL,
- };
- 
+The whole area looks broken:
+
+
+1:mon> d c0000000f4000000 400
+c0000000f4000000 ffff000000000000 ffff000000000000  |................|
+c0000000f4000010 ffff000000000000 ffff000000000000  |................|
+...
+c0000000f4000260 ffff000000000000 ffff000000000000  |................|
+c0000000f4000270 ffff000000000000 ffff000000000000  |................|
+c0000000f4000280 c0000000f4000280 c0000000f4000280  |................|
+c0000000f4000290 00000000dead4ead ffffffff00000000  |......N.........|
+c0000000f40002a0 ffffffffffffffff c0000000f40002a8  |................|
+c0000000f40002b0 c0000000f40002a8 00000000dead4ead  |..............N.|
+c0000000f40002c0 ffffffff00000000 ffffffffffffffff  |................|
+c0000000f40002d0 c0000000f4f58a98 c0000000f4f58a98  |................|
+c0000000f40002e0 00000000dead4ead ffffffff00000000  |......N.........|
+c0000000f40002f0 ffffffffffffffff c0000000f21eaf68  |...............h|
+c0000000f4000300 c0000000f21eaf68 00000000dead4ead  |.......h......N.|
+c0000000f4000310 ffffffff00000000 ffffffffffffffff  |................|
+c0000000f4000320 c0000000f4000320 c0000000f4000320  |....... ....... |
+c0000000f4000330 00000000dead4ead ffffffff00000000  |......N.........|
+c0000000f4000340 ffffffffffffffff c0000000f4000348  |...............H|
+c0000000f4000350 c0000000f4000348 00000000dead4ead  |.......H......N.|
+c0000000f4000360 ffffffff00000000 ffffffffffffffff  |................|
+c0000000f4000370 c0000000f4000370 c0000000f4000370  |.......p.......p|
+c0000000f4000380 00000000dead4ead ffffffff00000000  |......N.........|
+c0000000f4000390 ffffffffffffffff c0000000f4442ca8  |.............D,.|
+c0000000f40003a0 c0000000f4efeb48 00000000dead4ead  |.......H......N.|
+c0000000f40003b0 ffffffff00000000 ffffffffffffffff  |................|
+c0000000f40003c0 c0000000f40003c0 c0000000f40003c0  |................|
+c0000000f40003d0 00000000dead4ead ffffffff00000000  |......N.........|
+c0000000f40003e0 ffffffffffffffff c00000000f335e08  |.............3^.|
+c0000000f40003f0 c00000000f3979e8 00000000dead4ead  |.....9y.......N.|
+

@@ -1,57 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWCJIx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752181AbWCJIzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWCJIx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 03:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWCJIx1
+	id S1752181AbWCJIzr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 03:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752180AbWCJIzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 03:53:27 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:19632 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750922AbWCJIx0 (ORCPT
+	Fri, 10 Mar 2006 03:55:47 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26050 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752181AbWCJIzq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 03:53:26 -0500
-Message-ID: <44113F65.50706@sw.ru>
-Date: Fri, 10 Mar 2006 11:57:09 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@ftp.linux.org.uk>, devel@openvz.org,
-       Andrey Savochkin <saw@saw.sw.com.sg>
-Subject: Re: [PATCH] ext3: ext3_symlink should use GFP_NOFS allocations	inside
- (ver. 3)
-References: <44113CCC.5080602@openvz.org> <1141980385.2876.30.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141980385.2876.30.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Mar 2006 03:55:46 -0500
+Date: Fri, 10 Mar 2006 09:55:30 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] Collie battery status sensing code
+Message-ID: <20060310085530.GA4903@elf.ucw.cz>
+References: <20060309123842.GA3619@elf.ucw.cz> <1141910391.10107.49.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141910391.10107.49.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Andrew,
->>
->>Fixed both comments from Al Viro (thanks, Al):
->>- should have a separate helper
->>- should pass 0 instead of GFP_KERNEL in page_symlink()
-> 
-> 
->> 
->>+	page = find_or_create_page(mapping, 0,
->>+			mapping_gfp_mask(mapping) | gfp_mask);
-> 
-> 
-> 
-> 
-> this does not work; GFP_NOFS has a bit *LESS* than GFP_KERNEL, not a bit
-> more. As such a | operation isn't going to be useful....
-> 
-> (So I think that while Al's intention was good, the implication of it
-> isn't ;)
-Oh no... Had to sleep well today... :/
-Al, are you agree with the original patch then?
-I don't think it is a good idea to introduce AND mask instead :)
+Hi!
 
-Thanks,
-Kirill
+> > This is collie battery sensing code. It differs from sharpsl code a
+> > bit -- because it is dependend on ucb1x00, not on platform bus.
+> > 
+> > I guess I should reorganize #include's and remove #if 0-ed
+> > code. Anything else
+> 
+> Basically looks good. Could probably use a
+> s/printk/dev_dbg(sharpsl_pm.dev, /. I've made a few other comments
+> below. 
 
+Ok, comments below.
+
+> > +#include <asm/arch/collie.h>
+> > +#include "../mach-pxa/sharpsl.h"
+> 
+> Do you need anything in the above header? If so, it should probably be
+> in asm/hardware/sharpsl_pm.h
+
+Thanks, fixed.
+
+> > +#ifdef I_AM_SURE
+> > +#define CF_BUF_CTRL_BASE 0xF0800000
+> > +#define        SCOOP_REG(adr) (*(volatile unsigned short*)(CF_BUF_CTRL_BASE+(adr)))
+> > +#define        SCOOP_REG_GPWR    SCOOP_REG(SCOOP_GPWR)
+> > +
+> > +	if (on) {
+> > +		SCOOP_REG_GPWR |= COLLIE_SCP_CHARGE_ON;
+> > +	} else {
+> > +		SCOOP_REG_GPWR &= ~COLLIE_SCP_CHARGE_ON;
+> 
+> Ick. Use arch/arm/common/scoop.c to do this. Something like:
+
+Thanks, fixed.
+
+> > +extern struct sharpsl_pm_status sharpsl_pm;
+> > +
+> > +static int __init collie_pm_add(struct ucb1x00_dev *pdev)
+> > +{
+> > +	sharpsl_pm.dev = NULL;
+> > +	sharpsl_pm.machinfo = &collie_pm_machinfo;
+> > +	ucb = pdev->ucb;
+> > +	return sharpsl_pm_init();
+> > +}
+> 
+> I don't understand how this is supposed to work at all. For a start,
+> sharpsl_pm.c says "static int __devinit sharpsl_pm_init(void)" so that
+> function isn't available. I've just noticed your further patches
+> although I still don't like this.
+> 
+> The correct approach is to register a platform device called
+> "sharpsl-pm" in collie_pm_add() which the driver will then see and
+> attach to. I'd also not register the platform device if ucb is NULL for
+> whatever reason.
+> 
+> By setting sharpsl_pm.dev = NULL you're also going to miss out on
+> suspend/resume calls and risk breaking things like
+> dev_dbg(sharpsl_pm.dev, xxx). 
+
+Ok, I'll try to switch it to two-device config.
+								Pavel
+-- 
+28:class DeDRMS

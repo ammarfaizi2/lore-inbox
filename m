@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWCJNT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWCJNXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWCJNT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 08:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWCJNT7
+	id S1750774AbWCJNXa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 08:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWCJNXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 08:19:59 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:61131 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750961AbWCJNT6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 08:19:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dKT7poYOKLoowmwT3jq3nzp6UYq7I56vL41hPlR2ihwYe/aKN34UfQDjpTra+jBwJIMxKlrwfN0waIcXCU/h8dTuw3BT4QGrZe8ms3kK8eN+P1ND7XXf/F6/q9R1Ol9rkL9lSp3DvidXPHuURpjDenxnreH460Vz1TrJmvKfm+s=
-Message-ID: <aec7e5c30603100519l5a68aec3ub838ac69a734a46b@mail.gmail.com>
-Date: Fri, 10 Mar 2006 14:19:55 +0100
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [PATCH 00/03] Unmapped: Separate unmapped and mapped pages
-Cc: "Magnus Damm" <magnus@valinux.co.jp>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <1141977139.2876.15.camel@laptopd505.fenrus.org>
+	Fri, 10 Mar 2006 08:23:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63891 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750774AbWCJNX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 08:23:29 -0500
+To: Kirill Korotaev <dev@openvz.org>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       serue@us.ibm.com, frankeh@watson.ibm.com, clg@fr.ibm.com
+Subject: Re: sysctls inside containers
+References: <43F9E411.1060305@sw.ru>
+	<m1oe0wbfed.fsf@ebiederm.dsl.xmission.com>
+	<1141062132.8697.161.camel@localhost.localdomain>
+	<m1ek1owllf.fsf@ebiederm.dsl.xmission.com>
+	<1141442246.9274.14.camel@localhost.localdomain>
+	<4411524B.1000707@openvz.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 10 Mar 2006 06:22:34 -0700
+In-Reply-To: <4411524B.1000707@openvz.org> (Kirill Korotaev's message of
+ "Fri, 10 Mar 2006 13:17:47 +0300")
+Message-ID: <m1zmjyjuxx.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060310034412.8340.90939.sendpatchset@cherry.local>
-	 <1141977139.2876.15.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/10/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > Apply on top of 2.6.16-rc5.
-> >
-> > Comments?
+Kirill Korotaev <dev@openvz.org> writes:
+
+> After checking proposed yours, Eric and vserver solutions, I must say that these
+> all are hacks.
+> If we want to virtualize sysctl we need to do it in honest way:
+> multiple sysctl trees, which can be different in different namespaces.
+> For example, one namespace can see /proc/sys/net/route and the other one
+> not.
+
+At least a different copy of /proc/sys/net/route :)
+
+> Introducing helpers/handlers etc. doesn't fully solve the problem of
+> visibility of different parts of sysctl tree and it's access rights.
+
+I need to look a little deeper but I think if we add two helper
+functions: One that returns the address of a value based upon our state,
+and another that returns a subdirectory based upon our state I think we
+should be ok.
+
+Both of them taking a struct task_struct argument so we can make the decision
+what to show based upon the calling process.
+
+> Another example, the same network device can present in 2 namespaces and these
+> are dynamically(!) created entries in sysctl.
 >
+> So we need to address actually 2 issues:
+> - ability to limit parts of sysctl tree visibility to namespace
+> - ability to limit/change sysctl access rights in namespace
 >
-> my big worry with a split LRU is: how do you keep fairness and balance
-> between those LRUs? This is one of the things that made the 2.4 VM suck
-> really badly, so I really wouldn't want this bad...
+> You can check OpenVZ for cloning sysctl tree code. It is not clean, nor elegant,
+> but can be cleanuped.
 
-Yeah, I agree this is important. I think linux-2.4 tried to keep the
-LRU list lengths in a certain way (maybe 2/3 of all pages active, 1/3
-inactive). In 2.6 there is no such thing, instead the number of pages
-scanned is related to the current scanning priority.
+Sounds like a decent idea.
 
-My current code just extends this idea which basically means that
-there is currently no relation between how many pages that sit in each
-LRU. The LRU with the largest amount of pages will be shrunk/rotated
-first. And on top of that is the guarantee logic and the
-reclaim_mapped threshold, ie the unmapped LRU will be shrunk first by
-default.
+What I have found so far with access rights is that if you dig deep enough
+you don't need magic to make it safe.  But this may only be because I have
+not hit something that is fundamentally different.
 
-The current balancing code plays around with nr_scan_active and
-nr_scan_inactive, but I'm not entirely sure why that logic is there.
-If anyone can explain the reason behind that code I'd be happy to hear
-it.
 
-Thanks,
-
-/ magnus
+Eric

@@ -1,99 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751954AbWCJF3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbWCJFsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751954AbWCJF3F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWCJF3E
+	id S1751749AbWCJFsn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 00:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWCJFsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:29:04 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:57937 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751954AbWCJF3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:29:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=J+eWdOifHmQJ3XnLCG8xWQzUfRJggld67BvCXXnQjsI8C+p3yi8zyb/8IHS61QDTTN/f1hQCzoULz0Fpwm3ulvppWqf/5uwTyFpxqe4wOyNiRW8LzkoI7KNRKTUepKNdR7Tx1eiwuwK15/uHoc/k9UKKCLDBHGneUXrTTNLhFFM=  ;
-Message-ID: <44110E93.8060504@yahoo.com.au>
-Date: Fri, 10 Mar 2006 16:28:51 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
-       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
-References: <16835.1141936162@warthog.cambridge.redhat.com>
-In-Reply-To: <16835.1141936162@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Mar 2006 00:48:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:55529 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751204AbWCJFsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 00:48:42 -0500
+Date: Thu, 9 Mar 2006 21:48:05 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
+Message-ID: <20060310054805.GA29961@suse.de>
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain> <ada8xrjfbd8.fsf@cisco.com> <1141948367.10693.53.camel@serpentine.pathscale.com> <20060310004505.GB17050@suse.de> <1141951725.10693.88.camel@serpentine.pathscale.com> <20060310010403.GC9945@suse.de> <1141965696.14517.4.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1141965696.14517.4.camel@camp4.serpentine.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
+On Thu, Mar 09, 2006 at 08:41:36PM -0800, Bryan O'Sullivan wrote:
+> On Thu, 2006-03-09 at 17:04 -0800, Greg KH wrote:
+> 
+> > > I don't expect this to be a practical problem.  We're planning to add
+> > > hotplug support to the driver once we have some cycles free.
+> > 
+> > Ugh, that means it's never going to be there.
+> > 
+> > All new PCI drivers have the requirement that they work properly in
+> > hotplug systems, as they should follow the PCI core api.  If not, odds
+> > are they will not be accepted into the tree :(
+> 
+> Okay, maybe we're talking at cross purposes here.  We do follow the PCI
+> core API.  We have a __devinit probe and __devexit remove routine, a
+> MODULE_DEVICE_TABLE, the kernel generates hotplug events when a device
+> is detected or the driver is unloaded, and so on.
+> 
+> I *assumed* that there was something more that we would need to do in
+> order to support real hotplug of actual physical cards, but now that I
+> look more closely, it doesn't appear that there is.  At least, there's
+> nothing in Documentation/pci.txt or LDD3 that indicates to me that we
+> ought to be doing more.
+> 
+> Am I missing something?
 
-> +==========================
-> +WHAT IS CONSIDERED MEMORY?
-> +==========================
-> +
-> +For the purpose of this specification what's meant by "memory" needs to be
-> +defined, and the division between CPU and memory needs to be marked out.
-> +
-> +
-> +CACHED INTERACTIONS
-> +-------------------
-> +
-> +As far as cached CPU vs CPU[*] interactions go, "memory" has to include the CPU
-> +caches in the system.  Although any particular read or write may not actually
-> +appear outside of the CPU that issued it (the CPU may may have been able to
-> +satisfy it from its own cache), it's still as if the memory access had taken
-> +place as far as the other CPUs are concerned since the cache coherency and
-> +ejection mechanisms will propegate the effects upon conflict.
-> +
+Nope, that's all that you need to do.  Your driver will be notified that
+the device will be going away by calling the disconnect function.  So
+great, nothing needs to be done :)
 
-Isn't the Alpha's split caches a counter-example of your model,
-because the coherency itself is out of order?
+Oh, and you can test this out if you don't have a pci hotplug system by
+using the fakephp driver and disconnecting your device that way.
 
-Why do you need to include caches and queues in your model? Do
-programmers care? Isn't the following sufficient...
+thanks,
 
-          :    | m |
-    CPU -----> | e |
-          :    | m |
-          :    | o |
-    CPU -----> | r |
-          :    | y |
-
-... and bugger the implementation details?
-
-> + [*] Also applies to CPU vs device when accessed through a cache.
-> +
-> +The system can be considered logically as:
-> +
-> +	    <--- CPU --->         :       <----------- Memory ----------->
-> +	                          :
-> +	+--------+    +--------+  :   +--------+    +-----------+
-> +	|        |    |        |  :   |        |    |           |    +---------+
-> +	|  CPU   |    | Memory |  :   | CPU    |    |           |    |	       |
-> +	|  Core  |--->| Access |----->| Cache  |<-->|           |    |	       |
-> +	|        |    | Queue  |  :   |        |    |           |--->| Memory  |
-> +	|        |    |        |  :   |        |    |           |    |	       |
-> +	+--------+    +--------+  :   +--------+    |           |    | 	       |
-> +	                          :                 | Cache     |    +---------+
-> +	                          :                 | Coherency |
-> +	                          :                 | Mechanism |    +---------+
-> +	+--------+    +--------+  :   +--------+    |           |    |	       |
-> +	|        |    |        |  :   |        |    |           |    |         |
-> +	|  CPU   |    | Memory |  :   | CPU    |    |           |--->| Device  |
-> +	|  Core  |--->| Access |----->| Cache  |<-->|           |    | 	       |
-> +	|        |    | Queue  |  :   |        |    |           |    | 	       |
-> +	|        |    |        |  :   |        |    |           |    +---------+
-> +	+--------+    +--------+  :   +--------+    +-----------+
-> +	                          :
-> +	                          :
-> +
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+greg k-h

@@ -1,81 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWCJF2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751954AbWCJF3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWCJF2M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWCJF2I
+	id S1751954AbWCJF3F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 00:29:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWCJF3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:28:08 -0500
-Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:43922 "EHLO
-	smtpauth07.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1750741AbWCJF2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:28:06 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT]
-In-Reply-To: Your message of "Mon, 27 Feb 2006 17:04:15 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B0CE273@pdsmsx403> 
-X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
-Date: Fri, 10 Mar 2006 00:26:14 -0500
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FHa8k-00015b-M5@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478bbc7acd6dc94bc6ba288334b8af5e188d596878c185a1852350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 24.41.6.91
+	Fri, 10 Mar 2006 00:29:04 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:57937 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751954AbWCJF3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 00:29:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=J+eWdOifHmQJ3XnLCG8xWQzUfRJggld67BvCXXnQjsI8C+p3yi8zyb/8IHS61QDTTN/f1hQCzoULz0Fpwm3ulvppWqf/5uwTyFpxqe4wOyNiRW8LzkoI7KNRKTUepKNdR7Tx1eiwuwK15/uHoc/k9UKKCLDBHGneUXrTTNLhFFM=  ;
+Message-ID: <44110E93.8060504@yahoo.com.au>
+Date: Fri, 10 Mar 2006 16:28:51 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+References: <16835.1141936162@warthog.cambridge.redhat.com>
+In-Reply-To: <16835.1141936162@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Re: bugme #5989, head no longer hanging in shame]
+David Howells wrote:
 
-From: "Yu, Luming" <luming.yu@intel.com>
-> I suggest you to retest, and post dmesg with UN-modified BIOS.
+> +==========================
+> +WHAT IS CONSIDERED MEMORY?
+> +==========================
+> +
+> +For the purpose of this specification what's meant by "memory" needs to be
+> +defined, and the division between CPU and memory needs to be marked out.
+> +
+> +
+> +CACHED INTERACTIONS
+> +-------------------
+> +
+> +As far as cached CPU vs CPU[*] interactions go, "memory" has to include the CPU
+> +caches in the system.  Although any particular read or write may not actually
+> +appear outside of the CPU that issued it (the CPU may may have been able to
+> +satisfy it from its own cache), it's still as if the memory access had taken
+> +place as far as the other CPUs are concerned since the cache coherency and
+> +ejection mechanisms will propegate the effects upon conflict.
+> +
 
-I'm now running/testing an unmodified DSDT with 2.6.16-rc5.  For a while
-I had no S3 hangs, but I just noticed them again.  The error is the same
-as with the modified DSDT (with slightly different offsets):
+Isn't the Alpha's split caches a counter-example of your model,
+because the coherency itself is out of order?
 
-exregion-0185 [36] ex_system_memory_space: system_memory 0 (32 width) Address=0000000023FDFFC0
-exregion-0185 [36] ex_system_memory_space: system_memory 1 (32 width) Address=0000000023FDFFC0
-exregion-0290 [36] ex_system_io_space_han: system_iO 1 (8 width) Address=00000000000000B2
+Why do you need to include caches and queues in your model? Do
+programmers care? Isn't the following sufficient...
 
-repeated endlessly.
+          :    | m |
+    CPU -----> | e |
+          :    | m |
+          :    | o |
+    CPU -----> | r |
+          :    | y |
 
-I think the problem resurfaced once I decided to let my sleep.sh script
-leave the thermal driver loaded before going into S3 (suspecting that
-the bug might come back if I did that).
+... and bugger the implementation details?
 
-So I susect that my modified DSDT didn't cause the S3 problems, it
-merely exposed one even in the minimal configuration discussed in the
-#5989 report.
+> + [*] Also applies to CPU vs device when accessed through a cache.
+> +
+> +The system can be considered logically as:
+> +
+> +	    <--- CPU --->         :       <----------- Memory ----------->
+> +	                          :
+> +	+--------+    +--------+  :   +--------+    +-----------+
+> +	|        |    |        |  :   |        |    |           |    +---------+
+> +	|  CPU   |    | Memory |  :   | CPU    |    |           |    |	       |
+> +	|  Core  |--->| Access |----->| Cache  |<-->|           |    |	       |
+> +	|        |    | Queue  |  :   |        |    |           |--->| Memory  |
+> +	|        |    |        |  :   |        |    |           |    |	       |
+> +	+--------+    +--------+  :   +--------+    |           |    | 	       |
+> +	                          :                 | Cache     |    +---------+
+> +	                          :                 | Coherency |
+> +	                          :                 | Mechanism |    +---------+
+> +	+--------+    +--------+  :   +--------+    |           |    |	       |
+> +	|        |    |        |  :   |        |    |           |    |         |
+> +	|  CPU   |    | Memory |  :   | CPU    |    |           |--->| Device  |
+> +	|  Core  |--->| Access |----->| Cache  |<-->|           |    | 	       |
+> +	|        |    | Queue  |  :   |        |    |           |    | 	       |
+> +	|        |    |        |  :   |        |    |           |    +---------+
+> +	+--------+    +--------+  :   +--------+    +-----------+
+> +	                          :
+> +	                          :
+> +
 
-Which makes me wonder about another bug that disappeared when I switched
-to the vanilla DSDT: While printing (via gs+hpijs to an HP photosmart
-2710 via the wireless card), the system makes double-beeps as if it were
-having the AC adapter plugged and unplugged.  These noises happen when
-printing via the wireless card or via USB (to a different HP inkjet),
-but not when printing via the parallel port to a Lexmark laserprinter
-(using just gs).  Since I didn't do anything to the battery code in the
-DSDT, I now wonder whether changing the DSDT merely exposed the issue
-but didn't create it.
-
-[From an earlier msg:]
-> I think the truth is, for 5989, we need to fix thermal and processor
-> driver issue.
-
-I agree, although I think the processor driver is not the culprit.  My
-earlier testing with the (with the modified DSDT) worked fine with the
-processor module loaded, but hung with processor + thermal loaded.
-
--Sanjoy
-
-`A society of sheep must in time beget a government of wolves.'
-   - Bertrand de Jouvenal
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

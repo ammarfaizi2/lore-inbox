@@ -1,75 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWCJQ73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWCJRD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWCJQ73 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 11:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbWCJQ73
+	id S1751200AbWCJRD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWCJRD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 11:59:29 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:57066 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751629AbWCJQ72
+	Fri, 10 Mar 2006 12:03:56 -0500
+Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:14027 "EHLO
+	zoot.lnxi.com") by vger.kernel.org with ESMTP id S1751200AbWCJRD4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 11:59:28 -0500
-Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       sct@redhat.com, jack@suse.cz,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       ext2-devel <Ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20060310165157.GD18755@redhat.com>
-References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060309152254.743f4b52.akpm@osdl.org>
-	 <1141977557.2876.20.camel@laptopd505.fenrus.org>
-	 <20060310002337.489265a3.akpm@osdl.org>
-	 <1141980238.2876.27.camel@laptopd505.fenrus.org>
-	 <20060310161940.GA18755@redhat.com>
-	 <1142008847.21442.17.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060310165157.GD18755@redhat.com>
-Content-Type: text/plain
-Date: Fri, 10 Mar 2006 09:00:56 -0800
-Message-Id: <1142010061.21442.26.camel@dyn9047017100.beaverton.ibm.com>
+	Fri, 10 Mar 2006 12:03:56 -0500
+Message-Id: <44114D5702000036000014DE@zoot.lnxi.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
+Date: Fri, 10 Mar 2006 09:56:39 -0700
+From: "Doug Thompson" <dthompson@lnxi.com>
+To: <arjan@infradead.org>
+Cc: <tim@buttersideup.com>, <greg@kroah.com>,
+       <bluesmoke-devel@lists.sourceforge.net>, <dsp@llnl.gov>,
+       "Doug Thompson" <dthompson@lnxi.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] EDAC: core EDAC support code
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 11:51 -0500, Dave Jones wrote:
-> On Fri, Mar 10, 2006 at 08:40:47AM -0800, Badari Pulavarty wrote:
+On Fri, 2006-03-10 at 11:40 +0000, Arjan van de Ven  wrote:
+> On Fri, 2006-03-10 at 11:06 +0000, Tim Small wrote:
+> > Arjan van de Ven wrote:
+> > 
+> > > It depends on how many PCI devices in your machine you wish to
+> > >
+> > >>blacklist or whitelist.  The motivation for this feature is that
+> > >>certain known badly-designed devices report an endless stream of
+> > >>spurious PCI bus parity errors.  We want to skip such devices when
+> > >>checking for PCI bus parity errors.
+> > >>    
+> > >>
+> > >
+> > >ok so this is actually a per pci device property!
+> > >I would suggest moving this property to the pci device itself, not doing
+> > >it inside an edac directory.
+> > >  
+> > >
+> > Yes, this seems more sensible to me.  For one thing, I suspect that just 
+> > keying on vendor:device is probably too blunt for this and that 
+> > blacklisting a particular PCI device revision is a likely requirement, 
+> > as well as subsystem vendor/subsystem device.
 > 
->  > >  > > I don't know how much usage it's had, sorry.  It's only allowed in
->  > >  > > data=writeback mode and not many people seem to use even that.
->  > >  > 
->  > >  > would you be prepared to turn it on by default in -mm for a bit to see
->  > >  > how it holds up? The concept seems valuable in itself, so much so that I
->  > >  > feel this should be 1) on always by default when possible and 2) isn't
->  > >  > really the kind of thing that should be a long term option; not having
->  > >  > it almost is a -o pleaseAddThisBug option for each bug fixed.
->  > > 
->  > > It'd be good to get that hammered on, as it doesn't see hardly any testing
->  > > based upon the experiments I did sometime last year.  It left me with
->  > > an unmountable root filesystem :-/
->  > 
->  > Yuck. You are talking about "nobh" option for writeback mode, correct ?
->  > Have any idea on what you were doing ?
-> 
-> Actually, I think I may have neglected to make those mounts writeback.
-> In retrospect, it was silly, I basically forced nobh on for all mounts.
-> A few boots later my / reached its maximum mount count, and got a fsck,
-> which moved a bunch of useful things like /lib/ld-linux.so.2 to lost+found.
-> There was so much mess that it was easier to reinstall the box than
-> to pick through it. (Thankfully I tested it on a scratch box ;-)
+> and maybe even something as funky as firmware version.
+> So it for sure is a per device (not per ID) property, and something that
+> needs a global quirk table kind of thing with the option to do per
+> driver overrides
 
-Well, This makes me feel better. I am not going to take full
-responsibility for this. :)
+Very definitely, this non-conforming misfeature of PCI compliance is a
+per PCI device attribute. At the very least it is tied to VENDOR:DEVICE
+tuple, and probably a subsystem vendor/device tuple as well. As to
+firmware, that is also likely. Mellanox promised a new firmware update
+to their board that supposely fixes this issue. Yet, I find no firmware
+value in the PCI spec, just the Revision ID, which could be used as
+firmware identifier. THis is up to the vendor.
 
-You can't force NOBH on all mounts. It gets silently ignored (there is
-a message in dmesg) on anything other than "writeback" mode and pagesize
-== blocksize.
+So in order to be sure I understand, if this PARITY Non-Conformance
+attribute was "moved" to the per device directory of sysfs
+(/sys/devices/pci0000:00/0000:00:06.0 for an example), then we would
+need a userland attribute file created here and then stored in the
+'pci_dev' structure or the mentioned quirk structure. This field then
+could be set by userland script(s), then EDAC-PCI could example that
+data in its iteration of pci devices.  Is that correct?
 
-Something else is going wrong here.
+I will admit I have heard of the "quirk" tables in the kernel, but don't
+fully understand them.  From what I read here, a PCI device quirk table
+would be a parallel structure to the 'struct pci_dev' for a given PCI
+device. So every pci_dev structure created, then a quirk table structure
+would be created, and in that quirk entry is a PARITY data item. That
+data item is exposed into sysfs in the /sys/devices/pci* as the example
+above.
 
-Thanks,
-Badari
+An new getter functions would be needed so the EDAC PCI iterator could
+'get' the current value of the attribute.
+
+If the above is correct, then who would we need to contact for said
+modification or approval for such? Is that you Greg KH, since you are
+listed as the PCI SUBSYSTEM maintainer?
+
+thanks
+
+doug t
+
+
 

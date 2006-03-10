@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932713AbWCJImJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbWCJIoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932713AbWCJImJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 03:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWCJImI
+	id S932696AbWCJIoJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 03:44:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932663AbWCJIoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 03:42:08 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:33108 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932663AbWCJImG (ORCPT
+	Fri, 10 Mar 2006 03:44:08 -0500
+Received: from main.gmane.org ([80.91.229.2]:1761 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1752088AbWCJIoH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 03:42:06 -0500
-Message-ID: <44113CF0.7070005@sw.ru>
-Date: Fri, 10 Mar 2006 11:46:40 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Andrey Savochkin <saw@saw.sw.com.sg>,
-       devel@openvz.org
-Subject: Re: [PATCH] ext3: ext3_symlink should use GFP_NOFS allocations inside
-References: <441133FD.2070808@openvz.org> <20060310083136.GW27946@ftp.linux.org.uk>
-In-Reply-To: <20060310083136.GW27946@ftp.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Mar 2006 03:44:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Joshua Kwan <joshk@triplehelix.org>
+Subject: Problems ejecting 4th-generation iPod with 2.6.15
+Date: Fri, 10 Mar 2006 00:43:19 -0800
+Message-ID: <dure7s$1ic$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: lal-99-128.reshall.berkeley.edu
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>+	page = find_or_create_page(mapping, 0,
->>+			mapping_gfp_mask(mapping) | gfp_mask);
-> 
-> 
->>+int page_symlink(struct inode *inode, const char *symname, int len)
->>+{
->>+	return __page_symlink(inode, symname, len, GFP_KERNEL);
-> 
-> 
-> s/GFP_KERNEL/0/; if somebody has e.g. GFP_NOFS in their mapping flags,
-> you end up breaking their code.  We really pass extra flags to be added
-> to default ones; page_symlink() should pass 0.
-thanks for noticing this.
-fixed and resend.
+Hi,
+
+When I plug my iPod in via USB, and later eject it, I more often than
+not get this:
+
+usb 5-5: reset high speed USB device using ehci_hcd and address 20
+usb 5-5: reset high speed USB device using ehci_hcd and address 20
+usb 5-5: reset high speed USB device using ehci_hcd and address 20
+usb 5-5: reset high speed USB device using ehci_hcd and address 20
+usb 5-5: reset high speed USB device using ehci_hcd and address 20
+sd 14:0:0:0: scsi: Device offlined - not ready after error recovery
+usb 5-5: USB disconnect, address 20
+
+What's going on here?
+
+A list of other problems that I've seen can be found on Carsten Otto's
+site about his own iPod experiences, http://home.c-otto.de/ipod/...
+
+On that page a link to a SuSE ML is linked to, blaming the choice of IO
+scheduler, and recommends that people use cfq. I think this is bullshit,
+but I am running anticipatory. Should I try cfq?
 
 Thanks,
-Kirill
 
+-- 
+Joshua Kwan
 

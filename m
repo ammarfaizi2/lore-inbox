@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751860AbWCJREG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751863AbWCJRFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751860AbWCJREG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751863AbWCJREG
+	id S1751863AbWCJRFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751874AbWCJRFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:04:06 -0500
-Received: from s93.xrea.com ([218.216.67.44]:55786 "HELO s93.xrea.com")
-	by vger.kernel.org with SMTP id S1751860AbWCJREF (ORCPT
+	Fri, 10 Mar 2006 12:05:25 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:2008 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751863AbWCJRFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:04:05 -0500
-Message-Id: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
-From: Jun OKAJIMA <okajima@digitalinfra.co.jp>
-Date: Sat, 11 Mar 2006 02:04:10 +0900
-To: linux-kernel@vger.kernel.org
-Subject: Faster resuming of suspend technology.
-MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.13
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Mar 2006 12:05:24 -0500
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and
+	lightweight subnet management
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20060310165813.GB11382@suse.de>
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
+	 <ada8xrjfbd8.fsf@cisco.com>
+	 <1141948367.10693.53.camel@serpentine.pathscale.com>
+	 <20060310004505.GB17050@suse.de>
+	 <1141951725.10693.88.camel@serpentine.pathscale.com>
+	 <20060310010403.GC9945@suse.de>
+	 <1141965696.14517.4.camel@camp4.serpentine.com> <ada7j72detl.fsf@cisco.com>
+	 <1141998230.28926.4.camel@localhost.localdomain>
+	 <20060310165813.GB11382@suse.de>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Fri, 10 Mar 2006 09:05:19 -0800
+Message-Id: <1142010319.29925.30.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-03-10 at 08:58 -0800, Greg KH wrote:
 
+> You keep an internal list of devices, if you really need to do such a
+> thing.
 
-As you might know, one of the key technology of fast booting is suspending.
-actually, using suspending does fast booting. And very good point is
-not only can do booting desktop and daemons, but apps at once.
-but one big fault --- it is slow for a while after booted because of HDD thrashing.
-(I mention a term suspend as generic one, not refering only to Nigel Cunningham's one)
+OK.  I do think we need it, because we have a dozen or so cases where we
+do "iterate over all of the known devices".
 
-One of the solution of thrashing issue is like this.
-1. log disk access pattern after booted.
-2. analyze the log and find common disk access pattern.
-2. re-order a suspend image using the pattern.
-3. read-aheading the image after booted.
+> It's just the "disconnect" PCI function being called, which can happen
+> at any time.
 
-so far is okay. this is common technique to reduce disk seek.
+Thanks.
 
-The problem of above way is,  "Is there common access pattern?".
-I guess there would be.
-The reason is that even what user does is always different, but what pages
-it needs has common pattern. For example, pages which contain glibc or gtk
-libs are always used. So, reading ahead these pages is meaningful, I suppose.
-
-What you think? Your opinion is very welcome.
-
-
-                 --- Okajima, Jun. Tokyo, Japan.
-                     http://www.machboot.com
-
-
+	<b
 

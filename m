@@ -1,129 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbWCJBE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422675AbWCJBFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422673AbWCJBE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 20:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422675AbWCJBE4
+	id S1422675AbWCJBFr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 20:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422677AbWCJBFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 20:04:56 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:27909 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1422674AbWCJBEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 20:04:55 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <mr.fred.smoothie@gmail.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [future of drivers?] a proposal for binary drivers.
-Date: Thu, 9 Mar 2006 17:04:21 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKEEAHKKAB.davids@webmaster.com>
+	Thu, 9 Mar 2006 20:05:47 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:30894 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1422675AbWCJBFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 20:05:46 -0500
+Message-ID: <4410D0F1.3030307@vilain.net>
+Date: Fri, 10 Mar 2006 14:05:53 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Write the inode itself in block_fsync()
+References: <87bqwfzixu.fsf@duaron.myhome.or.jp>
+In-Reply-To: <87bqwfzixu.fsf@duaron.myhome.or.jp>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <161717d50603091530v1ce55197l7448228c1219462@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 09 Mar 2006 17:00:40 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 09 Mar 2006 17:00:42 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OGAWA Hirofumi wrote:
 
-> On 3/9/06, David Schwartz <davids@webmaster.com> wrote:
+>Hi,
+>
+>For block device's inode, we don't write a inode's meta data
+>itself. But, I think we should write inode's meta data for fsync().
+>  
+>
 
-> > > Copyright law also absolutely
-> > > gives me monopoly power over derivitive works - you can't even create
-> > > a work derived from my dropped-from-airplane poem without my
-> > > permission, much less distribute one.
-> >
-> >        No, that's not true on two counts.
-> >
-> >        First, your last part "much less distribute one" is
-> > utterly false.
-> > Copyright law does not give you any special rights to restrict the
-> > distribution of derivative works.
+Ouch... won't that halve performance of database transaction logs?
 
-> You're being rather hyper-technical and semantic here, aren't you? You
-> clearly can't distribute something you can't legally "prepare" in the
-> first place.
-
-	No, it's a huge point. Because there are other ways you can get the right
-to *prepare* it, these include fair use, first sale, scenes a faire,
-necessary step, de minimis, and probably several other things I'm missing.
-
-> > Second, your first part, that it gives you monopoly
-> > power over the creation
-> > of derivative works is also false. First sale and fair use can
-> > give people
-> > the right to create derivative works.
-
-> OK, 14 USC 106(2) gives me monopoly power, subject to certain
-> restrictions. You seemed to have missed my point, as none of the
-> restrictions you mentioned include creation of derivative software
-> programs for commercial distribution.
-
-	It's not clear that necessary step and scenes a faire don't. There is case
-law regarding necessary step creation of derivative works for commercial
-distribution. So you're simply assuming as beyond controversy an issue that
-is totally unresolved.
-
-> In another reply, you wrote:
-
-> >        You cannot copyright an idea. "A Foo2000 SCSI driver for
-> > Linux 2.6" is an
-> > *idea*. So you cannot argue that you have copyright on every practically
-> > possible way to create such a driver.
-
-> Your argument, if extended to fiction, is equivalent to "'An
-> elaboration of Gone With the Wind' is an idea."
-
-	An elaboration of Gone With the Wind is not functional. It doesn't *do*
-anything. So whether or not it's the only way to do a particular thing is
-not even an issue.
-
-> There may be such a
-> thing as an idea corresponding to "an elaboration of Gone With the
-> Wind," but once a reader has the embodiment of that idea in their
-> hands, a work subject to copyright has obviously been created, and
-> it's up to the courts to decide whether it's a derived work or not.
-
-	Of course, and if all it took from the original work is the only way to get
-a particular thing done, it's clearly not a derivate work for copyright
-purposes.
-
-> Linux is a copyrighted work, so "A Foo2000 SCSI driver for Linux 2.6,"
-> once it gets embodied in software, unless it's implemented in
-> userspace, is most likely going to be a work derived from the
-> copyrighted expression which is the linux kernel.
-
-	I agree, however it is not legally a derivative work if all it took from
-Linux was the only (practical) way to get a particular functional task done.
-This is scenes a faire. (Did you read Lexmark v. Static Controls?)
-
-> I don't think a software company is going to get away with declaring
-> that their driver is parody (though I've seen code that appears to be
-> a parody of computer programming generally), and if they're careful
-> enough not to use the same symbols as me... well, they won't have
-> created a derived work, but  other important senses of the word "work"
-> probably won't apply to their program, either.
-
-	The symbols are not the issue. Courts have clearly held that the names of
-symbols and the order of functions is not copyrightable content. Anything
-that is purely functional is not copyrightable content either. If it is the
-only, straightforward, practical way to do a particular thing, it's just not
-copyrightable. (If you want software patents, you know where to find them.)
-
-	Software is not the same as other works, and the analogies to
-non-functional works don't always, excuse the term, work.
-
-	DS
-
+>Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+>---
+>
+> fs/block_dev.c |   16 +++++++++++++++-
+> 1 file changed, 15 insertions(+), 1 deletion(-)
+>
+>diff -puN fs/block_dev.c~block_fsync-write-inode fs/block_dev.c
+>--- linux-2.6/fs/block_dev.c~block_fsync-write-inode	2006-03-05 21:51:15.000000000 +0900
+>+++ linux-2.6-hirofumi/fs/block_dev.c	2006-03-05 22:28:28.000000000 +0900
+>@@ -19,6 +19,7 @@
+> #include <linux/module.h>
+> #include <linux/blkpg.h>
+> #include <linux/buffer_head.h>
+>+#include <linux/writeback.h>
+> #include <linux/mpage.h>
+> #include <linux/mount.h>
+> #include <linux/uio.h>
+>@@ -232,7 +233,20 @@ static loff_t block_llseek(struct file *
+>  
+> static int block_fsync(struct file *filp, struct dentry *dentry, int datasync)
+> {
+>-	return sync_blockdev(I_BDEV(filp->f_mapping->host));
+>+	struct inode *inode = dentry->d_inode;
+>+	int ret = 0, err;
+>+
+>+	if (!datasync || (inode->i_state & I_DIRTY_DATASYNC)) {
+>+		struct writeback_control wbc = {
+>+			.sync_mode = WB_SYNC_ALL,
+>+			.nr_to_write = 0,	/* sys_fsync did this */
+>+		};
+>+		ret = sync_inode(inode, &wbc);
+>+	}
+>+	err = sync_blockdev(I_BDEV(filp->f_mapping->host));
+>+	if (!ret)
+>+		ret = err;
+>+	return err;
+> }
+> 
+> /*
+>_
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 

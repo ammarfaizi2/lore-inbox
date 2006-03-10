@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWCJAwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWCJAy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWCJAwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbWCJAww
+	id S932140AbWCJAy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932639AbWCJAy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:52:52 -0500
-Received: from test-iport-1.cisco.com ([171.71.176.117]:44622 "EHLO
-	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S932420AbWCJAwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:52:50 -0500
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
-X-Message-Flag: Warning: May contain useful information
-References: <28bb276205de498d0b5c.1141950939@eng-12.pathscale.com>
-	<adaslprcelg.fsf@cisco.com>
-	<1141951622.10693.85.camel@serpentine.pathscale.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 09 Mar 2006 16:52:47 -0800
-In-Reply-To: <1141951622.10693.85.camel@serpentine.pathscale.com> (Bryan O'Sullivan's message of "Thu, 09 Mar 2006 16:47:02 -0800")
-Message-ID: <adaoe0fce8w.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 9 Mar 2006 19:54:27 -0500
+Received: from ozlabs.org ([203.10.76.45]:57835 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932140AbWCJAyZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 19:54:25 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Mar 2006 00:52:49.0884 (UTC) FILETIME=[F46629C0:01C643DC]
+Content-Transfer-Encoding: 7bit
+Message-ID: <17424.52795.142571.746064@cargo.ozlabs.ibm.com>
+Date: Fri, 10 Mar 2006 11:54:19 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Alan Cox <alan@redhat.com>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+In-Reply-To: <20060310004815.GD24904@devserv.devel.redhat.com>
+References: <16835.1141936162@warthog.cambridge.redhat.com>
+	<17424.48029.481013.502855@cargo.ozlabs.ibm.com>
+	<20060310004815.GD24904@devserv.devel.redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> It's read outside of this file, without a lock held.
+Alan Cox writes:
 
-I missed the other reference in another patch.  But the central point
-still stands: if all you do is atomic_set() and atomic_read(), then
-using atomic_t doesn't buy you anything.  Just look at what
-atomic_read() expands to -- using it isn't protecting you against
-anything, so either you have a race, or you were safe without
-atomic_t.  The only point to atomic_t is so that you can safely do
-read-modify-write things like atomic_inc().
+> On Fri, Mar 10, 2006 at 10:34:53AM +1100, Paul Mackerras wrote:
+> > MMIO accesses are done under a spinlock, and that if your driver is
+> > missing them then that is a bug.  I don't think it makes sense to say
+> > that mmiowb is required "on some systems".
+> 
+> Agreed. But if it is missing it may not be a bug. It depends what the lock
+> actually protects.
 
- - R.
+True.  What I want is a statement that if one of the purposes of the
+spinlock is to provide ordering of the MMIO accesses, then leaving out
+the mmiowb is a bug.  I want it to be like the PCI DMA API in that
+drivers are required to use it even on platforms where it's a no-op.
+
+Paul.
+

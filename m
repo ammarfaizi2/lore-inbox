@@ -1,95 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWCJLLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752203AbWCJLSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWCJLLN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 06:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWCJLLN
+	id S1752203AbWCJLSd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 06:18:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752206AbWCJLSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 06:11:13 -0500
-Received: from airmail.airvananet.com ([12.6.244.34]:20748 "EHLO
-	airmail.wirelessworld.airvananet.com") by vger.kernel.org with ESMTP
-	id S1751023AbWCJLLN convert rfc822-to-8bit (ORCPT
+	Fri, 10 Mar 2006 06:18:33 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:55360 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1752203AbWCJLSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 06:11:13 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 10 Mar 2006 06:18:32 -0500
+Message-ID: <44116198.7000000@sw.ru>
+Date: Fri, 10 Mar 2006 14:23:04 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Confused about SIGHUP
-Date: Fri, 10 Mar 2006 16:40:08 +0530
-Message-ID: <653F3CF58193744C9DE59C217C072B58513904@nilgiri.india.wirelessworld.airvananet.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Confused about SIGHUP
-Thread-Index: AcYf3gMvb/oWE8SFSxScMOJWWdsBOAkU6uuw
-From: "Sampath Kumar Herga" <sherga@airvana.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Mar 2006 11:10:13.0673 (UTC) FILETIME=[3437C990:01C64433]
+To: Jan Blunck <jblunck@suse.de>
+CC: Neil Brown <neilb@suse.de>, Kirill Korotaev <dev@openvz.org>,
+       akpm@osdl.org, viro@zeniv.linux.org.uk, olh@suse.de,
+       bsingharora@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory()
+ race (3rd updated patch)]
+References: <20060309165833.GK4243@hasse.suse.de> <441060D2.6090800@openvz.org> <17425.2594.967505.22336@cse.unsw.edu.au> <441138B7.9060809@sw.ru> <20060310105950.GL4243@hasse.suse.de>
+In-Reply-To: <20060310105950.GL4243@hasse.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>I really think that we need to stop prune_one_dentry from being called
+>>>on dentries for a filesystem that is being unmounted.  With that code
+>>>currently in -git, that means passing a 'struct super_block *' into
+>>>prune_dcache so that it ignores any filesystem with ->s_root==NULL
+>>>unless that filesystem is the filesystem that was passed.
+>>
+>>Can try...
+> 
+> Can not ... because of down_read(s_umount) before checking s_root :(
 
-Not sure if this is the right forum for this question. Would appreciate
-if someone could point me to the correct forum, if this isnt. 
+> So what do we do now?
+> 
+>  1. always get the reference counting right outside of dcache_lock
+> 
+>  2. hack around with different paths for prune_dcache() when called from
+>     shrink_dcache_memory() and shrink_dcache_parent()
+3. keep the existing patch from me :))))
 
-I was trying the following program and the main thread also seems to
-exit when the spawned thread exits. This happens only when I spawn the
-program using the xterm -e <cmd> option to execute the program.
+> I think that we should go for the first.
+just an idea which came to my mind:
+can't we fix it the following way:
+1. fix select_parent() when called from generic_shutdown_super() to loop 
+until _all_ dentries are shrinked (not only those, with d_count = 1);
+this guarentees that no dentries are left.
+2. no dentries are left, but iput() can be in progress.
+So can't we simply make invalidate_inodes() to be in a loop with 
+schedule() until no busy inodes are left?!
 
-#include <pthread.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <linux/unistd.h>
+unregister_netdevice() for example, loops until netdev counter drops to 
+zero. Why can't we do it the same way? Any objections?
 
-_syscall0(pid_t,gettid)
-pid_t gettid(void);
+Thanks,
+Kirill
 
-
-void* func(void* tmp1)
-{
-        printf("func; Process group = %d;\tpid =
-%d;\ttid=%d;\tppid=%d\n",getpgrp(),getpid(),gettid(),getppid());
-	sleep(2);
-}
-
-int main()
-{
-	pthread_attr_t attr;
-	pthread_t thread;
-	pthread_attr_init(&attr);
-
-	pthread_create(&thread,&attr,func,0);
-
-        printf("main; Process group = %d;\tpid =
-%d;\ttid=%d;\tppid=%d\n",getpgrp(),getpid(),gettid(),getppid());
-	while(1)
-	{	
-		printf("Hello World\n");
-		sleep(1);
-	}
-}
-
-main; Process group = 30100;    pid = 30100;    tid=30100;
-ppid=30098
-Hello World
-func; Process group = 30100;    pid = 30100;    tid=30101;
-ppid=30098
-Hello World
-Hello World
-
-
-Looking at the strace, the main thread seems to be getting a SIGHUP.
-
-30101 _exit(0)                          = ?
-30100 <... rt_sigprocmask resumed> [], 8) = 0
-30100 --- SIGHUP (Hangup) @ 0 (0) ---
-30098 <... select resumed> )            = 1 (in [4], left {1, 0})
-30098 --- SIGCHLD (Child exited) @ 0 (0) ---
-
-I wasn't sure why SIGHUP is being delivered in this case when tid 30101
-is not the process group leader?
-
-Regards,
-Sampath.

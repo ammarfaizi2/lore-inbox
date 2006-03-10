@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWCJVNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWCJVO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWCJVNq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 16:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWCJVNq
+	id S932269AbWCJVO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 16:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCJVO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 16:13:46 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:14259 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932260AbWCJVNp
+	Fri, 10 Mar 2006 16:14:26 -0500
+Received: from silver.veritas.com ([143.127.12.111]:27037 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932268AbWCJVOX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 16:13:45 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=CG1yamW/S981hZk6Xoaj6ilO9mWTV/dNGtJlFrBPRFLm3fl3UwATP8TXZ+I4JP29h
-	LqdtkcICqT/6cHemgpt6w==
-Message-ID: <4411EBF3.2010007@google.com>
-Date: Fri, 10 Mar 2006 13:13:23 -0800
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zach Brown <zach.brown@oracle.com>
-CC: Mark Fasheh <mark.fasheh@oracle.com>, ocfs2-devel@oss.oracle.com,
+	Fri, 10 Mar 2006 16:14:23 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,181,1139212800"; 
+   d="scan'208"; a="35716382:sNHT21599736"
+Date: Fri, 10 Mar 2006 21:15:19 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Dominik Brodowski <linux@dominikbrodowski.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Ocfs2-devel] Ocfs2 performance
-References: <4408C2E8.4010600@google.com>	<20060303233617.51718c8e.akpm@osdl.org>	<440B9035.1070404@google.com>	<20060306025800.GA27280@ca-server1.us.oracle.com>	<440BC1C6.1000606@google.com>	<20060306195135.GB27280@ca-server1.us.oracle.com>	<p733bhvgc7f.fsf@verdi.suse.de>	<20060307045835.GF27280@ca-server1.us.oracle.com>	<440FCA81.7090608@google.com>	<20060310002121.GJ27280@ca-server1.us.oracle.com> <44116057.5060705@google.com> <4411C42F.9080908@oracle.com>
-In-Reply-To: <4411C42F.9080908@oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] fix pcmcia_device_remove oops
+Message-ID: <Pine.LNX.4.61.0603102113490.4517@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Mar 2006 21:14:22.0289 (UTC) FILETIME=[9A13A410:01C64487]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zach Brown wrote:
->>Pretty close race - vmalloc is slightly faster if anything.
-> 
-> I don't think that test tells us anything interesting about the relative
-> load on the TLB.  What would be interesting is seeing the effect
-> vmalloc()ed hashes have on a concurrently running load that puts heavy
-> pressure on the TLB.
+Fix pcmcia_device_remove NULL pointer dereference at shutdown.
 
-Bzip2 isn't that kind of load?
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+Unlike its older brother, this oops has not yet graduated from -mm to
+mainline.  I've not yet seen my cards working in -mm (maybe intermittent
+anomaly at my end), and saw oops when removing and inserting card; but
+follow those issues up another time, this is a good start just for
+closing down the box.
 
-Regards,
+ drivers/pcmcia/ds.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Daniel
+--- 2.6.16-rc5-mm3/drivers/pcmcia/ds.c	2006-03-07 11:43:21.000000000 +0000
++++ linux/drivers/pcmcia/ds.c	2006-03-10 17:40:04.000000000 +0000
+@@ -464,7 +464,7 @@ static int pcmcia_device_remove(struct d
+ 	 * all devices
+ 	 */
+ 	did = (struct pcmcia_device_id *) p_dev->dev.driver_data;
+-	if ((did->match_flags & PCMCIA_DEV_ID_MATCH_DEVICE_NO) &&
++	if (did && (did->match_flags & PCMCIA_DEV_ID_MATCH_DEVICE_NO) &&
+ 	    (p_dev->socket->device_count != 0) &&
+ 	    (p_dev->device_no == 0))
+ 		pcmcia_card_remove(p_dev->socket, p_dev);

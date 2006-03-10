@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751597AbWCJFIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751798AbWCJFJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751597AbWCJFIR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751606AbWCJFIR
+	id S1751798AbWCJFJn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 00:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWCJFJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:08:17 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:45972 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751596AbWCJFIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:08:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Rn6wPX/bEEjLexOCT0ItfL8X+PgjH4WjuceZzphit+RWF1Z5pl2bV1ycPOAmMTcUZIUtlCL7aYfo/LfGPJZQTOEk/2cG5sCX73y40MtC2Kmyp3XTz7vANOwq6J2JbIFTyay3a26C3ayq4M3wzadyvgEi2NQ/lRiPlZMGN/WU18s=  ;
-Message-ID: <441109BC.9070705@yahoo.com.au>
-Date: Fri, 10 Mar 2006 16:08:12 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-CC: alsa-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rt20, "bad page state", jackd
-References: <1141846564.5262.20.camel@cmn3.stanford.edu>	 <20060309084746.GB9408@osiris.boeblingen.de.ibm.com>	 <1141938488.22708.28.camel@cmn3.stanford.edu>	 <4410B2D7.4090806@yahoo.com.au> <1141958866.22708.69.camel@cmn3.stanford.edu>
-In-Reply-To: <1141958866.22708.69.camel@cmn3.stanford.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Mar 2006 00:09:43 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:40099 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751798AbWCJFJm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 00:09:42 -0500
+Subject: Re: [PATCH 8 of 20] ipath - sysfs support for core driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Greg KH <gregkh@suse.de>
+Cc: rolandd@cisco.com, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <20060310011106.GD9945@suse.de>
+References: <patchbomb.1141950930@eng-12.pathscale.com>
+	 <1123028ac13ac1de2457.1141950938@eng-12.pathscale.com>
+	 <20060310011106.GD9945@suse.de>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 21:09:37 -0800
+Message-Id: <1141967377.14517.32.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fernando Lopez-Lezcano wrote:
-> On Fri, 2006-03-10 at 09:57 +1100, Nick Piggin wrote:
-> 
->>Fernando Lopez-Lezcano wrote:
+On Thu, 2006-03-09 at 17:11 -0800, Greg KH wrote:
 
->>Can you test with the latest mainline -git snapshot, or is it only
->>the -rt tree that causes the warnings?
-> 
-> 
-> I found something strange although I don't know why it happens yet:
-> 
->   Fedora Core 4 kernel (2.6.15 + patches) works fine.
->   Fedora Core 4 kernel + -rt21, [ahem... sorry], works fine.
->   Fedora Core 4 kernel + -rt21 + alsa kernel modules from 1.0.10 or
->      1.0.11rc3, fails[*]
->   Plain vanilla 2.6.15 + -rt21, works fine
->   Plain vanilla 2.6.15 + -rt21 + alsa kernel modules from 1.0.10 or
->      1.0.11rc3, fails[*]
-> 
-> So, it looks like it is some weird interaction between kernel modules
-> that were not compiled as part of the kernel and the kernel itself. The
-> "updated" modules are installed in a separate location (not on top of
-> the built in kernel modules) and are found before the ones in the kernel
-> tree.
-> 
-> I have been building this combination for a long long time with no
-> problems, I don't know what might have happened that changed things.
-> 
-> Could be:
-> - configuration problems?
+> These two files sure do show a lot of different stuff, all in a
+> predefined structure for a single file.  Please break them up into the
+> different individual files please.
 
-No. It shouldn't do this even if there is a configuration problem.
+The problem is that I want them to be presented together.  They look
+like a pile of different stuff, but they're actually Infiniband NodeInfo
+and PortInfo structures.  And yes, they are that ugly.
 
-> - the alsa tree is somehow incompatible with the kernel alsa tree, is
->   that even possible?
-> 
+These files fall into the same categories as the atomic_counters and
+atomic_snapshots files you raised objections to earlier; it actually
+makes sense to look at them as a whole, not their constituent parts.
 
-Yes. Most likely this. It should be fixed before the new ALSA code is
-pushed upstream.
+In the earlier round of review, people suggested that I use netlink for
+stuff like this, but I quickly decided I'd rather gnaw my leg off than
+use the netlink API.
 
-It is probably not so much a matter of somebody breaking the ALSA code
-as that it hasn't been updated for the new kernel refcounting rules.
+I'm thinking at this point that I should just route this information
+through the /dev/ipath_sma char device, and maybe
+add /dev/ipath_counters%d and /dev/ipath_stats to go with it.  I think
+that's a pretty crummy approach that sysfs solves more cleanly, but
+there you go.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	<b
+

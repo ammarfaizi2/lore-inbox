@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWCIX7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWCJAA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWCIX7i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 18:59:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932187AbWCIX7i
+	id S932187AbWCJAA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWCJAA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 18:59:38 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:38793 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932117AbWCIX7h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 18:59:37 -0500
-Subject: Re: [PATCH 8 of 20] ipath - sysfs support for core driver
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Greg KH <greg@kroah.com>
-Cc: Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, gregkh@suse.de,
-       akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20060309234607.GA26898@kroah.com>
-References: <ef8042c934401522ed3f.1141922821@localhost.localdomain>
-	 <adapskvfbqe.fsf@cisco.com>  <20060309234607.GA26898@kroah.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 09 Mar 2006 15:59:37 -0800
-Message-Id: <1141948777.10693.61.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Mar 2006 19:00:29 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:50332 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S932187AbWCJAA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 19:00:28 -0500
+X-IronPort-AV: i="4.02,180,1139212800"; 
+   d="scan'208"; a="260913654:sNHT30815954"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
+X-Message-Flag: Warning: May contain useful information
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
+	<ada8xrjfbd8.fsf@cisco.com>
+	<1141948367.10693.53.camel@serpentine.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 09 Mar 2006 16:00:25 -0800
+In-Reply-To: <1141948367.10693.53.camel@serpentine.pathscale.com> (Bryan O'Sullivan's message of "Thu, 09 Mar 2006 15:52:47 -0800")
+Message-ID: <ada64mndv8m.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 10 Mar 2006 00:00:26.0431 (UTC) FILETIME=[A2C14CF0:01C643D5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 15:46 -0800, Greg KH wrote:
-> On Thu, Mar 09, 2006 at 03:18:49PM -0800, Roland Dreier wrote:
-> 
-> Thanks for CC:ing me, but where were the originals of these posted?
+    Bryan> We don't support hotplugged devices at the moment.  If
+    Bryan> you're asking whether an rmmod at the wrong time could
+    Bryan> cause something bad to happen, I don't *think* so.
 
-My patch posting script screwed up.  Only Roland got them, even though
-the envelopes were all correct.
+How do you stop someone from hot plugging a PCIe device?
 
-> >  > +static ssize_t show_atomic_stats(struct device_driver *dev, char *buf)
-> >  > +{
-> >  > +	memcpy(buf, &ipath_stats, sizeof(ipath_stats));
-> >  > +
-> >  > +	return sizeof(ipath_stats);
-> >  > +}
-> > 
-> > I think putting a whole binary struct in a sysfs attribute is
-> > considered a no-no.
-> 
-> That's an understatement, where is the large stick to thwap the author
-> of this code...
-
-I'd like to understand why, though.  As I already explained, it's a
-smallish structure (< 1KB), and I can use the special binary sysfs
-attribute goo for it if you insist, but ... why?
-
-	<b
-
+ - R.

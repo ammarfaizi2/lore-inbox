@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWCJQfK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWCJQfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWCJQfK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 11:35:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWCJQfK
+	id S1751336AbWCJQfM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 11:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWCJQfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 10 Mar 2006 11:35:12 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:41427 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751336AbWCJQfK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 10 Mar 2006 11:35:10 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16028 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751336AbWCJQfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 11:35:08 -0500
-From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200603101634.k2AGYvAo148109@fsgi900.americas.sgi.com>
-Subject: [PATCH] 2.6 Altix : small ioc4 oversight....
-To: linux-kernel@vger.kernel.org
-Date: Fri, 10 Mar 2006 10:34:56 -0600 (CST)
-Cc: akpm@osdl.org
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Revenge of the sysfs maintainer! (was Re: [PATCH 8 of 20]
+	ipath - sysfs support for core driver)
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <gregkh@suse.de>,
+       Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20060310162552.GB18755@redhat.com>
+References: <adapskvfbqe.fsf@cisco.com>
+	 <1141947143.10693.40.camel@serpentine.pathscale.com>
+	 <20060310003513.GA17050@suse.de>
+	 <1141951589.10693.84.camel@serpentine.pathscale.com>
+	 <20060310010050.GA9945@suse.de>
+	 <1141966693.14517.20.camel@camp4.serpentine.com>
+	 <1141977431.2876.18.camel@laptopd505.fenrus.org>
+	 <1141998702.28926.15.camel@localhost.localdomain>
+	 <1141999569.2876.47.camel@laptopd505.fenrus.org>
+	 <1142006121.29925.5.camel@serpentine.pathscale.com>
+	 <20060310162552.GB18755@redhat.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Fri, 10 Mar 2006 08:35:06 -0800
+Message-Id: <1142008506.29925.19.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-03-10 at 11:25 -0500, Dave Jones wrote:
 
-I shoulda caught this when I reviewed the code for the recent serial
-core changes - sorry....
+> What more exactly do you want?
 
-Get rid of the local 'flip' variable and no need to 'trim' the buffer.
+Nothing.  The reason I said it wasn't enabled was that I tried mounting
+it, but evidently I fubmled something.
 
+Thanks,
 
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
+	<b
 
-
- ioc4_serial.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
-
-
-Index: linux-2.6/drivers/serial/ioc4_serial.c
-===================================================================
---- linux-2.6.orig/drivers/serial/ioc4_serial.c	2006-03-09 11:37:31.153784820 -0600
-+++ linux-2.6/drivers/serial/ioc4_serial.c	2006-03-09 11:38:36.697103905 -0600
-@@ -2301,7 +2301,6 @@
- 	int read_count, request_count = IOC4_MAX_CHARS;
- 	struct uart_icount *icount;
- 	struct uart_info *info = the_port->info;
--	int flip = 0;
- 	unsigned long pflags;
- 
- 	/* Make sure all the pointers are "good" ones */
-@@ -2313,7 +2312,7 @@
- 	spin_lock_irqsave(&the_port->lock, pflags);
- 	tty = info->tty;
- 
--	request_count = tty_buffer_request_room(tty, IOC4_MAX_CHARS - 2);
-+	request_count = tty_buffer_request_room(tty, IOC4_MAX_CHARS);
- 
- 	if (request_count > 0) {
- 		icount = &the_port->icount;
-@@ -2326,8 +2325,7 @@
- 
- 	spin_unlock_irqrestore(&the_port->lock, pflags);
- 
--	if (flip)
--		tty_flip_buffer_push(tty);
-+	tty_flip_buffer_push(tty);
- }
- 
- /**

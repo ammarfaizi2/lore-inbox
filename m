@@ -1,124 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751756AbWCJGAq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWCJGFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751756AbWCJGAq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 01:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751752AbWCJGAq
+	id S1751752AbWCJGFq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 01:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbWCJGFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 01:00:46 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:18913 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751388AbWCJGAp
+	Fri, 10 Mar 2006 01:05:46 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:9616 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751388AbWCJGFq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 01:00:45 -0500
-Message-ID: <4411175F.8040504@in.ibm.com>
-Date: Fri, 10 Mar 2006 11:36:23 +0530
-From: Suzuki <suzuki@in.ibm.com>
-Organization: IBM Software Labs
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 10 Mar 2006 01:05:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ShXVq69moPc+wCtZejAP84ftIm2SS2fAbgJ0JxHi1JOXwmYzVBuG90pzRSwHnwxZuflmlIVm+w3Y7j2y2fSmf+ppYKACr5Bis7i4BgdrVE6D6C2nDjf2aRbIDXjXiHBYbx4r1rhiv3PFVERkb5Dg17/lrMmUWh7JgPFNYfIhvVM=
+Message-ID: <aec7e5c30603092204h21fa7639wf90e6d4e2fdee128@mail.gmail.com>
+Date: Fri, 10 Mar 2006 15:04:15 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 03/03] Unmapped: Add guarantee code
+Cc: "Magnus Damm" <magnus@valinux.co.jp>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <44110727.802@yahoo.com.au>
 MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: lkml <linux-kernel@vger.kernel.org>, suparna <suparna@in.ibm.com>,
-       akpm@osdl.org, linux-xfs@oss.sgi.com
-Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
-References: <440FD66D.6060308@in.ibm.com> <20060309222232.GB1135@frodo>
-In-Reply-To: <20060309222232.GB1135@frodo>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060310034412.8340.90939.sendpatchset@cherry.local>
+	 <20060310034429.8340.61997.sendpatchset@cherry.local>
+	 <44110727.802@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nathan,
+On 3/10/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Magnus Damm wrote:
+> > Implement per-LRU guarantee through sysctl.
+> >
+> > This patch introduces the two new sysctl files "node_mapped_guar" and
+> > "node_unmapped_guar". Each file contains one percentage per node and tells
+> > the system how many percentage of all pages that should be kept in RAM as
+> > unmapped or mapped pages.
+> >
+>
+> The whole Linux VM philosophy until now has been to get away from stuff
+> like this.
 
-Nathan Scott wrote:
-> On Thu, Mar 09, 2006 at 12:47:01PM +0530, Suzuki wrote:
-> 
->>Hi all,
-> 
-> 
-> Hi there Suzuki,
-> 
-> 
->>I was working on an issue with getting "Badness in
->>__mutex_unlock_slowpath" and hence a stack trace, while running FS
->>stress tests on XFS on 2.6.16-rc5 kernel.
-> 
-> 
-> Thanks for looking into this.
-> 
-> 
->>The dmesg looks like :
->>
->>Badness in __mutex_unlock_slowpath at kernel/mutex.c:207
->> [<c0103c0c>] show_trace+0x20/0x22
->> [<c0103d4b>] dump_stack+0x1e/0x20
->> [<c0473f1f>] __mutex_unlock_slowpath+0x12a/0x23b
->> [<c0473938>] mutex_unlock+0xb/0xd
->> [<c02a5720>] xfs_read+0x230/0x2d9
->> [<c02a1bed>] linvfs_aio_read+0x8d/0x98
->> [<c015f3df>] do_sync_read+0xb8/0x107
->> [<c015f4f7>] vfs_read+0xc9/0x19b
->> [<c015f8b2>] sys_read+0x47/0x6e
->> [<c0102db7>] sysenter_past_esp+0x54/0x75
-> 
-> 
-> Yeah, test 008 from the xfstests suite was reliably hitting this for
-> me, it'd just not percolated to the top of my todo list yet.
-> 
-> 
->>This happens with XFS DIO reads. xfs_read holds the i_mutex and issues a
->>__generic_file_aio_read(), which falls into __blockdev_direct_IO with
->>DIO_OWN_LOCKING flag (since xfs uses own_locking ). Now
->>__blockdev_direct_IO releases the i_mutex for READs with
->>DIO_OWN_LOCKING.When it returns to xfs_read, it tries to unlock the
->>i_mutex ( which is now already unlocked), causing the "Badness".
-> 
-> 
-> Indeed.  And there's the problem - why is XFS releasing i_mutex
-> for the direct read in xfs_read?  Shouldn't be - fs/direct-io.c
-> will always release i_mutex for a direct read in the own-locking
-> case, so XFS shouldn't be doing it too (thats what the code does
-> and thats what the comment preceding __blockdev_direct_IO says).
-> 
-> The only piece of the puzzle I don't understand is why we don't
-> always get that badness message at the end of every direct read.
-> Perhaps its some subtle fastpath/slowpath difference, or maybe
-> "debug_mutex_on" gets switched off after the first occurance...
+Yeah, and Linux has never supported memory resource control either, right?
 
-Yes, the debug_mutex_on gets switched off after the first occurence.
+> If your app is really that specialised then maybe it can use mlock. If
+> not, maybe the VM is currently broken.
+>
+> You do have a real-world workload that is significantly improved by this,
+> right?
 
-> 
-> Anyway, with the above change (remove 2 lines near xfs_read end),
-> I can no longer reproduce the problem in that previously-warning
-> test case, and all the other XFS tests seem to be chugging along
-> OK (which includes a healthy mix of dio testing).
-> 
-> 
->>The possible solution which we can think of, is not to unlock the
->>i_mutex for DIO_OWN_LOCKING. This will only affect the DIO_OWN_LOCKING 
->>users (as of now, only XFS ) with concurrent DIO sync read requests. AIO 
->>read requests would not suffer this problem since they would just return 
->>once the DIO is submitted.
-> 
-> 
-> I don't think that level of invasiveness is necessary at this stage,
-> but perhaps you're seeing something that I've missed?  Do you see
-> any reason why removing the xfs_read unlock wont work?
-> 
+Not really, but I think there is a demand for memory resource control today.
 
-But, what happens if __generic_file_aio_read() hits some error before 
-doing the aops->direct_IO ?
+The memory controller in ckrm also breaks out the LRU, but puts one
+LRU instance in each class. My code does not depend on ckrm, but it
+should be possible to have some kind of resource control with this
+patch and cpusets. And yeah, add numa emulation if you are out of
+nodes. =)
 
-> 
->>Another work around for this can  be adding a check "mutex_is_locked"
->>before trying to unlock i_mutex in xfs_read. But this seems to be an
->>ugly hack. :(
-> 
-> 
-> Hmm, that just plain wouldn't work - what if the lock was released
-> in generic direct IO code, and someone else had acquired it before
-> we got to the end of xfs_read?  Badness for sure.
-> 
-> cheers.
-> 
+Thanks,
 
-Suzuki.
+/ magnus

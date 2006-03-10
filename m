@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751964AbWCJRio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWCJRpE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751964AbWCJRio (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751983AbWCJRio
+	id S932199AbWCJRpE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:45:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWCJRpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:38:44 -0500
-Received: from mx1.suse.de ([195.135.220.2]:32665 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751964AbWCJRin (ORCPT
+	Fri, 10 Mar 2006 12:45:04 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:56460 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S932077AbWCJRpC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:38:43 -0500
-Date: Fri, 10 Mar 2006 18:38:42 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc5-git14 crash in spin_bug on ppc64
-Message-ID: <20060310173842.GA14924@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Fri, 10 Mar 2006 12:45:02 -0500
+Message-ID: <4411BB1B.1020804@hp.com>
+Date: Fri, 10 Mar 2006 09:44:59 -0800
+From: Rick Jones <rick.jones2@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; HP-UX 9000/785; en-US; rv:1.6) Gecko/20040304
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: netdev@vger.kernel.org
+Cc: mst@mellanox.co.il, rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: TSO and IPoIB performance degradation
+References: <20060308125311.GE17618@mellanox.co.il>	<20060309.154819.104282952.davem@davemloft.net>	<4410C671.2050300@hp.com> <20060309.232301.77550306.davem@davemloft.net>
+In-Reply-To: <20060309.232301.77550306.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote:
+> From: Rick Jones <rick.jones2@hp.com>
+> Date: Thu, 09 Mar 2006 16:21:05 -0800
+> 
+> 
+>>well, there are stacks which do "stretch acks" (after a fashion) that 
+>>make sure when they see packet loss to "do the right thing" wrt sending 
+>>enough acks to allow cwnds to open again in a timely fashion.
+> 
+> 
+> Once a loss happens, it's too late to stop doing the stretch ACKs, the
+> damage is done already.  It is going to take you at least one
+> extra RTT to recover from the loss compared to if you were not doing
+> stretch ACKs.
 
-I got this crash while hunting some other bug. dualcore 970mp. 
+I must be dense (entirely possible), but how is that absolute?
 
-Welcome to SUSE Linux Enterprise Server 9.90 Beta7 (ppc) - Kernel 2.6.16-rc5-git
-14-ppc64-defconfig (console).
+If there is no more data in flight after the segment that was lost the 
+"stretch ACK" stacks with which I'm familiar will generate the 
+standalone ACK within the deferred ACK interval (50 milliseconds). I 
+guess that can be the "one extra RTT"  However,  if there is data in 
+flight after the point of loss, the immediate ACK upon receipt of out-of 
+order data kicks in.
 
+> You have to keep giving consistent well spaced ACKs back to the
+> receiver in order to recover from loss optimally.
 
-wels login: BUG: spinlock bad magic on CPU#1, gdm/4568
-cpu 0x1: Vector: 300 (Data Access) at [c0000000f3c2f5c0]
-    pc: c00000000020a7ec: .spin_bug+0x94/0x100
-    lr: c00000000020a7cc: .spin_bug+0x74/0x100
-    sp: c0000000f3c2f840
-   msr: 8000000000009032
-   dar: ffff000000000104
- dsisr: 40000000
-  current = 0xc0000000f916e040
-  paca    = 0xc0000000005ddd00
-    pid   = 4568, comm = gdm
-enter ? for help
-1:mon> t
-[c0000000f3c2f8d0] c00000000020aa64 ._raw_spin_lock+0x40/0x164
-[c0000000f3c2f960] c00000000048bff4 ._spin_lock+0x10/0x24
-[c0000000f3c2f9e0] c0000000000a28b0 .anon_vma_link+0x30/0x74
-[c0000000f3c2fa70] c00000000005540c .dup_mm+0x244/0x4a8
-[c0000000f3c2fb40] c00000000005658c .copy_process+0x930/0xff4
-[c0000000f3c2fcb0] c000000000056d34 .do_fork+0xe4/0x244
-[c0000000f3c2fdc0] c00000000000f440 .sys_clone+0x5c/0x74
-[c0000000f3c2fe30] c000000000008950 .ppc_clone+0x8/0xc
---- Exception: c00 (System Call) at 000000000f202918
-SP (ff829160) is in userspace
-1:mon>
+The key there is defining consistent and well spaced.  Certainly an ACK 
+only after a window's-worth of data would not be well spaced, but I 
+believe that an ACK after more than two full sized frames could indeed 
+be well-spaced.
 
-This kernel was booted serveral times.
+> The ACK every 2 full sized frames behavior of TCP is absolutely
+> essential.
+
+I don't think it is _quite_ that cut and dried, otherwise, HP-UX and 
+Solaris, since < 1997 would have had big time problems.
+
+rick jones

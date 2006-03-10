@@ -1,68 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422671AbWCJBp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWCJBrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422671AbWCJBp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 20:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752160AbWCJBp1
+	id S1751404AbWCJBrf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 20:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752159AbWCJBrf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 20:45:27 -0500
-Received: from hc652af58.dhcp.vt.edu ([198.82.175.88]:11150 "EHLO
-	hc652af58.dhcp.vt.edu") by vger.kernel.org with ESMTP
-	id S1752159AbWCJBp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 20:45:27 -0500
-Message-Id: <200603100145.k2A1jMem005323@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Carlos Munoz <carlos@kenati.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How can I link the kernel with libgcc ? 
-In-Reply-To: Your message of "Thu, 09 Mar 2006 17:44:16 PST."
-             <4410D9F0.6010707@kenati.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <4410D9F0.6010707@kenati.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1141955122_3357P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 9 Mar 2006 20:47:35 -0500
+Received: from smtp-2.llnl.gov ([128.115.3.82]:44447 "EHLO smtp-2.llnl.gov")
+	by vger.kernel.org with ESMTP id S1751404AbWCJBre (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 20:47:34 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Thu, 9 Mar 2006 17:46:51 -0800
+User-Agent: KMail/1.5.3
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, alan@redhat.com, gregkh@kroah.com,
+       Doug Thompson <dthompson@lnxi.com>,
+       bluesmoke-devel@lists.sourceforge.net
+References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603091551.25097.dsp@llnl.gov> <20060310000227.GA30236@kroah.com>
+In-Reply-To: <20060310000227.GA30236@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Thu, 09 Mar 2006 20:45:22 -0500
+Content-Disposition: inline
+Message-Id: <200603091746.51686.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1141955122_3357P
-Content-Type: text/plain; charset=us-ascii
+On Thursday 09 March 2006 16:02, Greg KH wrote:
+> >     1.  /sys/devices/system/edac/mc/mc0/module_name contains two
+> >         values, a module name and a version:
+> >
+> >             # cat /sys/devices/system/edac/mc/mc0/module_name
+> >             k8_edac  Ver: 2.0.1.devel Mar  8 2006
+>
+> Woah.  That's what /sys/modules/ is for right?  Don't add new stuff
+> please.
 
-On Thu, 09 Mar 2006 17:44:16 PST, Carlos Munoz said:
-> I'm writing an audio driver and the hardware requires floating point 
-> arithmetic.  When I build the kernel I get the following errors at link 
-> time:
+My apologies for my lack of familiarity with how the contents of /sys
+are supposed to be laid out.  I'm just looking at what EDAC currently
+does, trying to fix what's broken, and in the process learning how
+sysfs is supposed to work.
 
-Tough break, that.  You sure you can't figure a way to either push the
-floating point out to userspace, or do funky fixed-point math instead?
+> >         Here we have a whitespace-delimited list of values.  Likewise,
+> >         the following files contain whitespace-delimited lists:
+> >
+> >             /sys/devices/system/edac/mc/mc0/edac_capability
+> >             /sys/devices/system/edac/mc/mc0/edac_current_capability
+>
+> What exactly do they look like?
 
-> These symbols are coming from gcc. What I would like to do is link the 
-> kernel with libgcc to solve this errors. I'm looking at the kernel 
-> makefiles and it doesn't seem obvious to me how to do it.
+On the machine I'm currently looking at, here is what I see:
 
-You can't find it because you can't do it.  It isn't as simple as linking
-against libgcc - there's lots of other issues that make floating point
-in the kernel Really Really Hard (for starters, it means you need to save
-and restore the FP state across interrupts and scheduling within the kernel).
+    # cd /sys/devices/system/edac/mc/mc0
+    # cat edac_capability
+    None SECDED S4ECD4ED
+    # cat edac_current_capability
+    None
+    #
 
->                                                            Does anyone
-> know how I can link the kernel with libgcc, or point me in the right 
-> direction ?
+Although edac_current_capability is shown above as having only one
+value, it could in principle contain a few values (some subset of
+the values contained in edac_capability).
 
-The right direction - either push it to userspace, or find a way to do it
-with fixed point math.
+> >     3.  The following files contain comma-delimited lists of
+> >         (vendor ID, device ID) tuples:
+> >
+> >             /sys/devices/system/edac/pci/pci_parity_blacklist
+> >             /sys/devices/system/edac/pci/pci_parity_whitelist
+>
+> What exactly do they look like?
 
---==_Exmh_1141955122_3357P
-Content-Type: application/pgp-signature
+Initially, both files are empty.  If a user writes a list of values
+to a file, the file will contain the values that the user wrote.  For
+instance, below we create a list containing two
+(vendor ID, device ID) tuples:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+    # cd /sys/devices/system/edac/pci
+    # cat pci_parity_blacklist
 
-iD8DBQFEENoycC3lWbTT17ARAgTMAJ9LitwJ4woEQnLV9TRF8LowCC7D7QCg9Y3z
-j35tMl6NV6XfBYe4YxNGqcc=
-=0YAl
------END PGP SIGNATURE-----
+    # echo "1022:7450,1434:16a6" > pci_parity_blacklist
+    # cat pci_parity_blacklist
+    1022:7450,1434:16a6
+    #
 
---==_Exmh_1141955122_3357P--
+> >     Issue #1
+> >     --------
+> >     Fixing this is easy.  /sys/devices/system/edac/mc/mc0/module_name
+> >     can be replaced by two separate files, one providing the name and
+> >     the other providing the version:
+> >
+> >         /sys/devices/system/edac/mc/mc0/module_name
+> >         /sys/devices/system/edac/mc/mc0/module_version
+>
+> No, these should just be deleted.  Use the proper MODULE_* macros for
+> these if you really want to display them to users.
+
+Ok, I'll make sure they get deleted.
+
+> >     Issue #2
+> >     --------
+> >     To fix this, /sys/devices/system/edac/mc/mc0/supported_mem_type
+> >     can be made into a directory containing a file representing each
+> >     supported memory type.  Thus we might have the following:
+> >
+> >         /sys/devices/system/edac/mc/mc0/supported_mem_type
+> >         /sys/devices/system/edac/mc/mc0/supported_mem_type/Unbuffered-DDR
+> >         /sys/devices/system/edac/mc/mc0/supported_mem_type/Registered-DDR
+> >
+> >     In the above example, the files Unbuffered-DDR and Registered-DDR
+> >     would each be empty in content.  The presence of each file would
+> >     indicate that the memory type it represents is supported.
+>
+> I don't think the original file is really a big problem.
+
+Ok, so I'll leave this as-is?
+
+> >     Issue #3
+> >     --------
+> >     I am unclear about what to do here.  If the list contents were
+> >     read-only, it would be relatively easy to make
+> >     /sys/devices/system/edac/pci/pci_parity_whitelist into a directory
+> >     containing symlinks, one for each device.  However, the user is
+> >     supposed to be able to modify the list contents.  This would imply
+> >     that the user creates and destroys symlinks.  Does sysfs currently
+> >     support this sort of behavior?  If not, what is the preferred
+> >     means for implementing a user-modifiable set of values?
+>
+> No it doesn't.  How big can this list get?
+
+It depends on how many PCI devices in your machine you wish to
+blacklist or whitelist.  The motivation for this feature is that
+certain known badly-designed devices report an endless stream of
+spurious PCI bus parity errors.  We want to skip such devices when
+checking for PCI bus parity errors.
+
+Eventually we are thinking of maintaining a master list of known
+bad hardware.  The list will grow over time as users encounter
+and report new instances of flaky devices.  However, the user would
+not have to feed the entire list to EDAC.  I can imagine someone
+writing a script that behaves as follows:
+
+    1.  Determine the entire set of PCI devices present in the user's
+        machine.
+    2.  Read the set of known bad hardware from the master list and
+        compute the intersection with the set of devices actually
+        present in the user's machine.
+    3.  Feed the result of step 2 above to EDAC.
+

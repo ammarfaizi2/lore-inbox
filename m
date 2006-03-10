@@ -1,88 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752151AbWCJAqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752156AbWCJArI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752151AbWCJAqe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752150AbWCJAqe
+	id S1752156AbWCJArI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:47:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWCJArH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:46:34 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:49625 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752146AbWCJAqb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:46:31 -0500
-Message-ID: <4410CC3E.6030905@us.ibm.com>
-Date: Thu, 09 Mar 2006 16:45:50 -0800
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: sct@redhat.com, jack@suse.cz, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
-References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com> <20060309152254.743f4b52.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Mar 2006 19:47:07 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:38799 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1752149AbWCJArD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 19:47:03 -0500
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and
+	lightweight subnet management
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <adaslprcelg.fsf@cisco.com>
+References: <28bb276205de498d0b5c.1141950939@eng-12.pathscale.com>
+	 <adaslprcelg.fsf@cisco.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 09 Mar 2006 16:47:02 -0800
+Message-Id: <1141951622.10693.85.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Thu, 2006-03-09 at 16:45 -0800, Roland Dreier wrote:
 
->Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
->>I am trying to speed up ext3 writepage() by avoiding
->>journaling in non-block allocation cases. Does this
->>look reasonable ? So far, my testing is fine. What am 
->>I missing here ?
->>
->
->Nothing.  ext3's writepage(), prepare_write() and commit_write() do often
->needlessy open and close transactions when we're doing overwrites.  It's
->something I've meant to look at for a few years, on and off.
->
->I'd expect that prepare_write() and commit_write() are more important than
->writepage().
->
->
->
->It might be better to test PageMappedToDisk() rather than walking the
->buffers.  It's certainly faster and it makes optimisation of
->prepare_write() and commit_write() easier to handle.
->
->I'm not sure that PageMappedToDisk() gets set in all the right places
->though - it's mainly for the `nobh' handling and block_prepare_write()
->would need to be taught to set it.  I guess that'd be a net win, even if
->only ext3 uses it..
->
->Then again, we might be able to speed up block_prepare_write() if
->PageMappedToDisk(page).
->
-Makes sense. I will take a look.
+> So why is ipath_sma_alive an atomic_t (and why isn't it static)?
+> You never modify ipath_sma_alive outside of your spinlock, so I don't
+> see what having it be atomic buys you.
 
->
->If we go this way we need to be very very careful to keep PG_mappedtodisk
->coherent with the state of the buffers.  Tricky.  We need to think about
->whether block_truncate_page() should be clearing PG_mappedtoisk if we did a
->partial truncate.
->
->Don't forget that ext3 supports journalled-mode files on ordered- or
->writeback-mounted filesystems, via `chattr +j'.  
->
+It's read outside of this file, without a lock held.
 
-Wow !! Never knew that. I assume we switch mapping->a_ops for this inode ?
-
->Please be sure to test the
->various combinations which that allows when playing with the write paths -
->it can trip things up.
->
->Also be sure to test nobh-mode.
->
-
-Sure. Thanks for your reply and valuable suggestions. :)
-
-Thanks,
-Badari
-
->
-
-
+	<b
 

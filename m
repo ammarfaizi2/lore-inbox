@@ -1,81 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWCJO7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWCJPRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751520AbWCJO7F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 09:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWCJO7F
+	id S1751225AbWCJPRG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 10:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWCJPRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 09:59:05 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:46772 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751336AbWCJO7D (ORCPT
+	Fri, 10 Mar 2006 10:17:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:26030 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750771AbWCJPRD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 09:59:03 -0500
-Message-ID: <441193FD.50901@us.ibm.com>
-Date: Fri, 10 Mar 2006 06:58:05 -0800
-From: Badari Pulavarty <pbadari@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Fri, 10 Mar 2006 10:17:03 -0500
+Date: Fri, 10 Mar 2006 09:06:32 -0600 (CST)
+From: Kumar Gala <galak@kernel.crashing.org>
+X-X-Sender: galak@gate.crashing.org
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, <linux-pci@atrey.karlin.mff.cuni.cz>
+Subject: [PATCH] PCI: Add pci_assign_resource_fixed -- allow fixed address
+ assignments
+Message-ID: <Pine.LNX.4.44.0603100906020.29294-100000@gate.crashing.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Arjan van de Ven <arjan@infradead.org>, sct@redhat.com, jack@suse.cz,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
-References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com>	<20060309152254.743f4b52.akpm@osdl.org>	<1141977557.2876.20.camel@laptopd505.fenrus.org>	<20060310002337.489265a3.akpm@osdl.org>	<1141980238.2876.27.camel@laptopd505.fenrus.org> <20060310005306.428b13ee.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On some embedded systems the PCI address for hotplug devices are not only
+known a priori but are required to be at a given PCI address for other
+master in the system to be able to access.
 
->Arjan van de Ven <arjan@infradead.org> wrote:
->
->>On Fri, 2006-03-10 at 00:23 -0800, Andrew Morton wrote:
->> > Arjan van de Ven <arjan@infradead.org> wrote:
->> > >
->> > > 
->> > > > I'm not sure that PageMappedToDisk() gets set in all the right places
->> > > > though - it's mainly for the `nobh' handling and block_prepare_write()
->> > > > would need to be taught to set it.  I guess that'd be a net win, even if
->> > > > only ext3 uses it..
->> > > 
->> > > btw is nobh mature enough yet to become the default, or to just go away
->> > > entirely as option ?
->> > 
->> > I don't know how much usage it's had, sorry.  It's only allowed in
->> > data=writeback mode and not many people seem to use even that.
->>
->> would you be prepared to turn it on by default in -mm for a bit to see
->> how it holds up?
->>
->
->spose so.  One would have to test it a bit first, make sure that it still
->works.  Performance testing with PAGE_SIZE much-greater-than blocksize
->would be needed.
->
-I did nobh option only for writeback mode + only if PAGE_SIZE == 
-blocksize case :(
-I guess I could enhance it for PAGE_SIZE > blocksize case also.
+An example of such a system would be an FPGA which is setup from user space
+after the system has booted.  The FPGA may be access by DSPs in the system
+and those DSPs expect the FPGA at a fixed PCI address.
 
-Doing it for ordered mode, journal mode is hard - due to transactions & 
-ordering.
-As you suggested while ago, we need a new mode. I hate to add new modes 
-since
-no one will be using it (unless we decide to make it default). Thats the 
-reason why
-I spent little time doing nobh option for writeback mode.
+Added pci_assign_resource_fixed() as a way to allow assignment of the PCI
+devices's BARs at fixed PCI addresses.
 
->
->Unfortunately there's no `-o bh' (nonobh?) to turn it back on again if it
->causes problems..
->
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-Can be added easily. I will send out a patch for this.
+---
+commit 45d4a23317c459865ec740c80b6e2a2ad9f53fd3
+tree 432b5e41ef5f231dd57eb1a98f103239c62d63a0
+parent 8176dee014ec6ad1039b8c0075c9c1d02147c2c8
+author Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006 12:34:25 -0600
+committer Kumar Gala <galak@kernel.crashing.org> Thu, 09 Mar 2006 12:34:25 -0600
 
-Thanks,
-Badari
+ drivers/pci/pci.c       |    1 +
+ drivers/pci/setup-res.c |   35 +++++++++++++++++++++++++++++++++++
+ include/linux/pci.h     |    1 +
+ 3 files changed, 37 insertions(+), 0 deletions(-)
 
->
-
-
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index d2d1879..2557e86 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -935,6 +935,7 @@ EXPORT_SYMBOL_GPL(pci_intx);
+ EXPORT_SYMBOL(pci_set_dma_mask);
+ EXPORT_SYMBOL(pci_set_consistent_dma_mask);
+ EXPORT_SYMBOL(pci_assign_resource);
++EXPORT_SYMBOL(pci_assign_resource_fixed);
+ EXPORT_SYMBOL(pci_find_parent_resource);
+ 
+ EXPORT_SYMBOL(pci_set_power_state);
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index ea9277b..f485958 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -155,6 +155,41 @@ int pci_assign_resource(struct pci_dev *
+ 	return ret;
+ }
+ 
++int pci_assign_resource_fixed(struct pci_dev *dev, int resno)
++{
++	struct pci_bus *bus = dev->bus;
++	struct resource *res = dev->resource + resno;
++	unsigned int type_mask;
++	int i, ret = -EBUSY;
++
++	type_mask = IORESOURCE_IO | IORESOURCE_MEM | IORESOURCE_PREFETCH;
++
++	for (i = 0; i < PCI_BUS_NUM_RESOURCES; i++) {
++		struct resource *r = bus->resource[i];
++		if (!r)
++			continue;
++
++		/* type_mask must match */
++		if ((res->flags ^ r->flags) & type_mask)
++			continue;
++
++		ret = request_resource(r, res);
++
++		if (ret == 0)
++			break;
++	}
++
++	if (ret) {
++		printk(KERN_ERR "PCI: Failed to allocate %s resource #%d:%lx@%lx for %s\n",
++		       res->flags & IORESOURCE_IO ? "I/O" : "mem",
++		       resno, res->end - res->start + 1, res->start, pci_name(dev));
++	} else if (resno < PCI_BRIDGE_RESOURCES) {
++		pci_update_resource(dev, res, resno);
++	}
++
++	return ret;
++}
++
+ /* Sort resources by alignment */
+ void __devinit
+ pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index fe1a2b0..0db1e2d 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -460,6 +460,7 @@ int pci_set_dma_mask(struct pci_dev *dev
+ int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
+ void pci_update_resource(struct pci_dev *dev, struct resource *res, int resno);
+ int pci_assign_resource(struct pci_dev *dev, int i);
++int pci_assign_resource_fixed(struct pci_dev *dev, int i);
+ void pci_restore_bars(struct pci_dev *dev);
+ 
+ /* ROM control related routines */
 

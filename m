@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWCJEhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWCJElm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWCJEhX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 23:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWCJEhX
+	id S1751348AbWCJElm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 23:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWCJElm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 23:37:23 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:58327 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751190AbWCJEhW (ORCPT
+	Thu, 9 Mar 2006 23:41:42 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:46241 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751348AbWCJElm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 23:37:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=qAGH+9LFCL6G3Sj6fIUM+nu9YbdFKRoShGc15Y0Pm7SFaCduV++qIeSK+ZYSR6TyFqO780xD5aWjGI/9IP8eeFl63A/srMlq03ktMsC/A2FH2d4kcFv/IPA+YJGYdNRHMkW5MVhlOGPWe51ttcXzd1qhUMQVUEoYdXyGH9iVGfU=
-Date: Fri, 10 Mar 2006 13:37:17 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AHCI prefetch
-Message-ID: <20060310043717.GA7510@htj.dyndns.org>
-References: <20060304173505.GA28643@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060304173505.GA28643@havoc.gtf.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 9 Mar 2006 23:41:42 -0500
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and
+	lightweight subnet management
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20060310010403.GC9945@suse.de>
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
+	 <ada8xrjfbd8.fsf@cisco.com>
+	 <1141948367.10693.53.camel@serpentine.pathscale.com>
+	 <20060310004505.GB17050@suse.de>
+	 <1141951725.10693.88.camel@serpentine.pathscale.com>
+	 <20060310010403.GC9945@suse.de>
+Content-Type: text/plain
+Date: Thu, 09 Mar 2006 20:41:36 -0800
+Message-Id: <1141965696.14517.4.camel@camp4.serpentine.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 04, 2006 at 12:35:05PM -0500, Jeff Garzik wrote:
+On Thu, 2006-03-09 at 17:04 -0800, Greg KH wrote:
+
+> > I don't expect this to be a practical problem.  We're planning to add
+> > hotplug support to the driver once we have some cycles free.
 > 
-> This patch has been sitting in my tmp directory for ages.
+> Ugh, that means it's never going to be there.
 > 
-> We should probably turn this on, though the practical difference is
-> probably minimal.
-> 
+> All new PCI drivers have the requirement that they work properly in
+> hotplug systems, as they should follow the PCI core api.  If not, odds
+> are they will not be accepted into the tree :(
 
-The patch works okay on my machine (ICH7R) although the patch didn't
-apply to #upstream.  I'm not very sure about this change though.
+Okay, maybe we're talking at cross purposes here.  We do follow the PCI
+core API.  We have a __devinit probe and __devexit remove routine, a
+MODULE_DEVICE_TABLE, the kernel generates hotplug events when a device
+is detected or the driver is unloaded, and so on.
 
-1. Why apply it only to ATAPI devices?  ATA devices can benefit to.
-   If it's because this bit shouldn't be turned on for NCQ, we can
-   turn it on conditionally.  We'll probably need similar condition
-   for ATAPI devices too if we support FIS-based PM switching.
+I *assumed* that there was something more that we would need to do in
+order to support real hotplug of actual physical cards, but now that I
+look more closely, it doesn't appear that there is.  At least, there's
+nothing in Documentation/pci.txt or LDD3 that indicates to me that we
+ought to be doing more.
 
-2. I'm a bit skeptical whether this change will bring any noticeable
-   performance improvement.  OTOH, this seems to be a good source for
-   obscure problems on some controllers which might not implement/test
-   this feature properly.  As more controllers implement AHCI spec,
-   the possibility grows.
+Am I missing something?
 
-Anyways, here's the patch regenerated against #upstream.
+	<b
 
-diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
-index 1c2ab3d..cfa6eaf 100644
---- a/drivers/scsi/ahci.c
-+++ b/drivers/scsi/ahci.c
-@@ -66,6 +66,7 @@ enum {
- 	AHCI_IRQ_ON_SG		= (1 << 31),
- 	AHCI_CMD_ATAPI		= (1 << 5),
- 	AHCI_CMD_WRITE		= (1 << 6),
-+	AHCI_CMD_PREFETCH	= (1 << 7),
- 	AHCI_CMD_RESET		= (1 << 8),
- 	AHCI_CMD_CLR_BUSY	= (1 << 10),
- 
-@@ -631,7 +632,7 @@ static void ahci_qc_prep(struct ata_queu
- 	if (qc->tf.flags & ATA_TFLAG_WRITE)
- 		opts |= AHCI_CMD_WRITE;
- 	if (is_atapi)
--		opts |= AHCI_CMD_ATAPI;
-+		opts |= AHCI_CMD_ATAPI | AHCI_CMD_PREFETCH;
- 
- 	ahci_fill_cmd_slot(pp, opts);
- }

@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWCJF16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWCJF2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWCJF16 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWCJF16
+	id S1750873AbWCJF2M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 00:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWCJF2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:27:58 -0500
-Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:26002 "EHLO
+	Fri, 10 Mar 2006 00:28:08 -0500
+Received: from smtpauth07.mail.atl.earthlink.net ([209.86.89.67]:43922 "EHLO
 	smtpauth07.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
-	id S1750701AbWCJF15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:27:57 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc5: process with huge vsize but no swap used
+	id S1750741AbWCJF2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 00:28:06 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT]
+In-Reply-To: Your message of "Mon, 27 Feb 2006 17:04:15 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B0CE273@pdsmsx403> 
 X-Mailer: MH-E 7.91; nmh 1.1; GNU Emacs 21.4.1
-Date: Fri, 10 Mar 2006 00:25:16 -0500
+Date: Fri, 10 Mar 2006 00:26:14 -0500
 From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FHa7o-00015W-8g@approximate.corpus.cam.ac.uk>
-X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478bbc7acd6dc94bc6b74265d5900179d7c32a4dba58047a976350badd9bab72f9c350badd9bab72f9c
+Message-Id: <E1FHa8k-00015b-M5@approximate.corpus.cam.ac.uk>
+X-ELNK-Trace: dcd19350f30646cc26f3bd1b5f75c9f474bf435c0eb9d478bbc7acd6dc94bc6ba288334b8af5e188d596878c185a1852350badd9bab72f9c350badd9bab72f9c
 X-Originating-IP: 24.41.6.91
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System is a Thinkpad 600X (Pentium III) w/ 576MB of RAM, 1GB of swap.
+[Re: bugme #5989, head no longer hanging in shame]
 
-While testing 2.6.16-rc5 for ACPI issues, I ran across a vm behavior
-that I've never seen before.  I had just booted and logged in via xdm,
-and had opened a few small files in emacs.  All of a sudden
-sudden emacs complained that:
+From: "Yu, Luming" <luming.yu@intel.com>
+> I suggest you to retest, and post dmesg with UN-modified BIOS.
 
-  Memory exhausted--use M-x save-some-buffers RET
+I'm now running/testing an unmodified DSDT with 2.6.16-rc5.  For a while
+I had no S3 hangs, but I just noticed them again.  The error is the same
+as with the modified DSDT (with slightly different offsets):
 
-I didn't have any large files opened, but:
+exregion-0185 [36] ex_system_memory_space: system_memory 0 (32 width) Address=0000000023FDFFC0
+exregion-0185 [36] ex_system_memory_space: system_memory 1 (32 width) Address=0000000023FDFFC0
+exregion-0290 [36] ex_system_io_space_han: system_iO 1 (8 width) Address=00000000000000B2
 
-$ ps u3817
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-sanjoy    3817  0.1  2.0 1246160 11992 ?       S    Mar09   0:11 emacs -iconic
+repeated endlessly.
 
-No swap is being used despite emacs allegedly consuming 1.2GB of VM:
+I think the problem resurfaced once I decided to let my sleep.sh script
+leave the thermal driver loaded before going into S3 (suspecting that
+the bug might come back if I did that).
 
-$ free
-             total       used       free     shared    buffers     cached
-Mem:        580924     219964     360960          0      29124     128956
--/+ buffers/cache:      61884     519040
-Swap:      1068280          0    1068280
+So I susect that my modified DSDT didn't cause the S3 problems, it
+merely exposed one even in the minimal configuration discussed in the
+#5989 report.
 
-Is that possible (maybe it's all zero-filled memory)?  If so, it's an
-emacs bug that I've never seen before and I'll report it on the emacs
-lists.  If it's not possible, then maybe it's a kernel issue.  I saved
-/proc/3817/{maps,smaps,status,exe} just in case.
+Which makes me wonder about another bug that disappeared when I switched
+to the vanilla DSDT: While printing (via gs+hpijs to an HP photosmart
+2710 via the wireless card), the system makes double-beeps as if it were
+having the AC adapter plugged and unplugged.  These noises happen when
+printing via the wireless card or via USB (to a different HP inkjet),
+but not when printing via the parallel port to a Lexmark laserprinter
+(using just gs).  Since I didn't do anything to the battery code in the
+DSDT, I now wonder whether changing the DSDT merely exposed the issue
+but didn't create it.
+
+[From an earlier msg:]
+> I think the truth is, for 5989, we need to fix thermal and processor
+> driver issue.
+
+I agree, although I think the processor driver is not the culprit.  My
+earlier testing with the (with the modified DSDT) worked fine with the
+processor module loaded, but hung with processor + thermal loaded.
 
 -Sanjoy
 

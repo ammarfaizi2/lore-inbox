@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWCJQtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWCJQw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWCJQtg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 11:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWCJQtg
+	id S932090AbWCJQw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 11:52:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWCJQw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 11:49:36 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:35541 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932066AbWCJQtf (ORCPT
+	Fri, 10 Mar 2006 11:52:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:26599 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932073AbWCJQw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 11:49:35 -0500
-Subject: Re: Revenge of the sysfs maintainer! (was Re: [PATCH 8 of 20]
-	ipath - sysfs support for core driver)
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Dave Jones <davej@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
-       Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20060310164808.GA11176@suse.de>
-References: <1141947143.10693.40.camel@serpentine.pathscale.com>
-	 <20060310003513.GA17050@suse.de>
-	 <1141951589.10693.84.camel@serpentine.pathscale.com>
-	 <20060310010050.GA9945@suse.de>
-	 <1141966693.14517.20.camel@camp4.serpentine.com>
-	 <1141977431.2876.18.camel@laptopd505.fenrus.org>
-	 <1141998702.28926.15.camel@localhost.localdomain>
-	 <1141999569.2876.47.camel@laptopd505.fenrus.org>
-	 <1142006121.29925.5.camel@serpentine.pathscale.com>
-	 <20060310162552.GB18755@redhat.com>  <20060310164808.GA11176@suse.de>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 10 Mar 2006 08:49:35 -0800
-Message-Id: <1142009375.29925.27.camel@serpentine.pathscale.com>
+	Fri, 10 Mar 2006 11:52:27 -0500
+Date: Fri, 10 Mar 2006 11:51:57 -0500
+From: Dave Jones <davej@redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       sct@redhat.com, jack@suse.cz,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       ext2-devel <Ext2-devel@lists.sourceforge.net>
+Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
+Message-ID: <20060310165157.GD18755@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, sct@redhat.com, jack@suse.cz,
+	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	ext2-devel <Ext2-devel@lists.sourceforge.net>
+References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com> <20060309152254.743f4b52.akpm@osdl.org> <1141977557.2876.20.camel@laptopd505.fenrus.org> <20060310002337.489265a3.akpm@osdl.org> <1141980238.2876.27.camel@laptopd505.fenrus.org> <20060310161940.GA18755@redhat.com> <1142008847.21442.17.camel@dyn9047017100.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142008847.21442.17.camel@dyn9047017100.beaverton.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 08:48 -0800, Greg KH wrote:
+On Fri, Mar 10, 2006 at 08:40:47AM -0800, Badari Pulavarty wrote:
 
-> And I just looked at the SuSE kernel, and it is already enabled too.  So
-> it looks like Bryan didn't even check either distro before saying it
-> wasn't there :(
+ > >  > > I don't know how much usage it's had, sorry.  It's only allowed in
+ > >  > > data=writeback mode and not many people seem to use even that.
+ > >  > 
+ > >  > would you be prepared to turn it on by default in -mm for a bit to see
+ > >  > how it holds up? The concept seems valuable in itself, so much so that I
+ > >  > feel this should be 1) on always by default when possible and 2) isn't
+ > >  > really the kind of thing that should be a long term option; not having
+ > >  > it almost is a -o pleaseAddThisBug option for each bug fixed.
+ > > 
+ > > It'd be good to get that hammered on, as it doesn't see hardly any testing
+ > > based upon the experiments I did sometime last year.  It left me with
+ > > an unmountable root filesystem :-/
+ > 
+ > Yuck. You are talking about "nobh" option for writeback mode, correct ?
+ > Have any idea on what you were doing ?
 
-No, I checked both, but it was late at night and I fumbled my mount
-command line in each case.  Sigh.
+Actually, I think I may have neglected to make those mounts writeback.
+In retrospect, it was silly, I basically forced nobh on for all mounts.
+A few boots later my / reached its maximum mount count, and got a fsck,
+which moved a bunch of useful things like /lib/ld-linux.so.2 to lost+found.
+There was so much mess that it was easier to reinstall the box than
+to pick through it. (Thankfully I tested it on a scratch box ;-)
 
-	<b
-
+		Dave
+-- 
+http://www.codemonkey.org.uk

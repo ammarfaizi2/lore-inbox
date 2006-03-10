@@ -1,125 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWCJID6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWCJIEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWCJID6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 03:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWCJID6
+	id S932376AbWCJIEv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 03:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932636AbWCJIEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 03:03:58 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:51036 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932092AbWCJID5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 03:03:57 -0500
-Message-ID: <441133FD.2070808@openvz.org>
-Date: Fri, 10 Mar 2006 11:08:29 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 10 Mar 2006 03:04:51 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:15337 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932376AbWCJIEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 03:04:49 -0500
+Date: Fri, 10 Mar 2006 17:04:45 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH: 004/017](RFC) Memory hotplug for new nodes v.3. (generic alloc pgdat)
+Cc: tony.luck@intel.com, ak@suse.de, jschopp@austin.ibm.com,
+       haveblue@us.ibm.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20060309040045.17dbf286.akpm@osdl.org>
+References: <20060308212719.002A.Y-GOTO@jp.fujitsu.com> <20060309040045.17dbf286.akpm@osdl.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060310161339.CA7B.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, viro@ftp.linux.org.uk,
-       linux-kernel@vger.kernel.org, Andrey Savochkin <saw@saw.sw.com.sg>,
-       devel@openvz.org
-Subject: [PATCH] ext3: ext3_symlink should use GFP_NOFS allocations inside
-Content-Type: multipart/mixed;
- boundary="------------040701090705070905080708"
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040701090705070905080708
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Andrew,
+> > +#ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
+> > +/*
+> > + * For supporint node-hotadd, we have to allocate new pgdat.
+> > + *
+> > + * If an arch have generic style NODE_DATA(),
+> > + * node_data[nid] = kzalloc() works well . But it depends on each arch.
+> > + *
+> > + * In general, generic_alloc_nodedata() is used.
+> > + * generic...is a local function in mm/memory_hotplug.c
+> > + *
+> > + * Now, arch_free_nodedata() is just defined for error path of node_hot_add.
+> > + *
+> > + */
+> > +extern struct pglist_data * arch_alloc_nodedata(int nid);
+> > +extern void arch_free_nodedata(pg_data_t *pgdat);
+> > +
+> > +#else /* !CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
+> > +#define arch_alloc_nodedata(nid)	generic_alloc_nodedata(nid)
+> > +#define arch_free_nodedata(pgdat)	generic_free_nodedata(pgdat)
+> > +
+> > +#ifdef CONFIG_NUMA
+> > +/*
+> > + * If ARCH_HAS_NODEDATA_EXTENSION=n, this func is used to allocate pgdat.
+> > + */
+> > +static inline struct pglist_data *generic_alloc_nodedata(int nid)
+> > +{
+> > +	return kzalloc(sizeof(struct pglist_data), GFP_ATOMIC);
+> > +}
+> 
+> >From an interface design point of view it's usually best to pass the
+> gfp_flags ito a function which performs memory allocation, rather than
+> assuming the worst-case like this.
+> 
+> If it's known that callers of generic_alloc_nodedata() can just never ever
+> be permitted to sleep then OK.  But GFP_KERNEL allocations are always
+> preferable.
 
-Resending a patch with a separate helper as requested by Al Viro:
+Ok. I'll change GFP_KERNEL for it.
 
-This patch fixes illegal __GFP_FS allocation inside ext3
-transaction in ext3_symlink().
-Such allocation may re-enter ext3 code from
-try_to_free_pages. But JBD/ext3 code keeps a pointer to current
-journal handle in task_struct and, hence, is not reentrable.
+> > +/*
+> > + * This definition is just for error path in node hotadd.
+> > + * For node hotremove, we have to replace this.
+> > + */
+> > +static inline void generic_free_nodedata(struct pglist_data *pgdat)
+> > +{
+> > +	kfree(pgdat);
+> > +}
+> > +
+> > +#else /* !CONFIG_NUMA */
+> > +/* never called */
+> > +static inline struct pglist_data *generic_alloc_nodedata(int nid)
+> > +{
+> > +	BUG();
+> > +	return NULL;
+> > +}
+> > +static inline void generic_free_nodedata(struct pglist_data *pgdat)
+> > +{
+> > +}
+> > +#endif /* CONFIG_NUMA */
+> > +#endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
+> > +
+> 
+> Should the patch provide stubs for generic_alloc_nodedata() and
+> generic_alloc_nodedata() if !CONFIG_HAVE_ARCH_NODEDATA_EXTENSION?
+> 
+> (If all callers are also inside #ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
+> then the answer would be "no").
 
-This bug led to "Assertion failure in journal_dirty_metadata()" messages.
+No. 
+They are stubs for !CONFIG_HAVE_ARCH_NODEDATA_EXTENSION.
+They are inside of !CONFIG case. Not for special archtectures.
+I intend that if an architecture needs some kind of extension, 
+it should define CONFIG_HAVE_ARCH..... and arch_alloc_nodedata(nid).
 
-http://bugzilla.openvz.org/show_bug.cgi?id=115
+Did I make mistake comment for #ifdef?
 
-Signed-Off-By: Andrey Savochkin <saw@saw.sw.com.sg>
-Signed-Off-By: Kirill Korotaev <dev@openvz.org>
+Bye.
 
-Thanks,
-Kirill
-P.S. against 2.6.16-rc5
+-- 
+Yasunori Goto 
 
---------------040701090705070905080708
-Content-Type: text/plain;
- name="diff-ext3-nofssymlink-20060210"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-ext3-nofssymlink-20060210"
-
---- ./fs/ext3/namei.c.symlnkfix	2006-03-10 10:24:05.000000000 +0300
-+++ ./fs/ext3/namei.c	2006-03-10 10:24:49.000000000 +0300
-@@ -2141,7 +2141,7 @@ retry:
- 		 * We have a transaction open.  All is sweetness.  It also sets
- 		 * i_size in generic_commit_write().
- 		 */
--		err = page_symlink(inode, symname, l);
-+		err = __page_symlink(inode, symname, l, GFP_NOFS);
- 		if (err) {
- 			ext3_dec_count(handle, inode);
- 			ext3_mark_inode_dirty(handle, inode);
---- ./fs/namei.c.symlnkfix	2006-03-10 10:24:05.000000000 +0300
-+++ ./fs/namei.c	2006-03-10 10:34:58.000000000 +0300
-@@ -2613,13 +2613,16 @@ void page_put_link(struct dentry *dentry
- 	}
- }
- 
--int page_symlink(struct inode *inode, const char *symname, int len)
-+int __page_symlink(struct inode *inode, const char *symname, int len,
-+		gfp_t gfp_mask)
- {
- 	struct address_space *mapping = inode->i_mapping;
--	struct page *page = grab_cache_page(mapping, 0);
-+	struct page *page;
- 	int err = -ENOMEM;
- 	char *kaddr;
- 
-+	page = find_or_create_page(mapping, 0,
-+			mapping_gfp_mask(mapping) | gfp_mask);
- 	if (!page)
- 		goto fail;
- 	err = mapping->a_ops->prepare_write(NULL, page, 0, len-1);
-@@ -2654,6 +2657,11 @@ fail:
- 	return err;
- }
- 
-+int page_symlink(struct inode *inode, const char *symname, int len)
-+{
-+	return __page_symlink(inode, symname, len, GFP_KERNEL);
-+}
-+
- struct inode_operations page_symlink_inode_operations = {
- 	.readlink	= generic_readlink,
- 	.follow_link	= page_follow_link_light,
-@@ -2672,6 +2680,7 @@ EXPORT_SYMBOL(lookup_one_len);
- EXPORT_SYMBOL(page_follow_link_light);
- EXPORT_SYMBOL(page_put_link);
- EXPORT_SYMBOL(page_readlink);
-+EXPORT_SYMBOL(__page_symlink);
- EXPORT_SYMBOL(page_symlink);
- EXPORT_SYMBOL(page_symlink_inode_operations);
- EXPORT_SYMBOL(path_lookup);
---- ./include/linux/fs.h.symlnkfix	2006-03-10 10:24:05.000000000 +0300
-+++ ./include/linux/fs.h	2006-03-10 10:27:40.000000000 +0300
-@@ -1669,6 +1669,8 @@ extern int vfs_follow_link(struct nameid
- extern int page_readlink(struct dentry *, char __user *, int);
- extern void *page_follow_link_light(struct dentry *, struct nameidata *);
- extern void page_put_link(struct dentry *, struct nameidata *, void *);
-+extern int __page_symlink(struct inode *inode, const char *symname, int len,
-+		gfp_t gfp_mask);
- extern int page_symlink(struct inode *inode, const char *symname, int len);
- extern struct inode_operations page_symlink_inode_operations;
- extern int generic_readlink(struct dentry *, char __user *, int);
-
---------------040701090705070905080708--
 

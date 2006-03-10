@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752231AbWCJLkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWCJLos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752231AbWCJLkn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 06:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752230AbWCJLkn
+	id S932111AbWCJLos (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 06:44:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWCJLos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 06:40:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:17897 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751933AbWCJLkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 06:40:42 -0500
-Subject: Re: [PATCH] EDAC: core EDAC support code
-From: Arjan van de Ven <arjan@infradead.org>
-To: Tim Small <tim@buttersideup.com>
-Cc: Dave Peterson <dsp@llnl.gov>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, Doug Thompson <dthompson@lnxi.com>,
-       bluesmoke-devel@lists.sourceforge.net
-In-Reply-To: <44115DA4.604@buttersideup.com>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org>
-	 <200603091551.25097.dsp@llnl.gov> <20060310000227.GA30236@kroah.com>
-	 <200603091746.51686.dsp@llnl.gov>
-	 <1141976218.2876.2.camel@laptopd505.fenrus.org>
-	 <44115DA4.604@buttersideup.com>
-Content-Type: text/plain
-Date: Fri, 10 Mar 2006 12:40:35 +0100
-Message-Id: <1141990836.2876.42.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 10 Mar 2006 06:44:48 -0500
+Received: from lucidpixels.com ([66.45.37.187]:54924 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932111AbWCJLor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 06:44:47 -0500
+Date: Fri, 10 Mar 2006 06:44:46 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: linux-kernel@vger.kernel.org
+Subject: MCE Errors, Bad CPU, Memory or Motherboard?
+Message-ID: <Pine.LNX.4.64.0603100642220.1165@p34>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 11:06 +0000, Tim Small wrote:
-> Arjan van de Ven wrote:
-> 
-> > It depends on how many PCI devices in your machine you wish to
-> >
-> >>blacklist or whitelist.  The motivation for this feature is that
-> >>certain known badly-designed devices report an endless stream of
-> >>spurious PCI bus parity errors.  We want to skip such devices when
-> >>checking for PCI bus parity errors.
-> >>    
-> >>
-> >
-> >ok so this is actually a per pci device property!
-> >I would suggest moving this property to the pci device itself, not doing
-> >it inside an edac directory.
-> >  
-> >
-> Yes, this seems more sensible to me.  For one thing, I suspect that just 
-> keying on vendor:device is probably too blunt for this and that 
-> blacklisting a particular PCI device revision is a likely requirement, 
-> as well as subsystem vendor/subsystem device.
+This is the first time I have seen an MCE error, googling the EIP value at 
+the time of the panic does not return any useful results.
 
-and maybe even something as funky as firmware version.
-So it for sure is a per device (not per ID) property, and something that
-needs a global quirk table kind of thing with the option to do per
-driver overrides
+Does anyone know whether it is the CPU or MEMORY that is bad in this 
+machine?  As it shows some problems with BANK4; however, if the CPU is 
+bad, then it is possible to get all sorts of unpredictable results, right?
 
+Dec  9 23:21:25 box  CPU 0: Machine Check Exception
+Dec  9 23:21:25 box  Bank 4: f62ba001c0080813 at 00000000a6e6c2c0
+Dec  9 23:21:25 box  Kernel panic: CPU context corrupt
+Dec  9 23:21:25 box kernel: CPU 0
+Dec  9 23:21:25 box kernel: CPU 0
+Dec  9 23:21:25 box kernel: Bank 4
+Dec  9 23:21:25 box kernel: Bank 4
+Dec  9 23:21:25 box kernel: Kernel panic
+Dec  9 23:21:25 box kernel: Kernel panic
+Dec  9 23:21:26 box  kernel BUG at panic.c:66!
+Dec  9 23:21:26 box  invalid operand: 0000
+Dec  9 23:21:26 box  CPU:    0
+Dec  9 23:21:26 box  EIP:    0010
+Dec  9 23:21:26 box  EFLAGS: 00010282
+Dec  9 23:21:26 box  eax: f895c1d0   ebx
+Dec  9 23:21:26 box  esi: 00000415   edi
+Dec  9 23:21:26 box  ds: 0018   es
+Dec  9 23:21:26 box  Process java (pid: 6852, stackpage=e0ec5000)
+Dec  9 23:21:26 box  Stack: 04000000 e0ec5fa4 c010fc28 c02942b8 00000005 
+c0080813 00000417 00000416
+Dec  9 23:21:26 box         00000005 00000000 00000004 e0ec4000 00000000 
+c010fd00 e0ec5fb4 c010fd11
+Dec  9 23:21:26 box         e0ec5fc4 00000000 bfffc090 c0108ed4 e0ec5fc4 
+00000000 00000023 44841510
+Dec  9 23:21:26 box  Call Trace:    [<c010fc28>] [<c010fd00>] [<c010fd11>] 
+[<c0108ed4>]
+Dec  9 23:21:26 box
+Dec  9 23:21:26 box  Code: 0f 0b 42 00 28 6a 29 c0 b9 00 e0 ff ff 21 e1 8b 
+51 30 c1 e2
 
+Thanks,
+
+Justin.

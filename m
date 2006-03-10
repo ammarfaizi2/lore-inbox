@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752165AbWCJHXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWCJHhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752165AbWCJHXE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 02:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752164AbWCJHXD
+	id S1750785AbWCJHhF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 02:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWCJHhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 02:23:03 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:6320
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751328AbWCJHXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 02:23:01 -0500
-Date: Thu, 09 Mar 2006 23:23:01 -0800 (PST)
-Message-Id: <20060309.232301.77550306.davem@davemloft.net>
-To: rick.jones2@hp.com
-Cc: netdev@vger.kernel.org, mst@mellanox.co.il, rdreier@cisco.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: TSO and IPoIB performance degradation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <4410C671.2050300@hp.com>
-References: <20060308125311.GE17618@mellanox.co.il>
-	<20060309.154819.104282952.davem@davemloft.net>
-	<4410C671.2050300@hp.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 10 Mar 2006 02:37:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:57830 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750785AbWCJHhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 02:37:03 -0500
+Subject: Re: [PATCH] EDAC: core EDAC support code
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
+       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
+       bluesmoke-devel@lists.sourceforge.net
+In-Reply-To: <200603091746.51686.dsp@llnl.gov>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org>
+	 <200603091551.25097.dsp@llnl.gov> <20060310000227.GA30236@kroah.com>
+	 <200603091746.51686.dsp@llnl.gov>
+Content-Type: text/plain
+Date: Fri, 10 Mar 2006 08:36:58 +0100
+Message-Id: <1141976218.2876.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Rick Jones <rick.jones2@hp.com>
-Date: Thu, 09 Mar 2006 16:21:05 -0800
+On Thu, 2006-03-09 at 17:46 -0800, Dave Peterson wrote:
+> > >     Issue #3
+> > >     --------
+> > >     I am unclear about what to do here.  If the list contents were
+> > >     read-only, it would be relatively easy to make
+> > >     /sys/devices/system/edac/pci/pci_parity_whitelist into a directory
+> > >     containing symlinks, one for each device.  However, the user is
+> > >     supposed to be able to modify the list contents.  This would imply
+> > >     that the user creates and destroys symlinks.  Does sysfs currently
+> > >     support this sort of behavior?  If not, what is the preferred
+> > >     means for implementing a user-modifiable set of values?
+> >
+> > No it doesn't.  How big can this list get?
+> 
+> It depends on how many PCI devices in your machine you wish to
+> blacklist or whitelist.  The motivation for this feature is that
+> certain known badly-designed devices report an endless stream of
+> spurious PCI bus parity errors.  We want to skip such devices when
+> checking for PCI bus parity errors.
 
-> well, there are stacks which do "stretch acks" (after a fashion) that 
-> make sure when they see packet loss to "do the right thing" wrt sending 
-> enough acks to allow cwnds to open again in a timely fashion.
+ok so this is actually a per pci device property!
+I would suggest moving this property to the pci device itself, not doing
+it inside an edac directory.
 
-Once a loss happens, it's too late to stop doing the stretch ACKs, the
-damage is done already.  It is going to take you at least one
-extra RTT to recover from the loss compared to if you were not doing
-stretch ACKs.
+by doing that you get the advantage that 1) it's a more logical place,
+and 2) users can do it even for 1 of 2 cards, if they have 2 cards of
+the same make and 3) you can use the generic kernel quirk interface for
+this and 4) drivers can in principle control this for their hardware in
+complex cases 
 
-You have to keep giving consistent well spaced ACKs back to the
-receiver in order to recover from loss optimally.
+I understand that on a PC, EDAC is the only user. but ppc has a similar
+mechanism I suspect, and they more than likely would be able to share
+this property....
 
-The ACK every 2 full sized frames behavior of TCP is absolutely
-essential.

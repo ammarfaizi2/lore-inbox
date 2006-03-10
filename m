@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWCJRvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWCJRyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWCJRvI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWCJRvI
+	id S1751170AbWCJRyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWCJRyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:51:08 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53632 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750787AbWCJRvH (ORCPT
+	Fri, 10 Mar 2006 12:54:25 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:14556 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751170AbWCJRyY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:51:07 -0500
-Date: Fri, 10 Mar 2006 18:50:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: lenz@cs.wisc.edu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] Collie battery status sensing code
-Message-ID: <20060310175054.GC8018@elf.ucw.cz>
-References: <20060309123842.GA3619@elf.ucw.cz> <1141910391.10107.49.camel@localhost.localdomain> <20060305001254.GA2423@ucw.cz> <1141924371.10107.75.camel@localhost.localdomain>
+	Fri, 10 Mar 2006 12:54:24 -0500
+Subject: Re: [openib-general] [PATCH 0 of 20] [RFC] ipath driver - another
+	round for review
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Grant Grundler <iod00d@hp.com>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, akpm@osdl.org, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       davem@davemloft.net
+In-Reply-To: <20060310174806.GA13969@esmail.cup.hp.com>
+References: <patchbomb.1141950930@eng-12.pathscale.com>
+	 <20060310153559.GA12778@mellanox.co.il>
+	 <1142006537.29925.13.camel@serpentine.pathscale.com>
+	 <20060310174806.GA13969@esmail.cup.hp.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Fri, 10 Mar 2006 09:54:19 -0800
+Message-Id: <1142013259.29925.69.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1141924371.10107.75.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2006-03-10 at 09:48 -0800, Grant Grundler wrote:
 
-> > I thought about it, and considered it quite ugly. Result would be all
-> > data on the platform bus with half-empty device on ucb1x00 "bus". It
-> > would bring me some problems with registering order: if platform
-> > device is registered too soon, ucb will be NULL and it will crash and
-> > burn. OTOH I already have static *ucb, so it is doable, and I can do
-> > it if you prefer it that way...
-> 
-> If you register the sharpsl-pm device in the collie_pm_add() function,
-> ucb should always have registered by that point? As you say, you already
-> have the static *ucb and I'm hoping using the platform device will mean
-> less invasive changes in sharpsl_pm itself in the future?
+> My gut feeling is you want to look at SDP first.
 
-Well, difference is not going to be 
+We already implement SDP.
 
-> For the record, this patch from Dirk Opfer also exists. He's working on
-> using sharpsl-pm on tosa.
-> 
-> http://www.rpsys.net/openzaurus/patches/archive/sharpsl_pm-do-r2.patch
+> I'm skeptical that yet another wire protocol will get
+> accepted into the linux kernel.
 
-Yep, looks nice, and will be useful for collie, too.
-								Pavel
+It's just a simple net device driver.
 
--- 
-68:        byte [] adUSER = GetAtomData( GetAtomPos( AtomUSER ), true );
+	<b
+

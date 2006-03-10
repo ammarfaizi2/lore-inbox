@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752050AbWCJKiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752222AbWCJK7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752050AbWCJKiI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 05:38:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752167AbWCJKiH
+	id S1752222AbWCJK7M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 05:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWCJK7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 05:38:07 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:63450 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1752050AbWCJKiG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 05:38:06 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Carlos Munoz <carlos@kenati.com>
-Subject: Re: How can I link the kernel with libgcc ?
-Date: Fri, 10 Mar 2006 12:37:35 +0200
-User-Agent: KMail/1.8.2
-Cc: Lee Revell <rlrevell@joe-job.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org,
-       alsa-devel <alsa-devel@lists.sourceforge.net>
-References: <4410D9F0.6010707@kenati.com> <1141961152.13319.118.camel@mindpipe> <4410F6CB.8070907@kenati.com>
-In-Reply-To: <4410F6CB.8070907@kenati.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Fri, 10 Mar 2006 05:59:12 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63664
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1752221AbWCJK7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 05:59:10 -0500
+Date: Fri, 10 Mar 2006 02:59:12 -0800 (PST)
+Message-Id: <20060310.025912.107001339.davem@davemloft.net>
+To: imcdnzl@gmail.com
+Cc: bb@kernelpanic.ru, jesse.brandeburg@gmail.com, yoseph.basri@gmail.com,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: KERNEL: assertion (!sk->sk_forward_alloc) failed
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <cbec11ac0602091137p4ee233bdgdcfbf3d6cb62a62f@mail.gmail.com>
+References: <cbec11ac0602091125w5a5a7c6em8462131e9f9b24dc@mail.gmail.com>
+	<43EB98B0.4@kernelpanic.ru>
+	<cbec11ac0602091137p4ee233bdgdcfbf3d6cb62a62f@mail.gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603101237.35687.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 March 2006 05:47, Carlos Munoz wrote:
-> Lee Revell wrote:
+From: Ian McDonald <imcdnzl@gmail.com>
+Date: Fri, 10 Feb 2006 08:37:48 +1300
+
+> On 2/10/06, Boris B. Zhmurov <bb@kernelpanic.ru> wrote:
+> > Hello, Ian McDonald.
+> >
+> > On 09.02.2006 22:25 you said the following:
+> >
+> > > Is it possible for you to download 2.6.16-rc2 or similar and see if it
+> > > goes away?
+> >
+> > It'll be better, if I get only patch fixs that problem, not all 2.6.16-rc2.
+>
+> Oops I didn't read Jesse's message earlier properly.
 > 
-> >On Thu, 2006-03-09 at 19:25 -0800, Carlos Munoz wrote:
-> >  
-> >
-> >>I figured out how to get the driver to use floating point operations.
-> >>I included source code (from an open source math library) for the
-> >>log10 function in the driver. Then I added the following lines to the
-> >>file arch/sh/kernel/sh_ksyms.c: 
-> >>    
-> >>
-> >
-> >Where is the source code to your driver?
-> >
-> >Lee
-> >
-> >  
-> >
-> Hi Lee,
-> 
-> Be warned. This driver is in the early stages of development. There is 
-> still a lot of work that needs to be done (interrupt, dma, etc, etc).
+> That patch which probably fixed it is (from his message):
+> I think the commit id that is missing from 2.6.14.X is
+> fb5f5e6e0cebd574be737334671d1aa8f170d5f3
 
-What? You are using log10 only twice!
-
-        if (!(siu_obj_status & ST_OPEN)) {
-		...
-                /* = log2(over) */
-                ydef[22] = (u_int32_t)(log10((double)(over & 0x0000003f)) /
-                                       log10(2));
-		...
-        }
-        else {
-		...
-                if (coef) {
-                        ydef[16] = 0x03045000 | (over << 26) | (tap - 4);
-                        ydef[17] = (tap * 2 + 1);
-                        /* = log2(over) */
-                        ydef[22] = (u_int32_t)
-                                (log10((double)(over & 0x0000003f)) / log10(2));
-                }
-
-Don't you think that log10((double)(over & 0x0000003f)) / log10(2)
-can have only 64 different values depending on the result of (over & 0x3f)?
-
-Obtain them from precomputed uint32_t log10table[64].
---
-vda
+This patch is in the linux-2.6.14 stable tree, I just
+verified this.

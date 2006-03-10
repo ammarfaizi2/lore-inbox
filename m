@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752026AbWCJTK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751932AbWCJTNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752026AbWCJTK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 14:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752014AbWCJTK2
+	id S1751932AbWCJTNP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 14:13:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752014AbWCJTNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 14:10:28 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15634 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1752026AbWCJTK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 14:10:27 -0500
-Date: Fri, 10 Mar 2006 20:10:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: jkmaline@cc.hut.fi
-Cc: hostap@shmoo.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] hostap_ap.c:hostap_add_sta(): inconsequent NULL checking
-Message-ID: <20060310191026.GS21864@stusta.de>
+	Fri, 10 Mar 2006 14:13:15 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18600 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751932AbWCJTNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 14:13:14 -0500
+Date: Fri, 10 Mar 2006 11:12:56 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Magnus Damm <magnus@valinux.co.jp>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [PATCH 00/03] Unmapped: Separate unmapped and mapped pages
+In-Reply-To: <20060310034412.8340.90939.sendpatchset@cherry.local>
+Message-ID: <Pine.LNX.4.64.0603101111570.28805@schroedinger.engr.sgi.com>
+References: <20060310034412.8340.90939.sendpatchset@cherry.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted this inconsequent NULL checking 
-(unconditionally dereferencing directly after checking for NULL
-isn't a good idea).
+On Fri, 10 Mar 2006, Magnus Damm wrote:
 
+> Unmapped patches - Use two LRU:s per zone.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Note that if this is done then the default case of zone_reclaim becomes 
+trivial to deal with and we can get rid of the zone_reclaim_interval.
 
---- linux-2.6.16-rc5-mm3-full/drivers/net/wireless/hostap/hostap_ap.c.old	2006-03-10 19:30:08.000000000 +0100
-+++ linux-2.6.16-rc5-mm3-full/drivers/net/wireless/hostap/hostap_ap.c	2006-03-10 19:30:43.000000000 +0100
-@@ -3141,7 +3141,7 @@ int hostap_add_sta(struct ap_data *ap, u
- 	if (ret == 1) {
- 		sta = ap_add_sta(ap, sta_addr);
- 		if (!sta)
--			ret = -1;
-+			return -1;
- 		sta->flags = WLAN_STA_AUTH | WLAN_STA_ASSOC;
- 		sta->ap = 1;
- 		memset(sta->supported_rates, 0, sizeof(sta->supported_rates));
+However, I have not looked at the rest yet.
 

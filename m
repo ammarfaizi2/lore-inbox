@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWCJRfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751964AbWCJRio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWCJRfB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWCJRfA
+	id S1751964AbWCJRio (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751983AbWCJRio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:35:00 -0500
-Received: from 66.239.25.20.ptr.us.xo.net ([66.239.25.20]:16848 "EHLO
-	zoot.lnxi.com") by vger.kernel.org with ESMTP id S932183AbWCJRfA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:35:00 -0500
-Message-Id: <441154B10200003600001501@zoot.lnxi.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 Beta 
-Date: Fri, 10 Mar 2006 10:28:01 -0700
-From: "Doug Thompson" <dthompson@lnxi.com>
-To: <arjan@infradead.org>
-Cc: <tim@buttersideup.com>, <greg@kroah.com>,
-       <bluesmoke-devel@lists.sourceforge.net>, <dsp@llnl.gov>,
-       "Doug Thompson" <dthompson@lnxi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
+	Fri, 10 Mar 2006 12:38:44 -0500
+Received: from mx1.suse.de ([195.135.220.2]:32665 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751964AbWCJRin (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 12:38:43 -0500
+Date: Fri, 10 Mar 2006 18:38:42 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc5-git14 crash in spin_bug on ppc64
+Message-ID: <20060310173842.GA14924@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 17:11 +0000, Arjan van de Ven  wrote:
 
-> 
-> > So in order to be sure I understand, if this PARITY Non-Conformance
-> > attribute was "moved" to the per device directory of sysfs
-> > (/sys/devices/pci0000:00/0000:00:06.0 for an example), then we would
-> > need a userland attribute file created here and then stored in the
-> > 'pci_dev' structure 
-> 
-> yes. Well to some degree I'm not even sure it needs to be exposed to
-> userland like this. At least normally the kernel should know this
-> internally and automatically. (after all the kernel has the job to
-> abstract the hardware for the rest of the system; dealing with broken
-> hardware is part of that)
+I got this crash while hunting some other bug. dualcore 970mp. 
 
-The problem we have run into is latency of the OS keeping up to date
-with the characteristics of a device. When I added the scan PCI parity
-to bluesmoke/EDAC I made the ago old assumption that hardware vendors
-followed the specs, at least in the majority. (Gee, they didn't 25 years
-ago so why should they today??). Well it has been trial and error as we
-placed bluesmoke on systems with the various cards we use and more than
-I expected fail this conformance.
-
-We needed the ability to override in real (people) time on a cluster,
-the scanning of non-conforming boards. We cannot wait months for the OS
-to catch up with new board. That is why I placed (breaking the model -
-sorry about that) the blacklist "close" to the EDAC module.
-
-For these reasons, we needed an access point for userland to override
-the attribute of scanning a PCI device for parity. Device drivers won't
-necessarily do this themselves. Something outside the kernel might have
-to do it with data found after a device has been added to the system.
-
-> 
-> 
-> > or the mentioned quirk structure. This field then
-> > could be set by userland script(s), then EDAC-PCI could example that
-> > data in its iteration of pci devices.  Is that correct?
-> 
-> that sounds way way way too complex. If this is "just" a field in the
-> pci device... why would userland need to get involved? Your kernel side
-> should be able to see that directly just fine.
-
-The need for userland to actually DO the setting of the attribute
-indicating that this device is non-conforming. That would be why
-
-> 
-> 
-> 
-> > If the above is correct, then who would we need to contact for said
-> > modification or approval for such? Is that you Greg KH, since you are
-> > listed as the PCI SUBSYSTEM maintainer?
-> 
-> Greg needs to OK the addition to the pci struct, but I don't forsee a
-> problem personally since this is a more or less obvious and logical
-> thing to add, and useful for more than one architecture
-
-great!  thanks
-
-doug t
+Welcome to SUSE Linux Enterprise Server 9.90 Beta7 (ppc) - Kernel 2.6.16-rc5-git
+14-ppc64-defconfig (console).
 
 
+wels login: BUG: spinlock bad magic on CPU#1, gdm/4568
+cpu 0x1: Vector: 300 (Data Access) at [c0000000f3c2f5c0]
+    pc: c00000000020a7ec: .spin_bug+0x94/0x100
+    lr: c00000000020a7cc: .spin_bug+0x74/0x100
+    sp: c0000000f3c2f840
+   msr: 8000000000009032
+   dar: ffff000000000104
+ dsisr: 40000000
+  current = 0xc0000000f916e040
+  paca    = 0xc0000000005ddd00
+    pid   = 4568, comm = gdm
+enter ? for help
+1:mon> t
+[c0000000f3c2f8d0] c00000000020aa64 ._raw_spin_lock+0x40/0x164
+[c0000000f3c2f960] c00000000048bff4 ._spin_lock+0x10/0x24
+[c0000000f3c2f9e0] c0000000000a28b0 .anon_vma_link+0x30/0x74
+[c0000000f3c2fa70] c00000000005540c .dup_mm+0x244/0x4a8
+[c0000000f3c2fb40] c00000000005658c .copy_process+0x930/0xff4
+[c0000000f3c2fcb0] c000000000056d34 .do_fork+0xe4/0x244
+[c0000000f3c2fdc0] c00000000000f440 .sys_clone+0x5c/0x74
+[c0000000f3c2fe30] c000000000008950 .ppc_clone+0x8/0xc
+--- Exception: c00 (System Call) at 000000000f202918
+SP (ff829160) is in userspace
+1:mon>
+
+This kernel was booted serveral times.

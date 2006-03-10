@@ -1,139 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752085AbWCJACm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752097AbWCJAIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752085AbWCJACm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752091AbWCJACm
+	id S1752097AbWCJAIj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752106AbWCJAIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:02:42 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:8406 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1752085AbWCJACl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:02:41 -0500
-Date: Thu, 9 Mar 2006 16:02:27 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, alan@redhat.com, gregkh@kroah.com,
-       Doug Thompson <dthompson@lnxi.com>,
-       bluesmoke-devel@lists.sourceforge.net
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Message-ID: <20060310000227.GA30236@kroah.com>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603070903.19226.dsp@llnl.gov> <1141758219.3048.10.camel@laptopd505.fenrus.org> <200603091551.25097.dsp@llnl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603091551.25097.dsp@llnl.gov>
-User-Agent: Mutt/1.5.11
+	Thu, 9 Mar 2006 19:08:39 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:33003 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1752097AbWCJAIi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 19:08:38 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+Date: Fri, 10 Mar 2006 01:07:46 +0100
+User-Agent: KMail/1.8.3
+References: <16835.1141936162@warthog.cambridge.redhat.com> <200603100045.10375.mbuesch@freenet.de> <Pine.LNX.4.64.0603091554200.18022@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603091554200.18022@g5.osdl.org>
+Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org, mingo@redhat.com,
+       alan@redhat.com, linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
+MIME-Version: 1.0
+Message-Id: <200603100107.46655.mbuesch@freenet.de>
+Content-Type: multipart/signed;
+  boundary="nextPart10023134.nbRTIBHvRr";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+X-Warning: 213.54.177.245 is listed at list.dsbl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 03:51:25PM -0800, Dave Peterson wrote:
-> On Tuesday 07 March 2006 11:03, Arjan van de Ven wrote:
-> > afaics it is a list of pci devices. these should just be symlinks to the
-> > sysfs resource of these pci devices instead, not a flat table file.
-> 
-> Ok, I'm looking at the EDAC sysfs interface.  I see the following
-> issues concerning the "one value per file" rule:
-> 
->     1.  /sys/devices/system/edac/mc/mc0/module_name contains two
->         values, a module name and a version:
-> 
->             # cat /sys/devices/system/edac/mc/mc0/module_name
->             k8_edac  Ver: 2.0.1.devel Mar  8 2006
+--nextPart10023134.nbRTIBHvRr
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Woah.  That's what /sys/modules/ is for right?  Don't add new stuff
-please.
+On Friday 10 March 2006 00:56, you wrote:
+>=20
+> On Fri, 10 Mar 2006, Michael Buesch wrote:
+> >=20
+> > So what about:
+> >=20
+> > #define spin_lock_mmio(lock)	spin_lock(lock)
+> > #define spin_unlock_mmio(lock)	do { spin_unlock(lock); mmiowb(); } whil=
+e (0)
+>=20
+> You need to put the mmiowb() inside the spinlock.
 
->     2.  /sys/devices/system/edac/mc/mc0/supported_mem_type contains
->         the following on the machine I am looking at:
-> 
->             # cat /sys/devices/system/edac/mc/mc0/supported_mem_type
->             Unbuffered-DDR Registered-DDR
->             #
-> 
->         Here we have a whitespace-delimited list of values.  Likewise,
->         the following files contain whitespace-delimited lists:
-> 
->             /sys/devices/system/edac/mc/mc0/edac_capability
->             /sys/devices/system/edac/mc/mc0/edac_current_capability
+Ok, sorry. That was a typo.
+I should not do more than 3 things at the same time. :)
 
-What exactly do they look like?
+> Yes, that is painful. But the point being that if it's outside, then when=
+=20
+> somebody else gets the lock, the previous lock-owners MMIO stores may=20
+> still be in flight, which is what you didn't want in the first place.
+>=20
+> Anyway, no need to make a new name for it, since you might as well just=20
+> use the mmiowb() explicitly. At least until this has been shown to be a=20
+> really common pattern (it clearly isn't, right now ;)
 
->     3.  The following files contain comma-delimited lists of
->         (vendor ID, device ID) tuples:
-> 
->             /sys/devices/system/edac/pci/pci_parity_blacklist
->             /sys/devices/system/edac/pci/pci_parity_whitelist
+Ok, so maybe it is best if every device creates its own macros
+for convenience (if needed =3D> if it is a common pattern
+in the scope of the driver).
 
-What exactly do they look like?
+Example:
+#define bcm43xx_lock(bcm, flags)	spin_lock_irqsave(&(bcm)->lock, flags)
+#define bcm43xx_unlock(bcm, flags)	do { mmiowb(); spin_unlock_irqrestore(&(=
+bcm)->lock, flags); } while (0)
 
->         I assume this is what Arjan is referring to.
->         Documentation/drivers/edac/edac.txt gives the following
->         description of how the whitelist functions:
-> 
->             This control file allows for an explicit list of PCI
->             devices to be scanned for parity errors. Only devices
->             found on this list will be examined.  The list is a line
->             of hexadecimel VENDOR and DEVICE ID tuples:
-> 
->             1022:7450,1434:16a6
-> 
->             One or more can be inserted, seperated by a comma.
->             To write the above list doing the following as one
->             command line:
-> 
->             echo "1022:7450,1434:16a6"
->                     > /sys/devices/system/edac/pci/pci_parity_whitelist
-> 
->             To display what the whitelist is, simply 'cat' the same
->             file.
-> 
-> Looking at the current EDAC implementation, these are all of the
-> "one value per file" issues I see.  If anyone sees any others I
-> missed, please let me know.  Here are my thoughts on each:
-> 
->     Issue #1
->     --------
->     Fixing this is easy.  /sys/devices/system/edac/mc/mc0/module_name
->     can be replaced by two separate files, one providing the name and
->     the other providing the version:
-> 
->         /sys/devices/system/edac/mc/mc0/module_name
->         /sys/devices/system/edac/mc/mc0/module_version
+=2D-=20
+Greetings Michael.
 
-No, these should just be deleted.  Use the proper MODULE_* macros for
-these if you really want to display them to users.
+--nextPart10023134.nbRTIBHvRr
+Content-Type: application/pgp-signature
 
->     Issue #2
->     --------
->     To fix this, /sys/devices/system/edac/mc/mc0/supported_mem_type
->     can be made into a directory containing a file representing each
->     supported memory type.  Thus we might have the following:
-> 
->         /sys/devices/system/edac/mc/mc0/supported_mem_type
->         /sys/devices/system/edac/mc/mc0/supported_mem_type/Unbuffered-DDR
->         /sys/devices/system/edac/mc/mc0/supported_mem_type/Registered-DDR
-> 
->     In the above example, the files Unbuffered-DDR and Registered-DDR
->     would each be empty in content.  The presence of each file would
->     indicate that the memory type it represents is supported.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-I don't think the original file is really a big problem.
+iD8DBQBEEMNSlb09HEdWDKgRAuOnAKC2qlALmVCy+lkWnpAEdr215kgCrgCeKas4
+HSal0qzIVXDbUUr03kJndYo=
+=zRBo
+-----END PGP SIGNATURE-----
 
->     Issue #3
->     --------
->     I am unclear about what to do here.  If the list contents were
->     read-only, it would be relatively easy to make
->     /sys/devices/system/edac/pci/pci_parity_whitelist into a directory
->     containing symlinks, one for each device.  However, the user is
->     supposed to be able to modify the list contents.  This would imply
->     that the user creates and destroys symlinks.  Does sysfs currently
->     support this sort of behavior?  If not, what is the preferred
->     means for implementing a user-modifiable set of values?
-
-No it doesn't.  How big can this list get?
-
-thanks,
-
-greg k-h
+--nextPart10023134.nbRTIBHvRr--

@@ -1,79 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbWCJB0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752157AbWCJB1I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932698AbWCJB0k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 20:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbWCJB0j
+	id S1752157AbWCJB1I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 20:27:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWCJB1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 20:26:39 -0500
-Received: from xproxy.gmail.com ([66.249.82.196]:40413 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932698AbWCJB0j (ORCPT
+	Thu, 9 Mar 2006 20:27:08 -0500
+Received: from xenotime.net ([66.160.160.81]:23484 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932706AbWCJB1H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 20:26:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=jv3/9cQV7sRXTB7lc5LtvN3eKlLPLjppEydcvxhKkz+uF13FpcIqOjy0aUZlOmuce1XPXudJ8IVN+MJWjRQIx4rrup1stBYHTiink3XaYQ7Kehfq0eOk19NERO6vARRqsx4SUAh8H65wkpYWWqa+xLyp4+GLAbiL5T4OSesGriw=
-Message-ID: <4410D607.5080102@gmail.com>
-Date: Fri, 10 Mar 2006 09:27:35 +0800
-From: Yi Yang <yang.y.yi@gmail.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16-rc5-m3 PATCH] inotify: add the monitor for the event
- source
-References: <440F075F.1030404@gmail.com>	 <1141836798.12175.1.camel@laptopd505.fenrus.org>	 <440FBA9C.3050109@gmail.com>	 <1141882513.2883.2.camel@laptopd505.fenrus.org>	 <440FFB7F.8050902@gmail.com> <1141932941.2883.26.camel@laptopd505.fenrus.org>
-In-Reply-To: <1141932941.2883.26.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Mar 2006 20:27:07 -0500
+Date: Thu, 9 Mar 2006 17:28:54 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Kevin Winchester <kwin@ns.sympatico.ca>
+Cc: akpm@osdl.org, ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm3] x86-64: Eliminate register_die_notifier symbol
+ exported twice
+Message-Id: <20060309172854.ae8eeec9.rdunlap@xenotime.net>
+In-Reply-To: <4410BDFB.3070401@ns.sympatico.ca>
+References: <4410BDFB.3070401@ns.sympatico.ca>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>> it breaks ABI because this structure is communicated to userspace, and
->>> you change both the layout and the size of it. What else would ABI
->>> mean??
->>>   
->>>       
->> Many structures exported to user space in kernel  are undergoing some 
->> change, A good application shouldn't count on invariability forever,
->> My test application hasn't any problem before change and after change.
->>     
->
->
-> this is absolutely incorrect. This is an ABI that cannot change in any
-> incompatible way.
->   
->>> but... what makes you think it's not a kernel thread such as kjournald?
->>> (which have basically meaningless current)
->>>   
->>>       
->> you can get  values of these fields without any problem for kernel 
->> thread although they are useless.
->>     
->
-> exactly
->
->   
->>> there is no "full path name" concept in linux like that. And even worse,
->>> many processes will not have *any* path because they have been deleted,
->>> especially the viruses will use this ;)
->>>   
->>>       
->> For this case you said, this patch has now way really, do you have a 
->> good way to handle this case?
->>     
->
-> it sounds that what you want to achieve is broken in the first place...
-> (or should use audit etc)
->   
-As I known, BSD process audit only can be done inside a process, and 
-audit result is just visible after
-termination of this process, if an application wants to monitor all the 
-processes, it has no way. My patch
- provides such a way bases on inotify with minimal work, it should be an 
-good extension for
-inotify although it can't cover all the cases.
->
->   
+On Thu, 09 Mar 2006 19:44:59 -0400 Kevin Winchester wrote:
 
+> 
+> register_die_notifier is exported twice, once in traps.c and once in 
+> x8664_ksyms.c.  This results in a warning on build.
+> 
+> Signed-Off-By: Kevin Winchester <kwin@ns.sympatico.ca>
+> 
+> --- v2.6.16-rc5-mm3.orig/arch/x86_64/kernel/x8664_ksyms.c       
+> 2006-03-09 19:34:11.000000000 -0400
+> +++ v2.6.16-rc5-mm3/arch/x86_64/kernel/x8664_ksyms.c    2006-03-09 
+> 19:40:46.000000000 -0400
+> @@ -142,7 +142,6 @@ EXPORT_SYMBOL(rwsem_down_write_failed_th
+>  EXPORT_SYMBOL(empty_zero_page);
+> 
+>  EXPORT_SYMBOL(die_chain);
+> -EXPORT_SYMBOL(register_die_notifier);
+> 
+>  #ifdef CONFIG_SMP
+>  EXPORT_SYMBOL(cpu_sibling_map);
+
+Thanks for that.  However, I see 2 such warnings:
+
+WARNING: vmlinux: 'register_die_notifier' exported twice. Previous export was in vmlinux
+WARNING: vmlinux: 'strlen' exported twice. Previous export was in vmlinux
+
+
+---
+~Randy
+Please use an email client that implements proper (compliant) threading.
+(You know who you are.)

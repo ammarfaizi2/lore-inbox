@@ -1,47 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWCJO7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751520AbWCJO7F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751494AbWCJO7U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 09:59:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWCJO7U
+	id S1751520AbWCJO7F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 09:59:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbWCJO7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 09:59:20 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:11551 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1751494AbWCJO7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 09:59:19 -0500
-X-IronPort-AV: i="4.02,181,1139212800"; 
-   d="scan'208"; a="1783886033:sNHT30936300"
-To: Greg KH <gregkh@suse.de>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, rolandd@cisco.com, akpm@osdl.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 8 of 20] ipath - sysfs support for core driver
-X-Message-Flag: Warning: May contain useful information
-References: <patchbomb.1141950930@eng-12.pathscale.com>
-	<1123028ac13ac1de2457.1141950938@eng-12.pathscale.com>
-	<20060310011106.GD9945@suse.de>
-	<1141967377.14517.32.camel@camp4.serpentine.com>
-	<20060310063724.GB30968@suse.de>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 10 Mar 2006 06:59:15 -0800
-Message-ID: <adairqmbb24.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Fri, 10 Mar 2006 09:59:05 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:46772 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751336AbWCJO7D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 09:59:03 -0500
+Message-ID: <441193FD.50901@us.ibm.com>
+Date: Fri, 10 Mar 2006 06:58:05 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 10 Mar 2006 14:59:16.0497 (UTC) FILETIME=[33945010:01C64453]
+To: Andrew Morton <akpm@osdl.org>
+CC: Arjan van de Ven <arjan@infradead.org>, sct@redhat.com, jack@suse.cz,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
+References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com>	<20060309152254.743f4b52.akpm@osdl.org>	<1141977557.2876.20.camel@laptopd505.fenrus.org>	<20060310002337.489265a3.akpm@osdl.org>	<1141980238.2876.27.camel@laptopd505.fenrus.org> <20060310005306.428b13ee.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> The main issue is that if you create a sysfs file like this,
-    Greg> and then in 3 months realize that you need to change one of
-    Greg> those characters to be something else, you are in big
-    Greg> trouble...
+Andrew Morton wrote:
 
-I think that PortInfo and NodeInfo might be fair game for sysfs files,
-because they are actually defined in the IB spec with a binary format
-that is sent on the wire.  So they're not going to change.
+>Arjan van de Ven <arjan@infradead.org> wrote:
+>
+>>On Fri, 2006-03-10 at 00:23 -0800, Andrew Morton wrote:
+>> > Arjan van de Ven <arjan@infradead.org> wrote:
+>> > >
+>> > > 
+>> > > > I'm not sure that PageMappedToDisk() gets set in all the right places
+>> > > > though - it's mainly for the `nobh' handling and block_prepare_write()
+>> > > > would need to be taught to set it.  I guess that'd be a net win, even if
+>> > > > only ext3 uses it..
+>> > > 
+>> > > btw is nobh mature enough yet to become the default, or to just go away
+>> > > entirely as option ?
+>> > 
+>> > I don't know how much usage it's had, sorry.  It's only allowed in
+>> > data=writeback mode and not many people seem to use even that.
+>>
+>> would you be prepared to turn it on by default in -mm for a bit to see
+>> how it holds up?
+>>
+>
+>spose so.  One would have to test it a bit first, make sure that it still
+>works.  Performance testing with PAGE_SIZE much-greater-than blocksize
+>would be needed.
+>
+I did nobh option only for writeback mode + only if PAGE_SIZE == 
+blocksize case :(
+I guess I could enhance it for PAGE_SIZE > blocksize case also.
 
-On the other hand it's not clear to me why using that wire protocol as
-an interface to userspace is a good idea...
+Doing it for ordered mode, journal mode is hard - due to transactions & 
+ordering.
+As you suggested while ago, we need a new mode. I hate to add new modes 
+since
+no one will be using it (unless we decide to make it default). Thats the 
+reason why
+I spent little time doing nobh option for writeback mode.
 
- - R.
+>
+>Unfortunately there's no `-o bh' (nonobh?) to turn it back on again if it
+>causes problems..
+>
+
+Can be added easily. I will send out a patch for this.
+
+Thanks,
+Badari
+
+>
+
+
+

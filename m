@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751874AbWCJRRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWCJRWy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751874AbWCJRRy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 12:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751927AbWCJRRy
+	id S932182AbWCJRWy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 12:22:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWCJRWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 12:17:54 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:58055 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751874AbWCJRRx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 12:17:53 -0500
-Date: Fri, 10 Mar 2006 22:47:38 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Jan Blunck <jblunck@suse.de>
-Cc: Neil Brown <neilb@suse.de>, Kirill Korotaev <dev@openvz.org>,
-       akpm@osdl.org, viro@zeniv.linux.org.uk, olh@suse.de,
-       bsingharora@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (3rd updated patch)]
-Message-ID: <20060310171738.GA18687@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <20060309165833.GK4243@hasse.suse.de> <441060D2.6090800@openvz.org> <17425.2594.967505.22336@cse.unsw.edu.au> <441138B7.9060809@sw.ru> <20060310105950.GL4243@hasse.suse.de> <17425.26668.678359.918399@cse.unsw.edu.au> <20060310123153.GN4243@hasse.suse.de>
+	Fri, 10 Mar 2006 12:22:54 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:64643
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S932182AbWCJRWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 12:22:54 -0500
+Subject: Re: 2.6.16-rc5 pppd oops on disconnects
+From: Paul Fulghum <paulkf@microgate.com>
+To: Bob Copeland <bcopeland@gmail.com>
+Cc: paulus@samba.org, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>
+References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 10 Mar 2006 11:22:20 -0600
+Message-Id: <1142011340.3220.4.camel@amdx2.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060310123153.GN4243@hasse.suse.de>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 10, 2006 at 01:31:53PM +0100, Jan Blunck wrote:
-> On Fri, Mar 10, Neil Brown wrote:
-> 
-> > -static void prune_dcache(int count)
-> > +static void prune_dcache(int count, struct super_block *sb)
-> >  {
-> >  	spin_lock(&dcache_lock);
-> >  	for (; count ; count--) {
-> > @@ -417,8 +425,10 @@ static void prune_dcache(int count)
-> >   			spin_unlock(&dentry->d_lock);
-> >  			continue;
-> >  		}
-> > -		/* If the dentry was recently referenced, don't free it. */
-> > -		if (dentry->d_flags & DCACHE_REFERENCED) {
-> > +		/* If the dentry was recently referenced, or is for
-> > +		 * a unmounting filesystem, don't free it. */
-> > +		if ((dentry->d_flags & DCACHE_REFERENCED) ||
-> > +		    (dentry->d_sb != sb && dentry->d_sb->s_root == NULL)) {
-> >  			dentry->d_flags &= ~DCACHE_REFERENCED;
-> >   			list_add(&dentry->d_lru, &dentry_unused);
-> >   			dentry_stat.nr_unused++;
-> 
-> You have to down_read the rw-semaphore sb->s_umount since sb->s_root is
-> protected by it :(
+On Fri, 2006-03-10 at 09:25 -0500, Bob Copeland wrote:
+> Unable to handle kernel paging request at virtual address 6b6b6bfb
+>  printing eip:
+> c027a4f6
+> *pde = 00000000
+> Oops: 0000 [#1]
+> ...
+> CPU:    0
+> EIP:    0060:[<c027a4f6>]    Not tainted VLI
+> EFLAGS: 00210046   (2.6.16-rc5 #16)
+> EIP is at __mutex_lock_slowpath+0x70/0x286
+> eax: cf549e20   ebx: cf548000   ecx: 00000000   edx: 00000054
+> esi: 6b6b6bdb   edi: cea6f030   ebp: c017592e   esp: cf549e20
+> ds: 007b   es: 007b   ss: 0068
+> Process pppd (pid: 4076, threadinfo=cf548000 task=cea6f030)
+> Stack: <0>cf549e20 cf549e20 11111111 11111111 cf549e20 cce32c60
+> cf609cc4 cf609ccc
+>        cf609c60 c017592e ccabf7a0 cce5466c 6b6b6b6b cce32c60 cf609cc4 cf609ccc
+>        cf609c60 c01e756e cce5466c ccabf7a0 cd619aac c029fd21 00000000 ccabf7a0
+> Call Trace:
+>  [<c017592e>] sysfs_hash_and_remove+0x34/0x10a
+>  [<c01e756e>] class_device_del+0xa0/0x11c
+>  [<c01e75f5>] class_device_unregister+0xb/0x16
+>  [<d01f81f3>] acm_tty_unregister+0x1d/0x63 [cdc_acm]
 
-<snip>
+This looks more like
+http://bugzilla.kernel.org/show_bug.cgi?id=5876
 
-Please do not beat me up for suggesting this. I was wondering if it
-makes sense to add a PF_SHRINKER flag and set it in shrink_slab().
-Use my solution, instead of PF_MEMALLOC check against PF_SHRINKER.
+The offset from 6b6b6b6b looks like slab poisoning on
+the dentry in sysfs_hash_and_remove.
 
-I think PF_SHRINKER might be a good idea, it might help us detect
-races between the shrinker and other subsystems too - not only dcache.
+-- 
+Paul Fulghum
+Microgate Systems, Ltd
 
-It might be well worth adding in. If there is sufficient interest I can
-send create and send out a patch.
-
-Balbir 

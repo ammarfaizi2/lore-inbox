@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWCJFLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWCJFOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751839AbWCJFLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 00:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWCJFLJ
+	id S1751591AbWCJFOg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 00:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751587AbWCJFOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 00:11:09 -0500
-Received: from mx1.suse.de ([195.135.220.2]:42155 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751839AbWCJFLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 00:11:07 -0500
-From: Neil Brown <neilb@suse.de>
-To: Kirill Korotaev <dev@openvz.org>
-Date: Fri, 10 Mar 2006 16:09:54 +1100
+	Fri, 10 Mar 2006 00:14:36 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:39007 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750707AbWCJFOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 00:14:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=kvHZvE059J+gvv5HzBKfa7WSh4r2GgniQ+7sUTimOoFMNs2dCwJrIgbRodrJHMkXrjmcUDftkj3Wenk+DBfr9kziMyJNxXbkM8MpeZ3yxhmx08LXptgSKLKu1tHVxXH9TUxjvUjEf2pd3EgH492iVxsYbiWB4z7XV17KsxxV+LU=  ;
+Message-ID: <44110B35.8040903@yahoo.com.au>
+Date: Fri, 10 Mar 2006 16:14:29 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: Daniel Phillips <phillips@google.com>,
+       Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] Ocfs2 performance bugs of doom
+References: <4408C2E8.4010600@google.com> <440FCA81.7090608@google.com> <440FDC8E.9060907@yahoo.com.au> <200603090519.37801.ak@suse.de> <44101FE8.9050105@yahoo.com.au>
+In-Reply-To: <44101FE8.9050105@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17425.2594.967505.22336@cse.unsw.edu.au>
-Cc: Jan Blunck <jblunck@suse.de>, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       olh@suse.de, bsingharora@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory()
- race (3rd updated patch)]
-In-Reply-To: message from Kirill Korotaev on Thursday March 9
-References: <20060309165833.GK4243@hasse.suse.de>
-	<441060D2.6090800@openvz.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday March 9, dev@openvz.org wrote:
-> Andrew,
+Nick Piggin wrote:
+> Andi Kleen wrote:
 > 
-> Acked-By: Kirill Korotaev <dev@openvz.org>
+>> On Thursday 09 March 2006 08:43, Nick Piggin wrote:
+>>  
+>>
+>>> Just interested: do the locks have any sort of locality of lookup?
+>>> If so, then have you tried moving hot (ie. the one you've just found,
+>>> or newly inserted) hash entries to the head of the hash list?
+>>>
+>>> In applications with really good locality you can sometimes get away
+>>> with small hash tables (10s even 100s of collisions on average) without
+>>> taking too big a hit this way, because your entries basically get sorted
+>>> LRU for you.
+>>
+>>
+>>
+>> LRU hashes have really bad cache behaviour though if that is not the case
+>> because you possibily need to bounce around the hash heads as DIRTY 
+>> cache lines instead of keeping them in SHARED state.
+>> My feeling would be that scalability is more important for this, which 
+>> would
+>> discourage this.
+>>
+> 
+> That's true, it would have to have very good locality of reference to
+> be of use. In that case it is not always going to dirty the cachelines
+> because you now only have to make your hash table size appropriate for
+> your _working set_ rather than the entire set - if the working set is
+> small enough and you make your hash say 4 times bigger than it, then
+> you might expect to often hit the right lock at the head of the list.
+> 
 
-I'm afraid that I'm not convinced.
+OTOH, I suspect it actually isn't all that bad. There is already a
+shared lock there, which will definitely have its cacheline invalidated.
 
-> > +static int wait_on_prunes(struct super_block *sb)
-> > +{
-> > +	DEFINE_WAIT(wait);
-> > +	int prunes_remaining = 0;
-> > +
-> > +#ifdef DCACHE_DEBUG
-> > +	printk(KERN_DEBUG "%s: waiting for %d prunes\n", __FUNCTION__,
-> > +	       sb->s_prunes);
-> > +#endif
-> > +
-> > +	spin_lock(&dcache_lock);
-> > +	for (;;) {
-> > +		prepare_to_wait(&sb->s_wait_prunes, &wait,
-> > +				TASK_UNINTERRUPTIBLE);
-> > +		if (!sb->s_prunes)
-> > +			break;
-> > +		spin_unlock(&dcache_lock);
-> > +		schedule();
-> > +		prunes_remaining = 1;
-> > +		spin_lock(&dcache_lock);
-> > +	}
-> > +	spin_unlock(&dcache_lock);
-> > +	finish_wait(&sb->s_wait_prunes, &wait);
-> > +	return prunes_remaining;
-> > +}
+So adding an extra cacheline bounce is not like the bad problem of going
+from perfect scalability (no shared cachelines) to a single shared cacheline.
 
-I don't think that a return value from wait_on_prunes is meaningful.
-All it tells us is whether a prune_one_dentry finished before or after
-wait_on_prunes takes the spin_lock.  This isn't very useful
-information as it has no significance to upper levels.
-
-So:
-
-> > +		do {
-> > +			shrink_dcache_parent(root);
-> > +		} while(wait_on_prunes(sb));
-> > +
-
-Suppose shrink_dcache_parent misses on dentry because the inode was being
-iput.  This iput completes immediately that
-shrink_dcache_parent completes.  It decrements ->s_prunes and when
-wait_on_prunes takes dcache_lock, ->s_prunes is zero so the loop
-terminates, and the remaining dentries - the parents of the dentry
-what was undergoing iput - don't get put.
-
-I really think that we need to stop prune_one_dentry from being called
-on dentries for a filesystem that is being unmounted.  With that code
-currently in -git, that means passing a 'struct super_block *' into
-prune_dcache so that it ignores any filesystem with ->s_root==NULL
-unless that filesystem is the filesystem that was passed.
-
-NeilBrown
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

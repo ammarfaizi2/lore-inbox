@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752082AbWCJGlM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752145AbWCJGld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752082AbWCJGlM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 01:41:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752086AbWCJGlM
+	id S1752145AbWCJGld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 01:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752117AbWCJGld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 01:41:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34448 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1752082AbWCJGlL (ORCPT
+	Fri, 10 Mar 2006 01:41:33 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38032 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1752110AbWCJGlP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 01:41:11 -0500
-Date: Thu, 9 Mar 2006 22:37:24 -0800
+	Fri, 10 Mar 2006 01:41:15 -0500
+Date: Thu, 9 Mar 2006 22:38:36 -0800
 From: Greg KH <gregkh@suse.de>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: rolandd@cisco.com, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 8 of 20] ipath - sysfs support for core driver
-Message-ID: <20060310063724.GB30968@suse.de>
-References: <patchbomb.1141950930@eng-12.pathscale.com> <1123028ac13ac1de2457.1141950938@eng-12.pathscale.com> <20060310011106.GD9945@suse.de> <1141967377.14517.32.camel@camp4.serpentine.com>
+To: Philip Langdale <philipl@mail.utexas.edu>
+Cc: bjdouma@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: pci-pci-quirk-for-asus-a8v-and-a8v-deluxe-motherboards.patch
+Message-ID: <20060310063836.GA31213@suse.de>
+References: <4410F1B7.80302@mail.utexas.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1141967377.14517.32.camel@camp4.serpentine.com>
+In-Reply-To: <4410F1B7.80302@mail.utexas.edu>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 09:09:37PM -0800, Bryan O'Sullivan wrote:
-> On Thu, 2006-03-09 at 17:11 -0800, Greg KH wrote:
+On Thu, Mar 09, 2006 at 07:25:43PM -0800, Philip Langdale wrote:
+> Saw this patch mentioned in passing and I wanted to point out
+> that this is a more general problem than just for asus motherboards.
+> I have a soyo kt880 based dragon 2 motherboard and it exhibits the
+> same behaviour and the same fix works (modulo looking for a different
+> subsystem vendor - soyo apparently don't have their own id - it's
+> set to VIA for all devices). And I've read about it affecting other
+> motherboards - I think it must be something that's present in the
+> reference BIOS that all the manufacturers use.
 > 
-> > These two files sure do show a lot of different stuff, all in a
-> > predefined structure for a single file.  Please break them up into the
-> > different individual files please.
-> 
-> The problem is that I want them to be presented together.  They look
-> like a pile of different stuff, but they're actually Infiniband NodeInfo
-> and PortInfo structures.  And yes, they are that ugly.
+> I'm not sure what the most efficient way to generalise it - especially
+> with cases like the Soyo one where there's no proper subvendor id.
 
-Then why not just have a bunch of different files for the different
-things, and then a simple shell script to grab them all and put them
-together however you want.
-
-The main issue is that if you create a sysfs file like this, and then in
-3 months realize that you need to change one of those characters to
-be something else, you are in big trouble...
-
-> These files fall into the same categories as the atomic_counters and
-> atomic_snapshots files you raised objections to earlier; it actually
-> makes sense to look at them as a whole, not their constituent parts.
-
-Sure, lots of different files can be combined by a script into a whole.
-
-> In the earlier round of review, people suggested that I use netlink for
-> stuff like this, but I quickly decided I'd rather gnaw my leg off than
-> use the netlink API.
-
-Just because you don't want to use it doesn't mean it isn't the proper
-tool...
+Great, thanks for the information.  How about just adding new device ids
+for the new machines that also need this function called.  It's quite
+easy to do that...
 
 thanks,
 

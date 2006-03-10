@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbWCJLEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWCJLFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932725AbWCJLEs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 06:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWCJLEr
+	id S1750944AbWCJLFg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 06:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752163AbWCJLFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 06:04:47 -0500
-Received: from mail-gw3.adaptec.com ([216.52.22.36]:39900 "EHLO
-	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
-	id S932724AbWCJLEp convert rfc822-to-8bit (ORCPT
+	Fri, 10 Mar 2006 06:05:36 -0500
+Received: from mx2.tue.nl ([131.155.3.6]:31198 "EHLO mx2.tue.nl")
+	by vger.kernel.org with ESMTP id S1750944AbWCJLFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 06:04:45 -0500
-content-class: urn:content-classes:message
+	Fri, 10 Mar 2006 06:05:35 -0500
+Message-ID: <44115D62.6000100@etpmod.phys.tue.nl>
+Date: Fri, 10 Mar 2006 12:05:06 +0100
+From: Bart Hartgers <bart@etpmod.phys.tue.nl>
+User-Agent: Thunderbird 1.5 (X11/20060111)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: HEADS UP for gdth driver users
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Fri, 10 Mar 2006 12:04:41 +0100
-Message-ID: <B51CDBDEB98C094BB6E1985861F53AF374EAED@nkse2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HEADS UP for gdth driver users
-Thread-Index: AcZCsv/B8NzQ1nn/QDC/U+m8qk7CyABfxnKQ
-From: "Leubner, Achim" <Achim_Leubner@adaptec.com>
-To: "Christoph Hellwig" <hch@lst.de>, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
+To: Carlos Munoz <carlos@kenati.com>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Lee Revell <rlrevell@joe-job.com>,
+       Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+Subject: Re: How can I link the kernel with libgcc ?
+References: <4410D9F0.6010707@kenati.com> <1141961152.13319.118.camel@mindpipe> <4410F6CB.8070907@kenati.com> <200603101237.35687.vda@ilport.com.ua>
+In-Reply-To: <200603101237.35687.vda@ilport.com.ua>
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are willing to test the changes. Could you please send the latest patch to me? 
+Denis Vlasenko wrote:
+> On Friday 10 March 2006 05:47, Carlos Munoz wrote:
+>> Lee Revell wrote:
+> 
+> What? You are using log10 only twice!
+> 
+>         if (!(siu_obj_status & ST_OPEN)) {
+> 		...
+>                 /* = log2(over) */
+>                 ydef[22] = (u_int32_t)(log10((double)(over & 0x0000003f)) /
+>                                        log10(2));
+> 		...
+>         }
+>         else {
+> 		...
+>                 if (coef) {
+>                         ydef[16] = 0x03045000 | (over << 26) | (tap - 4);
+>                         ydef[17] = (tap * 2 + 1);
+>                         /* = log2(over) */
+>                         ydef[22] = (u_int32_t)
+>                                 (log10((double)(over & 0x0000003f)) / log10(2));
+>                 }
+> 
+> Don't you think that log10((double)(over & 0x0000003f)) / log10(2)
+> can have only 64 different values depending on the result of (over & 0x3f)?
+> 
+> Obtain them from precomputed uint32_t log10table[64].
 
-Thanks,
-Achim Leubner
+And since you're actually trying to do log2 [log10(x)/log10(2) =
+log2(x)] and casting the result to an integer, aren't you really looking
+for the position of the highest 1 bit or something like that? That
+doesn't need FP at all.
 
-=======================
-Achim Leubner
-Software Engineer / RAID drivers
-ICP vortex GmbH / Adaptec Inc.
-Phone: +49-351-8718291
- 
------Original Message-----
-From: Christoph Hellwig [mailto:hch@lst.de] 
-Sent: Mittwoch, 8. März 2006 14:20
-To: linux-scsi@vger.kernel.org; linux-kernel@vger.kernel.org; Leubner, Achim
-Subject: HEADS UP for gdth driver users
+Groeten,
+Bart
 
-Hi folks,
-
-the gdth driver is the only driver using (and in this case abusing) the
-scsi_request interface we plan to kill for 2.6.17.  I've sent a patch
-that's a first step to convert the driver away from it a few weeks ago
-but didn't get any response.  I urgently need testers to keep the driver
-for 2.6.17+.  Else it'll be marked broken until we get a person to help
-testing the changes needed to resurrect it.
+> --
+> vda
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
+-- 
+Bart Hartgers - TUE Eindhoven - http://plasimo.phys.tue.nl/bart/contact/

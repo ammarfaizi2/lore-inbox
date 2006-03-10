@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWCJAsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWCJAtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWCJAsd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWCJAsc
+	id S932174AbWCJAtw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWCJAtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:48:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59561 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752146AbWCJAsa (ORCPT
+	Thu, 9 Mar 2006 19:49:52 -0500
+Received: from hera.kernel.org ([140.211.167.34]:61659 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932174AbWCJAtu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:48:30 -0500
-Date: Thu, 9 Mar 2006 19:48:15 -0500
-From: Alan Cox <alan@redhat.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       mingo@redhat.com, alan@redhat.com, linux-arch@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
-Message-ID: <20060310004815.GD24904@devserv.devel.redhat.com>
-References: <16835.1141936162@warthog.cambridge.redhat.com> <17424.48029.481013.502855@cargo.ozlabs.ibm.com>
+	Thu, 9 Mar 2006 19:49:50 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Document Linux's memory barriers
+Date: Thu, 9 Mar 2006 16:49:01 -0800 (PST)
+Organization: Mostly alphabetical, except Q, with we do not fancy
+Message-ID: <duqidt$erm$1@terminus.zytor.com>
+References: <17422.19209.60360.178668@cargo.ozlabs.ibm.com> <31492.1141753245@warthog.cambridge.redhat.com> <28393.1141823992@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17424.48029.481013.502855@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1141951741 15233 127.0.0.1 (10 Mar 2006 00:49:01 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 10 Mar 2006 00:49:01 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 10, 2006 at 10:34:53AM +1100, Paul Mackerras wrote:
-> MMIO accesses are done under a spinlock, and that if your driver is
-> missing them then that is a bug.  I don't think it makes sense to say
-> that mmiowb is required "on some systems".
+Followup to:  <28393.1141823992@warthog.cambridge.redhat.com>
+By author:    David Howells <dhowells@redhat.com>
+In newsgroup: linux.dev.kernel
+> 
+> However, on i386, for example, you've actually got at least two different I/O
+> access domains, and I don't know how they impinge upon each other (IN/OUT vs
+> MOV).
+> 
 
-Agreed. But if it is missing it may not be a bug. It depends what the lock
-actually protects.
+You do, but those aren't the ones.
 
+What you have is instead MOVNT versus everything else.  IN/OUT are
+total sledgehammers, as they imply not only nonposted operation, but
+the instruction implies wait for completion; this is required since
+IN/OUT support emulation via SMI.
+
+	-hpa

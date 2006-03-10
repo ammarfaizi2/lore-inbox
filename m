@@ -1,110 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752234AbWCJXKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752194AbWCJXL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752234AbWCJXKm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 18:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752235AbWCJXKm
+	id S1752194AbWCJXL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 18:11:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWCJXL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 18:10:42 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:63136 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1752233AbWCJXKl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 18:10:41 -0500
-Subject: Re: [Alsa-devel] Re: 2.6.15-rt20, "bad page state", jackd
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: nando@ccrma.Stanford.EDU, alsa-devel@lists.sourceforge.net,
-       Ingo Molnar <mingo@elte.hu>, Heiko Carstens <heiko.carstens@de.ibm.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1142016627.6124.33.camel@cmn3.stanford.edu>
-References: <1141846564.5262.20.camel@cmn3.stanford.edu>
-	 <20060309084746.GB9408@osiris.boeblingen.de.ibm.com>
-	 <1141938488.22708.28.camel@cmn3.stanford.edu>
-	 <4410B2D7.4090806@yahoo.com.au>
-	 <1141958866.22708.69.camel@cmn3.stanford.edu>
-	 <441109BC.9070705@yahoo.com.au>
-	 <1142016627.6124.33.camel@cmn3.stanford.edu>
-Content-Type: text/plain
-Date: Fri, 10 Mar 2006 15:10:02 -0800
-Message-Id: <1142032202.6124.59.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 10 Mar 2006 18:11:27 -0500
+Received: from omta05ps.mx.bigpond.com ([144.140.83.195]:36846 "EHLO
+	omta05ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1752010AbWCJXL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 18:11:27 -0500
+Message-ID: <4412079C.5000200@bigpond.net.au>
+Date: Sat, 11 Mar 2006 10:11:24 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org,
+       ck@vds.kolivas.org
+Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
+References: <200603102054.20077.kernel@kolivas.org> <20060310143545.74a9a92a.akpm@osdl.org>
+In-Reply-To: <20060310143545.74a9a92a.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 10 Mar 2006 23:11:24 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 10:50 -0800, Fernando Lopez-Lezcano wrote:
-> On Fri, 2006-03-10 at 16:08 +1100, Nick Piggin wrote:
-> > Fernando Lopez-Lezcano wrote:
-> > > On Fri, 2006-03-10 at 09:57 +1100, Nick Piggin wrote:
-> > >>Fernando Lopez-Lezcano wrote:
-> > >>Can you test with the latest mainline -git snapshot, or is it only
-> > >>the -rt tree that causes the warnings?
-> > > 
-> > > I found something strange although I don't know why it happens yet:
-> > > 
-> > >   Fedora Core 4 kernel (2.6.15 + patches) works fine.
-> > >   Fedora Core 4 kernel + -rt21, [ahem... sorry], works fine.
-> > >   Fedora Core 4 kernel + -rt21 + alsa kernel modules from 1.0.10 or
-> > >      1.0.11rc3, fails[*]
-> > >   Plain vanilla 2.6.15 + -rt21, works fine
-> > >   Plain vanilla 2.6.15 + -rt21 + alsa kernel modules from 1.0.10 or
-> > >      1.0.11rc3, fails[*]
-> > > 
-> > > So, it looks like it is some weird interaction between kernel modules
-> > > that were not compiled as part of the kernel and the kernel itself. The
-> > > "updated" modules are installed in a separate location (not on top of
-> > > the built in kernel modules) and are found before the ones in the kernel
-> > > tree.
-> > > 
-> > > I have been building this combination for a long long time with no
-> > > problems, I don't know what might have happened that changed things.
-> > > 
-> > > Could be:
-> > > - configuration problems?
-> > 
-> > No. It shouldn't do this even if there is a configuration problem.
-> > 
-> > > - the alsa tree is somehow incompatible with the kernel alsa tree, is
-> > >   that even possible?
-> >
-> > Yes. Most likely this. It should be fixed before the new ALSA code is
-> > pushed upstream.
-> > 
-> > It is probably not so much a matter of somebody breaking the ALSA code
-> > as that it hasn't been updated for the new kernel refcounting rules.
+Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
 > 
-> Takashi and other gurus in alsa-devel, any comments on this? The
-> original problem - not quoted in this email - is that when I stop jackd
-> in the affected configurations I get errors similar to this one:
+>>+	/*
+>>+	 * get_page_state is super expensive so we only perform it every
+>>+	 * SWAP_CLUSTER_MAX prefetched_pages.
 > 
-> > Bad page state at __free_pages_ok (in process 'jackd', page c1013ce0)
-> > flags:0x00000414 mapping:00000000 mapcount:0 count:0
-> > Backtrace:
-> >  [<c015947d>] bad_page+0x7d/0xc0 (8)
-> >  [<c01598fd>] __free_pages_ok+0x9d/0x180 (36)
-> >  [<c015a5ac>] __pagevec_free+0x3c/0x50 (40)
-> >  [<c015db47>] release_pages+0x127/0x1a0 (16)
-> >  [<c016c93d>] free_pages_and_swap_cache+0x7d/0xc0 (80)
-> >  [<c01681ae>] unmap_region+0x13e/0x160 (28)
-> >  [<c0168461>] do_munmap+0xe1/0x120 (48)
-> >  [<c01684df>] sys_munmap+0x3f/0x60 (32)
-> >  [<c01034a1>] syscall_call+0x7/0xb (16)
-> > Trying to fix it up, but a reboot is needed
 > 
-> One other thing occurred to me (not tested yet)
+> nr_running() is similarly expensive btw.
 > 
-> - userspace regression in the module load code (so that in the end
-> modules from the in kernel tree get mixed with modules coming from the
-> externally compiled alsa tree). Very unlikely, I think, I could test for
-> this by removing the in kernel modules temporarily. 
+> 
+>>	 * We also test if we're the only
+>>+	 * task running anywhere. We want to have as little impact on all
+>>+	 * resources (cpu, disk, bus etc). As this iterates over every cpu
+>>+	 * we measure this infrequently.
+>>+	 */
+>>+	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
+>>+		unsigned long cpuload = nr_running();
+>>+
+>>+		if (cpuload > 1)
+>>+			goto out;
+> 
+> 
+> Sorry, this is just wrong.  If swap prefetch is useful then it's also
+> useful if some task happens to be sitting over in the corner calculating
+> pi.
 
-I just tested this and no, it is not the problem. I removed all
-in-kernel modules that started with snd-* and reloaded alsa (making sure
-that nothing remained loaded from the previous drivers): same problem.
-It really starts to looks like it is an incompatibility between the
-current alsa tree (outside of the kernel) and the current kernels. 
+On SMP systems, something based on the run queues' raw_weighted_load 
+fields (comes with smpnice patch) might be more useful than nr_running() 
+as it contains information about the priority of the running tasks. 
+Perhaps (raw_weighted_load() > SCHED_LOAD_SCALE) or some variation, 
+where raw_weighted_load() is the sum of that field for all CPUs) would 
+suffice.  It would mean "there's more than the equivalent of one nice==0 
+task running" and shouldn't be any more expensive than nr_running(). 
+Dividing SCHED_LOAD_SCALE by some number would be an obvious variation 
+to try as would taking into account this process's contribution to the 
+weighted load.
 
--- Fernando
+Also if this was useful there's no real reason that raw_weighted_load 
+couldn't be made available on non SMP systems as well as SMP ones.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

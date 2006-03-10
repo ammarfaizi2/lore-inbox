@@ -1,86 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752014AbWCJVUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWCJVXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752014AbWCJVUt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 16:20:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752048AbWCJVUt
+	id S932309AbWCJVXr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 16:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWCJVXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 16:20:49 -0500
-Received: from verein.lst.de ([213.95.11.210]:38353 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1752014AbWCJVUs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 16:20:48 -0500
-Date: Fri, 10 Mar 2006 22:20:39 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org, mingo@elte.hu, paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove __put_task_struct_cb export again
-Message-ID: <20060310212039.GA16910@lst.de>
+	Fri, 10 Mar 2006 16:23:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:32449 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932309AbWCJVXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 16:23:46 -0500
+Subject: Re: [PATCH] EDAC: core EDAC support code
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Peterson <dsp@llnl.gov>
+Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
+       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
+       bluesmoke-devel@lists.sourceforge.net
+In-Reply-To: <200603101313.09754.dsp@llnl.gov>
+References: <200601190414.k0J4EZCV021775@hera.kernel.org>
+	 <200603101107.27244.dsp@llnl.gov>
+	 <1142019195.2876.100.camel@laptopd505.fenrus.org>
+	 <200603101313.09754.dsp@llnl.gov>
+Content-Type: text/plain
+Date: Fri, 10 Mar 2006 22:23:41 +0100
+Message-Id: <1142025821.2876.106.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch '[PATCH] RCU signal handling' [1] added an export for
-__put_task_struct_cb, a put_task_struct helper newly introduced in that
-patch.  But the put_task_struct couldn't be used modular previously
-as __put_task_struct wasn't exported.  There are not callers of it in
-modular code, and it shouldn't be exported because we don't want drivers
-to hold references to task_structs.
+On Fri, 2006-03-10 at 13:13 -0800, Dave Peterson wrote:
+> On Friday 10 March 2006 11:33, Arjan van de Ven wrote:
+> > > Regarding the actual call to run it, I guess it depends on which of
+> > > the following you prefer:
+> > >
+> > >     Scenario A
+> > >     ----------
+> > >     A more decentralized layout.  Here, the controls that govern the
+> > >     error handling behavior for a given category of hardware (a
+> > >     category might be "PCI devices" or "devices that use bus
+> > >     technology XYZ") are grouped together with other stuff for that
+> > >     category.
+> >
+> > this would basically make edac a place to report "help something went to
+> > the gutter". Sure. I see that useful.
+> >
+> > In fact there are 3 layers then
+> >
+> > 1) low level "do check" function
+> 
+> I'm a bit unclear here.  Are you thinking of a single "do check"
+> function that bus-specific code and chipset-specific code can hook
+> into, or individual "do check" functions for various bus-specific and
+> chipset-specific modules?
 
-This patch removes the export and folds __put_task_struct into
-__put_task_struct_cb as there's no other caller.
+hmm ok so I want a function that takes a device as parameter, and checks
+the state of that device for errors. Internally that probably has to go
+via a function pointer somewhere to a device specific check method.
 
-[1] http://www2.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=e56d090310d7625ecb43a1eeebd479f04affb48b
+Or maybe a per test-type (pci parity / ECC / etc) check
+
+int pci_check_parity_errors(struct pci_dev *dev, int flags);
+
+something like that, or pci_check_and_clear_parity_errors()
+(although that gets too long :)
+
+drivers can call that, say, after firmware init or something to validate
+their device is sanely connected. Maybe pci_enable_device() could call
+it too.
+
+This also needs a pci_suspend_parity_check() ... _resume_ ... so that
+the driver can temporarily disable any checks, for example during device
+reset/init. And then just before resume, it manually clears a check.
 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Index: linux-2.6/kernel/sched.c
-===================================================================
---- linux-2.6.orig/kernel/sched.c	2006-03-09 17:22:08.000000000 +0100
-+++ linux-2.6/kernel/sched.c	2006-03-10 21:15:02.000000000 +0100
-@@ -178,13 +178,6 @@
- #define task_hot(p, now, sd) ((long long) ((now) - (p)->last_ran)	\
- 				< (long long) (sd)->cache_hot_time)
- 
--void __put_task_struct_cb(struct rcu_head *rhp)
--{
--	__put_task_struct(container_of(rhp, struct task_struct, rcu));
--}
--
--EXPORT_SYMBOL_GPL(__put_task_struct_cb);
--
- /*
-  * These are the runqueue data structures:
-  */
-Index: linux-2.6/include/linux/sched.h
-===================================================================
---- linux-2.6.orig/include/linux/sched.h	2006-03-04 13:07:15.000000000 +0100
-+++ linux-2.6/include/linux/sched.h	2006-03-10 21:16:10.000000000 +0100
-@@ -892,7 +892,6 @@
- }
- 
- extern void free_task(struct task_struct *tsk);
--extern void __put_task_struct(struct task_struct *tsk);
- #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
- 
- extern void __put_task_struct_cb(struct rcu_head *rhp);
-Index: linux-2.6/kernel/fork.c
-===================================================================
---- linux-2.6.orig/kernel/fork.c	2006-02-21 20:55:58.000000000 +0100
-+++ linux-2.6/kernel/fork.c	2006-03-10 21:15:39.000000000 +0100
-@@ -108,8 +108,10 @@
- }
- EXPORT_SYMBOL(free_task);
- 
--void __put_task_struct(struct task_struct *tsk)
-+void __put_task_struct_cb(struct rcu_head *rhp)
- {
-+	struct task_struct *tsk = container_of(rhp, struct task_struct, rcu);
-+
- 	WARN_ON(!(tsk->exit_state & (EXIT_DEAD | EXIT_ZOMBIE)));
- 	WARN_ON(atomic_read(&tsk->usage));
- 	WARN_ON(tsk == current);
+
+> 
+> > 2) per bus code that calls the do check functions and whatever is needed
+> > for bus checks
+> >
+> > 3) "EDAC" central command, which basically gathers all failure reports
+> > and does something with them (push them to userspace or implement the
+> > userspace chosen policy (panic/reboot/etc))
+> 
+> Are you suggesting something like the following?
+> 
+>     - The controls that determine how the error checking is done are
+>       located within the various hardware subsystems.  For instance,
+>       with PCI parity checking, this would include stuff like setting
+>       the polling frequency and determining which devices to check.
+
+yes. I would NOT make it overly tunable btw. For many things a sane
+default can be chosen, and the effect of picking a different tuning
+isn't all that big. Maybe think of it this way: a tuneable to a large
+degree is an excuse for not determining the right value / heuristic in
+the first place.
+
+
+
+>     - When an error is actually detected, the subsystem that detected
+>       the error (for instance, PCI) would feed the error information
+>       to EDAC.  Then EDAC would determine how to respond to the error
+>       (for instance, push it to userspace or implement the
+>       userspace-chosen policy (panic/reboot/etc))
+
+yup.
+
+

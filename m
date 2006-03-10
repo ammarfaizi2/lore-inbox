@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWCJQFB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWCJQRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWCJQFB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 11:05:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWCJQFB
+	id S1751784AbWCJQRX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 11:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWCJQRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 11:05:01 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:22737 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751137AbWCJQFB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 11:05:01 -0500
-Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and
-	lightweight subnet management
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Roland Dreier <rdreier@cisco.com>, akpm@osdl.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       davem@davemloft.net
-In-Reply-To: <20060310155434.GB12778@mellanox.co.il>
-References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain>
-	 <adalkvjfbo0.fsf@cisco.com>
-	 <1141947581.10693.45.camel@serpentine.pathscale.com>
-	 <20060310155434.GB12778@mellanox.co.il>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 10 Mar 2006 08:05:00 -0800
-Message-Id: <1142006700.29925.17.camel@serpentine.pathscale.com>
+	Fri, 10 Mar 2006 11:17:22 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:40365
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751784AbWCJQRW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 11:17:22 -0500
+Date: Fri, 10 Mar 2006 08:17:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: Problems ejecting 4th-generation iPod with 2.6.15
+Message-ID: <20060310161706.GA10772@kroah.com>
+References: <dure7s$1ic$1@sea.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dure7s$1ic$1@sea.gmane.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 17:54 +0200, Michael S. Tsirkin wrote:
-
-> >       * OpenSM wasn't usable when we wrote our SMA.  We have customers
-> >         using ours now, so we have to support it.
+On Fri, Mar 10, 2006 at 12:43:19AM -0800, Joshua Kwan wrote:
+> Hi,
 > 
-> Presumably you mean the ib_mad SMA - OpenSM is not an SMA.
+> When I plug my iPod in via USB, and later eject it, I more often than
+> not get this:
+> 
+> usb 5-5: reset high speed USB device using ehci_hcd and address 20
+> usb 5-5: reset high speed USB device using ehci_hcd and address 20
+> usb 5-5: reset high speed USB device using ehci_hcd and address 20
+> usb 5-5: reset high speed USB device using ehci_hcd and address 20
+> usb 5-5: reset high speed USB device using ehci_hcd and address 20
+> sd 14:0:0:0: scsi: Device offlined - not ready after error recovery
+> usb 5-5: USB disconnect, address 20
+> 
+> What's going on here?
 
-Yes, I already mentioned that I got my terms swapped in another message.
+Can you try 2.6.16-rc5 and let us know if that works better for you
+here?
 
-> So what do customers care which SMA
-> implementation is used, as long as it formats the management packets
-> correctly?
+thanks,
 
-Many, perhaps most right now, of our customers don't have a full IB
-stack loaded.  That's why we have this small userspace SMA.
-
-	<b
-
+greg k-h

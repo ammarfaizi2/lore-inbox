@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWCJPyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751656AbWCJPyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWCJPyG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 10:54:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751656AbWCJPyG
+	id S1751656AbWCJPyT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 10:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWCJPyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 10:54:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30129 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750709AbWCJPyE (ORCPT
+	Fri, 10 Mar 2006 10:54:19 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:26784 "EHLO mtlexch01.mtl.com")
+	by vger.kernel.org with ESMTP id S1751656AbWCJPyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 10:54:04 -0500
-Date: Fri, 10 Mar 2006 10:53:44 -0500
-From: Dave Jones <davej@redhat.com>
-To: Greg KH <gregkh@suse.de>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Roland Dreier <rdreier@cisco.com>,
-       rolandd@cisco.com, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: Revenge of the sysfs maintainer! (was Re: [PATCH 8 of 20] ipath - sysfs support for core driver)
-Message-ID: <20060310155344.GA15214@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
-	Bryan O'Sullivan <bos@pathscale.com>,
-	Roland Dreier <rdreier@cisco.com>, rolandd@cisco.com, akpm@osdl.org,
-	davem@davemloft.net, linux-kernel@vger.kernel.org,
-	openib-general@openib.org
-References: <ef8042c934401522ed3f.1141922821@localhost.localdomain> <adapskvfbqe.fsf@cisco.com> <1141947143.10693.40.camel@serpentine.pathscale.com> <20060310003513.GA17050@suse.de> <1141951589.10693.84.camel@serpentine.pathscale.com> <20060310010050.GA9945@suse.de> <1141966693.14517.20.camel@camp4.serpentine.com> <20060310063401.GA30968@suse.de>
+	Fri, 10 Mar 2006 10:54:18 -0500
+Date: Fri, 10 Mar 2006 17:54:34 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Roland Dreier <rdreier@cisco.com>, akpm@osdl.org, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       davem@davemloft.net
+Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
+Message-ID: <20060310155434.GB12778@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <eac2ad3017b5f160d24c.1141922822@localhost.localdomain> <adalkvjfbo0.fsf@cisco.com> <1141947581.10693.45.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060310063401.GA30968@suse.de>
+In-Reply-To: <1141947581.10693.45.camel@serpentine.pathscale.com>
 User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 10 Mar 2006 15:56:42.0859 (UTC) FILETIME=[39C56BB0:01C6445B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 09, 2006 at 10:34:01PM -0800, Greg KH wrote:
- > On Thu, Mar 09, 2006 at 08:58:13PM -0800, Bryan O'Sullivan wrote:
- > > On Thu, 2006-03-09 at 17:00 -0800, Greg KH wrote:
- > > 
- > > > They are in the latest -mm tree if you wish to use them.  Unfortunatly
- > > > it might look like they will not work out, due to the per-cpu relay
- > > > files not working properly with Paul's patches at the moment.
- > > 
- > > Hmm, OK.
- > > 
- > > > What's wrong with debugfs?
- > > 
- > > It's not configured into the kernels of either of the distros I use (Red
- > > Hat or SUSE).
- > 
- > Well, I can do something about SuSE, it's up to someone else to persuade
- > Red Hat :)
+Quoting r. Bryan O'Sullivan <bos@pathscale.com>:
+> Subject: Re: [PATCH 9 of 20] ipath - char devices for diagnostics and lightweight subnet management
+> 
+> On Thu, 2006-03-09 at 15:20 -0800, Roland Dreier wrote:
+> 
+> > I've never understood what forces you to maintain two separate SMAs.
+> > Why can't you pick one of the two SMAs and use that unconditionally?
+> 
+> Three reasons.
+> 
+>       * OpenSM wasn't usable when we wrote our SMA.  We have customers
+>         using ours now, so we have to support it.
 
-It's been built into Fedora kernels since it was merged upstream.
-It isn't in RHEL4, as it wasn't around back in 2.6.9, and unless there's
-a really compelling argument for it, I doubt it'll be backported.
+Presumably you mean the ib_mad SMA - OpenSM is not an SMA.
+I don't understand this. You don't talk to an SMA directly -
+its jobs is to receive and send management packets that the card
+gets from a subnet manager. So what do customers care which SMA
+implementation is used, as long as it formats the management packets
+correctly?
 
-		Dave
+If you want to extend the SMA in non-standard ways, you can
+snoop and send management packets by loading ib_umad.
+
+>       * Our SMA does some setup for the layered ethernet emulation
+>         driver.
+
+You are doing this from userspace, right? But you can already send/receive MADs
+from userspace by loading ib_umad.  What is there that is not sufficient for
+your purposes?
+
+By the way, this might also be a clean way for you to get at the port info
+node info and port counters atomically like you wanted to in another thread:
+post a management packet to the local device, get a packet back.
+No need for extra sysfs files.
+
+>       * Our SMA works without an IB stack of any kind present.
+
+The stack is pretty slim, AFAIK it mostly consists of an SMA implementation.
+So where's the benefit in avoiding it? Just link against ib_mad, it will
+get loaded atomatically.
 
 -- 
-http://www.codemonkey.org.uk
+Michael S. Tsirkin
+Staff Engineer, Mellanox Technologies

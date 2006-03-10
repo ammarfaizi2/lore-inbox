@@ -1,103 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWCJIYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752175AbWCJI0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWCJIYI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 03:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWCJIYI
+	id S1752175AbWCJI0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 03:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWCJI0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 03:24:08 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:53157 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751179AbWCJIYH (ORCPT
+	Fri, 10 Mar 2006 03:26:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39092 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752171AbWCJI0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 03:24:07 -0500
-Message-ID: <441138B7.9060809@sw.ru>
-Date: Fri, 10 Mar 2006 11:28:39 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: Kirill Korotaev <dev@openvz.org>, Jan Blunck <jblunck@suse.de>,
-       akpm@osdl.org, viro@zeniv.linux.org.uk, olh@suse.de,
-       bsingharora@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory()
- race (3rd updated patch)]
-References: <20060309165833.GK4243@hasse.suse.de>	<441060D2.6090800@openvz.org> <17425.2594.967505.22336@cse.unsw.edu.au>
-In-Reply-To: <17425.2594.967505.22336@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Mar 2006 03:26:11 -0500
+Date: Fri, 10 Mar 2006 00:23:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: pbadari@us.ibm.com, sct@redhat.com, jack@suse.cz,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Ext2-devel@lists.sourceforge.net
+Subject: Re: [RFC PATCH] ext3 writepage() journal avoidance
+Message-Id: <20060310002337.489265a3.akpm@osdl.org>
+In-Reply-To: <1141977557.2876.20.camel@laptopd505.fenrus.org>
+References: <1141929562.21442.4.camel@dyn9047017100.beaverton.ibm.com>
+	<20060309152254.743f4b52.akpm@osdl.org>
+	<1141977557.2876.20.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil,
+Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> 
+> > I'm not sure that PageMappedToDisk() gets set in all the right places
+> > though - it's mainly for the `nobh' handling and block_prepare_write()
+> > would need to be taught to set it.  I guess that'd be a net win, even if
+> > only ext3 uses it..
+> 
+> btw is nobh mature enough yet to become the default, or to just go away
+> entirely as option ?
 
-> On Thursday March 9, dev@openvz.org wrote:
-> 
->>Andrew,
->>
->>Acked-By: Kirill Korotaev <dev@openvz.org>
-> 
-> 
-> I'm afraid that I'm not convinced.
-> 
-> 
->>>+static int wait_on_prunes(struct super_block *sb)
->>>+{
->>>+	DEFINE_WAIT(wait);
->>>+	int prunes_remaining = 0;
->>>+
->>>+#ifdef DCACHE_DEBUG
->>>+	printk(KERN_DEBUG "%s: waiting for %d prunes\n", __FUNCTION__,
->>>+	       sb->s_prunes);
->>>+#endif
->>>+
->>>+	spin_lock(&dcache_lock);
->>>+	for (;;) {
->>>+		prepare_to_wait(&sb->s_wait_prunes, &wait,
->>>+				TASK_UNINTERRUPTIBLE);
->>>+		if (!sb->s_prunes)
->>>+			break;
->>>+		spin_unlock(&dcache_lock);
->>>+		schedule();
->>>+		prunes_remaining = 1;
->>>+		spin_lock(&dcache_lock);
->>>+	}
->>>+	spin_unlock(&dcache_lock);
->>>+	finish_wait(&sb->s_wait_prunes, &wait);
->>>+	return prunes_remaining;
->>>+}
-> 
-> 
-> I don't think that a return value from wait_on_prunes is meaningful.
-> All it tells us is whether a prune_one_dentry finished before or after
-> wait_on_prunes takes the spin_lock.  This isn't very useful
-> information as it has no significance to upper levels.
-> 
-> So:
-> 
-> 
->>>+		do {
->>>+			shrink_dcache_parent(root);
->>>+		} while(wait_on_prunes(sb));
->>>+
-> 
-> 
-> Suppose shrink_dcache_parent misses on dentry because the inode was being
-> iput.  This iput completes immediately that
-> shrink_dcache_parent completes.  It decrements ->s_prunes and when
-> wait_on_prunes takes dcache_lock, ->s_prunes is zero so the loop
-> terminates, and the remaining dentries - the parents of the dentry
-> what was undergoing iput - don't get put.
-you are right... :/
-And this is actually why we originally inserted check for race
-in select_parent() under dcache_lock... I just lost my memory :(
-
-> I really think that we need to stop prune_one_dentry from being called
-> on dentries for a filesystem that is being unmounted.  With that code
-> currently in -git, that means passing a 'struct super_block *' into
-> prune_dcache so that it ignores any filesystem with ->s_root==NULL
-> unless that filesystem is the filesystem that was passed.
-Can try...
-
-Thanks,
-Kirill
+I don't know how much usage it's had, sorry.  It's only allowed in
+data=writeback mode and not many people seem to use even that.
 

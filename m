@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752015AbWCJC1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752116AbWCJC2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752015AbWCJC1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 21:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752116AbWCJC1F
+	id S1752116AbWCJC2B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 21:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752117AbWCJC2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 21:27:05 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:6018 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752015AbWCJC1E convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 21:27:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FsDmZkWEsvkql8prYjG+Cg7tLmZtwmHHnQFwQ5+IK49kCT3V8a31e5NrXrsydrr1j3UJcfvwKCErk04jlbUnOddFV9UAz2DSvYTv6+Te4OKuflbzuzLvuF4qGVmpWYk5FtAauCmHTsxSlNnjKusO4IVac1/+PozyTWCAq6wtnyQ=
-Message-ID: <38c09b90603091826k1743d129tb24ca875282db991@mail.gmail.com>
-Date: Fri, 10 Mar 2006 10:26:59 +0800
-From: "Lanslott Gish" <lanslott.gish@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [linux-usb-devel] Re: [PATCH] add support for PANJIT TouchSet USB Touchscreen Device
-Cc: "Daniel Ritz" <daniel.ritz@gmx.ch>,
-       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>,
-       "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>
-In-Reply-To: <20060310013039.GA26532@kroah.com>
+	Thu, 9 Mar 2006 21:28:00 -0500
+Received: from koto.vergenet.net ([210.128.90.7]:2461 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S1752116AbWCJC2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 21:28:00 -0500
+Date: Fri, 10 Mar 2006 11:24:46 +0900
+From: Horms <horms@verge.net.au>
+To: Sam Vilain <sam@vilain.net>
+Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH] NFS Client: remove supurflous goto from nfs_create_client()
+Message-ID: <20060310022444.GB5435@verge.net.au>
+References: <20060309092341.GA26949@verge.net.au> <4410D053.1000303@vilain.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200603082346.37479.daniel.ritz@gmx.ch>
-	 <20060309004349.GB1376@kroah.com>
-	 <38c09b90603091715u42f79fd5ne8cb62b8f8ddba7e@mail.gmail.com>
-	 <20060310013039.GA26532@kroah.com>
+In-Reply-To: <4410D053.1000303@vilain.net>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-look great!
-i got the TouchSet usb hardware and could help to test about this.
+On Fri, Mar 10, 2006 at 02:03:15PM +1300, Sam Vilain wrote:
+> Why not just move the label?
+> 
+> I think it is nicer if all of the exit points of a function are at the
+> end, I've observed this to be a common convention and its success has
+> actually made me jump off the 'goto=hell' bandwagon.
+> 
+> gcc might even be optimising those duplicate instructions to a single
+> one, so the duplication would be good documentation.
 
-Lanslott Gish
+Sure, I thought of doing that as well, and I wasn't sure which was the
+best option. I actually prefer not to have a label if its just going to
+return. But I'm not religious about it. Here is an alternate patch that 
+does what you suggest.
 
-On 3/10/06, Greg KH <greg@kroah.com> wrote:
-> On Fri, Mar 10, 2006 at 09:15:28AM +0800, Lanslott Gish wrote:
-> > Hi,
-> >
-> > merging is the wonderful way. i love all in one :))
-> >
-> > but, every vendor has their own USB Vendor ID.
-> > How to overcome the issue?
->
-> Keep adding them to the device table?  Just like other drivers that
-> support more than one type of device :)
->
-> thanks,
->
-> greg k-h
->
+NFS Client: Remove duplicate return in nfs_create_client()
 
+Signed-Off-By: Horms <horms@verge.net.au>
 
---
-L.G, Life's Good~
+ inode.c |    2 --
+ 1 file changed, 2 deletions(-)
+
+65263bbdd17ed4ca75ac1c38165e5bd50eed146c
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index a77ee95..14aa539 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -414,8 +414,6 @@ nfs_create_client(struct nfs_server *ser
+ 	clnt->cl_intr     = 1;
+ 	clnt->cl_softrtry = 1;
+ 
+-	return clnt;
+-
+ out_fail:
+ 	return clnt;
+ }

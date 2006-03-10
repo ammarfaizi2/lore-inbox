@@ -1,82 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752170AbWCJISY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWCJIYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752170AbWCJISY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 03:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752103AbWCJISY
+	id S1751179AbWCJIYI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 03:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWCJIYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 03:18:24 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:15556 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1751179AbWCJISY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 03:18:24 -0500
-Date: Fri, 10 Mar 2006 09:19:38 +0100
-From: DervishD <lkml@dervishd.net>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: Rudolf Randal <rudolf.randal@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Message-ID: <20060310081938.GB14695@DervishD>
-Mail-Followup-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-	Rudolf Randal <rudolf.randal@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <161717d50603080659t53462cd0k53969c0d33e06321@mail.gmail.com> <a03c9a270603090242o713fbe36s895da175bc53140f@mail.gmail.com> <20060309112241.GC14004@DervishD> <200603091834.43636.s0348365@sms.ed.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200603091834.43636.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 10 Mar 2006 03:24:08 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:53157 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751179AbWCJIYH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 03:24:07 -0500
+Message-ID: <441138B7.9060809@sw.ru>
+Date: Fri, 10 Mar 2006 11:28:39 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: Kirill Korotaev <dev@openvz.org>, Jan Blunck <jblunck@suse.de>,
+       akpm@osdl.org, viro@zeniv.linux.org.uk, olh@suse.de,
+       bsingharora@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory()
+ race (3rd updated patch)]
+References: <20060309165833.GK4243@hasse.suse.de>	<441060D2.6090800@openvz.org> <17425.2594.967505.22336@cse.unsw.edu.au>
+In-Reply-To: <17425.2594.967505.22336@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Alistair :)
+Neil,
 
- * Alistair John Strachan <s0348365@sms.ed.ac.uk> dixit:
-> On Thursday 09 March 2006 11:22, DervishD wrote:
-> >     I haven't got any answer from them. I can use other glucometer,
-> > of course, but this one is, IMHO, the best one in the market and I
-> > don't think any other vendor would give me specs for their products.
+> On Thursday March 9, dev@openvz.org wrote:
 > 
-> Sounds like reverse engineering territory. Fortunately there is
-> software for windows that can help you reverse engineer USB or
-> serial-over-USB protocols fairly easily. I doubt such a device
-> would be difficult to write a driver for.
+>>Andrew,
+>>
+>>Acked-By: Kirill Korotaev <dev@openvz.org>
+> 
+> 
+> I'm afraid that I'm not convinced.
+> 
+> 
+>>>+static int wait_on_prunes(struct super_block *sb)
+>>>+{
+>>>+	DEFINE_WAIT(wait);
+>>>+	int prunes_remaining = 0;
+>>>+
+>>>+#ifdef DCACHE_DEBUG
+>>>+	printk(KERN_DEBUG "%s: waiting for %d prunes\n", __FUNCTION__,
+>>>+	       sb->s_prunes);
+>>>+#endif
+>>>+
+>>>+	spin_lock(&dcache_lock);
+>>>+	for (;;) {
+>>>+		prepare_to_wait(&sb->s_wait_prunes, &wait,
+>>>+				TASK_UNINTERRUPTIBLE);
+>>>+		if (!sb->s_prunes)
+>>>+			break;
+>>>+		spin_unlock(&dcache_lock);
+>>>+		schedule();
+>>>+		prunes_remaining = 1;
+>>>+		spin_lock(&dcache_lock);
+>>>+	}
+>>>+	spin_unlock(&dcache_lock);
+>>>+	finish_wait(&sb->s_wait_prunes, &wait);
+>>>+	return prunes_remaining;
+>>>+}
+> 
+> 
+> I don't think that a return value from wait_on_prunes is meaningful.
+> All it tells us is whether a prune_one_dentry finished before or after
+> wait_on_prunes takes the spin_lock.  This isn't very useful
+> information as it has no significance to upper levels.
+> 
+> So:
+> 
+> 
+>>>+		do {
+>>>+			shrink_dcache_parent(root);
+>>>+		} while(wait_on_prunes(sb));
+>>>+
+> 
+> 
+> Suppose shrink_dcache_parent misses on dentry because the inode was being
+> iput.  This iput completes immediately that
+> shrink_dcache_parent completes.  It decrements ->s_prunes and when
+> wait_on_prunes takes dcache_lock, ->s_prunes is zero so the loop
+> terminates, and the remaining dentries - the parents of the dentry
+> what was undergoing iput - don't get put.
+you are right... :/
+And this is actually why we originally inserted check for race
+in select_parent() under dcache_lock... I just lost my memory :(
 
-    Not difficult at all, once you build the cable (it's not a
-standard USB cable), but I don't want to do reverse engineering this
-time. Adding Linux support to this device will help the manufacturer
-(probably a very tiny little help, but help nonetheless), who doesn't
-seem to care enough of their users.
+> I really think that we need to stop prune_one_dentry from being called
+> on dentries for a filesystem that is being unmounted.  With that code
+> currently in -git, that means passing a 'struct super_block *' into
+> prune_dcache so that it ignores any filesystem with ->s_root==NULL
+> unless that filesystem is the filesystem that was passed.
+Can try...
 
-    I mean, the vendor is earning lots of money from me (not due to
-the device, but to the supplies I need daily), so if they don't want
-to collaborate (at no cost from them) to add Linux support, I'll just
-use another glucometer that will give support. Here in Spain, all
-glucometer-makers are more than happy to get my Menarini glucometer
-and give me one of theirs at no charge (given that they will get the
-money from the supplies). I can try almost all vendors. It's a pity,
-because I think this meter is the best one in the market, but if I
-have to use another product in order to have it supported by Linux,
-I'll do, and I will advice others against the product I just
-rejected.
- 
-> In my opinion, no answer isn't a good enough answer.
+Thanks,
+Kirill
 
-    I think the same. They may have very good reasons to not give the
-specs, and I can understand them... if they tell me! Currently, I can
-only make guesses about the reasons...
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to... RAmen!

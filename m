@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWCJVN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWCJVMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWCJVN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 16:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWCJVN3
+	id S932259AbWCJVMu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 16:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWCJVMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 16:13:29 -0500
-Received: from smtp-out.google.com ([216.239.45.12]:8883 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932260AbWCJVN2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 16:13:28 -0500
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=Zo+k979nK2TraJvXLN1zI12iFlWRasRUl9YXIilMKl5rkv6XdnYd6bboE5ibLTs6P
-	WsDBz/HTs2u+hKlE0JCfg==
-Message-ID: <4411EBDF.30104@google.com>
-Date: Fri, 10 Mar 2006 13:13:03 -0800
-From: Daniel Phillips <phillips@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@google.com>
-CC: Mark Fasheh <mark.fasheh@oracle.com>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, ocfs2-devel@oss.oracle.com,
+	Fri, 10 Mar 2006 16:12:50 -0500
+Received: from gold.veritas.com ([143.127.12.110]:59522 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932259AbWCJVMt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 16:12:49 -0500
+X-IronPort-AV: i="4.02,181,1139212800"; 
+   d="scan'208"; a="56993551:sNHT31228408"
+Date: Fri, 10 Mar 2006 21:13:44 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Ocfs2-devel] Ocfs2 performance
-References: <4408C2E8.4010600@google.com>	<20060303233617.51718c8e.akpm@osdl.org>	<440B9035.1070404@google.com>	<20060306025800.GA27280@ca-server1.us.oracle.com>	<440BC1C6.1000606@google.com>	<20060306195135.GB27280@ca-server1.us.oracle.com>	<p733bhvgc7f.fsf@verdi.suse.de>	<20060307045835.GF27280@ca-server1.us.oracle.com>	<440FCA81.7090608@google.com>	<20060310002121.GJ27280@ca-server1.us.oracle.com> <44116057.5060705@google.com>
-In-Reply-To: <44116057.5060705@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] fix pcmcia_device_probe oops
+Message-ID: <Pine.LNX.4.61.0603102111460.4517@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Mar 2006 21:12:47.0502 (UTC) FILETIME=[61944AE0:01C64487]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Going back to that mysterious idle time fluctuation problem, I just noticed
-something interesting here:
+Fix pcmcia_device_probe NULL pointer dereference at startup.
 
-> With hashvec, (64K buckets)
-> 
->       real user sys
->     29.62 23.87 3.02
->     28.80 24.16 3.07
->     50.95 24.11 3.04
->     28.17 23.95 3.20
->     61.21 23.89 3.16
->     28.61 23.88 3.30
-> 
-> With vmalloc (64K buckets)
-> 
->       real user sys
->     29.67 23.98 2.88
->     28.35 23.96 3.13
->     52.29 24.16 2.89
->     28.39 24.07 2.97
->     65.13 24.08 3.01
->     28.08 24.02 3.16
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+This oops was in -mm for a long time, sorry, I never got around to
+investigating it then; but now it has graduated to mainline -rc5-git.
+It may well be a consequence of my ignoring pcmcia's "please expect
+breakage unless you upgrade to new tools" - but I think this is not a
+permissible kind of breakage, and my cards work as before with the fix.
 
-Look, the real time artifacts show up in the same places in the two
-different runs.  There was a reboot before each run.  There is a sync
-before  and after each trial.  Each trial was initiated by hand, so this
-isn't about something else going on in the machine at the same time.
+ drivers/pcmcia/ds.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Got to be a clue in there somewhere.
-
-Regards,
-
-Daniel
+--- 2.6.16-rc5-git14/drivers/pcmcia/ds.c	2006-03-10 10:07:30.000000000 +0000
++++ linux/drivers/pcmcia/ds.c	2006-03-10 17:16:27.000000000 +0000
+@@ -411,7 +411,7 @@ static int pcmcia_device_probe(struct de
+ 	 * pseudo devices, and if not, add the second one.
+ 	 */
+ 	did = (struct pcmcia_device_id *) p_dev->dev.driver_data;
+-	if ((did->match_flags & PCMCIA_DEV_ID_MATCH_DEVICE_NO) &&
++	if (did && (did->match_flags & PCMCIA_DEV_ID_MATCH_DEVICE_NO) &&
+ 	    (p_dev->socket->device_count == 1) && (p_dev->device_no == 0))
+ 		pcmcia_add_pseudo_device(p_dev->socket);
+ 

@@ -1,100 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWCJAVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752122AbWCJAcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWCJAVj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Mar 2006 19:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752015AbWCJAVi
+	id S1752122AbWCJAcT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Mar 2006 19:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752129AbWCJAcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Mar 2006 19:21:38 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:19020 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1751369AbWCJAVh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Mar 2006 19:21:37 -0500
-Date: Thu, 9 Mar 2006 16:21:21 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Daniel Phillips <phillips@google.com>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
-Subject: Re: [Ocfs2-devel] Ocfs2 performance
-Message-ID: <20060310002121.GJ27280@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <4408C2E8.4010600@google.com> <20060303233617.51718c8e.akpm@osdl.org> <440B9035.1070404@google.com> <20060306025800.GA27280@ca-server1.us.oracle.com> <440BC1C6.1000606@google.com> <20060306195135.GB27280@ca-server1.us.oracle.com> <p733bhvgc7f.fsf@verdi.suse.de> <20060307045835.GF27280@ca-server1.us.oracle.com> <440FCA81.7090608@google.com>
-MIME-Version: 1.0
+	Thu, 9 Mar 2006 19:32:19 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:31409 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752122AbWCJAcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Mar 2006 19:32:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=NTW0NmYSkTCl6ak+FAQ6gVpS/4PmBxXB3oRJ03lfPO/O0LJl3+ooUoxuboLaacJDw2y1KyNRN2tqbsgURtU/R7CORl0HgC8cze/BVjiw3pAv4tYmkFulevVpnWHrFoP3z+bAoX3yMcT0jhLcheIEeFwv6MMDp8UyaLbCTLoMDIQ=
+Date: Fri, 10 Mar 2006 03:32:13 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jason Brian Friedrich <mail@lockfile.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Booting Kernel 2.6.15 let the machine freeze completely
+Message-ID: <20060310003213.GA7789@mipter.zuzino.mipt.ru>
+References: <4410B86E.9060809@lockfile.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <440FCA81.7090608@google.com>
-Organization: Oracle Corporation
+In-Reply-To: <4410B86E.9060809@lockfile.org>
 User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-E-mail subject line change, because the old one has worn thin ;)
+On Fri, Mar 10, 2006 at 12:21:18AM +0100, Jason Brian Friedrich wrote:
+> I tried Kernel 2.6.15 in many different variations, from boot cds,
+> live cds, (i.e. Gentoo 2006.0, Ubuntu Dapper) compiled one myself with
+> several configurations, with RAMdisk and without. But everytime the
+> same result.
+>
+> With the parameters "noapic nolapic acpi=off" the systems freezes
+> after the text line "Booting kernel......". When i use the parameters
+> "noapic nolapic acpi=offpci=usepirqmask" i get a bit further in the
+> booting process and get these lines before the system freezes completely:
+>
+> io scheduler deadline registered
+> io scheduler cfq registered
+>
+> A screenshot of this moment is available at
+> http://lockfile.org/upload/dapper_error.jpg and was made when trying
+> an Ubuntu Dapper live-CD. It is the same error messaage i receive with
+> various other boot or live cds, even with the self-compiled kernel.
+> The cds work absolutely fine on my two other system around. I also
+> have the last available BIOS version on my system. Because of the
+> "2.6.15 issue", i had to collect the output below from my running
+> 2.6.14 on Fedore Core 4.
 
-On Wed, Mar 08, 2006 at 10:26:09PM -0800, Daniel Phillips wrote:
-> I don't know how you got your statistics, but I went to the bother of
-> writing a proc interface to dump the bucket counts.
-The initial set of numbers I posted was collected by hacking the dlm to dump
-bucket lengths at about 20,000 locks. I have since written some user space
-code to model the dlm hash and output chain lengths. This allowed me to test
-hash distributions at a rapid rate. As a data set, I used debugfs.ocfs2 to
-collect lock names from a file system with a fully untarred kernel tree. The
-program outputs in a format suitable for import into gnuplot. If interested,
-you can get the program and a sample data set from:
+Brave Fedora users comment more:
+----------------------------------------------------------------------
+mine did the same exact thing on test 2., hung at cfq scheduler, but
+this is on a Abit KU8 motherboard with a sempron 64 processor, and it
+did it on every distro using a 2.6.15 kernel that I tried, yet 2.6.14
+and below were fine, I think there is a problem with the 2.6.15 series
+of kernel rather than a media issue, because when gentoo moved to
+2.6.15, it stopped on cfq and that was an install over a year old, not
+coming off the cd, plus thier new installer,,,, based on .*.15 kerel
+wont start for me either, stopping at cfq or right after "loading
+kernel....done"
+-----------------------------------------------------------------------
+Try these boot options at startup:
+noapic acpi=off nofb
+-----------------------------------------------------------------------
+It Worked!
+-----------------------------------------------------------------------
+It stops right at:
+"io scheduler cfq registered".
+opensuse 10 has been giving me a similar problem
 
-http://oss.oracle.com/~mfasheh/dlm_hash/distribution_modeling/
+And for details, this was an x86_64 version on a abit KU8 motherboard
+(died two weeks after I got it) using an AMD 64 3700.
+-----------------------------------------------------------------------
+I am having the same issue with my ku8 board w/3700amd64, possible
+connection? it is giving me the same freezup at cfq scheduler, and it
+started when I upgraded to 2.6.15 in core 4/ and on the dvd iso of fc5
+test 2
+-----------------------------------------------------------------------
+I get exactly the same problem. I'm using a shuttle stg205 with ati 2000
+xpress chipset and AMD 64 3200. I have had this problem ever since the
+2.6.15 kernels.
 
-Standard disclaimers apply - that code is a hack and wasn't edited to be
-particularly performant, error resistant or pretty. It's also clearly not
-intended for testing the actual performance of the hash (just distribution
-output). Anyway, it turns out that full_name_hash() didn't have the severe
-spikes in distribution that my original hack to compare only the last parts
-of a lockres name had. This makes it inappropriate for general use, even
-though it resulted in a performance gain on our micro-benchmark.
-
-> So if we improve the hash function, 128K buckets (512K table size) is
-> the right number, given a steady-state number of hash resources around
-> 128K.  This is pretty much independent of load: if you run light loads
-> long enough, you will eventually fill up the hash table.
-Your hash sizes are still ridiculously large. All my data shows that we need
-to increase the hash size by much much less. At the following location you
-will find a series of files detailing the results of 10 untar runs with
-various hash allocations. The short story is that we really only need
-an allocation on the order of a few pages. 
-
-http://oss.oracle.com/~mfasheh/dlm_hash/untar_timings/
-
-If you average up the untar times you'll get something close to this:
-1 page:   23 seconds
-2 pages:  18 seconds
-4 pages:  16 seconds
-6 pages:  15 seconds
-8 pages:  14 seconds
-16 pages: 14 seconds
-32 pages: 14 seconds
-64 pages: 14 seconds
-
-PAGE_SIZE on this system is 4096
-
-So our largest performance gain is by just adding a page, and things seem to
-top out at 6-8 pages. I will likely have a patch in the next few days or so
-which will allocate a small array of pages at dlm startup. The bottom line
-is that the default is extremely likely to be on the order of a few pages.
-Eventually this will also be user configurable.
-
-> Of course, if we take a critical look at your locking strategy we might
-> find some fat to cut there too. Could I possibly interest you in writing
-> up a tech note on your global locking strategy?
-Sure, but it'll take a while. I've already got one OCFS2 related paper to
-write. Perhaps I'll be able to kill two birds with one stone.
-
-By the way, an interesting thing happened when I recently switched disk
-arrays - the fluctuations in untar times disappeared. The new array is much
-nicer, while the old one was basically Just A Bunch Of Disks. Also, sync
-times dropped dramatically.
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com

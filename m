@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWCKKIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWCKKmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752096AbWCKKIm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 05:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752125AbWCKKIm
+	id S1751125AbWCKKmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 05:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWCKKmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 05:08:42 -0500
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:45791 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1752096AbWCKKIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 05:08:41 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: PROBLEM: four bttv tuners in one PC crashed
-To: Duncan Sands <duncan.sands@math.u-psud.fr>,
-       Roland Scheidegger <rscheidegger_lists@hispeed.ch>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 11 Mar 2006 11:08:25 +0100
-References: <5NpZk-7wW-13@gated-at.bofh.it> <5NJ1x-1OE-15@gated-at.bofh.it> <5NPJk-3GD-3@gated-at.bofh.it> <5NRBv-6ze-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 11 Mar 2006 05:42:40 -0500
+Received: from [82.153.166.94] ([82.153.166.94]:23746 "EHLO mail.inprovide.com")
+	by vger.kernel.org with ESMTP id S1751125AbWCKKmk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 05:42:40 -0500
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can I bring Linux down by running "renice -20 cpu_intensive_process"?
+References: <441180DD.3020206@wpkg.org>
+	<Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
+	<yw1xbqwe2c2x.fsf@agrajag.inprovide.com> <4411F87B.2070902@mnsu.edu>
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Sat, 11 Mar 2006 10:42:27 +0000
+In-Reply-To: <4411F87B.2070902@mnsu.edu> (Jeffrey Hundstad's message of "Fri, 10 Mar 2006 16:06:51 -0600")
+Message-ID: <yw1x3bhp2rfw.fsf@agrajag.inprovide.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1FI11O-0000bK-8u@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
+Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu> writes:
 
->> The bttv driver/chip seems to cause random memory corruption sometimes,
->> processes will just start dying...
-> 
-> There is a known buffer overflow in the bttv driver (when using
-> grabdisplay).  The fix is waiting on an audit of the rest of the
-> bttv (and similar) code, since it looks like the same mistake
-> occurs in several places.
+> Måns Rullgård wrote:
+>
+>>Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+>>
+>>>>Subject: can I bring Linux down by running "renice -20
+>>>>cpu_intensive_process"?
+>>>>
+>>> Depends on what the cpu_intensive_process does. If it tries to
+>>> allocate lots of memory, maybe. If it's _just_ CPU (as in `perl -e
+>>> '1 while 1'`), you get a chance that you can input some commands on
+>>> a terminal to kill it.
+>>>SCHED_FIFO'ing or SCHED_RR'ing such a process is sudden death of course.
+>>
+>>Sysrq+n changes all realtime tasks to normal priority.
+>
+> Patient: "Doctor When I poke myself in the eye it hurts."
+> Doctor "Don't do that then."
 
-Can you give me a hint on where exactly to shoot at? I'n still hoping it's
-not my VIA board giving me trouble (corrupting the first four bytes of a
-semi-random page).
+A bug might cause an otherwise well-behaved realtime process to start
+spinning in a loop or something.  Having a way to stop it is good,
+IMHO.
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Måns Rullgård
+mru@inprovide.com

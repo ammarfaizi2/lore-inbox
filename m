@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752339AbWCKDdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWCKDn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752339AbWCKDdo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 22:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752340AbWCKDdo
+	id S932383AbWCKDn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 22:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWCKDn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 22:33:44 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:60587 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752338AbWCKDdo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 22:33:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 10 Mar 2006 22:43:26 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52229 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932379AbWCKDnV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 22:43:21 -0500
+Date: Sat, 11 Mar 2006 04:43:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] sound/pci/rme9652/hdspm.c: fix off-by-one errors
+Message-ID: <20060311034321.GL21864@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: acpi thermal driver leaks in failure path
-Date: Fri, 10 Mar 2006 22:32:29 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3006596EDD@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: acpi thermal driver leaks in failure path
-Thread-Index: AcZDJ84RcoSx+nx0SduKtlG/OsPGGQBlJfpQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Dave Jones" <davej@redhat.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Mar 2006 03:32:31.0299 (UTC) FILETIME=[6DC7D130:01C644BC]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied.
+This patch fixes off-by-one errors found by the Coverity checker.
 
-thanks,
--Len 
 
->-----Original Message-----
->From: Dave Jones [mailto:davej@redhat.com] 
->Sent: Wednesday, March 08, 2006 10:12 PM
->To: Linux Kernel
->Cc: Brown, Len
->Subject: acpi thermal driver leaks in failure path
->
->Leaking memory in failure path.
->
->Coverity: #601
->Signed-off-by: Dave Jones <davej@redhat.com>
->
->--- linux-2.6/drivers/acpi/thermal.c~	2006-03-08 
->22:09:51.000000000 -0500
->+++ linux-2.6/drivers/acpi/thermal.c	2006-03-08 
->22:11:05.000000000 -0500
->@@ -942,8 +942,10 @@ acpi_thermal_write_trip_points(struct fi
-> 	memset(limit_string, 0, ACPI_THERMAL_MAX_LIMIT_STR_LEN);
-> 
-> 	active = kmalloc(ACPI_THERMAL_MAX_ACTIVE * sizeof(int), 
->GFP_KERNEL);
->-	if (!active)
->+	if (!active) {
->+		kfree(limit_string);
-> 		return_VALUE(-ENOMEM);
->+	}
-> 
-> 	if (!tz || (count > ACPI_THERMAL_MAX_LIMIT_STR_LEN - 1)) {
-> 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid argument\n"));
->-- 
->http://www.codemonkey.org.uk
->
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-rc5-mm3-full/sound/pci/rme9652/hdspm.c.old	2006-03-11 03:11:15.000000000 +0100
++++ linux-2.6.16-rc5-mm3-full/sound/pci/rme9652/hdspm.c	2006-03-11 03:12:10.000000000 +0100
+@@ -474,7 +474,7 @@
+ static inline int hdspm_read_in_gain(struct hdspm * hdspm, unsigned int chan,
+ 				     unsigned int in)
+ {
+-	if (chan > HDSPM_MIXER_CHANNELS || in > HDSPM_MIXER_CHANNELS)
++	if (chan >= HDSPM_MIXER_CHANNELS || in >= HDSPM_MIXER_CHANNELS)
+ 		return 0;
+ 
+ 	return hdspm->mixer->ch[chan].in[in];
+@@ -483,7 +483,7 @@
+ static inline int hdspm_read_pb_gain(struct hdspm * hdspm, unsigned int chan,
+ 				     unsigned int pb)
+ {
+-	if (chan > HDSPM_MIXER_CHANNELS || pb > HDSPM_MIXER_CHANNELS)
++	if (chan >= HDSPM_MIXER_CHANNELS || pb >= HDSPM_MIXER_CHANNELS)
+ 		return 0;
+ 	return hdspm->mixer->ch[chan].pb[pb];
+ }
+

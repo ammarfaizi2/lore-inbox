@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752332AbWCKDDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752333AbWCKDHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752332AbWCKDDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 22:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752333AbWCKDDz
+	id S1752333AbWCKDHU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 22:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752335AbWCKDHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 22:03:55 -0500
-Received: from namsan.hanyang.ac.kr ([166.104.11.34]:16822 "HELO
-	ece.hanyang.ac.kr") by vger.kernel.org with SMTP id S1752331AbWCKDDy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 22:03:54 -0500
-Message-ID: <44123D38.60000@ece.hanyang.ac.kr>
-Date: Sat, 11 Mar 2006 12:00:08 +0900
-From: Moweon Lee <a287848@ece.hanyang.ac.kr>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 10 Mar 2006 22:07:20 -0500
+Received: from mail.infrasupportetc.com ([66.173.97.5]:53933 "EHLO
+	mail733.InfraSupportEtc.com") by vger.kernel.org with ESMTP
+	id S1752333AbWCKDHT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 22:07:19 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Hard disk sector remapping
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Router stops routing after changing MAC Address
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Fri, 10 Mar 2006 21:08:25 -0600
+Message-ID: <925A849792280C4E80C5461017A4B8A20321CE@mail733.InfraSupportEtc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Router stops routing after changing MAC Address
+Thread-Index: AcZEpegrpnJZ+OnzSzW0oMzj9J0s+AAEMo2g
+From: "Greg Scott" <GregScott@InfraSupportEtc.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Bart Samwel" <bart@samwel.tk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone!
+ 
+> I think you're not testing hotswapping machines with equal 
+> MAC addresses here, you're testing hot-changing the MAC 
+> address for a gateway IP. The machine on the "right side" 
+> that the machine on the left side is pinging probably still 
+> has the old MAC address for its gateway in it's ARP cache, 
+> so the echo reply will be sent to the wrong MAC address. (
+> Or am I talking nonsense here?)
+>
+> --Bart
 
-My name is Moweon Lee from South Korean.
+I sometimes wonder if I'm going crazy myself.  :)
 
-Our team made a new file system which is named by Namsan 
-filesystem(Actually it is the name of mountain in Korea and hard to climb.).
+My ultimate goal is to hotswap machines with equal MAC Addresses.  I
+built up two machines, hotswapped, and pinged to each one - and it all
+worked.  Who would have believed they would refuse to forward packets
+when I tried to put them into production?  After my installation went
+haywire, my little testbed right now has one gateway in the middle and
+one system on the right and one on the left.  So, yes, right now I am
+hot-changing MAC addresses on this gateway, trying to get closer to the
+problem where routers don't route when the MAC Address is different than
+the hardware MAC Address.
 
-Now I'm trying to make bad block management system in that file system.
+Anyway, just to be completely anal about this I put the original MAC
+Addresses on the middle gateway and set up the system on the right to
+ping the middle gateway.  This worked.  With the pings still going, I
+fudged the MAC Addresses in the middle gateway.  The echo replies to the
+right stopped for about 30 seconds while its ARP cache cleared.  After
+about 30 seconds, the echo replies started coming again as expected.
+But the left could never ping the right after fudging MAC Addresses on
+the middle gateway.  
 
-But I'm not sure about this.
+So far, no matter what, left and right do not see eachother when the
+middle has fudged MAC Addresses.  But when middle has hardware MAC
+Addresses, left and right see each other just fine.  
 
-Let me ask you one thing.
+I don't see any way the problem could be related to ARP caches.
 
-When the HDD's sector remapping occurs?
-
-Especially when HDD controller find sector errors in writing phase,
-
-, is it automatically remapped by HDD ? (without notifying it for kernel)
-
-I wanna know it because I have to make some treatment about every sector 
-error.
-
-bye~~
-
-
-
-
-
-
-
-
-
+- Greg

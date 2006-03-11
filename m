@@ -1,131 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWCKQAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWCKQFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWCKQAp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 11:00:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWCKQAp
+	id S1751192AbWCKQFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 11:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWCKQFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 11:00:45 -0500
-Received: from mail.parknet.jp ([210.171.160.80]:27151 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1751189AbWCKQAp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 11:00:45 -0500
-X-AuthUser: hirofumi@parknet.jp
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Fix a race condition between ->i_mapping and iput()
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 12 Mar 2006 01:00:22 +0900
-Message-ID: <87hd65geeh.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Mar 2006 11:05:24 -0500
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:7051 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751192AbWCKQFY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 11:05:24 -0500
+Message-ID: <4412F53B.5010309@drzeus.cx>
+Date: Sat, 11 Mar 2006 17:05:15 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060210)
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-6740-1142093117-0001-2"
+To: Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org
+CC: ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx>
+In-Reply-To: <44082E14.5010201@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This race became a cause of oops, and can reproduce by the following.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-    while true; do
-	dd if=/dev/zero of=/dev/.static/dev/hdg1 bs=512 count=1000 & sync
-    done
+--=_hermes.drzeus.cx-6740-1142093117-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+Here is a patch for doing multi line modalias for PNP devices. This will
+break udev, so that needs to be updated first.
+
+I had a longer look at the card part and it seems that module aliases
+cannot be reliably used for it. Not without restructuring the system at
+least. The possible combinations explode when you notice that the driver
+ids needs to be just at subset of the card, without any ordering.
+
+If I got my calculations right, a PNP card would have to have roughly
+2^(2n) aliases, where n is the number of device ids. So right now, I
+lean towards only adding modalias support for the non-card part of the
+PNP layer.
+
+Andrew, do you want a fix for the patch in -mm or can you remove the
+part of it that modifies drivers/pnp/card.c by yourself?
+
+Rgds
+Pierre
 
 
-This race condition was between __sync_single_inode() and iput().
+--=_hermes.drzeus.cx-6740-1142093117-0001-2
+Content-Type: text/x-patch; name="pnp-sysfs-modalias-multiline.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pnp-sysfs-modalias-multiline.patch"
 
-          cpu0 (fs's inode)                 cpu1 (bdev's inode)
-------------------------------------------------------------------------
-                                       close("/dev/hda2")
-                                       [...]
-__sync_single_inode()
-   /* copy the bdev's ->i_mapping */
-   mapping = inode->i_mapping;
+[PNP] Export all aliases through the modalias attribute
 
-                                       generic_forget_inode()
-                                          bdev_clear_inode()
-					     /* restre the fs's ->i_mapping */
-				             inode->i_mapping = &inode->i_data;
-				          /* bdev's inode was freed */
-                                          destroy_inode(inode);
+From: Pierre Ossman <drzeus@drzeus.cx>
 
-   if (wait) {
-      /* dereference a freed bdev's mapping->host */
-      filemap_fdatawait(mapping);  /* Oops */
-
-Since __sync_signle_inode() is only taking a ref-count of fs's inode,
-the another process can be close() and freeing the bdev's inode while
-writing fs's inode.  So, __sync_signle_inode() accesses the freed
-->i_mapping, oops.
-
-This patch takes ref-count of bdev's inode for fs's inode before
-setting a ->i_mapping, and the clear_inode() of fs's inode does iput().
-So, if fs's inode is still living, bdev's inode shouldn't be freed.
-
-This lifetime rule may be a poor, but very simple.
-
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+In order to be backwards compatible, we previously only exported the first
+of all the PNP module aliases. We should instead export all aliases,
+delimited by newlines.
 ---
 
- fs/block_dev.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/pnp/interface.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
 
-diff -puN fs/block_dev.c~i_mapping-race-fix-2 fs/block_dev.c
---- linux-2.6/fs/block_dev.c~i_mapping-race-fix-2	2006-03-11 16:19:07.000000000 +0900
-+++ linux-2.6-hirofumi/fs/block_dev.c	2006-03-11 17:52:11.000000000 +0900
-@@ -418,21 +418,31 @@ EXPORT_SYMBOL(bdput);
- static struct block_device *bd_acquire(struct inode *inode)
- {
- 	struct block_device *bdev;
-+
- 	spin_lock(&bdev_lock);
- 	bdev = inode->i_bdev;
--	if (bdev && igrab(bdev->bd_inode)) {
-+	if (bdev) {
-+		atomic_inc(&bdev->bd_inode->i_count);
- 		spin_unlock(&bdev_lock);
- 		return bdev;
- 	}
- 	spin_unlock(&bdev_lock);
-+
- 	bdev = bdget(inode->i_rdev);
- 	if (bdev) {
- 		spin_lock(&bdev_lock);
--		if (inode->i_bdev)
--			__bd_forget(inode);
--		inode->i_bdev = bdev;
--		inode->i_mapping = bdev->bd_inode->i_mapping;
--		list_add(&inode->i_devices, &bdev->bd_inodes);
-+		if (!inode->i_bdev) {
-+			/*
-+			 * We take an additional bd_inode->i_count for inode,
-+			 * and it's released in clear_inode() of inode.
-+			 * So, we can access it via ->i_mapping always
-+			 * without igrab().
-+			 */
-+			atomic_inc(&bdev->bd_inode->i_count);
-+			inode->i_bdev = bdev;
-+			inode->i_mapping = bdev->bd_inode->i_mapping;
-+			list_add(&inode->i_devices, &bdev->bd_inodes);
-+		}
- 		spin_unlock(&bdev_lock);
- 	}
- 	return bdev;
-@@ -442,10 +452,18 @@ static struct block_device *bd_acquire(s
+diff --git a/drivers/pnp/interface.c b/drivers/pnp/interface.c
+index 67bd17c..8e78923 100644
+--- a/drivers/pnp/interface.c
++++ b/drivers/pnp/interface.c
+@@ -461,11 +461,15 @@ static DEVICE_ATTR(id,S_IRUGO,pnp_show_c
  
- void bd_forget(struct inode *inode)
+ static ssize_t pnp_modalias_show(struct device *dmdev, struct device_attribute *attr, char *buf)
  {
-+	struct block_device *bdev = NULL;
-+
- 	spin_lock(&bdev_lock);
--	if (inode->i_bdev)
-+	if (inode->i_bdev) {
-+		if (inode->i_sb != blockdev_superblock)
-+			bdev = inode->i_bdev;
- 		__bd_forget(inode);
++	char *str = buf;
+ 	struct pnp_dev *dev = to_pnp_dev(dmdev);
+ 	struct pnp_id * pos = dev->id;
+ 
+-	/* FIXME: modalias can only do one alias */
+-	return sprintf(buf, "pnp:d%s\n", pos->id);
++	while (pos) {
++		str += sprintf(str,"pnp:d%s\n", pos->id);
++		pos = pos->next;
 +	}
- 	spin_unlock(&bdev_lock);
-+
-+	if (bdev)
-+		iput(bdev->bd_inode);
++	return (str - buf);
  }
  
- int bd_claim(struct block_device *bdev, void *holder)
-_
+ static DEVICE_ATTR(modalias,S_IRUGO,pnp_modalias_show,NULL);
+
+--=_hermes.drzeus.cx-6740-1142093117-0001-2--

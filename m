@@ -1,112 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWCKXpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWCKXtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWCKXpg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 18:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWCKXpg
+	id S1751286AbWCKXtF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 18:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCKXtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 18:45:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:49608 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751253AbWCKXpg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 18:45:36 -0500
-Subject: Re: [PATCH] powerpc: enable NAP only on cpus who support it to
-	avoid memory corruption
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Paul Mackeras <paulus@samba.org>, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060311215840.GA22766@suse.de>
-References: <20060311215840.GA22766@suse.de>
-Content-Type: text/plain
-Date: Sun, 12 Mar 2006 10:43:10 +1100
-Message-Id: <1142120591.4057.44.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Mar 2006 18:49:05 -0500
+Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:7589 "EHLO
+	cinder.waste.org") by vger.kernel.org with ESMTP id S1751268AbWCKXtE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 18:49:04 -0500
+Date: Sat, 11 Mar 2006 17:48:41 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, herbert@gondor.apana.org.au,
+       akpm@osdl.org
+Subject: Re: [PATCH] crypto: fix key alignment in tcrypt
+Message-ID: <20060311234841.GI28168@waste.org>
+References: <20060308.231155.63512624.nemoto@toshiba-tops.co.jp> <20060311231238.GJ7110@waste.org> <jeirqktvb0.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jeirqktvb0.fsf@sykes.suse.de>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-11 at 22:58 +0100, Olaf Hering wrote:
-> commit 51d3082fe6e55aecfa17113dbe98077c749f724c enabled NAP unconditinally
-> on all powermacs. Early G3 cpus can not use it, the result is memory corruption.
+On Sun, Mar 12, 2006 at 12:29:07AM +0100, Andreas Schwab wrote:
+> Matt Mackall <mpm@selenic.com> writes:
 > 
-> Only enable powersave_nap in one place: probe_motherboard()
-> ppc32 gets nap if the cpu supports it
-> ppc32 smp gets no nap
-> ppc64 gets nap unconditionally
-
-CONFIG_SMP is certainly not the way to do it though... I wonder how we
-got that wrong, I'll have a look.
-
-Ben.
-
-
-> ---
->  arch/powerpc/platforms/powermac/feature.c |    8 +++++++-
->  arch/powerpc/platforms/powermac/setup.c   |    4 ----
->  arch/powerpc/platforms/powermac/smp.c     |    4 ----
->  3 files changed, 7 insertions(+), 9 deletions(-)
+> > On Wed, Mar 08, 2006 at 11:11:55PM +0900, Atsushi Nemoto wrote:
+> >> Force 32-bit alignment on keys in tcrypt test vectors.
+> >> 
+> >> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+> >> 
+> >> diff --git a/crypto/tcrypt.h b/crypto/tcrypt.h
+> >> index 733d07e..050f852 100644
+> >> --- a/crypto/tcrypt.h
+> >> +++ b/crypto/tcrypt.h
+> >> @@ -31,7 +31,7 @@ struct hash_testvec {
+> >>  	char digest[MAX_DIGEST_SIZE];
+> >>  	unsigned char np;
+> >>  	unsigned char tap[MAX_TAP];
+> >> -	char key[128]; /* only used with keyed hash algorithms */
+> >> +	char key[128] __attribute__((__aligned__(4))); /* only used with keyed hash algorithms */
+> >>  	unsigned char ksize;
+> >>  };
+> >>  
+> >> @@ -48,7 +48,7 @@ struct hmac_testvec {
+> >>  struct cipher_testvec {
+> >>  	unsigned char fail;
+> >>  	unsigned char wk; /* weak key flag */
+> >> -	char key[MAX_KEYLEN];
+> >> +	char key[MAX_KEYLEN] __attribute__((__aligned__(4)));
+> >>  	unsigned char klen;
+> >>  	char iv[MAX_IVLEN];
+> >>  	char input[48];
+> >
+> > Wouldn't it be better to simply move this to the head of the structure?
 > 
-> Index: linux-2.6.16-rc5-olh/arch/powerpc/platforms/powermac/feature.c
-> ===================================================================
-> --- linux-2.6.16-rc5-olh.orig/arch/powerpc/platforms/powermac/feature.c
-> +++ linux-2.6.16-rc5-olh/arch/powerpc/platforms/powermac/feature.c
-> @@ -2513,8 +2513,11 @@ found:
->  		/* Nap mode not supported if flush-on-lock property is present */
->  		if (get_property(np, "flush-on-lock", NULL))
->  			break;
-> +
-> +#ifndef CONFIG_SMP
-> +		/* 32 bits SMP can't NAP */
->  		powersave_nap = 1;
-> -		printk(KERN_INFO "Processor NAP mode on idle enabled.\n");
-> +#endif
->  		break;
->  	}
->  
-> @@ -2526,6 +2529,9 @@ found:
->  #ifdef CONFIG_POWER4
->  	powersave_nap = 1;
->  #endif
-> +	if (powersave_nap)
-> +		printk(KERN_INFO "Using native/NAP idle loop\n");
-> +
->  	/* Check for "mobile" machine */
->  	if (model && (strncmp(model, "PowerBook", 9) == 0
->  		   || strncmp(model, "iBook", 5) == 0))
-> Index: linux-2.6.16-rc5-olh/arch/powerpc/platforms/powermac/setup.c
-> ===================================================================
-> --- linux-2.6.16-rc5-olh.orig/arch/powerpc/platforms/powermac/setup.c
-> +++ linux-2.6.16-rc5-olh/arch/powerpc/platforms/powermac/setup.c
-> @@ -621,10 +621,6 @@ static void __init pmac_init_early(void)
->  	/* Probe motherboard chipset */
->  	pmac_feature_init();
->  
-> -	/* We can NAP */
-> -	powersave_nap = 1;
-> -	printk(KERN_INFO "Using native/NAP idle loop\n");
-> -
->  	/* Initialize debug stuff */
->  	udbg_scc_init(!!strstr(cmd_line, "sccdbg"));
->  	udbg_adb_init(!!strstr(cmd_line, "btextdbg"));
-> Index: linux-2.6.16-rc5-olh/arch/powerpc/platforms/powermac/smp.c
-> ===================================================================
-> --- linux-2.6.16-rc5-olh.orig/arch/powerpc/platforms/powermac/smp.c
-> +++ linux-2.6.16-rc5-olh/arch/powerpc/platforms/powermac/smp.c
-> @@ -739,10 +739,6 @@ static void __init smp_core99_setup(int 
->  			smp_hw_index[i] = i;
->  	}
->  #endif
-> -
-> -	/* 32 bits SMP can't NAP */
-> -	if (!machine_is_compatible("MacRISC4"))
-> -		powersave_nap = 0;
->  }
->  
->  static int __init smp_core99_probe(void)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> That wouldn't help, since the whole structure will still be only 8-bit
+> aligned.
 
+Ahh, hadn't noticed the struct was entirely populated by chars.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

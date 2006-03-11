@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWCKBmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752294AbWCKB5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbWCKBmo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 20:42:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWCKBmo
+	id S1752294AbWCKB5e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 20:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752290AbWCKB5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 20:42:44 -0500
-Received: from soohrt.org ([85.131.246.150]:6301 "EHLO quickstop.soohrt.org")
-	by vger.kernel.org with ESMTP id S932367AbWCKBmo (ORCPT
+	Fri, 10 Mar 2006 20:57:33 -0500
+Received: from quechua.inka.de ([193.197.184.2]:28335 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1752064AbWCKB5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 20:42:44 -0500
-Date: Sat, 11 Mar 2006 02:42:42 +0100
-From: Horst Schirmeier <horst@schirmeier.com>
-To: Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] usbcore: fix check_ctrlrecip to allow control transfers in state ADDRESS
-Message-ID: <20060311014242.GQ22994@quickstop.soohrt.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	Fri, 10 Mar 2006 20:57:33 -0500
+Date: Sat, 11 Mar 2006 02:57:31 +0100
+From: Bernd Eckenfels <be-mail2006@lina.inka.de>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] Ocfs2 performance
+Message-ID: <20060311015731.GA16912@lina.inka.de>
+References: <20060310002121.GJ27280@ca-server1.us.oracle.com> <E1FHWCm-0002rT-00@calista.inka.de> <20060311010913.GN27280@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060311010913.GN27280@ca-server1.us.oracle.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-check_ctrlrecip() disallows any control transfers if the device is
-deconfigured (in configuration 0, ie. state ADDRESS). This for example
-makes it impossible to read the device descriptors without configuring
-the device, although most standard device requests are allowed in this
-state by the spec. This patch allows control transfers for the ADDRESS
-state, too.
+On Fri, Mar 10, 2006 at 05:09:13PM -0800, Mark Fasheh wrote:
+> until the locks needs to be upgraded or downgraded. This provides a very
+> large performance increase over always asking the DLM for a new lock.
 
-Signed-off-by: Horst Schirmeier <horst@schirmeier.com> 
+Yes, it is basically the same problem as the buffer cache. Excessive
+single-use patterns dirty the small cache or require a too big cache to be
+usefull.
 
----
+Maybe a user specific limit of percentage of hash (and locks) used? I mean
+the untar test case is a bit synthetic, but think of concurrent read access
+in a cluster of nntp servers (news article pool).
 
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index 2b68998..3461476 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -498,7 +498,8 @@ static int check_ctrlrecip(struct dev_st
- {
- 	int ret = 0;
- 
--	if (ps->dev->state != USB_STATE_CONFIGURED)
-+	if (ps->dev->state != USB_STATE_ADDRESS
-+	 && ps->dev->state != USB_STATE_CONFIGURED)
- 		return -EHOSTUNREACH;
- 	if (USB_TYPE_VENDOR == (USB_TYPE_MASK & requesttype))
- 		return 0;
+Gruss
+Bernd

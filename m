@@ -1,100 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWCKHYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751890AbWCKHYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWCKHYS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 02:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751866AbWCKHYS
+	id S1751890AbWCKHYm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 02:24:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbWCKHYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 02:24:18 -0500
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:58521 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751728AbWCKHYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 02:24:17 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-Date: Sat, 11 Mar 2006 18:24:05 +1100
+	Sat, 11 Mar 2006 02:24:42 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:31417 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751866AbWCKHYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 02:24:41 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Jun OKAJIMA <okajima@digitalinfra.co.jp>
+Subject: Re: Faster resuming of suspend technology.
+Date: Sat, 11 Mar 2006 17:22:01 +1000
 User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org
-References: <200603102054.20077.kernel@kolivas.org> <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
-In-Reply-To: <1142056851.7819.54.camel@homer>
+Cc: linux-kernel@vger.kernel.org
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
+In-Reply-To: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1580997.txDfK7LDTO";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603111824.06274.kernel@kolivas.org>
+Message-Id: <200603111722.05341.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 March 2006 17:00, Mike Galbraith wrote:
-> On Sat, 2006-03-11 at 16:50 +1100, Con Kolivas wrote:
-> > On Saturday 11 March 2006 16:33, Mike Galbraith wrote:
-> > > On Sat, 2006-03-11 at 14:50 +1100, Con Kolivas wrote:
-> > > > On Saturday 11 March 2006 09:35, Andrew Morton wrote:
-> > > > > Con Kolivas <kernel@kolivas.org> wrote:
-> > > > > > +	/*
-> > > > > > +	 * get_page_state is super expensive so we only perform it
-> > > > > > every +	 * SWAP_CLUSTER_MAX prefetched_pages.
-> > > > >
-> > > > > nr_running() is similarly expensive btw.
-> > > >
-> > > > Yes which is why I do it just as infrequently as get_page_state.
-> > > >
-> > > > > > 	 * We also test if we're the only
-> > > > > > +	 * task running anywhere. We want to have as little impact on
-> > > > > > all +	 * resources (cpu, disk, bus etc). As this iterates over
-> > > > > > every cpu +	 * we measure this infrequently.
-> > > > > > +	 */
-> > > > > > +	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
-> > > > > > +		unsigned long cpuload = nr_running();
-> > > > > > +
-> > > > > > +		if (cpuload > 1)
-> > > > > > +			goto out;
-> > > > >
-> > > > > Sorry, this is just wrong.  If swap prefetch is useful then it's
-> > > > > also useful if some task happens to be sitting over in the corner
-> > > > > calculating pi.
-> > > > >
-> > > > > What's the actual problem here?  Someone's 3d game went blippy? 
-> > > > > Why? How much?  Are we missing a cond_resched()?
-> > > >
-> > > > No, it's pretty easy to reproduce, kprefetchd sits there in
-> > > > uninterruptible sleep with one cpu on SMP pegged at 100% iowait due
-> > > > to it. This tends to have noticeable effects everywhere on HT or SMP.
-> > > > On UP the yielding helped it but even then it still causes blips. How
-> > > > much? Well to be honest it's noticeable a shipload. Running a game,
-> > > > any game, that uses 100% (and most fancy games do) causes stuttering
-> > > > on audio, pauses and so on. This is evident on linux native games,
-> > > > games under emulators or qemu and so on. That iowait really hurts,
-> > > > and tweaking just priority doesn't help it in any way.
-> > >
-> > > That doesn't really make sense to me.  If a task can trigger audio
-> > > dropout and stalls by sleeping, we have a serious problem.  In your
-> > > SMP/HT case, I'd start crawling over the load balancing code.  I can't
-> > > see how trivial CPU with non-saturated IO can cause dropout in the UP
-> > > case either.  Am I missing something?
-> >
-> > Clearly you, me and everyone else is missing something. I see it with
-> > each task bound to one cpu with cpu affinity so it's not a balancing
-> > issue. Try it yourself if you can instead of not believing me. Get a big
-> > dd reader (virtually no cpu and all io wait sleep) on one cpu and try and
-> > play a game on the other cpu. It dies rectally.
+--nextPart1580997.txDfK7LDTO
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Saturday 11 March 2006 03:04, Jun OKAJIMA wrote:
+> As you might know, one of the key technology of fast booting is suspendin=
+g.
+> actually, using suspending does fast booting. And very good point is
+> not only can do booting desktop and daemons, but apps at once.
+> but one big fault --- it is slow for a while after booted because of HDD
+> thrashing. (I mention a term suspend as generic one, not refering only to
+> Nigel Cunningham's one)
 >
-> I said it didn't make sense to me, not that I didn't believe you.  If I
-> had a real SMP box, I would look into it, but all I have is HT.
+> One of the solution of thrashing issue is like this.
+> 1. log disk access pattern after booted.
+> 2. analyze the log and find common disk access pattern.
+> 2. re-order a suspend image using the pattern.
+> 3. read-aheading the image after booted.
+>
+> so far is okay. this is common technique to reduce disk seek.
+>
+> The problem of above way is,  "Is there common access pattern?".
+> I guess there would be.
+> The reason is that even what user does is always different, but what pages
+> it needs has common pattern. For example, pages which contain glibc or gtk
+> libs are always used. So, reading ahead these pages is meaningful, I
+> suppose.
+>
+> What you think? Your opinion is very welcome.
+>
+>
+>                  --- Okajima, Jun. Tokyo, Japan.
+>                      http://www.machboot.com
 
-No doubt it would be better on an SMP box. The norm is, however, for all these 
-multi-core, multi-threading cpus to be more common than real SMP and they all 
-share varying amounts of their resources.
+My version doesn't have this problem by default, because it saves a full im=
+age=20
+of memory unless the user explicitly sets a (soft) upper limit on the image=
+=20
+size. The image is stored as contiguously as available storage allows, so=20
+rereading it quickly isn't so much of an issue (and far less of an issue th=
+an=20
+discarding the memory before suspending and faulting it back in from all ov=
+er=20
+the place afterwards).
 
-> If you're creating a lot of traffic, I can see it causing problems.  I
-> was under the impression that you were doing minimal IO and absolutely
-> trivial CPU.  That's what didn't make sense to me to be clear.
+That said, work has already been done along the lines that you're describin=
+g.=20
+You might, for example, look at the OLS papers from last year. There was a=
+=20
+paper there describing work on almost exactly what you're describing.
 
-A lot of cpu would be easier to handle; it's using absolutely miniscule 
-amounts of cpu. The IO is massive though (and seeky in nature), and reading 
-from a swap partition seems particularly expensive in this regard.
+Hope that helps.
 
-Cheers,
-Con
+Nigel
+
+--nextPart1580997.txDfK7LDTO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEEnqdN0y+n1M3mo0RAs6+AJ0Z9MA9Bce2axRiyVe9LZ6s+5vptQCdG5J7
+MwBLhfvgWEMzKSYeBdiQBtA=
+=+5wA
+-----END PGP SIGNATURE-----
+
+--nextPart1580997.txDfK7LDTO--

@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWCKLnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbWCKLw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbWCKLnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 06:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWCKLnn
+	id S1751094AbWCKLw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 06:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWCKLw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 06:43:43 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:8975 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1750917AbWCKLnm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 06:43:42 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [future of drivers?] a proposal for binary drivers.
-Date: Sat, 11 Mar 2006 03:43:31 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKGEHBKKAB.davids@webmaster.com>
+	Sat, 11 Mar 2006 06:52:56 -0500
+Received: from pproxy.gmail.com ([64.233.166.177]:27548 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751094AbWCKLwz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 06:52:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K2ui3cf84iDRoT1oZediYx9I9R7B4sgB43Ezebb0HuTdHR75YWVkvWi1FnEceM2JfGf8wxJJ9otwmPOxBmjSks+LBS3aCWES8z+y1RCpBpvX9RDeirUFeWz5CZuiWeJu+eyyuCahWZQapa+O0rg005GKOIsTUN3xIN+DeLQajkk=
+Message-ID: <aec7e5c30603110352u4a18825ai1aaa6c5eac04685d@mail.gmail.com>
+Date: Sat, 11 Mar 2006 20:52:53 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [PATCH 00/03] Unmapped: Separate unmapped and mapped pages
+Cc: "Magnus Damm" <magnus@valinux.co.jp>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <1141999506.2876.45.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20060311091623.GB4087@DervishD>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sat, 11 Mar 2006 03:39:56 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sat, 11 Mar 2006 03:40:00 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060310034412.8340.90939.sendpatchset@cherry.local>
+	 <1141977139.2876.15.camel@laptopd505.fenrus.org>
+	 <aec7e5c30603100519l5a68aec3ub838ac69a734a46b@mail.gmail.com>
+	 <1141999506.2876.45.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3/10/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Fri, 2006-03-10 at 14:19 +0100, Magnus Damm wrote:
+> > My current code just extends this idea which basically means that
+> > there is currently no relation between how many pages that sit in each
+> > LRU. The LRU with the largest amount of pages will be shrunk/rotated
+> > first. And on top of that is the guarantee logic and the
+> > reclaim_mapped threshold, ie the unmapped LRU will be shrunk first by
+> > default.
+>
+> that sounds wrong, you lose history this way. There is NO reason to
+> shrink only the unmapped LRU and not the mapped one. At minimum you
+> always need to pressure both. How you pressure (absolute versus
+> percentage) is an interesting question, but to me there is no doubt that
+> you always need to pressure both, and "equally" to some measure of equal
 
->     No, it's not on the same level. It's on the same level as giving
-> your thesis draft to a comrade so he can study and pass his exams,
-> and in turn he publish the thesis as his and charge money for that.
+Regarding if shrinking the unmapped LRU only is bad or not: In the
+vanilla version of refill_inactive_zone(), if reclaim_mapped is false
+then mapped pages are rotated on the active list without the
+young-bits are getting cleared in the PTE:s. I would say this is very
+similar to leaving the pages on the mapped active list alone as long
+as reclaim_mapped is false in the dual LRU case. Do you agree?
 
-	Except it's not. We're not talking about people taking the Linux kernel and
-then publishing and charging for the Linux kernel. If we were, your analogy
-would be correct.
+Also, losing history, do you mean that the order of the pages are not
+kept? If so, then I think my refill_inactive_zone() rant above shows
+that the order of the pages are not kept today. But yes, keeping the
+order is probaly a good idea.
 
-	What you're talking about is more like you giving your thesis draft to a
-comrade so that he can study and pass his exams and then claiming that you
-own his exams. Or that you own his criticisms to your draft.
+It would be interesting to hear what you mean by "pressure", do you
+mean that both the active list and inactive list are scanned?
 
->     I don't want my work used by a corporation without giving any
-> modification under the same conditions under I published my work.
-> Binary driver can and will do harm if allowed.
+Many thanks,
 
-	If you want to restrict *use* you need an EULA, shrink wrap agreement,
-click-through or signed contract. If you give away copies of your work with
-no conditions on the *receipt* of the work, you lose the right to control
-how the work is used. Otherwise, someone could drop a million copies of
-their poem from an airplane and then sue everyone who read it.
-
-	Copyright is simply not powerful enough to allow you to control *any*
-practical way to do a particular thing (say, make an NE2000 card work with
-Linux 2.6). It is only powerful enough to allow you to control the one
-specific way that *you* chose to do something. If you want software patents,
-you know where to find them.
-
-	You cannot use copyright to own *every* way to express a particular idea.
-You cannot even use it to own every practical way to express a particular
-idea. Is is quite clear that "use a different operating system" or "use
-hardware for which there are already drivers in the kernel" are simply other
-ideas, not other ways to express the same idea.
-
-	I advise everyone with an interest to read carefully the entire decision in
-Lexmark v. Static Controls. It clearly talks about how once you own every
-practical way to do a particular thing, you cease to be allowed to use
-copyright to do it. (Lexmark had a copyrighted Toner Loading Program in
-their print cartridges which Static Controls 'stole' to make compatible
-print cartridges. The court held that, among other things, even though the
-TLP would otherwise have been copyrightable, since it was the only practical
-way to make a cartridge work with certain Lexmark printers, copyright was
-not applicable.)
-
-	DS
-
-
+/ magnus

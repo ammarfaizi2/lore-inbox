@@ -1,127 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWCKB5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752299AbWCKC07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWCKB5g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 20:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752290AbWCKB5g
+	id S1752299AbWCKC07 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 21:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752303AbWCKC07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 20:57:36 -0500
-Received: from smtp-3.llnl.gov ([128.115.41.83]:46785 "EHLO smtp-3.llnl.gov")
-	by vger.kernel.org with ESMTP id S1752064AbWCKB5f (ORCPT
+	Fri, 10 Mar 2006 21:26:59 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:61956 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1752295AbWCKC06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 20:57:35 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] EDAC: core EDAC support code
-Date: Fri, 10 Mar 2006 17:57:00 -0800
-User-Agent: KMail/1.5.3
-Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
-       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
-       bluesmoke-devel@lists.sourceforge.net
-References: <200601190414.k0J4EZCV021775@hera.kernel.org> <200603101313.09754.dsp@llnl.gov> <1142025821.2876.106.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142025821.2876.106.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603101757.00060.dsp@llnl.gov>
+	Fri, 10 Mar 2006 21:26:58 -0500
+From: Chris Leech <christopher.leech@intel.com>
+Subject: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
+Date: Fri, 10 Mar 2006 18:27:59 -0800
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <20060311022759.3950.58788.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 March 2006 13:23, Arjan van de Ven wrote:
-> hmm ok so I want a function that takes a device as parameter, and checks
-> the state of that device for errors. Internally that probably has to go
-> via a function pointer somewhere to a device specific check method.
->
-> Or maybe a per test-type (pci parity / ECC / etc) check
->
-> int pci_check_parity_errors(struct pci_dev *dev, int flags);
->
-> something like that, or pci_check_and_clear_parity_errors()
-> (although that gets too long :)
->
-> drivers can call that, say, after firmware init or something to validate
-> their device is sanely connected. Maybe pci_enable_device() could call
-> it too.
->
-> This also needs a pci_suspend_parity_check() ... _resume_ ... so that
-> the driver can temporarily disable any checks, for example during device
-> reset/init. And then just before resume, it manually clears a check.
+This patch series is the a full release of the Intel(R) I/O
+Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
+for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
+engine, and changes to the TCP stack to offload copies of received
+networking data to application space.
 
-ok, perhaps things might look something like this?
+Changes from last weeks posting:
+  fixed return value from sysfs show functions as suggested by Joe Perches
+  code style fixes suggested by Andrew Morton, David Miller, and others
+  renamed anything related to pinning pages from lock/locked to pin/pinned
+  renamed ioatdma register read/write functions with less generic names
+  return a pinned list from dma_pin_iovec_pages instead of passing in a 
+	**dma_pinned_list
+  replaced all cb/CB symbol prefixes in ioatdma with ioat/IOAT,
+	CB was an abbreviation of an early code name
+  use set_page_dirty_lock instead of SetPageDirty pointed out by Andrew Morton
+  rename dma_async_try_early_copy to tcp_dma_try_early_copy and stop exporting
 
-    - A check_error() function checks a device for errors.  As you
-      mention above, this may be a device-specific check method or a
-      function like pci_check_parity_errors(dev, flags).  In either
-      case, if check_error() finds an error, it clears the error from
-      the device's registers and returns the error.  If check_error()
-      finds multiple errors, here are couple of options:
+I'll be focusing on reducing ifdefs and adding much needed comments, with
+another release early next week. 
 
-          - Return a list of all errors detected.
-          - Return a single error along with a boolean value that says
-            whether more errors are present.  If so, check_error() may
-            be called repeatedly until no errors remain.
+These changes apply to DaveM's net-2.6.17 tree as of commit
+32639ad6b7e3da27f233c0516471f0747f1178f5 ([SPARC]: Fixup SO_*SEC values on 32-bit sparc.)
 
-    - A handle_error() function handles errors returned by
-      check_error().  Here are a few options: Each device may have a
-      handle_error() method that takes an error as a parameter.  Or,
-      each type of error may have its own handle_me() method.  A third
-      option is something like pci_handle_parity_error(dev, error).
-      In any case, depending on the error type, the handler may choose
-      to feed the error to EDAC.
+They are available to pull from
+	git://198.78.49.142/~cleech/linux-2.6 ioat-2.6.17
 
-    - Each hardware subsystem or device driver may determine its own
-      error checking/handling strategy.  Some may want to poll for
-      errors.  Others may want error detection to be asynchronous
-      (driven by interrupts or exceptions).  Or a subsystem may poll
-      for some kinds of errors and detect others asynchronously.  As
-      you suggest, errors may also be checked for in other situations,
-      such as after firmware init.
+There are 8 patches in the series:
+	1) The memcpy offload APIs and class code
+	2) The Intel I/OAT DMA driver (ioatdma)
+	3) Core networking code to setup networking as a DMA memcpy client
+	4) Utility functions for sk_buff to iovec offloaded copy
+	5) Structure changes needed for TCP receive offload
+	6) Rename cleanup_rbuf to tcp_cleanup_rbuf
+	7) Add a sysctl to tune the minimum offloaded I/O size for TCP
+	8) The main TCP receive offload changes
 
-      For polling, the poll function calls check_error(), and then
-      calls handle_error() if an error is found.  For interrupt-driven
-      error checking, the interrupt handler calls check_error().  If
-      an error is found, the interrupt handler may either call
-      handle_error() directly or defer invocation of handle_error()
-      outside interrupt context.  If the interrupt is an NMI, deferred
-      invocation of handle_error() allows it to execute without
-      introducing deadlocks or race conditions.
-
-    - For some types of hardware, at boot time the device's registers
-      contain spurious error info, which should be discarded.  This
-      may be done by calling check_error() and discarding the results.
-
-> > > 2) per bus code that calls the do check functions and whatever is
-> > > needed for bus checks
-> > >
-> > > 3) "EDAC" central command, which basically gathers all failure reports
-> > > and does something with them (push them to userspace or implement the
-> > > userspace chosen policy (panic/reboot/etc))
-> >
-> > Are you suggesting something like the following?
-> >
-> >     - The controls that determine how the error checking is done are
-> >       located within the various hardware subsystems.  For instance,
-> >       with PCI parity checking, this would include stuff like setting
-> >       the polling frequency and determining which devices to check.
->
-> yes. I would NOT make it overly tunable btw. For many things a sane
-> default can be chosen, and the effect of picking a different tuning
-> isn't all that big. Maybe think of it this way: a tuneable to a large
-> degree is an excuse for not determining the right value / heuristic in
-> the first place.
-
-Sounds good.
-
-> >     - When an error is actually detected, the subsystem that detected
-> >       the error (for instance, PCI) would feed the error information
-> >       to EDAC.  Then EDAC would determine how to respond to the error
-> >       (for instance, push it to userspace or implement the
-> >       userspace-chosen policy (panic/reboot/etc))
->
-> yup.
-
-Cool!  I think this also coincides with what Doug is saying.  Doug, how
-does this sound?
-
+--
+Chris Leech <christopher.leech@intel.com>
+I/O Acceleration Technology Software Development
+LAN Access Division / Digital Enterprise Group 

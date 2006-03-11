@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWCKWkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWCKXNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWCKWkl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 17:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWCKWkl
+	id S1751218AbWCKXNE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 18:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWCKXNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 17:40:41 -0500
-Received: from xenotime.net ([66.160.160.81]:59330 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750897AbWCKWkl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 17:40:41 -0500
-Date: Sat, 11 Mar 2006 14:42:26 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MCE Errors, Bad CPU, Memory or Motherboard?
-Message-Id: <20060311144226.0edef452.rdunlap@xenotime.net>
-In-Reply-To: <Pine.LNX.4.64.0603100642220.1165@p34>
-References: <Pine.LNX.4.64.0603100642220.1165@p34>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Mar 2006 18:13:04 -0500
+Received: from dsl093-016-182.msp1.dsl.speakeasy.net ([66.93.16.182]:45478
+	"EHLO cinder.waste.org") by vger.kernel.org with ESMTP
+	id S1751168AbWCKXNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 18:13:02 -0500
+Date: Sat, 11 Mar 2006 17:12:38 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       herbert@gondor.apana.org.au, akpm@osdl.org
+Subject: Re: [PATCH] crypto: fix key alignment in tcrypt
+Message-ID: <20060311231238.GJ7110@waste.org>
+References: <20060308.231155.63512624.nemoto@toshiba-tops.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060308.231155.63512624.nemoto@toshiba-tops.co.jp>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Mar 2006 06:44:46 -0500 (EST) Justin Piszcz wrote:
-
-> This is the first time I have seen an MCE error, googling the EIP value at 
-> the time of the panic does not return any useful results.
+On Wed, Mar 08, 2006 at 11:11:55PM +0900, Atsushi Nemoto wrote:
+> Force 32-bit alignment on keys in tcrypt test vectors.
 > 
-> Does anyone know whether it is the CPU or MEMORY that is bad in this 
-> machine?  As it shows some problems with BANK4; however, if the CPU is 
-> bad, then it is possible to get all sorts of unpredictable results, right?
+> Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 > 
-> Dec  9 23:21:25 box  CPU 0: Machine Check Exception
-> Dec  9 23:21:25 box  Bank 4: f62ba001c0080813 at 00000000a6e6c2c0
-> Dec  9 23:21:25 box  Kernel panic: CPU context corrupt
-> Dec  9 23:21:25 box kernel: CPU 0
-> Dec  9 23:21:25 box kernel: CPU 0
-> Dec  9 23:21:25 box kernel: Bank 4
-> Dec  9 23:21:25 box kernel: Bank 4
-> Dec  9 23:21:25 box kernel: Kernel panic
-> Dec  9 23:21:25 box kernel: Kernel panic
-> Dec  9 23:21:26 box  kernel BUG at panic.c:66!
-> Dec  9 23:21:26 box  invalid operand: 0000
-> Dec  9 23:21:26 box  CPU:    0
-> Dec  9 23:21:26 box  EIP:    0010
-> Dec  9 23:21:26 box  EFLAGS: 00010282
-> Dec  9 23:21:26 box  eax: f895c1d0   ebx
-> Dec  9 23:21:26 box  esi: 00000415   edi
-> Dec  9 23:21:26 box  ds: 0018   es
-> Dec  9 23:21:26 box  Process java (pid: 6852, stackpage=e0ec5000)
-> Dec  9 23:21:26 box  Stack: 04000000 e0ec5fa4 c010fc28 c02942b8 00000005 
-> c0080813 00000417 00000416
-> Dec  9 23:21:26 box         00000005 00000000 00000004 e0ec4000 00000000 
-> c010fd00 e0ec5fb4 c010fd11
-> Dec  9 23:21:26 box         e0ec5fc4 00000000 bfffc090 c0108ed4 e0ec5fc4 
-> 00000000 00000023 44841510
-> Dec  9 23:21:26 box  Call Trace:    [<c010fc28>] [<c010fd00>] [<c010fd11>] 
-> [<c0108ed4>]
-> Dec  9 23:21:26 box
-> Dec  9 23:21:26 box  Code: 0f 0b 42 00 28 6a 29 c0 b9 00 e0 ff ff 21 e1 8b 
-> 51 30 c1 e2
+> diff --git a/crypto/tcrypt.h b/crypto/tcrypt.h
+> index 733d07e..050f852 100644
+> --- a/crypto/tcrypt.h
+> +++ b/crypto/tcrypt.h
+> @@ -31,7 +31,7 @@ struct hash_testvec {
+>  	char digest[MAX_DIGEST_SIZE];
+>  	unsigned char np;
+>  	unsigned char tap[MAX_TAP];
+> -	char key[128]; /* only used with keyed hash algorithms */
+> +	char key[128] __attribute__((__aligned__(4))); /* only used with keyed hash algorithms */
+>  	unsigned char ksize;
+>  };
+>  
+> @@ -48,7 +48,7 @@ struct hmac_testvec {
+>  struct cipher_testvec {
+>  	unsigned char fail;
+>  	unsigned char wk; /* weak key flag */
+> -	char key[MAX_KEYLEN];
+> +	char key[MAX_KEYLEN] __attribute__((__aligned__(4)));
+>  	unsigned char klen;
+>  	char iv[MAX_IVLEN];
+>  	char input[48];
 
-I suppose you tried the obvious tools (parsemce and maybe mcelog)...
+Wouldn't it be better to simply move this to the head of the structure?
 
-http://www.codemonkey.org.uk/projects/parsemce/
-ftp://ftp.x86-64.org/pub/linux-x86_64/tools/mcelog/
-
----
-~Randy
-Please use an email client that implements proper (compliant) threading.
-(You know who you are.)
+-- 
+Mathematics is the supreme nostalgia of our time.

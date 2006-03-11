@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752359AbWCKIPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752375AbWCKIUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752359AbWCKIPq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 03:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752360AbWCKIPq
+	id S1752375AbWCKIUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 03:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752069AbWCKIUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 03:15:46 -0500
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:37029 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751665AbWCKIPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 03:15:46 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-Date: Sat, 11 Mar 2006 19:15:32 +1100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org
-References: <200603102054.20077.kernel@kolivas.org> <200603111824.06274.kernel@kolivas.org> <1142063500.7605.13.camel@homer>
-In-Reply-To: <1142063500.7605.13.camel@homer>
+	Sat, 11 Mar 2006 03:20:53 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:59133 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1752375AbWCKIUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 03:20:53 -0500
+Message-ID: <44128861.20409@free.fr>
+Date: Sat, 11 Mar 2006 09:20:49 +0100
+From: Olivier Croquette <ocroquette@free.fr>
+User-Agent: Thunderbird 1.5 (Macintosh/20051025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: NFS client hangs under certain circumstances on SMP machine
+References: <5LjNF-1Q2-7@gated-at.bofh.it>
+In-Reply-To: <5LjNF-1Q2-7@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603111915.32748.kernel@kolivas.org>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 March 2006 18:51, Mike Galbraith wrote:
-> On Sat, 2006-03-11 at 18:24 +1100, Con Kolivas wrote:
-> > On Saturday 11 March 2006 17:00, Mike Galbraith wrote:
-> > > If you're creating a lot of traffic, I can see it causing problems.  I
-> > > was under the impression that you were doing minimal IO and absolutely
-> > > trivial CPU.  That's what didn't make sense to me to be clear.
-> >
-> > A lot of cpu would be easier to handle; it's using absolutely miniscule
-> > amounts of cpu. The IO is massive though (and seeky in nature), and
-> > reading from a swap partition seems particularly expensive in this
-> > regard.
->
-> There used to be a pages in flight 'restrictor plate' in there that
-> would have probably helped this situation at least a little.  But in any
-> case, it sounds like you'll have to find a way to submit the IO in itty
-> bitty synchronous pieces.
+Olivier Croquette wrote:
 
-Well the original code used to have an heuristic to decide how much to 
-prefetch at a time. It was considered opaque so I removed it. It made the 
-amount to prefetch proportional to amount of ram which is wrong of course 
-because it should depend more on swap partition read speed vs bus bandwidth 
-or something. 
+> However, when I regenerate the file under Windows again (ie. I overwrite
+> the old files), and I try to compile the files again under Linux, "make"
+> hangs simply in D state:
+> 
+> # ps aux | grep make
+> user 7177 0.0  0.0 1984 760 pts/1 D+ 16:13 0:00 make -f myMakefile
 
-This way of deciding based on cpu load works anyway but yet again seems 
-unpopular.
+I have upgraded to kernel 2.6.15 and it could not reproduce the problem 
+since.
 
-Cheers,
-Con
+Is it an effect of nfs-fix-client-hang-due-to-race-condition.patch?

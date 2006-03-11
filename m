@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751966AbWCKJvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752120AbWCKJwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751966AbWCKJvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 04:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWCKJvQ
+	id S1752120AbWCKJwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 04:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWCKJwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 04:51:16 -0500
-Received: from fiberbit.xs4all.nl ([213.84.224.214]:52459 "EHLO
-	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S1751966AbWCKJvP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 04:51:15 -0500
-Date: Sat, 11 Mar 2006 10:51:13 +0100
-From: Marco Roeland <marco.roeland@xs4all.nl>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MCE Errors, Bad CPU, Memory or Motherboard?
-Message-ID: <20060311095113.GA32274@fiberbit.xs4all.nl>
-References: <Pine.LNX.4.64.0603100642220.1165@p34>
+	Sat, 11 Mar 2006 04:52:40 -0500
+Received: from mailgate1.uni-kl.de ([131.246.120.5]:33454 "EHLO
+	mailgate1.uni-kl.de") by vger.kernel.org with ESMTP
+	id S1752120AbWCKJwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 04:52:40 -0500
+Date: Sat, 11 Mar 2006 10:52:30 +0100
+From: Eduard Bloch <edi@gmx.de>
+To: Dave Neuer <mr.fred.smoothie@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+Message-ID: <20060311095230.GA9024@debian>
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com> <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com> <1141928755.7599.0.camel@bip.parateam.prv> <161717d50603091222p34b45065xdb8507cbf8191a3d@mail.gmail.com> <20060311005453.GA1494@debian> <20060311091623.GB4087@DervishD>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603100642220.1165@p34>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060311091623.GB4087@DervishD>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday March 10th 2006 Justin Piszcz wrote:
-
-> This is the first time I have seen an MCE error, googling the EIP value at 
-> the time of the panic does not return any useful results.
+#include <hallo.h>
+* DervishD [Sat, Mar 11 2006, 10:16:23AM]:
+>     Hi Eduard :)
 > 
-> Does anyone know whether it is the CPU or MEMORY that is bad in this 
-> machine?  As it shows some problems with BANK4; however, if the CPU is 
-> bad, then it is possible to get all sorts of unpredictable results, right?
+>  * Eduard Bloch <edi@gmx.de> dixit:
+> > This is no longer funny, it is on the same level as drawing a line
+> > around the toilet box and saying: you cannot use it any longer, go
+> > and piss somewhere else even if you have to search two hours for a
+> > suitable place.
+> 
+>     No, it's not on the same level. It's on the same level as giving
+> your thesis draft to a comrade so he can study and pass his exams,
+> and in turn he publish the thesis as his and charge money for that.
+> 
+>     I don't want my work used by a corporation without giving any
+> modification under the same conditions under I published my work.
 
-If it's the memory you can try swapping RAM sticks or taking them out
-altogether, if you have more than one.
+Ehm, I think you are overlook a serious issue assuming that every touch
+of non-GPLed software immediately implies use and abuse of GPLed
+software. That is not what I am talking about! I talk about keeping
+compatible interfaces.
 
-Recently I saw these kind of MCE events also happen on a 3 year old
-Athlon 2000 machine, which was on 24/7. There it finally turned out that
-I ran an "athcool" program which enables powersaving mode on idle state.
-Although this saves energy and reduces the fan noise, switching back to
-work mode apparently wasn't fast enough anymore after these years. After
-disabling the powersaving the MCE errors were gone.
+But where do you draw the line between communication and abuse of
+other's work? What is the point of deliberate merge of interfaces with
+code if not throwing stones in ways of others? Going back to your
+comparison, it is like distributing your thesis with a following
+license:
 
-The difference between these MCE's on memory or on the ACPI powersaving
-(if you use that at all) is really simple to diagnose: for memory they
-will occur on a very busy system, whereas the powersaving errors will
-occur on a completely idle system.
+Noone ever making reference to my work is allowed to use the following
+words: <followed by a list of domain specific terms>. Invent your own
+words, but those are mine!!!!!1
 
-But you might have real hardware problems of course. Then use the usual
-routines: memtest(86), check the cooling, power surges, etc.
+Sounds childish? Exactly like GPLing interfaces is.
+
+> Binary driver can and will do harm if allowed.
+
+Welcome at the dark side. "Only the Sith deal in absolutes".
+
+Eduard.
+
 -- 
-Marco Roeland
+Captain John Sheridan: Delenn, I have been working up a good mad all day and I
+am NOT about to let you ruin it by agreeing with me!
+                                                 -- Quotes from Babylon 5 --

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWCKQMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWCKQPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWCKQMP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 11:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWCKQMP
+	id S1751216AbWCKQPa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 11:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWCKQPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 11:12:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45065 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751213AbWCKQMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 11:12:14 -0500
-Date: Sat, 11 Mar 2006 17:12:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Manu Abraham <abraham.manu@gmail.com>
-Cc: mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+	Sat, 11 Mar 2006 11:15:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:11655 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751216AbWCKQP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 11:15:29 -0500
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org, ambx1@neo.rr.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/media/dvb/bt8xx/dst_ca.c: fix 2 memory leaks
-Message-ID: <20060311161213.GS21864@stusta.de>
-References: <20060311151142.GP21864@stusta.de> <4412F27E.5090705@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4412F27E.5090705@gmail.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <4412F53B.5010309@drzeus.cx>
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx>
+	 <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx>
+	 <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx>
+	 <4412F53B.5010309@drzeus.cx>
+Content-Type: text/plain
+Date: Sat, 11 Mar 2006 17:15:21 +0100
+Message-Id: <1142093721.3055.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 11, 2006 at 07:53:34PM +0400, Manu Abraham wrote:
-> 
-> Yeah, it is better indeed. Would you mind if i schedule this for a 
-> little while later, since i have a couple of other fixes/additions as well ?
+On Sat, 2006-03-11 at 17:05 +0100, Pierre Ossman wrote:
+> Here is a patch for doing multi line modalias for PNP devices. This will
+> break udev, so that needs to be updated first.
 
-There's no need to hurry since the whole problem is only a small memory 
-leak in a very unlikely case.
 
-> Thanks,
-> Manu
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+how could this EVER be acceptable???
 

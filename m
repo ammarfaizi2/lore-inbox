@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWCKBEa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWCKBJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWCKBEa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 20:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWCKBEa
+	id S932359AbWCKBJU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 20:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWCKBJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 20:04:30 -0500
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:43208 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932359AbWCKBE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 20:04:29 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Subject: Re: [PATCH] -mm: Small schedule() optimization
-Date: Sat, 11 Mar 2006 12:00:26 +1100
-User-Agent: KMail/1.9.1
-Cc: ck@vds.kolivas.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <20060308175450.GA28763@rhlx01.fht-esslingen.de>
-In-Reply-To: <20060308175450.GA28763@rhlx01.fht-esslingen.de>
+	Fri, 10 Mar 2006 20:09:20 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:35816 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S932359AbWCKBJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 20:09:20 -0500
+Date: Fri, 10 Mar 2006 17:09:13 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Bernd Eckenfels <be-news06@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] Ocfs2 performance
+Message-ID: <20060311010913.GN27280@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060310002121.GJ27280@ca-server1.us.oracle.com> <E1FHWCm-0002rT-00@calista.inka.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603111200.27557.kernel@kolivas.org>
+In-Reply-To: <E1FHWCm-0002rT-00@calista.inka.de>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cc'ed Ingo since he's maintainer.
+On Fri, Mar 10, 2006 at 02:14:08AM +0100, Bernd Eckenfels wrote:
+> Mark Fasheh <mark.fasheh@oracle.com> wrote:
+> > Your hash sizes are still ridiculously large.
+> 
+> How long are those entries in the buckets kept?
+Shortly after the inode is destroyed. Basically the entries are "lock
+resources" which the DLM tracks. OCFS2 only ever gets lock objects attached
+to those resources. In OCFS2 the lock objects obey inode lifetimes. So the
+DLM can't purge the lock resources until OCFS2 destroys the inode, etc. If
+other nodes take locks on that resource and your local node is the "master"
+(as in, arbitrates access to the resource) it may stay around longer.
 
-On Thursday 09 March 2006 04:54, Andreas Mohr wrote:
-> Hello all,
->
-> I found that there's a possible small optimization right at the very
-> beginning of schedule():
->
->         if (likely(!current->exit_state)) {
->                 if (unlikely(in_atomic())) {
->
-> can be reversed into
->
->         if (unlikely(in_atomic())) {
->                 if (likely(!current->exit_state)) {
->
-> This is a Good Thing since it avoids having to evaluate both checks,
-> and both use current_thread_info() which has an inherent AGI stall risk on
-> x86 CPUs if it cannot be inter-mingled with other unrelated opcodes.
->
-> I'm a bit puzzled that this has not been done like that before.
-> Probably since the exit_state check got added as an after-thought...
-> Or did I miss some important reason here? (branch prediction??)
+> I mean if I untar a tree the files are only locked while extracted,
+> afterwards they are owner-less... (I must admint I dont understand ocfs2
+> very deeply, but maybe explaining why so many active locks need to be
+> cached might help to find an optimized way.
+Well, OCFS2 caches locks. That is, once you've gone to the DLM to acquire a
+lock at a given level, OCFS2 will just hold onto it and manage access to it
+until the locks needs to be upgraded or downgraded. This provides a very
+large performance increase over always asking the DLM for a new lock.
+Anyway, at the point that we've acquired the lock the first time, the file
+system isn't really forcing the dlm to hit the hash much.
 
-This looks good. See below.
+> > By the way, an interesting thing happened when I recently switched disk
+> > arrays - the fluctuations in untar times disappeared. The new array is much
+> > nicer, while the old one was basically Just A Bunch Of Disks. Also, sync
+> > times dropped dramatically.
+> 
+> Writeback Cache?
+Yep, and a whole slew of other nice features :)
+	--Mark
 
-> Patch against 2.6.16-rc5-mm3.
->
-> Thanks!
->
-> Signed-off-by: Andreas Mohr <andi@lisas.de>
->
->
-> --- linux-2.6.16-rc5-mm3/kernel/sched.c.orig	2006-03-08 18:36:58.000000000
-> +0100 +++ linux-2.6.16-rc5-mm3/kernel/sched.c	2006-03-08 18:39:55.000000000
-> +0100 @@ -3022,8 +3022,8 @@
->  	 * schedule() atomically, we ignore that path for now.
->  	 * Otherwise, whine if we are scheduling when we should not be.
->  	 */
-> -	if (likely(!current->exit_state)) {
-> -		if (unlikely(in_atomic())) {
-> +	if (unlikely(in_atomic())) {
-> +		if (likely(!current->exit_state)) {
-
-I suspect that once we're in_atomic() then we're no longer likely to 
-be !current->exit_state
-
-Probably better to just
-	if (unlikely(in_atomic())) {
-		if (!current->exit_state) {
-
-Ingo?
-
-Cheers,
-Con
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

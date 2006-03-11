@@ -1,60 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752299AbWCKC07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752298AbWCKC1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752299AbWCKC07 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 21:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752303AbWCKC07
+	id S1752298AbWCKC1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 21:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752304AbWCKC1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 21:26:59 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:61956 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S1752295AbWCKC06 (ORCPT
+	Fri, 10 Mar 2006 21:27:18 -0500
+Received: from [198.78.49.142] ([198.78.49.142]:1029 "EHLO gitlost.site")
+	by vger.kernel.org with ESMTP id S1752300AbWCKC1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 21:26:58 -0500
+	Fri, 10 Mar 2006 21:27:08 -0500
 From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 0/8] Intel I/O Acceleration Technology (I/OAT)
-Date: Fri, 10 Mar 2006 18:27:59 -0800
+Subject: [PATCH 6/8] [I/OAT] Rename cleanup_rbuf to tcp_cleanup_rbuf and make non-static
+Date: Fri, 10 Mar 2006 18:29:31 -0800
 To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060311022759.3950.58788.stgit@gitlost.site>
+Message-Id: <20060311022931.3950.41115.stgit@gitlost.site>
+In-Reply-To: <20060311022759.3950.58788.stgit@gitlost.site>
+References: <20060311022759.3950.58788.stgit@gitlost.site>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch series is the a full release of the Intel(R) I/O
-Acceleration Technology (I/OAT) for Linux.  It includes an in kernel API
-for offloading memory copies to hardware, a driver for the I/OAT DMA memcpy
-engine, and changes to the TCP stack to offload copies of received
-networking data to application space.
+Needed to be able to call tcp_cleanup_rbuf in tcp_input.c for I/OAT
 
-Changes from last weeks posting:
-  fixed return value from sysfs show functions as suggested by Joe Perches
-  code style fixes suggested by Andrew Morton, David Miller, and others
-  renamed anything related to pinning pages from lock/locked to pin/pinned
-  renamed ioatdma register read/write functions with less generic names
-  return a pinned list from dma_pin_iovec_pages instead of passing in a 
-	**dma_pinned_list
-  replaced all cb/CB symbol prefixes in ioatdma with ioat/IOAT,
-	CB was an abbreviation of an early code name
-  use set_page_dirty_lock instead of SetPageDirty pointed out by Andrew Morton
-  rename dma_async_try_early_copy to tcp_dma_try_early_copy and stop exporting
+Signed-off-by: Chris Leech <christopher.leech@intel.com>
+---
 
-I'll be focusing on reducing ifdefs and adding much needed comments, with
-another release early next week. 
+ include/net/tcp.h |    2 ++
+ net/ipv4/tcp.c    |   10 +++++-----
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-These changes apply to DaveM's net-2.6.17 tree as of commit
-32639ad6b7e3da27f233c0516471f0747f1178f5 ([SPARC]: Fixup SO_*SEC values on 32-bit sparc.)
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 610f66b..afc4b8a 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -296,6 +296,8 @@ extern int			tcp_rcv_established(struct 
+ 
+ extern void			tcp_rcv_space_adjust(struct sock *sk);
+ 
++extern void			tcp_cleanup_rbuf(struct sock *sk, int copied);
++
+ extern int			tcp_twsk_unique(struct sock *sk,
+ 						struct sock *sktw, void *twp);
+ 
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 4b0272c..9122520 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -936,7 +936,7 @@ static int tcp_recv_urg(struct sock *sk,
+  * calculation of whether or not we must ACK for the sake of
+  * a window update.
+  */
+-static void cleanup_rbuf(struct sock *sk, int copied)
++void tcp_cleanup_rbuf(struct sock *sk, int copied)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	int time_to_ack = 0;
+@@ -1085,7 +1085,7 @@ int tcp_read_sock(struct sock *sk, read_
+ 
+ 	/* Clean up data we have read: This will do ACK frames. */
+ 	if (copied)
+-		cleanup_rbuf(sk, copied);
++		tcp_cleanup_rbuf(sk, copied);
+ 	return copied;
+ }
+ 
+@@ -1219,7 +1219,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
+ 			}
+ 		}
+ 
+-		cleanup_rbuf(sk, copied);
++		tcp_cleanup_rbuf(sk, copied);
+ 
+ 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
+ 			/* Install new reader */
+@@ -1390,7 +1390,7 @@ skip_copy:
+ 	 */
+ 
+ 	/* Clean up data we have read: This will do ACK frames. */
+-	cleanup_rbuf(sk, copied);
++	tcp_cleanup_rbuf(sk, copied);
+ 
+ 	TCP_CHECK_TIMER(sk);
+ 	release_sock(sk);
+@@ -1852,7 +1852,7 @@ static int do_tcp_setsockopt(struct sock
+ 			    (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT) &&
+ 			    inet_csk_ack_scheduled(sk)) {
+ 				icsk->icsk_ack.pending |= ICSK_ACK_PUSHED;
+-				cleanup_rbuf(sk, 1);
++				tcp_cleanup_rbuf(sk, 1);
+ 				if (!(val & 1))
+ 					icsk->icsk_ack.pingpong = 1;
+ 			}
 
-They are available to pull from
-	git://198.78.49.142/~cleech/linux-2.6 ioat-2.6.17
-
-There are 8 patches in the series:
-	1) The memcpy offload APIs and class code
-	2) The Intel I/OAT DMA driver (ioatdma)
-	3) Core networking code to setup networking as a DMA memcpy client
-	4) Utility functions for sk_buff to iovec offloaded copy
-	5) Structure changes needed for TCP receive offload
-	6) Rename cleanup_rbuf to tcp_cleanup_rbuf
-	7) Add a sysctl to tune the minimum offloaded I/O size for TCP
-	8) The main TCP receive offload changes
-
---
-Chris Leech <christopher.leech@intel.com>
-I/O Acceleration Technology Software Development
-LAN Access Division / Digital Enterprise Group 

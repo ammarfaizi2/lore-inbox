@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWCKBhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWCKBmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWCKBhX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 20:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWCKBhW
+	id S932367AbWCKBmo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 20:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWCKBmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 20:37:22 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:12549 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932366AbWCKBhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 20:37:22 -0500
-Date: Sat, 11 Mar 2006 02:37:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: maintainers@chelsio.com
-Cc: jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: drivers/net/chelsio/sge.c: two array overflows
-Message-ID: <20060311013720.GG21864@stusta.de>
-MIME-Version: 1.0
+	Fri, 10 Mar 2006 20:42:44 -0500
+Received: from soohrt.org ([85.131.246.150]:6301 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S932367AbWCKBmo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 20:42:44 -0500
+Date: Sat, 11 Mar 2006 02:42:42 +0100
+From: Horst Schirmeier <horst@schirmeier.com>
+To: Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] usbcore: fix check_ctrlrecip to allow control transfers in state ADDRESS
+Message-ID: <20060311014242.GQ22994@quickstop.soohrt.org>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker spotted the following two array overflows in 
-drivers/net/chelsio/sge.c (in both cases, the arrays contain 3 elements):
+check_ctrlrecip() disallows any control transfers if the device is
+deconfigured (in configuration 0, ie. state ADDRESS). This for example
+makes it impossible to read the device descriptors without configuring
+the device, although most standard device requests are allowed in this
+state by the spec. This patch allows control transfers for the ADDRESS
+state, too.
 
-<--  snip  -->
+Signed-off-by: Horst Schirmeier <horst@schirmeier.com> 
 
-...
-static void restart_tx_queues(struct sge *sge)
-{
-...
-                                sge->stats.cmdQ_restarted[3]++;
-...
-static int t1_sge_tx(struct sk_buff *skb, struct adapter *adapter,
-                     unsigned int qid, struct net_device *dev)
-{
-...
-                        sge->stats.cmdQ_full[3]++;
-...
+---
 
-<--  snip  -->
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+index 2b68998..3461476 100644
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -498,7 +498,8 @@ static int check_ctrlrecip(struct dev_st
+ {
+ 	int ret = 0;
+ 
+-	if (ps->dev->state != USB_STATE_CONFIGURED)
++	if (ps->dev->state != USB_STATE_ADDRESS
++	 && ps->dev->state != USB_STATE_CONFIGURED)
+ 		return -EHOSTUNREACH;
+ 	if (USB_TYPE_VENDOR == (USB_TYPE_MASK & requesttype))
+ 		return 0;

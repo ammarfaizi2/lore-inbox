@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWCKMeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWCKMtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWCKMeU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 07:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWCKMeU
+	id S1751433AbWCKMtR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 07:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWCKMtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 07:34:20 -0500
-Received: from lana.hrz.tu-chemnitz.de ([134.109.132.3]:51620 "EHLO
-	lana.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S1750858AbWCKMeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 07:34:19 -0500
-Date: Sat, 11 Mar 2006 13:34:16 +0100
-From: Steffen Klassert <klassert@mathematik.tu-chemnitz.de>
-To: linux-kernel@vger.kernel.org
-Cc: bjorn.helgaas@hp.com, jgarzik@pobox.com, mm-commits@vger.kernel.org
-Subject: Re: + eisa-tidy-up-driver_register-return-value.patch added to -mm tree
-Message-ID: <20060311123416.GB19157@bayes.mathematik.tu-chemnitz.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com,
-	jgarzik@pobox.com, mm-commits@vger.kernel.org
-References: <200603022346.k22NktbJ015140@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603022346.k22NktbJ015140@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: --- Start der SpamAssassin 3.1.0 Textanalyse (-1.4 Punkte)
-	Fragen an/questions to:  Postmaster TU Chemnitz <postmaster@tu-chemnitz.de>
-	-1.4 ALL_TRUSTED            Nachricht wurde nur ueber vertrauenswuerdige Rechner
-	weitergeleitet
-	--- Ende der SpamAssassin Textanalyse
-X-Scan-Signature: 85efea2434610bb461976c4d7ea3ef3f
+	Sat, 11 Mar 2006 07:49:17 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:58033 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751433AbWCKMtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 07:49:16 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Jun OKAJIMA <okajima@digitalinfra.co.jp>
+Subject: Re: Faster resuming of suspend technology.
+Date: Sat, 11 Mar 2006 22:46:42 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200603111722.05341.ncunningham@cyclades.com> <200603111217.AA00804@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
+In-Reply-To: <200603111217.AA00804@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart7992321.3ycRaWJRKI";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603112246.47596.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2006 at 03:49:10PM -0800, akpm@osdl.org wrote:
+--nextPart7992321.3ycRaWJRKI
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-...
+Hi.
 
-> 
-> From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> 
-> Remove the assumption that driver_register() returns the number of devices
-> bound to the driver.  In fact, it returns zero for success or a negative
-> error value.
-> 
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> Cc: Jeff Garzik <jgarzik@pobox.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+On Saturday 11 March 2006 22:17, Jun OKAJIMA wrote:
+> >My version doesn't have this problem by default, because it saves a full
+> > image of memory unless the user explicitly sets a (soft) upper limit on
+> > the image size. The image is stored as contiguously as available storage
+> > allows, so rereading it quickly isn't so much of an issue (and far less
+> > of an issue than discarding the memory before suspending and faulting it
+> > back in from all over the place afterwards).
+>
+> Yes, right. In your way, there is no thrashing. but it slows booting.
+> I mean, there is a trade-off between booting and after booted.
+> But, what people would want is always both, not either.
 
-...
+I don't understand what you're saying. In particular, I'm not sure why/how =
+you=20
+think suspend functionality slows booting or what the tradeoff is "between=
+=20
+booting and after booted".
 
-> diff -puN drivers/net/3c59x.c~eisa-tidy-up-driver_register-return-value drivers/net/3c59x.c
-> --- 25/drivers/net/3c59x.c~eisa-tidy-up-driver_register-return-value	Thu Mar  2 15:48:23 2006
-> +++ 25-akpm/drivers/net/3c59x.c	Thu Mar  2 15:48:23 2006
-> @@ -1094,9 +1094,11 @@ static int __init vortex_eisa_init (void
->  {
->  	int eisa_found = 0;
->  	int orig_cards_found = vortex_cards_found;
-> +	int err;
->  
->  #ifdef CONFIG_EISA
-> -	if (eisa_driver_register (&vortex_eisa_driver) >= 0) {
-> +	err = eisa_driver_register (&vortex_eisa_driver);
-> +	if (!err) {
->  			/* Because of the way EISA bus is probed, we cannot assume
->  			 * any device have been found when we exit from
->  			 * eisa_driver_register (the bus root driver may not be
+> Especially, your way has problem if you boot( resume ) not from HDD
+> but for example, from NFS server or CD-R or even from Internet.
 
+Resuming from the internet? Scary. Anyway, I hope I'll understand better wh=
+at=20
+you're getting at after your next reply.
 
-This results in
+> >That said, work has already been done along the lines that you're
+> > describing. You might, for example, look at the OLS papers from last
+> > year. There was a paper there describing work on almost exactly what
+> > you're describing.
+>
+> Could I have URL or title of the paper?
 
-drivers/net/3c59x.c: In function `vortex_eisa_init':
-drivers/net/3c59x.c:1091: warning: unused variable `err'
+http://www.linuxsymposium.org/2005/. I don't recall the title now, sorry, a=
+nd=20
+can't tell you whether it's in volume 1 or 2 of the proceedings, but I'm su=
+re=20
+it will stick out like a sore thumb.
 
-if CONFIG_EISA is not defined.
+Regards,
+
+Nigel
+
+--nextPart7992321.3ycRaWJRKI
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEEsa3N0y+n1M3mo0RAoJ4AKCWoUZRpmOv2pniRpRAfor8GmJBLwCcDy4K
+WDbQ8jlalW8fN6Uvb4Di15k=
+=X9R+
+-----END PGP SIGNATURE-----
+
+--nextPart7992321.3ycRaWJRKI--

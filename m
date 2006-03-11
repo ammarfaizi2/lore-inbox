@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752317AbWCKClc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752327AbWCKCvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752317AbWCKClc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 21:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752320AbWCKClc
+	id S1752327AbWCKCvj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 21:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751564AbWCKCvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 21:41:32 -0500
-Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:20238
+	Fri, 10 Mar 2006 21:51:39 -0500
+Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:47886
 	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
-	id S1752315AbWCKClb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 21:41:31 -0500
-Date: Sat, 11 Mar 2006 13:41:16 +1100
-To: Adrian Bunk <bunk@stusta.de>
-Cc: davem@davemloft.net, linux-crypto@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] crypto/aes.c: array overrun
-Message-ID: <20060311024116.GA21856@gondor.apana.org.au>
-References: <20060311010339.GF21864@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060311010339.GF21864@stusta.de>
-User-Agent: Mutt/1.5.9i
+	id S1751541AbWCKCvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 21:51:38 -0500
 From: Herbert Xu <herbert@gondor.apana.org.au>
+To: bunk@stusta.de (Adrian Bunk)
+Subject: Re: [2.6 patch] net/decnet/dn_route.c: fix inconsequent NULL checking
+Cc: patrick@tykepenguin.com, linux-decnet-user@lists.sourceforge.net,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20060310230233.GB21864@stusta.de>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1FHuCW-0005k2-00@gondolin.me.apana.org.au>
+Date: Sat, 11 Mar 2006 13:51:28 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 11, 2006 at 02:03:39AM +0100, Adrian Bunk wrote:
->
-> ...
-> #define loop8(i)                                    \
-
-...
-
->     t ^= E_KEY[8 * i + 7]; E_KEY[8 * i + 15] = t;   \
-> }
+Adrian Bunk <bunk@stusta.de> wrote:
+> The Coverity checker noted this inconsequent NULL checking in
+> dnrt_drop().
 > 
-> static int
-> aes_set_key(void *ctx_arg, const u8 *in_key, unsigned int key_len, u32 *flags)
-> {
-> ...
->         case 32:
-> ...
->                 for (i = 0; i < 7; ++i)
->                         loop8 (i);
+> Since all callers ensure that NULL isn't passed, we can simply remove 
+> the check.
 
-OK this is not pretty but it is actually correct.  Notice how we only
-overstep the mark for E_KEY but never for D_KEY.  Since D_KEY is only
-initialised after this, it is OK for us to trash the start of D_KEY.
+Ack.
 
-It's just a trick that makes the code slightly nicer (and no I didn't
-write this nor am I necessarily condoning it :)
-
-Thanks for reporting this though.
+In fact it's pointless even if the caller didn't check as dst_release
+checks it anyway.
 
 Cheers,
 -- 

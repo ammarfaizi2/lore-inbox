@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWCKDnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWCKDm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWCKDnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 22:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWCKDnX
+	id S932143AbWCKDm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 22:42:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWCKDm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 22:43:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50949 "HELO
+	Fri, 10 Mar 2006 22:42:59 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49669 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932373AbWCKDnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 22:43:10 -0500
-Date: Sat, 11 Mar 2006 04:43:10 +0100
+	id S932143AbWCKDm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 22:42:58 -0500
+Date: Sat, 11 Mar 2006 04:42:58 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: perex@suse.cz
-Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sound/core/: fix 3 off-by-one errors
-Message-ID: <20060311034310.GK21864@stusta.de>
+To: yi.zhu@intel.com, jketreno@linux.intel.com
+Cc: netdev@vger.kernel.org, linville@tuxdriver.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/wireless/ipw2200.c: fix an array overun
+Message-ID: <20060311034258.GJ21864@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,46 +23,23 @@ User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes three off-by-one errors found by the Coverity checker.
+This patch fixes a big array overun found by the Coverity checker.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
----
-
- sound/core/sound.c     |    4 ++--
- sound/core/sound_oss.c |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
---- linux-2.6.16-rc5-mm3-full/sound/core/sound.c.old	2006-03-11 03:03:04.000000000 +0100
-+++ linux-2.6.16-rc5-mm3-full/sound/core/sound.c	2006-03-11 03:04:59.000000000 +0100
-@@ -121,7 +121,7 @@ void *snd_lookup_minor_data(unsigned int
- 	struct snd_minor *mreg;
- 	void *private_data;
- 
--	if (minor > ARRAY_SIZE(snd_minors))
-+	if (minor >= ARRAY_SIZE(snd_minors))
- 		return NULL;
- 	mutex_lock(&sound_mutex);
- 	mreg = snd_minors[minor];
-@@ -140,7 +140,7 @@ static int snd_open(struct inode *inode,
- 	const struct file_operations *old_fops;
- 	int err = 0;
- 
--	if (minor > ARRAY_SIZE(snd_minors))
-+	if (minor >= ARRAY_SIZE(snd_minors))
- 		return -ENODEV;
- 	mptr = snd_minors[minor];
- 	if (mptr == NULL) {
---- linux-2.6.16-rc5-mm3-full/sound/core/sound_oss.c.old	2006-03-11 03:05:48.000000000 +0100
-+++ linux-2.6.16-rc5-mm3-full/sound/core/sound_oss.c	2006-03-11 03:06:01.000000000 +0100
-@@ -46,7 +46,7 @@ void *snd_lookup_oss_minor_data(unsigned
- 	struct snd_minor *mreg;
- 	void *private_data;
- 
--	if (minor > ARRAY_SIZE(snd_oss_minors))
-+	if (minor >= ARRAY_SIZE(snd_oss_minors))
- 		return NULL;
- 	mutex_lock(&sound_oss_mutex);
- 	mreg = snd_oss_minors[minor];
+--- linux-2.6.16-rc5-mm3-full/drivers/net/wireless/ipw2200.c.old	2006-03-11 02:41:23.000000000 +0100
++++ linux-2.6.16-rc5-mm3-full/drivers/net/wireless/ipw2200.c	2006-03-11 02:42:04.000000000 +0100
+@@ -9956,9 +9956,8 @@ static int ipw_ethtool_set_eeprom(struct
+ 		return -EINVAL;
+ 	mutex_lock(&p->mutex);
+ 	memcpy(&p->eeprom[eeprom->offset], bytes, eeprom->len);
+-	for (i = IPW_EEPROM_DATA;
+-	     i < IPW_EEPROM_DATA + IPW_EEPROM_IMAGE_SIZE; i++)
+-		ipw_write8(p, i, p->eeprom[i]);
++	for (i = 0; i < IPW_EEPROM_IMAGE_SIZE; i++)
++		ipw_write8(p, i + IPW_EEPROM_DATA, p->eeprom[i]);
+ 	mutex_unlock(&p->mutex);
+ 	return 0;
+ }
 

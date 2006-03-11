@@ -1,66 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWCKDsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWCKDur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWCKDsA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 22:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWCKDsA
+	id S932396AbWCKDur (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 22:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWCKDur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 22:48:00 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:12271 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932395AbWCKDr7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 22:47:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=lvRe0dBP8ZJoIIrIFZxyc6WwZQmg0T/TvAM/6oKng7rn1XwgOcNxt4xINFdvdAicWUCYTd/ab7jhaH4NDvBSH1hvlwFFsT/F9A7ULcIDaDQjHFrsfLMqaAgf4lyx9hq/WFS3dYkKZMwnMfrLMqwG2bk1toql8grsF9CkGE3RwMc=
-Date: Sat, 11 Mar 2006 12:47:54 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ahci: fix NULL pointer dereference detected by Coverity
-Message-ID: <20060311034754.GA31198@htj.dyndns.org>
-References: <20060310193414.GT21864@stusta.de>
+	Fri, 10 Mar 2006 22:50:47 -0500
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:9694 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932396AbWCKDur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 22:50:47 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
+Date: Sat, 11 Mar 2006 14:50:38 +1100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+References: <200603102054.20077.kernel@kolivas.org> <20060310143545.74a9a92a.akpm@osdl.org>
+In-Reply-To: <20060310143545.74a9a92a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060310193414.GT21864@stusta.de>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603111450.39305.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix NULL pointer dereference detected by the Coverity checker.  Kill
-dev -> pdev -> dev conversion while at it.
+On Saturday 11 March 2006 09:35, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > +	/*
+> > +	 * get_page_state is super expensive so we only perform it every
+> > +	 * SWAP_CLUSTER_MAX prefetched_pages.
+>
+> nr_running() is similarly expensive btw.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>
+Yes which is why I do it just as infrequently as get_page_state.
+>
+> > 	 * We also test if we're the only
+> > +	 * task running anywhere. We want to have as little impact on all
+> > +	 * resources (cpu, disk, bus etc). As this iterates over every cpu
+> > +	 * we measure this infrequently.
+> > +	 */
+> > +	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
+> > +		unsigned long cpuload = nr_running();
+> > +
+> > +		if (cpuload > 1)
+> > +			goto out;
+>
+> Sorry, this is just wrong.  If swap prefetch is useful then it's also
+> useful if some task happens to be sitting over in the corner calculating
+> pi.
+>
+> What's the actual problem here?  Someone's 3d game went blippy?  Why?  How
+> much?  Are we missing a cond_resched()?
 
---- a/drivers/scsi/ahci.c
-+++ b/drivers/scsi/ahci.c
-@@ -778,23 +778,17 @@ static irqreturn_t ahci_interrupt (int i
- 			struct ata_queued_cmd *qc;
- 			qc = ata_qc_from_tag(ap, ap->active_tag);
- 			if (!ahci_host_intr(ap, qc))
--				if (ata_ratelimit()) {
--					struct pci_dev *pdev =
--						to_pci_dev(ap->host_set->dev);
--					dev_printk(KERN_WARNING, &pdev->dev,
-+				if (ata_ratelimit())
-+					dev_printk(KERN_WARNING, host_set->dev,
- 					  "unhandled interrupt on port %u\n",
- 					  i);
--				}
- 
- 			VPRINTK("port %u\n", i);
- 		} else {
- 			VPRINTK("port %u (no irq)\n", i);
--			if (ata_ratelimit()) {
--				struct pci_dev *pdev =
--					to_pci_dev(ap->host_set->dev);
--				dev_printk(KERN_WARNING, &pdev->dev,
-+			if (ata_ratelimit())
-+				dev_printk(KERN_WARNING, host_set->dev,
- 					"interrupt on disabled port %u\n", i);
--			}
- 		}
- 
- 		irq_ack |= (1 << i);
+No, it's pretty easy to reproduce, kprefetchd sits there in uninterruptible 
+sleep with one cpu on SMP pegged at 100% iowait due to it. This tends to have 
+noticeable effects everywhere on HT or SMP. On UP the yielding helped it but 
+even then it still causes blips. How much? Well to be honest it's noticeable 
+a shipload. Running a game, any game, that uses 100% (and most fancy games 
+do) causes stuttering on audio, pauses and so on. This is evident on linux 
+native games, games under emulators or qemu and so on. That iowait really 
+hurts, and tweaking just priority doesn't help it in any way.
+
+With this change it's much more polite and takes a bit longer to complete 
+prefetching but is still effective while no longer being noticeable.
+
+> > +		cpuload += nr_uninterruptible();
+> > +		if (cpuload > 1)
+> > +			goto out;
+>
+> Not sure about this either.
+
+Same as above. It's the tasks in uninterruptible sleep that cause the most 
+harm. I do it sequentially simply because nr_running() is more likely to be 
+>1 than the sum total, and I'd prefer not to do nr_uninterruptible() unless 
+it's necessary. Both of these are actually done lockless though.
+
+> > +		if (ns->last_free) {
+> > +			if (ns->current_free + SWAP_CLUSTER_MAX <
+> > +				ns->last_free) {
+> > +					ns->last_free = ns->current_free;
+> >  					node_clear(node,
+> >  						sp_stat.prefetch_nodes);
+> >  					continue;
+> >  			}
+> >  		} else
+>
+> That has an extra tabstop.
+
+Hrm. 3 years on and I still make basi style mistakes.
+
+Cheers,
+Con

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWCKECE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWCKEB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbWCKECE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 23:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWCKECE
+	id S932406AbWCKEB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 23:01:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWCKEB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 23:02:04 -0500
-Received: from xenotime.net ([66.160.160.81]:22428 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932401AbWCKECC (ORCPT
+	Fri, 10 Mar 2006 23:01:59 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:39142 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932400AbWCKEB6 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 23:02:02 -0500
-Date: Fri, 10 Mar 2006 20:03:50 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: tim@cyberelk.net, linux-parport@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/paride/pd.c: fix an off-by-one
-Message-Id: <20060310200350.11127467.rdunlap@xenotime.net>
-In-Reply-To: <20060311034253.GI21864@stusta.de>
-References: <20060311034253.GI21864@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Fri, 10 Mar 2006 23:01:58 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [2.6 patch] drivers/acpi/video.c: fix a NULL pointer dereference
+Date: Fri, 10 Mar 2006 23:00:45 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3006596EE5@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] drivers/acpi/video.c: fix a NULL pointer dereference
+Thread-Index: AcZEZYSn9XOpjHvVQ8+UleFCkh0PYQAWrviw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 11 Mar 2006 04:00:47.0572 (UTC) FILETIME=[60D68940:01C644C0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Mar 2006 04:42:53 +0100 Adrian Bunk wrote:
 
-> The Coverity checker found this off-by-one error.
+>The Coverity checker spotted this obvious bug in 
+>acpi_video_device_lcd_query_levels().
+>
+>
+>
+>Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+>--- linux-2.6.16-rc5-mm3-full/drivers/acpi/video.c.old	
+>2006-03-10 18:04:18.000000000 +0100
+>+++ linux-2.6.16-rc5-mm3-full/drivers/acpi/video.c	
+>2006-03-10 18:04:33.000000000 +0100
+>@@ -321,11 +321,11 @@ acpi_video_device_lcd_query_levels(struc
 > 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.16-rc5-mm3-full/drivers/block/paride/pd.c.old	2006-03-11 02:07:21.000000000 +0100
-> +++ linux-2.6.16-rc5-mm3-full/drivers/block/paride/pd.c	2006-03-11 02:07:50.000000000 +0100
-> @@ -275,7 +275,7 @@
->  	int i;
->  
->  	printk("%s: %s: status = 0x%x =", disk->name, msg, status);
-> -	for (i = 0; i < 18; i++)
-> +	for (i = 0; i < 17; i++)
->  		if (status & (1 << i))
->  			printk(" %s", pd_errs[i]);
->  	printk("\n");
+> 	status = acpi_evaluate_object(device->handle, "_BCL", 
+>NULL, &buffer);
+> 	if (!ACPI_SUCCESS(status))
+> 		return_VALUE(status);
+> 	obj = (union acpi_object *)buffer.pointer;
+>-	if (!obj && (obj->type != ACPI_TYPE_PACKAGE)) {
+>+	if (obj && (obj->type != ACPI_TYPE_PACKAGE)) {
 
-Please use ARRAY_SIZE(pd_errs)
-and #include <linux/kernel.h>
+how about
++	if (!obj || (obj->type != ACPI_TYPE_PACKAGE)) {
 
----
-~Randy
-Please use an email client that implements proper (compliant) threading.
-(You know who you are.)
+> 		ACPI_ERROR((AE_INFO, "Invalid _BCL data"));
+> 		status = -EFAULT;
+> 		goto err;
+> 	}
+> 
+>

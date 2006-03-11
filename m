@@ -1,111 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751946AbWCKHnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751998AbWCKHoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751946AbWCKHnT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 02:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWCKHnT
+	id S1751998AbWCKHoO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 02:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752060AbWCKHoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 02:43:19 -0500
-Received: from mail.gmx.de ([213.165.64.20]:19885 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751946AbWCKHnS (ORCPT
+	Sat, 11 Mar 2006 02:44:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64411 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751998AbWCKHoM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 02:43:18 -0500
-X-Authenticated: #14349625
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org
-In-Reply-To: <200603111820.35780.kernel@kolivas.org>
-References: <200603102054.20077.kernel@kolivas.org>
-	 <1142056851.7819.54.camel@homer> <1142057114.7819.57.camel@homer>
-	 <200603111820.35780.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Sat, 11 Mar 2006 08:44:14 +0100
-Message-Id: <1142063055.7605.6.camel@homer>
+	Sat, 11 Mar 2006 02:44:12 -0500
+Date: Fri, 10 Mar 2006 23:41:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: garloff@suse.de, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] KERN_SETUID_DUMPABLE in /proc/sys/fs/
+Message-Id: <20060310234155.685456cd.akpm@osdl.org>
+In-Reply-To: <1142061816.3055.6.camel@laptopd505.fenrus.org>
+References: <20060310155738.GL5766@tpkurt.garloff.de>
+	<20060310145605.08bf2a67.akpm@osdl.org>
+	<1142061816.3055.6.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-11 at 18:20 +1100, Con Kolivas wrote:
-> On Saturday 11 March 2006 17:05, Mike Galbraith wrote:
-> > On Sat, 2006-03-11 at 07:00 +0100, Mike Galbraith wrote:
-> > > On Sat, 2006-03-11 at 16:50 +1100, Con Kolivas wrote:
-> > > > On Saturday 11 March 2006 16:33, Mike Galbraith wrote:
-> > > > > On Sat, 2006-03-11 at 14:50 +1100, Con Kolivas wrote:
-> > > > > > On Saturday 11 March 2006 09:35, Andrew Morton wrote:
-> > > > > > > Con Kolivas <kernel@kolivas.org> wrote:
-> > > > > > > > +	/*
-> > > > > > > > +	 * get_page_state is super expensive so we only perform it
-> > > > > > > > every +	 * SWAP_CLUSTER_MAX prefetched_pages.
-> > > > > > >
-> > > > > > > nr_running() is similarly expensive btw.
-> > > > > >
-> > > > > > Yes which is why I do it just as infrequently as get_page_state.
-> > > > > >
-> > > > > > > > 	 * We also test if we're the only
-> > > > > > > > +	 * task running anywhere. We want to have as little impact on
-> > > > > > > > all +	 * resources (cpu, disk, bus etc). As this iterates over
-> > > > > > > > every cpu +	 * we measure this infrequently.
-> > > > > > > > +	 */
-> > > > > > > > +	if (!(sp_stat.prefetched_pages % SWAP_CLUSTER_MAX)) {
-> > > > > > > > +		unsigned long cpuload = nr_running();
-> > > > > > > > +
-> > > > > > > > +		if (cpuload > 1)
-> > > > > > > > +			goto out;
-> > > > > > >
-> > > > > > > Sorry, this is just wrong.  If swap prefetch is useful then it's
-> > > > > > > also useful if some task happens to be sitting over in the corner
-> > > > > > > calculating pi.
-> > > > > > >
-> > > > > > > What's the actual problem here?  Someone's 3d game went blippy? 
-> > > > > > > Why? How much?  Are we missing a cond_resched()?
-> > > > > >
-> > > > > > No, it's pretty easy to reproduce, kprefetchd sits there in
-> > > > > > uninterruptible sleep with one cpu on SMP pegged at 100% iowait due
-> > > > > > to it. This tends to have noticeable effects everywhere on HT or
-> > > > > > SMP. On UP the yielding helped it but even then it still causes
-> > > > > > blips. How much? Well to be honest it's noticeable a shipload.
-> > > > > > Running a game, any game, that uses 100% (and most fancy games do)
-> > > > > > causes stuttering on audio, pauses and so on. This is evident on
-> > > > > > linux native games, games under emulators or qemu and so on. That
-> > > > > > iowait really hurts, and tweaking just priority doesn't help it in
-> > > > > > any way.
-> > > > >
-> > > > > That doesn't really make sense to me.  If a task can trigger audio
-> > > > > dropout and stalls by sleeping, we have a serious problem.  In your
-> > > > > SMP/HT case, I'd start crawling over the load balancing code.  I
-> > > > > can't see how trivial CPU with non-saturated IO can cause dropout in
-> > > > > the UP case either.  Am I missing something?
-> > > >
-> > > > Clearly you, me and everyone else is missing something. I see it with
-> > > > each task bound to one cpu with cpu affinity so it's not a balancing
-> > > > issue. Try it yourself if you can instead of not believing me. Get a
-> > > > big dd reader (virtually no cpu and all io wait sleep) on one cpu and
-> > > > try and play a game on the other cpu. It dies rectally.
+Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> On Fri, 2006-03-10 at 14:56 -0800, Andrew Morton wrote:
+> > Kurt Garloff <garloff@suse.de> wrote:
 > > >
-> > > I said it didn't make sense to me, not that I didn't believe you.  If I
-> > > had a real SMP box, I would look into it, but all I have is HT.
-> > >
-> > > If you're creating a lot of traffic, I can see it causing problems.  I
-> > > was under the impression that you were doing minimal IO and absolutely
-> > > trivial CPU.  That's what didn't make sense to me to be clear.
+> > > Diffing in sysctl.c is tricky, using more context is recommended.
+> > > suid_dumpable ended up in fs/ instead of kernel/ and the reason
+> > > is likely a patch with too little context.
+> > 
+> > It's been in kernel/ since 2.6.13.  What will break if we move it?
+> > 
+> > This is security-related.  If we move it we risk unsecuring people's
+> > machines...
 > 
-> > P.S.  If it's hefty IO, it makes sense, and having the ability to do PIO
-> > instead of DMA would be probably help.
-> 
-> That would probably be worse, because then it would use much more cpu in the 
-> form of kernel context time and not be attributed to kprefetchd at all. 
-> Anyway this is clearly not a workaround (yes I do know you weren't promoting 
-> it as such).
+> only a very little bit since the default value is "secure", the option
+> is to make it "insecure"...
 
-Substitute PIO with trickle mode IO, which we don't have an AFAIK.
-Point was, if it's hefty IO, the problem is likely DMA, so what you'd
-need to do is prevent the IO from being consolidated into mondo blocks
-of DMA==bus contention.  Doing that via yield or whatever would be the
-wrong approach to the problem.
+OK, that's a good point.
 
-	-Mike
+> but yeah by this time we should just bite the bullet and rename the
+> variable rather than move it about
 
+That wouldn't help - we'll still break existing scripts.
+
+crap.  I tend to think we leave it where it is - it's only a cosmetic
+irritation, isn't it?

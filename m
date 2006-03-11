@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWCKEfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWCKEyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWCKEfE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 23:35:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWCKEfE
+	id S932447AbWCKEyu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 23:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWCKEyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 23:35:04 -0500
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:32669 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932423AbWCKEfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 23:35:02 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-Date: Sat, 11 Mar 2006 15:34:52 +1100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       ck@vds.kolivas.org
-References: <200603102054.20077.kernel@kolivas.org> <200603111518.46474.kernel@kolivas.org> <441251DD.8080704@bigpond.net.au>
-In-Reply-To: <441251DD.8080704@bigpond.net.au>
+	Fri, 10 Mar 2006 23:54:50 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:34423 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932447AbWCKEyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 23:54:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Ro1yFeQBtmUgr3n9hq90OEIq4itJtNZOHsEuLSxAygQlYpZ8hYO00QK+rOoIe9dXoI13H+oAr/vzGjKNLb887UH2AjWXvswMO+oIBjw99FzQ2QgNgjW2dyandCV+ndSpuz8951gywemU+o7RSGDRsmuWlZDMATuqvCVFZ1ofs6M=  ;
+Message-ID: <44125812.1090408@yahoo.com.au>
+Date: Sat, 11 Mar 2006 15:54:42 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Nick Piggin <npiggin@suse.de>
+CC: gerg@uclinux.org, Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Howells <dhowells@redhat.com>
+Subject: Re: [patch][rfc] nommu: reverse mappings for nommu to solve get_user_pages
+ problem
+References: <20060311032606.GK26501@wotan.suse.de>
+In-Reply-To: <20060311032606.GK26501@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603111534.53220.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 March 2006 15:28, Peter Williams wrote:
-> Con Kolivas wrote:
-> > Because despite what anyone seems to want to believe, reading from disk
-> > hurts. Why it hurts so much I'm not really sure, but it's not a SCSI vs
-> > IDE with or without DMA issue. It's not about tweaking parameters. It
-> > doesn't seem to be only about cpu cycles. This is not a mistuned system
-> > that it happens on. It just plain hurts if we do lots of disk i/o,
-> > perhaps it's saturating the bus or something. Whatever it is, as much as
-> > I'd _like_ swap prefetch to just keep working quietly at ultra ultra low
-> > priority, the disk reads that swap prefetch does are not innocuous so I
-> > really do want them to only be done when nothing else wants cpu.
+Nick Piggin wrote:
 
-I didn't make it clear here the things affected are not even doing any I/O of 
-their own. It's not about I/O resource allocation. However they are using 
-100% cpu and probably doing a lot of gpu bus traffic.
+>  int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
+>  	unsigned long start, int len, int write, int force,
+>  	struct page **pages, struct vm_area_struct **vmas)
+>  {
+>  	int i;
+> -	static struct vm_area_struct dummy_vma;
+> +	struct page *__page;
+> +	static struct vm_area_struct *__vma;
+> +	unsigned long addr = start;
+>  
+>  	for (i = 0; i < len; i++) {
+> +		__vma = find_vma(mm, addr);
+> +		if (!__vma)
+> +			goto out_failed;
+> +
+> +		__page = virt_to_page(addr);
+> +		if (!__page)
+> +			goto out_failed;
+> +
+> +		BUG_ON(page_vma(__page) != __vma);
+> +
 
-> Would you like to try a prototype version of the soft caps patch I'm
-> working on to see if it will help?
+Actually this check is leftover from a previous version. I think it
+needs to be removed.
 
-What happens if it's using .01% cpu and spends most of its time in 
-uninterruptible sleep?
+>  		if (pages) {
+> -			pages[i] = virt_to_page(start);
+> -			if (pages[i])
+> -				page_cache_get(pages[i]);
+> +			if (!__page->mapping) {
+> +				printk(KERN_INFO "get_user_pages on unaligned"
+> +						"anonymous page unsupported\n");				dump_stack();
+> +				goto out_failed;
+> +			}
+> +
 
-Cheers,
-Con
+And this could trigger for file-backed pages that have been truncated meanwhile
+I think. It wouldn't be a problem for a simple test-run, but does need to be
+reworked slightly in order to be correct. Sub-page anonymous mappings cause a
+lot of headaches :)
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

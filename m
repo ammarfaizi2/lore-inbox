@@ -1,29 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751717AbWCKHSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWCKHXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751717AbWCKHSh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 02:18:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbWCKHSh
+	id S1750812AbWCKHXj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 02:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWCKHXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 02:18:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14001 "EHLO
+	Sat, 11 Mar 2006 02:23:39 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15006 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751702AbWCKHSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 02:18:36 -0500
-Subject: Re: [PATCH] EDAC: core EDAC support code
+	id S1750812AbWCKHXi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 02:23:38 -0500
+Subject: Re: [PATCH] KERN_SETUID_DUMPABLE in /proc/sys/fs/
 From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: Greg KH <greg@kroah.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, alan@redhat.com,
-       gregkh@kroah.com, Doug Thompson <dthompson@lnxi.com>,
-       bluesmoke-devel@lists.sourceforge.net
-In-Reply-To: <200603101757.00060.dsp@llnl.gov>
-References: <200601190414.k0J4EZCV021775@hera.kernel.org>
-	 <200603101313.09754.dsp@llnl.gov>
-	 <1142025821.2876.106.camel@laptopd505.fenrus.org>
-	 <200603101757.00060.dsp@llnl.gov>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <20060310145605.08bf2a67.akpm@osdl.org>
+References: <20060310155738.GL5766@tpkurt.garloff.de>
+	 <20060310145605.08bf2a67.akpm@osdl.org>
 Content-Type: text/plain
-Date: Sat, 11 Mar 2006 08:18:31 +0100
-Message-Id: <1142061512.3055.2.camel@laptopd505.fenrus.org>
+Date: Sat, 11 Mar 2006 08:23:36 +0100
+Message-Id: <1142061816.3055.6.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -32,32 +28,21 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-10 at 17:57 -0800, Dave Peterson wrote:
-> On Friday 10 March 2006 13:23, Arjan van de Ven wrote:
-> > hmm ok so I want a function that takes a device as parameter, and checks
-> > the state of that device for errors. Internally that probably has to go
-> > via a function pointer somewhere to a device specific check method.
+On Fri, 2006-03-10 at 14:56 -0800, Andrew Morton wrote:
+> Kurt Garloff <garloff@suse.de> wrote:
 > >
-> > Or maybe a per test-type (pci parity / ECC / etc) check
-> >
-> > int pci_check_parity_errors(struct pci_dev *dev, int flags);
-> >
-> > something like that, or pci_check_and_clear_parity_errors()
-> > (although that gets too long :)
-> >
-> > drivers can call that, say, after firmware init or something to validate
-> > their device is sanely connected. Maybe pci_enable_device() could call
-> > it too.
-> >
-> > This also needs a pci_suspend_parity_check() ... _resume_ ... so that
-> > the driver can temporarily disable any checks, for example during device
-> > reset/init. And then just before resume, it manually clears a check.
+> > Diffing in sysctl.c is tricky, using more context is recommended.
+> > suid_dumpable ended up in fs/ instead of kernel/ and the reason
+> > is likely a patch with too little context.
 > 
-> ok, perhaps things might look something like this?
+> It's been in kernel/ since 2.6.13.  What will break if we move it?
+> 
+> This is security-related.  If we move it we risk unsecuring people's
+> machines...
 
-<snip>
-
-sounds like overdesign to me ;)
-
+only a very little bit since the default value is "secure", the option
+is to make it "insecure"...
+but yeah by this time we should just bite the bullet and rename the
+variable rather than move it about
 
 

@@ -1,49 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWCKL4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751975AbWCKMJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWCKL4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 06:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWCKL43
+	id S1751975AbWCKMJW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 07:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCKMJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 06:56:29 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:45875 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751230AbWCKL43 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 06:56:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aRcydnadlwUbSa+LqWF1xuzuOo34cD4SFyDEm1HD7ND7b4OGkvldrsz3xEHtNV5690yVOMpxZ+/C8O3Nn6cAKQlQV0XaalR5WwZk6m0ciaSIOhlRGB5rOUce8sKIkrvZnXmdNpqQxHJDIx7YI1sYGLjz4/yqZkGDKlpJgXZyZbI=
-Message-ID: <aec7e5c30603110356w3c866498v5d43c69454bf476e@mail.gmail.com>
-Date: Sat, 11 Mar 2006 20:56:28 +0900
-From: "Magnus Damm" <magnus.damm@gmail.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: [PATCH 00/03] Unmapped: Separate unmapped and mapped pages
-Cc: "Magnus Damm" <magnus@valinux.co.jp>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.64.0603101111570.28805@schroedinger.engr.sgi.com>
+	Sat, 11 Mar 2006 07:09:22 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:31955 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751975AbWCKMJV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 07:09:21 -0500
+Date: Sat, 11 Mar 2006 13:09:10 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, garloff@suse.de,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] KERN_SETUID_DUMPABLE in /proc/sys/fs/
+In-Reply-To: <1142064294.3055.13.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0603111308450.9603@yvahk01.tjqt.qr>
+References: <20060310155738.GL5766@tpkurt.garloff.de>  <20060310145605.08bf2a67.akpm@osdl.org>
+  <1142061816.3055.6.camel@laptopd505.fenrus.org>  <20060310234155.685456cd.akpm@osdl.org>
+  <1142063254.3055.9.camel@laptopd505.fenrus.org>  <20060310235103.4e9c9457.akpm@osdl.org>
+ <1142064294.3055.13.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060310034412.8340.90939.sendpatchset@cherry.local>
-	 <Pine.LNX.4.64.0603101111570.28805@schroedinger.engr.sgi.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/11/06, Christoph Lameter <clameter@sgi.com> wrote:
-> On Fri, 10 Mar 2006, Magnus Damm wrote:
+>the setuid-dumpable sysctl got misplaces due to a patch glitch. But it's
+>part of the ABI now for some time so we need to keep it. This patch at
+>least renames the variable inside the kernel to match the new place, and
+>puts a comment in place to indicate that it's a known glitch
 >
-> > Unmapped patches - Use two LRU:s per zone.
->
-> Note that if this is done then the default case of zone_reclaim becomes
-> trivial to deal with and we can get rid of the zone_reclaim_interval.
+"To be corrected to the right thing for 2.7".
 
-That's a good thing, right? =)
-
-> However, I have not looked at the rest yet.
-
-Please do. I'd like to hear what you think about it.
-
-Thanks,
-
-/ magnus

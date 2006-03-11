@@ -1,167 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWCKPHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWCKPJw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWCKPHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 10:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWCKPHD
+	id S1751134AbWCKPJw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 10:09:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWCKPJw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 10:07:03 -0500
-Received: from fw.bitband.com ([213.8.50.174]:48171 "EHLO mail1.bitband.com")
-	by vger.kernel.org with ESMTP id S1751032AbWCKPHC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 10:07:02 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Problem with sata driver
-Date: Sat, 11 Mar 2006 17:08:13 +0200
-Message-ID: <83CA05F64804AF43B8F733C4ABDFAA51010DF222@mail1.bitband.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problem with sata driver
-Thread-Index: AcZFBHoGS+RoFne7RgeA6XQvD6MJTwAGGhFw
-From: "Sion Khalaf" <Sion@bitband.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+	Sat, 11 Mar 2006 10:09:52 -0500
+Received: from mail.deathmatch.net ([216.200.85.210]:60336 "EHLO
+	mail.deathmatch.net") by vger.kernel.org with ESMTP
+	id S1751134AbWCKPJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 10:09:51 -0500
+Date: Sat, 11 Mar 2006 10:09:08 -0500
+From: Bob Copeland <me@bobcopeland.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: paulus@samba.org, Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc5 pppd oops on disconnects
+Message-ID: <20060311150908.GA4872@hash.localnet>
+References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com> <1142011340.3220.4.camel@amdx2.microgate.com> <b6c5339f0603101048l1c362582xc4d2570bc9d569b@mail.gmail.com> <1142018709.26063.5.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142018709.26063.5.camel@amdx2.microgate.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Mar 10, 2006 at 01:25:09PM -0600, Paul Fulghum wrote:
+> The i_sem to i_mutex change started in the 2.6.16 series.
+> Running against 2.6.15 would be interesting. Being able
+> to repeat every time is a plus. I'm not that familiar
+> with the sysfs stuff, but the slab poisoning is pretty
+> damning. The dentry was released and then accessed.
+> 
+> I looked at cdc_acm for disconnect and close and
+> did not see any problems (such as trying to call
+> tty_unregister_device twice for a device).
 
-I am having problem with Sata Drive /dev/sda  
+Well, back to at least 2.6.15-rc7 I get a similar oops so this looks old 
+and unrelated to the mutex changes.  I don't believe it triggers without 
+CONFIG_DEBUG_SLAB.  Also won't oops without something (ppp) using the 
+device at the time of disconnect.
 
-Board from SuperMicro With Nvidia ChipSet - H8DCE
-The board has 8 x SATA ports, but only one SATA Drive is connected
-(Maxtor 500 GB )
+Unable to handle kernel paging request at virtual address 6b6b6bdb
+ printing eip:
+c0176da6
+*pde = 00000000
+Oops: 0002 [#1]
+Modules linked in: ppp_deflate zlib_deflate bsd_comp ppp_async crc_ccitt ppp_generic slhc cdc_acm i915 binfmt_misc parport_pc lp parport video thermal processor fan button battery ac af_packet nls_iso8859_1 nls_cp437 vfat fat dm_mod fuse usb_storage ide_cd sr_mod scsi_mod cdrom i810 drm eth1394 pcmcia crc32 ipw2100 tg3 ieee80211 ieee80211_crypt joydev 8250_pci 8250 serial_core evdev snd_intel8x0 snd_intel8x0m yenta_socket rsrc_nonstatic pcmcia_core ohci1394 ieee1394 snd_ac97_codec snd_ac97_bus ehci_hcd uhci_hcd intel_agp agpgart usbcore unix
+CPU:    0
+EIP:    0060:[<c0176da6>]    Not tainted VLI
+EFLAGS: 00210202   (2.6.15-rc7) 
+EIP is at sysfs_hash_and_remove+0x2a/0x100
+eax: 00200246   ebx: 6b6b6b6b   ecx: 00000063   edx: cdea3c1c
+esi: cefe68d4   edi: cf608c60   ebp: cf608ccc   esp: ce1fbe50
+ds: 007b   es: 007b   ss: 0068
+Process pppd (pid: 4128, threadinfo=ce1fa000 task=cef61540)
+Stack: c0288916 00000063 6b6b6b6b c64182d0 cefe68d4 cf608c60 cf608ccc c01e9f5f 
+       ced938a0 cefe68d4 cedb611c c02a0f11 c64182d0 00000000 c64182d0 ce970e40 
+       00000000 00000000 c01e9fbf c64182d0 ccf14d68 d03e246e c64182d0 0a600000 
+Call Trace:
+ [<c01e9f5f>] class_device_del+0x94/0xe9
+ [<c01e9fbf>] class_device_unregister+0xb/0x16
+ [<d03e246e>] acm_tty_unregister+0x16/0x54 [cdc_acm]
+ [<d03e2533>] acm_tty_close+0x87/0x96 [cdc_acm]
+ [<c01d7f15>] release_dev+0x1b1/0x5dc
+ [<c011d8a6>] __group_send_sig_info+0x5d/0x69
+ [<c011eb1a>] sys_kill+0x4e/0x55
+ [<c01d8774>] tty_release+0x9/0xd
+ [<c0146efb>] __fput+0x9f/0x12c
+ [<c0145b6b>] filp_close+0x4e/0x57
+ [<c0145bca>] sys_close+0x56/0x63
+ [<c0102ad5>] syscall_call+0x7/0xb
+Code: c3 55 57 56 53 51 8b 44 24 18 8b 40 50 89 04 24 8b 44 24 18 8b 58 08 85 db 0f 84 dc 00 00 00 6a 63 68 16 89 28 c0 e8 32 d0 f9 ff <ff> 4b 70 0f 88 cd 00 00 00 8b 44 24 08 8b 68 0c 58 5a 83 ed 04 
 
-Kernel 2.6.15
-I insert the module :  insmod sata_nv.ko
-Then, udevstart
-
-Fdisk Output:
--------------------------------------------------------------------
-[root@880-TEST root]$ fdisk -l
-
-Disk /dev/hda: 262 MB, 262144000 bytes
-16 heads, 32 sectors/track, 1000 cylinders
-Units = cylinders of 512 * 512 = 262144 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-/dev/hda1   *           1         998      255487+  83  Linux
-
-Disk /dev/sda: 500.1 GB, 500107862016 bytes
-255 heads, 63 sectors/track, 60801 cylinders
-Units = cylinders of 16065 * 512 = 8225280 bytes
-
-   Device Boot      Start         End      Blocks   Id  System
-[root@880-TEST root]$
- 
-------------------------------------------------------------------------
-----
-When trying to repartition the disk, I got into hangs.
-(Trying to save changes - w )
-
-Attached is the dmesg, since inserting the module.
-
-What is wrong ?
-
-Thank you in advanced,
-Sion
-
-************************************************************************
-**********
-
-sata_nv 0000:00:07.0: version 0.8
-ACPI: PCI Interrupt Link [LTID] enabled at IRQ 11
-PCI: setting IRQ 11 as level-triggered
-ACPI: PCI Interrupt 0000:00:07.0[A] -> Link [LTID] -> GSI 11 (level,
-low) -> IRQ 11
-PCI: Setting latency timer of device 0000:00:07.0 to 64
-ata1: SATA max UDMA/133 cmd 0xC800 ctl 0xC402 bmdma 0xB800 irq 11
-ata2: SATA max UDMA/133 cmd 0xC000 ctl 0xBC02 bmdma 0xB808 irq 11
-ata1: no device found (phy stat 00000000)
-scsi0 : sata_nv
-ata2: no device found (phy stat 00000000)
-scsi1 : sata_nv
-ACPI: PCI Interrupt Link [LTIE] enabled at IRQ 9
-ACPI: PCI Interrupt 0000:00:08.0[A] -> Link [LTIE] -> GSI 9 (level, low)
--> IRQ 9
-PCI: Setting latency timer of device 0000:00:08.0 to 64
-ata3: SATA max UDMA/133 cmd 0xB400 ctl 0xB002 bmdma 0xA400 irq 9
-ata4: SATA max UDMA/133 cmd 0xAC00 ctl 0xA802 bmdma 0xA408 irq 9
-ata3: no device found (phy stat 00000000)
-scsi2 : sata_nv
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device added
-nv_sata: Secondary device removed
-ata4: dev 0 cfg 49:2f00 82:7c6b 83:7f09 84:4773 85:7c69 86:3e01 87:4763
-88:407f
-ata4: dev 0 ATA-7, max UDMA/133, 976773168 sectors: LBA48
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device added
-nv_sata: Secondary device removed
-ata4: dev 0 configured for UDMA/133
-scsi3 : sata_nv
-  Vendor: ATA       Model: Maxtor 7H500F0    Rev: HA43
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 976773168 512-byte hdwr sectors (500108 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 976773168 512-byte hdwr sectors (500108 MB)
-SCSI device sda: drive cache: write back
- sda:<4>nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device added
-nv_sata: Secondary device removed
-
-sd 3:0:0:0: Attached scsi disk sda
-sd 3:0:0:0: Attached scsi generic sg0 type 0
-ACPI: PCI Interrupt 0000:80:07.0[A] -> Link [LNKB] -> GSI 9 (level, low)
--> IRQ 9
-PCI: Setting latency timer of device 0000:80:07.0 to 64
-ata5: SATA max UDMA/133 cmd 0xF800 ctl 0xF402 bmdma 0xE800 irq 9
-ata6: SATA max UDMA/133 cmd 0xF000 ctl 0xEC02 bmdma 0xE808 irq 9
-ata5: no device found (phy stat 00000000)
-scsi4 : sata_nv
-ata6: no device found (phy stat 00000000)
-scsi5 : sata_nv
-ACPI: PCI Interrupt 0000:80:08.0[A] -> Link [LNKA] -> GSI 9 (level, low)
--> IRQ 9
-PCI: Setting latency timer of device 0000:80:08.0 to 64
-ata7: SATA max UDMA/133 cmd 0xE400 ctl 0xE002 bmdma 0xD400 irq 9
-ata8: SATA max UDMA/133 cmd 0xDC00 ctl 0xD802 bmdma 0xD408 irq 9
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device added
-nv_sata: Secondary device removed
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device added
-nv_sata: Secondary device removed
-nv_sata: Primary device added
-nv_sata: Primary device removed
-nv_sata: Secondary device added
-nv_sata: Secondary device removed
-ata7: no device found (phy stat 00000000)
-scsi6 : sata_nv
-ata8: no device found (phy stat 00000000)
-scsi7 : sata_nv
-ata4: command 0x35 timeout, stat 0xd0 host_stat 0x21
-ata4: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-ata4: status=0xd0 { Busy }
-sd 3:0:0:0: SCSI error: return code = 0x8000002
-sda: Current: sense key=0xb
-    ASC=0x47 ASCQ=0x0
-end_request: I/O error, dev sda, sector 0
-Buffer I/O error on device sda, logical block 0
-lost page write due to I/O error on sda
-SCSI device sda: 976773168 512-byte hdwr sectors (500108 MB)
-SCSI device sda: drive cache: write back
- sda:<4>ATA: abnormal status 0xD0 on port 0xAC07
-ATA: abnormal status 0xD0 on port 0xAC07
-ATA: abnormal status 0xD0 on port 0xAC07
-[root@880-TEST root]$
-************************************************************************
-*********
+-- 
+Bob Copeland %% www.bobcopeland.com 

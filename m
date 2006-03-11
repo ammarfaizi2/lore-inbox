@@ -1,568 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752322AbWCKC1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWCKC3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752322AbWCKC1P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 21:27:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752301AbWCKC1J
+	id S932386AbWCKC3v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 21:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWCKC3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 21:27:09 -0500
-Received: from [198.78.49.142] ([198.78.49.142]:65028 "EHLO gitlost.site")
-	by vger.kernel.org with ESMTP id S932373AbWCKC1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 21:27:03 -0500
-From: Chris Leech <christopher.leech@intel.com>
-Subject: [PATCH 4/8] [I/OAT] Utility functions for offloading sk_buff to iovec copies
-Date: Fri, 10 Mar 2006 18:29:27 -0800
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Message-Id: <20060311022926.3950.50391.stgit@gitlost.site>
-In-Reply-To: <20060311022759.3950.58788.stgit@gitlost.site>
-References: <20060311022759.3950.58788.stgit@gitlost.site>
+	Fri, 10 Mar 2006 21:29:50 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:41382 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932379AbWCKC3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 21:29:48 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C644B3.AA3A1DD9"
+Subject: [PATCH 2/8] [I/OAT] Driver for the Intel(R) I/OAT DMA engine
+Date: Fri, 10 Mar 2006 18:29:46 -0800
+Message-ID: <E3A930D59AFC3345AEBA35189102A8A6060E15E7@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2/8] [I/OAT] Driver for the Intel(R) I/OAT DMA engine
+Thread-Index: AcZEs1j6I5liUUt7Tv2XDfGeByzLlAAABlLg
+From: "Leech, Christopher" <christopher.leech@intel.com>
+To: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>
+Cc: "Leech, Christopher" <christopher.leech@intel.com>
+X-OriginalArrivalTime: 11 Mar 2006 02:29:47.0890 (UTC) FILETIME=[AA9D2D20:01C644B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provides for pinning user space pages in memory, copying to iovecs,
-and copying from sk_buffs including fragmented and chained sk_buffs.
+This is a multi-part message in MIME format.
+
+------_=_NextPart_001_01C644B3.AA3A1DD9
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+From: Chris Leech [mailto:christopher.leech@intel.com]=20
+Sent: Friday, March 10, 2006 6:29 PM
+To:=20
+Subject: [PATCH 2/8] [I/OAT] Driver for the Intel(R) I/OAT DMA engine
+
+
+Adds a new ioatdma driver
 
 Signed-off-by: Chris Leech <christopher.leech@intel.com>
 ---
 
- drivers/dma/Makefile      |    3 
- drivers/dma/iovlock.c     |  301 +++++++++++++++++++++++++++++++++++++++++++++
- include/linux/dmaengine.h |   22 +++
- include/net/netdma.h      |    6 +
- net/core/Makefile         |    3 
- net/core/user_dma.c       |  141 +++++++++++++++++++++
- 6 files changed, 474 insertions(+), 2 deletions(-)
+ drivers/dma/Kconfig             |    9=20
+ drivers/dma/Makefile            |    1=20
+ drivers/dma/ioatdma.c           |  783
++++++++++++++++++++++++++++++++++++++++
+ drivers/dma/ioatdma.h           |  127 ++++++
+ drivers/dma/ioatdma_hw.h        |   52 +++
+ drivers/dma/ioatdma_io.h        |  104 +++++
+ drivers/dma/ioatdma_registers.h |  128 ++++++
+ 7 files changed, 1204 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/dma/Makefile b/drivers/dma/Makefile
-index c8a5f56..bdcfdbd 100644
---- a/drivers/dma/Makefile
-+++ b/drivers/dma/Makefile
-@@ -1,2 +1,3 @@
--obj-y += dmaengine.o
-+obj-$(CONFIG_DMA_ENGINE) += dmaengine.o
-+obj-$(CONFIG_NET_DMA) += iovlock.o
- obj-$(CONFIG_INTEL_IOATDMA) += ioatdma.o
-diff --git a/drivers/dma/iovlock.c b/drivers/dma/iovlock.c
-new file mode 100644
-index 0000000..18d54ce
---- /dev/null
-+++ b/drivers/dma/iovlock.c
-@@ -0,0 +1,301 @@
-+/*****************************************************************************
-+Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
-+Portions based on net/core/datagram.c and copyrighted by their authors.
-+
-+This program is free software; you can redistribute it and/or modify it
-+under the terms of the GNU General Public License as published by the Free
-+Software Foundation; either version 2 of the License, or (at your option)
-+any later version.
-+
-+This program is distributed in the hope that it will be useful, but WITHOUT
-+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+more details.
-+
-+You should have received a copy of the GNU General Public License along with
-+this program; if not, write to the Free Software Foundation, Inc., 59
-+Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-+
-+The full GNU General Public License is included in this distribution in the
-+file called LICENSE.
-+*****************************************************************************/
-+
-+/*
-+ * This code allows the net stack to make use of a DMA engine for
-+ * skb to iovec copies.
-+ */
-+
-+#include <linux/dmaengine.h>
-+#include <linux/pagemap.h>
-+#include <net/tcp.h> /* for memcpy_toiovec */
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+
-+int num_pages_spanned(struct iovec *iov)
-+{
-+	return
-+	((PAGE_ALIGN((unsigned long)iov->iov_base + iov->iov_len) -
-+	((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT);
-+}
-+
-+/*
-+ * Pin down all the iovec pages needed for len bytes.
-+ * Return a struct dma_pinned_list to keep track of pages pinned down.
-+ *
-+ * We are allocating a single chunk of memory, and then carving it up into
-+ * 3 sections, the latter 2 whose size depends on the number of iovecs and the
-+ * total number of pages, respectively.
-+ */
-+struct dma_pinned_list *dma_pin_iovec_pages(struct iovec *iov, size_t len)
-+{
-+	struct dma_pinned_list *local_list;
-+	struct page **pages;
-+	int i;
-+	int ret;
-+	int nr_iovecs = 0;
-+	int iovec_len_used = 0;
-+	int iovec_pages_used = 0;
-+	long err;
-+
-+	/* don't pin down non-user-based iovecs */
-+	if (segment_eq(get_fs(), KERNEL_DS))
-+		return NULL;
-+
-+	/* determine how many iovecs/pages there are, up front */
-+	do {
-+		iovec_len_used += iov[nr_iovecs].iov_len;
-+		iovec_pages_used += num_pages_spanned(&iov[nr_iovecs]);
-+		nr_iovecs++;
-+	} while (iovec_len_used < len);
-+
-+	/* single kmalloc for pinned list, page_list[], and the page arrays */
-+	local_list = kmalloc(sizeof(*local_list)
-+		+ (nr_iovecs * sizeof (struct dma_page_list))
-+		+ (iovec_pages_used * sizeof (struct page*)), GFP_KERNEL);
-+	if (!local_list) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/* list of pages starts right after the page list array */
-+	pages = (struct page **) &local_list->page_list[nr_iovecs];
-+
-+	for (i = 0; i < nr_iovecs; i++) {
-+		struct dma_page_list *page_list = &local_list->page_list[i];
-+
-+		len -= iov[i].iov_len;
-+
-+		if (!access_ok(VERIFY_WRITE, iov[i].iov_base, iov[i].iov_len)) {
-+			err = -EFAULT;
-+			goto unpin;
-+		}
-+
-+		page_list->nr_pages = num_pages_spanned(&iov[i]);
-+		page_list->base_address = iov[i].iov_base;
-+
-+		page_list->pages = pages;
-+		pages += page_list->nr_pages;
-+
-+		/* pin pages down */
-+		down_read(&current->mm->mmap_sem);
-+		ret = get_user_pages(
-+			current,
-+			current->mm,
-+			(unsigned long) iov[i].iov_base,
-+			page_list->nr_pages,
-+			1,	/* write */
-+			0,	/* force */
-+			page_list->pages,
-+			NULL);
-+		up_read(&current->mm->mmap_sem);
-+
-+		if (ret != page_list->nr_pages) {
-+			err = -ENOMEM;
-+			goto unpin;
-+		}
-+
-+		local_list->nr_iovecs = i + 1;
-+	}
-+
-+	return local_list;
-+
-+unpin:
-+	dma_unpin_iovec_pages(local_list);
-+out:
-+	return ERR_PTR(err);
-+}
-+
-+void dma_unpin_iovec_pages(struct dma_pinned_list *pinned_list)
-+{
-+	int i, j;
-+
-+	if (!pinned_list)
-+		return;
-+
-+	for (i = 0; i < pinned_list->nr_iovecs; i++) {
-+		struct dma_page_list *page_list = &pinned_list->page_list[i];
-+		for (j = 0; j < page_list->nr_pages; j++) {
-+			set_page_dirty_lock(page_list->pages[j]);
-+			page_cache_release(page_list->pages[j]);
-+		}
-+	}
-+
-+	kfree(pinned_list);
-+}
-+
-+static dma_cookie_t dma_memcpy_to_kernel_iovec(struct dma_chan *chan, struct
-+	iovec *iov, unsigned char *kdata, size_t len)
-+{
-+	dma_cookie_t dma_cookie = 0;
-+
-+	while (len > 0) {
-+		if (iov->iov_len) {
-+			int copy = min_t(unsigned int, iov->iov_len, len);
-+			dma_cookie = dma_async_memcpy_buf_to_buf(
-+					chan,
-+					iov->iov_base,
-+					kdata,
-+					copy);
-+			kdata += copy;
-+			len -= copy;
-+			iov->iov_len -= copy;
-+			iov->iov_base += copy;
-+		}
-+		iov++;
-+	}
-+
-+	return dma_cookie;
-+}
-+
-+/*
-+ * We have already pinned down the pages we will be using in the iovecs.
-+ * Each entry in iov array has corresponding entry in pinned_list->page_list.
-+ * Using array indexing to keep iov[] and page_list[] in sync.
-+ * Initial elements in iov array's iov->iov_len will be 0 if already copied into
-+ *   by another call.
-+ * iov array length remaining guaranteed to be bigger than len.
-+ */
-+dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
-+	struct dma_pinned_list *pinned_list, unsigned char *kdata, size_t len)
-+{
-+	int iov_byte_offset;
-+	int copy;
-+	dma_cookie_t dma_cookie = 0;
-+	int iovec_idx;
-+	int page_idx;
-+
-+	if (!chan)
-+		return memcpy_toiovec(iov, kdata, len);
-+
-+	/* -> kernel copies (e.g. smbfs) */
-+	if (!pinned_list)
-+		return dma_memcpy_to_kernel_iovec(chan, iov, kdata, len);
-+
-+	iovec_idx = 0;
-+	while (iovec_idx < pinned_list->nr_iovecs) {
-+		struct dma_page_list *page_list;
-+
-+		/* skip already used-up iovecs */
-+		while (!iov[iovec_idx].iov_len)
-+			iovec_idx++;
-+
-+		page_list = &pinned_list->page_list[iovec_idx];
-+
-+		iov_byte_offset = ((unsigned long)iov[iovec_idx].iov_base & ~PAGE_MASK);
-+		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
-+			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
-+
-+		/* break up copies to not cross page boundary */
-+		while (iov[iovec_idx].iov_len) {
-+			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
-+			copy = min_t(int, copy, iov[iovec_idx].iov_len);
-+
-+			dma_cookie = dma_async_memcpy_buf_to_pg(chan,
-+					page_list->pages[page_idx],
-+					iov_byte_offset,
-+					kdata,
-+					copy);
-+
-+			len -= copy;
-+			iov[iovec_idx].iov_len -= copy;
-+			iov[iovec_idx].iov_base += copy;
-+
-+			if (!len)
-+				return dma_cookie;
-+
-+			kdata += copy;
-+			iov_byte_offset = 0;
-+			page_idx++;
-+		}
-+		iovec_idx++;
-+	}
-+
-+	/* really bad if we ever run out of iovecs */
-+	BUG();
-+	return -EFAULT;
-+}
-+
-+dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
-+	struct dma_pinned_list *pinned_list, struct page *page,
-+	unsigned int offset, size_t len)
-+{
-+	int iov_byte_offset;
-+	int copy;
-+	dma_cookie_t dma_cookie = 0;
-+	int iovec_idx;
-+	int page_idx;
-+	int err;
-+
-+	/* this needs as-yet-unimplemented buf-to-buff, so punt. */
-+	/* TODO: use dma for this */
-+	if (!chan || !pinned_list) {
-+		u8 *vaddr = kmap(page);
-+		err = memcpy_toiovec(iov, vaddr + offset, len);
-+		kunmap(page);
-+		return err;
-+	}
-+
-+	iovec_idx = 0;
-+	while (iovec_idx < pinned_list->nr_iovecs) {
-+		struct dma_page_list *page_list;
-+
-+		/* skip already used-up iovecs */
-+		while (!iov[iovec_idx].iov_len)
-+			iovec_idx++;
-+
-+		page_list = &pinned_list->page_list[iovec_idx];
-+
-+		iov_byte_offset = ((unsigned long)iov[iovec_idx].iov_base & ~PAGE_MASK);
-+		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
-+			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
-+
-+		/* break up copies to not cross page boundary */
-+		while (iov[iovec_idx].iov_len) {
-+			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
-+			copy = min_t(int, copy, iov[iovec_idx].iov_len);
-+
-+			dma_cookie = dma_async_memcpy_pg_to_pg(chan,
-+					page_list->pages[page_idx],
-+					iov_byte_offset,
-+					page,
-+					offset,
-+					copy);
-+
-+			len -= copy;
-+			iov[iovec_idx].iov_len -= copy;
-+			iov[iovec_idx].iov_base += copy;
-+
-+			if (!len)
-+				return dma_cookie;
-+
-+			offset += copy;
-+			iov_byte_offset = 0;
-+			page_idx++;
-+		}
-+		iovec_idx++;
-+	}
-+
-+	/* really bad if we ever run out of iovecs */
-+	BUG();
-+	return -EFAULT;
-+}
-diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
-index ac3bff9..a2ea457 100644
---- a/include/linux/dmaengine.h
-+++ b/include/linux/dmaengine.h
-@@ -319,5 +319,27 @@ static inline enum dma_status dma_async_
- int dma_async_device_register(struct dma_device *device);
- void dma_async_device_unregister(struct dma_device *device);
- 
-+/* --- Helper iov-locking functions --- */
-+
-+struct dma_page_list {
-+	char *base_address;
-+	int nr_pages;
-+	struct page **pages;
-+};
-+
-+struct dma_pinned_list {
-+	int nr_iovecs;
-+	struct dma_page_list page_list[0];
-+};
-+
-+struct dma_pinned_list *dma_pin_iovec_pages(struct iovec *iov, size_t len);
-+void dma_unpin_iovec_pages(struct dma_pinned_list* pinned_list);
-+
-+dma_cookie_t dma_memcpy_to_iovec(struct dma_chan *chan, struct iovec *iov,
-+	struct dma_pinned_list *pinned_list, unsigned char *kdata, size_t len);
-+dma_cookie_t dma_memcpy_pg_to_iovec(struct dma_chan *chan, struct iovec *iov,
-+	struct dma_pinned_list *pinned_list, struct page *page,
-+	unsigned int offset, size_t len);
-+
- #endif /* CONFIG_DMA_ENGINE */
- #endif /* DMAENGINE_H */
-diff --git a/include/net/netdma.h b/include/net/netdma.h
-index 6435aef..feb499f 100644
---- a/include/net/netdma.h
-+++ b/include/net/netdma.h
-@@ -22,6 +22,7 @@ file called LICENSE.
- #define NETDMA_H
- #ifdef CONFIG_NET_DMA
- #include <linux/dmaengine.h>
-+#include <linux/skbuff.h>
- 
- static inline struct dma_chan *get_softnet_dma(void)
- {
-@@ -33,5 +34,10 @@ static inline struct dma_chan *get_softn
- 	rcu_read_unlock();
- 	return chan;
- }
-+
-+int dma_skb_copy_datagram_iovec(struct dma_chan* chan,
-+		const struct sk_buff *skb, int offset, struct iovec *to,
-+		size_t len, struct dma_pinned_list *pinned_list);
-+
- #endif /* CONFIG_NET_DMA */
- #endif /* NETDMA_H */
-diff --git a/net/core/Makefile b/net/core/Makefile
-index 630da0f..d02132b 100644
---- a/net/core/Makefile
-+++ b/net/core/Makefile
-@@ -8,7 +8,8 @@ obj-y := sock.o request_sock.o skbuff.o 
- obj-$(CONFIG_SYSCTL) += sysctl_net_core.o
- 
- obj-y		     += dev.o ethtool.o dev_mcast.o dst.o \
--			neighbour.o rtnetlink.o utils.o link_watch.o filter.o
-+			neighbour.o rtnetlink.o utils.o link_watch.o filter.o \
-+			user_dma.o
- 
- obj-$(CONFIG_XFRM) += flow.o
- obj-$(CONFIG_SYSFS) += net-sysfs.o
-diff --git a/net/core/user_dma.c b/net/core/user_dma.c
-new file mode 100644
-index 0000000..24e51eb
---- /dev/null
-+++ b/net/core/user_dma.c
-@@ -0,0 +1,141 @@
-+/*****************************************************************************
-+Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
-+Portions based on net/core/datagram.c and copyrighted by their authors.
-+
-+This program is free software; you can redistribute it and/or modify it
-+under the terms of the GNU General Public License as published by the Free
-+Software Foundation; either version 2 of the License, or (at your option)
-+any later version.
-+
-+This program is distributed in the hope that it will be useful, but WITHOUT
-+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+more details.
-+
-+You should have received a copy of the GNU General Public License along with
-+this program; if not, write to the Free Software Foundation, Inc., 59
-+Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-+
-+The full GNU General Public License is included in this distribution in the
-+file called LICENSE.
-+*****************************************************************************/
-+
-+/*
-+ * This code allows the net stack to make use of a DMA engine for
-+ * skb to iovec copies.
-+ */
-+
-+#include <linux/dmaengine.h>
-+#include <linux/socket.h>
-+#include <linux/rtnetlink.h> /* for BUG_TRAP */
-+#include <net/tcp.h>
-+
-+
-+#ifdef CONFIG_NET_DMA
-+
-+/**
-+ *	dma_skb_copy_datagram_iovec - Copy a datagram to an iovec.
-+ *	@skb - buffer to copy
-+ *	@offset - offset in the buffer to start copying from
-+ *	@iovec - io vector to copy to
-+ *	@len - amount of data to copy from buffer to iovec
-+ *	@pinned_list - locked iovec buffer data
-+ *
-+ *	Note: the iovec is modified during the copy.
-+ */
-+int dma_skb_copy_datagram_iovec(struct dma_chan *chan,
-+			struct sk_buff *skb, int offset, struct iovec *to,
-+			size_t len, struct dma_pinned_list *pinned_list)
-+{
-+	int start = skb_headlen(skb);
-+	int i, copy = start - offset;
-+	dma_cookie_t cookie = 0;
-+
-+	/* Copy header. */
-+	if (copy > 0) {
-+		if (copy > len)
-+			copy = len;
-+		cookie = dma_memcpy_to_iovec(chan, to, pinned_list,
-+		                            skb->data + offset, copy);
-+		if (cookie < 0)
-+			goto fault;
-+		len -= copy;
-+		if (len == 0)
-+			goto end;
-+		offset += copy;
-+	}
-+
-+	/* Copy paged appendix. Hmm... why does this look so complicated? */
-+	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
-+		int end;
-+
-+		BUG_TRAP(start <= offset + len);
-+
-+		end = start + skb_shinfo(skb)->frags[i].size;
-+		copy = end - offset;
-+		if ((copy = end - offset) > 0) {
-+			skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
-+			struct page *page = frag->page;
-+
-+			if (copy > len)
-+				copy = len;
-+
-+			cookie = dma_memcpy_pg_to_iovec(chan, to, pinned_list, page,
-+					frag->page_offset + offset - start, copy);
-+			if (cookie < 0)
-+				goto fault;
-+			len -= copy;
-+			if (len == 0)
-+				goto end;
-+			offset += copy;
-+		}
-+		start = end;
-+	}
-+
-+	if (skb_shinfo(skb)->frag_list) {
-+		struct sk_buff *list = skb_shinfo(skb)->frag_list;
-+
-+		for (; list; list = list->next) {
-+			int end;
-+
-+			BUG_TRAP(start <= offset + len);
-+
-+			end = start + list->len;
-+			copy = end - offset;
-+			if (copy > 0) {
-+				if (copy > len)
-+					copy = len;
-+				cookie = dma_skb_copy_datagram_iovec(chan, list,
-+				                offset - start, to, copy,
-+				                pinned_list);
-+				if (cookie < 0)
-+					goto fault;
-+				len -= copy;
-+				if (len == 0)
-+					goto end;
-+				offset += copy;
-+			}
-+			start = end;
-+		}
-+	}
-+
-+end:
-+	if (!len) {
-+		skb->dma_cookie = cookie;
-+		return cookie;
-+	}
-+
-+fault:
-+ 	return -EFAULT;
-+}
-+
-+#else
-+
-+int dma_skb_copy_datagram_iovec(struct dma_chan *chan,
-+			const struct sk_buff *skb, int offset, struct iovec *to,
-+			size_t len, struct dma_pinned_list *pinned_list)
-+{
-+	return skb_copy_datagram_iovec(skb, offset, to, len);
-+}
-+
-+#endif
 
+------_=_NextPart_001_01C644B3.AA3A1DD9
+Content-Type: application/x-gzip;
+	name="ioatdma_driver.gz"
+Content-Transfer-Encoding: base64
+Content-Description: ioatdma_driver.gz
+Content-Disposition: attachment;
+	filename="ioatdma_driver.gz"
+
+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
+KVDlb9ESNwP8lgAA
+
+------_=_NextPart_001_01C644B3.AA3A1DD9--

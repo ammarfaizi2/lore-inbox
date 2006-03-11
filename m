@@ -1,39 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWCLAKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWCLANu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWCLAKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 19:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWCLAKY
+	id S1751335AbWCLANu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 19:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWCLANu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 19:10:24 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:27063 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751265AbWCLAKX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 19:10:23 -0500
-Message-ID: <441366EA.1090403@pobox.com>
-Date: Sat, 11 Mar 2006 19:10:18 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Adrian Bunk <bunk@stusta.de>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ahci: fix NULL pointer dereference detected by Coverity
-References: <20060310193414.GT21864@stusta.de> <20060311034754.GA31198@htj.dyndns.org>
-In-Reply-To: <20060311034754.GA31198@htj.dyndns.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 11 Mar 2006 19:13:50 -0500
+Received: from mail.shareable.org ([81.29.64.88]:62092 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S1751335AbWCLANu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 19:13:50 -0500
+Date: Sat, 11 Mar 2006 20:48:30 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Jonathan McDowell <noodles@earth.li>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial removal of long incorrect address for Jamie Lokier
+Message-ID: <20060311204830.GA3895@mail.shareable.org>
+References: <20060311181658.GE1884@earth.li>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060311181658.GE1884@earth.li>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Fix NULL pointer dereference detected by the Coverity checker.  Kill
-> dev -> pdev -> dev conversion while at it.
+Jonathan McDowell wrote:
+> I know for a fact Jamie hasn't lived here for at least 5 years; a friend
+> now owns it and while it's all well and good being able to find his
+> postcode by grepping a kernel tree it should really go I guess.
 > 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> Cc: Adrian Bunk <bunk@stusta.de>
+> Signed-off-by: Jonathan McDowell <noodles@earth.li>
 
-applied to #upstream-fixes
+Nice place isn't it?  I've lived in 7 other houses since then.
 
+Twice I sent patches to the CREDITS file, a while back, to 2.4 and 2.6
+maintainers and to the CREDITS maintainer when there was one, and
+received no response from anyone, nor were the patches applied.
+Bit of a weak spot there?
 
+If someone's going to take the update this time, let's make it the
+right one. :)
+
+Credits update for Jamie Lokier.
+
+Signed-off-by: Jamie Lokier <jamie@shareable.org>
+
+--- linux-2.6.16-rc5/CREDITS.orig	2006-03-11 18:07:40.000000000 +0000
++++ linux-2.6.16-rc5/CREDITS	2006-03-11 18:07:56.000000000 +0000
+@@ -2008,13 +2008,14 @@
+ S: Ecole Nationale Superieure des Telecommunications, Paris
+
+ N: Jamie Lokier
+-E: jamie@imbolc.ucc.ie
++E: jamie@shareable.org
++W: http://www.shareable.org/
+ D: Reboot-through-BIOS for broken 486 motherboards
+-D: Some parport fixes
+-S: 11 Goodson Walk
+-S: Marston
++D: Parport fixes, futex improvements
++D: First instruction of x86 sysenter path :)
++S: 51 Sunningwell Road
+ S: Oxford
+-S: OX3 0HX
++S: OX1 4SZ
+ S: United Kingdom
+
+ N: Mark Lord

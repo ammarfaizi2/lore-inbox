@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWCKWJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWCKWkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWCKWJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 17:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWCKWJd
+	id S1750897AbWCKWkl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 17:40:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWCKWkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 17:09:33 -0500
-Received: from mxout1.netvision.net.il ([194.90.9.20]:1135 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S1751280AbWCKWJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 17:09:32 -0500
-Date: Sun, 12 Mar 2006 00:10:14 +0300
-From: Maxim Kozover <maximkoz@netvision.net.il>
-Subject: Re[8]: problems with scsi_transport_fc and qla2xxx
-In-reply-to: <20060310231344.GB641@andrew-vasquezs-powerbook-g4-15.local>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
-Message-id: <1699632492.20060312001014@netvision.net.il>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Priority: 3 (Normal)
-References: <1119462161.20060306230951@netvision.net.il>
- <20060306212835.GO6278@andrew-vasquezs-powerbook-g4-15.local>
- <1229893529.20060307000953@netvision.net.il>
- <20060306232831.GS6278@andrew-vasquezs-powerbook-g4-15.local>
- <1219491790.20060307124035@netvision.net.il>
- <20060307172227.GE6275@andrew-vasquezs-powerbook-g4-15.local>
- <1343850424.20060307231141@netvision.net.il>
- <20060308080050.GF9956@andrew-vasquezs-powerbook-g4-15.local>
- <20060308154341.GA1779@andrew-vasquezs-powerbook-g4-15.local>
- <1502511597.20060308213247@netvision.net.il>
- <20060310231344.GB641@andrew-vasquezs-powerbook-g4-15.local>
+	Sat, 11 Mar 2006 17:40:41 -0500
+Received: from xenotime.net ([66.160.160.81]:59330 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750897AbWCKWkl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 17:40:41 -0500
+Date: Sat, 11 Mar 2006 14:42:26 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MCE Errors, Bad CPU, Memory or Motherboard?
+Message-Id: <20060311144226.0edef452.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.64.0603100642220.1165@p34>
+References: <Pine.LNX.4.64.0603100642220.1165@p34>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
-Congratulations! The kernel from scsi-rc-fixes git and your patch are
-working.
-By the way, could you, please, tell me how I get only scsi patches
-from the git repository, cause I got the whole kernel by using
-cg-clone http://kernel.org/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+On Fri, 10 Mar 2006 06:44:46 -0500 (EST) Justin Piszcz wrote:
 
-Now the process looks like following:
-Mar 11 23:54:22 multipath kernel: qla2xxx 0000:03:01.0: LOOP DOWN detected (2).
-Mar 11 23:54:28 multipath kernel:  rport-4:0-0: blocked FC remote port time out:
- removing target and saving binding
-Mar 11 23:54:37 multipath kernel: qla2xxx 0000:03:01.0: LIP reset occured (f7f7).
-Mar 11 23:54:37 multipath kernel: qla2xxx 0000:03:01.0: LOOP UP detected (2 Gbps).
-Mar 11 23:54:59 multipath kernel:  4:0:0:0: timing out command, waited 22s
+> This is the first time I have seen an MCE error, googling the EIP value at 
+> the time of the panic does not return any useful results.
+> 
+> Does anyone know whether it is the CPU or MEMORY that is bad in this 
+> machine?  As it shows some problems with BANK4; however, if the CPU is 
+> bad, then it is possible to get all sorts of unpredictable results, right?
+> 
+> Dec  9 23:21:25 box  CPU 0: Machine Check Exception
+> Dec  9 23:21:25 box  Bank 4: f62ba001c0080813 at 00000000a6e6c2c0
+> Dec  9 23:21:25 box  Kernel panic: CPU context corrupt
+> Dec  9 23:21:25 box kernel: CPU 0
+> Dec  9 23:21:25 box kernel: CPU 0
+> Dec  9 23:21:25 box kernel: Bank 4
+> Dec  9 23:21:25 box kernel: Bank 4
+> Dec  9 23:21:25 box kernel: Kernel panic
+> Dec  9 23:21:25 box kernel: Kernel panic
+> Dec  9 23:21:26 box  kernel BUG at panic.c:66!
+> Dec  9 23:21:26 box  invalid operand: 0000
+> Dec  9 23:21:26 box  CPU:    0
+> Dec  9 23:21:26 box  EIP:    0010
+> Dec  9 23:21:26 box  EFLAGS: 00010282
+> Dec  9 23:21:26 box  eax: f895c1d0   ebx
+> Dec  9 23:21:26 box  esi: 00000415   edi
+> Dec  9 23:21:26 box  ds: 0018   es
+> Dec  9 23:21:26 box  Process java (pid: 6852, stackpage=e0ec5000)
+> Dec  9 23:21:26 box  Stack: 04000000 e0ec5fa4 c010fc28 c02942b8 00000005 
+> c0080813 00000417 00000416
+> Dec  9 23:21:26 box         00000005 00000000 00000004 e0ec4000 00000000 
+> c010fd00 e0ec5fb4 c010fd11
+> Dec  9 23:21:26 box         e0ec5fc4 00000000 bfffc090 c0108ed4 e0ec5fc4 
+> 00000000 00000023 44841510
+> Dec  9 23:21:26 box  Call Trace:    [<c010fc28>] [<c010fd00>] [<c010fd11>] 
+> [<c0108ed4>]
+> Dec  9 23:21:26 box
+> Dec  9 23:21:26 box  Code: 0f 0b 42 00 28 6a 29 c0 b9 00 e0 ff ff 21 e1 8b 
+> 51 30 c1 e2
 
-And the disks appear.
-Could you tell me, please, where this 22sec timeout came from?
+I suppose you tried the obvious tools (parsemce and maybe mcelog)...
 
-Again, congratulations for good work!
+http://www.codemonkey.org.uk/projects/parsemce/
+ftp://ftp.x86-64.org/pub/linux-x86_64/tools/mcelog/
 
-Thanks much,
-
-Maxim.
-
+---
+~Randy
+Please use an email client that implements proper (compliant) threading.
+(You know who you are.)

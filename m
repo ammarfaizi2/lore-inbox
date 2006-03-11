@@ -1,37 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752286AbWCKBB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWCKBDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752286AbWCKBB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 20:01:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752288AbWCKBB5
+	id S932352AbWCKBDm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 20:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932359AbWCKBDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 20:01:57 -0500
-Received: from smtp-out-01.utu.fi ([130.232.202.171]:46319 "EHLO
-	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S1752284AbWCKBBz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 20:01:55 -0500
-Date: Sat, 11 Mar 2006 03:01:53 +0200
-From: Jan Knutar <jk-lkml@sci.fi>
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-In-reply-to: <20060311005453.GA1494@debian>
-To: Eduard Bloch <edi@gmx.de>
-Cc: Dave Neuer <mr.fred.smoothie@pobox.com>, linux-kernel@vger.kernel.org
-Message-id: <200603110301.53214.jk-lkml@sci.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
- <161717d50603091222p34b45065xdb8507cbf8191a3d@mail.gmail.com>
- <20060311005453.GA1494@debian>
-User-Agent: KMail/1.6.2
+	Fri, 10 Mar 2006 20:03:41 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4613 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932352AbWCKBDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 20:03:41 -0500
+Date: Sat, 11 Mar 2006 02:03:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: herbert@gondor.apana.org.au, davem@davemloft.net
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] crypto/aes.c: array overrun
+Message-ID: <20060311010339.GF21864@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 March 2006 02:54, Eduard Bloch wrote:
+The Coverity checker spotted the following in crypto/aes.c:
 
-> This is no longer funny, it is on the same level as drawing a line
-> around the toilet box and saying: you cannot use it any longer, go and
-> piss somewhere else even if you have to search two hours for a suitable
-> place.
+<--  snip  -->
 
-That is not entirely unusual situation in real life ;-)
+...
+struct aes_ctx {
+        int key_length;
+        u32 E[60];
+        u32 D[60];
+};
+
+#define E_KEY ctx->E
+...
+#define loop8(i)                                    \
+{   t = ror32(t,  8); ; t = ls_box(t) ^ rco_tab[i];  \
+    t ^= E_KEY[8 * i];     E_KEY[8 * i + 8] = t;    \
+    t ^= E_KEY[8 * i + 1]; E_KEY[8 * i + 9] = t;    \
+    t ^= E_KEY[8 * i + 2]; E_KEY[8 * i + 10] = t;   \
+    t ^= E_KEY[8 * i + 3]; E_KEY[8 * i + 11] = t;   \
+    t  = E_KEY[8 * i + 4] ^ ls_box(t);    \
+    E_KEY[8 * i + 12] = t;                \
+    t ^= E_KEY[8 * i + 5]; E_KEY[8 * i + 13] = t;   \
+    t ^= E_KEY[8 * i + 6]; E_KEY[8 * i + 14] = t;   \
+    t ^= E_KEY[8 * i + 7]; E_KEY[8 * i + 15] = t;   \
+}
+
+static int
+aes_set_key(void *ctx_arg, const u8 *in_key, unsigned int key_len, u32 *flags)
+{
+...
+        case 32:
+...
+                for (i = 0; i < 7; ++i)
+                        loop8 (i);
+...
+
+<--  snip  -->
+
+
+The problem is:
+
+  8 * 6 + 15 = 63  >  59
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWCKDm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWCKDsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWCKDm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 22:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWCKDm7
+	id S932395AbWCKDsA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 22:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWCKDsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 22:42:59 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:49669 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932143AbWCKDm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 22:42:58 -0500
-Date: Sat, 11 Mar 2006 04:42:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: yi.zhu@intel.com, jketreno@linux.intel.com
-Cc: netdev@vger.kernel.org, linville@tuxdriver.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/wireless/ipw2200.c: fix an array overun
-Message-ID: <20060311034258.GJ21864@stusta.de>
+	Fri, 10 Mar 2006 22:48:00 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:12271 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932395AbWCKDr7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 22:47:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=lvRe0dBP8ZJoIIrIFZxyc6WwZQmg0T/TvAM/6oKng7rn1XwgOcNxt4xINFdvdAicWUCYTd/ab7jhaH4NDvBSH1hvlwFFsT/F9A7ULcIDaDQjHFrsfLMqaAgf4lyx9hq/WFS3dYkKZMwnMfrLMqwG2bk1toql8grsF9CkGE3RwMc=
+Date: Sat, 11 Mar 2006 12:47:54 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ahci: fix NULL pointer dereference detected by Coverity
+Message-ID: <20060311034754.GA31198@htj.dyndns.org>
+References: <20060310193414.GT21864@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060310193414.GT21864@stusta.de>
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a big array overun found by the Coverity checker.
+Fix NULL pointer dereference detected by the Coverity checker.  Kill
+dev -> pdev -> dev conversion while at it.
 
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+Cc: Adrian Bunk <bunk@stusta.de>
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.16-rc5-mm3-full/drivers/net/wireless/ipw2200.c.old	2006-03-11 02:41:23.000000000 +0100
-+++ linux-2.6.16-rc5-mm3-full/drivers/net/wireless/ipw2200.c	2006-03-11 02:42:04.000000000 +0100
-@@ -9956,9 +9956,8 @@ static int ipw_ethtool_set_eeprom(struct
- 		return -EINVAL;
- 	mutex_lock(&p->mutex);
- 	memcpy(&p->eeprom[eeprom->offset], bytes, eeprom->len);
--	for (i = IPW_EEPROM_DATA;
--	     i < IPW_EEPROM_DATA + IPW_EEPROM_IMAGE_SIZE; i++)
--		ipw_write8(p, i, p->eeprom[i]);
-+	for (i = 0; i < IPW_EEPROM_IMAGE_SIZE; i++)
-+		ipw_write8(p, i + IPW_EEPROM_DATA, p->eeprom[i]);
- 	mutex_unlock(&p->mutex);
- 	return 0;
- }
-
+--- a/drivers/scsi/ahci.c
++++ b/drivers/scsi/ahci.c
+@@ -778,23 +778,17 @@ static irqreturn_t ahci_interrupt (int i
+ 			struct ata_queued_cmd *qc;
+ 			qc = ata_qc_from_tag(ap, ap->active_tag);
+ 			if (!ahci_host_intr(ap, qc))
+-				if (ata_ratelimit()) {
+-					struct pci_dev *pdev =
+-						to_pci_dev(ap->host_set->dev);
+-					dev_printk(KERN_WARNING, &pdev->dev,
++				if (ata_ratelimit())
++					dev_printk(KERN_WARNING, host_set->dev,
+ 					  "unhandled interrupt on port %u\n",
+ 					  i);
+-				}
+ 
+ 			VPRINTK("port %u\n", i);
+ 		} else {
+ 			VPRINTK("port %u (no irq)\n", i);
+-			if (ata_ratelimit()) {
+-				struct pci_dev *pdev =
+-					to_pci_dev(ap->host_set->dev);
+-				dev_printk(KERN_WARNING, &pdev->dev,
++			if (ata_ratelimit())
++				dev_printk(KERN_WARNING, host_set->dev,
+ 					"interrupt on disabled port %u\n", i);
+-			}
+ 		}
+ 
+ 		irq_ack |= (1 << i);

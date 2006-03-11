@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752329AbWCKDDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752332AbWCKDDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752329AbWCKDDA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 22:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752331AbWCKDC7
+	id S1752332AbWCKDDz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 22:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752333AbWCKDDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 22:02:59 -0500
-Received: from femail.waymark.net ([206.176.148.84]:56513 "EHLO
-	femail.waymark.net") by vger.kernel.org with ESMTP id S1752329AbWCKDC7 convert rfc822-to-8bit
+	Fri, 10 Mar 2006 22:03:55 -0500
+Received: from namsan.hanyang.ac.kr ([166.104.11.34]:16822 "HELO
+	ece.hanyang.ac.kr") by vger.kernel.org with SMTP id S1752331AbWCKDDy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 22:02:59 -0500
-Date: 11 Mar 2006 03:01:00 GMT
-From: Kenneth Parrish <Kenneth.Parrish@familynet-international.net>
-Subject: Re: [2.6.16-rc5-git13] Xorg.log difference
-To: linux-kernel@vger.kernel.org
-Message-ID: <e038ac.6aa820@familynet-international.net>
-Organization: FamilyNet HQ
-X-Mailer: BBBS/NT v4.01 Flag-5
+	Fri, 10 Mar 2006 22:03:54 -0500
+Message-ID: <44123D38.60000@ece.hanyang.ac.kr>
+Date: Sat, 11 Mar 2006 12:00:08 +0900
+From: Moweon Lee <a287848@ece.hanyang.ac.kr>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: Hard disk sector remapping
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--=> In article 10 Mar 06  17:20:10, Ingo Oeser wrote to All <=-
+Hello everyone!
 
-yo Ingo :)
+My name is Moweon Lee from South Korean.
 
-[ mach64 rage 3d dual pci+agp1 vbe undetected  x11-6.7.0-i586-4 ]
-[..]
- IO> Did you disable vm86 support, too?
+Our team made a new file system which is named by Namsan 
+filesystem(Actually it is the name of mountain in Korea and hard to climb.).
 
- IO> # CONFIG_VM86 is not set
-bet that's it - thank ya        :)
+Now I'm trying to make bad block management system in that file system.
 
---
-Real Programmers think better when playing Adventure or Rogue.
---- MultiMail/Linux v0.47
+But I'm not sure about this.
+
+Let me ask you one thing.
+
+When the HDD's sector remapping occurs?
+
+Especially when HDD controller find sector errors in writing phase,
+
+, is it automatically remapped by HDD ? (without notifying it for kernel)
+
+I wanna know it because I have to make some treatment about every sector 
+error.
+
+bye~~
+
+
+
+
+
+
+
+
+

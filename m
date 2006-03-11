@@ -1,38 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752272AbWCKAFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWCKAcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752272AbWCKAFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 19:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752273AbWCKAFh
+	id S1751247AbWCKAcN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 19:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWCKAcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 19:05:37 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:26068 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1752271AbWCKAFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 19:05:37 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1] x86: Make _syscallX() macros compile in PIC mode on i386
-Date: Sat, 11 Mar 2006 01:05:20 +0100
-User-Agent: KMail/1.9.1
-Cc: Markus Gutschke <markus@google.com>, linux-kernel@vger.kernel.org,
-       dkegel@google.com
-References: <4410BB32.1020905@google.com> <4410EC8A.4020808@google.com> <20060309192232.2fd4767c.akpm@osdl.org>
-In-Reply-To: <20060309192232.2fd4767c.akpm@osdl.org>
+	Fri, 10 Mar 2006 19:32:13 -0500
+Received: from mail.infrasupportetc.com ([66.173.97.5]:3241 "EHLO
+	mail733.InfraSupportEtc.com") by vger.kernel.org with ESMTP
+	id S1751247AbWCKAcN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 19:32:13 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603110105.21298.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Router stops routing after changing MAC Address
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Fri, 10 Mar 2006 18:33:15 -0600
+Message-ID: <925A849792280C4E80C5461017A4B8A20321CC@mail733.InfraSupportEtc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Router stops routing after changing MAC Address
+Thread-Index: AcZEovHmRVodRR12QT2QvoNF8y3VGg==
+From: "Greg Scott" <GregScott@InfraSupportEtc.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Friday 10 March 2006 04:22 schrieb Andrew Morton:
-> afaik, execve() is the only reason for retaining __KERNEL_SYSCALLS__
-> support on x86.
+Hello - This feels like a kernel issue.  I spent hours and hours and
+hours looking for documentation and archives around this but did not
+find anything.  
 
-Yes. Actually sh64 seems to be the only architecture left where
-__KERNEL_SYSCALLS__ is used for something besides execve.
+I have a Linux router and I need the ability to swap hardware without
+causing downtime.  The problem, of course, is ARPs.  The NICs in the
+replacement system need the same MAC Addresses as the NICs in the
+original system.  I'd like this all to be in the kernel and not depend
+on a daemon process that can die.
 
-	Arnd <><
+How to change MAC addresses is documented well enough - and it works -
+but when I change MAC addresses, my router stops routing.  From the
+router, I can see the systems on both sides - but the router just
+refuses to forward packets.  Here are my little test scripts to change
+MAC Addresses.
+
+First - ip-fudge-mac.sh
+[root@test-fw2 gregs]# more ip-fudge-mac.sh
+ip link set eth0 down
+ip link set eth0 address 01:02:03:04:05:06
+ip link set eth0 up
+
+ip link set eth1 down
+ip link set eth1 address 17:20:16:01:60:03
+ip link set eth1 up
+
+echo "1" > /proc/sys/net/ipv4/ip_forward
+
+
+
+Now original-mac.sh
+
+[root@test-fw2 gregs]# more original-mac.sh
+ifdown eth0
+ifconfig eth0 hw ether 00:c1:28:01:d8:07
+ifup eth0
+
+ifdown eth1
+ifconfig eth1 hw ether 00:50:da:90:e4:aa
+ifup eth1
+
+echo "1" > /proc/sys/net/ipv4/ip_forward
+
+I have systems both on the left and right side of my test router.  Here
+is some output from the router with tcpdump showing what happens.  I
+replaced the first 3 real public IP Address octects with "1.2.3".  The
+first set of tcpdump records shows it forarding with the original
+hardware MAC Addreses are set.  We see round trips from the left side to
+the right side and back with echo request and reply packets.
+
+The second set shows what happens after changing MAC Addresses.  We only
+see packets come in on the left side - but nothing happening on the
+right side.  
+
+Packet forwarding must somehow depend on MAC Addresses but I cannot find
+anything anywhere that tells me how this works.  
+
+I reproduced this problem on at least two different Linux routers - one
+running 2.4.27, the other running 2.6.11-1.  Am I asking the kernel to
+do something bad?  What would it take to put together a patch to change
+this behavior?
+
+
+[root@test-fw2 gregs]# ./original-mac.sh
+[root@test-fw2 gregs]# /usr/sbin/tcpdump -i eth1 -n
+tcpdump: verbose output suppressed, use -v or -vv for full protocol
+decode
+listening on eth1, link-type EN10MB (Ethernet), capture size 96 bytes
+17:14:51.010439 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 479
+17:14:51.010537 IP 1.2.3.49 > 172.16.16.1: icmp 64: echo reply seq 479
+17:14:52.010448 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 480
+17:14:52.010621 IP 1.2.3.49 > 172.16.16.1: icmp 64: echo reply seq 480
+17:14:53.010531 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 481
+17:14:53.010696 IP 1.2.3.49 > 172.16.16.1: icmp 64: echo reply seq 481
+17:14:54.010716 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 482
+17:14:54.010882 IP 1.2.3.49 > 172.16.16.1: icmp 64: echo reply seq 482
+
+8 packets captured
+8 packets received by filter
+0 packets dropped by kernel
+[root@test-fw2 gregs]# ./ip-fudge-mac.sh
+[root@test-fw2 gregs]# /usr/sbin/tcpdump -i eth1 -n
+tcpdump: verbose output suppressed, use -v or -vv for full protocol
+decode
+listening on eth1, link-type EN10MB (Ethernet), capture size 96 bytes
+17:15:10.031945 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 498
+17:15:11.031980 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 499
+17:15:11.806487 fe80::1520:16ff:fe01:6003 > ff02::2: icmp6: router
+solicitation 
+17:15:12.032062 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 500
+17:15:13.032154 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 501
+17:15:14.032222 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 502
+17:15:15.032305 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 503
+17:15:15.805873 fe80::1520:16ff:fe01:6003 > ff02::2: icmp6: router
+solicitation 
+17:15:16.032394 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 504
+17:15:17.032465 IP 172.16.16.1 > 1.2.3.49: icmp 64: echo request seq 505
+
+10 packets captured
+10 packets received by filter
+0 packets dropped by kernel
+[root@test-fw2 gregs]# 
+[root@test-fw2 gregs]# /usr/sbin/tcpdump -i eth0 -n
+tcpdump: verbose output suppressed, use -v or -vv for full protocol
+decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 96 bytes
+
+0 packets captured
+0 packets received by filter
+0 packets dropped by kernel
+[root@test-fw2 gregs]# 
+
+
+Thanks
+
+- Greg Scott

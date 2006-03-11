@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752120AbWCKJwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752096AbWCKKIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752120AbWCKJwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 04:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752096AbWCKJwk
+	id S1752096AbWCKKIm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 05:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752125AbWCKKIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 04:52:40 -0500
-Received: from mailgate1.uni-kl.de ([131.246.120.5]:33454 "EHLO
-	mailgate1.uni-kl.de") by vger.kernel.org with ESMTP
-	id S1752120AbWCKJwk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 04:52:40 -0500
-Date: Sat, 11 Mar 2006 10:52:30 +0100
-From: Eduard Bloch <edi@gmx.de>
-To: Dave Neuer <mr.fred.smoothie@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Message-ID: <20060311095230.GA9024@debian>
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> <200603091509.06173.luke@dashjr.org> <441057D4.6030304@cfl.rr.com> <161717d50603090933o3df190f9vb1e06b0ec37deb8e@mail.gmail.com> <1141928755.7599.0.camel@bip.parateam.prv> <161717d50603091222p34b45065xdb8507cbf8191a3d@mail.gmail.com> <20060311005453.GA1494@debian> <20060311091623.GB4087@DervishD>
+	Sat, 11 Mar 2006 05:08:42 -0500
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:45791 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1752096AbWCKKIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 05:08:41 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: PROBLEM: four bttv tuners in one PC crashed
+To: Duncan Sands <duncan.sands@math.u-psud.fr>,
+       Roland Scheidegger <rscheidegger_lists@hispeed.ch>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 11 Mar 2006 11:08:25 +0100
+References: <5NpZk-7wW-13@gated-at.bofh.it> <5NJ1x-1OE-15@gated-at.bofh.it> <5NPJk-3GD-3@gated-at.bofh.it> <5NRBv-6ze-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060311091623.GB4087@DervishD>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1FI11O-0000bK-8u@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#include <hallo.h>
-* DervishD [Sat, Mar 11 2006, 10:16:23AM]:
->     Hi Eduard :)
+Duncan Sands <duncan.sands@math.u-psud.fr> wrote:
+
+>> The bttv driver/chip seems to cause random memory corruption sometimes,
+>> processes will just start dying...
 > 
->  * Eduard Bloch <edi@gmx.de> dixit:
-> > This is no longer funny, it is on the same level as drawing a line
-> > around the toilet box and saying: you cannot use it any longer, go
-> > and piss somewhere else even if you have to search two hours for a
-> > suitable place.
-> 
->     No, it's not on the same level. It's on the same level as giving
-> your thesis draft to a comrade so he can study and pass his exams,
-> and in turn he publish the thesis as his and charge money for that.
-> 
->     I don't want my work used by a corporation without giving any
-> modification under the same conditions under I published my work.
+> There is a known buffer overflow in the bttv driver (when using
+> grabdisplay).  The fix is waiting on an audit of the rest of the
+> bttv (and similar) code, since it looks like the same mistake
+> occurs in several places.
 
-Ehm, I think you are overlook a serious issue assuming that every touch
-of non-GPLed software immediately implies use and abuse of GPLed
-software. That is not what I am talking about! I talk about keeping
-compatible interfaces.
-
-But where do you draw the line between communication and abuse of
-other's work? What is the point of deliberate merge of interfaces with
-code if not throwing stones in ways of others? Going back to your
-comparison, it is like distributing your thesis with a following
-license:
-
-Noone ever making reference to my work is allowed to use the following
-words: <followed by a list of domain specific terms>. Invent your own
-words, but those are mine!!!!!1
-
-Sounds childish? Exactly like GPLing interfaces is.
-
-> Binary driver can and will do harm if allowed.
-
-Welcome at the dark side. "Only the Sith deal in absolutes".
-
-Eduard.
-
+Can you give me a hint on where exactly to shoot at? I'n still hoping it's
+not my VIA board giving me trouble (corrupting the first four bytes of a
+semi-random page).
 -- 
-Captain John Sheridan: Delenn, I have been working up a good mad all day and I
-am NOT about to let you ruin it by agreeing with me!
-                                                 -- Quotes from Babylon 5 --
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

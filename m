@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWCKEB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWCKECt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWCKEB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Mar 2006 23:01:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWCKEB7
+	id S932417AbWCKECt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Mar 2006 23:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWCKECt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 23:01:59 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:39142 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S932400AbWCKEB6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 23:01:58 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [2.6 patch] drivers/acpi/video.c: fix a NULL pointer dereference
-Date: Fri, 10 Mar 2006 23:00:45 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3006596EE5@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] drivers/acpi/video.c: fix a NULL pointer dereference
-Thread-Index: AcZEZYSn9XOpjHvVQ8+UleFCkh0PYQAWrviw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 11 Mar 2006 04:00:47.0572 (UTC) FILETIME=[60D68940:01C644C0]
+	Fri, 10 Mar 2006 23:02:49 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:16219 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932408AbWCKECs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Mar 2006 23:02:48 -0500
+Date: Fri, 10 Mar 2006 19:19:51 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Memory barriers and spin_unlock safety
+In-reply-to: <5NY0h-7wa-1@gated-at.bofh.it>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <441225B7.5010003@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5Ml19-2Ki-19@gated-at.bofh.it> <5MlO0-3JU-13@gated-at.bofh.it>
+ <5MCF0-2TS-27@gated-at.bofh.it> <5MITJ-2l4-15@gated-at.bofh.it>
+ <5NXxl-6WZ-9@gated-at.bofh.it> <5NY0h-7wa-1@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> Close, yes. HOWEVER, it's only really ordered wrt the "innermost" bus. I 
+> don't think PCI bridges are supposed to post PIO writes, but a x86 CPU 
+> basically won't stall for them forever. I _think_ they'll wait for it to 
+> hit that external bus, though.
 
->The Coverity checker spotted this obvious bug in 
->acpi_video_device_lcd_query_levels().
->
->
->
->Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
->--- linux-2.6.16-rc5-mm3-full/drivers/acpi/video.c.old	
->2006-03-10 18:04:18.000000000 +0100
->+++ linux-2.6.16-rc5-mm3-full/drivers/acpi/video.c	
->2006-03-10 18:04:33.000000000 +0100
->@@ -321,11 +321,11 @@ acpi_video_device_lcd_query_levels(struc
-> 
-> 	status = acpi_evaluate_object(device->handle, "_BCL", 
->NULL, &buffer);
-> 	if (!ACPI_SUCCESS(status))
-> 		return_VALUE(status);
-> 	obj = (union acpi_object *)buffer.pointer;
->-	if (!obj && (obj->type != ACPI_TYPE_PACKAGE)) {
->+	if (obj && (obj->type != ACPI_TYPE_PACKAGE)) {
+PCI I/O writes are allowed to be posted by the host bus bridge (not 
+other bridges) according to the PCI 2.2 spec. Maybe no x86 platform 
+actually does this, but it's allowed, so technically a device would need 
+to do a read in order to ensure that I/O writes have arrived at the 
+device as well.
 
-how about
-+	if (!obj || (obj->type != ACPI_TYPE_PACKAGE)) {
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-> 		ACPI_ERROR((AE_INFO, "Invalid _BCL data"));
-> 		status = -EFAULT;
-> 		goto err;
-> 	}
-> 
->
+

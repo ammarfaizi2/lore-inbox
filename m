@@ -1,88 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751619AbWCLRLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWCLRRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751619AbWCLRLt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 12:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbWCLRLs
+	id S1751171AbWCLRRG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 12:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWCLRRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 12:11:48 -0500
-Received: from webbox444.server-home.org ([83.220.144.13]:53951 "EHLO
-	webbox444.server-home.org") by vger.kernel.org with ESMTP
-	id S1751607AbWCLRLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 12:11:48 -0500
-Subject: [ANNOUNCE][RFC] dynsched-0.1.1 for  2.6.13
-From: Christian Ege <christian.ege@cybertux.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, Chris Han <xiphux@gmail.com>,
-       Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>,
-       Paolo Ornati <ornati@fastwebnet.it>, Ingo Molnar <mingo@elte.hu>,
-       Michael =?ISO-8859-1?Q?M=E4chtel?= <" maechtel"@fh-konstanz.de>,
-       Dyn-Scheduler Mailingliste <dyn-scheduler@cybertux.org>
-Content-Type: text/plain
-Date: Sun, 12 Mar 2006 18:11:41 +0100
-Message-Id: <1142183502.8725.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Mar 2006 12:17:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20399 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751171AbWCLRRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 12:17:04 -0500
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+References: <16835.1141936162@warthog.cambridge.redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 12 Mar 2006 10:15:20 -0700
+In-Reply-To: <16835.1141936162@warthog.cambridge.redhat.com> (David
+ Howells's message of "Thu, 09 Mar 2006 20:29:22 +0000")
+Message-ID: <m1veujy47r.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-there is a new version of dynsched released. It includes some minor
-bugfixes and code cleanups. we are looking forward to your suggestions
-and we are highly interested in a discussion.
+A small nit.  You are not documenting the most subtle memory barrier:
+smp_read_barrier_depends();  Which is a deep requirement of the RCU
+code.
 
+As I understand it.  On some architectures (alpha) without at least
+this a load from a pointer can load from the an old pointer value.
 
-In the next step we will port the patch to the current plugsched version
-and split the patch in a plugsched part and a dynsched part.
+At one point it was suggested this be called: 
+read_memory_barrier_data_dependent().
 
+Simply calling: rcu_dereference is what all users should call but
+the semantics should be documented at least so that people porting
+Linux can have a chance of getting it right.
 
-The "dynsched" project aims switching the CPU scheduler at runtime. Its
-based upon the "plugsched" patch by Peter Williams
-(http://cpuse.sourceforge.net/). Increments to plugsched especially
-a kthread, wich switchs between different schedulers, in sched.c and a
-proc user interface. 
-
-Following scheduler implementations are currently supported:
-* ingosched
-* nicksched
-* staircase
-
-There are some missing functions like converting task_struct between the
-schedulers. First tests on kernel 2.6.13.5 and 2.6.13.4
-were successful. The spa based schedulers (such as spa_no_frills, zaphod
-etc) are not yet supported. I hope they will be finished soon, just as
-SMP support.
-
-There is an alpha patch available at project site -
-https://sourceforge.net/projects/dynsched
-
-
-Using the procfs you can switch between the linux standard scheduler
-(ingosched), nicksched and staircase schedulers by simply issuing: 
-echo "name_of_the_scheduler" > /proc/dynsched
-
-
-There have been successful tests to switch the cpu scheduler while
-running a fully loaded Linux system, running a KDE Desktop with a lot of
-applications.
-
-Christian Ege
-
-
--- 
-------------------------------------------------------------------
- 
- Name:   Christian Ege
- mailto: christian.ege@cybertux.org
-  
- BLOG:   http://chris.cybertux.org
- WWW:    http://www.cybertux.org
-  
- PGP Key fingerprint:
- E436 3E5D CE47 7D0E DB63  F383 B41A 5FCF D4A1 D7A0
- Informationen zu PGP: ( http://www.gnupg.de/ )
-==================================================================
-
+Eric

@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWCLKri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWCLK6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWCLKri (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 05:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWCLKri
+	id S932122AbWCLK6O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 05:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWCLK6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 05:47:38 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:34762 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932110AbWCLKrh (ORCPT
+	Sun, 12 Mar 2006 05:58:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:2705 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932122AbWCLK6O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 05:47:37 -0500
-Date: Sun, 12 Mar 2006 13:47:28 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: "Leech, Christopher" <christopher.leech@intel.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 2/8] [I/OAT] Driver for the Intel(R) I/OAT DMA engine
-Message-ID: <20060312104728.GA25301@2ka.mipt.ru>
-References: <E3A930D59AFC3345AEBA35189102A8A6060E15E7@orsmsx404.amr.corp.intel.com>
+	Sun, 12 Mar 2006 05:58:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Michal Feix <michal@feix.cz>
+Subject: Re: Linux v2.6.16-rc6
+Date: Sun, 12 Mar 2006 10:57:55 +0000 (UTC)
+Message-ID: <loom.20060312T115442-894@post.gmane.org>
+References: <fa.B/Q39e5tdKA8fofqhtAW7OLh/1U@ifi.uio.no> <20060312032840.GA1165818@hiwaay.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E3A930D59AFC3345AEBA35189102A8A6060E15E7@orsmsx404.amr.corp.intel.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 12 Mar 2006 13:47:28 +0300 (MSK)
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 88.101.86.158 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 10, 2006 at 06:29:46PM -0800, Leech, Christopher (christopher.leech@intel.com) wrote:
-> From: Chris Leech [mailto:christopher.leech@intel.com] 
-> Sent: Friday, March 10, 2006 6:29 PM
-> To: 
-> Subject: [PATCH 2/8] [I/OAT] Driver for the Intel(R) I/OAT DMA engine
+> Once upon a time, David S. Miller <davem <at> davemloft.net> said:
+> >> TCP: Treason uncloaked! Peer 82.113.55.2:11759/50967 shrinks window
+> >> 148470938:148470943. Repaired.
+> >
+> >It is a problem with the remote TCP implementation, it is
+> >illegally advertising a smaller window that it previously
+> >did.
 > 
-> 
-> Adds a new ioatdma driver
+> Is this something that should be logged though?  I get these messages
+> all the time on my mirror server.  It isn't like I can do anything about
+> it.  If Linux is generous in what it accepts and can handle it, what is
+> the logged error for?
 
-enumerate_dma_channels() is still broken, if it can not fail add NOFAIL
-gfp flag.
-And you play tricky games with common_node/device_node of struct
-dma_chan - one of that lists is never protected, while other is called 
-under RCU and other locks (btw, why does insertion use RCU and deletion
-in dma_async_device_unregister() does not?).
-struct ioat_dma_chan - is it somewhere freed?
+If you do not want to see these messages, simply set TCP_DEBUG to 0 in
+include/net/tcp.h. Or simply stop logging everything on level debug, which is
+worse as it affects all debug kernel output.
 
--- 
-	Evgeniy Polyakov
+--
+Michal Feix
+
+

@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWCLJ0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWCLJ2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWCLJ0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 04:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWCLJ0Z
+	id S1751283AbWCLJ2O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 04:28:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWCLJ2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 04:26:25 -0500
-Received: from s93.xrea.com ([218.216.67.44]:33691 "HELO s93.xrea.com")
-	by vger.kernel.org with SMTP id S1751195AbWCLJ0Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 04:26:24 -0500
-Message-Id: <200603120926.AA00811@bbb-jz5c7z9hn9y.digitalinfra.co.jp>
-From: Jun OKAJIMA <okajima@digitalinfra.co.jp>
-Date: Sun, 12 Mar 2006 18:26:17 +0900
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Faster resuming of suspend technology.
-In-Reply-To: <200603112246.47596.ncunningham@cyclades.com>
-References: <200603112246.47596.ncunningham@cyclades.com>
-MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.13
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Mar 2006 04:28:13 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21458 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751291AbWCLJ2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 04:28:12 -0500
+Subject: Re: Re[8]: problems with scsi_transport_fc and qla2xxx
+From: Arjan van de Ven <arjan@infradead.org>
+Reply-To: arjan@infradead.org
+To: Maxim Kozover <maximkoz@netvision.net.il>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>
+In-Reply-To: <1699632492.20060312001014@netvision.net.il>
+References: <1119462161.20060306230951@netvision.net.il>
+	 <20060306212835.GO6278@andrew-vasquezs-powerbook-g4-15.local>
+	 <1229893529.20060307000953@netvision.net.il>
+	 <20060306232831.GS6278@andrew-vasquezs-powerbook-g4-15.local>
+	 <1219491790.20060307124035@netvision.net.il>
+	 <20060307172227.GE6275@andrew-vasquezs-powerbook-g4-15.local>
+	 <1343850424.20060307231141@netvision.net.il>
+	 <20060308080050.GF9956@andrew-vasquezs-powerbook-g4-15.local>
+	 <20060308154341.GA1779@andrew-vasquezs-powerbook-g4-15.local>
+	 <1502511597.20060308213247@netvision.net.il>
+	 <20060310231344.GB641@andrew-vasquezs-powerbook-g4-15.local>
+	 <1699632492.20060312001014@netvision.net.il>
+Content-Type: text/plain
+Date: Sun, 12 Mar 2006 10:28:03 +0100
+Message-Id: <1142155684.2882.15.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>
->> Yes, right. In your way, there is no thrashing. but it slows booting.
->> I mean, there is a trade-off between booting and after booted.
->> But, what people would want is always both, not either.
->
->I don't understand what you're saying. In particular, I'm not sure why/how you 
->think suspend functionality slows booting or what the tradeoff is "between 
->booting and after booted".
->
+On Sun, 2006-03-12 at 00:10 +0300, Maxim Kozover wrote:
+> Hi Andrew!
+> Congratulations! The kernel from scsi-rc-fixes git and your patch are
+> working.
+> By the way, could you, please, tell me how I get only scsi patches
+> from the git repository, cause I got the whole kernel by using
+> cg-clone http://kernel.org/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+> 
+> Now the process looks like following:
+> Mar 11 23:54:22 multipath kernel: qla2xxx 0000:03:01.0: LOOP DOWN detected (2).
+> Mar 11 23:54:28 multipath kernel:  rport-4:0-0: blocked FC remote port time out:
+>  removing target and saving binding
+> Mar 11 23:54:37 multipath kernel: qla2xxx 0000:03:01.0: LIP reset occured (f7f7).
+> Mar 11 23:54:37 multipath kernel: qla2xxx 0000:03:01.0: LOOP UP detected (2 Gbps).
+> Mar 11 23:54:59 multipath kernel:  4:0:0:0: timing out command, waited 22s
+> 
+> And the disks appear.
+> Could you tell me, please, where this 22sec timeout came from?
 
-Sorry, I used words in not usual way.
-I refer "booting" as just resuming. And "after booted" means "after resumed".
-In other words, I treat swsusp2 as not note PC's hibernation equivalent,
-but just for faster booting technology.
-So, What I wanted to say was,
+looks like your fiber fabric decided to renegotiate, and halfway it went
+for a coffee and donuts break to not upset the union rules :)
 
-  --- Reading all image in advance ( your way) slows resuming itself.
-  --- Reading pages on demand ( e.g. VMware) slows apps after resumed.
-
-Hope my English is understandable one...
-
-
->> Especially, your way has problem if you boot( resume ) not from HDD
->> but for example, from NFS server or CD-R or even from Internet.
->
->Resuming from the internet? Scary. Anyway, I hope I'll understand better what 
->you're getting at after your next reply.
->
-
-In Japan, it is not so scary.
-We have 100Mbps symmetric FTTH ( optical Fiber To The Home), and
-more than 1M homes have it, and price is about 30USD/month.
-With this, theoretically you can download 600MB ISO image in one min,
-and actually you can download 100MBytes suspend image within 30sec.
-So, not click to run (e.g. Java applet) but "click to resume" is not dreaming
-but rather feasible. You still think it is scary on this situation?
-
->> >That said, work has already been done along the lines that you're
->> > describing. You might, for example, look at the OLS papers from last
->> > year. There was a paper there describing work on almost exactly what
->> > you're describing.
->>
->> Could I have URL or title of the paper?
->
->http://www.linuxsymposium.org/2005/. I don't recall the title now, sorry, and 
->can't tell you whether it's in volume 1 or 2 of the proceedings, but I'm sure 
->it will stick out like a sore thumb.
->
->
-
-I checked the URL but could not find the paper,
-with keywords of "Cunningham" or "swsusp" or "suspend".
-Could you tell me any keyword to find it?
-
-                 --- Okajima, Jun. Tokyo, Japan.
+I've seen LOOP negotiations take 10+ seconds before, and that is on a
+really simple setup.... so nothing super special 
 

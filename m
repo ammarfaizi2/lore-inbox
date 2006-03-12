@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWCLPfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWCLPl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWCLPfs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 10:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWCLPfs
+	id S1750806AbWCLPl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 10:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWCLPl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 10:35:48 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:14797 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751006AbWCLPfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 10:35:48 -0500
-Date: Sun, 12 Mar 2006 07:35:25 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Krzysztof Oledzki <olel@ans.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ashok Raj <ashok.raj@intel.com>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Suresh B Siddha <suresh.b.siddha@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on 2.6.16-rc6
-Message-ID: <20060312073524.A9213@unix-os.sc.intel.com>
-References: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl> <20060311210353.7eccb6ed.akpm@osdl.org> <Pine.LNX.4.64.0603121202540.31039@bizon.gios.gov.pl> <20060312032523.109361c1.akpm@osdl.org> <Pine.LNX.4.64.0603121359540.31039@bizon.gios.gov.pl>
+	Sun, 12 Mar 2006 10:41:28 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:14313
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750840AbWCLPl2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 10:41:28 -0500
+Subject: Re: [patch 5/8] hrtimer remove state field
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0603121608440.17704@scrub.home>
+References: <20060312080316.826824000@localhost.localdomain>
+	 <20060312080332.274315000@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121302590.16802@scrub.home>
+	 <1142169010.19916.397.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121422180.16802@scrub.home>
+	 <1142170505.19916.402.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121444530.16802@scrub.home>
+	 <1142172917.19916.421.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121523320.16802@scrub.home>
+	 <1142175286.19916.459.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121608440.17704@scrub.home>
+Content-Type: text/plain
+Date: Sun, 12 Mar 2006 16:41:48 +0100
+Message-Id: <1142178108.19916.475.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.64.0603121359540.31039@bizon.gios.gov.pl>; from olel@ans.pl on Sun, Mar 12, 2006 at 02:05:00PM +0100
+X-Mailer: Evolution 2.5.5 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 02:05:00PM +0100, Krzysztof Oledzki wrote:
+On Sun, 2006-03-12 at 16:17 +0100, Roman Zippel wrote:
+> > 
+> > CPU 0
+> > spin_unlock_irq(base->lock)	
+> > 			CPU1
+> > 			signal is dequeued
+> > 				timer is requeued
+> > 			user space code is executed
+> > 			user space code sets SIG_IGN
+> > restart = fn();
+> > 
+> > Now fn() calls send_sigqeue() which returns 1, resulting in ret =
+> > HRTIMER_RESTART which leads to requeueing of an enqueued timer.
 > 
-> 
-> On Sun, 12 Mar 2006, Andrew Morton wrote:
-> 
-> > Krzysztof Oledzki <olel@ans.pl> wrote:
-> >>
-> >> On Sat, 11 Mar 2006, Andrew Morton wrote:
-> >>
-> >> > Krzysztof Oledzki <olel@ans.pl> wrote:
-> >> >>
-> >> >> After upgrading to 2.6.16-rc6 I noticed this strange message:
-> >> >>
-> >> >>  More than 8 CPUs detected and CONFIG_X86_PC cannot handle it.
-> >> >>  Use CONFIG_X86_GENERICARCH or CONFIG_X86_BIGSMP.
-> >> >>
-> >> >> This is a Dell PowerEdge SC1425 with two P4 Xeons with HT enabled (so with
-> >> >>  totoal of 4 logical CPUs).
-> >> >
-> >> > Please send full dmesg output for the failing kernel, thanks.
-> >>  Attached.
-> >>
-> >> > Which is the most-recently-tested kernel which behaved correctly?
-> >>  2.6.15.6
-> >
-> > OK, thanks.  I assume the machine's working OK?
-> 
-> Yes. So far no problems, only this warning.
-> 
-> > From my reading, you have CONFIG_HOTPLUG_CPU enabled and the machine has an
-> > APIC.
-> That is correct.
-> 
-> > I'd expect that lots of people would hit that warning but for some
-> > reason they don't - possibly because most APICs don't have sufficiently
-> > high version numbers?
-> >
+> I'm not quite sure I follow, when the timer is running no signal should be 
+> queued, so nothing can be dequeued and no new timer can be requeued.
+> If that somehow is possible (although I don't see how), you'd found a bug 
+> in the signal/posix timer code, which should not be worked around in the 
+> hrtimer run queue.
 
-Actually, this warning should be seen on many other systems on well. We
-use the bigsmp when there _or_ more than 8 CPUs or CPU_HOTPLUG is used.
-So, in that sense the message is wrong, it should also have CPU_HOTPLUG in
-there. Or we should make CPU_HOTPLUG depend on GENERIC_ARCH or auto select
-GENERIC_ARCH with hotplug at the CONFIG level.
+How do you want to prevent that a signal is dequeued on one CPU while
+the softirq expires the timer on another CPU ? This can not be
+prevented.
 
-Will defer to Ashok for a proper fix.
+Of course we can check hrtimer_active() in posix_timer_fn(), but I have
+to check if there is a problem the other way round. I cook up a patch.
 
-Thanks,
-Venki
+	tglx
+
+
+

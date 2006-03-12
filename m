@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWCLEYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWCLEyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751382AbWCLEYk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 23:24:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWCLEYk
+	id S1751377AbWCLEyy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 23:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWCLEyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 23:24:40 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:46276 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1751382AbWCLEYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 23:24:39 -0500
-Date: Sat, 11 Mar 2006 23:29:57 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Andrew Morton <akpm@osdl.org>, kay.sievers@vrfy.org
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-Message-ID: <20060312042957.GA14157@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Andrew Morton <akpm@osdl.org>, kay.sievers@vrfy.org,
-	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
-References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060311173847.23838981.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 11 Mar 2006 23:54:54 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:13984 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751377AbWCLEyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 23:54:54 -0500
+Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+In-Reply-To: <1142063500.7605.13.camel@homer>
+References: <200603102054.20077.kernel@kolivas.org>
+	 <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
+	 <200603111824.06274.kernel@kolivas.org>  <1142063500.7605.13.camel@homer>
+Content-Type: text/plain
+Date: Sat, 11 Mar 2006 23:54:42 -0500
+Message-Id: <1142139283.25358.68.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 11, 2006 at 05:38:47PM -0800, Andrew Morton wrote:
-> Pierre Ossman <drzeus-list@drzeus.cx> wrote:
-> >
-> >  Here is a patch for doing multi line modalias for PNP devices. This will
-> >  break udev, so that needs to be updated first.
-> > 
-> >  I had a longer look at the card part and it seems that module aliases
-> >  cannot be reliably used for it. Not without restructuring the system at
-> >  least. The possible combinations explode when you notice that the driver
-> >  ids needs to be just at subset of the card, without any ordering.
-> > 
-> >  If I got my calculations right, a PNP card would have to have roughly
-> >  2^(2n) aliases, where n is the number of device ids. So right now, I
-> >  lean towards only adding modalias support for the non-card part of the
-> >  PNP layer.
-> > 
-> >  Andrew, do you want a fix for the patch in -mm or can you remove the
-> >  part of it that modifies drivers/pnp/card.c by yourself?
-> 
-> I assume you mean that the drivers/pnp/card.c patch of
-> pnp-modalias-sysfs-export.patch needs to be removed and this patch applies
-> on top of the result.
-> 
-> But I don't want to break udev.
+On Sat, 2006-03-11 at 08:51 +0100, Mike Galbraith wrote:
+> There used to be a pages in flight 'restrictor plate' in there that
+> would have probably helped this situation at least a little.  But in
+> any case, it sounds like you'll have to find a way to submit the IO in
+> itty bitty synchronous pieces. 
 
-I think supporting multiple IDs per node is a reasonable expectation to
-have from udev (even for subsystems beyond PnP).  Kay, would this be
-difficult to add?
+echo 64 > /sys/block/hd*/queue/max_sectors_kb
 
-However, I'm a little confused as to why we're exporting these "modalias"
-strings from a kernel interface in the first place.  Wouldn't it be better
-from an abstraction barrier standpoint to have userspace generate such
-strings from information it gathered through bus-specific interfaces? As
-can be seen from this example, when the modalias (or essentially a device
-identification key) is imposed at the kernel level driver model interface,
-one has to make policy decisions (e.g. what legacy features such as isapnp
-are we going to only psuedo-support).
+There is basically a straight linear relation between whatever you set
+this to and the maximum scheduling latency you see.  It was developed to
+solve the exact problem you are describing.
 
-Thanks,
-Adam
+Lee
+

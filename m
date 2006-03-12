@@ -1,165 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWCLILS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWCLIfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbWCLILS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 03:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWCLILS
+	id S1751509AbWCLIfy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 03:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWCLIfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 03:11:18 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:24453 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751344AbWCLILR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 03:11:17 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: ALSA HDA Intel stoped to work in 2.6.16-*
-Date: Sun, 12 Mar 2006 03:11:09 -0500
-User-Agent: KMail/1.9.1
-Cc: Otavio Salvador <otavio@debian.org>, Adrian Bunk <bunk@stusta.de>,
-       "S. Umar" <umar@compsci.cas.vanderbilt.edu>,
-       linux-kernel@vger.kernel.org
-References: <200602270900.13654.umar@compsci.cas.vanderbilt.edu> <878xrnczql.fsf@nurf.casa> <s5hr75fley8.wl%tiwai@suse.de>
-In-Reply-To: <s5hr75fley8.wl%tiwai@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Mar 2006 03:35:54 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:49677 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751503AbWCLIfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 03:35:53 -0500
+Date: Sun, 12 Mar 2006 09:35:28 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: michal.k.k.piotrowski@gmail.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       herbert@gondor.apana.org.au
+Subject: Re: Linux v2.6.16-rc6
+Message-ID: <20060312083528.GA21493@w.ods.org>
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <6bffcb0e0603111751i1ed30794s@mail.gmail.com> <20060311.183904.71244086.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603120311.09105.kernel-stuff@comcast.net>
+In-Reply-To: <20060311.183904.71244086.davem@davemloft.net>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 March 2006 11:23, Takashi Iwai wrote:
-> At Mon, 06 Mar 2006 13:19:30 -0300,
->
-> Otavio Salvador wrote:
-> > Takashi Iwai <tiwai@suse.de> writes:
-> > >> Shouldn't this fix go into 2.6.16?
-> > >
-> > > Unfortunately it's involved with many other patches (especially
-> > > semahpore->mutex ones) and hard to cherry-pick...
-> >
-> > I could prepare another patch just to fix it and then put it in on
-> > 2.6.16.
+On Sat, Mar 11, 2006 at 06:39:04PM -0800, David S. Miller wrote:
+> From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+> Date: Sun, 12 Mar 2006 02:51:40 +0100
+> 
+> > I have noticed this warnings
+> > TCP: Treason uncloaked! Peer 82.113.55.2:11759/50967 shrinks window
+> > 148470938:148470943. Repaired.
+> > TCP: Treason uncloaked! Peer 82.113.55.2:11759/50967 shrinks window
+> > 148470938:148470943. Repaired.
+> > TCP: Treason uncloaked! Peer 82.113.55.2:11759/59768 shrinks window
+> > 1124211698:1124211703. Repaired.
+> > TCP: Treason uncloaked! Peer 82.113.55.2:11759/59768 shrinks window
+> > 1124211698:1124211703. Repaired.
+> > 
+> > It maybe problem with ktorrent.
+> 
+> It is a problem with the remote TCP implementation, it is
+> illegally advertising a smaller window that it previously
+> did.
 
-I have a DELL E1705 Laptop and snd-intel-hda used to work for me in 2.6.15 - 
-it no longer works (Silence, no sound, no errors in dmesg) with 2.6.16-rc6. 
+on 2005/10/27, Herbert Xu provided a patch merged in 2.6.14 to fix some
+erroneous occurences of this message (some of them appeared with Linux
+on the other side). It would be interesting to know whether the peer
+above is Linux or not, because it might be possible that Herbert's fix
+needs to be applied to other places ?
 
-I have tried to load snd_hda_intel with  model=basic but even then it did not 
-work for me. 
+Here comes his patch with his interesting analysis for reference, in
+case it might give ideas to anybody.
 
-cat /proc/asound/cards
- 0 [01cd           ]: HDA-Intel - HDA Intel
-                      HDA Intel at 0xdfebc000 irq 233
- cat /proc/asound/01cd/
-codec#0    codec#1    id         oss_mixer  pcm0c/     pcm0p/     pcm1p/
-paragw@penguin ~ $ cat /proc/asound/01cd/codec#0
-Codec: SigmaTel STAC9200
-Address: 0
-Vendor Id: 0x83847690
-Subsystem Id: 0x102801cd
-Revision Id: 0x102201
-Default PCM: rates 0x7e0, bits 0x0e, types 0x1
-Default Amp-In caps: N/A
-Default Amp-Out caps: ofs=0x1f, nsteps=0x1f, stepsize=0x05, mute=1
-Node 0x02 [Audio Output] wcaps 0xd0401: Stereo
-  Power: 0x0
-Node 0x03 [Audio Input] wcaps 0x1d0541: Stereo
-  Power: 0x0
-  Connection: 1
-     0x0a
-Node 0x04 [Audio Input] wcaps 0x140311: Stereo Digital
-  PCM: rates 0x160, bits 0x0e, types 0x5
-  Connection: 1
-     0x08
-Node 0x05 [Audio Output] wcaps 0x40211: Stereo Digital
-  PCM: rates 0x1e0, bits 0x0e, types 0x5
-Node 0x06 [Vendor Defined Widget] wcaps 0xf30201: Stereo Digital
-Node 0x07 [Audio Selector] wcaps 0x300901: Stereo
-  Connection: 3
-     0x02* 0x08 0x0a
-Node 0x08 [Pin Complex] wcaps 0x430681: Stereo Digital
-  Pincap 0x0810024: IN
-  Pin Default 0x40c003fa: [N/A] SPDIF In at Ext N/A
-    Conn = Unknown, Color = Unknown
-  Pin-ctls: 0x00:
-  Power: 0x0
-Node 0x09 [Pin Complex] wcaps 0x400301: Stereo Digital
-  Pincap 0x0810: OUT
-  Pin Default 0x01441340: [Jack] SPDIF Out at Ext Rear
-    Conn = RCA, Color = Black
-  Pin-ctls: 0x40: OUT
-  Connection: 2
-     0x05* 0x0a
-Node 0x0a [Audio Selector] wcaps 0x30090d: Stereo Amp-Out
-  Amp-Out caps: ofs=0x00, nsteps=0x0f, stepsize=0x05, mute=1
-  Amp-Out vals:  [0x80 0x80]
-  Connection: 1
-     0x0c
-Node 0x0b [Audio Selector] wcaps 0x300105: Stereo Amp-Out
-  Amp-Out caps: N/A
-  Amp-Out vals:  [0x9f 0x9f]
-  Connection: 1
-     0x07
-Node 0x0c [Audio Selector] wcaps 0x30010d: Stereo Amp-Out
-  Amp-Out caps: ofs=0x00, nsteps=0x04, stepsize=0x27, mute=0
-  Amp-Out vals:  [0x00 0x00]
-  Connection: 5
-     0x10* 0x0f 0x0e 0x0d 0x12
-Node 0x0d [Pin Complex] wcaps 0x400181: Stereo
-  Pincap 0x083f: IN OUT HP
-  Pin Default 0x0421421f: [Jack] HP Out at Ext Right
-    Conn = 1/8, Color = Green
-  Pin-ctls: 0x00:
-  Connection: 1
-     0x0b
-Node 0x0e [Pin Complex] wcaps 0x400181: Stereo
-  Pincap 0x083f: IN OUT HP
-  Pin Default 0x90170310: [Fixed] Speaker at Int N/A
-    Conn = Analog, Color = Unknown
-  Pin-ctls: 0x00:
-  Connection: 1
-     0x0b
-Node 0x0f [Pin Complex] wcaps 0x400181: Stereo
-  Pincap 0x0837: IN OUT
-  Pin Default 0x408003fb: [N/A] Line In at Ext N/A
-    Conn = Unknown, Color = Unknown
-  Pin-ctls: 0x20: IN
-  Connection: 1
-     0x0b
-Node 0x10 [Pin Complex] wcaps 0x400181: Stereo
-  Pincap 0x081737: IN OUT
-  Pin Default 0x04a1102e: [Jack] Mic at Ext Right
-    Conn = 1/8, Color = Black
-  Pin-ctls: 0x20: IN
-  Connection: 1
-     0x0b
-Node 0x11 [Pin Complex] wcaps 0x400104: Mono Amp-Out
-  Amp-Out caps: N/A
-  Amp-Out vals:  [0x00]
-  Pincap 0x0810: OUT
-  Pin Default 0x90170311: [Fixed] Speaker at Int N/A
-    Conn = Analog, Color = Unknown
-  Pin-ctls: 0x00:
-  Connection: 1
-     0x13
-Node 0x12 [Pin Complex] wcaps 0x400001: Stereo
-  Pincap 0x0820: IN
-  Pin Default 0x403003fc: [N/A] CD at Ext N/A
-    Conn = Unknown, Color = Unknown
-  Pin-ctls: 0x20: IN
-Node 0x13 [Audio Mixer] wcaps 0x200100: Mono
-  Connection: 1
-     0x07
-Node 0x14 [Beep Generator Widget] wcaps 0x70000c: Mono Amp-Out
-  Amp-Out caps: ofs=0x03, nsteps=0x03, stepsize=0x17, mute=1
-  Amp-Out vals:  [0x00]
+Cheers,
+Willy
 
-cat /proc/asound/01cd/codec#1
-Codec: Generic 14f1 ID 2bfa
-Address: 1
-Vendor Id: 0x14f12bfa
-Subsystem Id: 0x14f100c3
-Revision Id: 0x90000
+---
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Thu, 27 Oct 2005 08:47:46 +0000 (+1000)
+Subject: [TCP]: Clear stale pred_flags when snd_wnd changes
+X-Git-Tag: v2.6.14
+X-Git-Url: http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=2ad41065d9fe518759b695fc2640cf9c07261dd2
+
+[TCP]: Clear stale pred_flags when snd_wnd changes
+
+This bug is responsible for causing the infamous "Treason uncloaked"
+messages that's been popping up everywhere since the printk was added.
+It has usually been blamed on foreign operating systems.  However,
+some of those reports implicate Linux as both systems are running
+Linux or the TCP connection is going across the loopback interface.
+
+In fact, there really is a bug in the Linux TCP header prediction code
+that's been there since at least 2.1.8.  This bug was tracked down with
+help from Dale Blount.
+
+The effect of this bug ranges from harmless "Treason uncloaked"
+messages to hung/aborted TCP connections.  The details of the bug
+and fix is as follows.
+
+When snd_wnd is updated, we only update pred_flags if
+tcp_fast_path_check succeeds.  When it fails (for example,
+when our rcvbuf is used up), we will leave pred_flags with
+an out-of-date snd_wnd value.
+
+When the out-of-date pred_flags happens to match the next incoming
+packet we will again hit the fast path and use the current snd_wnd
+which will be wrong.
+
+In the case of the treason messages, it just happens that the snd_wnd
+cached in pred_flags is zero while tp->snd_wnd is non-zero.  Therefore
+when a zero-window packet comes in we incorrectly conclude that the
+window is non-zero.
+
+In fact if the peer continues to send us zero-window pure ACKs we
+will continue making the same mistake.  It's only when the peer
+transmits a zero-window packet with data attached that we get a
+chance to snap out of it.  This is what triggers the treason
+message at the next retransmit timeout.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@mandriva.com>
+---
+
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -2239,6 +2239,7 @@ static int tcp_ack_update_window(struct 
+ 			/* Note, it is the only place, where
+ 			 * fast path is recovered for sending TCP.
+ 			 */
++			tp->pred_flags = 0;
+ 			tcp_fast_path_check(sk, tp);
+ 
+ 			if (nwin > tp->max_window) {
 
 
-Parag
+----
+

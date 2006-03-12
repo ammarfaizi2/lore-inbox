@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWCLRBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWCLRA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751573AbWCLRBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 12:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWCLRBJ
+	id S1751570AbWCLRA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 12:00:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751572AbWCLRA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 12:01:09 -0500
-Received: from ppsw-7.csi.cam.ac.uk ([131.111.8.137]:10636 "EHLO
-	ppsw-7.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751569AbWCLRBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 12:01:07 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Sun, 12 Mar 2006 17:00:51 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Christoph Hellwig <hch@lst.de>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: truncate and {m,c}time on ntfs
-In-Reply-To: <Pine.LNX.4.64.0603121641380.29271@hermes-2.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.64.0603121651360.29271@hermes-2.csi.cam.ac.uk>
-References: <Pine.LNX.4.64.0603121641380.29271@hermes-2.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Mar 2006 12:00:59 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:40793 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751569AbWCLRA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 12:00:58 -0500
+Date: Sun, 12 Mar 2006 11:00:46 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Problem with a CD
+In-reply-to: <5PBCr-4pd-21@gated-at.bofh.it>
+To: Eric.Brunet@lps.ens.fr
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <441453BE.60002@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <5PBCr-4pd-21@gated-at.bofh.it>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Mar 2006, Anton Altaparmakov wrote:
-> Hi Christoph,
+Eric.Brunet@lps.ens.fr wrote:
+> I have error messages in my logs:
+> on computer #1, they look like:
+> |hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+> |hdc: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
+> |ide: failed opcode was: unknown
+> |end_request: I/O error, dev hdc, sector 5008
+> |Buffer I/O error on device hdc, logical block 1252
+> on computer #2, they are simpler:
+> |end_request: I/O error, dev sr0, sector 5008
+> |Buffer I/O error on device sr0, logical block 1252
 > 
-> A patch of yours modified fs/ntfs/inode.c::ntfs_truncate() and inserted 
-> this comment:
+> On both computers, I have the errors on the same sectors/blocks.
 > 
-> [snip]
-> 	/* normally ->truncate shouldn't update ctime or mtime,
-> 	 * but ntfs did before so it got a copy & paste version
-> 	 * of file_update_time.  one day someone should fix this
-> 	 * for real.
-> 	 */
-> [snip]
+> For the two offending files, the errors already occur on the beginings of
+> the files.
 > 
-> Did you realise that all (local) file systems in Linux kernel set both 
-> {m,c}time in their ->truncate function.  E.g. from 
-> fs/ext3.c/inode.c::ext3_truncate():
+> Of course, all of this point to a defective CD, except that on both
+> computers, I can read the files without any problem with windows XP
+> (well, actually, I have only read avseq01.dat, which is a video file. I
+> haven't tried the other troublesome file.)
 > 
-> inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
-> 
-> Would you be so kind to explain what is your problem with ntfs doing it, 
-> too?  And if your statement is correct and no file system should touch 
-> {m,c}time in their ->truncate() method, could you explain to me how the 
-> {m,c}time would be set otherwise when open(O_TRUNC) or {f,}truncate() is 
-> executed on a file?
+> What could be the problem ?
 
-Sorry, I know how open(O_TRUNC) sets it as it calls do_truncate(,, 
-ATTR_MTIME|ATTR_CTIME,) but at present both {f,}truncate() call 
-do_truncate(,, 0,) and I do not see anywhere else where the setting 
-would/could be done, other than in the file system ->truncate method.
+This is a VCD, right? Those use Mode 2 Form 2 which has weak error 
+correction (like an audio CD). It's possible the drive is returning read 
+errors and WinXP is ignoring the errors because it's a VCD, and Linux is 
+not..
 
-In fact if I take the setting of {m,c}time out of ntfs_truncate(), doing:
-
-touch
-stat foo
-truncate foo 10
-stat foo
-
-Does not result in a change in the {m,c}time...
-
-Given posix/sus3 requires setting of {m,c}time on truncate, it would 
-appear that a file system ->truncate function needs to set {m,c}time 
-itself...
-
-Please explain why you added your comment to ntfs...
-
-Thanks a lot in advance.
-
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

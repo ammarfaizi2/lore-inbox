@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWCLI7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWCLJDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWCLI7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 03:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWCLI7b
+	id S1751212AbWCLJDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 04:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWCLJDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 03:59:31 -0500
-Received: from [80.84.64.18] ([80.84.64.18]:28640 "EHLO s18.uklinux.net")
-	by vger.kernel.org with ESMTP id S1751201AbWCLI7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 03:59:30 -0500
-Date: Sun, 12 Mar 2006 08:59:15 GMT
-Message-Id: <200603120859.k2C8xFbv020902@s18.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Update Sales
-From: Petraset Pet Centre <info@petrasetcentre.com>
-Reply-To: info@petrasetcentre.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 12 Mar 2006 04:03:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:20917 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751212AbWCLJDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 04:03:06 -0500
+Date: Sun, 12 Mar 2006 09:03:05 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.16-rc6
+Message-ID: <20060312090305.GA18134@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear
+On Sat, Mar 11, 2006 at 03:58:12PM -0800, Linus Torvalds wrote:
+> Bjorn Helgaas:
+>       [IA64] don't report !sn2 or !summit hardware as an error
+>       [IA64] SGI SN drivers: don't report !sn2 hardware as an error
 
-As a valued customer, we couldn't
-wait to bring you the good news. This letter is to
-announce the Latest Pets ,Newly breeded. Well, maybe we haven't thought of a great
-Investment for it yet, but if you read on I think you'll agree
-that no matter what we call it, it's super!
-
-Starting on April 1st, a series of pets like Replenished dogs, white horse dogs 
-
-with our store will be maintained on a cumulative basis for a
-period of one year. Once your purchases have reached
-$1000, you will be automatically entitled to a 5% discount
-on any order placed, including orders for sale items.
-When your orders have reached the $2,000 mark, your
-discount will increase to 10%. A $3,500 accumulation of
-orders will entitle you to a 15% discount and once you
-have reached $2,000 you will receive 20% off all
-merchandise orders. We think it's a great idea and hope
-that you agree.
-
-Won't you send us a purchase order today to get you
-started on your way? If you think of a good name for us
-to tag onto this new discount program, please let us know!
-
-by mailing us at info@petrasetcentre.com
-
-Visit Our Websites at http://www.petrasetcentre.com
-
-Head Office Dubai  : Ph: 00971 -502885690
-
-
-
-Management
-
-Richard Hops
-
-
-
+These should be reverted.  They return success from initcalls when they
+should report failure.  In the mmtimer case this is a real bug as it can
+be modular, in others it's just cosmetic but provides people wrong examples
+to cut & paste from.
 

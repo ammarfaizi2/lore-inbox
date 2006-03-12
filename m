@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWCLFPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWCLF0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbWCLFPV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 00:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWCLFPV
+	id S1751407AbWCLF0l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 00:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWCLF0l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 00:15:21 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:54380 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751103AbWCLFPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 00:15:21 -0500
-Date: Sun, 12 Mar 2006 12:34:50 +0800
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] fix swap cluster offset
-Message-ID: <20060312043450.GA7088@miraclelinux.com>
+	Sun, 12 Mar 2006 00:26:41 -0500
+Received: from mail.gmx.de ([213.165.64.20]:62647 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751407AbWCLF0k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 00:26:40 -0500
+X-Authenticated: #14349625
+Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
+From: Mike Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+In-Reply-To: <1142139283.25358.68.camel@mindpipe>
+References: <200603102054.20077.kernel@kolivas.org>
+	 <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
+	 <200603111824.06274.kernel@kolivas.org>  <1142063500.7605.13.camel@homer>
+	 <1142139283.25358.68.camel@mindpipe>
+Content-Type: text/plain
+Date: Sun, 12 Mar 2006 06:27:36 +0100
+Message-Id: <1142141256.8021.18.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When we've allocated SWAPFILE_CLUSTER pages, ->cluster_next should
-be the first index of swap cluster. But current code probably sets it
-wrong offset.
+On Sat, 2006-03-11 at 23:54 -0500, Lee Revell wrote:
+> On Sat, 2006-03-11 at 08:51 +0100, Mike Galbraith wrote:
+> > There used to be a pages in flight 'restrictor plate' in there that
+> > would have probably helped this situation at least a little.  But in
+> > any case, it sounds like you'll have to find a way to submit the IO in
+> > itty bitty synchronous pieces. 
+> 
+> echo 64 > /sys/block/hd*/queue/max_sectors_kb
+> 
+> There is basically a straight linear relation between whatever you set
+> this to and the maximum scheduling latency you see.  It was developed to
+> solve the exact problem you are describing.
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+Ah, a very useful bit of information, thanks.
 
-Index: work/mm/swapfile.c
-===================================================================
---- work.orig/mm/swapfile.c
-+++ work/mm/swapfile.c
-@@ -116,7 +116,7 @@ static inline unsigned long scan_swap_ma
- 				last_in_cluster = offset + SWAPFILE_CLUSTER;
- 			else if (offset == last_in_cluster) {
- 				spin_lock(&swap_lock);
--				si->cluster_next = offset-SWAPFILE_CLUSTER-1;
-+				si->cluster_next = offset-SWAPFILE_CLUSTER+1;
- 				goto cluster;
- 			}
- 			if (unlikely(--latency_ration < 0)) {
+It won't help Con though, because he'll be dealing with every possible
+configuration.  I think he's going to have to either submit, wait,
+bandwidth limiting sleep, repeat or something clever that does that.
+Even with bandwidth restriction though, seek still bites mightily, so I
+suspect he's stuck with little trickles of IO started when we'd
+otherwise be idle.  We'll see I suppose.
+
+	-Mike
+

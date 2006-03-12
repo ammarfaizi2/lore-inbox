@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWCLQ0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWCLQ0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWCLQ0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 11:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWCLQ0Q
+	id S1751368AbWCLQ0g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 11:26:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWCLQ0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 11:26:16 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:48105
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751346AbWCLQ0Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 11:26:16 -0500
-Subject: Re: [patch 5/8] hrtimer remove state field
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.64.0603121650230.16802@scrub.home>
-References: <20060312080316.826824000@localhost.localdomain>
-	 <20060312080332.274315000@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121302590.16802@scrub.home>
-	 <1142169010.19916.397.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121422180.16802@scrub.home>
-	 <1142170505.19916.402.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121444530.16802@scrub.home>
-	 <1142172917.19916.421.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121523320.16802@scrub.home>
-	 <1142175286.19916.459.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121608440.17704@scrub.home>
-	 <1142178108.19916.475.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121650230.16802@scrub.home>
+	Sun, 12 Mar 2006 11:26:36 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:8904
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751368AbWCLQ0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 11:26:36 -0500
+Subject: Re: 2.6.16-rc5 pppd oops on disconnects
+From: Paul Fulghum <paulkf@microgate.com>
+To: Bob Copeland <email@bobcopeland.com>
+Cc: paulus@samba.org, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <b6c5339f0603111221k2d0afce5hcfd485713ba17338@mail.gmail.com>
+References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>
+	 <1142011340.3220.4.camel@amdx2.microgate.com>
+	 <b6c5339f0603101048l1c362582xc4d2570bc9d569b@mail.gmail.com>
+	 <1142018709.26063.5.camel@amdx2.microgate.com>
+	 <20060311150908.GA4872@hash.localnet>
+	 <1142099765.3241.3.camel@x2.pipehead.org>
+	 <b6c5339f0603111221k2d0afce5hcfd485713ba17338@mail.gmail.com>
 Content-Type: text/plain
-Date: Sun, 12 Mar 2006 17:26:36 +0100
-Message-Id: <1142180796.19916.497.camel@localhost.localdomain>
+Date: Sun, 12 Mar 2006 10:26:29 -0600
+Message-Id: <1142180789.4360.2.camel@x2.pipehead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-03-12 at 17:00 +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Sun, 12 Mar 2006, Thomas Gleixner wrote:
-> 
-> > How do you want to prevent that a signal is dequeued on one CPU while
-> > the softirq expires the timer on another CPU ? This can not be
-> > prevented.
-> 
-> This should not be possible in first place, otherwise it's a bug.
-> The original problem was a broken state machine, is that so hard to 
-> believe? If there is another problem, please provide more details.
+Bob, if you are still willing, please try this patch
+with the slab debug turned on and see if it still oops.
 
-Roman,
+Thanks,
+Paul
 
-there was a state machine problem caused by something similar.
+-- 
+Paul Fulghum
+Microgate Systems, Ltd
 
-But the problem I described now happened with the current patch queue -
-without the hrtimer_active() check. I have no direct access to the
-machine which lets this surface and I just tried to reconstruct the
-scenario from the sparse information which was provided by the customer.
-All I can tell, that it is related to something similar and a requeue
-happens where none should happen.
-
-I agree, that it should not be handled in the hrtimer code. It has to be
-fixed in the posix-timer code.
-
-I make the check a BUG_ON(!hrtimer_active(timer) so it might show up in
--mm again. Ok ?
-
-	tglx
+--- linux-2.6.16-rc5/drivers/usb/class/cdc-acm.c	2006-02-27 09:24:29.000000000 -0600
++++ b/drivers/usb/class/cdc-acm.c	2006-03-12 10:22:21.000000000 -0600
+@@ -980,7 +980,7 @@ skip_normal_probe:
+ 	usb_driver_claim_interface(&acm_driver, data_interface, acm);
+ 
+ 	usb_get_intf(control_interface);
+-	tty_register_device(acm_tty_driver, minor, &control_interface->dev);
++	tty_register_device(acm_tty_driver, minor, NULL);
+ 
+ 	acm_table[minor] = acm;
+ 	usb_set_intfdata (intf, acm);
 
 

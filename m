@@ -1,85 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWCLV6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWCLWDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWCLV6g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 16:58:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWCLV6g
+	id S932276AbWCLWDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWCLWDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 16:58:36 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:19635 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932272AbWCLV6f (ORCPT
+	Sun, 12 Mar 2006 17:03:15 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:60561 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932276AbWCLWDP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 16:58:35 -0500
-From: Neil Brown <neilb@suse.de>
-To: Jan Blunck <jblunck@suse.de>
-Date: Mon, 13 Mar 2006 08:57:09 +1100
-MIME-Version: 1.0
+	Sun, 12 Mar 2006 17:03:15 -0500
+Date: Sun, 12 Mar 2006 23:02:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Subject: 2.6.16-rc6-rt1
+Message-ID: <20060312220218.GA3469@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17428.39221.861124.797480@cse.unsw.edu.au>
-Cc: Kirill Korotaev <dev@openvz.org>, akpm@osdl.org, viro@zeniv.linux.org.uk,
-       olh@suse.de, bsingharora@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix shrink_dcache_parent() against shrink_dcache_memory() race (3rd updated patch)]
-In-Reply-To: message from Jan Blunck on Friday March 10
-References: <20060309165833.GK4243@hasse.suse.de>
-	<441060D2.6090800@openvz.org>
-	<17425.2594.967505.22336@cse.unsw.edu.au>
-	<441138B7.9060809@sw.ru>
-	<20060310105950.GL4243@hasse.suse.de>
-	<17425.26668.678359.918399@cse.unsw.edu.au>
-	<20060310123153.GN4243@hasse.suse.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday March 10, jblunck@suse.de wrote:
-> On Fri, Mar 10, Neil Brown wrote:
-> 
-> > -static void prune_dcache(int count)
-> > +static void prune_dcache(int count, struct super_block *sb)
-> >  {
-> >  	spin_lock(&dcache_lock);
-> >  	for (; count ; count--) {
-> > @@ -417,8 +425,10 @@ static void prune_dcache(int count)
-> >   			spin_unlock(&dentry->d_lock);
-> >  			continue;
-> >  		}
-> > -		/* If the dentry was recently referenced, don't free it. */
-> > -		if (dentry->d_flags & DCACHE_REFERENCED) {
-> > +		/* If the dentry was recently referenced, or is for
-> > +		 * a unmounting filesystem, don't free it. */
-> > +		if ((dentry->d_flags & DCACHE_REFERENCED) ||
-> > +		    (dentry->d_sb != sb && dentry->d_sb->s_root == NULL)) {
-> >  			dentry->d_flags &= ~DCACHE_REFERENCED;
-> >   			list_add(&dentry->d_lru, &dentry_unused);
-> >   			dentry_stat.nr_unused++;
-> 
-> You have to down_read the rw-semaphore sb->s_umount since sb->s_root is
-> protected by it :(
+i have released the 2.6.16-rc6-rt1 tree, which can be downloaded from 
+the usual place:
 
-No you don't.
-sb->s_root is set precisely twice for any filesystem.
-Once when the filesystem is mounted, typically in the fill_super
-function, and once in generic_shutdown_super where it is set to NULL.
+   http://redhat.com/~mingo/realtime-preempt/
 
-There is no need to lock against the first change as the sb is not
-globally visible until after s_root is set.  So for the present
-purpose we only need to worry about the second change.
+again, lots of changes all over the map:
 
-For this, the current usage of dcache_lock is enough to remove any
-possible race.  generic_shutdown_super sets s_root to NULL and then
-takes dcache_lock (via wait_for_prunes) before it cares if anyone has
-noticed the NULL or not.  prune_dcache holds dcache_lock while testing
-for NULL.  So there is no room for a race.
+- firstly, the -rt tree has been rebased to 2.6.16-rc6, which was a more
+  complex operation than usual, due to the many changes in 2.6.16 (in 
+  particular the mutex code).
 
-s_umount is sometimes taken before testing s_root.  This is always
-because the sb has just been found on the list of all superblocks, and
-so the thread doesn't hold a proper reference to it.  In our case
-we are holding a dentry which in turn holds a real reference to the
-superblock.
+- the PI code got reworked again, this time by Thomas Gleixner. The
+  priority boosting chain is now instantaneous again (and not 
+  wakeup/scheduling based) - but the previous list-walking hell has been 
+  avoided via the clever use of plists. Plus many other changes and
+  lots of cleanups to the rt-mutex proper.
 
-So I stand by my patch - s_root can be safely tested here.
+- the rt-SLAB code got reworked too - hopefully for the better.
 
-NeilBrown
+- there's also a completely new PI-futex approach included, ontop of the
+  robust-list futex feature. All combinations of PI and robustness are
+  supported: default non-robust non-PI futexes, robust+PI, !robust+PI,
+  PI+!robust futexes.
+
+- new latency tracer feature: print every function call done by the
+  kernel to the console - useful to debug early bootup hangs or other
+  nasty bugs.
+
+- plus zillions of bugfixes (and no doubt new regressions).
+
+to build a 2.6.16-rc6-rt1 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.16-rc6.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.16-rc6-rt1
+
+	Ingo

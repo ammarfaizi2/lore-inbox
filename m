@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWCLN1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751431AbWCLN0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWCLN1m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 08:27:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWCLN1m
+	id S1751431AbWCLN0a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 08:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWCLN0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 08:27:42 -0500
-Received: from nproxy.gmail.com ([64.233.182.207]:38099 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750830AbWCLN1m (ORCPT
+	Sun, 12 Mar 2006 08:26:30 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:44691 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750830AbWCLN0a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 08:27:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=mkPGC2E9AW8D9grx9E02UrgO9QUltwmHkGHHnckh9zVbUmaWN1TvFf59EG4/GBvjVcJQMe/tWFQLfsTin3yUzLQq2EcU7e+cqeOY+Dq6o4NaRQ28SKAG5c3qiI6umhV7oKv7FqFrmH1o4q3/AmYn/5htPgrM/UN4h38gc5m1nYQ=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()
-Date: Sun, 12 Mar 2006 14:28:08 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
+	Sun, 12 Mar 2006 08:26:30 -0500
+Date: Sun, 12 Mar 2006 14:26:22 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 5/8] hrtimer remove state field
+In-Reply-To: <1142169010.19916.397.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0603121422180.16802@scrub.home>
+References: <20060312080316.826824000@localhost.localdomain> 
+ <20060312080332.274315000@localhost.localdomain>  <Pine.LNX.4.64.0603121302590.16802@scrub.home>
+ <1142169010.19916.397.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603121428.08226.jesper.juhl@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-The Coverity checker found that we may leak memory in 
-mm/slab.c::alloc_kmemlist()
-This should fix the leak and coverity bug #589
+On Sun, 12 Mar 2006, Thomas Gleixner wrote:
 
+> > BTW the active check can be removed again, as it was added for a state 
+> > machine problem, I only didn't want to remove it for 2.6.16.
+> 
+> The check can not be removed. The reason why it was added is still the
+> same. 
+> 
+> It has nothing to do with a state machine. It's a simple SMP locking
+> issue.
+> 
+> softirq runs on CPU0
+> base->lock()
+> 
+> remove_timer(timer);
+> 
+> base->unlock()
+> 			signal of previous expiry is delivered on CPU1
+> 			timer is reqeued.
+> requeue = timer->fn();
+> 
+> base->lock()
+> 
+> if (requeue)
+> 	enqueue_timer(timer)
+> 
+> --> OOPS
+> 
+> We can not wait in the signal delivery path until the callback has been
+> executed, as we hold the posix-timer->lock and this would deadlock
+> timer->fn().
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+posix_timer either restarts the timer directly or via signal delivery, but 
+never both, so this case can't happen (unless there is a bug in the 
+posix_timer).
 
- mm/slab.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
---- linux-2.6.16-rc6-orig/mm/slab.c	2006-03-12 14:19:17.000000000 +0100
-+++ linux-2.6.16-rc6/mm/slab.c	2006-03-12 14:22:40.000000000 +0100
-@@ -3366,8 +3366,10 @@ static int alloc_kmemlist(struct kmem_ca
- 			continue;
- 		}
- 		if (!(l3 = kmalloc_node(sizeof(struct kmem_list3),
--					GFP_KERNEL, node)))
-+					GFP_KERNEL, node))) {
-+			kfree(new);
- 			goto fail;
-+		}
- 
- 		kmem_list3_init(l3);
- 		l3->next_reap = jiffies + REAPTIMEOUT_LIST3 +
-
-
+bye, Roman

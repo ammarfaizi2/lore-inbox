@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWCLWlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWCLWnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWCLWlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 17:41:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCLWlJ
+	id S1750933AbWCLWnx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWCLWnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 17:41:09 -0500
-Received: from ns.suse.de ([195.135.220.2]:3201 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751254AbWCLWlH (ORCPT
+	Sun, 12 Mar 2006 17:43:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53720 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750933AbWCLWnu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 17:41:07 -0500
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [discuss] Re: 2.6.16-rc5-mm3: spinlock bad magic on CPU#0 on AMD64
-Date: Sun, 12 Mar 2006 16:10:31 +0100
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Mingming Cao <cmm@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>
-References: <200603120024.04938.rjw@sisk.pl> <200603121349.32374.rjw@sisk.pl> <20060312142654.650b90fb.akpm@osdl.org>
-In-Reply-To: <20060312142654.650b90fb.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 12 Mar 2006 17:43:50 -0500
+Date: Sun, 12 Mar 2006 14:41:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: linux-kernel@vger.kernel.org, jesper.juhl@gmail.com,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()
+Message-Id: <20060312144129.0b5c227d.akpm@osdl.org>
+In-Reply-To: <200603121428.08226.jesper.juhl@gmail.com>
+References: <200603121428.08226.jesper.juhl@gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603121610.31881.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 March 2006 23:26, Andrew Morton wrote:
-
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>
 > 
-> It's a pretty vile backtrace.  I supposed you have CONFIG_FRAME_POINTER=n.
-
-Won't make a difference because the oops backtracer doesn't
-use them.
-
-> Still.  It seems that what's happened is that we took a pagefault while
-> reiserfs had a transaction open.  The fault is against a mmapped ext3 file
-> and we ended up in the recently-reworked ext3_get_block() which tests
-> journal_current_handle() to work out whether we're in a write or a read. 
-> oops.  The presence of reiserfs journal_info makes it decide it's a write,
-> not a read so it starts treating a reiserfs journal_info as an ext3 one.
+> The Coverity checker found that we may leak memory in 
+> mm/slab.c::alloc_kmemlist()
+> This should fix the leak and coverity bug #589
 > 
-> The code used to work OK because it was only for direct-IO, which doesn't
-> get recurred into like this.  But it got used for regular I/O in -mm.
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+>  mm/slab.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> --- linux-2.6.16-rc6-orig/mm/slab.c	2006-03-12 14:19:17.000000000 +0100
+> +++ linux-2.6.16-rc6/mm/slab.c	2006-03-12 14:22:40.000000000 +0100
+> @@ -3366,8 +3366,10 @@ static int alloc_kmemlist(struct kmem_ca
+>  			continue;
+>  		}
+>  		if (!(l3 = kmalloc_node(sizeof(struct kmem_list3),
+> -					GFP_KERNEL, node)))
+> +					GFP_KERNEL, node))) {
+> +			kfree(new);
+>  			goto fail;
+> +		}
+>  
+>  		kmem_list3_init(l3);
+>  		l3->next_reap = jiffies + REAPTIMEOUT_LIST3 +
 
-Oops. Can this happen in more situations?
+It's more complicated than that.  We can also leak new_alien.  And if any
+allocation in that for_each_online_node() loop fails I guess we need to
+back out all the allocations we've done thus far, which means another loop.
+ug.
 
--Andi
+Patches against rc6-mm1 would be preferred please, that code's changed
+quite a bit.
+

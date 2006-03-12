@@ -1,54 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752282AbWCKBBP (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 10 Mar 2006 20:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752283AbWCKBBP
+	id S1750851AbWCLGp1 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 12 Mar 2006 01:45:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWCLGp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Mar 2006 20:01:15 -0500
-Received: from [219.157.132.240] ([219.157.132.240]:35082 "HELO 30C74F8")
-	by vger.kernel.org with SMTP id S1752280AbWCKBBO convert rfc822-to-8bit
+	Sun, 12 Mar 2006 01:45:27 -0500
+Received: from zion.tvnetwork.hu ([80.95.64.67]:6122 "HELO mail.tvnetwork.hu")
+	by vger.kernel.org with SMTP id S1750851AbWCLGp0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Mar 2006 20:01:14 -0500
-Date: Sat, 11 Mar 2006 03:00:10 +0200
-From: "Alec" <boysgnvl@yahoo.es>
+	Sun, 12 Mar 2006 01:45:26 -0500
+Date: Sun, 12 Mar 2006 07:45:16 +0100
+From: Csanyi Andras <sayusi.ando@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re:
-Message-ID: <RKrJ977.MX044kg7.1W8Y3E4s@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Message-ID: <20060312074516.549b34f2@localhost>
+Organization: Andrew Corporation
+X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1752282AbWCKBBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750851AbWCLGp1@vger.kernel.org>
+
+unsubscribe linux-kernel
+
+--=20
+-- Csanyi Andras --
+-"B=EDzz=E1l Istenben =E9s tartsd sz=E1razon a puskaport." - Cromwell
 
 
-Hey whats up,
 
-All the maajor barands like aR0lex, aTag uHeuer, aCart ier etc.
-
-Dite for the Rep lica wautches, L0w   ePRi ces we 0 ffer.
-
-Your human instinct is to be recognized.
-
-iAffordable imitations make you look erich, ufraction of the oC0St.=20
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-COPY the Address below and paste in your WEBa browser:
-
-
-afraidness.justworlds.com
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-
-I am the woman who worked in the field .
-Despite overall sluggish wage growth,.
-Not physiognomy alone, nor brain alone, is worthy for the muse=97I say =
-the-
+-
 To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
  in
 the body of a message to majordomo@vger.kernel.org

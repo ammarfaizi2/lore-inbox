@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWCLNeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWCLNfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbWCLNeq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 08:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWCLNeq
+	id S1750830AbWCLNfc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 08:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWCLNfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 08:34:46 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:7144
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750894AbWCLNep
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 08:34:45 -0500
-Subject: Re: [patch 5/8] hrtimer remove state field
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.64.0603121422180.16802@scrub.home>
-References: <20060312080316.826824000@localhost.localdomain>
-	 <20060312080332.274315000@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121302590.16802@scrub.home>
-	 <1142169010.19916.397.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121422180.16802@scrub.home>
-Content-Type: text/plain
-Date: Sun, 12 Mar 2006 14:35:05 +0100
-Message-Id: <1142170505.19916.402.camel@localhost.localdomain>
+	Sun, 12 Mar 2006 08:35:32 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:59660 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750830AbWCLNfb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 08:35:31 -0500
+Date: Sun, 12 Mar 2006 14:35:14 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm1
+Message-ID: <20060312133514.GA9922@mars.ravnborg.org>
+References: <20060312031036.3a382581.akpm@osdl.org> <200603121416.26583.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603121416.26583.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman,
-
-I looked up the exact problem again.
-
-On Sun, 2006-03-12 at 14:26 +0100, Roman Zippel wrote:
-> > softirq runs on CPU0
-> > base->lock()
+On Sun, Mar 12, 2006 at 02:16:26PM +0100, Rafael J. Wysocki wrote:
+> On Sunday 12 March 2006 12:10, Andrew Morton wrote:
 > > 
-> > remove_timer(timer);
-> > 
-> > base->unlock()
-> > 			signal of previous expiry is delivered on CPU1
-> > 			timer is reqeued.
-
-		------->  sig_ignore is set
-
-> > requeue = timer->fn();
-> > 
-> > base->lock()
-> > 
-> > if (requeue)
-> > 	enqueue_timer(timer)
-> > 
-> > --> OOPS
-> > 
-> > We can not wait in the signal delivery path until the callback has been
-> > executed, as we hold the posix-timer->lock and this would deadlock
-> > timer->fn().
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
 > 
-> posix_timer either restarts the timer directly or via signal delivery, but 
-> never both, so this case can't happen (unless there is a bug in the 
-> posix_timer).
+> Doesn't compile for me:
+> 
+> rafael@albercik:~/src/mm/linux-2.6.16-rc6-mm1> make
+>   CHK     include/linux/version.h
+>   SPLIT   include/linux/autoconf.h -> include/config/*
+>   HOSTCC  scripts/genksyms/genksyms.o
+> scripts/genksyms/genksyms.c:35:30: error: ../mod/elfconfig.h: No such file or directory
+> scripts/genksyms/genksyms.c: In function ???export_symbol???:
+> scripts/genksyms/genksyms.c:461: error: ???MODULE_SYMBOL_PREFIX??? undeclared (first use in this function)
+> scripts/genksyms/genksyms.c:461: error: (Each undeclared identifier is reported only once
+> scripts/genksyms/genksyms.c:461: error: for each function it appears in.)
+> make[2]: *** [scripts/genksyms/genksyms.o] Error 1
+> make[1]: *** [scripts/genksyms] Error 2
+> make: *** [scripts] Error 2
+My bad.
+ 
+> #
+> # Loadable module support
+> #
+> CONFIG_MODULES=y
+> CONFIG_MODULE_UNLOAD=y
+> CONFIG_MODULE_FORCE_UNLOAD=y
+> CONFIG_MODVERSIONS=y
+Use CONFIG_MODVERSIONS=n for now as workaround.
 
-It took quite a time to track this down. Its unlikely, but it _CAN_
-happen !
-
-	tglx
-
-
+	Sam

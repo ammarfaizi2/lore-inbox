@@ -1,157 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWCLWVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWCLW3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWCLWVO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 17:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWCLWVO
+	id S1751100AbWCLW3l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWCLW3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 17:21:14 -0500
-Received: from pool-68-237-228-215.ny325.east.verizon.net ([68.237.228.215]:62207
-	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
-	id S1750730AbWCLWVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 17:21:13 -0500
-Subject: Re: Linux v2.6.16-rc6
-From: Paul Blazejowski <paulb@blazebox.homeip.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-In-Reply-To: <1142199970.25358.173.camel@mindpipe>
-References: <1142189154.21274.20.camel@blaze.homeip.net>
-	 <1142199970.25358.173.camel@mindpipe>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AuaVLhJw6rINZlbA0O+t"
-Date: Sun, 12 Mar 2006 17:21:29 -0500
-Message-Id: <1142202089.9934.13.camel@blaze.homeip.net>
+	Sun, 12 Mar 2006 17:29:41 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8918 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751100AbWCLW3k convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 17:29:40 -0500
+Date: Sun, 12 Mar 2006 14:26:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, Mingming Cao <cmm@us.ibm.com>,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [discuss] Re: 2.6.16-rc5-mm3: spinlock bad magic on CPU#0 on
+ AMD64
+Message-Id: <20060312142654.650b90fb.akpm@osdl.org>
+In-Reply-To: <200603121349.32374.rjw@sisk.pl>
+References: <200603120024.04938.rjw@sisk.pl>
+	<20060311153618.2e4b113d.akpm@osdl.org>
+	<200603121127.28657.rjw@sisk.pl>
+	<200603121349.32374.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 Dropline GNOME 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+>  Done, and now it looks like this:
 
---=-AuaVLhJw6rINZlbA0O+t
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Helps a lot, thanks.
 
-On Sun, 2006-03-12 at 16:46 -0500, Lee Revell wrote:
-> On Sun, 2006-03-12 at 13:45 -0500, Paul Blazejowski wrote:
-> > On recent kernel 2.6.15.6 (or any 2.6.15.x) and latest testing
-> > 2.6.16-rc6 libata detects and sets wrong UDMA modes for one of the
-> > SATA-1 drives. This seems to be a bug.
-> >=20
-> > My setup is as follows:
-> >=20
-> > ASUS A8N-SLI-Premium Nforce4 mainboard
-> > AMD Athlon X2 CPU running SMP
-> > GCC 3.3.6
-> > Slackware 10.2 Linux
-> >=20
-> > The drives are used in RAID1 array (dmraid), they are WDC-WD2000JD
-> > series purchased few months apart. Sata is compiled in the kernel as
-> > module sata_nv and functions properly, no errors or any other anomalies
-> > were noticed but the UDMA mode detection seem wrong on the second drive=
-.
-> >=20
-> > Drive one reports ata3: dev 0 configured for UDMA/100 while drive two
-> > ata4: dev 0 configured for UDMA/133
->=20
-> This bug report is still somewhat unclear.
->=20
-> What are the correct modes you expect to see?
->=20
-> Lee
->=20
->=20
+>  BUG: spinlock bad magic on CPU#0, soffice.bin/5192
+>   lock: ffff81005f79ae28, .magic: 000001ff, .owner: 1..1..|1. |1.|1..|1.___1..|1..1. 1./-1,
+>  .owner_cpu: -2141838208
+> 
+>  Call Trace: <ffffffff80210383>{__alloc_pages+99} <ffffffff802156c3>{spin_bug+195}
+>         <ffffffff802077dc>{_raw_spin_lock+44} <ffffffff80270a4e>{_spin_lock+30}
+>         <ffffffff8033712d>{journal_extend+77} <ffffffff80327255>{ext3_get_block+165}
+>         <ffffffff8022c2f9>{do_mpage_readpage+425} <ffffffff80270cc4>{_write_unlock_irq+20}
+>         <ffffffff8020cce2>{add_to_page_cache+162} <ffffffff8023fdee>{mpage_readpages+254}
+>         <ffffffff803271b0>{ext3_get_block+0} <ffffffff803271b0>{ext3_get_block+0}
+>         <ffffffff803146df>{get_cnode+95} <ffffffff8020a3bb>{get_page_from_freelist+619}
+>         <ffffffff80210383>{__alloc_pages+99} <ffffffff80323c1a>{ext3_readpages+26}
+>         <ffffffff80214030>{__do_page_cache_readahead+416} <ffffffff80213c12>{poison_obj+66}
+>         <ffffffff80232058>{wake_up_bit+40} <ffffffff80243152>{unlock_buffer+18}
+>         <ffffffff80315bb8>{reiserfs_prepare_for_journal+104}
+>         <ffffffff802b6ab4>{do_page_cache_readahead+100} <ffffffff80215942>{filemap_nopage+322}
+>         <ffffffff80208b2c>{__handle_mm_fault+1004} <ffffffff80270e7d>{_spin_unlock_irqrestore+29}
+>         <ffffffff8020ae99>{do_page_fault+1257} <ffffffff8026af8d>{error_exit+0}
+>         <ffffffff802ffb40>{reiserfs_copy_from_user_to_file_region+80}
+>         <ffffffff80302446>{reiserfs_file_write+6102} <ffffffff802f8f4e>{reiserfs_add_entry+1054}
+>         <ffffffff8033c1ff>{journal_cancel_revoke+351} <ffffffff80213c12>{poison_obj+66}
+>         <ffffffff80236d27>{cache_free_debugcheck+711} <ffffffff80335734>{journal_stop+772}
+>         <ffffffff80270f30>{_spin_unlock+16} <ffffffff802193a2>{vfs_write+226}
+>         <ffffffff80219c80>{sys_write+80} <ffffffff8026d234>{cstar_do_call+27}
+>  BUG: spinlock lockup on CPU#0, soffice.bin/5192, ffff81005f79ae28
 
-I belive the modes should say DMA100 because UDMA133 would be mode ATA-7
-and DMA100 ATA-6 mode. This is the info i get from hdparm -I on the ata3
-drive: DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+It's a pretty vile backtrace.  I supposed you have CONFIG_FRAME_POINTER=n.
 
-while on the ata4 one:  DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3
-udma4 udma5 *udma6
+Still.  It seems that what's happened is that we took a pagefault while
+reiserfs had a transaction open.  The fault is against a mmapped ext3 file
+and we ended up in the recently-reworked ext3_get_block() which tests
+journal_current_handle() to work out whether we're in a write or a read. 
+oops.  The presence of reiserfs journal_info makes it decide it's a write,
+not a read so it starts treating a reiserfs journal_info as an ext3 one.
 
-The thing is that the older drive is the one with the mode being set at
-133 while the newer with mode 100. I belive they come from the same
-factory but do carry different firmware revisons.
+The code used to work OK because it was only for direct-IO, which doesn't
+get recurred into like this.  But it got used for regular I/O in -mm.
 
-I also tried the drives on sata_sil (sil3114) controller and they show
-the same modes being detected:
+This should fix:
 
-sata_sil 0000:05:0a.0: Applying R_ERR on DMA activate FIS errata fix
-ata5: SATA max UDMA/100 cmd 0xF9402080 ctl 0xF940208A bmdma 0xF9402000
-irq 23
-ata6: SATA max UDMA/100 cmd 0xF94020C0 ctl 0xF94020CA bmdma 0xF9402008
-irq 23
-ata7: SATA max UDMA/100 cmd 0xF9402280 ctl 0xF940228A bmdma 0xF9402200
-irq 23
-ata8: SATA max UDMA/100 cmd 0xF94022C0 ctl 0xF94022CA bmdma 0xF9402208
-irq 23
-ata5: SATA link up 1.5 Gbps (SStatus 113)
-ata5: dev 0 cfg 49:2f00 82:306b 83:7e01 84:4003 85:3068 86:3c01 87:4003
-88:203f
-ata5: dev 0 ATA-6, max UDMA/100, 390721968 sectors: LBA48
-ata5: dev 0 configured for UDMA/100
-scsi5 : sata_sil
-ata6: SATA link up 1.5 Gbps (SStatus 113)
-ata6: dev 0 cfg 49:2f00 82:346b 83:7f61 84:4003 85:3468 86:3c41 87:4003
-88:207f
-ata6: dev 0 ATA-6, max UDMA/133, 390721968 sectors: LBA48
-ata6: dev 0 configured for UDMA/100
-scsi6 : sata_sil
-ata7: SATA link down (SStatus 0)
-scsi7 : sata_sil
-ata8: SATA link down (SStatus 0)
-scsi8 : sata_sil
-  Vendor: ATA       Model: WDC WD2000JD-60K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 390721968 512-byte hdwr sectors (200050 MB)
-sdb: Write Protect is off
-sdb: Mode Sense: 00 3a 00 00
-SCSI device sdb: drive cache: write back
- sdb: sdb1 sdb2 sdb3 sdb4
-sd 5:0:0:0: Attached scsi disk sdb
-  Vendor: ATA       Model: WDC WD2000JD-00H  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sdc: 390721968 512-byte hdwr sectors (200050 MB)
-sdc: Write Protect is off
-sdc: Mode Sense: 00 3a 00 00
-SCSI device sdc: drive cache: write back
-SCSI device sdc: 390721968 512-byte hdwr sectors (200050 MB)
-sdc: Write Protect is off
-sdc: Mode Sense: 00 3a 00 00
-SCSI device sdc: drive cache: write back
- sdc: sdc1 sdc2 sdc3 sdc4
-sd 6:0:0:0: Attached scsi disk sdc
-
-I also see a difference with the transfer rates from hdparm -Tt:
-
-ata3 drive (mode UDMA100) shows:
-
-Timing buffered disk reads:  172 MB in  3.00 seconds =3D  57.30 MB/sec
-
-while ata4 drive (mode UDMA133) shows:
-
-Timing buffered disk reads:  118 MB in  3.03 seconds =3D  38.96 MB/sec
-
-At this point is this due to drive capabilites in regards to modes
-supported, broken drive? or libata code bug? I am trying to be as clear
-as possible, anything else i should provide?
-
-Thanks,
-
-Paul B.
-
---=-AuaVLhJw6rINZlbA0O+t
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEFJ7pwu5Nmh3PsiMRAhuSAJ9QJAZzRLi8GzjBFu2rBXuCa2tXHwCghBho
-55i9UVBzTd5WnqRNV6A19nE=
-=Luqc
------END PGP SIGNATURE-----
-
---=-AuaVLhJw6rINZlbA0O+t--
+--- devel/fs/ext3/inode.c~ext3-get-blocks-maping-multiple-blocks-at-a-once-journal-reentry-fix	2006-03-12 14:25:04.000000000 -0800
++++ devel-akpm/fs/ext3/inode.c	2006-03-12 14:25:04.000000000 -0800
+@@ -830,7 +830,7 @@ ext3_direct_io_get_blocks(struct inode *
+ 	handle_t *handle = journal_current_handle();
+ 	int ret = 0;
+ 
+-	if (!handle)
++	if (!create)
+ 		goto get_block;		/* A read */
+ 
+ 	if (max_blocks == 1)
+_
 

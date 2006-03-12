@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWCLWPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWCLWPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWCLWPA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 17:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWCLWO7
+	id S1750772AbWCLWPo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWCLWPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 17:14:59 -0500
-Received: from cfa.harvard.edu ([131.142.10.1]:62660 "EHLO cfa.harvard.edu")
-	by vger.kernel.org with ESMTP id S1750729AbWCLWO7 (ORCPT
+	Sun, 12 Mar 2006 17:15:43 -0500
+Received: from rtr.ca ([64.26.128.89]:49330 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1750772AbWCLWPn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 17:14:59 -0500
-Date: Sun, 12 Mar 2006 17:14:57 -0500 (EST)
-From: Gaspar Bakos <gbakos@cfa.harvard.edu>
-Reply-To: gbakos@cfa.harvard.edu
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.15 -- unable to open an initial console
-Message-ID: <Pine.SOL.4.58.0603121511350.22310@cfassp0.cfa.harvard.edu>
+	Sun, 12 Mar 2006 17:15:43 -0500
+Message-ID: <44149D6A.7080005@rtr.ca>
+Date: Sun, 12 Mar 2006 17:15:06 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marr <marr@flex.com>
+Cc: Linda Walsh <lkml@tlinx.org>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()'
+ Calls From 2.4 to 2.6 -- VMM Change?)
+References: <200602241522.48725.marr@flex.com> <200603071453.46768.marr@flex.com> <440DF802.8@tlinx.org> <200603121653.30288.marr@flex.com>
+In-Reply-To: <200603121653.30288.marr@flex.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Marr wrote:
+>
+> I tried turning 'readahead' off entirely ('hdparm -A0 /dev/hda') and, although 
 
-I am experimenting with the pristine 2.6.15.6 kernel on an AMD dual
-core CPU machine under FC3. The boot seems fine till i get to the
-point:
+No, that should be "hdparm -a0 /dev/hda" (lowercase "-a").
+And the same "-a" for all of your other test variants.
 
-Freeing unused memory ...
-"Warning: unable to open initial console".
+If you did it all with "-A", then the results are invalid,
+and need to be redone.
 
-This is the last message, and then nothing ever happens. Maybe this
-message has nothing to do with the real error, but that is the last
-information I can grab.
+The hdparm manpage explains this, but in a nutshell, "-A" is the
+low-level drive firmware "look-ahead" mechanism, whereas "-a" is
+the Linux kernel "read-ahead" scheme.
 
-Everything works fine with previous kernel 2.6.13.4, except for
-occasional crashes under high load, which is the reason for the attempt
-to upgrade. I borrowed the old .config file from 2.6.13.4, and did
-"make oldconfig", so most of the settings must have remained the same.
-Then I also did a "make xconfig" just to have a better overview of what
-new options have appeared. The kernel compiled seemingly without any problems.
+In general, most uppercase hdparm flags are drive *firmware* settings.
 
-By the way, when the old 2.6.13.4 kernel is booted up, there is no such
-warning about the console, and after the "Freeing unused memory" the
-next lines are:
-
-"Red HAT nash version 4.2.15 starting"
-...
-
-So maybe the problem is somewhere here.
-
-Gaspar
+Cheers

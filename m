@@ -1,116 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWCLCEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWCLCHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWCLCEp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 21:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWCLCEp
+	id S1750826AbWCLCHF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 21:07:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWCLCHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 21:04:45 -0500
-Received: from bizon.gios.gov.pl ([212.244.124.8]:34189 "EHLO
-	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S1750791AbWCLCEo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 21:04:44 -0500
-Date: Sun, 12 Mar 2006 03:04:40 +0100 (CET)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on
- 2.6.16-rc6
-Message-ID: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl>
+	Sat, 11 Mar 2006 21:07:05 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.7]:50194 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750826AbWCLCHC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 21:07:02 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: psycho@rift.ath.cx
+Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
+Date: Sun, 12 Mar 2006 02:06:53 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <20060312000621.GA8911@nexon>
+In-Reply-To: <20060312000621.GA8911@nexon>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1986964122-1142129080=:14567"
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603120206.53683.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sunday 12 March 2006 00:06, Patrick Börjesson wrote:
+> > Just to let you know, I've had the same problem on x86-64. It's an
+> > incredibly rare fault here and I've not been able to reproduce it.
+> > However, I cannot help but notice that all of the reporters so far
+> > have been running the binary NVIDIA driver, including myself.
+> >
+> > I would not be surprised if running without the NVIDIA driver
+> > eliminated the problem.
+>
+> Not running either with the NVIDIA driver or with x86-64 on the machine
+> I'm getting this on, but I get it fairly often (as in: today I've
+> probably gotten it at least 5-10 times). It seems it's pretty bound by
+> either high CPU or disk usage, since I've always gotten it while
+> compiling stuff so far. Although my system doesn't hard lock if I get
+> this error; I can at least run most commands and ssh into it.
 
----187430788-1986964122-1142129080=:14567
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Please don't do anything! A reproducible test case without NVIDIA loaded is 
+exactly what we've been waiting for.
 
-Hello,
+Please search the archives for Hugh Dickins's patch for 2.6.15 which enables 
+additional rmap debug. Then try to reproduce the fault.
 
-After upgrading to 2.6.16-rc6 I noticed this strange message:
+-- 
+Cheers,
+Alistair.
 
-More than 8 CPUs detected and CONFIG_X86_PC cannot handle it.
-Use CONFIG_X86_GENERICARCH or CONFIG_X86_BIGSMP.
-
-This is a Dell PowerEdge SC1425 with two P4 Xeons with HT enabled (so with=
-=20
-totoal of 4 logical CPUs).
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=3Dy
-# CONFIG_X86_ELAN is not set
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUMM is not set
-CONFIG_MPENTIUM4=3Dy
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MK8 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MEFFICEON is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MGEODEGX1 is not set
-# CONFIG_MGEODE_LX is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-# CONFIG_X86_GENERIC is not set
-CONFIG_X86_CMPXCHG=3Dy
-CONFIG_X86_XADD=3Dy
-CONFIG_X86_L1_CACHE_SHIFT=3D7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
-CONFIG_GENERIC_CALIBRATE_DELAY=3Dy
-CONFIG_X86_WP_WORKS_OK=3Dy
-CONFIG_X86_INVLPG=3Dy
-CONFIG_X86_BSWAP=3Dy
-CONFIG_X86_POPAD_OK=3Dy
-CONFIG_X86_CMPXCHG64=3Dy
-CONFIG_X86_GOOD_APIC=3Dy
-CONFIG_X86_INTEL_USERCOPY=3Dy
-CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
-CONFIG_X86_TSC=3Dy
-CONFIG_HPET_TIMER=3Dy
-CONFIG_HPET_EMULATE_RTC=3Dy
-CONFIG_SMP=3Dy
-CONFIG_NR_CPUS=3D4
-CONFIG_SCHED_SMT=3Dy
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT=3Dy
-CONFIG_PREEMPT_BKL=3Dy
-CONFIG_X86_LOCAL_APIC=3Dy
-CONFIG_X86_IO_APIC=3Dy
-CONFIG_X86_MCE=3Dy
-CONFIG_X86_MCE_NONFATAL=3Dy
-CONFIG_X86_MCE_P4THERMAL=3Dy
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_X86_REBOOTFIXUPS is not set
-CONFIG_MICROCODE=3Dy
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-
-
-Best regards,
-
- =09=09=09Krzysztof Ol=EAdzki
----187430788-1986964122-1142129080=:14567--
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751058AbWCLPqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWCLPsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751058AbWCLPqB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 10:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWCLPqB
+	id S1751059AbWCLPsP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 10:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWCLPsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 10:46:01 -0500
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:17130 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751059AbWCLPqA
+	Sun, 12 Mar 2006 10:48:15 -0500
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:57066 "EHLO
+	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751059AbWCLPsO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 10:46:00 -0500
-Date: Sun, 12 Mar 2006 16:46:02 +0100
+	Sun, 12 Mar 2006 10:48:14 -0500
+Date: Sun, 12 Mar 2006 16:48:23 +0100
 From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ericvh@gmail.com, rminnich@lanl.gov,
-       lucho@ionkov.net
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
 Subject: Re: 2.6.16-rc6-mm1
-Message-ID: <20060312154602.GB16013@ens-lyon.fr>
+Message-ID: <20060312154823.GC16013@ens-lyon.fr>
 References: <20060312031036.3a382581.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -31,23 +30,28 @@ On Sun, Mar 12, 2006 at 03:10:36AM -0800, Andrew Morton wrote:
 > 
 > 
 
-fs/9p/fcprint.c:93: error: static declaration of 'v9fs_printstat' follows non-static declaration
-fs/9p/9p.h:377: error: previous declaration of 'v9fs_printstat' was here
-fs/9p/fcprint.c:125: error: static declaration of 'v9fs_dumpdata' follows non-static declaration
-fs/9p/9p.h:376: error: previous declaration of 'v9fs_dumpdata' was here
+fs/reiserfs/item_ops.c: In function 'indirect_print_item':
+fs/reiserfs/item_ops.c:278: warning: 'num' may be used uninitialized in this function
+
+num isn't used during the first iteration of the loop, but it does not harm to initialize
+it anyway.
 
 Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
 
-Index: linux/fs/9p/9p.h
+Index: linux/fs/reiserfs/item_ops.c
 ===================================================================
---- linux.orig/fs/9p/9p.h
-+++ linux/fs/9p/9p.h
-@@ -373,5 +373,3 @@ int v9fs_t_write(struct v9fs_session_inf
- 		 u32 count, const char __user * data,
- 		 struct v9fs_fcall **rcall);
- int v9fs_printfcall(char *, int, struct v9fs_fcall *, int);
--int v9fs_dumpdata(char *, int, u8 *, int);
--int v9fs_printstat(char *, int, struct v9fs_stat *, int);
+--- linux.orig/fs/reiserfs/item_ops.c
++++ linux/fs/reiserfs/item_ops.c
+@@ -275,7 +275,7 @@ static void indirect_print_item(struct i
+ 	int j;
+ 	__le32 *unp;
+ 	__u32 prev = INT_MAX;
+-	int num;
++	int num = 0;
+ 
+ 	unp = (__le32 *) item;
+ 
+
 
 -- 
 powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS

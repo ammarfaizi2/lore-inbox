@@ -1,41 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWCLVhr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWCLViH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWCLVhr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 16:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWCLVhr
+	id S932246AbWCLViH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 16:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCLViG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 16:37:47 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:15273 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S932241AbWCLVhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 16:37:46 -0500
-Date: Sun, 12 Mar 2006 13:41:13 -0800
-From: thockin@hockin.org
-To: Mark Brown <broonie@sirena.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] natsemi: Add support for using MII port with no PHY
-Message-ID: <20060312214113.GA15071@hockin.org>
-References: <20060312192259.929734000@mercator.sirena.org.uk> <20060312205303.869316000@mercator.sirena.org.uk>
-Mime-Version: 1.0
+	Sun, 12 Mar 2006 16:38:06 -0500
+Received: from host-84-9-202-225.bulldogdsl.com ([84.9.202.225]:15801 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932246AbWCLViE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 16:38:04 -0500
+Date: Sun, 12 Mar 2006 21:37:20 +0000
+From: Ben Dooks <ben@fluff.org>
+To: James Yu <cyu021@gmail.com>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
+Subject: Re: weird behavior from kernel
+Message-ID: <20060312213720.GB25816@home.fluff.org>
+References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com> <20060312084632.GB21493@w.ods.org> <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060312205303.869316000@mercator.sirena.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 07:23:00PM +0000, Mark Brown wrote:
-> This patch provides a module option which configures the natsemi driver
-> to use the external MII port on the chip but ignore any PHYs that may be
-> attached to it.  The link state will be left as it was when the driver
-> started and can be configured via ethtool.  Any PHYs that are present
-> can be accessed via the MII ioctl()s.
-> 
-> This is useful for systems where the device is connected without a PHY
-> or where either information or actions outside the scope of the driver
-> are required in order to use the PHYs.
+On Sun, Mar 12, 2006 at 05:25:11PM +0800, James Yu wrote:
+> The major reason to choose 2.4.18 as my dev base is that the dev is
+> ment to be carried out on a custom ARM board, and there isn't any
+> 2.6's port available.
 
-Not that my opinion should hold much weight, having been absent from the
-driver for some time, but yuck.  Is there no better way to do this thatn
-sprinkling poo all over it?
+What functionality do you need which is not in the current
+2.6 kernel series?
+
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

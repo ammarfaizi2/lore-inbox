@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751409AbWCLWuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWCLWwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751409AbWCLWuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 17:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbWCLWuc
+	id S1751410AbWCLWwd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWCLWwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 17:50:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24240 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751409AbWCLWub (ORCPT
+	Sun, 12 Mar 2006 17:52:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7602 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751410AbWCLWwc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 17:50:31 -0500
-Date: Sun, 12 Mar 2006 22:50:14 +0000
+	Sun, 12 Mar 2006 17:52:32 -0500
+Date: Sun, 12 Mar 2006 22:52:28 +0000
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/7] dm table: store md
-Message-ID: <20060312225014.GH4724@agk.surrey.redhat.com>
+Subject: [PATCH 7/7] dm store geometry
+Message-ID: <20060312225228.GI4724@agk.surrey.redhat.com>
 Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,184 +24,279 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mike Anderson <andmike@us.ibm.com>
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+ 
+Allow drive geometry to be stored with a new DM_DEV_SET_GEOMETRY ioctl.
+Device-mapper will now respond to HDIO_GETGEO.
+If the geometry information is not available, zero will 
+be returned for all of the parameters.
 
-Store an up-pointer to the owning struct mapped_device in every table 
-when it is created.
+Signed-off-by: Darrick J. Wong <djwong@us.ibm.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
 
-Access it with:
-  struct mapped_device *dm_table_get_md(struct dm_table *t)
-
-Tables linked to md must be destroyed before the md itself.
-
-Signed-off-by: Mike Anderson <andmike@us.ibm.com>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.16-rc5/drivers/md/dm.h
+Index: linux-2.6.16-rc5/drivers/md/dm.c
 ===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm.h	2006-03-12 18:15:24.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm.h	2006-03-12 18:16:00.000000000 +0000
-@@ -89,7 +89,8 @@ int dm_suspended(struct mapped_device *m
-  * Functions for manipulating a table.  Tables are also reference
-  * counted.
-  *---------------------------------------------------------------*/
--int dm_table_create(struct dm_table **result, int mode, unsigned num_targets);
-+int dm_table_create(struct dm_table **result, int mode,
-+		    unsigned num_targets, struct mapped_device *md);
+--- linux-2.6.16-rc5.orig/drivers/md/dm.c	2006-03-12 21:59:04.000000000 +0000
++++ linux-2.6.16-rc5/drivers/md/dm.c	2006-03-12 21:59:06.000000000 +0000
+@@ -17,6 +17,7 @@
+ #include <linux/mempool.h>
+ #include <linux/slab.h>
+ #include <linux/idr.h>
++#include <linux/hdreg.h>
  
- void dm_table_get(struct dm_table *t);
- void dm_table_put(struct dm_table *t);
-@@ -107,6 +108,7 @@ void dm_table_set_restrictions(struct dm
- unsigned int dm_table_get_num_targets(struct dm_table *t);
- struct list_head *dm_table_get_devices(struct dm_table *t);
- int dm_table_get_mode(struct dm_table *t);
-+struct mapped_device *dm_table_get_md(struct dm_table *t);
- void dm_table_presuspend_targets(struct dm_table *t);
- void dm_table_postsuspend_targets(struct dm_table *t);
- void dm_table_resume_targets(struct dm_table *t);
-Index: linux-2.6.16-rc5/drivers/md/dm-table.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm-table.c	2006-03-12 17:54:56.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm-table.c	2006-03-12 18:16:00.000000000 +0000
-@@ -22,6 +22,7 @@
- #define CHILDREN_PER_NODE (KEYS_PER_NODE + 1)
+ static const char *_name = DM_NAME;
  
- struct dm_table {
-+	struct mapped_device *md;
- 	atomic_t holders;
- 
- 	/* btree table */
-@@ -206,7 +207,8 @@ static int alloc_targets(struct dm_table
- 	return 0;
- }
- 
--int dm_table_create(struct dm_table **result, int mode, unsigned num_targets)
-+int dm_table_create(struct dm_table **result, int mode,
-+		    unsigned num_targets, struct mapped_device *md)
- {
- 	struct dm_table *t = kmalloc(sizeof(*t), GFP_KERNEL);
- 
-@@ -229,6 +231,7 @@ int dm_table_create(struct dm_table **re
- 	}
- 
- 	t->mode = mode;
-+	t->md = md;
- 	*result = t;
- 	return 0;
- }
-@@ -954,12 +957,20 @@ int dm_table_flush_all(struct dm_table *
- 	return ret;
- }
- 
-+struct mapped_device *dm_table_get_md(struct dm_table *t)
-+{
-+	dm_get(t->md);
+@@ -101,6 +102,9 @@ struct mapped_device {
+ 	 */
+ 	struct super_block *frozen_sb;
+ 	struct block_device *suspended_bdev;
 +
-+	return t->md;
++	/* forced geometry settings */
++	struct hd_geometry geometry;
+ };
+ 
+ #define MIN_IOS 256
+@@ -226,6 +230,13 @@ static int dm_blk_close(struct inode *in
+ 	return 0;
+ }
+ 
++static int dm_blk_getgeo(struct block_device *bdev, struct hd_geometry *geo)
++{
++	struct mapped_device *md = bdev->bd_disk->private_data;
++
++	return dm_get_geometry(md, geo);
 +}
 +
- EXPORT_SYMBOL(dm_vcalloc);
- EXPORT_SYMBOL(dm_get_device);
- EXPORT_SYMBOL(dm_put_device);
- EXPORT_SYMBOL(dm_table_event);
- EXPORT_SYMBOL(dm_table_get_size);
- EXPORT_SYMBOL(dm_table_get_mode);
-+EXPORT_SYMBOL(dm_table_get_md);
- EXPORT_SYMBOL(dm_table_put);
- EXPORT_SYMBOL(dm_table_get);
- EXPORT_SYMBOL(dm_table_unplug_all);
-Index: linux-2.6.16-rc5/drivers/md/dm-ioctl.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm-ioctl.c	2006-03-12 18:15:24.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm-ioctl.c	2006-03-12 18:16:00.000000000 +0000
-@@ -244,9 +244,9 @@ static void __hash_remove(struct hash_ce
- 		dm_table_put(table);
- 	}
- 
--	dm_put(hc->md);
- 	if (hc->new_map)
- 		dm_table_put(hc->new_map);
-+	dm_put(hc->md);
- 	free_cell(hc);
+ static inline struct dm_io *alloc_io(struct mapped_device *md)
+ {
+ 	return mempool_alloc(md->io_pool, GFP_NOIO);
+@@ -312,6 +323,33 @@ struct dm_table *dm_get_table(struct map
+ 	return t;
  }
  
-@@ -985,33 +985,43 @@ static int table_load(struct dm_ioctl *p
- 	int r;
- 	struct hash_cell *hc;
- 	struct dm_table *t;
++/*
++ * Get the geometry associated with a dm device
++ */
++int dm_get_geometry(struct mapped_device *md, struct hd_geometry *geo)
++{
++	*geo = md->geometry;
++
++	return 0;
++}
++
++/*
++ * Set the geometry of a device.
++ */
++int dm_set_geometry(struct mapped_device *md, struct hd_geometry *geo)
++{
++	sector_t sz = (sector_t)geo->cylinders * geo->heads * geo->sectors;
++
++	if (geo->start > sz) {
++		DMWARN("Start sector is beyond the geometry limits.");
++		return -EINVAL;
++	}
++
++	md->geometry = *geo;
++
++	return 0;
++}
++
+ /*-----------------------------------------------------------------
+  * CRUD START:
+  *   A more elegant soln is in the works that uses the queue
+@@ -892,6 +930,13 @@ static int __bind(struct mapped_device *
+ 	sector_t size;
+ 
+ 	size = dm_table_get_size(t);
++
++	/*
++	 * Wipe any geometry if the size of the table changed.
++	 */
++	if (size != get_capacity(md->disk))
++		memset(&md->geometry, 0, sizeof(md->geometry));
++
+ 	__set_size(md, size);
+ 	if (size == 0)
+ 		return 0;
+@@ -1247,6 +1292,7 @@ int dm_suspended(struct mapped_device *m
+ static struct block_device_operations dm_blk_dops = {
+ 	.open = dm_blk_open,
+ 	.release = dm_blk_close,
++	.getgeo = dm_blk_getgeo,
+ 	.owner = THIS_MODULE
+ };
+ 
+Index: linux-2.6.16-rc5/drivers/md/dm.h
+===================================================================
+--- linux-2.6.16-rc5.orig/drivers/md/dm.h	2006-03-12 21:59:04.000000000 +0000
++++ linux-2.6.16-rc5/drivers/md/dm.h	2006-03-12 21:59:06.000000000 +0000
+@@ -14,6 +14,7 @@
+ #include <linux/device-mapper.h>
+ #include <linux/list.h>
+ #include <linux/blkdev.h>
++#include <linux/hdreg.h>
+ 
+ #define DM_NAME "device-mapper"
+ #define DMWARN(f, x...) printk(KERN_WARNING DM_NAME ": " f "\n" , ## x)
+@@ -85,6 +86,12 @@ int dm_wait_event(struct mapped_device *
+ struct gendisk *dm_disk(struct mapped_device *md);
+ int dm_suspended(struct mapped_device *md);
+ 
++/*
++ * Geometry functions.
++ */
++int dm_get_geometry(struct mapped_device *md, struct hd_geometry *geo);
++int dm_set_geometry(struct mapped_device *md, struct hd_geometry *geo);
++
+ /*-----------------------------------------------------------------
+  * Functions for manipulating a table.  Tables are also reference
+  * counted.
+Index: linux-2.6.16-rc5/drivers/md/dm-ioctl.c
+===================================================================
+--- linux-2.6.16-rc5.orig/drivers/md/dm-ioctl.c	2006-03-12 21:59:04.000000000 +0000
++++ linux-2.6.16-rc5/drivers/md/dm-ioctl.c	2006-03-12 21:59:06.000000000 +0000
+@@ -15,6 +15,7 @@
+ #include <linux/slab.h>
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/dm-ioctl.h>
++#include <linux/hdreg.h>
+ 
+ #include <asm/uaccess.h>
+ 
+@@ -700,6 +701,54 @@ static int dev_rename(struct dm_ioctl *p
+ 	return dm_hash_rename(param->name, new_name);
+ }
+ 
++static int dev_set_geometry(struct dm_ioctl *param, size_t param_size)
++{
++	int r = -EINVAL, x;
 +	struct mapped_device *md;
++	struct hd_geometry geometry;
++	unsigned long indata[4];
++	char *geostr = (char *) param + param->data_start;
 +
 +	md = find_device(param);
 +	if (!md)
 +		return -ENXIO;
- 
--	r = dm_table_create(&t, get_mode(param), param->target_count);
-+	r = dm_table_create(&t, get_mode(param), param->target_count, md);
- 	if (r)
--		return r;
-+		goto out;
- 
- 	r = populate_table(t, param, param_size);
- 	if (r) {
- 		dm_table_put(t);
--		return r;
-+		goto out;
- 	}
- 
- 	down_write(&_hash_lock);
--	hc = __find_device_hash_cell(param);
--	if (!hc) {
--		DMWARN("device doesn't appear to be in the dev hash table.");
--		up_write(&_hash_lock);
-+	hc = dm_get_mdptr(md);
-+	if (!hc || hc->md != md) {
-+		DMWARN("device has been removed from the dev hash table.");
- 		dm_table_put(t);
--		return -ENXIO;
-+		up_write(&_hash_lock);
-+		r = -ENXIO;
-+		goto out;
- 	}
- 
- 	if (hc->new_map)
- 		dm_table_put(hc->new_map);
- 	hc->new_map = t;
-+	up_write(&_hash_lock);
 +
- 	param->flags |= DM_INACTIVE_PRESENT_FLAG;
-+	r = __dev_status(md, param);
++	if (geostr < (char *) (param + 1) ||
++	    invalid_str(geostr, (void *) param + param_size)) {
++		DMWARN("Invalid geometry supplied.");
++		goto out;
++	}
++
++	x = sscanf(geostr, "%lu %lu %lu %lu", indata,
++		   indata + 1, indata + 2, indata + 3);
++
++	if (x != 4) {
++		DMWARN("Unable to interpret geometry settings.");
++		goto out;
++	}
++
++	if (indata[0] > 65535 || indata[1] > 255 ||
++	    indata[2] > 255 || indata[3] > ULONG_MAX) {
++		DMWARN("Geometry exceeds range limits.");
++		goto out;
++	}
++
++	geometry.cylinders = indata[0];
++	geometry.heads = indata[1];
++	geometry.sectors = indata[2];
++	geometry.start = indata[3];
++
++	r = dm_set_geometry(md, &geometry);
++	if (!r)
++		r = __dev_status(md, param);
++
++	param->data_size = 0;
 +
 +out:
 +	dm_put(md);
- 
--	r = __dev_status(hc->md, param);
--	up_write(&_hash_lock);
- 	return r;
- }
- 
-Index: linux-2.6.16-rc5/drivers/md/dm.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm.c	2006-03-12 18:15:24.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm.c	2006-03-12 18:16:00.000000000 +0000
-@@ -993,18 +993,18 @@ void dm_get(struct mapped_device *md)
- 
- void dm_put(struct mapped_device *md)
++	return r;
++}
++
+ static int do_suspend(struct dm_ioctl *param)
  {
--	struct dm_table *map = dm_get_table(md);
-+	struct dm_table *map;
+ 	int r = 0;
+@@ -1234,7 +1283,8 @@ static ioctl_fn lookup_ioctl(unsigned in
  
- 	if (atomic_dec_and_test(&md->holders)) {
-+		map = dm_get_table(md);
- 		if (!dm_suspended(md)) {
- 			dm_table_presuspend_targets(map);
- 			dm_table_postsuspend_targets(map);
- 		}
- 		__unbind(md);
-+		dm_table_put(map);
- 		free_dev(md);
- 	}
--
--	dm_table_put(map);
- }
+ 		{DM_LIST_VERSIONS_CMD, list_versions},
+ 
+-		{DM_TARGET_MSG_CMD, target_message}
++		{DM_TARGET_MSG_CMD, target_message},
++		{DM_DEV_SET_GEOMETRY_CMD, dev_set_geometry}
+ 	};
+ 
+ 	return (cmd >= ARRAY_SIZE(_ioctls)) ? NULL : _ioctls[cmd].fn;
+Index: linux-2.6.16-rc5/include/linux/compat_ioctl.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/compat_ioctl.h	2006-03-12 21:56:03.000000000 +0000
++++ linux-2.6.16-rc5/include/linux/compat_ioctl.h	2006-03-12 21:59:06.000000000 +0000
+@@ -136,6 +136,7 @@ COMPATIBLE_IOCTL(DM_TABLE_DEPS_32)
+ COMPATIBLE_IOCTL(DM_TABLE_STATUS_32)
+ COMPATIBLE_IOCTL(DM_LIST_VERSIONS_32)
+ COMPATIBLE_IOCTL(DM_TARGET_MSG_32)
++COMPATIBLE_IOCTL(DM_DEV_SET_GEOMETRY_32)
+ COMPATIBLE_IOCTL(DM_VERSION)
+ COMPATIBLE_IOCTL(DM_REMOVE_ALL)
+ COMPATIBLE_IOCTL(DM_LIST_DEVICES)
+@@ -151,6 +152,7 @@ COMPATIBLE_IOCTL(DM_TABLE_DEPS)
+ COMPATIBLE_IOCTL(DM_TABLE_STATUS)
+ COMPATIBLE_IOCTL(DM_LIST_VERSIONS)
+ COMPATIBLE_IOCTL(DM_TARGET_MSG)
++COMPATIBLE_IOCTL(DM_DEV_SET_GEOMETRY)
+ /* Big K */
+ COMPATIBLE_IOCTL(PIO_FONT)
+ COMPATIBLE_IOCTL(GIO_FONT)
+Index: linux-2.6.16-rc5/include/linux/dm-ioctl.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/dm-ioctl.h	2006-03-12 21:56:03.000000000 +0000
++++ linux-2.6.16-rc5/include/linux/dm-ioctl.h	2006-03-12 21:59:06.000000000 +0000
+@@ -80,6 +80,16 @@
+  *
+  * DM_TARGET_MSG:
+  * Pass a message string to the target at a specific offset of a device.
++ *
++ * DM_DEV_SET_GEOMETRY:
++ * Set the geometry of a device by passing in a string in this format:
++ *
++ * "cylinders heads sectors_per_track start_sector"
++ *
++ * Beware that CHS geometry is nearly obsolete and only provided
++ * for compatibility with dm devices that can be booted by a PC
++ * BIOS.  See struct hd_geometry for range limits.  Also note that
++ * the geometry is erased if the device size changes.
+  */
  
  /*
+@@ -218,6 +228,7 @@ enum {
+ 	/* Added later */
+ 	DM_LIST_VERSIONS_CMD,
+ 	DM_TARGET_MSG_CMD,
++	DM_DEV_SET_GEOMETRY_CMD
+ };
+ 
+ /*
+@@ -247,6 +258,7 @@ typedef char ioctl_struct[308];
+ #define DM_TABLE_STATUS_32  _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD, ioctl_struct)
+ #define DM_LIST_VERSIONS_32 _IOWR(DM_IOCTL, DM_LIST_VERSIONS_CMD, ioctl_struct)
+ #define DM_TARGET_MSG_32    _IOWR(DM_IOCTL, DM_TARGET_MSG_CMD, ioctl_struct)
++#define DM_DEV_SET_GEOMETRY_32	_IOWR(DM_IOCTL, DM_DEV_SET_GEOMETRY_CMD, ioctl_struct)
+ #endif
+ 
+ #define DM_IOCTL 0xfd
+@@ -270,11 +282,12 @@ typedef char ioctl_struct[308];
+ #define DM_LIST_VERSIONS _IOWR(DM_IOCTL, DM_LIST_VERSIONS_CMD, struct dm_ioctl)
+ 
+ #define DM_TARGET_MSG	 _IOWR(DM_IOCTL, DM_TARGET_MSG_CMD, struct dm_ioctl)
++#define DM_DEV_SET_GEOMETRY	_IOWR(DM_IOCTL, DM_DEV_SET_GEOMETRY_CMD, struct dm_ioctl)
+ 
+ #define DM_VERSION_MAJOR	4
+-#define DM_VERSION_MINOR	5
++#define DM_VERSION_MINOR	6
+ #define DM_VERSION_PATCHLEVEL	0
+-#define DM_VERSION_EXTRA	"-ioctl (2005-10-04)"
++#define DM_VERSION_EXTRA	"-ioctl (2006-02-17)"
+ 
+ /* Status bits */
+ #define DM_READONLY_FLAG	(1 << 0) /* In/Out */

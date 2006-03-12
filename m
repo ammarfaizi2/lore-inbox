@@ -1,104 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751819AbWCLXHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751869AbWCLXJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751819AbWCLXHj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 18:07:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWCLXHi
+	id S1751869AbWCLXJe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 18:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751883AbWCLXJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 18:07:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10719 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751819AbWCLXHi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 18:07:38 -0500
-Date: Sun, 12 Mar 2006 15:01:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: linux-kernel@vger.kernel.org, Alasdair G Kergon <agk@redhat.com>,
-       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>, Greg KH <greg@kroah.com>
-Subject: Re: 2.6.16-rc6-mm1: BUG at fs/sysfs/inode.c:180
-Message-Id: <20060312150158.3c7be5c3.akpm@osdl.org>
-In-Reply-To: <44146C31.3010905@free.fr>
-References: <20060312031036.3a382581.akpm@osdl.org>
-	<44146C31.3010905@free.fr>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 12 Mar 2006 18:09:34 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:8676 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1751869AbWCLXJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 18:09:33 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Jim Crilly <jim@why.dont.jablowme.net>
+Subject: Re: Faster resuming of suspend technology.
+Date: Mon, 13 Mar 2006 09:06:57 +1000
+User-Agent: KMail/1.9.1
+Cc: Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
+References: <200603112246.47596.ncunningham@cyclades.com> <200603120926.AA00811@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312175421.GE24084@mail>
+In-Reply-To: <20060312175421.GE24084@mail>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4348058.VO6Cft1gxy";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603130907.03944.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Riffard <laurent.riffard@free.fr> wrote:
+--nextPart4348058.VO6Cft1gxy
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Monday 13 March 2006 03:54, Jim Crilly wrote:
+> On 03/12/06 06:26:17PM +0900, Jun OKAJIMA wrote:
+> > >> Yes, right. In your way, there is no thrashing. but it slows booting.
+> > >> I mean, there is a trade-off between booting and after booted.
+> > >> But, what people would want is always both, not either.
+> > >
+> > >I don't understand what you're saying. In particular, I'm not sure
+> > > why/how you think suspend functionality slows booting or what the
+> > > tradeoff is "between booting and after booted".
+> >
+> > Sorry, I used words in not usual way.
+> > I refer "booting" as just resuming. And "after booted" means "after
+> > resumed". In other words, I treat swsusp2 as not note PC's hibernation
+> > equivalent, but just for faster booting technology.
+> > So, What I wanted to say was,
+> >
+> >   --- Reading all image in advance ( your way) slows resuming itself.
+> >   --- Reading pages on demand ( e.g. VMware) slows apps after resumed.
+> >
+> > Hope my English is understandable one...
 >
-> Le 12.03.2006 12:10, Andrew Morton a écrit :
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
-> 
->  Hello,
-> 
->  This kernel hangs on boot while trying to activate logical 
->  volumes from initrd: 
-> 
->  ------------[ cut here ]------------
->  kernel BUG at fs/sysfs/inode.c:180!
->  invalid opcode: 0000 [#1]
->  last sysfs file: /block/ram0/dev
->  Modules linked in: dm_mirror dm_mod
->  CPU:    0
->  EIP:    0060:[<c0172e71>]    Not tainted VLI
->  EFLAGS: 00010246   (2.6.16-rc6-mm1 #123) 
->  EIP is at sysfs_get_name+0xd/0x46
->  eax: c15a49c8   ebx: dfe2b988   ecx: dff254d8   edx: c15a49cc
->  esi: dfe87b05   edi: dfe2b988   ebp: dfe67d28   esp: dfe67d28
->  ds: 007b   es: 007b   ss: 0068
->  Process vgchange (pid: 242, threadinfo=dfe67000 task=dfe175d0)
->  Stack: <0>dfe67d44 c01738c3 dffdc4b4 c15a49c8 dfe2b988 ffffffef dfe2b98d dfe67d60 
->         c0173dcd dff2a804 dfe2b984 dfe2b984 00000001 fffffffe dfe67d74 c0173f3b 
->         dfe67d6c c15a84d4 dfe2b984 dfe67d90 c01a33fd c03242d0 00000004 dfe2b8f8 
->  Call Trace:
->   [<c0103a31>] show_stack_log_lvl+0x8b/0x95
->   [<c0103b69>] show_registers+0x12e/0x194
->   [<c0103e62>] die+0x14e/0x1db
->   [<c01040ba>] do_trap+0x7c/0x96
->   [<c0104319>] do_invalid_op+0x89/0x93
->   [<c01034db>] error_code+0x4f/0x54
->   [<c01738c3>] sysfs_dirent_exist+0x1c/0x65
->   [<c0173dcd>] create_dir+0x55/0x17d
->   [<c0173f3b>] sysfs_create_dir+0x46/0x61
->   [<c01a33fd>] kobject_add+0xa4/0x14c
->   [<c017267e>] register_disk+0x4b/0xe9
->   [<c019c28c>] add_disk+0x2e/0x3d
->   [<e08198a5>] create_aux+0x27e/0x2d7 [dm_mod]
->   [<e081991d>] dm_create+0xe/0x10 [dm_mod]
->   [<e081c317>] dev_create+0x4a/0x239 [dm_mod]
->   [<e081c18c>] ctl_ioctl+0x203/0x238 [dm_mod]
->   [<c0156648>] do_ioctl+0x3c/0x4f
->   [<c0156851>] vfs_ioctl+0x1f6/0x20d
->   [<c0156892>] sys_ioctl+0x2a/0x44
->   [<c01029bb>] sysenter_past_esp+0x54/0x75
->  Code: 0b 30 01 72 85 28 c0 ff 06 31 db eb 07 89 f8 e8 d1 8d fe ff 83 c4 10 89 d8 5b 5e 5f c9 c3 55 85 c0 89 e5 74 06 83 78 14 00 75 08 <0f> 0b b4 00 73 d3 28 c0 8b 50 18 83 fa 08 74 22 7f 0a 83 fa 02 
+> But you have to read all of the pages at some point so the hard disk is
+> going to be the bottleneck no matter what you do. And since Suspend2
+> currently saves the cache as a contiguous stream, possibly compressed, it
+> should be a good bit faster than seeking around the disk loading the files
+> from the filesystem.
 
-Thanks.
+Agreed.
 
-Greg, can you please interpret this?  What does this BUG:
+> > >> Especially, your way has problem if you boot( resume ) not from HDD
+> > >> but for example, from NFS server or CD-R or even from Internet.
+> > >
+> > >Resuming from the internet? Scary. Anyway, I hope I'll understand bett=
+er
+> > > what you're getting at after your next reply.
+> >
+> > In Japan, it is not so scary.
+> > We have 100Mbps symmetric FTTH ( optical Fiber To The Home), and
+> > more than 1M homes have it, and price is about 30USD/month.
+> > With this, theoretically you can download 600MB ISO image in one min,
+> > and actually you can download 100MBytes suspend image within 30sec.
+> > So, not click to run (e.g. Java applet) but "click to resume" is not
+> > dreaming but rather feasible. You still think it is scary on this
+> > situation?
+>
+> I don't think the scary part is speed, but security. I for one wouldn't
+> want to resume from an image hosted on a remote machine unless I had some
+> way to be sure it wasn't tampered with, like gpg signing or something.
 
-const unsigned char * sysfs_get_name(struct sysfs_dirent *sd)
-{
-	struct attribute * attr;
-	struct bin_attribute * bin_attr;
-	struct relay_attribute * rel_attr;
-	struct sysfs_symlink  * sl;
+Another issues is that at the moment, hotplugging is work in progress. In=20
+order to resume, you currently need the same kernel build you're booting=20
+with, and the same hardware configuration in the resumed system. As hotplug=
+=20
+matures, this restriction might relax, and we could probably come up with a=
+=20
+way around the former restriction, but at the moment, it really only makes=
+=20
+sense to try to resume an image you created using the same machine.
 
-	if (!sd || !sd->s_element)
-		BUG();
+> > >> >That said, work has already been done along the lines that you're
+> > >> > describing. You might, for example, look at the OLS papers from la=
+st
+> > >> > year. There was a paper there describing work on almost exactly wh=
+at
+> > >> > you're describing.
+> > >>
+> > >> Could I have URL or title of the paper?
+> > >
+> > >http://www.linuxsymposium.org/2005/. I don't recall the title now,
+> > > sorry, and can't tell you whether it's in volume 1 or 2 of the
+> > > proceedings, but I'm sure it will stick out like a sore thumb.
+> >
+> > I checked the URL but could not find the paper,
+> > with keywords of "Cunningham" or "swsusp" or "suspend".
+> > Could you tell me any keyword to find it?
+>
+> I took a quick look at the PDFs and I believe the section Nigel is talking
+> about is called "On faster application startup times: Cache stuffing, seek
+> profiling, adaptive preloading" in volume 1.
 
-tell us?
+Yes, that's the one. Sorry - I didn't mean to give the impression that I wr=
+ote=20
+it. I know about it because I attended the talk.
 
-I assume the bug was introduced by one of the device mapper patches:
+Regards,
 
-device-mapper-snapshot-fix-origin_write-pending_exception-submission.patch
-device-mapper-snapshot-replace-sibling-list.patch
-device-mapper-snapshot-fix-invalidation.patch
-drivers-md-dm-raid1c-fix-inconsistent-mirroring-after-interrupted.patch
-dm-remove-sector_format.patch
-dm-make-sure-queue_flag_cluster-is-set-properly.patch
-md-make-sure-queue_flag_cluster-is-set-properly-for-md.patch
+Nigel
 
+--nextPart4348058.VO6Cft1gxy
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBEFKmXN0y+n1M3mo0RAuqOAJ48+NvZVHRDLHd0Yyd3al537kogOACglYe0
+zLEwbdJF7yz/77KzZxAROsM=
+=tYwA
+-----END PGP SIGNATURE-----
+
+--nextPart4348058.VO6Cft1gxy--

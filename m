@@ -1,142 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWCLKg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWCLKh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWCLKg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 05:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWCLKg4
+	id S1751427AbWCLKh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 05:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWCLKhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 05:36:56 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:24550
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751423AbWCLKgx
+	Sun, 12 Mar 2006 05:37:00 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:27622
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751451AbWCLKg4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 05:36:53 -0500
-Message-Id: <20060312080331.390704000@localhost.localdomain>
+	Sun, 12 Mar 2006 05:36:56 -0500
+Message-Id: <20060312080332.119016000@localhost.localdomain>
 References: <20060312080316.826824000@localhost.localdomain>
-Date: Sun, 12 Mar 2006 10:37:13 -0000
+Date: Sun, 12 Mar 2006 10:37:17 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Roman Zippel <zippel@linux-m68k.org>
-Subject: [patch 1/8] hrtimer optimize softirq runqueues
-Content-Disposition: inline; filename=hrtimer-optimize-run-queues.patch
+Subject: [patch 4/8] hrtimer simplify nanosleep
+Content-Disposition: inline; filename=hrtimers-simplify-nanosleep.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The hrtimer softirq is called from the timer softirq every tick. 
-Retrieve the current time from xtime and wall_to_monotonic instead of
-calling base->get_time() for each timer base. Store the time in the
-base structure and provide a hook once clock source abstractions are in 
-place and to keep the code open for new base clocks.
+From: Roman Zippel <zippel@linux-m68k.org>
 
-Based on a patch from: Roman Zippel <zippel@linux-m68k.org>
+nanosleep is the only user of the expired state, so let it manage this
+itself, which makes the hrtimer code a bit simpler. The remaining time
+is also only calculated if requested.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
- include/linux/hrtimer.h |   20 ++++++++++++--------
- kernel/hrtimer.c        |   28 ++++++++++++++++++++++++++--
- 2 files changed, 38 insertions(+), 10 deletions(-)
+ include/linux/hrtimer.h |    4 -
+ kernel/hrtimer.c        |  142 ++++++++++++++++++++----------------------------
+ 2 files changed, 63 insertions(+), 83 deletions(-)
 
-Index: linux-2.6.16-updates/kernel/hrtimer.c
-===================================================================
---- linux-2.6.16-updates.orig/kernel/hrtimer.c
-+++ linux-2.6.16-updates/kernel/hrtimer.c
-@@ -123,6 +123,26 @@ void ktime_get_ts(struct timespec *ts)
- EXPORT_SYMBOL_GPL(ktime_get_ts);
- 
- /*
-+ * Get the coarse grained time at the softirq based on xtime and
-+ * wall_to_monotonic.
-+ */
-+static void hrtimer_get_softirq_time(struct hrtimer_base *base)
-+{
-+	ktime_t xtim, tomono;
-+	unsigned long seq;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		xtim = timespec_to_ktime(xtime);
-+		tomono = timespec_to_ktime(wall_to_monotonic);
-+
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	base[CLOCK_REALTIME].softirq_time = xtim;
-+	base[CLOCK_MONOTONIC].softirq_time = ktime_add(xtim, tomono);
-+}
-+
-+/*
-  * Functions and macros which are different for UP/SMP systems are kept in a
-  * single place
-  */
-@@ -586,9 +606,11 @@ int hrtimer_get_res(const clockid_t whic
-  */
- static inline void run_hrtimer_queue(struct hrtimer_base *base)
- {
--	ktime_t now = base->get_time();
- 	struct rb_node *node;
- 
-+	if (base->get_softirq_time)
-+		base->softirq_time = base->get_softirq_time();
-+
- 	spin_lock_irq(&base->lock);
- 
- 	while ((node = base->first)) {
-@@ -598,7 +620,7 @@ static inline void run_hrtimer_queue(str
- 		void *data;
- 
- 		timer = rb_entry(node, struct hrtimer, node);
--		if (now.tv64 <= timer->expires.tv64)
-+		if (base->softirq_time.tv64 <= timer->expires.tv64)
- 			break;
- 
- 		fn = timer->function;
-@@ -641,6 +663,8 @@ void hrtimer_run_queues(void)
- 	struct hrtimer_base *base = __get_cpu_var(hrtimer_bases);
- 	int i;
- 
-+	hrtimer_get_softirq_time(base);
-+
- 	for (i = 0; i < MAX_HRTIMER_BASES; i++)
- 		run_hrtimer_queue(&base[i]);
- }
 Index: linux-2.6.16-updates/include/linux/hrtimer.h
 ===================================================================
 --- linux-2.6.16-updates.orig/include/linux/hrtimer.h
 +++ linux-2.6.16-updates/include/linux/hrtimer.h
-@@ -72,14 +72,16 @@ struct hrtimer {
- /**
-  * struct hrtimer_base - the timer base for a specific clock
-  *
-- * @index:	clock type index for per_cpu support when moving a timer
-- *		to a base on another cpu.
-- * @lock:	lock protecting the base and associated timers
-- * @active:	red black tree root node for the active timers
-- * @first:	pointer to the timer node which expires first
-- * @resolution:	the resolution of the clock, in nanoseconds
-- * @get_time:	function to retrieve the current time of the clock
-- * @curr_timer:	the timer which is executing a callback right now
-+ * @index:		clock type index for per_cpu support when moving a timer
-+ *			to a base on another cpu.
-+ * @lock:		lock protecting the base and associated timers
-+ * @active:		red black tree root node for the active timers
-+ * @first:		pointer to the timer node which expires first
-+ * @resolution:		the resolution of the clock, in nanoseconds
-+ * @get_time:		function to retrieve the current time of the clock
-+ * @get_sofirq_time:	function to retrieve the current time from the softirq
-+ * @curr_timer:		the timer which is executing a callback right now
-+ * @softirq_time:	the time when running the hrtimer queue in the softirq
+@@ -38,9 +38,7 @@ enum hrtimer_restart {
+  * Timer states:
   */
- struct hrtimer_base {
- 	clockid_t		index;
-@@ -88,7 +90,9 @@ struct hrtimer_base {
- 	struct rb_node		*first;
- 	ktime_t			resolution;
- 	ktime_t			(*get_time)(void);
-+	ktime_t			(*get_softirq_time)(void);
- 	struct hrtimer		*curr_timer;
-+	ktime_t			softirq_time;
+ enum hrtimer_state {
+-	HRTIMER_INACTIVE,	/* Timer is inactive */
+-	HRTIMER_EXPIRED,		/* Timer is expired */
+-	HRTIMER_RUNNING,		/* Timer is running the callback function */
++	HRTIMER_INACTIVE,		/* Timer is inactive */
+ 	HRTIMER_PENDING,		/* Timer is pending */
  };
  
- /*
+Index: linux-2.6.16-updates/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.16-updates.orig/kernel/hrtimer.c
++++ linux-2.6.16-updates/kernel/hrtimer.c
+@@ -625,30 +625,20 @@ static inline void run_hrtimer_queue(str
+ 		fn = timer->function;
+ 		data = timer->data;
+ 		set_curr_timer(base, timer);
+-		timer->state = HRTIMER_RUNNING;
++		timer->state = HRTIMER_INACTIVE;
+ 		__remove_hrtimer(timer, base);
+ 		spin_unlock_irq(&base->lock);
+ 
+-		/*
+-		 * fn == NULL is special case for the simplest timer
+-		 * variant - wake up process and do not restart:
+-		 */
+-		if (!fn) {
+-			wake_up_process(data);
+-			restart = HRTIMER_NORESTART;
+-		} else
+-			restart = fn(data);
++		restart = fn(data);
+ 
+ 		spin_lock_irq(&base->lock);
+ 
+ 		/* Another CPU has added back the timer */
+-		if (timer->state != HRTIMER_RUNNING)
++		if (timer->state != HRTIMER_INACTIVE)
+ 			continue;
+ 
+-		if (restart == HRTIMER_RESTART)
++		if (restart != HRTIMER_NORESTART)
+ 			enqueue_hrtimer(timer, base);
+-		else
+-			timer->state = HRTIMER_EXPIRED;
+ 	}
+ 	set_curr_timer(base, NULL);
+ 	spin_unlock_irq(&base->lock);
+@@ -672,79 +662,70 @@ void hrtimer_run_queues(void)
+  * Sleep related functions:
+  */
+ 
+-/**
+- * schedule_hrtimer - sleep until timeout
+- *
+- * @timer:	hrtimer variable initialized with the correct clock base
+- * @mode:	timeout value is abs/rel
+- *
+- * Make the current task sleep until @timeout is
+- * elapsed.
+- *
+- * You can set the task state as follows -
+- *
+- * %TASK_UNINTERRUPTIBLE - at least @timeout is guaranteed to
+- * pass before the routine returns. The routine will return 0
+- *
+- * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
+- * delivered to the current task. In this case the remaining time
+- * will be returned
+- *
+- * The current task state is guaranteed to be TASK_RUNNING when this
+- * routine returns.
+- */
+-static ktime_t __sched
+-schedule_hrtimer(struct hrtimer *timer, const enum hrtimer_mode mode)
+-{
+-	/* fn stays NULL, meaning single-shot wakeup: */
+-	timer->data = current;
++struct sleep_hrtimer {
++	struct hrtimer timer;
++	struct task_struct *task;
++	int expired;
++};
+ 
+-	hrtimer_start(timer, timer->expires, mode);
++static int nanosleep_wakeup(void *data)
++{
++	struct sleep_hrtimer *t = data;
+ 
+-	schedule();
+-	hrtimer_cancel(timer);
++	t->expired = 1;
++	wake_up_process(t->task);
+ 
+-	/* Return the remaining time: */
+-	if (timer->state != HRTIMER_EXPIRED)
+-		return ktime_sub(timer->expires, timer->base->get_time());
+-	else
+-		return (ktime_t) {.tv64 = 0 };
++	return HRTIMER_NORESTART;
+ }
+ 
+-static inline ktime_t __sched
+-schedule_hrtimer_interruptible(struct hrtimer *timer,
+-			       const enum hrtimer_mode mode)
++static int __sched do_nanosleep(struct sleep_hrtimer *t, enum hrtimer_mode mode)
+ {
+-	set_current_state(TASK_INTERRUPTIBLE);
++	t->timer.function = nanosleep_wakeup;
++	t->timer.data = t;
++	t->task = current;
++	t->expired = 0;
++
++	do {
++		set_current_state(TASK_INTERRUPTIBLE);
++		hrtimer_start(&t->timer, t->timer.expires, mode);
+ 
+-	return schedule_hrtimer(timer, mode);
++		schedule();
++
++		if (unlikely(!t->expired)) {
++			hrtimer_cancel(&t->timer);
++			mode = HRTIMER_ABS;
++		}
++	} while (!t->expired && !signal_pending(current));
++
++	return t->expired;
+ }
+ 
+ static long __sched nanosleep_restart(struct restart_block *restart)
+ {
++	struct sleep_hrtimer t;
+ 	struct timespec __user *rmtp;
+ 	struct timespec tu;
+-	void *rfn_save = restart->fn;
+-	struct hrtimer timer;
+-	ktime_t rem;
++	ktime_t time;
+ 
+ 	restart->fn = do_no_restart_syscall;
+ 
+-	hrtimer_init(&timer, (clockid_t) restart->arg3, HRTIMER_ABS);
+-
+-	timer.expires.tv64 = ((u64)restart->arg1 << 32) | (u64) restart->arg0;
++	hrtimer_init(&t.timer, restart->arg3, HRTIMER_ABS);
++	t.timer.expires.tv64 = ((u64)restart->arg1 << 32) | (u64) restart->arg0;
+ 
+-	rem = schedule_hrtimer_interruptible(&timer, HRTIMER_ABS);
+-
+-	if (rem.tv64 <= 0)
++	if (do_nanosleep(&t, HRTIMER_ABS))
+ 		return 0;
+ 
+ 	rmtp = (struct timespec __user *) restart->arg2;
+-	tu = ktime_to_timespec(rem);
+-	if (rmtp && copy_to_user(rmtp, &tu, sizeof(tu)))
+-		return -EFAULT;
++	if (rmtp) {
++		time = ktime_sub(t.timer.expires, t.timer.base->get_time());
++		if (time.tv64 <= 0)
++			return 0;
++		tu = ktime_to_timespec(time);
++		if (copy_to_user(rmtp, &tu, sizeof(tu)))
++			return -EFAULT;
++	}
+ 
+-	restart->fn = rfn_save;
++	restart->fn = nanosleep_restart;
+ 
+ 	/* The other values in restart are already filled in */
+ 	return -ERESTART_RESTARTBLOCK;
+@@ -754,33 +735,34 @@ long hrtimer_nanosleep(struct timespec *
+ 		       const enum hrtimer_mode mode, const clockid_t clockid)
+ {
+ 	struct restart_block *restart;
+-	struct hrtimer timer;
++	struct sleep_hrtimer t;
+ 	struct timespec tu;
+ 	ktime_t rem;
+ 
+-	hrtimer_init(&timer, clockid, mode);
+-
+-	timer.expires = timespec_to_ktime(*rqtp);
+-
+-	rem = schedule_hrtimer_interruptible(&timer, mode);
+-	if (rem.tv64 <= 0)
++	hrtimer_init(&t.timer, clockid, mode);
++	t.timer.expires = timespec_to_ktime(*rqtp);
++	if (do_nanosleep(&t, mode))
+ 		return 0;
+ 
+ 	/* Absolute timers do not update the rmtp value and restart: */
+ 	if (mode == HRTIMER_ABS)
+ 		return -ERESTARTNOHAND;
+ 
+-	tu = ktime_to_timespec(rem);
+-
+-	if (rmtp && copy_to_user(rmtp, &tu, sizeof(tu)))
+-		return -EFAULT;
++	if (rmtp) {
++		rem = ktime_sub(t.timer.expires, t.timer.base->get_time());
++		if (rem.tv64 <= 0)
++			return 0;
++		tu = ktime_to_timespec(rem);
++		if (copy_to_user(rmtp, &tu, sizeof(tu)))
++			return -EFAULT;
++	}
+ 
+ 	restart = &current_thread_info()->restart_block;
+ 	restart->fn = nanosleep_restart;
+-	restart->arg0 = timer.expires.tv64 & 0xFFFFFFFF;
+-	restart->arg1 = timer.expires.tv64 >> 32;
++	restart->arg0 = t.timer.expires.tv64 & 0xFFFFFFFF;
++	restart->arg1 = t.timer.expires.tv64 >> 32;
+ 	restart->arg2 = (unsigned long) rmtp;
+-	restart->arg3 = (unsigned long) timer.base->index;
++	restart->arg3 = (unsigned long) t.timer.base->index;
+ 
+ 	return -ERESTART_RESTARTBLOCK;
+ }
 
 --
 

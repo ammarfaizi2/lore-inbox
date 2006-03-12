@@ -1,33 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWCLQ3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWCLQbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWCLQ3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 11:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751485AbWCLQ3w
+	id S1750946AbWCLQbz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 11:31:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWCLQbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 11:29:52 -0500
-Received: from smtp12.wanadoo.fr ([193.252.22.20]:54007 "EHLO
-	smtp12.wanadoo.fr") by vger.kernel.org with ESMTP id S1751484AbWCLQ3u
+	Sun, 12 Mar 2006 11:31:55 -0500
+Received: from nproxy.gmail.com ([64.233.182.199]:28463 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750946AbWCLQby convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 11:29:50 -0500
-X-ME-UUID: 20060312162949741.B51A81C00087@mwinf1202.wanadoo.fr
-Message-ID: <44144C7C.8030704@free.fr>
-Date: Sun, 12 Mar 2006 17:29:48 +0100
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mail/News 1.5 (X11/20060228)
+	Sun, 12 Mar 2006 11:31:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ifylOFUQBZzfwZVvc3uA/+BXlOaFHHsXm8e8zt/YW2RiVSMHWl8ijhbeW71f93BiKCibHymZRxFoeiylxaxJWEX3c8Y4spXxH+Rsh4PumegWvwXK3gI6r0cWPXSpSmKuCeOt6u43XICDz6BruX8srDskPxMMmKEphy2sx1yNcSg=
+Message-ID: <b6c5339f0603120831o56ca4b9erf721c573ad7e173d@mail.gmail.com>
+Date: Sun, 12 Mar 2006 11:31:49 -0500
+From: "Bob Copeland" <bcopeland@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: 2.6.16-rc5 pppd oops on disconnects
+Cc: linux-usb-devel@lists.sourceforge.net, paulus@samba.org,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060312053532.GA23307@kroah.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Probable circular dependencies : make bzlilo rebuild nearly everything
- after make bzImage
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>
+	 <20060312053532.GA23307@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Started around 2.6.15.3 and is still there in 2.6.16-rc6
+On 3/12/06, Greg KH <greg@kroah.com> wrote:
+> There is an open Novell bug for this issue, but the USB developers that
+> have tried to fix this in the past have had no luck at all (probably
+> because we don't have the device to test with).
+>
+> What exact model of phone is this?
 
--- eric
+It's a Nokia 6230.  I'm happy to test patches, and I'll also take a
+glance at the code when I get some time to see what I can figure out.
 
-
-
+-Bob

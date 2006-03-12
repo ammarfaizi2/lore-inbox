@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751754AbWCLUmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWCLUso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751754AbWCLUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 15:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWCLUmZ
+	id S932191AbWCLUso (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 15:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWCLUso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 15:42:25 -0500
-Received: from xenotime.net ([66.160.160.81]:59787 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751754AbWCLUmY (ORCPT
+	Sun, 12 Mar 2006 15:48:44 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:18311 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932191AbWCLUso (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 15:42:24 -0500
-Date: Sun, 12 Mar 2006 12:44:12 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: GregScott@InfraSupportEtc.com, linux-kernel@vger.kernel.org,
-       bart@samwel.tk
-Subject: Re: Router stops routing after changing MAC Address
-Message-Id: <20060312124412.34004d1d.rdunlap@xenotime.net>
-In-Reply-To: <1142187253.20056.10.camel@localhost.localdomain>
-References: <925A849792280C4E80C5461017A4B8A20321DD@mail733.InfraSupportEtc.com>
-	<1142187253.20056.10.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 12 Mar 2006 15:48:44 -0500
+Subject: RE: Router stops routing after changing MAC Address
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg Scott <GregScott@InfraSupportEtc.com>
+Cc: linux-kernel@vger.kernel.org, Bart Samwel <bart@samwel.tk>
+In-Reply-To: <925A849792280C4E80C5461017A4B8A20321E0@mail733.InfraSupportEtc.com>
+References: <925A849792280C4E80C5461017A4B8A20321E0@mail733.InfraSupportEtc.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Mar 2006 20:54:35 +0000
+Message-Id: <1142196875.20056.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Mar 2006 18:14:13 +0000 Alan Cox wrote:
+On Sul, 2006-03-12 at 13:38 -0600, Greg Scott wrote:
+> I think the NICs on all the systems are 3c905b's.  The system with the
+> 2.4 kernel on it has them and I think that is what I put in my 2.6-11
+> test system as well.  My 2.6 system doesn't have a modules.conf file so
+> I will need to dig a little deeper.  I suppose I could just open it up
+> and look.  But I am almost sure I put 3c905b cards in both test systems.
 
-> On Sul, 2006-03-12 at 09:34 -0600, Greg Scott wrote:
-> > Bart and I had a private discussion about this.  I was able to prove
-> > that routing stops when "fudged" MAC Addresses on the router don't match
-> > the hardware MAC Addresses.  And routing starts back up again when the I
-> > change the "fudged" MAC Addresses back to match the hardware MAC
-> > Addresses.  
-> 
-> Which driver, and does it occur with other drivers. Also you really want
-> to move this to netdev@oss.sgi.com to get the best network folks to see
-> it.
+Humm - do they start routing correctly if you "ifconfig eth0
+promisc" (where eth0 is each interface whose mac you changed) ?
 
-that is now netdev@vger.kernel.org ....
-
-
----
-~Randy
-Please use an email client that implements proper (compliant) threading.
-(You know who you are.)

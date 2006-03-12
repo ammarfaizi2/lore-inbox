@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWCLCHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWCLCZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWCLCHF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 21:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWCLCHF
+	id S1751017AbWCLCZe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 21:25:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWCLCZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 21:07:05 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:50194 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1750826AbWCLCHC convert rfc822-to-8bit (ORCPT
+	Sat, 11 Mar 2006 21:25:33 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:2457 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750840AbWCLCZd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 21:07:02 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: psycho@rift.ath.cx
-Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
-Date: Sun, 12 Mar 2006 02:06:53 +0000
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <20060312000621.GA8911@nexon>
-In-Reply-To: <20060312000621.GA8911@nexon>
+	Sat, 11 Mar 2006 21:25:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=UoS0GMjjMHYYv0aaQQVyrjUlQLgXoYiMx1gGxzAaICG6TRvoN4a4pzdFaRkSvRJ7GfSFPP/0IPS76d63/OR1AkhoG5tYa9wMmhj6CZFQZv/I41RrGzhcGsFNfeKpCwMwY5P0g8ggc2yG8nvntm6/07Xh5yNBRtOG6OeHDEZkjIk=
+Date: Sun, 12 Mar 2006 11:25:27 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ahci: enable prefetching for PACKET commands
+Message-ID: <20060312022527.GA29870@htj.dyndns.org>
+References: <20060304173505.GA28643@havoc.gtf.org> <20060310043717.GA7510@htj.dyndns.org> <44136C13.4020002@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603120206.53683.s0348365@sms.ed.ac.uk>
+In-Reply-To: <44136C13.4020002@garzik.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 March 2006 00:06, Patrick Börjesson wrote:
-> > Just to let you know, I've had the same problem on x86-64. It's an
-> > incredibly rare fault here and I've not been able to reproduce it.
-> > However, I cannot help but notice that all of the reporters so far
-> > have been running the binary NVIDIA driver, including myself.
-> >
-> > I would not be surprised if running without the NVIDIA driver
-> > eliminated the problem.
->
-> Not running either with the NVIDIA driver or with x86-64 on the machine
-> I'm getting this on, but I get it fairly often (as in: today I've
-> probably gotten it at least 5-10 times). It seems it's pretty bound by
-> either high CPU or disk usage, since I've always gotten it while
-> compiling stuff so far. Although my system doesn't hard lock if I get
-> this error; I can at least run most commands and ssh into it.
+Turn on AHCI_CMD_PREFETCH for PACKET commands.  This hints the
+controller that it can prefetch the CDB and the PRD entries.  This
+patch is originally from Jeff Garzik.
 
-Please don't do anything! A reproducible test case without NVIDIA loaded is 
-exactly what we've been waiting for.
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-Please search the archives for Hugh Dickins's patch for 2.6.15 which enables 
-additional rmap debug. Then try to reproduce the fault.
+---
 
--- 
-Cheers,
-Alistair.
+Jeff, I'll send two flavors of this patch.  The other one will enable
+AHCI_CMD_PREFETCH for both ATA and ATAPI devices.  I've tested both
+cases on ICH7R.
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+ ahci.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+index 00dfdef..e97ab3e 100644
+--- a/drivers/scsi/ahci.c
++++ b/drivers/scsi/ahci.c
+@@ -66,6 +66,7 @@ enum {
+ 	AHCI_IRQ_ON_SG		= (1 << 31),
+ 	AHCI_CMD_ATAPI		= (1 << 5),
+ 	AHCI_CMD_WRITE		= (1 << 6),
++	AHCI_CMD_PREFETCH	= (1 << 7),
+ 	AHCI_CMD_RESET		= (1 << 8),
+ 	AHCI_CMD_CLR_BUSY	= (1 << 10),
+ 
+@@ -631,7 +632,7 @@ static void ahci_qc_prep(struct ata_queu
+ 	if (qc->tf.flags & ATA_TFLAG_WRITE)
+ 		opts |= AHCI_CMD_WRITE;
+ 	if (is_atapi)
+-		opts |= AHCI_CMD_ATAPI;
++		opts |= AHCI_CMD_ATAPI | AHCI_CMD_PREFETCH;
+ 
+ 	ahci_fill_cmd_slot(pp, opts);
+ }

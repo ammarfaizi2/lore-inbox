@@ -1,60 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751833AbWCLW5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751790AbWCLW6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751833AbWCLW5u (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 17:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751853AbWCLW5u
+	id S1751790AbWCLW6M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWCLW6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 17:57:50 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:29138 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751833AbWCLW5t (ORCPT
+	Sun, 12 Mar 2006 17:58:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:46044 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751853AbWCLW6J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 17:57:49 -0500
-Message-ID: <4414A76A.4090109@garzik.org>
-Date: Sun, 12 Mar 2006 17:57:46 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Blazejowski <paulb@blazebox.homeip.net>
-CC: Lee Revell <rlrevell@joe-job.com>, LKML <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: Linux v2.6.16-rc6
-References: <1142189154.21274.20.camel@blaze.homeip.net>	 <1142199970.25358.173.camel@mindpipe> <1142202089.9934.13.camel@blaze.homeip.net>
-In-Reply-To: <1142202089.9934.13.camel@blaze.homeip.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 12 Mar 2006 17:58:09 -0500
+Date: Sun, 12 Mar 2006 14:55:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: drzeus-list@drzeus.cx, ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-Id: <20060312145543.194f4dc7.akpm@osdl.org>
+In-Reply-To: <20060312172332.GA10278@vrfy.org>
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx>
+	<20060301194532.GB25907@vrfy.org>
+	<4406AF27.9040700@drzeus.cx>
+	<20060302165816.GA13127@vrfy.org>
+	<44082E14.5010201@drzeus.cx>
+	<4412F53B.5010309@drzeus.cx>
+	<20060311173847.23838981.akpm@osdl.org>
+	<4414033F.2000205@drzeus.cx>
+	<20060312172332.GA10278@vrfy.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Blazejowski wrote:
-> sata_sil 0000:05:0a.0: Applying R_ERR on DMA activate FIS errata fix
+Kay Sievers <kay.sievers@vrfy.org> wrote:
+>
+> On Sun, Mar 12, 2006 at 12:17:19PM +0100, Pierre Ossman wrote:
+> > Andrew Morton wrote:
+> > > I assume you mean that the drivers/pnp/card.c patch of
+> > > pnp-modalias-sysfs-export.patch needs to be removed and this patch applies
+> > > on top of the result.
+> > >
+> > > But I don't want to break udev.
+> > >   
+> > 
+> > I suppose I wasn't entirely clear there. I'd like you to do the first
+> > part (remove the card.c part), but not apply this second patch. I just
+> > sent that in as a means of getting the ball rolling again.
+> 
+> Again, multiline sysfs modalias files are not going to happen. Find a
+> sane way to encode the list of devices into a single string, or don't do
+> it at all. And it must be available in the event environment too.
+> 
+> > The reason I'm pushing this issue is that Red Hat decided to drop all
+> > magical scripts that figured out what modules to load and instead only
+> > use the modalias attribute. They consider the right way to go is to get
+> > the PNP layer to export modalias, so that's what I'm trying to do.
+> 
+> There is no need to rush out with this half-baken solution. This simple
+> udev rule does the job for you, if you want pnp module autoloading with
+> the current kernel:
+>   SUBSYSTEM=="pnp", RUN+="/bin/sh -c 'while read id; do /sbin/modprobe pnp:d$$id; done < /sys$devpath/id'"
+> 
+> Andrew, please make sure, that this patch does not hit mainline until
+> there is a _sane_ solution to the multiple id's exported for a single
+> device problem.
+> 
 
-sata_sil
+The only patch I presently have is:
 
-> ata5: SATA max UDMA/100 cmd 0xF9402080 ctl 0xF940208A bmdma 0xF9402000
-> irq 23
-> ata6: SATA max UDMA/100 cmd 0xF94020C0 ctl 0xF94020CA bmdma 0xF9402008
-> irq 23
-> ata7: SATA max UDMA/100 cmd 0xF9402280 ctl 0xF940228A bmdma 0xF9402200
-> irq 23
-> ata8: SATA max UDMA/100 cmd 0xF94022C0 ctl 0xF94022CA bmdma 0xF9402208
-> irq 23
+--- devel/drivers/pnp/interface.c~pnp-modalias-sysfs-export	2006-03-12 03:27:01.000000000 -0800
++++ devel-akpm/drivers/pnp/interface.c	2006-03-12 03:27:01.000000000 -0800
+@@ -459,10 +459,22 @@ static ssize_t pnp_show_current_ids(stru
+ 
+ static DEVICE_ATTR(id,S_IRUGO,pnp_show_current_ids,NULL);
+ 
++static ssize_t pnp_modalias_show(struct device *dmdev, struct device_attribute *attr, char *buf)
++{
++	struct pnp_dev *dev = to_pnp_dev(dmdev);
++	struct pnp_id * pos = dev->id;
++
++	/* FIXME: modalias can only do one alias */
++	return sprintf(buf, "pnp:d%s\n", pos->id);
++}
++
++static DEVICE_ATTR(modalias,S_IRUGO,pnp_modalias_show,NULL);
++
+ int pnp_interface_attach_device(struct pnp_dev *dev)
+ {
+ 	device_create_file(&dev->dev,&dev_attr_options);
+ 	device_create_file(&dev->dev,&dev_attr_resources);
+ 	device_create_file(&dev->dev,&dev_attr_id);
++	device_create_file(&dev->dev,&dev_attr_modalias);
+ 	return 0;
+ }
+_
 
-host max udma5
-
-> ata5: dev 0 ATA-6, max UDMA/100, 390721968 sectors: LBA48
-> ata5: dev 0 configured for UDMA/100
-
-dev max udma5, configured for udma5
-
-> ata6: dev 0 ATA-6, max UDMA/133, 390721968 sectors: LBA48
-> ata6: dev 0 configured for UDMA/100
-
-dev max udma6, configured for host maximum udma5
-
-Everything looks correct.
-
-	Jeff
-
-
+Is that OK?

@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWCLBe7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWCLBlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWCLBe7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 20:34:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWCLBe6
+	id S1751437AbWCLBlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 20:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWCLBlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 20:34:58 -0500
-Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:33249 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S1751401AbWCLBe6 convert rfc822-to-8bit (ORCPT
+	Sat, 11 Mar 2006 20:41:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8682 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751437AbWCLBlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 20:34:58 -0500
-From: Luke-Jr <luke@dashjr.org>
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: can I bring Linux down by running "renice -20 cpu_intensive_process"?
-Date: Sun, 12 Mar 2006 01:41:05 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <441180DD.3020206@wpkg.org> <Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr> <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
-In-Reply-To: <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603120141.08129.luke@dashjr.org>
+	Sat, 11 Mar 2006 20:41:08 -0500
+Date: Sat, 11 Mar 2006 17:38:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: kay.sievers@vrfy.org, ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-Id: <20060311173847.23838981.akpm@osdl.org>
+In-Reply-To: <4412F53B.5010309@drzeus.cx>
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx>
+	<20060301194532.GB25907@vrfy.org>
+	<4406AF27.9040700@drzeus.cx>
+	<20060302165816.GA13127@vrfy.org>
+	<44082E14.5010201@drzeus.cx>
+	<4412F53B.5010309@drzeus.cx>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 March 2006 22:01, Måns Rullgård wrote:
-> Sysrq+n changes all realtime tasks to normal priority.
+Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>
+>  Here is a patch for doing multi line modalias for PNP devices. This will
+>  break udev, so that needs to be updated first.
+> 
+>  I had a longer look at the card part and it seems that module aliases
+>  cannot be reliably used for it. Not without restructuring the system at
+>  least. The possible combinations explode when you notice that the driver
+>  ids needs to be just at subset of the card, without any ordering.
+> 
+>  If I got my calculations right, a PNP card would have to have roughly
+>  2^(2n) aliases, where n is the number of device ids. So right now, I
+>  lean towards only adding modalias support for the non-card part of the
+>  PNP layer.
+> 
+>  Andrew, do you want a fix for the patch in -mm or can you remove the
+>  part of it that modifies drivers/pnp/card.c by yourself?
 
-Would the kernel's main loop (where I presume Sysreq is handled) get a chance 
-to run with a constantly busy realtime task?
+I assume you mean that the drivers/pnp/card.c patch of
+pnp-modalias-sysfs-export.patch needs to be removed and this patch applies
+on top of the result.
+
+But I don't want to break udev.

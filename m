@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751580AbWCLR7B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWCLSDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751580AbWCLR7B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 12:59:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751581AbWCLR7B
+	id S1751659AbWCLSDM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 13:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751661AbWCLSDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 12:59:01 -0500
-Received: from nproxy.gmail.com ([64.233.182.205]:10350 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751560AbWCLR7A convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 12:59:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G3v0TIOgVa0YjqdK6Ag0q8wMlCc53SXdS+8O7XYdhLa2uSVe1shqYAYX3Jj1n2addoR7v7/5zHJtng/dct9rtJdH9GNPjqIk4jRNfRIh2On2cfdaDRP3cWwF4dHF8U7uUt/o1qZG6UmyRSLusAUzCqBCB84ofZnMLK0OytjIB4M=
-Message-ID: <b6c5339f0603120958y7ebc2051q51e24835456d9fcd@mail.gmail.com>
-Date: Sun, 12 Mar 2006 12:58:58 -0500
-From: "Bob Copeland" <email@bobcopeland.com>
-To: "Paul Fulghum" <paulkf@microgate.com>
-Subject: Re: 2.6.16-rc5 pppd oops on disconnects
-Cc: paulus@samba.org, "Linux Kernel list" <linux-kernel@vger.kernel.org>,
-       "Greg KH" <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <1142180789.4360.2.camel@x2.pipehead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>
-	 <1142011340.3220.4.camel@amdx2.microgate.com>
-	 <b6c5339f0603101048l1c362582xc4d2570bc9d569b@mail.gmail.com>
-	 <1142018709.26063.5.camel@amdx2.microgate.com>
-	 <20060311150908.GA4872@hash.localnet>
-	 <1142099765.3241.3.camel@x2.pipehead.org>
-	 <b6c5339f0603111221k2d0afce5hcfd485713ba17338@mail.gmail.com>
-	 <1142180789.4360.2.camel@x2.pipehead.org>
+	Sun, 12 Mar 2006 13:03:11 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:60098 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751612AbWCLSDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 13:03:11 -0500
+Subject: Re: Memory barriers and spin_unlock safety
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robert Hancock <hancockr@shaw.ca>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <441225B7.5010003@shaw.ca>
+References: <5Ml19-2Ki-19@gated-at.bofh.it> <5MlO0-3JU-13@gated-at.bofh.it>
+	 <5MCF0-2TS-27@gated-at.bofh.it> <5MITJ-2l4-15@gated-at.bofh.it>
+	 <5NXxl-6WZ-9@gated-at.bofh.it> <5NY0h-7wa-1@gated-at.bofh.it>
+	 <441225B7.5010003@shaw.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 12 Mar 2006 18:09:12 +0000
+Message-Id: <1142186952.20056.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/12/06, Paul Fulghum <paulkf@microgate.com> wrote:
-> --- linux-2.6.16-rc5/drivers/usb/class/cdc-acm.c        2006-02-27 09:24:29.000000000 -0600
-> +++ b/drivers/usb/class/cdc-acm.c       2006-03-12 10:22:21.000000000 -0600
-> @@ -980,7 +980,7 @@ skip_normal_probe:
->         usb_driver_claim_interface(&acm_driver, data_interface, acm);
->
->         usb_get_intf(control_interface);
-> -       tty_register_device(acm_tty_driver, minor, &control_interface->dev);
-> +       tty_register_device(acm_tty_driver, minor, NULL);
->
->         acm_table[minor] = acm;
->         usb_set_intfdata (intf, acm);
->
+On Gwe, 2006-03-10 at 19:19 -0600, Robert Hancock wrote:
+> PCI I/O writes are allowed to be posted by the host bus bridge (not 
+> other bridges) according to the PCI 2.2 spec. Maybe no x86 platform 
+> actually does this, but it's allowed, so technically a device would need 
+> to do a read in order to ensure that I/O writes have arrived at the 
+> device as well.
 
-Paul,
+Existing Linux drivers largely believe that PCI I/O cycles as opposed to
+MMIO cycles are not posted. At least one MIPS platform that did post
+them ended up ensuring PCI I/O cycle posting didn't occur to get a
+running Linux system - so its quite a deep assumption.
 
-No oops with the above patch.
-
-thanks!
--Bob

@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWCLViH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWCLVnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWCLViH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 16:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWCLViG
+	id S1750967AbWCLVnv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 16:43:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbWCLVnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 16:38:06 -0500
-Received: from host-84-9-202-225.bulldogdsl.com ([84.9.202.225]:15801 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S932246AbWCLViE
+	Sun, 12 Mar 2006 16:43:51 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:28586 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750939AbWCLVnv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 16:38:04 -0500
-Date: Sun, 12 Mar 2006 21:37:20 +0000
-From: Ben Dooks <ben@fluff.org>
-To: James Yu <cyu021@gmail.com>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-Subject: Re: weird behavior from kernel
-Message-ID: <20060312213720.GB25816@home.fluff.org>
-References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com> <20060312084632.GB21493@w.ods.org> <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 12 Mar 2006 16:43:51 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, raven@themaw.net
+Subject: BUG: atomic counter underflow [Was: 2.6.16-rc6-mm1]
+In-reply-to: <20060312031036.3a382581.akpm@osdl.org>
+Message-Id: <E1FIYLc-00080b-00@decibel.fi.muni.cz>
+From: Jiri Slaby <xslaby@informatics.muni.cz>
+Date: Sun, 12 Mar 2006 22:43:32 +0100
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@informatics.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 05:25:11PM +0800, James Yu wrote:
-> The major reason to choose 2.4.18 as my dev base is that the dev is
-> ment to be carried out on a custom ARM board, and there isn't any
-> 2.6's port available.
+Andrew Morton wrote:
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
+[snip]
+>+remove-redundant-check-from-autofs4_put_super.patch
+>+autofs4-follow_link-missing-funtionality.patch
+>
+> Update autofs4 patches in -mm.
+Hello, 
 
-What functionality do you need which is not in the current
-2.6 kernel series?
+I caught this during ftp browsing autofs-bind-mounted directories. I don't know
+circumstancies and if the patches above are source of problem. I also don't know
+if -rc6-mm1 is the first one.
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
+BUG: atomic counter underflow at:
+ [<c0104736>] show_trace+0x13/0x15
+ [<c0104873>] dump_stack+0x1e/0x20
+ [<c01d6c97>] autofs4_wait+0x751/0x93a
+ [<c01d543b>] try_to_fill_dentry+0xca/0x11c
+ [<c01d59b3>] autofs4_revalidate+0xe1/0x148
+ [<c0171338>] do_lookup+0x40/0x157
+ [<c0172ec4>] __link_path_walk+0x804/0xe8c
+ [<c017359c>] link_path_walk+0x50/0xe8
+ [<c01738b7>] do_path_lookup+0x10f/0x26d
+ [<c017429c>] __user_walk_fd+0x33/0x50
+ [<c016d226>] vfs_stat_fd+0x1e/0x50
+ [<c016d30d>] vfs_stat+0x20/0x22
+ [<c016d328>] sys_stat64+0x19/0x2d
+ [<c0103127>] syscall_call+0x7/0xb
 
-  'a smiley only costs 4 bytes'
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E

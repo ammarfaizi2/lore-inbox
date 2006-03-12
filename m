@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWCLMmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWCLMq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWCLMmB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 07:42:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWCLMmA
+	id S932242AbWCLMq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 07:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWCLMqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 07:42:00 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:13902 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751417AbWCLMl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 07:41:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=rGEAKlzxMQkHhzM1hROT5pcFahN0DrQ1Bme11U3vhMM1vqjfLp3Fed4Dv/3yNwZ5jmHRodj1OHtE5bhqSL2umCPI82JnP5jNrEf5cQXtWNMu4X09g0GY+whDDpPnUXSfdEDpQ3zF2oH6YS2H5TmdSaRg5jXUQTT2Hok89CA0d8I=  ;
-Message-ID: <44141710.3060407@yahoo.com.au>
-Date: Sun, 12 Mar 2006 23:41:52 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: psycho@rift.ath.cx
-CC: linux-kernel@vger.kernel.org,
-       Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
-References: <20060312000621.GA8911@nexon>
-In-Reply-To: <20060312000621.GA8911@nexon>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Mar 2006 07:46:25 -0500
+Received: from mxout1.netvision.net.il ([194.90.9.20]:45622 "EHLO
+	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
+	id S932104AbWCLMqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 07:46:25 -0500
+Date: Sun, 12 Mar 2006 14:46:55 +0300
+From: Maxim Kozover <maximkoz@netvision.net.il>
+Subject: Re: Re: Re[8]: problems with scsi_transport_fc and qla2xxx
+In-reply-to: <1142155684.2882.15.camel@laptopd505.fenrus.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>
+Reply-to: Maxim Kozover <maximkoz@netvision.net.il>
+Message-id: <518308279.20060312144655@netvision.net.il>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Priority: 3 (Normal)
+References: <1119462161.20060306230951@netvision.net.il>
+ <20060306212835.GO6278@andrew-vasquezs-powerbook-g4-15.local>
+ <1229893529.20060307000953@netvision.net.il>
+ <20060306232831.GS6278@andrew-vasquezs-powerbook-g4-15.local>
+ <1219491790.20060307124035@netvision.net.il>
+ <20060307172227.GE6275@andrew-vasquezs-powerbook-g4-15.local>
+ <1343850424.20060307231141@netvision.net.il>
+ <20060308080050.GF9956@andrew-vasquezs-powerbook-g4-15.local>
+ <20060308154341.GA1779@andrew-vasquezs-powerbook-g4-15.local>
+ <1502511597.20060308213247@netvision.net.il>
+ <20060310231344.GB641@andrew-vasquezs-powerbook-g4-15.local>
+ <1699632492.20060312001014@netvision.net.il>
+ <1142155684.2882.15.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick wrote:
+OK, Arjan, thanks!
 
-> ------------[ cut here ]------------
-> kernel BUG at mm/rmap.c:486!
-> EIP is at page_remove_rmap+0x30/0x40
->  [<c014c0b6>] zap_pte_range+0x156/0x250
+Maxim.
 
-This could easily be something that's already been fixed by now,
-or it may still be a problem... can you test with the most recent
-kernel (2.6.16-rc6)? Thanks.
+AvdV> looks like your fiber fabric decided to renegotiate, and halfway it went
+AvdV> for a coffee and donuts break to not upset the union rules :)
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+AvdV> I've seen LOOP negotiations take 10+ seconds before, and that is on a
+AvdV> really simple setup.... so nothing super special 
+
+

@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751541AbWCLN6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWCLOO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751541AbWCLN6z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 08:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWCLN6y
+	id S1751278AbWCLOO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 09:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWCLOO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 08:58:54 -0500
-Received: from stinky.trash.net ([213.144.137.162]:18391 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1751490AbWCLN6y
+	Sun, 12 Mar 2006 09:14:57 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:31720
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751278AbWCLOO4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 08:58:54 -0500
-Message-ID: <441428AD.3010902@trash.net>
-Date: Sun, 12 Mar 2006 14:57:01 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Oeser <ioe-lkml@rameria.de>
-CC: =?UTF-8?B?WU9TSElGVUpJIEhpZGVha2kgLyDlkInol6Toi7HmmI4=?= 
-	<yoshfuji@linux-ipv6.org>,
-       David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] Nearly complete kzalloc cleanup for net/ipv6
-References: <200603112136.43553.ioe-lkml@rameria.de>
-In-Reply-To: <200603112136.43553.ioe-lkml@rameria.de>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=UTF-8
+	Sun, 12 Mar 2006 09:14:56 -0500
+Subject: Re: [patch 5/8] hrtimer remove state field
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0603121444530.16802@scrub.home>
+References: <20060312080316.826824000@localhost.localdomain>
+	 <20060312080332.274315000@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121302590.16802@scrub.home>
+	 <1142169010.19916.397.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121422180.16802@scrub.home>
+	 <1142170505.19916.402.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0603121444530.16802@scrub.home>
+Content-Type: text/plain
+Date: Sun, 12 Mar 2006 15:15:17 +0100
+Message-Id: <1142172917.19916.421.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> From: Ingo Oeser <ioe-lkml@rameria.de>
+On Sun, 2006-03-12 at 14:55 +0100, Roman Zippel wrote:
+> Hi,
 > 
-> Stupidly use kzalloc() instead of kmalloc()/memset() 
-> everywhere where this is possible in net/ipv6/*.c . 
+> On Sun, 12 Mar 2006, Thomas Gleixner wrote:
 > 
-> The netfilter part is NOT included, because Harald should see these, too.
+> > On Sun, 2006-03-12 at 14:26 +0100, Roman Zippel wrote:
+> > > > softirq runs on CPU0
+> > > > base->lock()
+> > > > 
+> > > > remove_timer(timer);
+> > > > 
+> > > > base->unlock()
+> > > > 			signal of previous expiry is delivered on CPU1
+> > > > 			timer is reqeued.
+> > 
+> > 		------->  sig_ignore is set
+> 
+> ??? I can't find any symbol 'sig_ignore'.
 
-Feel free to send netfilter patches to me.
+Oh well. The application sets SIG_IGN for the signal in question, so
+send_sigqueue() returns 1 because sig_ignored() returns 1.
+
+Sorry for being imprecise.
+
+	tglx
+
+

@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbWCLNtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWCLNzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbWCLNtx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 08:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWCLNtx
+	id S1751288AbWCLNzy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 08:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751480AbWCLNzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 08:49:53 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:57513 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751462AbWCLNtx (ORCPT
+	Sun, 12 Mar 2006 08:55:54 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:660 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751288AbWCLNzy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 08:49:53 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: 2.6.16-rc6-mm1
-Date: Sun, 12 Mar 2006 14:49:09 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060312031036.3a382581.akpm@osdl.org> <200603121416.26583.rjw@sisk.pl> <20060312133514.GA9922@mars.ravnborg.org>
-In-Reply-To: <20060312133514.GA9922@mars.ravnborg.org>
+	Sun, 12 Mar 2006 08:55:54 -0500
+Date: Sun, 12 Mar 2006 14:55:49 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 5/8] hrtimer remove state field
+In-Reply-To: <1142170505.19916.402.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0603121444530.16802@scrub.home>
+References: <20060312080316.826824000@localhost.localdomain> 
+ <20060312080332.274315000@localhost.localdomain>  <Pine.LNX.4.64.0603121302590.16802@scrub.home>
+  <1142169010.19916.397.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0603121422180.16802@scrub.home> <1142170505.19916.402.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603121449.10223.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 March 2006 14:35, Sam Ravnborg wrote:
-> On Sun, Mar 12, 2006 at 02:16:26PM +0100, Rafael J. Wysocki wrote:
-> > On Sunday 12 March 2006 12:10, Andrew Morton wrote:
+Hi,
+
+On Sun, 12 Mar 2006, Thomas Gleixner wrote:
+
+> On Sun, 2006-03-12 at 14:26 +0100, Roman Zippel wrote:
+> > > softirq runs on CPU0
+> > > base->lock()
 > > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
-> > 
-> > Doesn't compile for me:
-> > 
-> > rafael@albercik:~/src/mm/linux-2.6.16-rc6-mm1> make
-> >   CHK     include/linux/version.h
-> >   SPLIT   include/linux/autoconf.h -> include/config/*
-> >   HOSTCC  scripts/genksyms/genksyms.o
-> > scripts/genksyms/genksyms.c:35:30: error: ../mod/elfconfig.h: No such file or directory
-> > scripts/genksyms/genksyms.c: In function ???export_symbol???:
-> > scripts/genksyms/genksyms.c:461: error: ???MODULE_SYMBOL_PREFIX??? undeclared (first use in this function)
-> > scripts/genksyms/genksyms.c:461: error: (Each undeclared identifier is reported only once
-> > scripts/genksyms/genksyms.c:461: error: for each function it appears in.)
-> > make[2]: *** [scripts/genksyms/genksyms.o] Error 1
-> > make[1]: *** [scripts/genksyms] Error 2
-> > make: *** [scripts] Error 2
-> My bad.
->  
-> > #
-> > # Loadable module support
-> > #
-> > CONFIG_MODULES=y
-> > CONFIG_MODULE_UNLOAD=y
-> > CONFIG_MODULE_FORCE_UNLOAD=y
-> > CONFIG_MODVERSIONS=y
-> Use CONFIG_MODVERSIONS=n for now as workaround.
+> > > remove_timer(timer);
+> > > 
+> > > base->unlock()
+> > > 			signal of previous expiry is delivered on CPU1
+> > > 			timer is reqeued.
+> 
+> 		------->  sig_ignore is set
 
-OK
+??? I can't find any symbol 'sig_ignore'.
 
-Thanks,
-Rafael
+> > > requeue = timer->fn();
+> > > 
+> > > base->lock()
+> > > 
+> > > if (requeue)
+> > > 	enqueue_timer(timer)
+> > > 
+
+What actually happened is that requeue is false and in the meantime the 
+timer was restarted on another cpu via signal delivery and 
+run_hrtimer_queue would set the state to expired, while the timer was 
+still active -> OOPS.
+
+bye, Roman

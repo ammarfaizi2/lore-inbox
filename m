@@ -1,33 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWCLBvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWCLBvm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751457AbWCLBvU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 20:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWCLBvU
+	id S1751454AbWCLBvm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 20:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWCLBvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 20:51:20 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:7354 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751451AbWCLBvT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 20:51:19 -0500
-Message-ID: <44137E95.8020601@garzik.org>
-Date: Sat, 11 Mar 2006 20:51:17 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sat, 11 Mar 2006 20:51:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:8619 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751454AbWCLBvl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 20:51:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hQCoSTK1KtAEnJ6rp1w5lSHV/BCNV227UpWHC8VwnFMCBh61XZ9Ww8SwWx//hyHnS0IXIMo0mPT9VUdbjkKcvJChbx2ytkqiWbk2QwLgDlUGAR09ARIif/EhSeax8jzspueYsd0ADEhL5OB02SCMBnGOmT5zD5ATn/Gx2tqkbR8=
+Message-ID: <6bffcb0e0603111751i1ed30794s@mail.gmail.com>
+Date: Sun, 12 Mar 2006 02:51:40 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Linux v2.6.16-rc6
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
 MIME-Version: 1.0
-To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: libata ATAPI turned on
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.5 (/)
-X-Spam-Report: SpamAssassin version 3.0.5 on srv2.dvmed.net summary:
-	Content analysis details:   (0.5 points, 5.0 required)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-libata-dev.git#upstream now turns on ATAPI by default.
+Hi,
 
-	Jeff
+On 12/03/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> Ok, we're getting closer, although the 2.6.16 release certainly seems to
+> drag out more than it should have.
+>
 
+I have noticed this warnings
+TCP: Treason uncloaked! Peer 82.113.55.2:11759/50967 shrinks window
+148470938:148470943. Repaired.
+TCP: Treason uncloaked! Peer 82.113.55.2:11759/50967 shrinks window
+148470938:148470943. Repaired.
+TCP: Treason uncloaked! Peer 82.113.55.2:11759/59768 shrinks window
+1124211698:1124211703. Repaired.
+TCP: Treason uncloaked! Peer 82.113.55.2:11759/59768 shrinks window
+1124211698:1124211703. Repaired.
 
+It maybe problem with ktorrent.
+
+Here is config http://www.stardust.webpages.pl/files/linux/2.6.16-rc6/config
+Here is dmesg http://www.stardust.webpages.pl/files/linux/2.6.16-rc6/dmesg
+
+Regards,
+Michal
+
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

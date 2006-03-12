@@ -1,60 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWCLRXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWCLRZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751628AbWCLRXe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 12:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWCLRXe
+	id S1751647AbWCLRZV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 12:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751651AbWCLRZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 12:23:34 -0500
-Received: from soundwarez.org ([217.160.171.123]:55226 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751628AbWCLRXd (ORCPT
+	Sun, 12 Mar 2006 12:25:20 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:19394 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S1751647AbWCLRZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 12:23:33 -0500
-Date: Sun, 12 Mar 2006 18:23:32 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Andrew Morton <akpm@osdl.org>, ambx1@neo.rr.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-Message-ID: <20060312172332.GA10278@vrfy.org>
-References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx>
-Mime-Version: 1.0
+	Sun, 12 Mar 2006 12:25:19 -0500
+Date: Sun, 12 Mar 2006 18:25:11 +0100
+From: Petr Vandrovec <petr@vandrovec.name>
+To: linux-kernel@vger.kernel.org
+Cc: sam@ravenborg.org, kai@germaschewski.name
+Subject: [PATCH] Do not rebuild full kernel tree again and again...
+Message-ID: <20060312172511.GA17936@vana.vc.cvut.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4414033F.2000205@drzeus.cx>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 12:17:19PM +0100, Pierre Ossman wrote:
-> Andrew Morton wrote:
-> > I assume you mean that the drivers/pnp/card.c patch of
-> > pnp-modalias-sysfs-export.patch needs to be removed and this patch applies
-> > on top of the result.
-> >
-> > But I don't want to break udev.
-> >   
-> 
-> I suppose I wasn't entirely clear there. I'd like you to do the first
-> part (remove the card.c part), but not apply this second patch. I just
-> sent that in as a means of getting the ball rolling again.
+Hello,
+  I've returned back to the computer after month and half, and I've found that
+I cannot reasonably build kernel - just repeating 'make' twice without doing any
+change forced full rebuild of everything, which as far as I can tell is not 
+intended behavior.  As I did not notice this being reported on the LKML, and
+2.6.16-rc6 still suffers from this problem, here comes report + patch.
 
-Again, multiline sysfs modalias files are not going to happen. Find a
-sane way to encode the list of devices into a single string, or don't do
-it at all. And it must be available in the event environment too.
+  Problem seems to be that new make includes FORCE prerequisite in $? - apparently
+new make treats $? not as 'prerequisities newer than target', but as 
+'prerequisities newer than target or missing'.  Due to this $(if) in make rules 
+always succeeded as it always received at least 'FORCE', and 'FORCE'
+is not an empty string.  So let's filter out 'FORCE' from $? - unless somebody
+can confirm that make 3.81 is broken and unusable for kernel...
+							Thanks,
+								Petr Vandrovec
 
-> The reason I'm pushing this issue is that Red Hat decided to drop all
-> magical scripts that figured out what modules to load and instead only
-> use the modalias attribute. They consider the right way to go is to get
-> the PNP layer to export modalias, so that's what I'm trying to do.
 
-There is no need to rush out with this half-baken solution. This simple
-udev rule does the job for you, if you want pnp module autoloading with
-the current kernel:
-  SUBSYSTEM=="pnp", RUN+="/bin/sh -c 'while read id; do /sbin/modprobe pnp:d$$id; done < /sys$devpath/id'"
+ppc:~# make -v
+GNU Make 3.81rc1
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
-Andrew, please make sure, that this patch does not hit mainline until
-there is a _sane_ solution to the multiple id's exported for a single
-device problem.
+This program built for i486-pc-linux-gnu
+ppc:~# dpkg -l make
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Installed/Config-files/Unpacked/Failed-config/Half-installed
+|/ Err?=(none)/Hold/Reinst-required/X=both-problems (Status,Err: uppercase=bad)
+||/ Name            Version               Description
++++-===============-=====================-============================================
+ii  make            3.80+3.81.rc1-1       The GNU version of the "make" utility.
+ppc:~#
 
-Thanks,
-Kay
+Signed-off-by:  Petr Vandrovec <petr@vandrovec.name>
+
+diff -urdN linux/scripts/Kbuild.include linux/scripts/Kbuild.include
+--- linux/scripts/Kbuild.include	2006-03-12 17:28:37.000000000 +0100
++++ linux/scripts/Kbuild.include	2006-03-12 17:55:53.000000000 +0100
+@@ -79,7 +79,7 @@
+ # >'< substitution is for echo to work, >$< substitution to preserve $ when reloading .cmd file
+ # note: when using inline perl scripts [perl -e '...$$t=1;...'] in $(cmd_xxx) double $$ your perl vars
+ # 
+-if_changed = $(if $(strip $? $(call arg-check, $(cmd_$(1)), $(cmd_$@)) ), \
++if_changed = $(if $(strip $(filter-out FORCE,$?) $(call arg-check, $(cmd_$(1)), $(cmd_$@)) ), \
+ 	@set -e; \
+ 	$(echo-cmd) \
+ 	$(cmd_$(1)); \
+@@ -87,7 +87,7 @@
+ 
+ # execute the command and also postprocess generated .d dependencies
+ # file
+-if_changed_dep = $(if $(strip $? $(filter-out FORCE $(wildcard $^),$^)\
++if_changed_dep = $(if $(strip $(filter-out FORCE,$? $(filter-out $(wildcard $^),$^))\
+ 	$(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),                  \
+ 	@set -e; \
+ 	$(echo-cmd) \
+@@ -99,6 +99,6 @@
+ # Usage: $(call if_changed_rule,foo)
+ # will check if $(cmd_foo) changed, or any of the prequisites changed,
+ # and if so will execute $(rule_foo)
+-if_changed_rule = $(if $(strip $? $(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),\
++if_changed_rule = $(if $(strip $(filter-out FORCE,$?) $(call arg-check, $(cmd_$(1)), $(cmd_$@)) ),\
+ 			@set -e; \
+ 			$(rule_$(1)))

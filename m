@@ -1,77 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWCLVrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWCLVza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWCLVrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 16:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWCLVrr
+	id S932266AbWCLVza (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 16:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWCLVza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 16:47:47 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:15563 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S932261AbWCLVrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 16:47:46 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, sam@ravenborg.org
-Subject: Re: 2.6.16-rc6-mm1
-Date: Mon, 13 Mar 2006 08:47:21 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <3j5912trf1d2rnjop60a9kfttjblabfiuo@4ax.com>
-References: <20060312031036.3a382581.akpm@osdl.org>
-In-Reply-To: <20060312031036.3a382581.akpm@osdl.org>
-X-Mailer: Forte Agent 2.0/32.652
+	Sun, 12 Mar 2006 16:55:30 -0500
+Received: from flex.com ([206.126.0.13]:64005 "EHLO flex.com")
+	by vger.kernel.org with ESMTP id S932266AbWCLVz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 16:55:29 -0500
+From: Marr <marr@flex.com>
+To: Linda Walsh <lkml@tlinx.org>
+Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()' Calls From 2.4 to 2.6 -- VMM Change?)
+Date: Sun, 12 Mar 2006 16:53:29 -0500
+User-Agent: KMail/1.8.2
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, Andrew Morton <akpm@osdl.org>, marr@flex.com
+References: <200602241522.48725.marr@flex.com> <200603071453.46768.marr@flex.com> <440DF802.8@tlinx.org>
+In-Reply-To: <440DF802.8@tlinx.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603121653.30288.marr@flex.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Mar 2006 03:10:36 -0800, Andrew Morton <akpm@osdl.org> wrote:
-
+On Tuesday 07 March 2006 4:15pm, Linda Walsh wrote:
+> Marr wrote:
+> > On Sunday 05 March 2006 6:02pm, Linda Walsh wrote:
+> >> Does this happen with a seek call as well, or is this limited
+> >> to fseek?
+> >>
+> >> if you look at "hdparm's" idea of read-ahead, what does it say
+> >> for the device?.  I.e.:
+> >>
+> >> hdparm /dev/hda:
+> >>
+> >> There is a line entitled "readahead".  What does it say?
+> >
+> > Linda,
+> >
+> > I don't know (based on your email addressing) if you were directing this
+> > question at me, but since I'm the guy who originally reported this issue,
+> > here are my 'hdparm' results on my (standard Slackware 10.2) ReiserFS
+> > filesystem:
+> >
+> >    2.6.13 (with 'nolargeio=1' for reiserfs mount):
+> >       readahead    = 256 (on)
+> >
+> >    2.6.13 (without 'nolargeio=1' for reiserfs mount):
+> >       readahead    = 256 (on)
+> >
+> >    2.4.31 ('nolargeio' option irrelevant/unavailable for 2.4.x):
+> >       readahead    = 8 (on)
+> >
+> > *** Please CC: me on replies -- I'm not subscribed.
+> >
+> > Regards,
+> > Bill Marr
 >
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
+> --------
+>     Could you retry your test with read-ahead set to a smaller
+> value?  Say the same as in 2.4 (8) or 16 and see if that changes
+> anything?
+>
+> hdparm -a8 /dev/hdx
+>   or
+> hdparm -a16 /dev/hdx
 
-grant@sempro:~/linux/linux-2.6.16-rc6-mm1a$ make help
-Cleaning targets:
-  clean           - remove most generated files but keep the config
-  mrproper        - remove all generated files + config + various backup files
+Linda (et al),
 
-Configuration targets:
-  config          - Update current config utilising a line-oriented program
-  menuconfig      - Update current config utilising a menu based program
-  xconfig         - Update current config utilising a QT based front-end
-  gconfig         - Update current config utilising a GTK based front-end
-  oldconfig       - Update current config utilising a provided .config as base
-  randconfig      - New config with random answer to all options
-  defconfig       - New config with default answer to all options
-  allmodconfig    - New config selecting modules when possible
-  allyesconfig    - New config where all options are accepted with yes
-  allnoconfig     - New config where all options are answered with no
+Sorry for the delayed reply. I finally got a chance to run another test (but 
+on a different machine than the last time, so don't try to compare old timing 
+numbers with these numbers).
 
-Other generic targets:
-  all             - Build all targets marked with [*]
-* vmlinux         - Build the bare kernel
-* modules         - Build all modules
-  modules_install - Install all modules to INSTALL_MOD_PATH (default: /)
-  dir/            - Build all files in dir and below
-  dir/file.[ois]  - Build specified target only
-  dir/file.ko     - Build module including final link
-  rpm             - Build a kernel as an RPM package
-  tags/TAGS       - Generate tags file for editors
-  cscope          - Generate cscope index
-  kernelrelease   - Output the release version string
-  kernelversion   - Output the version stored in Makefile
+I went ahead and tried all permutations, just to be sure. As before, these 
+reported times are all for 200,000 random 'fseek()' calls on the same 
+zero-filled 4MB file on a standard Slackware 10.2 ReiserFS partition and 
+kernels.
 
-Static analysers
-  buildcheck      - List dangling references to vmlinux discarded sections
-                    and init sections from non-init sections
-  checkstack      - Generate a list of stack hogs
-  namespacecheck  - Name space analysis on compiled kernel
+(Values shown for 'readahead' are set by 'hdparm -a## /dev/hda' command.)
 
-Kernel packaging:
-make[1]: *** No rule to make target `FORCE', needed by `help'.  Stop.
-make: *** [help] Error 2
+-----------------------------------
+Timing Results:
 
-'make help' completes on 2.6.16-rc6
+On 2.6.13, *without* 'nolargeio=1': 4m35s (ouch!) for _all_ variants (256, 16, 
+8) of 'readahead'
 
-Grant.
+On 2.6.13, _with_ 'nolargeio=1': 0m6s for _all_ variants (256, 16, 8) of 
+'readahead'
+
+On 2.4.31: 0m6s for _all_ variants (128 [256 is illegal -- 'BLKRASET failed: 
+Invalid argument'], 16, 8) of 'readahead'
+
+-----------------------------------
+
+I half-expected to see improvement for the '2.6.13 without nolargeio=1' case 
+when lowering the read-ahead from 256 sectors to 16 or 8 sectors, but there 
+clearly was no improvement whatsoever. 
+
+I tried turning 'readahead' off entirely ('hdparm -A0 /dev/hda') and, although 
+it correctly reported "setting drive read-lookahead to 0 (off)", an immediate 
+follow-on query ('hdparm /dev/hda') showed that it was still ON ("readahead = 
+256 (on)")!  I went ahead and ran the test again anyway and (unsurprisingly) 
+got the same excessive times (4m35s) for 200K seeks.
+
+Confused, but still (for now) happily using the 'nolargeio=1' workaround with 
+all my 2.6.13 kernels with ReiserFS....   :^/
+
+*** Please CC: me on replies -- I'm not subscribed.
+   
+Regards,
+Bill Marr

@@ -1,32 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWCLVVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751803AbWCLVaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750996AbWCLVVt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 16:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWCLVVs
+	id S1751803AbWCLVaV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 16:30:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWCLVaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 16:21:48 -0500
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:29450 "EHLO
+	Sun, 12 Mar 2006 16:30:21 -0500
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:41745 "EHLO
 	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
-	id S1750893AbWCLVVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 16:21:47 -0500
-Message-Id: <20060312205304.558799000@mercator.sirena.org.uk>
+	id S1750939AbWCLVaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 16:30:19 -0500
+Message-Id: <20060312205303.869316000@mercator.sirena.org.uk>
 References: <20060312192259.929734000@mercator.sirena.org.uk>
-Date: Sun, 12 Mar 2006 19:23:01 +0000
+Date: Sun, 12 Mar 2006 19:23:00 +0000
 From: Mark Brown <broonie@sirena.org.uk>
 To: Tim Hockin <thockin@hockin.org>, Jeff Garzik <jgarzik@pobox.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch 2/4] natsemi: Support oversized EEPROMs
-Content-Disposition: inline; filename=natsemi-variable-eeprom-size.patch
+Subject: [patch 1/4] natsemi: Add support for using MII port with no PHY
+Content-Disposition: inline; filename=natsemi-ignore-phy.patch
 X-Spam-Score: -2.5 (--)
 X-Spam-Report: Spam detection software, running on the system "cassiel.sirena.org.uk", has
 	identified this incoming email as possible spam.  The original message
 	has been attached to this so you can view it (if it isn't spam) or label
 	similar future email.  If you have any questions, see
 	the administrator of that system for details.
-	Content preview:  The natsemi chip can have a larger EEPROM attached than
-	it itself uses for configuration. This patch adds support for user
-	space access to such an EEPROM. Signed-off-by: Mark Brown
-	<broonie@sirena.org.uk> [...] 
+	Content preview:  This patch provides a module option which configures
+	the natsemi driver to use the external MII port on the chip but ignore
+	any PHYs that may be attached to it. The link state will be left as it
+	was when the driver started and can be configured via ethtool. Any PHYs
+	that are present can be accessed via the MII ioctl()s. [...] 
 	Content analysis details:   (-2.5 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
@@ -36,86 +37,204 @@ X-Spam-Report: Spam detection software, running on the system "cassiel.sirena.or
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The natsemi chip can have a larger EEPROM attached than it itself uses
-for configuration.  This patch adds support for user space access
-to such an EEPROM.
+This patch provides a module option which configures the natsemi driver
+to use the external MII port on the chip but ignore any PHYs that may be
+attached to it.  The link state will be left as it was when the driver
+started and can be configured via ethtool.  Any PHYs that are present
+can be accessed via the MII ioctl()s.
 
-Signed-off-by: Mark Brown <broonie@sirena.org.uk>
+This is useful for systems where the device is connected without a PHY
+or where either information or actions outside the scope of the driver
+are required in order to use the PHYs.
+
+Signed-Off-By: Mark Brown <broonie@sirena.org.uk>
 
 Index: natsemi-queue/drivers/net/natsemi.c
 ===================================================================
---- natsemi-queue.orig/drivers/net/natsemi.c	2006-02-25 17:40:15.000000000 +0000
-+++ natsemi-queue/drivers/net/natsemi.c	2006-02-25 17:40:39.000000000 +0000
-@@ -226,7 +226,7 @@ static int full_duplex[MAX_UNITS];
- 				 NATSEMI_PG1_NREGS)
- #define NATSEMI_REGS_VER	1 /* v1 added RFDR registers */
- #define NATSEMI_REGS_SIZE	(NATSEMI_NREGS * sizeof(u32))
--#define NATSEMI_EEPROM_SIZE	24 /* 12 16-bit values */
-+#define NATSEMI_DEF_EEPROM_SIZE	24 /* 12 16-bit values */
+--- natsemi-queue.orig/drivers/net/natsemi.c	2006-02-25 13:38:34.000000000 +0000
++++ natsemi-queue/drivers/net/natsemi.c	2006-02-25 13:50:51.000000000 +0000
+@@ -259,7 +259,7 @@ MODULE_PARM_DESC(debug, "DP8381x default
+ MODULE_PARM_DESC(rx_copybreak, 
+ 	"DP8381x copy breakpoint for copy-only-tiny-frames");
+ MODULE_PARM_DESC(options, 
+-	"DP8381x: Bits 0-3: media type, bit 17: full duplex");
++	"DP8381x: Bits 0-3: media type, bit 17: full duplex, bit 18: ignore PHY");
+ MODULE_PARM_DESC(full_duplex, "DP8381x full duplex setting(s) (1)");
  
- /* Buffer sizes:
-  * The nic writes 32-bit values, even if the upper bytes of
-@@ -716,6 +716,8 @@ struct netdev_private {
- 	unsigned int iosize;
- 	spinlock_t lock;
- 	u32 msg_enable;
-+	/* EEPROM data */
-+	int eeprom_size;
- };
- 
- static void move_int_phy(struct net_device *dev, int addr);
-@@ -892,6 +894,7 @@ static int __devinit natsemi_probe1 (str
- 	np->msg_enable = (debug >= 0) ? (1<<debug)-1 : NATSEMI_DEF_MSG;
+ /*
+@@ -690,6 +690,8 @@ struct netdev_private {
+ 	u32 intr_status;
+ 	/* Do not touch the nic registers */
+ 	int hands_off;
++	/* Don't pay attention to the reported link state. */
++	int ignore_phy;
+ 	/* external phy that is used: only valid if dev->if_port != PORT_TP */
+ 	int mii;
+ 	int phy_addr_external;
+@@ -891,7 +893,19 @@ static int __devinit natsemi_probe1 (str
  	np->hands_off = 0;
  	np->intr_status = 0;
-+	np->eeprom_size = NATSEMI_DEF_EEPROM_SIZE;
  
- 	option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
- 	if (dev->mem_start)
-@@ -2601,7 +2604,8 @@ static int get_regs_len(struct net_devic
++	option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
++	if (dev->mem_start)
++		option = dev->mem_start;
++
++	/* Ignore the PHY status? */
++	if (option & 0x400) {
++		np->ignore_phy = 1;
++	} else {
++		np->ignore_phy = 0;
++	}
++
+ 	/* Initial port:
++	 * - If configured to ignore the PHY set up for external.
+ 	 * - If the nic was configured to use an external phy and if find_mii
+ 	 *   finds a phy: use external port, first phy that replies.
+ 	 * - Otherwise: internal port.
+@@ -899,7 +913,7 @@ static int __devinit natsemi_probe1 (str
+ 	 * The address would be used to access a phy over the mii bus, but
+ 	 * the internal phy is accessed through mapped registers.
+ 	 */
+-	if (readl(ioaddr + ChipConfig) & CfgExtPhy)
++	if (np->ignore_phy || readl(ioaddr + ChipConfig) & CfgExtPhy)
+ 		dev->if_port = PORT_MII;
+ 	else
+ 		dev->if_port = PORT_TP;
+@@ -909,7 +923,9 @@ static int __devinit natsemi_probe1 (str
  
- static int get_eeprom_len(struct net_device *dev)
- {
--	return NATSEMI_EEPROM_SIZE;
-+	struct netdev_private *np = netdev_priv(dev);
-+	return np->eeprom_size;
- }
+ 	if (dev->if_port != PORT_TP) {
+ 		np->phy_addr_external = find_mii(dev);
+-		if (np->phy_addr_external == PHY_ADDR_NONE) {
++		/* If we're ignoring the PHY it doesn't matter if we can't
++		 * find one. */
++		if (!np->ignore_phy && np->phy_addr_external == PHY_ADDR_NONE) {
+ 			dev->if_port = PORT_TP;
+ 			np->phy_addr_external = PHY_ADDR_INTERNAL;
+ 		}
+@@ -917,10 +933,6 @@ static int __devinit natsemi_probe1 (str
+ 		np->phy_addr_external = PHY_ADDR_INTERNAL;
+ 	}
  
- static int get_settings(struct net_device *dev, struct ethtool_cmd *ecmd)
-@@ -2688,15 +2692,20 @@ static u32 get_link(struct net_device *d
- static int get_eeprom(struct net_device *dev, struct ethtool_eeprom *eeprom, u8 *data)
+-	option = find_cnt < MAX_UNITS ? options[find_cnt] : 0;
+-	if (dev->mem_start)
+-		option = dev->mem_start;
+-
+ 	/* The lower four bits are the media type. */
+ 	if (option) {
+ 		if (option & 0x200)
+@@ -954,7 +966,10 @@ static int __devinit natsemi_probe1 (str
+ 	if (mtu)
+ 		dev->mtu = mtu;
+ 
+-	netif_carrier_off(dev);
++	if (np->ignore_phy)
++		netif_carrier_on(dev);
++	else
++		netif_carrier_off(dev);
+ 
+ 	/* get the initial settings from hardware */
+ 	tmp            = mdio_read(dev, MII_BMCR);
+@@ -1002,6 +1017,8 @@ static int __devinit natsemi_probe1 (str
+ 		printk("%02x, IRQ %d", dev->dev_addr[i], irq);
+ 		if (dev->if_port == PORT_TP)
+ 			printk(", port TP.\n");
++		else if (np->ignore_phy)
++			printk(", port MII, ignoring PHY\n");
+ 		else
+ 			printk(", port MII, phy ad %d.\n", np->phy_addr_external);
+ 	}
+@@ -1682,42 +1699,44 @@ static void check_link(struct net_device
  {
  	struct netdev_private *np = netdev_priv(dev);
--	u8 eebuf[NATSEMI_EEPROM_SIZE];
-+	u8 *eebuf;
- 	int res;
- 
-+	eebuf = kmalloc(np->eeprom_size, GFP_KERNEL);
-+	if (!eebuf)
-+		return -ENOMEM;
-+
- 	eeprom->magic = PCI_VENDOR_ID_NS | (PCI_DEVICE_ID_NS_83815<<16);
- 	spin_lock_irq(&np->lock);
- 	res = netdev_get_eeprom(dev, eebuf);
- 	spin_unlock_irq(&np->lock);
- 	if (!res)
- 		memcpy(data, eebuf+eeprom->offset, eeprom->len);
-+	kfree(eebuf);
- 	return res;
- }
- 
-@@ -3062,9 +3071,10 @@ static int netdev_get_eeprom(struct net_
- 	int i;
- 	u16 *ebuf = (u16 *)buf;
  	void __iomem * ioaddr = ns_ioaddr(dev);
-+	struct netdev_private *np = netdev_priv(dev);
+-	int duplex;
++	int duplex = np->full_duplex;
+ 	u16 bmsr;
+-       
+-	/* The link status field is latched: it remains low after a temporary
+-	 * link failure until it's read. We need the current link status,
+-	 * thus read twice.
+-	 */
+-	mdio_read(dev, MII_BMSR);
+-	bmsr = mdio_read(dev, MII_BMSR);
  
- 	/* eeprom_read reads 16 bits, and indexes by 16 bits */
--	for (i = 0; i < NATSEMI_EEPROM_SIZE/2; i++) {
-+	for (i = 0; i < np->eeprom_size/2; i++) {
- 		ebuf[i] = eeprom_read(ioaddr, i);
- 		/* The EEPROM itself stores data bit-swapped, but eeprom_read
- 		 * reads it back "sanely". So we swap it back here in order to
+-	if (!(bmsr & BMSR_LSTATUS)) {
+-		if (netif_carrier_ok(dev)) {
++	/* If we're not paying attention to the PHY status then don't check. */
++	if (!np->ignore_phy) {
++		/* The link status field is latched: it remains low
++		 * after a temporary link failure until it's read. We
++		 * need the current link status, thus read twice.
++		 */
++		mdio_read(dev, MII_BMSR);
++		bmsr = mdio_read(dev, MII_BMSR);
++
++		if (!(bmsr & BMSR_LSTATUS)) {
++			if (netif_carrier_ok(dev)) {
++				if (netif_msg_link(np))
++					printk(KERN_NOTICE "%s: link down.\n",
++					       dev->name);
++				netif_carrier_off(dev);
++				undo_cable_magic(dev);
++			}
++			return;
++		}
++		if (!netif_carrier_ok(dev)) {
+ 			if (netif_msg_link(np))
+-				printk(KERN_NOTICE "%s: link down.\n",
+-					dev->name);
+-			netif_carrier_off(dev);
+-			undo_cable_magic(dev);
++				printk(KERN_NOTICE "%s: link up.\n", dev->name);
++			netif_carrier_on(dev);
++			do_cable_magic(dev);
+ 		}
+-		return;
+-	}
+-	if (!netif_carrier_ok(dev)) {
+-		if (netif_msg_link(np))
+-			printk(KERN_NOTICE "%s: link up.\n", dev->name);
+-		netif_carrier_on(dev);
+-		do_cable_magic(dev);
+-	}
+ 
+-	duplex = np->full_duplex;
+-	if (!duplex) {
+-		if (bmsr & BMSR_ANEGCOMPLETE) {
+-			int tmp = mii_nway_result(
+-				np->advertising & mdio_read(dev, MII_LPA));
+-			if (tmp == LPA_100FULL || tmp == LPA_10FULL)
++		if (!duplex) {
++			if (bmsr & BMSR_ANEGCOMPLETE) {
++				int tmp = mii_nway_result(
++					np->advertising & mdio_read(dev, MII_LPA));
++				if (tmp == LPA_100FULL || tmp == LPA_10FULL)
++					duplex = 1;
++			} else if (mdio_read(dev, MII_BMCR) & BMCR_FULLDPLX)
+ 				duplex = 1;
+-		} else if (mdio_read(dev, MII_BMCR) & BMCR_FULLDPLX)
+-			duplex = 1;
++		}
+ 	}
+ 
+ 	/* if duplex is set then bit 28 must be set, too */
+@@ -2927,6 +2946,16 @@ static int netdev_set_ecmd(struct net_de
+ 	}
+ 
+ 	/*
++	 * If we're ignoring the PHY then autoneg and the internal
++	 * transciever are really not going to work so don't let the
++	 * user select them.
++	 */
++	if (np->ignore_phy && (ecmd->autoneg == AUTONEG_ENABLE ||
++			       ecmd->port == PORT_INTERNAL)) {
++		return -EINVAL;
++	}
++
++	/*
+ 	 * maxtxpkt, maxrxpkt: ignored for now.
+ 	 *
+ 	 * transceiver:
 
 --
 "You grabbed my hand and we fell into it, like a daydream - or a fever."

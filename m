@@ -1,72 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWCLSPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCLSQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWCLSPg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 13:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751582AbWCLSPg
+	id S1751049AbWCLSQG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 13:16:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWCLSQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 13:15:36 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:24765 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750875AbWCLSPg convert rfc822-to-8bit
+	Sun, 12 Mar 2006 13:16:05 -0500
+Received: from p50915C03.dip.t-dialin.net ([80.145.92.3]:56450 "EHLO
+	oscar.local.net") by vger.kernel.org with ESMTP id S1751049AbWCLSQE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 13:15:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=UWTBTCLmEbX39CGRiES+Z6Y4prSIsC+EpsmCCB3xA+IwY+NmNFZyemf1mI0XQdr6gtPHRPpxOf2+Z7w2YozSvRqHX6utIsodsF+qSsKEEjxhcFEXJQzk+fPaOxT7jN3vZ7Iata+yjjdDvV53aMr88Tk7kr+bLoG3bPV2KS3Bwb0=
-Message-ID: <436c596f0603121015j2a091ab2sf43d0c5c396bbb72@mail.gmail.com>
-Date: Sun, 12 Mar 2006 15:15:34 -0300
-From: j4K3xBl4sT3r <jakexblaster@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel config problem between 2.4.x to 2.6.x!
+	Sun, 12 Mar 2006 13:16:04 -0500
+Date: Sun, 12 Mar 2006 19:15:48 +0100
+From: Patrick Mau <mau@oscar.ping.de>
+To: Eric.Brunet@lps.ens.fr
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with a CD
+Message-ID: <20060312181548.GA14889@oscar.prima.de>
+References: <20060312162825.GA16993@platane.lps.ens.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060312162825.GA16993@platane.lps.ens.fr>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all I would like to show my PC hardware:
+On Sun, Mar 12, 2006 at 05:28:25PM +0100, Eric.Brunet@lps.ens.fr wrote:
+> Hi all,
 
-Athlon 700Mhz processor
-Asus K7M mobo (Via chipsets, sound, modem and network offboard)
-SoundBlaster 16 (ISA bus)
-Diamond Stealth III / A200 (core S3 Savage 4)
-128 MB RAM PC100
-DVDROM/CDRW LG GCC-44800
-NIC LG 10/100 - core Via Rhine, from mobo
-Mouse connected through a HID device
+Hi Eric,
 
-Network connection through a DSL modem (using eth0) by PPPoE
+<snip>
 
-I've tried to configure a linux system with the minimal and updated
-software, using the linuxfromscratch.org books. Tried 4 times before
-finishing it, took a long time, 2 weeks, due to some experiences and
-time loss (some softwares compiled/tested for a very long time, like
-GLibC and GetText, around 1 hour+). Currently I have a targz of this
-system, Kernel 2.6.15.4 (recent one) with GCC 4.0.2, Binutils 2.15.4
-and GLibC 2.3.6.
+> eric sur esquilin ~ % md5sum /media/cdrom/*/*
+> md5sum: /media/cdrom/cdi/cdi_imag.rtf: Erreur d'entrée/sortie
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 0ce73ce9f0954193b1e406f194ae7935  /media/cdrom/cdi/cdi_text.fnt
+> acd74f592e10c130b1e16fb6987062bc  /media/cdrom/cdi/cdi_vcd.app
+> 15b32fe29124c25c7218f350b9520e29  /media/cdrom/cdi/cdi_vcd.cfg
+> 47ee5405eb0879a36aea7d5a420d9f3a  /media/cdrom/ext/lot_x.vcd
+> b6219264a400936865906b925c33dcd6  /media/cdrom/ext/psd_x.vcd
+> c3278fbe658bf842e14ff2f33967b064  /media/cdrom/ext/scandata.dat
+> md5sum: /media/cdrom/mpegav/avseq01.dat: Erreur d'entrée/sortie
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 44f826b52e69fdd0398b05f06ef2ce62  /media/cdrom/vcd/entries.vcd
+> 227a64758dcd545157873494b5cd7d8f  /media/cdrom/vcd/info.vcd
+> 47ee5405eb0879a36aea7d5a420d9f3a  /media/cdrom/vcd/lot.vcd
+> b6219264a400936865906b925c33dcd6  /media/cdrom/vcd/psd.vcd
 
-I tried also installing the lastest Slackware (10.2, comes with 2.4.x
-kernel) distro, got it working very well, until installed the Kernel
-2.6.x.
+> What could be the problem ?
 
-The problem is:
+Since this is a video cd, the files associated with the stream cannot
+be accessed by mounting the medium. The filesystem of VCD is not a
+normal filesystem, so you have to rip the video stream by using a tool
+like vcdxrip.
 
-1. On the slack system, when I install the 2.6.x, everything on the
-system starts crashing, the Xorg doesnt starts anymore, the network
-doesnt works anymore (DSL by PPPoE), and also the sound.
+On Debian the package is called 'vcdimager'.
 
-2. On my own distro, I've started with the 2.6.x kernel, but still
-getting the network problem, and the sound card doesnt work, the
-PNPDUMP finds nothing, the ALSA simply doesnt work too, and I get some
-errors, that doesnt happen on the 2.4.x system, while compiling the
-Net-Tools package (linuxfromscratch doesnt consider it as essential on
-the LFS book, it just appears over the BLFS book).
-
-Any suggestion? The config of my kernel includes ACPI, APM, ALSA, Elf
-a.out and misc binaries as build-in, ext2 and ext3 built-in, Netfilter
-as module (tried also as built-in), VESA VGA / Framebuffer, SCSI and
-IDE drivers, USB mass storage.
-
-Thanks in advance,
-jake.
+Best regards,
+Patrick

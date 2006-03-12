@@ -1,63 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWCLIgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWCLIqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWCLIgU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 03:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWCLIgU
+	id S1750988AbWCLIqh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 03:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWCLIqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 03:36:20 -0500
-Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:48620 "EHLO
-	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751500AbWCLIgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 03:36:19 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-Date: Sun, 12 Mar 2006 19:36:02 +1100
-User-Agent: KMail/1.9.1
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-References: <200603102054.20077.kernel@kolivas.org> <1142139283.25358.68.camel@mindpipe> <1142141256.8021.18.camel@homer>
-In-Reply-To: <1142141256.8021.18.camel@homer>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Mar 2006 03:46:36 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:53261 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750971AbWCLIqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 03:46:36 -0500
+Date: Sun, 12 Mar 2006 09:46:32 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: James Yu <cyu021@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: weird behavior from kernel
+Message-ID: <20060312084632.GB21493@w.ods.org>
+References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603121936.02899.kernel@kolivas.org>
+In-Reply-To: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 March 2006 16:27, Mike Galbraith wrote:
-> On Sat, 2006-03-11 at 23:54 -0500, Lee Revell wrote:
-> > echo 64 > /sys/block/hd*/queue/max_sectors_kb
-> >
-> > There is basically a straight linear relation between whatever you set
-> > this to and the maximum scheduling latency you see.  It was developed to
-> > solve the exact problem you are describing.
->
-> Ah, a very useful bit of information, thanks.
->
-> It won't help Con though, because he'll be dealing with every possible
-> configuration.  I think he's going to have to either submit, wait,
-> bandwidth limiting sleep, repeat or something clever that does that.
-> Even with bandwidth restriction though, seek still bites mightily, so I
-> suspect he's stuck with little trickles of IO started when we'd
-> otherwise be idle.  We'll see I suppose.
+On Sun, Mar 12, 2006 at 11:23:17AM +0800, James Yu wrote:
+> Hi folks,
+> 
+> I am modifying linux-2.4.18 for ARM (based on S3C2410), I enable only
+> the timer interrupt and disable all the others in "init" thread before
+> "execve("/sbin/init",argv_init,envp_init);" is taking place.
+> I also create two kernel threads by invoking "kernel_thread" right
+> after disbling the interrupts. This is how the kernel thread looks
+> like:
+> 
+>         923 void eos_1(void)
+> -       924 {
+> |       925     DECLARE_WAITQUEUE(wait, current);
+> |       926
+> |       927     while (1)
+> |-      928     {
+> ||      929         printk("\n%s[%d], period:%d, deadline:%d, jiffies:%d.\n",
+> ||      930                 current->comm, current->pid,
+> current->period, current->deadline, jiffies);
+> ||      931         eos_tail();
+> ||      932     }
+> |       933 }
+> 
+>         905 #define eos_tail() \
+> -       906 do { \
+> |       907     static int deadline = 0; \
+> |       908     if ((current->deadline - jiffies) > 0) \
+> |-      909     { \
+> ||      910         deadline = current->deadline; \
+> ||      911         current->deadline = deadline + current->period; \
+> ||      912         sleep_on_timeout(&wait, (deadline - jiffies)); \
+> ||      913     } \
+> |       914     else \
+> |-      915     { \
+> ||      916         printk("\n!!! %s[%d] missed deadline !!!\n",
+> current->comm, current->pid); \
+> ||      917         return (0); \
+> ||      918     } \
+> |       919 } while(0)
+> 
+> Now I am trying to modify the "schedule" function. I insert the
+> following segment into schedule function after the part that
+> re-calculate counters --> if(unlikely(!c)).
+> 
+> |-      634         {
+> ||      635             int latch = 0;
+> ||      636
+> ||      637             list_for_each(tmp, &runqueue_head)
+> ||-     638             {
+> |||     639                 //p = list_entry(tmp, struct task_struct, run_list);
+> |||     640                 latch = latch + 1;
+> |||     641             }
+> ||      642             printk("{%d}", latch);
+> ||      643         }
+> 
+> This is where weird thing happens! If I uncomment line 639, kernel
+> complains that I am passing an illegal value into "sleep_on_timeout",
+> which is called in my kernel thread inside "eos_tail". I copy both
+> line 637 and 639 from schedule itself (they were used to pick next job
+> to run).
+> 
+> I am simply doing copy & paste inside "schedule", can someone please
+> tell me what is happening ?
 
-What I'm doing with that last patch works fine - don't prefetch if anything 
-else is running. Prefetching is not a performance critical function and we 
-cannot know what tasks are scheduling latency sensitive. With that latest 
-patch the most expensive thing is doing nr_running(). Assuming anything is 
-running, it only needs to do that once every 5 seconds - and only after 
-something is in swap. Furthermore it doesn't do it if swap prefetch is 
-disabled with the tunable. I don't think this is an expensive operation in 
-that context and certainly avoids any problems with it. 
+It might be a wrong gcc optimization which generates bad code. If you're
+working on such an old kernel (about 5 years old), maybe you're using
+and old, broken compiler too ? gcc-2.95[.1], gcc-2.96, 3.0 and 3.1 have
+been known to produce bad code for a long time. Also ensure that you
+pass the "-fno-strength-reduce" option to gcc.
 
-I could hack in a weighted load variant of it so that prefetch does run when 
-only nice 19 tasks are running on top of it so that perhaps low priority 
-compiles, distributed computing clients et al don't prevent prefetching from 
-happening - I could do this on top of the current patch. I'd like to see that 
-last patch go in. Does anyone have another alternative? 
+Anyway, if you're starting a new dev, I would suggest using a more
+recent kernel : 2.6.1[56] or 2.4.32 if you need 2.4.
 
-Cheers,
-Con
+> Thanks a lot,
+> --
+> James
+> cyu021@gmail.com
+
+regards,
+Willy
+

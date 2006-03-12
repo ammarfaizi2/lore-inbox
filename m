@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWCLMNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWCLMmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWCLMNp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 07:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWCLMNp
+	id S1751417AbWCLMmB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 07:42:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWCLMmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 07:13:45 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:24467 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932237AbWCLMNp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 07:13:45 -0500
-Date: Sun, 12 Mar 2006 13:13:33 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 5/8] hrtimer remove state field
-In-Reply-To: <20060312080332.274315000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0603121302590.16802@scrub.home>
-References: <20060312080316.826824000@localhost.localdomain>
- <20060312080332.274315000@localhost.localdomain>
+	Sun, 12 Mar 2006 07:42:00 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:13902 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751417AbWCLMl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 07:41:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=rGEAKlzxMQkHhzM1hROT5pcFahN0DrQ1Bme11U3vhMM1vqjfLp3Fed4Dv/3yNwZ5jmHRodj1OHtE5bhqSL2umCPI82JnP5jNrEf5cQXtWNMu4X09g0GY+whDDpPnUXSfdEDpQ3zF2oH6YS2H5TmdSaRg5jXUQTT2Hok89CA0d8I=  ;
+Message-ID: <44141710.3060407@yahoo.com.au>
+Date: Sun, 12 Mar 2006 23:41:52 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: psycho@rift.ath.cx
+CC: linux-kernel@vger.kernel.org,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
+References: <20060312000621.GA8911@nexon>
+In-Reply-To: <20060312000621.GA8911@nexon>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Patrick wrote:
 
-On Sun, 12 Mar 2006, Thomas Gleixner wrote:
+> ------------[ cut here ]------------
+> kernel BUG at mm/rmap.c:486!
+> EIP is at page_remove_rmap+0x30/0x40
+>  [<c014c0b6>] zap_pte_range+0x156/0x250
 
-> @@ -633,11 +631,8 @@ static inline void run_hrtimer_queue(str
->  
->  		spin_lock_irq(&base->lock);
->  
-> -		/* Another CPU has added back the timer */
-> -		if (timer->state != HRTIMER_INACTIVE)
-> -			continue;
-> -
-> -		if (restart != HRTIMER_NORESTART)
-> +		if (restart != HRTIMER_NORESTART &&
-> +		    !hrtimer_active(timer))
->  			enqueue_hrtimer(timer, base);
->  	}
->  	set_curr_timer(base, NULL);
+This could easily be something that's already been fixed by now,
+or it may still be a problem... can you test with the most recent
+kernel (2.6.16-rc6)? Thanks.
 
-BTW the active check can be removed again, as it was added for a state 
-machine problem, I only didn't want to remove it for 2.6.16.
-
-bye, Roman
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

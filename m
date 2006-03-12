@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWCLEKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWCLEYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWCLEKT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 23:10:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWCLEKT
+	id S1751382AbWCLEYk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 23:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWCLEYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 23:10:19 -0500
-Received: from pat.uio.no ([129.240.130.16]:5857 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750868AbWCLEKS (ORCPT
+	Sat, 11 Mar 2006 23:24:40 -0500
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:46276 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S1751382AbWCLEYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 23:10:18 -0500
-Subject: Re: NFS client hangs under certain circumstances on SMP machine
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Olivier Croquette <ocroquette@free.fr>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <44128861.20409@free.fr>
-References: <5LjNF-1Q2-7@gated-at.bofh.it>  <44128861.20409@free.fr>
-Content-Type: text/plain
-Date: Sat, 11 Mar 2006 23:10:06 -0500
-Message-Id: <1142136606.29623.8.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.206, required 12,
-	autolearn=disabled, AWL 1.61, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Sat, 11 Mar 2006 23:24:39 -0500
+Date: Sat, 11 Mar 2006 23:29:57 -0500
+From: Adam Belay <ambx1@neo.rr.com>
+To: Andrew Morton <akpm@osdl.org>, kay.sievers@vrfy.org
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-ID: <20060312042957.GA14157@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Andrew Morton <akpm@osdl.org>, kay.sievers@vrfy.org,
+	Pierre Ossman <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060311173847.23838981.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-11 at 09:20 +0100, Olivier Croquette wrote:
-> Olivier Croquette wrote:
-> 
-> > However, when I regenerate the file under Windows again (ie. I overwrite
-> > the old files), and I try to compile the files again under Linux, "make"
-> > hangs simply in D state:
+On Sat, Mar 11, 2006 at 05:38:47PM -0800, Andrew Morton wrote:
+> Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+> >
+> >  Here is a patch for doing multi line modalias for PNP devices. This will
+> >  break udev, so that needs to be updated first.
 > > 
-> > # ps aux | grep make
-> > user 7177 0.0  0.0 1984 760 pts/1 D+ 16:13 0:00 make -f myMakefile
+> >  I had a longer look at the card part and it seems that module aliases
+> >  cannot be reliably used for it. Not without restructuring the system at
+> >  least. The possible combinations explode when you notice that the driver
+> >  ids needs to be just at subset of the card, without any ordering.
+> > 
+> >  If I got my calculations right, a PNP card would have to have roughly
+> >  2^(2n) aliases, where n is the number of device ids. So right now, I
+> >  lean towards only adding modalias support for the non-card part of the
+> >  PNP layer.
+> > 
+> >  Andrew, do you want a fix for the patch in -mm or can you remove the
+> >  part of it that modifies drivers/pnp/card.c by yourself?
 > 
-> I have upgraded to kernel 2.6.15 and it could not reproduce the problem 
-> since.
+> I assume you mean that the drivers/pnp/card.c patch of
+> pnp-modalias-sysfs-export.patch needs to be removed and this patch applies
+> on top of the result.
 > 
-> Is it an effect of nfs-fix-client-hang-due-to-race-condition.patch?
+> But I don't want to break udev.
 
-Have you tried backing that patch out to see?
+I think supporting multiple IDs per node is a reasonable expectation to
+have from udev (even for subsystems beyond PnP).  Kay, would this be
+difficult to add?
 
-Cheers,
-  Trond
+However, I'm a little confused as to why we're exporting these "modalias"
+strings from a kernel interface in the first place.  Wouldn't it be better
+from an abstraction barrier standpoint to have userspace generate such
+strings from information it gathered through bus-specific interfaces? As
+can be seen from this example, when the modalias (or essentially a device
+identification key) is imposed at the kernel level driver model interface,
+one has to make policy decisions (e.g. what legacy features such as isapnp
+are we going to only psuedo-support).
 
+Thanks,
+Adam

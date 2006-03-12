@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWCLL1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWCLLdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWCLL1t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 06:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCLL1t
+	id S932177AbWCLLdp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 06:33:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCLLdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 06:27:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52175 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751423AbWCLL1s (ORCPT
+	Sun, 12 Mar 2006 06:33:45 -0500
+Received: from main.gmane.org ([80.91.229.2]:62914 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751423AbWCLLdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 06:27:48 -0500
-Date: Sun, 12 Mar 2006 03:25:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Krzysztof Oledzki <olel@ans.pl>
-Cc: linux-kernel@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Suresh B Siddha <suresh.b.siddha@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>
-Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on
- 2.6.16-rc6
-Message-Id: <20060312032523.109361c1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603121202540.31039@bizon.gios.gov.pl>
-References: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl>
-	<20060311210353.7eccb6ed.akpm@osdl.org>
-	<Pine.LNX.4.64.0603121202540.31039@bizon.gios.gov.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 12 Mar 2006 06:33:45 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Date: Sun, 12 Mar 2006 12:33:22 +0100
+Message-ID: <pan.2006.03.12.11.33.22.447180@free.fr>
+References: <20060227214018.3937.14572.stgit@poseidon.drzeus.cx> <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Oledzki <olel@ans.pl> wrote:
->
-> On Sat, 11 Mar 2006, Andrew Morton wrote:
+Hi,
+
+Le Sun, 12 Mar 2006 12:17:19 +0100, Pierre Ossman a écrit :
+> The reason I'm pushing this issue is that Red Hat decided to drop all
+> magical scripts that figured out what modules to load and instead only
+> use the modalias attribute. They consider the right way to go is to get
+> the PNP layer to export modalias, so that's what I'm trying to do.
 > 
->  > Krzysztof Oledzki <olel@ans.pl> wrote:
->  >>
->  >> After upgrading to 2.6.16-rc6 I noticed this strange message:
->  >>
->  >>  More than 8 CPUs detected and CONFIG_X86_PC cannot handle it.
->  >>  Use CONFIG_X86_GENERICARCH or CONFIG_X86_BIGSMP.
->  >>
->  >> This is a Dell PowerEdge SC1425 with two P4 Xeons with HT enabled (so with
->  >>  totoal of 4 logical CPUs).
->  >
->  > Please send full dmesg output for the failing kernel, thanks.
->  Attached.
+> Bugzilla entry for those interested:
 > 
->  > Which is the most-recently-tested kernel which behaved correctly?
->  2.6.15.6
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=146405
+> 
+IIRC debian maintainers want also to use only modalias stuff.
+see
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=337004
+and http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=334238
 
-OK, thanks.  I assume the machine's working OK?
-
->From my reading, you have CONFIG_HOTPLUG_CPU enabled and the machine has an
-APIC.  I'd expect that lots of people would hit that warning but for some
-reason they don't - possibly because most APICs don't have sufficiently
-high version numbers?
-
-Anyway, various people cc'ed.  I _think_ it's harmless, although the way in
-which def_to_bigsmp propagates into the DMI and APIC code might be a
-problem, depending upon config options.
-
-Certainly the warning is incorrect, but I'm not sure what is the best thing
-to do about it?
+Matthieu
 

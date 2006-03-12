@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWCLDld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWCLDoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbWCLDld (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 22:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWCLDld
+	id S1750938AbWCLDoj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Mar 2006 22:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWCLDoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 22:41:33 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20191 "HELO
+	Sat, 11 Mar 2006 22:44:39 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:2784 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751293AbWCLDlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 22:41:32 -0500
-Subject: Re: Patch: MSI-K8T-Neo2-Fir OnboardSound and additional Soundcard
+	id S1750938AbWCLDoj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Mar 2006 22:44:39 -0500
+Subject: Re: can I bring Linux down by running "renice -20
+	cpu_intensive_process"?
 From: Lee Revell <rlrevell@joe-job.com>
-To: Johannes Goecke <goecke@upb.de>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060311192840.GA19313@uni-paderborn.de>
-References: <20060311192840.GA19313@uni-paderborn.de>
-Content-Type: text/plain
-Date: Sat, 11 Mar 2006 22:41:29 -0500
-Message-Id: <1142134890.25358.43.camel@mindpipe>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
+References: <441180DD.3020206@wpkg.org>
+	 <Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
+	 <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Sat, 11 Mar 2006 22:44:36 -0500
+Message-Id: <1142135077.25358.47.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-11 at 20:28 +0100, Johannes Goecke wrote:
-> - how to enshure that the code is executed ONLY on excactly this kind
-> of boards
->  (not any other with similar Chipset)?
+On Fri, 2006-03-10 at 22:01 +0000, Måns Rullgård wrote:
+> Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 > 
-> - what to do to (hopefully) integrate that pice of code into
->   one of the next Kernel Releases?
+> >>Subject: can I bring Linux down by running "renice -20
+> >>cpu_intensive_process"?
+> >>
+> > Depends on what the cpu_intensive_process does. If it tries to allocate 
+> > lots of memory, maybe. If it's _just_ CPU (as in `perl -e '1 while 1'`), 
+> > you get a chance that you can input some commands on a terminal to kill it.
+> > SCHED_FIFO'ing or SCHED_RR'ing such a process is sudden death of course.
+> 
+> Sysrq+n changes all realtime tasks to normal priority.
 > 
 
-This has been discussed on LKML recently, it's not 2.6.16 material
-because it might break working setups when the previously disabled
-device becomes the default sound card.  Of course the same setup would
-have broken if we added a driver for a previously unsupported soundcard,
-so I'm not sure how this fits in with the "don't break userspace" rule.
-
-IMHO it should be merged post 2.6.16.
+A nice -20 SCHED_OTHER task is not realtime, only SCHED_FIFO and
+SCHED_RR.
 
 Lee
 

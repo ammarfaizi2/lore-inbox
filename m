@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWCLPzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWCLQAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWCLPzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 10:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWCLPzI
+	id S1751217AbWCLQAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 11:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWCLQAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 10:55:08 -0500
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:48364 "EHLO
-	pilet.ens-lyon.fr") by vger.kernel.org with ESMTP id S1751207AbWCLPzG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 10:55:06 -0500
-Date: Sun, 12 Mar 2006 16:55:15 +0100
-From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm1
-Message-ID: <20060312155515.GD16013@ens-lyon.fr>
-References: <20060312031036.3a382581.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060312031036.3a382581.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Sun, 12 Mar 2006 11:00:15 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:13717 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751217AbWCLQAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 11:00:13 -0500
+Date: Sun, 12 Mar 2006 17:00:06 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 5/8] hrtimer remove state field
+In-Reply-To: <1142178108.19916.475.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0603121650230.16802@scrub.home>
+References: <20060312080316.826824000@localhost.localdomain> 
+ <20060312080332.274315000@localhost.localdomain>  <Pine.LNX.4.64.0603121302590.16802@scrub.home>
+  <1142169010.19916.397.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0603121422180.16802@scrub.home>  <1142170505.19916.402.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121444530.16802@scrub.home>  <1142172917.19916.421.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121523320.16802@scrub.home>  <1142175286.19916.459.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121608440.17704@scrub.home> <1142178108.19916.475.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 03:10:36AM -0800, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
-> 
-> 
+Hi,
 
-drivers/net/tg3.c:8065: warning: type qualifiers ignored on function return type
+On Sun, 12 Mar 2006, Thomas Gleixner wrote:
 
-Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.fr>
+> How do you want to prevent that a signal is dequeued on one CPU while
+> the softirq expires the timer on another CPU ? This can not be
+> prevented.
 
-Index: linux/drivers/net/tg3.c
-===================================================================
---- linux.orig/drivers/net/tg3.c
-+++ linux/drivers/net/tg3.c
-@@ -8061,7 +8061,7 @@ static int tg3_test_link(struct tg3 *tp)
- }
- 
- /* Only test the commonly used registers */
--static const int tg3_test_registers(struct tg3 *tp)
-+static int tg3_test_registers(struct tg3 *tp)
- {
- 	int i, is_5705;
- 	u32 offset, read_mask, write_mask, val, save_val, read_val;
+This should not be possible in first place, otherwise it's a bug.
+The original problem was a broken state machine, is that so hard to 
+believe? If there is another problem, please provide more details.
 
--- 
-powered by bash/screen/(urxvt/fvwm|linux-console)/gentoo/gnu/linux OS
+bye, Roman

@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751377AbWCLEyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWCLFGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751377AbWCLEyy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Mar 2006 23:54:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWCLEyy
+	id S1751383AbWCLFGP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 00:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWCLFGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Mar 2006 23:54:54 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:13984 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751377AbWCLEyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Mar 2006 23:54:54 -0500
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <1142063500.7605.13.camel@homer>
-References: <200603102054.20077.kernel@kolivas.org>
-	 <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
-	 <200603111824.06274.kernel@kolivas.org>  <1142063500.7605.13.camel@homer>
-Content-Type: text/plain
-Date: Sat, 11 Mar 2006 23:54:42 -0500
-Message-Id: <1142139283.25358.68.camel@mindpipe>
+	Sun, 12 Mar 2006 00:06:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27799 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751383AbWCLFGO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 00:06:14 -0500
+Date: Sat, 11 Mar 2006 21:03:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Krzysztof Oledzki <olel@ans.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on
+ 2.6.16-rc6
+Message-Id: <20060311210353.7eccb6ed.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl>
+References: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-11 at 08:51 +0100, Mike Galbraith wrote:
-> There used to be a pages in flight 'restrictor plate' in there that
-> would have probably helped this situation at least a little.  But in
-> any case, it sounds like you'll have to find a way to submit the IO in
-> itty bitty synchronous pieces. 
+Krzysztof Oledzki <olel@ans.pl> wrote:
+>
+> After upgrading to 2.6.16-rc6 I noticed this strange message:
+> 
+>  More than 8 CPUs detected and CONFIG_X86_PC cannot handle it.
+>  Use CONFIG_X86_GENERICARCH or CONFIG_X86_BIGSMP.
+>
+> This is a Dell PowerEdge SC1425 with two P4 Xeons with HT enabled (so with 
+>  totoal of 4 logical CPUs).
 
-echo 64 > /sys/block/hd*/queue/max_sectors_kb
+Please send full dmesg output for the failing kernel, thanks.
 
-There is basically a straight linear relation between whatever you set
-this to and the maximum scheduling latency you see.  It was developed to
-solve the exact problem you are describing.
-
-Lee
-
+Which is the most-recently-tested kernel which behaved correctly?

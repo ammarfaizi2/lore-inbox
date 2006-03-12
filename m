@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWCLWlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWCLWlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWCLWlE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 17:41:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWCLWlE
+	id S1751302AbWCLWlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 17:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWCLWlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 17:41:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:56488 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750779AbWCLWlD (ORCPT
+	Sun, 12 Mar 2006 17:41:09 -0500
+Received: from ns.suse.de ([195.135.220.2]:3201 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751254AbWCLWlH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 17:41:03 -0500
-Date: Sun, 12 Mar 2006 22:41:00 +0000
-From: Alasdair G Kergon <agk@redhat.com>
+	Sun, 12 Mar 2006 17:41:07 -0500
+From: Andi Kleen <ak@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2/7] dm flush queue EINTR
-Message-ID: <20060312224100.GD4724@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [discuss] Re: 2.6.16-rc5-mm3: spinlock bad magic on CPU#0 on AMD64
+Date: Sun, 12 Mar 2006 16:10:31 +0100
+User-Agent: KMail/1.9.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
+       Mingming Cao <cmm@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>
+References: <200603120024.04938.rjw@sisk.pl> <200603121349.32374.rjw@sisk.pl> <20060312142654.650b90fb.akpm@osdl.org>
+In-Reply-To: <20060312142654.650b90fb.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200603121610.31881.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+On Sunday 12 March 2006 23:26, Andrew Morton wrote:
 
-If dm_suspend() is cancelled, bios already added
-to the deferred list need to be submitted.
-Otherwise they remain 'in limbo' until there's a dm_resume().
+> 
+> It's a pretty vile backtrace.  I supposed you have CONFIG_FRAME_POINTER=n.
 
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+Won't make a difference because the oops backtracer doesn't
+use them.
 
-Index: linux-2.6.16-rc5/drivers/md/dm.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm.c	2006-03-12 21:56:04.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm.c	2006-03-12 21:58:05.000000000 +0000
-@@ -1093,6 +1093,7 @@ int dm_suspend(struct mapped_device *md,
- {
- 	struct dm_table *map = NULL;
- 	DECLARE_WAITQUEUE(wait, current);
-+	struct bio *def;
- 	int r = -EINVAL;
- 
- 	down(&md->suspend_lock);
-@@ -1152,9 +1153,11 @@ int dm_suspend(struct mapped_device *md,
- 	/* were we interrupted ? */
- 	r = -EINTR;
- 	if (atomic_read(&md->pending)) {
-+		clear_bit(DMF_BLOCK_IO, &md->flags);
-+		def = bio_list_get(&md->deferred);
-+		__flush_deferred_io(md, def);
- 		up_write(&md->io_lock);
- 		unlock_fs(md);
--		clear_bit(DMF_BLOCK_IO, &md->flags);
- 		goto out;
- 	}
- 	up_write(&md->io_lock);
+> Still.  It seems that what's happened is that we took a pagefault while
+> reiserfs had a transaction open.  The fault is against a mmapped ext3 file
+> and we ended up in the recently-reworked ext3_get_block() which tests
+> journal_current_handle() to work out whether we're in a write or a read. 
+> oops.  The presence of reiserfs journal_info makes it decide it's a write,
+> not a read so it starts treating a reiserfs journal_info as an ext3 one.
+> 
+> The code used to work OK because it was only for direct-IO, which doesn't
+> get recurred into like this.  But it got used for regular I/O in -mm.
+
+Oops. Can this happen in more situations?
+
+-Andi

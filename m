@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWCMIBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWCMIBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWCMIBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 03:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWCMIBK
+	id S932332AbWCMIBD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 03:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWCMIBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 03:01:10 -0500
-Received: from main.gmane.org ([80.91.229.2]:54942 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932335AbWCMIBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 03:01:09 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Lexington Luthor <lexington.luthor@gmail.com>
-Subject: Re: Which kernel is the best for a small linux system?
-Date: Mon, 13 Mar 2006 08:00:51 +0000
-Message-ID: <dv38rn$430$1@sea.gmane.org>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+	Mon, 13 Mar 2006 03:01:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:54466 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932332AbWCMIBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 03:01:01 -0500
+Subject: Re: [PATCH] KERN_SETUID_DUMPABLE in /proc/sys/fs/
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, garloff@suse.de,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <m1r757xqoc.fsf@ebiederm.dsl.xmission.com>
+References: <20060310155738.GL5766@tpkurt.garloff.de>
+	 <20060310145605.08bf2a67.akpm@osdl.org>
+	 <1142061816.3055.6.camel@laptopd505.fenrus.org>
+	 <20060310234155.685456cd.akpm@osdl.org>
+	 <1142063254.3055.9.camel@laptopd505.fenrus.org>
+	 <20060310235103.4e9c9457.akpm@osdl.org>
+	 <1142064294.3055.13.camel@laptopd505.fenrus.org>
+	 <m1r757xqoc.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Mon, 13 Mar 2006 09:00:42 +0100
+Message-Id: <1142236842.3023.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: bb-82-108-13-253.ukonline.co.uk
-User-Agent: Thunderbird 1.5.0.2 (Windows/20060302)
-In-Reply-To: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-j4K3xBl4sT3r wrote:
-> Hello all,
-> 
-> I've been seeing many Linux versions, with many features, some of them
-> just for the newest branches (2.4.x and 2.6.x), I would like to know
-> for which kind of system each kernel is recommended.
 
-Hi,
+> This must be number 69 here.  Or else we break the sys_sysctl ABI.
 
-I am not a kernel developer, so this is not an official recommendation, 
-but exactly what kind of "small" system do you mean?
+numeric sysctl abi is since 2.6.0 no longer an ABI though; anything
+after that.. not an ABI :)
 
-I build and maintain a Linux distribution geared for memory-constrained 
-x86 systems, as old as 386s with 4MB of RAM, and the 2.6 kernel fairs 
-very well there. I only do so as a hobby not officially supported, so I 
-haven't tested the distribution with a very wide range of workloads, but 
-for bootstrapping itself from sources and for general home LAN routing 
-work, its great.
-
-You might want to look into patch sets like the 2.6-tiny patches, which 
-greatly reduce the memory footprint of the kernel: 
-http://www.selenic.com/linux-tiny/
-
-Also, you might want to look into the uclibc or dietlibc libraries, 
-which are a much smaller and less memory hungry than glibc (which has 
-become a memory pig in recent years).
-
-Regards,
-LL
 

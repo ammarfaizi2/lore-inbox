@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWCMOah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWCMO26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750935AbWCMOah (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 09:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWCMOah
+	id S1750913AbWCMO26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 09:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWCMO26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 09:30:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:22219 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750893AbWCMOah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 09:30:37 -0500
-Subject: Re: [patch] Require VM86 with VESA framebuffer
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Antonino Daplas <adaplas@pol.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200603130917_MC3-1-BA83-2167@compuserve.com>
-References: <200603130917_MC3-1-BA83-2167@compuserve.com>
+	Mon, 13 Mar 2006 09:28:58 -0500
+Received: from pat.uio.no ([129.240.130.16]:60873 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750839AbWCMO26 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 09:28:58 -0500
+Subject: Re: [PATCH] Fix deadlock in RPC scheduling code.
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Aurelien Degremont <aurelien.degremont@cea.fr>
+Cc: Jacques-Charles Lafoucriere <jc.lafoucriere@cea.fr>,
+       Bruno Faccini <bruno.faccini@bull.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200603131007.LAA10812@styx.bruyeres.cea.fr>
+References: <200603091035.LAA04829@styx.bruyeres.cea.fr>
+	 <1141915219.8293.5.camel@lade.trondhjem.org>
+	 <200603101510.QAA17788@styx.bruyeres.cea.fr>
+	 <1142004255.8041.26.camel@lade.trondhjem.org>
+	 <200603131007.LAA10812@styx.bruyeres.cea.fr>
 Content-Type: text/plain
-Date: Mon, 13 Mar 2006 15:30:26 +0100
-Message-Id: <1142260227.3023.29.camel@laptopd505.fenrus.org>
+Date: Mon, 13 Mar 2006 09:28:35 -0500
+Message-Id: <1142260115.7996.13.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.05, required 12,
+	autolearn=disabled, AWL 1.76, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 09:13 -0500, Chuck Ebbert wrote:
-> Force VM86 when VESA framebuffer is enabled and fix a typo
-> in the VM86 config entry. If VM86 is disabled there will
-> be problems when starting X using the VESA driver.
+On Mon, 2006-03-13 at 11:07 +0100, Aurelien Degremont wrote:
+> Trond Myklebust wrote:
+> > Yes. The RPC_TASK_QUEUED bit can only be cleared when both the
+> > RPC_TASK_WAKEUP bit _and_ the queue spinlock are held.
+> > If you are holding either one of those two, then it is safe to test for
+> > RPC_IS_QUEUED(). If the latter is true, then it is also safe to
+> > dereference the value of task->u.tk_wait.rpc_waitq.
+> 
+> Hmmm... With those constraints, it seems difficult to be able to modify 
+> the current rpc_wake_up_task() function...
 
+That is the price of optimisation in this case.
 
-this sounds wrong.
+> But, are you sure the patch you provided is sufficient to remove the 
+> potential deadlock we faced ? I do not see how, could you explain ?
 
-The kernel works fine; it's X that needs vm86.. (but it needs that
-anyway).... but that's no reason to make one kernel option require
-another....
+Your deadlock problem resulted in __rpc_wake_up_task() iterating forever
+on the same task since the while() loop would not ever exit before it
+was empty. By changing the iteration scheme into one where we only try
+to wake up each task once, we allow rpc_wake_up()/rpc_wake_up_status()
+to complete.
 
+Cheers,
+ Trond
 

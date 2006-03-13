@@ -1,252 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWCMSPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWCMSP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWCMSPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWCMSPb
+	id S932313AbWCMSP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWCMSPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:15:31 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:49677 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932294AbWCMSP3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:15:29 -0500
-Date: Mon, 13 Mar 2006 10:15:25 -0800
-Message-Id: <200603131815.k2DIFPa7005772@zach-dev.vmware.com>
-Subject: [RFC, PATCH 21/24] i386 Vmi proc node
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>,
-       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:15:25.0329 (UTC) FILETIME=[1996D010:01C646CA]
+	Mon, 13 Mar 2006 13:15:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52864 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932312AbWCMSPg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:15:36 -0500
+Date: Mon, 13 Mar 2006 13:15:24 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: signal_cache slab corruption.
+Message-ID: <20060313181524.GA26234@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a /proc node for the VMI sub-arch, which gives information on the VMI ROM
-detected using /proc/vmi/info and a list of kernel annotations in
-/proc/vmi/annotations.
+I got into the office today to find my workstation that was running
+a kernel based on .16rc5-git9 was totally unresponsive.
+After rebooting, I found this in the logs.
 
-The timing information is VMware specific, and should probably be put into a
-separate /proc node (and a separate patch for our internal use).
+slab signal_cache: invalid slab found in partial list at ffff8100e3a48080 (11/11).
+slab signal_cache: invalid slab found in partial list at ffff81007ecc6100 (11/11).
+slab: Internal list corruption detected in cache 'signal_cache'(11), slabp ffff810037ec0998(12). Hexdump:
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+000: c0 60 d9 7e 00 81 ff ff 00 61 cc 7e 00 81 ff ff
+010: a8 09 ec 37 00 81 ff ff a8 09 ec 37 00 81 ff ff
+020: 0c 00 00 00 00 00 00 00 57 d0 1d 07 01 00 00 00
+030: 00 00 00 00
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at mm/slab.c:2598
+invalid opcode: 0000 [1] SMP
+last sysfs file: /block/ram0/removable
+CPU 1
+Modules linked in: rfcomm loop nfsd exportfs ipv6 autofs4 w83627hf hwmon_vid hwmon i2c_isa hidp l2cap bluetooth nfs lockd nfs_acl sunrpc vfat fat dm_mirror dm_mod raid0 video button battery ac lp parport_pc parport floppy nvram ehci_hcd ohci_hcd snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss hw_random i2c_amd756 snd_pcm i2c_amd8111 snd_timer i2c_core matroxfb_base matroxfb_DAC1064 matroxfb_accel matroxfb_Ti3026 matroxfb_g450 g450_pll matroxfb_misc tg3 snd soundcore snd_page_alloc ext3 jbd sata_sil libata sd_mod scsi_mod
+Pid: 9, comm: events/1 Not tainted 2.6.15-1.2027_FC5 #1
+RIP: 0010:[<ffffffff8017b072>] <ffffffff8017b072>{check_slabp+185}
+RSP: 0018:ffff8100e8e47da8  EFLAGS: 00010086
+RAX: 0000000000000001 RBX: ffff810037ec0998 RCX: 0000000000020000
+RDX: 0000000000000000 RSI: 0000000000000046 RDI: ffffffff803c3a30
+RBP: 0000000000000034 R08: 00000000ffffffff R09: ffff8100e8e47af8
+R10: 0000000000000001 R11: 0000000000000000 R12: 0000000000000034
+R13: ffff81008252d100 R14: ffff810080006508 R15: ffff81008252db68
+FS:  00002ba8c4e25b90(0000) GS:ffff8100e8fdfc28(0000) knlGS:00000000f7f158c0
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 00002aab66b0e200 CR3: 000000006f726000 CR4: 00000000000006e0
+Process events/1 (pid: 9, threadinfo ffff8100e8e46000, task ffff810037fef7a0)
+Stack: ffff81007ecc6100 ffff810037ec0998 ffff81008252d100 0000000000000000
+       ffff810037ec0988 ffffffff8017cd7d ffff810080006558 ffff810081a72520
+       ffff810081a72528 ffff8100e8f9da48
+Call Trace: <ffffffff8017cd7d>{cache_reap+391} <ffffffff8017cbf6>{cache_reap+0}
+       <ffffffff801425e5>{run_workqueue+159} <ffffffff80142c7e>{worker_thread+0}
+       <ffffffff80142d87>{worker_thread+265} <ffffffff801295b4>{__wake_up_common+62}
+       <ffffffff8012ad8c>{default_wake_function+0} <ffffffff80145ebe>{kthread+254}
+       <ffffffff80142c7e>{worker_thread+0} <ffffffff8010b8e6>{child_rip+8}
+       <ffffffff80142c7e>{worker_thread+0} <ffffffff80145dc0>{kthread+0}
+       <ffffffff8010b8de>{child_rip+0}
 
-Index: linux-2.6.16-rc5/arch/i386/mach-vmi/proc.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/mach-vmi/proc.c	2006-03-08 11:02:57.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/mach-vmi/proc.c	2006-03-08 11:03:00.000000000 -0800
-@@ -0,0 +1,194 @@
-+/*
-+ * VMI proc stats interface
-+ *
-+ * Copyright (C) 2005, VMware, Inc.
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to zach@vmware.com
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/spinlock.h>
-+#include <linux/string.h>
-+#include <linux/seq_file.h>
-+#include <linux/proc_fs.h>
-+#include <linux/init.h>
-+#include <asm/processor.h>
-+#include <vmi.h>
-+
-+extern VROMHeader *vmi_rom;
-+static struct proc_dir_entry *proc_vmi_root;
-+
-+struct pnp_header {
-+	char sig[4];
-+	char rev;
-+	char size;
-+	short next;
-+	short res;
-+	long devID;
-+	unsigned short manufacturer_offset;
-+	unsigned short product_offset;
-+} __attribute__((packed));
-+
-+/* XXX This hack can only be used with passthrough TSC */
-+static inline unsigned long long get_tsc(void)
-+{
-+        unsigned long long tsc;
-+        asm volatile("rdtsc" : "=&A" (tsc));
-+        return tsc;
-+}
-+
-+static unsigned long long hypercall_cycles = 0xffffffffULL;
-+static void time_hypercall(void)
-+{
-+	unsigned long long tsc_start, tsc_end, cycles;
-+	int i;
-+	for (i = 0; i < 1000; i++) {
-+		tsc_start = get_tsc();
-+		vmi_rdtsc();
-+		tsc_end = get_tsc();
-+		cycles = tsc_end - tsc_start;
-+		if (cycles < hypercall_cycles)
-+			hypercall_cycles = cycles;
-+	}
-+}
-+
-+static unsigned long long page_fault_cycles = 0xffffffffULL;
-+static void time_page_fault(void)
-+{
-+	unsigned long long tsc_start, tsc_end, cycles;
-+	int i;
-+	for (i = 0; i < 1000; i++) {
-+		tsc_start = get_tsc();
-+		asm volatile(
-+			"1:	mov %%eax,0	\n"
-+			"2:			\n"
-+			".section __ex_table,\"a\"\n"
-+			"	.align 4	\n"
-+			"	.long 1b,2b	\n"
-+			".previous		\n"
-+			::: "memory");
-+		tsc_end = get_tsc();
-+		cycles = tsc_end - tsc_start;
-+		if (cycles < page_fault_cycles)
-+			page_fault_cycles = cycles;
-+	}
-+}
-+
-+static int proc_vmi_info_show(struct seq_file *m, void *v)
-+{
-+	if (!hypervisor_found) 
-+		seq_puts(m, "No VMI active\n");
-+	else
-+		seq_puts(m, "Hypervisor VMI active\n");
-+	seq_printf(m, "Kernel VMI API version %d.%d\n", 
-+		    VMI_API_REV_MAJOR, MIN_VMI_API_REV_MINOR);
-+	if (vmi_rom) {
-+		seq_printf(m, "VMI ROM API version: %d.%d\n",
-+			 vmi_rom->APIVersionMajor, 
-+			 vmi_rom->APIVersionMinor);
-+		seq_printf(m, "        rom size: %d\n",
-+			 vmi_rom->romLength * 512);
-+		seq_printf(m, "        mapped at: %08x\n", (uint32_t)vmi_rom);
-+		if (vmi_rom->pnpHeaderOffset) {
-+			struct pnp_header *h = (struct pnp_header *)
-+				((char *)vmi_rom+vmi_rom->pnpHeaderOffset);
-+			seq_printf(m, "        manufacturer: %s\n",
-+				 (char *)vmi_rom+h->manufacturer_offset);
-+			seq_printf(m, "        product: %s\n",
-+				 (char *)vmi_rom+h->product_offset);
-+		}
-+	}
-+	time_hypercall();
-+	seq_printf(m, "Hypercall cycle count: %lld\n", hypercall_cycles);
-+	time_page_fault();
-+	seq_printf(m, "Kernel #PF cycle count: %lld\n", page_fault_cycles);
-+
-+	return 0;
-+}
-+
-+static int proc_vmi_info_open(struct inode *inode, struct file *file)
-+{
-+	return single_open(file, proc_vmi_info_show, NULL);
-+}
-+
-+static struct file_operations proc_vmi_info_operations = {
-+	.open		= proc_vmi_info_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= single_release,
-+};
-+
-+#define VDEF(call) #call ,
-+static char *vmi_call_name[] =  {
-+   VMI_CALLS
-+};
-+#undef VDEF
-+
-+static void print_annotation(struct seq_file *m, struct vmi_annotation *a)
-+{
-+	seq_printf(m, "%s %p %d %p %d %d\n",
-+		   vmi_call_name[a->vmi_call], a->nativeEIP, a->native_size,
-+		   a->translationEIP, a->translation_size, a->nop_size);
-+}
-+
-+static int proc_vmi_annotations_show(struct seq_file *m, void *v)
-+{
-+	struct vmi_annotation *start = __vmi_annotation;
-+	struct vmi_annotation *end = __vmi_annotation_end;
-+	struct vmi_annotation *a; 
-+
-+	for (a = start; a < end; a++) { 
-+		print_annotation(m, a);
-+	}
-+	return 0;
-+} 
-+
-+static int proc_vmi_annotations_open(struct inode *inode, struct file *file)
-+{
-+	return single_open(file, proc_vmi_annotations_show, NULL);
-+}
-+
-+static struct file_operations proc_vmi_annotations_operations = {
-+	.open		= proc_vmi_annotations_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= single_release,
-+};
-+
-+static int __init proc_vmi_init(void)
-+{
-+	struct proc_dir_entry *e;
-+
-+	proc_vmi_root = proc_mkdir("vmi", NULL);
-+	if (proc_vmi_root) {
-+		e = create_proc_entry("info", 0, proc_vmi_root);
-+		if (e)
-+			e->proc_fops = &proc_vmi_info_operations;
-+		e = create_proc_entry("annotations", 0, proc_vmi_root);
-+		if (e)
-+			e->proc_fops = &proc_vmi_annotations_operations;
-+	}
-+	return 0;
-+}
-+
-+__initcall(proc_vmi_init);
-Index: linux-2.6.16-rc5/arch/i386/mach-vmi/Makefile
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/mach-vmi/Makefile	2006-03-08 11:02:43.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/mach-vmi/Makefile	2006-03-08 11:03:12.000000000 -0800
-@@ -6,4 +6,4 @@ EXTRA_CFLAGS	+= -I../kernel
- 
- export CFLAGS_stubs.o += -ffunction-sections
- 
--obj-y	:= setup.o stubs.o stubs-asm.o smpboot_hooks.o
-+obj-y	:= setup.o stubs.o stubs-asm.o smpboot_hooks.o proc.o
+Code: 0f 0b 68 16 b0 36 80 c2 26 0a 5a 5b 5d 41 5c 41 5d c3 41 56
+
+
+-- 
+http://www.codemonkey.org.uk

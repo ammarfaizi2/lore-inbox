@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWCMBBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751722AbWCMBSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbWCMBBs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 20:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWCMBBs
+	id S1751722AbWCMBSs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 20:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWCMBSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 20:01:48 -0500
-Received: from xproxy.gmail.com ([66.249.82.195]:23330 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932304AbWCMBBr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 20:01:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZKQ25hCPX0xasiQkGyXbZOv9OqHmNQ44bkR7ZeoVWyIFUPtF5+imOH5/IyO2Z4IrPjoHyV6BuS5r5x5dkyA8JVeJ4EeInDNP8YqfFzT0eqbbwpXZx1+42y+i4kpYyLCUyFnDPHIFDJsoJ0y8N4J64xNZVFL8n8qLgS4TeUYo7W8=
-Message-ID: <38c09b90603121701q69c61221lf92bb150e419b1c9@mail.gmail.com>
-Date: Mon, 13 Mar 2006 09:01:46 +0800
-From: "Lanslott Gish" <lanslott.gish@gmail.com>
-To: "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>
-Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
-Cc: "Greg KH" <greg@kroah.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
-       hc@mivu.no, vojtech@suse.cz
-In-Reply-To: <200603112155.38984.daniel.ritz-ml@swissonline.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 12 Mar 2006 20:18:48 -0500
+Received: from mail2.genealogia.fi ([194.100.116.229]:61313 "EHLO
+	mail2.genealogia.fi") by vger.kernel.org with ESMTP
+	id S1751415AbWCMBSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 20:18:48 -0500
+Date: Sun, 12 Mar 2006 17:15:38 -0800
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: hostap@shmoo.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       linville@tuxdriver.com
+Subject: Re: [RFC: 2.6 patch] hostap_hw.c:hfa384x_set_rid(): fix error handling
+Message-ID: <20060313011538.GU9383@jm.kir.nu>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, hostap@shmoo.com,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	linville@tuxdriver.com
+References: <20060309230646.GI21864@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com>
-	 <200603112155.38984.daniel.ritz-ml@swissonline.ch>
+In-Reply-To: <20060309230646.GI21864@stusta.de>
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.6 (--)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Daniel,
-it's great. i will test touchset part today.
+On Fri, Mar 10, 2006 at 12:06:46AM +0100, Adrian Bunk wrote:
 
-Regards,
+> The Coverity checker noted that the call to prism2_hw_reset() was dead 
+> code.
+> 
+> Does this patch change the code to what was intended?
 
-Lanslott Gish
+Thanks! Based on my CVS history, it looks like this was broken in 2002
+when the access command was moved from another function and verification
+of -ETIMEDOUT value was not moved correctly. The original behavior would
+be achieved by changing your patch to call printk first before the moved
+prism2_hw_reset(dev) call. I added this (with the re-ordered printk) to
+my queue for wireless-2.6.
 
-On 3/12/06, Daniel Ritz <daniel.ritz-ml@swissonline.ch> wrote:
-> hi
->
-> here my merge of the USB touchscreen drivers, based on my patch from
-> thursday for touchkitusb. this time it's a new driver...
->
-> and of course it's untested. i can test the egalax part next week...
->
-> [ also cc'ing the authors of the other drivers ]
->
-> the sizes for comparison:
->    text    data     bss     dec     hex filename
->    2942     724       4    3670     e56 touchkitusb.ko
->    2647     660       0    3307     ceb mtouchusb.ko
->    2448     628       0    3076     c04 itmtouch.ko
->    4097    1012       4    5113    13f9 usbtouchscreen.ko
->
-> comments?
->
-> rgds
-> -daniel
->
+-- 
+Jouni Malinen                                            PGP id EFC895FA

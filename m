@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751387AbWCMXij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWCMXf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751387AbWCMXij (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 18:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbWCMXij
+	id S1750767AbWCMXf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 18:35:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWCMXf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 18:38:39 -0500
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:36002 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750770AbWCMXij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 18:38:39 -0500
-References: <200603131908.00161.kernel@kolivas.org> <4415FCBA.7030100@bigpond.net.au>
-Message-ID: <cone.1142293105.216069.5853.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH][3/4] sched: add above background load function
-Date: Tue, 14 Mar 2006 10:38:25 +1100
-Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-kolivas.org-5853-1142293105-0002";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 13 Mar 2006 18:35:58 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:60620 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750767AbWCMXf5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 18:35:57 -0500
+Date: Mon, 13 Mar 2006 15:35:50 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Nick Piggin <npiggin@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: A lockless pagecache for Linux
+In-Reply-To: <20060207021822.10002.30448.sendpatchset@linux.site>
+Message-ID: <Pine.LNX.4.64.0603131528180.13687@schroedinger.engr.sgi.com>
+References: <20060207021822.10002.30448.sendpatchset@linux.site>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
+On Fri, 10 Mar 2006, Nick Piggin wrote:
 
---=_mimegpg-kolivas.org-5853-1142293105-0002
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+> I'm writing some stuff about these patches, and I've uploaded a
+> **draft** chapter on the RCU radix-tree, 'radix-intro.pdf' in above
+> directory (note the bibliography didn't make it -- but thanks Paul
+> McKenney!)
 
-Peter Williams writes:
+Ah thanks. I had a look at it. Note that the problem with the radix tree 
+tags is that these are inherited from the lower layer. How is the 
+consistency of these guaranteed? Also you may want to add a more elaborate 
+intro and conclusion. Typically these summarize other sections of the 
+paper.
 
-> Con Kolivas wrote:
->> +		if (weighted_cpuload(cpu) >= SCHED_LOAD_SCALE)
->> +			return 1;
-> I think that you may need to take into account the contribution to the 
-> load by your swap prefetching thread when it calls this function 
-> otherwise it could cause an incorrect (from your point of view) positive 
-> return value.  If the thread has a positive nice value this comment can 
-> probably be ignored.
+What you are proposing is to allow lockless read operations right? No 
+lockless write? The concurrency issue that we currently have is multiple 
+processes faulting in pages in different ranges from the same file. I 
+think this is a rather typical usage scenario. Faulting in a page from a 
+file for reading requires a write operation on the radix tree. The 
+approach with a lockless read path does not help us. This proposed scheme 
+would only help if pages are already faulted in and another process starts
+using the same pages as an earlier process.
 
-kprefetchd runs at nice 19.
-
-Cheers,
-Con
-
-
---=_mimegpg-kolivas.org-5853-1142293105-0002
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBEFgJxZUg7+tp6mRURAk7RAKCCF5DMn2EK1EUTxTPeFZYgQ2Y1eACgilYR
-s/U7tRXiQnSQfLETXd8eyNk=
-=CEmp
------END PGP SIGNATURE-----
-
---=_mimegpg-kolivas.org-5853-1142293105-0002--
+Would it not be better to handle the radix tree in the same way as a page 
+table? Have a lock at the lowest layer so that different sections of the 
+radix tree can be locked by different processes? That would enable 
+concurrent writes.

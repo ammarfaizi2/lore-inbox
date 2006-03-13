@@ -1,61 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWCMVi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWCMVj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWCMVi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWCMViz
+	id S932466AbWCMVj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:39:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWCMVj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:38:55 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:29319 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932461AbWCMViy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 16:38:54 -0500
-Date: Mon, 13 Mar 2006 13:36:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: neilb@suse.de, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH 004 of 4] Make address_space_operations->invalidatepage
- return void
-Message-Id: <20060313133625.26496547.akpm@osdl.org>
-In-Reply-To: <1142277225.9949.3.camel@kleikamp.austin.ibm.com>
-References: <20060313104910.15881.patches@notabene>
-	<1060312235331.15985@suse.de>
-	<1142267531.9971.5.camel@kleikamp.austin.ibm.com>
-	<1142277225.9949.3.camel@kleikamp.austin.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Mon, 13 Mar 2006 16:39:29 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:529 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S932466AbWCMVj1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 16:39:27 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <925A849792280C4E80C5461017A4B8A20321F5@mail733.InfraSupportEtc.com>
+x-originalarrivaltime: 13 Mar 2006 21:39:26.0568 (UTC) FILETIME=[99EFA680:01C646E6]
+Content-class: urn:content-classes:message
+Subject: RE: Router stops routing after changing MAC Address
+Date: Mon, 13 Mar 2006 16:39:16 -0500
+Message-ID: <Pine.LNX.4.61.0603131636470.5608@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Router stops routing after changing MAC Address
+Thread-Index: AcZG5pn5dKmbJtTMQi+H7zFmNosB3w==
+References: <925A849792280C4E80C5461017A4B8A20321F5@mail733.InfraSupportEtc.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Greg Scott" <GregScott@InfraSupportEtc.com>
+Cc: "Stephen Hemminger" <shemminger@osdl.org>,
+       "Chuck Ebbert" <76306.1226@compuserve.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>, <netdev@vger.kernel.org>,
+       "Bart Samwel" <bart@samwel.tk>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Simon Mackinlay" <smackinlay@mail.com>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+
+On Mon, 13 Mar 2006, Greg Scott wrote:
+
+> But in a failover scenario you want two devices to have the same IEEE
+> (station) Address (or MAC Address or hardware address).  So many names
+> for the same thing!
 >
-> On Mon, 2006-03-13 at 10:32 -0600, Dave Kleikamp wrote:
->  > I'll try to stress test jfs with these patches to see if I can trigger
->  > the an oops here.
-> 
->  While stress testing on a jfs volume (dbench), I hit an assert in jbd:
-> 
->  Assertion failure in journal_invalidatepage() at fs/jbd/transaction.c:1920: "!page_has_buffers(page)"
+> When the primary unit fails, you want the backup unit to completely
+> assume the failed unit's identity - right down to the MAC Address.  The
+> other way to do it using gratuitous ARPs is not good enough because some
+> cheap router someplace with an ARP cache of several hours will not
+> listen and will never update its own ARP cache.
+>
+> I like to think of this as bending the rules a little bit, not really
+> breaking them.  :)
+>
+> - Greg
+>
 
-Yes, thanks, that assertion has become wrong.
+Top posting, NotGood(tm). Anyway, if the device fails, you have
+routers and hosts ARPing the interface, trying to establish a
+route anyway.
 
---- devel/fs/jbd/transaction.c~make-address_space_operations-invalidatepage-return-void-jbd-fix	2006-03-13 13:33:12.000000000 -0800
-+++ devel-akpm/fs/jbd/transaction.c	2006-03-13 13:33:12.000000000 -0800
-@@ -1915,9 +1915,8 @@ void journal_invalidatepage(journal_t *j
- 	} while (bh != head);
- 
- 	if (!offset) {
--		/* Maybe should BUG_ON !may_free - neilb */
--		try_to_free_buffers(page);
--		J_ASSERT(!page_has_buffers(page));
-+		if (may_free && try_to_free_buffers(page))
-+			J_ASSERT(!page_has_buffers(page));
- 	}
- }
- 
+>
+>
+>> Actually, it doesn't make any difference. Changing the IEEE station
+>> (physical) address is not an allowed procedure even though hooks are
+>> available in many drivers to do this. According to the IEEE 802
+>> physical media specification, this 48-bit address must be unique
+>> and must be one of a group assigned by IEEE. Failure to follow this
+>> simple protocol can (will) cause an entire network to fail. If you
+>> don't care, then you certainly don't care about multicast bits either,
+>> basically let them set it to all ones as well.
+>
+>> Cheers,
+>> Dick Johnson
+>> Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+>> Warning : 98.36% of all statistics are fiction, book release in April.
+>
 
-However I'm more inclined to drop the whole patch, really - having
-->invalidatepage() return a success indication makes sense.  The fact that
-we're currently not using that return value doesn't mean that we shouldn't,
-didn't and won't.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

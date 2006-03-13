@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWCMPVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWCMPYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWCMPVP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 10:21:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWCMPVP
+	id S932139AbWCMPYt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 10:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWCMPYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 10:21:15 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:25809 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932114AbWCMPVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 10:21:13 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Mon, 13 Mar 2006 16:35:45 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B2DB21B@pdsmsx403> 
-Date: Mon, 13 Mar 2006 15:21:10 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FIor8-0002Rj-00@skye.ra.phy.cam.ac.uk>
+	Mon, 13 Mar 2006 10:24:49 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:22406 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932139AbWCMPYs convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 10:24:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lOoBpmJI776aftLGYOCp1rjiuR3Vraaazv/o3RdKb7iGyXe9s/z573j6sfN4RXNO/qpyMsu0lJwQblrXhFIfzAQRUs0uCY14MgwkhHdzhOt0WBmZxEW+x/Jiu5L9oeln4mQuR2Lbw34zm5rBAREXae4KvxNIOg/nV+RH71U8cS4=
+Message-ID: <661de9470603130724mc95405dr6ee32d00d800d37@mail.gmail.com>
+Date: Mon, 13 Mar 2006 20:54:47 +0530
+From: "Balbir Singh" <bsingharora@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: [patch 1/3] radix tree: RCU lockless read-side
+Cc: "Nick Piggin" <npiggin@suse.de>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+In-Reply-To: <4414E2CB.7060604@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060207021822.10002.30448.sendpatchset@linux.site>
+	 <20060207021831.10002.84268.sendpatchset@linux.site>
+	 <661de9470603110022i25baba63w4a79eb543c5db626@mail.gmail.com>
+	 <44128EDA.6010105@yahoo.com.au>
+	 <661de9470603121904h7e83579boe3b26013f771c0f2@mail.gmail.com>
+	 <4414E2CB.7060604@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hmm, could you file dmesgs with thermal module loaded and unloaded?
+<snip>
 
-Filed at bugzilla.
+>
+> But we should have already rcu_dereference()ed "slot", right
+> (in the loop above this one)? That means we are now able to
+> dereference it, and the data at the other end will be valid.
+>
 
-> I saw this acpi_debug=0xffffffff.
+Yes, but my confusion is about the following piece of code
 
-Sorry, it's a legacy from trying to debug #5112, and I've removed it
-for getting the above dmesgs.  I'm not even sure what that option does
-since it's not documented in the kernel-parameters.txt, but it does
-increase the amount of debugging info.
+<begin code>
 
-> I used to used to use acpi_debug_layer=0x10 acpi_debug_level=0x10
-> Could you try that?
+       for ( ; height > 1; height--) {
 
-For the above dmesgs I booted with acpi_dbg_level=0x10
-acpi_dbg_layer=0x10 and then did two sleep-wake cycles with no thermal
-module (both went fine), then one cycle with the thermal module loaded
-(went fine), and then the usual failing second sleep with the thermal
-module still loaded.  The sleep-wake cycles themselves (i.e. once the
-system booted) were done with acpi_debug_level=0x1F rather than the
-0x10 boot value.
+               for (i = (index >> shift) & RADIX_TREE_MAP_MASK ;
+                               i < RADIX_TREE_MAP_SIZE; i++) {
+-                       if (slot->slots[i] != NULL)
++                       __s = rcu_dereference(slot->slots[i]);
++                       if (__s != NULL)
+                               break;
+                       index &= ~((1UL << shift) - 1);
+                       index += 1UL << shift;
+@@ -531,14 +550,14 @@ __lookup(struct radix_tree_root *root, v
+                       goto out;
 
-Let me know if there's a different permutation of debug options that I
-should try.  I wasn't sure whether you meant that I should leave all
-the debug values at 0x10.  Or whether I should still include
-acpi_debug=0xffffffff on top of the other options.
+               shift -= RADIX_TREE_MAP_SHIFT;
+-               slot = slot->slots[i];
++               slot = __s;
+       }
 
--Sanjoy
+       /* Bottom level: grab some items */
+       for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
+               index++;
+               if (slot->slots[i]) {
+-                       results[nr_found++] = slot->slots[i];
++                       results[nr_found++] = &slot->slots[i];
+                       if (nr_found == max_items)
+                               goto out;
+               }
+<end code>
 
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
+In the for loop, lets say __s is *not* NULL, we break from the loop.
+In the loop below
+slot->slots[i] is derefenced without rcu, __s is not used. Is that not
+inconsistent?

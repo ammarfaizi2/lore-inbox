@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWCMTPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751794AbWCMTTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751779AbWCMTPP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:15:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbWCMTPP
+	id S1751794AbWCMTTE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbWCMTTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:15:15 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:65473 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751779AbWCMTPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:15:14 -0500
-Subject: RE: [future of drivers?] a proposal for binary drivers.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Tim Tassonis <timtas@cubic.ch>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4415C15F.4020500@cubic.ch>
-References: <4415C15F.4020500@cubic.ch>
-Content-Type: text/plain
-Date: Mon, 13 Mar 2006 14:15:10 -0500
-Message-Id: <1142277311.13256.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
+	Mon, 13 Mar 2006 14:19:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18867 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751505AbWCMTTB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:19:01 -0500
+Message-ID: <4415C4E9.5070702@nc.rr.com>
+Date: Mon, 13 Mar 2006 14:15:53 -0500
+From: William Cohen <wcohen@nc.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: eranian@hpl.hp.com
+CC: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
+       perfctr-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       oprofile-list <oprofile-list@lists.sourceforge.net>
+Subject: Re: [Perfctr-devel] 2.6.16-rc5 perfmon2 new code base + libpfm with
+ Montecito support
+References: <20060308155311.GD13168@frankl.hpl.hp.com> <4415BC45.1010601@nc.rr.com> <20060313185500.GB32683@frankl.hpl.hp.com>
+In-Reply-To: <20060313185500.GB32683@frankl.hpl.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 20:00 +0100, Tim Tassonis wrote:
-> > On Mon, 2006-03-13 at 10:24 +0100, Bernd Petrovitsch wrote:
-> >> Maybe not under (US-American) copyright, but under continental
-> >> European authors rights there are such possibilities (I leave it to
-> >> lawyers if and when they apply) and you can't even remove them with
-> >> contracts (as with all law stuff).
-> >> 
-> > 
-> > Please refrain from knee-jerk USA-bashing, you said yourself you don't
-> > know the law.
-> > 
-> > Lee
-> > 
+Stephane Eranian wrote:
+> Will,
 > 
-> Are you completely out of your head or what? When somebody reminds you 
-> of the fact that U.S. law is not the only law in the world and that some 
-> things may be different in other countries you call him a knee-jerking 
-> USA-basher???
+> On Mon, Mar 13, 2006 at 01:39:01PM -0500, William Cohen wrote:
+> 
+>>Hi Stephane,
+>>
+>>I have been looking through the perfmon2 code to see how it is going to 
+>>work with OProfile. It looks like the ia64 oprofile support has not been 
+>>modified to work with the changes in perfmon2. Has the ia64 kernel been 
+>>built with perfmon2 and oprofile support? I don't have easy access to an 
+>>ia64, so I haven't been able to verify that the attached patch works. 
+>>However, I expect that the changes in the patch will be required for 
+>>OProfile to function with perfmon2.
+>>
+> 
+> Good timing. I just fixed this today. Now it compiles fine on
+> IA64.  I also started looking into using the same technique on
+> i386. It is very easy. It looks like opcontrol or ophelp
+> would need to be updated. I think the trick is to make
+> sure that ophelp knows the PMU mapping used by perfmon2,
+> i.e., knows that PERFEVTSEL0 is PMC0 for instance.
 > 
 
-No I was referring to the implication that the GPL is not enforceable
-under US copyright law.
+Yes, I have a similar patch for i386 in the kernel. I don't yet have 
+modifications for opcontrol or ophelp.
 
-> In this sense, you better go back wanking to pictures of tortured 
-> iranians, yankee.
+One question would be identifying the processor when using the perfmon2 
+support for i386/* processors? There is prior support in the oprofile 
+driver for i386 processors. Identify the processor differently depending 
+on whether perfmon2 is being used to distinguish between the different 
+interfaces? The way that OProfile has the events each name processor 
+requires a different directory in /usr/share/oprofile. Would prefer to 
+keep down the proliferation of new directories.
 
-No comment
-
+-Will

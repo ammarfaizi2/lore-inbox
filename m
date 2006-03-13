@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWCMV6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWCMV6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWCMV6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWCMV6O
+	id S932481AbWCMV6g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWCMV6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:58:14 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:53264 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932479AbWCMV6L
+	Mon, 13 Mar 2006 16:58:15 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:53008 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932478AbWCMV6L
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 13 Mar 2006 16:58:11 -0500
 From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+To: <bernd@firmix.at>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 Subject: RE: [future of drivers?] a proposal for binary drivers.
 Date: Mon, 13 Mar 2006 13:57:40 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEAJKLAB.davids@webmaster.com>
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEAJKLAB.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -21,7 +22,7 @@ Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1142238041.3023.11.camel@laptopd505.fenrus.org>
+In-Reply-To: <1142241857.19650.27.camel@tara.firmix.at>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Importance: Normal
 X-Authenticated-Sender: joelkatz@webmaster.com
@@ -36,42 +37,74 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > 	2) The ordinary and expected use of a library is to produce
-> > applications
-> > that use that library.
+> Since you got the package from RedHat (or subsidiaries or several people
+> in between), you are bound by the GPL since neither RedHat nor the
+> several people in between as any different access to the kernel-sources
+> than via GPL. And they can't change it.
+> So you got it under the rules of the GPL.
 
-> and the kernel is not a library
+	This is a common misconception. The GPL *never* bings the recipient of a
+GPL'd work until and unless he agrees to it. You can find this made quite
+clear on the FSF's web site.
 
-	Tell me, then, what is the orindary expected use of the RedHat
-'kernel-devel' package?
+> > 	4) Copyright does not allow you to own every way to do some
+> specific thing,
 
-> > 	5) There is no right under copyright for authors of
-> > original works to limit
-> > the distribution of lawfully-created derivative works to those with the
-> > right to use the original work.
+> Copyright/authors rights allows me to own *my way* of doing it. And if
+> you derive your work on mine, it depends on the quality and quantity
+> *if* you have any copyright/authors rights on you patch and how the
+> joined work must be treated legally.
+> In the Linux kernel, dozens (if not hundreds) of people have
+> copyrighted/authored righted code in there so.
 
-> this is not correct. Copyright law *DOES* give copyright owners the
-> right to control derived works.
+	The claim here is not that one way to make an NE2000 work with Linux 2.6 is
+owned but that *every* way to do that is owned. This is impossible under
+copyright. You can certainly own one specific way to make an NE2000 work
+with linux 2.6 (that would be a copyrighted driver), but you cannot use
+copyright to prevent anyone from implementing a particular function.
 
-	No, it does not. Copyright law only gives copyright owners the right to
-control the *creation* of derivative works. I very carefully worded my
-statement above so that it would talk about precisely the right people claim
-they have and precisely the right they do not have.
+> > you need a patent for that. Any application that uses library X or any
+> > driver for kernel Y is a specific thing. Copyright only applies
+> > when there
 
-	In this case, the alleged derivative work is created under first sale, as
-part of normal use. It is impossible to normally use the 'kernel-devel'
-package without creating derivative works, and under first sale, normal use
-(and anything required for normal use) cannot be burdened. Once the
-derivative work is lawfully created, there is nothing in copyright law that
-requires the permission of the author of the original work to distribute the
-derived work to licensees of the original work.
+> If there was a binary in-kernel API, yes.
+> But a) there is no "officially" one and b) we have no "libraries" (in
+> the sense of the GPL) here.
 
-	The GPL gets around this by imposing requirements on the creation of
-derivative works, under the assumption that you cannot get the right to
-create a derivative work any other way. But this is false, first sale grants
-the right to normal use, and normal use includes anything necessary for
-normal use. For a library or for the 'kernel-devel' package, normal use
-requires the creation of derivative works.
+	It doesn't matter. You cannot protect a function with copyright. If there
+is only one practical way to get a particular function, nobody can use
+copyright to own it. Read Lexmark v. Static Controls or goole for "copyright
+lock out".
+
+> > are numerous ways to do the same thing or express the same
+> > idea. Drivers for
+> > different operating systems are different ideas. You cannot use
+> > copyright to
+> > lock out someone from doing a particular thing, only from doing
+> > that thing
+> > the same way you did.
+
+> No, you can't even lock someone out to do the same thing. You can only
+> lock someone out to base his thing on your thing (but you can't hinder a
+> reimplementation - you need a patent for this [and a jurisdiction which
+> allows software patents]).
+
+	You cannot lock someone out from basing their think on your thing, if that
+is the only practical way to express a particular idea. See Lexmark v.
+Static Controls, among other cases.
+
+> > 	6) All of this is copyright law and applies whether or not
+> > anyone agrees to
+> > the GPL or any other agreement, so nothing those agreements
+> > says can change
+> > this.
+
+> This is a common misunderstanding: If you change the rules of the GPL,
+> you automatically loose all rights you received with the GPL[0]
+
+	Huh? I'm not changing anything. And I'm not talking about any rights
+received with the GPL, I'm talking about rights granted by law under first
+sale and scenes a faire.
 
 	DS
 

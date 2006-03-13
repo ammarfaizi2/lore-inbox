@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWCMSjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWCMSlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWCMSjU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWCMSjU
+	id S1751298AbWCMSlj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWCMSli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:39:20 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:34983 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750743AbWCMSjT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:39:19 -0500
-Date: Mon, 13 Mar 2006 10:39:32 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Jeremy Higdon <jeremy@sgi.com>
-Cc: Keith Owens <kaos@sgi.com>, Andi Kleen <ak@suse.de>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
-Message-ID: <20060313183932.GE1297@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au> <20051216074626.GB201289@sgi.com>
+	Mon, 13 Mar 2006 13:41:38 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7353 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751298AbWCMSli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:41:38 -0500
+Subject: Re: Which kernel is the best for a small linux system?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060313182725.GA31211@mars.ravnborg.org>
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
+	 <20060313182725.GA31211@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Mon, 13 Mar 2006 13:41:27 -0500
+Message-Id: <1142275289.13256.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216074626.GB201289@sgi.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 11:46:26PM -0800, Jeremy Higdon wrote:
-> Roland Dreier got this right.  The purpose of the mmiowb is
-> to ensure that writes to I/O devices while holding a spinlock
-> are ordered with respect to writes issued after the original
-> processor releases and a second processor acquires said
-> spinlock.
-> 
-> A MMIO read would be sufficient, but is much heavier weight.
-> 
-> On the SGI MIPS-based systems, the "sync" instruction was used.
-> On the Altix systems, a register on the hub chip is read.
-> 
-> >From comments by jejb, we're looking at modifying the mmiowb
-> API by adding an argument which would be a register to read
-> from if the architecture in question needs ordering in this
-> way but does not have a lighter weight mechanism like the Altix
-> mmiowb.  Since there will now need to be a width indication,
-> mmiowb will be replaced with mmiowb[bwlq].
+On Mon, 2006-03-13 at 19:27 +0100, Sam Ravnborg wrote:
+> # latencies up to 80% slower
 
-Any progress on this front?  I figured that I would wait to update
-the ordering document until after this change happened, but if it
-is going to be awhile, I should proceed with the current API.
+This is certainly bullshit, it has not been true since 2.6.7 or so.
 
-Thoughts?
+Did not visit the page but that list smells like they are selling
+something.
 
-						Thanx, Paul
+Lee
+

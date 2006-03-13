@@ -1,108 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWCMTcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWCMTdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWCMTcl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWCMTck
+	id S932340AbWCMTdo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWCMTdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:32:40 -0500
-Received: from stargate.chelsio.com ([12.22.49.110]:24583 "EHLO
-	sg2.chelsio.com") by vger.kernel.org with ESMTP id S932334AbWCMTci
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:32:38 -0500
-Message-ID: <4415C87B.90107@chelsio.com>
-Date: Mon, 13 Mar 2006 11:31:07 -0800
-From: Scott Bardone <sbardone@chelsio.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: maintainers@chelsio.com, jgarzik@pobox.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: drivers/net/chelsio/sge.c: two array overflows
-References: <20060311013720.GG21864@stusta.de>
-In-Reply-To: <20060311013720.GG21864@stusta.de>
-Content-Type: multipart/mixed;
- boundary="------------030407090506050808000205"
-X-OriginalArrivalTime: 13 Mar 2006 19:31:30.0811 (UTC) FILETIME=[BAD414B0:01C646D4]
+	Mon, 13 Mar 2006 14:33:44 -0500
+Received: from xenotime.net ([66.160.160.81]:24298 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932340AbWCMTdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:33:43 -0500
+Date: Mon, 13 Mar 2006 11:35:29 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] Doc/kernel-parameters.txt: slightly reword sentence
+ about restrictions
+Message-Id: <20060313113529.4f18772a.rdunlap@xenotime.net>
+In-Reply-To: <tkrat.db45898acb8b4e93@s5r6.in-berlin.de>
+References: <tkrat.f6b9032d78fc1d70@s5r6.in-berlin.de>
+	<tkrat.fb495404c563eaf7@s5r6.in-berlin.de>
+	<tkrat.db45898acb8b4e93@s5r6.in-berlin.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030407090506050808000205
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 13 Mar 2006 20:23:17 +0100 (CET) Stefan Richter wrote:
 
-Adrian,
-
-This is a bug. The array should contain 2 elements.
-
-Attached is a patch which fixes it.
-Thanks.
-
-Signed-off-by: Scott Bardone <sbardone@chelsio.com>
-
-
-Adrian Bunk wrote:
-> The Coverity checker spotted the following two array overflows in 
-> drivers/net/chelsio/sge.c (in both cases, the arrays contain 3 elements):
+> Doc/kernel-parameters.txt: slightly reword sentence about restrictions
 > 
-> <--  snip  -->
+> The previous patch somewhat diverted the train of thought.
+> Here I am trying to bring the valued reader back on track.
 > 
-> ...
-> static void restart_tx_queues(struct sge *sge)
-> {
-> ...
->                                 sge->stats.cmdQ_restarted[3]++;
-> ...
-> static int t1_sge_tx(struct sk_buff *skb, struct adapter *adapter,
->                      unsigned int qid, struct net_device *dev)
-> {
-> ...
->                         sge->stats.cmdQ_full[3]++;
-> ...
+> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 > 
-> <--  snip  -->
-> 
-> 
-> cu
-> Adrian
-> 
+> --- linux/Documentation/kernel-parameters.txt.2	2006-03-13 19:57:52.000000000 +0100
+> +++ linux/Documentation/kernel-parameters.txt	2006-03-13 20:03:32.000000000 +0100
+> @@ -24,9 +24,10 @@
+>  parameters may be changed at runtime by the command
+>  "echo -n ${value} > /sys/module/${modulename}/parameters/${parm}".
+>  
+> -The text in square brackets at the beginning of the description states the
+> -restrictions on the kernel for the said kernel parameter to be valid. The
+> -restrictions referred to are that the relevant option is valid if:
+> +The parameters listed below are only valid if certain kernel build options were
+> +enabled and if respective hardware is present. The text in square brackets at
+> +the beginning of each description states the restrictions within wich a
+> +parameter is applicable:
 
---------------030407090506050808000205
-Content-Type: text/x-patch;
- name="sge.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sge.patch"
+within which
 
---- sge.c	2006-02-17 14:23:45.000000000 -0800
-+++ sge.fix.c	2006-03-13 10:51:24.000000000 -0800
-@@ -1021,7 +1021,7 @@
- 			if (test_and_clear_bit(nd->if_port,
- 					       &sge->stopped_tx_queues) &&
- 			    netif_running(nd)) {
--				sge->stats.cmdQ_restarted[3]++;
-+				sge->stats.cmdQ_restarted[2]++;
- 				netif_wake_queue(nd);
- 			}
- 		}
-@@ -1350,7 +1350,7 @@
- 	 	if (unlikely(credits < count)) {
- 			netif_stop_queue(dev);
- 			set_bit(dev->if_port, &sge->stopped_tx_queues);
--			sge->stats.cmdQ_full[3]++;
-+			sge->stats.cmdQ_full[2]++;
- 			spin_unlock(&q->lock);
- 			if (!netif_queue_stopped(dev))
- 				CH_ERR("%s: Tx ring full while queue awake!\n",
-@@ -1358,7 +1358,7 @@
- 			return NETDEV_TX_BUSY;
- 		}
- 		if (unlikely(credits - count < q->stop_thres)) {
--			sge->stats.cmdQ_full[3]++;
-+			sge->stats.cmdQ_full[2]++;
- 			netif_stop_queue(dev);
- 			set_bit(dev->if_port, &sge->stopped_tx_queues);
- 		}
 
---------------030407090506050808000205--
+---
+~Randy
+You can't do anything without having to do something else first.
+-- Belefant's Law

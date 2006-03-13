@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWCMUz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbWCMVAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbWCMUz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWCMUz4
+	id S932453AbWCMVAo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:00:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWCMVAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:55:56 -0500
-Received: from mail.infrasupportetc.com ([66.173.97.5]:64576 "EHLO
-	mail733.InfraSupportEtc.com") by vger.kernel.org with ESMTP
-	id S932455AbWCMUzz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:55:55 -0500
+	Mon, 13 Mar 2006 16:00:44 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:10310 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932453AbWCMVAn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 16:00:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SQ0FwSXrErnfADkz2h9CECEWhQPMlxjmvhJkPkFz/rNAJDk7JCC/QtiIYcZprL6vUPezUmv7yg7h9ejEd6/53HDLmg04e19DzC0OFLeNliUiUyr1ALw6KDD+qIk3+IwhbJN2xUAoynb+AA+xnTUyrwxZiqRVkeqYe9DZGea2Y8g=
+Message-ID: <9a8748490603131300h26ece8c7m98c57b145900f5f4@mail.gmail.com>
+Date: Mon, 13 Mar 2006 22:00:33 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: jimbob@osoffice.co.uk
+Subject: Re: kernel patch set - please read
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <1140.81.178.12.23.1142280938.squirrel@www.osoffice.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Router stops routing after changing MAC Address
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Mon, 13 Mar 2006 14:57:04 -0600
-Message-ID: <925A849792280C4E80C5461017A4B8A20321F5@mail733.InfraSupportEtc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Router stops routing after changing MAC Address
-Thread-Index: AcZG3JFcaxxA2oPXRWKojNxFlJZu7wAAmu6g
-From: "Greg Scott" <GregScott@InfraSupportEtc.com>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
-       "Stephen Hemminger" <shemminger@osdl.org>
-Cc: "Chuck Ebbert" <76306.1226@compuserve.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>, <netdev@vger.kernel.org>,
-       "Bart Samwel" <bart@samwel.tk>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Simon Mackinlay" <smackinlay@mail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1140.81.178.12.23.1142280938.squirrel@www.osoffice.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But in a failover scenario you want two devices to have the same IEEE
-(station) Address (or MAC Address or hardware address).  So many names
-for the same thing!  
+On 3/13/06, James Mcloughlin <jimbob@osoffice.co.uk> wrote:
+> Hello from the uk,
+>
+> I upgrade old raq3/4 servers to newer operating systems usually centos.
+> There is still thousands of them out there, hosting websites.
+>
+> People realise that these old boxes are still good for hosting, as you
+> dont need a super 3ghz server for a few small web sites...
+>
+> I wonder if you would consider adding cobalt hardware support to the 2.6
+> kernel tree?
+>
 
-When the primary unit fails, you want the backup unit to completely
-assume the failed unit's identity - right down to the MAC Address.  The
-other way to do it using gratuitous ARPs is not good enough because some
-cheap router someplace with an ARP cache of several hours will not
-listen and will never update its own ARP cache.  
+Such suggestions are usually quite well recieved in the form of actual
+patches - someone needs to do the work.
 
-I like to think of this as bending the rules a little bit, not really
-breaking them.  :)
-
-- Greg
+When the work is done and patches are submitted for review most people
+usually view such contributions favorably. So get hacking :-)
 
 
-
->Actually, it doesn't make any difference. Changing the IEEE station
->(physical) address is not an allowed procedure even though hooks are 
->available in many drivers to do this. According to the IEEE 802 
->physical media specification, this 48-bit address must be unique 
->and must be one of a group assigned by IEEE. Failure to follow this 
->simple protocol can (will) cause an entire network to fail. If you 
->don't care, then you certainly don't care about multicast bits either, 
->basically let them set it to all ones as well.
-
->Cheers,
->Dick Johnson
->Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
->Warning : 98.36% of all statistics are fiction, book release in April.
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

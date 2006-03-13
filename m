@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWCMT0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWCMTbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWCMT0v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWCMT0v
+	id S932333AbWCMTbW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbWCMTbW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:26:51 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:39624 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932317AbWCMT0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:26:50 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 13 Mar 2006 20:23:17 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 3/3] Doc/kernel-parameters.txt: slightly reword sentence about
- restrictions
-To: linux-kernel@vger.kernel.org
-cc: Randy Dunlap <rdunlap@xenotime.net>
-In-Reply-To: <tkrat.fb495404c563eaf7@s5r6.in-berlin.de>
-Message-ID: <tkrat.db45898acb8b4e93@s5r6.in-berlin.de>
-References: <tkrat.f6b9032d78fc1d70@s5r6.in-berlin.de>
- <tkrat.fb495404c563eaf7@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.773) AWL,BAYES_50
+	Mon, 13 Mar 2006 14:31:22 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55238 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932333AbWCMTbU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:31:20 -0500
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tim Tassonis <timtas@cubic.ch>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4415C728.3060100@cubic.ch>
+References: <4415C15F.4020500@cubic.ch> <1142277311.13256.9.camel@mindpipe>
+	 <4415C728.3060100@cubic.ch>
+Content-Type: text/plain
+Date: Mon, 13 Mar 2006 14:31:17 -0500
+Message-Id: <1142278278.13256.13.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doc/kernel-parameters.txt: slightly reword sentence about restrictions
+On Mon, 2006-03-13 at 20:25 +0100, Tim Tassonis wrote:
+> Lee Revell wrote:
+> > On Mon, 2006-03-13 at 20:00 +0100, Tim Tassonis wrote:
+> >>> On Mon, 2006-03-13 at 10:24 +0100, Bernd Petrovitsch wrote:
+> >>>> Maybe not under (US-American) copyright, but under continental
+> >>>> European authors rights there are such possibilities (I leave it to
+> >>>> lawyers if and when they apply) and you can't even remove them with
+> >>>> contracts (as with all law stuff).
+> >>>>
+> >>> Please refrain from knee-jerk USA-bashing, you said yourself you don't
+> >>> know the law.
+> >>>
+> >>> Lee
+> >>>
+> >> Are you completely out of your head or what? When somebody reminds you 
+> >> of the fact that U.S. law is not the only law in the world and that some 
+> >> things may be different in other countries you call him a knee-jerking 
+> >> USA-basher???
+> >>
+> > 
+> > No I was referring to the implication that the GPL is not enforceable
+> > under US copyright law.
+> 
+> Well, I'd really like to know how your patriotic sentiments were hurt by 
+> Bernd in the above sentence. Maybe we Europeans are not compassionate 
+> enough, it seems, as I can see absolutely nothing anti-american in his 
+> posting. Maybe mentioning the existence of other countries/laws is 
+> nowadays considered anti-american?
 
-The previous patch somewhat diverted the train of thought.
-Here I am trying to bring the valued reader back on track.
+I'm sorry I posted that, this thread is OT anyway.  I'm just annoyed
+when people who don't know US law speculate about how terrible it is
+(like the common misconception that reverse engineering for
+interoperability is banned in the US).  Of course I don't think that
+pointing out differences is anti-American.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-
---- linux/Documentation/kernel-parameters.txt.2	2006-03-13 19:57:52.000000000 +0100
-+++ linux/Documentation/kernel-parameters.txt	2006-03-13 20:03:32.000000000 +0100
-@@ -24,9 +24,10 @@
- parameters may be changed at runtime by the command
- "echo -n ${value} > /sys/module/${modulename}/parameters/${parm}".
- 
--The text in square brackets at the beginning of the description states the
--restrictions on the kernel for the said kernel parameter to be valid. The
--restrictions referred to are that the relevant option is valid if:
-+The parameters listed below are only valid if certain kernel build options were
-+enabled and if respective hardware is present. The text in square brackets at
-+the beginning of each description states the restrictions within wich a
-+parameter is applicable:
- 
- 	ACPI	ACPI support is enabled.
- 	ALSA	ALSA sound support is enabled.
-
+Lee
 

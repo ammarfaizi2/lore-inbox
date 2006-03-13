@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751862AbWCMCXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWCMC2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751862AbWCMCXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 21:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWCMCXp
+	id S1750883AbWCMC2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 21:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWCMC2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 21:23:45 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:48396 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1751862AbWCMCXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 21:23:44 -0500
-Date: Sun, 12 Mar 2006 18:19:11 -0800
-From: "David Schwartz" <davids@webmaster.com>
-To: linux-kernel-owner+davids=40webmaster.com-S1750982AbWCLRJa@vger.kernel.org,
-       "Dave Neuer" <mr.fred.smoothie@pobox.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: [future of drivers?] a proposal for binary drivers.
+	Sun, 12 Mar 2006 21:28:46 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:61454 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750883AbWCMC2q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 21:28:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Vl1RbzO+Fkvot0wbygmSK/VU2rYyMeTMdYRXLuDspz7/7nb1mFLGaKU8Y4Dl1hJd3/61u5J5WZ33uknqEjGfsQqguPjH07boZ1yg72ni23aRKlpsca9osA6ZMjnEXV2sL7ee6mmq+1+o36a38wtXDqD46eWJVxd0iKyMFhWFNS8=
+Message-ID: <aec7e5c30603121828j11c43972yfe642e0f3e1dbef9@mail.gmail.com>
+Date: Mon, 13 Mar 2006 11:28:45 +0900
+From: "Magnus Damm" <magnus.damm@gmail.com>
+To: "Peter Zijlstra" <peter@programming.kicks-ass.net>
+Subject: Re: [PATCH 00/03] Unmapped: Separate unmapped and mapped pages
+Cc: "Arjan van de Ven" <arjan@infradead.org>,
+       "Magnus Damm" <magnus@valinux.co.jp>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+In-Reply-To: <1142110694.2928.6.camel@lappy>
 MIME-Version: 1.0
-Content-Type: text/plain
-Message-ID: <WorldClient-F200603121819.AA19110002@webmaster.com>
-X-Mailer: WorldClient 8.1.3
-In-Reply-To: <161717d50603120909w41413b00g6ad82af79b051fd3@mail.gmail.com>
-References: <20060311091623.GB4087@DervishD> <MDEHLPKNGKAHNMBLJOLKGEHBKKAB.davids@webmaster.com> <161717d50603120909w41413b00g6ad82af79b051fd3@mail.gmail.com>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Sun, 12 Mar 2006 18:19:15 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 127.0.0.1
-X-Return-Path: davids@webmaster.com
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 12 Mar 2006 18:19:16 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060310034412.8340.90939.sendpatchset@cherry.local>
+	 <1141977139.2876.15.camel@laptopd505.fenrus.org>
+	 <aec7e5c30603100519l5a68aec3ub838ac69a734a46b@mail.gmail.com>
+	 <1142110694.2928.6.camel@lappy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for any format issues, I'm not able to use my normal email client 
-right now.
+On 3/12/06, Peter Zijlstra <peter@programming.kicks-ass.net> wrote:
+> On Fri, 2006-03-10 at 14:19 +0100, Magnus Damm wrote:
+> > On 3/10/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> > > > Apply on top of 2.6.16-rc5.
+> > > >
+> > > > Comments?
+> > >
+> > >
+> > > my big worry with a split LRU is: how do you keep fairness and balance
+> > > between those LRUs? This is one of the things that made the 2.4 VM suck
+> > > really badly, so I really wouldn't want this bad...
+> >
+> > Yeah, I agree this is important. I think linux-2.4 tried to keep the
+> > LRU list lengths in a certain way (maybe 2/3 of all pages active, 1/3
+> > inactive). In 2.6 there is no such thing, instead the number of pages
+> > scanned is related to the current scanning priority.
+>
+> This sounds wrong, the active and inactive lists are balanced to a 1:1
+> ratio. This is happens because the scan speed is directly proportional
+> to the size of the list. Hence the largest list will shrink fastest -
+> this gives a natural balance to equal sizes.
 
-> Static Controls also explicitly says that the analysis of whether
-> scenes a faire applies is vastly different for a work of greater
-> complexity and size than the TLP ("Neither do the cited cases support
-> the district court's initial frame of reference. [cases cited],
-> involved copies of Apple's operating system program -- a program whose
-> size and complexity is to the Toner Loading Program what the Sears
-> Tower is to a lamppost. Given the nature of the Apple program, it
-> would have been exceedingly difficult to say that practical
-> alternative means of expression did not exist...").
+Yes, you are explaining the current 2.6 behaviour much better. Also,
+some balancing logic with nr_scan_active/nr_scan_inactive is present
+in the code today. I'm not entirely sure about the purpose of that
+code.
 
-The whole issue here is people who claim that copyright allows them to own 
-*any* way to make an NE2000 network card work with linux v2.6. How can you 
-say that practical alternative means exist if the claim is that every such 
-way is owned?
+Thanks,
 
-You can use hardware that's already supported in the kernel. You can use 
-other operating systems than Linux. But Static Controls could also have made 
-cartridges for other printers or printers from other manufacturers.
-
-The issue is not the complexity of the TLP, the issue is simply that you 
-cannot use copyright to get protection that is capable of being expressed in 
-functional terms. You cannot own every way to express a functional idea. 
-That's what patents are for.
-
-DS
-
-
+/ magnus

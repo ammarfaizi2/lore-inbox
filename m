@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWCMTYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWCMTYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbWCMTYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWCMTYe
+	id S932296AbWCMTYn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWCMTYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:24:34 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:50892 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932320AbWCMTYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:24:33 -0500
-Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: rjwalsh@pathscale.com, rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20060313181025.GA13973@stusta.de>
-References: <patchbomb.1141950930@eng-12.pathscale.com>
-	 <867a396dd518ac63ab41.1141950948@eng-12.pathscale.com>
-	 <20060313181025.GA13973@stusta.de>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Mon, 13 Mar 2006 11:24:28 -0800
-Message-Id: <1142277868.9032.14.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Mar 2006 14:24:43 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:27848 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932296AbWCMTYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:24:41 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Mon, 13 Mar 2006 20:21:09 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH 1/3] Doc/kernel-parameters.txt: delete false version
+ information and history
+To: linux-kernel@vger.kernel.org
+cc: Randy Dunlap <rdunlap@xenotime.net>
+Message-ID: <tkrat.f6b9032d78fc1d70@s5r6.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.771) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 19:10 +0100, Adrian Bunk wrote:
+Doc/kernel-parameters.txt: delete false version information and history
 
-> I'm still a bit surprised, since in the rest of the kernel we are even 
-> going from -O2 to -Os for getting better performance.
-> 
-> Robert said he wanted to post some numbers showing that -O3 is 
-> measurably better for you [1], but I haven't seen them.
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
 
-I just ran some numbers.  At large packet sizes, it doesn't matter what
-options we use, because we spend all of our time in __iowrite_copy32,
-which uses the string copy instructions.
+--- linux/Documentation/kernel-parameters.txt.0	2006-03-13 19:28:13.000000000 +0100
++++ linux/Documentation/kernel-parameters.txt	2006-03-13 19:32:28.000000000 +0100
+@@ -1,4 +1,4 @@
+-February 2003             Kernel Parameters                     v2.5.59
++                          Kernel Parameters
+                           ~~~~~~~~~~~~~~~~~
+ 
+ The following is a consolidated list of the kernel parameters as implemented
+@@ -1664,20 +1664,6 @@
+ 
+ 
+ ______________________________________________________________________
+-Changelog:
+-
+-2000-06-??	Mr. Unknown
+-	The last known update (for 2.4.0) - the changelog was not kept before.
+-
+-2002-11-24	Petr Baudis <pasky@ucw.cz>
+-		Randy Dunlap <randy.dunlap@verizon.net>
+-	Update for 2.5.49, description for most of the options introduced,
+-	references to other documentation (C files, READMEs, ..), added S390,
+-	PPC, SPARC, MTD, ALSA and OSS category. Minor corrections and
+-	reformatting.
+-
+-2005-10-19	Randy Dunlap <rdunlap@xenotime.net>
+-	Lots of typos, whitespace, some reformatting.
+ 
+ TODO:
+ 
 
-For small packets, my quick tests indicate that -Os gives about 5%
-*better* performance than -O3 (using gcc 4 on FC4).  This is in line
-with what people have been finding in the kernel in general recently.
-
-So if I change that CFLAGS line from -O3 to -Os, are we in OK
-shape?  :-)
-
-> > +_ipath_idstr:="PathScale $(shell date +%F)"
-> > +EXTRA_CFLAGS += -DIPATH_IDSTR='$(_ipath_idstr)' -DIPATH_KERN_TYPE=0
-> >...
-> 
-> UTS_VERSION is already available and printed at the top of dmesg.
-> I don't see the point in printing it a second time.
-
-Good point.  The idstr stuff is for our out-of-tree drivers.
-
-Thanks,
-
-	<b
 

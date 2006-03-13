@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWCMS1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWCMS33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWCMS1r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWCMS1r
+	id S932321AbWCMS33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWCMS33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:27:47 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:33298 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932104AbWCMS1q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:27:46 -0500
-Date: Mon, 13 Mar 2006 19:27:25 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which kernel is the best for a small linux system?
-Message-ID: <20060313182725.GA31211@mars.ravnborg.org>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org>
+	Mon, 13 Mar 2006 13:29:29 -0500
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:46863 "EHLO
+	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
+	id S932068AbWCMS32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:29:28 -0500
+Date: Mon, 13 Mar 2006 18:23:31 +0000
+From: Mark Brown <broonie@sirena.org.uk>
+To: thockin@hockin.org
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] natsemi: Add support for using MII port with no PHY
+Message-ID: <20060313182331.GA19014@sirena.org.uk>
+Mail-Followup-To: thockin@hockin.org, Jeff Garzik <jgarzik@pobox.com>,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060312192259.929734000@mercator.sirena.org.uk> <20060312205303.869316000@mercator.sirena.org.uk> <20060312214113.GA15071@hockin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142237867.3023.8.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060312214113.GA15071@hockin.org>
+X-Cookie: All men have the right to wait in line.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 09:17:47AM +0100, Arjan van de Ven wrote:
-> On Sun, 2006-03-12 at 21:40 -0300, j4K3xBl4sT3r wrote:
-> > Hello all,
-> > 
-> > I've been seeing many Linux versions, with many features, some of them
-> > just for the newest branches (2.4.x and 2.6.x), I would like to know
-> > for which kind of system each kernel is recommended. On the distros
-> > that we see inside the Net there is the 2.4.x series, normally I
-> > update to 2.6.x (in case of my Slackware 10.2, even getting problems
-> > with some devices). Is that floppy disks uses only 2.0.x and 2.2.x
-> > Kernels? If applicable, where can I get (detailed) information about
-> > these issues? I'm new on Kernel managing, started doing my own distros
-> > at less than one month and would like to know it.
-> 
-> regardless of the size issue; you should really not start any new
-> projects based on 2.4 kernels; they are in deep deep maintenance mode
-> for now, but it's unclear how long they will be (I suppose as long as
-> people keep sending patches), especially complex security issues should
-> worry people ;)
-> 
-> 2.6 is actively maintained and will be for quite some time :)
+On Sun, Mar 12, 2006 at 01:41:13PM -0800, thockin@hockin.org wrote:
 
-Any comments on this:
-http://www.denx.de/wiki/Know/Linux24vs26
+> Not that my opinion should hold much weight, having been absent from the
+> driver for some time, but yuck.  Is there no better way to do this thatn
+> sprinkling poo all over it?
 
-On another denx.de page I found this summary (so you do not have to
-visit the page):
-# slow to build: 2.6 takes 30...40% longer to compile
-# Big memory footprint in flash: the 2.6 compressed kernel image is
-# 30...40% bigger
-# Big memory footprint in RAM: the 2.6 kernel needs 30...40% more RAM;
-# the available RAM size for applications is 700kB smaller
-# Slow to boot: 2.6 takes 5...15% longer to boot into multi-user mode
-# Slow to run: context switches up to 96% slower, local communication
-# latencies up to 80% slower, file system latencies up to 76% slower,
-# local communication bandwidth less than 50% in some cases.
+The changes are mostly isolated into check_link(), the fact that half
+the function gets placed inside a conditional but diff sees it as a
+bunch of smaller changes makes the changes look a lot more invasive than
+they actually are.  I guess that could be helped by splitting the PHY
+access code out of check_link() into check_phy_status() or something but
+I'm not sure how much that really helps.
 
-I'm merely asked because I have been pointed to this page several times
-and I do nto have numbers for 2.4 versus 2.6.
-
-Note: denx does support 2.6 now.
-
-I do not concur and recommend 2.6 but wanted to know if anyone had more
-insight to share.
-
-	Sam
+-- 
+"You grabbed my hand and we fell into it, like a daydream - or a fever."

@@ -1,109 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWCMGVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751695AbWCMGiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751682AbWCMGVO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 01:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWCMGVO
+	id S1751695AbWCMGiG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 01:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbWCMGiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 01:21:14 -0500
-Received: from soundwarez.org ([217.160.171.123]:31450 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751643AbWCMGVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 01:21:13 -0500
-Date: Mon, 13 Mar 2006 07:21:12 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@osdl.org>,
-       drzeus-list@drzeus.cx, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-Message-ID: <20060313062112.GA15720@vrfy.org>
-References: <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060312145543.194f4dc7.akpm@osdl.org> <20060313041458.GA13605@vrfy.org> <20060313060221.GA20178@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Mar 2006 01:38:06 -0500
+Received: from pproxy.gmail.com ([64.233.166.181]:18213 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751536AbWCMGiF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 01:38:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ONNNFN3PhKK0AYZHI7EVBt8kfNFLZ8Ibr35FZvfcig7naIunJQYEofmNmodFISOgZuYP57IjBpdZzBnn1s64SwQDSA4E9NepSAIiGj7hsplZymc0m7TSmcjYwgQk+PpRpbPsVcfoDhOchKW8LcQl+ciZdW1nc+rX28eBbAYSPpE=
+Message-ID: <756b48450603122238l36e8615dy497b7e4e34dc2fb4@mail.gmail.com>
+Date: Mon, 13 Mar 2006 14:38:04 +0800
+From: "Jaya Kumar" <jayakumar.acpi@gmail.com>
+To: "Yu, Luming" <luming.yu@intel.com>
+Subject: Re: [PATCH 2.6.15.3 1/1] ACPI: Atlas ACPI driver
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840B22AB1A@pdsmsx403>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060313060221.GA20178@neo.rr.com>
-User-Agent: Mutt/1.5.9i
+References: <3ACA40606221794F80A5670F0AF15F840B22AB1A@pdsmsx403>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 01:02:21AM -0500, Adam Belay wrote:
-> On Mon, Mar 13, 2006 at 05:14:58AM +0100, Kay Sievers wrote:
-> > 
-> > Macio solved the problem by adding all devices to a single string and
-> > let the device table match one of these id's in that single string:
-> >   http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;hb=HEAD;f=drivers/macintosh/macio_sysfs.c#l42
-> > 
-> > We should first check if that is possible for PnP too, or solve that
-> > problem in general at that level before we introduce such a hack.
-> 
-> I do have some concerns about merging every ID into a single string.  The
-> orginal design goal of having multiple IDs was to allow vendors to specify
-> a single high priority ID that a driver that supports the device's complete
-> feature set could match against.  If that driver is unavailable, it is
-> acceptable to search for other drivers that might match against a
-> compatibility ID and support a partial feature set.  Now if we just search
-> for the first driver that matches anything in a single ID string without
-> regard to the order IDs are presented, then we're not supporting the
-> specification.
-> 
-> More generally speaking, it seems to me there are four main options:
-> 
-> 1.) We remove the modalias strings from all buses, and generate them in
-> userspace exclusively.  We may loose the ability to support new buses
-> without specialized userspace software, but we gain a great deal of
-> flexibility and can eventually implement more advanced hardware detection
-> schemes without depreciating existing kernel interfaces or parsing strings
-> that are limiting when compared to bus-specific data.  Also, at least we
-> have a uniform sysfs interface.
+On 3/8/06, Yu, Luming <luming.yu@intel.com> wrote:
+> I suggest LCD support in hotkey.c like:
+> http://bugzilla.kernel.org/attachment.cgi?id=6843&action=view
+>
+> Config userspace acpi daemon to respond events by evoking
+> LCD._BCM with command:
+>        echo -n xx > /sys/hotkey/brightness.
+>
 
-This is what we are coming from. Just look at the input.agent in any older
-installation and you may think twice about this. :) I'm all for having
-that created by the kernel.
+A quick question here. I took a look at your patch adding hotkeylib. I
+see brightness_show/store callbacks and I think they end up calling 
+write_acpi_int to do the actual method eval.
 
-> 2.) We selectively export modalias strings on buses where this sort of
-> thing works and use hacks for other buses.
+So I assume my action_method has got to be "_BCM". I don't have a poll
+method but it looks like I'll need to put something in there since you
+check for it. Atlas has a _BCL. I guess I'll just use that.
 
-This is what we have today, right? PnP does not have modalias at all for the
-reason, we couldn't figure out how to do this. We can use the "id" file
-just fine, even when it's kind of ugly.
++       if(!poll_handle || !poll_method || !action_handle || !action_method)
++               goto do_fail;
 
-> 3.) We export multiline sysfs modalias attributes and tell userspace
-> hotplug developers that they're wrong and must change their assumptions.
+>From what I can tell, it looks like I have to use ACPILCD00 as my HID
+in this hotkey code. Right? So basically, it'd be something like:
+        {
+                .ids = "ACPILCD00",
+                .name = "brightness",
+                .poll_method = "_BCL",
+                .action_method = "_BCM",
+                .min = 1,
+                .max = 31,
+                .id = 10001,
+        },
 
-I'm pretty sure, we don't want multiline values. How do you stick them
-in the environment?
+So if I get that working, is that what you are saying is the right way
+to do brightness support for limited devices like Atlas? I guess it
+feels kind of odd to me because it's an LCD device rather than a
+hotkey device. But afaict it looks like doing that will work fine and
+have the added benefit of not creating any new /proc entries. So let
+me know if I understood you correctly.
 
-> 4.) We export a single line modalias with each ID appended to the previous ID.
-> Userspace must pay careful attention to the order, but because the format is
-> bus-specific, it will have to be handled in a very specialized way. (e.g. PCI
-> has class codes, PnP has compatibility IDs, etc)
+By the way, I just applied your sequence of patches from
+http://bugzilla.kernel.org/show_bug.cgi?id=5749 to my tree. You know,
+if it's okay with you, I'll post the full diff from below to your bug
+report so that the next person doesn't have to cherrypick.
 
-What's the problem you see? It's all about loading modules if a piece of
-hardware appears, It's even completely uncritical to load a module that
-does not do anything in the end, cause it decides not to bind to that
-hardware.
-If you want fine grained policy in userspace, just implement it matching
-on the other values in sysfs (or whatever policy) before you run the
-"default" brute-force "modprobe $MODALIAS". I don't see any problem with
-that approach and having it work without any specific userspace setup is
-very nice. You still have full control what you can do, cause the device event
-still travels through udev/hotplug and you can do whatever a system decides
-what's needed - it's not that a modalias values would make the kernel load
-a module on its own.
-
-> In the long run, I think option 1 is the best choice.  I'm more concerned with
-> flexibility than having a simplistic but limited hardware detection mechanism.
-> Also, I prefer to keep code out of the kernel when there isn't a clear
-> functionality advantage.  "file2alias" is not a kernel-level interface, but
-> rather implementation specific to modutils and various module scripts included
-> with the kernel source.  Therefore, I don't think that sysfs is obligated to be
-> specially tailored toward modprobe, even if it is convenient for some buses.
-
-It's about making it "just work", even for currently unknown buses, which
-is very nice.
-
-> But I'm also interested in a practical short-term solution.  What are your
-> thoughts?  Would method #2 be acceptable?
-
-What do you have in mind? #2 is what we have today, right?
+wget "http://bugzilla.kernel.org/attachment.cgi?id=6839&action=view"
+wget "http://bugzilla.kernel.org/attachment.cgi?id=6840&action=view"
+wget "http://bugzilla.kernel.org/attachment.cgi?id=6841&action=view"
+wget "http://bugzilla.kernel.org/attachment.cgi?id=6842&action=view"
+wget "http://bugzilla.kernel.org/attachment.cgi?id=6843&action=view"
+wget "http://bugzilla.kernel.org/attachment.cgi?id=7061&action=view"
+wget "http://bugzilla.kernel.org/attachment.cgi?id=7060&action=view"
 
 Thanks,
-Kay
+jayakumar

@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWCMTHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751751AbWCMTIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751590AbWCMTHR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWCMTHR
+	id S1751751AbWCMTIl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWCMTIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:07:17 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18957 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751748AbWCMTHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:07:15 -0500
-Date: Mon, 13 Mar 2006 20:07:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Pavlik Vojtech <vojtech@suse.cz>, Ryan Phillips <rphillips@gentoo.org>,
-       Duncan <1i5t5.duncan@cox.net>, Meelis Roos <mroos@linux.ee>
-Subject: 2.6.16-rc6: all psmouse regressions fixed?
-Message-ID: <20060313190714.GD13973@stusta.de>
-References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 13 Mar 2006 14:08:41 -0500
+Received: from pproxy.gmail.com ([64.233.166.177]:15660 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751751AbWCMTIl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:08:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=VpT9+E28unZK6cAJqUskRMnYASiqLTgQej4Z2uaTqaINhSw3VX+9Gi1OtSIL8UJscG8Vq+Cc2aRLttU4lIOOfeTxlQvj2r3iD5tD2Kzs8NZqkCzPUdsvQzUvdLMU5CY1YveN4wnTBROQXZ0HuvL8Xey/3GFzKmuKaG0t8dxWIqs=
+Date: Mon, 13 Mar 2006 20:08:27 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: arjan@infradead.org, jakexblaster@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Which kernel is the best for a small linux system?
+Message-Id: <20060313200827.71968d82.diegocg@gmail.com>
+In-Reply-To: <20060313182725.GA31211@mars.ravnborg.org>
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+	<1142237867.3023.8.camel@laptopd505.fenrus.org>
+	<20060313182725.GA31211@mars.ravnborg.org>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.8.12; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 11, 2006 at 03:58:12PM -0800, Linus Torvalds wrote:
->...
-> Dmitry Torokhov:
->       Input: psmouse - disable autoresync
->...
+El Mon, 13 Mar 2006 19:27:25 +0100,
+Sam Ravnborg <sam@ravnborg.org> escribió:
 
-We had the three psmouse regressions below in 2.6.16-rc5.
+> Any comments on this:
+> http://www.denx.de/wiki/Know/Linux24vs26
+> 
+> On another denx.de page I found this summary (so you do not have to
+> visit the page):
+> # slow to build: 2.6 takes 30...40% longer to compile
+> # Big memory footprint in flash: the 2.6 compressed kernel image is
+> # 30...40% bigger
+> # Big memory footprint in RAM: the 2.6 kernel needs 30...40% more RAM;
 
-Duncan already stated that this patch fixed (more exactly: works around) 
-his problems.
+In one of those analysis (2.6 sandpoint kernel) they didn't disable
+CONFIG_KALLSYMS (they disabled it on the tqm860l though), that makes the
+kernel way too big and should be disabled by embedded systems, I don't
+understand. That one at least should be fixed, 2.4 didn't even feature
+kallsyms.
 
-Does anyone still observe a psmouse regression in 2.6.16-rc6 compared 
-to 2.6.15, or is everything fine now?
-
-
-Subject    : usb_submit_urb(ctrl) failed on 2.6.16-rc4-git10 kernel
-References : http://bugzilla.kernel.org/show_bug.cgi?id=6134
-Submitter  : Ryan Phillips <rphillips@gentoo.org>
-Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Status     : workaround: psmouse.resync_time=0
-
-Subject    : total ps2 keyboard lockup from boot
-References : http://bugzilla.kernel.org/show_bug.cgi?id=6130
-Submitter  : Duncan <1i5t5.duncan@cox.net>
-Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
-             Pavlik Vojtech <vojtech@suse.cz>
-Status     : discussion and debugging in the bug logs
-
-Subject    : psmouse starts losing sync in 2.6.16-rc2
-References : http://lkml.org/lkml/2006/2/5/50
-Submitter  : Meelis Roos <mroos@linux.ee>
-Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Status     : Dmitry: Working on various manifestations of this one.
-                     At worst we will have to disable resync by default
-                     before 2.6.16 final is out and continue in 2.6.17 cycle.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Also, they claim that context switches are "on average 55% slower (range:
+10...94%)", which may be very well a ppc-only bug (in x86 at least
+system calls got much faster). And syscalls being much slower is why most
+of the other microbenchmarks look so bad.
 

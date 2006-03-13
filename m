@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWCMUqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWCMUxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbWCMUqM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:46:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWCMUqL
+	id S1751063AbWCMUxv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 15:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWCMUxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:46:11 -0500
-Received: from main.gmane.org ([80.91.229.2]:13462 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750947AbWCMUqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:46:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthieu CASTET <castet.matthieu@free.fr>
-Subject: Re: New libata PATA patch for 2.6.16-rc1
-Date: Mon, 13 Mar 2006 21:41:14 +0100
-Message-ID: <pan.2006.03.13.20.41.12.776592@free.fr>
-References: <1142262431.25773.25.camel@localhost.localdomain> <pan.2006.03.13.20.28.29.796048@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+	Mon, 13 Mar 2006 15:53:51 -0500
+Received: from 62-177-247-250.dyn.bbeyond.nl ([62.177.247.250]:18694 "EHLO
+	www.ithos.nl") by vger.kernel.org with ESMTP id S1750704AbWCMUxv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 15:53:51 -0500
+Date: Mon, 13 Mar 2006 21:53:16 +0100 (CET)
+From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
+X-X-Sender: rbultje@www.ithos.nl
+To: Jean Delvare <khali@linux-fr.org>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 0/8] Zoran drivers updates
+In-Reply-To: <20060313210933.88a42375.khali@linux-fr.org>
+Message-ID: <Pine.LNX.4.56.0603132151470.20773@www.ithos.nl>
+References: <20060313210933.88a42375.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mon, 13 Mar 2006 21:28:35 +0100, Matthieu CASTET a écrit :
+Hi Andrew / all,
 
-> Hi Alan,
-> 
-> Le Mon, 13 Mar 2006 15:07:10 +0000, Alan Cox a écrit :
-> 
->> Available from 
->> 
->> http://zeniv.linux.org.uk/~alan/IDE/
->> 
->> 	VIA ATAPI now works for me
-> 
-> It still doesn't work for me [1].
-> May be it has something to do with the lost interrupt I described in my
-> previous mail.
-> 
-> I will try ata_piix in order to see if all PATA device are seen.
-> 
-> Matthieu
-> 
-> 
-> ata3: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xFC00 irq 14
+On Mon, 13 Mar 2006, Jean Delvare wrote:
+> Andrew, Ronald says he is too busy these days to deal with my patches,
+> but otherwise he was OK with them. Could you please take them in -mm so
+> that they get wider testing? Then we'd be able to merge them.
 
-> ata3: dev 0 ATA-7, max UDMA/100, 156368016 sectors: LBA48
+I second that for the first 7 patches. I'll look at the 8th one (it's new,
+didn't look yet :-) ) shortly. Please accept the first 7, and hold on for
+#8 for a second longer, thanks.
 
-> ata3: dev 1 ATA-5, max UDMA/100, 80418240 sectors: LBA
+And Jean, sorry for taking so long, the patches are of great quality,
+thanks for contributing them.
 
-> ata3: dev 0 configured for UDMA/33
-
-> ata3: dev 1 configured for UDMA/33
-
-This seems be wrong : why UDMA/100 isn't choosed ?
-It was in previous release.
-
-Thanks for your work
-
-Matthieu
-
-PS : Yes I have a 80 pins an ata3 but a 40 pins on ata4
-
+Ronald

@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWCMUJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWCMUNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWCMUJf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964769AbWCMUJe
+	id S964778AbWCMUNA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 15:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWCMUM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:09:34 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:19216 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S964772AbWCMUJd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:09:33 -0500
-Date: Mon, 13 Mar 2006 21:09:33 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-Subject: [PATCH 0/8] Zoran drivers updates
-Message-Id: <20060313210933.88a42375.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Mon, 13 Mar 2006 15:12:59 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:23731
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S964778AbWCMUM6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 15:12:58 -0500
+Date: Mon, 13 Mar 2006 12:09:15 +0000
+From: Greg KH <gregkh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Avuton Olrich <avuton@gmail.com>, xfs-masters@oss.sgi.com,
+       linux-xfs@oss.sgi.com, Dave Jones <davej@redhat.com>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, norsk5@xmission.com,
+       dsp@llnl.gov, bluesmoke-devel@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net, pete.chapman@exgate.tek.com,
+       Olaf Hering <olh@suse.de>, paulus@samba.org, anton@samba.org,
+       linuxppc64-dev@ozlabs.org, Tom Seeley <redhat@tomseeley.co.uk>,
+       Jiri Slaby <jirislaby@gmail.com>, laredo@gnu.org,
+       v4l-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com
+Subject: Re: 2.6.16-rc6: known regressions
+Message-ID: <20060313120915.GA13652@suse.de>
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <20060313200544.GG13973@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060313200544.GG13973@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, Mar 13, 2006 at 09:05:44PM +0100, Adrian Bunk wrote:
+> Subject    : Slab corruption in usbserial when disconnecting device
+> References : http://lkml.org/lkml/2006/3/8/58
+> Submitter  : pete.chapman@exgate.tek.com
+> Status     : unknown
 
-Here comes an 8-piece patch set for the zoran drivers. The first 7 of
-these were already posted to the mjpeg-users and video4linux lists two
-months ago [1], the last one is new. There are both fixes and cleanups.
+Should already be fixed in 2.6.16-rc6, with this patch that went in
+after 2.6.16-rc5 came out:
+	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=91c0bce29e4050a59ee5fdc1192b60bbf8693a6d
 
-Andrew, Ronald says he is too busy these days to deal with my patches,
-but otherwise he was OK with them. Could you please take them in -mm so
-that they get wider testing? Then we'd be able to merge them.
+Pete, can you verify this change works for you?
 
-[1] http://www.mail-archive.com/mjpeg-users@lists.sourceforge.net/msg06451.html
+thanks,
 
-Summary:
-
-Jean Delvare:
- o saa7110: Fix array overrun
- o saa7111: Prevent array overrun
- o saa7114: Fix i2c block write
- o adv7175: Drop unused encoder dump command
- o adv7175: Drop unused register cache
- o zoran: Use i2c_master_send when possible
- o bt856: Spare memory
- o zoran: Init cleanups
-
-Statistics:
-
- drivers/media/video/adv7170.c    |   17 +++++--------
- drivers/media/video/adv7175.c    |   51 ++++++--------------------------------
- drivers/media/video/bt819.c      |   17 +++++--------
- drivers/media/video/bt856.c      |   13 ++++------
- drivers/media/video/saa7110.c    |   19 ++++----------
- drivers/media/video/saa7111.c    |   25 +++++++++----------
- drivers/media/video/saa7114.c    |   23 ++++++-----------
- drivers/media/video/saa7185.c    |   17 +++++--------
- drivers/media/video/zoran_card.c |   38 +++++++++++++---------------
- 9 files changed, 77 insertions(+), 143 deletions(-)
-
-The patches are also available from there until they get merged:
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-saa7110-fix-array-overrun.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-saa7111-prevent-array-overrun.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-saa7114-fix-i2c-block-write.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-adv7175-drop-encoder-dump.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-adv7175-drop-unused-register-cache.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-zoran-use-i2c-master-send.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-bt856-spare-memory.patch
-http://khali.linux-fr.org/devel/i2c/linux-2.6/media-video-zoran-init-cleanup.patch
-
-Thanks,
--- 
-Jean Delvare
+greg k-h

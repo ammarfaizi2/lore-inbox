@@ -1,217 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWCMSMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWCMSNE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932310AbWCMSMY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:12:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWCMSMX
+	id S932273AbWCMSNE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:13:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWCMSNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:12:23 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:15621 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932310AbWCMSMV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:12:21 -0500
-Date: Mon, 13 Mar 2006 10:12:16 -0800
-Message-Id: <200603131812.k2DICGJE005747@zach-dev.vmware.com>
-Subject: [RFC, PATCH 17/24] i386 Vmi msr patch
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>,
-       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:12:16.0336 (UTC) FILETIME=[A8F0C500:01C646C9]
+	Mon, 13 Mar 2006 13:13:01 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:53426 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932273AbWCMSM7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:12:59 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [discuss] Re: 2.6.16-rc5-mm3: spinlock bad magic on CPU#0 on AMD64
+Date: Mon, 13 Mar 2006 19:12:09 +0100
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       ak@suse.de, cmm@us.ibm.com
+References: <200603120024.04938.rjw@sisk.pl> <200603131307.37402.rjw@sisk.pl> <1142265735.21442.51.camel@dyn9047017100.beaverton.ibm.com>
+In-Reply-To: <1142265735.21442.51.camel@dyn9047017100.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603131912.10356.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fairly straightforward code motion of MSR / TSC / PMC accessors
-to the sub-arch level.  Note that rdmsr/wrmsr_safe functions are
-not moved; Linux relies on the fault behavior here in the event
-that certain MSRs are not supported on hardware, and combining
-this with a VMI wrapper is overly complicated.  The instructions
-are virtualizable with trap and emulate, not on critical code
-paths, and only used as part of the MSR /proc device, which is
-highly sketchy to use inside a virtual machine, but must be
-allowed as part of the compile, since it is useful on native.
+On Monday 13 March 2006 17:02, Badari Pulavarty wrote:
+> On Mon, 2006-03-13 at 13:07 +0100, Rafael J. Wysocki wrote:
+> > On Monday 13 March 2006 12:45, Andrew Morton wrote:
+> > > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > > >
+> > > > > This should fix:
+> > > >  > 
+> > > >  > --- devel/fs/ext3/inode.c~ext3-get-blocks-maping-multiple-blocks-at-a-once-journal-reentry-fix	2006-03-12 14:25:04.000000000 -0800
+> > > >  > +++ devel-akpm/fs/ext3/inode.c	2006-03-12 14:25:04.000000000 -0800
+> > > >  > @@ -830,7 +830,7 @@ ext3_direct_io_get_blocks(struct inode *
+> > > >  >  	handle_t *handle = journal_current_handle();
+> > > >  >  	int ret = 0;
+> > > >  >  
+> > > >  > -	if (!handle)
+> > > >  > +	if (!create)
+> > > >  >  		goto get_block;		/* A read */
+> > > >  >  
+> > > >  >  	if (max_blocks == 1)
+> > > > 
+> > > >  Er, it doesn't apply to either 2.6.16-rc5-mm3 or 2.6.16-rc6-mm1.
+> > > 
+> > > Nope, it applies OK to rc6-mm1.
+> > 
+> > Well, this means my rc6-mm1 is different to what you have. :-)
+> > 
+> > Anyway in "my" version there's a function ext3_get_block() which reads like this:
+> > 
+> > static int ext3_get_block(struct inode *inode, sector_t iblock,
+> >                         struct buffer_head *bh_result, int create)
+> > {
+> >         handle_t *handle = journal_current_handle();
+> >         int ret = 0;
+> >         unsigned max_blocks = bh_result->b_size >> inode->i_blkbits;
+> > 
+> >         if (!handle)
+> >                 goto get_block;         /* A read */
+> > 
+> >         if (max_blocks == 1)
+> >                 goto get_block;         /* A single block get */
+> > 
+> > etc.
+> > 
+> > I guess I should replace the "if (!handle)" with "if (!create)"?
+> 
+> Yes. In "-mm" ext3_get_block() == ext3_direct_io_getblocks() in
+> mainline. 
+> 
+> I renamed ext3_direct_io_getblocks() to ext3_get_block() (in -mm) 
+> since both of them do same thing now. (both can deal with mapping
+> multiple blocks).
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+Ah, I see, thanks.
 
-Index: linux-2.6.16-rc5/include/asm-i386/msr.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/msr.h	2006-03-08 10:31:10.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/msr.h	2006-03-08 10:32:07.000000000 -0800
-@@ -1,22 +1,14 @@
- #ifndef __ASM_MSR_H
- #define __ASM_MSR_H
- 
-+#include <mach_msr.h>
-+
- /*
-  * Access to machine-specific registers (available on 586 and better only)
-  * Note: the rd* operations modify the parameters directly (without using
-  * pointer indirection), this allows gcc to optimize better
-  */
- 
--#define rdmsr(msr,val1,val2) \
--	__asm__ __volatile__("rdmsr" \
--			  : "=a" (val1), "=d" (val2) \
--			  : "c" (msr))
--
--#define wrmsr(msr,val1,val2) \
--	__asm__ __volatile__("wrmsr" \
--			  : /* no outputs */ \
--			  : "c" (msr), "a" (val1), "d" (val2))
--
- #define rdmsrl(msr,val) do { \
- 	unsigned long l__,h__; \
- 	rdmsr (msr, l__, h__);  \
-@@ -62,22 +54,6 @@ static inline void wrmsrl (unsigned long
- 		     : "c" (msr), "i" (-EFAULT));\
- 	ret__; })
- 
--#define rdtsc(low,high) \
--     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
--
--#define rdtscl(low) \
--     __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
--
--#define rdtscll(val) \
--     __asm__ __volatile__("rdtsc" : "=A" (val))
--
--#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
--
--#define rdpmc(counter,low,high) \
--     __asm__ __volatile__("rdpmc" \
--			  : "=a" (low), "=d" (high) \
--			  : "c" (counter))
--
- /* symbolic names for some interesting MSRs */
- /* Intel defined MSRs. */
- #define MSR_IA32_P5_MC_ADDR		0
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_msr.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/mach_msr.h	2006-03-08 10:32:07.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_msr.h	2006-03-08 10:32:30.000000000 -0800
-@@ -0,0 +1,79 @@
-+#ifndef MACH_MSR_H
-+#define MACH_MSR_H
-+
-+#include <vmi.h>
-+
-+static inline u64 vmi_rdmsr(const u32 msr)
-+{
-+	u64 ret;
-+	vmi_wrap_call(
-+		RDMSR, "rdmsr",
-+		VMI_OREG64 (ret),
-+		1, "c" (msr),
-+		VMI_CLOBBER(TWO_RETURNS));
-+	return ret;
-+}
-+
-+#define rdmsr(msr,val1,val2) \
-+do { \
-+	u64 _val = vmi_rdmsr(msr); \
-+	val1 = (u32)_val; \
-+	val2 = (u32)(_val >> 32); \
-+} while (0)
-+
-+static inline void wrmsr(const u32 msr, const u32 valLo, const u32 valHi)
-+{
-+	vmi_wrap_call(
-+		WRMSR, "wrmsr",
-+		VMI_NO_OUTPUT,
-+		3, XCONC("a"(valLo), "d"(valHi), "c"(msr)),
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
-+}
-+
-+static inline u64 vmi_rdtsc(void)
-+{
-+	u64 ret;
-+	vmi_wrap_call(
-+		RDTSC, "rdtsc",
-+		VMI_OREG64 (ret),
-+		0, VMI_NO_INPUT,
-+		VMI_CLOBBER(TWO_RETURNS));
-+	return ret;
-+}
-+
-+#define rdtsc(low,high) \
-+do { \
-+	u64 _val = vmi_rdtsc(); \
-+	low = (u32)_val; \
-+	high = (u32)(_val >> 32); \
-+} while (0)
-+
-+#define rdtscl(low) \
-+do { \
-+	u64 _val = vmi_rdtsc(); \
-+	low = (u32)_val; \
-+} while (0)
-+
-+#define rdtscll(val) do { val = vmi_rdtsc(); } while (0)
-+
-+#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
-+
-+static inline u64 vmi_rdpmc(const u32 counter)
-+{
-+	u64 ret;
-+	vmi_wrap_call(
-+		RDPMC, "rdpmc",
-+		VMI_OREG64 (ret),
-+		1, "c" (counter),
-+		VMI_CLOBBER(TWO_RETURNS));
-+	return ret;
-+}
-+
-+#define rdpmc(counter,val1,val2) \
-+do { \
-+	u64 _val = vmi_rdpmc(counter); \
-+	val1 = (u32)_val; \
-+	val2 = (u32)(_val >> 32); \
-+} while (0)
-+
-+#endif
-Index: linux-2.6.16-rc5/include/asm-i386/mach-default/mach_msr.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/mach_msr.h	2006-03-08 10:32:07.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-default/mach_msr.h	2006-03-08 10:32:07.000000000 -0800
-@@ -0,0 +1,30 @@
-+#ifndef MACH_MSR_H
-+#define MACH_MSR_H
-+
-+#define rdmsr(msr,val1,val2) \
-+	__asm__ __volatile__("rdmsr" \
-+			  : "=a" (val1), "=d" (val2) \
-+			  : "c" (msr))
-+
-+#define wrmsr(msr,val1,val2) \
-+	__asm__ __volatile__("wrmsr" \
-+			  : /* no outputs */ \
-+			  : "c" (msr), "a" (val1), "d" (val2))
-+
-+#define rdtsc(low,high) \
-+     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
-+
-+#define rdtscl(low) \
-+     __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
-+
-+#define rdtscll(val) \
-+     __asm__ __volatile__("rdtsc" : "=A" (val))
-+
-+#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
-+
-+#define rdpmc(counter,low,high) \
-+     __asm__ __volatile__("rdpmc" \
-+			  : "=a" (low), "=d" (high) \
-+			  : "c" (counter))
-+
-+#endif
+Replacing the  "if (!handle)" with "if (!create)" fixed the problem for me.
+
+Greetings,
+Rafael

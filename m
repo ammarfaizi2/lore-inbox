@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWCMTw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWCMTyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbWCMTw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWCMTw7
+	id S932397AbWCMTyj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWCMTyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:52:59 -0500
-Received: from cac94-1-81-57-151-96.fbx.proxad.net ([81.57.151.96]:63950 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S932394AbWCMTw6 (ORCPT
+	Mon, 13 Mar 2006 14:54:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59347 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932397AbWCMTyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:52:58 -0500
-Message-ID: <4415CD91.5050200@free.fr>
-Date: Mon, 13 Mar 2006 20:52:49 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060205 Debian/1.7.12-1.1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata PATA patch for 2.6.16-rc5
-References: <1141054370.3089.0.camel@localhost.localdomain>	 <pan.2006.02.27.20.46.14.26813@free.fr>	 <1141086963.3089.26.camel@localhost.localdomain> <4404D05C.8070407@free.fr> <1141231247.23170.0.camel@localhost.localdomain> <44061F96.80900@free.fr>
-In-Reply-To: <44061F96.80900@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 13 Mar 2006 14:54:38 -0500
+Date: Mon, 13 Mar 2006 11:51:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: olel@ans.pl, venkatesh.pallipadi@intel.com, linux-kernel@vger.kernel.org,
+       ashok.raj@intel.com, suresh.b.siddha@intel.com, rajesh.shah@intel.com
+Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on
+ 2.6.16-rc6
+Message-Id: <20060313115155.24dfb6f3.akpm@osdl.org>
+In-Reply-To: <20060313113615.A24797@unix-os.sc.intel.com>
+References: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl>
+	<20060311210353.7eccb6ed.akpm@osdl.org>
+	<Pine.LNX.4.64.0603121202540.31039@bizon.gios.gov.pl>
+	<20060312032523.109361c1.akpm@osdl.org>
+	<Pine.LNX.4.64.0603121359540.31039@bizon.gios.gov.pl>
+	<20060312073524.A9213@unix-os.sc.intel.com>
+	<Pine.LNX.4.64.0603122206110.19689@bizon.gios.gov.pl>
+	<20060312143053.530ef6c9.akpm@osdl.org>
+	<20060313113615.A24797@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-matthieu castet wrote:
-> Hi Alan
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> When CONFIG_HOTPLUG_CPU is turned on we always use physflat mode (bigsmp) even 
+>  when #of CPUs are less than 8 to avoid sending IPI to offline processors.
 > 
-> Alan Cox wrote:
+>  Without having BIGSMP on it spits out a warning during boot on systems that
+>  seems misleading, since it complains even on systems that have less
+>  than 8 cpus.
 > 
->> On Maw, 2006-02-28 at 23:36 +0100, matthieu castet wrote:
->>
->>> for the SIL680 I have a 100Mhz clock instead of a 133Mhz with ide/pci 
->>> driver [1]
->>
->>
->>
->> Fixed (missing break in switch)
->>
->>
->>> The ATAPI doesn't seem to work fine with VIA.
->>
->>
->>
->> Still investigating
->>
-> If it can help you, I attach a log with debug enabled.
-> 
-Ok, I think I have a hint.
+> ...
+>
+>  --- linux-2.6.16-rc6-mm1.orig/arch/i386/Kconfig
+>  +++ linux-2.6.16-rc6-mm1/arch/i386/Kconfig
+>  @@ -760,7 +760,7 @@ config PHYSICAL_START
+>   
+>   config HOTPLUG_CPU
+>   	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+>  -	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER
+>  +	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER && (X86_GENERICARCH || X86_BIGSMP)
+>   	---help---
+>   	  Say Y here to experiment with turning CPUs off and on.  CPUs
+>   	  can be controlled through /sys/devices/system/cpu.
 
-The drive that is failling is the secondary slave [1].
-When I try to change xfermode with hdparm -X, it take some times (10 s) 
-and I found an error in the kernel log.
-But even with that error, it seem the xfermode is changed.
-
-What happen with libata if we lose an interrupt ?
-
-
-Matthieu
-
-
-
-
-[1]
-/dev/hdd:
-
-ATAPI CD-ROM, with removable media
-         Model Number:       CD-RW   CDR-6S48
-         Serial Number:
-         Firmware Revision:  SSG5
-Standards:
-         Used: ATAPI for CD-ROMs, SFF-8020i, r2.5
-         Supported: CD-ROM ATAPI-2
-Configuration:
-         DRQ response: 50us.
-         Packet size: 12 bytes
-Capabilities:
-         LBA, IORDY(cannot be disabled)
-         DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2
-              Cycle time: min=120ns recommended=120ns
-         PIO: pio0 pio1 pio2 pio3 pio4
-              Cycle time: no flow control=227ns  IORDY flow control=120ns
-
-[2]
-hdd: lost interrupt
-hdd: CHECK for good STATUS
+One of the main reasons for turning on CONFIG_HOTPLUG_CPU on x86 is
+actually for suspend-to-disk on SMP.  I don't think it's desirable to force
+all those little machines to use X86_GENERICARCH || X86_BIGSMP.  And it'd
+be good to make that warning go away for 2.6.16.

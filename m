@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWCMJGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWCMJIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWCMJGm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 04:06:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWCMJGm
+	id S932377AbWCMJIv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 04:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbWCMJIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 04:06:42 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:12168 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932171AbWCMJGl (ORCPT
+	Mon, 13 Mar 2006 04:08:51 -0500
+Received: from ns.firmix.at ([62.141.48.66]:63151 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932203AbWCMJIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 04:06:41 -0500
-Date: Mon, 13 Mar 2006 10:04:12 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Peter Williams <pwil3058@bigpond.net.au>, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH][1/4] sched: store weighted load on up
-Message-ID: <20060313090412.GA5780@elte.hu>
-References: <200603131905.17349.kernel@kolivas.org>
+	Mon, 13 Mar 2006 04:08:50 -0500
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Matt Reuther <mreuther@umich.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200603130102.46847.mreuther@umich.edu>
+References: <200603130102.46847.mreuther@umich.edu>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Mon, 13 Mar 2006 10:08:44 +0100
+Message-Id: <1142240924.19650.13.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603131905.17349.kernel@kolivas.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Con Kolivas <kernel@kolivas.org> wrote:
-
-> Modify the smp nice code to store load_weight on uniprocessor as well 
-> to allow relative niceness on one cpu to be assessed. Minor cleanups 
-> and uninline set_load_weight().
+On Mon, 2006-03-13 at 01:02 -0500, Matt Reuther wrote:
+> Hi, David.
 > 
-> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> You seem to have misspelled, "I am not a lawyer. Please seek the advice of a 
+> competent attorney experienced in copyright law in your jurisdiction instead 
+> of listening to my uninformed blather."
+> 
+> Hope this helps!
 
-agreed. This only affects a scheduler slowpath [setscheduler()].
+Not at all since you're mail misses References: headers to get threading
+accurately to work.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-	Ingo

@@ -1,42 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWCMQa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWCMQcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWCMQa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 11:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWCMQa6
+	id S1751357AbWCMQcO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 11:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWCMQcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 11:30:58 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:20753 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751504AbWCMQa5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 11:30:57 -0500
-Date: Mon, 13 Mar 2006 17:30:41 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Petr Vandrovec <petr@vandrovec.name>, linux-kernel@vger.kernel.org,
-       sam@ravenborg.org, kai@germaschewski.name
-Subject: Re: [PATCH] Do not rebuild full kernel tree again and again...
-Message-ID: <20060313163041.GA29719@mars.ravnborg.org>
-References: <20060312172511.GA17936@vana.vc.cvut.cz> <20060312174250.GA1470@mars.ravnborg.org> <44150CD7.604@yahoo.com.au> <20060313091254.GA28231@mars.ravnborg.org> <44154DAC.6050006@yahoo.com.au>
+	Mon, 13 Mar 2006 11:32:14 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:27277 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751357AbWCMQcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 11:32:13 -0500
+Subject: Re: [PATCH 004 of 4] Make address_space_operations->invalidatepage
+	return void
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <1060312235331.15985@suse.de>
+References: <20060313104910.15881.patches@notabene>
+	 <1060312235331.15985@suse.de>
+Content-Type: text/plain
+Date: Mon, 13 Mar 2006 10:32:11 -0600
+Message-Id: <1142267531.9971.5.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44154DAC.6050006@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 09:47:08PM +1100, Nick Piggin wrote:
- >>I'm seeing this behaviour too in -rc6 and it is a bad regression
-> >>for a developer. I assume there will be some workaround?
-> >
-> >I assume debian soon will update make to current version from CVS that
-> >has this behaviour removed.
-> >
-> 
-> So long as it just requires a tools update then that's fine for me.
-I should note here that it was agreed with Paul that upcoming make
-relase will not have this change, but next release will have it.
-So 2.6.17 kbuild will take care of being forward compatible in this
-matter.
+On Mon, 2006-03-13 at 10:53 +1100, NeilBrown wrote:
+> diff ./fs/jfs/jfs_metapage.c~current~ ./fs/jfs/jfs_metapage.c
+> --- ./fs/jfs/jfs_metapage.c~current~    2006-03-09 17:29:35.000000000
+> +1100
+> +++ ./fs/jfs/jfs_metapage.c     2006-03-13 10:46:55.000000000 +1100
+> @@ -578,14 +578,13 @@ static int metapage_releasepage(struct p
+>         return 0;
+>  }
+>  
+> -static int metapage_invalidatepage(struct page *page, unsigned long
+> offset)
+> +static void metapage_invalidatepage(struct page *page, unsigned long
+> offset)
+>  {
+>         BUG_ON(offset);
+>  
+> -       if (PageWriteback(page))
+> -               return 0;
+> +       BUG_ON(PageWriteback(page));
 
-	Sam
+I'm a little concerned about adding a BUG_ON for something this function
+used to allow, but it looks like the BUG_ON is valid.  I'm asking myself
+why did I add the test for PageWriteback in the first place.
+
+>  
+> -       return metapage_releasepage(page, 0);
+> +       metapage_releasepage(page, 0);
+>  }
+>  
+>  struct address_space_operations jfs_metapage_aops = { 
+
+I'll try to stress test jfs with these patches to see if I can trigger
+the an oops here.
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWCMTgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWCMThR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWCMTgi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWCMTgi
+	id S932368AbWCMThR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWCMThQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:36:38 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:59557 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932365AbWCMTgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:36:37 -0500
-Date: Mon, 13 Mar 2006 11:36:15 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Krzysztof Oledzki <olel@ans.pl>, venkatesh.pallipadi@intel.com,
-       linux-kernel@vger.kernel.org, ashok.raj@intel.com,
-       suresh.b.siddha@intel.com, rajesh.shah@intel.com
-Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on 2.6.16-rc6
-Message-ID: <20060313113615.A24797@unix-os.sc.intel.com>
-References: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl> <20060311210353.7eccb6ed.akpm@osdl.org> <Pine.LNX.4.64.0603121202540.31039@bizon.gios.gov.pl> <20060312032523.109361c1.akpm@osdl.org> <Pine.LNX.4.64.0603121359540.31039@bizon.gios.gov.pl> <20060312073524.A9213@unix-os.sc.intel.com> <Pine.LNX.4.64.0603122206110.19689@bizon.gios.gov.pl> <20060312143053.530ef6c9.akpm@osdl.org>
+	Mon, 13 Mar 2006 14:37:16 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:21266 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932368AbWCMThP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:37:15 -0500
+Date: Mon, 13 Mar 2006 20:36:43 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Adrian Bunk <bunk@stusta.de>, rjwalsh@pathscale.com, rolandd@cisco.com,
+       gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
+Message-ID: <20060313193643.GB32349@mars.ravnborg.org>
+References: <patchbomb.1141950930@eng-12.pathscale.com> <867a396dd518ac63ab41.1141950948@eng-12.pathscale.com> <20060313181025.GA13973@stusta.de> <1142277868.9032.14.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060312143053.530ef6c9.akpm@osdl.org>; from akpm@osdl.org on Sun, Mar 12, 2006 at 02:30:53PM -0800
+In-Reply-To: <1142277868.9032.14.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 02:30:53PM -0800, Andrew Morton wrote:
+On Mon, Mar 13, 2006 at 11:24:28AM -0800, Bryan O'Sullivan wrote:
+> On Mon, 2006-03-13 at 19:10 +0100, Adrian Bunk wrote:
 > 
-> Maybe we should have:
+> > I'm still a bit surprised, since in the rest of the kernel we are even 
+> > going from -O2 to -Os for getting better performance.
+> > 
+> > Robert said he wanted to post some numbers showing that -O3 is 
+> > measurably better for you [1], but I haven't seen them.
 > 
-> 	if (num_possible_cpus() <= 8)
-> 		dont_do_any_of_that_stuff();
+> I just ran some numbers.  At large packet sizes, it doesn't matter what
+> options we use, because we spend all of our time in __iowrite_copy32,
+> which uses the string copy instructions.
 > 
-> That's assuming that hotplug-cpu-capable platforms are correctly setting
-> cpu_possible_map.  Do they?
+> For small packets, my quick tests indicate that -Os gives about 5%
+> *better* performance than -O3 (using gcc 4 on FC4).  This is in line
+> with what people have been finding in the kernel in general recently.
+> 
+> So if I change that CFLAGS line from -O3 to -Os, are we in OK
+> shape?  :-)
+Use the kernel settings. We cannot have this modified by each and every
+driver.
 
-That wont work, since we use HOTPLUG_CPU to suspend/resume as well. We 
-switched to using bigsmp (that uses physflat for IPI's) just to avoid
-sending IPI's to offline CPUs. When we use logical flat we use shortcuts
-that have ill effects on CPUs that are offline.
-
-Think making CONFIG_HOTPLUG_CPU depend on X86_GENERICARCH, or X86_BIGSMP
-seems like a better choice.
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
-
-
-When CONFIG_HOTPLUG_CPU is turned on we always use physflat mode (bigsmp) even 
-when #of CPUs are less than 8 to avoid sending IPI to offline processors.
-
-Without having BIGSMP on it spits out a warning during boot on systems that
-seems misleading, since it complains even on systems that have less
-than 8 cpus.
-
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
----------------------------------------------------------
-
- arch/i386/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.16-rc6-mm1/arch/i386/Kconfig
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/arch/i386/Kconfig
-+++ linux-2.6.16-rc6-mm1/arch/i386/Kconfig
-@@ -760,7 +760,7 @@ config PHYSICAL_START
- 
- config HOTPLUG_CPU
- 	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
--	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER
-+	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER && (X86_GENERICARCH || X86_BIGSMP)
- 	---help---
- 	  Say Y here to experiment with turning CPUs off and on.  CPUs
- 	  can be controlled through /sys/devices/system/cpu.
+	Sam

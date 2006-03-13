@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWCMKnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWCMKoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWCMKnj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 05:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWCMKni
+	id S1751349AbWCMKoA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 05:44:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWCMKoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 05:43:38 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19428 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751349AbWCMKni (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 05:43:38 -0500
-Date: Mon, 13 Mar 2006 11:43:15 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck@vds.kolivas.org, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [ck] Re: Faster resuming of suspend technology.
-Message-ID: <20060313104315.GH3495@elf.ucw.cz>
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312213228.GA27693@rhlx01.fht-esslingen.de> <20060313100619.GA2136@elf.ucw.cz> <200603132136.00210.kernel@kolivas.org>
+	Mon, 13 Mar 2006 05:44:00 -0500
+Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:18956
+	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
+	id S1751536AbWCMKn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 05:43:58 -0500
+Date: Mon, 13 Mar 2006 21:43:36 +1100
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andreas Schwab <schwab@suse.de>, Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] crypto: fix key alignment in tcrypt
+Message-ID: <20060313104336.GB7269@gondor.apana.org.au>
+References: <20060308.231155.63512624.nemoto@toshiba-tops.co.jp> <20060311231238.GJ7110@waste.org> <jeirqktvb0.fsf@sykes.suse.de> <20060311234841.GI28168@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603132136.00210.kernel@kolivas.org>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20060311234841.GI28168@waste.org>
 User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 13-03-06 21:35:59, Con Kolivas wrote:
-> On Monday 13 March 2006 21:06, Pavel Machek wrote:
-> > On Ne 12-03-06 22:32:28, Andreas Mohr wrote:
-> > > And... well... this sounds to me exactly like a prime task
-> > > for the newish swap prefetch work, no need for any other
-> > > special solutions here, I think.
-> > > We probably want a new flag for swap prefetch to let it know
-> > > that we just resumed from software suspend and thus need
-> > > prefetching to happen *much* faster than under normal
-> > > conditions for a short while, though (most likely by
-> > > enabling prefetching on a *non-idle* system for a minute).
-> >
-> > Yep, that would be nice. We are actually able to save up-to half of
-> > pagecache, so situation is not as bad as it used to be.
+On Sat, Mar 11, 2006 at 05:48:41PM -0600, Matt Mackall wrote:
+>
+> > > Wouldn't it be better to simply move this to the head of the structure?
+> > 
+> > That wouldn't help, since the whole structure will still be only 8-bit
+> > aligned.
 > 
-> I would be happy to extend swap prefetch's capabilities to improve
-> resume. It 
+> Ahh, hadn't noticed the struct was entirely populated by chars.
 
-That would be nice.
+Actually moving it to the head is good anyway because we may reduce the
+amount of padding between vectors.  On i386 however it is size-neutral
+with respect to the vectors.  However, it did save 45 bytes on the code
+front.
 
-> wouldn't be too hard to add a special post_resume_swap_prefetch() which 
-> aggressively prefetches for a while. Excuse my ignorance, though, as I know 
-> little about swsusp. Are there pages still on swap space after a resume 
-> cycle?
+I've applied the patch with the structure rearrangement so that the large
+power-of-2 sized members come first.
 
-Yes, there are, most of the time. Let me explain:
-
-swsusp needs half of memory free. So it shrinks caches (by emulating
-memory pressure) so that half of memory if free (and optionaly shrinks
-them some more). Pages are pushed into swap by this process.
-
-Now, that works perfectly okay for me (with 1.5GB machine). I can
-imagine that on 128MB machine, shrinking caches to 64MB could hurt a
-bit. I guess we'll need to find someone interested with small memory
-machine (if there are no such people, we can happily ignore the issue
-:-).
-								Pavel
+Thanks,
 -- 
-61:        uint KeyID = BitConverter.ToUInt32( adKEY, 0 );
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

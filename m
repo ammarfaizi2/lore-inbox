@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWCMKYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWCMK1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750952AbWCMKYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 05:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWCMKYU
+	id S1751036AbWCMK1X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 05:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWCMK1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 05:24:20 -0500
-Received: from host-84-9-202-225.bulldogdsl.com ([84.9.202.225]:3518 "EHLO
-	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750753AbWCMKYU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 05:24:20 -0500
-Date: Mon, 13 Mar 2006 10:23:21 +0000
-From: Ben Dooks <ben@fluff.org>
-To: James Yu <cyu021@gmail.com>
-Cc: Ben Dooks <ben@fluff.org>, Willy Tarreau <willy@w.ods.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: weird behavior from kernel
-Message-ID: <20060313102321.GC25816@home.fluff.org>
-References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com> <20060312084632.GB21493@w.ods.org> <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com> <20060312213720.GB25816@home.fluff.org> <60bb95410603122341w74ca1d97k9bda52fd71d06d18@mail.gmail.com>
+	Mon, 13 Mar 2006 05:27:23 -0500
+Received: from web26913.mail.ukl.yahoo.com ([217.146.177.80]:6524 "HELO
+	web26913.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750753AbWCMK1W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 05:27:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=EeylCvzannttx73vGVR2tqMPEDSknm3t0wNhlYY7PgunumbRjP+WWOoXgi6aV2/MK0iAxWI2sJd4w3tK8DBpSD4xpbBfp907pWJF9h0NbTafXWJ7dycr7jJwYVuDaFxaNkoVfGj2MwYjzhnrcjCkg94oIA5E2uSK1mB7VygeL9I=  ;
+Message-ID: <20060313102721.76215.qmail@web26913.mail.ukl.yahoo.com>
+Date: Mon, 13 Mar 2006 11:27:21 +0100 (CET)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: sis96x compiled in by error: delay of one minute at boot
+To: linux-kernel@vger.kernel.org
+Cc: sensors@stimpy.netroedge.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <60bb95410603122341w74ca1d97k9bda52fd71d06d18@mail.gmail.com>
-X-Disclaimer: I speak for me, myself, and the other one of me.
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 03:41:44PM +0800, James Yu wrote:
-> It's a custom board I got, and the official 2.6 doesn't work on it. So
-> I have to use 2.4.
+  Hello,
 
-I assume that you had to alter 2.4 to work with your board, so why
-is 2.6 so much more difficult?
+ I just forgot to remove CONFIG_I2C_SIS96X=y in my kernel (minimum support
+possible for my PC hardware based on VIA, no module at all) and get a one
+minute delay at boot when trying to probe this non existing device in
+2.6.16-rc5.
+ Maybe the abscence test should be quicker.
 
-We have 5 custom boards here, and we use 2.6. It does not take long
-to add a board initialisation file into arch/arm/mach-s3c2410/
- 
-> I tried -fno-strength-reduce option, and it doesn't seem to work though.
-> Still looking for solutions~
-> 
-> 
-> On 3/13/06, Ben Dooks <ben@fluff.org> wrote:
-> > On Sun, Mar 12, 2006 at 05:25:11PM +0800, James Yu wrote:
-> > > The major reason to choose 2.4.18 as my dev base is that the dev is
-> > > ment to be carried out on a custom ARM board, and there isn't any
-> > > 2.6's port available.
-> >
-> > What functionality do you need which is not in the current
-> > 2.6 kernel series?
-> >
-> > --
-> > Ben (ben@fluff.org, http://www.fluff.org/)
-> >
-> >   'a smiley only costs 4 bytes'
-> >
-> 
-> 
-> --
-> James
-> cyu021@gmail.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  Cheers,
+  Etienne.
 
--- 
-Ben (ben@fluff.org, http://www.fluff.org/)
 
-  'a smiley only costs 4 bytes'
+	
+
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
+Téléchargez sur http://fr.messenger.yahoo.com

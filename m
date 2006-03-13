@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbWCMWPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWCMWQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbWCMWPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 17:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWCMWPm
+	id S964783AbWCMWQz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWCMWQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 17:15:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5265 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932508AbWCMWPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 17:15:38 -0500
-Date: Mon, 13 Mar 2006 14:13:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: ioe-lkml@rameria.de, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] scm: fold __scm_send() into scm_send()
-Message-Id: <20060313141305.0cd4fe97.akpm@osdl.org>
-In-Reply-To: <20060313202242.GC27761@kvack.org>
-References: <200603130139.k2D1dpSQ021279@shell0.pdx.osdl.net>
-	<20060312.180802.13404061.davem@davemloft.net>
-	<200603132105.32794.ioe-lkml@rameria.de>
-	<20060313202242.GC27761@kvack.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Mar 2006 17:16:54 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37391 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964784AbWCMWQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:16:53 -0500
+Date: Mon, 13 Mar 2006 23:16:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Arjan van de Ven <arjan@linux.intel.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Antonino Daplas <adaplas@pol.net>, Andi Kleen <ak@suse.de>,
+       Kenneth Parrish <Kenneth.Parrish@familynet-international.net>
+Subject: Re: [patch] Require VM86 with VESA framebuffer
+Message-ID: <20060313221651.GO13973@stusta.de>
+References: <200603131159_MC3-1-BA89-78CA@compuserve.com> <4415A586.1010404@linux.intel.com> <200603131358.50374.jbarnes@virtuousgeek.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603131358.50374.jbarnes@virtuousgeek.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise <bcrl@kvack.org> wrote:
->
-> On Mon, Mar 13, 2006 at 09:05:31PM +0100, Ingo Oeser wrote:
-> > From: Ingo Oeser <ioe-lkml@rameria.de>
-> > 
-> > Fold __scm_send() into scm_send() and remove that interface completly
-> > from the kernel.
+On Mon, Mar 13, 2006 at 01:58:49PM -0800, Jesse Barnes wrote:
+> On Monday, March 13, 2006 9:01 am, Arjan van de Ven wrote:
+> > Chuck Ebbert wrote:
+> > > In-Reply-To: <1142261096.25773.19.camel@localhost.localdomain>
+> > > References: <1142261096.25773.19.camel@localhost.localdomain>
+> > >
+> > > On Mon, 13 Mar 2006 14:44:56 +0000, Alan Cox wrote:
+> > >> VESA does not require VM86 so this change is completely wrong.
+> > >
+> > > What is this all about then?
+> >
+> > that is about X requiring it. Not about anything kernel related.
 > 
-> Whoa, what are you doing here?
->
+> And X doesn't actually require it, it's just that some builds of the X 
+> int10 and VBE libraries assume it's available.  They can be configured 
+> to use an x86 emulator instead, and probably should be by default so 
+> that non-x86 systems have a better chance of working (code coverage and 
+> all that).
 
-scm_send() and scm_recv() are already uninlined in Dave's tree - this patch
-does further consolidation.
+You can only disable CONFIG_VM86 if you have set CONFIG_EMBEDDED=y.
 
->  Uninlining scm_send() is a Bad Thing to do 
-> given that scm_send() is in the AF_UNIX hot path.
+That's OK considering that CONFIG_EMBEDDED=y has the semantics:
+  Allow me to disable more options to save space no matter how much
+  this can break since I do _really_ know what I'm doing when I'm 
+  enabling CONFIG_EMBEDDED.
 
-scm_send() and scm_recv() are in _two_ AF_UNIX hotpaths...
+Expecting working kernels when randomly toggling options that get 
+available with CONFIG_EMBEDDED=y is simply silly.
+
+> Jesse
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

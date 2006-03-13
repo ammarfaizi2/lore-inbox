@@ -1,83 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWCMVYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWCMVZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWCMVYE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWCMVYD
+	id S1751505AbWCMVZg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWCMVZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:24:03 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:21942 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S932459AbWCMVYC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 16:24:02 -0500
-Date: Mon, 13 Mar 2006 22:22:15 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       video4linux-list@redhat.com, norsk5@xmission.com,
-       Jiri Slaby <jirislaby@gmail.com>, paulus@samba.org,
-       linux-usb-devel@lists.sourceforge.net, linux-acpi@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, len.brown@intel.com, xfs-masters@oss.sgi.com,
-       Linus Torvalds <torvalds@osdl.org>, anton@samba.org, laredo@gnu.org,
-       Dave Jones <davej@redhat.com>, v4l-dvb-maintainer@linuxtv.org,
-       dsp@llnl.gov, Avuton Olrich <avuton@gmail.com>,
-       Tom Seeley <redhat@tomseeley.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-xfs@oss.sgi.com, pete.chapman@exgate.tek.com,
-       Olaf Hering <olh@suse.de>, bluesmoke-devel@lists.sourceforge.net
-Message-ID: <20060313212215.GA6041@linuxtv.org>
-References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <20060313200544.GG13973@stusta.de> <20060313121219.GB13652@suse.de>
-MIME-Version: 1.0
+	Mon, 13 Mar 2006 16:25:36 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:22942 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1750705AbWCMVZf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 16:25:35 -0500
+Date: Mon, 13 Mar 2006 13:21:21 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: William Cohen <wcohen@nc.rr.com>
+Cc: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
+       perfctr-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       oprofile-list <oprofile-list@lists.sourceforge.net>
+Subject: Re: [Perfctr-devel] 2.6.16-rc5 perfmon2 new code base + libpfm with Montecito support
+Message-ID: <20060313212121.GH32683@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20060308155311.GD13168@frankl.hpl.hp.com> <4415BC45.1010601@nc.rr.com> <20060313185500.GB32683@frankl.hpl.hp.com> <4415C4E9.5070702@nc.rr.com> <20060313202554.GD32683@frankl.hpl.hp.com> <4415DCDE.1080507@nc.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060313121219.GB13652@suse.de>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: 84.189.225.47
-Subject: Re: [v4l-dvb-maintainer] Re: 2.6.16-rc6: known regressions
-X-SA-Exim-Version: 4.2 (built Thu, 16 Feb 2006 12:49:04 +1100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+In-Reply-To: <4415DCDE.1080507@nc.rr.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 12:12:19PM +0000, Greg KH wrote:
-> On Mon, Mar 13, 2006 at 09:05:44PM +0100, Adrian Bunk wrote:
-> > Subject    : Stradis driver udev brekage
-> > References : http://bugzilla.kernel.org/show_bug.cgi?id=6170
-> >              https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181063
-> >              http://lkml.org/lkml/2006/2/18/204
-> > Submitter  : Tom Seeley <redhat@tomseeley.co.uk>
-> >              Dave Jones <davej@redhat.com>
-> > Handled-By : Jiri Slaby <jirislaby@gmail.com>
-> > Status     : unknown
+Will,
+
+On Mon, Mar 13, 2006 at 03:58:06PM -0500, William Cohen wrote:
 > 
-> Jiri, why did you create a kernel.org bugzilla bug with almost no
-> information in it?
+> Is new identifier cpu_type being created or is i386/pentium_m being used 
+> also for perfmon2? It could be inferred that perfmon2 is being used if 
+> the procesor is identified, but there are no number directories for the 
+> counters (/dev/oprofile/[0-9]+).
 > 
-> Anyway, this is the first I've heard of this, more information is
-> needed to help track it down.  How about the contents of /sys/class/dvb/ ?
+Existing OProfile codes treats pentium M as i386/piii as it should more or less.
 
-Stradis is not a DVB driver. AFAIK it uses V4L devices.
+> I looked over the code this afternoon to refresh my memory how it actual 
+> work (as opposed to how I thought it works).
+> 
+> ophelp uses oprofile/libop/op_cpu_type.c:op_get_cpu_type to read 
+> /dev/oprofile/cpu_type. Once ophelp obtains the cpu type the appropriate 
+> directory from /usr/share/oprofile for the events. This information is 
+> passed to oprofiled; you can see it with "opcontrol --start --verbose".
+> 
+In the quick hack I did over the week-end, I followed what John had done
+for IA-64. In other words, I also have a get_cpu() routine for i386 and
+I basically did a cut&paste of what was in nmi_int.c. As such,
+/dev/oprofile/cpu_type is preserved to avoid confusing ophelp.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=6170 and
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181063
-seem to be two totally different bugs. First thing to check
-for the Nova-T is dmesg, to see if the device was recognized
-at all by the driver, so we know if it is an udev
-problem or not.
+> oprofile/daemon/opd_perfmon.c and opd_perfmon.h are the place that the 
+> performance monitoring hardware is set for perfmon. 
+> opd_perfmon.c:write_pmu() is currently hard coded for ia64. As you have 
+> seen, it doesn't use the libpfm to set up the performance monitoring 
+> hardware.
 
+Libpfm is really a helper library and is not required to use the kernel
+interface. However, there is a bit of an anomaly in libpfm at the moment.
+The library also includes the kernel header files and perfmon2 syscall stubs.
+Both would eventually be found in libc.  As such, for the time being, some
+applications may choose to link against libpfm, just for the stubs. The current
+oprofiled does not do this and has every perfmon.h definitions it needs hardcoded
+(syscalls stubs are also recreated).
 
-BTW: http://mpeg.openprojects.net/ doesn't exist
+> 
+> Looking over the code in the linux/arch/i386/oprofile the code for 
+> typing the processor is tied to the initialization of the performance 
+> monitoring hardware. Probably want to factor out cpu idenification code 
+> from oprofile native handling of the performance monitoring code. So the 
+> pseudo code is something like in 
+> linux/arch/i386/oprofile/init.c:oprofile_arch_init():
+> 
+> char *processor_id = identify_processer();
+> ret = op_perfmon_support(ops, processor_id);
+> if (ret < 0)
+> 	ret = op_nmi_init(ops, processor_id);
+> if (ret < 0)
+> 	ret = op_nmi_timer(ops, processor_id);
+> return ret;
+> 
+Yes that could be a possibility. That implies that there may be
+situations where perfmon does not support a processor that is
+somehow supported by OProfile. I suspect this could be the case
+for very old CPUs.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3d7d30d..922a290 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2525,7 +2525,6 @@ S:	Unsupported ?
- STRADIS MPEG-2 DECODER DRIVER
- P:	Nathan Laredo
- M:	laredo@gnu.org
--W:	http://mpeg.openprojects.net/
- W:	http://www.stradis.com/
- S:	Maintained
- 
-
-Johannes
+-- 
+-Stephane

@@ -1,124 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWCMR6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWCMSCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWCMR6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 12:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWCMR6z
+	id S1751361AbWCMSCn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCMSCm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 12:58:55 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:779 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751027AbWCMR6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 12:58:54 -0500
-Date: Mon, 13 Mar 2006 09:58:26 -0800
-Message-Id: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>
-Subject: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>,
-       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 17:58:53.0365 (UTC) FILETIME=[CA551E50:01C646C7]
+	Mon, 13 Mar 2006 13:02:42 -0500
+Received: from web50101.mail.yahoo.com ([206.190.38.29]:20331 "HELO
+	web50101.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751361AbWCMSCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:02:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=o7vYAIuZG+HCP0G4JHWR67DKf6CsBAzfvRvjqoedST7q9y2oQrncl6O17zoJrhIAVj0IhtRrqYzq63tHMHP1XL6u855CF7bRdVpHWy82+jAOf/rfGLuvHk2fhwalExNd3sW8D87cqnKrT7pKdF8scwxnW1qINi60Cg8kmLwNKpo=  ;
+Message-ID: <20060313180238.10166.qmail@web50101.mail.yahoo.com>
+Date: Mon, 13 Mar 2006 10:02:38 -0800 (PST)
+From: Doug Thompson <norsk5@yahoo.com>
+Subject: BUG: soft lockup detected on CPU#0!  on 2.6.16-rc5
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In OLS 2005, we described the work that we have been doing in VMware
-with respect a common interface for paravirtualization of Linux. We
-shared the general vision in Rik's virtualization BoF.
+I have a Tyan S881 quad socket mobo with 4 880 opterons on which I am transitioning to our
+manufacturing. In that process I am building up a 24 burnin process test script. I left it running
+over the weekend as a 3 development stage (2 Previous test runs). This run added more memory
+testing and disk testing, as well more CPU stressing.
 
-This note is an update on our further work on the Virtual Machine
-Interface, VMI.  The patches provided have been tested on 2.6.16-rc6.
-We are currently recollecting performance information for the new -rc6
-kernel, but expect our numbers to match previous results, which showed
-no impact whatsoever on macro benchmarks, and nearly neglible impact
-on microbenchmarks.
+This morining I got the following:
 
-Unlike the full-virtualization techniques used in the traditional VMware
-products, paravirtualization is a technique where the operating system
-is modified to enlighten the hypervisor with timely knowledge about the
-operating system's activities. Since the hypervisor now depends on the
-kernel to tell it about common idioms etc, it does not need to write
-protect OS objects such as page and descriptor tables as a solution
-based on full-virtualization needs. This has two important effects (a)
-it shortens the critical path, since faulting is expensive on modern
-processors (b) by eliminating complex heuristics the hypervisor is
-simplified. While the former delivers performance, the latter is quite
-important too. 
+BUG: soft lockup detected on CPU#0!
+CPU 0:
+Modules linked in: ipv6 sata_sil 3w_9xxx 3w_xxxx mptspi mptscsih mptbase aic79xx
+scsi_transport_spi af_packet i2c_nforce2 sata_nv libata forcedeth k8_edac edac_mc tg3
+Pid: 28099, comm: tee Not tainted 2.6.16-rc5 #3
+RIP: 0010:[<ffffffff80329de1>] <ffffffff80329de1>{_write_lock_irqsave+109}
+RSP: 0000:ffff81012eab1d98  EFLAGS: 00000283
+RAX: 0000000000fffffe RBX: ffffffff80329d67 RCX: 0000000000000003
+RDX: 0000000000000213 RSI: ffff81012eab0010 RDI: 0000000000000003
+RBP: 0000000000000001 R08: ffff81010ae28b90 R09: ffffffff801879b0
+R10: ffff810008002260 R11: ffffffff801879b0 R12: 0000000000000000
+R13: ffffffff801879b0 R14: ffffffff801852c3 R15: ffff81007f406780
+FS:  00002b4d28b394c0(0000) GS:ffffffff804ae000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002b4d289797d3 CR3: 0000000000101000 CR4: 00000000000006e0
 
-Not surprisingly, paravirtualization's strength, ie that it encourages
-tighter communication between the kernel and the hypervisor, is also its
-weakness. Unless the changes to the operating system are moderated, you
-can very quickly find yourself with a kernel that (a) looks and feels
-like a brand new kernel or (b) cannot run on native machines or on newer
-versions of the hypervisor without a full recompile. The former can
-impede innovation in the Linux kernel, and the latter can be a problem
-for software vendors. 
+Call Trace: <ffffffff80329dc9>{_write_lock_irqsave+85}
+       <ffffffff8012e2c5>{do_exit+1334} <ffffffff8012e742>{sys_exit_group+0}
+       <ffffffff80137b94>{get_signal_to_deliver+1415} <ffffffff8010a06d>{do_signal+109}
+       <ffffffff80329d67>{_spin_unlock+44} <ffffffff8016ade0>{shmem_file_write+511}
+       <ffffffff8010af6c>{retint_signal+61}
 
-VMware proposes VMI as a paravirtualization interface for Linux that
-solves these problems. 
-  - A VMI'fied Linux kernel runs unmodified on native hardware, and on
-    many hypervisors, while simultaneously delivering on the performance
-    promise of paravirtualization. 
-  - VMI has a rich and low level interface, which allows the kernel to
-    cope with future hardware evolution by querying for hardware
-    capability. It is our expectation that a single kernel will run
-    unmodified on both today's processors with limited hardware
-    virtualization support and also keep up with any evolution on the
-    processor front 
-  - VMI Linux is a fairly clean interface, with distinct name spaces
-    for objects from the kernel and the hypervisor. Nowhere do we mingle
-    names from the hypervisor with that of the kernel. This separation
-    allows innovation in the kernel to proceed at the same speed as
-    always. For most kernel developers, a VMI kernel looks and feels like
-    a regular Linux kernel.  
-  - VMI Linux still supports "native" hypervisor device drivers, for
-    example a hypervisor vendor's own private network or block device
-    drivers which are free to use any interface desired to communicate
-    with the hypervisor.
+Not all the modules have associated hardware.
 
-At present, we are sharing a working implementation of the VMI for
-2.6.16-rc6 version of Linux. We have verified that VMI Linux does indeed
-run well on native machines (both P4 and Opterons), and on VMware style
-hypervisors. VMI Linux has negligible overheads on native machines, so
-much so, that we are confident that VMI Linux can, in the long run, be
-the default Linux for i386.  We believe that this interface is both
-cleaner and more powerful than other proposals that have been made
-towards virtualization of Linux, and can easily be adapted to work with
-other hypervisors.
+lspci output follows:
 
-This is by no means finished work. A few of the areas that need more
-attention and exploration are (a) 64bit support is still lacking, but we
-feel a port of VMI to the 64 bit Linux can be done without too much
-trouble (b) the Xen compatibility layer needs some work to bring it
-up to the Xen 3.0 interfaces.  Work is underway on this already, and
-no major issues are expected at this time. 
+0000:00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
+0000:00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
+0000:00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
+0000:00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
+0000:00:04.1 Modem: nVidia Corporation: Unknown device 0058 (rev a2)
+0000:00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
+0000:00:07.0 RAID bus controller: nVidia Corporation CK804 Serial ATA Controller (rev f3)
+0000:00:08.0 RAID bus controller: nVidia Corporation CK804 Serial ATA Controller (rev f3)
+0000:00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
+0000:00:0a.0 Ethernet controller: nVidia Corporation CK804 Ethernet Controller (rev a3)
+0000:00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+0000:00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+0000:00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+0000:00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
+Technology Configuration
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
+Technology Configuration
+0000:00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:00:1a.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
+Technology Configuration
+0000:00:1a.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:1a.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:1a.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:00:1b.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
+Technology Configuration
+0000:00:1b.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:1b.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:1b.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:01:05.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller
+(PHY/Link)
+0000:01:09.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+0000:08:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12)
+0000:08:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X IOAPIC (rev 01)
+0000:08:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12)
+0000:08:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X IOAPIC (rev 01)
+0000:09:02.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
+0000:09:02.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
 
-Two final notes.  This is not an attempt to force a proprietary interface
-into the Linux kernel.  This is an attempt to find a common interface
-that can be used by many hypervisors by isolating hypervisor specific
-idioms into a neutral layer.  This new layer is just what is claims to
-be - a virtual machine interface, which allows hypervisor dependent code
-to be abstracted in a way that benefits both Linux and hypervisor
-development.
 
-This is also not an attempt to define an exact and final specification
-of how virtualization should be done in Linux.  This is very much a work
-in progress, and it is understood that the interfaces proposed here will
-change in time to accommodate the needs of all interested parties.  We 
-hope to find a common solution that can eventually become part of the
-Linux kernel and serve as a model for other operating systems as well.
+The test output indicates the test reached 23 h 55 minutes and no further progression is occuring.
+But the BUG output re-occurs every 30 seconds or so.
 
-We appreciate your feedback on this design and the patches to Linux, and
-welcome working with anyone who is interested in making virtualization
-in Linux a friendly environment to innovate in.  If you find the ideas
-here interesting, please volunteer to help improve them.
+FYI
+
+doug t
+
+
+
+
+"If you think Education is expensive, just try Ignorance"
+
+"Don't tell people HOW to do things, tell them WHAT you
+want and they will surprise you with their ingenuity."
+                   Gen George Patton
+

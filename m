@@ -1,134 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751817AbWCNFQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751830AbWCNFRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751817AbWCNFQK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 00:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751830AbWCNFQK
+	id S1751830AbWCNFRv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 00:17:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751831AbWCNFRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 00:16:10 -0500
-Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:64947 "HELO
-	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751817AbWCNFQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 00:16:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vueG5U3UrFIoYytu+L372syLsN+c7YJEkhHnAJ0Iukt1dYFnKt5YJ0gjjoDvjIp9h7He0Y58ENEtxYYCtj6Nbx9WIGKje9CIqKTsVPbbEKWiSwhHv24Q6ioopk9r3Hbj197nC3r5CtsB2/tBEJU+NhA5HDE50m/PmWJuZfIurug=  ;
-Message-ID: <44165193.2050302@yahoo.com.au>
-Date: Tue, 14 Mar 2006 16:16:03 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Balbir Singh <bsingharora@gmail.com>
-CC: Nick Piggin <npiggin@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Paul McKenney <paul.mckenney@us.ibm.com>
-Subject: Re: [patch 1/3] radix tree: RCU lockless read-side
-References: <20060207021822.10002.30448.sendpatchset@linux.site>	 <20060207021831.10002.84268.sendpatchset@linux.site>	 <661de9470603110022i25baba63w4a79eb543c5db626@mail.gmail.com>	 <44128EDA.6010105@yahoo.com.au>	 <661de9470603121904h7e83579boe3b26013f771c0f2@mail.gmail.com>	 <4414E2CB.7060604@yahoo.com.au>	 <661de9470603130724mc95405dr6ee32d00d800d37@mail.gmail.com>	 <4415F410.90706@yahoo.com.au> <661de9470603131932h7ff99aacgde3911ae82b77dc8@mail.gmail.com>
-In-Reply-To: <661de9470603131932h7ff99aacgde3911ae82b77dc8@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 14 Mar 2006 00:17:51 -0500
+Received: from 67.111.72.3.ptr.us.xo.net ([67.111.72.3]:32062 "EHLO
+	nonameb.ptu.promise.com") by vger.kernel.org with ESMTP
+	id S1751830AbWCNFRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 00:17:50 -0500
+Date: Mon, 13 Mar 2006 21:17:47 +0800
+From: "Ed Lin" <ed.lin@promise.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+       "promise_linux@promise.com" <promise_linux@promise.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
+X-mailer: Foxmail 5.0 [cn]
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
 Content-Transfer-Encoding: 7bit
+Message-ID: <NONAMEBmD3JkUwWpSWe000000e3@nonameb.ptu.promise.com>
+X-OriginalArrivalTime: 14 Mar 2006 05:17:55.0750 (UTC) FILETIME=[A6AFB460:01C64726]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
->>The "slots" member is an array, not an RCU assigned pointer. As such, after
->>doing rcu_dereference(slot), you can access slot->slots[i] without further
->>memory barriers I think?
->>
->>But I agree that code now is a bit inconsistent. I've cleaned things up a
->>bit in my tree now... but perhaps it is easier if you send a patch to show
->>what you mean (because sometimes I'm a bit dense, I'm afraid).
->>
-> 
-> 
-> Fro starters, I do not think your dense at all.
-> 
 
-I'm glad you think so ;)
+>> >> +static inline void shasta_map_sg(struct st_hba *hba,
+>> >> +	struct req_msg *req, struct scsi_cmnd *cmd)
+>> >> +{
+>> >> +	struct pci_dev *pdev = hba->pdev;
+>> >> +	dma_addr_t dma_handle;
+>> >> +	struct scatterlist *src;
+>> >> +	struct st_sgtable *dst;
+>> >> +	int i;
+>> >> +
+>> >> +	dst = (struct st_sgtable *)req->variable;
+>> >> +	dst->max_sg_count = cpu_to_le16(ST_MAX_SG);
+>> >> +	dst->sz_in_byte = cpu_to_le32(cmd->request_bufflen);
+>> >> +
+>> >> +	if (cmd->use_sg) {
+>> >> +		src = (struct scatterlist *) cmd->request_buffer;
+>> >> +		dst->sg_count = cpu_to_le16((u16)pci_map_sg(pdev, src,
+>> >> +			cmd->use_sg, cmd->sc_data_direction));
+>> >> +
+>> >> +		for (i = 0; i < dst->sg_count; i++, src++) {
+>> >> +			dst->table[i].count = cpu_to_le32((u32)sg_dma_len(src));
+>> >> +			dst->table[i].addr = 
+>> >> +				cpu_to_le32(sg_dma_address(src) & 0xffffffff);
+>> >
+>> >What does that 0xffffffff do?
+>> >
+>> >Should it be DMA_32BIT_MASK?
+>> >
+>> 
+>> It is just a 32-bit mask.
+>
+>Well yes ;)
+>
+>But what are the implications of this mask on 64-bit platforms?
 
-> Hmm... slot/slots is quite confusing name. I was referring to slot and
-> ended up calling it slots. The point I am contending is that
-> rcu_derefence(slot->slots[i]) should happen.
-> 
-> <snippet>
-> +                       __s = rcu_dereference(slot->slots[i]);
-> +                       if (__s != NULL)
->                               break;
-> </snippet>
-> 
-> If we break from the loop because __s != NULL. Then in the snippet below
-> 
+This is the lower 32-bit of the dma handle. The upper 32-bit is at the
+following line of code:
 
-This is a little confusing, because technically I don't think it needs to
-rcu_dereference here, either, only when we actually want to dereference
-__s and read the data the other end.
+	dst->table[i].addr_hi = 
+				cpu_to_le32((sg_dma_address(src) >> 16) >> 16);
 
-rcu_dereference is perhaps an awkward interface for optimising this case.
-#define rcu_make_pointer_safe_to_follow(ptr) smp_read_barrier_depends()
-or
-#define rcu_follow_pointer(ptr) ({ smp_read_barrier_depends(); *ptr; })
-might be better
+>
+>> I guess DMA_32BIT_MASK is OK?
+>
+>If that's semantically what the 0xffffffff means then yes.
+>
+>> > ...
+>> >>
+>> >> +static inline void
+>> >> +shasta_send_cmd(struct st_hba *hba, struct req_msg *req, u16 tag)
+>> >> +{
+>> >> +	req->tag = cpu_to_le16(tag);
+>> >> +	req->task_attr = TASK_ATTRIBUTE_SIMPLE;
+>> >> +	req->task_manage = 0; /* not supported yet */
+>> >> +	req->payload_sz = (u8)((sizeof(struct req_msg))/sizeof(u32));
+>> >> +
+>> >> +	hba->ccb[tag].req = req;
+>> >> +	hba->out_req_cnt++;
+>> >> +	wmb();
+>> >> +
+>> >> +	writel(hba->req_head, hba->mmio_base + IMR0);
+>> >> +	writel(MU_INBOUND_DOORBELL_REQHEADCHANGED, hba->mmio_base + IDBL);
+>> >> +	readl(hba->mmio_base + IDBL); /* flush */
+>> >> +}
+>> >
+>> >What is the wmb() for?  Flushing memory for the upcoming DMA?  That's not
+>> >what it's for.
+>> >
+>> >When adding any sort of open-coded barrier, please always add a comment
+>> >explaining why it is there.
+>> >
+>> >This function has two callsites and should be uninlined.
+>> >
+>> 
+>> It's just for write order, but it seems unnecessary on i386.
+>
+>write order of what with respect to what?
+>
 
-     __s = slot->slots[i];
-     if (__s != NULL) {
-         rcu_make_pointer_safe_to_follow(__s);
-         ...
+To make sure the content of request payload is valid before dma starting,
+or at least no later than that. It might be unnecessary. But I don't know
+if there is a systematic way to do it.
 
-Would allow the barrier to be skipped if we're not going to follow the
-pointer.
+>> >
+>> >> +	switch (cmd->cmnd[0]) {
+>> >> +	case READ_6:
+>> >> +	case WRITE_6:
+>> >> +		cmd->cmnd[9] = 0;
+>> >> +		cmd->cmnd[8] = cmd->cmnd[4];
+>> >> +		cmd->cmnd[7] = 0;
+>> >> +		cmd->cmnd[6] = 0;
+>> >> +		cmd->cmnd[5] = cmd->cmnd[3];
+>> >> +		cmd->cmnd[4] = cmd->cmnd[2];
+>> >> +		cmd->cmnd[3] = cmd->cmnd[1] & 0x1f;
+>> >> +		cmd->cmnd[2] = 0;
+>> >> +		cmd->cmnd[1] &= 0xe0;
+>> >> +		cmd->cmnd[0] += READ_10 - READ_6;
+>> >> +		break;
+>> >> +	case MODE_SENSE:
+>> >> +	{
+>> >> +		char mode_sense[4] = { 3, 0, 0, 0 };
+>> >
+>> >static?
+>> >
+>> >> +		shasta_direct_cp(cmd, mode_sense, sizeof(mode_sense));
+>> >> +		cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
+>> >> +		fn(cmd);
+>> >> +		return 0;
+>> >> +	}
+>> >> +	case MODE_SENSE_10:
+>> >> +	{
+>> >> +		char mode_sense10[8] = { 0, 6, 0, 0, 0, 0, 0, 0 };
+>> >
+>> >static?
+>> >
+>> 
+>> These commands are called just one or two times anyway, maybe need not
+>> static here?
+>
+>The way you have the code here the compiler will need to create an array on
+>the stack and then populate each item in that array each time it's used.
+>
+>If these are made static, that's all done at compile time.
+>
 
-> <snippet>
->        /* Bottom level: grab some items */
->       for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
->               index++;
->               if (slot->slots[i]) {
-> -                       results[nr_found++] = slot->slots[i];
-> +                       results[nr_found++] = &slot->slots[i];
->                       if (nr_found == max_items)
->                               goto out;
->               }
-> </snippet>
-> 
-> We do not use __s above. "slot->slots[i]" is not rcu_derefenced() in
-> this case because we broke out of the loop above with __s being not
-> NULL. Another issue is - is it good enough to rcu_derefence() slot
-> once? Shouldn't all uses of *slot->* be rcu derefenced?
-> 
+That's OK. Seems "static" is better.
 
-Yes, slot is a local pointer, the address it points to will not change,
-so once we have loaded it and issued the read barrier, we can follow it
-from then on and reads will not find stale values.
+>> The rmb() here intends to guarantee every readl() to be really effective 
+>> (directly from hardware), although there is already "volatile".
+>
+>readl() should already take care of all that.
+>
+>> The megaraid_mbox driver uses this...
+>> 
+>> I used to observe sporadic handshake failure, so I added this(rmb()).
+>
+>In that case something funny is going on.  We should understand what that
+>is - it'll come back to bite us.
+>
 
-> <suggestion (WARNING: patch has spaces and its not compiled)>
->        /* Bottom level: grab some items */
->       for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
->               index++;
-> -              if (slot->slots[i]) {
-> -                       results[nr_found++] = slot->slots[i];
-> +             __s = rcu_dereference(slot->slots[i]);
-> +             if (__s) {
-> +                    /* This is tricky, cannot take the address of __s
-> or rcu_derefence() */
-> +                    results[nr_found++] = &slot->slots[i];
->                       if (nr_found == max_items)
->                               goto out;
->               }
-> </suggestion>
-> 
-> I hope I am making sense.
-> 
+OK. I guess here if we use ioremap_nocache() then the rmb() will be unneeded.
+But it's ioremap() in the driver. So we can not safely remove the rmb() 
+unless we change ioremap() to ioremap_nocache(), and do substantial testing
+on it. It should be caching that caused the problem.
 
-In this case I think we do not need a barrier because we are only looking
-at the pointer (whether it is NULL or not), rather than following it down.
-Paul may be able to jump in at this point.
 
-I'll release a new patchset in the next couple of days and try to be more
-consisten with the barriers which will hopefully make things less confusing.
 
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

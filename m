@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751641AbWCMGKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWCMGPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751641AbWCMGKq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 01:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751638AbWCMGKp
+	id S1751684AbWCMGPu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 01:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbWCMGPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 01:10:45 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:29775 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751498AbWCMGKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 01:10:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=LEXsbPhA/50XUP4P9QJU4cg6SsZ7mBepX/eDxiU0y8tHg97EoEfuJai+qLoNYavI+dvQnpjx11h+ZTW33yfiCPQ/6Mh8LmuAPJSCmfWuSslAd0qSv2YiK242NJJ1ZuN/eM+uqqEgCX4JYr5/b2DyinASEnq5s2GESZc7s6nnEeA=  ;
-Message-ID: <44150CD7.604@yahoo.com.au>
-Date: Mon, 13 Mar 2006 17:10:31 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Mon, 13 Mar 2006 01:15:49 -0500
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:7578 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751430AbWCMGPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 01:15:49 -0500
+Date: Mon, 13 Mar 2006 01:11:05 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: Router stops routing after changing MAC Address
+To: Greg Scott <GregScott@InfraSupportEtc.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Message-ID: <200603130115_MC3-1-BA82-CE7@compuserve.com>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Petr Vandrovec <petr@vandrovec.name>, linux-kernel@vger.kernel.org,
-       sam@ravenborg.org, kai@germaschewski.name
-Subject: Re: [PATCH] Do not rebuild full kernel tree again and again...
-References: <20060312172511.GA17936@vana.vc.cvut.cz> <20060312174250.GA1470@mars.ravnborg.org>
-In-Reply-To: <20060312174250.GA1470@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+In-Reply-To: <925A849792280C4E80C5461017A4B8A20321CC@mail733.InfraSupportEtc.com>
 
-> This issue has been discussed with Paul D. Smith which also provided
-> a patch similar to yours.
-> The patch is in the kbuild queue for 2.6.17.
-> But we also agreed to postpose this change in make until next stable
-> release. So if you update your make to latest CVS version you will no
-> longer see this misbehaviour.
-> And when 2.6.17 opens up kbuild will be 'fixed' in mainline kernel.
+On Fri, 10 Mar 2006 18:33:15 -0600, Greg Scott wrote:
+
+> How to change MAC addresses is documented well enough - and it works -
+> but when I change MAC addresses, my router stops routing.  From the
+> router, I can see the systems on both sides - but the router just
+> refuses to forward packets.  Here are my little test scripts to change
+> MAC Addresses.
 > 
+> First - ip-fudge-mac.sh
+> [root@test-fw2 gregs]# more ip-fudge-mac.sh
+> ip link set eth0 down
+> ip link set eth0 address 01:02:03:04:05:06
+                            ^
+ Bit zero is set, so this is a multicast address.  Is that intentional?
 
-So what's going to be done about 2.6.16?
+> ip link set eth0 up
+> 
+> ip link set eth1 down
+> ip link set eth1 address 17:20:16:01:60:03
+                            ^
+ Ditto.
 
-I'm seeing this behaviour too in -rc6 and it is a bad regression
-for a developer. I assume there will be some workaround?
+> ip link set eth1 up
+> 
+> echo "1" > /proc/sys/net/ipv4/ip_forward
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"
+

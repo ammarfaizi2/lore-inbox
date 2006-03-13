@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWCMKg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWCMKjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWCMKg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 05:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWCMKg1
+	id S1750737AbWCMKjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 05:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWCMKjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 05:36:27 -0500
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:29888 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932120AbWCMKg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 05:36:26 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: ck@vds.kolivas.org
-Subject: Re: [ck] Re: Faster resuming of suspend technology.
-Date: Mon, 13 Mar 2006 21:35:59 +1100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312213228.GA27693@rhlx01.fht-esslingen.de> <20060313100619.GA2136@elf.ucw.cz>
-In-Reply-To: <20060313100619.GA2136@elf.ucw.cz>
+	Mon, 13 Mar 2006 05:39:49 -0500
+Received: from smtpauth00.csee.siteprotect.com ([64.41.126.131]:8585 "EHLO
+	smtpauth00.csee.siteprotect.com") by vger.kernel.org with ESMTP
+	id S1750737AbWCMKjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 05:39:48 -0500
+From: "swapnil " <swapnil@spsoftindia.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem applying Patch to linux 2.6 kernel
+Date: Mon, 13 Mar 2006 16:11:45 +0530
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603132136.00210.kernel@kolivas.org>
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: AcZGirlhHG33ZxF/RoWnuiSPT1ol2w==
+Message-Id: <20060313103946.0C65732C036@smtpauth00.csee.siteprotect.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 March 2006 21:06, Pavel Machek wrote:
-> On Ne 12-03-06 22:32:28, Andreas Mohr wrote:
-> > And... well... this sounds to me exactly like a prime task
-> > for the newish swap prefetch work, no need for any other
-> > special solutions here, I think.
-> > We probably want a new flag for swap prefetch to let it know
-> > that we just resumed from software suspend and thus need
-> > prefetching to happen *much* faster than under normal
-> > conditions for a short while, though (most likely by
-> > enabling prefetching on a *non-idle* system for a minute).
->
-> Yep, that would be nice. We are actually able to save up-to half of
-> pagecache, so situation is not as bad as it used to be.
 
-I would be happy to extend swap prefetch's capabilities to improve resume. It 
-wouldn't be too hard to add a special post_resume_swap_prefetch() which 
-aggressively prefetches for a while. Excuse my ignorance, though, as I know 
-little about swsusp. Are there pages still on swap space after a resume 
-cycle?
+hello,
+I am trying to apply the patch to linux 2.6 kernel on linux fedora core 4.
 
-Cheers,
-Con
+As per Kernel-HOWTO I should do the following:
+i have downloaded the patch "patch-2.6.15.bz2" from www.linuxhq.com site
+,kept that patch in /usr/src. 
+Changed dir using cd /usr/src and did a
+bzip2 -dc patch-2.6.15.bz2 | patch -p0.
+ 
+I followed the instructions mentioned, the following happens:
+ 
+# bzip2 -dc patch-2.6.15 | patch -p0 
+can not find file to patch at input line 5 Perhaps you used the wrong -p or
+--strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/Documentation/hwmon/it87 b/Documentation/hwmon/it87 index 
+|7f42e44..9555be1 100644
+|--- a/Documentation/hwmon/it87
+|+++ b/Documentation/hwmon/it87
+--------------------------
+ 
+
+File to patch:
+ 
+
+What steps I am doing wrong while applying the kernel patch?
+Please let me know how can apply the above mentioned patch to mykernel...
+and why I am getting the above mentioned error message...
+
+My current kernel version is 2.6.11-1.1369_FC4 and I am trying to apply
+2.6.15 kernel patch.
+Is it necessary to apply patches such as 2.6.12,2.6.13,2.6.14 in-order
+before I will have to apply 2.6.15 kernel patch or should I apply 2.6.15
+kernel patch directly without applying intermediate patches?
+ 
+
+Please suggest me to solve this patching problem.
+

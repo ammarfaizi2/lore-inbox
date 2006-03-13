@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751940AbWCMLsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWCMLvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751940AbWCMLsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 06:48:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751955AbWCMLsQ
+	id S932184AbWCMLvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 06:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751984AbWCMLvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 06:48:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:33693 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751940AbWCMLsP (ORCPT
+	Mon, 13 Mar 2006 06:51:15 -0500
+Received: from zone4.gcu-squad.org ([213.91.10.50]:59336 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP
+	id S1751977AbWCMLvP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 06:48:15 -0500
-Date: Mon, 13 Mar 2006 03:45:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, cmm@us.ibm.com,
-       pbadari@us.ibm.com
-Subject: Re: [discuss] Re: 2.6.16-rc5-mm3: spinlock bad magic on CPU#0 on
- AMD64
-Message-Id: <20060313034535.256b5dc2.akpm@osdl.org>
-In-Reply-To: <200603131234.08804.rjw@sisk.pl>
-References: <200603120024.04938.rjw@sisk.pl>
-	<200603121349.32374.rjw@sisk.pl>
-	<20060312142654.650b90fb.akpm@osdl.org>
-	<200603131234.08804.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Mon, 13 Mar 2006 06:51:15 -0500
+Date: Mon, 13 Mar 2006 12:46:20 +0100 (CET)
+To: linux-kernel@vger.kernel.org
+Subject: Re: sis96x compiled in by error: delay of one minute at boot
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <u12nXjrl.1142250380.8654670.khali@localhost>
+In-Reply-To: <20060313102721.76215.qmail@web26913.mail.ukl.yahoo.com>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Etienne Lorrain" <etienne_lorrain@yahoo.fr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.1.2 (zone4.gcu-squad.org [127.0.0.1]); Mon, 13 Mar 2006 12:46:21 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> > This should fix:
->  > 
->  > --- devel/fs/ext3/inode.c~ext3-get-blocks-maping-multiple-blocks-at-a-once-journal-reentry-fix	2006-03-12 14:25:04.000000000 -0800
->  > +++ devel-akpm/fs/ext3/inode.c	2006-03-12 14:25:04.000000000 -0800
->  > @@ -830,7 +830,7 @@ ext3_direct_io_get_blocks(struct inode *
->  >  	handle_t *handle = journal_current_handle();
->  >  	int ret = 0;
->  >  
->  > -	if (!handle)
->  > +	if (!create)
->  >  		goto get_block;		/* A read */
->  >  
->  >  	if (max_blocks == 1)
-> 
->  Er, it doesn't apply to either 2.6.16-rc5-mm3 or 2.6.16-rc6-mm1.
 
-Nope, it applies OK to rc6-mm1.
+Hi Etienne,
 
-But whatever - it's only a single line?
+On 2006-03-13, Etienne Lorrain wrote:
+> I just forgot to remove CONFIG_I2C_SIS96X=y in my kernel (minimum
+> support possible for my PC hardware based on VIA, no module at all)
+> and get a one minute delay at boot when trying to probe this non
+> existing device in 2.6.16-rc5.
+> Maybe the abscence test should be quicker.
+
+The SIS96x SMBus is a PCI chip, so if it doesn't exist in a given
+system, no code at all should be executed. So I have a hard time
+believing it takes one minute. How do you know for sure that _this_
+driver causing the delay? Did you actually try to rebuild without
+CONFIG_I2C_SIS96X?
+
+P.S.: The sensors list you tried to write to no more exists at this
+address, see http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
+instead.
+
+--
+Jean Delvare

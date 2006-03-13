@@ -1,87 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWCMEiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWCMEis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWCMEiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 23:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWCMEiY
+	id S932248AbWCMEis (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 23:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCMEis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 23:38:24 -0500
-Received: from flex.com ([206.126.0.13]:57872 "EHLO flex.com")
-	by vger.kernel.org with ESMTP id S932080AbWCMEiY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 23:38:24 -0500
-From: Marr <marr@flex.com>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()' Calls From 2.4 to 2.6 -- VMM Change?)
-Date: Sun, 12 Mar 2006 23:36:55 -0500
-User-Agent: KMail/1.8.2
-Cc: Linda Walsh <lkml@tlinx.org>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       Andrew Morton <akpm@osdl.org>, marr@flex.com
-References: <200602241522.48725.marr@flex.com> <200603121653.30288.marr@flex.com> <44149D6A.7080005@rtr.ca>
-In-Reply-To: <44149D6A.7080005@rtr.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603122336.55701.marr@flex.com>
+	Sun, 12 Mar 2006 23:38:48 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:36759 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932098AbWCMEiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 23:38:46 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       linux-usb-devel@lists.sourceforge.net,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, linux-ide@vger.kernel.org,
+       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Mon, 13 Mar 2006 10:00:37 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B2DACA5@pdsmsx403> 
+Date: Mon, 13 Mar 2006 04:38:27 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FIep9-0004nz-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 March 2006 5:15pm, Mark Lord wrote:
-> Marr wrote:
-> > I tried turning 'readahead' off entirely ('hdparm -A0 /dev/hda') and,
-> > although
->
-> No, that should be "hdparm -a0 /dev/hda" (lowercase "-a").
+> I need the acpi trace log before _PTS to see what kind of thermal
+> related methods got called.
 
-Aha, you're right! Thanks for the clarification.
+Alas, I've included all the dmesg's.  
 
-> And the same "-a" for all of your other test variants.
->
-> If you did it all with "-A", then the results are invalid,
-> and need to be redone.
+Below is the script that I use to enter S3 sleep.  It unloads rid of
+troublesome modules and stop services that don't sleep well.  Then
+(for debugging) it sends the kernel version and boot parameters across
+the serial console (the @@@@ SLEEP line), raises the debug level to
+0x1F, does a sync (in case the sleep hangs, since this is my
+production machine), and then enters mem sleep.
 
-Actually, that's impossible to do ('hdparm' won't take such settings with 
-'-A'). And, as my original email stated:
+So nothing in it should trigger any thermal methods; except that I
+usually have the THM2 trip point raised to 45C with a polling time of
+100 seconds.  So once in a while a thermal poll will happen sleep is
+being set up.  I am not sure whether it would be reported in the
+dmesgs if it happened; but the S3 failure happens much more often than
+such a thermal polling would happen, so I doubt the S3 failure
+requires a thermal poll.
 
-   (Values shown for 'readahead' are set by 'hdparm -a## /dev/hda' command.)
+#!/bin/bash -x
+# S3 (suspend to memory), with cleanups before and after
+sync
+ifdown eth0
+remove='prism54 xircom_cb xircom_tulip_cb' 
+remove2='snd_pcm_oss snd_cs46xx'
+modprobe -rv $remove
+modprobe -rv $remove2
+/etc/init.d/chrony stop  > /dev/null
 
-In other words, the important tests were done correctly. Sorry I didn't make 
-it clearer, but that last test with '-A0' was a complete afterthought (based 
-on what I saw on a quick look at the 'man hdparm' page) and in no way negates 
-the results from the first part of the tests.
+sleep 1
 
-> The hdparm manpage explains this, but in a nutshell, "-A" is the 
-> low-level drive firmware "look-ahead" mechanism, whereas "-a" is
-> the Linux kernel "read-ahead" scheme.
-
-You are, of course, correct. Unfortunately, my 'man hdparm' page ("Version 6.1 
-April 2005") doesn't make this as clear as it could be. The distinction is 
-subtle. To quote the '-a'/'-A' part:
-
--a     Get/set sector count for filesystem read-ahead.  This is used to
-              improve performance in  sequential  reads  of  large  files,  by
-              prefetching  additional  blocks  in  anticipation  of them being
-              needed by the running  task.   In  the  current  kernel  version
-              (2.0.10)  this  has  a default setting of 8 sectors (4KB).  This
-              value seems good for most purposes, but in a system  where  most
-              file  accesses are random seeks, a smaller setting might provide
-              better performance.  Also, many IDE drives also have a  separate
-              built-in  read-ahead  function,  which alleviates the need for a
-              filesystem read-ahead in many situations.
-
--A     Disable/enable the IDE drive's read-lookahead  feature  (usually
-              ON by default).  Usage: -A0 (disable) or -A1 (enable).
-
-A bad interpretation on my part. Thanks again for setting me straight.
-
-Anyway, not that it really matters, but I re-did the testing with '-a0' and it 
-didn't help one iota. The 2.6.13 kernel on ReiserFS (without using 
-'nolargeio=1' as a mount option) still takes about 4m35s to fseek 200,000 
-times on that 4MB file, even with 'hdparm -a0 /dev/hda' in effect.
-
-*** Please CC: me on replies -- I'm not subscribed.
-   
-Regards,
-Bill Marr
+(echo "@@@@ SLEEP" ; date ; uname -a ; cat /proc/cmdline ) > /dev/tts/0
+echo 0x0000001F > /proc/acpi/debug_level
+sync
+sleep 2
+echo -n mem > /sys/power/state
+[stuff for wakeup snipped]

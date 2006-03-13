@@ -1,88 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751603AbWCMSl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWCMSnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751603AbWCMSl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWCMSlz
+	id S932356AbWCMSnM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:43:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWCMSnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:41:55 -0500
-Received: from smtp1.exar.com ([204.154.183.10]:4536 "EHLO smtp1.exar.com")
-	by vger.kernel.org with ESMTP id S1750960AbWCMSly (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:41:54 -0500
-X-IronPort-AV: i="4.02,187,1139212800"; 
-   d="scan'208"; a="2120761:sNHT304628588"
-Message-ID: <4415BD47.6070404@exar.com>
-Date: Mon, 13 Mar 2006 10:43:19 -0800
-From: Ravi Reddy <ravi.reddy@exar.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rmk+serial@arm.linux.org.uk
-CC: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Serial: proper support for Exar 16L580/16L2550/16L2552/16V2550/16V2552
- UARTs
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 13 Mar 2006 13:43:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:28135 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932356AbWCMSmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:42:51 -0500
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux
+	virtualization	interface	proposal
+From: Arjan van de Ven <arjan@infradead.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+In-Reply-To: <4415BA4F.3040307@vmware.com>
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>
+	 <1142273346.3023.38.camel@laptopd505.fenrus.org>
+	 <4415B857.9010902@vmware.com>
+	 <1142274398.3023.40.camel@laptopd505.fenrus.org>
+	 <4415BA4F.3040307@vmware.com>
+Content-Type: text/plain
+Date: Mon, 13 Mar 2006 19:42:44 +0100
+Message-Id: <1142275365.3023.44.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russel,
+On Mon, 2006-03-13 at 10:30 -0800, Zachary Amsden wrote:
+> Arjan van de Ven wrote:
+> >>   The interface we propose we 
+> >> believe is more powerful, and more conducive to performance 
+> >> optimizations while providing significant advantages - most 
+> >> specifically, a single binary image that is properly virtualizable on 
+> >> multiple hypervisors and capable of running on native hardware.
+> >>     
+> >
+> > that is mostly an advantage in the binary would though.. less so in the
+> > open source world.
+> >   
+> 
+> It is an advantage for everyone.  It cuts support and certification 
+> costs for Linux distributors,
 
-In the last couple of years, Exar Corporation has introduced new UART 
-products, with additional features:
+that I'll buy
+>  software vendors, 
 
-16L580 - 16 Byte FIFO with EFR
-16L2550/52/ & 16V2550/52 - 16 Byte FIFO with EFR (2 channel UARTs)
+that I'll buy a lot less except those with kernel modules (which is
+evil ;)
+> makes debugging and 
+> development easier,
 
-All these devices have uniquw device ids.
-16L580 has Device ID =  0x01; Both 16L2550/52 and 16V2550/52 has Device 
-IDs = 0x02
+that I don't buy; a fixed interface tends to make debugging harder not
+easier since you can't change it to add more information
 
-Due to existing logic in the serial driver's 8250.c, the above products 
-default to 16650V2 UART type (32 byte FIFO UART), causing some potential 
-problems. In this regard, please verify this patch, which fixes those 
-issues.
+>  and gives hypervisors room to grow while maintaining 
+> binary compatibility with already released kernels.
 
---- /usr/src/linux-2.6.13-15/drivers/serial/8250_orig.c    2006-03-07 
-10:48:22.000000000 -0800
-+++ /usr/src/linux-2.6.13-15/drivers/serial/8250.c    2006-03-07 
-11:12:37.000000000 -0800
-@@ -191,6 +191,13 @@ static const struct serial8250_config ua
-        .fcr        = UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
-        .flags        = UART_CAP_FIFO,
-    },
-+    [PORT_16580] = {
-+        .name        = "XR16580",
-+        .fifo_size    = 16,
-+        .tx_loadsz    = 16,
-+        .fcr        = UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
-+        .flags        = UART_CAP_FIFO | UART_CAP_EFR | UART_CAP_SLEEP,
-+    },
-    [PORT_CIRRUS] = {
-        .name        = "Cirrus",
-        .fifo_size    = 1,
-@@ -590,9 +597,20 @@ static void autoconfig_has_efr(struct ua
-        up->port.type = PORT_16850;
-        return;
-    }
-+ 
- +    /*
-+     * 0x01 - XR16L580
-+     * 0x02 - XR16L2550/52 and XR16V2550/52
-+     * All the above UARTs have 16 byte FIFO with EFR
-+     * and are of UART type PORT_16580
-+     */
-+    if (id2 == 0x01 || id2 == 0x02) {
-+        up->port.type = PORT_16580;
-+        return;
-+    }
-   /*
--     * It wasn't an XR16C850.
-+     * It wasn't an XR16C850 or XR16L580 or XR16x2550/52.
-     *
-     * We distinguish between the '654 and the '650 by counting
-     * how many bytes are in the FIFO.  I'm using this for now,
+that I buy for binary only hypervisors. But in an open source world I'll
+buy this a LOT less as being relevant.
 
 
-Thanks and regards,
-Ravi Reddy...

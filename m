@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWCMSIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbWCMSJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWCMSIf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWCMSIe
+	id S932283AbWCMSJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWCMSJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:08:34 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:49676 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932271AbWCMSIc
+	Mon, 13 Mar 2006 13:09:11 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:56844 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932249AbWCMSJI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:08:32 -0500
-Date: Mon, 13 Mar 2006 10:08:20 -0800
-Message-Id: <200603131808.k2DI8KYs005714@zach-dev.vmware.com>
-Subject: [RFC, PATCH 12/24] i386 Vmi processor header
+	Mon, 13 Mar 2006 13:09:08 -0500
+Date: Mon, 13 Mar 2006 10:09:07 -0800
+Message-Id: <200603131809.k2DI97rJ005720@zach-dev.vmware.com>
+Subject: [RFC, PATCH 13/24] i386 Vmi system header
 From: Zachary Amsden <zach@vmware.com>
 To: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -28,169 +28,143 @@ To: Linus Torvalds <torvalds@osdl.org>,
        Wim Coekaerts <wim.coekaerts@oracle.com>,
        Leendert van Doorn <leendert@watson.ibm.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:08:20.0141 (UTC) FILETIME=[1C2845D0:01C646C9]
+X-OriginalArrivalTime: 13 Mar 2006 18:09:07.0343 (UTC) FILETIME=[384AB9F0:01C646C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fairly straight code motion.  Split non-virtualizable pieces of
-processor.h into default and VMI subarches.  CPUID is
-non-virtualizable, since it doesn't trap, and very often the
-hypervisor will want to hide specific feature bits from the
-kernel.  To provide a replacement for call sites that use
-CPUID as a serializing instruction, the sync_core() macro is
-still available.
+Fairly straightforward code motion in system.h into the sub-arch
+layer.  Affected functionality include control register accessors,
+which are virtualizable but with great overhead due to the #GP
+cost; wbinvd, and most importantly, halt and interrupt control,
+which is non-virtualizable.
+
+Since read_cr4_safe can never fault on a VMI kernel (P5+ processor
+is required for VMI), we can omit the fault fixup, which does not
+play well with the VMI inline assembler, and just call read_cr4()
+directly.
+
+Note that shutdown_halt is unused, but provided in case there is
+really a use for it.  See arch/i386/kernel/smp.c for a potential
+call site during AP shutdown.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-Index: linux-2.6.16-rc5/include/asm-i386/processor.h
+Index: linux-2.6.16-rc5/include/asm-i386/system.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/processor.h	2006-03-10 12:55:09.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/processor.h	2006-03-10 13:03:35.000000000 -0800
-@@ -137,79 +137,6 @@ static inline void detect_ht(struct cpui
- #define X86_EFLAGS_ID	0x00200000 /* CPUID detection flag */
+--- linux-2.6.16-rc5.orig/include/asm-i386/system.h	2006-03-10 12:55:08.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/system.h	2006-03-10 13:03:36.000000000 -0800
+@@ -9,6 +9,8 @@
  
- /*
-- * Generic CPUID function
-- * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-- * resulting in stale register contents being returned.
-- */
--static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
--{
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (op), "c"(0));
--}
--
--/* Some CPUID calls want 'count' to be placed in ecx */
--static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
--	       	int *edx)
--{
--	__asm__("cpuid"
--		: "=a" (*eax),
--		  "=b" (*ebx),
--		  "=c" (*ecx),
--		  "=d" (*edx)
--		: "0" (op), "c" (count));
--}
--
--/*
-- * CPUID functions returning a single datum
-- */
--static inline unsigned int cpuid_eax(unsigned int op)
--{
--	unsigned int eax;
--
--	__asm__("cpuid"
--		: "=a" (eax)
--		: "0" (op)
--		: "bx", "cx", "dx");
--	return eax;
--}
--static inline unsigned int cpuid_ebx(unsigned int op)
--{
--	unsigned int eax, ebx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=b" (ebx)
--		: "0" (op)
--		: "cx", "dx" );
--	return ebx;
--}
--static inline unsigned int cpuid_ecx(unsigned int op)
--{
--	unsigned int eax, ecx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=c" (ecx)
--		: "0" (op)
--		: "bx", "dx" );
--	return ecx;
--}
--static inline unsigned int cpuid_edx(unsigned int op)
--{
--	unsigned int eax, edx;
--
--	__asm__("cpuid"
--		: "=a" (eax), "=d" (edx)
--		: "0" (op)
--		: "bx", "cx");
--	return edx;
--}
--
--#define load_cr3(pgdir) write_cr3(__pa(pgdir))
--
--/*
-  * Intel CPU features in CR4
-  */
- #define X86_CR4_VME		0x0001	/* enable vm86 extensions */
-@@ -224,6 +151,8 @@ static inline unsigned int cpuid_edx(uns
- #define X86_CR4_OSFXSR		0x0200	/* enable fast FPU save and restore */
- #define X86_CR4_OSXMMEXCPT	0x0400	/* enable unmasked SSE exceptions */
+ #ifdef __KERNEL__
  
-+#include <mach_processor.h>
++#include <mach_system.h>
 +
- /*
-  * Save the cr4 feature set we're using (ie
-  * Pentium 4MB enable and PPro Global page
-@@ -489,6 +418,7 @@ struct thread_struct {
- static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
+ struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
+ extern struct task_struct * FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
+ 
+@@ -83,69 +85,8 @@ __asm__ __volatile__ ("movw %%dx,%1\n\t"
+ #define savesegment(seg, value) \
+ 	asm volatile("mov %%" #seg ",%0":"=rm" (value))
+ 
+-/*
+- * Clear and set 'TS' bit respectively
+- */
+-#define clts() __asm__ __volatile__ ("clts")
+-#define read_cr0() ({ \
+-	unsigned int __dummy; \
+-	__asm__ __volatile__( \
+-		"movl %%cr0,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define write_cr0(x) \
+-	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
+-
+-#define read_cr2() ({ \
+-	unsigned int __dummy; \
+-	__asm__ __volatile__( \
+-		"movl %%cr2,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define write_cr2(x) \
+-	__asm__ __volatile__("movl %0,%%cr2": :"r" (x));
+-
+-#define read_cr3() ({ \
+-	unsigned int __dummy; \
+-	__asm__ ( \
+-		"movl %%cr3,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-#define write_cr3(x) \
+-	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
+-
+-#define read_cr4() ({ \
+-	unsigned int __dummy; \
+-	__asm__( \
+-		"movl %%cr4,%0\n\t" \
+-		:"=r" (__dummy)); \
+-	__dummy; \
+-})
+-
+-#define read_cr4_safe() ({			      \
+-	unsigned int __dummy;			      \
+-	/* This could fault if %cr4 does not exist */ \
+-	__asm__("1: movl %%cr4, %0		\n"   \
+-		"2:				\n"   \
+-		".section __ex_table,\"a\"	\n"   \
+-		".long 1b,2b			\n"   \
+-		".previous			\n"   \
+-		: "=r" (__dummy): "0" (0));	      \
+-	__dummy;				      \
+-})
+-
+-#define write_cr4(x) \
+-	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
+-#define stts() write_cr0(8 | read_cr0())
+-
+ #endif	/* __KERNEL__ */
+ 
+-#define wbinvd() \
+-	__asm__ __volatile__ ("wbinvd": : :"memory");
+-
+ static inline unsigned long get_limit(unsigned long segment)
  {
- 	tss->esp0 = thread->esp0;
-+	arch_update_kernel_stack(tss, thread->esp0);
- 	/* This can only happen when SEP is enabled, no need to test "SEP"arately */
- 	if (unlikely(tss->ss1 != thread->sysenter_cs)) {
- 		tss->ss1 = thread->sysenter_cs;
-@@ -507,33 +437,6 @@ static inline void load_esp0(struct tss_
- 	regs->esp = new_esp;					\
- } while (0)
+ 	unsigned long __limit;
+@@ -518,16 +459,7 @@ struct alt_instr { 
  
--/*
-- * These special macros can be used to get or set a debugging register
-- */
--#define get_debugreg(var, register)				\
--		__asm__("movl %%db" #register ", %0"		\
--			:"=r" (var))
--#define set_debugreg(value, register)			\
--		__asm__("movl %0,%%db" #register		\
--			: /* no output */			\
--			:"r" (value))
--
--/*
-- * Set IOPL bits in EFLAGS from given mask
-- */
--static inline void set_iopl_mask(unsigned mask)
--{
--	unsigned int reg;
--	__asm__ __volatile__ ("pushfl;"
--			      "popl %0;"
--			      "andl %1, %0;"
--			      "orl %2, %0;"
--			      "pushl %0;"
--			      "popfl"
--				: "=&r" (reg)
--				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
--}
--
- /* Forward declaration, a strange C thing */
- struct task_struct;
- struct mm_struct;
-@@ -740,4 +643,8 @@ extern void mcheck_init(struct cpuinfo_x
- #define mcheck_init(c) do {} while(0)
- #endif
+ #define set_wmb(var, value) do { var = value; wmb(); } while (0)
  
-+#include <mach_processor.h>
-+
-+#define stts() write_cr0(8 | read_cr0())
-+
- #endif /* __ASM_I386_PROCESSOR_H */
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_processor.h
+-/* interrupt control.. */
+-#define local_save_flags(x)	do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
+-#define local_irq_restore(x) 	do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
+-#define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
+-#define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
+-/* used in the idle loop; sti takes one instruction cycle to complete */
+-#define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
+-/* used when interrupts are already enabled or to shutdown the processor */
+-#define halt()			__asm__ __volatile__("hlt": : :"memory")
+-
++#define local_irq_save(x) do { typecheck(unsigned long,x); local_save_flags(x); local_irq_disable(); } while (0)
+ #define irqs_disabled()			\
+ ({					\
+ 	unsigned long flags;		\
+@@ -535,9 +467,6 @@ struct alt_instr { 
+ 	!(flags & (1<<9));		\
+ })
+ 
+-/* For spinlocks etc */
+-#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
+-
+ /*
+  * disable hlt during certain critical i/o operations
+  */
+Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_system.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/mach_processor.h	2006-03-10 13:03:35.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_processor.h	2006-03-10 13:03:35.000000000 -0800
-@@ -0,0 +1,137 @@
+--- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/mach_system.h	2006-03-10 13:03:36.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_system.h	2006-03-10 13:03:36.000000000 -0800
+@@ -0,0 +1,216 @@
 +/*
 + * Copyright (C) 2005, VMware, Inc.
 + *
@@ -216,228 +190,279 @@ Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_processor.h
 + */
 +
 +
-+#ifndef _MACH_PROCESSOR_H
-+#define _MACH_PROCESSOR_H
++#ifndef _MACH_SYSTEM_H
++#define _MACH_SYSTEM_H
 +
 +#include <vmi.h>
 +
-+static inline void vmi_cpuid(const int op, int *eax, int *ebx, int *ecx, int *edx)
++static inline void write_cr0(const u32 val)
 +{
 +	vmi_wrap_call(
-+		CPUID, "cpuid",
-+		XCONC("=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx)),
-+		1, "a" (op),
-+		VMI_CLOBBER(FOUR_RETURNS));
-+}
-+
-+/*
-+ * Generic CPUID function
-+ */
-+static inline void cpuid(int op, int *eax, int *ebx, int *ecx, int *edx)
-+{
-+	vmi_cpuid(op, eax, ebx, ecx, edx);
-+}
-+
-+
-+/* Some CPUID calls want 'count' to be placed in ecx */
-+static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
-+	       	int *edx)
-+{
-+	asm volatile(""::"c"(count));
-+	vmi_cpuid(op, eax, ebx, ecx, edx);
-+}
-+
-+/*
-+ * CPUID functions returning a single datum
-+ */
-+static inline unsigned int cpuid_eax(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	vmi_cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return eax;
-+}
-+
-+static inline unsigned int cpuid_ebx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	vmi_cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return ebx;
-+}
-+
-+static inline unsigned int cpuid_ecx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	vmi_cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return ecx;
-+}
-+
-+static inline unsigned int cpuid_edx(unsigned int op)
-+{
-+	unsigned int eax, ebx, ecx, edx;
-+
-+	vmi_cpuid(op, &eax, &ebx, &ecx, &edx);
-+	return edx;
-+}
-+
-+#define flush_deferred_cpu_state() vmi_flush_deferred_calls(0)
-+
-+static inline void arch_update_kernel_stack(void *tss, u32 stack)
-+{
-+	vmi_wrap_call(
-+		UpdateKernelStack, "",
++		SetCR0, "mov %0, %%cr0",
 +		VMI_NO_OUTPUT,
-+		2, XCONC(VMI_IREG1(tss), VMI_IREG2(stack)),
-+		VMI_CLOBBER(ZERO_RETURNS));
++		1, VMI_IREG1(val),
++		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
 +}
 +
-+static inline void set_debugreg(const u32 val, const int num)
++static inline void write_cr2(const u32 val)
 +{
 +	vmi_wrap_call(
-+		SetDR, "movl %1, %%db%c2",
++		SetCR2, "mov %0, %%cr2",
 +		VMI_NO_OUTPUT,
-+		2, XCONC(VMI_IREG1(num), VMI_IREG2(val), VMI_IMM (num)),
-+		VMI_CLOBBER(ZERO_RETURNS));
++		1, VMI_IREG1(val),
++		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
 +}
 +
-+static inline u32 vmi_get_dr(const int num)
++static inline void write_cr3(const u32 val)
 +{
-+	VMI_UINT32 ret;
 +	vmi_wrap_call(
-+		GetDR, "movl %%db%c1, %%eax",
++		SetCR3, "mov %0, %%cr3",
++		VMI_NO_OUTPUT,
++		1, VMI_IREG1(val),
++		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
++}
++
++static inline void write_cr4(const u32 val)
++{
++	vmi_wrap_call(
++		SetCR4, "mov %0, %%cr4",
++		VMI_NO_OUTPUT,
++		1, VMI_IREG1(val),
++		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
++}
++
++static inline u32 read_cr0(void)
++{
++	u32 ret;
++	vmi_wrap_call(
++		GetCR0, "mov %%cr0, %%eax",
 +		VMI_OREG1(ret),
-+		1, XCONC(VMI_IREG1(num), VMI_IMM (num)),
++		0, VMI_NO_INPUT,
 +		VMI_CLOBBER(ONE_RETURN));
 +	return ret;
 +}
 +
-+#define get_debugreg(var, register) do { var = vmi_get_dr(register); } while (0)
++static inline u32 read_cr2(void)
++{
++	u32 ret;
++	vmi_wrap_call(
++		GetCR2, "mov %%cr2, %%eax",
++		VMI_OREG1(ret),
++		0, VMI_NO_INPUT,
++		VMI_CLOBBER(ONE_RETURN));
++	return ret;
++}
 +
-+static inline void set_iopl_mask(u32 mask)
++static inline u32 read_cr3(void)
++{
++	u32 ret;
++	vmi_wrap_call(
++		GetCR3, "mov %%cr3, %%eax",
++		VMI_OREG1(ret),
++		0, VMI_NO_INPUT,
++		VMI_CLOBBER(ONE_RETURN));
++	return ret;
++}
++
++static inline u32 read_cr4(void)
++{
++	u32 ret;
++	vmi_wrap_call(
++		GetCR4, "mov %%cr4, %%eax",
++		VMI_OREG1(ret),
++		0, VMI_NO_INPUT,
++		VMI_CLOBBER(ONE_RETURN));
++	return ret;
++}
++
++#define read_cr4_safe() read_cr4()
++#define load_cr3(pgdir) write_cr3(__pa(pgdir))
++
++static inline void clts(void)
 +{
 +	vmi_wrap_call(
-+		SetIOPLMask,	"pushfl;"
-+				"andl $0xffffcfff, (%%esp);"
-+				"orl %0, (%%esp);"
-+				"popfl",
++		CLTS, "clts",
 +		VMI_NO_OUTPUT,
-+		1, VMI_IREG1 (mask),
++		0, VMI_NO_INPUT,
 +		VMI_CLOBBER(ZERO_RETURNS));
 +}
 +
++static inline void wbinvd(void)
++{
++	vmi_wrap_call(
++		WBINVD, "wbinvd",
++		VMI_NO_OUTPUT,
++		0, VMI_NO_INPUT,
++		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
++}
++
++/* 
++ * For EnableInterrupts, DisableInterrupts, GetInterruptMask, SetInterruptMask,
++ * only flags are clobbered by these calls, since they have assembler call
++ * convention.  We can get better C code by indicating only "cc" clobber.
++ * Both setting and disabling interrupts must use memory clobber as well, to
++ * prevent GCC from reordering memory access around them.
++ */
++static inline void local_irq_disable(void)
++{
++	vmi_wrap_call(
++		DisableInterrupts, "cli",
++		VMI_NO_OUTPUT,
++		0, VMI_NO_INPUT,
++		XCONC("cc", "memory"));
++}
++
++static inline void local_irq_enable(void)
++{
++	vmi_wrap_call(
++		EnableInterrupts, "sti",
++		VMI_NO_OUTPUT,
++		0, VMI_NO_INPUT,
++		XCONC("cc", "memory"));
++}
++
++static inline void local_irq_restore(const unsigned long flags)
++{
++	vmi_wrap_call(
++		SetInterruptMask, "pushl %0; popfl",
++		VMI_NO_OUTPUT,
++		1, VMI_IREG1 (flags),
++		XCONC("cc", "memory"));
++}
++
++static inline unsigned long vmi_get_flags(void)
++{
++	unsigned long ret;
++	vmi_wrap_call(
++		GetInterruptMask, "pushfl; popl %%eax",
++		VMI_OREG1 (ret),
++		0, VMI_NO_INPUT,
++		"cc");
++	return ret;
++}
++
++#define local_save_flags(x)     do { typecheck(unsigned long,x); (x) = vmi_get_flags(); } while (0)
++
++static inline void vmi_reboot(int how)
++{
++	vmi_wrap_call(
++		Reboot, "",
++		VMI_NO_OUTPUT,
++		1, VMI_IREG1(how),
++		"memory"); /* only memory clobber for better code */
++}
++
++static inline void safe_halt(void)
++{
++	vmi_wrap_call(
++		Halt, "sti; hlt",
++		VMI_NO_OUTPUT,
++		0, VMI_NO_INPUT,
++		VMI_CLOBBER(ZERO_RETURNS));
++}
++
++/* By default, halt is assumed safe, but we can drop the sti */
++static inline void halt(void)
++{
++	vmi_wrap_call(
++		Halt, "hlt",
++		VMI_NO_OUTPUT,
++		0, VMI_NO_INPUT,
++		VMI_CLOBBER(ZERO_RETURNS));
++}
++
++static inline void shutdown_halt(void)
++{
++	vmi_wrap_call(
++		Shutdown, "cli; hlt",
++		VMI_NO_OUTPUT,
++		0, VMI_NO_INPUT,
++		"memory"); /* only memory clobber for better code */
++}
++
 +#endif
-Index: linux-2.6.16-rc5/include/asm-i386/mach-default/mach_processor.h
+Index: linux-2.6.16-rc5/include/asm-i386/mach-default/mach_system.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/mach_processor.h	2006-03-10 13:03:35.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-default/mach_processor.h	2006-03-10 16:00:53.000000000 -0800
-@@ -0,0 +1,108 @@
-+#ifndef _MACH_PROCESSOR_H
-+#define _MACH_PROCESSOR_H
+--- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/mach_system.h	2006-03-10 13:03:36.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/mach-default/mach_system.h	2006-03-10 16:00:38.000000000 -0800
+@@ -0,0 +1,80 @@
++#ifndef _MACH_SYSTEM_H
++#define _MACH_SYSTEM_H
 +
-+/*
-+ * Generic CPUID function
-+ * clear %ecx since some cpus (Cyrix MII) do not set or clear %ecx
-+ * resulting in stale register contents being returned.
-+ */
-+static inline void cpuid(unsigned int op, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx)
-+{
-+	__asm__("cpuid"
-+		: "=a" (*eax),
-+		  "=b" (*ebx),
-+		  "=c" (*ecx),
-+		  "=d" (*edx)
-+		: "0" (op), "c"(0));
-+}
++#define clts() __asm__ __volatile__ ("clts")
++#define read_cr0() ({ \
++	unsigned int __dummy; \
++	__asm__  __volatile__( \
++		"movl %%cr0,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
 +
-+/* Some CPUID calls want 'count' to be placed in ecx */
-+static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
-+	       	int *edx)
-+{
-+	__asm__("cpuid"
-+		: "=a" (*eax),
-+		  "=b" (*ebx),
-+		  "=c" (*ecx),
-+		  "=d" (*edx)
-+		: "0" (op), "c" (count));
-+}
++#define write_cr0(x) \
++	__asm__ __volatile__("movl %0,%%cr0": :"r" (x));
 +
-+/*
-+ * CPUID functions returning a single datum
-+ */
-+static inline unsigned int cpuid_eax(unsigned int op)
-+{
-+	unsigned int eax;
++#define read_cr2() ({ \
++        unsigned int __dummy; \
++        __asm__  __volatile__( \
++                "movl %%cr2,%0\n\t" \
++                :"=r" (__dummy)); \
++        __dummy; \
++})
++#define write_cr2(x) \
++	__asm__  __volatile__("movl %0,%%cr2": :"r" (x));
 +
-+	__asm__("cpuid"
-+		: "=a" (eax)
-+		: "0" (op)
-+		: "bx", "cx", "dx");
-+	return eax;
-+}
-+static inline unsigned int cpuid_ebx(unsigned int op)
-+{
-+	unsigned int eax, ebx;
++#define read_cr3() ({ \
++        unsigned int __dummy; \
++        __asm__( \
++                "movl %%cr3,%0\n\t" \
++                :"=r" (__dummy)); \
++        __dummy; \
++})
++#define write_cr3(x) \
++	__asm__ __volatile__("movl %0,%%cr3": :"r" (x));
 +
-+	__asm__("cpuid"
-+		: "=a" (eax), "=b" (ebx)
-+		: "0" (op)
-+		: "cx", "dx" );
-+	return ebx;
-+}
-+static inline unsigned int cpuid_ecx(unsigned int op)
-+{
-+	unsigned int eax, ecx;
++#define read_cr4() ({ \
++	unsigned int __dummy; \
++	__asm__( \
++		"movl %%cr4,%0\n\t" \
++		:"=r" (__dummy)); \
++	__dummy; \
++})
 +
-+	__asm__("cpuid"
-+		: "=a" (eax), "=c" (ecx)
-+		: "0" (op)
-+		: "bx", "dx" );
-+	return ecx;
-+}
-+static inline unsigned int cpuid_edx(unsigned int op)
-+{
-+	unsigned int eax, edx;
++#define read_cr4_safe() ({			      \
++	unsigned int __dummy;			      \
++	/* This could fault if %cr4 does not exist */ \
++	__asm__("1: movl %%cr4, %0		\n"   \
++		"2:				\n"   \
++		".section __ex_table,\"a\"	\n"   \
++		".long 1b,2b			\n"   \
++		".previous			\n"   \
++		: "=r" (__dummy): "0" (0));	      \
++	__dummy;				      \
++})
 +
-+	__asm__("cpuid"
-+		: "=a" (eax), "=d" (edx)
-+		: "0" (op)
-+		: "bx", "cx");
-+	return edx;
-+}
++#define write_cr4(x) \
++	__asm__ __volatile__("movl %0,%%cr4": :"r" (x));
 +
-+#define load_cr3(pgdir) \
-+        asm volatile("movl %0,%%cr3": :"r" (__pa(pgdir)))
++#define wbinvd() \
++	__asm__ __volatile__ ("wbinvd": : :"memory");
 +
-+#define flush_deferred_cpu_state()
-+#define arch_update_kernel_stack(t,s)
++/* interrupt control.. */
++#define local_save_flags(x)     do { typecheck(unsigned long,x); __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */); } while (0)
 +
-+/*
-+ * These special macros can be used to get or set a debugging register
-+ */
-+#define get_debugreg(var, register)				\
-+		__asm__("movl %%db" #register ", %0"		\
-+			:"=r" (var))
-+#define set_debugreg(value, register)				\
-+		__asm__("movl %0,%%db" #register		\
-+			: /* no output */			\
-+			:"r" (value))
++/* For spinlocks etc */
++#define local_irq_restore(x)    do { typecheck(unsigned long,x); __asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc"); } while (0)
 +
-+/*
-+ * Set IOPL bits in EFLAGS from given mask
-+ */
-+static inline void set_iopl_mask(unsigned mask)
-+{
-+	unsigned int reg;
-+	__asm__ __volatile__ ("pushfl;"
-+			      "popl %0;"
-+			      "andl %1, %0;"
-+                              "orl %2, %0;"
-+			      "pushl %0;"
-+			      "popfl"
-+				: "=&r" (reg)
-+				: "i" (~X86_EFLAGS_IOPL), "r" (mask));
-+}
++#define local_irq_disable()     __asm__ __volatile__("cli": : :"memory")
++#define local_irq_enable()      __asm__ __volatile__("sti": : :"memory")
++
++/* used in the idle loop; sti holds off interrupts for 1 instruction */
++#define safe_halt()             __asm__ __volatile__("sti; hlt": : :"memory")
++
++/* force shutdown of the processor; used when IRQs are disabled */
++#define shutdown_halt()		__asm__ __volatile__("hlt": : :"memory")
++
++/* halt until interrupted */
++#define halt()			__asm__ __volatile__("hlt")
 +
 +#endif

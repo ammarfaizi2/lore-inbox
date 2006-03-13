@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWCMUjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWCMUqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWCMUjl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWCMUjl
+	id S1750947AbWCMUqM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 15:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWCMUqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:39:41 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:17671 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750960AbWCMUjk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:39:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=j9J57msMdYz8AI71pS1NG40B9UDc3PhkyyUbUEqEuSn5ND5zLbhT9ijuYUIrMi8S4KS+gB8cc/4GDqiCEOVnC+rlktuA4Y72srILifgwre50HVQKmzCsIQYw08JJ1kpf0aPJwn89ldg4yswSrevEH7kRC0kL2xMzdWhC2bl8VSk=
-Message-ID: <3b0ffc1f0603131239o6c6b07cft23407f574afb0d40@mail.gmail.com>
-Date: Mon, 13 Mar 2006 15:39:40 -0500
-From: "Kevin Radloff" <radsaq@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+	Mon, 13 Mar 2006 15:46:11 -0500
+Received: from main.gmane.org ([80.91.229.2]:13462 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750947AbWCMUqK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 15:46:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthieu CASTET <castet.matthieu@free.fr>
 Subject: Re: New libata PATA patch for 2.6.16-rc1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1142262431.25773.25.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1142262431.25773.25.camel@localhost.localdomain>
+Date: Mon, 13 Mar 2006 21:41:14 +0100
+Message-ID: <pan.2006.03.13.20.41.12.776592@free.fr>
+References: <1142262431.25773.25.camel@localhost.localdomain> <pan.2006.03.13.20.28.29.796048@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/13/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Available from
->
-> http://zeniv.linux.org.uk/~alan/IDE/
+Le Mon, 13 Mar 2006 21:28:35 +0100, Matthieu CASTET a écrit :
 
-I still see the same oops in make_class_name with pata_pcmcia upon
-insertion of a CF memory card as I previously reported to you with
-2.6.16-rc5-ide1.
+> Hi Alan,
+> 
+> Le Mon, 13 Mar 2006 15:07:10 +0000, Alan Cox a écrit :
+> 
+>> Available from 
+>> 
+>> http://zeniv.linux.org.uk/~alan/IDE/
+>> 
+>> 	VIA ATAPI now works for me
+> 
+> It still doesn't work for me [1].
+> May be it has something to do with the lost interrupt I described in my
+> previous mail.
+> 
+> I will try ata_piix in order to see if all PATA device are seen.
+> 
+> Matthieu
+> 
+> 
+> ata3: PATA max UDMA/100 cmd 0x1F0 ctl 0x3F6 bmdma 0xFC00 irq 14
 
---
-Kevin 'radsaq' Radloff
-radsaq@gmail.com
-http://thesaq.com/
+> ata3: dev 0 ATA-7, max UDMA/100, 156368016 sectors: LBA48
+
+> ata3: dev 1 ATA-5, max UDMA/100, 80418240 sectors: LBA
+
+> ata3: dev 0 configured for UDMA/33
+
+> ata3: dev 1 configured for UDMA/33
+
+This seems be wrong : why UDMA/100 isn't choosed ?
+It was in previous release.
+
+Thanks for your work
+
+Matthieu
+
+PS : Yes I have a 80 pins an ata3 but a 40 pins on ata4
+

@@ -1,132 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWCMWgR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWCMWhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbWCMWgR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 17:36:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWCMWgR
+	id S1750964AbWCMWhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWCMWhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 17:36:17 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:64530 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S964807AbWCMWgP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 17:36:15 -0500
+	Mon, 13 Mar 2006 17:37:16 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:46978 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750964AbWCMWhO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:37:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=E6d0YX0l6Q5jZS603MYabqmSwOYsV6Lk2Be94LV0SyhLWtapfeo+r0xZzBWG0W51PFmvRCzZAQsEwDEr4ddYinbfddkT/Mndrr2jVmpF05W8/EZ8bHp+XGB6mEQ4HqY4R/0ImhdWEhBf8yzyAQdgXlH9JgWSIQL7vPhChH3QcaU=  ;
+Message-ID: <4415F410.90706@yahoo.com.au>
+Date: Tue, 14 Mar 2006 09:37:04 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <925A849792280C4E80C5461017A4B8A20321F9@mail733.InfraSupportEtc.com>
-x-originalarrivaltime: 13 Mar 2006 22:35:51.0561 (UTC) FILETIME=[7B8C9790:01C646EE]
-Content-class: urn:content-classes:message
-Subject: RE: Router stops routing after changing MAC Address
-Date: Mon, 13 Mar 2006 17:35:50 -0500
-Message-ID: <Pine.LNX.4.61.0603131730100.5785@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Router stops routing after changing MAC Address
-Thread-Index: AcZG7nuWb5nT1zpwS3C2MchiHX5BgQ==
-References: <925A849792280C4E80C5461017A4B8A20321F9@mail733.InfraSupportEtc.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Greg Scott" <GregScott@InfraSupportEtc.com>
-Cc: "Rick Jones" <rick.jones2@hp.com>,
-       "Chuck Ebbert" <76306.1226@compuserve.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-       "Bart Samwel" <bart@samwel.tk>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Simon Mackinlay" <smackinlay@mail.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Balbir Singh <bsingharora@gmail.com>
+CC: Nick Piggin <npiggin@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch 1/3] radix tree: RCU lockless read-side
+References: <20060207021822.10002.30448.sendpatchset@linux.site>	 <20060207021831.10002.84268.sendpatchset@linux.site>	 <661de9470603110022i25baba63w4a79eb543c5db626@mail.gmail.com>	 <44128EDA.6010105@yahoo.com.au>	 <661de9470603121904h7e83579boe3b26013f771c0f2@mail.gmail.com>	 <4414E2CB.7060604@yahoo.com.au> <661de9470603130724mc95405dr6ee32d00d800d37@mail.gmail.com>
+In-Reply-To: <661de9470603130724mc95405dr6ee32d00d800d37@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Balbir Singh wrote:
 
-On Mon, 13 Mar 2006, Greg Scott wrote:
-
-> Yup.
+><snip>
 >
-> I had a situation 2 weeks ago where a customer connected a system to the
-> Internet with an IP Address he should not have used.  And the little
-> Cisco router on the frontend dutifully recorded it in its ARP cache -
-> forever, with no TTL!  This took down their webmail for most of a day
-> until we finally had to cycle the power on that nasty little Cisco 678.
+>>But we should have already rcu_dereference()ed "slot", right
+>>(in the loop above this one)? That means we are now able to
+>>dereference it, and the data at the other end will be valid.
+>>
+>>
 >
-> Bigger routers do it too.  I've had several situations over the years
-> where I replaced an older firewall with a newer one with the same IP
-> Addresses.  All the internal servers find it soon enough.  But I've
-> waited literally hours for the routers to finally purge their ARP caches
-> so they would see my replacement systems - often with the customer
-> looking over my shoulders getting more and more nervous by the minute.
+>Yes, but my confusion is about the following piece of code
 >
-> And sometimes the routers are not accessible - you can't cycle them even
-> if you had permission.  Consider the cases of bridged DSL service -
-
-Bzzzzst... Not! There are not any MAC addresses associated with any
-of the intercity links, usually not even in WANs!  MAC is for
-Ethernet! Once you go to fiber, ATM, T-N, etc., there are no
-MAC addresses. That's why there are bridges and routers, you
-got to "connect" your tiny time-slot to your LAN and that
-first device contains the MAC address that all your other stuff
-talks to.
-
-> where the real router could be on the other side of the country.  Try
-> calling an ISP and asking the tech on the other end to purge an ARP
-> cache on a router.  So the same IP Addresses but different MAC
-> addresses, all you can do is wait for the passage of (lots of) time.
-> That happened to me in my own network once.  I accidently took down my
-> email server for something like 4 hours one time when I got careless.
+><begin code>
 >
->> Indeed, there is a large onus on the software doing the MAC
->> override to make sure it does not break the required uniqueness.
->> Just as if one were using locally administered MAC addresses.
+>       for ( ; height > 1; height--) {
 >
-> Yes.  My 12:34:56 OUI scheme will work for this project but it is
-> definitely not good for the long term.  I really really hope I have to
-> spend some money with the IEEE soon to support lots and lots of
-> rollouts.  :)
+>               for (i = (index >> shift) & RADIX_TREE_MAP_MASK ;
+>                               i < RADIX_TREE_MAP_SIZE; i++) {
+>-                       if (slot->slots[i] != NULL)
+>+                       __s = rcu_dereference(slot->slots[i]);
+>+                       if (__s != NULL)
+>                               break;
+>                       index &= ~((1UL << shift) - 1);
+>                       index += 1UL << shift;
+>@@ -531,14 +550,14 @@ __lookup(struct radix_tree_root *root, v
+>                       goto out;
 >
-> - Greg Scott
+>               shift -= RADIX_TREE_MAP_SHIFT;
+>-               slot = slot->slots[i];
+>+               slot = __s;
+>       }
 >
+>       /* Bottom level: grab some items */
+>       for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
+>               index++;
+>               if (slot->slots[i]) {
+>-                       results[nr_found++] = slot->slots[i];
+>+                       results[nr_found++] = &slot->slots[i];
+>                       if (nr_found == max_items)
+>                               goto out;
+>               }
+><end code>
 >
+>In the for loop, lets say __s is *not* NULL, we break from the loop.
+>In the loop below
+>slot->slots[i] is derefenced without rcu, __s is not used. Is that not
+>inconsistent?
 >
-> -----Original Message-----
-> From: Rick Jones [mailto:rick.jones2@hp.com]
-> Sent: Monday, March 13, 2006 3:50 PM
-> To: linux-os (Dick Johnson)
-> Cc: Greg Scott; Chuck Ebbert; linux-kernel; netdev@vger.kernel.org; Bart
-> Samwel; Alan Cox; Simon Mackinlay
-> Subject: Re: Router stops routing after changing MAC Address
->
-> > Anyway, if the device fails, you have
->> routers and hosts ARPing the interface, trying to establish a route
->> anyway.
->
-> But only after what may be a much longer time than the customer is
-> willing to accept or able to configure.  I know of a number of HA
-> situations where the "new" device is given the "old" MAC just to avoid
-> that speicific situation of ARP caches not being updated except after
-> quite some time.  Not necessarily on the end-systems, the issue can be
-> with intermediate devices (routers).
->
-> And if one has to work with static ARP entries to deal (however
-> imperfectly) with ARP poisioning or whatnot...
->
-> Indeed, there is a large onus on the software doing the MAC override to
-> make sure it does not break the required uniqueness.  Just as if one
-> were using locally administered MAC addresses.
->
-> rick jones
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+The "slots" member is an array, not an RCU assigned pointer. As such, after
+doing rcu_dereference(slot), you can access slot->slots[i] without further
+memory barriers I think?
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+But I agree that code now is a bit inconsistent. I've cleaned things up a
+bit in my tree now... but perhaps it is easier if you send a patch to show
+what you mean (because sometimes I'm a bit dense, I'm afraid).
 
-Thank you.
+Thanks,
+Nick
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

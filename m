@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWCMV6N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWCMV6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWCMV6N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:58:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWCMV6N
+	id S932479AbWCMV6O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWCMV6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:58:13 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:53776 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932472AbWCMV6L
+	Mon, 13 Mar 2006 16:58:14 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:53264 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932479AbWCMV6L
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 13 Mar 2006 16:58:11 -0500
 From: "David Schwartz" <davids@webmaster.com>
-To: <mr.fred.smoothie@gmail.com>
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
 Subject: RE: [future of drivers?] a proposal for binary drivers.
-Date: Mon, 13 Mar 2006 13:57:41 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEAJKLAB.davids@webmaster.com>
+Date: Mon, 13 Mar 2006 13:57:40 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEAJKLAB.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -22,7 +21,7 @@ Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <161717d50603130816u1d63caa1j432d00dd5c54e454@mail.gmail.com>
+In-Reply-To: <1142238041.3023.11.camel@laptopd505.fenrus.org>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Importance: Normal
 X-Authenticated-Sender: joelkatz@webmaster.com
@@ -37,51 +36,42 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > 	2) The ordinary and expected use of a library is to produce
+> > applications
+> > that use that library.
 
-> In Static Controls, the issue was a 55 byte program to calculate the
-> level of toner in a cartridge. The court ruled that the program design
-> of the TLP was so constrained by external factors (the efficient
-> execution of a small number of calculations) that any other
-> implementation would have been impractical.
+> and the kernel is not a library
 
-	Exactly. And this is precisely what is happening here. The kernel headers
-are small in comparison to the kernel. And external factors are such that
-there is no other way to create kernel modules other than by using the
-kernel headers.
+	Tell me, then, what is the orindary expected use of the RedHat
+'kernel-devel' package?
 
-> Linux is a completely different matter, directly analogous to Apple's
-> OS in the court's analysis. There are no such external factors
-> dictating the form of the kernel's facilities for integrating new
-> functionality.
+> > 	5) There is no right under copyright for authors of
+> > original works to limit
+> > the distribution of lawfully-created derivative works to those with the
+> > right to use the original work.
 
-	You are saying there are practical ways to develop kernel modules other
-than using the kernel headers?
+> this is not correct. Copyright law *DOES* give copyright owners the
+> right to control derived works.
 
-> The kernel developers could have chosen some other
-> means for drivers to coordinate their activities with the kernel than
-> the current driver model (for instance, the means employed in Linux
-> 2.4).
+	No, it does not. Copyright law only gives copyright owners the right to
+control the *creation* of derivative works. I very carefully worded my
+statement above so that it would talk about precisely the right people claim
+they have and precisely the right they do not have.
 
-	Sure, and Lexmark could have allowed the TLP to be a million bytes.
+	In this case, the alleged derivative work is created under first sale, as
+part of normal use. It is impossible to normally use the 'kernel-devel'
+package without creating derivative works, and under first sale, normal use
+(and anything required for normal use) cannot be burdened. Once the
+derivative work is lawfully created, there is nothing in copyright law that
+requires the permission of the author of the original work to distribute the
+derived work to licensees of the original work.
 
-> You keep insisting that "a driver for hardware X under Linux" is a
-> functional idea. It is not. "Calculate the amount of toner left" is a
-> functional idea. "Set the control register of hardware X to value Y"
-> is a functional idea (and not copyrightable due to scenes a faire).
-
-	If that was true, then why didn't the court say to Static Controls
-"calculate the toner left on some other printer, you cannot take the TLP"?
-
-> To conflate
-> the two as you seem to want to do would render pretty much all
-> software uncopyrightable. That might be preferable to you, but it
-> would crush innovation in software development and make it impossible
-> for anyone but largish businesses to create software.
-
-	Not at all. The only case where software is uncopyrightable is when it
-claims to cover *every* practical way to make X do Y with Z. Just as the TLP
-was the only (practical) way to measure the toner left in particular Lexmark
-printers.
+	The GPL gets around this by imposing requirements on the creation of
+derivative works, under the assumption that you cannot get the right to
+create a derivative work any other way. But this is false, first sale grants
+the right to normal use, and normal use includes anything necessary for
+normal use. For a library or for the 'kernel-devel' package, normal use
+requires the creation of derivative works.
 
 	DS
 

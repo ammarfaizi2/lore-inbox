@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWCMV7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWCMWAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWCMV7J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWCMV7I
+	id S932484AbWCMWAS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:00:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWCMWAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:59:08 -0500
-Received: from detroit.securenet-server.net ([209.51.153.26]:26317 "EHLO
-	detroit.securenet-server.net") by vger.kernel.org with ESMTP
-	id S932478AbWCMV66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 16:58:58 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Arjan van de Ven <arjan@linux.intel.com>
-Subject: Re: [patch] Require VM86 with VESA framebuffer
-Date: Mon, 13 Mar 2006 13:58:49 -0800
-User-Agent: KMail/1.9.1
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Antonino Daplas <adaplas@pol.net>, Andi Kleen <ak@suse.de>
-References: <200603131159_MC3-1-BA89-78CA@compuserve.com> <4415A586.1010404@linux.intel.com>
-In-Reply-To: <4415A586.1010404@linux.intel.com>
+	Mon, 13 Mar 2006 17:00:17 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:4625 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932484AbWCMWAO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:00:14 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [future of drivers?] a proposal for binary drivers.
+Date: Mon, 13 Mar 2006 14:00:10 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEANKLAB.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603131358.50374.jbarnes@virtuousgeek.org>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - detroit.securenet-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - virtuousgeek.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200603130102.46847.mreuther@umich.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 13 Mar 2006 13:56:25 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 13 Mar 2006 13:56:25 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, March 13, 2006 9:01 am, Arjan van de Ven wrote:
-> Chuck Ebbert wrote:
-> > In-Reply-To: <1142261096.25773.19.camel@localhost.localdomain>
-> > References: <1142261096.25773.19.camel@localhost.localdomain>
-> >
-> > On Mon, 13 Mar 2006 14:44:56 +0000, Alan Cox wrote:
-> >> VESA does not require VM86 so this change is completely wrong.
-> >
-> > What is this all about then?
+
+> Hi, David.
 >
-> that is about X requiring it. Not about anything kernel related.
+> You seem to have misspelled, "I am not a lawyer. Please seek the
+> advice of a
+> competent attorney experienced in copyright law in your
+> jurisdiction instead
+> of listening to my uninformed blather."
+>
 
-And X doesn't actually require it, it's just that some builds of the X 
-int10 and VBE libraries assume it's available.  They can be configured 
-to use an x86 emulator instead, and probably should be by default so 
-that non-x86 systems have a better chance of working (code coverage and 
-all that).
+	I will thank you not to put words in my mouth. If you wish to express your
+own opinion, and even your own opinion of my opinion, you may do so. But
+implying that your opinions are my own is out of line. Even rude.
 
-Jesse
+	DS
+
+

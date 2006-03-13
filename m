@@ -1,183 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWCMTyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWCMTzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbWCMTyN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWCMTyN
+	id S932408AbWCMTzM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:55:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWCMTzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:54:13 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:18955 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932403AbWCMTyM
+	Mon, 13 Mar 2006 14:55:12 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:48133 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932403AbWCMTzJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:54:12 -0500
-Message-ID: <4415CDE2.5010402@vmware.com>
-Date: Mon, 13 Mar 2006 11:54:10 -0800
+	Mon, 13 Mar 2006 14:55:09 -0500
+Message-ID: <4415CE1C.1060608@vmware.com>
+Date: Mon, 13 Mar 2006 11:55:08 -0800
 From: Zachary Amsden <zach@vmware.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: VMI Interface Proposal Documentation for I386, Part 3
+Subject: VMI Interface Proposal Documentation for I386, Part 4
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-   Time Interface.
+3) Architectural Differences from Native Hardware.
 
-     In a virtualized environment, virtual machines (VM) will time share
-     the system with each other and with other processes running on the
-     host system.  Therefore, a VM's virtual CPUs (VCPUs) will be
-     executing on the host's physical CPUs (PCPUs) for only some portion
-     of time.  This section of the VMI exposes a paravirtual view of
-     time to the guest operating systems so that they may operate more
-     effectively in a virtual environment.  The interface also provides
-     a way for the VCPUs to set alarms in this paravirtual view of time.
+     For the sake of performance, some requirements are imposed on kernel
+     fault handlers which are not present on real hardware.  Most modern
+     operating systems should have no trouble meeting these requirements.
+     Failure to meet these requirements may prevent the kernel from
+     working properly.
 
-     Time Domains:
+     1) The hardware flags on entry to a fault handler may not match
+        the EFLAGS image on the fault handler stack.  The stack image
+        is correct, and will have the correct state of the interrupt
+        and arithmetic flags.
 
-     a) Wallclock Time:
+     2) The stack used for kernel traps must be flat - that is, zero base,
+        segment limit determined by the hypervisor.
 
-     Wallclock time exposed to the VM through this interface indicates
-     the number of nanoseconds since epoch, 1970-01-01T00:00:00Z (ISO
-     8601 date format).  If the host's wallclock time changes (say, when
-     an error in the host's clock is corrected), so does the wallclock
-     time as viewed through this interface.
+     3) On entry to any fault handler, the stack must have sufficient space
+        to hold 32 bytes of data, or the guest may be terminated.
 
-     b) Real Time:
+     4) When calling VMI functions, the kernel must be running on a
+        flat 32-bit stack and code segment.
 
-     Another view of time accessible through this interface is real
-     time.  Real time always progresses except for when the VM is
-     stopped or suspended.  Real time is presented to the guest as a
-     counter which increments at a constant rate defined (and presented)
-     by the hypervisor.  All the VCPUs of a VM share the same real time
-     counter.
+     5) Most VMI functions require flat data and extra segment (DS and ES)
+        segments as well; notable exceptions are IRET and SYSEXIT.
+        XXXPara - may need to add STI and CLI to this list.
 
-     The unit of the counter is called "cycles".  The unit and initial
-     value (corresponding to the time the VM enters para-virtual mode)
-     are chosen by the hypervisor so that the real time counter will not
-     rollover in any practical length of time.  It is expected that the
-     frequency (cycles per second) is chosen such that this clock
-     provides a "high-resolution" view of time.  The unit can only
-     change when the VM (re)enters paravirtual mode.
+     6) Interrupts must always be enabled when running code in userspace.
 
-     c) Stolen time and Available time:
+     7) IOPL semantics for userspace are changed; although userspace may be
+        granted port access, it can not affect the interrupt flag.
 
-     A VCPU is always in one of three states: running, halted, or ready.
-     The VCPU is in the 'running' state if it is executing.  When the
-     VCPU executes the HLT interface, the VCPU enters the 'halted' state
-     and remains halted until there is some work pending for the VCPU
-     (e.g. an alarm expires, host I/O completes on behalf of virtual
-     I/O).  At this point, the VCPU enters the 'ready' state (waiting
-     for the hypervisor to reschedule it).  Finally, at any time when
-     the VCPU is not in the 'running' state nor the 'halted' state, it
-     is in the 'ready' state.
+     8) The EIPs at which faults may occur in VMI calls may not match the
+        original native instruction EIP; this is a bug in the system
+        today, as many guests do rely on lazy fault handling.
 
-     For example, consider the following sequence of events, with times
-     given in real time:
+     9) On entry to V8086 mode, MSR_SYSENTER_CS is cleared to zero.
 
-     (Example 1)
+     10) Todo - we would like to support these features, but they are not
+        fully tested and / or implemented:
 
-     At 0 ms, VCPU executing guest code.
-     At 1 ms, VCPU requests virtual I/O.
-     At 2 ms, Host performs I/O for virtual I/0.
-     At 3 ms, VCPU executes VMI_Halt.
-     At 4 ms, Host completes I/O for virtual I/O request.
-     At 5 ms, VCPU begins executing guest code, vectoring to the interrupt
-              handler for the device initiating the virtual I/O.
-     At 6 ms, VCPU preempted by hypervisor.
-     At 9 ms, VCPU begins executing guest code.
+        Userspace 16-bit stack support
+        Proper handling of faulting IRETs
 
-     From 0 ms to 3 ms, VCPU is in the 'running' state.  At 3 ms, VCPU
-     enters the 'halted' state and remains in this state until the 4 ms
-     mark.  From 4 ms to 5 ms, the VCPU is in the 'ready' state.  At 5
-     ms, the VCPU re-enters the 'running' state until it is preempted by
-     the hypervisor at the 6 ms mark.  From 6 ms to 9 ms, VCPU is again
-     in the 'ready' state, and finally 'running' again after 9 ms.
+4) ROM Implementation
 
-     Stolen time is defined per VCPU to progress at the rate of real
-     time when the VCPU is in the 'ready' state, and does not progress
-     otherwise.  Available time is defined per VCPU to progress at the
-     rate of real time when the VCPU is in the 'running' and 'halted'
-     states, and does not progress when the VCPU is in the 'ready'
-     state.
+   Modularization
 
-     So, for the above example, the following table indicates these time
-     values for the VCPU at each ms boundary:
+     Originally, we envisioned modularizing the ROM API into several
+     subsections, but the close coupling between the initial layers
+     and the requirement to support native PCI bus devices has made
+     ROM components for network or block devices unnecessary to this
+     point in time.
 
-     Real time    Stolen time    Available time
-      0            0              0
-      1            0              1
-      2            0              2
-      3            0              3
-      4            0              4
-      5            1              4
-      6            1              5
-      7            2              5
-      8            3              5
-      9            4              5
-     10            4              6
+    VMI - the virtual machine interface.  This is the core CPU, I/O
+          and MMU virtualization layer.  I/O is currently limited
+              to port access to emulated devices.
+    
+   Detection
 
-     Notice that at any point:
-        real_time == stolen_time + available_time
+      The presence of hypervisor ROMs can be recognized by scanning the
+      upper region of the first megabyte of physical memory.  Multiple
+      ROMs may be provided to support older API versions for legacy guest
+      OS support.  ROM detection is done in the traditional manner, by
+      scanning the memory region from C8000h - DFFFFh in 2 kilobyte
+      increments.  The romSignature bytes must be '0x55, 0xAA', and the
+      checksum of the region indicated by the romLength field must be zero.
+      The checksum is a simple 8-bit addition of all bytes in the ROM 
+region.
 
-     Stolen time and available time are also presented as counters in
-     "cycles" units.  The initial value of the stolen time counter is 0.
-     This implies the initial value of the available time counter is the
-     same as the real time counter.
+   Data layout
 
-     Alarms:
+      typedef struct HyperRomHeader {
+         uint16_t        romSignature;
+         int8_t          romLength;
+         unsigned char   romEntry[4];
+         uint8_t         romPad0;
+         uint32_t        hyperSignature;
+         uint8_t         APIVersionMinor;
+         uint8_t         APIVersionMajor;
+         uint8_t         reserved0;
+         uint8_t         reserved1;
+         uint32_t        reserved2;
+         uint32_t        reserved3;
+         uint16_t        pciHeaderOffset;
+         uint16_t        pnpHeaderOffset;
+         uint32_t        romPad3;
+         char            reserved[32];
+         char            elfHeader[64];
+      } HyperRomHeader;
 
-     Alarms can be set (armed) against the real time counter or the
-     available time counter. Alarms can be programmed to expire once
-     (one-shot) or on a regular period (periodic).  They are armed by
-     indicating an absolute counter value expiry, and in the case of a
-     periodic alarm, a non-zero relative period counter value.  [TBD:
-     The method of wiring the alarms to an interrupt vector is dependent
-     upon the virtual interrupt controller portion of the interface.
-     Currently, the alarms may be wired as if they are attached to IRQ0
-     or the vector in the local APIC LVTT.  This way, the alarms can be
-     used as drop in replacements for the PIT or local APIC timer.]
+      The first set of fields is defined by the BIOS:
 
-     Alarms are per-vcpu mechanisms.  An alarm set by vcpu0 will fire
-     only on vcpu0, while an alarm set by vcpu1 will only fire on vcpu1.
-     If an alarm is set relative to available time, its expiry is a
-     value relative to the available time counter of the vcpu that set
-     it.
+      romSignature - fixed 0xAA55, BIOS ROM signature
+      romLength    - the length of the ROM, in 512 byte chunks.
+                     Determines the area to be checksummed.
+      romEntry     - 16-bit initialization code stub used by BIOS.
+      romPad0      - reserved
 
-     The interface includes a method to cancel (disarm) an alarm.  On
-     each vcpu, one alarm can be set against each of the two counters
-     (real time and available time).  A vcpu in the 'halted' state
-     becomes 'ready' when any of its alarm's counters reaches the
-     expiry.
+      The next set of fields is defined by this API:
 
-     An alarm "fires" by signaling the virtual interrupt controller.  An
-     alarm will fire as soon as possible after the counter value is
-     greater than or equal to the alarm's current expiry.  However, an
-     alarm can fire only when its vcpu is in the 'running' state.
+      hyperSignature  - a 4 byte signature providing recognition of the
+                    device class represented by this ROM.  Each
+                    device class defines its own unique signature.
+      APIVersionMinor - the revision level of this device class' API.
+                    This indicates incremental changes to the API.
+      APIVersionMajor - the major version. Used to indicates large
+                    revisions or additions to the API which break
+                    compatibility with the previous version.
+      reserved0,1,2,3 - for future expansion
 
-     If the alarm is periodic, a sequence of expiry values,
+      The next set of fields is defined by the PCI / PnP BIOS spec:
 
-      E(i) = e0 + p * i ,  i = 0, 1, 2, 3, ...
+      pciHeaderOffset - relative offset to the PCI device header from
+                  the start of this ROM.
+      pnpHeaderOffset - relative offset to the PnP boot header from the
+                    start of this ROM.
+      romPad3         - reserved by PCI spec.
 
-     where 'e0' is the expiry specified when setting the alarm and 'p'
-     is the period of the alarm, is used to arm the alarm.  Initially,
-     E(0) is used as the expiry.  When the alarm fires, the next expiry
-     value in the sequence that is greater than the current value of the
-     counter is used as the alarm's new expiry.
-
-     One-shot alarms have only one expiry.  When a one-shot alarm fires,
-     it is automatically disarmed.
-
-     Suppose an alarm is set relative to real time with expiry at the 3
-     ms mark and a period of 2 ms.  It will expire on these real time
-     marks: 3, 5, 7, 9.  Note that even if the alarm does not fire
-     during the 5 ms to 7 ms interval, the alarm can fire at most once
-     during the 7 ms to 9 ms interval (unless, of course, it is
-     reprogrammed).
-
-     If an alarm is set relative to available time with expiry at the 1
-     ms mark (in available time) and with a period of 2 ms, then it will
-     expire on these available time marks: 1, 3, 5.  In the scenario
-     described in example 1, those available time values correspond to
-     these values in real time: 1, 3, 6.
+      Finally, there is space for future header fields, and an area
+      reserved for an ELF header to point to symbol information.
 

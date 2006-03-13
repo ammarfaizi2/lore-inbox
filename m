@@ -1,48 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWCMUTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWCMUXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWCMUTr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:19:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWCMUTq
+	id S932437AbWCMUXY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 15:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751884AbWCMUXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:19:46 -0500
-Received: from 87-237-56-241.northerncolo.co.uk ([87.237.56.241]:64405 "EHLO
-	strongbolt1.swancomms.net") by vger.kernel.org with ESMTP
-	id S932251AbWCMUTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:19:46 -0500
-Message-ID: <1140.81.178.12.23.1142280938.squirrel@www.osoffice.co.uk>
-Date: Mon, 13 Mar 2006 20:15:38 -0000 (GMT)
-Subject: kernel patch set - please read
-From: "James Mcloughlin" <jimbob@osoffice.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Reply-To: jimbob@osoffice.co.uk
-User-Agent: SquirrelMail/1.4.3a-11.EL3.centos.1
-X-Mailer: SquirrelMail/1.4.3a-11.EL3.centos.1
+	Mon, 13 Mar 2006 15:23:23 -0500
+Received: from watts.utsl.gen.nz ([202.78.240.73]:55475 "EHLO mail.utsl.gen.nz")
+	by vger.kernel.org with ESMTP id S1751380AbWCMUXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 15:23:22 -0500
+Message-ID: <4415D4C7.1080705@vilain.net>
+Date: Tue, 14 Mar 2006 09:23:35 +1300
+From: Sam Vilain <sam@vilain.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>, Dan Arai <arai@vmware.com>,
+       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 2/24] i386 Vmi config
+References: <200603131800.k2DI0RfN005633@zach-dev.vmware.com>
+In-Reply-To: <200603131800.k2DI0RfN005633@zach-dev.vmware.com>
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello from the uk,
+Zachary Amsden wrote:
 
-I upgrade old raq3/4 servers to newer operating systems usually centos.
-There is still thousands of them out there, hosting websites.
+>===================================================================
+>--- linux-2.6.16-rc5.orig/arch/i386/Kconfig	2006-03-06 11:25:08.000000000 -0800
+>+++ linux-2.6.16-rc5/arch/i386/Kconfig	2006-03-06 16:41:25.000000000 -0800
+>@@ -133,8 +133,33 @@ config X86_ES7000
+> 	  Only choose this option if you have such a system, otherwise you
+> 	  should say N here.
+> 
+>+config X86_VMI
+>+	bool "VMI architecture support"
+>+	help
+>+	   This option builds a kernel designed to run on top of a virtual
+>+	   machine interface layer (VMI).  Say 'N' here unless you are
+>+	   building a kernel to run inside a virtual machine.
+>+
+> endchoice
+>  
+>
 
-People realise that these old boxes are still good for hosting, as you
-dont need a super 3ghz server for a few small web sites...
+I think we should have a top level "Virtualisation" menu for
+VMI/Xen/vserver/openvz/etc.  While this option might seem to belong
+here, it might be better for users to keep the configuration for the
+virtualisation approaches together.
 
-I wonder if you would consider adding cobalt hardware support to the 2.6
-kernel tree?
+Of course I'm not core team so don't go changing your patch, this is a
+point of discussion :)
 
-Regards
-
-James Mcloughlin
-
-www.osoffice.co.uk/
-
-
-
+> 
+>+menu "VMI configurable support"
+>+	depends on X86_VMI
+>+
+>+config VMI_REQUIRE_HYPERVISOR
+>+        bool "Require hypervisor"
+>+        default n
+>+        help
+>+          This option forces the kernel to run with a hypervisor present.
+>+          The kernel will panic if booted on native hardware.
+>+
+>+config VMI_DEBUG
+>+	bool "VMI debugging"
+>+	default n
+>+	help
+>+	  Provides extra debugging output and testing of VMI interfaces.
+>+
+>+endmenu
+>+
+> config ACPI_SRAT
+> 	bool
+> 	default y
+>@@ -270,7 +295,7 @@ config X86_VISWS_APIC
+> 
+> config X86_MCE
+> 	bool "Machine Check Exception"
+>-	depends on !X86_VOYAGER
+>+	depends on !(X86_VOYAGER)
+> 	---help---
+> 	  Machine Check Exception support allows the processor to notify the
+> 	  kernel if it detects a problem (e.g. overheating, component failure).
+>@@ -307,6 +332,7 @@ config X86_MCE_P4THERMAL
+> 
+> config TOSHIBA
+> 	tristate "Toshiba Laptop support"
+>+	depends on !X86_VMI
+> 	---help---
+> 	  This adds a driver to safely access the System Management Mode of
+> 	  the CPU on Toshiba portables with a genuine Toshiba BIOS. It does
+>@@ -322,6 +348,7 @@ config TOSHIBA
+> 
+> config I8K
+> 	tristate "Dell laptop support"
+>+	depends on !X86_VMI
+> 	---help---
+> 	  This adds a driver to safely access the System Management Mode
+> 	  of the CPU on the Dell Inspiron 8000. The System Management Mode
+>@@ -569,6 +596,7 @@ config HIGHPTE
+> 
+> config MATH_EMULATION
+> 	bool "Math emulation"
+>+	depends on !X86_VMI
+> 	---help---
+> 	  Linux can emulate a math coprocessor (used for floating point
+> 	  operations) if you don't have one. 486DX and Pentium processors have
+>@@ -760,7 +788,7 @@ source kernel/power/Kconfig
+> source "drivers/acpi/Kconfig"
+> 
+> menu "APM (Advanced Power Management) BIOS Support"
+>-depends on PM && !X86_VISWS
+>+depends on PM && !(X86_VISWS || X86_VMI)
+> 
+> config APM
+> 	tristate "APM (Advanced Power Management) BIOS support"
+>@@ -930,8 +958,9 @@ config PCI
+> 
+> choice
+> 	prompt "PCI access mode"
+>-	depends on PCI && !X86_VISWS
+>+	depends on PCI && !(X86_VISWS || X86_VMI)
+> 	default PCI_GOANY
+>+
+> 	---help---
+> 	  On PCI systems, the BIOS can be used to detect the PCI devices and
+> 	  determine their configuration. However, some old PCI motherboards
+>@@ -963,12 +992,12 @@ endchoice
+> 
+> config PCI_BIOS
+> 	bool
+>-	depends on !X86_VISWS && PCI && (PCI_GOBIOS || PCI_GOANY)
+>+	depends on !(X86_VISWS && X86_VMI) && PCI && (PCI_GOBIOS || PCI_GOANY)
+> 	default y
+> 
+> config PCI_DIRECT
+> 	bool
+>- 	depends on PCI && ((PCI_GODIRECT || PCI_GOANY) || X86_VISWS)
+>+ 	depends on PCI && ((PCI_GODIRECT || PCI_GOANY) || X86_VISWS || X86_VMI)
+> 	default y
+> 
+> config PCI_MMCONFIG
+>@@ -986,7 +1015,7 @@ config ISA_DMA_API
+> 
+> config ISA
+> 	bool "ISA support"
+>-	depends on !(X86_VOYAGER || X86_VISWS)
+>+	depends on !(X86_VOYAGER || X86_VISWS || X86_VMI)
+> 	help
+> 	  Find out whether you have ISA slots on your motherboard.  ISA is the
+> 	  name of a bus system, i.e. the way the CPU talks to the other stuff
+>@@ -1013,7 +1042,7 @@ config EISA
+> source "drivers/eisa/Kconfig"
+> 
+> config MCA
+>-	bool "MCA support" if !(X86_VISWS || X86_VOYAGER)
+>+	bool "MCA support" if !(X86_VISWS || X86_VOYAGER || X86_VMI)
+> 	default y if X86_VOYAGER
+> 	help
+> 	  MicroChannel Architecture is found in some IBM PS/2 machines and
+>Index: linux-2.6.16-rc5/arch/i386/Kconfig.cpu
+>===================================================================
+>--- linux-2.6.16-rc5.orig/arch/i386/Kconfig.cpu	2006-03-06 11:25:08.000000000 -0800
+>+++ linux-2.6.16-rc5/arch/i386/Kconfig.cpu	2006-03-06 16:01:41.000000000 -0800
+>@@ -7,6 +7,7 @@ choice
+> 
+> config M386
+> 	bool "386"
+>+	depends on !X86_VMI
+> 	---help---
+> 	  This is the processor type of your CPU. This information is used for
+> 	  optimizing purposes. In order to compile a kernel that can run on
+>@@ -47,6 +48,7 @@ config M386
+> 
+> config M486
+> 	bool "486"
+>+	depends on !X86_VMI
+> 	help
+> 	  Select this for a 486 series processor, either Intel or one of the
+> 	  compatible processors from AMD, Cyrix, IBM, or Intel.  Includes DX,
+>@@ -55,6 +57,7 @@ config M486
+> 
+> config M586
+> 	bool "586/K5/5x86/6x86/6x86MX"
+>+	depends on !X86_VMI
+> 	help
+> 	  Select this for an 586 or 686 series processor such as the AMD K5,
+> 	  the Cyrix 5x86, 6x86 and 6x86MX.  This choice does not
+>@@ -62,12 +65,14 @@ config M586
+> 
+> config M586TSC
+> 	bool "Pentium-Classic"
+>+	depends on !X86_VMI
+> 	help
+> 	  Select this for a Pentium Classic processor with the RDTSC (Read
+> 	  Time Stamp Counter) instruction for benchmarking.
+> 
+> config M586MMX
+> 	bool "Pentium-MMX"
+>+	depends on !X86_VMI
+> 	help
+> 	  Select this for a Pentium with the MMX graphics/multimedia
+> 	  extended instructions.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 

@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWCMLhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751736AbWCMLjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751536AbWCMLhs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 06:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWCMLhs
+	id S1751736AbWCMLjr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 06:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751825AbWCMLjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 06:37:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45222 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751536AbWCMLhr (ORCPT
+	Mon, 13 Mar 2006 06:39:46 -0500
+Received: from [212.76.85.224] ([212.76.85.224]:19204 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S1751736AbWCMLjq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 06:37:47 -0500
-Date: Mon, 13 Mar 2006 12:36:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
-Subject: does swsusp suck aftre resume for you? [was Re: [ck] Re: Faster resuming of suspend technology.]
-Message-ID: <20060313113631.GA1736@elf.ucw.cz>
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312213228.GA27693@rhlx01.fht-esslingen.de> <20060313100619.GA2136@elf.ucw.cz> <200603132136.00210.kernel@kolivas.org> <20060313104315.GH3495@elf.ucw.cz> <20060313111326.GA29716@rhlx01.fht-esslingen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Mar 2006 06:39:46 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Marr <marr@flex.com>
+Subject: Re: Readahead value 128K? (was Re: Drastic Slowdown of 'fseek()'
+Date: Mon, 13 Mar 2006 14:37:50 +0300
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060313111326.GA29716@rhlx01.fht-esslingen.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200603131437.50461.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 13-03-06 12:13:26, Andreas Mohr wrote:
-> Hi,
-> 
-> On Mon, Mar 13, 2006 at 11:43:15AM +0100, Pavel Machek wrote:
-> > On Po 13-03-06 21:35:59, Con Kolivas wrote:
-> > > wouldn't be too hard to add a special post_resume_swap_prefetch() which 
-> > > aggressively prefetches for a while. Excuse my ignorance, though, as I know 
-> > > little about swsusp. Are there pages still on swap space after a resume 
-> > > cycle?
-> > 
-> > Yes, there are, most of the time. Let me explain:
-> > 
-> > swsusp needs half of memory free. So it shrinks caches (by emulating
-> > memory pressure) so that half of memory if free (and optionaly shrinks
-> > them some more). Pages are pushed into swap by this process.
-> > 
-> > Now, that works perfectly okay for me (with 1.5GB machine). I can
-> > imagine that on 128MB machine, shrinking caches to 64MB could hurt a
-> > bit. I guess we'll need to find someone interested with small memory
-> > machine (if there are no such people, we can happily ignore the issue
-> > :-).
-> 
-> Why not simply use the mem= boot parameter?
-> Or is that impossible for some reason in this specific case?
-> 
-> I have a P3/450 256M machine where I could do some tests if really needed.
+Marr wrote:
+> The 2.6.13 kernel on ReiserFS (without using 
+> 'nolargeio=1' as a mount option) still takes about 4m35s to fseek 200,000 
+> times on that 4MB file, even with 'hdparm -a0 /dev/hda' in effect.
 
-Yes, I can do mem=128M... but then, I'd prefer not to code workarounds
-for machines noone uses any more.
+try this magic number:
 
-So, I'm looking for a volunteer:
+        echo 192 > /sys/block/hda/queue/max_sectors_kb
+        echo 192 > /sys/block/hda/queue/read_ahead_kb
 
-1) Does the swsusp work for you (no => bugzilla, but not interesting
-here)
+Anything outside 132-255 affects throughput negatively.
 
-2) Does interactivity suck after resume (no => you are not the right
-person)
+Also, can you dump hdparm -I /dev/hda?
 
-3) Does it still suck after setting image_size to high value (no =>
-good, we have simple fix)
+Thanks!
 
-[If there are no people that got here, I'll just assume problem is
-solved or hits too little people to be interesting.]
+--
+Al
 
-4) Congratulations, you are right person to help. Could you test if
-Con's patches help?
-								Pavel
--- 
-114:    }

@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWCMWnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbWCMWof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWCMWnp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 17:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWCMWnp
+	id S964829AbWCMWof (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbWCMWof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 17:43:45 -0500
-Received: from vena.lwn.net ([206.168.112.25]:37514 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S964825AbWCMWno (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 17:43:44 -0500
-Message-ID: <20060313224344.9173.qmail@lwn.net>
-To: linux-kernel@vger.kernel.org
-Subject: RFC: radix tree safety
-From: Jonathan Corbet <corbet@lwn.net>
-Date: Mon, 13 Mar 2006 15:43:44 -0700
+	Mon, 13 Mar 2006 17:44:35 -0500
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:30100 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964829AbWCMWoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:44:34 -0500
+Message-ID: <4415F5CC.6030601@bigpond.net.au>
+Date: Tue, 14 Mar 2006 09:44:28 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH][1/4] sched: store weighted load on up
+References: <200603131905.17349.kernel@kolivas.org> <20060313090412.GA5780@elte.hu>
+In-Reply-To: <20060313090412.GA5780@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 13 Mar 2006 22:44:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been digging through the radix tree code, and I noticed that the
-tag functions have an interesting limitation.  The tag is given as an
-integer value, but, in reality, the only values that work are zero and
-one.  Anything else will return random results or (when setting tags)
-corrupt unrelated memory.
+Ingo Molnar wrote:
+> * Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> 
+>>Modify the smp nice code to store load_weight on uniprocessor as well 
+>>to allow relative niceness on one cpu to be assessed. Minor cleanups 
+>>and uninline set_load_weight().
+>>
+>>Signed-off-by: Con Kolivas <kernel@kolivas.org>
+> 
+> 
+> agreed. This only affects a scheduler slowpath [setscheduler()].
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-The number of radix tree users is small, so it's not hard to confirm
-that all tag values currently in use are legal.  But the interface would
-seem to invite mistakes.
+It also effects task activation/deactivation but that's on a relatively 
+slow path and is just an addition/subtraction respectively.
 
-The following patch puts in checks for out-of-range tag values.  I've
-elected to have the relevant call fail; one could argue that it should
-BUG instead.  Either seems better than silently doing weird stuff.  Not
-2.6.16 material, obviously, but maybe suitable thereafter.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-jon
-
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-
---- 2.6.16-rc6/lib/radix-tree.c.orig	2006-03-13 14:42:48.000000000 -0700
-+++ 2.6.16-rc6/lib/radix-tree.c	2006-03-13 15:33:35.000000000 -0700
-@@ -364,6 +364,8 @@ void *radix_tree_tag_set(struct radix_tr
- 	height = root->height;
- 	if (index > radix_tree_maxindex(height))
- 		return NULL;
-+	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-+		return NULL;
- 
- 	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
- 	slot = root->rnode;
-@@ -408,6 +410,8 @@ void *radix_tree_tag_clear(struct radix_
- 	height = root->height;
- 	if (index > radix_tree_maxindex(height))
- 		goto out;
-+	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-+		goto out;
- 
- 	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
- 	pathp->node = NULL;
-@@ -468,6 +472,8 @@ int radix_tree_tag_get(struct radix_tree
- 	height = root->height;
- 	if (index > radix_tree_maxindex(height))
- 		return 0;
-+	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-+		return 0;
- 
- 	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
- 	slot = root->rnode;
-@@ -660,6 +666,9 @@ radix_tree_gang_lookup_tag(struct radix_
- 	unsigned long cur_index = first_index;
- 	unsigned int ret = 0;
- 
-+	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-+		return 0;
-+
- 	while (ret < max_items) {
- 		unsigned int nr_found;
- 		unsigned long next_index;	/* Index of next search */
-@@ -807,6 +816,8 @@ int radix_tree_tagged(struct radix_tree_
-   	rnode = root->rnode;
-   	if (!rnode)
-   		return 0;
-+	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-+		return 0;
- 	return any_tag_set(rnode, tag);
- }
- EXPORT_SYMBOL(radix_tree_tagged);
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

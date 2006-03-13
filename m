@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWCMPab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWCMPnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWCMPab (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 10:30:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWCMPaa
+	id S1751453AbWCMPnc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 10:43:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWCMPnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 10:30:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:427 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751440AbWCMPaa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 10:30:30 -0500
-Date: Mon, 13 Mar 2006 10:30:22 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: GOTO Masanori <gotom@sanori.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix sigaltstack corruption among cloned threads
-Message-ID: <20060313153022.GP20301@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <81ek16loay.wl%gotom@sanori.org> <a36005b50603130716x4cc5306ex2f8ecf012ea052d1@mail.gmail.com>
-Mime-Version: 1.0
+	Mon, 13 Mar 2006 10:43:32 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:56418 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1751444AbWCMPnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 10:43:31 -0500
+To: "Sean Hefty" <sean.hefty@intel.com>
+Cc: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <openib-general@openib.org>
+Subject: Re: [PATCH 5/6 v2] IB: IP address based RDMA connection manager
+X-Message-Flag: Warning: May contain useful information
+References: <ORSMSX401FRaqbC8wSA0000000e@orsmsx401.amr.corp.intel.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 13 Mar 2006 07:43:28 -0800
+Message-ID: <adabqwafizj.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a36005b50603130716x4cc5306ex2f8ecf012ea052d1@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 13 Mar 2006 15:43:28.0825 (UTC) FILETIME=[DFBAB290:01C646B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 07:16:17AM -0800, Ulrich Drepper wrote:
-> On 3/13/06, GOTO Masanori <gotom@sanori.org> wrote:
-> > +        * sigaltstack should be cleared when CLONE_SIGHAND (and CLONE_VM) is
-> > +        * specified.
-> > +        */
-> > +       if (clone_flags & CLONE_SIGHAND)
-> > +               p->sas_ss_sp = p->sas_ss_size = 0;
-> 
-> I agree in general, but why base it on CLONE_SIGHAND? The problem
-> results from using the same address space.  So it should be
-> 
->   if (clone_flags & CLONE_VM)
-> 
-> The fact that both these flags are used at the same time in all cases
-> today shouldn't hide the real reason for this requirement which is
-> sharing the address space.
+It seems that cma_detach_from_dev():
 
-Because vfork also sets CLONE_VM and vfork isn't supposed to reset
-alternate stack setting.  For vfork that's not a problem, as the parent task
-will not continue until the vfork child execve's.  So, if you want to use
-CLONE_VM bit, you'd need to use
-	if ((clone_flags & (CLONE_VM | CLONE_VFORK)) == CLONE_VM)
-		p->sas_ss_sp = p->sas_ss_size = 0;
+ > +static void cma_detach_from_dev(struct rdma_id_private *id_priv)
+ > +{
+ > +	list_del(&id_priv->list);
+ > +	if (atomic_dec_and_test(&id_priv->cma_dev->refcount))
+ > +		wake_up(&id_priv->cma_dev->wait);
+ > +	id_priv->cma_dev = NULL;
+ > +}
 
-	Jakub
+doesn't need to do atomic_dec_and_test(), because it is never dropping
+the last reference to id_priv (and in fact if it was, the last line
+would be a use-after-free bug).
+
+Does it make sense to replace it with:
+
+	static void cma_detach_from_dev(struct rdma_id_private *id_priv)
+	{
+		list_del(&id_priv->list);
+		/*
+		 * cma_detach_from_dev() will never be dropping the last
+		 * reference to id_priv, so no need to test here.
+		 */
+		atomic_dec(&id_priv->cma_dev->refcount);
+		id_priv->cma_dev = NULL;
+	}
+
+on my x86_64 build that's worth
+
+	add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-40 (-40)
+	function                                     old     new   delta
+	cma_detach_from_dev                          106      66     -40
+
+ - R.

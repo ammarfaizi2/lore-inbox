@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWCMWxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWCMW4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWCMWxP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 17:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWCMWxP
+	id S1751249AbWCMW4F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWCMW4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 17:53:15 -0500
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:48334 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S964835AbWCMWxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 17:53:14 -0500
-References: <200603131906.11739.kernel@kolivas.org> <4415F49C.8020208@bigpond.net.au>
-Message-ID: <cone.1142290371.837084.5853.501@kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH][2/4] sched: add discrete weighted cpu load function
-Date: Tue, 14 Mar 2006 09:52:51 +1100
-Mime-Version: 1.0
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-kolivas.org-5853-1142290371-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 13 Mar 2006 17:56:05 -0500
+Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:6521 "HELO
+	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751249AbWCMW4E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:56:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=sOQn5r2HSpFL8zVyL5PtAhFJvH+6PPRUsybWvlS5RRFmxrTRkILtgpGSDnmOs+y9iY06VYA97sCVHdQxsc2FA7AbZWE98eHcvmp2cLqKrAiRewrCSQuC3nJu/31CtCCVEZxIxrol6mwu08Ioe4INsQEdM+aOL+MuJNJrdMdyUa0=  ;
+Message-ID: <4415F87E.806@yahoo.com.au>
+Date: Tue, 14 Mar 2006 09:55:58 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jonathan Corbet <corbet@lwn.net>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: RFC: radix tree safety
+References: <20060313224344.9173.qmail@lwn.net>
+In-Reply-To: <20060313224344.9173.qmail@lwn.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
+Jonathan Corbet wrote:
 
---=_mimegpg-kolivas.org-5853-1142290371-0001
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+>I've been digging through the radix tree code, and I noticed that the
+>tag functions have an interesting limitation.  The tag is given as an
+>integer value, but, in reality, the only values that work are zero and
+>one.  Anything else will return random results or (when setting tags)
+>corrupt unrelated memory.
+>
+>The number of radix tree users is small, so it's not hard to confirm
+>that all tag values currently in use are legal.  But the interface would
+>seem to invite mistakes.
+>
+>The following patch puts in checks for out-of-range tag values.  I've
+>elected to have the relevant call fail; one could argue that it should
+>BUG instead.  Either seems better than silently doing weird stuff.  Not
+>2.6.16 material, obviously, but maybe suitable thereafter.
+>
+>
 
-Peter Williams writes:
+I'd agree if you make them BUG_ON()s.
 
-> Con Kolivas wrote:
->> +unsigned long weighted_cpuload(const int cpu)
->> +{
->> +	return (cpu_rq(cpu)->raw_weighted_load);
->> +}
->> +
-> 
-> Wouldn't this be a candidate for inlining?
+Andrew Morton's kind of the radix-tree tags guy though... Andrew?
 
-That would make it unsuitable for exporting via sched.h.
+Nick
 
-Cheers,
-Con
-
-
---=_mimegpg-kolivas.org-5853-1142290371-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBEFffDZUg7+tp6mRURAj7xAJ4xE61rvewXm1cvYSeo+PJXaZrXjQCgjAfq
-gynvM1f3pCsiwYvgLzH46Lk=
-=EEVC
------END PGP SIGNATURE-----
-
---=_mimegpg-kolivas.org-5853-1142290371-0001--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

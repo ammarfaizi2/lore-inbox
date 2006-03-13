@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWCMEis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWCMEkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbWCMEis (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 23:38:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWCMEis
+	id S932115AbWCMEkr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 23:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWCMEkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 23:38:48 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:36759 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S932098AbWCMEiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 23:38:46 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org, v4l-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
-       linux-input@atrey.karlin.mff.cuni.cz, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Mon, 13 Mar 2006 10:00:37 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B2DACA5@pdsmsx403> 
-Date: Mon, 13 Mar 2006 04:38:27 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FIep9-0004nz-00@skye.ra.phy.cam.ac.uk>
+	Sun, 12 Mar 2006 23:40:47 -0500
+Received: from ns2.suse.de ([195.135.220.15]:57295 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932115AbWCMEkr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 23:40:47 -0500
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Mon, 13 Mar 2006 15:39:37 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17428.63369.446803.958721@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm1 (NFS tree ... busy inodes ... relatively harmless)
+In-Reply-To: message from Andrew Morton on Sunday March 12
+References: <20060312031036.3a382581.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I need the acpi trace log before _PTS to see what kind of thermal
-> related methods got called.
+On Sunday March 12, akpm@osdl.org wrote:
+> 
+> - The NFS tree is a bit sick - you may see the `busy inodes - self destruct
+>   in five seconds" message when performing NFS unmounts.  It seems relatively
+>   harmless.
 
-Alas, I've included all the dmesg's.  
+I think the term is "mostly harmless" ... see the entry for "Earth" in
+The Hitch-Hikers Guide To The Galaxy... :-)
 
-Below is the script that I use to enter S3 sleep.  It unloads rid of
-troublesome modules and stop services that don't sleep well.  Then
-(for debugging) it sends the kernel version and boot parameters across
-the serial console (the @@@@ SLEEP line), raises the debug level to
-0x1F, does a sync (in case the sleep hangs, since this is my
-production machine), and then enters mem sleep.
+I don't believe this is harmless at all, and I have an oops to prove
+it - though it is with NFSv4 which is still EXPERIMENTAL.
 
-So nothing in it should trigger any thermal methods; except that I
-usually have the THM2 trip point raised to 45C with a polling time of
-100 seconds.  So once in a while a thermal poll will happen sleep is
-being set up.  I am not sure whether it would be reported in the
-dmesgs if it happened; but the S3 failure happens much more often than
-such a thermal polling would happen, so I doubt the S3 failure
-requires a thermal poll.
+I don't believe it is an NFS bug at all, but a VFS bug.  It happens
+more with NFS because iput on nfs can be a lot slower due to the
+required network activity, so the race is easier to hit.
 
-#!/bin/bash -x
-# S3 (suspend to memory), with cleanups before and after
-sync
-ifdown eth0
-remove='prism54 xircom_cb xircom_tulip_cb' 
-remove2='snd_pcm_oss snd_cs46xx'
-modprobe -rv $remove
-modprobe -rv $remove2
-/etc/init.d/chrony stop  > /dev/null
+See the 
+      Fix shrink_dcache_parent() against shrink_dcache_memory() race
+threads.
 
-sleep 1
+Of course there could be other bugs...
 
-(echo "@@@@ SLEEP" ; date ; uname -a ; cat /proc/cmdline ) > /dev/tts/0
-echo 0x0000001F > /proc/acpi/debug_level
-sync
-sleep 2
-echo -n mem > /sys/power/state
-[stuff for wakeup snipped]
+NeilBrown

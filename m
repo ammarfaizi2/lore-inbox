@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751612AbWCMTBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751590AbWCMTHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751612AbWCMTBM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbWCMTBM
+	id S1751590AbWCMTHR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWCMTHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:01:12 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12813 "HELO
+	Mon, 13 Mar 2006 14:07:17 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18957 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751550AbWCMTBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:01:11 -0500
-Date: Mon, 13 Mar 2006 20:01:09 +0100
+	id S1751748AbWCMTHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:07:15 -0500
+Date: Mon, 13 Mar 2006 20:07:14 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Arjan van de Ven <arjan@infradead.org>,
-       j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which kernel is the best for a small linux system?
-Message-ID: <20060313190109.GC13973@stusta.de>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org> <20060313182725.GA31211@mars.ravnborg.org> <1142275289.13256.1.camel@mindpipe>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Pavlik Vojtech <vojtech@suse.cz>, Ryan Phillips <rphillips@gentoo.org>,
+       Duncan <1i5t5.duncan@cox.net>, Meelis Roos <mroos@linux.ee>
+Subject: 2.6.16-rc6: all psmouse regressions fixed?
+Message-ID: <20060313190714.GD13973@stusta.de>
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142275289.13256.1.camel@mindpipe>
+In-Reply-To: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
 User-Agent: Mutt/1.5.11+cvs20060126
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 01:41:27PM -0500, Lee Revell wrote:
-> On Mon, 2006-03-13 at 19:27 +0100, Sam Ravnborg wrote:
-> > # latencies up to 80% slower
-> 
-> This is certainly bullshit, it has not been true since 2.6.7 or so.
-> 
-> Did not visit the page but that list smells like they are selling
-> something.
+On Sat, Mar 11, 2006 at 03:58:12PM -0800, Linus Torvalds wrote:
+>...
+> Dmitry Torokhov:
+>       Input: psmouse - disable autoresync
+>...
 
-The might be issues already fixed in 2.6.15 (he tested the then-current 
-2.6.11.7) or there might be powerpc specific problems, but after a quick 
-look at this page it looks like a serious page.
+We had the three psmouse regressions below in 2.6.16-rc5.
 
-He also posted the complete lmbench results, dmesg's and .config's at 
-his page, and from a first view I'd say he has very well documented 
-what and how he measured.
+Duncan already stated that this patch fixed (more exactly: works around) 
+his problems.
 
-> Lee
+Does anyone still observe a psmouse regression in 2.6.16-rc6 compared 
+to 2.6.15, or is everything fine now?
+
+
+Subject    : usb_submit_urb(ctrl) failed on 2.6.16-rc4-git10 kernel
+References : http://bugzilla.kernel.org/show_bug.cgi?id=6134
+Submitter  : Ryan Phillips <rphillips@gentoo.org>
+Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Status     : workaround: psmouse.resync_time=0
+
+Subject    : total ps2 keyboard lockup from boot
+References : http://bugzilla.kernel.org/show_bug.cgi?id=6130
+Submitter  : Duncan <1i5t5.duncan@cox.net>
+Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
+             Pavlik Vojtech <vojtech@suse.cz>
+Status     : discussion and debugging in the bug logs
+
+Subject    : psmouse starts losing sync in 2.6.16-rc2
+References : http://lkml.org/lkml/2006/2/5/50
+Submitter  : Meelis Roos <mroos@linux.ee>
+Handled-By : Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Status     : Dmitry: Working on various manifestations of this one.
+                     At worst we will have to disable resync by default
+                     before 2.6.16 final is out and continue in 2.6.17 cycle.
+
 
 cu
 Adrian

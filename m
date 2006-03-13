@@ -1,122 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWCMAWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWCMA3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWCMAWu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 19:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWCMAWu
+	id S1751952AbWCMA3P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 19:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751949AbWCMA3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 19:22:50 -0500
-Received: from filer.fsl.cs.sunysb.edu ([130.245.126.2]:4520 "EHLO
-	filer.fsl.cs.sunysb.edu") by vger.kernel.org with ESMTP
-	id S1751093AbWCMAWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 19:22:49 -0500
-Subject: Re: [PATCH 001 of 4] Update some VFS documentation.
-From: Avishay Traeger <atraeger@cs.sunysb.edu>
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1060312235316.15942@suse.de>
-References: <20060313104910.15881.patches@notabene>
-	 <1060312235316.15942@suse.de>
-Content-Type: text/plain
-Date: Sun, 12 Mar 2006 19:22:37 -0500
-Message-Id: <1142209357.14406.10.camel@ool-44c32f98.dyn.optonline.net>
+	Sun, 12 Mar 2006 19:29:15 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:10467 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751940AbWCMA3O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 19:29:14 -0500
+Date: Sun, 12 Mar 2006 19:29:10 -0500
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] libata fix
+Message-ID: <20060313002910.GA1840@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did a quick scan - some minor corrections in text.
 
-On Mon, 2006-03-13 at 10:53 +1100, NeilBrown wrote:
-<snip>
+Please pull from 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
->    destroy_inode: this method is called by destroy_inode() to release
-> -  	resources allocated for struct inode.
-> +  	resources allocated for struct inode.  It is only required of
+to receive the following updates:
 
-"of" -> "if"
+ drivers/scsi/ahci.c |   14 ++++----------
+ 1 files changed, 4 insertions(+), 10 deletions(-)
 
-> +  	->alloc_inode was defined and simply does a deallocate. 
+Tejun Heo:
+      ahci: fix NULL pointer dereference detected by Coverity
 
-"simply does a deallocate" -> "undoes anything done by ->alloc_inode"
-
-<snip>
-
-> +The first can be used independantly to the others.  The vm can try to
-
-"independantly" -> "independently"
-
-<snip>
-
-> -  writepage: called by the VM write a dirty page to backing store.
-> +  writepage: called by the VM to write a dirty page to backing store.
-> +      This may happen for data integrity reason (i.e. 'sync'), or
-> +      to free up memory (flush).  The difference can be seen in
-> +      wbc->sync_mode.
-> +      The PG_Dirty flag has been cleared and PageLocked is true.
-> +      writepage should start writeout, should set PG_Writeback,
-> +      and should make sure the page is Unlocked, either synchronously
-
-"Unlocked" -> "unlocked"
-
-<snip>
-
->  
->    sync_page: called by the VM to notify the backing store to perform all
->    	queued I/O operations for a page. I/O operations for other pages
-> -	associated with this address_space object may also be performed.
-> +	associated with this address_space object may also be
-> +  	performed.
-
-Why did this line get split?
-
-<snip>
-
->    set_page_dirty: called by the VM to set a page dirty.
-> +        This is particularly needed if an address space attaches
-> +        private data to a page, and that data needs to be updated when
-> +        a page is dirtied.  This is called, for example, when a memory
-> +	mapped page gets modified.
-> +	If defined, it should set the PageDirty flag, and the
-> +        PAGECACHE_TAG_DIRTY tag in the radix tree.
-
-Indentation is off by one.
-
->    readpages: called by the VM to read pages associated with the address_space
-> -  	object.
-> +  	object. This is essentailly just a vector version of
-
-"essentailly" -> "essentially"
-
-> +  	readpage.  Instead of just one page, several pages are
-> +  	requested.
-> +	readpages is only used for readahead, so read errors are
-> +  	ignored.  If anything goes wrong, feel free to give up.
->  
->    prepare_write: called by the generic write path in VM to set up a write
-> -  	request for a page.
-> -
-> -  commit_write: called by the generic write path in VM to write page to
-> -  	its backing store.
-> +  	request for a page.  This indicates to the address space that
-> +  	the given range of bytes are about to be written.  The
-> +  	address_space should check that the write will be able to
-> +  	complete, by allocating space if necessary and doing any other
-> +  	internal house keeping.  If the write will update parts some
-> +  	some basic-blocks on storage, then those blocks should be
-> +  	pre-read (if they haven't been read already) so that the
-> +  	update will not leave half-blocks that need to be written out.
-
-"some" appears twice in a row in this last sentence.  Anyway, it is
-confusing.  I would re-word it to something like:
-"If the write will update partial storage blocks, those blocks should be
-read at this point (if they haven't been already) so that the updated
-blocks can be properly written out."
-
-<snip>
-
-
-Avishay Traeger
-http://www.fsl.cs.sunysb.edu/~avishay/
-
+diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+index a800fb5..559ff7a 100644
+--- a/drivers/scsi/ahci.c
++++ b/drivers/scsi/ahci.c
+@@ -742,23 +742,17 @@ static irqreturn_t ahci_interrupt (int i
+ 			struct ata_queued_cmd *qc;
+ 			qc = ata_qc_from_tag(ap, ap->active_tag);
+ 			if (!ahci_host_intr(ap, qc))
+-				if (ata_ratelimit()) {
+-					struct pci_dev *pdev =
+-						to_pci_dev(ap->host_set->dev);
+-					dev_printk(KERN_WARNING, &pdev->dev,
++				if (ata_ratelimit())
++					dev_printk(KERN_WARNING, host_set->dev,
+ 					  "unhandled interrupt on port %u\n",
+ 					  i);
+-				}
+ 
+ 			VPRINTK("port %u\n", i);
+ 		} else {
+ 			VPRINTK("port %u (no irq)\n", i);
+-			if (ata_ratelimit()) {
+-				struct pci_dev *pdev =
+-					to_pci_dev(ap->host_set->dev);
+-				dev_printk(KERN_WARNING, &pdev->dev,
++			if (ata_ratelimit())
++				dev_printk(KERN_WARNING, host_set->dev,
+ 					"interrupt on disabled port %u\n", i);
+-			}
+ 		}
+ 
+ 		irq_ack |= (1 << i);

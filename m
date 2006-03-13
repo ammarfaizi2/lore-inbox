@@ -1,89 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWCMVj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWCMVql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbWCMVj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWCMVj3
+	id S932464AbWCMVql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWCMVql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:39:29 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:529 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932466AbWCMVj1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 16:39:27 -0500
+	Mon, 13 Mar 2006 16:46:41 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38596 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932464AbWCMVqk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 16:46:40 -0500
+Date: Mon, 13 Mar 2006 13:46:33 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()
+In-Reply-To: <9a8748490603131333o1b252aeq9e7f4aca97295640@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0603131344480.13027@schroedinger.engr.sgi.com>
+References: <200603121428.08226.jesper.juhl@gmail.com> 
+ <20060312144129.0b5c227d.akpm@osdl.org>  <9a8748490603122334h6682be62r18f781003db88b20@mail.gmail.com>
+ <9a8748490603131333o1b252aeq9e7f4aca97295640@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <925A849792280C4E80C5461017A4B8A20321F5@mail733.InfraSupportEtc.com>
-x-originalarrivaltime: 13 Mar 2006 21:39:26.0568 (UTC) FILETIME=[99EFA680:01C646E6]
-Content-class: urn:content-classes:message
-Subject: RE: Router stops routing after changing MAC Address
-Date: Mon, 13 Mar 2006 16:39:16 -0500
-Message-ID: <Pine.LNX.4.61.0603131636470.5608@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Router stops routing after changing MAC Address
-Thread-Index: AcZG5pn5dKmbJtTMQi+H7zFmNosB3w==
-References: <925A849792280C4E80C5461017A4B8A20321F5@mail733.InfraSupportEtc.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Greg Scott" <GregScott@InfraSupportEtc.com>
-Cc: "Stephen Hemminger" <shemminger@osdl.org>,
-       "Chuck Ebbert" <76306.1226@compuserve.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>, <netdev@vger.kernel.org>,
-       "Bart Samwel" <bart@samwel.tk>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Simon Mackinlay" <smackinlay@mail.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 Mar 2006, Jesper Juhl wrote:
 
-On Mon, 13 Mar 2006, Greg Scott wrote:
+> Ok, I've been playing around with a few ways to resolve this, but I'm
+> a bit pressed for time and won't have properly tested patches ready
+> tonight. I will however keep at this, so you'll see patches
+> releatively shortly, just give me another day or two and I'll have
+> this fixed in a nice way (nice little task to work at :) ...
 
-> But in a failover scenario you want two devices to have the same IEEE
-> (station) Address (or MAC Address or hardware address).  So many names
-> for the same thing!
->
-> When the primary unit fails, you want the backup unit to completely
-> assume the failed unit's identity - right down to the MAC Address.  The
-> other way to do it using gratuitous ARPs is not good enough because some
-> cheap router someplace with an ARP cache of several hours will not
-> listen and will never update its own ARP cache.
->
-> I like to think of this as bending the rules a little bit, not really
-> breaking them.  :)
->
-> - Greg
->
+Maybe extract a alloc_kmemlist_node and free_kmemlist_node from 
+alloc_kmemlist()? It gets a bit complicated if all of this is handled within 
+alloc_kmemlist and having these separate may simplify recovery on out of 
+memory.
 
-Top posting, NotGood(tm). Anyway, if the device fails, you have
-routers and hosts ARPing the interface, trying to establish a
-route anyway.
 
->
->
->> Actually, it doesn't make any difference. Changing the IEEE station
->> (physical) address is not an allowed procedure even though hooks are
->> available in many drivers to do this. According to the IEEE 802
->> physical media specification, this 48-bit address must be unique
->> and must be one of a group assigned by IEEE. Failure to follow this
->> simple protocol can (will) cause an entire network to fail. If you
->> don't care, then you certainly don't care about multicast bits either,
->> basically let them set it to all ones as well.
->
->> Cheers,
->> Dick Johnson
->> Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
->> Warning : 98.36% of all statistics are fiction, book release in April.
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

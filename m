@@ -1,120 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWCMSCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWCMSDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWCMSCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWCMSCm
+	id S1751443AbWCMSDd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWCMSDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:02:42 -0500
-Received: from web50101.mail.yahoo.com ([206.190.38.29]:20331 "HELO
-	web50101.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751361AbWCMSCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:02:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=o7vYAIuZG+HCP0G4JHWR67DKf6CsBAzfvRvjqoedST7q9y2oQrncl6O17zoJrhIAVj0IhtRrqYzq63tHMHP1XL6u855CF7bRdVpHWy82+jAOf/rfGLuvHk2fhwalExNd3sW8D87cqnKrT7pKdF8scwxnW1qINi60Cg8kmLwNKpo=  ;
-Message-ID: <20060313180238.10166.qmail@web50101.mail.yahoo.com>
-Date: Mon, 13 Mar 2006 10:02:38 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: BUG: soft lockup detected on CPU#0!  on 2.6.16-rc5
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 13 Mar 2006 13:03:32 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:45067 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751443AbWCMSDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:03:31 -0500
+Date: Mon, 13 Mar 2006 10:00:27 -0800
+Message-Id: <200603131800.k2DI0RfN005633@zach-dev.vmware.com>
+Subject: [RFC, PATCH 2/24] i386 Vmi config
+From: Zachary Amsden <zach@vmware.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
+       Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>,
+       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>,
+       Zachary Amsden <zach@vmware.com>
+X-OriginalArrivalTime: 13 Mar 2006 18:00:28.0049 (UTC) FILETIME=[02C4C010:01C646C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Tyan S881 quad socket mobo with 4 880 opterons on which I am transitioning to our
-manufacturing. In that process I am building up a 24 burnin process test script. I left it running
-over the weekend as a 3 development stage (2 Previous test runs). This run added more memory
-testing and disk testing, as well more CPU stressing.
+Introduce the basic VMI sub-arch configuration dependencies.  VMI kernels only
+are designed to run on modern hardware platforms.  As such, they require a
+working APIC, and do not support some legacy functionality, including APM BIOS,
+ISA and MCA bus systems, PCI BIOS interfaces, or PnP BIOS (by implication of
+dropping ISA support).  They also require a P6 series CPU.
 
-This morining I got the following:
+Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-BUG: soft lockup detected on CPU#0!
-CPU 0:
-Modules linked in: ipv6 sata_sil 3w_9xxx 3w_xxxx mptspi mptscsih mptbase aic79xx
-scsi_transport_spi af_packet i2c_nforce2 sata_nv libata forcedeth k8_edac edac_mc tg3
-Pid: 28099, comm: tee Not tainted 2.6.16-rc5 #3
-RIP: 0010:[<ffffffff80329de1>] <ffffffff80329de1>{_write_lock_irqsave+109}
-RSP: 0000:ffff81012eab1d98  EFLAGS: 00000283
-RAX: 0000000000fffffe RBX: ffffffff80329d67 RCX: 0000000000000003
-RDX: 0000000000000213 RSI: ffff81012eab0010 RDI: 0000000000000003
-RBP: 0000000000000001 R08: ffff81010ae28b90 R09: ffffffff801879b0
-R10: ffff810008002260 R11: ffffffff801879b0 R12: 0000000000000000
-R13: ffffffff801879b0 R14: ffffffff801852c3 R15: ffff81007f406780
-FS:  00002b4d28b394c0(0000) GS:ffffffff804ae000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00002b4d289797d3 CR3: 0000000000101000 CR4: 00000000000006e0
-
-Call Trace: <ffffffff80329dc9>{_write_lock_irqsave+85}
-       <ffffffff8012e2c5>{do_exit+1334} <ffffffff8012e742>{sys_exit_group+0}
-       <ffffffff80137b94>{get_signal_to_deliver+1415} <ffffffff8010a06d>{do_signal+109}
-       <ffffffff80329d67>{_spin_unlock+44} <ffffffff8016ade0>{shmem_file_write+511}
-       <ffffffff8010af6c>{retint_signal+61}
-
-Not all the modules have associated hardware.
-
-lspci output follows:
-
-0000:00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller (rev a3)
-0000:00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-0000:00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-0000:00:04.0 Multimedia audio controller: nVidia Corporation CK804 AC'97 Audio Controller (rev a2)
-0000:00:04.1 Modem: nVidia Corporation: Unknown device 0058 (rev a2)
-0000:00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-0000:00:07.0 RAID bus controller: nVidia Corporation CK804 Serial ATA Controller (rev f3)
-0000:00:08.0 RAID bus controller: nVidia Corporation CK804 Serial ATA Controller (rev f3)
-0000:00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
-0000:00:0a.0 Ethernet controller: nVidia Corporation CK804 Ethernet Controller (rev a3)
-0000:00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-0000:00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-0000:00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-0000:00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
-Technology Configuration
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
-Technology Configuration
-0000:00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:00:1a.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
-Technology Configuration
-0000:00:1a.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:1a.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:1a.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:00:1b.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport
-Technology Configuration
-0000:00:1b.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:1b.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:1b.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:01:05.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller
-(PHY/Link)
-0000:01:09.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-0000:08:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12)
-0000:08:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X IOAPIC (rev 01)
-0000:08:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12)
-0000:08:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X IOAPIC (rev 01)
-0000:09:02.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
-0000:09:02.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
-
-
-The test output indicates the test reached 23 h 55 minutes and no further progression is occuring.
-But the BUG output re-occurs every 30 seconds or so.
-
-FYI
-
-doug t
-
-
-
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
-
+Index: linux-2.6.16-rc5/arch/i386/Kconfig
+===================================================================
+--- linux-2.6.16-rc5.orig/arch/i386/Kconfig	2006-03-06 11:25:08.000000000 -0800
++++ linux-2.6.16-rc5/arch/i386/Kconfig	2006-03-06 16:41:25.000000000 -0800
+@@ -133,8 +133,33 @@ config X86_ES7000
+ 	  Only choose this option if you have such a system, otherwise you
+ 	  should say N here.
+ 
++config X86_VMI
++	bool "VMI architecture support"
++	help
++	   This option builds a kernel designed to run on top of a virtual
++	   machine interface layer (VMI).  Say 'N' here unless you are
++	   building a kernel to run inside a virtual machine.
++
+ endchoice
+ 
++menu "VMI configurable support"
++	depends on X86_VMI
++
++config VMI_REQUIRE_HYPERVISOR
++        bool "Require hypervisor"
++        default n
++        help
++          This option forces the kernel to run with a hypervisor present.
++          The kernel will panic if booted on native hardware.
++
++config VMI_DEBUG
++	bool "VMI debugging"
++	default n
++	help
++	  Provides extra debugging output and testing of VMI interfaces.
++
++endmenu
++
+ config ACPI_SRAT
+ 	bool
+ 	default y
+@@ -270,7 +295,7 @@ config X86_VISWS_APIC
+ 
+ config X86_MCE
+ 	bool "Machine Check Exception"
+-	depends on !X86_VOYAGER
++	depends on !(X86_VOYAGER)
+ 	---help---
+ 	  Machine Check Exception support allows the processor to notify the
+ 	  kernel if it detects a problem (e.g. overheating, component failure).
+@@ -307,6 +332,7 @@ config X86_MCE_P4THERMAL
+ 
+ config TOSHIBA
+ 	tristate "Toshiba Laptop support"
++	depends on !X86_VMI
+ 	---help---
+ 	  This adds a driver to safely access the System Management Mode of
+ 	  the CPU on Toshiba portables with a genuine Toshiba BIOS. It does
+@@ -322,6 +348,7 @@ config TOSHIBA
+ 
+ config I8K
+ 	tristate "Dell laptop support"
++	depends on !X86_VMI
+ 	---help---
+ 	  This adds a driver to safely access the System Management Mode
+ 	  of the CPU on the Dell Inspiron 8000. The System Management Mode
+@@ -569,6 +596,7 @@ config HIGHPTE
+ 
+ config MATH_EMULATION
+ 	bool "Math emulation"
++	depends on !X86_VMI
+ 	---help---
+ 	  Linux can emulate a math coprocessor (used for floating point
+ 	  operations) if you don't have one. 486DX and Pentium processors have
+@@ -760,7 +788,7 @@ source kernel/power/Kconfig
+ source "drivers/acpi/Kconfig"
+ 
+ menu "APM (Advanced Power Management) BIOS Support"
+-depends on PM && !X86_VISWS
++depends on PM && !(X86_VISWS || X86_VMI)
+ 
+ config APM
+ 	tristate "APM (Advanced Power Management) BIOS support"
+@@ -930,8 +958,9 @@ config PCI
+ 
+ choice
+ 	prompt "PCI access mode"
+-	depends on PCI && !X86_VISWS
++	depends on PCI && !(X86_VISWS || X86_VMI)
+ 	default PCI_GOANY
++
+ 	---help---
+ 	  On PCI systems, the BIOS can be used to detect the PCI devices and
+ 	  determine their configuration. However, some old PCI motherboards
+@@ -963,12 +992,12 @@ endchoice
+ 
+ config PCI_BIOS
+ 	bool
+-	depends on !X86_VISWS && PCI && (PCI_GOBIOS || PCI_GOANY)
++	depends on !(X86_VISWS && X86_VMI) && PCI && (PCI_GOBIOS || PCI_GOANY)
+ 	default y
+ 
+ config PCI_DIRECT
+ 	bool
+- 	depends on PCI && ((PCI_GODIRECT || PCI_GOANY) || X86_VISWS)
++ 	depends on PCI && ((PCI_GODIRECT || PCI_GOANY) || X86_VISWS || X86_VMI)
+ 	default y
+ 
+ config PCI_MMCONFIG
+@@ -986,7 +1015,7 @@ config ISA_DMA_API
+ 
+ config ISA
+ 	bool "ISA support"
+-	depends on !(X86_VOYAGER || X86_VISWS)
++	depends on !(X86_VOYAGER || X86_VISWS || X86_VMI)
+ 	help
+ 	  Find out whether you have ISA slots on your motherboard.  ISA is the
+ 	  name of a bus system, i.e. the way the CPU talks to the other stuff
+@@ -1013,7 +1042,7 @@ config EISA
+ source "drivers/eisa/Kconfig"
+ 
+ config MCA
+-	bool "MCA support" if !(X86_VISWS || X86_VOYAGER)
++	bool "MCA support" if !(X86_VISWS || X86_VOYAGER || X86_VMI)
+ 	default y if X86_VOYAGER
+ 	help
+ 	  MicroChannel Architecture is found in some IBM PS/2 machines and
+Index: linux-2.6.16-rc5/arch/i386/Kconfig.cpu
+===================================================================
+--- linux-2.6.16-rc5.orig/arch/i386/Kconfig.cpu	2006-03-06 11:25:08.000000000 -0800
++++ linux-2.6.16-rc5/arch/i386/Kconfig.cpu	2006-03-06 16:01:41.000000000 -0800
+@@ -7,6 +7,7 @@ choice
+ 
+ config M386
+ 	bool "386"
++	depends on !X86_VMI
+ 	---help---
+ 	  This is the processor type of your CPU. This information is used for
+ 	  optimizing purposes. In order to compile a kernel that can run on
+@@ -47,6 +48,7 @@ config M386
+ 
+ config M486
+ 	bool "486"
++	depends on !X86_VMI
+ 	help
+ 	  Select this for a 486 series processor, either Intel or one of the
+ 	  compatible processors from AMD, Cyrix, IBM, or Intel.  Includes DX,
+@@ -55,6 +57,7 @@ config M486
+ 
+ config M586
+ 	bool "586/K5/5x86/6x86/6x86MX"
++	depends on !X86_VMI
+ 	help
+ 	  Select this for an 586 or 686 series processor such as the AMD K5,
+ 	  the Cyrix 5x86, 6x86 and 6x86MX.  This choice does not
+@@ -62,12 +65,14 @@ config M586
+ 
+ config M586TSC
+ 	bool "Pentium-Classic"
++	depends on !X86_VMI
+ 	help
+ 	  Select this for a Pentium Classic processor with the RDTSC (Read
+ 	  Time Stamp Counter) instruction for benchmarking.
+ 
+ config M586MMX
+ 	bool "Pentium-MMX"
++	depends on !X86_VMI
+ 	help
+ 	  Select this for a Pentium with the MMX graphics/multimedia
+ 	  extended instructions.

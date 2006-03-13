@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932389AbWCMTj1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbWCMTnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932389AbWCMTj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:39:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWCMTj0
+	id S932327AbWCMTnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWCMTnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:39:26 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:58829 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932389AbWCMTj0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:39:26 -0500
-Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@stusta.de>, rjwalsh@pathscale.com, rolandd@cisco.com,
-       gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20060313193643.GB32349@mars.ravnborg.org>
-References: <patchbomb.1141950930@eng-12.pathscale.com>
-	 <867a396dd518ac63ab41.1141950948@eng-12.pathscale.com>
-	 <20060313181025.GA13973@stusta.de>
-	 <1142277868.9032.14.camel@serpentine.pathscale.com>
-	 <20060313193643.GB32349@mars.ravnborg.org>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Mon, 13 Mar 2006 11:39:24 -0800
-Message-Id: <1142278765.9032.28.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Mar 2006 14:43:49 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:14027 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932327AbWCMTns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:43:48 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Date: Mon, 13 Mar 2006 20:40:09 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: Re: [PATCH 3/3] Doc/kernel-parameters.txt: slightly reword sentence
+ about restrictions
+To: linux-kernel@vger.kernel.org
+cc: Randy Dunlap <rdunlap@xenotime.net>
+In-Reply-To: <20060313113529.4f18772a.rdunlap@xenotime.net>
+Message-ID: <tkrat.71e8d84ef4071999@s5r6.in-berlin.de>
+References: <tkrat.f6b9032d78fc1d70@s5r6.in-berlin.de>
+ <tkrat.fb495404c563eaf7@s5r6.in-berlin.de>
+ <tkrat.db45898acb8b4e93@s5r6.in-berlin.de>
+ <20060313113529.4f18772a.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii
+Content-Disposition: INLINE
+X-Spam-Score: (0.776) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 20:36 +0100, Sam Ravnborg wrote:
+Doc/kernel-parameters.txt: slightly reword sentence about restrictions
 
-> Use the kernel settings. We cannot have this modified by each and every
-> driver.
+The previous patch somewhat diverted the train of thought.
+Here I am trying to bring the valued reader back on track.
 
-Fair enough.
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+---
+patch update: correct spelling
 
-	<b
+--- linux/Documentation/kernel-parameters.txt.2	2006-03-13 19:57:52.000000000 +0100
++++ linux/Documentation/kernel-parameters.txt	2006-03-13 20:03:32.000000000 +0100
+@@ -24,9 +24,10 @@
+ parameters may be changed at runtime by the command
+ "echo -n ${value} > /sys/module/${modulename}/parameters/${parm}".
+ 
+-The text in square brackets at the beginning of the description states the
+-restrictions on the kernel for the said kernel parameter to be valid. The
+-restrictions referred to are that the relevant option is valid if:
++The parameters listed below are only valid if certain kernel build options were
++enabled and if respective hardware is present. The text in square brackets at
++the beginning of each description states the restrictions within which a
++parameter is applicable:
+ 
+ 	ACPI	ACPI support is enabled.
+ 	ALSA	ALSA sound support is enabled.
+
 

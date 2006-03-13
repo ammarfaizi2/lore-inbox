@@ -1,104 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWCMXCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWCMXFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751495AbWCMXCE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 18:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWCMXCE
+	id S1750807AbWCMXFa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 18:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWCMXFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 18:02:04 -0500
-Received: from xenotime.net ([66.160.160.81]:34500 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751495AbWCMXCD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 18:02:03 -0500
-Date: Mon, 13 Mar 2006 15:03:51 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: radix tree safety
-Message-Id: <20060313150351.5006bf19.rdunlap@xenotime.net>
-In-Reply-To: <20060313224344.9173.qmail@lwn.net>
-References: <20060313224344.9173.qmail@lwn.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Mon, 13 Mar 2006 18:05:30 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:34488 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750807AbWCMXF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 18:05:29 -0500
+Date: Mon, 13 Mar 2006 15:04:35 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, olel@ans.pl,
+       venkatesh.pallipadi@intel.com, linux-kernel@vger.kernel.org,
+       suresh.b.siddha@intel.com, rajesh.shah@intel.com, ak@muc.de
+Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on 2.6.16-rc6
+Message-ID: <20060313150435.A26689@unix-os.sc.intel.com>
+References: <Pine.LNX.4.64.0603121202540.31039@bizon.gios.gov.pl> <20060312032523.109361c1.akpm@osdl.org> <Pine.LNX.4.64.0603121359540.31039@bizon.gios.gov.pl> <20060312073524.A9213@unix-os.sc.intel.com> <Pine.LNX.4.64.0603122206110.19689@bizon.gios.gov.pl> <20060312143053.530ef6c9.akpm@osdl.org> <20060313113615.A24797@unix-os.sc.intel.com> <20060313115155.24dfb6f3.akpm@osdl.org> <20060313120552.A25020@unix-os.sc.intel.com> <20060313142223.7ac20a65.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060313142223.7ac20a65.akpm@osdl.org>; from akpm@osdl.org on Mon, Mar 13, 2006 at 02:22:23PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Mar 2006 15:43:44 -0700 Jonathan Corbet wrote:
-
-> I've been digging through the radix tree code, and I noticed that the
-> tag functions have an interesting limitation.  The tag is given as an
-> integer value, but, in reality, the only values that work are zero and
-> one.  Anything else will return random results or (when setting tags)
-> corrupt unrelated memory.
+On Mon, Mar 13, 2006 at 02:22:23PM -0800, Andrew Morton wrote:
+> >   config HOTPLUG_CPU
+> >   	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
+> >  -	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER
+> >  +	depends on SMP && HOTPLUG && EXPERIMENTAL && !X86_VOYAGER && !X86_PC
+> >   	---help---
+> >   	  Say Y here to experiment with turning CPUs off and on.  CPUs
+> >   	  can be controlled through /sys/devices/system/cpu.
 > 
-> The number of radix tree users is small, so it's not hard to confirm
-> that all tag values currently in use are legal.  But the interface would
-> seem to invite mistakes.
+> Longer term, it appears that we need to do some Kconfig and C work to
+> separate out the HOTPLUG_CPU infrastructure which swsusp needs from actual
+> CPU hotplugging.
+
+The needs are not any different. Both (swsusp and cpu hotplug) both require
+logical cpu offlining which is what CONFIG_HOTPLUG_CPU does.
+
+Physical cpu hotplug is enabled by CONFIG_ACPI_HOTPLUG_CPU.
+
 > 
-> The following patch puts in checks for out-of-range tag values.  I've
-> elected to have the relevant call fail; one could argue that it should
-> BUG instead.  Either seems better than silently doing weird stuff.  Not
-> 2.6.16 material, obviously, but maybe suitable thereafter.
+> What _is_ this IPI problem anyway?  Can't send point-to-point IPIs to
+> offlined CPUs?  (Don't do that then?) Or do broadcast IPIs go wrong, or
+> what?
 
-or a typedef like gfp_flags
+Its not the point-to-point..we do that only to wake a CPU, but thats done
+in flat physical mode always.
 
-> jon
+When we do smp_call_function() under X86_PC we use logical flat mode. 
+This sends a broadcast IPI by using a shortcut message. This is bad, since 
+the offline cpu may also receive it and process just when we bring the cpu 
+online. 
+
+send_IPI_allbutself() and send_IPI_all() versions that use the shortcut
+values are the ones to avoid. 
+
 > 
-> Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+> And does it affect pretend-x86-hotplug, or is it only affecting real hotplug?
 > 
-> --- 2.6.16-rc6/lib/radix-tree.c.orig	2006-03-13 14:42:48.000000000 -0700
-> +++ 2.6.16-rc6/lib/radix-tree.c	2006-03-13 15:33:35.000000000 -0700
-> @@ -364,6 +364,8 @@ void *radix_tree_tag_set(struct radix_tr
->  	height = root->height;
->  	if (index > radix_tree_maxindex(height))
->  		return NULL;
-> +	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-> +		return NULL;
->  
->  	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
->  	slot = root->rnode;
-> @@ -408,6 +410,8 @@ void *radix_tree_tag_clear(struct radix_
->  	height = root->height;
->  	if (index > radix_tree_maxindex(height))
->  		goto out;
-> +	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-> +		goto out;
->  
->  	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
->  	pathp->node = NULL;
-> @@ -468,6 +472,8 @@ int radix_tree_tag_get(struct radix_tree
->  	height = root->height;
->  	if (index > radix_tree_maxindex(height))
->  		return 0;
-> +	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-> +		return 0;
->  
->  	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
->  	slot = root->rnode;
-> @@ -660,6 +666,9 @@ radix_tree_gang_lookup_tag(struct radix_
->  	unsigned long cur_index = first_index;
->  	unsigned int ret = 0;
->  
-> +	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-> +		return 0;
-> +
->  	while (ret < max_items) {
->  		unsigned int nr_found;
->  		unsigned long next_index;	/* Index of next search */
-> @@ -807,6 +816,8 @@ int radix_tree_tagged(struct radix_tree_
->    	rnode = root->rnode;
->    	if (!rnode)
->    		return 0;
-> +	if (tag < 0 || tag >= RADIX_TREE_TAGS)
-> +		return 0;
->  	return any_tag_set(rnode, tag);
->  }
->  EXPORT_SYMBOL(radix_tree_tagged);
+its no more pretend-x86, in the past we used to put the cpu in idle(), 
+now we do put the cpu in halt and bring back by another startup ipi, just like 
+boot sequence, both for x86 and x86_64.
 
-
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

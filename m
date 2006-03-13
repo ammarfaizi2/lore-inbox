@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWCMEt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWCMExo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWCMEt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 23:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWCMEt7
+	id S932303AbWCMExo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 23:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWCMExo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 23:49:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17331 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932275AbWCMEt7 (ORCPT
+	Sun, 12 Mar 2006 23:53:44 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:13020 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932302AbWCMExm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 23:49:59 -0500
-Date: Sun, 12 Mar 2006 20:47:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Brown <neilb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm1 (NFS tree ... busy inodes ... relatively
- harmless)
-Message-Id: <20060312204736.3102c314.akpm@osdl.org>
-In-Reply-To: <17428.63369.446803.958721@cse.unsw.edu.au>
-References: <20060312031036.3a382581.akpm@osdl.org>
-	<17428.63369.446803.958721@cse.unsw.edu.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Mar 2006 23:53:42 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Mon, 13 Mar 2006 12:51:57 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B2DAF0C@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+thread-index: AcZGWCzhiuvaVElATJegW7ioXoLSHgAAJxPA
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       <v4l-dvb-maintainer@linuxtv.org>, <video4linux-list@redhat.com>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       <linux-usb-devel@lists.sourceforge.net>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, <linux-ide@vger.kernel.org>,
+       "Duncan" <1i5t5.duncan@cox.net>, "Pavlik Vojtech" <vojtech@suse.cz>,
+       <linux-input@atrey.karlin.mff.cuni.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 13 Mar 2006 04:52:02.0476 (UTC) FILETIME=[DE7326C0:01C64659]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown <neilb@suse.de> wrote:
+>> I need the acpi trace log before _PTS to see what kind of thermal
+>> related methods got called.
 >
-> On Sunday March 12, akpm@osdl.org wrote:
-> > 
-> > - The NFS tree is a bit sick - you may see the `busy inodes - self destruct
-> >   in five seconds" message when performing NFS unmounts.  It seems relatively
-> >   harmless.
-> 
-> I think the term is "mostly harmless" ... see the entry for "Earth" in
-> The Hitch-Hikers Guide To The Galaxy... :-)
-> 
-> I don't believe this is harmless at all, and I have an oops to prove
-> it - though it is with NFSv4 which is still EXPERIMENTAL.
-> 
-> I don't believe it is an NFS bug at all, but a VFS bug.  It happens
-> more with NFS because iput on nfs can be a lot slower due to the
-> required network activity, so the race is easier to hit.
+>Alas, I've included all the dmesg's.  
 
-It's 100% repeatable for me, with nfsv3 unmounts.  First the busy inodes,
-then a use-after-free oops if CONFIG_DEBUG_PAGEALLOC (if that workaround
-patch I have in there isn't applied).
+I need the full log  for S3 suspend failure not just snippets.
+Please attach it on bugzilla.kernel.org
 
-Not a race, methinks.
+The log for S3 suspend success cannot help me to track down.
 
+
+>
+>Below is the script that I use to enter S3 sleep.  It unloads rid of
+>troublesome modules and stop services that don't sleep well.  Then
+>(for debugging) it sends the kernel version and boot parameters across
+>the serial console (the @@@@ SLEEP line), raises the debug level to
+>0x1F, does a sync (in case the sleep hangs, since this is my
+>production machine), and then enters mem sleep.
+>
+>So nothing in it should trigger any thermal methods; except that I
+>usually have the THM2 trip point raised to 45C with a polling time of
+>100 seconds.  So once in a while a thermal poll will happen sleep is
+>being set up.  I am not sure whether it would be reported in the
+>dmesgs if it happened; but the S3 failure happens much more often than
+>such a thermal polling would happen, so I doubt the S3 failure
+>requires a thermal poll.
+
+Could you try to mute thermal poll?

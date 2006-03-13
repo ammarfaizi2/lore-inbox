@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751607AbWCMRQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751632AbWCMR0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751607AbWCMRQk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 12:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWCMRQk
+	id S1751632AbWCMR0r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 12:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWCMR0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 12:16:40 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16567 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751513AbWCMRQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 12:16:39 -0500
-Subject: RE: [future of drivers?] a proposal for binary drivers.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: davids@webmaster.com,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1142241857.19650.27.camel@tara.firmix.at>
-References: <MDEHLPKNGKAHNMBLJOLKGEMOKKAB.davids@webmaster.com>
-	 <1142241857.19650.27.camel@tara.firmix.at>
-Content-Type: text/plain
-Date: Mon, 13 Mar 2006 12:16:09 -0500
-Message-Id: <1142270171.25358.310.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Mar 2006 12:26:47 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:13091 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1751233AbWCMR0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 12:26:46 -0500
+X-IronPort-AV: i="4.02,187,1139212800"; 
+   d="scan'208"; a="313735804:sNHT29598686"
+To: "Sean Hefty" <sean.hefty@intel.com>
+Cc: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <openib-general@openib.org>
+Subject: Re: [PATCH 5/6 v2] IB: IP address based RDMA connection manager
+X-Message-Flag: Warning: May contain useful information
+References: <ORSMSX401FRaqbC8wSA0000001e@orsmsx401.amr.corp.intel.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 13 Mar 2006 09:26:43 -0800
+In-Reply-To: <ORSMSX401FRaqbC8wSA0000001e@orsmsx401.amr.corp.intel.com> (Sean Hefty's message of "Mon, 13 Mar 2006 09:11:34 -0800")
+Message-ID: <ada64mife7g.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 13 Mar 2006 17:26:45.0734 (UTC) FILETIME=[4D5FF860:01C646C3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 10:24 +0100, Bernd Petrovitsch wrote:
-> Maybe not under (US-American) copyright, but under continental
-> European authors rights there are such possibilities (I leave it to
-> lawyers if and when they apply) and you can't even remove them with
-> contracts (as with all law stuff).
-> 
+    Sean> It's dropping the reference on cma_dev, as opposed to
+    Sean> id_priv.
 
-Please refrain from knee-jerk USA-bashing, you said yourself you don't
-know the law.
+Duh, sorry.
 
-Lee
-
+ - R.

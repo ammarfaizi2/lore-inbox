@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWCMUMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWCMUOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964769AbWCMUMv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:12:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWCMUMv
+	id S932414AbWCMUOo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 15:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWCMUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:12:51 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:43924 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964769AbWCMUMu convert rfc822-to-8bit (ORCPT
+	Mon, 13 Mar 2006 15:14:44 -0500
+Received: from av8-1-sn3.vrr.skanova.net ([81.228.9.183]:49807 "EHLO
+	av8-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S932413AbWCMUOm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:12:50 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 13 Mar 2006 15:14:42 -0500
+From: "frank smith" <frank1@creete.se>
+Reply-To: <frankjsmith1@yahoo.com.hk>
+Subject: Respectfully
+Date: Mon, 13 Mar 2006 21:05:15 +0100
+Message-ID: <1381908098.20060313210515@webmail.creete.se>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.16-rc6: known regressions
-Date: Mon, 13 Mar 2006 15:11:06 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30065E0E36@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc6: known regressions
-Thread-Index: AcZG2bTIld00WhTtRUWqQmpKpbxEAgAABplA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Dave Jones" <davej@redhat.com>, <linux-acpi@vger.kernel.org>
-X-OriginalArrivalTime: 13 Mar 2006 20:11:25.0309 (UTC) FILETIME=[4E0F7AD0:01C646DA]
+X-Mailer: Ability Mail Server 2.52 WebMail (by Code-Crafters)
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->Subject    : 2.6.16-rc5 acpi slab corruption
->References : http://lkml.org/lkml/2006/3/1/223
->Submitter  : Dave Jones <davej@redhat.com>
->Status     : unknown
+Hello Dear,
 
-Closed.
-http://bugzilla.kernel.org/show_bug.cgi?id=6176
+I 'm very sorry to interrupt your peace Since you're not expecting to receive any mail from me. However, I was obliged to do so due to the importance and urgency of the message. I crave your indulgence, and want to reasure you that I mean well and that it is only for our mutual good. So please don,t be embarrassed as this's the only way I could make contact to you.
+
+My name is Frank Smith, a Journalist attached to the United Kingdom military. I 'm writing this message from Ar-ramadi in Iraq. We have moved around a few times building up F.O.B. around the western side of the country as well as missions into Baghdad, with attacks by insurgents everyday and car bombs, we managed to move funds belonging to Saddam Hussein's family which we found in his palace after his arrest,We want to move this money out of Iraqi, since it's a war zone although partially ended but the daily activities of suicide bombers is frighteningly on the increase.
+
+I reached an agreement with the members of my team and we agreed to keep this money to ourselves and then moved the box out of Iraq to Europe (we have also concluded plans to move the money out of this place as soon as possible.I'm in need your help as an individual or any company overseas whom I can confidently work with I have not finished my assignment and cannot return to the UK now.
+
+I have the honor to confide this information in you and to request for your pleasure to assist in receiving and secure the money, pending our retirement from service. You are therefore expected and advised to display high degree of maturity,responsibility and understanding in handling this information. I will give you all the details in my next mail when you have indicated your interest and commitment to work with me.I hope you will honor me too. We can come over to join you for sharing and to guarantee that we have unlimited access to you. Moreso for an effective and easy communication I will advice that you furnish me with your phone numbers and other necessary details to make me rest assured that your interest.
+
+I eagerly await your positive response.
+Respectfully,
+
+FRANK SMITH
+Reporting from Ar-ramadi Iraq
+
+
+
+____________________________________________________________________________
+Powered by CreeteSystems | www.creete.se
+

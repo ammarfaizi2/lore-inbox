@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWCMTdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWCMTgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWCMTdo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWCMTdo
+	id S932373AbWCMTgR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWCMTgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:33:44 -0500
-Received: from xenotime.net ([66.160.160.81]:24298 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932340AbWCMTdn (ORCPT
+	Mon, 13 Mar 2006 14:36:17 -0500
+Received: from smtp-2.llnl.gov ([128.115.3.82]:4348 "EHLO smtp-2.llnl.gov")
+	by vger.kernel.org with ESMTP id S932365AbWCMTgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:33:43 -0500
-Date: Mon, 13 Mar 2006 11:35:29 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Doc/kernel-parameters.txt: slightly reword sentence
- about restrictions
-Message-Id: <20060313113529.4f18772a.rdunlap@xenotime.net>
-In-Reply-To: <tkrat.db45898acb8b4e93@s5r6.in-berlin.de>
-References: <tkrat.f6b9032d78fc1d70@s5r6.in-berlin.de>
-	<tkrat.fb495404c563eaf7@s5r6.in-berlin.de>
-	<tkrat.db45898acb8b4e93@s5r6.in-berlin.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Mar 2006 14:36:16 -0500
+From: Dave Peterson <dsp@llnl.gov>
+To: Doug Thompson <dthompson@lnxi.com>
+Subject: Re: [PATCH] EDAC: core EDAC support code
+Date: Mon, 13 Mar 2006 11:35:35 -0800
+User-Agent: KMail/1.5.3
+Cc: arjan@infradead.org, greg@kroah.com, gregkh@kroah.com,
+       bluesmoke-devel@lists.sourceforge.net,
+       Doug Thompson <dthompson@lnxi.com>, torvalds@osdl.org, alan@redhat.com,
+       linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+References: <4412A0AB02000036000015D4@zoot.lnxi.com>
+In-Reply-To: <4412A0AB02000036000015D4@zoot.lnxi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603131135.35531.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Mar 2006 20:23:17 +0100 (CET) Stefan Richter wrote:
+On Saturday 11 March 2006 09:04, Doug Thompson wrote:
+> > > >     - When an error is actually detected, the subsystem that detected
+> > > >       the error (for instance, PCI) would feed the error information
+> > > >       to EDAC.  Then EDAC would determine how to respond to the error
+> > > >       (for instance, push it to userspace or implement the
+> > > >       userspace-chosen policy (panic/reboot/etc))
+> > >
+> > > yup.
+> >
+> > Cool!  I think this also coincides with what Doug is saying.  Doug, how
+> > does this sound?
+>
+> It sounds good. One issue is how this works with the IBM PCI Parity
+> handling submission? I don't remember if it has been included yet or
+> not. I haven't fully studied their model, but it allowed for device
+> drivers to register notification functions. The PCI subsystem would then
+> notify the driver of such errors so the driver could do what ever it
+> needed to do in the bad-thing-happened event.
 
-> Doc/kernel-parameters.txt: slightly reword sentence about restrictions
-> 
-> The previous patch somewhat diverted the train of thought.
-> Here I am trying to bring the valued reader back on track.
-> 
-> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-> 
-> --- linux/Documentation/kernel-parameters.txt.2	2006-03-13 19:57:52.000000000 +0100
-> +++ linux/Documentation/kernel-parameters.txt	2006-03-13 20:03:32.000000000 +0100
-> @@ -24,9 +24,10 @@
->  parameters may be changed at runtime by the command
->  "echo -n ${value} > /sys/module/${modulename}/parameters/${parm}".
->  
-> -The text in square brackets at the beginning of the description states the
-> -restrictions on the kernel for the said kernel parameter to be valid. The
-> -restrictions referred to are that the relevant option is valid if:
-> +The parameters listed below are only valid if certain kernel build options were
-> +enabled and if respective hardware is present. The text in square brackets at
-> +the beginning of each description states the restrictions within wich a
-> +parameter is applicable:
+Hmm... interesting.  Can you provide any links to info on this?
 
-within which
-
-
----
-~Randy
-You can't do anything without having to do something else first.
--- Belefant's Law

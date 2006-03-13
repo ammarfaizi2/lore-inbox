@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbWCMSLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWCMSMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbWCMSLd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:11:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWCMSLc
+	id S932310AbWCMSMY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:12:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWCMSMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:11:32 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:8205 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932256AbWCMSLa
+	Mon, 13 Mar 2006 13:12:23 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:15621 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932310AbWCMSMV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:11:30 -0500
-Date: Mon, 13 Mar 2006 10:11:28 -0800
-Message-Id: <200603131811.k2DIBS8j005741@zach-dev.vmware.com>
-Subject: [RFC, PATCH 16/24] i386 Vmi io header
+	Mon, 13 Mar 2006 13:12:21 -0500
+Date: Mon, 13 Mar 2006 10:12:16 -0800
+Message-Id: <200603131812.k2DICGJE005747@zach-dev.vmware.com>
+Subject: [RFC, PATCH 17/24] i386 Vmi msr patch
 From: Zachary Amsden <zach@vmware.com>
 To: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -28,269 +28,190 @@ To: Linus Torvalds <torvalds@osdl.org>,
        Wim Coekaerts <wim.coekaerts@oracle.com>,
        Leendert van Doorn <leendert@watson.ibm.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:11:29.0119 (UTC) FILETIME=[8CCC06F0:01C646C9]
+X-OriginalArrivalTime: 13 Mar 2006 18:12:16.0336 (UTC) FILETIME=[A8F0C500:01C646C9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move I/O instruction building to the sub-arch layer.  Some very crafty
-but esoteric macros are used here to get optimized native instructions
-for port I/O in Linux be writing raw instruction strings.  Adding a
-wrapper layer here is fairly easy, and makes the full range of I/O
-instructions available to the VMI interface.
-
-Also, slowing down I/O is not a useful operation in a VM, so there
-is a VMI call specifically to allow making it a NOP.  I could find
-no place where SLOW_IO_BY_JUMPING is still used, and consider it
-obsoleted.  Even on older 386 systems, the I/O delay approximation
-by touching the extra page register is likely to better.
+Fairly straightforward code motion of MSR / TSC / PMC accessors
+to the sub-arch level.  Note that rdmsr/wrmsr_safe functions are
+not moved; Linux relies on the fault behavior here in the event
+that certain MSRs are not supported on hardware, and combining
+this with a VMI wrapper is overly complicated.  The instructions
+are virtualizable with trap and emulate, not on critical code
+paths, and only used as part of the MSR /proc device, which is
+highly sketchy to use inside a virtual machine, but must be
+allowed as part of the compile, since it is useful on native.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
 
-Index: linux-2.6.16-rc5/include/asm-i386/io.h
+Index: linux-2.6.16-rc5/include/asm-i386/msr.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/io.h	2006-03-07 17:02:52.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/io.h	2006-03-08 10:09:24.000000000 -0800
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- #include <linux/string.h>
- #include <linux/compiler.h>
-+#include <mach_io.h>
+--- linux-2.6.16-rc5.orig/include/asm-i386/msr.h	2006-03-08 10:31:10.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/msr.h	2006-03-08 10:32:07.000000000 -0800
+@@ -1,22 +1,14 @@
+ #ifndef __ASM_MSR_H
+ #define __ASM_MSR_H
  
++#include <mach_msr.h>
++
  /*
-  * This file contains the definitions for the x86 IO instructions
-@@ -296,19 +297,11 @@ static inline void flush_write_buffers(v
+  * Access to machine-specific registers (available on 586 and better only)
+  * Note: the rd* operations modify the parameters directly (without using
+  * pointer indirection), this allows gcc to optimize better
+  */
  
- #endif /* __KERNEL__ */
- 
--#ifdef SLOW_IO_BY_JUMPING
--#define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
--#else
--#define __SLOW_DOWN_IO "outb %%al,$0x80;"
--#endif
+-#define rdmsr(msr,val1,val2) \
+-	__asm__ __volatile__("rdmsr" \
+-			  : "=a" (val1), "=d" (val2) \
+-			  : "c" (msr))
 -
- static inline void slow_down_io(void) {
--	__asm__ __volatile__(
--		__SLOW_DOWN_IO
-+	__SLOW_DOWN_IO;
- #ifdef REALLY_SLOW_IO
--		__SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO
-+	__SLOW_DOWN_IO; __SLOW_DOWN_IO; __SLOW_DOWN_IO;
- #endif
--		: : );
- }
+-#define wrmsr(msr,val1,val2) \
+-	__asm__ __volatile__("wrmsr" \
+-			  : /* no outputs */ \
+-			  : "c" (msr), "a" (val1), "d" (val2))
+-
+ #define rdmsrl(msr,val) do { \
+ 	unsigned long l__,h__; \
+ 	rdmsr (msr, l__, h__);  \
+@@ -62,22 +54,6 @@ static inline void wrmsrl (unsigned long
+ 		     : "c" (msr), "i" (-EFAULT));\
+ 	ret__; })
  
- #ifdef CONFIG_X86_NUMAQ
-@@ -346,11 +339,11 @@ static inline unsigned type in##bwl(int 
- 
- #define BUILDIO(bwl,bw,type) \
- static inline void out##bwl##_local(unsigned type value, int port) { \
--	__asm__ __volatile__("out" #bwl " %" #bw "0, %w1" : : "a"(value), "Nd"(port)); \
-+	__BUILDOUTINST(bwl,bw,value,port); \
- } \
- static inline unsigned type in##bwl##_local(int port) { \
- 	unsigned type value; \
--	__asm__ __volatile__("in" #bwl " %w1, %" #bw "0" : "=a"(value) : "Nd"(port)); \
-+	__BUILDININST(bwl,bw,value,port); \
- 	return value; \
- } \
- static inline void out##bwl##_local_p(unsigned type value, int port) { \
-@@ -373,10 +366,10 @@ static inline unsigned type in##bwl##_p(
- 	return value; \
- } \
- static inline void outs##bwl(int port, const void *addr, unsigned long count) { \
--	__asm__ __volatile__("rep; outs" #bwl : "+S"(addr), "+c"(count) : "d"(port)); \
-+	__BUILDOUTSINST(bwl,addr,count,port); \
- } \
- static inline void ins##bwl(int port, void *addr, unsigned long count) { \
--	__asm__ __volatile__("rep; ins" #bwl : "+D"(addr), "+c"(count) : "d"(port)); \
-+	__BUILDINSINST(bwl,addr,count,port); \
- }
- 
- BUILDIO(b,b,char)
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_io.h
+-#define rdtsc(low,high) \
+-     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
+-
+-#define rdtscl(low) \
+-     __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
+-
+-#define rdtscll(val) \
+-     __asm__ __volatile__("rdtsc" : "=A" (val))
+-
+-#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
+-
+-#define rdpmc(counter,low,high) \
+-     __asm__ __volatile__("rdpmc" \
+-			  : "=a" (low), "=d" (high) \
+-			  : "c" (counter))
+-
+ /* symbolic names for some interesting MSRs */
+ /* Intel defined MSRs. */
+ #define MSR_IA32_P5_MC_ADDR		0
+Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_msr.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/mach_io.h	2006-03-08 10:09:24.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_io.h	2006-03-08 10:09:47.000000000 -0800
-@@ -0,0 +1,155 @@
-+#ifndef _MACH_ASM_IO_H
-+#define _MACH_ASM_IO_H
+--- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/mach_msr.h	2006-03-08 10:32:07.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/mach_msr.h	2006-03-08 10:32:30.000000000 -0800
+@@ -0,0 +1,79 @@
++#ifndef MACH_MSR_H
++#define MACH_MSR_H
 +
 +#include <vmi.h>
 +
-+/*
-+ * Note on the VMI calls below; all of them must specify memory
-+ * clobber, even output calls.  The reason is that the memory
-+ * clobber is not an effect of the VMI call, but is used to
-+ * serialize memory writes by the compiler before an I/O
-+ * instruction.  In addition, even input operations may clobber
-+ * hardware mapped memory.
-+ */
-+
-+static inline void vmi_outl(const VMI_UINT32 value, const VMI_UINT16 port)
++static inline u64 vmi_rdmsr(const u32 msr)
 +{
++	u64 ret;
 +	vmi_wrap_call(
-+		OUT, "out %0, %w1",
-+		VMI_NO_OUTPUT,
-+		2, XCONC("a"(value), "d"(port)),
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
-+}
-+
-+static inline void vmi_outb(const VMI_UINT8 value, const VMI_UINT16 port)
-+{
-+	vmi_wrap_call(
-+		OUTB, "outb %b0, %w1",
-+		VMI_NO_OUTPUT,
-+		2, XCONC("a"(value), "d"(port)),
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
-+}
-+
-+static inline void vmi_outw(const VMI_UINT16 value, const VMI_UINT16 port)
-+{
-+	vmi_wrap_call(
-+		OUTW, "outw %w0, %w1",
-+		VMI_NO_OUTPUT,
-+		2, XCONC("a"(value), "d"(port)),
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
-+}
-+
-+static inline VMI_UINT32 vmi_inl(const VMI_UINT16 port)
-+{
-+	VMI_UINT32 ret;
-+	vmi_wrap_call(
-+		IN, "in %w0, %%eax",
-+		VMI_OREG1(ret),
-+		1, XCONC("d"(port)),
-+		VMI_CLOBBER_EXTENDED(ONE_RETURN, "memory"));
++		RDMSR, "rdmsr",
++		VMI_OREG64 (ret),
++		1, "c" (msr),
++		VMI_CLOBBER(TWO_RETURNS));
 +	return ret;
 +}
 +
-+static inline VMI_UINT8 vmi_inb(const VMI_UINT16 port)
-+{
-+	VMI_UINT8 ret;
-+	vmi_wrap_call(
-+		INB, "inb %w0, %%al",
-+		VMI_OREG1(ret),
-+		1, XCONC("d"(port)),
-+		VMI_CLOBBER_EXTENDED(ONE_RETURN, "memory"));
-+	return ret;
-+}
++#define rdmsr(msr,val1,val2) \
++do { \
++	u64 _val = vmi_rdmsr(msr); \
++	val1 = (u32)_val; \
++	val2 = (u32)(_val >> 32); \
++} while (0)
 +
-+static inline VMI_UINT16 vmi_inw(const VMI_UINT16 port)
-+{
-+	VMI_UINT16 ret;
-+	vmi_wrap_call(
-+		INW, "inw %w0, %%ax",
-+		VMI_OREG1(ret),
-+		1, XCONC("d"(port)),
-+		VMI_CLOBBER_EXTENDED(ONE_RETURN, "memory"));
-+	return ret;
-+}
-+
-+static inline void vmi_outsl(VMI_UINT32 const *addr, const VMI_UINT16 port, VMI_UINT32 count)
++static inline void wrmsr(const u32 msr, const u32 valLo, const u32 valHi)
 +{
 +	vmi_wrap_call(
-+		OUTS, "rep; outsl",
++		WRMSR, "wrmsr",
 +		VMI_NO_OUTPUT,
-+		3, XCONC("S"(addr), "c"(count), "d"(port)), 
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "esi", "ecx", "memory"));
++		3, XCONC("a"(valLo), "d"(valHi), "c"(msr)),
++		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
 +}
 +
-+static inline void vmi_outsb(VMI_UINT8 const *addr, const VMI_UINT16 port, VMI_UINT32 count)
++static inline u64 vmi_rdtsc(void)
 +{
++	u64 ret;
 +	vmi_wrap_call(
-+		OUTSB, "rep; outsb",
-+		VMI_NO_OUTPUT,
-+		3, XCONC("S"(addr), "c"(count), "d"(port)), 
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "esi", "ecx", "memory"));
-+}
-+
-+static inline void vmi_outsw(VMI_UINT16 const *addr, const VMI_UINT16 port, VMI_UINT32 count)
-+{
-+	vmi_wrap_call(
-+		OUTSW, "rep; outsw",
-+		VMI_NO_OUTPUT,
-+		3, XCONC("S"(addr), "c"(count), "d"(port)), 
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "esi", "ecx", "memory"));
-+}
-+
-+static inline void vmi_insl(VMI_UINT32 *addr, const VMI_UINT16 port, VMI_UINT32 count)
-+{
-+	vmi_wrap_call(
-+		INS, "rep; insl",
-+		VMI_NO_OUTPUT,
-+		3, XCONC("D"(addr), "c"(count), "d"(port)), 
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "edi", "ecx", "memory"));
-+}
-+
-+static inline void vmi_insb(VMI_UINT8 *addr, const VMI_UINT16 port, VMI_UINT32 count)
-+{
-+	vmi_wrap_call(
-+		INSB, "rep; insb",
-+		VMI_NO_OUTPUT,
-+		3, XCONC("D"(addr), "c"(count), "d"(port)), 
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "edi", "ecx", "memory"));
-+}
-+
-+static inline void vmi_insw(VMI_UINT16 *addr, const VMI_UINT16 port, VMI_UINT32 count)
-+{
-+	vmi_wrap_call(
-+		INSW, "rep; insw",
-+		VMI_NO_OUTPUT,
-+		3, XCONC("D"(addr), "c"(count), "d"(port)), 
-+		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "edi", "ecx", "memory"));
-+}
-+
-+
-+/*
-+ * Slow down port I/O by issuing a write to a chipset scratch
-+ * register.  This is an efficient and easy way to slow down
-+ * I/O regardless of processor speed, but useless in a virtual
-+ * machine.
-+ */
-+static inline void vmi_iodelay(void)
-+{
-+	vmi_wrap_call(
-+		IODelay, "outb %%al, $0x80",
-+		VMI_NO_OUTPUT,
++		RDTSC, "rdtsc",
++		VMI_OREG64 (ret),
 +		0, VMI_NO_INPUT,
-+		VMI_CLOBBER(ZERO_RETURNS));
++		VMI_CLOBBER(TWO_RETURNS));
++	return ret;
 +}
 +
-+#define __SLOW_DOWN_IO vmi_iodelay()
++#define rdtsc(low,high) \
++do { \
++	u64 _val = vmi_rdtsc(); \
++	low = (u32)_val; \
++	high = (u32)(_val >> 32); \
++} while (0)
 +
-+#define __BUILDOUTINST(bwl,bw,value,port) \
-+	vmi_out##bwl(value, port)
-+#define	__BUILDININST(bwl,bw,value,port) \
-+	do { value = vmi_in##bwl(port); } while (0)
-+#define	__BUILDOUTSINST(bwl,addr,count,port) \
-+	vmi_outs##bwl(addr, port, count)
-+#define	__BUILDINSINST(bwl,addr,count,port) \
-+	vmi_ins##bwl(addr, port, count)
++#define rdtscl(low) \
++do { \
++	u64 _val = vmi_rdtsc(); \
++	low = (u32)_val; \
++} while (0)
++
++#define rdtscll(val) do { val = vmi_rdtsc(); } while (0)
++
++#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
++
++static inline u64 vmi_rdpmc(const u32 counter)
++{
++	u64 ret;
++	vmi_wrap_call(
++		RDPMC, "rdpmc",
++		VMI_OREG64 (ret),
++		1, "c" (counter),
++		VMI_CLOBBER(TWO_RETURNS));
++	return ret;
++}
++
++#define rdpmc(counter,val1,val2) \
++do { \
++	u64 _val = vmi_rdpmc(counter); \
++	val1 = (u32)_val; \
++	val2 = (u32)(_val >> 32); \
++} while (0)
++
 +#endif
-Index: linux-2.6.16-rc5/include/asm-i386/mach-default/mach_io.h
+Index: linux-2.6.16-rc5/include/asm-i386/mach-default/mach_msr.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/mach_io.h	2006-03-08 10:09:24.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-default/mach_io.h	2006-03-08 10:09:24.000000000 -0800
-@@ -0,0 +1,22 @@
-+#ifndef _MACH_ASM_IO_H
-+#define _MACH_ASM_IO_H
+--- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/mach_msr.h	2006-03-08 10:32:07.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/mach-default/mach_msr.h	2006-03-08 10:32:07.000000000 -0800
+@@ -0,0 +1,30 @@
++#ifndef MACH_MSR_H
++#define MACH_MSR_H
 +
-+#ifdef SLOW_IO_BY_JUMPING
-+#define __SLOW_DOWN_IO asm volatile("jmp 1f; 1: jmp 1f; 1:")
-+#else
-+#define __SLOW_DOWN_IO asm volatile("outb %al, $0x80")
-+#endif
++#define rdmsr(msr,val1,val2) \
++	__asm__ __volatile__("rdmsr" \
++			  : "=a" (val1), "=d" (val2) \
++			  : "c" (msr))
 +
-+#define __BUILDOUTINST(bwl,bw,value,port) \
-+	__asm__ __volatile__("out" #bwl " %" #bw "0, %w1" : : "a"(value), "Nd"(port))
-+#define	__BUILDININST(bwl,bw,value,port) \
-+	__asm__ __volatile__("in" #bwl " %w1, %" #bw "0" : "=a"(value) : "Nd"(port))
-+#define	__BUILDOUTSINST(bwl,addr,count,port) \
-+	__asm__ __volatile__("rep; outs" #bwl : "+S"(addr), "+c"(count) : "d"(port))
-+#define	__BUILDINSINST(bwl,addr,count,port) \
-+	__asm__ __volatile__("rep; ins" #bwl \
-+			     : "+D"(addr), "+c"(count) \
-+			     : "d"(port) \
-+			     : "memory")
++#define wrmsr(msr,val1,val2) \
++	__asm__ __volatile__("wrmsr" \
++			  : /* no outputs */ \
++			  : "c" (msr), "a" (val1), "d" (val2))
++
++#define rdtsc(low,high) \
++     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
++
++#define rdtscl(low) \
++     __asm__ __volatile__("rdtsc" : "=a" (low) : : "edx")
++
++#define rdtscll(val) \
++     __asm__ __volatile__("rdtsc" : "=A" (val))
++
++#define write_tsc(val1,val2) wrmsr(0x10, val1, val2)
++
++#define rdpmc(counter,low,high) \
++     __asm__ __volatile__("rdpmc" \
++			  : "=a" (low), "=d" (high) \
++			  : "c" (counter))
 +
 +#endif

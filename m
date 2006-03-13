@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWCMHlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWCMH54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751986AbWCMHlq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 02:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751996AbWCMHlq
+	id S932331AbWCMH54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 02:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWCMH54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 02:41:46 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:34845 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751986AbWCMHlp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 02:41:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wh8hz5gTmshqPoRySDCkU91b5wr2T6LY+eTjdB6qTzuIMCHtEOCxuTmBqcwewvZGLJfLgg1W5A6fhv6cnWPn6FCO8Ehqe2ai8DfhuuWd5AbpsWxvANhDab3Z5wtWMk/ipP9rvR87etf00uOYRmOvxuMKbqWQQJpgHoTVmFWXr7E=
-Message-ID: <60bb95410603122341w74ca1d97k9bda52fd71d06d18@mail.gmail.com>
-Date: Mon, 13 Mar 2006 15:41:44 +0800
-From: "James Yu" <cyu021@gmail.com>
-To: "Ben Dooks" <ben@fluff.org>
-Subject: Re: weird behavior from kernel
-Cc: "Willy Tarreau" <willy@w.ods.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060312213720.GB25816@home.fluff.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 13 Mar 2006 02:57:56 -0500
+Received: from mail.terralink.de ([217.9.16.16]:49344 "EHLO mail.terralink.de")
+	by vger.kernel.org with ESMTP id S932331AbWCMH5z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 02:57:55 -0500
+Date: Mon, 13 Mar 2006 08:57:42 +0100
+From: Johannes Goecke <goecke@upb.de>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: MSI-K8T-Neo2-Fir OnboardSound and additional Soundcard
+Message-ID: <20060313075741.GA31459@uni-paderborn.de>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20060311192840.GA19313@uni-paderborn.de> <1142134890.25358.43.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com>
-	 <20060312084632.GB21493@w.ods.org>
-	 <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com>
-	 <20060312213720.GB25816@home.fluff.org>
+In-Reply-To: <1142134890.25358.43.camel@mindpipe>
+User-Agent: Mutt/1.5.6+20040907i
+X-added-header: added by server
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a custom board I got, and the official 2.6 doesn't work on it. So
-I have to use 2.4.
-
-I tried -fno-strength-reduce option, and it doesn't seem to work though.
-Still looking for solutions~
-
-
-On 3/13/06, Ben Dooks <ben@fluff.org> wrote:
-> On Sun, Mar 12, 2006 at 05:25:11PM +0800, James Yu wrote:
-> > The major reason to choose 2.4.18 as my dev base is that the dev is
-> > ment to be carried out on a custom ARM board, and there isn't any
-> > 2.6's port available.
->
-> What functionality do you need which is not in the current
-> 2.6 kernel series?
->
-> --
-> Ben (ben@fluff.org, http://www.fluff.org/)
->
->   'a smiley only costs 4 bytes'
->
+On Sat, Mar 11, 2006 at 10:41:29PM -0500, Lee Revell wrote:
+> On Sat, 2006-03-11 at 20:28 +0100, Johannes Goecke wrote:
+> > - how to enshure that the code is executed ONLY on excactly this kind
+> > of boards
+> >  (not any other with similar Chipset)?
+> > 
+> > - what to do to (hopefully) integrate that pice of code into
+> >   one of the next Kernel Releases?
+> > 
+> 
+> This has been discussed on LKML recently, it's not 2.6.16 material
+> because it might break working setups when the previously disabled
+> device becomes the default sound card.  Of course the same setup would
+> have broken if we added a driver for a previously unsupported soundcard,
+> so I'm not sure how this fits in with the "don't break userspace" rule.
 
 
---
-James
-cyu021@gmail.com
+would it be useful to add a compile-time-option and additionally
+a kernel-command-line option for some bogus-code like
+
+if ( commandline-enable || compiletime-enable ) 
+{
+	/* Enable all Soundcards- Found */
+}
+
+?
+
+- no default behaviour is changed
+- general purpose Kernels can have Quirks integrated if needed
+
+> 
+> IMHO it should be merged post 2.6.16.
+> 
+> Lee
+> 
+
+Johannes Goecke
+
+PS:
+can someone give me a (kernel-programming-beginner-level) hint, for the first 
+question how to ensure to only execute if running on the right Mother-board?
+Af far as I believe the quirk so-far only checks the cipset, so it might
+behave wrong on other Mainborads! 

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751667AbWCMLN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWCMLRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751667AbWCMLN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 06:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWCMLN2
+	id S1751694AbWCMLRz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 06:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751732AbWCMLRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 06:13:28 -0500
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:33226 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S1751642AbWCMLN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 06:13:28 -0500
-Date: Mon, 13 Mar 2006 12:13:26 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [ck] Re: Faster resuming of suspend technology.
-Message-ID: <20060313111326.GA29716@rhlx01.fht-esslingen.de>
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312213228.GA27693@rhlx01.fht-esslingen.de> <20060313100619.GA2136@elf.ucw.cz> <200603132136.00210.kernel@kolivas.org> <20060313104315.GH3495@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060313104315.GH3495@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Mon, 13 Mar 2006 06:17:55 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:28343 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751694AbWCMLRz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 06:17:55 -0500
+Message-ID: <441554D4.7030706@aitel.hist.no>
+Date: Mon, 13 Mar 2006 12:17:40 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Knutar <jk-lkml@sci.fi>
+CC: Tim Tassonis <timtas@cubic.ch>, linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+References: <440F4C80.6070907@cubic.ch> <200603090220.50378.jk-lkml@sci.fi>
+In-Reply-To: <200603090220.50378.jk-lkml@sci.fi>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Knutar wrote:
 
-On Mon, Mar 13, 2006 at 11:43:15AM +0100, Pavel Machek wrote:
-> On Po 13-03-06 21:35:59, Con Kolivas wrote:
-> > wouldn't be too hard to add a special post_resume_swap_prefetch() which 
-> > aggressively prefetches for a while. Excuse my ignorance, though, as I know 
-> > little about swsusp. Are there pages still on swap space after a resume 
-> > cycle?
-> 
-> Yes, there are, most of the time. Let me explain:
-> 
-> swsusp needs half of memory free. So it shrinks caches (by emulating
-> memory pressure) so that half of memory if free (and optionaly shrinks
-> them some more). Pages are pushed into swap by this process.
-> 
-> Now, that works perfectly okay for me (with 1.5GB machine). I can
-> imagine that on 128MB machine, shrinking caches to 64MB could hurt a
-> bit. I guess we'll need to find someone interested with small memory
-> machine (if there are no such people, we can happily ignore the issue
-> :-).
+>On Wednesday 08 March 2006 23:28, Tim Tassonis wrote:
+>
+>  
+>
+>>OS/2 died exactly because software companies didn't write closed-source 
+>>software, hardware companies didn't write closed-source drivers, and IBM 
+>>couldn't write it all themselves.
+>>    
+>>
+>
+>I read somewhere that the development kit was obscenely expensive and
+>effectively locked out all hobbyists and small companies.
+>
+IBM stuff may have been expensive.
+There was gcc for os/2 though, which was nice for hobbyists.
+The way I remember it, drivers wasn't the big problem.  The lack of drivers
+could have become a problem if the lack of software was solved.  But it
+wasn't - no need to drive a device for which you don't have an app . . .
 
-Why not simply use the mem= boot parameter?
-Or is that impossible for some reason in this specific case?
+Having gcc meant one could port some gpl software, which usually
+originated on linux or other unixes.  But using such software on
+linux was always easier, and so I switched os.
 
-I have a P3/450 256M machine where I could do some tests if really needed.
-
-Andreas Mohr
+Helge Hafting

@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWCMEqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWCMEt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWCMEqN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 23:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWCMEqN
+	id S932275AbWCMEt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 23:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbWCMEt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 23:46:13 -0500
-Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:31090 "EHLO
-	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932252AbWCMEqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 23:46:12 -0500
-Message-ID: <4414F911.4060807@bigpond.net.au>
-Date: Mon, 13 Mar 2006 15:46:09 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       John Hawkes <hawkes@sgi.com>, Ingo Molnar <mingo@elte.hu>,
-       npiggin@suse.de, "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: 2.6.16-rc5-mm1 -- strange load balancing problems
-References: <20060228042439.43e6ef41.akpm@osdl.org> <4406C881.3060400@bigpond.net.au> <4407706D.90604@bigpond.net.au>
-In-Reply-To: <4407706D.90604@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 12 Mar 2006 23:49:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17331 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932275AbWCMEt7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 23:49:59 -0500
+Date: Sun, 12 Mar 2006 20:47:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Brown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm1 (NFS tree ... busy inodes ... relatively
+ harmless)
+Message-Id: <20060312204736.3102c314.akpm@osdl.org>
+In-Reply-To: <17428.63369.446803.958721@cse.unsw.edu.au>
+References: <20060312031036.3a382581.akpm@osdl.org>
+	<17428.63369.446803.958721@cse.unsw.edu.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 13 Mar 2006 04:46:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Peter Williams wrote:
+Neil Brown <neilb@suse.de> wrote:
+>
+> On Sunday March 12, akpm@osdl.org wrote:
+> > 
+> > - The NFS tree is a bit sick - you may see the `busy inodes - self destruct
+> >   in five seconds" message when performing NFS unmounts.  It seems relatively
+> >   harmless.
 > 
->> I'm seeing some strange load balancing problems with this kernel.  I 
->> don't think that they're due to the smpnice patches as I've applied 
->> them on a standard 2.6.15-rc5 kernel and the problem doesn't happen 
->> there.
->>
->> The problem is (as I say) quite strange and (for me) very 
->> reproducible.  I have two programs (aspin and gsmiley) which I use to 
->> produce CPU hard spinners for testing purposes.  What I'm finding is 
->> that when I start several copies of aspin load balancing goes as 
->> expected but when I launch several copies of gsmiley they all go to 
->> the one CPU and stick there like glue.  (The most obvious difference 
->> between the two programs is that aspin is just a command line tool 
->> while gsmiley is an X windows program that spins a simley face and 
->> reports its own assessment of the percentage of CPU it's getting.)  
->> The machine that I've seen this problem is a hyper threading Pentium 4 
->> and I suspect that it may be due to the SCHED_MC changes which overlap 
->> SCHED_SMT a bit.
->>
->> I'm trying to test this on a non hyper threading machine but the 
->> machine has crashed (different kernel) while doing the build.  I'll 
->> resume this effort tomorrow but I thought that I should report the 
->> problem so that others could comment.
->>
->> Peter
->> PS SCHED_MC was configured in but I'll try it without tomorrow and 
->> report the results.
+> I think the term is "mostly harmless" ... see the entry for "Earth" in
+> The Hitch-Hikers Guide To The Galaxy... :-)
 > 
+> I don't believe this is harmless at all, and I have an oops to prove
+> it - though it is with NFSv4 which is still EXPERIMENTAL.
 > 
-> Configuring SCHED_MC to "no" causes this problem to go away.
+> I don't believe it is an NFS bug at all, but a VFS bug.  It happens
+> more with NFS because iput on nfs can be a lot slower due to the
+> required network activity, so the race is easier to hit.
 
-This problem does not appear to be present in 2.6.16-rc6-mm1.
+It's 100% repeatable for me, with nfsv3 unmounts.  First the busy inodes,
+then a use-after-free oops if CONFIG_DEBUG_PAGEALLOC (if that workaround
+patch I have in there isn't applied).
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Not a race, methinks.
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWCMU3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWCMUay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751889AbWCMU3R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 15:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWCMU3R
+	id S932446AbWCMUay (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 15:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWCMUax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 15:29:17 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:787 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751889AbWCMU3Q
+	Mon, 13 Mar 2006 15:30:53 -0500
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:54800 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932446AbWCMUaw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 15:29:16 -0500
-Date: Mon, 13 Mar 2006 21:29:16 +0100
+	Mon, 13 Mar 2006 15:30:52 -0500
+Date: Mon, 13 Mar 2006 21:30:53 +0100
 From: Jean Delvare <khali@linux-fr.org>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>,
        "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-Subject: [PATCH 1/8] saa7110: Fix array overrun
-Message-Id: <20060313212916.f601aa64.khali@linux-fr.org>
+Subject: [PATCH 3/8] saa7114: Fix i2c block write
+Message-Id: <20060313213053.328ffac0.khali@linux-fr.org>
 In-Reply-To: <20060313210933.88a42375.khali@linux-fr.org>
 References: <20060313210933.88a42375.khali@linux-fr.org>
 X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.6.10; i686-pc-linux-gnu)
@@ -25,38 +25,50 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix a (probably harmless) array overrun in the DECODER_DUMP command
-of the saa7110 driver. No big deal as this command is not used
-anywhere anyway. Also reformat the dump so that it displays nicely.
+Fix the i2c block write mode of the saa7114 driver. A previous code
+change accidentally commented out a local variable increment, which
+should have been kept, causing the register writes over the I2C bus
+to never be batched, replacing any attempted block write by slower,
+individual write transactions.
+
+Also drop the commented out code, as it only adds to confusion.
 
 Signed-off-by: Jean Delvare <khali@linux-fr.org>
 ---
- drivers/media/video/saa7110.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/media/video/saa7114.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- linux-2.6.16-rc5.orig/drivers/media/video/saa7110.c	2006-03-01 21:09:59.000000000 +0100
-+++ linux-2.6.16-rc5/drivers/media/video/saa7110.c	2006-03-01 21:10:01.000000000 +0100
-@@ -431,15 +431,13 @@
- 		break;
+--- linux-2.6.16-rc5.orig/drivers/media/video/saa7114.c	2006-03-01 21:09:59.000000000 +0100
++++ linux-2.6.16-rc5/drivers/media/video/saa7114.c	2006-03-01 21:10:10.000000000 +0100
+@@ -138,9 +138,6 @@
+ 	       u8                 reg,
+ 	       u8                 value)
+ {
+-	/*struct saa7114 *decoder = i2c_get_clientdata(client);*/
+-
+-	/*decoder->reg[reg] = value;*/
+ 	return i2c_smbus_write_byte_data(client, reg, value);
+ }
  
- 	case DECODER_DUMP:
--		for (v = 0; v < 0x34; v += 16) {
-+		for (v = 0; v < SAA7110_NR_REG; v += 16) {
- 			int j;
--			dprintk(1, KERN_INFO "%s: %03x\n", I2C_NAME(client),
-+			dprintk(1, KERN_DEBUG "%s: %02x:", I2C_NAME(client),
- 				v);
--			for (j = 0; j < 16; j++) {
--				dprintk(1, KERN_INFO " %02x",
--					decoder->reg[v + j]);
--			}
--			dprintk(1, KERN_INFO "\n");
-+			for (j = 0; j < 16 && v + j < SAA7110_NR_REG; j++)
-+				dprintk(1, " %02x", decoder->reg[v + j]);
-+			dprintk(1, "\n");
- 		}
- 		break;
+@@ -156,7 +153,6 @@
+ 	 * the adapter understands raw I2C */
+ 	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+ 		/* do raw I2C, not smbus compatible */
+-		/*struct saa7114 *decoder = i2c_get_clientdata(client);*/
+ 		struct i2c_msg msg;
+ 		u8 block_data[32];
  
+@@ -167,8 +163,8 @@
+ 			msg.len = 0;
+ 			block_data[msg.len++] = reg = data[0];
+ 			do {
+-				block_data[msg.len++] =
+-				    /*decoder->reg[reg++] =*/ data[1];
++				block_data[msg.len++] = data[1];
++				reg++;
+ 				len -= 2;
+ 				data += 2;
+ 			} while (len >= 2 && data[0] == reg &&
 
 -- 
 Jean Delvare

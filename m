@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWCMIBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWCMIC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWCMIBD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 03:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWCMIBB
+	id S932336AbWCMIC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 03:02:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWCMIC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 03:01:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54466 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932332AbWCMIBB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 03:01:01 -0500
-Subject: Re: [PATCH] KERN_SETUID_DUMPABLE in /proc/sys/fs/
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, garloff@suse.de,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-In-Reply-To: <m1r757xqoc.fsf@ebiederm.dsl.xmission.com>
-References: <20060310155738.GL5766@tpkurt.garloff.de>
-	 <20060310145605.08bf2a67.akpm@osdl.org>
-	 <1142061816.3055.6.camel@laptopd505.fenrus.org>
-	 <20060310234155.685456cd.akpm@osdl.org>
-	 <1142063254.3055.9.camel@laptopd505.fenrus.org>
-	 <20060310235103.4e9c9457.akpm@osdl.org>
-	 <1142064294.3055.13.camel@laptopd505.fenrus.org>
-	 <m1r757xqoc.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Mon, 13 Mar 2006 09:00:42 +0100
-Message-Id: <1142236842.3023.2.camel@laptopd505.fenrus.org>
+	Mon, 13 Mar 2006 03:02:58 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:14165
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932336AbWCMIC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 03:02:57 -0500
+Message-Id: <4415354C.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Mon, 13 Mar 2006 09:03:08 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix time ordering of writes to .kconfig.d and
+	include/linux/autoconf.h
+References: <44104012.76F0.0078.0@novell.com> <20060312224328.GD23326@mars.ravnborg.org>
+In-Reply-To: <20060312224328.GD23326@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>> Sam Ravnborg <sam@ravnborg.org> 12.03.06 23:43:28 >>>
+>On Thu, Mar 09, 2006 at 02:47:46PM +0100, Jan Beulich wrote:
+>> Since .kconfig.d is used as a make dependency of include/linux/autoconf.h, it
+>> should be written earlier than the header file, to avoid a subsequent rebuild
+>> to consider the header outdated.
+>
+>Thanks Jan. I assume you saw this in reality?
 
-> This must be number 69 here.  Or else we break the sys_sysctl ABI.
+Yes, I did.
 
-numeric sysctl abi is since 2.6.0 no longer an ABI though; anything
-after that.. not an ABI :)
+>Applied.
 
-
+Thanks, Jan

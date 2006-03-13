@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWCMV0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751572AbWCMV2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWCMV0F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 16:26:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751555AbWCMV0E
+	id S1751572AbWCMV2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 16:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbWCMV2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 16:26:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7183 "HELO
+	Mon, 13 Mar 2006 16:28:16 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:10511 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751211AbWCMV0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 16:26:03 -0500
-Date: Mon, 13 Mar 2006 22:26:02 +0100
+	id S1751518AbWCMV2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 16:28:15 -0500
+Date: Mon, 13 Mar 2006 22:28:14 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com
-Subject: [-mm patch] make drivers/net/tg3.c:tg3_request_irq()
-Message-ID: <20060313212602.GL13973@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, mchehab@infradead.org
+Cc: linux-kernel@vger.kernel.org, v4l-dvb-maintainer@linuxtv.org
+Subject: [-mm patch] dvb/frontends/zl10353.c: make a function static
+Message-ID: <20060313212814.GM13973@stusta.de>
 References: <20060312031036.3a382581.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,27 +28,26 @@ On Sun, Mar 12, 2006 at 03:10:36AM -0800, Andrew Morton wrote:
 >...
 > Changes since 2.6.16-rc5-mm3:
 >...
->  git-net.patch
+>  git-dvb.patch
 >...
 >  git trees
 >...
 
 
-This patch makes the needlessly global function tg3_request_irq() 
-static.
+This patch makes a needlessly global function static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.16-rc6-mm1-full/drivers/net/tg3.c.old	2006-03-13 21:13:31.000000000 +0100
-+++ linux-2.6.16-rc6-mm1-full/drivers/net/tg3.c	2006-03-13 21:14:26.000000000 +0100
-@@ -6531,7 +6531,7 @@
- 	add_timer(&tp->timer);
+--- linux-2.6.16-rc6-mm1-full/drivers/media/dvb/frontends/zl10353.c.old	2006-03-13 21:11:08.000000000 +0100
++++ linux-2.6.16-rc6-mm1-full/drivers/media/dvb/frontends/zl10353.c	2006-03-13 21:11:33.000000000 +0100
+@@ -88,7 +88,7 @@
+ 	return b1[0];
  }
  
--int tg3_request_irq(struct tg3 *tp)
-+static int tg3_request_irq(struct tg3 *tp)
+-void zl10353_dump_regs(struct dvb_frontend *fe)
++static void zl10353_dump_regs(struct dvb_frontend *fe)
  {
- 	irqreturn_t (*fn)(int, void *, struct pt_regs *);
- 	unsigned long flags;
+ 	struct zl10353_state *state = fe->demodulator_priv;
+ 	char buf[52], buf2[4];
 

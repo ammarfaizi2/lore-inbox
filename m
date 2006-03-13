@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWCMCWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751862AbWCMCXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWCMCWE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 21:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWCMCWD
+	id S1751862AbWCMCXp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 21:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWCMCXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 21:22:03 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:16344
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1750986AbWCMCWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 21:22:02 -0500
-Message-ID: <4414D742.4090007@microgate.com>
-Date: Sun, 12 Mar 2006 20:21:54 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Sun, 12 Mar 2006 21:23:45 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:48396 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751862AbWCMCXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 21:23:44 -0500
+Date: Sun, 12 Mar 2006 18:19:11 -0800
+From: "David Schwartz" <davids@webmaster.com>
+To: linux-kernel-owner+davids=40webmaster.com-S1750982AbWCLRJa@vger.kernel.org,
+       "Dave Neuer" <mr.fred.smoothie@pobox.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: [future of drivers?] a proposal for binary drivers.
 MIME-Version: 1.0
-To: Bob Copeland <email@bobcopeland.com>
-CC: paulus@samba.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc5 pppd oops on disconnects
-References: <b6c5339f0603100625k3410897fy3515d93fa1918c9@mail.gmail.com>	 <1142011340.3220.4.camel@amdx2.microgate.com>	 <b6c5339f0603101048l1c362582xc4d2570bc9d569b@mail.gmail.com>	 <1142018709.26063.5.camel@amdx2.microgate.com>	 <20060311150908.GA4872@hash.localnet>	 <1142099765.3241.3.camel@x2.pipehead.org>	 <b6c5339f0603111221k2d0afce5hcfd485713ba17338@mail.gmail.com>	 <1142180789.4360.2.camel@x2.pipehead.org> <b6c5339f0603120958y7ebc2051q51e24835456d9fcd@mail.gmail.com>
-In-Reply-To: <b6c5339f0603120958y7ebc2051q51e24835456d9fcd@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+Message-ID: <WorldClient-F200603121819.AA19110002@webmaster.com>
+X-Mailer: WorldClient 8.1.3
+In-Reply-To: <161717d50603120909w41413b00g6ad82af79b051fd3@mail.gmail.com>
+References: <20060311091623.GB4087@DervishD> <MDEHLPKNGKAHNMBLJOLKGEHBKKAB.davids@webmaster.com> <161717d50603120909w41413b00g6ad82af79b051fd3@mail.gmail.com>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Sun, 12 Mar 2006 18:19:15 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 127.0.0.1
+X-Return-Path: davids@webmaster.com
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Sun, 12 Mar 2006 18:19:16 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob Copeland wrote:
-> On 3/12/06, Paul Fulghum <paulkf@microgate.com> wrote:
-> 
->>--- linux-2.6.16-rc5/drivers/usb/class/cdc-acm.c        2006-02-27 09:24:29.000000000 -0600
->>+++ b/drivers/usb/class/cdc-acm.c       2006-03-12 10:22:21.000000000 -0600
->>@@ -980,7 +980,7 @@ skip_normal_probe:
->>        usb_driver_claim_interface(&acm_driver, data_interface, acm);
->>
->>        usb_get_intf(control_interface);
->>-       tty_register_device(acm_tty_driver, minor, &control_interface->dev);
->>+       tty_register_device(acm_tty_driver, minor, NULL);
->>
->>        acm_table[minor] = acm;
->>        usb_set_intfdata (intf, acm);
->>
-> 
-> 
-> Paul,
-> 
-> No oops with the above patch.
-> 
-> thanks!
-> -Bob
+Sorry for any format issues, I'm not able to use my normal email client 
+right now.
 
-I think what is happening is that control_interface->dev is used
-to back 2 sysfs entries (one usb, and one tty). When the usb
-device is disconnected, the usb sysfs entries are removed and
-the backing device is released. But the tty sysfs entry is
-not removed until later after the tty is closed. This removal oops
-because the backing device (or some sysfs entity associated with
-the backing device) has already been freed. The slab poisoning
-is needed to catch this. That's my theory, but I'm no expert
-on USB or sysfs.
+> Static Controls also explicitly says that the analysis of whether
+> scenes a faire applies is vastly different for a work of greater
+> complexity and size than the TLP ("Neither do the cited cases support
+> the district court's initial frame of reference. [cases cited],
+> involved copies of Apple's operating system program -- a program whose
+> size and complexity is to the Toner Loading Program what the Sears
+> Tower is to a lamppost. Given the nature of the Apple program, it
+> would have been exceedingly difficult to say that practical
+> alternative means of expression did not exist...").
 
-The above change does not associate the device
-with the tty object, and no tty sysfs entry is made that
-references the device. No function is lost, but some info
-is not exported to userland.
+The whole issue here is people who claim that copyright allows them to own 
+*any* way to make an NE2000 network card work with linux v2.6. How can you 
+say that practical alternative means exist if the claim is that every such 
+way is owned?
 
-I guess a more thorough approach would be to somehow not release
-the usb device until the tty close completes. But that sounds
-kind of messy, as the usb code would need to know about any
-other class sysfs entries besides usb. (tty, maybe storage, etc)
+You can use hardware that's already supported in the kernel. You can use 
+other operating systems than Linux. But Static Controls could also have made 
+cartridges for other printers or printers from other manufacturers.
 
-Greg or the USB folks are more qualified to decide the details.
+The issue is not the complexity of the TLP, the issue is simply that you 
+cannot use copyright to get protection that is capable of being expressed in 
+functional terms. You cannot own every way to express a functional idea. 
+That's what patents are for.
 
-Thanks for your help Bob.
-
---
-Paul
+DS
 
 

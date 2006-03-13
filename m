@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWCMTYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWCMTZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbWCMTYn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 14:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWCMTYn
+	id S932349AbWCMTZc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 14:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWCMTZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 14:24:43 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:27848 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S932296AbWCMTYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 14:24:41 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Mon, 13 Mar 2006 20:21:09 +0100 (CET)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [PATCH 1/3] Doc/kernel-parameters.txt: delete false version
- information and history
-To: linux-kernel@vger.kernel.org
-cc: Randy Dunlap <rdunlap@xenotime.net>
-Message-ID: <tkrat.f6b9032d78fc1d70@s5r6.in-berlin.de>
+	Mon, 13 Mar 2006 14:25:32 -0500
+Received: from gromit.trivadis.com ([193.73.126.130]:10637 "EHLO
+	lttit.trivadis.com") by vger.kernel.org with ESMTP id S932349AbWCMTZa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 14:25:30 -0500
+Message-ID: <4415C728.3060100@cubic.ch>
+Date: Mon, 13 Mar 2006 20:25:28 +0100
+From: Tim Tassonis <timtas@cubic.ch>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
-X-Spam-Score: (0.771) AWL,BAYES_50
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [future of drivers?] a proposal for binary drivers.
+References: <4415C15F.4020500@cubic.ch> <1142277311.13256.9.camel@mindpipe>
+In-Reply-To: <1142277311.13256.9.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doc/kernel-parameters.txt: delete false version information and history
+Lee Revell wrote:
+> On Mon, 2006-03-13 at 20:00 +0100, Tim Tassonis wrote:
+>>> On Mon, 2006-03-13 at 10:24 +0100, Bernd Petrovitsch wrote:
+>>>> Maybe not under (US-American) copyright, but under continental
+>>>> European authors rights there are such possibilities (I leave it to
+>>>> lawyers if and when they apply) and you can't even remove them with
+>>>> contracts (as with all law stuff).
+>>>>
+>>> Please refrain from knee-jerk USA-bashing, you said yourself you don't
+>>> know the law.
+>>>
+>>> Lee
+>>>
+>> Are you completely out of your head or what? When somebody reminds you 
+>> of the fact that U.S. law is not the only law in the world and that some 
+>> things may be different in other countries you call him a knee-jerking 
+>> USA-basher???
+>>
+> 
+> No I was referring to the implication that the GPL is not enforceable
+> under US copyright law.
 
-Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Well, I'd really like to know how your patriotic sentiments were hurt by 
+Bernd in the above sentence. Maybe we Europeans are not compassionate 
+enough, it seems, as I can see absolutely nothing anti-american in his 
+posting. Maybe mentioning the existence of other countries/laws is 
+nowadays considered anti-american?
 
---- linux/Documentation/kernel-parameters.txt.0	2006-03-13 19:28:13.000000000 +0100
-+++ linux/Documentation/kernel-parameters.txt	2006-03-13 19:32:28.000000000 +0100
-@@ -1,4 +1,4 @@
--February 2003             Kernel Parameters                     v2.5.59
-+                          Kernel Parameters
-                           ~~~~~~~~~~~~~~~~~
- 
- The following is a consolidated list of the kernel parameters as implemented
-@@ -1664,20 +1664,6 @@
- 
- 
- ______________________________________________________________________
--Changelog:
--
--2000-06-??	Mr. Unknown
--	The last known update (for 2.4.0) - the changelog was not kept before.
--
--2002-11-24	Petr Baudis <pasky@ucw.cz>
--		Randy Dunlap <randy.dunlap@verizon.net>
--	Update for 2.5.49, description for most of the options introduced,
--	references to other documentation (C files, READMEs, ..), added S390,
--	PPC, SPARC, MTD, ALSA and OSS category. Minor corrections and
--	reformatting.
--
--2005-10-19	Randy Dunlap <rdunlap@xenotime.net>
--	Lots of typos, whitespace, some reformatting.
- 
- TODO:
- 
+Tim
 
 

@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751949AbWCMHgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751986AbWCMHlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751949AbWCMHgO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 02:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWCMHgO
+	id S1751986AbWCMHlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 02:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751996AbWCMHlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 02:36:14 -0500
-Received: from soundwarez.org ([217.160.171.123]:13788 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1751949AbWCMHgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 02:36:14 -0500
-Date: Mon, 13 Mar 2006 08:36:12 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@osdl.org>,
-       drzeus-list@drzeus.cx, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-Message-ID: <20060313073612.GA16509@vrfy.org>
-References: <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060312145543.194f4dc7.akpm@osdl.org> <20060313041458.GA13605@vrfy.org> <20060313060221.GA20178@neo.rr.com> <20060313062112.GA15720@vrfy.org> <20060313072654.GB20569@neo.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Mar 2006 02:41:46 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:34845 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751986AbWCMHlp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 02:41:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wh8hz5gTmshqPoRySDCkU91b5wr2T6LY+eTjdB6qTzuIMCHtEOCxuTmBqcwewvZGLJfLgg1W5A6fhv6cnWPn6FCO8Ehqe2ai8DfhuuWd5AbpsWxvANhDab3Z5wtWMk/ipP9rvR87etf00uOYRmOvxuMKbqWQQJpgHoTVmFWXr7E=
+Message-ID: <60bb95410603122341w74ca1d97k9bda52fd71d06d18@mail.gmail.com>
+Date: Mon, 13 Mar 2006 15:41:44 +0800
+From: "James Yu" <cyu021@gmail.com>
+To: "Ben Dooks" <ben@fluff.org>
+Subject: Re: weird behavior from kernel
+Cc: "Willy Tarreau" <willy@w.ods.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060312213720.GB25816@home.fluff.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060313072654.GB20569@neo.rr.com>
-User-Agent: Mutt/1.5.9i
+References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com>
+	 <20060312084632.GB21493@w.ods.org>
+	 <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com>
+	 <20060312213720.GB25816@home.fluff.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 02:26:54AM -0500, Adam Belay wrote:
-> I did some research, and interestingly enough, the ACPI _CID method allows
-> for compatible IDs even for PCI devices.  These also would present a problem
-> for the modalias sysfs attribute.
+It's a custom board I got, and the official 2.6 doesn't work on it. So
+I have to use 2.4.
 
-Again, you can do every "advanced" setup already today with poking
-around in the bind/unbind files in sysfs. Userspace just receives an
-event from the kernel and can do whatever it wants to do with the event:
-ignore it, load a specific module, start a userspace driver, or just ask
-modprobe to load the kernel supplied default module.
+I tried -fno-strength-reduce option, and it doesn't seem to work though.
+Still looking for solutions~
 
-The modalias is just a convenient way to provide a "default" module
-autoloading and is not expected to become a system management
-replacement with full featured policy integration. I don't really see
-a "real world" problem here. If some day we support this stuff and need
-a new interface we can just do this if someone proposes a better
-solution. For now modalias works just fine. As long as we have device
-table matches _in_ the kernel modules, there is no reason not to export
-the match value from the kernel at the same time.
 
-Thanks,
-Kay
+On 3/13/06, Ben Dooks <ben@fluff.org> wrote:
+> On Sun, Mar 12, 2006 at 05:25:11PM +0800, James Yu wrote:
+> > The major reason to choose 2.4.18 as my dev base is that the dev is
+> > ment to be carried out on a custom ARM board, and there isn't any
+> > 2.6's port available.
+>
+> What functionality do you need which is not in the current
+> 2.6 kernel series?
+>
+> --
+> Ben (ben@fluff.org, http://www.fluff.org/)
+>
+>   'a smiley only costs 4 bytes'
+>
+
+
+--
+James
+cyu021@gmail.com

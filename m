@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWCMSGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWCMSFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWCMSGH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWCMSGG
+	id S932099AbWCMSFt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWCMSFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:06:06 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:28940 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932220AbWCMSGC
+	Mon, 13 Mar 2006 13:05:49 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:21516 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932099AbWCMSFP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:06:02 -0500
-Date: Mon, 13 Mar 2006 10:05:58 -0800
-Message-Id: <200603131805.k2DI5wlO005693@zach-dev.vmware.com>
-Subject: [RFC, PATCH 9/24] i386 Vmi smp support
+	Mon, 13 Mar 2006 13:05:15 -0500
+Date: Mon, 13 Mar 2006 10:05:11 -0800
+Message-Id: <200603131805.k2DI5BVv005686@zach-dev.vmware.com>
+Subject: [RFC, PATCH 8/24] i386 Vmi syscall assembly
 From: Zachary Amsden <zach@vmware.com>
 To: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -28,316 +28,234 @@ To: Linus Torvalds <torvalds@osdl.org>,
        Wim Coekaerts <wim.coekaerts@oracle.com>,
        Leendert van Doorn <leendert@watson.ibm.com>,
        Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:05:58.0569 (UTC) FILETIME=[C7C61990:01C646C8]
+X-OriginalArrivalTime: 13 Mar 2006 18:05:11.0336 (UTC) FILETIME=[AB9EEA80:01C646C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SMP bootstrapping support.  Just as in the physical platform model,
-the BSP is responsible for initializing the AP state prior to execution.
-The dependence on lots of processor state information is a design choice
-of our implementation.  Conceivably, this could be a hypercall that
-awakens the same start of day state on APs as on the BSP.
+Illustration of how VMI inlines are used to greatly limit the impact of code
+change in low level assembler code.  Spinlocks, system calls, and the fault
+handling paths are affected by adding some padding bytes to convert the native
+instructions into a hook point for the hypervisor to insert shim code.
 
-It is likely the AP startup and the start-of-day model will eventually
-merge into a more common interface.
+These changes are sufficient to glue the Linux low level entry points to
+hypervisor event injection by emulating the native processor exception
+frame interface.
+
+N.B. Sti; Sysexit is a required abstraction, as the STI instruction implies
+holdoff of interrupts, which is destroyed by any NOP padding.
+
+There is a race condition is present in all virtualization solutions in which
+the guest kernel may issue a raw IRET instruction, as the IRET instruction is
+not properly virtualizable on non-hardware assisted Intel platforms.  This is
+because the interrupt flag, which indicates whether an IRQ may be delivered, is
+not changed by the instruction when running without I/O privilege level  Thus,
+there is no way to atomically change both the interrupt flag and the kernel
+stack pointer.  Properly dealing with this race condition is much easier if the
+window in which the race exists is confined to a well defined region, such as a
+single region of code published at a fixed address by the hypervisor.  Having a
+hook point for IRET makes this possible without imposing an obtuse requirement
+and alternative event injection path into the native kernel.
+
+Currently, there is no hypervisor support for the IRET instructions which land
+on a 16-bit stack.  There are many possible solutions to this problem, and the
+choice is not critical to the operation of most normal userspace code, so
+fixing this problem has been deferred.
 
 Signed-off-by: Zachary Amsden <zach@vmware.com>
-Signed-off-by: Daniel Arai <arai@vmware.com>
 
-Index: linux-2.6.16-rc5/arch/i386/mach-vmi/Makefile
+Index: linux-2.6.16-rc5/arch/i386/kernel/entry.S
 ===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/mach-vmi/Makefile	2006-03-08 11:01:45.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/mach-vmi/Makefile	2006-03-08 11:02:43.000000000 -0800
-@@ -6,4 +6,4 @@ EXTRA_CFLAGS	+= -I../kernel
+--- linux-2.6.16-rc5.orig/arch/i386/kernel/entry.S	2006-03-08 11:38:51.000000000 -0800
++++ linux-2.6.16-rc5/arch/i386/kernel/entry.S	2006-03-08 11:40:12.000000000 -0800
+@@ -48,6 +48,7 @@
+ #include <asm/smp.h>
+ #include <asm/page.h>
+ #include <asm/desc.h>
++#include <mach_asm.h>
+ #include "irq_vectors.h"
  
- export CFLAGS_stubs.o += -ffunction-sections
+ #define nr_syscalls ((syscall_table_size)/4)
+@@ -76,7 +77,7 @@ NT_MASK		= 0x00004000
+ VM_MASK		= 0x00020000
  
--obj-y				:= setup.o stubs.o stubs-asm.o
-+obj-y	:= setup.o stubs.o stubs-asm.o smpboot_hooks.o
-Index: linux-2.6.16-rc5/arch/i386/mach-vmi/smpboot_hooks.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/mach-vmi/smpboot_hooks.c	2006-03-08 11:02:12.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/mach-vmi/smpboot_hooks.c	2006-03-08 11:02:16.000000000 -0800
-@@ -0,0 +1,135 @@
-+/*
-+ * Special hooks for smpboot.c, needed for vmi.
-+ *
-+ * Copyright (C) 2005, VMware, Inc.
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to zach@vmware.com
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/smp.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/bootmem.h>
-+#include <linux/mm.h>
-+#include <asm/acpi.h>
-+#include <asm/arch_hooks.h>
-+#include <asm/processor.h>
-+#include <asm/desc.h>
-+#include <asm/io.h>
-+#include <asm/highmem.h>
-+#include <asm/pgtable.h>
-+#include <vmi.h>
-+
-+extern long boot_gdt_table;
-+extern struct desc_struct idt_table[256];
-+extern unsigned char *trampoline_base;
-+
-+#ifdef CONFIG_SMP
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+#define DEFAULT_SEND_IPI	(1)
-+#else
-+#define DEFAULT_SEND_IPI	(0)
-+#endif
-+
-+int no_broadcast=DEFAULT_SEND_IPI;
-+
-+APState ap;
-+
-+void __init
-+smpboot_startup_ipi_hook(int phys_apicid, unsigned long start_eip,
-+                         unsigned long start_esp)
-+{
-+        /* We require phys_acpicid to be the cpu number. */
-+        if (hypervisor_found) {
-+                /* Default everything to zero.  This is fine for most GPRs. */
-+                memset(&ap, 0, sizeof(APState));
-+
-+                /* Set up AP's per-cpu GDT. */
-+                memcpy(get_cpu_gdt_table(phys_apicid), cpu_gdt_table,
-+                       GDT_SIZE);
-+                ap.gdtr_limit = GDT_SIZE - 1;
-+                ap.gdtr_base = (unsigned long) get_cpu_gdt_table(phys_apicid);
-+                
-+                ap.idtr_limit = IDT_ENTRIES * 8 - 1;
-+                ap.idtr_base = (unsigned long) idt_table;
-+
-+                ap.ldtr = 0;
-+                
-+                ap.cs = __KERNEL_CS;
-+                ap.eip = (unsigned long) start_eip;
-+                ap.ss = __KERNEL_DS;
-+                ap.esp = (unsigned long) start_esp;
-+                
-+                ap.ds = __USER_DS;
-+                ap.es = __USER_DS;
-+                ap.fs = 0;
-+                ap.gs = 0;
-+                
-+                ap.eflags = 0;
-+                
-+#ifdef CONFIG_X86_PAE
-+                /* efer should match BSP efer. */
-+                if (cpu_has_nx) {
-+                        unsigned l, h;
-+                        rdmsr(MSR_EFER, l, h);
-+                        ap.efer = (unsigned long long) h << 32 | l;
-+                }
-+#endif
-+
-+                ap.cr3 = __pa(swapper_pg_dir);
-+                /* Protected mode, paging, AM, WP, NE, MP. */
-+                ap.cr0 = 0x80050023;
-+                ap.cr4 = mmu_cr4_features;
-+                
-+                vmi_set_initial_ap_state(__pa(&ap), phys_apicid);
-+        }
-+}
-+
-+void __init smpboot_pre_start_secondary_hook(void)
-+{
-+        if (vmi_hypervisor_found()) {
-+                *(unsigned long *) trampoline_base = 0xa5a5a5a5;
-+        }
-+}
-+
-+static __init int no_ipi_broadcast(char *str)
-+{
-+	get_option(&str, &no_broadcast);
-+	printk ("Using %s mode\n", no_broadcast ? "No IPI Broadcast" :
-+											"IPI Broadcast");
-+	return 1;
-+}
-+
-+__setup("no_ipi_broadcast", no_ipi_broadcast);
-+
-+static int __init print_ipi_mode(void)
-+{
-+	printk ("Using IPI %s mode\n", no_broadcast ? "No-Shortcut" :
-+											"Shortcut");
-+	return 0;
-+}
-+
-+late_initcall(print_ipi_mode);
-+#endif
-+
-Index: linux-2.6.16-rc5/arch/i386/kernel/smpboot.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/kernel/smpboot.c	2006-03-08 10:53:46.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/kernel/smpboot.c	2006-03-08 11:02:16.000000000 -0800
-@@ -111,7 +111,7 @@ EXPORT_SYMBOL(x86_cpu_to_apicid);
+ #ifdef CONFIG_PREEMPT
+-#define preempt_stop		cli
++#define preempt_stop		CLI
+ #else
+ #define preempt_stop
+ #define resume_kernel		restore_nocheck
+@@ -148,7 +149,7 @@ ret_from_intr:
+ 	testl $(VM_MASK | 3), %eax
+ 	jz resume_kernel
+ ENTRY(resume_userspace)
+- 	cli				# make sure we don't miss an interrupt
++ 	CLI				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+ 	movl TI_flags(%ebp), %ecx
+@@ -159,7 +160,7 @@ ENTRY(resume_userspace)
  
- extern unsigned char trampoline_data [];
- extern unsigned char trampoline_end  [];
--static unsigned char *trampoline_base;
-+unsigned char *trampoline_base;
- static int trampoline_exec;
+ #ifdef CONFIG_PREEMPT
+ ENTRY(resume_kernel)
+-	cli
++	CLI
+ 	cmpl $0,TI_preempt_count(%ebp)	# non-zero preempt_count ?
+ 	jnz restore_nocheck
+ need_resched:
+@@ -179,7 +180,7 @@ need_resched:
+ ENTRY(sysenter_entry)
+ 	movl TSS_sysenter_esp0(%esp),%esp
+ sysenter_past_esp:
+-	sti
++	STI
+ 	pushl $(__USER_DS)
+ 	pushl %ebp
+ 	pushfl
+@@ -209,7 +210,7 @@ sysenter_past_esp:
+ 	jae syscall_badsys
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,EAX(%esp)
+-	cli
++	CLI
+ 	movl TI_flags(%ebp), %ecx
+ 	testw $_TIF_ALLWORK_MASK, %cx
+ 	jne syscall_exit_work
+@@ -217,8 +218,7 @@ sysenter_past_esp:
+ 	movl EIP(%esp), %edx
+ 	movl OLDESP(%esp), %ecx
+ 	xorl %ebp,%ebp
+-	sti
+-	sysexit
++	STI_SYSEXIT
  
- static void map_cpu_to_logical_apicid(void);
-@@ -507,6 +507,7 @@ static void __devinit start_secondary(vo
- 	 * booting is too fragile that we want to limit the
- 	 * things done here to the most necessary things.
- 	 */
-+	smpboot_pre_start_secondary_hook();
- 	cpu_init();
- 	preempt_disable();
- 	smp_callin();
-@@ -782,6 +783,10 @@ wakeup_secondary_cpu(int phys_apicid, un
- 	else
- 		num_starts = 0;
  
-+	smpboot_startup_ipi_hook(phys_apicid, (unsigned long) start_secondary,
-+		(unsigned long) stack_start.esp);
-+
-+
- 	/*
- 	 * Run STARTUP IPI loop.
- 	 */
-Index: linux-2.6.16-rc5/include/asm-i386/mach-default/smpboot_hooks.h
+ 	# system call handler stub
+@@ -236,7 +236,7 @@ syscall_call:
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,EAX(%esp)		# store the return value
+ syscall_exit:
+-	cli				# make sure we don't miss an interrupt
++	CLI				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+ 	movl TI_flags(%ebp), %ecx
+@@ -256,14 +256,14 @@ restore_all:
+ restore_nocheck:
+ 	RESTORE_REGS
+ 	addl $4, %esp
+-1:	iret
+-.section .fixup,"ax"
++1:	IRET
++.pushsection .fixup,"ax"
+ iret_exc:
+-	sti
++	STI
+ 	pushl $0			# no error code
+ 	pushl $do_iret_error
+ 	jmp error_code
+-.previous
++.popsection
+ .section __ex_table,"a"
+ 	.align 4
+ 	.long 1b,iret_exc
+@@ -281,14 +281,14 @@ ldt_ss:
+ 	 * CPUs, which we can try to work around to make
+ 	 * dosemu and wine happy. */
+ 	subl $8, %esp		# reserve space for switch16 pointer
+-	cli
++	CLI
+ 	movl %esp, %eax
+ 	/* Set up the 16bit stack frame with switch32 pointer on top,
+ 	 * and a switch16 pointer on top of the current frame. */
+ 	call setup_x86_bogus_stack
+ 	RESTORE_REGS
+ 	lss 20+4(%esp), %esp	# switch to 16bit stack
+-1:	iret
++1:	IRET
+ .section __ex_table,"a"
+ 	.align 4
+ 	.long 1b,iret_exc
+@@ -301,7 +301,7 @@ work_pending:
+ 	jz work_notifysig
+ work_resched:
+ 	call schedule
+-	cli				# make sure we don't miss an interrupt
++	CLI				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+ 	movl TI_flags(%ebp), %ecx
+@@ -353,7 +353,7 @@ syscall_trace_entry:
+ syscall_exit_work:
+ 	testb $(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT|_TIF_SINGLESTEP), %cl
+ 	jz work_pending
+-	sti				# could let do_syscall_trace() call
++	STI				# could let do_syscall_trace() call
+ 					# schedule() instead
+ 	movl %esp, %eax
+ 	movl $1, %edx
+@@ -475,7 +475,7 @@ ENTRY(simd_coprocessor_error)
+ ENTRY(device_not_available)
+ 	pushl $-1			# mark this as an int
+ 	SAVE_ALL
+-	movl %cr0, %eax
++	GET_CR0
+ 	testl $0x4, %eax		# EM (math emulation bit)
+ 	jne device_not_available_emulate
+ 	preempt_stop
+@@ -586,7 +586,7 @@ nmi_16bit_stack:
+ 	call do_nmi
+ 	RESTORE_REGS
+ 	lss 12+4(%esp), %esp		# back to 16bit stack
+-1:	iret
++1:	IRET
+ .section __ex_table,"a"
+ 	.align 4
+ 	.long 1b,iret_exc
+Index: linux-2.6.16-rc5/include/asm-i386/spinlock.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/smpboot_hooks.h	2006-03-08 10:53:46.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-default/smpboot_hooks.h	2006-03-08 11:02:16.000000000 -0800
-@@ -42,3 +42,15 @@ static inline void smpboot_setup_io_apic
- 	if (!skip_ioapic_setup && nr_ioapics)
- 		setup_IO_APIC();
- }
-+
-+static inline void smpboot_startup_ipi_hook(int phys_apicid, 
-+                                            unsigned long start_eip,
-+                                            unsigned long start_esp)
-+{
-+
-+}
-+
-+static inline void smpboot_pre_start_secondary_hook(void)
-+{
-+
-+}
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/smpboot_hooks.h
+--- linux-2.6.16-rc5.orig/include/asm-i386/spinlock.h	2006-03-08 11:38:51.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/spinlock.h	2006-03-08 11:40:12.000000000 -0800
+@@ -6,6 +6,7 @@
+ #include <asm/page.h>
+ #include <linux/config.h>
+ #include <linux/compiler.h>
++#include <mach_asm.h>
+ 
+ /*
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+@@ -39,12 +40,12 @@
+ 	"2:\t" \
+ 	"testl $0x200, %1\n\t" \
+ 	"jz 3f\n\t" \
+-	"sti\n\t" \
++	STI_STRING "\n\t"\
+ 	"3:\t" \
+ 	"rep;nop\n\t" \
+ 	"cmpb $0, %0\n\t" \
+ 	"jle 3b\n\t" \
+-	"cli\n\t" \
++	CLI_STRING "\n\t"\
+ 	"jmp 1b\n" \
+ 	"4:\n\t"
+ 
+Index: linux-2.6.16-rc5/include/asm-i386/mach-default/mach_asm.h
 ===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/smpboot_hooks.h	2006-03-08 11:02:12.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/smpboot_hooks.h	2006-03-08 11:02:16.000000000 -0800
-@@ -0,0 +1,51 @@
-+/* 
-+ * include/asm-i386/mach-default/smpboot_hooks.h
-+ *
-+ * Portions Copyright 2005 VMware, Inc.
-+ */
+--- linux-2.6.16-rc5.orig/include/asm-i386/mach-default/mach_asm.h	2006-03-08 11:40:12.000000000 -0800
++++ linux-2.6.16-rc5/include/asm-i386/mach-default/mach_asm.h	2006-03-08 11:40:12.000000000 -0800
+@@ -0,0 +1,16 @@
++#ifndef __MACH_ASM_H
++#define __MACH_ASM_H
 +
-+static inline void smpboot_clear_io_apic_irqs(void)
-+{
-+	io_apic_irqs = 0;
-+}
++#define IRET		iret 
++#define CLI		cli
++#define STI		sti
++#define STI_SYSEXIT	sti; sysexit
++#define GET_CR0		mov %cr0, %eax
++#define WRMSR		wrmsr
++#define RDMSR		rdmsr
++#define CPUID		cpuid
 +
-+static inline void smpboot_setup_warm_reset_vector(unsigned long start_eip)
-+{
-+	CMOS_WRITE(0xa, 0xf);
-+	local_flush_tlb();
-+	Dprintk("1.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_HIGH) = start_eip >> 4;
-+	Dprintk("2.\n");
-+	*((volatile unsigned short *) TRAMPOLINE_LOW) = start_eip & 0xf;
-+	Dprintk("3.\n");
-+}
++#define CLI_STRING	"cli"
++#define STI_STRING	"sti"
 +
-+static inline void smpboot_restore_warm_reset_vector(void)
-+{
-+	/*
-+	 * Install writable page 0 entry to set BIOS data area.
-+	 */
-+	local_flush_tlb();
-+
-+	/*
-+	 * Paranoid:  Set warm reset code and vector here back
-+	 * to default values.
-+	 */
-+	CMOS_WRITE(0, 0xf);
-+
-+	*((volatile long *) phys_to_virt(0x467)) = 0;
-+}
-+
-+static inline void smpboot_setup_io_apic(void)
-+{
-+	/*
-+	 * Here we can be sure that there is an IO-APIC in the system. Let's
-+	 * go and set it up:
-+	 */
-+	if (!skip_ioapic_setup && nr_ioapics)
-+		setup_IO_APIC();
-+}
-+
-+extern void smpboot_startup_ipi_hook(int phys_apicid, unsigned long start_eip,
-+                             unsigned long start_esp);
-+extern void smpboot_pre_start_secondary_hook(void);
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/entry_arch.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/entry_arch.h	2006-03-08 11:02:12.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/entry_arch.h	2006-03-08 11:02:16.000000000 -0800
-@@ -0,0 +1,34 @@
-+/*
-+ * This file is designed to contain the BUILD_INTERRUPT specifications for
-+ * all of the extra named interrupt vectors used by the architecture.
-+ * Usually this is the Inter Process Interrupts (IPIs)
-+ */
-+
-+/*
-+ * The following vectors are part of the Linux architecture, there
-+ * is no hardware IRQ pin equivalent for them, they are triggered
-+ * through the ICC by us (IPIs)
-+ */
-+#ifdef CONFIG_X86_SMP
-+BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
-+BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
-+BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
-+#endif
-+
-+/*
-+ * every pentium local APIC has two 'local interrupts', with a
-+ * soft-definable vector attached to both interrupts, one of
-+ * which is a timer interrupt, the other one is error counter
-+ * overflow. Linux uses the local APIC timer interrupt to get
-+ * a much simpler SMP time architecture:
-+ */
-+#ifdef CONFIG_X86_LOCAL_APIC
-+BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
-+BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
-+BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
-+
-+#ifdef CONFIG_X86_MCE_P4THERMAL
-+BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
-+#endif
-+
-+#endif
++#endif /* __MACH_ASM_H */

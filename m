@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWCMEkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWCMEqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWCMEkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Mar 2006 23:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWCMEkr
+	id S932252AbWCMEqN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Mar 2006 23:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWCMEqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 23:40:47 -0500
-Received: from ns2.suse.de ([195.135.220.15]:57295 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932115AbWCMEkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 23:40:47 -0500
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Mon, 13 Mar 2006 15:39:37 +1100
+	Sun, 12 Mar 2006 23:46:13 -0500
+Received: from omta04sl.mx.bigpond.com ([144.140.93.156]:31090 "EHLO
+	omta04sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932252AbWCMEqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Mar 2006 23:46:12 -0500
+Message-ID: <4414F911.4060807@bigpond.net.au>
+Date: Mon, 13 Mar 2006 15:46:09 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       John Hawkes <hawkes@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       npiggin@suse.de, "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: 2.6.16-rc5-mm1 -- strange load balancing problems
+References: <20060228042439.43e6ef41.akpm@osdl.org> <4406C881.3060400@bigpond.net.au> <4407706D.90604@bigpond.net.au>
+In-Reply-To: <4407706D.90604@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17428.63369.446803.958721@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm1 (NFS tree ... busy inodes ... relatively harmless)
-In-Reply-To: message from Andrew Morton on Sunday March 12
-References: <20060312031036.3a382581.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 13 Mar 2006 04:46:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday March 12, akpm@osdl.org wrote:
+Peter Williams wrote:
+> Peter Williams wrote:
 > 
-> - The NFS tree is a bit sick - you may see the `busy inodes - self destruct
->   in five seconds" message when performing NFS unmounts.  It seems relatively
->   harmless.
+>> I'm seeing some strange load balancing problems with this kernel.  I 
+>> don't think that they're due to the smpnice patches as I've applied 
+>> them on a standard 2.6.15-rc5 kernel and the problem doesn't happen 
+>> there.
+>>
+>> The problem is (as I say) quite strange and (for me) very 
+>> reproducible.  I have two programs (aspin and gsmiley) which I use to 
+>> produce CPU hard spinners for testing purposes.  What I'm finding is 
+>> that when I start several copies of aspin load balancing goes as 
+>> expected but when I launch several copies of gsmiley they all go to 
+>> the one CPU and stick there like glue.  (The most obvious difference 
+>> between the two programs is that aspin is just a command line tool 
+>> while gsmiley is an X windows program that spins a simley face and 
+>> reports its own assessment of the percentage of CPU it's getting.)  
+>> The machine that I've seen this problem is a hyper threading Pentium 4 
+>> and I suspect that it may be due to the SCHED_MC changes which overlap 
+>> SCHED_SMT a bit.
+>>
+>> I'm trying to test this on a non hyper threading machine but the 
+>> machine has crashed (different kernel) while doing the build.  I'll 
+>> resume this effort tomorrow but I thought that I should report the 
+>> problem so that others could comment.
+>>
+>> Peter
+>> PS SCHED_MC was configured in but I'll try it without tomorrow and 
+>> report the results.
+> 
+> 
+> Configuring SCHED_MC to "no" causes this problem to go away.
 
-I think the term is "mostly harmless" ... see the entry for "Earth" in
-The Hitch-Hikers Guide To The Galaxy... :-)
+This problem does not appear to be present in 2.6.16-rc6-mm1.
 
-I don't believe this is harmless at all, and I have an oops to prove
-it - though it is with NFSv4 which is still EXPERIMENTAL.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-I don't believe it is an NFS bug at all, but a VFS bug.  It happens
-more with NFS because iput on nfs can be a lot slower due to the
-required network activity, so the race is easier to hit.
-
-See the 
-      Fix shrink_dcache_parent() against shrink_dcache_memory() race
-threads.
-
-Of course there could be other bugs...
-
-NeilBrown
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

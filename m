@@ -1,73 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWCMWQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWCMWSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbWCMWQz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 17:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWCMWQy
+	id S964787AbWCMWSB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWCMWSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 17:16:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37391 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964784AbWCMWQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 17:16:53 -0500
-Date: Mon, 13 Mar 2006 23:16:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-Cc: Arjan van de Ven <arjan@linux.intel.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Antonino Daplas <adaplas@pol.net>, Andi Kleen <ak@suse.de>,
-       Kenneth Parrish <Kenneth.Parrish@familynet-international.net>
-Subject: Re: [patch] Require VM86 with VESA framebuffer
-Message-ID: <20060313221651.GO13973@stusta.de>
-References: <200603131159_MC3-1-BA89-78CA@compuserve.com> <4415A586.1010404@linux.intel.com> <200603131358.50374.jbarnes@virtuousgeek.org>
+	Mon, 13 Mar 2006 17:18:00 -0500
+Received: from smtp105.biz.mail.re2.yahoo.com ([206.190.52.174]:53078 "HELO
+	smtp105.biz.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S964787AbWCMWR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:17:58 -0500
+From: Pantelis Antoniou <pantelis@embeddedalley.com>
+To: j4K3xBl4sT3r <jakexblaster@gmail.com>
+Subject: Re: Which kernel is the best for a small linux system?
+Date: Tue, 14 Mar 2006 00:20:19 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <200603140000.45052.pantelis@embeddedalley.com> <436c596f0603131401l479dd4b5q164017f701b37289@mail.gmail.com>
+In-Reply-To: <436c596f0603131401l479dd4b5q164017f701b37289@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200603131358.50374.jbarnes@virtuousgeek.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200603140020.19602.pantelis@embeddedalley.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 01:58:49PM -0800, Jesse Barnes wrote:
-> On Monday, March 13, 2006 9:01 am, Arjan van de Ven wrote:
-> > Chuck Ebbert wrote:
-> > > In-Reply-To: <1142261096.25773.19.camel@localhost.localdomain>
-> > > References: <1142261096.25773.19.camel@localhost.localdomain>
+On Tuesday 14 March 2006 00:01, j4K3xBl4sT3r wrote:
+> On 3/13/06, Pantelis Antoniou <pantelis@embeddedalley.com> wrote:
+> > On Monday 13 March 2006 20:27, Sam Ravnborg wrote:
+> > > On Mon, Mar 13, 2006 at 09:17:47AM +0100, Arjan van de Ven wrote:
+> > > > On Sun, 2006-03-12 at 21:40 -0300, j4K3xBl4sT3r wrote:
+> > > > > Hello all,
+> > > > >
+> > > > > I've been seeing many Linux versions, with many features, some of them
+> > > > > just for the newest branches (2.4.x and 2.6.x), I would like to know
+> > > > > for which kind of system each kernel is recommended. On the distros
+> > > > > that we see inside the Net there is the 2.4.x series, normally I
+> > > > > update to 2.6.x (in case of my Slackware 10.2, even getting problems
+> > > > > with some devices). Is that floppy disks uses only 2.0.x and 2.2.x
+> > > > > Kernels? If applicable, where can I get (detailed) information about
+> > > > > these issues? I'm new on Kernel managing, started doing my own distros
+> > > > > at less than one month and would like to know it.
+> > > >
+> > > > regardless of the size issue; you should really not start any new
+> > > > projects based on 2.4 kernels; they are in deep deep maintenance mode
+> > > > for now, but it's unclear how long they will be (I suppose as long as
+> > > > people keep sending patches), especially complex security issues should
+> > > > worry people ;)
+> > > >
+> > > > 2.6 is actively maintained and will be for quite some time :)
 > > >
-> > > On Mon, 13 Mar 2006 14:44:56 +0000, Alan Cox wrote:
-> > >> VESA does not require VM86 so this change is completely wrong.
+> > > Any comments on this:
+> > > http://www.denx.de/wiki/Know/Linux24vs26
 > > >
-> > > What is this all about then?
+> > > On another denx.de page I found this summary (so you do not have to
+> > > visit the page):
+> > > # slow to build: 2.6 takes 30...40% longer to compile
+> > > # Big memory footprint in flash: the 2.6 compressed kernel image is
+> > > # 30...40% bigger
+> > > # Big memory footprint in RAM: the 2.6 kernel needs 30...40% more RAM;
+> > > # the available RAM size for applications is 700kB smaller
+> > > # Slow to boot: 2.6 takes 5...15% longer to boot into multi-user mode
+> > > # Slow to run: context switches up to 96% slower, local communication
+> > > # latencies up to 80% slower, file system latencies up to 76% slower,
+> > > # local communication bandwidth less than 50% in some cases.
+> > >
+> > > I'm merely asked because I have been pointed to this page several times
+> > > and I do nto have numbers for 2.4 versus 2.6.
+> > >
+> > > Note: denx does support 2.6 now.
+> > >
+> > > I do not concur and recommend 2.6 but wanted to know if anyone had more
+> > > insight to share.
+> > >
+> > >       Sam
+> > > -
 > >
-> > that is about X requiring it. Not about anything kernel related.
+> > Hi there.
+> >
+> > Since I've been dealing with those platforms quite a lot, let me have
+> > my $0.02.
+> >
+> > Yes 2.6 is larger than 2.4 and with small embedded processors with small
+> > caches & a small number of TLBs that footprint is felt quite a lot.
+> >
+> > For the 8xx which shows the biggest performance, later kernels offer
+> > the CONFIG_PIN_TLB option which help quite a bit.
+> >
+> > So for anything new I'd recommend 2.6 anyway, the performance delta
+> > is not so great as this test appears to show. I'd like this test to be performed
+> > again against a newer kernel version if possible.
+> >
+> > Pantelis
+> >
 > 
-> And X doesn't actually require it, it's just that some builds of the X 
-> int10 and VBE libraries assume it's available.  They can be configured 
-> to use an x86 emulator instead, and probably should be by default so 
-> that non-x86 systems have a better chance of working (code coverage and 
-> all that).
+> so, in the case of the big footprints, might I use a 2.4.x instead of
+> 2.6.x just to avoid memory leaks and performance loss?
+> 
+> j4k3.
+>
 
-You can only disable CONFIG_VM86 if you have set CONFIG_EMBEDDED=y.
+What memory leaks? And cut it out with 1337 speak. It stopped
+being funny 10 years ago...
 
-That's OK considering that CONFIG_EMBEDDED=y has the semantics:
-  Allow me to disable more options to save space no matter how much
-  this can break since I do _really_ know what I'm doing when I'm 
-  enabling CONFIG_EMBEDDED.
-
-Expecting working kernels when randomly toggling options that get 
-available with CONFIG_EMBEDDED=y is simply silly.
-
-> Jesse
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Pantelis

@@ -1,92 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWCMNTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWCMNWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWCMNTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 08:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751999AbWCMNTz
+	id S1751090AbWCMNWA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 08:22:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752004AbWCMNV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 08:19:55 -0500
-Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:49547 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751751AbWCMNTy
+	Mon, 13 Mar 2006 08:21:59 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:42430 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751054AbWCMNV5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 08:19:54 -0500
-Message-ID: <44157178.90507@drzeus.cx>
-Date: Mon, 13 Mar 2006 14:19:52 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060210)
+	Mon, 13 Mar 2006 08:21:57 -0500
+Date: Mon, 13 Mar 2006 14:21:51 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.16-rc6-rt1
+In-Reply-To: <20060312220218.GA3469@elte.hu>
+Message-ID: <Pine.LNX.4.44L0.0603131130460.25211-100000@lifa01.phys.au.dk>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, cramerj@intel.com,
-       john.ronciak@intel.com, ganesh.venkatesan@intel.com
-Subject: e1000 with serdes only shows a fiber port
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 12 Mar 2006, Ingo Molnar wrote:
 
-I'm having problems with the e1000 card in a Dell Poweredge 1855. This
-model has support for both copper and fiber and has two cards on the PCI
-bus (might supposed to be one for each type).
+> i have released the 2.6.16-rc6-rt1 tree, which can be downloaded from
+> the usual place:
+>
+>    http://redhat.com/~mingo/realtime-preempt/
+>
+> again, lots of changes all over the map:
+>
+> - firstly, the -rt tree has been rebased to 2.6.16-rc6, which was a more
+>   complex operation than usual, due to the many changes in 2.6.16 (in
+>   particular the mutex code).
+>
+> - the PI code got reworked again, this time by Thomas Gleixner. The
+>   priority boosting chain is now instantaneous again (and not
+>   wakeup/scheduling based) - but the previous list-walking hell has been
+>   avoided via the clever use of plists. Plus many other changes and
+>   lots of cleanups to the rt-mutex proper.
 
-The problem is that both of these cards show only FIBER as a supported
-port type, but I only have plain copper connectors attached to the
-machine. There is no link detected at either end, except for a small
-flicker just when the e1000 module is loaded.
+Hi,
+ I briefly looked at the PI code. Looks fine. I will try it on my
+rt-mutex testbed soonish.
 
-The hardware doesn't seem to be the problem since it works nicely in
-Windows on the same machine.
+However, I notice it re-introduces long latencies :-(
+The problem is that the time need in adjust_prio_chain is proportional to
+the lock depth and the function is called with two raw spinlocks held.
+This is no problem when the locks are in the kernel and thus not very
+deeply nested, but when it is exposed to futexes there is a problem as
+Joe user can increase the task latency of the system by crafting deep
+locking structures in userspace.
 
-The device id of both controllers is 8086:107b, meaning SERDES. However,
-if I look into e1000_ethtool.c:e1000_get_settings() I can see a test for
-copper media, then and else assuming that the card is a fiber card.
-Since this card can do both I'm guessing this code is broken.
+I will be on paternity leave soonish. I might get time solve it as I
+originally suggested some months back when my daughter is asleep. The
+solution I suggested last fall, includes releasing _all_ locks at each
+iteration in the loop in adjust_prio_chain such that higher priority
+tasks gets a chance to run. To avoid having tasks released in the middle
+get/put_tast_struct() are needed. That will cost extra atomic
+instructions compared to the present implementation. Are people prepared
+to pay that price? I am not talking about the scheduler based solution;
+just doing the PI iteration in a little different (and slightly more
+epensive) way.
 
-I'm in rather desperate here since this is a blade server (i.e. no
-chance of putting in another network card). :/
-
-Rgds
-Pierre
-
-lspci:
-
-05:04.0 Ethernet controller: Intel Corporation 82546GB Gigabit Ethernet
-Controller (rev 03)
-        Subsystem: Dell: Unknown device 018a
-        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 185
-        Memory at fe7e0000 (64-bit, non-prefetchable) [size=128K]
-        I/O ports at dcc0 [size=64]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+
-Queue=0/0 Enable-
-
-05:04.1 Ethernet controller: Intel Corporation 82546GB Gigabit Ethernet
-Controller (rev 03)
-        Subsystem: Dell: Unknown device 018a
-        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 193
-        Memory at fe7c0000 (64-bit, non-prefetchable) [size=128K]
-        I/O ports at dc80 [size=64]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [e4] PCI-X non-bridge device.
-        Capabilities: [f0] Message Signalled Interrupts: 64bit+
-Queue=0/0 Enable-
-
-ethtool: (eth1 is identical)
-
-Settings for eth0:
-        Supported ports: [ FIBRE ]
-        Supported link modes:   1000baseT/Full
-        Supports auto-negotiation: Yes
-        Advertised link modes:  1000baseT/Full
-        Advertised auto-negotiation: Yes
-        Speed: Unknown! (65535)
-        Duplex: Unknown! (255)
-        Port: FIBRE
-        PHYAD: 0
-        Transceiver: internal
-        Auto-negotiation: off
-        Supports Wake-on: umbg
-        Wake-on: d
-        Current message level: 0x00000007 (7)
-        Link detected: no
+Esben
 

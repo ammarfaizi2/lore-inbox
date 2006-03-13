@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWCMWZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWCMW0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWCMWZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 17:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbWCMWZu
+	id S964811AbWCMW0y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 17:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWCMW0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 17:25:50 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33239 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964815AbWCMWZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 17:25:49 -0500
-Subject: Re: Which kernel is the best for a small linux system?
-From: Lee Revell <rlrevell@joe-job.com>
-To: j4K3xBl4sT3r <jakexblaster@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <436c596f0603131401l479dd4b5q164017f701b37289@mail.gmail.com>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
-	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
-	 <20060313182725.GA31211@mars.ravnborg.org>
-	 <200603140000.45052.pantelis@embeddedalley.com>
-	 <436c596f0603131401l479dd4b5q164017f701b37289@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 13 Mar 2006 17:25:44 -0500
-Message-Id: <1142288745.13256.57.camel@mindpipe>
+	Mon, 13 Mar 2006 17:26:54 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:975 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964811AbWCMW0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 17:26:52 -0500
+Date: Mon, 13 Mar 2006 17:26:44 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Andrew Morton <akpm@osdl.org>,
+       ambx1@neo.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-ID: <20060313222644.GD1311@devserv.devel.redhat.com>
+Mail-Followup-To: Kay Sievers <kay.sievers@vrfy.org>,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	Andrew Morton <akpm@osdl.org>, ambx1@neo.rr.com,
+	linux-kernel@vger.kernel.org
+References: <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060313165719.GB4147@devserv.devel.redhat.com> <20060313192411.GA23380@vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060313192411.GA23380@vrfy.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 19:01 -0300, j4K3xBl4sT3r wrote:
-> so, in the case of the big footprints, might I use a 2.4.x instead of
-> 2.6.x just to avoid memory leaks and performance loss? 
+Kay Sievers (kay.sievers@vrfy.org) said: 
+> > See:
+> >   https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=178998
+> > 
+> > This doesn't work for everything.
+> 
+> Sure not, and I don't think "everything" in PnP will ever work. :) But
+> it does the same as the modalias patch to the kernel we are talking about.
+> There are device table entries completely missing and some other don't
+> match. Some of them can be fixed by adding the aliases as modprobe.conf
+> entries.
 
-Simply using more memory than a previous version is not a memory leak.
+Well, it's just that if this is the solution proposed, I'd like it if
+it worked for any of the people who are seeing problems - in our bugs,
+it hasn't helped any of them yet.
 
-Lee
-
+Bill

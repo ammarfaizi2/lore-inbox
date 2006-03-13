@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWCMKMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750952AbWCMKYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWCMKMu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 05:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWCMKMu
+	id S1750952AbWCMKYU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 05:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWCMKYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 05:12:50 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19406 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751206AbWCMKMt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 05:12:49 -0500
-Date: Mon, 13 Mar 2006 11:12:14 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [ck] Re: Faster resuming of suspend technology.
-Message-ID: <20060313101214.GB2136@elf.ucw.cz>
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312213228.GA27693@rhlx01.fht-esslingen.de> <200603130930.11800.kernel@kolivas.org> <200603131144.01462.ncunningham@cyclades.com>
-Mime-Version: 1.0
+	Mon, 13 Mar 2006 05:24:20 -0500
+Received: from host-84-9-202-225.bulldogdsl.com ([84.9.202.225]:3518 "EHLO
+	aeryn.fluff.org.uk") by vger.kernel.org with ESMTP id S1750753AbWCMKYU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 05:24:20 -0500
+Date: Mon, 13 Mar 2006 10:23:21 +0000
+From: Ben Dooks <ben@fluff.org>
+To: James Yu <cyu021@gmail.com>
+Cc: Ben Dooks <ben@fluff.org>, Willy Tarreau <willy@w.ods.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: weird behavior from kernel
+Message-ID: <20060313102321.GC25816@home.fluff.org>
+References: <60bb95410603111923icba8adeid90c1dfa94f2e566@mail.gmail.com> <20060312084632.GB21493@w.ods.org> <60bb95410603120125n24c3a283xe1fabeb255c8c59b@mail.gmail.com> <20060312213720.GB25816@home.fluff.org> <60bb95410603122341w74ca1d97k9bda52fd71d06d18@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603131144.01462.ncunningham@cyclades.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <60bb95410603122341w74ca1d97k9bda52fd71d06d18@mail.gmail.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 13-03-06 11:43:55, Nigel Cunningham wrote:
-> Hi.
+On Mon, Mar 13, 2006 at 03:41:44PM +0800, James Yu wrote:
+> It's a custom board I got, and the official 2.6 doesn't work on it. So
+> I have to use 2.4.
+
+I assume that you had to alter 2.4 to work with your board, so why
+is 2.6 so much more difficult?
+
+We have 5 custom boards here, and we use 2.6. It does not take long
+to add a board initialisation file into arch/arm/mach-s3c2410/
+ 
+> I tried -fno-strength-reduce option, and it doesn't seem to work though.
+> Still looking for solutions~
 > 
-> On Monday 13 March 2006 08:30, Con Kolivas wrote:
-> > On Monday 13 March 2006 08:32, Andreas Mohr wrote:
-> > > And... well... this sounds to me exactly like a prime task
-> > > for the newish swap prefetch work, no need for any other
-> > > special solutions here, I think.
-> > > We probably want a new flag for swap prefetch to let it know
-> > > that we just resumed from software suspend and thus need
-> > > prefetching to happen *much* faster than under normal
-> > > conditions for a short while, though (most likely by
-> > > enabling prefetching on a *non-idle* system for a minute).
+> 
+> On 3/13/06, Ben Dooks <ben@fluff.org> wrote:
+> > On Sun, Mar 12, 2006 at 05:25:11PM +0800, James Yu wrote:
+> > > The major reason to choose 2.4.18 as my dev base is that the dev is
+> > > ment to be carried out on a custom ARM board, and there isn't any
+> > > 2.6's port available.
 > >
-> > Adding a resume_swap_prefetch() called just before the resume finishes that
-> > aggressively prefetches from swap would be easy. Please tell me if you
-> > think adding such a function would be worthwhile.
+> > What functionality do you need which is not in the current
+> > 2.6 kernel series?
+> >
+> > --
+> > Ben (ben@fluff.org, http://www.fluff.org/)
+> >
+> >   'a smiley only costs 4 bytes'
+> >
 > 
-> My 2c would be that swsusp is broken in a number of ways in discarding those 
-> pages in the first place:
-
-Yep, feel free to submit a patch.
-
-> - Forcing pages out to swap by vm pressure is an inefficient way of writing 
-> the pages.
-
-Really? VM subsystem is supposed to be effective.
-
-> - It doesn't get the pages compressed, and so makes inefficient use of the 
-> storage and forces more pages to be discarded that would otherwise be 
-> necessary.
-
-"more pages to be discarded" is untrue. If you want to argue that swap
-needs to be compressed, feel free to submit patches for swap
-compression.
-
-(Compression is actually not as important as you paint it. Rafael
-implemented it, only to find out that it is 20 percent speedup in
-common cases -- and your gzip actually slows things down.)
-
-> - Bringing the pages back in by swap prefetching or swapoffing or whatever is 
-> equally inefficient (I was going to say 'particularly in low memory 
-> situations', but immediately ate my words as I remembered that if you've just 
-> swsusp'd, you've freed at least half of memory anyway).
-
-...but allows you to use machine immediately after resume, which
-people want, as you have just seen.
-
-> - This technique doesn't guarantee that the pages you end up with in memory 
-> are the pages that you're actually most likely to want. The vast majority of 
-> what you really want will simply have been discarded rather than swapped.
 > 
-> Having said that, Rafael is making some progress in these areas, such that 
-> swsusp is eating less memory than it used to, so that swap prefetching will 
-> be less important at resume time than it has been in the past.
-> 
-> Hope this helps.
-> 
-> Nigel
-
-
+> --
+> James
+> cyu021@gmail.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-37:
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

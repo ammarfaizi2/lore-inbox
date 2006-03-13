@@ -1,335 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWCMSmB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWCMSmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWCMSmB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:42:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWCMSl7
+	id S932364AbWCMSmn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWCMSmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:41:59 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:40465 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751451AbWCMSl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:41:56 -0500
-Date: Mon, 13 Mar 2006 10:41:54 -0800
-Message-Id: <200603131841.k2DIfsBA005883@zach-dev.vmware.com>
-Subject: [RFC, PATCH 3/24] i386 Vmi interface definition
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>,
-       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:41:54.0813 (UTC) FILETIME=[CCFED2D0:01C646CD]
+	Mon, 13 Mar 2006 13:42:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:15253 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750743AbWCMSmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:42:10 -0500
+Message-ID: <4415BC45.1010601@nc.rr.com>
+Date: Mon, 13 Mar 2006 13:39:01 -0500
+From: William Cohen <wcohen@nc.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: eranian@hpl.hp.com
+CC: linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
+       perfctr-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org
+Subject: Re: [Perfctr-devel] 2.6.16-rc5 perfmon2 new code base + libpfm with
+ Montecito support
+References: <20060308155311.GD13168@frankl.hpl.hp.com>
+In-Reply-To: <20060308155311.GD13168@frankl.hpl.hp.com>
+Content-Type: multipart/mixed;
+ boundary="------------020605020905090608030800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Master definition of VMI interface, including calls, constants, and
-interface version.
+This is a multi-part message in MIME format.
+--------------020605020905090608030800
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+Hi Stephane,
 
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/paravirtualInterface.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/paravirtualInterface.h	2006-03-08 10:08:45.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/paravirtualInterface.h	2006-03-08 10:08:45.000000000 -0800
-@@ -0,0 +1,188 @@
-+/*
-+ * paravirtualInterface.h --
-+ *
-+ *      Header file for paravirtualization interface and definitions
-+ *      for the hypervisor option ROM tables.
-+ *
-+ *      Copyright (C) 2005, VMWare, Inc.
-+ *
-+ */
+I have been looking through the perfmon2 code to see how it is going to 
+work with OProfile. It looks like the ia64 oprofile support has not been 
+modified to work with the changes in perfmon2. Has the ia64 kernel been 
+built with perfmon2 and oprofile support? I don't have easy access to an 
+ia64, so I haven't been able to verify that the attached patch works. 
+However, I expect that the changes in the patch will be required for 
+OProfile to function with perfmon2.
+
+-Will
+
+
+--------------020605020905090608030800
+Content-Type: text/x-patch;
+ name="perfmon2ia64_oprof.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="perfmon2ia64_oprof.diff"
+
+--- linux-2.6.16-rc5-perfop/arch/ia64/oprofile/perfmon.c.ia64chg	2006-03-13 10:56:30.000000000 -0500
++++ linux-2.6.16-rc5-perfop/arch/ia64/oprofile/perfmon.c	2006-03-13 12:31:48.000000000 -0500
+@@ -8,22 +8,27 @@
+  */
+ 
+ #include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/oprofile.h>
+ #include <linux/sched.h>
+-#include <asm/perfmon.h>
++#include <linux/perfmon.h>
+ #include <asm/ptrace.h>
+ #include <asm/errno.h>
+ 
+ static int allow_ints;
+ 
+ static int
+-perfmon_handler(struct task_struct *task, void *buf, pfm_ovfl_arg_t *arg,
+-                struct pt_regs *regs, unsigned long stamp)
++perfmon_handler(void *buf, struct pfm_ovfl_arg *arg,
++                unsigned long ip, u64 stamp, void *data)
+ {
+ 	int event = arg->pmd_eventid;
+  
+-	arg->ovfl_ctrl.bits.reset_ovfl_pmds = 1;
++	/* FIXME: oprofile_add_sample expect to have
++	   struct pt_regs * const regs */
++	struct pt_regs * const regs = (struct pt_regs *) data;
 +
-+#ifndef _PARAVIRTUAL_INTERFACE_H_
-+#define _PARAVIRTUAL_INTERFACE_H_
-+
-+#include "vmiCalls.h"
-+
-+/*
-+ *---------------------------------------------------------------------
-+ *
-+ *  VMI Option ROM API
-+ *
-+ *---------------------------------------------------------------------
-+ */
-+#define VDEF(call) VMI_CALL_##call,
-+typedef enum VMICall {
-+   VMI_CALLS
-+   NUM_VMI_CALLS
-+} VMICall;
-+#undef VDEF
-+
-+#define VMI_SIGNATURE 0x696d5663   /* "cVmi" */
-+
-+#define VMI_API_REV_MAJOR          13
-+#define VMI_API_REV_MINOR          0
-+
-+/* Flags used by VMI_Reboot call */
-+#define VMI_REBOOT_SOFT          0x0
-+#define VMI_REBOOT_HARD          0x1
-+
-+/* Flags used by VMI_{Notify|Release}Page call */
-+#define VMI_PAGE_PT              0x01
-+#define VMI_PAGE_PD              0x02
-+#define VMI_PAGE_PAE             0x04
-+#define VMI_PAGE_PDP             0x04
-+#define VMI_PAGE_PML4            0x08
-+
-+/* Flags used by VMI_FlushTLB call */
-+#define VMI_FLUSH_TLB            0x01
-+#define VMI_FLUSH_GLOBAL         0x02
-+
-+/* Flags used by VMI_FlushSync call */
-+#define VMI_FLUSH_PT_UPDATES     0x80
-+
-+/* The number of VMI address translation slot */
-+#define VMI_LINEAR_MAP_SLOTS    4
-+
-+/* The cycle counters. */
-+#define VMI_CYCLES_REAL         0
-+#define VMI_CYCLES_AVAILABLE    1
-+#define VMI_CYCLES_STOLEN       2
-+
-+/* The alarm interface 'flags' bits. [TBD: exact format of 'flags'] */
-+#define VMI_ALARM_COUNTERS      2
-+
-+#define VMI_ALARM_COUNTER_MASK  0x000000ff
-+
-+#define VMI_ALARM_WIRED_IRQ0    0x00000000
-+#define VMI_ALARM_WIRED_LVTT    0x00010000
-+
-+#define VMI_ALARM_IS_ONESHOT    0x00000000
-+#define VMI_ALARM_IS_PERIODIC   0x00000100
-+
-+
-+/*
-+ *---------------------------------------------------------------------
-+ *
-+ *  Generic VROM structures and definitions
-+ *
-+ *---------------------------------------------------------------------
-+ */
-+
-+/* VROM call table definitions */
-+#define VROM_CALL_LEN             32
-+
-+typedef struct VROMCallEntry {
-+   char f[VROM_CALL_LEN];
-+} VROMCallEntry;
-+
-+typedef struct VROMHeader {
-+   VMI_UINT16          romSignature;             // option ROM signature
-+   VMI_INT8            romLength;                // ROM length in 512 byte chunks
-+   unsigned char       romEntry[4];              // 16-bit code entry point
-+   VMI_UINT8           romPad0;                  // 4-byte align pad
-+   VMI_UINT32          vRomSignature;            // VROM identification signature
-+   VMI_UINT8           APIVersionMinor;          // Minor version of API
-+   VMI_UINT8           APIVersionMajor;          // Major version of API
-+   VMI_UINT8           reserved0;                // Reserved for expansion
-+   VMI_UINT8           reserved1;                // Reserved for expansion
-+   VMI_UINT32          reserved2;                // Reserved for expansion
-+   VMI_UINT32          reserved3;                // Reserved for private use
-+   VMI_UINT16          pciHeaderOffset;          // Offset to PCI OPROM header
-+   VMI_UINT16          pnpHeaderOffset;          // Offset to PnP OPROM header
-+   VMI_UINT32          romPad3;                  // PnP reserverd / VMI reserved
-+   VROMCallEntry       romCallReserved[3];       // Reserved call slots
-+} VROMHeader;
-+
-+typedef struct VROMCallTable {
-+   VROMCallEntry    vromCall[128];           // @ 0x80: ROM calls 4-127
-+} VROMCallTable;
-+
-+/* State needed to start an application processor in an SMP system. */
-+typedef struct APState {
-+   VMI_UINT32 cr0;
-+   VMI_UINT32 cr2;
-+   VMI_UINT32 cr3;
-+   VMI_UINT32 cr4;
-+
-+   VMI_UINT64 efer;
-+
-+   VMI_UINT32 eip;
-+   VMI_UINT32 eflags;
-+   VMI_UINT32 eax;
-+   VMI_UINT32 ebx;
-+   VMI_UINT32 ecx;
-+   VMI_UINT32 edx;
-+   VMI_UINT32 esp;
-+   VMI_UINT32 ebp;
-+   VMI_UINT32 esi;
-+   VMI_UINT32 edi;
-+   VMI_UINT16 cs;
-+   VMI_UINT16 ss;
-+   VMI_UINT16 ds;
-+   VMI_UINT16 es;
-+   VMI_UINT16 fs;
-+   VMI_UINT16 gs;
-+   VMI_UINT16 ldtr;
-+
-+   VMI_UINT16 gdtr_limit;
-+   VMI_UINT32 gdtr_base;
-+   VMI_UINT32 idtr_base;
-+   VMI_UINT16 idtr_limit;
-+} APState;
-+
-+// Historical 3.X revisions
-+//#define MIN_VMI_API_REV_MINOR	        1 /* GetFlags_CLI is used */
-+//#define MIN_VMI_API_REV_MINOR	        2 /* STI_SYSEXIT is used */
-+//#define MIN_VMI_API_REV_MINOR	        3 /* IN/OUT are used */
-+//#define MIN_VMI_API_REV_MINOR         4 /* Deferred calls used */
-+//#define MIN_VMI_API_REV_MINOR		5 /* SetIOPLMask is used */
-+
-+// 4.X revisions
-+//#define MIN_VMI_API_REV_MINOR		0 /* IN/OUT binary compat */
-+
-+// 5.X revisions
-+//#define MIN_VMI_API_REV_MINOR		0
-+//#define MIN_VMI_API_REV_MINOR		1 /* APIC read/write */
-+//#define MIN_VMI_API_REV_MINOR         2 /* Send IPI */
-+//#define MIN_VMI_API_REV_MINOR         3 /* IO Delay */
-+//#define MIN_VMI_API_REV_MINOR         4 /* Timer API */
-+//#define MIN_VMI_API_REV_MINOR         5 /* SMP VMI-Timer */
-+
-+// 6.X revisions
-+//#define MIN_VMI_API_REV_MINOR         0 /* VMI Timer periodic alarms */
-+
-+// 7.X revisions
-+//#define MIN_VMI_API_REV_MINOR         0 /* Dropped 6 VMI calls */
-+//#define MIN_VMI_API_REV_MINOR         1 /* Wallclock */
-+//#define MIN_VMI_API_REV_MINOR         2 /* RDTSC compatiblity */
-+
-+// 8.X revisions			
-+//#define MIN_VMI_API_REV_MINOR         0 /* Xen compatible DT */
-+//#define MIN_VMI_API_REV_MINOR         1 /* WallclockUpdated */
-+
-+// 9.X revisions
-+//#define MIN_VMI_API_REV_MINOR		0 /* Removed HookCallback */
-+
-+// 10.X revisions
-+//#define MIN_VMI_API_REV_MINOR		0 /* UpdateIDT -> WriteIDTEntry */
-+
-+// 11.X revisions
-+//#define MIN_VMI_API_REV_MINOR		0 /* UpdateTSS -> UpdateKernelStack */
-+
-+// 12.X revisions
-+//#define MIN_VMI_API_REV_MINOR		0 /* Drop APICSendIPI */
-+
-+// 13.X revisions
-+#define MIN_VMI_API_REV_MINOR		0 /* Remove shared area allocation */
-+
-+#endif
-Index: linux-2.6.16-rc5/include/asm-i386/mach-vmi/vmiCalls.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/asm-i386/mach-vmi/vmiCalls.h	2006-03-08 10:08:45.000000000 -0800
-+++ linux-2.6.16-rc5/include/asm-i386/mach-vmi/vmiCalls.h	2006-03-08 10:15:30.000000000 -0800
-@@ -0,0 +1,98 @@
-+/*
-+ * vmiCalls.h --
-+ *
-+ *   List of 32-bit VMI interface calls and parameters
-+ *
-+ *   Copyright (C) 2005, VMware, Inc.
-+ *
-+ */
-+
-+#define VMI_CALLS \
-+   VDEF(RESERVED0) \
-+   VDEF(RESERVED1) \
-+   VDEF(RESERVED2) \
-+   VDEF(RESERVED3) \
-+   VDEF(Init) \
-+   VDEF(CPUID) \
-+   VDEF(WRMSR) \
-+   VDEF(RDMSR) \
-+   VDEF(SetGDT) \
-+   VDEF(SetLDT) \
-+   VDEF(SetIDT) \
-+   VDEF(SetTR) \
-+   VDEF(GetGDT) \
-+   VDEF(GetLDT) \
-+   VDEF(GetIDT) \
-+   VDEF(GetTR) \
-+   VDEF(WriteGDTEntry) \
-+   VDEF(WriteLDTEntry) \
-+   VDEF(WriteIDTEntry) \
-+   VDEF(UpdateKernelStack) \
-+   VDEF(SetCR0) \
-+   VDEF(SetCR2) \
-+   VDEF(SetCR3) \
-+   VDEF(SetCR4) \
-+   VDEF(GetCR0) \
-+   VDEF(GetCR2) \
-+   VDEF(GetCR3) \
-+   VDEF(GetCR4) \
-+   VDEF(INVD) \
-+   VDEF(WBINVD) \
-+   VDEF(SetDR) \
-+   VDEF(GetDR) \
-+   VDEF(RDPMC) \
-+   VDEF(RDTSC) \
-+   VDEF(CLTS) \
-+   VDEF(EnableInterrupts) \
-+   VDEF(DisableInterrupts) \
-+   VDEF(GetInterruptMask) \
-+   VDEF(SetInterruptMask) \
-+   VDEF(IRET) \
-+   VDEF(SYSEXIT) \
-+   VDEF(Pause) \
-+   VDEF(Halt) \
-+   VDEF(Reboot) \
-+   VDEF(Shutdown) \
-+   VDEF(SetPxE) \
-+   VDEF(GetPxE) \
-+   VDEF(SwapPxE) \
-+   /* Reserved for PAE / long mode */ \
-+   VDEF(SetPxELong) \
-+   VDEF(GetPxELong) \
-+   VDEF(SwapPxELongAtomic) \
-+   VDEF(TestAndSetPxEBit) \
-+   VDEF(TestAndClearPxEBit) \
-+   /* Notify the hypervisor how a page should be shadowed */ \
-+   VDEF(AllocatePage) \
-+   /* Release shadowed parts of a page */ \
-+   VDEF(ReleasePage) \
-+   VDEF(InvalPage) \
-+   VDEF(FlushTLB) \
-+   VDEF(FlushDeferredCalls) \
-+   VDEF(SetLinearMapping) \
-+   VDEF(IN) \
-+   VDEF(INB) \
-+   VDEF(INW) \
-+   VDEF(INS) \
-+   VDEF(INSB) \
-+   VDEF(INSW) \
-+   VDEF(OUT) \
-+   VDEF(OUTB) \
-+   VDEF(OUTW) \
-+   VDEF(OUTS) \
-+   VDEF(OUTSB) \
-+   VDEF(OUTSW) \
-+   VDEF(SetIOPLMask) \
-+   VDEF(DeactivatePxELongAtomic) \
-+   VDEF(TestAndSetPxELongBit) \
-+   VDEF(TestAndClearPxELongBit) \
-+   VDEF(SetInitialAPState) \
-+   VDEF(APICWrite) \
-+   VDEF(APICRead) \
-+   VDEF(IODelay) \
-+   VDEF(GetCycleFrequency) \
-+   VDEF(GetCycleCounter) \
-+   VDEF(SetAlarm) \
-+   VDEF(CancelAlarm) \
-+   VDEF(GetWallclockTime) \
-+   VDEF(WallclockUpdated)
++	arg->ovfl_ctrl = PFM_OVFL_CTRL_RESET;
+ 
+ 	/* the owner of the oprofile event buffer may have exited
+ 	 * without perfmon being shutdown (e.g. SIGSEGV)
+@@ -54,6 +59,7 @@
+  	.fmt_name 	    = "oprofile_format",
+  	.fmt_uuid	    = OPROFILE_FMT_UUID,
+  	.fmt_handler	    = perfmon_handler,
++	.owner		    = THIS_MODULE,
+ };
+ 
+ 
+@@ -76,9 +82,9 @@
+ 
+ static int using_perfmon;
+ 
+-int perfmon_init(struct oprofile_operations * ops)
++int __init op_perfmon_init(struct oprofile_operations * ops)
+ {
+-	int ret = pfm_register_buffer_fmt(&oprofile_fmt);
++	int ret = pfm_register_smpl_fmt(&oprofile_fmt);
+ 	if (ret)
+ 		return -ENODEV;
+ 
+@@ -91,10 +97,10 @@
+ }
+ 
+ 
+-void perfmon_exit(void)
++void __exit op_perfmon_exit(void)
+ {
+ 	if (!using_perfmon)
+ 		return;
+ 
+-	pfm_unregister_buffer_fmt(oprofile_fmt.fmt_uuid);
++	pfm_unregister_smpl_fmt(oprofile_fmt.fmt_uuid);
+ }
+--- linux-2.6.16-rc5-perfop/arch/ia64/oprofile/init.c.ia64chg	2006-03-13 11:02:19.000000000 -0500
++++ linux-2.6.16-rc5-perfop/arch/ia64/oprofile/init.c	2006-03-13 11:03:09.000000000 -0500
+@@ -12,8 +12,8 @@
+ #include <linux/init.h>
+ #include <linux/errno.h>
+  
+-extern int perfmon_init(struct oprofile_operations * ops);
+-extern void perfmon_exit(void);
++extern int op_perfmon_init(struct oprofile_operations * ops);
++extern void op_perfmon_exit(void);
+ extern void ia64_backtrace(struct pt_regs * const regs, unsigned int depth);
+ 
+ int __init oprofile_arch_init(struct oprofile_operations * ops)
+@@ -22,7 +22,7 @@
+ 
+ #ifdef CONFIG_PERFMON
+ 	/* perfmon_init() can fail, but we have no way to report it */
+-	ret = perfmon_init(ops);
++	ret = op_perfmon_init(ops);
+ #endif
+ 	ops->backtrace = ia64_backtrace;
+ 
+@@ -33,6 +33,6 @@
+ void oprofile_arch_exit(void)
+ {
+ #ifdef CONFIG_PERFMON
+-	perfmon_exit();
++	op_perfmon_exit();
+ #endif
+ }
+
+--------------020605020905090608030800--

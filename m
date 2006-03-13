@@ -1,169 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWCMSKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWCMSKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWCMSKU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWCMSKT
+	id S932287AbWCMSKa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWCMSK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:10:19 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:61964 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932287AbWCMSKQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:10:16 -0500
-Date: Mon, 13 Mar 2006 10:09:54 -0800
-Message-Id: <200603131809.k2DI9slZ005727@zach-dev.vmware.com>
-Subject: [RFC, PATCH 14/24] i386 Vmi reboot fixes
-From: Zachary Amsden <zach@vmware.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Zachary Amsden <zach@vmware.com>,
-       Dan Hecht <dhecht@vmware.com>, Dan Arai <arai@vmware.com>,
-       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Zachary Amsden <zach@vmware.com>
-X-OriginalArrivalTime: 13 Mar 2006 18:09:54.0466 (UTC) FILETIME=[54612020:01C646C9]
+	Mon, 13 Mar 2006 13:10:29 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45324 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932278AbWCMSK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:10:27 -0500
+Date: Mon, 13 Mar 2006 19:10:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Bryan O'Sullivan" <bos@pathscale.com>, rjwalsh@pathscale.com
+Cc: rolandd@cisco.com, gregkh@suse.de, akpm@osdl.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 18 of 20] ipath - kbuild infrastructure
+Message-ID: <20060313181025.GA13973@stusta.de>
+References: <patchbomb.1141950930@eng-12.pathscale.com> <867a396dd518ac63ab41.1141950948@eng-12.pathscale.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <867a396dd518ac63ab41.1141950948@eng-12.pathscale.com>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix reboot to work with the  VMI.  We must support fallback to the standard
-BIOS reboot mechanism.  Turns out that this is required by kexec, and a good
-idea for native hardware.  We simply insert the NOP VMI reboot hook before
-calling the BIOS reboot.  While here, fix SMP reboot issues as well.  The
-problem is the halt() macro in VMI has been defined to be equivalent to
-safe_halt(), which enables interrupts.  Several call sites actually want to
-disable interrupts and shutdown the processor, which is what VMI_Shutdown()
-does.
+On Thu, Mar 09, 2006 at 04:35:48PM -0800, Bryan O'Sullivan wrote:
+>...
+> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
+> +++ b/drivers/infiniband/hw/ipath/Makefile	Thu Mar  9 16:17:00 2006 -0800
+> @@ -0,0 +1,42 @@
+> +EXTRA_CFLAGS += -O3
 
-Signed-off-by: Zachary Amsden <zach@vmware.com>
+I'm still a bit surprised, since in the rest of the kernel we are even 
+going from -O2 to -Os for getting better performance.
 
-Index: linux-2.6.16-rc5/arch/i386/kernel/crash.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/kernel/crash.c	2006-03-08 11:34:53.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/kernel/crash.c	2006-03-08 11:38:09.000000000 -0800
-@@ -113,7 +113,7 @@ static int crash_nmi_callback(struct pt_
- 	disable_local_APIC();
- 	atomic_dec(&waiting_for_crash_ipi);
- 	/* Assume hlt works */
--	halt();
-+	shutdown_halt();
- 	for(;;);
- 
- 	return 1;
-Index: linux-2.6.16-rc5/arch/i386/kernel/process.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/kernel/process.c	2006-03-08 11:38:06.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/kernel/process.c	2006-03-08 11:38:09.000000000 -0800
-@@ -156,7 +156,7 @@ static inline void play_dead(void)
- 	 */
- 	local_irq_disable();
- 	while (1)
--		halt();
-+		shutdown_halt();
- }
- #else
- static inline void play_dead(void)
-Index: linux-2.6.16-rc5/arch/i386/kernel/reboot.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/kernel/reboot.c	2006-03-08 11:34:53.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/kernel/reboot.c	2006-03-08 11:38:09.000000000 -0800
-@@ -146,14 +146,10 @@ real_mode_gdt_entries [3] =
- 	0x000092000100ffffULL	/* 16-bit real-mode 64k data at 0x00000100 */
- };
- 
--static struct
--{
--	unsigned short       size __attribute__ ((packed));
--	unsigned long long * base __attribute__ ((packed));
--}
--real_mode_gdt = { sizeof (real_mode_gdt_entries) - 1, real_mode_gdt_entries },
--real_mode_idt = { 0x3ff, NULL },
--no_idt = { 0, NULL };
-+static struct Xgt_desc_struct
-+real_mode_gdt = { sizeof (real_mode_gdt_entries) - 1, (unsigned long)real_mode_gdt_entries },
-+real_mode_idt = { 0x3ff, 0 },
-+no_idt = { 0, 0 };
- 
- 
- /* This is 16-bit protected mode code to disable paging and the cache,
-@@ -322,6 +318,9 @@ void machine_shutdown(void)
- 
- void machine_emergency_restart(void)
- {
-+#ifdef CONFIG_X86_VMI
-+	vmi_reboot(!reboot_thru_bios);
-+#endif
- 	if (!reboot_thru_bios) {
- 		if (efi_enabled) {
- 			efi.reset_system(EFI_RESET_COLD, EFI_SUCCESS, 0, NULL);
-@@ -352,6 +351,7 @@ void machine_restart(char * __unused)
- 
- void machine_halt(void)
- {
-+	shutdown_halt();
- }
- 
- void machine_power_off(void)
-Index: linux-2.6.16-rc5/arch/i386/kernel/smp.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/kernel/smp.c	2006-03-08 11:34:53.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/kernel/smp.c	2006-03-08 11:38:09.000000000 -0800
-@@ -575,7 +575,7 @@ static void stop_this_cpu (void * dummy)
- 	local_irq_disable();
- 	disable_local_APIC();
- 	if (cpu_data[smp_processor_id()].hlt_works_ok)
--		for(;;) halt();
-+		for(;;) shutdown_halt();
- 	for (;;);
- }
- 
-Index: linux-2.6.16-rc5/arch/i386/mach-vmi/setup.c
-===================================================================
---- linux-2.6.16-rc5.orig/arch/i386/mach-vmi/setup.c	2006-03-08 11:37:59.000000000 -0800
-+++ linux-2.6.16-rc5/arch/i386/mach-vmi/setup.c	2006-03-08 11:38:32.000000000 -0800
-@@ -31,6 +31,7 @@
- #include <linux/interrupt.h>
- #include <linux/bootmem.h>
- #include <linux/mm.h>
-+#include <linux/pm.h>
- #include <asm/acpi.h>
- #include <asm/arch_hooks.h>
- #include <asm/processor.h>
-@@ -205,7 +206,6 @@ void __init intr_init_hook(void)
- 	setup_irq(2, &irq2);
- }
- 
--
- /*
-  * Probe for the VMI option ROM
-  */
-@@ -238,6 +238,13 @@ void __init probe_vmi_rom(void)
- 	}
- }
- 
-+/* Simple shutdown routine to power down in a VM */
-+void
-+vmi_power_off(void)
-+{
-+	/* Shutdown halt powers off the CPU */
-+	shutdown_halt();
-+}
- 
- /*
-  * Activate the VMI interfaces
-@@ -267,6 +274,9 @@ void __init vmi_init(void)
- 		       "(kernel requires version >= %d.%d) "
- 		       " - falling back to native mode\n",
- 		       VMI_API_REV_MAJOR, MIN_VMI_API_REV_MINOR);
-+
-+	if (hypervisor_found)
-+		pm_power_off = vmi_power_off;
- }
- 
- 
+Robert said he wanted to post some numbers showing that -O3 is 
+measurably better for you [1], but I haven't seen them.
+
+> +_ipath_idstr:="PathScale $(shell date +%F)"
+> +EXTRA_CFLAGS += -DIPATH_IDSTR='$(_ipath_idstr)' -DIPATH_KERN_TYPE=0
+>...
+
+UTS_VERSION is already available and printed at the top of dmesg.
+I don't see the point in printing it a second time.
+
+cu
+Adrian
+
+[1] http://lkml.org/lkml/2005/12/17/115
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

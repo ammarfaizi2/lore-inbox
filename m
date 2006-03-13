@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWCMQcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751514AbWCMQxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWCMQcO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 11:32:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWCMQcO
+	id S1751514AbWCMQxU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 11:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751515AbWCMQxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 11:32:14 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:27277 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751357AbWCMQcN
+	Mon, 13 Mar 2006 11:53:20 -0500
+Received: from silver.veritas.com ([143.127.12.111]:22839 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751514AbWCMQxU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 11:32:13 -0500
-Subject: Re: [PATCH 004 of 4] Make address_space_operations->invalidatepage
-	return void
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <1060312235331.15985@suse.de>
-References: <20060313104910.15881.patches@notabene>
-	 <1060312235331.15985@suse.de>
-Content-Type: text/plain
-Date: Mon, 13 Mar 2006 10:32:11 -0600
-Message-Id: <1142267531.9971.5.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 13 Mar 2006 11:53:20 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,187,1139212800"; 
+   d="scan'208"; a="35806266:sNHT24373836"
+Date: Mon, 13 Mar 2006 16:52:53 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Akinobu Mita <mita@miraclelinux.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] fix swap cluster offset
+In-Reply-To: <20060312043450.GA7088@miraclelinux.com>
+Message-ID: <Pine.LNX.4.61.0603131632300.9207@goblin.wat.veritas.com>
+References: <20060312043450.GA7088@miraclelinux.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 13 Mar 2006 16:52:05.0013 (UTC) FILETIME=[752B2450:01C646BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-03-13 at 10:53 +1100, NeilBrown wrote:
-> diff ./fs/jfs/jfs_metapage.c~current~ ./fs/jfs/jfs_metapage.c
-> --- ./fs/jfs/jfs_metapage.c~current~    2006-03-09 17:29:35.000000000
-> +1100
-> +++ ./fs/jfs/jfs_metapage.c     2006-03-13 10:46:55.000000000 +1100
-> @@ -578,14 +578,13 @@ static int metapage_releasepage(struct p
->         return 0;
->  }
->  
-> -static int metapage_invalidatepage(struct page *page, unsigned long
-> offset)
-> +static void metapage_invalidatepage(struct page *page, unsigned long
-> offset)
->  {
->         BUG_ON(offset);
->  
-> -       if (PageWriteback(page))
-> -               return 0;
-> +       BUG_ON(PageWriteback(page));
+On Sun, 12 Mar 2006, Akinobu Mita wrote:
 
-I'm a little concerned about adding a BUG_ON for something this function
-used to allow, but it looks like the BUG_ON is valid.  I'm asking myself
-why did I add the test for PageWriteback in the first place.
+> When we've allocated SWAPFILE_CLUSTER pages, ->cluster_next should
+> be the first index of swap cluster. But current code probably sets it
+> wrong offset.
+> 
+> Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
->  
-> -       return metapage_releasepage(page, 0);
-> +       metapage_releasepage(page, 0);
->  }
->  
->  struct address_space_operations jfs_metapage_aops = { 
+Acked-by: Hugh Dickins <hugh@veritas.com>
 
-I'll try to stress test jfs with these patches to see if I can trigger
-the an oops here.
--- 
-David Kleikamp
-IBM Linux Technology Center
+Very good eye!  My shame.
+No need to say "probably" above, it was simply wrong.
 
+By a stroke of luck, it's no worse than a slight inefficiency in an
+algorithm only used when we're already going slow; but (if offset had
+been signed, or not checked against highest_bit for unrelated reasons)
+it could very easily have tried to access and modify swap_map[-1].
+
+Anyway, thanks for catching that:
+Andrew, please apply (but not desperate for 2.6.16).
+
+Hugh
+
+> Index: work/mm/swapfile.c
+> ===================================================================
+> --- work.orig/mm/swapfile.c
+> +++ work/mm/swapfile.c
+> @@ -116,7 +116,7 @@ static inline unsigned long scan_swap_ma
+>  				last_in_cluster = offset + SWAPFILE_CLUSTER;
+>  			else if (offset == last_in_cluster) {
+>  				spin_lock(&swap_lock);
+> -				si->cluster_next = offset-SWAPFILE_CLUSTER-1;
+> +				si->cluster_next = offset-SWAPFILE_CLUSTER+1;
+>  				goto cluster;
+>  			}
+>  			if (unlikely(--latency_ration < 0)) {

@@ -1,67 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWCMNWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWCMNYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWCMNWA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 08:22:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752004AbWCMNV7
+	id S1751127AbWCMNYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 08:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWCMNYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 08:21:59 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:42430 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S1751054AbWCMNV5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 08:21:57 -0500
-Date: Mon, 13 Mar 2006 14:21:51 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.16-rc6-rt1
-In-Reply-To: <20060312220218.GA3469@elte.hu>
-Message-ID: <Pine.LNX.4.44L0.0603131130460.25211-100000@lifa01.phys.au.dk>
+	Mon, 13 Mar 2006 08:24:46 -0500
+Received: from smtpauth00.csee.siteprotect.com ([64.41.126.131]:43179 "EHLO
+	smtpauth00.csee.siteprotect.com") by vger.kernel.org with ESMTP
+	id S1751054AbWCMNYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 08:24:45 -0500
+From: "swapnil " <swapnil@spsoftindia.com>
+To: "'Jesper Juhl'" <jesper.juhl@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Problem applying Patch to linux 2.6 kernel
+Date: Mon, 13 Mar 2006 18:56:38 +0530
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Thread-Index: AcZGocHACzL89oKbROq2a13Oj9LDjw==
+Message-Id: <20060313132439.9866A32C033@smtpauth00.csee.siteprotect.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Mar 2006, Ingo Molnar wrote:
+Hi Jesper,
 
-> i have released the 2.6.16-rc6-rt1 tree, which can be downloaded from
-> the usual place:
+Thanks for your quick reply.
+
+I have followed the steps suggested by you as follows:
+
+I have change into the kernel source directory:
+
+[root@lustdevp 2.6.11-1.1369_FC4-i686]# pwd
+/usr/src/kernels/2.6.11-1.1369_FC4-i686
+
+My kernel patches are stored in /usr/src/kernels directory.
+
+Now I apply the patch as follows:
+
+[root@lustdevp 2.6.11-1.1369_FC4-i686]# patch -p1 < ../patch-2.6.12
+
+But still I am getting the following error:
+
+can't find file to patch at input line 4 Perhaps you used the wrong -p or
+--strip option?
+The text leading up to this was:
+--------------------------
+|diff --git a/CREDITS b/CREDITS
+|--- a/CREDITS
+|+++ b/CREDITS
+--------------------------
+File to patch:
+
+Please suggest me to solve this patching problem.
+
+
+-----Original Message-----
+From: Jesper Juhl [mailto:jesper.juhl@gmail.com]
+Sent: Monday, March 13, 2006 4:32 PM
+To: swapnil
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem applying Patch to linux 2.6 kernel
+
+On 3/13/06, swapnil <swapnil@spsoftindia.com> wrote:
 >
->    http://redhat.com/~mingo/realtime-preempt/
+> hello,
+> I am trying to apply the patch to linux 2.6 kernel on linux fedora core 4.
 >
-> again, lots of changes all over the map:
+> As per Kernel-HOWTO I should do the following:
+> i have downloaded the patch "patch-2.6.15.bz2" from www.linuxhq.com 
+> site ,kept that patch in /usr/src.
+> Changed dir using cd /usr/src and did a
+> bzip2 -dc patch-2.6.15.bz2 | patch -p0.
 >
-> - firstly, the -rt tree has been rebased to 2.6.16-rc6, which was a more
->   complex operation than usual, due to the many changes in 2.6.16 (in
->   particular the mutex code).
+> I followed the instructions mentioned, the following happens:
 >
-> - the PI code got reworked again, this time by Thomas Gleixner. The
->   priority boosting chain is now instantaneous again (and not
->   wakeup/scheduling based) - but the previous list-walking hell has been
->   avoided via the clever use of plists. Plus many other changes and
->   lots of cleanups to the rt-mutex proper.
+> # bzip2 -dc patch-2.6.15 | patch -p0
+> can not find file to patch at input line 5 Perhaps you used the wrong 
+> -p or
 
-Hi,
- I briefly looked at the PI code. Looks fine. I will try it on my
-rt-mutex testbed soonish.
+change into the dir holding the actual kernel source - like
+~/download/linux-2.6.14/ or wherever you store your kernel source, then
+apply the patch with  patch -p1
 
-However, I notice it re-introduces long latencies :-(
-The problem is that the time need in adjust_prio_chain is proportional to
-the lock depth and the function is called with two raw spinlocks held.
-This is no problem when the locks are in the kernel and thus not very
-deeply nested, but when it is exposed to futexes there is a problem as
-Joe user can increase the task latency of the system by crafting deep
-locking structures in userspace.
+> --strip option?
+> The text leading up to this was:
+> --------------------------
+> |diff --git a/Documentation/hwmon/it87 b/Documentation/hwmon/it87 
+> |index
 
-I will be on paternity leave soonish. I might get time solve it as I
-originally suggested some months back when my daughter is asleep. The
-solution I suggested last fall, includes releasing _all_ locks at each
-iteration in the loop in adjust_prio_chain such that higher priority
-tasks gets a chance to run. To avoid having tasks released in the middle
-get/put_tast_struct() are needed. That will cost extra atomic
-instructions compared to the present implementation. Are people prepared
-to pay that price? I am not talking about the scheduler based solution;
-just doing the PI iteration in a little different (and slightly more
-epensive) way.
+As you can see from the path, the diff was generated between two dirs named
+"a" and "b", since your kernel is not stored in a dir called "b"
+-p0 won't work, instead change into the root of the source dir and tell
+patch to strip the first dir with -p1.
 
-Esben
+>
+> What steps I am doing wrong while applying the kernel patch?
+> Please let me know how can apply the above mentioned patch to mykernel...
+> and why I am getting the above mentioned error message...
+>
+> My current kernel version is 2.6.11-1.1369_FC4 and I am trying to 
+> apply
+> 2.6.15 kernel patch.
+> Is it necessary to apply patches such as 2.6.12,2.6.13,2.6.14 in-order 
+> before I will have to apply 2.6.15 kernel patch or should I apply 
+> 2.6.15 kernel patch directly without applying intermediate patches?
+>
+1) the 2.6.15 patch applies to 2.6.14, *not* to 2.6.11, to go from
+2.6.11 to 2.6.15 you need to first apply the 2.6.12 patch, then the
+2.6.13 patch, then 2.6.14 and finally 2.6.15.
+
+2) don't apply patches for the vanilla kernel to vendor supplied kernel
+sources. Vendors, such as RedHat, usually patch the vanilla kernel with
+patches of their own, so the vanilla patches will no longer apply.
+Either use vanilla kernels or vendor kernels - don't mix.
+
+>
+> Please suggest me to solve this patching problem.
+>
+It's documented in the kernel source :
+http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
 

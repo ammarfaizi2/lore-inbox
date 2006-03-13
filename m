@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751942AbWCMHel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751949AbWCMHgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751942AbWCMHel (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 02:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751949AbWCMHek
+	id S1751949AbWCMHgO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 02:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWCMHgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 02:34:40 -0500
-Received: from pproxy.gmail.com ([64.233.166.176]:42089 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751942AbWCMHek convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 02:34:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iP/es3DMjAXMmz8sxWj4+vCpqQJZyXMhyb6Mi+rv6/R7Ay41oAmaSf+lWFPS0UEGENvDqZW/JfEJXxGjIk11zcWNBMplDStdkWg8hAQcRHJkg2mYwxbpjsogn56lqKJHIR5aMRoHR6mMI2VJQKTSiraOczoRJvh/ZLiqxxW96vI=
-Message-ID: <9a8748490603122334h6682be62r18f781003db88b20@mail.gmail.com>
-Date: Mon, 13 Mar 2006 08:34:39 +0100
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH] fix memory leak in mm/slab.c::alloc_kmemlist()
-Cc: linux-kernel@vger.kernel.org, "Christoph Lameter" <clameter@engr.sgi.com>
-In-Reply-To: <20060312144129.0b5c227d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 13 Mar 2006 02:36:14 -0500
+Received: from soundwarez.org ([217.160.171.123]:13788 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1751949AbWCMHgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 02:36:14 -0500
+Date: Mon, 13 Mar 2006 08:36:12 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Adam Belay <ambx1@neo.rr.com>, Andrew Morton <akpm@osdl.org>,
+       drzeus-list@drzeus.cx, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-ID: <20060313073612.GA16509@vrfy.org>
+References: <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060312145543.194f4dc7.akpm@osdl.org> <20060313041458.GA13605@vrfy.org> <20060313060221.GA20178@neo.rr.com> <20060313062112.GA15720@vrfy.org> <20060313072654.GB20569@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200603121428.08226.jesper.juhl@gmail.com>
-	 <20060312144129.0b5c227d.akpm@osdl.org>
+In-Reply-To: <20060313072654.GB20569@neo.rr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/12/06, Andrew Morton <akpm@osdl.org> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >
-> >
-> > The Coverity checker found that we may leak memory in
-> > mm/slab.c::alloc_kmemlist()
-> > This should fix the leak and coverity bug #589
-> >
-[snip]
->
-> It's more complicated than that.  We can also leak new_alien.  And if any
-> allocation in that for_each_online_node() loop fails I guess we need to
-> back out all the allocations we've done thus far, which means another loop.
-> ug.
->
-Ok, I'll take a second (and much more thorough) look at it tonight.
-And I'll be sure to describe whatever changes I make and the reasoning
-behind.
+On Mon, Mar 13, 2006 at 02:26:54AM -0500, Adam Belay wrote:
+> I did some research, and interestingly enough, the ACPI _CID method allows
+> for compatible IDs even for PCI devices.  These also would present a problem
+> for the modalias sysfs attribute.
 
+Again, you can do every "advanced" setup already today with poking
+around in the bind/unbind files in sysfs. Userspace just receives an
+event from the kernel and can do whatever it wants to do with the event:
+ignore it, load a specific module, start a userspace driver, or just ask
+modprobe to load the kernel supplied default module.
 
-> Patches against rc6-mm1 would be preferred please, that code's changed
-> quite a bit.
->
-Sure thing.
+The modalias is just a convenient way to provide a "default" module
+autoloading and is not expected to become a system management
+replacement with full featured policy integration. I don't really see
+a "real world" problem here. If some day we support this stuff and need
+a new interface we can just do this if someone proposes a better
+solution. For now modalias works just fine. As long as we have device
+table matches _in_ the kernel modules, there is no reason not to export
+the match value from the kernel at the same time.
 
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Thanks,
+Kay

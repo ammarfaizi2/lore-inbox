@@ -1,41 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWCMPxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWCMQAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWCMPxb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 10:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWCMPxb
+	id S932087AbWCMQAm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 11:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWCMQAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 10:53:31 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:17951 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932078AbWCMPxb convert rfc822-to-8bit
+	Mon, 13 Mar 2006 11:00:42 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:40589 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932087AbWCMQAl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 10:53:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O7ri5St/KGkxrznVWxfq6c7Z1WvDM4vqdfFSjd1b/mmqXC/sIXtN3NIFytWZMd2unhkeG45osjsIq9yBUZ/cXf7Ei/8nENZiy2rcKOBs3LjprZEX8v5HjcdtIEcYySSeIM0+Xzk3SCMdjFY9KqycUfH5B4N6D11RS1GD7SKXo/o=
-Message-ID: <161717d50603130753r630837ebwaea6fb8f6c5baac5@mail.gmail.com>
-Date: Mon, 13 Mar 2006 10:53:30 -0500
-From: "Dave Neuer" <mr.fred.smoothie@pobox.com>
-To: "Anshuman Gholap" <anshu.pg@gmail.com>
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ec92bc30603130719q784fce66ubbdfeb77dbeffbac@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <440F4C80.6070907@cubic.ch> <200603090220.50378.jk-lkml@sci.fi>
-	 <441554D4.7030706@aitel.hist.no>
-	 <ec92bc30603130719q784fce66ubbdfeb77dbeffbac@mail.gmail.com>
+	Mon, 13 Mar 2006 11:00:41 -0500
+Subject: Re: [discuss] Re: 2.6.16-rc5-mm3: spinlock bad magic on CPU#0 on
+	AMD64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       ak@suse.de, cmm@us.ibm.com
+In-Reply-To: <200603131307.37402.rjw@sisk.pl>
+References: <200603120024.04938.rjw@sisk.pl>
+	 <200603131234.08804.rjw@sisk.pl> <20060313034535.256b5dc2.akpm@osdl.org>
+	 <200603131307.37402.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Mon, 13 Mar 2006 08:02:14 -0800
+Message-Id: <1142265735.21442.51.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/13/06, Anshuman Gholap <anshu.pg@gmail.com> wrote:
->
->  i already mentioned at starting of thread what drove me to writing
-> this topic and i think linus should seriously give a thought or review
-> to this.
+On Mon, 2006-03-13 at 13:07 +0100, Rafael J. Wysocki wrote:
+> On Monday 13 March 2006 12:45, Andrew Morton wrote:
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > >
+> > > > This should fix:
+> > >  > 
+> > >  > --- devel/fs/ext3/inode.c~ext3-get-blocks-maping-multiple-blocks-at-a-once-journal-reentry-fix	2006-03-12 14:25:04.000000000 -0800
+> > >  > +++ devel-akpm/fs/ext3/inode.c	2006-03-12 14:25:04.000000000 -0800
+> > >  > @@ -830,7 +830,7 @@ ext3_direct_io_get_blocks(struct inode *
+> > >  >  	handle_t *handle = journal_current_handle();
+> > >  >  	int ret = 0;
+> > >  >  
+> > >  > -	if (!handle)
+> > >  > +	if (!create)
+> > >  >  		goto get_block;		/* A read */
+> > >  >  
+> > >  >  	if (max_blocks == 1)
+> > > 
+> > >  Er, it doesn't apply to either 2.6.16-rc5-mm3 or 2.6.16-rc6-mm1.
+> > 
+> > Nope, it applies OK to rc6-mm1.
+> 
+> Well, this means my rc6-mm1 is different to what you have. :-)
+> 
+> Anyway in "my" version there's a function ext3_get_block() which reads like this:
+> 
+> static int ext3_get_block(struct inode *inode, sector_t iblock,
+>                         struct buffer_head *bh_result, int create)
+> {
+>         handle_t *handle = journal_current_handle();
+>         int ret = 0;
+>         unsigned max_blocks = bh_result->b_size >> inode->i_blkbits;
+> 
+>         if (!handle)
+>                 goto get_block;         /* A read */
+> 
+>         if (max_blocks == 1)
+>                 goto get_block;         /* A single block get */
+> 
+> etc.
+> 
+> I guess I should replace the "if (!handle)" with "if (!create)"?
 
-It is not his decision, he is just one (albeit an important,
-influential one) of something like 900 copyright holders in the
-kernel.
+Yes. In "-mm" ext3_get_block() == ext3_direct_io_getblocks() in
+mainline. 
+
+I renamed ext3_direct_io_getblocks() to ext3_get_block() (in -mm) 
+since both of them do same thing now. (both can deal with mapping
+multiple blocks).
+
+Thanks,
+Badari
+

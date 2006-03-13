@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWCMS33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWCMSap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWCMS33 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 13:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWCMS33
+	id S932104AbWCMSap (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 13:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWCMSap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 13:29:29 -0500
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:46863 "EHLO
-	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
-	id S932068AbWCMS32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 13:29:28 -0500
-Date: Mon, 13 Mar 2006 18:23:31 +0000
-From: Mark Brown <broonie@sirena.org.uk>
-To: thockin@hockin.org
-Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] natsemi: Add support for using MII port with no PHY
-Message-ID: <20060313182331.GA19014@sirena.org.uk>
-Mail-Followup-To: thockin@hockin.org, Jeff Garzik <jgarzik@pobox.com>,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060312192259.929734000@mercator.sirena.org.uk> <20060312205303.869316000@mercator.sirena.org.uk> <20060312214113.GA15071@hockin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060312214113.GA15071@hockin.org>
-X-Cookie: All men have the right to wait in line.
-User-Agent: Mutt/1.5.9i
+	Mon, 13 Mar 2006 13:30:45 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:53007 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932104AbWCMSao
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 13:30:44 -0500
+Message-ID: <4415BA4F.3040307@vmware.com>
+Date: Mon, 13 Mar 2006 10:30:39 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization	interface	proposal
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>	 <1142273346.3023.38.camel@laptopd505.fenrus.org>	 <4415B857.9010902@vmware.com> <1142274398.3023.40.camel@laptopd505.fenrus.org>
+In-Reply-To: <1142274398.3023.40.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 12, 2006 at 01:41:13PM -0800, thockin@hockin.org wrote:
+Arjan van de Ven wrote:
+>>   The interface we propose we 
+>> believe is more powerful, and more conducive to performance 
+>> optimizations while providing significant advantages - most 
+>> specifically, a single binary image that is properly virtualizable on 
+>> multiple hypervisors and capable of running on native hardware.
+>>     
+>
+> that is mostly an advantage in the binary would though.. less so in the
+> open source world.
+>   
 
-> Not that my opinion should hold much weight, having been absent from the
-> driver for some time, but yuck.  Is there no better way to do this thatn
-> sprinkling poo all over it?
+It is an advantage for everyone.  It cuts support and certification 
+costs for Linux distributors, software vendors, makes debugging and 
+development easier, and gives hypervisors room to grow while maintaining 
+binary compatibility with already released kernels.
 
-The changes are mostly isolated into check_link(), the fact that half
-the function gets placed inside a conditional but diff sees it as a
-bunch of smaller changes makes the changes look a lot more invasive than
-they actually are.  I guess that could be helped by splitting the PHY
-access code out of check_link() into check_phy_status() or something but
-I'm not sure how much that really helps.
-
--- 
-"You grabbed my hand and we fell into it, like a daydream - or a fever."
+Zach

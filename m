@@ -1,117 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWCMFtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWCMF4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbWCMFtS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 00:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWCMFtS
+	id S932323AbWCMF4v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 00:56:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751610AbWCMF4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 00:49:18 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:6585 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932316AbWCMFtR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 00:49:17 -0500
-Message-ID: <4415077A.7030406@jp.fujitsu.com>
-Date: Mon, 13 Mar 2006 14:47:38 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Mon, 13 Mar 2006 00:56:51 -0500
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:25037 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S1751507AbWCMF4v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 00:56:51 -0500
+Date: Mon, 13 Mar 2006 01:02:21 -0500
+From: Adam Belay <ambx1@neo.rr.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Andrew Morton <akpm@osdl.org>, drzeus-list@drzeus.cx,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-ID: <20060313060221.GA20178@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Kay Sievers <kay.sievers@vrfy.org>, Andrew Morton <akpm@osdl.org>,
+	drzeus-list@drzeus.cx, linux-kernel@vger.kernel.org
+References: <20060301194532.GB25907@vrfy.org> <4406AF27.9040700@drzeus.cx> <20060302165816.GA13127@vrfy.org> <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060312145543.194f4dc7.akpm@osdl.org> <20060313041458.GA13605@vrfy.org>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Adam Belay <ambx1@neo.rr.com>, Grant Grundler <grundler@parisc-linux.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 0/4] PCI legacy I/O port free driver (take4)
-References: <44070B62.3070608@jp.fujitsu.com> <20060302155056.GB28895@flint.arm.linux.org.uk> <20060302172436.GC22711@colo.lackof.org> <20060302193441.GG28895@flint.arm.linux.org.uk> <20060310021009.GA2506@neo.rr.com> <20060310083324.GA25092@flint.arm.linux.org.uk>
-In-Reply-To: <20060310083324.GA25092@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060313041458.GA13605@vrfy.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Thu, Mar 09, 2006 at 09:10:10PM -0500, Adam Belay wrote:
+On Mon, Mar 13, 2006 at 05:14:58AM +0100, Kay Sievers wrote:
 > 
->>On Thu, Mar 02, 2006 at 07:34:41PM +0000, Russell King wrote:
->>
->>>I have another question (brought up by someone working on a series of
->>>ARM machines which make heavy use of MMIO.)
->>>
->>>Why isn't pci_enable_device_bars() sufficient - why do we have to
->>>have another interface to say "we don't want BARs XXX" ?
->>>
->>>Let's say that we have a device driver which does this sequence (with,
->>>of course, error checking):
->>>
->>>	pci_enable_device_bars(dev, 1<<1);
->>>	pci_request_regions(dev);
->>>
->>>(a) should PCI remember that only BAR 1 has been requested to be enabled,
->>>    and as such shouldn't pci_request_regions() ignore BAR 0?
->>>
->>>(b) should the PCI driver pass into pci_request_regions() (or even
->>>    pci_request_regions_bars()) a bitmask of the BARs it wants to have
->>>    requested, and similarly for pci_release_regions().
->>>
->>>Basically, if BAR0 hasn't been enabled, has pci_request_regions() got
->>>any business requesting it from the resource tree?
->>
->>I understand the point you're making, but I think this misrepresents what
->>is actually happening.  From my understanding of the spec, it's not possible
->>to disable individual bars (with the exception of the expansion ROM).  Rather
->>there is one bit for IO enable and one bit for IOMMU enable.  Therefore, we
->>can enable or disable all I/O ports, but there's really no in between.  If
->>the device uses even one I/O port, it's still a huge loss because of the
->>potential bridge window dependency.  Also, if a device has several I/O ports
->>but the driver only wants to use one, all of the others must still be
->>assigned.
+> Macio solved the problem by adding all devices to a single string and
+> let the device table match one of these id's in that single string:
+>   http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;hb=HEAD;f=drivers/macintosh/macio_sysfs.c#l42
 > 
-> 
-> Agreed, but despite claiming that you understand my point, I don't
-> think you actually do.
-> 
-> 1. It is already the case that drivers need to know the type of each BAR
->    which the device presents - eg, most, if not all drivers take the start
->    address of BAR0, throw that directly at ioremap, or use inb etc on it
->    directly without first checking whether it's a MMIO or IO resource.
-> 
->    So, if a driver knows that BAR0 is IO and BAR1 is MMIO, it can use
->    pci_enable_device_bars(dev, BAR1) to only enable MMIO access.
->
-> 2. pci_enable_device_bars() (which pre-exists for dealing with IDE) when
->    passed the appropriate BAR mask, can be used to "enable" (or setup,
->    program, or whatever, see below) only all MMIO or all IO BARs.
-> 
-> 3. It is defined by the PCI subsystem that, for drivers, PCI resources
->    are not valid prior to pci_enable_device*() being called, and are
->    valid immediately after this call returns - pci_enable_device*()
->    might be used by a PCI subsystem implementation to assign or
->    reassign, and program PCI resources.
-> 
->    Therefore, if you request pci_enable_device() (or pci_enable_device_bars
->    with a full-bar mask) it is expected that _all_ BARs (or those
->    requested) will become valid.  Adding this "no_io" device flag
->    breaks this expectation.
-> 
-> 4. I'm not suggesting that pci_enable_device_bars() should be (or can be)
->    used to "selectively enable BARs" which I think is how you're reading
->    this.  Yes, it does apparantly have the capacity to do this (and is
->    used like this for IDE) but inappropriate use like that is a driver
->    bug, and is already a driver bug *today*.
-> 
+> We should first check if that is possible for PnP too, or solve that
+> problem in general at that level before we introduce such a hack.
 
-If we can consider it as a driver bug, I have no objection to use
-pci_enable_device_bars(). I've added a new helper routine to make
-proper BARs mask from resource type mask (pci_select_bars()) into
-my take5 patch. So there would be no problems as long as drivers
-use it when converting drivers to legacy I/O port free.
+I do have some concerns about merging every ID into a single string.  The
+orginal design goal of having multiple IDs was to allow vendors to specify
+a single high priority ID that a driver that supports the device's complete
+feature set could match against.  If that driver is unavailable, it is
+acceptable to search for other drivers that might match against a
+compatibility ID and support a partial feature set.  Now if we just search
+for the first driver that matches anything in a single ID string without
+regard to the order IDs are presented, then we're not supporting the
+specification.
+
+More generally speaking, it seems to me there are four main options:
+
+1.) We remove the modalias strings from all buses, and generate them in
+userspace exclusively.  We may loose the ability to support new buses
+without specialized userspace software, but we gain a great deal of
+flexibility and can eventually implement more advanced hardware detection
+schemes without depreciating existing kernel interfaces or parsing strings
+that are limiting when compared to bus-specific data.  Also, at least we
+have a uniform sysfs interface.
+
+2.) We selectively export modalias strings on buses where this sort of
+thing works and use hacks for other buses.
+
+3.) We export multiline sysfs modalias attributes and tell userspace
+hotplug developers that they're wrong and must change their assumptions.
+
+4.) We export a single line modalias with each ID appended to the previous ID.
+Userspace must pay careful attention to the order, but because the format is
+bus-specific, it will have to be handled in a very specialized way. (e.g. PCI
+has class codes, PnP has compatibility IDs, etc)
+
+In the long run, I think option 1 is the best choice.  I'm more concerned with
+flexibility than having a simplistic but limited hardware detection mechanism.
+Also, I prefer to keep code out of the kernel when there isn't a clear
+functionality advantage.  "file2alias" is not a kernel-level interface, but
+rather implementation specific to modutils and various module scripts included
+with the kernel source.  Therefore, I don't think that sysfs is obligated to be
+specially tailored toward modprobe, even if it is convenient for some buses.
+
+But I'm also interested in a practical short-term solution.  What are your
+thoughts?  Would method #2 be acceptable?
 
 Thanks,
-Kenji Kaneshige
-
-
-> I'm merely suggesting using an established interface which has some
-> agreed appropriate driver expectations for the purpose of solving
-> this new problem.  It fits perfectly, it's clean, it doesn't add lots
-> of complexity, and there's no reason what so ever not to use it.
-> 
-
+Adam

@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752047AbWCNXDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbWCNXEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752047AbWCNXDA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 18:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWCNXDA
+	id S1750902AbWCNXEe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 18:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752108AbWCNXEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 18:03:00 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:43471 "EHLO
-	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1750734AbWCNXC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 18:02:59 -0500
-Message-ID: <44174DA0.5020105@gentoo.org>
-Date: Tue, 14 Mar 2006 23:11:28 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mail/News 1.5 (X11/20060207)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org,
-       autophile@starband.net, stern@rowland.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: HP CDRW CD4E hasn't worked since 2.6.11
-References: <17430.14259.90181.849542@berry.ken.nicta.com.au> <20060314221958.GD12257@suse.de>
-In-Reply-To: <20060314221958.GD12257@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Mar 2006 18:04:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20631 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750902AbWCNXEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 18:04:34 -0500
+Date: Wed, 15 Mar 2006 00:03:48 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Andi Kleen <ak@suse.de>, Jon Mason <jdmason@us.ibm.com>,
+       Muli Ben-Yehuda <MULI@il.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC PATCH 3/3] x86-64: Calgary IOMMU - hook it in
+Message-ID: <20060314230348.GC1579@elf.ucw.cz>
+References: <20060314082432.GE23631@granada.merseine.nu> <20060314082552.GF23631@granada.merseine.nu> <20060314082634.GG23631@granada.merseine.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060314082634.GG23631@granada.merseine.nu>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Mar 14, 2006 at 02:25:39PM +1100, Peter Chubb wrote:
->> Hi Greg,
->> 	The changes to the usb/storage/shuttle_usbat.c to accomodate
->> flash drives appears to have broken CD R/W support.
->>
->> Sorry it took me so long to report this; I don't use this particular
->> device very often.
->>
->> Compiling with verbose debug shows that the IDENTIFY_PACKET_DEVICE
->> command is failing, so the device is mis-identified as a flash drive.
->>
->> I went to the start of the Git history in Linus's tree; 2.6.12 also
->> fails.
+On Út 14-03-06 10:26:34, Muli Ben-Yehuda wrote:
+> This patch hooks Calgary into the build and the x86-64 IOMMU
+> initialization paths.
+> 
+> Signed-Off-By: Muli Ben-Yehuda <mulix@mulix.org>
+> Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
+> 
+> diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/Kconfig linux/arch/x86_64/Kconfig
+> --- iommu_detected/arch/x86_64/Kconfig	2006-03-14 08:58:23.000000000 +0200
+> +++ linux/arch/x86_64/Kconfig	2006-03-12 10:49:04.000000000 +0200
+> @@ -372,6 +372,16 @@ config GART_IOMMU
+>  	  and a software emulation used on other systems.
+>  	  If unsure, say Y.
+>  
+> +config CALGARY_IOMMU
+> +	bool "IBM x366 server IOMMU"
+> +	default y
+> +	depends on PCI && MPSC && EXPERIMENTAL
+> +	help
+> +	  Support for hardware IOMMUs in IBM's x366 server
+> +	  systems. The IOMMU can be turned off at runtime with the
+> +	  iommu=off parameter. Normally the kernel will make the right
 
-I think it may have worked for you on-and-off in the middle of those 
-changes. It's been a nightmare trying to get both device types 
-identified correctly.
+Runtime? I think you meant boottime.
 
->> I tried to force the detection, to see if I could get past that point,
->> but there are still problems -- see the attached logs -- the device is
->> recognised as a scsi disk not cdrom.
+> +	  choice by itself.  If unsure, say Y.
 
-Can you detail your changes? I'm not convinced by this, because I have 
-been careful not to change any HP8200-specific code (except the 
-detection), and also, I don't think it is possible for the device to 
-appear as a disk if the HP8200 codepath is being followed.
+Eh? How common are those machines?
+								Pavel
 
-There was one other report of this but my emails to that reporter were 
-bouncing so I left this in my todo mailbox.
-
-Daniel
+-- 
+32:        bw.Write( sbuffer );

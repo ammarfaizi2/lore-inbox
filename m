@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWCNRZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751386AbWCNRZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWCNRZI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 12:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWCNRZH
+	id S1751386AbWCNRZr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 12:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751350AbWCNRZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 12:25:07 -0500
-Received: from xenotime.net ([66.160.160.81]:11929 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750853AbWCNRZG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 12:25:06 -0500
-Date: Tue, 14 Mar 2006 09:26:54 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How do I get the ext3 driver to shut up?
-Message-Id: <20060314092654.6480af88.rdunlap@xenotime.net>
-In-Reply-To: <200603141020.27963.rob@landley.net>
-References: <200603132218.39511.rob@landley.net>
-	<20060313193027.b0eae48e.rdunlap@xenotime.net>
-	<200603141020.27963.rob@landley.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Tue, 14 Mar 2006 12:25:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:10413 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751386AbWCNRZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 12:25:46 -0500
+Date: Tue, 14 Mar 2006 17:25:43 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, "Moore, Eric" <Eric.Moore@lsil.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       James.Bottomley@SteelEye.com, hch@lst.de
+Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
+Message-ID: <20060314172543.GA20331@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <gregkh@suse.de>, "Moore, Eric" <Eric.Moore@lsil.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	James.Bottomley@SteelEye.com, hch@lst.de
+References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D829@NAMAIL2.ad.lsil.com> <20060314153455.GA8071@suse.de> <20060314170855.GA18342@infradead.org> <20060314171951.GA22678@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060314171951.GA22678@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Mar 2006 10:20:27 -0500 Rob Landley wrote:
-
-> On Monday 13 March 2006 10:30 pm, Randy.Dunlap wrote:
-> > On Mon, 13 Mar 2006 22:18:39 -0500 Rob Landley wrote:
-> > > I'm making a test suite for busybox mount, which does filesystem
-> > > autodetection the easy way (try all the ones in /etc/filesystems and
-> > > /proc/filesystems until one of them succeeds).  My test code is creating
-> > > and mounting vfat and ext2 filesystems.
-> > >
-> > > Guess which device driver feels a bit chatty?
-> > >
-> > > PASS: mount no proc [GNUFAIL]
-> > > PASS: mount /proc
-> > > PASS: mount list1
-> > > VFS: Can't find ext3 filesystem on dev loop0.
-> > > PASS: mount vfat image (autodetect type)
-> > > ext3: No journal on filesystem on loop1
-> > > PASS: mount ext2 image (autodetect type)
-> > > PASS: mount remount ext2 image noatime
-> > > PASS: mount remount ext2 image ro remembers noatime
-> > > ext3: No journal on filesystem on loop0
-> > > PASS: umount freed loop device
-> > > PASS: mount remount nonexistent directory
-> > > PASS: mount -a no fstab
-> >
-> > Hrm, yes, 2 of those lines do come from ext3.
+On Tue, Mar 14, 2006 at 09:19:51AM -0800, Greg KH wrote:
+> I saw the:
 > 
-> Three, actually.
+> +       if (dev->driver) {^M
+> +               if (dev->parent)        /* Needed for USB */^M
+> +                       down(&dev->parent->sem);^M
+> 
+> portion and thought it came from USB core code somewhere.  Or are you
+> referring to the need for USB-storage here?
 
-Agreed (the VFS: line also).
+It's copied from a runtime close to this one in the driver core.
+Unfortunately it's not easily sharable so I duplicated those few lines.
 
----
-~Randy

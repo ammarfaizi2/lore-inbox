@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752190AbWCNQua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752259AbWCNRBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752190AbWCNQua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752184AbWCNQua
+	id S1752259AbWCNRBb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 12:01:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752254AbWCNRBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:50:30 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:16354
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1752155AbWCNQu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:50:29 -0500
-Date: Tue, 14 Mar 2006 08:50:22 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Moore, Eric" <Eric.Moore@lsil.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       James.Bottomley@SteelEye.com, hch@lst.de
-Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
-Message-ID: <20060314165022.GA32605@suse.de>
-References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D938@NAMAIL2.ad.lsil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F36D938@NAMAIL2.ad.lsil.com>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Mar 2006 12:01:31 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:33550 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751124AbWCNRBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 12:01:30 -0500
+Message-ID: <4416F6DF.3050407@vmware.com>
+Date: Tue, 14 Mar 2006 09:01:19 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VMI Interface Proposal Documentation for I386, Part 5
+References: <4415CE76.9030006@vmware.com> <Pine.LNX.4.64.0603132328270.11606@montezuma.fsmlabs.com> <44167E03.3060807@vmware.com> <Pine.LNX.4.64.0603140040230.11606@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.64.0603140040230.11606@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 09:18:18AM -0700, Moore, Eric wrote:
-> On Tuesday, March 14, 2006 8:35 AM,  Greg KH wrote:
-> 
-> > 
-> > base64 for the attachment with DOS line ends?  ugh, can you please fix
-> > this up and resend?
-> > 
-> 
-> Here is repost of patch due to dos line endings.
+Zwane Mwaikambo wrote:
+> I believe it certainly is worth seperating and would help in the iret, in 
+> that you could enable interrupts without recursing again.
+>   
 
-Nope, still there, and still in base64 :(
+The iret instruction is by far the trickiest and most sinister 
+instruction in the i386 architecture to virtualize.  It is used for so 
+many different things - setting VIF and VIP flags, returning to kernel 
+mode from an interrupt or exception, returning to user mode from a 
+system call, returning to v8086 mode.  And it uses the stack differently 
+for some of these.  And it is inherently non-virtualizable, because it 
+is sensitive to IOPL without trapping.  And it performs many actions 
+atomically - setting CPU flags, segment registers and EIP,  popping 
+values off the stack.  And it is often used from one code location for 
+many of these possible effects simultaneously.  And it alters code flow, 
+so after it executes, there is no going back.  Unfortunately, it is 
+usually not possible to entirely separate the implications of interrupt 
+delivery from the iret instruction.
 
-thanks,
+Iret really does need specially treatment.  You can't virtualize it in 
+one instruction without hardware assistance.  But you can emulate it 
+successfully if you can perform a simple test on your fault / IRQ 
+delivery path.  See patch 8, Vmi syscall assembly for some more 
+details.  The same race condition is inherent to all stack based event 
+delivery mechanisms.
 
-greg k-h
+Zach

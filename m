@@ -1,195 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751999AbWCNIRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWCNIWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751999AbWCNIRU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752020AbWCNIRU
+	id S1751232AbWCNIWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 03:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWCNIWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:17:20 -0500
-Received: from mail.gmx.de ([213.165.64.20]:2542 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751999AbWCNIRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:17:20 -0500
-X-Authenticated: #14349625
-Subject: Re: Which kernel is the best for a small linux system?
-From: Mike Galbraith <efault@gmx.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Willy Tarreau <willy@w.ods.org>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060314072921.GA13969@elte.hu>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
-	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
-	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
-	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
-	 <20060314062144.GC21493@w.ods.org>  <20060314072921.GA13969@elte.hu>
-Content-Type: multipart/mixed; boundary="=-e1fdpnckV1pwBrev025C"
-Date: Tue, 14 Mar 2006 09:18:28 +0100
-Message-Id: <1142324308.8075.9.camel@homer>
+	Tue, 14 Mar 2006 03:22:45 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:58246 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751232AbWCNIWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 03:22:44 -0500
+Subject: Re: [PATCH] Expose input device usages to userspace
+From: Arjan van de Ven <arjan@infradead.org>
+To: Elias Naur <elias@oddlabs.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200603140821.32301.elias@oddlabs.com>
+References: <200603132154.38876.elias@oddlabs.com>
+	 <1142283779.3023.49.camel@laptopd505.fenrus.org>
+	 <200603140026.28522.dtor_core@ameritech.net>
+	 <200603140821.32301.elias@oddlabs.com>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 09:22:38 +0100
+Message-Id: <1142324558.3027.10.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-X-Y-GMX-Trusted: 0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-e1fdpnckV1pwBrev025C
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Tue, 2006-03-14 at 08:29 +0100, Ingo Molnar wrote:
-
-> and there are some active methods as well: you might want to try Mike 
-> Galbraith's scheduler throttling feature:
+> > No, I don't think this is needed at all - users should be interested in
+> > what capabilities a particular device has, not what type it was assigned
+> > by soneone.
 > 
->  http://lkml.org/lkml/2006/3/3/59
->  http://lkml.org/lkml/2006/3/3/63
-> 
-> (which we could try in -mm too perhaps, perhaps Mike has an updated 
-> patch for 2.6.16-rc6-mm1?)
-
-Yeah, the whole thing is in the attached tarball.  The only significant
-difference from last posted version is that setting both tunables to 0
-causes 100% of the interactivity stuff to be disabled, returning the
-scheduler to pure O(1), but with it's ability to starve mostly neutered.
-
-	-Mike
-
-(delicate tummy warning may be appropriate.. dunno;)
-
---=-e1fdpnckV1pwBrev025C
-Content-Disposition: attachment; filename=throttle-V20-2.6.16-rc6-mm1.tar.gz
-Content-Type: application/x-compressed-tar; name=throttle-V20-2.6.16-rc6-mm1.tar.gz
-Content-Transfer-Encoding: base64
-
-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
-Pvnkk08++eSTTz755JNPPv1n0j+7UG/KAHgAAA==
+> I see your point that an application should not rely too much on device 
+> usages. However, the main reason I want device usages is to help applications 
+> and users identify and (visually) represent devices. For example, games could 
+> show an appropriate icon graphic representing each active device. The event 
+> interface already has a few other ioctls for this kind of information:
 
 
---=-e1fdpnckV1pwBrev025C--
+ok then you should consider to do it the other way around: make a way of
+asking
+"are you matching THIS profile".
+rather than
+"what profile are you"
+
+that way devices can present multiple faces etc; which is going to be
+needed as more and more weird devices come into existence.
+
 

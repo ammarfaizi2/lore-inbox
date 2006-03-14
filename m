@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWCNWDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWCNWJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWCNWDp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWCNWDo
+	id S964789AbWCNWJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWCNWJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:03:44 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47516 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964794AbWCNWDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:03:43 -0500
-Date: Tue, 14 Mar 2006 22:03:39 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Stone, Joshua I" <joshua.i.stone@intel.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] provide hrtimer exports for module use [Was: Exports for hrtimer APIs]
-Message-ID: <20060314220339.GA25207@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	"Stone, Joshua I" <joshua.i.stone@intel.com>,
-	linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-References: <CBDB88BFD06F7F408399DBCF8776B3DC06A92A13@scsmsx403.amr.corp.intel.com> <20060314133633.2814cdf7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060314133633.2814cdf7.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 14 Mar 2006 17:09:57 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:19144 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964790AbWCNWJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:09:57 -0500
+Message-ID: <44173F32.9020302@bigpond.net.au>
+Date: Wed, 15 Mar 2006 09:09:54 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH][2/4] sched: add discrete weighted cpu load function
+References: <200603131906.11739.kernel@kolivas.org> <4415F49C.8020208@bigpond.net.au> <cone.1142290371.837084.5853.501@kolivas.org>
+In-Reply-To: <cone.1142290371.837084.5853.501@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Mar 2006 22:09:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 01:36:33PM -0800, Andrew Morton wrote:
-> gee, that's a lot of exports.  I don't know whether all of these would be
-> considered stable over the long-term?
+Con Kolivas wrote:
+> Peter Williams writes:
+> 
+>> Con Kolivas wrote:
+>>
+>>> +unsigned long weighted_cpuload(const int cpu)
+>>> +{
+>>> +    return (cpu_rq(cpu)->raw_weighted_load);
+>>> +}
+>>> +
+>>
+>>
+>> Wouldn't this be a candidate for inlining?
+> 
+> 
+> That would make it unsuitable for exporting via sched.h.
 
-No, their not.  And until systemtap people actually cooperate with us
-and put their library functionality do to thing like variable lookups
-based on dward/unwinder info into that tree we shouldn't help them at all.
+If above_background_load() were implemented inside sched.c instead of in 
+sched.h there would be no need to export weighted_cpuload() would there? 
+  This would allow weighted_cpuload() to be inline and the efficiency 
+would be better as above_background_load() doesn't gain a lot by being 
+inline as having weighted_cpulpad() non inline means that it's doing a 
+function call several times in a loop i.e. it may save one function call 
+by being inline but requires (up to) one function call for every CPU.
 
+The other way around the cost would be just one function call.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

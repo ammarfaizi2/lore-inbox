@@ -1,81 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWCNVYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751791AbWCNV1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbWCNVYU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWCNVYU
+	id S1751791AbWCNV1K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:27:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751888AbWCNV1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:24:20 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:19408
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751009AbWCNVYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:24:19 -0500
-Date: Tue, 14 Mar 2006 13:24:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [Patch 0/9] Per-task delay accounting
-Message-ID: <20060314212414.GA22202@kroah.com>
-References: <1142296834.5858.3.camel@elinux04.optonline.net> <20060314192824.GB27012@kroah.com> <44172C4C.3020107@watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44172C4C.3020107@watson.ibm.com>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Mar 2006 16:27:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19337 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751791AbWCNV1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:27:08 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <m1veujy47r.fsf@ebiederm.dsl.xmission.com> 
+References: <m1veujy47r.fsf@ebiederm.dsl.xmission.com>  <16835.1141936162@warthog.cambridge.redhat.com> 
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, alan@redhat.com, linux-arch@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Tue, 14 Mar 2006 21:26:52 +0000
+Message-ID: <32068.1142371612@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 03:49:16PM -0500, Shailabh Nagar wrote:
-> Greg KH wrote:
-> 
-> >On Mon, Mar 13, 2006 at 07:40:34PM -0500, Shailabh Nagar wrote:
-> > 
-> >
-> >>This is the next iteration of the delay accounting patches
-> >>last posted at
-> >>	http://www.ussg.iu.edu/hypermail/linux/kernel/0602.3/0893.html
-> >>   
-> >>
-> >
-> >Do you have any benchmark numbers with this patch applied and with it
-> >not applied? 
-> >
-> None yet. Wanted to iron out the collection/utility aspects a bit before 
-> going into
-> the performance impact.
-> 
-> But this seems as good a time as any to collect some stats
-> using the usual suspects lmbench, kernbench, hackbench etc.
-> 
-> >Last I heard it was a measurable decrease for some
-> >"important" benchmark results...
-> > 
-> >
-> Might have been from an older iteration where schedstats was fully enabled.
-> But no point speculating....will run with this set of patches and see 
-> what shakes out.
-> 
-> One point about the overhead is that it depends on the frequency with 
-> which data is
-> collected. So a proper test would probably be a comparison of a 
-> non-patched kernel
-> with
-> a) patches applied but delay accounting not turned on at boot i.e. cost 
-> of the checks
-> b) delay accounting turned on but not being read
+Eric W. Biederman <ebiederm@xmission.com> wrote:
 
-This is probably the most important one, as that is what distros will be
-looking at.  They will have to enable the option, but will not "turn it
-on".
+> A small nit.  You are not documenting the most subtle memory barrier:
+> smp_read_barrier_depends();  Which is a deep requirement of the RCU
+> code.
 
-> c) delay accounting turned on and data read for all tasks at some 
-> "reasonable" rate
-> 
-> Will that be good  ? Other suggestions welcome.
+How about this the attached adjustment?
 
-How about real benchmarks?  The ones that the big companies look at?  I
-know you have access to them :)
+David
 
-thanks,
-
-greg k-h
+diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
+index 3ec9ff4..0c38bea 100644
+--- a/Documentation/memory-barriers.txt
++++ b/Documentation/memory-barriers.txt
+@@ -457,13 +457,14 @@ except in small and specific cases.  In 
+ EXPLICIT KERNEL MEMORY BARRIERS
+ ===============================
+ 
+-The Linux kernel has six basic CPU memory barriers:
++The Linux kernel has eight basic CPU memory barriers:
+ 
+-		MANDATORY	SMP CONDITIONAL
+-		===============	===============
+-	GENERAL	mb()		smp_mb()
+-	READ	rmb()		smp_rmb()
+-	WRITE	wmb()		smp_wmb()
++	TYPE		MANDATORY		SMP CONDITIONAL
++	===============	=======================	===========================
++	GENERAL		mb()			smp_mb()
++	WRITE		wmb()			smp_wmb()
++	READ		rmb()			smp_rmb()
++	DATA DEPENDENCY	read_barrier_depends()	smp_read_barrier_depends()
+ 
+ General memory barriers give a guarantee that all memory accesses specified
+ before the barrier will appear to happen before all memory accesses specified
+@@ -472,6 +473,36 @@ after the barrier with respect to the ot
+ Read and write memory barriers give similar guarantees, but only for memory
+ reads versus memory reads and memory writes versus memory writes respectively.
+ 
++Data dependency memory barriers ensure that if two reads are issued that
++depend on each other, that the first read is completed _before_ the dependency
++comes into effect.  For instance, consider a case where the address used in
++the second read is calculated from the result of the first read:
++
++	CPU 1		CPU 2		COMMENT
++	===============	===============	=======================================
++					a == 0, b == 1 and p == &a, q == &a
++	b = 2;
++	smp_wmb();			Make sure b is changed before p
++	p = &b;		q = p;
++			d = *q;
++
++then old data values may be used in the address calculation for the second
++value, potentially resulting in q == &b and d == 0 being seen, which is never
++correct.  What is required is a data dependency memory barrier:
++
++	CPU 1		CPU 2		COMMENT
++	===============	===============	=======================================
++					a == 0, b == 1 and p == &a, q == &a
++	b = 2;
++	smp_wmb();			Make sure b is changed before p
++	p = &b;		q = p;
++			smp_read_barrier_depends();
++					Make sure q is changed before d is read
++			d = *q;
++
++This forces the result to be either q == &a and d == 0 or q == &b and d == 2.
++The result of q == &b and d == 0 will never be seen.
++
+ All memory barriers imply compiler barriers.
+ 
+ SMP memory barriers are only compiler barriers on uniprocessor compiled systems

@@ -1,66 +1,189 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752031AbWCNI1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752022AbWCNI07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752031AbWCNI1F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752028AbWCNI1F
+	id S1752022AbWCNI07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 03:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752027AbWCNI07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:27:05 -0500
-Received: from bayc1-pasmtp05.bayc1.hotmail.com ([65.54.191.165]:51468 "EHLO
-	BAYC1-PASMTP05.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1752027AbWCNI1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:27:02 -0500
-Message-ID: <BAYC1-PASMTP053A190824D64AF757F3ADAEE10@CEZ.ICE>
-X-Originating-IP: [69.156.138.66]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Tue, 14 Mar 2006 03:24:47 -0500
-From: sean <seanlkml@sympatico.ca>
-To: davids@webmaster.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-Message-Id: <20060314032447.6be9af0a.seanlkml@sympatico.ca>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEAJKLAB.davids@webmaster.com>
-References: <1142238041.3023.11.camel@laptopd505.fenrus.org>
-	<MDEHLPKNGKAHNMBLJOLKMEAJKLAB.davids@webmaster.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.14; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2006 08:27:02.0721 (UTC) FILETIME=[12021310:01C64741]
+	Tue, 14 Mar 2006 03:26:59 -0500
+Received: from mtaout3.012.net.il ([84.95.2.7]:65465 "EHLO mtaout3.012.net.il")
+	by vger.kernel.org with ESMTP id S1752025AbWCNI06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 03:26:58 -0500
+Date: Tue, 14 Mar 2006 10:26:34 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: [RFC PATCH 3/3] x86-64: Calgary IOMMU - hook it in
+In-reply-to: <20060314082552.GF23631@granada.merseine.nu>
+To: Andi Kleen <ak@suse.de>
+Cc: Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <MULI@il.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Message-id: <20060314082634.GG23631@granada.merseine.nu>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20060314082432.GE23631@granada.merseine.nu>
+ <20060314082552.GF23631@granada.merseine.nu>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Mar 2006 13:57:40 -0800
-"David Schwartz" <davids@webmaster.com> wrote:
+This patch hooks Calgary into the build and the x86-64 IOMMU
+initialization paths.
 
-> 	No, it does not. Copyright law only gives copyright owners the right to
-> control the *creation* of derivative works. I very carefully worded my
-> statement above so that it would talk about precisely the right people claim
-> they have and precisely the right they do not have.
-> 
-> 	In this case, the alleged derivative work is created under first sale, as
-> part of normal use. It is impossible to normally use the 'kernel-devel'
-> package without creating derivative works, and under first sale, normal use
-> (and anything required for normal use) cannot be burdened. Once the
-> derivative work is lawfully created, there is nothing in copyright law that
-> requires the permission of the author of the original work to distribute the
-> derived work to licensees of the original work.
-> 
-> 	The GPL gets around this by imposing requirements on the creation of
-> derivative works, under the assumption that you cannot get the right to
-> create a derivative work any other way. But this is false, first sale grants
-> the right to normal use, and normal use includes anything necessary for
-> normal use. For a library or for the 'kernel-devel' package, normal use
-> requires the creation of derivative works.
-> 
+Signed-Off-By: Muli Ben-Yehuda <mulix@mulix.org>
+Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
 
-So i buy a book; clearly the reason it's written in english is so that I can
-extend and alter it.   So I rip out the last chapter and replace it with one
-of my own.   Now _clearly_ i can distribute this new work around the world
-without any fear of being sued by the copyright holders because it's fair use.
-NOT!
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/Kconfig linux/arch/x86_64/Kconfig
+--- iommu_detected/arch/x86_64/Kconfig	2006-03-14 08:58:23.000000000 +0200
++++ linux/arch/x86_64/Kconfig	2006-03-12 10:49:04.000000000 +0200
+@@ -372,6 +372,16 @@ config GART_IOMMU
+ 	  and a software emulation used on other systems.
+ 	  If unsure, say Y.
+ 
++config CALGARY_IOMMU
++	bool "IBM x366 server IOMMU"
++	default y
++	depends on PCI && MPSC && EXPERIMENTAL
++	help
++	  Support for hardware IOMMUs in IBM's x366 server
++	  systems. The IOMMU can be turned off at runtime with the
++	  iommu=off parameter. Normally the kernel will make the right
++	  choice by itself.  If unsure, say Y.
++
+ # need this always enabled with GART_IOMMU for the VIA workaround
+ config SWIOTLB
+ 	bool
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/kernel/Makefile linux/arch/x86_64/kernel/Makefile
+--- iommu_detected/arch/x86_64/kernel/Makefile	2006-03-14 08:58:23.000000000 +0200
++++ linux/arch/x86_64/kernel/Makefile	2006-02-27 14:20:28.000000000 +0200
+@@ -29,6 +29,7 @@ obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspen
+ obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+ obj-$(CONFIG_GART_IOMMU)	+= pci-gart.o aperture.o
++obj-$(CONFIG_CALGARY_IOMMU)	+= pci-calgary.o tce.o
+ obj-$(CONFIG_SWIOTLB)		+= pci-swiotlb.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_X86_PM_TIMER)	+= pmtimer.o
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/kernel/pci-dma.c linux/arch/x86_64/kernel/pci-dma.c
+--- iommu_detected/arch/x86_64/kernel/pci-dma.c	2006-03-14 09:05:48.000000000 +0200
++++ linux/arch/x86_64/kernel/pci-dma.c	2006-03-14 09:21:46.000000000 +0200
+@@ -9,6 +9,7 @@
+ #include <linux/module.h>
+ #include <asm/io.h>
+ #include <asm/proto.h>
++#include <asm/calgary.h>
+ 
+ int iommu_merge __read_mostly = 0;
+ EXPORT_SYMBOL(iommu_merge);
+@@ -270,3 +271,21 @@ __init int iommu_setup(char *p)
+     }
+     return 1;
+ }
++
++static int __init pci_iommu_init(void)
++{
++	int rc = 0;
++
++#ifdef CONFIG_GART_IOMMU
++	rc = gart_iommu_init();
++	if (!rc) /* success? */
++		return 0;
++#endif
++#ifdef CONFIG_CALGARY_IOMMU
++	rc = calgary_iommu_init();
++#endif
++	return rc;
++}
++
++/* Must execute after PCI subsystem */
++fs_initcall(pci_iommu_init);
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/kernel/pci-gart.c linux/arch/x86_64/kernel/pci-gart.c
+--- iommu_detected/arch/x86_64/kernel/pci-gart.c	2006-03-14 09:06:44.000000000 +0200
++++ linux/arch/x86_64/kernel/pci-gart.c	2006-03-14 09:23:21.000000000 +0200
+@@ -605,7 +605,7 @@ static struct dma_mapping_ops gart_dma_o
+ 	.unmap_sg = gart_unmap_sg,
+ };
+ 
+-static int __init pci_iommu_init(void)
++int __init gart_iommu_init(void)
+ { 
+ 	struct agp_kern_info info;
+ 	unsigned long aper_size;
+@@ -725,10 +725,7 @@ static int __init pci_iommu_init(void)
+ 	return 0;
+ } 
+ 
+-/* Must execute after PCI subsystem */
+-fs_initcall(pci_iommu_init);
+-
+-void gart_parse_options(char *p)
++void __init gart_parse_options(char *p)
+ {
+ 	int arg;
+ 
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/kernel/setup.c linux/arch/x86_64/kernel/setup.c
+--- iommu_detected/arch/x86_64/kernel/setup.c	2006-03-14 08:58:23.000000000 +0200
++++ linux/arch/x86_64/kernel/setup.c	2006-03-12 19:35:24.000000000 +0200
+@@ -67,6 +67,7 @@
+ #include <asm/swiotlb.h>
+ #include <asm/sections.h>
+ #include <asm/gart-mapping.h>
++#include <asm/calgary.h>
+ 
+ /*
+  * Machine setup..
+@@ -388,6 +389,12 @@ static __init void parse_cmdline_early (
+ 			iommu_setup(from+6); 
+ 		}
+ 
++#ifdef CONFIG_CALGARY_IOMMU 
++		if (!memcmp(from,"calgary=",8)) { 
++			calgary_parse_options(from+8);
++		}
++#endif
++
+ 		if (!memcmp(from,"oops=panic", 10))
+ 			panic_on_oops = 1;
+ 
+@@ -747,6 +754,9 @@ void __init setup_arch(char **cmdline_p)
+ #ifdef CONFIG_GART_IOMMU
+ 	iommu_hole_init();
+ #endif
++#ifdef CONFIG_CALGARY_IOMMU
++	detect_calgary();
++#endif
+ 
+ #ifdef CONFIG_VT
+ #if defined(CONFIG_VGA_CONSOLE)
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/include/asm-x86_64/pci.h linux/include/asm-x86_64/pci.h
+--- iommu_detected/include/asm-x86_64/pci.h	2006-03-14 08:59:45.000000000 +0200
++++ linux/include/asm-x86_64/pci.h	2006-03-01 16:18:14.000000000 +0200
+@@ -53,7 +53,7 @@ extern int iommu_setup(char *opt);
+  */
+ #define PCI_DMA_BUS_IS_PHYS (dma_ops->is_phys)
+ 
+-#ifdef CONFIG_GART_IOMMU
++#if defined(CONFIG_GART_IOMMU) || defined(CONFIG_CALGARY_IOMMU)
+ 
+ /*
+  * x86-64 always supports DAC, but sometimes it is useful to force
+diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/include/asm-x86_64/proto.h linux/include/asm-x86_64/proto.h
+--- iommu_detected/include/asm-x86_64/proto.h	2006-03-14 08:59:45.000000000 +0200
++++ linux/include/asm-x86_64/proto.h	2006-03-14 08:50:10.000000000 +0200
+@@ -104,7 +104,9 @@ extern int unsynchronized_tsc(void);
+ extern void select_idle_routine(const struct cpuinfo_x86 *c);
+ 
+ extern void gart_parse_options(char *);
+-extern void __init no_iommu_init(void);
++extern int gart_iommu_init(void);
++extern void no_iommu_init(void);
++extern void detect_calgary(void);
+ 
+ extern unsigned long table_start, table_end;
+ 
 
-Now before you try to argue that altering copyrighted source code is fair
-use but altering copyrighted books isn't; just stop.  Please leave this 
-matter to the lawyers and off this list.
+-- 
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
-Sean

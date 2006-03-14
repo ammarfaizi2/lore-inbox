@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWCNIFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWCNIIB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWCNIFo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751782AbWCNIFn
+	id S1751786AbWCNIIB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 03:08:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWCNIIB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:05:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45645 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751773AbWCNIFn (ORCPT
+	Tue, 14 Mar 2006 03:08:01 -0500
+Received: from max.feld.cvut.cz ([147.32.192.36]:24294 "EHLO max.feld.cvut.cz")
+	by vger.kernel.org with ESMTP id S1751783AbWCNIIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:05:43 -0500
-Date: Tue, 14 Mar 2006 09:05:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@osdl.org>,
-       ck@vds.kolivas.org, linux-kernel@vger.kernel.org
-Subject: Re: [ck] Re: [PATCH] mm: Implement swap prefetching tweaks
-Message-ID: <20060314080527.GC4419@suse.de>
-References: <200603102054.20077.kernel@kolivas.org> <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer> <200603111824.06274.kernel@kolivas.org> <1142063500.7605.13.camel@homer> <1142139283.25358.68.camel@mindpipe> <1142318403.4583.14.camel@homer> <1142319048.13256.103.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Mar 2006 03:08:00 -0500
+From: CIJOML <cijoml@volny.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Dmesg is not showing whole boot list
+Date: Tue, 14 Mar 2006 09:01:27 +0100
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1142319048.13256.103.camel@mindpipe>
+Message-Id: <200603140901.27746.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14 2006, Lee Revell wrote:
-> On Tue, 2006-03-14 at 07:40 +0100, Mike Galbraith wrote:
-> > On Sat, 2006-03-11 at 23:54 -0500, Lee Revell wrote:
-> > > On Sat, 2006-03-11 at 08:51 +0100, Mike Galbraith wrote:
-> > > > There used to be a pages in flight 'restrictor plate' in there that
-> > > > would have probably helped this situation at least a little.  But in
-> > > > any case, it sounds like you'll have to find a way to submit the IO in
-> > > > itty bitty synchronous pieces. 
-> > > 
-> > > echo 64 > /sys/block/hd*/queue/max_sectors_kb
-> > > 
-> > > There is basically a straight linear relation between whatever you set
-> > > this to and the maximum scheduling latency you see.  It was developed to
-> > > solve the exact problem you are describing.
-> > 
-> > <head-scratching>
-> > 
-> > Is it possible that you mean pci latency?  I'm unable to measure any
-> > scheduling latency > 5ms while pushing IO for all my little Barracuda
-> > disk is worth.
-> 
-> It's only a big problem if LBA48 is in use which allows 32MB of IO to be
-> in flight at once, this depends on the size of the drive.
-> 
-> What does that value default to?
+Hello,
 
-Not quite true. Even if lba48 is active on the drive, we don't allow
-more than 1MB per request. And nit picking a little, lba48 doesn't
-always depend on the size of the drive, some drives smaller than 2^28
-sectors also feature lba48 support.
+maybe this si a wrong list to ask, bug after boot, dmesg shows that few lines 
+at the beginning are missing.
 
--- 
-Jens Axboe
+Is there any option I can increase to get full dmesg?
 
+ine.. 4801.43 BogoMIPS (lpj=2400718)
+Security Framework v1.0.0 initialized
+SELinux:  Initializing.
+SELinux:  Starting in permissive mode
+Mount-cache hash table entries: 512
+CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 
+00004400 00000000 00000000
+CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004400 
+00000000 00000000
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 128K
+CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 00004400 
+00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU0: Thermal monitoring enabled
+CPU: Intel(R) Celeron(R) CPU 2.40GHz stepping 09
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0200 (from 0c88)
+.
+.
+.
+
+Linux Debian testing, kernel 2.6.16-rc5
+
+Thanks for reply a regards
+
+Michal

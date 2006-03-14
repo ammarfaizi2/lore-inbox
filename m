@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751906AbWCNHFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751905AbWCNHNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751906AbWCNHFO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 02:05:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751905AbWCNHFO
+	id S1751905AbWCNHNM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 02:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752292AbWCNHNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 02:05:14 -0500
-Received: from mail.gmx.net ([213.165.64.20]:935 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751906AbWCNHFM (ORCPT
+	Tue, 14 Mar 2006 02:13:12 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:36516 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750887AbWCNHNL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 02:05:12 -0500
-X-Authenticated: #14349625
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-From: Mike Galbraith <efault@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <1142319048.13256.103.camel@mindpipe>
-References: <200603102054.20077.kernel@kolivas.org>
-	 <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
-	 <200603111824.06274.kernel@kolivas.org>  <1142063500.7605.13.camel@homer>
-	 <1142139283.25358.68.camel@mindpipe>  <1142318403.4583.14.camel@homer>
-	 <1142319048.13256.103.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 08:06:19 +0100
-Message-Id: <1142319979.8629.1.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Tue, 14 Mar 2006 02:13:11 -0500
+Message-ID: <44166D04.3070100@garzik.org>
+Date: Tue, 14 Mar 2006 02:13:08 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Ed Lin <ed.lin@promise.com>, linux-scsi@vger.kernel.org,
+       promise_linux@promise.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
+References: <NONAMEBgJJ72jYxDwLd000000d3@nonameb.ptu.promise.com> <20060313192042.56bf67b3.akpm@osdl.org>
+In-Reply-To: <20060313192042.56bf67b3.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 01:50 -0500, Lee Revell wrote:
-> On Tue, 2006-03-14 at 07:40 +0100, Mike Galbraith wrote:
-> >> > 
-> > > echo 64 > /sys/block/hd*/queue/max_sectors_kb
-> > > 
-> > > There is basically a straight linear relation between whatever you set
-> > > this to and the maximum scheduling latency you see.  It was developed to
-> > > solve the exact problem you are describing.
-> > 
-> > <head-scratching>
-> > 
-> > Is it possible that you mean pci latency?  I'm unable to measure any
-> > scheduling latency > 5ms while pushing IO for all my little Barracuda
-> > disk is worth.
+Andrew Morton wrote:
+> "Ed Lin" <ed.lin@promise.com> wrote:
+>>I guess DMA_32BIT_MASK is OK?
 > 
-> It's only a big problem if LBA48 is in use which allows 32MB of IO to be
-> in flight at once, this depends on the size of the drive.
-
-This is a 120G drive.
-
 > 
-> What does that value default to?
+> If that's semantically what the 0xffffffff means then yes.
 
-512.
 
-> >   I _can_ generate mp3 player audio dropout though,
-> > despite mp3 files living on a separate drive/controller.
-> > 
-> 
-> Does this go away if you run the mp3 player at nice -20?
+It means "select lower 32 bits, because the other 32 bits are 
+elsewhere."  Since its an arg to cpu_to_le32() I suppose there is an 
+implicit truncation in there, but I add such masking myself to my own 
+code.  Makes it more clear to the reader what's going on, IMO.
 
-Nope.
+Its not quite what DMA_32BIT_MASK intends, either, IMO.
 
-	-Mike
+	Jeff
+
 

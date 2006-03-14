@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751962AbWCNBTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751780AbWCNBWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751962AbWCNBTX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 20:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751985AbWCNBTX
+	id S1751780AbWCNBWT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 20:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751955AbWCNBWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 20:19:23 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:41680 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1751962AbWCNBTX (ORCPT
+	Mon, 13 Mar 2006 20:22:18 -0500
+Received: from mx2.suse.de ([195.135.220.15]:29931 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751780AbWCNBWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 20:19:23 -0500
-Date: Mon, 13 Mar 2006 20:25:03 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Andrew Morton <akpm@osdl.org>, drzeus-list@drzeus.cx,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-Message-ID: <20060314012503.GA22354@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Kay Sievers <kay.sievers@vrfy.org>, Andrew Morton <akpm@osdl.org>,
-	drzeus-list@drzeus.cx, linux-kernel@vger.kernel.org
-References: <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060312145543.194f4dc7.akpm@osdl.org> <20060313041458.GA13605@vrfy.org> <20060313060221.GA20178@neo.rr.com> <20060313062112.GA15720@vrfy.org> <20060313072654.GB20569@neo.rr.com> <20060313073612.GA16509@vrfy.org>
+	Mon, 13 Mar 2006 20:22:18 -0500
+From: Neil Brown <neilb@suse.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Date: Tue, 14 Mar 2006 12:20:56 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060313073612.GA16509@vrfy.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Transfer-Encoding: 7bit
+Message-ID: <17430.6776.641993.684122@cse.unsw.edu.au>
+Cc: Joshua Kugler <joshua.kugler@uaf.edu>, linux-kernel@vger.kernel.org,
+       sah@coraid.com
+Subject: Re: OOM kiler/load problems with RAID/LVM and AoE
+In-Reply-To: message from Lee Revell on Monday March 13
+References: <200603131602.03886.joshua.kugler@uaf.edu>
+	<1142298998.13256.76.camel@mindpipe>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 08:36:12AM +0100, Kay Sievers wrote:
-> On Mon, Mar 13, 2006 at 02:26:54AM -0500, Adam Belay wrote:
-> > I did some research, and interestingly enough, the ACPI _CID method allows
-> > for compatible IDs even for PCI devices.  These also would present a problem
-> > for the modalias sysfs attribute.
+On Monday March 13, rlrevell@joe-job.com wrote:
+> On Mon, 2006-03-13 at 16:02 -0900, Joshua Kugler wrote:
+> > Kernel: Linux community.dist-ed.uaf.edu 2.6.12-14mdksmp #1 SMP Tue Dec
+> > 20 
 > 
-> Again, you can do every "advanced" setup already today with poking
-> around in the bind/unbind files in sysfs. Userspace just receives an
-> event from the kernel and can do whatever it wants to do with the event:
-> ignore it, load a specific module, start a userspace driver, or just ask
-> modprobe to load the kernel supplied default module.
+> You'll have to try the latest kernel, 2.6.15.x or the latest 2.6.16
+> release candidate.
 > 
-> The modalias is just a convenient way to provide a "default" module
-> autoloading and is not expected to become a system management
-> replacement with full featured policy integration. I don't really see
-> a "real world" problem here. If some day we support this stuff and need
-> a new interface we can just do this if someone proposes a better
-> solution. For now modalias works just fine. As long as we have device
-> table matches _in_ the kernel modules, there is no reason not to export
-> the match value from the kernel at the same time.
-> 
-> Thanks,
-> Kay
 
-Alright, I was just trying to make it clear that there are minor problems
-with hotplug and some aspects of ACPI, PCMCIA, PNP, etc.  Some of the
-exceptions (e.g. multiple PnP IDs) are more common than others (e.g. ACPI
-_CID methods for non-acpi devices).  Also, some aren't difficult to work
-around with things like the script that parses the "id" attribute.  I'm
-interested in seeing how future solutions might attempt to implement these
-features, even the corner cases.  I agree, though, that having a simplistic
-default like the modalias approach has an important "real world" advantage.
+... and you'll probably find the 2G limit on raid1s have been removed
+(certainly in the 2.6.16, not sure about 2.6.15). You'll need mdadm
+2.3.
 
-Thanks,
-Adam
+NeilBrown

@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752292AbWCNHVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752302AbWCNHbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752292AbWCNHVP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 02:21:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752302AbWCNHVP
+	id S1752302AbWCNHbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 02:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752304AbWCNHbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 02:21:15 -0500
-Received: from cicero0.cybercity.dk ([212.242.40.52]:27871 "EHLO
-	cicero0.cybercity.dk") by vger.kernel.org with ESMTP
-	id S1752292AbWCNHVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 02:21:14 -0500
-From: Elias Naur <elias@oddlabs.com>
-Organization: Oddlabs ApS
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] Expose input device usages to userspace
-Date: Tue, 14 Mar 2006 08:21:32 +0100
-User-Agent: KMail/1.8.2
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-References: <200603132154.38876.elias@oddlabs.com> <1142283779.3023.49.camel@laptopd505.fenrus.org> <200603140026.28522.dtor_core@ameritech.net>
-In-Reply-To: <200603140026.28522.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Mar 2006 02:31:50 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:25549 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1752271AbWCNHbu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 02:31:50 -0500
+Date: Tue, 14 Mar 2006 08:29:21 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>
+Subject: Re: Which kernel is the best for a small linux system?
+Message-ID: <20060314072921.GA13969@elte.hu>
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org> <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com> <1142273212.3023.35.camel@laptopd505.fenrus.org> <20060314062144.GC21493@w.ods.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603140821.32301.elias@oddlabs.com>
+In-Reply-To: <20060314062144.GC21493@w.ods.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.5
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	0.8 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 March 2006 06:26, Dmitry Torokhov wrote:
-> On Monday 13 March 2006 16:02, Arjan van de Ven wrote:
-> > On Mon, 2006-03-13 at 21:54 +0100, Elias Naur wrote:
-> > > Hi,
-> > >
-> > > I believe that the current event input interface is missing some kind
-> > > of information about the general kind of input device (Mouse, Keyboard,
-> > > Joystick etc.) so I added a simple ioctl to do just that. The relevant
-> > > line in include/linux/input.h is:
-> > >
-> > > #define EVIOCGUSAGE(len)    _IOC(_IOC_READ, 'E', 0x1c, len)         /*
-> > > get all usages */
-> > >
-> > > It returns a bit set with the device usages. Current usages are:
-> > >
-> > > #define USAGE_MOUSE         0x00
-> > > #define USAGE_JOYSTICK      0x01
-> > > #define USAGE_GAMEPAD       0x02
-> > > #define USAGE_KEYBOARD      0x03
-> >
-> > I'm not sure that this is a good idea in general.
-> > However when you do it, at least make it a bitmap; things can be both a
-> > mouse and a keyboard for example.
->
-> No, I don't think this is needed at all - users should be interested in
-> what capabilities a particular device has, not what type it was assigned
-> by soneone.
 
-I see your point that an application should not rely too much on device 
-usages. However, the main reason I want device usages is to help applications 
-and users identify and (visually) represent devices. For example, games could 
-show an appropriate icon graphic representing each active device. The event 
-interface already has a few other ioctls for this kind of information:
+* Willy Tarreau <willy@w.ods.org> wrote:
 
- - The name (EVIOCGNAME).
- - The ID (EVIOCGID). IMHO, device usages are more useful than the "bustype" 
-field of struct input_id.
- - The physical location (EVIOCGPHYS).
+> scheduler is still a big problem. Not only we occasionally see people 
+> complaining about unfair CPU distribution across processes (may be 
+> fixed now), but the scheduler still gives a huge boost to I/O 
+> intensive tasks which do lots of select() with small time-outs, which 
+> makes it practically unusable in network-intensive environments. I've 
+> observed systems on which it was nearly impossible to log in via SSH 
+> because of this, and I could reproduce the problem locally to create a 
+> local DoS where a single user could prevent anybody from logging in.  
+> 2.6.15 has improved a lot on this (pauses have reduced from 35 seconds 
+> to 4 seconds) but it's still not very good.
 
-And speaking of capabilities, the event interface already exposes "types 
-assigned by someone" to each device component (ABS_X, KEY_ESC, BTN_TRIGGER 
-etc.). If no vendor assigned types should be exposed, only the raw capability 
-(a type (abs axis, rel axis, key) and a struct input_absinfo for absolute 
-axes) needed to interpret component values would be needed.
+i think we've talked about your specific case before, and lets not drop 
+it on the floor. IIRC you have some special workload (driven by serial 
+lines?) which behaves interactively and which thus gets too much 
+boosting.
 
- - elias
+the passive methods: did you try to mute its impact by renicing it to +5 
+or +10? If you know that a workload is not interactive, despite it 
+behaving so, you can always prevent it from getting too much attention.  
+There's also SCHED_BATCH in 2.6.16-ish kernels.
+
+and there are some active methods as well: you might want to try Mike 
+Galbraith's scheduler throttling feature:
+
+ http://lkml.org/lkml/2006/3/3/59
+ http://lkml.org/lkml/2006/3/3/63
+
+(which we could try in -mm too perhaps, perhaps Mike has an updated 
+patch for 2.6.16-rc6-mm1?)
+
+	Ingo

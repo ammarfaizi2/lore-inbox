@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbWCNGgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751870AbWCNGi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751741AbWCNGgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 01:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWCNGgg
+	id S1751870AbWCNGi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 01:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWCNGi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 01:36:36 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:14467 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750736AbWCNGgg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 01:36:36 -0500
-Date: Mon, 13 Mar 2006 22:41:07 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 7/24] i386 Vmi memory hole
-Message-ID: <20060314064107.GK12807@sorel.sous-sol.org>
-References: <200603131804.k2DI4N6s005678@zach-dev.vmware.com>
+	Tue, 14 Mar 2006 01:38:59 -0500
+Received: from mail.gmx.net ([213.165.64.20]:42656 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751870AbWCNGi6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 01:38:58 -0500
+X-Authenticated: #14349625
+Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
+From: Mike Galbraith <efault@gmx.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
+In-Reply-To: <1142139283.25358.68.camel@mindpipe>
+References: <200603102054.20077.kernel@kolivas.org>
+	 <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
+	 <200603111824.06274.kernel@kolivas.org>  <1142063500.7605.13.camel@homer>
+	 <1142139283.25358.68.camel@mindpipe>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 07:40:03 +0100
+Message-Id: <1142318403.4583.14.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603131804.k2DI4N6s005678@zach-dev.vmware.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Create a configurable hole in the linear address space at the top
-> of memory.  A more advanced interface is needed to negotiate how
-> much space the hypervisor is allowed to steal, but in the end, it
-> seems most likely that a fixed constant size will be chosen for
-> the compiled kernel, potentially propagated to an information
-> page used by paravirtual initialization to determine interface
-> compatibility.
+On Sat, 2006-03-11 at 23:54 -0500, Lee Revell wrote:
+> On Sat, 2006-03-11 at 08:51 +0100, Mike Galbraith wrote:
+> > There used to be a pages in flight 'restrictor plate' in there that
+> > would have probably helped this situation at least a little.  But in
+> > any case, it sounds like you'll have to find a way to submit the IO in
+> > itty bitty synchronous pieces. 
 > 
-> Signed-off-by: Zachary Amsden <zach@vmware.com>
+> echo 64 > /sys/block/hd*/queue/max_sectors_kb
 > 
-> Index: linux-2.6.16-rc3/arch/i386/Kconfig
-> ===================================================================
-> --- linux-2.6.16-rc3.orig/arch/i386/Kconfig	2006-02-22 16:09:04.000000000 -0800
-> +++ linux-2.6.16-rc3/arch/i386/Kconfig	2006-02-22 16:33:27.000000000 -0800
-> @@ -201,6 +201,15 @@ config VMI_DEBUG
->  
->  endmenu
->  
-> +config MEMORY_HOLE
-> +	int "Create hole at top of memory (0-256 MB)"
-> +	range 0 256
-> +	default "64" if X86_VMI
-> +	default "0" if !X86_VMI
+> There is basically a straight linear relation between whatever you set
+> this to and the maximum scheduling latency you see.  It was developed to
+> solve the exact problem you are describing.
 
-Deja-vu ;-)  And still works in context of Xen, but we've just let the
-subarch define the __FIXADDR_TOP.  Having it be dynamic could be
-interesting.
+<head-scratching>
+
+Is it possible that you mean pci latency?  I'm unable to measure any
+scheduling latency > 5ms while pushing IO for all my little Barracuda
+disk is worth.  I _can_ generate mp3 player audio dropout though,
+despite mp3 files living on a separate drive/controller.
+
+	-Mike
+

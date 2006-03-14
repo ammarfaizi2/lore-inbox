@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751903AbWCNMM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751893AbWCNMNn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751903AbWCNMM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 07:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWCNMM2
+	id S1751893AbWCNMNn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 07:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751896AbWCNMNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 07:12:28 -0500
-Received: from ws1-2.us4.outblaze.com ([205.158.62.81]:45492 "EHLO
-	ws1-2.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S1751855AbWCNMM1 convert rfc822-to-8bit (ORCPT
+	Tue, 14 Mar 2006 07:13:42 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29570 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751893AbWCNMNm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 07:12:27 -0500
+	Tue, 14 Mar 2006 07:13:42 -0500
+Date: Tue, 14 Mar 2006 13:12:24 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Olivier Galibert <galibert@pobox.com>,
+       "Hack inc." <linux-kernel@vger.kernel.org>, marcel@holtmann.org,
+       maxk@qualcomm.com, bluez-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Fix SCO on Broadcom Bluetooth adapters
+Message-ID: <20060314121224.GA11211@elf.ucw.cz>
+References: <20060314111248.GA75477@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-From: "Simon Mackinlay" <smackinlay@mail.com>
-To: "Bart Samwel" <bart@samwel.tk>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Greg Scott" <GregScott@InfraSupportEtc.com>,
-       "Rick Jones" <rick.jones2@hp.com>,
-       "Chuck Ebbert" <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Simon Mackinlay" <smackinlay@mail.com>
-Date: Tue, 14 Mar 2006 12:12:29 +0000
-Subject: Re: Router stops routing after changing MAC Address
-X-Originating-Ip: 195.16.185.35
-X-Originating-Server: ws1-2.us4.outblaze.com
-Message-Id: <20060314121229.8B2B21F50B4@ws1-2.us4.outblaze.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060314111248.GA75477@dspnet.fr.eu.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Bzzzzt. According to WikiPedia:
-> 
-> http://en.wikipedia.org/wiki/MAC_address
-> 
-> MAC addresses are used for:
-> 
-> - Token ring
-> - 802.11 wireless networks
-> - Bluetooth
-> - FDDI
-> - ATM (switched virtual connections only, as part of an NSAP address)
-> - SCSI and Fibre Channel (as part of a World Wide Name)
-> 
-> FDDI = fiber, ATM = ATM.
+On Út 14-03-06 12:12:48, Olivier Galibert wrote:
+> Broadcom USB Bluetooth adapters report a maximum of zero SCO packets
+> in-flight, killing SCO.  Use a reasonable count instead in that
+> case.
 
-http://developer.intel.com/design/network/products/optical/framers/ixf18104.htm
+Printk("broken Broadcom USB detected, working around"), I'd say. Then
+you can also remove the comment :-). Maybe 4 is reasonable value for
+some really broken thing, or something...
+								
+> Signed-off-by: Olivier Galibert <galibert@pobox.com>
 
-It works too.
+								Pavel
 
-Cheers,
+> diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+> --- a/net/bluetooth/hci_event.c
+> +++ b/net/bluetooth/hci_event.c
+> @@ -324,6 +324,13 @@ static void hci_cc_info_param(struct hci
+>  		hdev->acl_pkts = hdev->acl_cnt = __le16_to_cpu(bs->acl_max_pkt);
+>  		hdev->sco_pkts = hdev->sco_cnt = __le16_to_cpu(bs->sco_max_pkt);
+>  
+> +		/* Some buggy USB bluetooth adapters, Broadcom in
+> +		   particular, answer zero as the max number of sco
+> +		   packets in flight.  Use a reasonable value
+> +		   instead */
+> +		if (hdev->sco_pkts == 0)
+> +			hdev->sco_pkts = hdev->sco_cnt = 8
+> +
+>  		BT_DBG("%s mtu: acl %d, sco %d max_pkt: acl %d, sco %d", hdev->name,
+>  			hdev->acl_mtu, hdev->sco_mtu, hdev->acl_pkts, hdev->sco_pkts);
+>  		break;
 
-Simon
 
 -- 
-___________________________________________________
-Play 100s of games for FREE! http://games.mail.com/
-
+189:    private string AtomSTSZ = "stsz";

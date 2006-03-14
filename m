@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbWCNWN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWCNWNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932539AbWCNWN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWCNWN3
+	id S964797AbWCNWNr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWCNWNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:13:29 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:17873 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932525AbWCNWN2 (ORCPT
+	Tue, 14 Mar 2006 17:13:47 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17076 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932525AbWCNWNp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:13:28 -0500
-Date: Tue, 14 Mar 2006 23:11:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.16-rc6-rt1
-Message-ID: <20060314221111.GA7118@elte.hu>
-References: <20060314101811.GA10450@elte.hu> <Pine.LNX.4.44L0.0603142256050.1291-100000@lifa01.phys.au.dk>
+	Tue, 14 Mar 2006 17:13:45 -0500
+Date: Tue, 14 Mar 2006 23:13:36 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Chris Leech <christopher.leech@intel.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 1/8] [I/OAT] DMA memcpy subsystem
+Message-ID: <20060314221336.GB2269@elf.ucw.cz>
+References: <20060311022759.3950.58788.stgit@gitlost.site> <20060311022919.3950.43835.stgit@gitlost.site>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0603142256050.1291-100000@lifa01.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060311022919.3950.43835.stgit@gitlost.site>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+> --- /dev/null
+> +++ b/drivers/dma/dmaengine.c
+> @@ -0,0 +1,360 @@
+> +/*****************************************************************************
+> +Copyright(c) 2004 - 2006 Intel Corporation. All rights reserved.
+> +
+> +This program is free software; you can redistribute it and/or modify it
+> +under the terms of the GNU General Public License as published by the Free
+> +Software Foundation; either version 2 of the License, or (at your option)
+> +any later version.
+> +
+> +This program is distributed in the hope that it will be useful, but WITHOUT
+> +ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+> +FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+> +more details.
+> +
+> +You should have received a copy of the GNU General Public License along with
+> +this program; if not, write to the Free Software Foundation, Inc., 59
+> +Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+> +
+> +The full GNU General Public License is included in this distribution in the
+> +file called LICENSE.
+> +*****************************************************************************/
 
-> On Tue, 14 Mar 2006, Ingo Molnar wrote:
-> 
-> >
-> > * Esben Nielsen <simlo@phys.au.dk> wrote:
-> >
-> > [...]
-> > no. We have to run deadlock detection to avoid things like circular lock
-> > dependencies causing an infinite schedule+wakeup 'storm' during priority
-> > boosting. (like possible with your wakeup based method i think)
-> No, all tasks would just settle on the highest priority and then the
-> wakeups would stop.
 
-you are right, that shouldnt be possible. But how about other, SMP 
-artifacts? What if the woken up task runs on another CPU, and the whole 
-chain of boosting is thus delayed?
+Could you use 
+/*
+ *
+ */
 
-	Ingo
+comment style, and describe in one or two lines what the source does
+in the header?
+
+								Pavel
+-- 
+209:using System.IO;

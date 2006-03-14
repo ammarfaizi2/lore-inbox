@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751899AbWCNBPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751920AbWCNBRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751899AbWCNBPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 20:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWCNBPQ
+	id S1751920AbWCNBRF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 20:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751934AbWCNBRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 20:15:16 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36569 "EHLO
+	Mon, 13 Mar 2006 20:17:04 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61398 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751899AbWCNBPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 20:15:14 -0500
+	id S1751920AbWCNBRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 20:17:01 -0500
 Subject: Re: New libata PATA patch for 2.6.16-rc1
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOC.4.61.0603132202080.14431@math.ut.ee>
-References: <20060313195722.6ADBF1401F@rhn.tartu-labor>
-	 <Pine.SOC.4.61.0603132202080.14431@math.ut.ee>
+To: Chris Boot <bootc@bootc.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <30715A89-26A9-4B93-B17F-33C3F407B1C8@bootc.net>
+References: <1142262431.25773.25.camel@localhost.localdomain>
+	 <30715A89-26A9-4B93-B17F-33C3F407B1C8@bootc.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Mar 2006 01:21:13 +0000
-Message-Id: <1142299273.25773.39.camel@localhost.localdomain>
+Date: Tue, 14 Mar 2006 01:23:17 +0000
+Message-Id: <1142299397.25773.41.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-03-13 at 22:08 +0200, Meelis Roos wrote:
-> Built an universla kernel with alla PATA drivers and netconsole, to test 
-> on some machines. Just finished building and tried it in qemu, with 
-> different config than before. It still crashes in qemu. dmesg and 
-> .config below. It seems to detect PDC20230-C/20630 VLB ATA controller 
-> that is not there, and then crash in legacy_init(?).
+On Maw, 2006-03-14 at 00:39 +0000, Chris Boot wrote:
+> pata_via detects my HP Colorado 5GB again, although I still haven't  
+> had a chance to test it yet: tapes are on back order. The DVD-RW also  
 
-Interesting. If you compile the legacy driver out does it then run
-properly. If you've got an IDE class device legacy should not be loading
-so I'll have a look at that.
+Good to know
 
-The detection of the 20230 implies a bug in the Qemu IDE emulation but
-it shouldn't have crashed and it shouldn't even have tried to detect it
-if PCI IDE claims to be present as I believe is the case ?
+> gets detected and haven't tested yet but I don't doubt it'll work  
+> since it has worked fine for me since it was detected. I notice the  
+> driver seems much more verbose now as well.
+
+Debug bits - they will go away again shortly.
+
 

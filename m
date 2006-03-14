@@ -1,222 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWCNDXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWCNDXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWCNDXL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 22:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752135AbWCNDXL
+	id S1750705AbWCNDXT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 22:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751809AbWCNDXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 22:23:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46208 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751809AbWCNDXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 22:23:10 -0500
-Date: Mon, 13 Mar 2006 19:20:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Ed Lin" <ed.lin@promise.com>
-Cc: linux-scsi@vger.kernel.org, promise_linux@promise.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
-Message-Id: <20060313192042.56bf67b3.akpm@osdl.org>
-In-Reply-To: <NONAMEBgJJ72jYxDwLd000000d3@nonameb.ptu.promise.com>
-References: <NONAMEBgJJ72jYxDwLd000000d3@nonameb.ptu.promise.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Mar 2006 22:23:18 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:18052 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750705AbWCNDXR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 22:23:17 -0500
+Message-ID: <20060313222310.o7zqfxiowgo4cos0@imap.linux.ibm.com>
+Date: Mon, 13 Mar 2006 22:23:10 -0500
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Laurent Riffard <laurent.riffard@free.fr>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Alasdair G Kergon <agk@redhat.com>,
+       "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>, OH@in.ibm.com
+Subject: Re: 2.6.16-rc6-mm1: BUG at fs/sysfs/inode.c:180
+References: <20060312031036.3a382581.akpm@osdl.org>
+	<44146C31.3010905@free.fr> <20060312150158.3c7be5c3.akpm@osdl.org>
+	<20060313140031.GB13206@in.ibm.com> <4415A634.6040705@free.fr>
+	<20060313192226.GB1482@kroah.com>
+In-Reply-To: <20060313192226.GB1482@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format="flowed"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ed Lin" <ed.lin@promise.com> wrote:
+Quoting Greg KH <greg@kroah.com>:
+
+> On Mon, Mar 13, 2006 at 06:04:52PM +0100, Laurent Riffard wrote:
+>>
+>> Le 13.03.2006 15:00, Maneesh Soni a ?crit :
+>> > On Sun, Mar 12, 2006 at 03:01:58PM -0800, Andrew Morton wrote:
+>> >>Laurent Riffard <laurent.riffard@free.fr> wrote:
+>> >>>Le 12.03.2006 12:10, Andrew Morton a ?crit :
+>> >>> > 
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
+>> >>>
+>> >>> Hello,
+>> >>>
+>> >>> This kernel hangs on boot while trying to activate logical
+>> >>> volumes from initrd:
+>> >>>
+>> >>> ------------[ cut here ]------------
+>> >>> kernel BUG at fs/sysfs/inode.c:180!
+>> >>> invalid opcode: 0000 [#1]
+>> >>> last sysfs file: /block/ram0/dev
+>> >>> Modules linked in: dm_mirror dm_mod
+>> >>> CPU:    0
+>> >>> EIP:    0060:[<c0172e71>]    Not tainted VLI
+>> >>> EFLAGS: 00010246   (2.6.16-rc6-mm1 #123)
+>> >>> EIP is at sysfs_get_name+0xd/0x46
+>> >>> eax: c15a49c8   ebx: dfe2b988   ecx: dff254d8   edx: c15a49cc
+>> >>> esi: dfe87b05   edi: dfe2b988   ebp: dfe67d28   esp: dfe67d28
+>> >>> ds: 007b   es: 007b   ss: 0068
+>> >>> Process vgchange (pid: 242, threadinfo=dfe67000 task=dfe175d0)
+>> >>> Stack: <0>dfe67d44 c01738c3 dffdc4b4 c15a49c8 dfe2b988 ffffffef 
+>> dfe2b98d dfe67d60
+>> >>>        c0173dcd dff2a804 dfe2b984 dfe2b984 00000001 fffffffe 
+>> dfe67d74 c0173f3b
+>> >>>        dfe67d6c c15a84d4 dfe2b984 dfe67d90 c01a33fd c03242d0 
+>> 00000004 dfe2b8f8
+>> >>> Call Trace:
+>> >>>  [<c0103a31>] show_stack_log_lvl+0x8b/0x95
+>> >>>  [<c0103b69>] show_registers+0x12e/0x194
+>> >>>  [<c0103e62>] die+0x14e/0x1db
+>> >>>  [<c01040ba>] do_trap+0x7c/0x96
+>> >>>  [<c0104319>] do_invalid_op+0x89/0x93
+>> >>>  [<c01034db>] error_code+0x4f/0x54
+>> >>>  [<c01738c3>] sysfs_dirent_exist+0x1c/0x65
+>> >>>  [<c0173dcd>] create_dir+0x55/0x17d
+>> >>>  [<c0173f3b>] sysfs_create_dir+0x46/0x61
+>> >>>  [<c01a33fd>] kobject_add+0xa4/0x14c
+>> >>>  [<c017267e>] register_disk+0x4b/0xe9
+>> >>>  [<c019c28c>] add_disk+0x2e/0x3d
+>> >>>  [<e08198a5>] create_aux+0x27e/0x2d7 [dm_mod]
+>> >>>  [<e081991d>] dm_create+0xe/0x10 [dm_mod]
+>> >>>  [<e081c317>] dev_create+0x4a/0x239 [dm_mod]
+>> >>>  [<e081c18c>] ctl_ioctl+0x203/0x238 [dm_mod]
+>> >>>  [<c0156648>] do_ioctl+0x3c/0x4f
+>> >>>  [<c0156851>] vfs_ioctl+0x1f6/0x20d
+>> >>>  [<c0156892>] sys_ioctl+0x2a/0x44
+>> >>>  [<c01029bb>] sysenter_past_esp+0x54/0x75
+>> >>> Code: 0b 30 01 72 85 28 c0 ff 06 31 db eb 07 89 f8 e8 d1 8d fe 
+>> ff 83 c4 10 89 d8 5b 5e 5f c9 c3 55 85 c0 89 e5 74 06 83 78 14 00 75 
+>> 08 <0f> 0b b4 00 73 d3 28 c0 8b 50 18 83 fa 08 74 22 7f 0a 83 fa 02
+>> >>
+>> >>Thanks.
+>> >>
+>> >>Greg, can you please interpret this?  What does this BUG:
+>> >>
+>> >>const unsigned char * sysfs_get_name(struct sysfs_dirent *sd)
+>> >>{
+>> >>	struct attribute * attr;
+>> >>	struct bin_attribute * bin_attr;
+>> >>	struct relay_attribute * rel_attr;
+>> >>	struct sysfs_symlink  * sl;
+>> >>
+>> >>	if (!sd || !sd->s_element)
+>> >>		BUG();
+>> >>
+>> >>tell us?
+>> >>
+>> >
+>> >
+>> > I think here we have sd->s_element as NULL. This is probably due to
+>> > my mistake in
+>> >
+>> > 
+>> gregkh-driver-sysfs-fix-problem-with-duplicate-sysfs-directories-and-files.patch
+>> >
+>> > NULL s_element which is used as cursor element is added to the s_children
+>> > list in sysfs_dir_open() and is removed in sysfs_dir_close(). So if in
+>> > between s_children is parsed, one can see sysfs_dirent with NULL 
+>> s_element.
+>> >
+>> > Please try the following patch on top of -mm1
+>> >
+>> >
+>> > Thanks
+>> > Maneesh
+>> >
+>> >
+>> >
+>> >
+>> > o sysfs_dirent_exist() should ignore sysfs_dirent with NULL s_element
+>> >   as such element could have been added internally as cursor due to
+>> >   ->open() on parent directory.
+>> >
+>> > Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
+>> > ---
+>> >
+>> >  linux-2.6.16-rc6-mm1-maneesh/fs/sysfs/dir.c |   12 +++++++-----
+>> >  1 files changed, 7 insertions(+), 5 deletions(-)
+>> >
+>> > diff -puN fs/sysfs/dir.c~fix-sysfs-check-existing-sysfs_dirent 
+>> fs/sysfs/dir.c
+>> > --- 
+>> linux-2.6.16-rc6-mm1/fs/sysfs/dir.c~fix-sysfs-check-existing-sysfs_dirent	2006-03-13 14:48:34.000000000 
+>> +0530
+>> > +++ linux-2.6.16-rc6-mm1-maneesh/fs/sysfs/dir.c	2006-03-13 
+>> 15:01:32.934811856 +0530
+>> > @@ -63,11 +63,13 @@ int sysfs_dirent_exist(struct sysfs_dire
+>> >  	struct sysfs_dirent * sd;
+>> >
+>> >  	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
+>> > -		const unsigned char * existing = sysfs_get_name(sd);
+>> > -		if (strcmp(existing, new))
+>> > -			continue;
+>> > -		else
+>> > -			return -EEXIST;
+>> > +		if (sd->s_element) {
+>> > +			const unsigned char * existing = sysfs_get_name(sd);
+>> > +			if (strcmp(existing, new))
+>> > +				continue;
+>> > +			else
+>> > +				return -EEXIST;
+>> > +		}
+>> >  	}
+>> >
+>> >  	return 0;
+>> > _
+>> >
+>>
+>> Ok, with this one, it works fine.
 >
-> ....
+> Thanks Maneesh for the quick fix, want me to merge this with your
+> previous patch?
 >
-> >
-> >Please comment that, and check it.  Consider using clear_bit or __clear_bit.
-> >
-> >> +static inline struct status_msg *shasta_get_status(struct st_hba *hba)
-> >> +{
-> >> +	struct status_msg *status = 
-> >> +		hba->status_buffer + hba->status_tail;
-> >> +
-> >> +	++hba->status_tail;
-> >> +	hba->status_tail %= MU_STATUS_COUNT;
-> >> +
-> >> +	return status;
-> >> +}
-> >> +
-> >> +static inline struct req_msg *shasta_alloc_req(struct st_hba *hba)
-> >> +{
-> >> +	struct req_msg *req = ((struct req_msg *)hba->dma_mem) +
-> >> +		hba->req_head;
-> >> +
-> >> +	++hba->req_head;
-> >> +	hba->req_head %= MU_REQ_COUNT;
-> >> +
-> >> +	return req;
-> >> +}
-> >
-> >This is the awkward way of managing a ring buffer.  It's simpler to let the
-> >head and tail incides wrap up to 0xffffffff and only mask them when
-> >actually using them as indices.   That way,
-> >
-> >	if (tail-head == size)
-> >		buffer is full
-> >
-> >	if (tail-head == 0)
-> >		buffer is empty
-> >
-> >in fact, at all times,
-> >
-> >	tail-head == items_in_buffer
-> >
-> 
-> I was always thinking about this problem, because here the req count is not
-> power of 2.
-> If we use wrap up, is the extra code handling 0xffffffff needed?
 
-It's less code:
+Yes, merging will be good.
 
-static inline unsigned round(unsigned x)
-{
-	return x % N;
-}
-
-add()
-{
-	buf[round(tail++)] = item;
-}
-
-remove()
-{
-	return buf[round(head++)];
-}
-
-num_in_buffer()
-{
-	return tail - head;
-}
-
-Not terribly important though.
-
-> >> +static inline void shasta_map_sg(struct st_hba *hba,
-> >> +	struct req_msg *req, struct scsi_cmnd *cmd)
-> >> +{
-> >> +	struct pci_dev *pdev = hba->pdev;
-> >> +	dma_addr_t dma_handle;
-> >> +	struct scatterlist *src;
-> >> +	struct st_sgtable *dst;
-> >> +	int i;
-> >> +
-> >> +	dst = (struct st_sgtable *)req->variable;
-> >> +	dst->max_sg_count = cpu_to_le16(ST_MAX_SG);
-> >> +	dst->sz_in_byte = cpu_to_le32(cmd->request_bufflen);
-> >> +
-> >> +	if (cmd->use_sg) {
-> >> +		src = (struct scatterlist *) cmd->request_buffer;
-> >> +		dst->sg_count = cpu_to_le16((u16)pci_map_sg(pdev, src,
-> >> +			cmd->use_sg, cmd->sc_data_direction));
-> >> +
-> >> +		for (i = 0; i < dst->sg_count; i++, src++) {
-> >> +			dst->table[i].count = cpu_to_le32((u32)sg_dma_len(src));
-> >> +			dst->table[i].addr = 
-> >> +				cpu_to_le32(sg_dma_address(src) & 0xffffffff);
-> >
-> >What does that 0xffffffff do?
-> >
-> >Should it be DMA_32BIT_MASK?
-> >
-> 
-> It is just a 32-bit mask.
-
-Well yes ;)
-
-But what are the implications of this mask on 64-bit platforms?
-
-> I guess DMA_32BIT_MASK is OK?
-
-If that's semantically what the 0xffffffff means then yes.
-
-> > ...
-> >>
-> >> +static inline void
-> >> +shasta_send_cmd(struct st_hba *hba, struct req_msg *req, u16 tag)
-> >> +{
-> >> +	req->tag = cpu_to_le16(tag);
-> >> +	req->task_attr = TASK_ATTRIBUTE_SIMPLE;
-> >> +	req->task_manage = 0; /* not supported yet */
-> >> +	req->payload_sz = (u8)((sizeof(struct req_msg))/sizeof(u32));
-> >> +
-> >> +	hba->ccb[tag].req = req;
-> >> +	hba->out_req_cnt++;
-> >> +	wmb();
-> >> +
-> >> +	writel(hba->req_head, hba->mmio_base + IMR0);
-> >> +	writel(MU_INBOUND_DOORBELL_REQHEADCHANGED, hba->mmio_base + IDBL);
-> >> +	readl(hba->mmio_base + IDBL); /* flush */
-> >> +}
-> >
-> >What is the wmb() for?  Flushing memory for the upcoming DMA?  That's not
-> >what it's for.
-> >
-> >When adding any sort of open-coded barrier, please always add a comment
-> >explaining why it is there.
-> >
-> >This function has two callsites and should be uninlined.
-> >
-> 
-> It's just for write order, but it seems unnecessary on i386.
-
-write order of what with respect to what?
-
-> >
-> >> +	switch (cmd->cmnd[0]) {
-> >> +	case READ_6:
-> >> +	case WRITE_6:
-> >> +		cmd->cmnd[9] = 0;
-> >> +		cmd->cmnd[8] = cmd->cmnd[4];
-> >> +		cmd->cmnd[7] = 0;
-> >> +		cmd->cmnd[6] = 0;
-> >> +		cmd->cmnd[5] = cmd->cmnd[3];
-> >> +		cmd->cmnd[4] = cmd->cmnd[2];
-> >> +		cmd->cmnd[3] = cmd->cmnd[1] & 0x1f;
-> >> +		cmd->cmnd[2] = 0;
-> >> +		cmd->cmnd[1] &= 0xe0;
-> >> +		cmd->cmnd[0] += READ_10 - READ_6;
-> >> +		break;
-> >> +	case MODE_SENSE:
-> >> +	{
-> >> +		char mode_sense[4] = { 3, 0, 0, 0 };
-> >
-> >static?
-> >
-> >> +		shasta_direct_cp(cmd, mode_sense, sizeof(mode_sense));
-> >> +		cmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8;
-> >> +		fn(cmd);
-> >> +		return 0;
-> >> +	}
-> >> +	case MODE_SENSE_10:
-> >> +	{
-> >> +		char mode_sense10[8] = { 0, 6, 0, 0, 0, 0, 0, 0 };
-> >
-> >static?
-> >
-> 
-> These commands are called just one or two times anyway, maybe need not
-> static here?
-
-The way you have the code here the compiler will need to create an array on
-the stack and then populate each item in that array each time it's used.
-
-If these are made static, that's all done at compile time.
-
-> The rmb() here intends to guarantee every readl() to be really effective 
-> (directly from hardware), although there is already "volatile".
-
-readl() should already take care of all that.
-
-> The megaraid_mbox driver uses this...
-> 
-> I used to observe sporadic handshake failure, so I added this(rmb()).
-
-In that case something funny is going on.  We should understand what that
-is - it'll come back to bite us.
-
+Thanks
+Maneesh

@@ -1,97 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWCNPUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWCNPVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWCNPUq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWCNPUq
+	id S1751329AbWCNPVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWCNPVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:20:46 -0500
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:48775 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751321AbWCNPUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:20:46 -0500
-Message-ID: <4416DF4A.7040908@watson.ibm.com>
-Date: Tue, 14 Mar 2006 10:20:42 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
+	Tue, 14 Mar 2006 10:21:25 -0500
+Received: from box.punkt.pl ([217.8.180.66]:30866 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S1751329AbWCNPVY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 10:21:24 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: llh-announce@lists.pld-linux.org
+Subject: [ANNOUNCE] linux-libc-headers dead
+Date: Tue, 14 Mar 2006 16:19:36 +0100
+User-Agent: KMail/1.9.1
+Cc: VMiklos <vmiklos@frugalware.org>, "Dan Kegel" <dank@kegel.com>,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Patch 2/9] Initialization
-References: <1142296834.5858.3.camel@elinux04.optonline.net>	<1142297101.5858.10.camel@elinux04.optonline.net> <yq0slpluwi1.fsf@jaguar.mkp.net>
-In-Reply-To: <yq0slpluwi1.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603141619.36609.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
+LLH hasn't seen a new release for a lot more than six months now and up until 
+today I hoped to get back on track with new releases. But I've just spent 
+some time doing a 2.6.14 update, and it came back to me, that I'd have to 
+spend up to 10 hours just to get a basic 2.6.14.0 ready. And there'd still be 
+2.6.15 waiting, 2.6.16 just around the corner plus sorting through all the 
+bug reports that came in during those months and all the internal rearranging 
+I either had planned or that's being forced by new kernel releases (eg. 
+addition of asm-powerpc).
 
->>>>>>"Shailabh" == Shailabh Nagar <nagar@watson.ibm.com> writes:
->>>>>>            
->>>>>>
->
->Shailabh> delayacct-setup.patch Initialization code related to
->Shailabh> collection of per-task "delay" statistics which measure how
->Shailabh> long it had to wait for cpu, sync block io, swapping
->Shailabh> etc. The collection of statistics and the interface are in
->Shailabh> other patches. This patch sets up the data structures and
->Shailabh> allows the statistics collection to be disabled through a
->Shailabh> kernel boot paramater.
->
->Shailabh> +#ifdef CONFIG_TASK_DELAY_ACCT
->Shailabh> +struct task_delay_info {
->Shailabh> +	spinlock_t	lock;
->Shailabh> +
->Shailabh> +	/* For each stat XXX, add following, aligned appropriately
->Shailabh> +	 *
->Shailabh> +	 * struct timespec XXX_start, XXX_end;
->Shailabh> +	 * u64 XXX_delay;
->Shailabh> +	 * u32 XXX_count;
->Shailabh> +	 */
->Shailabh> +};
->Shailabh> +#endif
->
->Hmmm
->
->I thought you were going to change this to do
->
->u64 some_delay
->u32 foo_count
->u32 bar_count
->u64 another_delay
->
->To avoid wasting space on 64 bit platforms.
->  
->
+I stopped having both the time and the will for such commitments a couple of 
+months ago.
 
-Well, the "aligned appropriately" part of the comment was intended to let
-future users know that something like the above should be done.
+Should anyone want to take over, I'd be happy to give hints, pointers, and 
+whatnot. Just don't get overexcited -- diffs between new kernel versions get 
+bigger, not smaller, and after a couple of years there's still no long term 
+solution in sight.
 
-e.g in a subsequent patch (5/9)
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0603.1/1919.html
-when we introduce the additional stat swapin_delay/count, a 64-bit friendly
-alignment is being done thus:
-
-u64 blkio_delay; /* wait for sync block io completion */
-+ u64 swapin_delay; /* wait for sync block io completion */
-u32 blkio_count;
-+ u32 swapin_count;
-
-The need for each stat, potentially, to need a separate set of timespec 
-variables
-to reduce nesting problems does introduce another wrinkle in 
-cache-friendliness
-since you'd ideally like to have all the XXX_* variables close together. 
-Right now
-we're good since swapin doesn't need extra timespecs of its own. But future
-additions might need to be more careful.
-
---Shailabh
+Oh, and women don't fall for the "I hack kernel stuff" line. I was lied to.
 
 
->Jes
->  
->
-
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

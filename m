@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWCNE66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWCNFMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWCNE66 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 23:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWCNE66
+	id S1751001AbWCNFMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 00:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751817AbWCNFMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 23:58:58 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:49668 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750948AbWCNE66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 23:58:58 -0500
-Message-ID: <44164CDD.6030608@vmware.com>
-Date: Mon, 13 Mar 2006 20:55:57 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 14 Mar 2006 00:12:53 -0500
+Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:55505 "EHLO
+	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1751001AbWCNFMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 00:12:53 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: ck@vds.kolivas.org
+Subject: Re: does swsusp suck after resume for you? [was Re: Faster resuming of suspend technology.]
+Date: Tue, 14 Mar 2006 16:13:10 +1100
+User-Agent: KMail/1.8.3
+Cc: Pavel Machek <pavel@ucw.cz>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060313113631.GA1736@elf.ucw.cz> <200603132303.18758.kernel@kolivas.org>
+In-Reply-To: <200603132303.18758.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com> <441610DE.5060709@us.ibm.com> <44164013.1080404@vmware.com> <Pine.LNX.4.63.0603132304200.17874@cuia.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0603132304200.17874@cuia.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603141613.10915.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Mon, 13 Mar 2006, Zachary Amsden wrote:
+On Mon, 13 Mar 2006 11:03 pm, Con Kolivas wrote:
+> On Monday 13 March 2006 22:36, Pavel Machek wrote:
+> > 4) Congratulations, you are right person to help. Could you test if
+> > Con's patches help?
 >
->   
->> About performance - I actually believe that it is possible to implement 
->> VMI Linux in such a way that it actually has _better_ performance on Xen 
->> than the current XenoLinux kernels.
->>     
+> Ok this patch is only compile tested only but is reasonably straight
+> forward. (I have no hardware to test it on atm). It relies on the previous
+> 4 patches I sent out that update swap prefetch. To make it easier here is a
+> single rolled up patch that goes on top of 2.6.16-rc6-mm1:
 >
-> How would VMI allow page table batching at fault time?
-> (one of the future optimizations that are probably worth
-> making for Xen)
->   
+> http://ck.kolivas.org/patches/swap-prefetch/2.6.16-rc6-mm1-swap_prefetch_su
+>spend_test.patch
 
-This is exactly what we do.  All page table transitions from P->NP or 
-P->P already require a flushing call (FlushTLB or InvalPage).  The 
-remaining transitions, NP->P require explicit flushing, and we have 
-added the appropriate call sites to do so.  It turns out, the external 
-MMU cache on Sparc provided exactly the required hook point in this case 
-- update_mmu_cache().
+Since my warning probably scared anyone from actually trying this patch I've 
+given it a thorough working over on my own laptop, booting with mem=128M. The 
+patch works fine and basically with the patch after resuming from disk I have 
+25MB more memory in use with pages prefetched from swap. This makes a 
+noticeable difference to me. That's a pretty artificial workload, so if 
+someone who actually has lousy wakeup after resume could test the patch it 
+would be appreciated.
 
-Zach
+Cheers,
+Con

@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752124AbWCNNLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWCNN3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752124AbWCNNLz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 08:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752125AbWCNNLz
+	id S932095AbWCNN3c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 08:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWCNN3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 08:11:55 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:56039 "EHLO vsmtp2.tin.it")
-	by vger.kernel.org with ESMTP id S1751911AbWCNNLy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 08:11:54 -0500
-Message-ID: <3373.192.167.206.189.1142341897.squirrel@darkstar.linuxpratico.net>
-In-Reply-To: <1142329254.3027.28.camel@laptopd505.fenrus.org>
-References: <20060314103403.5bdeff05@HAL2000>
-    <1142329254.3027.28.camel@laptopd505.fenrus.org>
-Date: Tue, 14 Mar 2006 14:11:37 +0100 (CET)
-Subject: Re: Reiser4 integration into main line
-From: "Luigi Genoni" <venom@sns.it>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Florian Engelhardt" <f.engelhardt@21torr.com>,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.5.1 [CVS]
+	Tue, 14 Mar 2006 08:29:32 -0500
+Received: from delhi-203.197.196-2.vsnl.net.in ([203.197.196.2]:19339 "EHLO
+	mail2.iitk.ac.in") by vger.kernel.org with ESMTP id S932095AbWCNN3c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 08:29:32 -0500
+Date: Tue, 14 Mar 2006 18:59:24 +0530 (IST)
+From: V Bhanu Chandra <vbhanu.lkml@gmail.com>
+X-X-Sender: efs@vattikonda.junta.iitk.ac.in
+To: linux-kernel@vger.kernel.org
+Subject: RSA in Kernel
+Message-ID: <Pine.LNX.4.64.0603141849550.20985@vattikonda.junta.iitk.ac.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On the other side, this is the mailing list where we had the most
-interesting discussions about this topic, and where the original "I request
-inclusion" mail was sent months ago. If I remember well it was about kernel
-2.6.14.
+Hi,
 
-(Anyway I still do not understand why every discussion about reiser4 ended
-in a flame war... But, of course, I undestand very well why the inclusion is
-such a challenge.)
+I have gone through some threads which have mentioned about people 
+starting with a project to implement RSA in the kernel. Could someone 
+please tell me the state of the project since we are working on an 
+application that would need such a patch.
 
-This topic is still open and there will be a further discussion, I guess...
+The particular thread i am referring to is 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0406.1/1352.html
 
-Luigi
+If someone is working on it then we would like to contribute
 
-On Tue, March 14, 2006 10:40, Arjan van de Ven wrote:
-> On Tue, 2006-03-14 at 10:34 +0100, Florian Engelhardt wrote:
->
->> Hello,
->>
->>
->> i know, that this question was ask a thousand times before,
->
-> and it has been asked a thousand times on the wrong mailinglist as well,
-> just as you just did ;) It's a question for the reiserfs4 people... which is
-> best asked on the reiserfs mailinglist. There is where the people with the
-> answers "live".
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org More majordomo info at
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
+Thanks and Regards,
+Bhanu
 
+-- 
+V Bhanu Chandra,
+Undergraduate Student,
+Department of Computer Science & Engg,
+IIT Kanpur, India

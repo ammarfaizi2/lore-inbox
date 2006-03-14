@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWCNPyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWCNP4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWCNPyk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWCNPyk
+	id S1750721AbWCNP4E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWCNP4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:54:40 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:37124 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750706AbWCNPyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:54:39 -0500
-Date: Tue, 14 Mar 2006 16:54:25 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Which kernel is the best for a small linux system?
-Message-ID: <20060314155424.GA19902@w.ods.org>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org> <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com> <1142273212.3023.35.camel@laptopd505.fenrus.org> <20060314062144.GC21493@w.ods.org> <20060314072921.GA13969@elte.hu> <1142327130.8075.30.camel@homer>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1142327130.8075.30.camel@homer>
-User-Agent: Mutt/1.5.10i
+	Tue, 14 Mar 2006 10:56:03 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:61446 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750721AbWCNP4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 10:56:01 -0500
+Message-ID: <4416E757.9040208@vmware.com>
+Date: Tue, 14 Mar 2006 07:55:03 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>, Zachary Amsden <zach@vmware.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 2/24] i386 Vmi config
+References: <200603131800.k2DI0RfN005633@zach-dev.vmware.com> <20060314152350.GB16921@infradead.org>
+In-Reply-To: <20060314152350.GB16921@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 10:05:30AM +0100, Mike Galbraith wrote:
-> On Tue, 2006-03-14 at 08:29 +0100, Ingo Molnar wrote:
-> > * Willy Tarreau <willy@w.ods.org> wrote:
-> > 
-> > > scheduler is still a big problem. Not only we occasionally see people 
-> > > complaining about unfair CPU distribution across processes (may be 
-> > > fixed now), but the scheduler still gives a huge boost to I/O 
-> > > intensive tasks which do lots of select() with small time-outs, which 
-> > > makes it practically unusable in network-intensive environments. I've 
-> > > observed systems on which it was nearly impossible to log in via SSH 
-> > > because of this, and I could reproduce the problem locally to create a 
-> > > local DoS where a single user could prevent anybody from logging in.  
-> > > 2.6.15 has improved a lot on this (pauses have reduced from 35 seconds 
-> > > to 4 seconds) but it's still not very good.
-> 
-> Hi Willy,
-> 
-> BTW, if you try my stuff, it'd be good to try just the "cleanup" patch
-> first.  It seems very likely to me that your problem is mostly caused by
-> the sleep_avg multiplier.  If the first patch cures your woes, try
-> killing just the multiplier in virgin source.
-> 
-> 	-Mike
-> 
-> (oh yeah, the pipe patch is more or less meaningless now, ignore it)
+Christoph Hellwig wrote:
+> On Mon, Mar 13, 2006 at 10:00:27AM -0800, Zachary Amsden wrote:
+>   
+>> Introduce the basic VMI sub-arch configuration dependencies.  VMI kernels only
+>> are designed to run on modern hardware platforms.  As such, they require a
+>> working APIC, and do not support some legacy functionality, including APM BIOS,
+>> ISA and MCA bus systems, PCI BIOS interfaces, or PnP BIOS (by implication of
+>> dropping ISA support).  They also require a P6 series CPU.
+>>     
+>
+> That's pretty bad because distributors need another kernel still.  At least
+> a working APIC isn't quite as common today as it should.
+>   
 
-Hi Mike, Hi Ingo,
+It doesn't need to be a fully functional APIC.  It just needs to not 
+have one particular bug - Pentium processor erratum 11AP.  There is no 
+reason that most of these requirements can't be dropped.  We used to 
+have a lot more functionality and legacy support turned off, and we 
+gradually turned it back on.  Turning on the BIOS interfaces will cause 
+complications for a VMI kernel running in a hypervisor - since it can't 
+invoke non-virtualized BIOS code.  So it does require a bit of 
+conditional logic, which is pretty easy, but we haven't got around to 
+doing yet.
 
-thank you both for your insights. I *will* test this, I don't know when
-because I'm terribly busy, but I'm really interested.
-
-Ingo, to reply to your question, the typical workload was around 30 Mbps with
-1500-2000 sessions/s on a small number of processes (1 to 4*#CPUs). It was
-with some kernels around 2.6.8 IIRC. Pauses could be of several hundreds of
-milliseconds which was very annoying. But IIRC, if renicing the process(es)
-improved SSH responsiveness, it also hurt the service's responsiveness.
-The same process running on 2.2, 2.4, solaris 8/10, freebsd and openbsd does
-not exhibit the behaviour at all. I've not retried yet with more recent
-kernels, I just recently retried the proof of concept I developped at this
-date, and all I remember was that 2.6.15+ was really better.
-
-Cheers,
-Willy
-
+Zach

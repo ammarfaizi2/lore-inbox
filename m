@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752172AbWCNEbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWCNEqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752172AbWCNEbN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 23:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752173AbWCNEbN
+	id S932603AbWCNEqG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 23:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWCNEqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 23:31:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16100 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752172AbWCNEbM (ORCPT
+	Mon, 13 Mar 2006 23:46:06 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:2235 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932603AbWCNEqE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 23:31:12 -0500
-Date: Mon, 13 Mar 2006 23:30:42 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Zachary Amsden <zach@vmware.com>
-cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-In-Reply-To: <4416460A.2090704@vmware.com>
-Message-ID: <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com>
-References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>
- <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Mar 2006 23:46:04 -0500
+Date: Tue, 14 Mar 2006 10:16:00 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>, Nathan Scott <nathans@sgi.com>,
+       Suzuki <suzuki@in.ibm.com>, linux-fsdevel@vger.kernel.org,
+       "linux-aio kvack.org" <linux-aio@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+Message-ID: <20060314044559.GA19382@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <440FDF3E.8060400@in.ibm.com> <20060309120306.GA26682@infradead.org> <20060309223042.GC1135@frodo> <20060309224219.GA6709@infradead.org> <20060309231422.GD1135@frodo> <20060310005020.GF1135@frodo> <20060310154925.GA5339@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060310154925.GA5339@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Mar 2006, Zachary Amsden wrote:
-> Anthony Liguori wrote:
-
-> > In your next round of patches, could you clarify the actual licensing of the
-> > files?
+On Fri, Mar 10, 2006 at 03:49:25PM +0000, Christoph Hellwig wrote:
+> On Fri, Mar 10, 2006 at 11:50:20AM +1100, Nathan Scott wrote:
+> > Something like this (works OK for me)...
 > 
-> I'm sorry about the legalese.  The patches are patches to the Linux kernel,
-> and therefore under GPL v2 by default.  I thought that would be implicit.
+> Yeah, that should work for now.  But long-term we really need to redo
+> direct I/O locking to have a common scheme for all filesystems.  I've heard
+> birds whistling RH patches yet another scheme into RHEL4 for GFS an it's
+> definitly already far too complex now.
 
-It would be very bad if Linus started applying code with
-a dubious license to the kernel, if we want to keep the
-kernel GPL v2.
+Yup, getting rid of the need for all these confusing locking
+modes was one of the objectives in mind for DIO simplification.
+(http://www.kernel.org/pub/linux/kernel/people/suparna/DIO-simplify.txt)
+Once we have an efficient range locking or similar mechanism in place
+(Chris Mason is working on a patch), then it should be possible to push
+out all of the i_mutex locking to higher level routines, outside of
+direct-io.c.
 
-Having an explicit license and a Signed-off-by: line are
-things to remember with big patch sets.  At the very least
-a Signed-off-by: line..
+Longer term, it would be nice to be able to rethink and further simplify
+the whole _nolock equiv versions for VFS write methods. Especially the
+percolation down to sync_page_range_nolock, etc.
+
+Regards
+Suparna
+
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
 -- 
-All Rights Reversed
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

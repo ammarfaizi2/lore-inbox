@@ -1,42 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751947AbWCNXBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWCNXAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751947AbWCNXBE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 18:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752042AbWCNXBE
+	id S1751855AbWCNXAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 18:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNXAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 18:01:04 -0500
-Received: from gw.goop.org ([64.81.55.164]:8877 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751947AbWCNXBC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 18:01:02 -0500
-Message-ID: <44174B49.5010600@goop.org>
-Date: Tue, 14 Mar 2006 15:01:29 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5 (X11/20060210)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       Bob Copeland <bcopeland@gmail.com>, Paul Fulghum <paulkf@microgate.com>,
-       stegall@bayou.uni-linz.ac.at, Matthew Grant <grantma@anathoth.gen.nz>,
-       Miguel Blanco <mblancom@gmail.com>, Frithjof Kruggel <fkruggel@uci.edu>,
-       gaa@mail.nnov.ru, Mauro Tassinari <mtassinari@cmanet.it>,
-       "Ian E. Morgan" <imorgan@webcon.ca>
-Subject: Re: 2.6.16-rc6: known regressions
-References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>	<20060313200544.GG13973@stusta.de> <20060313144244.266d96ef.akpm@osdl.org>
-In-Reply-To: <20060313144244.266d96ef.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Mar 2006 18:00:05 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:39122 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S1751855AbWCNXAE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 18:00:04 -0500
+Date: Wed, 15 Mar 2006 08:54:48 +1000
+From: David McCullough <david_mccullough@au.securecomputing.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Adrian Bunk <bunk@stusta.de>,
+       davem@davemloft.net, linux-crypto@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] crypto/aes.c: array overrun
+Message-ID: <20060314225448.GA27285@beast>
+References: <20060311010339.GF21864@stusta.de> <20060311024116.GA21856@gondor.apana.org.au> <200603142025.k2EKP8Z4010175@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
+In-Reply-To: <200603142025.k2EKP8Z4010175@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Post-<not sure, looks recent>
->   From: Jeremy Fitzhardinge <jeremy@goop.org>
->   Subject: 2.6.15-1.2032_FC5 (2.6.16rc5-git9?): Losing ticks with x86_64 w/ Nvidia chipset
->   
-Not sure this is a regression. I think its part of my long-standing 
-CD-ripping problems.
 
-    J
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+Jivin Valdis.Kletnieks@vt.edu lays it down ...
+> On Sat, 11 Mar 2006 13:41:16 +1100, Herbert Xu said:
+> 
+> > OK this is not pretty but it is actually correct.  Notice how we only
+> > overstep the mark for E_KEY but never for D_KEY.  Since D_KEY is only
+> > initialised after this, it is OK for us to trash the start of D_KEY.
+> 
+> I think a big comment block describing this behavior is called for,
+> as it carries an implicit requirement that D_KEY and E_KEY remain
+> adjacent in memory.  Anybody allocating space between them is in for
+> a rude awakening....
+
+Sounds like a bug waiting to happen to me.
+Why not do something like the attached patch.
+
+Cheers,
+Davidm
+
+-- 
+David McCullough, david_mccullough@au.securecomputing.com, Ph:+61 734352815
+Secure Computing - SnapGear  http://www.uCdot.org http://www.cyberguard.com
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="aes.diff"
+
+Index: linux-2.6.x/crypto/aes.c
+===================================================================
+RCS file: linux-2.6.x/crypto/aes.c,v
+retrieving revision 1.1.1.6
+diff -u -r1.1.1.6 aes.c
+--- linux-2.6.x/crypto/aes.c	31 Aug 2005 00:33:03 -0000	1.1.1.6
++++ linux-2.6.x/crypto/aes.c	14 Mar 2006 22:53:06 -0000
+@@ -78,12 +78,11 @@
+ 
+ struct aes_ctx {
+ 	int key_length;
+-	u32 E[60];
+-	u32 D[60];
++	u32 _KEYS[120];
+ };
+ 
+-#define E_KEY ctx->E
+-#define D_KEY ctx->D
++#define E_KEY (&ctx->_KEYS[0])
++#define D_KEY (&ctx->_KEYS[60])
+ 
+ static u8 pow_tab[256] __initdata;
+ static u8 log_tab[256] __initdata;
+
+--ZGiS0Q5IWpPtfppv--

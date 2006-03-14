@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752064AbWCNKLF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWCNKNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752064AbWCNKLF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 05:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752070AbWCNKLF
+	id S1750717AbWCNKNa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 05:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbWCNKNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 05:11:05 -0500
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:29121 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1752064AbWCNKLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 05:11:04 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [2.6.16-rc6 patch] remove sleep_avg multiplier
-Date: Tue, 14 Mar 2006 21:10:36 +1100
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <1142329861.9710.16.camel@homer> <20060314095654.GA8756@elte.hu> <200603142105.38225.kernel@kolivas.org>
-In-Reply-To: <200603142105.38225.kernel@kolivas.org>
+	Tue, 14 Mar 2006 05:13:30 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1441 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1750717AbWCNKN3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 05:13:29 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: linux-kernel@vger.kernel.org
+Subject: /dev/stderr gets unlinked 8]
+Date: Tue, 14 Mar 2006 12:12:59 +0200
+User-Agent: KMail/1.8.2
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200603142110.37017.kernel@kolivas.org>
+Message-Id: <200603141213.00077.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 March 2006 21:05, Con Kolivas wrote:
-> On Tuesday 14 March 2006 20:56, Ingo Molnar wrote:
-> > * Mike Galbraith <efault@gmx.de> wrote:
-> > > Greetings,
-> > >
-> > > The patchlet below removes the sleep_avg multiplier.  This multiplier
-> > > was necessary back when we had 10 seconds of dynamic range in
-> > > sleep_avg, but now that we only have one second, it causes that one
-> > > second to be compressed down to 100ms in some cases.  This is
-> > > particularly noticeable when compiling a kernel in a slow NFS mount,
-> > > and I believe it to be a very likely candidate for other recently
-> > > reported network related interactivity problems.
-> > >
-> > > In testing, I can detect no negative impact of this removal.  IMHO,
-> > > this constitutes a bug-fix, and as such is suitable for 2.6.16.
-> >
-> > looks good to me. The biggest complaint against the current scheduler is
-> > over-eager interactivity boosting - this patch moderates that in a
-> > smooth way.
->
-> I actually think Mike is right about the change, but has anyone else tested
-> this patch to also confirm "it has no negative impact" warranting it's
-> rapid inclusion in 2.6.16?
+Hi,
 
-/me smacks himself for misusing "it's"
+In the bad days of devfsd, no user program could remove /dev/stderr
+(bacause fs didn't allow for that).
 
-How about an interbench run before and after Mike?
+But I switched to udev sometime ago.
 
-Cheers,
-Con
+Today I discovered that my mysqld was happily unlinking it and
+recreating as regular file in /dev (I pass --log=/dev/stderr
+to mysqld).
+
+Can I make /dev/stderr non-unlink-able?
+--
+vda

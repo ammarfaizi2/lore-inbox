@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752295AbWCNFdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWCNFsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752295AbWCNFdW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 00:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752292AbWCNFdW
+	id S1750927AbWCNFsw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 00:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751824AbWCNFsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 00:33:22 -0500
-Received: from cicero2.cybercity.dk ([212.242.40.53]:38365 "EHLO
-	cicero2.cybercity.dk") by vger.kernel.org with ESMTP
-	id S1750827AbWCNFdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 00:33:21 -0500
-From: Elias Naur <elias@oddlabs.com>
-Organization: Oddlabs ApS
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] Expose input device usages to userspace
-Date: Tue, 14 Mar 2006 06:33:38 +0100
-User-Agent: KMail/1.8.2
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-References: <200603132154.38876.elias@oddlabs.com> <1142283779.3023.49.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142283779.3023.49.camel@laptopd505.fenrus.org>
+	Tue, 14 Mar 2006 00:48:52 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:8708 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750927AbWCNFsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 00:48:51 -0500
+Message-ID: <441658A2.4090905@vmware.com>
+Date: Mon, 13 Mar 2006 21:46:10 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Rik van Riel <riel@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com> <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com> <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603140633.38576.elias@oddlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 March 2006 22:02, Arjan van de Ven wrote:
-> On Mon, 2006-03-13 at 21:54 +0100, Elias Naur wrote:
-> > Hi,
-> >
-> > I believe that the current event input interface is missing some kind of
-> > information about the general kind of input device (Mouse, Keyboard,
-> > Joystick etc.) so I added a simple ioctl to do just that. The relevant
-> > line in include/linux/input.h is:
-> >
-> > #define EVIOCGUSAGE(len)    _IOC(_IOC_READ, 'E', 0x1c, len)         /*
-> > get all usages */
-> >
-> > It returns a bit set with the device usages. Current usages are:
-> >
-> > #define USAGE_MOUSE         0x00
-> > #define USAGE_JOYSTICK      0x01
-> > #define USAGE_GAMEPAD       0x02
-> > #define USAGE_KEYBOARD      0x03
->
-> I'm not sure that this is a good idea in general.
+Rik van Riel wrote:
+> It would be very bad if Linus started applying code with
+> a dubious license to the kernel, if we want to keep the
+> kernel GPL v2.
+>   
 
-Can you elaborate on the reasons? My thinking is that HID is going to be 
-pretty much the standard for input devices, and they all expose nicely 
-defined usages. Furthermore, "those other OS'es" already expose device 
-usages :)
+I believe it says explicitly in our patches that they are licensed under 
+GPL v2.
 
-> However when you do it, at least make it a bitmap; things can be both a
-> mouse and a keyboard for example.
+> Having an explicit license and a Signed-off-by: line are
+> things to remember with big patch sets.  At the very least
+> a Signed-off-by: line.
+>   
 
-It already is a bitmap. The USAGE_* constants are the bit indices, just like 
-the EV_* constants.
+There is a Signed-off-by line on every patch I send out, with full 
+knowledge that this constitutes the work of the author of the said line, 
+and full knowledge that this commits the patch into the domain of the 
+GPL license.  Sorry for sounding like a lawyer here.  IANAL, but I 
+thought that was completely implicit in all patches made to GPL'd 
+software.  The signed off by provides accountability and open licensing 
+simultaneously.
 
- - elias
+But most importantly, I really don't understand how it is possible to 
+make a patch to the Linux kernel and not release it under GPL.
+
+Zach

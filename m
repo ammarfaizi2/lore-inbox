@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752034AbWCNItY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWCNJEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752034AbWCNItY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752035AbWCNItY
+	id S932088AbWCNJEW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 04:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWCNJEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:49:24 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:42134 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752034AbWCNItX (ORCPT
+	Tue, 14 Mar 2006 04:04:22 -0500
+Received: from mail.gmx.net ([213.165.64.20]:58571 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932088AbWCNJEV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:49:23 -0500
-Date: Tue, 14 Mar 2006 09:46:58 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Jan Altenberg <tb10alj@tglx.de>
-Subject: 2.6.16-rc6-rt3
-Message-ID: <20060314084658.GA28947@elte.hu>
+	Tue, 14 Mar 2006 04:04:21 -0500
+X-Authenticated: #14349625
+Subject: Re: Which kernel is the best for a small linux system?
+From: Mike Galbraith <efault@gmx.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060314072921.GA13969@elte.hu>
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
+	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
+	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
+	 <20060314062144.GC21493@w.ods.org>  <20060314072921.GA13969@elte.hu>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 10:05:30 +0100
+Message-Id: <1142327130.8075.30.camel@homer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have released the 2.6.16-rc6-rt3 tree, which can be downloaded from 
-the usual place:
+On Tue, 2006-03-14 at 08:29 +0100, Ingo Molnar wrote:
+> * Willy Tarreau <willy@w.ods.org> wrote:
+> 
+> > scheduler is still a big problem. Not only we occasionally see people 
+> > complaining about unfair CPU distribution across processes (may be 
+> > fixed now), but the scheduler still gives a huge boost to I/O 
+> > intensive tasks which do lots of select() with small time-outs, which 
+> > makes it practically unusable in network-intensive environments. I've 
+> > observed systems on which it was nearly impossible to log in via SSH 
+> > because of this, and I could reproduce the problem locally to create a 
+> > local DoS where a single user could prevent anybody from logging in.  
+> > 2.6.15 has improved a lot on this (pauses have reduced from 35 seconds 
+> > to 4 seconds) but it's still not very good.
 
-   http://redhat.com/~mingo/realtime-preempt/
+Hi Willy,
 
-this is a fixes-only release, which resolves a number of 2.6.16-rc6 
-rebasing side-effects. The fixes are:
+BTW, if you try my stuff, it'd be good to try just the "cleanup" patch
+first.  It seems very likely to me that your problem is mostly caused by
+the sleep_avg multiplier.  If the first patch cures your woes, try
+killing just the multiplier in virgin source.
 
- - futex crash fix (reported by Michal Piotrowski)
+	-Mike
 
- - PI boosting fix (Esben Nielsen)
+(oh yeah, the pipe patch is more or less meaningless now, ignore it)
 
- - printk from rt-atomic context fix (Thomas Gleixner, reported by 
-   Michal Piotrowski)
-
- - symbol export fixes (Jan Altenberg)
-
- - non-debug mutex build fix (Jan Altenberg)
-
- - x86_64 and ppc build fix (Steven Rostedt)
-
- - early_printk build fix in latency.c (Steven Rostedt)
-
-to build a 2.6.16-rc6-rt3 tree, the following patches should be applied:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.16-rc6.bz2
-  http://redhat.com/~mingo/realtime-preempt/patch-2.6.16-rc6-rt3
-
-        Ingo

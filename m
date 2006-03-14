@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751920AbWCNBRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751714AbWCNBQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751920AbWCNBRF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 20:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751934AbWCNBRE
+	id S1751714AbWCNBQn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 20:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWCNBQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 20:17:04 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:61398 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751920AbWCNBRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 20:17:01 -0500
-Subject: Re: New libata PATA patch for 2.6.16-rc1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Boot <bootc@bootc.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <30715A89-26A9-4B93-B17F-33C3F407B1C8@bootc.net>
-References: <1142262431.25773.25.camel@localhost.localdomain>
-	 <30715A89-26A9-4B93-B17F-33C3F407B1C8@bootc.net>
+	Mon, 13 Mar 2006 20:16:42 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:48049 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751714AbWCNBQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 20:16:42 -0500
+Subject: Re: OOM kiler/load problems with RAID/LVM and AoE
+From: Lee Revell <rlrevell@joe-job.com>
+To: Joshua Kugler <joshua.kugler@uaf.edu>
+Cc: linux-kernel@vger.kernel.org, sah@coraid.com
+In-Reply-To: <200603131602.03886.joshua.kugler@uaf.edu>
+References: <200603131602.03886.joshua.kugler@uaf.edu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Mar 2006 01:23:17 +0000
-Message-Id: <1142299397.25773.41.camel@localhost.localdomain>
+Date: Mon, 13 Mar 2006 20:16:38 -0500
+Message-Id: <1142298998.13256.76.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-03-14 at 00:39 +0000, Chris Boot wrote:
-> pata_via detects my HP Colorado 5GB again, although I still haven't  
-> had a chance to test it yet: tapes are on back order. The DVD-RW also  
+On Mon, 2006-03-13 at 16:02 -0900, Joshua Kugler wrote:
+> Kernel: Linux community.dist-ed.uaf.edu 2.6.12-14mdksmp #1 SMP Tue Dec
+> 20 
 
-Good to know
+You'll have to try the latest kernel, 2.6.15.x or the latest 2.6.16
+release candidate.
 
-> gets detected and haven't tested yet but I don't doubt it'll work  
-> since it has worked fine for me since it was detected. I notice the  
-> driver seems much more verbose now as well.
-
-Debug bits - they will go away again shortly.
-
+Lee
 

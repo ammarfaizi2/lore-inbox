@@ -1,75 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWCNV7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWCNV7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbWCNV7e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWCNV7e
+	id S964780AbWCNV7z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:59:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbWCNV7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:59:34 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:19605
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932532AbWCNV7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:59:33 -0500
-Date: Tue, 14 Mar 2006 13:59:22 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, maule@sgi.com
-Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
-Message-ID: <20060314215922.GA12257@suse.de>
-References: <44172F0E.6070708@ce.jp.nec.com> <20060314134535.72eb7243.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060314134535.72eb7243.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Mar 2006 16:59:55 -0500
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:12732 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S964780AbWCNV7x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:59:53 -0500
+Message-ID: <44173CD7.20200@watson.ibm.com>
+Date: Tue, 14 Mar 2006 16:59:51 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Patch 0/9] Per-task delay accounting
+References: <1142296834.5858.3.camel@elinux04.optonline.net> <20060314192824.GB27012@kroah.com> <44172C4C.3020107@watson.ibm.com> <20060314212414.GA22202@kroah.com>
+In-Reply-To: <20060314212414.GA22202@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 01:45:35PM -0800, Andrew Morton wrote:
-> "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com> wrote:
-> >
-> > Declare msi_register() in msi.h.
-> > 
-> > The patch is especially necessary for ia64 on which most of files
-> > emit compiler warnings like below:
-> >   include2/asm/msi.h: In function `ia64_msi_init':
-> >   include2/asm/msi.h:23: warning: implicit declaration of function `msi_register'
-> >   In file included from include2/asm/machvec.h:408,
-> >                  from include2/asm/io.h:70,
-> >                  from include2/asm/smp.h:20,
-> >                  from /build/rc6/source/include/linux/smp.h:22,
-> 
-> I wonder why I didn't get that.  Need a better ia64 config I guess.
-> 
-> > Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-> > 
-> > --- linux-2.6.16-rc6-mm1.orig/include/asm-ia64/msi.h	2006-03-14 13:54:11.000000000 -0500
-> > +++ linux-2.6.16-rc6-mm1/include/asm-ia64/msi.h	2006-03-14 14:05:26.000000000 -0500
-> > @@ -15,6 +15,7 @@ static inline void set_intr_gate (int nr
-> >  #define MSI_TARGET_CPU_SHIFT	4
-> >  
-> >  extern struct msi_ops msi_apic_ops;
-> > +extern int msi_register(struct msi_ops *);
-> >  
-> >  /* default ia64 msi init routine */
-> >  static inline int ia64_msi_init(void)
-> 
-> The offending patch is gregkh-pci-msi-vector-targeting-abstractions.patch.
-> 
-> That patch already adds a declaration for msi_register(), in
-> drivers/pci/pci.h.  We don't want to add a duplicated declaration like
-> this.
-> 
-> One option might be to create inclued/linux/msi.h, put this declaration in
-> there then include <asm/msi.h>.  Possibly some other declarations should be
-> moved into linux/msi.h as well.
+Greg KH wrote:
 
-Ugh.  What is the file that is causing the problem?  What is "include2"
-in your directory path above?
+>On Tue, Mar 14, 2006 at 03:49:16PM -0500, Shailabh Nagar wrote:
+>  
+>
+>>Greg KH wrote:
+>>
+>>    
+>>
+>>>On Mon, Mar 13, 2006 at 07:40:34PM -0500, Shailabh Nagar wrote:
+>>>
+>>>
+>>>      
+>>>
+>>>>This is the next iteration of the delay accounting patches
+>>>>last posted at
+>>>>	http://www.ussg.iu.edu/hypermail/linux/kernel/0602.3/0893.html
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>Do you have any benchmark numbers with this patch applied and with it
+>>>not applied? 
+>>>
+>>>      
+>>>
+>>None yet. Wanted to iron out the collection/utility aspects a bit before 
+>>going into
+>>the performance impact.
+>>
+>>But this seems as good a time as any to collect some stats
+>>using the usual suspects lmbench, kernbench, hackbench etc.
+>>
+>>    
+>>
+>>>Last I heard it was a measurable decrease for some
+>>>"important" benchmark results...
+>>>
+>>>
+>>>      
+>>>
+>>Might have been from an older iteration where schedstats was fully enabled.
+>>But no point speculating....will run with this set of patches and see 
+>>what shakes out.
+>>
+>>One point about the overhead is that it depends on the frequency with 
+>>which data is
+>>collected. So a proper test would probably be a comparison of a 
+>>non-patched kernel
+>>with
+>>a) patches applied but delay accounting not turned on at boot i.e. cost 
+>>of the checks
+>>b) delay accounting turned on but not being read
+>>    
+>>
+>
+>This is probably the most important one, as that is what distros will be
+>looking at.  They will have to enable the option, but will not "turn it
+>on".
+>  
+>
+I guess you meant a), not b) but yes, will run them in all these modes.
 
-Whatever .c file has it, should just include the internal pci.h file
-that already has this prototype, like Andrew says...
+>  
+>
+>>c) delay accounting turned on and data read for all tasks at some 
+>>"reasonable" rate
+>>
+>>Will that be good  ? Other suggestions welcome.
+>>    
+>>
+>
+>How about real benchmarks?  The ones that the big companies look at?  I
+>know you have access to them :)
+>  
+>
+Hmm...though you also know, from working for some "big company",  that 
+it might
+take a while to get such data since one has to stand in queue :-)
+I'll try, and also explore the OSDL STP's DBT tests.
 
-thanks,
 
-greg k-h
+Thanks,
+Shailabh
+
+>thanks,
+>
+>greg k-h
+>  
+>
+

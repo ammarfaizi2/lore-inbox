@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWCNVnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWCNVnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932496AbWCNVnd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWCNVnc
+	id S932477AbWCNVnF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:43:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWCNVnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:43:32 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45476 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932496AbWCNVnZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:43:25 -0500
-Date: Tue, 14 Mar 2006 13:45:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, gregkh@suse.de,
-       maule@sgi.com
-Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of
- msi_register
-Message-Id: <20060314134535.72eb7243.akpm@osdl.org>
-In-Reply-To: <44172F0E.6070708@ce.jp.nec.com>
-References: <44172F0E.6070708@ce.jp.nec.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 14 Mar 2006 16:43:05 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:18151 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932477AbWCNVnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:43:04 -0500
+Message-Id: <200603142142.k2ELgcZI012828@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: davids@webmaster.com,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: [future of drivers?] a proposal for binary drivers. 
+In-Reply-To: Your message of "Mon, 13 Mar 2006 09:20:41 +0100."
+             <1142238041.3023.11.camel@laptopd505.fenrus.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <MDEHLPKNGKAHNMBLJOLKGEMOKKAB.davids@webmaster.com>
+            <1142238041.3023.11.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1142372558_9726P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Mar 2006 16:42:38 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jun'ichi Nomura" <j-nomura@ce.jp.nec.com> wrote:
->
-> Declare msi_register() in msi.h.
+--==_Exmh_1142372558_9726P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 13 Mar 2006 09:20:41 +0100, Arjan van de Ven said:
+> > 	5) There is no right under copyright for authors of original works to limit
+> > the distribution of lawfully-created derivative works to those with the
+> > right to use the original work.
 > 
-> The patch is especially necessary for ia64 on which most of files
-> emit compiler warnings like below:
->   include2/asm/msi.h: In function `ia64_msi_init':
->   include2/asm/msi.h:23: warning: implicit declaration of function `msi_register'
->   In file included from include2/asm/machvec.h:408,
->                  from include2/asm/io.h:70,
->                  from include2/asm/smp.h:20,
->                  from /build/rc6/source/include/linux/smp.h:22,
+> this is not correct. Copyright law *DOES* give copyright owners the
+> right to control derived works. 
 
-I wonder why I didn't get that.  Need a better ia64 config I guess.
+He quite clearly said "*lawfully-created* derivative works".
 
-> Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-> 
-> --- linux-2.6.16-rc6-mm1.orig/include/asm-ia64/msi.h	2006-03-14 13:54:11.000000000 -0500
-> +++ linux-2.6.16-rc6-mm1/include/asm-ia64/msi.h	2006-03-14 14:05:26.000000000 -0500
-> @@ -15,6 +15,7 @@ static inline void set_intr_gate (int nr
->  #define MSI_TARGET_CPU_SHIFT	4
->  
->  extern struct msi_ops msi_apic_ops;
-> +extern int msi_register(struct msi_ops *);
->  
->  /* default ia64 msi init routine */
->  static inline int ia64_msi_init(void)
+http://www.law.cornell.edu/uscode/html/uscode17/usc_sec_17_00000106----000-.html
 
-The offending patch is gregkh-pci-msi-vector-targeting-abstractions.patch.
+quite clearly says that the right to *produce* a derivative work can be controlled
+by the copyright holder (17 USC 106(2)) but nothing in 17 USC 106 says that
+the copyright holder can control the distribution of an *already-authorized*
+derivative work.
 
-That patch already adds a declaration for msi_register(), in
-drivers/pci/pci.h.  We don't want to add a duplicated declaration like
-this.
+IANAL and all that....
 
-One option might be to create inclued/linux/msi.h, put this declaration in
-there then include <asm/msi.h>.  Possibly some other declarations should be
-moved into linux/msi.h as well.
+--==_Exmh_1142372558_9726P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEFzjOcC3lWbTT17ARArJFAKCU8GEK/OPcwN4Oie1fjc3h5bBn0QCgx+P6
+oGU75yT4fxl6s2+rcBl/0Ug=
+=+fzO
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1142372558_9726P--

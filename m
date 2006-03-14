@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWCNVYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWCNVYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWCNVYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWCNVYZ
+	id S1751021AbWCNVYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWCNVYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:24:25 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:2485 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751009AbWCNVYY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:24:24 -0500
-Date: Tue, 14 Mar 2006 22:22:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
+	Tue, 14 Mar 2006 16:24:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:19408
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751009AbWCNVYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:24:19 -0500
+Date: Tue, 14 Mar 2006 13:24:15 -0800
+From: Greg KH <greg@kroah.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: 2.6.16-rc1: 28ms latency when process with lots of swapped memory exits
-Message-ID: <20060314212207.GC23458@elte.hu>
-References: <1142352926.13256.117.camel@mindpipe>
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [Patch 0/9] Per-task delay accounting
+Message-ID: <20060314212414.GA22202@kroah.com>
+References: <1142296834.5858.3.camel@elinux04.optonline.net> <20060314192824.GB27012@kroah.com> <44172C4C.3020107@watson.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142352926.13256.117.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <44172C4C.3020107@watson.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> I've been testign for weeks with 2.6.16-rc1 + the latency trace patch 
-> and the longest latencies measured were 10-15ms due to the well known 
-> rt_run_flush issue.  Today I got one twice as long, when a Firefox 
-> process with a bunch of acroreads in tabs, from a new code path.
+On Tue, Mar 14, 2006 at 03:49:16PM -0500, Shailabh Nagar wrote:
+> Greg KH wrote:
 > 
-> It seems to trigger when a process with a large amount of memory 
-> swapped out exits.
+> >On Mon, Mar 13, 2006 at 07:40:34PM -0500, Shailabh Nagar wrote:
+> > 
+> >
+> >>This is the next iteration of the delay accounting patches
+> >>last posted at
+> >>	http://www.ussg.iu.edu/hypermail/linux/kernel/0602.3/0893.html
+> >>   
+> >>
+> >
+> >Do you have any benchmark numbers with this patch applied and with it
+> >not applied? 
+> >
+> None yet. Wanted to iron out the collection/utility aspects a bit before 
+> going into
+> the performance impact.
+> 
+> But this seems as good a time as any to collect some stats
+> using the usual suspects lmbench, kernbench, hackbench etc.
+> 
+> >Last I heard it was a measurable decrease for some
+> >"important" benchmark results...
+> > 
+> >
+> Might have been from an older iteration where schedstats was fully enabled.
+> But no point speculating....will run with this set of patches and see 
+> what shakes out.
+> 
+> One point about the overhead is that it depends on the frequency with 
+> which data is
+> collected. So a proper test would probably be a comparison of a 
+> non-patched kernel
+> with
+> a) patches applied but delay accounting not turned on at boot i.e. cost 
+> of the checks
+> b) delay accounting turned on but not being read
 
-btw., one good way to get such things fixed is to code up a testcase: a 
-.c file that just has to be run to reproduce the latency. It might be 
-less trivial to code that up in some cases (like this one - e.g. you 
-might have to first get a large chunk of memory swapped out which isnt 
-easy), but i think it's still worth the effort, as that way you can 
-gently pressure us lazy upstream maintainers to act quicker, and we can 
-also easily verify whether the fix does the trick :-)
+This is probably the most important one, as that is what distros will be
+looking at.  They will have to enable the option, but will not "turn it
+on".
 
-	Ingo
+> c) delay accounting turned on and data read for all tasks at some 
+> "reasonable" rate
+> 
+> Will that be good  ? Other suggestions welcome.
+
+How about real benchmarks?  The ones that the big companies look at?  I
+know you have access to them :)
+
+thanks,
+
+greg k-h

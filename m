@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWCNADQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWCNACy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932515AbWCNADQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 19:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCNADQ
+	id S1751685AbWCNACy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 19:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWCNACy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 19:03:16 -0500
-Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:50134 "EHLO
-	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932129AbWCNADN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 19:03:13 -0500
-Date: Mon, 13 Mar 2006 15:58:48 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: John Levon <levon@movementarian.org>
-Cc: William Cohen <wcohen@nc.rr.com>,
-       oprofile-list <oprofile-list@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       perfctr-devel@lists.sourceforge.net, perfmon@napali.hpl.hp.com
-Subject: Re: [Perfctr-devel] 2.6.16-rc5 perfmon2 new code base + libpfm with Montecito support
-Message-ID: <20060313235848.GI32683@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060308155311.GD13168@frankl.hpl.hp.com> <4415BC45.1010601@nc.rr.com> <20060313185500.GB32683@frankl.hpl.hp.com> <4415C4E9.5070702@nc.rr.com> <20060313210127.GA13453@totally.trollied.org> <20060313210354.GG32683@frankl.hpl.hp.com> <20060313232057.GA16582@totally.trollied.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060313232057.GA16582@totally.trollied.org>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+	Mon, 13 Mar 2006 19:02:54 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:45317 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751685AbWCNACx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 19:02:53 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <rlrevell@joe-job.com>
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: [future of drivers?] a proposal for binary drivers.
+Date: Mon, 13 Mar 2006 16:02:32 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEBMKLAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1142289136.13256.60.camel@mindpipe>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 13 Mar 2006 15:59:01 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 13 Mar 2006 15:59:02 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John,
 
-On Mon, Mar 13, 2006 at 11:20:57PM +0000, John Levon wrote:
-> On Mon, Mar 13, 2006 at 01:03:54PM -0800, Stephane Eranian wrote:
-> 
-> > > 1) the event names are synchronised so we don't need massive duplication
-> > 
-> > The kernel perfmon2 interface does not know anything about event names.
-> 
-> Well, it sounded like Will was proposing extra event directories.
+> On Mon, 2006-03-13 at 14:00 -0800, David Schwartz wrote:
+> > implying that your opinions are my own is out of line. Even rude.
 
-I think Will was trying to solve the register naming differences.
-I do not know how you deal with this in ophelp.
+> Yes, it is rude - as are long OT threads about copyright law and the GPL
+> on this mailing list.
 
-> > > 2) that "start a thread on each CPU" API is fixed to be sane
-> >
-> > Please develop on this point some more.
-> 
-> The kernel interface should just let me say "I want this setup on all
-> CPUs" and do the IPIs for me.
-> 
-That's is because you are assuming a model were you always want to monitor
-all CPUs each time and measure the same thing everywhere.  This does not
-always makes sense in large configurations. You may want to only monitor
-a subset of CPUs or you may want to monitor different things on different
-CPUs at the same time, for instance because they handle different workloads
-or interrupts.
+	Even assuming that, there is a huge difference between a personally rude
+action taken by one person against another person and a rude result that
+arises from the uncoordinated actions of many people. Are you trying to
+imply that I somehow deserve to have people be personally rude to me?
 
-When it comes to sampling, I think you will agree with me that the kernel level 
-sampling buffer must be per-cpu. I think this is also how you manage
-it in OProfile. I think it also makes sense to process the buffer locally for
-cache affinity reasons for instance. Keep monitoring overhead minimum by exploiting
-locality. I think (correct me if I am wrong) in Oprofile you somehow merge the
-per-cpu buffers into a single buffer which is then read via read() by user level
-applications. For some measurements merging is not necessarily what is needed.
+	DS
 
-In your model, I would have to pass a bitmap of CPUs to monitor, then internally
-the kernel would have propagate the setup via IPI and maintain a context per-cpu.
-Then upon return, it would have to pass information as to how to mmap the per-cpu
-buffers. You have a choice of doing one mmap() per buffer or to do
-a single large mmap() covering the possibly discountiguous physical pages 
-backing each per-cpu buffer. In either case, it would make sense to ensure
-that the thread processing each buffer runs on the CPU where the samples
-have been collected to minimize cache traffic which is very important on NUMA
-machines. Typically on those machines, every effort is made to keep all memory
-accesses local, I do not see why this would not also apply to profiling.
 
-Note that in the new perfmon code base, you do not have to create one thread
-per monitored CPU. All you need to do is to ensure that the thread runs on
-the CPU it needs to access when issuing perfmon2 calls causing actual PMU 
-HW accesses. A single thread can very well control lots of context bound to
-different threads or CPU.
-
-But again, I am always open to discussions/proposals on this.
-
--- 
--Stephane

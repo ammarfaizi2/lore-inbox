@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751915AbWCNMg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWCNMhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751915AbWCNMg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 07:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWCNMg2
+	id S1751508AbWCNMhn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 07:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWCNMhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 07:36:28 -0500
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:42885 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751915AbWCNMg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 07:36:28 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [2.6.16-rc6 patch] remove sleep_avg multiplier
-Date: Tue, 14 Mar 2006 23:36:08 +1100
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <1142329861.9710.16.camel@homer> <1142339099.11303.12.camel@homer> <200603142329.31281.kernel@kolivas.org>
-In-Reply-To: <200603142329.31281.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603142336.08816.kernel@kolivas.org>
+	Tue, 14 Mar 2006 07:37:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:25572 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751508AbWCNMhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 07:37:43 -0500
+Subject: Re: Coverity Open Source Defect Scan of Linux
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: ben@coverity.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <440BCA0F.50501@coverity.com>
+References: <440BCA0F.50501@coverity.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 14 Mar 2006 09:37:24 -0300
+Message-Id: <1142339844.4667.11.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-3mdk 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 14 March 2006 23:24, Mike Galbraith wrote:
-> > The very
-> > code responsible for good interbench numbers is also responsible for
-> > starvation problems.  It's the long sleep logic.  That logic makes my
-> > box suck rocks under thud and irman2.
+Ben,
 
-Oh and I do appreciate that an ultimately interactive design may well be also 
-ultimately exploitable. Interbench never claimed to test for exploits.
+I'm the maintainer of V4L/DVB subsystem of the Linux Kernel
+(http://linuxtv.org). I think your took may be usefull to our work.
+Would you please give me an access to the tool?
 
-Cheers,
-Con
+Em Dom, 2006-03-05 às 21:35 -0800, Ben Chelf escreveu:
+> Hello Linux Developers,
+> 
+>    I'm the CTO of Coverity, Inc., a company that does static source code 
+> analysis to look for defects in code. You may have heard of us or of our 
+> technology from its days at Stanford (the "Stanford Checker"). The 
+> reason I'm writing is because we have set up a framework internally to 
+> continually scan open source projects and provide the results of our 
+> analysis back to the developers of those projects. Linux is one of the 
+> 32 projects currently scanned at:
+> 
+> http://scan.coverity.com
+
+Cheers, 
+Mauro.
+

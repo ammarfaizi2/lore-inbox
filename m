@@ -1,88 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751806AbWCNPdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWCNPgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751806AbWCNPdw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWCNPdv
+	id S1751876AbWCNPgY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWCNPgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:33:51 -0500
-Received: from tag.witbe.net ([81.88.96.48]:60107 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S1751836AbWCNPdv (ORCPT
+	Tue, 14 Mar 2006 10:36:23 -0500
+Received: from mail.kroah.org ([69.55.234.183]:47547 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750726AbWCNPgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:33:51 -0500
-From: "Paul Rolland" <rol@witbe.net>
-To: "'Robert Hancock'" <hancockr@shaw.ca>,
-       "'Herbert Rosmanith'" <kernel@wildsau.enemy.org>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: procfs uglyness caused by "cat"
-Date: Tue, 14 Mar 2006 16:33:28 +0100
-Organization: Witbe.net
-Message-ID: <001901c6477c$a46b4c90$b600a8c0@cortex>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcZHdJd9xrGCC+FSR3uigoeLHs89UwAAj36w
-In-Reply-To: <4416D4A3.9070705@shaw.ca>
-x-ncc-regid: fr.witbe
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 14 Mar 2006 10:36:21 -0500
+Date: Tue, 14 Mar 2006 07:34:55 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Moore, Eric" <Eric.Moore@lsil.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       James.Bottomley@SteelEye.com, hch@lst.de
+Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
+Message-ID: <20060314153455.GA8071@suse.de>
+References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D829@NAMAIL2.ad.lsil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F36D829@NAMAIL2.ad.lsil.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > static int uptime_read_proc(char *page, char **start, off_t off,
-> >                                  int count, int *eof, void *data)
-> > {
-> >         struct timespec uptime;
-> >         struct timespec idle;
-> >         int len;
-> >         cputime_t idletime;
-> > 
-> > +	if (off)
-> > +		return 0;
+On Mon, Mar 13, 2006 at 05:52:40PM -0700, Moore, Eric wrote:
+> Request for exporting device_reprobe - 
 > 
-> Except that this is wrong - if you try to advance the offset 
-> a bit from 
-> the start of the file and read something, you'll get nothing. This is 
-> inconsistent with normal file behavior.
+> Adding support for exposing hidden raid components 
+> for sg interface. The sdev->no_uld_attach flag
+> will set set accordingly.
+> 
+> The sas module supports adding/removing raid
+> volumes using online storage management application
+> interface.  
+> 
+> This patch was provided to me by Christoph Hellwig.
+> 
+> Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
 
-Right... What's weird is : what do we get if a process decides to read
-this using a 1 byte buffer, asking for 1 char at a time ?
-And what we'll be the result if you read 1 char every 1 second ?
+base64 for the attachment with DOS line ends?  ugh, can you please fix
+this up and resend?
 
-#include <stdio.h>
+Also, it looks like USB needs to call this function, (based on the
+comment)?  Care to switch that code over to have it use it too?
 
-int main(int argc, char * argv[])
-{
-  FILE * f;
-  char lChar;
+thanks,
 
-  f = fopen("/proc/uptime", "r");
-  if (f == NULL) {
-    exit(0);
-  } /* endif */
-
-  while (!feof(f)) {
-    fread(&lChar, 1, 1, f);
-    fprintf(stdout, "%c", lChar); fflush(stdout);
-    sleep(1);
-  } /* endwhile */
-
-  close(f);
-
-  exit(0);
-}
-
-is funny enough...
-
-2.2.x :
-58 [15:30] rol@www-dev:/tmp> cat /proc/uptime ; ./test
-13849305.25 13555633.92
-13849312.38 13555635.64
-
-2.4.31 :
-bash-2.05# cat /proc/uptime ; ./test
-100711.77 100366.30
-100711.77 100366.30
-
-Paul
-
+greg k-h

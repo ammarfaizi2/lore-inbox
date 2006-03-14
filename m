@@ -1,83 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWCNWBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWCNWC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWCNWBd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWCNWBc
+	id S964793AbWCNWC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWCNWC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:01:32 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:20885
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S964784AbWCNWBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:01:31 -0500
-Date: Tue, 14 Mar 2006 14:01:30 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kobject_uevent CONFIG_SYSFS=n build fix
-Message-ID: <20060314220130.GB12257@suse.de>
-References: <4416EB14.50306@ce.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4416EB14.50306@ce.jp.nec.com>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Mar 2006 17:02:29 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:24776 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S964792AbWCNWC1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:02:27 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C647B2.F9217612"
+Subject: RE: [PATCH ] drivers/scsi/scsi.c - export reprobe 
+Date: Tue, 14 Mar 2006 15:02:23 -0700
+Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F36DC41@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH ] drivers/scsi/scsi.c - export reprobe 
+Thread-Index: AcZHAZpp/wvGNY9KRWmb/AwqfyYfIwAsTywA
+From: "Moore, Eric" <Eric.Moore@lsil.com>
+To: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Cc: <James.Bottomley@SteelEye.com>, <hch@lst.de>, <gregkh@novell.com>
+X-OriginalArrivalTime: 14 Mar 2006 22:02:23.0617 (UTC) FILETIME=[F9226710:01C647B2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 11:11:00AM -0500, Jun'ichi Nomura wrote:
-> Hello,
-> 
-> In 2.6.16-rc6 (probably in earlier rc as well),
-> following build error occurs with CONFIG_SYSFS=n.
-> 
-> kernel/built-in.o(.data+0x1d40): undefined reference to `uevent_helper'
-> lib/lib.a(kobject_uevent.o)(.text+0x5c1): In function `kobject_uevent':
-> /build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-> lib/lib.a(kobject_uevent.o)(.text+0x5d0):/build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-> lib/lib.a(kobject_uevent.o)(.text+0x901):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-> lib/lib.a(kobject_uevent.o)(.text+0x910):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-> 
-> This seems to be caused by mismatch of build condition.
-> uevent_seqnum and uevent_helper are conditional to CONFIG_SYSFS.
-> While they are referenced if CONFIG_HOTPLUG (and CONFIG_NET) is enabled.
-> 
-> Attached patch consolidates them to CONFIG_HOTPLUG && CONFIG_NET.
-> 
-> I tried with (!CONFIG_NET && CONFIG_SYSFS) and
-> (CONFIG_NET && !CONFIG_SYSFS).
-> Both built ok.
-> So I think it doesn't conflict with "[PATCH] kobject_uevent CONFIG_NET=n
-> fix" which is in 2.6.16-rc6.
-> 
-> Thanks,
-> -- 
-> Jun'ichi Nomura, NEC Solutions (America), Inc.
+This is a multi-part message in MIME format.
 
-> CONFIG_SYSFS=n fails to build due to mismatch of conditions
-> for uevent_seqnum and uevent_helper.
-> 
-> kernel/built-in.o(.data+0x1d40): undefined reference to `uevent_helper'
-> lib/lib.a(kobject_uevent.o)(.text+0x5c1): In function `kobject_uevent':
-> /build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-> lib/lib.a(kobject_uevent.o)(.text+0x5d0):/build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-> lib/lib.a(kobject_uevent.o)(.text+0x901):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-> lib/lib.a(kobject_uevent.o)(.text+0x910):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-> 
-> Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-> 
-> 
-> --- linux-2.6.16-rc6.orig/lib/kobject_uevent.c	2006-03-14 08:57:23.000000000 -0500
-> +++ linux-2.6.16-rc6/lib/kobject_uevent.c	2006-03-14 08:52:57.000000000 -0500
-> @@ -26,6 +26,9 @@
->  #define NUM_ENVP	32	/* number of env pointers */
->  
->  #if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
-> +u64 uevent_seqnum;
-> +char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
+------_=_NextPart_001_01C647B2.F9217612
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
-No, the seqnum and helper can be called even if we have not defined
-CONFIG_NET.  Please redo the patch based on this.
+On Monday, March 13, 2006 5:53 PM, I wrote:=20
+>=20
+> Request for exporting device_reprobe -=20
+> This is scsi wrapper portion.
+>=20
+> ---------------------------------------------------
+> Adding support for exposing hidden raid components=20
+> for sg interface. The sdev->no_uld_attach flag
+> will set set accordingly.
+>=20
+> The sas module supports adding/removing raid
+> volumes using online storage management application
+> interface. =20
+>=20
+> This patch was provided to me by Christoph Hellwig.
+>=20
+> Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
+>
 
-thanks,
+repost ( hopefully not mangled).
 
-greg k-h
+Eric Moore=20
+
+------_=_NextPart_001_01C647B2.F9217612
+Content-Type: application/octet-stream;
+	name="scsi_device_reprobe"
+Content-Transfer-Encoding: base64
+Content-Description: scsi_device_reprobe
+Content-Disposition: attachment;
+	filename="scsi_device_reprobe"
+
+SW5kZXg6IHNjc2ktbWlzYy0yLjYvZHJpdmVycy9zY3NpL3Njc2kuYwo9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBz
+Y3NpLW1pc2MtMi42Lm9yaWcvZHJpdmVycy9zY3NpL3Njc2kuYwkyMDA2LTAzLTA0IDEzOjA3OjQ0
+LjAwMDAwMDAwMCArMDEwMAorKysgc2NzaS1taXNjLTIuNi9kcml2ZXJzL3Njc2kvc2NzaS5jCTIw
+MDYtMDMtMDcgMjE6NTc6MjEuMDAwMDAwMDAwICswMTAwCkBAIC0xMjE0LDYgKzEyMTQsMTMgQEAK
+IH0KIEVYUE9SVF9TWU1CT0woc2NzaV9kZXZpY2VfY2FuY2VsKTsKIAordm9pZCBzY3NpX2Rldmlj
+ZV9yZXByb2JlKHN0cnVjdCBzY3NpX2RldmljZSAqc2RldikKK3sKKwlkZXZpY2VfcmVwcm9iZSgm
+c2Rldi0+c2Rldl9nZW5kZXYpOworfQorCitFWFBPUlRfU1lNQk9MX0dQTChzY3NpX2RldmljZV9y
+ZXByb2JlKTsKKwogTU9EVUxFX0RFU0NSSVBUSU9OKCJTQ1NJIGNvcmUiKTsKIE1PRFVMRV9MSUNF
+TlNFKCJHUEwiKTsKIApJbmRleDogc2NzaS1taXNjLTIuNi9pbmNsdWRlL3Njc2kvc2NzaV9kZXZp
+Y2UuaAo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09Ci0tLSBzY3NpLW1pc2MtMi42Lm9yaWcvaW5jbHVkZS9zY3NpL3Njc2lf
+ZGV2aWNlLmgJMjAwNi0wMy0wNCAxMzowNzo0OS4wMDAwMDAwMDAgKzAxMDAKKysrIHNjc2ktbWlz
+Yy0yLjYvaW5jbHVkZS9zY3NpL3Njc2lfZGV2aWNlLmgJMjAwNi0wMy0wNyAyMTo1Nzo0NS4wMDAw
+MDAwMDAgKzAxMDAKQEAgLTIwNCw2ICsyMDQsNyBAQAogCQkJICAgdWludCB0YXJnZXQsIHVpbnQg
+bHVuKTsKIGV4dGVybiB2b2lkIHNjc2lfcmVtb3ZlX2RldmljZShzdHJ1Y3Qgc2NzaV9kZXZpY2Ug
+Kik7CiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2NhbmNlbChzdHJ1Y3Qgc2NzaV9kZXZpY2UgKiwg
+aW50KTsKK2V4dGVybiB2b2lkIHNjc2lfZGV2aWNlX3JlcHJvYmUoc3RydWN0IHNjc2lfZGV2aWNl
+ICopOwogCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2dldChzdHJ1Y3Qgc2NzaV9kZXZpY2UgKik7
+CiBleHRlcm4gdm9pZCBzY3NpX2RldmljZV9wdXQoc3RydWN0IHNjc2lfZGV2aWNlICopOwo=
+
+------_=_NextPart_001_01C647B2.F9217612--

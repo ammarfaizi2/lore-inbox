@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWCNP4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWCNP5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWCNP4E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWCNP4D
+	id S1750751AbWCNP5w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWCNP5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:56:03 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:61446 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750721AbWCNP4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:56:01 -0500
-Message-ID: <4416E757.9040208@vmware.com>
-Date: Tue, 14 Mar 2006 07:55:03 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, Zachary Amsden <zach@vmware.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 2/24] i386 Vmi config
-References: <200603131800.k2DI0RfN005633@zach-dev.vmware.com> <20060314152350.GB16921@infradead.org>
-In-Reply-To: <20060314152350.GB16921@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Mar 2006 10:57:52 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55455 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750751AbWCNP5v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 10:57:51 -0500
+Date: Tue, 14 Mar 2006 07:57:47 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Cc: linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org
+Subject: Re: procfs uglyness caused by "cat"
+Message-Id: <20060314075747.64928d00.pj@sgi.com>
+In-Reply-To: <200603141043.k2EAhlTV016354@wildsau.enemy.org>
+References: <200603141043.k2EAhlTV016354@wildsau.enemy.org>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Mar 13, 2006 at 10:00:27AM -0800, Zachary Amsden wrote:
->   
->> Introduce the basic VMI sub-arch configuration dependencies.  VMI kernels only
->> are designed to run on modern hardware platforms.  As such, they require a
->> working APIC, and do not support some legacy functionality, including APM BIOS,
->> ISA and MCA bus systems, PCI BIOS interfaces, or PnP BIOS (by implication of
->> dropping ISA support).  They also require a P6 series CPU.
->>     
->
-> That's pretty bad because distributors need another kernel still.  At least
-> a working APIC isn't quite as common today as it should.
->   
+Robert Hancock explained what's wrong with your proposal of:
++	if (off)
++		return 0;
 
-It doesn't need to be a fully functional APIC.  It just needs to not 
-have one particular bug - Pentium processor erratum 11AP.  There is no 
-reason that most of these requirements can't be dropped.  We used to 
-have a lot more functionality and legacy support turned off, and we 
-gradually turned it back on.  Turning on the BIOS interfaces will cause 
-complications for a VMI kernel running in a hypervisor - since it can't 
-invoke non-virtualized BIOS code.  So it does require a bit of 
-conditional logic, which is pretty easy, but we haven't got around to 
-doing yet.
+For an alternative that seems to work better, see the processing
+behind the /proc/<pid>/cpuset file, by grep'ing for seq_file in
+kernel/cpuset.c.
 
-Zach
+Essentially, it composes the result string on the open, and then
+lets user code read and seek over that string at will.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

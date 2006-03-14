@@ -1,38 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932545AbWCNWZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbWCNW1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932545AbWCNWZz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWCNWZz
+	id S932536AbWCNW1M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWCNW1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:25:55 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:21727 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S932528AbWCNWZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:25:54 -0500
-Date: Tue, 14 Mar 2006 15:25:53 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <gregkh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, maule@sgi.com
-Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
-Message-ID: <20060314222553.GX1653@parisc-linux.org>
-References: <44172F0E.6070708@ce.jp.nec.com> <20060314134535.72eb7243.akpm@osdl.org> <20060314215922.GA12257@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Mar 2006 17:27:12 -0500
+Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:57507 "EHLO
+	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932536AbWCNW1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:27:11 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Subject: Re: [PATCH][2/4] sched: add discrete weighted cpu load function
+Date: Wed, 15 Mar 2006 09:26:51 +1100
+User-Agent: KMail/1.9.1
+Cc: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
+References: <200603131906.11739.kernel@kolivas.org> <cone.1142290371.837084.5853.501@kolivas.org> <44173F32.9020302@bigpond.net.au>
+In-Reply-To: <44173F32.9020302@bigpond.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060314215922.GA12257@suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200603150926.52064.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 01:59:22PM -0800, Greg KH wrote:
-> Ugh.  What is the file that is causing the problem?  What is "include2"
-> in your directory path above?
+On Wednesday 15 March 2006 09:09, Peter Williams wrote:
+> Con Kolivas wrote:
+> > Peter Williams writes:
+> >> Con Kolivas wrote:
+> >>> +unsigned long weighted_cpuload(const int cpu)
+> >>> +{
+> >>> +    return (cpu_rq(cpu)->raw_weighted_load);
+> >>> +}
+> >>> +
+> >>
+> >> Wouldn't this be a candidate for inlining?
+> >
+> > That would make it unsuitable for exporting via sched.h.
+>
+> If above_background_load() were implemented inside sched.c instead of in
+> sched.h there would be no need to export weighted_cpuload() would there?
+>   This would allow weighted_cpuload() to be inline and the efficiency
+> would be better as above_background_load() doesn't gain a lot by being
+> inline
 
-you get include2 when you specify a different object directory:
+I don't care about above_background_load() being inline; that's done because 
+all functions in header files need to be static inline to not become a mess.
 
-$ ls obj
-Makefile        arch    drivers  include2  kernel  net       sound
-Module.symvers  block   fs       init      lib     scripts   usr
-System.map      crypto  include  ipc       mm      security  vmlinux
+> as having weighted_cpulpad() non inline means that it's doing a 
+> function call several times in a loop i.e. it may save one function call
+> by being inline but requires (up to) one function call for every CPU.
 
+I haven't checked but gcc may well inline weighted_cpuload anyway? We're 
+moving away from inlining most things manually since the compiler is doing it 
+well these days.
+
+> The other way around the cost would be just one function call.
+
+The way you're suggesting adds a function that is never used by anything but 
+swap prefetch which would then need to be 'ifdef'ed out to not be needlessly 
+built on every system. Adding ifdefs is frowned upon already, and to have an 
+mm/ specific ifdef in sched.c would be rather ugly.
+
+Cheers,
+Con

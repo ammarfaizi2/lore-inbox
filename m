@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751948AbWCNW2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWCNWbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751948AbWCNW2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNW2e
+	id S1752021AbWCNWbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNWbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:28:34 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:3983 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S1751944AbWCNW2e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:28:34 -0500
-Date: Tue, 14 Mar 2006 23:28:28 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.16-rc6-rt1
-In-Reply-To: <20060314221111.GA7118@elte.hu>
-Message-ID: <Pine.LNX.4.44L0.0603142322320.1291-100000@lifa01.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Mar 2006 17:31:15 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:62667
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751248AbWCNWbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:31:15 -0500
+Date: Tue, 14 Mar 2006 14:31:05 -0800
+From: Greg KH <gregkh@suse.de>
+To: "Moore, Eric" <Eric.Moore@lsil.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@lst.de
+Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
+Message-ID: <20060314223105.GA3130@suse.de>
+References: <F331B95B72AFFB4B87467BE1C8E9CF5F36DC3B@NAMAIL2.ad.lsil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F36DC3B@NAMAIL2.ad.lsil.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Mar 2006, Ingo Molnar wrote:
+On Tue, Mar 14, 2006 at 03:01:05PM -0700, Moore, Eric wrote:
+> On Tuesday, March 14, 2006 10:58 AM,  Greg KH wrote:
+> 
+> > 
+> > Sure, that makes a lot of sense:
+> > 
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> > 
+> > Oh, and please make that scsi wrapper function either
+> > EXPORT_SYMBOL_GPL() or an inline function or macro.
+> > 
+> > thanks,
+> > 
+> 
+> 
+> Here we go again (hopefully no managled this time).
 
->
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
->
-> > On Tue, 14 Mar 2006, Ingo Molnar wrote:
-> >
-> > >
-> > > * Esben Nielsen <simlo@phys.au.dk> wrote:
-> > >
-> > > [...]
-> > > no. We have to run deadlock detection to avoid things like circular lock
-> > > dependencies causing an infinite schedule+wakeup 'storm' during priority
-> > > boosting. (like possible with your wakeup based method i think)
-> > No, all tasks would just settle on the highest priority and then the
-> > wakeups would stop.
->
-> you are right, that shouldnt be possible. But how about other, SMP
-> artifacts? What if the woken up task runs on another CPU, and the whole
-> chain of boosting is thus delayed?
->
+Nope, still in base64 :(
 
-Yes, it will take longer that way. But it still ought to be
-_deterministic_. PI has never been a cheap. It is only safe guard against
-priority inversion.
+thanks,
 
-I am not saying using the scheduler is the best solution and certainly not
-the cheapest solution. It just popped up in my head and it seemed to work
-and was relatively easy to implement.
-
-Esben
-
-
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+greg k-h

@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWCNXNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWCNXQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWCNXNv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 18:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWCNXNv
+	id S932132AbWCNXQS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 18:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWCNXQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 18:13:51 -0500
-Received: from web26506.mail.ukl.yahoo.com ([217.146.176.43]:19316 "HELO
-	web26506.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750880AbWCNXNv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 18:13:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=CPu9sBksYI4iqcQtfcTapzeqC2ynwtRw4OD92J8Kj1OJVnibttVRmgN4YtIqcSad0dIWkh8SBx+2cMv4gHTeLr4iM+9IN8HdLTUI0VcKAq1nDBJ0WpR1i6W3JorW+tfJpooix/Y26DLT8i6siVwWutB08eFIXKFTAu92E2iVsFc=  ;
-Message-ID: <20060314231344.44688.qmail@web26506.mail.ukl.yahoo.com>
-Date: Wed, 15 Mar 2006 00:13:44 +0100 (CET)
-From: karsten wiese <annabellesgarden@yahoo.de>
-Subject: Re: [PATCH] realtime-preempt patch-2.6.15-rt19 compile error (was:      realtime-preempt patch-2.6.15-rt18 issues)
-To: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>
-Cc: Jan Altenberg <tb10alj@tglx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <36944.195.245.190.93.1141734835.squirrel@www.rncbc.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-2056123954-1142378024=:44661"
-Content-Transfer-Encoding: 8bit
+	Tue, 14 Mar 2006 18:16:18 -0500
+Received: from xenotime.net ([66.160.160.81]:1223 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932132AbWCNXQS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 18:16:18 -0500
+Date: Tue, 14 Mar 2006 15:18:12 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: soft lockup in serial8250_console_write(?)
+Message-Id: <20060314151812.2779ed4b.rdunlap@xenotime.net>
+In-Reply-To: <20060314214049.GA29536@elte.hu>
+References: <20060314134110.3470fc63.rdunlap@xenotime.net>
+	<20060314214049.GA29536@elte.hu>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-2056123954-1142378024=:44661
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Tue, 14 Mar 2006 22:40:49 +0100 Ingo Molnar wrote:
 
+> 
+> * Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> 
+> > Hi,
+> > 
+> > (x86_64; 2.6.16-rc6; serial console configured but nothing connected 
+> > to the serial port)
+> > 
+> > I'm seeing an occasional soft lockup, maybe in 
+> > serial8250_console_write(). (drivers/serial/8250.c)
+> > 
+> > This function calls wait_for_xmitr() [inline], which in worst case can 
+> > spin for 1.010 seconds.  Could this be the cause of a soft lockup?
+> 
+> hm, it shouldnt cause that. Could you try the attached patch [which is 
+> the next-gen softlockup detector], do you get the message even with that 
+> one applied?
 
---- Rui Nuno Capela <rncbc@rncbc.org> schrieb:
-> - The SLAB related usb-storage crash on disconnect is
-> still there:
+5/5 good boots with your new patch.
+5/5 soft lockups without it.
 
-and its still in up to rc6-rt3, unless you apply attached
-patch. My uniprocessor behaves with it.
+Is this scheduled for post-2.6.16 ?
 
-Ingo, what exactly needs fixing here?
-
-cheers,
-Karsten
-
-
-	
-
-	
-		
-___________________________________________________________ 
-Telefonate ohne weitere Kosten vom PC zum PC: http://messenger.yahoo.de
---0-2056123954-1142378024=:44661
-Content-Type: text/x-diff; name="drain_cpu_caches.diff"
-Content-Description: 2948625469-drain_cpu_caches.diff
-Content-Disposition: inline; filename="drain_cpu_caches.diff"
-
---- ./mm/slab.c~	2006-03-15 00:15:49.000000000 +0100
-+++ ./mm/slab.c	2006-03-15 00:15:49.000000000 +0100
-@@ -2169,7 +2169,7 @@
- 	int node;
- 
- // FIXME:
--//	smp_call_function_all_cpus(do_drain, cachep);
-+	smp_call_function_all_cpus(do_drain, cachep);
- 	check_irq_on();
- 	for_each_online_node(node) {
- 		l3 = cachep->nodelists[node];
-
---0-2056123954-1142378024=:44661--
+Thanks,
+---
+~Randy

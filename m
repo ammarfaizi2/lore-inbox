@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751885AbWCNOJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWCNOIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751885AbWCNOJP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 09:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWCNOJP
+	id S1751151AbWCNOIh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 09:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751885AbWCNOIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 09:09:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39307 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751885AbWCNOJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 09:09:14 -0500
-Subject: Re: Development tree, PLEASE?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200603140900_MC3-1-BA9A-44CC@compuserve.com>
-References: <200603140900_MC3-1-BA9A-44CC@compuserve.com>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 15:09:06 +0100
-Message-Id: <1142345347.3027.34.camel@laptopd505.fenrus.org>
+	Tue, 14 Mar 2006 09:08:37 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:65035 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751151AbWCNOIg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 09:08:36 -0500
+Date: Tue, 14 Mar 2006 15:08:28 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: "Hack inc." <linux-kernel@vger.kernel.org>, maxk@qualcomm.com,
+       bluez-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Fix SCO on Broadcom Bluetooth adapters
+Message-ID: <20060314140828.GA87175@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	"Hack inc." <linux-kernel@vger.kernel.org>, maxk@qualcomm.com,
+	bluez-devel@lists.sf.net
+References: <20060314111248.GA75477@dspnet.fr.eu.org> <1142344144.4448.3.camel@aeonflux.holtmann.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142344144.4448.3.camel@aeonflux.holtmann.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 08:57 -0500, Chuck Ebbert wrote:
-> In-Reply-To: <20060202221023.GJ11831@redhat.com>
-> 
-> On Thu, 2 Feb 2006 17:10:25 -0500, Dave Jones wrote:
-> 
-> > -rw-r--r--    1 davej    davej        1686 Dec 15 23:31 linux-2.6-build-userspace-headers-warning.patch
-> > 
-> > adds a #error to includes if __KERNEL__ isn't being used
-> > (We want people to use the headers from our glibc-kernheaders package,
-> > not from the kernel soucre).
-> 
->  Red Hat's headers are way out of date.
-> 
->  Just try compiling this using FC4's latest kernheaders:
-> 
->         ptrace(PTRACE_SETOPTIONS, child, NULL, PTRACE_O_TRACEFORK);
-> 
->  PTRACE_O_TRACEFORK is undefined.
+On Tue, Mar 14, 2006 at 02:49:03PM +0100, Marcel Holtmann wrote:
+> your patch might break devices where this value is chosen on purpose
 
+Please do tell me how one is supposed to do sco communications when
+this value is chosen on purpose and I'll be happy to implement that.
+I have found no clue about that in the bluetooth specs.
 
-what is the bugzilla number for this?
+Meanwhile, I'll implement it with a quirk, and I can guarantee that
+you're not going to like the result.  I have a list of 104 (iirc)
+device ids that may need it, and given that hardware is supposed to
+work they will have to be added until proven otherwise.
 
+And it won't fix the uart versions either.
+
+  OG.
 

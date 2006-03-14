@@ -1,91 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751706AbWCNSEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752340AbWCNSHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751706AbWCNSEn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 13:04:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWCNSEn
+	id S1752340AbWCNSHt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 13:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752323AbWCNSHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 13:04:43 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:63750 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751706AbWCNSEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 13:04:43 -0500
-Message-ID: <4417058E.1090202@vmware.com>
-Date: Tue, 14 Mar 2006 10:03:58 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Tue, 14 Mar 2006 13:07:49 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:13757 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1752340AbWCNSHs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 13:07:48 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: does swsusp suck after resume for you? [was Re: Faster resuming of suspend technology.]
+Date: Tue, 14 Mar 2006 19:06:48 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       ck@vds.kolivas.org, Jun OKAJIMA <okajima@digitalinfra.co.jp>,
+       linux-kernel@vger.kernel.org
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060313113631.GA1736@elf.ucw.cz> <200603132303.18758.kernel@kolivas.org>
+In-Reply-To: <200603132303.18758.kernel@kolivas.org>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 17/24] i386 Vmi msr patch
-References: <200603131812.k2DICGJE005747@zach-dev.vmware.com> <200603141723.54365.ak@suse.de> <4416F038.90707@vmware.com> <200603141843.24159.ak@suse.de>
-In-Reply-To: <200603141843.24159.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603141906.49183.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>> And I don't think it's a good idea to virtualize the TSC
->>> without CPU support.
->>>       
->> We currently don't support configurations without a TSC.  But we're not
->> trying to virtualize the TSC without CPU support.  It is possible.  But
->> I have no idea _why_ you would want to do such a thing.
->>     
->
-> Don't change it then?
->   
+On Monday 13 March 2006 13:03, Con Kolivas wrote:
+> On Monday 13 March 2006 22:36, Pavel Machek wrote:
+> > 4) Congratulations, you are right person to help. Could you test if
+> > Con's patches help?
+> 
+> Ok this patch is only compile tested only but is reasonably straight forward.
+> (I have no hardware to test it on atm). It relies on the previous 4 patches I
+> sent out that update swap prefetch. To make it easier here is a single rolled
+> up patch that goes on top of 2.6.16-rc6-mm1:
+> 
+> http://ck.kolivas.org/patches/swap-prefetch/2.6.16-rc6-mm1-swap_prefetch_suspend_test.patch
+> 
+> Otherwise the incremental patch is below.
+> 
+> Usual blowing up warnings apply with this sort of patch. If it works well then
+> /proc/meminfo should show a very large SwapCached value after resume.
+> 
+}-- snip --{
+> Index: linux-2.6.16-rc6-mm1/kernel/power/swsusp.c
+> ===================================================================
+> --- linux-2.6.16-rc6-mm1.orig/kernel/power/swsusp.c	2006-03-13 10:05:05.000000000 +1100
+> +++ linux-2.6.16-rc6-mm1/kernel/power/swsusp.c	2006-03-13 22:42:52.000000000 +1100
+> @@ -49,6 +49,7 @@
+>  #include <linux/bootmem.h>
+>  #include <linux/syscalls.h>
+>  #include <linux/highmem.h>
+> +#include <linux/swap-prefetch.h>
+>  
+>  #include "power.h"
+>  
+> @@ -269,5 +270,6 @@ int swsusp_resume(void)
+>  	touch_softlockup_watchdog();
+>  	device_power_up();
+>  	local_irq_enable();
+> +	post_resume_swap_prefetch();
+>  	return error;
+>  }
 
-I misunderstood you.  I thought when you said, "I don't think it's a 
-good idea virtualize the TSC without CPU support" that meant on CPUs 
-without a hardware TSC.  If you really meant on CPUs without 
-virtualization hardware, well, that is something we do, and it is not 
-only possible, it is necessary for many non-paravirtualized operating 
-systems.  As I mention in the interface documentation, TSC and the 
-performance counters in general are very problematic in a virtual 
-machine - they can be visible to userspace, and they are hard to keep 
-accurate.  Long term, dropping kernel usage of the TSC is a good thing 
-to do for VMs.
+Hm, this code is only executed if there's an error during resume.  You should
+have placed the post_resume_swap_prefetch() call in swsusp_suspend(). :-)
 
-The primary motivation for the change here was to get rid of the call to 
-the VMI ROM for TSC support.  I am in the process of removing the ROM 
-call sites so that they can instead be patched into the kernel 
-directly.  I am actually unsure if there are any uses of the TSC left on 
-critical paths with the new VMI timer support, but I inlined the code 
-here for consistency.
-
-I agree that long term, it doesn't need to be done, and these 
-instructions can all go back to trap and emulate.  Perhaps they are even 
-worth dropping from the list of VMI calls, since they really are 
-problematic and/or not useful in a virtual machine.  This again, is a 
-good point for debate.  We're open to suggestions, but keep in mind that 
-the fact that other operating systems and hypervisors might find 
-something useful in virtualizing them.  Maybe not.
-
-> BTW I think it will be pretty tough to find enough competent reviewers
-> for your patchkit.
->
-> And is the spec still in flux or are you trying to implement an interface
-> for an specification that is already put into stone? 
->   
-
-Everything is still very much open to change, and nothing is cast in 
-stone - this is about finding the best interface for Linux, and it is 
-clear that it needs some iteration before that is found.  Which is why 
-we are looking for feedback, exactly like this.
-
-Thanks,
-
-Zach
+Greetings,
+Rafael

@@ -1,152 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWCNQJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWCNQM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWCNQJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWCNQJ3
+	id S1751026AbWCNQM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:12:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWCNQM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:09:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39899 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751114AbWCNQJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:09:28 -0500
-Message-ID: <4416EB14.50306@ce.jp.nec.com>
-Date: Tue, 14 Mar 2006 11:11:00 -0500
-From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 14 Mar 2006 11:12:28 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:45576 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751026AbWCNQM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 11:12:27 -0500
+Message-ID: <4416EB29.1070209@vmware.com>
+Date: Tue, 14 Mar 2006 08:11:21 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] kobject_uevent CONFIG_SYSFS=n build fix
-Content-Type: multipart/mixed;
- boundary="------------040109090100080709050901"
+To: Christoph Hellwig <hch@infradead.org>, Zachary Amsden <zach@vmware.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 3/24] i386 Vmi interface definition
+References: <200603131801.k2DI1EAe005650@zach-dev.vmware.com> <20060314152559.GC16921@infradead.org>
+In-Reply-To: <20060314152559.GC16921@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040109090100080709050901
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Christoph Hellwig wrote:
+> On Mon, Mar 13, 2006 at 10:01:14AM -0800, Zachary Amsden wrote:
+>   
+>> Master definition of VMI interface, including calls, constants, and
+>> interface version.
+>>     
+>
+> This is a totally horrible style.  There's absolutely no need to find
+> your own sized integer types, please use the standard kernel ones.
+> Also don't use camel case and #pack but rather __attribute__.
+> Also please avoid // comments.
+>
+> Also please remove all the historical version garbage, we don't care about
+> that.
+>   
 
-Hello,
+Ugly, isn't it.  The collision of two source styles has left some 
+scars.  And fixing it is not yet finished.  We know about these 
+problems, and we are working on getting rid of them.  The historical 
+version garbage is rather important to us internally, and these bits are 
+not yet fully polished, so you get to see it to.  I think you'll find us 
+respecting Linux conventions a lot more in the later patches.
 
-In 2.6.16-rc6 (probably in earlier rc as well),
-following build error occurs with CONFIG_SYSFS=n.
+Zach
 
-kernel/built-in.o(.data+0x1d40): undefined reference to `uevent_helper'
-lib/lib.a(kobject_uevent.o)(.text+0x5c1): In function `kobject_uevent':
-/build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-lib/lib.a(kobject_uevent.o)(.text+0x5d0):/build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-lib/lib.a(kobject_uevent.o)(.text+0x901):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-lib/lib.a(kobject_uevent.o)(.text+0x910):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-
-This seems to be caused by mismatch of build condition.
-uevent_seqnum and uevent_helper are conditional to CONFIG_SYSFS.
-While they are referenced if CONFIG_HOTPLUG (and CONFIG_NET) is enabled.
-
-Attached patch consolidates them to CONFIG_HOTPLUG && CONFIG_NET.
-
-I tried with (!CONFIG_NET && CONFIG_SYSFS) and
-(CONFIG_NET && !CONFIG_SYSFS).
-Both built ok.
-So I think it doesn't conflict with "[PATCH] kobject_uevent CONFIG_NET=n
-fix" which is in 2.6.16-rc6.
-
-Thanks,
--- 
-Jun'ichi Nomura, NEC Solutions (America), Inc.
-
---------------040109090100080709050901
-Content-Type: text/x-patch;
- name="nosysfs-build.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nosysfs-build.patch"
-
-CONFIG_SYSFS=n fails to build due to mismatch of conditions
-for uevent_seqnum and uevent_helper.
-
-kernel/built-in.o(.data+0x1d40): undefined reference to `uevent_helper'
-lib/lib.a(kobject_uevent.o)(.text+0x5c1): In function `kobject_uevent':
-/build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-lib/lib.a(kobject_uevent.o)(.text+0x5d0):/build/rc6/source/lib/kobject_uevent.c:152: undefined reference to `uevent_seqnum'
-lib/lib.a(kobject_uevent.o)(.text+0x901):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-lib/lib.a(kobject_uevent.o)(.text+0x910):/build/rc6/source/lib/kobject_uevent.c:182: undefined reference to `uevent_helper'
-
-Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
-
-
---- linux-2.6.16-rc6.orig/lib/kobject_uevent.c	2006-03-14 08:57:23.000000000 -0500
-+++ linux-2.6.16-rc6/lib/kobject_uevent.c	2006-03-14 08:52:57.000000000 -0500
-@@ -26,6 +26,9 @@
- #define NUM_ENVP	32	/* number of env pointers */
- 
- #if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
-+u64 uevent_seqnum;
-+char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
-+
- static DEFINE_SPINLOCK(sequence_lock);
- static struct sock *uevent_sock;
- 
---- linux-2.6.16-rc6.orig/kernel/sysctl.c	2006-03-14 09:17:09.000000000 -0500
-+++ linux-2.6.16-rc6/kernel/sysctl.c	2006-03-14 09:24:32.000000000 -0500
-@@ -399,7 +399,7 @@ static ctl_table kern_table[] = {
- 		.strategy	= &sysctl_string,
- 	},
- #endif
--#ifdef CONFIG_HOTPLUG
-+#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
- 	{
- 		.ctl_name	= KERN_HOTPLUG,
- 		.procname	= "hotplug",
---- linux-2.6.16-rc6.orig/kernel/ksysfs.c	2006-03-14 08:57:31.000000000 -0500
-+++ linux-2.6.16-rc6/kernel/ksysfs.c	2006-03-14 09:38:44.000000000 -0500
-@@ -15,9 +15,6 @@
- #include <linux/module.h>
- #include <linux/init.h>
- 
--u64 uevent_seqnum;
--char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
--
- #define KERNEL_ATTR_RO(_name) \
- static struct subsys_attribute _name##_attr = __ATTR_RO(_name)
- 
-@@ -25,7 +22,7 @@ static struct subsys_attribute _name##_a
- static struct subsys_attribute _name##_attr = \
- 	__ATTR(_name, 0644, _name##_show, _name##_store)
- 
--#ifdef CONFIG_HOTPLUG
-+#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
- /* current uevent sequence number */
- static ssize_t uevent_seqnum_show(struct subsystem *subsys, char *page)
- {
-@@ -55,7 +52,7 @@ decl_subsys(kernel, NULL, NULL);
- EXPORT_SYMBOL_GPL(kernel_subsys);
- 
- static struct attribute * kernel_attrs[] = {
--#ifdef CONFIG_HOTPLUG
-+#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
- 	&uevent_seqnum_attr.attr,
- 	&uevent_helper_attr.attr,
- #endif
---- linux-2.6.16-rc6.orig/include/linux/kobject.h	2006-03-14 10:00:20.000000000 -0500
-+++ linux-2.6.16-rc6/include/linux/kobject.h	2006-03-14 09:59:52.000000000 -0500
-@@ -27,6 +27,8 @@
- #include <asm/atomic.h>
- 
- #define KOBJ_NAME_LEN			20
-+
-+#if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
- #define UEVENT_HELPER_PATH_LEN		256
- 
- /* path to the userspace helper executed on an event */
-@@ -34,6 +36,7 @@ extern char uevent_helper[];
- 
- /* counter to tag the uevent, read only except for the kobject core */
- extern u64 uevent_seqnum;
-+#endif
- 
- /* the actions here must match the proper string in lib/kobject_uevent.c */
- typedef int __bitwise kobject_action_t;
-
---------------040109090100080709050901--

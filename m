@@ -1,154 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751953AbWCNQPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752125AbWCNQSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751953AbWCNQPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752045AbWCNQPb
+	id S1752125AbWCNQSe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752113AbWCNQSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:15:31 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:3787 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751953AbWCNQPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:15:31 -0500
-Subject: 2.6.16-rc1: 28ms latency when process with lots of swapped memory
-	exits
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 11:15:25 -0500
-Message-Id: <1142352926.13256.117.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.92 
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Mar 2006 11:18:34 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:27531 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1751199AbWCNQSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 11:18:33 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C64782.EADDADA2"
+Subject: RE: [PATCH ] drivers/scsi/scsi.c - export reprobe 
+Date: Tue, 14 Mar 2006 09:18:23 -0700
+Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F36D939@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH ] drivers/scsi/scsi.c - export reprobe 
+Thread-Index: AcZHAZpp/wvGNY9KRWmb/AwqfyYfIwAgTCOw
+From: "Moore, Eric" <Eric.Moore@lsil.com>
+To: "Moore, Eric" <Eric.Moore@lsil.com>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Cc: <James.Bottomley@SteelEye.com>, <hch@lst.de>, <gregkh@novell.com>
+X-OriginalArrivalTime: 14 Mar 2006 16:18:24.0031 (UTC) FILETIME=[EAFB82F0:01C64782]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been testign for weeks with 2.6.16-rc1 + the latency trace patch
-and the longest latencies measured were 10-15ms due to the well known
-rt_run_flush issue.  Today I got one twice as long, when a Firefox
-process with a bunch of acroreads in tabs, from a new code path.
+This is a multi-part message in MIME format.
 
-It seems to trigger when a process with a large amount of memory swapped
-out exits.
+------_=_NextPart_001_01C64782.EADDADA2
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
-Can this be solved with a cond_resched?
+On  Monday, March 13, 2006 5:53 PM, Eric Moore wrote:
 
-preemption latency trace v1.1.5 on 2.6.16-rc1
---------------------------------------------------------------------
- latency: 28130 us, #38020/38020, CPU#0 | (M:rt VP:0, KP:0, SP:0 HP:0)
-    -----------------
-    | task: acroread-29870 (uid:1000 nice:0 policy:0 rt_prio:0)
-    -----------------
-
-                 _------=> CPU#            
-                / _-----=> irqs-off        
-               | / _----=> need-resched    
-               || / _---=> hardirq/softirq 
-               ||| / _--=> preempt-depth   
-               |||| /                      
-               |||||     delay             
-   cmd     pid ||||| time  |   caller      
-      \   /    |||||   \   |   /           
-    Xorg-18254 0d.s2    1us : __trace_start_sched_wakeup (try_to_wake_up)
-    Xorg-18254 0d.s2    1us : __trace_start_sched_wakeup <<...>-29870> (73 0)
-    Xorg-18254 0d.s.    2us : wake_up_process (process_timeout)
-    Xorg-18254 0dn.2    3us < (2110048)
-    Xorg-18254 0dn.2    4us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2    5us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2    6us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3    6us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3    7us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4    8us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3    8us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2    9us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   10us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   11us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   12us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   12us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   13us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3   14us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2   14us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   15us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   16us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   16us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   17us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   18us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3   19us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2   19us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   20us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   21us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   21us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   22us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   23us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3   23us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2   24us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   25us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   25us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   26us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   27us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   27us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3   28us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2   29us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   30us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   30us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   31us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   32us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   32us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3   33us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2   34us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   35us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   35us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   36us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   37us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   37us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3   38us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2   39us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.2   40us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2   40us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3   41us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3   42us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4   42us : radix_tree_lookup (find_trylock_page)
-
-[ etc ]
-
-    Xorg-18254 0dn.2 28062us : free_swap_and_cache (unmap_vmas)
-    Xorg-18254 0dn.2 28062us : swap_info_get (free_swap_and_cache)
-    Xorg-18254 0dn.3 28063us : swap_entry_free (free_swap_and_cache)
-    Xorg-18254 0dn.3 28064us : find_trylock_page (free_swap_and_cache)
-    Xorg-18254 0dn.4 28064us : radix_tree_lookup (find_trylock_page)
-    Xorg-18254 0dn.3 28065us : preempt_schedule (find_trylock_page)
-    Xorg-18254 0dn.2 28066us : preempt_schedule (free_swap_and_cache)
-    Xorg-18254 0dn.1 28067us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28073us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28077us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28083us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28089us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28095us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28099us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28101us+: preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.1 28106us : preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.2 28107us : vm_normal_page (unmap_vmas)
-    Xorg-18254 0dn.2 28109us : vm_normal_page (unmap_vmas)
-    Xorg-18254 0dn.2 28109us : vm_normal_page (unmap_vmas)
-    Xorg-18254 0dn.2 28110us : vm_normal_page (unmap_vmas)
-    Xorg-18254 0dn.1 28111us : preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.. 28112us : preempt_schedule (unmap_vmas)
-    Xorg-18254 0dn.. 28113us : schedule (preempt_schedule)
-    Xorg-18254 0dn.. 28113us : stop_trace (schedule)
-    Xorg-18254 0dn.. 28114us : profile_hit (schedule)
-    Xorg-18254 0dn.1 28115us+: sched_clock (schedule)
-    Xorg-18254 0dn.2 28117us : recalc_task_prio (schedule)
-    Xorg-18254 0dn.2 28119us+: effective_prio (recalc_task_prio)
-   <...>-29870 0d..2 28123us+: __switch_to (schedule)
-   <...>-29870 0d..2 28126us : schedule <Xorg-18254> (76 73)
-   <...>-29870 0d..1 28127us : trace_stop_sched_switched (schedule)
-   <...>-29870 0d..2 28128us : trace_stop_sched_switched <<...>-29870> (73 0)
-   <...>-29870 0d..2 28130us : schedule (schedule)
+>=20
+> ---------------------------------------------------
+> Adding support for exposing hidden raid components=20
+> for sg interface. The sdev->no_uld_attach flag
+> will set set accordingly.
+>=20
+> The sas module supports adding/removing raid
+> volumes using online storage management application
+> interface. =20
+>=20
+> This patch was provided to me by Christoph Hellwig.
+>=20
+> Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
 
 
-vim:ft=help
+Here is repost of patch due to dos line endings.
 
+------_=_NextPart_001_01C64782.EADDADA2
+Content-Type: application/octet-stream;
+	name="scsi_device_reprobe"
+Content-Transfer-Encoding: base64
+Content-Description: scsi_device_reprobe
+Content-Disposition: attachment;
+	filename="scsi_device_reprobe"
 
+SW5kZXg6IHNjc2ktbWlzYy0yLjYvZHJpdmVycy9zY3NpL3Njc2kuYw0KPT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
+IHNjc2ktbWlzYy0yLjYub3JpZy9kcml2ZXJzL3Njc2kvc2NzaS5jCTIwMDYtMDMtMDQgMTM6MDc6
+NDQuMDAwMDAwMDAwICswMTAwDQorKysgc2NzaS1taXNjLTIuNi9kcml2ZXJzL3Njc2kvc2NzaS5j
+CTIwMDYtMDMtMDcgMjE6NTc6MjEuMDAwMDAwMDAwICswMTAwDQpAQCAtMTIxNCw2ICsxMjE0LDEz
+IEBADQogfQ0KIEVYUE9SVF9TWU1CT0woc2NzaV9kZXZpY2VfY2FuY2VsKTsNCiANCit2b2lkIHNj
+c2lfZGV2aWNlX3JlcHJvYmUoc3RydWN0IHNjc2lfZGV2aWNlICpzZGV2KQ0KK3sNCisJZGV2aWNl
+X3JlcHJvYmUoJnNkZXYtPnNkZXZfZ2VuZGV2KTsNCit9DQorDQorRVhQT1JUX1NZTUJPTChzY3Np
+X2RldmljZV9yZXByb2JlKTsNCisNCiBNT0RVTEVfREVTQ1JJUFRJT04oIlNDU0kgY29yZSIpOw0K
+IE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCiANCkluZGV4OiBzY3NpLW1pc2MtMi42L2luY2x1ZGUv
+c2NzaS9zY3NpX2RldmljZS5oDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gc2NzaS1taXNjLTIuNi5vcmlnL2lu
+Y2x1ZGUvc2NzaS9zY3NpX2RldmljZS5oCTIwMDYtMDMtMDQgMTM6MDc6NDkuMDAwMDAwMDAwICsw
+MTAwDQorKysgc2NzaS1taXNjLTIuNi9pbmNsdWRlL3Njc2kvc2NzaV9kZXZpY2UuaAkyMDA2LTAz
+LTA3IDIxOjU3OjQ1LjAwMDAwMDAwMCArMDEwMA0KQEAgLTIwNCw2ICsyMDQsNyBAQA0KIAkJCSAg
+IHVpbnQgdGFyZ2V0LCB1aW50IGx1bik7DQogZXh0ZXJuIHZvaWQgc2NzaV9yZW1vdmVfZGV2aWNl
+KHN0cnVjdCBzY3NpX2RldmljZSAqKTsNCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2NhbmNlbChz
+dHJ1Y3Qgc2NzaV9kZXZpY2UgKiwgaW50KTsNCitleHRlcm4gdm9pZCBzY3NpX2RldmljZV9yZXBy
+b2JlKHN0cnVjdCBzY3NpX2RldmljZSAqKTsNCiANCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2dl
+dChzdHJ1Y3Qgc2NzaV9kZXZpY2UgKik7DQogZXh0ZXJuIHZvaWQgc2NzaV9kZXZpY2VfcHV0KHN0
+cnVjdCBzY3NpX2RldmljZSAqKTsNCg==
 
-
-
+------_=_NextPart_001_01C64782.EADDADA2--

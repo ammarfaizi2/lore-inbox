@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWCNWKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWCNWMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWCNWKc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:10:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWCNWKb
+	id S964791AbWCNWMA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWCNWMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:10:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3852 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964790AbWCNWKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:10:30 -0500
-Date: Tue, 14 Mar 2006 22:10:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nickolay <nickolay@protei.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: uncachable access to physical pages(ARM, xScale)
-Message-ID: <20060314221020.GA3166@flint.arm.linux.org.uk>
-Mail-Followup-To: Nickolay <nickolay@protei.ru>,
-	linux-kernel@vger.kernel.org
-References: <4417364C.6020609@protei.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4417364C.6020609@protei.ru>
-User-Agent: Mutt/1.4.1i
+	Tue, 14 Mar 2006 17:12:00 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:2188 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964791AbWCNWMA convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:12:00 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: [PATCH] provide hrtimer exports for module use [Was: Exports for hrtimer APIs]
+Date: Tue, 14 Mar 2006 14:11:44 -0800
+Message-ID: <CBDB88BFD06F7F408399DBCF8776B3DC06A92BAC@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] provide hrtimer exports for module use [Was: Exports for hrtimer APIs]
+Thread-Index: AcZHr0cFtDO0p068SiapIBwj5obT7wAAblKw
+From: "Stone, Joshua I" <joshua.i.stone@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Thomas Gleixner" <tglx@linutronix.de>
+X-OriginalArrivalTime: 14 Mar 2006 22:11:46.0465 (UTC) FILETIME=[489E3110:01C647B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 12:31:56AM +0300, Nickolay wrote:
-> I was trying directly unset L_PTE_CACHEABLE | L_PTE_BUFFERABLE flags from
-> pte(see below), but it doesn't working, and i has problem with cache 
-> cogerency between userland and kernelspace:
-> 
-> pgd_t *pgd;
-> pmd_t *pmd;
-> pte_t *pte;
-> 
-> /* find pte */
-> addr = page_address(my_page);
-> pgd = pgd_offset_k(addr & PAGE_MASK);
-> pmd = pmd_offset(pgd, addr & PAGE_MASK);
-> pte = pte_offset_kernel(pmd, addr & PAGE_MASK);
-> 
-> /* ok, we get pte, now unset L_PTE_CACHEABLE and
->    L_PTE_BUFFERABLE flags
-> */
-> pte_val(*pte) &= ~(L_PTE_CACHEABLE|L_PTE_BUFFERABLE);
-> 
-> The problem descriprion simple, kernel at some time doesn't see
-> data, which userland writes to shared buffer, without inserting
-> flush_cache_all after each operation with shared buffer from kernel.
+Andrew Morton wrote:
+> Wordwrapped...
 
-Rather than just assuming that there are page tables there, if you
-added the usual checks which the kernel typically does, you might
-get a clue as to what's going on.
+Yes, Outlook/Exchange betrayed me... sorry.
 
-You'll find that the PMD is not valid as far as the Linux page table
-walking goes - that's because we don't use a set of individual page
-mappings to setup the kernel mapping of the page.  In turn, that
-means that there is no individual control over the status of pages
-allocated by alloc_pages.
+> gee, that's a lot of exports.  I don't know whether all of these
+> would be considered stable over the long-term?
 
-To solve your problem, you need to look at the ARM DMA mmap extension
-and use that instead.
+For that first patch, I simply looked for the functions that looked
+appropriate for general users of hrtimers.  If you would like to be more
+conservative, these five are all I need for SystemTap:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+EXPORT_SYMBOL_GPL(ktime_add_ns);
+EXPORT_SYMBOL_GPL(hrtimer_forward);
+EXPORT_SYMBOL_GPL(hrtimer_start);
+EXPORT_SYMBOL_GPL(hrtimer_cancel);
+EXPORT_SYMBOL_GPL(hrtimer_init);
+
+> Can you tell us a bit about why systemtap modules need the hrtimer
+> capability?  How it's being used and for what, etc?
+
+Sure - SystemTap uses timers to provide an asynchronous probe during
+module execution.  This might be utilized for polling kernel states, for
+flushing trace data, and perhaps other similar uses.  Currently we're
+using the main timer APIs - add_timer, mod_timer, etc.
+
+My motivation for moving to hrtimer is because of what I read in its
+documentation - basically that the timer wheel is best for timeout cases
+which are rarely recascaded.  The way SystemTap uses timers is more for
+defining intervals, and they are always cascaded until the module is
+complete.  The hrtimers seem more suited to this methodology.
+
+Correct me if I'm wrong...
+
+Josh

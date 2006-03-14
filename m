@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWCNUW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWCNU0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751502AbWCNUW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 15:22:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCNUW5
+	id S1751529AbWCNU0j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 15:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751517AbWCNU0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 15:22:57 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53961 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751502AbWCNUW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 15:22:56 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>,
-       "Dave Hansen <haveblue@us.ibm.com> Cedric Le Goater" <clg@fr.ibm.com>,
-       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org
-Subject: Re: question: pid space semantics.
-References: <1142282940.27590.17.camel@localhost.localdomain>
-	<m1veuglvdx.fsf@ebiederm.dsl.xmission.com>
-	<1142363896.28604.43.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 14 Mar 2006 13:21:25 -0700
-In-Reply-To: <1142363896.28604.43.camel@localhost.localdomain> (Dave
- Hansen's message of "Tue, 14 Mar 2006 11:18:16 -0800")
-Message-ID: <m1ek14lquy.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Mar 2006 15:26:39 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:5612 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750834AbWCNU0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 15:26:38 -0500
+Message-Id: <200603142025.k2EKP8Z4010175@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Adrian Bunk <bunk@stusta.de>, davem@davemloft.net,
+       linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] crypto/aes.c: array overrun 
+In-Reply-To: Your message of "Sat, 11 Mar 2006 13:41:16 +1100."
+             <20060311024116.GA21856@gondor.apana.org.au> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060311010339.GF21864@stusta.de>
+            <20060311024116.GA21856@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1142367908_9726P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Mar 2006 15:25:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+--==_Exmh_1142367908_9726P
+Content-Type: text/plain; charset=us-ascii
 
-> On Tue, 2006-03-14 at 11:43 -0700, Eric W. Biederman wrote:
->> The question:
->>   If we could add additional pid values in different pid spaces to a
->>   process with a syscall upon demand would that lead to an
->>   implementation everyone could use? 
->
-> So, you'd basically only allocate the cross-namespace pids when you
-> needed to do some kind of cross-namespace management?
+On Sat, 11 Mar 2006 13:41:16 +1100, Herbert Xu said:
 
-Yes, or setup a parent/child relationship.  So I think the first
-process in a container would always get two pids.
+> OK this is not pretty but it is actually correct.  Notice how we only
+> overstep the mark for E_KEY but never for D_KEY.  Since D_KEY is only
+> initialised after this, it is OK for us to trash the start of D_KEY.
 
-> pid_t alloc_local_pid(container_handle, pid_t pid_inside_container)
+I think a big comment block describing this behavior is called for,
+as it carries an implicit requirement that D_KEY and E_KEY remain
+adjacent in memory.  Anybody allocating space between them is in for
+a rude awakening....
 
-That is the idea.
 
-I actually expect the implementation to look very much different.
-To me the nice piece of this concept is that it allows all pids
-to local to a pid space while still be able to talk to remote
-processes.
+--==_Exmh_1142367908_9726P
+Content-Type: application/pgp-signature
 
-Eric
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFEFyakcC3lWbTT17ARAtUpAKDHJCRZ/NSWKPiOGRrujNKyud3LcACeNrMH
+1orXSdII+4IR+kbNvSNGwhI=
+=eVgV
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1142367908_9726P--

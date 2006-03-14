@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWCNUAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWCNUEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750936AbWCNUAT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 15:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCNUAT
+	id S1751428AbWCNUEh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 15:04:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWCNUEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 15:00:19 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:37277 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750936AbWCNUAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 15:00:18 -0500
-Date: Tue, 14 Mar 2006 15:00:55 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Roland McGrath <roland@redhat.com>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: What is ptrace flag PT_TRACESYSGOOD for?
-Message-ID: <20060314200055.GA22286@ccure.user-mode-linux.org>
-References: <200603140531_MC3-1-BAA0-B3C3@compuserve.com>
+	Tue, 14 Mar 2006 15:04:36 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:65004 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1751337AbWCNUEg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 15:04:36 -0500
+Date: Tue, 14 Mar 2006 13:04:30 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-scsi@vger.kernel.org,
+       promise_linux@promise.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
+Message-ID: <20060314200430.GW1653@parisc-linux.org>
+References: <20060313224112.GA19513@havoc.gtf.org> <20060313154236.32293cf9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603140531_MC3-1-BAA0-B3C3@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20060313154236.32293cf9.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 05:26:52AM -0500, Chuck Ebbert wrote:
-> I am trying to document PTRACE_SETOPTIONS and I can't figure out what
-> the option PTRACE_O_TRACESYSGOOD is used for.
+On Mon, Mar 13, 2006 at 03:42:36PM -0800, Andrew Morton wrote:
+> > +#include <linux/irq.h>
+> 
+> Can't include linux/irq.h from generic code (we really ought to fix that).
 
-It makes it easier to distinguish between the child receiving a
-SIGTRAP and making a system call.  On x86, without TRACESYSGOOD, you
-can see if orig_eax == -1 to check for a real SIGTRAP.  I'm not sure
-about the other arches, but it's nice to have an arch-independent way
-of doing it, even if there are equivalents in every arch.
+In a sense we have -- everybody should include <linux/interrupt.h> and
+not <*/irq.h>.  Perhaps we need to poison the includes.
 
-				Jeff
+> > +static inline u16 shasta_alloc_tag(u32 *bitmap)
+> > +{
+> > +	u16 i;
+> > +	for (i = 0; i < TAG_BITMAP_LENGTH; i++) 
+> > +		if (!((*bitmap) & (1 << i))) {
+> > +			*bitmap |= (1 << i);
+> > +			return i;
+> > +		}
+> > +
+> > +	return TAG_BITMAP_LENGTH;
+> > +}
+> 
+> This is too large to be inlined.
+
+And if I read the driver right, is unnecessary code.  It could just use
+the midlayer tag code (ok, not scsi_populate_tag_msg() which is
+SPI-specific, but scsi_activate_tcq(), scsi_deactivate_tcq(),
+scsi_find_tag(), scsi_set_tag_type(), and scsi_get_tag_type() should all
+work, being thin wrappers around the block layer functionality.
+

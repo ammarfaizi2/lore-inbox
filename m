@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751855AbWCNXAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752047AbWCNXDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751855AbWCNXAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 18:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNXAF
+	id S1752047AbWCNXDA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 18:03:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751636AbWCNXDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 18:00:05 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:39122 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S1751855AbWCNXAE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 18:00:04 -0500
-Date: Wed, 15 Mar 2006 08:54:48 +1000
-From: David McCullough <david_mccullough@au.securecomputing.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Adrian Bunk <bunk@stusta.de>,
-       davem@davemloft.net, linux-crypto@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] crypto/aes.c: array overrun
-Message-ID: <20060314225448.GA27285@beast>
-References: <20060311010339.GF21864@stusta.de> <20060311024116.GA21856@gondor.apana.org.au> <200603142025.k2EKP8Z4010175@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-In-Reply-To: <200603142025.k2EKP8Z4010175@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.9i
+	Tue, 14 Mar 2006 18:03:00 -0500
+Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:43471 "EHLO
+	mtaout03-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750734AbWCNXC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 18:02:59 -0500
+Message-ID: <44174DA0.5020105@gentoo.org>
+Date: Tue, 14 Mar 2006 23:11:28 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mail/News 1.5 (X11/20060207)
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org,
+       autophile@starband.net, stern@rowland.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: HP CDRW CD4E hasn't worked since 2.6.11
+References: <17430.14259.90181.849542@berry.ken.nicta.com.au> <20060314221958.GD12257@suse.de>
+In-Reply-To: <20060314221958.GD12257@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Tue, Mar 14, 2006 at 02:25:39PM +1100, Peter Chubb wrote:
+>> Hi Greg,
+>> 	The changes to the usb/storage/shuttle_usbat.c to accomodate
+>> flash drives appears to have broken CD R/W support.
+>>
+>> Sorry it took me so long to report this; I don't use this particular
+>> device very often.
+>>
+>> Compiling with verbose debug shows that the IDENTIFY_PACKET_DEVICE
+>> command is failing, so the device is mis-identified as a flash drive.
+>>
+>> I went to the start of the Git history in Linus's tree; 2.6.12 also
+>> fails.
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think it may have worked for you on-and-off in the middle of those 
+changes. It's been a nightmare trying to get both device types 
+identified correctly.
 
+>> I tried to force the detection, to see if I could get past that point,
+>> but there are still problems -- see the attached logs -- the device is
+>> recognised as a scsi disk not cdrom.
 
-Jivin Valdis.Kletnieks@vt.edu lays it down ...
-> On Sat, 11 Mar 2006 13:41:16 +1100, Herbert Xu said:
-> 
-> > OK this is not pretty but it is actually correct.  Notice how we only
-> > overstep the mark for E_KEY but never for D_KEY.  Since D_KEY is only
-> > initialised after this, it is OK for us to trash the start of D_KEY.
-> 
-> I think a big comment block describing this behavior is called for,
-> as it carries an implicit requirement that D_KEY and E_KEY remain
-> adjacent in memory.  Anybody allocating space between them is in for
-> a rude awakening....
+Can you detail your changes? I'm not convinced by this, because I have 
+been careful not to change any HP8200-specific code (except the 
+detection), and also, I don't think it is possible for the device to 
+appear as a disk if the HP8200 codepath is being followed.
 
-Sounds like a bug waiting to happen to me.
-Why not do something like the attached patch.
+There was one other report of this but my emails to that reporter were 
+bouncing so I left this in my todo mailbox.
 
-Cheers,
-Davidm
-
--- 
-David McCullough, david_mccullough@au.securecomputing.com, Ph:+61 734352815
-Secure Computing - SnapGear  http://www.uCdot.org http://www.cyberguard.com
-
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="aes.diff"
-
-Index: linux-2.6.x/crypto/aes.c
-===================================================================
-RCS file: linux-2.6.x/crypto/aes.c,v
-retrieving revision 1.1.1.6
-diff -u -r1.1.1.6 aes.c
---- linux-2.6.x/crypto/aes.c	31 Aug 2005 00:33:03 -0000	1.1.1.6
-+++ linux-2.6.x/crypto/aes.c	14 Mar 2006 22:53:06 -0000
-@@ -78,12 +78,11 @@
- 
- struct aes_ctx {
- 	int key_length;
--	u32 E[60];
--	u32 D[60];
-+	u32 _KEYS[120];
- };
- 
--#define E_KEY ctx->E
--#define D_KEY ctx->D
-+#define E_KEY (&ctx->_KEYS[0])
-+#define D_KEY (&ctx->_KEYS[60])
- 
- static u8 pow_tab[256] __initdata;
- static u8 log_tab[256] __initdata;
-
---ZGiS0Q5IWpPtfppv--
+Daniel

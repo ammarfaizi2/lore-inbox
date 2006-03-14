@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWCNWJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWCNWKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWCNWJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWCNWJ5
+	id S964790AbWCNWKc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:10:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWCNWKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:09:57 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:19144 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S964790AbWCNWJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:09:57 -0500
-Message-ID: <44173F32.9020302@bigpond.net.au>
-Date: Wed, 15 Mar 2006 09:09:54 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
-Subject: Re: [PATCH][2/4] sched: add discrete weighted cpu load function
-References: <200603131906.11739.kernel@kolivas.org> <4415F49C.8020208@bigpond.net.au> <cone.1142290371.837084.5853.501@kolivas.org>
-In-Reply-To: <cone.1142290371.837084.5853.501@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Mar 2006 22:09:54 +0000
+	Tue, 14 Mar 2006 17:10:31 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3852 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964790AbWCNWKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:10:30 -0500
+Date: Tue, 14 Mar 2006 22:10:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nickolay <nickolay@protei.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uncachable access to physical pages(ARM, xScale)
+Message-ID: <20060314221020.GA3166@flint.arm.linux.org.uk>
+Mail-Followup-To: Nickolay <nickolay@protei.ru>,
+	linux-kernel@vger.kernel.org
+References: <4417364C.6020609@protei.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4417364C.6020609@protei.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Peter Williams writes:
+On Wed, Mar 15, 2006 at 12:31:56AM +0300, Nickolay wrote:
+> I was trying directly unset L_PTE_CACHEABLE | L_PTE_BUFFERABLE flags from
+> pte(see below), but it doesn't working, and i has problem with cache 
+> cogerency between userland and kernelspace:
 > 
->> Con Kolivas wrote:
->>
->>> +unsigned long weighted_cpuload(const int cpu)
->>> +{
->>> +    return (cpu_rq(cpu)->raw_weighted_load);
->>> +}
->>> +
->>
->>
->> Wouldn't this be a candidate for inlining?
+> pgd_t *pgd;
+> pmd_t *pmd;
+> pte_t *pte;
 > 
+> /* find pte */
+> addr = page_address(my_page);
+> pgd = pgd_offset_k(addr & PAGE_MASK);
+> pmd = pmd_offset(pgd, addr & PAGE_MASK);
+> pte = pte_offset_kernel(pmd, addr & PAGE_MASK);
 > 
-> That would make it unsuitable for exporting via sched.h.
+> /* ok, we get pte, now unset L_PTE_CACHEABLE and
+>    L_PTE_BUFFERABLE flags
+> */
+> pte_val(*pte) &= ~(L_PTE_CACHEABLE|L_PTE_BUFFERABLE);
+> 
+> The problem descriprion simple, kernel at some time doesn't see
+> data, which userland writes to shared buffer, without inserting
+> flush_cache_all after each operation with shared buffer from kernel.
 
-If above_background_load() were implemented inside sched.c instead of in 
-sched.h there would be no need to export weighted_cpuload() would there? 
-  This would allow weighted_cpuload() to be inline and the efficiency 
-would be better as above_background_load() doesn't gain a lot by being 
-inline as having weighted_cpulpad() non inline means that it's doing a 
-function call several times in a loop i.e. it may save one function call 
-by being inline but requires (up to) one function call for every CPU.
+Rather than just assuming that there are page tables there, if you
+added the usual checks which the kernel typically does, you might
+get a clue as to what's going on.
 
-The other way around the cost would be just one function call.
+You'll find that the PMD is not valid as far as the Linux page table
+walking goes - that's because we don't use a set of individual page
+mappings to setup the kernel mapping of the page.  In turn, that
+means that there is no individual control over the status of pages
+allocated by alloc_pages.
 
-Peter
+To solve your problem, you need to look at the ARM DMA mmap extension
+and use that instead.
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

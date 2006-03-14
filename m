@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751776AbWCNJ7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752061AbWCNKCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751776AbWCNJ7M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 04:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752049AbWCNJ7M
+	id S1752061AbWCNKCa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 05:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752057AbWCNKCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 04:59:12 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:653 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751776AbWCNJ7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 04:59:12 -0500
-Date: Tue, 14 Mar 2006 10:56:54 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16-rc6 patch] remove sleep_avg multiplier
-Message-ID: <20060314095654.GA8756@elte.hu>
-References: <1142329861.9710.16.camel@homer>
+	Tue, 14 Mar 2006 05:02:30 -0500
+Received: from mail-gate.ait.ac.th ([202.183.214.47]:59619 "EHLO
+	mail-gate.ait.ac.th") by vger.kernel.org with ESMTP
+	id S1752061AbWCNKC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 05:02:29 -0500
+Date: Tue, 14 Mar 2006 17:02:17 +0700
+From: Alain Fauconnet <alain@ait.ac.th>
+To: linux-kernel@vger.kernel.org
+Subject: raidautorun gets ENODEV when called from initrd in 2.6.15.4
+Message-ID: <20060314100217.GF7987@ait.ac.th>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142329861.9710.16.camel@homer>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.8 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello readers,
 
-* Mike Galbraith <efault@gmx.de> wrote:
+Would someone please hint me on why a box using SATA (sata_sil -
+wouldn't think it's relevant) and software RAID-1 can't boot with RAID
+support as modules? (using an initrd image).
 
-> Greetings,
-> 
-> The patchlet below removes the sleep_avg multiplier.  This multiplier
-> was necessary back when we had 10 seconds of dynamic range in sleep_avg,
-> but now that we only have one second, it causes that one second to be
-> compressed down to 100ms in some cases.  This is particularly noticeable
-> when compiling a kernel in a slow NFS mount, and I believe it to be a
-> very likely candidate for other recently reported network related
-> interactivity problems.
-> 
-> In testing, I can detect no negative impact of this removal.  IMHO, this
-> constitutes a bug-fix, and as such is suitable for 2.6.16.
-> 
-> 	-Mike
-> 
-> Signed-off-by: Mike Galbraith <efault@gmx.de>
+I get "raidautorun: RAID_AUTORUN failed: 19" when nash runs
+"raidautorun /dev/md0" at boot, therefore the root filesystem fails to
+mount and the system panics. At this point I have confirmed that the
+physical member devices/partitions have been detected OK and that the
+md-mod.ko and raid1.ko modules load without error.
 
-looks good to me. The biggest complaint against the current scheduler is 
-over-eager interactivity boosting - this patch moderates that in a 
-smooth way.
+The same box boots OK with RAID support compiled static, but well,
+I like the dynamic way and I'd love to understand what's going on.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+>From what I can see (confirmed by adding a "printk" there),
+that part of md.c is hit:
 
-	Ingo
+        /* if we are not initialised yet, only ADD_NEW_DISK, STOP_ARRAY,
+         * RUN_ARRAY, and SET_BITMAP_FILE are allowed */
+        if (!mddev->raid_disks && cmd != ADD_NEW_DISK && cmd != STOP_ARRAY
+                        && cmd != RUN_ARRAY && cmd != SET_BITMAP_FILE) {
+                printk(KERN_ALERT "md: cmd = %d\n", cmd); /* added by me */
+                err = -ENODEV; 
+                goto abort_unlock;
+
+The IOCTL command received is 0x914 (RAID_AUTORUN) which makes sense
+to me. So the issue is that mddev->raid_disks is NULL, I guess.
+
+Trustix Linux 2.2
+Kernel 2.6.15.4 compiled from source
+Mkinitrd 4.1.18-2 RPM from FC3 installed in place
+of the original one that comes with Trustix because it can't
+manage .ko modules.
+The same setup works on a Dell Poweredge 750 in an almost
+exacty similar configuration (2 SATA disks - Intel chipset in this case,
+with software RAID, kernel 2.6.13).
+
+I'm stuck. I'd be very grateful to receive any hint.
+
+Greets,
+_Alain_

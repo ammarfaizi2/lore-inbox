@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751835AbWCNMrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752080AbWCNMrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751835AbWCNMrr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 07:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752080AbWCNMrr
+	id S1752080AbWCNMrz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 07:47:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWCNMrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 07:47:47 -0500
-Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:54667 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751835AbWCNMrr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 07:47:47 -0500
-Message-ID: <4416BB73.5070801@drzeus.cx>
-Date: Tue, 14 Mar 2006 13:47:47 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060210)
+	Tue, 14 Mar 2006 07:47:55 -0500
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:16525 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1752080AbWCNMry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 07:47:54 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [2.6.16-rc6 patch] remove sleep_avg multiplier
+Date: Tue, 14 Mar 2006 23:47:19 +1100
+User-Agent: KMail/1.9.1
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <1142329861.9710.16.camel@homer> <200603142329.31281.kernel@kolivas.org> <1142340034.11303.20.camel@homer>
+In-Reply-To: <1142340034.11303.20.camel@homer>
 MIME-Version: 1.0
-To: Sergey Vlasov <vsu@altlinux.ru>
-CC: Bill Nottingham <notting@redhat.com>, Kay Sievers <kay.sievers@vrfy.org>,
-       Andrew Morton <akpm@osdl.org>, ambx1@neo.rr.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
-References: <20060301194532.GB25907@vrfy.org>	<4406AF27.9040700@drzeus.cx>	<20060302165816.GA13127@vrfy.org>	<44082E14.5010201@drzeus.cx>	<4412F53B.5010309@drzeus.cx>	<20060311173847.23838981.akpm@osdl.org>	<4414033F.2000205@drzeus.cx>	<20060312172332.GA10278@vrfy.org>	<20060313165719.GB4147@devserv.devel.redhat.com>	<20060313192411.GA23380@vrfy.org>	<20060313222644.GD1311@devserv.devel.redhat.com> <20060314152944.797390cd.vsu@altlinux.ru>
-In-Reply-To: <20060314152944.797390cd.vsu@altlinux.ru>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603142347.19927.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Vlasov wrote:
-> BTW, we can change the alias format for PNP device drivers to
+On Tuesday 14 March 2006 23:40, Mike Galbraith wrote:
+> On Tue, 2006-03-14 at 23:29 +1100, Con Kolivas wrote:
+> > On Tuesday 14 March 2006 23:24, Mike Galbraith wrote:
+> > > Don't forget, every one of the exploits I test with were posted by
+> > > people who were experiencing scheduler problems in real life.  Try to
+> > > use your box while running those exploits, and then tell me that you
+> > > agree with interbench's assessment.
+> >
+> > Ok you feel interbench is an irrelevant benchmark for your test case and
+> > I'm not going to bother arguing since it doesn't claim to test every
+> > single situation.
 >
-> 	pnp:*dXXXYYYY*
->
-> (note the additional "*" before the device ID).  This would allow us to
-> have a single-value "modalias" attribute for PNP logical devices too -
-> it would have the form
->
-> 	pnp:dXXXYYYYdXXXYYYYdXXXYYYY
->
-> (listing all IDs, in this case sorting is not required, because each
-> driver will match at most only a single dXXXYYYY entry).
->   
+> Yes.  Interbench's opinion is irrelevant to me wrt this problem.
 
-How do you guarantee that the modules are tried in the correct order? Is
-it well defined in modprobe that pnp:*dABC0001* would match before
-pnp:*dXYZ0001* if the modalias is pnp:dABC0001dXYZ0001 ?
+Ok one last try to explain where I'm coming from and then I'll give up ...
 
-Rgds
-Pierre
+Interbench's opinion is not irrelevant to me on this because it may help your 
+nfs case but interbench does tell me what happens with X, video, audio etc. 
+It's precisely because it quantifies those other scenarios that I care.
 
+Cheers,
+Con

@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752113AbWCNQSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWCNQYR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752113AbWCNQSk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWCNQSk
+	id S1750903AbWCNQYR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:24:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751768AbWCNQYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:18:40 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:28043 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1752099AbWCNQSj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:18:39 -0500
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 14 Mar 2006 11:24:17 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:12810 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750903AbWCNQYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 11:24:16 -0500
+Message-ID: <4416EDBF.3070609@vmware.com>
+Date: Tue, 14 Mar 2006 08:22:23 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C64782.E81E5913"
-Subject: RE: [PATCH ] drivers/base/bus.c - export reprobe
-Date: Tue, 14 Mar 2006 09:18:18 -0700
-Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F36D938@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH ] drivers/base/bus.c - export reprobe
-Thread-Index: AcZHfQqtMnadw/VUTmyOYUTFWzohzAABZJ6Q
-From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: "Greg KH" <gregkh@suse.de>
-Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <James.Bottomley@SteelEye.com>, <hch@lst.de>
-X-OriginalArrivalTime: 14 Mar 2006 16:18:19.0546 (UTC) FILETIME=[E84F27A0:01C64782]
+To: Rik van Riel <riel@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com> <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com> <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com> <441658A2.4090905@vmware.com> <Pine.LNX.4.63.0603140742530.31791@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0603140742530.31791@cuia.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Rik van Riel wrote:
+> On Mon, 13 Mar 2006, Zachary Amsden wrote:
+>
+>   
+>> There is a Signed-off-by line on every patch I send out,
+>>     
+>
+> You're right.  It was just the first 1/24 that was missing it,
+> it was there in the second copy.
+>   
 
-------_=_NextPart_001_01C64782.E81E5913
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+BTW, I have no idea why the first 1/24 was missing it.  I checked right 
+before sending, and it was there - perhaps I forgot to save my changes.  
+The second copy turned out fine, but didn't make it to LKML.  Everyone 
+cc'd directly got it, but the LKML filter has a ban on the word 
+propasition, and being blackholed by it, I merely assumed the patch was 
+too large - so I split it up, and actually ended up binary searching 
+down to the problematic section before finding the taboo list.
 
-On Tuesday, March 14, 2006 8:35 AM,  Greg KH wrote:
+_Every_  problem eventually turns into a binary search.
 
->=20
-> base64 for the attachment with DOS line ends?  ugh, can you please fix
-> this up and resend?
->=20
-
-Here is repost of patch due to dos line endings.
-
-
-
-------_=_NextPart_001_01C64782.E81E5913
-Content-Type: application/octet-stream;
-	name="rescan_device"
-Content-Transfer-Encoding: base64
-Content-Description: rescan_device
-Content-Disposition: attachment;
-	filename="rescan_device"
-
-SW5kZXg6IHNjc2ktbWlzYy0yLjYvZHJpdmVycy9iYXNlL2J1cy5jDQo9PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0g
-c2NzaS1taXNjLTIuNi5vcmlnL2RyaXZlcnMvYmFzZS9idXMuYwkyMDA2LTAzLTA0IDEzOjA3OjQw
-LjAwMDAwMDAwMCArMDEwMA0KKysrIHNjc2ktbWlzYy0yLjYvZHJpdmVycy9iYXNlL2J1cy5jCTIw
-MDYtMDMtMDcgMjE6MDY6NTkuMDAwMDAwMDAwICswMTAwDQpAQCAtNTM2LDYgKzUzNiwyOCBAQA0K
-IAlidXNfZm9yX2VhY2hfZGV2KGJ1cywgTlVMTCwgTlVMTCwgYnVzX3Jlc2Nhbl9kZXZpY2VzX2hl
-bHBlcik7DQogfQ0KIA0KKy8qKg0KKyAqIGRldmljZV9yZXByb2JlIC0gcmVtb3ZlIGRyaXZlciBm
-b3IgYSBkZXZpY2UgYW5kIHByb2JlIGZvciBhIG5ldyBkcml2ZXINCisgKiBAZGV2OiB0aGUgZGV2
-aWNlIHRvIHJlcHJvYmUNCisgKg0KKyAqIFRoaXMgZnVuY3Rpb24gZGV0YWNoZXMgdGhlIGF0dGFj
-aGVkIGRyaXZlciAoaWYgYW55KSBmb3IgdGhlIGdpdmVuDQorICogZGV2aWNlIGFuZCByZXN0YXJ0
-cyB0aGUgZHJpdmVyIHByb2JpbmcgcHJvY2Vzcy4gIEl0IGlzIGludGVuZGVkDQorICogdG8gdXNl
-IGlmIHByb2JpbmcgY3JpdGVyaWEgY2hhbmdlZCBkdXJpbmcgYSBkZXZpY2VzIGxpZmV0aW1lIGFu
-ZA0KKyAqIGRyaXZlciBhdHRhY2htZW50IHNob3VsZCBjaGFuZ2UgYWNjb3JkaW5nbHkuDQorICov
-DQordm9pZCBkZXZpY2VfcmVwcm9iZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQorew0KKwlpZiAoZGV2
-LT5kcml2ZXIpIHsNCisJCWlmIChkZXYtPnBhcmVudCkgICAgICAgIC8qIE5lZWRlZCBmb3IgVVNC
-ICovDQorCQkJZG93bigmZGV2LT5wYXJlbnQtPnNlbSk7DQorCQlkZXZpY2VfcmVsZWFzZV9kcml2
-ZXIoZGV2KTsNCisJCWlmIChkZXYtPnBhcmVudCkNCisJCQl1cCgmZGV2LT5wYXJlbnQtPnNlbSk7
-DQorCX0NCisNCisJYnVzX3Jlc2Nhbl9kZXZpY2VzX2hlbHBlcihkZXYsIE5VTEwpOw0KK30NCitF
-WFBPUlRfU1lNQk9MX0dQTChkZXZpY2VfcmVwcm9iZSk7DQogDQogc3RydWN0IGJ1c190eXBlICog
-Z2V0X2J1cyhzdHJ1Y3QgYnVzX3R5cGUgKiBidXMpDQogew0KSW5kZXg6IHNjc2ktbWlzYy0yLjYv
-aW5jbHVkZS9saW51eC9kZXZpY2UuaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIHNjc2ktbWlzYy0yLjYub3Jp
-Zy9pbmNsdWRlL2xpbnV4L2RldmljZS5oCTIwMDYtMDMtMDQgMTM6MDc6NDkuMDAwMDAwMDAwICsw
-MTAwDQorKysgc2NzaS1taXNjLTIuNi9pbmNsdWRlL2xpbnV4L2RldmljZS5oCTIwMDYtMDMtMDcg
-MjA6NTM6NDMuMDAwMDAwMDAwICswMTAwDQpAQCAtMzc4LDYgKzM3OCw3IEBADQogZXh0ZXJuIHZv
-aWQgZGV2aWNlX3JlbGVhc2VfZHJpdmVyKHN0cnVjdCBkZXZpY2UgKiBkZXYpOw0KIGV4dGVybiBp
-bnQgIGRldmljZV9hdHRhY2goc3RydWN0IGRldmljZSAqIGRldik7DQogZXh0ZXJuIHZvaWQgZHJp
-dmVyX2F0dGFjaChzdHJ1Y3QgZGV2aWNlX2RyaXZlciAqIGRydik7DQorZXh0ZXJuIHZvaWQgZGV2
-aWNlX3JlcHJvYmUoc3RydWN0IGRldmljZSAqZGV2KTsNCiANCiANCiAvKg0K
-
-------_=_NextPart_001_01C64782.E81E5913--
+Zach

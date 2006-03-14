@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751905AbWCNHNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751766AbWCNHQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751905AbWCNHNM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 02:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752292AbWCNHNM
+	id S1751766AbWCNHQg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 02:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752292AbWCNHQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 02:13:12 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:36516 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750887AbWCNHNL (ORCPT
+	Tue, 14 Mar 2006 02:16:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45518 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751727AbWCNHQg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 02:13:11 -0500
-Message-ID: <44166D04.3070100@garzik.org>
-Date: Tue, 14 Mar 2006 02:13:08 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ed Lin <ed.lin@promise.com>, linux-scsi@vger.kernel.org,
-       promise_linux@promise.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
-References: <NONAMEBgJJ72jYxDwLd000000d3@nonameb.ptu.promise.com> <20060313192042.56bf67b3.akpm@osdl.org>
-In-Reply-To: <20060313192042.56bf67b3.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Mar 2006 02:16:36 -0500
+Date: Mon, 13 Mar 2006 23:14:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How do I get the ext3 driver to shut up?
+Message-Id: <20060313231407.7606f0d3.akpm@osdl.org>
+In-Reply-To: <200603132218.39511.rob@landley.net>
+References: <200603132218.39511.rob@landley.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "Ed Lin" <ed.lin@promise.com> wrote:
->>I guess DMA_32BIT_MASK is OK?
+Rob Landley <rob@landley.net> wrote:
+>
+> I'm making a test suite for busybox mount, which does filesystem autodetection 
+>  the easy way (try all the ones in /etc/filesystems and /proc/filesystems 
+>  until one of them succeeds).  My test code is creating and mounting vfat and 
+>  ext2 filesystems.
 > 
+>  Guess which device driver feels a bit chatty?
 > 
-> If that's semantically what the 0xffffffff means then yes.
+> ...
+>
+>  VFS: Can't find ext3 filesystem on dev loop0.
 
-
-It means "select lower 32 bits, because the other 32 bits are 
-elsewhere."  Since its an arg to cpu_to_le32() I suppose there is an 
-implicit truncation in there, but I add such masking myself to my own 
-code.  Makes it more clear to the reader what's going on, IMO.
-
-Its not quite what DMA_32BIT_MASK intends, either, IMO.
-
-	Jeff
-
-
+That's only printed if the sys_mount() caller set MS_VERBOSE in `flags'.

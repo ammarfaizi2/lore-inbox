@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWCNOfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWCNOsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbWCNOfi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 09:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWCNOfi
+	id S1751039AbWCNOsx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 09:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWCNOsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 09:35:38 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5837 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750943AbWCNOfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 09:35:38 -0500
-Date: Tue, 14 Mar 2006 08:35:15 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: procfs uglyness caused by "cat"
-In-reply-to: <5Qfgo-3At-15@gated-at.bofh.it>
-To: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4416D4A3.9070705@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5Qfgo-3At-15@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 14 Mar 2006 09:48:53 -0500
+Received: from thunk.org ([69.25.196.29]:51340 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751039AbWCNOsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 09:48:52 -0500
+Date: Tue, 14 Mar 2006 09:48:49 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+Subject: Re: How do I get the ext3 driver to shut up?
+Message-ID: <20060314144849.GC16264@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Andrew Morton <akpm@osdl.org>, Rob Landley <rob@landley.net>,
+	linux-kernel@vger.kernel.org
+References: <200603132218.39511.rob@landley.net> <20060313231407.7606f0d3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060313231407.7606f0d3.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Rosmanith wrote:
-> a simple way to get rid of this:
+On Mon, Mar 13, 2006 at 11:14:07PM -0800, Andrew Morton wrote:
+> >  Guess which device driver feels a bit chatty?
+> > 
+> > ...
+> >
+> >  VFS: Can't find ext3 filesystem on dev loop0.
 > 
-> static int uptime_read_proc(char *page, char **start, off_t off,
->                                  int count, int *eof, void *data)
-> {
->         struct timespec uptime;
->         struct timespec idle;
->         int len;
->         cputime_t idletime;
-> 
-> +	if (off)
-> +		return 0;
+> That's only printed if the sys_mount() caller set MS_VERBOSE in `flags'.
 
-Except that this is wrong - if you try to advance the offset a bit from 
-the start of the file and read something, you'll get nothing. This is 
-inconsistent with normal file behavior.
+I should have been a bit more explict in my previous message.
+Actually, if you trace down the logic, it's only printed if
+sys_mount() __DIDN'T__ set MS_VERBOSE in 'flags'.  The code in
+fs/super.c sets the "silent" flag if (flags & MS_VERBOSE) is non-zero.
+The meaning is reversed, which is counterintuitive.  Hence, my patch.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+						- Ted

@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWCNE7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWCNE66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbWCNE7c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 23:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWCNE7c
+	id S1750948AbWCNE66 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 23:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWCNE66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 23:59:32 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:47212 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932307AbWCNE7b convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 23:59:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=B9QTnifa3hznRVxg8TMJgOhQIIk3KPAZpGo1BEy7UkjLLnKnkas8e/2AKWJJx5+/U62yfyd8CbAKi97Y8SRYzb4iRTiYb7L8yzln1iO7nPoKmi8ljBnHphRV64m8lqFzW24evud4NsMPfLdhQlTORo/zXn5zoDb3eYHPrBRdlUU=
-Message-ID: <40f323d00603132059g352ff3e6ufa2e0755f8a51975@mail.gmail.com>
-Date: Tue, 14 Mar 2006 05:59:29 +0100
-From: "Benoit Boissinot" <bboissin@gmail.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: 2.6.16-rc6: all psmouse regressions fixed?
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       "Pavlik Vojtech" <vojtech@suse.cz>,
-       "Ryan Phillips" <rphillips@gentoo.org>, Duncan <1i5t5.duncan@cox.net>,
-       "Meelis Roos" <mroos@linux.ee>
-In-Reply-To: <20060313190714.GD13973@stusta.de>
+	Mon, 13 Mar 2006 23:58:58 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:49668 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1750948AbWCNE66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 23:58:58 -0500
+Message-ID: <44164CDD.6030608@vmware.com>
+Date: Mon, 13 Mar 2006 20:55:57 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
-	 <20060313190714.GD13973@stusta.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com> <441610DE.5060709@us.ibm.com> <44164013.1080404@vmware.com> <Pine.LNX.4.63.0603132304200.17874@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0603132304200.17874@cuia.boston.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/13/06, Adrian Bunk <bunk@stusta.de> wrote:
-> On Sat, Mar 11, 2006 at 03:58:12PM -0800, Linus Torvalds wrote:
-> >...
-> > Dmitry Torokhov:
-> >       Input: psmouse - disable autoresync
-> >...
+Rik van Riel wrote:
+> On Mon, 13 Mar 2006, Zachary Amsden wrote:
 >
-> We had the three psmouse regressions below in 2.6.16-rc5.
+>   
+>> About performance - I actually believe that it is possible to implement 
+>> VMI Linux in such a way that it actually has _better_ performance on Xen 
+>> than the current XenoLinux kernels.
+>>     
 >
-> Duncan already stated that this patch fixed (more exactly: works around)
-> his problems.
->
-> Does anyone still observe a psmouse regression in 2.6.16-rc6 compared
-> to 2.6.15, or is everything fine now?
->
-I didn't test vanilla, but i still have:
-psmouse.c: DualPoint TouchPad at isa0060/serio1/input0 lost sync at byte 1
-psmouse.c: DualPoint TouchPad at isa0060/serio1/input0 - driver resynched.
+> How would VMI allow page table batching at fault time?
+> (one of the future optimizations that are probably worth
+> making for Xen)
+>   
 
-in -mm (2.6.16-rc6-mm1).
-As I cannot reproduce it at will, it is hard to capture useful debug
-info (it usually happens once a day).
+This is exactly what we do.  All page table transitions from P->NP or 
+P->P already require a flushing call (FlushTLB or InvalPage).  The 
+remaining transitions, NP->P require explicit flushing, and we have 
+added the appropriate call sites to do so.  It turns out, the external 
+MMU cache on Sparc provided exactly the required hook point in this case 
+- update_mmu_cache().
 
-regards,
-
-Benoit
+Zach

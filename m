@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752340AbWCNSHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752344AbWCNSIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752340AbWCNSHt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 13:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752323AbWCNSHt
+	id S1752344AbWCNSIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 13:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752343AbWCNSIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 13:07:49 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:13757 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1752340AbWCNSHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 13:07:48 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: does swsusp suck after resume for you? [was Re: Faster resuming of suspend technology.]
-Date: Tue, 14 Mar 2006 19:06:48 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       ck@vds.kolivas.org, Jun OKAJIMA <okajima@digitalinfra.co.jp>,
-       linux-kernel@vger.kernel.org
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060313113631.GA1736@elf.ucw.cz> <200603132303.18758.kernel@kolivas.org>
-In-Reply-To: <200603132303.18758.kernel@kolivas.org>
+	Tue, 14 Mar 2006 13:08:52 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:38088 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751912AbWCNSIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 13:08:52 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       William Irwin <wli@holomorphy.com>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH] task: Make task list manipulations RCU safe.
+References: <m1bqwgx4za.fsf@ebiederm.dsl.xmission.com>
+	<4416FF1F.5DA06CFB@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 14 Mar 2006 11:06:52 -0700
+In-Reply-To: <4416FF1F.5DA06CFB@tv-sign.ru> (Oleg Nesterov's message of
+ "Tue, 14 Mar 2006 20:36:31 +0300")
+Message-ID: <m18xrcnbnn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603141906.49183.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 March 2006 13:03, Con Kolivas wrote:
-> On Monday 13 March 2006 22:36, Pavel Machek wrote:
-> > 4) Congratulations, you are right person to help. Could you test if
-> > Con's patches help?
-> 
-> Ok this patch is only compile tested only but is reasonably straight forward.
-> (I have no hardware to test it on atm). It relies on the previous 4 patches I
-> sent out that update swap prefetch. To make it easier here is a single rolled
-> up patch that goes on top of 2.6.16-rc6-mm1:
-> 
-> http://ck.kolivas.org/patches/swap-prefetch/2.6.16-rc6-mm1-swap_prefetch_suspend_test.patch
-> 
-> Otherwise the incremental patch is below.
-> 
-> Usual blowing up warnings apply with this sort of patch. If it works well then
-> /proc/meminfo should show a very large SwapCached value after resume.
-> 
-}-- snip --{
-> Index: linux-2.6.16-rc6-mm1/kernel/power/swsusp.c
-> ===================================================================
-> --- linux-2.6.16-rc6-mm1.orig/kernel/power/swsusp.c	2006-03-13 10:05:05.000000000 +1100
-> +++ linux-2.6.16-rc6-mm1/kernel/power/swsusp.c	2006-03-13 22:42:52.000000000 +1100
-> @@ -49,6 +49,7 @@
->  #include <linux/bootmem.h>
->  #include <linux/syscalls.h>
->  #include <linux/highmem.h>
-> +#include <linux/swap-prefetch.h>
->  
->  #include "power.h"
->  
-> @@ -269,5 +270,6 @@ int swsusp_resume(void)
->  	touch_softlockup_watchdog();
->  	device_power_up();
->  	local_irq_enable();
-> +	post_resume_swap_prefetch();
->  	return error;
->  }
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-Hm, this code is only executed if there's an error during resume.  You should
-have placed the post_resume_swap_prefetch() call in swsusp_suspend(). :-)
+> Some questions.
+>
+> first_tgid:
+> 	...
+> 	for (; pos && pid_alive(pos); pos = next_task(pos))
+>
+> I think this patch makes this 'pid_alive(pos)' unneeded?
 
-Greetings,
-Rafael
+Close.  The problem is that we could have slept with the
+count elevated on start before we do rcu_read_lock().
+
+> next_tgid:
+> 	rcu_read_lock();
+> 	pos = start;
+> 	if (pid_alive(start))
+> 		pos = next_task(start);
+> 	if (pid_alive(pos) && (pos != &init_task)) {
+> 		get_task_struct(pos);
+> 		goto done;
+> 	}
+>
+> The first 'pid_alive()' check is quite understandable.
+> What about the second one? I beleive, now it is unneeded
+> as well. The same for first_tid/next_tid.
+
+Agreed.  Since we are guaranteed that ->next will still
+be valid we should be able to get this down to a single
+pid_alive check.  Although I'm not certain I would want
+to return a task that had just died from either of these functions.
+But I guess the race is there regardless.
+
+> Also, first_tid() does 'task_lock(leader)' while reading
+> ->signal->count. Why? ->signal is protected by ->siglock,
+> but we don't need any locks because ->signal is rcu safe.
+> Same for proc_task_getattr(), s/task_lock/rcu_read_lock/.
+
+Probably my general paranoia.  I know I didn't quite grok
+rcu at the time I wrote that code, and I could have easily
+gotten confused about what task_lock protects.  Looks like
+I need to generate a patch to cleanup that one.
+
+Eric
+

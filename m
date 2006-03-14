@@ -1,81 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWCNX0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWCNX1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWCNX0c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 18:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWCNX0c
+	id S932082AbWCNX1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 18:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWCNX1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 18:26:32 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2450 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932075AbWCNX0c (ORCPT
+	Tue, 14 Mar 2006 18:27:40 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:15330 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932082AbWCNX1k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 18:26:32 -0500
-Date: Wed, 15 Mar 2006 00:26:12 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jon Mason <jdmason@us.ibm.com>
-Cc: Muli Ben-Yehuda <mulix@mulix.org>, Andi Kleen <ak@suse.de>,
-       Muli Ben-Yehuda <MULI@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+	Tue, 14 Mar 2006 18:27:40 -0500
+Date: Wed, 15 Mar 2006 00:25:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC PATCH 3/3] x86-64: Calgary IOMMU - hook it in
-Message-ID: <20060314232612.GC1785@elf.ucw.cz>
-References: <20060314082432.GE23631@granada.merseine.nu> <20060314082552.GF23631@granada.merseine.nu> <20060314082634.GG23631@granada.merseine.nu> <20060314230348.GC1579@elf.ucw.cz> <20060314232247.GB7699@us.ibm.com>
+Subject: Re: soft lockup in serial8250_console_write(?)
+Message-ID: <20060314232515.GA21782@elte.hu>
+References: <20060314134110.3470fc63.rdunlap@xenotime.net> <20060314214049.GA29536@elte.hu> <20060314151812.2779ed4b.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060314232247.GB7699@us.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060314151812.2779ed4b.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 14-03-06 17:22:48, Jon Mason wrote:
-> On Wed, Mar 15, 2006 at 12:03:48AM +0100, Pavel Machek wrote:
-> > On ?t 14-03-06 10:26:34, Muli Ben-Yehuda wrote:
-> > > This patch hooks Calgary into the build and the x86-64 IOMMU
-> > > initialization paths.
-> > > 
-> > > Signed-Off-By: Muli Ben-Yehuda <mulix@mulix.org>
-> > > Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
-> > > 
-> > > diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/Kconfig linux/arch/x86_64/Kconfig
-> > > --- iommu_detected/arch/x86_64/Kconfig	2006-03-14 08:58:23.000000000 +0200
-> > > +++ linux/arch/x86_64/Kconfig	2006-03-12 10:49:04.000000000 +0200
-> > > @@ -372,6 +372,16 @@ config GART_IOMMU
-> > >  	  and a software emulation used on other systems.
-> > >  	  If unsure, say Y.
-> > >  
-> > > +config CALGARY_IOMMU
-> > > +	bool "IBM x366 server IOMMU"
-> > > +	default y
-> > > +	depends on PCI && MPSC && EXPERIMENTAL
-> > > +	help
-> > > +	  Support for hardware IOMMUs in IBM's x366 server
-> > > +	  systems. The IOMMU can be turned off at runtime with the
-> > > +	  iommu=off parameter. Normally the kernel will make the right
-> > 
-> > Runtime? I think you meant boottime.
-> 
-> Yes, thanks for pointing it out.
-> 
-> > 
-> > > +	  choice by itself.  If unsure, say Y.
-> > 
-> > Eh? How common are those machines?
-> 
-> While this code is specific to IBM's xSeries systems, it will not hurt
-> to have it enabled on other systems.  The code is intelligent enough to 
-> detect the existence of Calgary chips and, if not there, will go down 
-> the standard path of no-iommu (providing that swiotlb has not been
-> specified at boottime).  If this isn't clear enough in the description,
-> I can remedy that.
 
-No, it was pretty clear. But unless these machines are pretty common,
-I'd suggest users to say N. ... its like most drivers, it takes space
-but no other harm. Still we don't want to say "say Y" on all drivers.
+* Randy.Dunlap <rdunlap@xenotime.net> wrote:
 
-...it is not required for boot on IBM x366 machines, is it?
-								Pavel
+> > > This function calls wait_for_xmitr() [inline], which in worst case can 
+> > > spin for 1.010 seconds.  Could this be the cause of a soft lockup?
+> > 
+> > hm, it shouldnt cause that. Could you try the attached patch [which is 
+> > the next-gen softlockup detector], do you get the message even with that 
+> > one applied?
+> 
+> 5/5 good boots with your new patch.
+> 5/5 soft lockups without it.
+> 
+> Is this scheduled for post-2.6.16 ?
 
--- 
-56:        MD5.TransformBlock( adNAME, 0, strName.IndexOf( '\0' ), adNAME, 0 );
+yes, in theory. Andrew?
+
+	Ingo

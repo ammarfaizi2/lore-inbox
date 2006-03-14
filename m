@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWCMXx1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWCNAAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWCMXx1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 18:53:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWCMXx1
+	id S1751538AbWCNAAY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 19:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751672AbWCNAAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 18:53:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6325 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750857AbWCMXx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 18:53:27 -0500
-Date: Mon, 13 Mar 2006 15:50:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: corbet@lwn.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: radix tree safety
-Message-Id: <20060313155058.1389ee9a.akpm@osdl.org>
-In-Reply-To: <4415F87E.806@yahoo.com.au>
-References: <20060313224344.9173.qmail@lwn.net>
-	<4415F87E.806@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 13 Mar 2006 19:00:24 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:32517 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751538AbWCNAAX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 19:00:23 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Anshuman Gholap" <anshu.pg@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>, "Jan Knutar" <jk-lkml@sci.fi>
+Subject: RE: [future of drivers?] a proposal for binary drivers.
+Date: Mon, 13 Mar 2006 16:00:11 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEBLKLAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1142291208.8407.46.camel@gimli.at.home>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 13 Mar 2006 15:56:41 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 13 Mar 2006 15:56:42 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Jonathan Corbet wrote:
-> 
-> >I've been digging through the radix tree code, and I noticed that the
-> >tag functions have an interesting limitation.  The tag is given as an
-> >integer value, but, in reality, the only values that work are zero and
-> >one.  Anything else will return random results or (when setting tags)
-> >corrupt unrelated memory.
 
-Various people at various times have added additional tags.  reiser4...
+> The consequence would be that $COMPANY writes a driver and blames the
+> rest of the Linux world to change some internal undocumented interface
+> months lateron just that they can commercially state to "support Linux"
+> but without any real reason. In the non-evolutionary Windows world this
+> holds until the next major release, but not on the high-tech front.
 
-> >The number of radix tree users is small, so it's not hard to confirm
-> >that all tag values currently in use are legal.  But the interface would
-> >seem to invite mistakes.
-> >
-> >The following patch puts in checks for out-of-range tag values.  I've
-> >elected to have the relevant call fail; one could argue that it should
-> >BUG instead.  Either seems better than silently doing weird stuff.  Not
-> >2.6.16 material, obviously, but maybe suitable thereafter.
-> >
-> >
-> 
-> I'd agree if you make them BUG_ON()s.
-> 
-> Andrew Morton's kind of the radix-tree tags guy though... Andrew?
+	It should be possible to define a reasonable set of requirements that one
+must meet in order to claim to "support Linux", just as Microsoft does for
+Windows. One requirement should definitely be that driver source code be
+available to everyone who purchases the hardware and that all (or at least
+sufficient) interfaces to the hardware be well-documented.
 
-I don't really see the need - if someone goes and overindexes the data
-structure's capacity then they have a bug and hopefully that'll turn up in
-testing and will get fixed.
+	DS
 
-Or am I missing something obvious which makes radix-trees particularly
-dangerous or subtle??
+

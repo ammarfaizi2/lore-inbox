@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWCNMhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751895AbWCNMjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751508AbWCNMhn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 07:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751895AbWCNMhn
+	id S1751895AbWCNMjX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 07:39:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWCNMjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 07:37:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:25572 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751508AbWCNMhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 07:37:43 -0500
-Subject: Re: Coverity Open Source Defect Scan of Linux
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: ben@coverity.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <440BCA0F.50501@coverity.com>
-References: <440BCA0F.50501@coverity.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 14 Mar 2006 09:37:24 -0300
-Message-Id: <1142339844.4667.11.camel@praia>
+	Tue, 14 Mar 2006 07:39:23 -0500
+Received: from mail.gmx.de ([213.165.64.20]:56778 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751895AbWCNMjX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 07:39:23 -0500
+X-Authenticated: #14349625
+Subject: Re: [2.6.16-rc6 patch] remove sleep_avg multiplier
+From: Mike Galbraith <efault@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200603142329.31281.kernel@kolivas.org>
+References: <1142329861.9710.16.camel@homer>
+	 <200603142307.01682.kernel@kolivas.org> <1142339099.11303.12.camel@homer>
+	 <200603142329.31281.kernel@kolivas.org>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 13:40:34 +0100
+Message-Id: <1142340034.11303.20.camel@homer>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-3mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben,
-
-I'm the maintainer of V4L/DVB subsystem of the Linux Kernel
-(http://linuxtv.org). I think your took may be usefull to our work.
-Would you please give me an access to the tool?
-
-Em Dom, 2006-03-05 às 21:35 -0800, Ben Chelf escreveu:
-> Hello Linux Developers,
+On Tue, 2006-03-14 at 23:29 +1100, Con Kolivas wrote:
+> On Tuesday 14 March 2006 23:24, Mike Galbraith wrote:
+> >
+> > Don't forget, every one of the exploits I test with were posted by
+> > people who were experiencing scheduler problems in real life.  Try to
+> > use your box while running those exploits, and then tell me that you
+> > agree with interbench's assessment.
 > 
->    I'm the CTO of Coverity, Inc., a company that does static source code 
-> analysis to look for defects in code. You may have heard of us or of our 
-> technology from its days at Stanford (the "Stanford Checker"). The 
-> reason I'm writing is because we have set up a framework internally to 
-> continually scan open source projects and provide the results of our 
-> analysis back to the developers of those projects. Linux is one of the 
-> 32 projects currently scanned at:
-> 
-> http://scan.coverity.com
+> Ok you feel interbench is an irrelevant benchmark for your test case and I'm 
+> not going to bother arguing since it doesn't claim to test every single 
+> situation.
 
-Cheers, 
-Mauro.
+Yes.  Interbench's opinion is irrelevant to me wrt this problem.
+
+> That doesn't change the fact that your patch has only been tested by yourself. 
+> Don't forget I'm still agreeing with your change, I'm just suggesting the 
+> usual patch precautions.
+
+Sure.  Let's get people interested in testing this ASAP.  OTOH, let's
+not delay this simple and (IMHO) dead obvious fix getting into 2.6.16
+simply because I'm the only one who _has_ done massive amounts of
+testing ;-)
+
+	-Mike
 

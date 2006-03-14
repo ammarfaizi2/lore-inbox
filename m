@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752021AbWCNWbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751950AbWCNWe3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752021AbWCNWbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNWbP
+	id S1751950AbWCNWe3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNWe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:31:15 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:62667
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751248AbWCNWbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:31:15 -0500
-Date: Tue, 14 Mar 2006 14:31:05 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Moore, Eric" <Eric.Moore@lsil.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@lst.de
-Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
-Message-ID: <20060314223105.GA3130@suse.de>
-References: <F331B95B72AFFB4B87467BE1C8E9CF5F36DC3B@NAMAIL2.ad.lsil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F36DC3B@NAMAIL2.ad.lsil.com>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Mar 2006 17:34:29 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:34285 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751944AbWCNWe2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:34:28 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] provide hrtimer exports for module use [Was: Exportsfor hrtimer APIs]
+Date: Tue, 14 Mar 2006 14:34:19 -0800
+Message-ID: <CBDB88BFD06F7F408399DBCF8776B3DC06A92C2B@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] provide hrtimer exports for module use [Was: Exportsfor hrtimer APIs]
+Thread-Index: AcZHtUuMDojGePQMR9CPzPbQks4k4wAAHoww
+From: "Stone, Joshua I" <joshua.i.stone@intel.com>
+To: <tglx@linutronix.de>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 14 Mar 2006 22:34:18.0815 (UTC) FILETIME=[6EAE6CF0:01C647B7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 03:01:05PM -0700, Moore, Eric wrote:
-> On Tuesday, March 14, 2006 10:58 AM,  Greg KH wrote:
-> 
-> > 
-> > Sure, that makes a lot of sense:
-> > 
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > Oh, and please make that scsi wrapper function either
-> > EXPORT_SYMBOL_GPL() or an inline function or macro.
-> > 
-> > thanks,
-> > 
-> 
-> 
-> Here we go again (hopefully no managled this time).
+Thomas Gleixner wrote:
+> What means "more for defining intervals" ? Which intervals  (period in
+> ms)? What are the timers used for ?
 
-Nope, still in base64 :(
+The user can write a block of code that they would like to be executed
+repeatedly in fixed intervals.  A trivial example might look like this:
+    probe timer.ms(10) { flush_data(); }
 
-thanks,
+This would flush the data every 10ms.
 
-greg k-h
+A example of polling might be:
+    probe timer.ms(1) { log(scheduler_queue_length()); }
+
+I hope this answers your questions...
+
+
+Josh

@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWCNSej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWCNSe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbWCNSej (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 13:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCNSej
+	id S1751319AbWCNSe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 13:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWCNSe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 13:34:39 -0500
-Received: from vms046pub.verizon.net ([206.46.252.46]:38080 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751246AbWCNSei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 13:34:38 -0500
-Date: Tue, 14 Mar 2006 13:34:24 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Dmesg is not showing whole boot list
-In-reply-to: <644428B9-6AE0-40D4-A7CE-F4C6540F0F69@mac.com>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200603141334.24517.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200603140901.27746.cijoml@volny.cz>
- <200603141216.23335.gene.heskett@verizon.net>
- <644428B9-6AE0-40D4-A7CE-F4C6540F0F69@mac.com>
-User-Agent: KMail/1.7
+	Tue, 14 Mar 2006 13:34:57 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:27822 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751248AbWCNSe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 13:34:56 -0500
+Subject: [GIT PATCH] SCSI bug fixes for 2.6.16-rc6
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 12:34:46 -0600
+Message-Id: <1142361287.3241.44.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 March 2006 12:28, Kyle Moffett wrote:
->On Mar 14, 2006, at 12:16:23, Gene Heskett wrote:
->> On Tuesday 14 March 2006 10:05, Phillip Susi wrote:
->>> Or look in your /var/log/kern.log file instead of asking dmesg.
->>> dmesg just dumps the kernel ring buffer which is of finite size.
->>> The entire contents should be logged to /var/log/kern.log.
->>
->> You've got to have /var checked and mounted to be able to do that
->> log write, if the buffer overflows before that, then the head end
->> of the dmesg dump to the /var/log/dmesg file is lost forever.
->>
->> There is a line that can be changed, in xconfig or by hand, to
->> control the memory allocated for this ring buffer.
->>
->> Finally found it in the xconfig display, left panel line=kernel
->> hacking, right panel its under kernel debugging and shows only if
->> thats checked, double click on the line that says : kernel log
->> buffer size and enter a one digit increment from whats there now,
->> maybe 2, I have mine set for 16.  Your default may be as low as 14,
->> why I have NDI because 16k sure as heck isn't enough if something
->> gets chatty.
->
->To continue this point; on my desktop I have root/var/tmp/vicepa-on-
->LVM-on-RAID5, boot-on-RAID1, and swap-on-RAID1, so I would easily
->overflow the default SMP dmesg buffer size in messages well before
->syslogd/bootlogd got started.  I finally ended up having to increment
->the default by 3 in order to have the boot messages still available
->after booting.  It would be nice if we could quiet down some of the
->more excessively verbose kernel messages, there's a lot of mostly-
->irrelevant spew that chews up log buffer space.
+This is just a minor selection of bug fixes (two in zfcp which no-one
+other than s390 will see).  The others are a build failure in the
+aha152x pcmcia driver and blacklisting a brownie array which fails
+rather badly when given a report luns command and a fc transport
+parameter miscount that could result in a BUG_ON().
 
-I think thats somewhat true but then when you need that info for 
-figureing out what didn't work, its priceless.  The only thing I'd 
-stick a hot potato in is ACPI, its turned off in the config and still 
-supplies about 5k of its mewling on boot.  But my /proc/interrupts says 
-its not working, which is what counts so I can keep good time with 
-ntpd.
+The fix is here:
 
->Cheers,
->Kyle Moffett
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+The short changelog is:
+
+Andreas Herrmann:
+  o zfcp: fix device registration issues
+  o scsi_transport_fc: fix FC_HOST_NUM_ATTRS
+  o zfcp: correctly set this_id for hosts
+
+Dominik Brodowski:
+  o scsi: aha152x pcmcia driver needs spi transport
+
+Matthew Wilcox:
+  o Add Brownie to blacklist
+
+And the diffstat:
+
+ s390/scsi/zfcp_def.h     |    1 +
+ s390/scsi/zfcp_erp.c     |   11 +++++++----
+ s390/scsi/zfcp_scsi.c    |    8 +++++---
+ scsi/pcmcia/Kconfig      |    1 +
+ scsi/scsi_devinfo.c      |    1 +
+ scsi/scsi_transport_fc.c |    2 +-
+ 6 files changed, 16 insertions(+), 8 deletions(-)
+
+James
+
+
+
+

@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWCNP0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWCNP3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWCNP0E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWCNP0E
+	id S1750714AbWCNP3D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWCNP3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:26:04 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50628 "EHLO
+	Tue, 14 Mar 2006 10:29:03 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61391 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932105AbWCNP0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:26:01 -0500
-Date: Tue, 14 Mar 2006 15:25:59 +0000
+	id S1750714AbWCNP3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 10:29:01 -0500
+Date: Tue, 14 Mar 2006 15:29:00 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 3/24] i386 Vmi interface definition
-Message-ID: <20060314152559.GC16921@infradead.org>
+To: "Stone, Joshua I" <joshua.i.stone@intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Exports for hrtimer APIs
+Message-ID: <20060314152900.GD16921@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Zachary Amsden <zach@vmware.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Virtualization Mailing List <virtualization@lists.osdl.org>,
-	Xen-devel <xen-devel@lists.xensource.com>,
-	Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-	Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-	Pratap Subrahmanyam <pratap@vmware.com>,
-	Christopher Li <chrisl@vmware.com>,
-	Joshua LeVasseur <jtl@ira.uka.de>, Chris Wright <chrisw@osdl.org>,
-	Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
-	Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-	Jan Beulich <jbeulich@novell.com>,
-	Ky Srinivasan <ksrinivasan@novell.com>,
-	Wim Coekaerts <wim.coekaerts@oracle.com>,
-	Leendert van Doorn <leendert@watson.ibm.com>
-References: <200603131801.k2DI1EAe005650@zach-dev.vmware.com>
+	"Stone, Joshua I" <joshua.i.stone@intel.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <CBDB88BFD06F7F408399DBCF8776B3DC06A48C31@scsmsx403.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603131801.k2DI1EAe005650@zach-dev.vmware.com>
+In-Reply-To: <CBDB88BFD06F7F408399DBCF8776B3DC06A48C31@scsmsx403.amr.corp.intel.com>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 10:01:14AM -0800, Zachary Amsden wrote:
-> Master definition of VMI interface, including calls, constants, and
-> interface version.
+On Mon, Mar 13, 2006 at 02:00:16PM -0800, Stone, Joshua I wrote:
+> Hi,
+> 
+> I have noticed that the hrtimer APIs in 2.6.16 RCs are not exported, and
+> therefore modules are unable to use hrtimers.  I have not seen any
+> discussion on this point, so I presume that this is either an oversight,
+> or there has not been any case presented for exporting hrtimers.
+> 
+> I would like to add hrtimer support to SystemTap, which by design
+> requires the use of dynamically loaded kernel modules.  Can the
+> appropriate exports for hrtimers please be added?
 
-This is a totally horrible style.  There's absolutely no need to find
-your own sized integer types, please use the standard kernel ones.
-Also don't use camel case and #pack but rather __attribute__.
-Also please avoid // comments.
+NACK.  We only add exports when they are a) sensible and b) are used in
+kernel.
 
-Also please remove all the historical version garbage, we don't care about
-that.
+If you guys want to keep your code out of tree that's your problem.

@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWCNRj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752320AbWCNRnw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751545AbWCNRj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 12:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751613AbWCNRjz
+	id S1752320AbWCNRnw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 12:43:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752312AbWCNRnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 12:39:55 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:29105 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751545AbWCNRjz (ORCPT
+	Tue, 14 Mar 2006 12:43:51 -0500
+Received: from cantor.suse.de ([195.135.220.2]:20457 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1752336AbWCNRnt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 12:39:55 -0500
-Message-ID: <4416FF1F.5DA06CFB@tv-sign.ru>
-Date: Tue, 14 Mar 2006 20:36:31 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 14 Mar 2006 12:43:49 -0500
+From: Andi Kleen <ak@suse.de>
+To: Zachary Amsden <zach@vmware.com>
+Subject: Re: [RFC, PATCH 17/24] i386 Vmi msr patch
+Date: Tue, 14 Mar 2006 18:43:23 +0100
+User-Agent: KMail/1.8
+Cc: virtualization@lists.osdl.org, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+References: <200603131812.k2DICGJE005747@zach-dev.vmware.com> <200603141723.54365.ak@suse.de> <4416F038.90707@vmware.com>
+In-Reply-To: <4416F038.90707@vmware.com>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       William Irwin <wli@holomorphy.com>, Roland McGrath <roland@redhat.com>
-Subject: Re: [PATCH] task: Make task list manipulations RCU safe.
-References: <m1bqwgx4za.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200603141843.24159.ak@suse.de>
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some questions.
+On Tuesday 14 March 2006 17:32, Zachary Amsden wrote:
 
-first_tgid:
-	...
-	for (; pos && pid_alive(pos); pos = next_task(pos))
+> There aren't really any.  There are some unexpected ones - such as
+> setting SYSENTER_CS during a context switch, but only if leaving v8086
+> mode, which isn't a common case.  But most importantly, the MSR
+> functions were challenging to get correct, because they combine two
+> novel elements - 64 bit values, as well as non-C calling conventions.
+> They were actually some of the first functions I inlined, because I knew
+> there would be problems, and the solutions would yield more powerful
+> inlining macros.
 
-I think this patch makes this 'pid_alive(pos)' unneeded?
+That doesn't seem like a good rationale to add it to the kernel.
 
-next_tgid:
-	rcu_read_lock();
-	pos = start;
-	if (pid_alive(start))
-		pos = next_task(start);
-	if (pid_alive(pos) && (pos != &init_task)) {
-		get_task_struct(pos);
-		goto done;
-	}
+>
+> > And I don't think it's a good idea to virtualize the TSC
+> > without CPU support.
+>
+> We currently don't support configurations without a TSC.  But we're not
+> trying to virtualize the TSC without CPU support.  It is possible.  But
+> I have no idea _why_ you would want to do such a thing.
 
-The first 'pid_alive()' check is quite understandable.
-What about the second one? I beleive, now it is unneeded
-as well. The same for first_tid/next_tid.
+Don't change it then?
 
-Also, first_tid() does 'task_lock(leader)' while reading
-->signal->count. Why? ->signal is protected by ->siglock,
-but we don't need any locks because ->signal is rcu safe.
-Same for proc_task_getattr(), s/task_lock/rcu_read_lock/.
+BTW I think it will be pretty tough to find enough competent reviewers
+for your patchkit.
 
-Oleg.
+And is the spec still in flux or are you trying to implement an interface
+for an specification that is already put into stone? 
+
+-Andi

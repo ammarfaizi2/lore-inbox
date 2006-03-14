@@ -1,81 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWCNAsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWCNAv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751761AbWCNAsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 19:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbWCNAsZ
+	id S932388AbWCNAv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 19:51:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWCNAv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 19:48:25 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:56490 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751761AbWCNAsZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 19:48:25 -0500
-Subject: [Patch 4/9] Block I/O accounting collection
+	Mon, 13 Mar 2006 19:51:29 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:19430 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932388AbWCNAv2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 19:51:28 -0500
+Subject: [Patch 5/9] Swapin delays
 From: Shailabh Nagar <nagar@watson.ibm.com>
 Reply-To: nagar@watson.ibm.com
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
 In-Reply-To: <1142296834.5858.3.camel@elinux04.optonline.net>
 References: <1142296834.5858.3.camel@elinux04.optonline.net>
 Content-Type: text/plain
 Organization: IBM
-Message-Id: <1142297302.5858.16.camel@elinux04.optonline.net>
+Message-Id: <1142297486.5858.21.camel@elinux04.optonline.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 13 Mar 2006 19:48:22 -0500
+Date: Mon, 13 Mar 2006 19:51:26 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-delayacct-blkio-collect.patch
+delayacct-swapin.patch
 
-Collect per-task block I/O delay statistics.
-
-Unlike earlier iterations of the delay accounting
-patches, now delays are only collected for the actual
-I/O waits rather than try and cover the delays seen in 
-I/O submission paths.
+Account separately for block I/O delays 
+incurred as a result of swapin page faults since
+these are a result of insufficient rss limit.
 
 Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 
- kernel/sched.c |    5 +++++
- 1 files changed, 5 insertions(+)
+ include/linux/sched.h |    5 ++++-
+ kernel/delayacct.c    |   17 ++++++++++++-----
+ mm/memory.c           |    4 ++++
+ 3 files changed, 20 insertions(+), 6 deletions(-)
 
-Index: linux-2.6.16-rc5/kernel/sched.c
+Index: linux-2.6.16-rc5/include/linux/sched.h
 ===================================================================
---- linux-2.6.16-rc5.orig/kernel/sched.c	2006-03-11 07:41:32.000000000 -0500
-+++ linux-2.6.16-rc5/kernel/sched.c	2006-03-11 07:41:39.000000000 -0500
-@@ -49,6 +49,7 @@
- #include <linux/syscalls.h>
- #include <linux/times.h>
- #include <linux/acct.h>
-+#include <linux/delayacct.h>
- #include <asm/tlb.h>
+--- linux-2.6.16-rc5.orig/include/linux/sched.h	2006-03-11 07:41:38.000000000 -0500
++++ linux-2.6.16-rc5/include/linux/sched.h	2006-03-11 07:41:39.000000000 -0500
+@@ -550,9 +550,11 @@ struct task_delay_info {
+ 	 * u32 XXX_count;
+ 	 */
  
- #include <asm/unistd.h>
-@@ -4117,9 +4118,11 @@ void __sched io_schedule(void)
+-	struct timespec blkio_start, blkio_end;
++	struct timespec blkio_start, blkio_end;	/* Shared by blkio, swapin */
+ 	u64 blkio_delay;	/* wait for sync block io completion */
++	u64 swapin_delay;	/* wait for sync block io completion */
+ 	u32 blkio_count;
++	u32 swapin_count;
+ };
+ #endif
+ 
+@@ -949,6 +951,7 @@ static inline void put_task_struct(struc
+ #define PF_BORROWED_MM	0x00400000	/* I am a kthread doing use_mm */
+ #define PF_RANDOMIZE	0x00800000	/* randomize virtual address space */
+ #define PF_SWAPWRITE	0x01000000	/* Allowed to write to swap */
++#define PF_SWAPIN	0x02000000	/* I am doing a swap in */
+ 
+ /*
+  * Only the _current_ task can read/write to tsk->flags, but other
+Index: linux-2.6.16-rc5/kernel/delayacct.c
+===================================================================
+--- linux-2.6.16-rc5.orig/kernel/delayacct.c	2006-03-11 07:41:38.000000000 -0500
++++ linux-2.6.16-rc5/kernel/delayacct.c	2006-03-11 07:41:39.000000000 -0500
+@@ -98,9 +98,16 @@ void __delayacct_blkio_start(void)
+ 
+ void __delayacct_blkio_end(void)
  {
- 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
- 
-+	delayacct_blkio_start();
- 	atomic_inc(&rq->nr_iowait);
- 	schedule();
- 	atomic_dec(&rq->nr_iowait);
-+	delayacct_blkio_end();
+-	if (current->delays)
+-		delayacct_end(&current->delays->blkio_start,
+-				&current->delays->blkio_end,
+-				&current->delays->blkio_delay,
+-				&current->delays->blkio_count);
++	if (current->delays) {
++		if (current->flags & PF_SWAPIN)	/* Swapping a page in */
++			delayacct_end(&current->delays->blkio_start,
++				      &current->delays->blkio_end,
++				      &current->delays->swapin_delay,
++				      &current->delays->swapin_count);
++		else	/* Other block I/O */
++			delayacct_end(&current->delays->blkio_start,
++				      &current->delays->blkio_end,
++				      &current->delays->blkio_delay,
++				      &current->delays->blkio_count);
++	}
  }
+Index: linux-2.6.16-rc5/mm/memory.c
+===================================================================
+--- linux-2.6.16-rc5.orig/mm/memory.c	2006-03-11 07:41:32.000000000 -0500
++++ linux-2.6.16-rc5/mm/memory.c	2006-03-11 07:41:39.000000000 -0500
+@@ -1882,6 +1882,7 @@ static int do_swap_page(struct mm_struct
  
- EXPORT_SYMBOL(io_schedule);
-@@ -4129,9 +4132,11 @@ long __sched io_schedule_timeout(long ti
- 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
- 	long ret;
+ 	entry = pte_to_swp_entry(orig_pte);
+ again:
++	current->flags |= PF_SWAPIN;
+ 	page = lookup_swap_cache(entry);
+ 	if (!page) {
+  		swapin_readahead(entry, address, vma);
+@@ -1894,6 +1895,7 @@ again:
+ 			page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
+ 			if (likely(pte_same(*page_table, orig_pte)))
+ 				ret = VM_FAULT_OOM;
++			current->flags &= ~PF_SWAPOFF;
+ 			goto unlock;
+ 		}
  
-+	delayacct_blkio_start();
- 	atomic_inc(&rq->nr_iowait);
- 	ret = schedule_timeout(timeout);
- 	atomic_dec(&rq->nr_iowait);
-+	delayacct_blkio_end();
- 	return ret;
- }
+@@ -1905,6 +1907,8 @@ again:
  
+ 	mark_page_accessed(page);
+ 	lock_page(page);
++	current->flags &= ~PF_SWAPOFF;
++
+ 	if (!PageSwapCache(page)) {
+ 		/* Page migration has occured */
+ 		unlock_page(page);
 
 

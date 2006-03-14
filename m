@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWCNJEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWCNJVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWCNJEW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 04:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWCNJEW
+	id S1751215AbWCNJVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 04:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWCNJVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 04:04:22 -0500
-Received: from mail.gmx.net ([213.165.64.20]:58571 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932088AbWCNJEV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 04:04:21 -0500
-X-Authenticated: #14349625
-Subject: Re: Which kernel is the best for a small linux system?
-From: Mike Galbraith <efault@gmx.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060314072921.GA13969@elte.hu>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
-	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
-	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
-	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
-	 <20060314062144.GC21493@w.ods.org>  <20060314072921.GA13969@elte.hu>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 10:05:30 +0100
-Message-Id: <1142327130.8075.30.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 14 Mar 2006 04:21:36 -0500
+Received: from silver.veritas.com ([143.127.12.111]:61873 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751215AbWCNJVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 04:21:36 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,189,1139212800"; 
+   d="scan'208"; a="35844064:sNHT25446008"
+Date: Tue, 14 Mar 2006 09:22:35 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Dave Jones <davej@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: signal_cache slab corruption.
+In-Reply-To: <20060313181524.GA26234@redhat.com>
+Message-ID: <Pine.LNX.4.61.0603140921270.5164@goblin.wat.veritas.com>
+References: <20060313181524.GA26234@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 14 Mar 2006 09:21:35.0826 (UTC) FILETIME=[B0EE4320:01C64748]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 08:29 +0100, Ingo Molnar wrote:
-> * Willy Tarreau <willy@w.ods.org> wrote:
+On Mon, 13 Mar 2006, Dave Jones wrote:
+
+> I got into the office today to find my workstation that was running
+> a kernel based on .16rc5-git9 was totally unresponsive.
+> After rebooting, I found this in the logs.
 > 
-> > scheduler is still a big problem. Not only we occasionally see people 
-> > complaining about unfair CPU distribution across processes (may be 
-> > fixed now), but the scheduler still gives a huge boost to I/O 
-> > intensive tasks which do lots of select() with small time-outs, which 
-> > makes it practically unusable in network-intensive environments. I've 
-> > observed systems on which it was nearly impossible to log in via SSH 
-> > because of this, and I could reproduce the problem locally to create a 
-> > local DoS where a single user could prevent anybody from logging in.  
-> > 2.6.15 has improved a lot on this (pauses have reduced from 35 seconds 
-> > to 4 seconds) but it's still not very good.
+> slab signal_cache: invalid slab found in partial list at ffff8100e3a48080 (11/11).
+> slab signal_cache: invalid slab found in partial list at ffff81007ecc6100 (11/11).
+> slab: Internal list corruption detected in cache 'signal_cache'(11), slabp ffff810037ec0998(12). Hexdump:
+> 
+> 000: c0 60 d9 7e 00 81 ff ff 00 61 cc 7e 00 81 ff ff
+> 010: a8 09 ec 37 00 81 ff ff a8 09 ec 37 00 81 ff ff
+> 020: 0c 00 00 00 00 00 00 00 57 d0 1d 07 01 00 00 00
+> 030: 00 00 00 00
+> ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at mm/slab.c:2598
 
-Hi Willy,
+Dave, please post the diff -u between your mm/slab.c and the -rc5-git9
+mm/slab.c (or any other vanilla version): you've got your own debugging
+enabled, which means we can't decipher this properly.  (Not that I'm
+expecting to do any better myself than with previous slab corruptions.)
 
-BTW, if you try my stuff, it'd be good to try just the "cleanup" patch
-first.  It seems very likely to me that your problem is mostly caused by
-the sleep_avg multiplier.  If the first patch cures your woes, try
-killing just the multiplier in virgin source.
-
-	-Mike
-
-(oh yeah, the pipe patch is more or less meaningless now, ignore it)
-
+Thanks,
+Hugh

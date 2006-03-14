@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751337AbWCNVqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751521AbWCNVsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751337AbWCNVqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751929AbWCNVp7
+	id S1751521AbWCNVsL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:48:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751944AbWCNVsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:45:59 -0500
-Received: from mail27.syd.optusnet.com.au ([211.29.133.168]:1433 "EHLO
-	mail27.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1751337AbWCNVp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:45:59 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: does swsusp suck after resume for you? [was Re: Faster resuming of suspend technology.]
-Date: Wed, 15 Mar 2006 08:45:14 +1100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       ck@vds.kolivas.org, Jun OKAJIMA <okajima@digitalinfra.co.jp>,
-       linux-kernel@vger.kernel.org
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603132303.18758.kernel@kolivas.org> <200603141906.49183.rjw@sisk.pl>
-In-Reply-To: <200603141906.49183.rjw@sisk.pl>
+	Tue, 14 Mar 2006 16:48:11 -0500
+Received: from ozlabs.org ([203.10.76.45]:60327 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751521AbWCNVsJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:48:09 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603150845.15153.kernel@kolivas.org>
+Message-ID: <17431.14867.211423.851470@cargo.ozlabs.ibm.com>
+Date: Wed, 15 Mar 2006 08:48:03 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: David Howells <dhowells@redhat.com>
+Cc: ebiederm@xmission.com (Eric W. Biederman), akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
+In-Reply-To: <32068.1142371612@warthog.cambridge.redhat.com>
+References: <m1veujy47r.fsf@ebiederm.dsl.xmission.com>
+	<16835.1141936162@warthog.cambridge.redhat.com>
+	<32068.1142371612@warthog.cambridge.redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 March 2006 05:06, Rafael J. Wysocki wrote:
-> On Monday 13 March 2006 13:03, Con Kolivas wrote:
-> > @@ -269,5 +270,6 @@ int swsusp_resume(void)
-> >  	touch_softlockup_watchdog();
-> >  	device_power_up();
-> >  	local_irq_enable();
-> > +	post_resume_swap_prefetch();
-> >  	return error;
-> >  }
->
-> Hm, this code is only executed if there's an error during resume.  You
-> should have placed the post_resume_swap_prefetch() call in
-> swsusp_suspend(). :-)
+David Howells writes:
 
-Gee you guys are fussy. You want the code to actually do what it's advertised 
-to do?
+> +	CPU 1		CPU 2		COMMENT
+> +	===============	===============	=======================================
+> +					a == 0, b == 1 and p == &a, q == &a
+> +	b = 2;
+> +	smp_wmb();			Make sure b is changed before p
+> +	p = &b;		q = p;
+> +			d = *q;
+> +
+> +then old data values may be used in the address calculation for the second
+> +value, potentially resulting in q == &b and d == 0 being seen, which is never
+> +correct.  What is required is a data dependency memory barrier:
 
-Anyway perhaps it was ordinary swap prefetch that was making the difference 
-after all. I think I'll let the current swap prefetch code settle for a while 
-before touching this just yet.
+No, that's not the problem.  The problem is that you can get q == &b
+and d == 1, believe it or not.  That is, you can see the new value of
+the pointer but the old value of the thing pointed to.
 
-Cheers,
-Con
+Paul.

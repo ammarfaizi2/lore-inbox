@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWCNUJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWCNURd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWCNUJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 15:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCNUJ2
+	id S1751452AbWCNURd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 15:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751402AbWCNURd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 15:09:28 -0500
-Received: from THUNK.ORG ([69.25.196.29]:48276 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751439AbWCNUJ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 15:09:27 -0500
-Date: Tue, 14 Mar 2006 15:09:24 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Rob Landley <rob@landley.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: How do I get the ext3 driver to shut up?
-Message-ID: <20060314200923.GC31685@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Rob Landley <rob@landley.net>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <200603132218.39511.rob@landley.net> <20060313231407.7606f0d3.akpm@osdl.org> <20060314144849.GC16264@thunk.org> <200603141141.53230.rob@landley.net>
+	Tue, 14 Mar 2006 15:17:33 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47817 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751452AbWCNURd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 15:17:33 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       William Irwin <wli@holomorphy.com>, Roland McGrath <roland@redhat.com>
+Subject: Re: [PATCH] task: Make task list manipulations RCU safe.
+References: <m1bqwgx4za.fsf@ebiederm.dsl.xmission.com>
+	<4416FF1F.5DA06CFB@tv-sign.ru>
+	<m18xrcnbnn.fsf@ebiederm.dsl.xmission.com>
+	<44170AD3.35031A67@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 14 Mar 2006 13:15:27 -0700
+In-Reply-To: <44170AD3.35031A67@tv-sign.ru> (Oleg Nesterov's message of
+ "Tue, 14 Mar 2006 21:26:27 +0300")
+Message-ID: <m1mzfslr4w.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603141141.53230.rob@landley.net>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 11:41:53AM -0500, Rob Landley wrote:
-> Just confirming: you aren't proposing a change to kernel behavior, instead the 
-> the busybox mount program should set MS_VERBOSE/MS_SILENT by default if it 
-> wants to avoid these messages appearing on the console?
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-Yes, correct.  Normally, it is useful to have error messages show up
-on the console when a mount fails for whatever reason.  But when you
-are doing autodetecton the stupid way (by trying to brute force mount
-every single filesystem type), the error messages get annoying.  In
-init/do_mounts.c, it is trying to do the exact same thing, which is
-why it passes MS_VERBOSE (now MS_SILENT) as a mount option.
+> "Eric W. Biederman" wrote:
+>> 
+>> Oleg Nesterov <oleg@tv-sign.ru> writes:
+>> 
+>> > Some questions.
+>> >
+>> > first_tgid:
+>> >       ...
+>> >       for (; pos && pid_alive(pos); pos = next_task(pos))
+>> >
+>> > I think this patch makes this 'pid_alive(pos)' unneeded?
+>> 
+>> Close.  The problem is that we could have slept with the
+>> count elevated on start before we do rcu_read_lock().
+>
+> Yes, we could have slept. But (unlike next_tgid) this loop
+> starts from pos=init_task or from pos=find_task_by_pid()
+> and we are doing find_task_by_pid under rcu_read_lock() ?
 
-						- Ted
+Yes.  We are sorry. The bits of code blurred in the discussion.
+
+Eric

@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWCNK7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWCNLM5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWCNK7O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 05:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWCNK7O
+	id S1751211AbWCNLM5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 06:12:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWCNLM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 05:59:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6586 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751016AbWCNK7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 05:59:13 -0500
-Subject: Re: [PATCH] Expose input device usages to userspace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Elias Naur <elias@oddlabs.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200603141146.04270.elias@oddlabs.com>
-References: <200603132154.38876.elias@oddlabs.com>
-	 <200603140821.32301.elias@oddlabs.com>
-	 <1142324558.3027.10.camel@laptopd505.fenrus.org>
-	 <200603141146.04270.elias@oddlabs.com>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 11:59:06 +0100
-Message-Id: <1142333947.3027.31.camel@laptopd505.fenrus.org>
+	Tue, 14 Mar 2006 06:12:57 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:15119 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1751211AbWCNLM5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 06:12:57 -0500
+Date: Tue, 14 Mar 2006 12:12:48 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: "Hack inc." <linux-kernel@vger.kernel.org>, marcel@holtmann.org,
+       maxk@qualcomm.com, bluez-devel@lists.sourceforge.net
+Subject: [PATCH] Fix SCO on Broadcom Bluetooth adapters
+Message-ID: <20060314111248.GA75477@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	"Hack inc." <linux-kernel@vger.kernel.org>, marcel@holtmann.org,
+	maxk@qualcomm.com, bluez-devel@lists.sf.net
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 11:46 +0100, Elias Naur wrote:
-> On Tuesday 14 March 2006 09:22, Arjan van de Ven wrote:
-> > > > No, I don't think this is needed at all - users should be interested in
-> > > > what capabilities a particular device has, not what type it was
-> > > > assigned by soneone.
-> > >
-> > > I see your point that an application should not rely too much on device
-> > > usages. However, the main reason I want device usages is to help
-> > > applications and users identify and (visually) represent devices. For
-> > > example, games could show an appropriate icon graphic representing each
-> > > active device. The event interface already has a few other ioctls for
-> > > this kind of information:
-> >
-> > ok then you should consider to do it the other way around: make a way of
-> > asking
-> > "are you matching THIS profile".
-> > rather than
-> > "what profile are you"
-> >
-> > that way devices can present multiple faces etc; which is going to be
-> > needed as more and more weird devices come into existence.
-> 
-> If by profile you mean a device usage like Mouse, Keyboard, Joystick etc. is 
-> your proposal covered by the bit field ioctl exposed by my patch? For 
-> example, a device can already expose itself as both a joystick and a mouse 
-> (see the hid-input.c changes from the patch).
+Broadcom USB Bluetooth adapters report a maximum of zero SCO packets
+in-flight, killing SCO.  Use a reasonable count instead in that case.
 
+Signed-off-by: Olivier Galibert <galibert@pobox.com>
 
-no that's not what I meant; I really mean asking "can you do THIS
-profile". Example would be a device that could be either a joystick and
-a mouse, or a touchpad and a mouse, but not both a touchpad and a
-joystick. So the app should ask "can you do THESE", and the driver can
-then do anything complex it wants to come to an answer. (Of course a
-generic helper for the simple case is fine)
+---
 
+I don't think that could be reasonably done as a quirk.  Simple
+examination of the .inf coming with the windows driver shows that 100+
+different models may be having this problem.  Also, it can't break
+already working adapters, so why bother.
 
+ net/bluetooth/hci_event.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -324,6 +324,13 @@ static void hci_cc_info_param(struct hci
+ 		hdev->acl_pkts = hdev->acl_cnt = __le16_to_cpu(bs->acl_max_pkt);
+ 		hdev->sco_pkts = hdev->sco_cnt = __le16_to_cpu(bs->sco_max_pkt);
+ 
++		/* Some buggy USB bluetooth adapters, Broadcom in
++		   particular, answer zero as the max number of sco
++		   packets in flight.  Use a reasonable value
++		   instead */
++		if (hdev->sco_pkts == 0)
++			hdev->sco_pkts = hdev->sco_cnt = 8
++
+ 		BT_DBG("%s mtu: acl %d, sco %d max_pkt: acl %d, sco %d", hdev->name,
+ 			hdev->acl_mtu, hdev->sco_mtu, hdev->acl_pkts, hdev->sco_pkts);
+ 		break;

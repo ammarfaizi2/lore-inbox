@@ -1,37 +1,46 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWCLGpz (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 12 Mar 2006 01:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWCLGpz
+	id S1750906AbWCNPrD (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 14 Mar 2006 10:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751799AbWCNPrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Mar 2006 01:45:55 -0500
-Received: from zion.tvnetwork.hu ([80.95.64.67]:10986 "HELO mail.tvnetwork.hu")
-	by vger.kernel.org with SMTP id S1751353AbWCLGpz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Mar 2006 01:45:55 -0500
-Date: Sun, 12 Mar 2006 07:45:51 +0100
-From: Csanyi Andras <sayusi.ando@gmail.com>
+	Tue, 14 Mar 2006 10:47:03 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:43942 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750909AbWCNPrB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 10:47:01 -0500
+Date: Tue, 14 Mar 2006 17:43:51 +0200
+From: "Refugio" <tntqnsv@yahoo.gr>
+Message-ID: <589.59e656d5.2a9NMF44@yahoo.co.jp>
 To: linux-kernel@vger.kernel.org
-Message-ID: <20060312074551.2b7e9a5d@localhost>
-Organization: Andrew Corporation
-X-Mailer: Sylpheed-Claws 2.0.0 (GTK+ 2.8.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: yo
+X-Mailer: Ximian Evolution 2.2.5 (2.1.3-7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751353AbWCLGpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750906AbWCNPrD@vger.kernel.org>
 
-unsubscribe linux-kernel sayusi.ando@gmail.com
+Hows it been going?
 
---=20
--- Csanyi Andras --
--"B=EDzz=E1l Istenben =E9s tartsd sz=E1razon a puskaport." - Cromwell
+If you are looking to purchase online    MeDS,    we are your choice.
+
+Pay using a wide range of credit cards.
+
+All popular     DRvGS     are available    ( and much more)=20
+
+************************************************************************
+
+copy the address below and paste in e your web browser:
+
+afterbeat.beecomrad.net
+
+************************************************************************
 
 
+Whosever room this is should be ashamed!.
+For I will be with you till no white brother=20.
+Of a tear that runs down an angel's face..
+(Many the burials, many the days and nights, passing away,)=20.
+Romance, who loves to nod and sing.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Regards,
+
+Federico Keller

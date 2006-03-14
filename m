@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752028AbWCNInp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752034AbWCNItY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752028AbWCNInp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752034AbWCNInp
+	id S1752034AbWCNItY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 03:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752035AbWCNItY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:43:45 -0500
-Received: from mail.gmx.net ([213.165.64.20]:5015 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752028AbWCNIno (ORCPT
+	Tue, 14 Mar 2006 03:49:24 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:42134 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1752034AbWCNItX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:43:44 -0500
-X-Authenticated: #14349625
-Subject: Re: [PATCH] mm: Implement swap prefetching tweaks
-From: Mike Galbraith <efault@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ck@vds.kolivas.org
-In-Reply-To: <1142319979.8629.1.camel@homer>
-References: <200603102054.20077.kernel@kolivas.org>
-	 <200603111650.23727.kernel@kolivas.org> <1142056851.7819.54.camel@homer>
-	 <200603111824.06274.kernel@kolivas.org>  <1142063500.7605.13.camel@homer>
-	 <1142139283.25358.68.camel@mindpipe>  <1142318403.4583.14.camel@homer>
-	 <1142319048.13256.103.camel@mindpipe>  <1142319979.8629.1.camel@homer>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 09:44:53 +0100
-Message-Id: <1142325893.8075.15.camel@homer>
+	Tue, 14 Mar 2006 03:49:23 -0500
+Date: Tue, 14 Mar 2006 09:46:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>,
+       Esben Nielsen <simlo@phys.au.dk>,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Jan Altenberg <tb10alj@tglx.de>
+Subject: 2.6.16-rc6-rt3
+Message-ID: <20060314084658.GA28947@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 08:06 +0100, Mike Galbraith wrote:
-> On Tue, 2006-03-14 at 01:50 -0500, Lee Revell wrote:
+i have released the 2.6.16-rc6-rt3 tree, which can be downloaded from 
+the usual place:
 
-> > Does this go away if you run the mp3 player at nice -20?
-> 
-> Nope.
+   http://redhat.com/~mingo/realtime-preempt/
 
-But it does go away if I change from amarok to xmms, so amarok is
-probably just not buffering quite enough.  OTOH, xmms seems to be picky
-in other respects.  During heavy disk IO, it'll gripe about my soundcard
-not being ready while switching songs, retry by poking the play button,
-and all is fine.  Hohum.
+this is a fixes-only release, which resolves a number of 2.6.16-rc6 
+rebasing side-effects. The fixes are:
 
-Anyway, seems I can't reproduce the really bad stuff here, so no can
-tinker with.
+ - futex crash fix (reported by Michal Piotrowski)
 
+ - PI boosting fix (Esben Nielsen)
+
+ - printk from rt-atomic context fix (Thomas Gleixner, reported by 
+   Michal Piotrowski)
+
+ - symbol export fixes (Jan Altenberg)
+
+ - non-debug mutex build fix (Jan Altenberg)
+
+ - x86_64 and ppc build fix (Steven Rostedt)
+
+ - early_printk build fix in latency.c (Steven Rostedt)
+
+to build a 2.6.16-rc6-rt3 tree, the following patches should be applied:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.16-rc6.bz2
+  http://redhat.com/~mingo/realtime-preempt/patch-2.6.16-rc6-rt3
+
+        Ingo

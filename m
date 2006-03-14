@@ -1,61 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWCNQYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWCNQYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWCNQYR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751768AbWCNQYR
+	id S1751197AbWCNQYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751768AbWCNQYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:24:17 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:12810 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1750903AbWCNQYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:24:16 -0500
-Message-ID: <4416EDBF.3070609@vmware.com>
-Date: Tue, 14 Mar 2006 08:22:23 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com> <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com> <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com> <441658A2.4090905@vmware.com> <Pine.LNX.4.63.0603140742530.31791@cuia.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0603140742530.31791@cuia.boston.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Mar 2006 11:24:24 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:13966 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751197AbWCNQYY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 11:24:24 -0500
+Date: Tue, 14 Mar 2006 10:23:50 -0600
+From: Jon Mason <jdmason@us.ibm.com>
+To: Allen Pradeep <allenpradeep@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reg. sis 900 drivers
+Message-ID: <20060314162350.GA4060@us.ibm.com>
+References: <a07a17720603140629o86b9974xb85eb9728dde5a55@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a07a17720603140629o86b9974xb85eb9728dde5a55@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Mon, 13 Mar 2006, Zachary Amsden wrote:
->
->   
->> There is a Signed-off-by line on every patch I send out,
->>     
->
-> You're right.  It was just the first 1/24 that was missing it,
-> it was there in the second copy.
->   
+Your lspci shows that you have a sis190 adapter (not a sis900).  See if
+using that driver fixes your problem.
 
-BTW, I have no idea why the first 1/24 was missing it.  I checked right 
-before sending, and it was there - perhaps I forgot to save my changes.  
-The second copy turned out fine, but didn't make it to LKML.  Everyone 
-cc'd directly got it, but the LKML filter has a ban on the word 
-propasition, and being blackholed by it, I merely assumed the patch was 
-too large - so I split it up, and actually ended up binary searching 
-down to the problematic section before finding the taboo list.
+Thanks,
+Jon
 
-_Every_  problem eventually turns into a binary search.
+On Tue, Mar 14, 2006 at 07:59:23PM +0530, Allen Pradeep wrote:
+> sir, i'm a linux novice user.. i run fedora core3 and winXP.. i'm
+> using a asus mother board which comes with a internal sis900 ethernet
+> card. whenever i start fedora i get an error message stating
+> "Sis 900 device eth0 does not seem to be present. Delaying initialization"
+> 
+> i'm also not able to connect to the internet. with winXP i can!!!!
+>  i wrote a mail to webmaster@brownhat.org with outputs of the
+> following commands:
+> >modprobe sis900
+> >dmesg
+> >lspci
+> 
+> he gave a reply stating that sis900 adapter is not found in your
+> system: his reply was this
+> "I don't think that you have a sis900 adapter in your computer. lspci
+> lists your network adapter as unknown, so I think you should write to
+> linux-kernel@vger.kernel.org (the main development list) and ask for
+>  help there"
+> 
+>  so i have mailed u regarding this... i'm really interested in linux
+> and because i'm not able to connect to the net, i'm using winXP
+>  i've run the following commands:
+> > modprobe sis900 > foo.txt
+> > dmesg > bar.txt
+> > lspci > baz.txt
+>  and have attached foo.txt, bar.txt, baz.txt along with this mail...
+> 
+>  i would be greateful to you if u help me in solving this problem.
+> please send the drivers needed and also tell me how to install them
+> since i'm a novice user...
+>  thanking you in advance
+>  hoping for a prompt response...
+<snip>
+> 00:00.0 Host bridge: Silicon Integrated Systems [SiS] 760/M760 Host (rev 03)
+> 00:01.0 PCI bridge: Silicon Integrated Systems [SiS] SG86C202
+> 00:02.0 ISA bridge: Silicon Integrated Systems [SiS] SiS965 [MuTIOL Media IO] (rev 47)
+> 00:02.5 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 01)
+> 00:02.7 Multimedia audio controller: Silicon Integrated Systems [SiS] Sound Controller (rev a0)
+> 00:03.0 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 Controller (rev 0f)
+> 00:03.1 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 Controller (rev 0f)
+> 00:03.2 USB Controller: Silicon Integrated Systems [SiS] USB 1.0 Controller (rev 0f)
+> 00:03.3 USB Controller: Silicon Integrated Systems [SiS] USB 2.0 Controller
+> 00:04.0 Ethernet controller: Silicon Integrated Systems [SiS]: Unknown device 0190
+> 00:06.0 PCI bridge: Silicon Integrated Systems [SiS]: Unknown device 000a
+> 00:07.0 PCI bridge: Silicon Integrated Systems [SiS]: Unknown device 000a
+> 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+> 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+> 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+> 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+> 01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 661FX/M661FX/M661MX/741/M741/760/M760 PCI/AGP
 
-Zach

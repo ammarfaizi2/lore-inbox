@@ -1,51 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWCNPMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWCNPUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWCNPMh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWCNPMh
+	id S1751321AbWCNPUq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:20:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWCNPUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:12:37 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:4084 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932205AbWCNPMg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:12:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lfz+HTyWhRhGCejSMeMP44WU66ZIasYeRhIh1aOluVKTrM/Ccx29XF2W+1q+4lv5+9ehFx9R8yNlqmpd542+CYvVWlwZRdHYEo74F1EXeeVR84/MuSFTVgYM02v2Ehe5Di6AieNCG/zJjUaGFUzXG4Vc3JZ8S64mANVkIhFtsd4=
-Message-ID: <b6c5339f0603140712u1ff66dedv96f317fda0d949bb@mail.gmail.com>
-Date: Tue, 14 Mar 2006 10:12:33 -0500
-From: "Bob Copeland" <email@bobcopeland.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
-Cc: "Jeff Garzik" <jeff@garzik.org>, "Ed Lin" <ed.lin@promise.com>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-       "promise_linux@promise.com" <promise_linux@promise.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1142329204.3027.26.camel@laptopd505.fenrus.org>
+	Tue, 14 Mar 2006 10:20:46 -0500
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:48775 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751321AbWCNPUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 10:20:46 -0500
+Message-ID: <4416DF4A.7040908@watson.ibm.com>
+Date: Tue, 14 Mar 2006 10:20:42 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <NONAMEBgJJ72jYxDwLd000000d3@nonameb.ptu.promise.com>
-	 <1142327906.3027.24.camel@laptopd505.fenrus.org>
-	 <44168C86.8060107@garzik.org>
-	 <1142329204.3027.26.camel@laptopd505.fenrus.org>
+To: Jes Sorensen <jes@sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Patch 2/9] Initialization
+References: <1142296834.5858.3.camel@elinux04.optonline.net>	<1142297101.5858.10.camel@elinux04.optonline.net> <yq0slpluwi1.fsf@jaguar.mkp.net>
+In-Reply-To: <yq0slpluwi1.fsf@jaguar.mkp.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/14/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Tue, 2006-03-14 at 04:27 -0500, Jeff Garzik wrote:
-> > I thought that was unnecessary if the struct members are ordered such
-> > that compiler would not add padding?
+Jes Sorensen wrote:
+
+>>>>>>"Shailabh" == Shailabh Nagar <nagar@watson.ibm.com> writes:
+>>>>>>            
+>>>>>>
 >
-> the rules for when padding gets added are different for each platform
-> though; worst case of adding it is that it serves as documentation that
-> the layout matters :)
+>Shailabh> delayacct-setup.patch Initialization code related to
+>Shailabh> collection of per-task "delay" statistics which measure how
+>Shailabh> long it had to wait for cpu, sync block io, swapping
+>Shailabh> etc. The collection of statistics and the interface are in
+>Shailabh> other patches. This patch sets up the data structures and
+>Shailabh> allows the statistics collection to be disabled through a
+>Shailabh> kernel boot paramater.
+>
+>Shailabh> +#ifdef CONFIG_TASK_DELAY_ACCT
+>Shailabh> +struct task_delay_info {
+>Shailabh> +	spinlock_t	lock;
+>Shailabh> +
+>Shailabh> +	/* For each stat XXX, add following, aligned appropriately
+>Shailabh> +	 *
+>Shailabh> +	 * struct timespec XXX_start, XXX_end;
+>Shailabh> +	 * u64 XXX_delay;
+>Shailabh> +	 * u32 XXX_count;
+>Shailabh> +	 */
+>Shailabh> +};
+>Shailabh> +#endif
+>
+>Hmmm
+>
+>I thought you were going to change this to do
+>
+>u64 some_delay
+>u32 foo_count
+>u32 bar_count
+>u64 another_delay
+>
+>To avoid wasting space on 64 bit platforms.
+>  
+>
 
-I thought the worst case of adding it is that GCC produces awful code
-when accessing structure members for __attribute__((packed)) items[1].
- Maybe -Wpadded would be better?
+Well, the "aligned appropriately" part of the comment was intended to let
+future users know that something like the above should be done.
 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=108829229128091
+e.g in a subsequent patch (5/9)
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0603.1/1919.html
+when we introduce the additional stat swapin_delay/count, a 64-bit friendly
+alignment is being done thus:
+
+u64 blkio_delay; /* wait for sync block io completion */
++ u64 swapin_delay; /* wait for sync block io completion */
+u32 blkio_count;
++ u32 swapin_count;
+
+The need for each stat, potentially, to need a separate set of timespec 
+variables
+to reduce nesting problems does introduce another wrinkle in 
+cache-friendliness
+since you'd ideally like to have all the XXX_* variables close together. 
+Right now
+we're good since swapin doesn't need extra timespecs of its own. But future
+additions might need to be more careful.
+
+--Shailabh
+
+
+>Jes
+>  
+>
+

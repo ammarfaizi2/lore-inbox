@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751895AbWCNMjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752001AbWCNMmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751895AbWCNMjX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 07:39:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWCNMjX
+	id S1752001AbWCNMmc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 07:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWCNMmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 07:39:23 -0500
-Received: from mail.gmx.de ([213.165.64.20]:56778 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751895AbWCNMjX (ORCPT
+	Tue, 14 Mar 2006 07:42:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47790 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752001AbWCNMmc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 07:39:23 -0500
-X-Authenticated: #14349625
-Subject: Re: [2.6.16-rc6 patch] remove sleep_avg multiplier
-From: Mike Galbraith <efault@gmx.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200603142329.31281.kernel@kolivas.org>
-References: <1142329861.9710.16.camel@homer>
-	 <200603142307.01682.kernel@kolivas.org> <1142339099.11303.12.camel@homer>
-	 <200603142329.31281.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 13:40:34 +0100
-Message-Id: <1142340034.11303.20.camel@homer>
+	Tue, 14 Mar 2006 07:42:32 -0500
+Date: Tue, 14 Mar 2006 07:42:22 -0500
+From: Alan Cox <alan@redhat.com>
+To: James Mcloughlin <jimbob@osoffice.co.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: kernel patch set - please read
+Message-ID: <20060314124222.GA7514@devserv.devel.redhat.com>
+References: <1140.81.178.12.23.1142280938.squirrel@www.osoffice.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1140.81.178.12.23.1142280938.squirrel@www.osoffice.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 23:29 +1100, Con Kolivas wrote:
-> On Tuesday 14 March 2006 23:24, Mike Galbraith wrote:
-> >
-> > Don't forget, every one of the exploits I test with were posted by
-> > people who were experiencing scheduler problems in real life.  Try to
-> > use your box while running those exploits, and then tell me that you
-> > agree with interbench's assessment.
+On Mon, Mar 13, 2006 at 08:15:38PM -0000, James Mcloughlin wrote:
+> People realise that these old boxes are still good for hosting, as you
+> dont need a super 3ghz server for a few small web sites...
 > 
-> Ok you feel interbench is an irrelevant benchmark for your test case and I'm 
-> not going to bother arguing since it doesn't claim to test every single 
-> situation.
+> I wonder if you would consider adding cobalt hardware support to the 2.6
+> kernel tree?
 
-Yes.  Interbench's opinion is irrelevant to me wrt this problem.
+Its up to someone who has the hardware to merge any additional hardware support
+that is needed and maintain it. If you are building your own trees to do this
+and having to add other GPL drivers then you might be ideally placed to do that.
 
-> That doesn't change the fact that your patch has only been tested by yourself. 
-> Don't forget I'm still agreeing with your change, I'm just suggesting the 
-> usual patch precautions.
-
-Sure.  Let's get people interested in testing this ASAP.  OTOH, let's
-not delay this simple and (IMHO) dead obvious fix getting into 2.6.16
-simply because I'm the only one who _has_ done massive amounts of
-testing ;-)
-
-	-Mike
+Alan
 

@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751888AbWCNVaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWCNVbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751888AbWCNVaD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751910AbWCNVaD
+	id S932473AbWCNVbL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWCNVbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:30:03 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:45963 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1751888AbWCNVaA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:30:00 -0500
-X-IronPort-AV: i="4.02,191,1139212800"; 
-   d="scan'208"; a="367116500:sNHT81167576"
-Subject: Re: [PATCH] sunrpc svc: be quieter
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, neilb@cse.unsw.edu.au,
-       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       okir@monad.swb.de
-In-Reply-To: <441733C0.5040605@gentoo.org>
-References: <20060305005532.5E7A0870504@zog.reactivated.net>
-	 <Pine.LNX.4.61.0603051451590.30115@yvahk01.tjqt.qr>
-	 <1141678330.31680.13.camel@lade.trondhjem.org>
-	 <441733C0.5040605@gentoo.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance, Inc
-Date: Tue, 14 Mar 2006 16:29:19 -0500
-Message-Id: <1142371759.7987.27.camel@lade.trondhjem.org>
+	Tue, 14 Mar 2006 16:31:11 -0500
+Received: from A.painless.aaisp.net.uk ([81.187.81.51]:4276 "EHLO
+	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S932473AbWCNVbJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:31:09 -0500
+Subject: Re: 2.6.16-rc6-git[12] spontaneous reboots on x86_64
+From: Andrew Clayton <andrew@rootshell.co.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0603141843110.6114@goblin.wat.veritas.com>
+References: <1142337319.4412.2.camel@zeus.pccl.info>
+	 <Pine.LNX.4.61.0603141523340.4309@goblin.wat.veritas.com>
+	 <Pine.LNX.4.64.0603140805380.3618@g5.osdl.org>
+	 <1142353443.30466.2.camel@zeus.pccl.info>
+	 <Pine.LNX.4.61.0603141843110.6114@goblin.wat.veritas.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6/xNxt5p/oiQpLZ42xOb"
+Date: Tue, 14 Mar 2006 21:30:36 +0000
+Message-Id: <1142371836.2513.24.camel@alpha.digital-domain.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-OriginalArrivalTime: 14 Mar 2006 21:29:20.0278 (UTC) FILETIME=[5AF8E360:01C647AE]
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 21:21 +0000, Daniel Drake wrote:
-> Trond,
-> 
-> Trond Myklebust wrote:
-> > They are probably trying to ping the server with a NULL procedure call
-> > to test for service availability. We should allow that particular
-> > usage...
-> 
-> Thanks, that sounds likely. Can you give some hints as to how a NULL 
-> procedure call might appear? Would testing for prog==0 and/or proc==0 be 
-> appropriate?
 
-I can't see that authorising calls to prog==0 could ever be useful (what
-would that mean?), but proc==0 is another matter: that is precisely the
-NULL procedure call that I mentioned above.
+--=-6/xNxt5p/oiQpLZ42xOb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-  Trond
+On Tue, 2006-03-14 at 18:50 +0000, Hugh Dickins wrote:
+> On Tue, 14 Mar 2006, Andrew Clayton wrote:
+> > On Tue, 2006-03-14 at 08:06 -0800, Linus Torvalds wrote:
+> > >=20
+> > > Reverted. Let's get wider testing before applying an alternate fix.
+> >=20
+> > Just to note: Doing what Andi suggested seems to be working OK.
+>=20
+> Whereas on EM64T I found the opposite,
+> reverting just the stub_execve hunk still behaved badly.
+>=20
+> I've double-checked that finding since, built and ran another
+> kernel to confirm it.  But your Athlon64 still works OK that way?
+
+OK, looks like I may have spoke too soon, just found my ssh session to
+it dead and the machine no longer reachable (other machines on the same
+network are). I'll be able to see for sure when I get into work in the
+morning.
+
+
+Andrew
+
+
+--=-6/xNxt5p/oiQpLZ42xOb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.1 (GNU/Linux)
+
+iD8DBQBEFzX866HmHTysXMwRAnAwAJ9DSxYnN4y4Eb9Iqs/hY2OEV1Ds7QCfXyJq
+Ourh35ZCa4TIXWdGbZSrGcc=
+=+6sN
+-----END PGP SIGNATURE-----
+
+--=-6/xNxt5p/oiQpLZ42xOb--
+

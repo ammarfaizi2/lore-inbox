@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752101AbWCNC0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752103AbWCNC3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752101AbWCNC0S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 21:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752099AbWCNC0S
+	id S1752103AbWCNC3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 21:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752095AbWCNC3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 21:26:18 -0500
-Received: from CyborgDefenseSystems.Corporatebeast.com ([64.62.148.172]:26636
-	"EHLO arnor.apana.org.au") by vger.kernel.org with ESMTP
-	id S1752098AbWCNC0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 21:26:18 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: bunk@stusta.de (Adrian Bunk)
-Subject: Re: [2.6 patch] hostap_{pci,plx}.c: fix memory leaks
-Cc: jkmaline@cc.hut.fi, hostap@shmoo.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <20060313222841.GQ13973@stusta.de>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1FIzE1-0003Ur-00@gondolin.me.apana.org.au>
-Date: Tue, 14 Mar 2006 13:25:29 +1100
+	Mon, 13 Mar 2006 21:29:12 -0500
+Received: from mx03.cybersurf.com ([209.197.145.106]:8920 "EHLO
+	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S1752099AbWCNC3L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 21:29:11 -0500
+Subject: Re: [Patch 9/9] Generic netlink interface for delay accounting
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: nagar@watson.ibm.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       netdev <netdev@vger.kernel.org>
+In-Reply-To: <1142297791.5858.31.camel@elinux04.optonline.net>
+References: <1142296834.5858.3.camel@elinux04.optonline.net>
+	 <1142297791.5858.31.camel@elinux04.optonline.net>
+Content-Type: text/plain
+Organization: unknown
+Date: Mon, 13 Mar 2006 21:29:09 -0500
+Message-Id: <1142303349.5219.19.camel@jzny2>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
+On Mon, 2006-13-03 at 19:56 -0500, Shailabh Nagar wrote:
+> delayacct-genetlink.patch
 > 
-> +       if (pci_enable_device(pdev))
-> +               return -EIO;
-> +
->        hw_priv = kmalloc(sizeof(*hw_priv), GFP_KERNEL);
->        if (hw_priv == NULL)
->                return -ENOMEM;
->        memset(hw_priv, 0, sizeof(*hw_priv));
+> Create a generic netlink interface (NETLINK_GENERIC family), 
+> called "taskstats", for getting delay and cpu statistics of 
+> tasks and thread groups during their lifetime and when they exit. 
 > 
-> -       if (pci_enable_device(pdev))
-> -               return -EIO;
-> -
+> Comments addressed (all in response to Jamal)
+> 
 
-You've just turned it into a leak of a different kind.
+Note, you are still not following the standard scheme of doing things.
+Example: using command = GET and the message carrying the TGID to note
+which TGID is of interest. Instead you have command = TGID.
 
-Why not jump to the error exit instead?
+cheers,
+jamal
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

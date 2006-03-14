@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWCNVvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWCNVvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWCNVvo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:51:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWCNVvo
+	id S932510AbWCNVvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 16:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751929AbWCNVvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:51:44 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:63106 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932512AbWCNVvm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:51:42 -0500
-Date: Tue, 14 Mar 2006 13:56:17 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@sous-sol.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Gerd Hoffmann <kraxel@suse.de>
-Subject: Re: [RFC, PATCH 7/24] i386 Vmi memory hole
-Message-ID: <20060314215616.GM12807@sorel.sous-sol.org>
-References: <200603131804.k2DI4N6s005678@zach-dev.vmware.com> <20060314064107.GK12807@sorel.sous-sol.org> <44166D6B.4090701@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44166D6B.4090701@vmware.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 14 Mar 2006 16:51:24 -0500
+Received: from duke.cs.duke.edu ([152.3.140.1]:65527 "EHLO duke.cs.duke.edu")
+	by vger.kernel.org with ESMTP id S1751944AbWCNVvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 16:51:24 -0500
+Date: Tue, 14 Mar 2006 16:51:13 -0500 (EST)
+From: Tong Li <tongli@cs.duke.edu>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bursty I/O in ext3
+In-Reply-To: <20060314152952.GA5644@thunk.org>
+Message-ID: <Pine.GSO.4.62.0603141650160.4481@eenie.cs.duke.edu>
+References: <Pine.GSO.4.62.0603140150420.1352@eenie.cs.duke.edu>
+ <20060314152952.GA5644@thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zachary Amsden (zach@vmware.com) wrote:
-> Allow creation of an compile time hole at the top of linear address space.
-> 
-> Extended to allow a dynamic hole in linear address space, 7/2005.  This
-> required some serious hacking to get everything perfect, but the end result
-> appears to function quite nicely.  Everyone can now share the appreciation
-> of pseudo-undocumented ELF OS fields, which means core dumps, debuggers
-> and even broken or obsolete linkers may continue to work.
+> If you are using an e2fsprogs older than version 1.38, you should try
+> expanding the journal size from the default of 32M to 128M; with the
+> filesystem unmounted do:
+>
+> 	tune2fs -O ^has_journal /dev/hdXX
+> 	tune2fs -O has_journal -J journal_size=128 /dev/hdXX
+>
 
-Thanks.  Gerd did something similar (although I believe it's simpler,
-don't recall the relocation magic) for Xen.  Either way, it's useful
-from Xen perspective.
+I did this and yes, it fixed the problem.
 
-thanks,
--chris
+Thank you so much,
+
+   tong

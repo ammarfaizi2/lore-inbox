@@ -1,64 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWCNQM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751953AbWCNQPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWCNQM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWCNQM2
+	id S1751953AbWCNQPb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752045AbWCNQPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:12:28 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:45576 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751026AbWCNQM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:12:27 -0500
-Message-ID: <4416EB29.1070209@vmware.com>
-Date: Tue, 14 Mar 2006 08:11:21 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, Zachary Amsden <zach@vmware.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 3/24] i386 Vmi interface definition
-References: <200603131801.k2DI1EAe005650@zach-dev.vmware.com> <20060314152559.GC16921@infradead.org>
-In-Reply-To: <20060314152559.GC16921@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Mar 2006 11:15:31 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:3787 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751953AbWCNQPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 11:15:31 -0500
+Subject: 2.6.16-rc1: 28ms latency when process with lots of swapped memory
+	exits
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 11:15:25 -0500
+Message-Id: <1142352926.13256.117.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Mon, Mar 13, 2006 at 10:01:14AM -0800, Zachary Amsden wrote:
->   
->> Master definition of VMI interface, including calls, constants, and
->> interface version.
->>     
->
-> This is a totally horrible style.  There's absolutely no need to find
-> your own sized integer types, please use the standard kernel ones.
-> Also don't use camel case and #pack but rather __attribute__.
-> Also please avoid // comments.
->
-> Also please remove all the historical version garbage, we don't care about
-> that.
->   
+I've been testign for weeks with 2.6.16-rc1 + the latency trace patch
+and the longest latencies measured were 10-15ms due to the well known
+rt_run_flush issue.  Today I got one twice as long, when a Firefox
+process with a bunch of acroreads in tabs, from a new code path.
 
-Ugly, isn't it.  The collision of two source styles has left some 
-scars.  And fixing it is not yet finished.  We know about these 
-problems, and we are working on getting rid of them.  The historical 
-version garbage is rather important to us internally, and these bits are 
-not yet fully polished, so you get to see it to.  I think you'll find us 
-respecting Linux conventions a lot more in the later patches.
+It seems to trigger when a process with a large amount of memory swapped
+out exits.
 
-Zach
+Can this be solved with a cond_resched?
+
+preemption latency trace v1.1.5 on 2.6.16-rc1
+--------------------------------------------------------------------
+ latency: 28130 us, #38020/38020, CPU#0 | (M:rt VP:0, KP:0, SP:0 HP:0)
+    -----------------
+    | task: acroread-29870 (uid:1000 nice:0 policy:0 rt_prio:0)
+    -----------------
+
+                 _------=> CPU#            
+                / _-----=> irqs-off        
+               | / _----=> need-resched    
+               || / _---=> hardirq/softirq 
+               ||| / _--=> preempt-depth   
+               |||| /                      
+               |||||     delay             
+   cmd     pid ||||| time  |   caller      
+      \   /    |||||   \   |   /           
+    Xorg-18254 0d.s2    1us : __trace_start_sched_wakeup (try_to_wake_up)
+    Xorg-18254 0d.s2    1us : __trace_start_sched_wakeup <<...>-29870> (73 0)
+    Xorg-18254 0d.s.    2us : wake_up_process (process_timeout)
+    Xorg-18254 0dn.2    3us < (2110048)
+    Xorg-18254 0dn.2    4us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2    5us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2    6us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3    6us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3    7us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4    8us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3    8us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2    9us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   10us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   11us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   12us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   12us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   13us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3   14us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2   14us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   15us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   16us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   16us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   17us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   18us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3   19us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2   19us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   20us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   21us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   21us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   22us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   23us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3   23us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2   24us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   25us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   25us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   26us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   27us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   27us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3   28us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2   29us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   30us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   30us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   31us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   32us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   32us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3   33us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2   34us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   35us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   35us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   36us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   37us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   37us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3   38us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2   39us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.2   40us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2   40us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3   41us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3   42us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4   42us : radix_tree_lookup (find_trylock_page)
+
+[ etc ]
+
+    Xorg-18254 0dn.2 28062us : free_swap_and_cache (unmap_vmas)
+    Xorg-18254 0dn.2 28062us : swap_info_get (free_swap_and_cache)
+    Xorg-18254 0dn.3 28063us : swap_entry_free (free_swap_and_cache)
+    Xorg-18254 0dn.3 28064us : find_trylock_page (free_swap_and_cache)
+    Xorg-18254 0dn.4 28064us : radix_tree_lookup (find_trylock_page)
+    Xorg-18254 0dn.3 28065us : preempt_schedule (find_trylock_page)
+    Xorg-18254 0dn.2 28066us : preempt_schedule (free_swap_and_cache)
+    Xorg-18254 0dn.1 28067us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28073us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28077us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28083us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28089us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28095us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28099us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28101us+: preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.1 28106us : preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.2 28107us : vm_normal_page (unmap_vmas)
+    Xorg-18254 0dn.2 28109us : vm_normal_page (unmap_vmas)
+    Xorg-18254 0dn.2 28109us : vm_normal_page (unmap_vmas)
+    Xorg-18254 0dn.2 28110us : vm_normal_page (unmap_vmas)
+    Xorg-18254 0dn.1 28111us : preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.. 28112us : preempt_schedule (unmap_vmas)
+    Xorg-18254 0dn.. 28113us : schedule (preempt_schedule)
+    Xorg-18254 0dn.. 28113us : stop_trace (schedule)
+    Xorg-18254 0dn.. 28114us : profile_hit (schedule)
+    Xorg-18254 0dn.1 28115us+: sched_clock (schedule)
+    Xorg-18254 0dn.2 28117us : recalc_task_prio (schedule)
+    Xorg-18254 0dn.2 28119us+: effective_prio (recalc_task_prio)
+   <...>-29870 0d..2 28123us+: __switch_to (schedule)
+   <...>-29870 0d..2 28126us : schedule <Xorg-18254> (76 73)
+   <...>-29870 0d..1 28127us : trace_stop_sched_switched (schedule)
+   <...>-29870 0d..2 28128us : trace_stop_sched_switched <<...>-29870> (73 0)
+   <...>-29870 0d..2 28130us : schedule (schedule)
+
+
+vim:ft=help
+
+
+
+
 

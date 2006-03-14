@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752094AbWCNMp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751835AbWCNMrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752094AbWCNMp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 07:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752098AbWCNMp0
+	id S1751835AbWCNMrr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 07:47:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752080AbWCNMrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 07:45:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:36016 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1752094AbWCNMpZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 07:45:25 -0500
-Date: Tue, 14 Mar 2006 07:44:39 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Zachary Amsden <zach@vmware.com>
-cc: Anthony Liguori <aliguori@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-In-Reply-To: <441658A2.4090905@vmware.com>
-Message-ID: <Pine.LNX.4.63.0603140742530.31791@cuia.boston.redhat.com>
-References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>
- <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com>
- <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com> <441658A2.4090905@vmware.com>
+	Tue, 14 Mar 2006 07:47:47 -0500
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:54667 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751835AbWCNMrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 07:47:47 -0500
+Message-ID: <4416BB73.5070801@drzeus.cx>
+Date: Tue, 14 Mar 2006 13:47:47 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060210)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: Bill Nottingham <notting@redhat.com>, Kay Sievers <kay.sievers@vrfy.org>,
+       Andrew Morton <akpm@osdl.org>, ambx1@neo.rr.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+References: <20060301194532.GB25907@vrfy.org>	<4406AF27.9040700@drzeus.cx>	<20060302165816.GA13127@vrfy.org>	<44082E14.5010201@drzeus.cx>	<4412F53B.5010309@drzeus.cx>	<20060311173847.23838981.akpm@osdl.org>	<4414033F.2000205@drzeus.cx>	<20060312172332.GA10278@vrfy.org>	<20060313165719.GB4147@devserv.devel.redhat.com>	<20060313192411.GA23380@vrfy.org>	<20060313222644.GD1311@devserv.devel.redhat.com> <20060314152944.797390cd.vsu@altlinux.ru>
+In-Reply-To: <20060314152944.797390cd.vsu@altlinux.ru>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Mar 2006, Zachary Amsden wrote:
+Sergey Vlasov wrote:
+> BTW, we can change the alias format for PNP device drivers to
+>
+> 	pnp:*dXXXYYYY*
+>
+> (note the additional "*" before the device ID).  This would allow us to
+> have a single-value "modalias" attribute for PNP logical devices too -
+> it would have the form
+>
+> 	pnp:dXXXYYYYdXXXYYYYdXXXYYYY
+>
+> (listing all IDs, in this case sorting is not required, because each
+> driver will match at most only a single dXXXYYYY entry).
+>   
 
-> There is a Signed-off-by line on every patch I send out,
+How do you guarantee that the modules are tried in the correct order? Is
+it well defined in modprobe that pnp:*dABC0001* would match before
+pnp:*dXYZ0001* if the modalias is pnp:dABC0001dXYZ0001 ?
 
-You're right.  It was just the first 1/24 that was missing it,
-it was there in the second copy.
+Rgds
+Pierre
 
-> But most importantly, I really don't understand how it is possible to 
-> make a patch to the Linux kernel and not release it under GPL.
-
-This can really only be done if the person posting the patch
-does not have the right to release the code.  This is what the
-Signed-off-by lines are for, IIRC.
-
--- 
-All Rights Reversed

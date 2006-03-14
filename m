@@ -1,123 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751599AbWCNArK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbWCNAsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751599AbWCNArK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 19:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751761AbWCNArK
+	id S1751761AbWCNAsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 19:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbWCNAsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 19:47:10 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:50597 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751599AbWCNArJ (ORCPT
+	Mon, 13 Mar 2006 19:48:25 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:56490 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751761AbWCNAsZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 19:47:09 -0500
-Subject: [Patch 3/9] Block I/O accounting initialization
+	Mon, 13 Mar 2006 19:48:25 -0500
+Subject: [Patch 4/9] Block I/O accounting collection
 From: Shailabh Nagar <nagar@watson.ibm.com>
 Reply-To: nagar@watson.ibm.com
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>,
+       Suparna Bhattacharya <suparna@in.ibm.com>
 In-Reply-To: <1142296834.5858.3.camel@elinux04.optonline.net>
 References: <1142296834.5858.3.camel@elinux04.optonline.net>
 Content-Type: text/plain
 Organization: IBM
-Message-Id: <1142297222.5858.13.camel@elinux04.optonline.net>
+Message-Id: <1142297302.5858.16.camel@elinux04.optonline.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 13 Mar 2006 19:47:02 -0500
+Date: Mon, 13 Mar 2006 19:48:22 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-delayacct-blkio-init.patch
+delayacct-blkio-collect.patch
 
-Setup variables and functions to collect per-task
-block I/O delays.
+Collect per-task block I/O delay statistics.
 
-Separating the collection part to a later patch
-for easier review and discussion.
+Unlike earlier iterations of the delay accounting
+patches, now delays are only collected for the actual
+I/O waits rather than try and cover the delays seen in 
+I/O submission paths.
 
 Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 
+ kernel/sched.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
- include/linux/delayacct.h |   16 ++++++++++++++++
- include/linux/sched.h     |    4 ++++
- kernel/delayacct.c        |   14 ++++++++++++++
- 3 files changed, 34 insertions(+)
-
-Index: linux-2.6.16-rc5/include/linux/delayacct.h
+Index: linux-2.6.16-rc5/kernel/sched.c
 ===================================================================
---- linux-2.6.16-rc5.orig/include/linux/delayacct.h	2006-03-11 07:41:37.000000000 -0500
-+++ linux-2.6.16-rc5/include/linux/delayacct.h	2006-03-11 07:41:38.000000000 -0500
-@@ -22,6 +22,8 @@ extern kmem_cache_t *delayacct_cache;
- extern int delayacct_init(void);
- extern void __delayacct_tsk_init(struct task_struct *);
- extern void __delayacct_tsk_exit(struct task_struct *);
-+extern void __delayacct_blkio_start(void);
-+extern void __delayacct_blkio_end(void);
+--- linux-2.6.16-rc5.orig/kernel/sched.c	2006-03-11 07:41:32.000000000 -0500
++++ linux-2.6.16-rc5/kernel/sched.c	2006-03-11 07:41:39.000000000 -0500
+@@ -49,6 +49,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/times.h>
+ #include <linux/acct.h>
++#include <linux/delayacct.h>
+ #include <asm/tlb.h>
  
- static inline void delayacct_tsk_init(struct task_struct *tsk)
+ #include <asm/unistd.h>
+@@ -4117,9 +4118,11 @@ void __sched io_schedule(void)
  {
-@@ -37,6 +39,16 @@ static inline void delayacct_tsk_exit(st
- 		__delayacct_tsk_exit(tsk);
+ 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
+ 
++	delayacct_blkio_start();
+ 	atomic_inc(&rq->nr_iowait);
+ 	schedule();
+ 	atomic_dec(&rq->nr_iowait);
++	delayacct_blkio_end();
  }
  
-+static inline void delayacct_blkio_start(void)
-+{
-+	if (unlikely(delayacct_on))
-+		__delayacct_blkio_start();
-+}
-+static inline void delayacct_blkio_end(void)
-+{
-+	if (unlikely(delayacct_on))
-+		__delayacct_blkio_end();
-+}
- #else
- static inline int delayacct_init(void)
- {}
-@@ -44,5 +56,9 @@ static inline void delayacct_tsk_init(st
- {}
- static inline void delayacct_tsk_exit(struct task_struct *tsk)
- {}
-+static inline void delayacct_blkio_start(void)
-+{}
-+static inline void delayacct_blkio_end(void)
-+{}
- #endif /* CONFIG_TASK_DELAY_ACCT */
- #endif /* _LINUX_TASKDELAYS_H */
-Index: linux-2.6.16-rc5/kernel/delayacct.c
-===================================================================
---- linux-2.6.16-rc5.orig/kernel/delayacct.c	2006-03-11 07:41:37.000000000 -0500
-+++ linux-2.6.16-rc5/kernel/delayacct.c	2006-03-11 07:41:38.000000000 -0500
-@@ -90,3 +90,17 @@ static inline void delayacct_end(struct 
- 	spin_unlock(&current->delays->lock);
- }
+ EXPORT_SYMBOL(io_schedule);
+@@ -4129,9 +4132,11 @@ long __sched io_schedule_timeout(long ti
+ 	struct runqueue *rq = &per_cpu(runqueues, raw_smp_processor_id());
+ 	long ret;
  
-+void __delayacct_blkio_start(void)
-+{
-+	if (current->delays)
-+		delayacct_start(&current->delays->blkio_start);
-+}
-+
-+void __delayacct_blkio_end(void)
-+{
-+	if (current->delays)
-+		delayacct_end(&current->delays->blkio_start,
-+				&current->delays->blkio_end,
-+				&current->delays->blkio_delay,
-+				&current->delays->blkio_count);
-+}
-Index: linux-2.6.16-rc5/include/linux/sched.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/linux/sched.h	2006-03-11 07:41:37.000000000 -0500
-+++ linux-2.6.16-rc5/include/linux/sched.h	2006-03-11 07:41:38.000000000 -0500
-@@ -549,6 +549,10 @@ struct task_delay_info {
- 	 * u64 XXX_delay;
- 	 * u32 XXX_count;
- 	 */
-+
-+	struct timespec blkio_start, blkio_end;
-+	u64 blkio_delay;	/* wait for sync block io completion */
-+	u32 blkio_count;
- };
- #endif
++	delayacct_blkio_start();
+ 	atomic_inc(&rq->nr_iowait);
+ 	ret = schedule_timeout(timeout);
+ 	atomic_dec(&rq->nr_iowait);
++	delayacct_blkio_end();
+ 	return ret;
+ }
  
 
 

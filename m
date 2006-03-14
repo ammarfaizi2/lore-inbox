@@ -1,84 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751900AbWCNAw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWCNAxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751900AbWCNAw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 19:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWCNAw7
+	id S932218AbWCNAxt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 19:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWCNAxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 19:52:59 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:23980 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1751900AbWCNAw5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 19:52:57 -0500
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C64701.9AB13D80"
-Subject: [PATCH ] drivers/scsi/scsi.c - export reprobe 
-Date: Mon, 13 Mar 2006 17:52:43 -0700
-Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F36D82A@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH ] drivers/scsi/scsi.c - export reprobe 
-Thread-Index: AcZHAZpp/wvGNY9KRWmb/AwqfyYfIw==
-From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: <James.Bottomley@SteelEye.com>, <hch@lst.de>, <gregkh@novell.com>
-X-OriginalArrivalTime: 14 Mar 2006 00:52:44.0613 (UTC) FILETIME=[9AE8DF50:01C64701]
+	Mon, 13 Mar 2006 19:53:48 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:43227 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932521AbWCNAxr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 19:53:47 -0500
+Subject: [Patch 7/9] /proc interface for all I/O delays
+From: Shailabh Nagar <nagar@watson.ibm.com>
+Reply-To: nagar@watson.ibm.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <1142296834.5858.3.camel@elinux04.optonline.net>
+References: <1142296834.5858.3.camel@elinux04.optonline.net>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1142297625.5858.25.camel@elinux04.optonline.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 13 Mar 2006 19:53:45 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+delayacct-procfs.patch
 
-------_=_NextPart_001_01C64701.9AB13D80
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+Export I/O delays seen by a task through /proc/<tgid>/stats
+for use in top etc.
 
-Request for exporting device_reprobe -=20
-This is scsi wrapper portion.
+Note that delays for I/O done for swapping in pages (swapin I/O) is 
+clubbed together with all other I/O here (this is not the 
+case for the other interface where the swapin I/O is kept distinct)
 
----------------------------------------------------
-Adding support for exposing hidden raid components=20
-for sg interface. The sdev->no_uld_attach flag
-will set set accordingly.
+Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
 
-The sas module supports adding/removing raid
-volumes using online storage management application
-interface. =20
 
-This patch was provided to me by Christoph Hellwig.
+ fs/proc/array.c           |    6 ++++--
+ include/linux/delayacct.h |   10 ++++++++++
+ include/linux/jiffies.h   |    6 ++++++
+ kernel/delayacct.c        |   13 +++++++++++++
+ 4 files changed, 33 insertions(+), 2 deletions(-)
 
-Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
+Index: linux-2.6.16-rc5/fs/proc/array.c
+===================================================================
+--- linux-2.6.16-rc5.orig/fs/proc/array.c	2006-03-11 07:41:32.000000000 -0500
++++ linux-2.6.16-rc5/fs/proc/array.c	2006-03-11 07:41:40.000000000 -0500
+@@ -75,6 +75,7 @@
+ #include <linux/times.h>
+ #include <linux/cpuset.h>
+ #include <linux/rcupdate.h>
++#include <linux/delayacct.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -414,7 +415,7 @@ static int do_task_stat(struct task_stru
+ 
+ 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
+ %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
+-%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
++%lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu %llu\n",
+ 		task->pid,
+ 		tcomm,
+ 		state,
+@@ -459,7 +460,8 @@ static int do_task_stat(struct task_stru
+ 		task->exit_signal,
+ 		task_cpu(task),
+ 		task->rt_priority,
+-		task->policy);
++		      task->policy,
++		delayacct_blkio_ticks(task));
+ 	if(mm)
+ 		mmput(mm);
+ 	return res;
+Index: linux-2.6.16-rc5/include/linux/delayacct.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/delayacct.h	2006-03-11 07:41:38.000000000 -0500
++++ linux-2.6.16-rc5/include/linux/delayacct.h	2006-03-11 07:41:40.000000000 -0500
+@@ -24,6 +24,7 @@ extern void __delayacct_tsk_init(struct 
+ extern void __delayacct_tsk_exit(struct task_struct *);
+ extern void __delayacct_blkio_start(void);
+ extern void __delayacct_blkio_end(void);
++extern unsigned long long __delayacct_blkio_ticks(struct task_struct *);
+ 
+ static inline void delayacct_tsk_init(struct task_struct *tsk)
+ {
+@@ -49,6 +50,11 @@ static inline void delayacct_blkio_end(v
+ 	if (unlikely(delayacct_on))
+ 		__delayacct_blkio_end();
+ }
++static inline unsigned long long delayacct_blkio_ticks(struct task_struct *tsk)
++{
++	if (unlikely(delayacct_on))
++		return __delayacct_blkio_ticks(tsk);
++}
+ #else
+ static inline int delayacct_init(void)
+ {}
+@@ -60,5 +66,9 @@ static inline void delayacct_blkio_start
+ {}
+ static inline void delayacct_blkio_end(void)
+ {}
++static inline unsigned long long delayacct_blkio_ticks(struct task_struct *tsk)
++{
++	return 0;
++}
+ #endif /* CONFIG_TASK_DELAY_ACCT */
+ #endif /* _LINUX_TASKDELAYS_H */
+Index: linux-2.6.16-rc5/include/linux/jiffies.h
+===================================================================
+--- linux-2.6.16-rc5.orig/include/linux/jiffies.h	2006-03-11 07:41:32.000000000 -0500
++++ linux-2.6.16-rc5/include/linux/jiffies.h	2006-03-11 07:41:40.000000000 -0500
+@@ -291,6 +291,12 @@ static inline unsigned long usecs_to_jif
+ #endif
+ }
+ 
++static inline unsigned long nsecs_to_jiffies(const nsec_t n)
++{
++	return (((u64)n * NSEC_CONVERSION) >>
++		(NSEC_JIFFIE_SC - SEC_JIFFIE_SC)) >> SEC_JIFFIE_SC;
++}
++
+ /*
+  * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
+  * that a remainder subtract here would not do the right thing as the
+Index: linux-2.6.16-rc5/kernel/delayacct.c
+===================================================================
+--- linux-2.6.16-rc5.orig/kernel/delayacct.c	2006-03-11 07:41:39.000000000 -0500
++++ linux-2.6.16-rc5/kernel/delayacct.c	2006-03-11 07:41:40.000000000 -0500
+@@ -111,3 +111,16 @@ void __delayacct_blkio_end(void)
+ 				      &current->delays->blkio_count);
+ 	}
+ }
++
++unsigned long long __delayacct_blkio_ticks(struct task_struct *tsk)
++{
++	unsigned long long ret;
++
++	if (!tsk->delays)
++		return 0;
++
++	spin_lock(&tsk->delays->lock);
++	ret = nsec_to_clock_t(tsk->delays->blkio_delay + tsk->delays->swapin_delay);
++	spin_unlock(&tsk->delays->lock);
++	return ret;
++}
 
-------_=_NextPart_001_01C64701.9AB13D80
-Content-Type: application/octet-stream;
-	name="scsi_device_reprobe"
-Content-Transfer-Encoding: base64
-Content-Description: scsi_device_reprobe
-Content-Disposition: attachment;
-	filename="scsi_device_reprobe"
 
-SW5kZXg6IHNjc2ktbWlzYy0yLjYvZHJpdmVycy9zY3NpL3Njc2kuYw0KPT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
-IHNjc2ktbWlzYy0yLjYub3JpZy9kcml2ZXJzL3Njc2kvc2NzaS5jCTIwMDYtMDMtMDQgMTM6MDc6
-NDQuMDAwMDAwMDAwICswMTAwDQorKysgc2NzaS1taXNjLTIuNi9kcml2ZXJzL3Njc2kvc2NzaS5j
-CTIwMDYtMDMtMDcgMjE6NTc6MjEuMDAwMDAwMDAwICswMTAwDQpAQCAtMTIxNCw2ICsxMjE0LDEz
-IEBADQogfQ0KIEVYUE9SVF9TWU1CT0woc2NzaV9kZXZpY2VfY2FuY2VsKTsNCiANCit2b2lkIHNj
-c2lfZGV2aWNlX3JlcHJvYmUoc3RydWN0IHNjc2lfZGV2aWNlICpzZGV2KQ0KK3sNCisJZGV2aWNl
-X3JlcHJvYmUoJnNkZXYtPnNkZXZfZ2VuZGV2KTsNCit9DQorDQorRVhQT1JUX1NZTUJPTChzY3Np
-X2RldmljZV9yZXByb2JlKTsNCisNCiBNT0RVTEVfREVTQ1JJUFRJT04oIlNDU0kgY29yZSIpOw0K
-IE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCiANCkluZGV4OiBzY3NpLW1pc2MtMi42L2luY2x1ZGUv
-c2NzaS9zY3NpX2RldmljZS5oDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gc2NzaS1taXNjLTIuNi5vcmlnL2lu
-Y2x1ZGUvc2NzaS9zY3NpX2RldmljZS5oCTIwMDYtMDMtMDQgMTM6MDc6NDkuMDAwMDAwMDAwICsw
-MTAwDQorKysgc2NzaS1taXNjLTIuNi9pbmNsdWRlL3Njc2kvc2NzaV9kZXZpY2UuaAkyMDA2LTAz
-LTA3IDIxOjU3OjQ1LjAwMDAwMDAwMCArMDEwMA0KQEAgLTIwNCw2ICsyMDQsNyBAQA0KIAkJCSAg
-IHVpbnQgdGFyZ2V0LCB1aW50IGx1bik7DQogZXh0ZXJuIHZvaWQgc2NzaV9yZW1vdmVfZGV2aWNl
-KHN0cnVjdCBzY3NpX2RldmljZSAqKTsNCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2NhbmNlbChz
-dHJ1Y3Qgc2NzaV9kZXZpY2UgKiwgaW50KTsNCitleHRlcm4gdm9pZCBzY3NpX2RldmljZV9yZXBy
-b2JlKHN0cnVjdCBzY3NpX2RldmljZSAqKTsNCiANCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2dl
-dChzdHJ1Y3Qgc2NzaV9kZXZpY2UgKik7DQogZXh0ZXJuIHZvaWQgc2NzaV9kZXZpY2VfcHV0KHN0
-cnVjdCBzY3NpX2RldmljZSAqKTsNCg==
-
-------_=_NextPart_001_01C64701.9AB13D80--

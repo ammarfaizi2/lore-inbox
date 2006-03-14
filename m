@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWCNGuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751879AbWCNGwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751767AbWCNGuk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 01:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWCNGuk
+	id S1751879AbWCNGwn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 01:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWCNGwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 01:50:40 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:34177 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751767AbWCNGuj (ORCPT
+	Tue, 14 Mar 2006 01:52:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15045 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751879AbWCNGwm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 01:50:39 -0500
-Date: Tue, 14 Mar 2006 12:20:22 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [Patch 1/9] timestamp diff
-Message-ID: <20060314065022.GA5748@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-References: <1142296834.5858.3.camel@elinux04.optonline.net> <1142296939.5858.6.camel@elinux04.optonline.net> <1142298072.13256.70.camel@mindpipe> <1142298325.5858.40.camel@elinux04.optonline.net> <1142298764.13256.73.camel@mindpipe> <661de9470603131942k768d672eq6009769ec58a4329@mail.gmail.com> <441645FB.6000002@watson.ibm.com>
+	Tue, 14 Mar 2006 01:52:42 -0500
+Date: Mon, 13 Mar 2006 22:50:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Stone, Joshua I" <joshua.i.stone@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Exports for hrtimer APIs
+Message-Id: <20060313225015.7f5fb955.akpm@osdl.org>
+In-Reply-To: <CBDB88BFD06F7F408399DBCF8776B3DC06A48C31@scsmsx403.amr.corp.intel.com>
+References: <CBDB88BFD06F7F408399DBCF8776B3DC06A48C31@scsmsx403.amr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <441645FB.6000002@watson.ibm.com>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Lee's point is valid....we should be doing the set_normalized_timespec.
+"Stone, Joshua I" <joshua.i.stone@intel.com> wrote:
 >
+> Hi,
+> 
+> I have noticed that the hrtimer APIs in 2.6.16 RCs are not exported, and
+> therefore modules are unable to use hrtimers.  I have not seen any
+> discussion on this point, so I presume that this is either an oversight,
+> or there has not been any case presented for exporting hrtimers.
+> 
+> I would like to add hrtimer support to SystemTap, which by design
+> requires the use of dynamically loaded kernel modules.  Can the
+> appropriate exports for hrtimers please be added?
+> 
 
-Semantically that sounds correct. But the intension of the caller as in
-our case could be to convert the timespec to nsec_t. Calling
-set_normalized_timespec() might be an overhead in this case. 
+Please send a patch, so we can see what's needed.
 
-Balbir
+EXPORT_SYMBOL_GPL would be preferred.

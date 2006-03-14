@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751782AbWCNPgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751836AbWCNPkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751782AbWCNPgW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 10:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751836AbWCNPgW
+	id S1751836AbWCNPkN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751851AbWCNPkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 10:36:22 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47291 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751782AbWCNPgV (ORCPT
+	Tue, 14 Mar 2006 10:40:13 -0500
+Received: from ns1.suse.de ([195.135.220.2]:42708 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751836AbWCNPkL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 10:36:21 -0500
-Date: Tue, 14 Mar 2006 07:35:24 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Moore, Eric" <Eric.Moore@lsil.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       James.Bottomley@SteelEye.com, hch@lst.de
-Subject: Re: [PATCH ] drivers/scsi/scsi.c - export reprobe
-Message-ID: <20060314153524.GB8071@suse.de>
-References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D82A@NAMAIL2.ad.lsil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Mar 2006 10:40:11 -0500
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.16-rc6-git[12] spontaneous reboots on x86_64
+Date: Tue, 14 Mar 2006 16:39:38 +0100
+User-Agent: KMail/1.8
+Cc: Andrew Clayton <andrew@rootshell.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <1142337319.4412.2.camel@zeus.pccl.info> <Pine.LNX.4.61.0603141523340.4309@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0603141523340.4309@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F36D82A@NAMAIL2.ad.lsil.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200603141639.38988.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 05:52:43PM -0700, Moore, Eric wrote:
-> Request for exporting device_reprobe - 
-> This is scsi wrapper portion.
+On Tuesday 14 March 2006 16:30, Hugh Dickins wrote:
+> Andi, if you've a replacement patch you'd like everybody to test,
+> please post: I for one will surely give it a try.
 
-Is this even really needed?  It's just a single pointer dereference...
+Hrm, it worked on my test machine. 
 
-thanks,
+But what happens when you just revert the last hunk (the stub_execve change)?
 
-greg k-h
+-Andi

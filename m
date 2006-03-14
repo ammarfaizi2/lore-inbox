@@ -1,35 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWCNQGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWCNQIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWCNQGb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750954AbWCNQGa
+	id S1750981AbWCNQIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWCNQIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:06:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24742 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750847AbWCNQGa (ORCPT
+	Tue, 14 Mar 2006 11:08:09 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:63717 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1750954AbWCNQII (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:06:30 -0500
-Date: Tue, 14 Mar 2006 08:06:20 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Clayton <andrew@rootshell.co.uk>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-git[12] spontaneous reboots on x86_64
-In-Reply-To: <Pine.LNX.4.61.0603141523340.4309@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0603140805380.3618@g5.osdl.org>
-References: <1142337319.4412.2.camel@zeus.pccl.info>
- <Pine.LNX.4.61.0603141523340.4309@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Mar 2006 11:08:08 -0500
+Subject: Re: [PATCH] kexec for ia64
+From: Khalid Aziz <khalid_aziz@hp.com>
+To: Zou Nan hai <nanhai.zou@intel.com>
+Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
+       Linux ia64 <linux-ia64@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>, "Luck, Tony" <tony.luck@intel.com>
+In-Reply-To: <1142318909.2545.4.camel@linux-znh>
+References: <1142271576.10787.15.camel@lyra.fc.hp.com>
+	 <1142318909.2545.4.camel@linux-znh>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 09:08:04 -0700
+Message-Id: <1142352485.18421.11.camel@lyra.fc.hp.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-03-14 at 14:48 +0800, Zou Nan hai wrote:
+> 3. Is the set ar.k0 code necessary? ar.k0 is already holding the right
+> value.
+
+Purely defensive coding to ensure new kernel does not fall on its
+face :)
+
+> 
+> 4. Is the VHPT disable code necessary? kernel will soon goes into
+> Physical mode and the new kernel will reset VHPT walker.
+
+Again, playing it safe. We do not want VHPT walker waking up at this
+point. Instead of assuming code will not do anything that could cause
+VHPT walker to wake up, it is better to just disable it. This way, if
+any code makes erroneous references to a virtual address which causes
+VHPT walker to make a TLB entry, it will simply get a page fault and we
+can catch that. It is much harder to debug if VHPT walker silently makes
+a TLB entry for an unexpected virtual address reference and then things
+go wrong further down the line.
+
+> 
+> 5. Is the PCI disable code too complex?
+
+I have simplified it as much as I can. Suggestions to simplify further
+would be appreciated.
+> 
+> The overall concern is I am afraid the code is too much than
+> necessary. 
+> 
+
+After testing this kexec code for over 10,000 iterations of kexec'ing, I
+have found not shutting devices down results in many corner cases that
+have been fairly hard to debug. Adding all this code to shut down as
+much of the hardware as possible has resulted in much more reliable
+kexec code.
+
+-- 
+Khalid
+
+====================================================================
+Khalid Aziz                       Open Source and Linux Organization
+(970)898-9214                                        Hewlett-Packard
+khalid.aziz@hp.com                                  Fort Collins, CO
+
+"The Linux kernel is subject to relentless development" 
+                                - Alessandro Rubini
 
 
-On Tue, 14 Mar 2006, Hugh Dickins wrote:
->
-> Yep, that one's a turkey, definitely something for Linus to revert.
-
-Reverted. Let's get wider testing before applying an alternate fix.
-
-		Linus

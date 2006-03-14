@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWCNOsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWCNPAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWCNOsx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 09:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWCNOsx
+	id S1751074AbWCNPAW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 10:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWCNPAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 09:48:53 -0500
-Received: from thunk.org ([69.25.196.29]:51340 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751039AbWCNOsw (ORCPT
+	Tue, 14 Mar 2006 10:00:21 -0500
+Received: from mivlgu.ru ([81.18.140.87]:23706 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S1751074AbWCNPAU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 09:48:52 -0500
-Date: Tue, 14 Mar 2006 09:48:49 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-Subject: Re: How do I get the ext3 driver to shut up?
-Message-ID: <20060314144849.GC16264@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Andrew Morton <akpm@osdl.org>, Rob Landley <rob@landley.net>,
-	linux-kernel@vger.kernel.org
-References: <200603132218.39511.rob@landley.net> <20060313231407.7606f0d3.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Mar 2006 10:00:20 -0500
+Date: Tue, 14 Mar 2006 18:00:17 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Bill Nottingham <notting@redhat.com>, Kay Sievers <kay.sievers@vrfy.org>,
+       Andrew Morton <akpm@osdl.org>, ambx1@neo.rr.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [PNP] 'modalias' sysfs export
+Message-ID: <20060314150017.GQ2873@master.mivlgu.local>
+References: <44082E14.5010201@drzeus.cx> <4412F53B.5010309@drzeus.cx> <20060311173847.23838981.akpm@osdl.org> <4414033F.2000205@drzeus.cx> <20060312172332.GA10278@vrfy.org> <20060313165719.GB4147@devserv.devel.redhat.com> <20060313192411.GA23380@vrfy.org> <20060313222644.GD1311@devserv.devel.redhat.com> <20060314152944.797390cd.vsu@altlinux.ru> <4416BB73.5070801@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YPYi+6JBnn8IjLOH"
 Content-Disposition: inline
-In-Reply-To: <20060313231407.7606f0d3.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+In-Reply-To: <4416BB73.5070801@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 11:14:07PM -0800, Andrew Morton wrote:
-> >  Guess which device driver feels a bit chatty?
-> > 
-> > ...
+
+--YPYi+6JBnn8IjLOH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Mar 14, 2006 at 01:47:47PM +0100, Pierre Ossman wrote:
+> Sergey Vlasov wrote:
+> > BTW, we can change the alias format for PNP device drivers to
 > >
-> >  VFS: Can't find ext3 filesystem on dev loop0.
-> 
-> That's only printed if the sys_mount() caller set MS_VERBOSE in `flags'.
+> > 	pnp:*dXXXYYYY*
+> >
+> > (note the additional "*" before the device ID).  This would allow us to
+> > have a single-value "modalias" attribute for PNP logical devices too -
+> > it would have the form
+> >
+> > 	pnp:dXXXYYYYdXXXYYYYdXXXYYYY
+> >
+> > (listing all IDs, in this case sorting is not required, because each
+> > driver will match at most only a single dXXXYYYY entry).
+> >  =20
+>=20
+> How do you guarantee that the modules are tried in the correct order? Is
+> it well defined in modprobe that pnp:*dABC0001* would match before
+> pnp:*dXYZ0001* if the modalias is pnp:dABC0001dXYZ0001 ?
 
-I should have been a bit more explict in my previous message.
-Actually, if you trace down the logic, it's only printed if
-sys_mount() __DIDN'T__ set MS_VERBOSE in 'flags'.  The code in
-fs/super.c sets the "silent" flag if (flags & MS_VERBOSE) is non-zero.
-The meaning is reversed, which is counterintuitive.  Hence, my patch.
+No, the order is undefined.  However, defining it will not really help -
+what if there is another similar device in the system, which is discovered
+earlier and brings in the generic driver before the second device is
+considered?  In this case defining the module load order buys you nothing.
+Currently the only reliable solution to prevent a generic driver from
+driving a device which has a more specific driver is to blacklist the
+problematic device in the generic driver (e.g., usbhid has lots of
+blacklist entries because vendors like to abuse the HID class).
 
-						- Ted
+--YPYi+6JBnn8IjLOH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFEFtqBW82GfkQfsqIRAmqSAJwMkabIfer9j3RTTbgjx58RkpqILQCdG/aO
+YMedHN/RADYU+X09/lEZ/Ac=
+=etbb
+-----END PGP SIGNATURE-----
+
+--YPYi+6JBnn8IjLOH--

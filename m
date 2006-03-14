@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWCNX6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751968AbWCNX7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752005AbWCNX6a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 18:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWCNX6a
+	id S1751968AbWCNX7r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 18:59:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752059AbWCNX7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 18:58:30 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:38633 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1752005AbWCNX63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 18:58:29 -0500
-Message-Id: <200603142357.k2ENvZe1018075@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Greg Scott <GregScott@InfraSupportEtc.com>,
-       Rick Jones <rick.jones2@hp.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       Bart Samwel <bart@samwel.tk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Simon Mackinlay <smackinlay@mail.com>
-Subject: Re: Router stops routing after changing MAC Address 
-In-Reply-To: Your message of "Mon, 13 Mar 2006 17:35:50 EST."
-             <Pine.LNX.4.61.0603131730100.5785@chaos.analogic.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <925A849792280C4E80C5461017A4B8A20321F9@mail733.InfraSupportEtc.com>
-            <Pine.LNX.4.61.0603131730100.5785@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1142380655_9726P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Mar 2006 18:57:35 -0500
+	Tue, 14 Mar 2006 18:59:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28293 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752044AbWCNX7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 18:59:46 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <17431.14867.211423.851470@cargo.ozlabs.ibm.com> 
+References: <17431.14867.211423.851470@cargo.ozlabs.ibm.com>  <m1veujy47r.fsf@ebiederm.dsl.xmission.com> <16835.1141936162@warthog.cambridge.redhat.com> <32068.1142371612@warthog.cambridge.redhat.com> 
+To: Paul Mackerras <paulus@samba.org>
+Cc: David Howells <dhowells@redhat.com>,
+       ebiederm@xmission.com (Eric W. Biederman), akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Tue, 14 Mar 2006 23:59:28 +0000
+Message-ID: <2301.1142380768@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1142380655_9726P
-Content-Type: text/plain; charset=us-ascii
+Paul Mackerras <paulus@samba.org> wrote:
 
-On Mon, 13 Mar 2006 17:35:50 EST, "linux-os (Dick Johnson)" said:
+> No, that's not the problem.  The problem is that you can get q == &b
+> and d == 1, believe it or not.  That is, you can see the new value of
+> the pointer but the old value of the thing pointed to.
 
-> Bzzzzst... Not! There are not any MAC addresses associated with any
-> of the intercity links, usually not even in WANs!  MAC is for
-> Ethernet! Once you go to fiber, ATM, T-N, etc., there are no
-> MAC addresses.
+But that doesn't make any sense!
 
-This will come as a big surprise to those places running Gig-E and 10G-E
-links into a fiber for long-haul cross-country connectivity.....
+That would mean we that we'd've read b into d before having read the new value
+of p into q, and thus before having calculated the address from which to read d
+(ie: &b) - so how could we know we were supposed to read d from b and not from
+a without first having read p?
 
---==_Exmh_1142380655_9726P
-Content-Type: application/pgp-signature
+Unless, of course, the smp_wmb() isn't effective, and the write to b happens
+after the write to p; or the Alpha's cache isn't fully coherent.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFEF1hvcC3lWbTT17ARAoCsAJ9cpnhMi+ElWPhB5rkTjbGuUK756ACg7r4v
-NoHyjkKxeeqTwyOoOp7OVU4=
-=IiZy
------END PGP SIGNATURE-----
-
---==_Exmh_1142380655_9726P--
+David

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWCNLl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751785AbWCNLld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWCNLl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 06:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751785AbWCNLl2
+	id S1751785AbWCNLld (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 06:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751806AbWCNLld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 06:41:28 -0500
-Received: from bsamwel.xs4all.nl ([82.92.179.183]:46398 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S1750974AbWCNLl2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 06:41:28 -0500
-Message-ID: <4416ABB1.8020802@samwel.tk>
-Date: Tue, 14 Mar 2006 12:40:33 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Tue, 14 Mar 2006 06:41:33 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:18664 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751785AbWCNLlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 06:41:32 -0500
+Date: Tue, 14 Mar 2006 20:40:25 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: jschopp@austin.ibm.com, haveblue@us.ibm.com
+Subject: Re: [PATCH: 003/017](RFC) Memory hotplug for new nodes v.3.(get node id at probe memory)
+Cc: Andrew Morton <akpm@osdl.org>, ak@suse.de, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20060310154600.CA73.Y-GOTO@jp.fujitsu.com>
+References: <20060309040031.2be49ec2.akpm@osdl.org> <20060310154600.CA73.Y-GOTO@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
+Message-Id: <20060314201603.9159.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Greg Scott <GregScott@InfraSupportEtc.com>,
-       Rick Jones <rick.jones2@hp.com>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Simon Mackinlay <smackinlay@mail.com>
-Subject: Re: Router stops routing after changing MAC Address
-References: <925A849792280C4E80C5461017A4B8A20321F9@mail733.InfraSupportEtc.com> <Pine.LNX.4.61.0603131730100.5785@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0603131730100.5785@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> On Mon, 13 Mar 2006, Greg Scott wrote:
-> Bzzzzst... Not! There are not any MAC addresses associated with any
-> of the intercity links, usually not even in WANs!  MAC is for
-> Ethernet! Once you go to fiber, ATM, T-N, etc., there are no MAC addresses.
+> > Yasunori Goto <y-goto@jp.fujitsu.com> wrote:
+> > >
+> > > When CONFIG_NUMA && CONFIG_ARCH_MEMORY_PROBE, nid should be defined
+> > >  before calling add_memory_node(nid, start, size).
+> > > 
+> > >  Each arch , which supports CONFIG_NUMA && ARCH_MEMORY_PROBE, should
+> > >  define arch_nid_probe(paddr);
+> > > 
+> > >  Powerpc has nice function. X86_64 has not.....
+> > 
+> > This patch uses an odd mixture of __devinit and <nothing-at-all> in
+> > arch/x86_64/mm/init.c.  I guess it should be using __meminit
+> > throughout.
+> 
+>   Oh... I made mistake. I'll fix them.
 
-Bzzzzt. According to WikiPedia:
+Hmmm. I'm confusing again about this. :-(
 
-http://en.wikipedia.org/wiki/MAC_address
+Dave-san, Joel-san.
 
-MAC addresses are used for:
+Why does Powerpc use __devinit for add_memory()?
+Usually, add_memory() is never called at boottime.
+So, I suppose __meminit nor __devinit is not needed at all around here.
 
-- Token ring
-- 802.11 wireless networks
-- Bluetooth
-- FDDI
-- ATM (switched virtual connections only, as part of an NSAP address)
-- SCSI and Fibre Channel (as part of a World Wide Name)
+But, does it have a plan that add_memory() is called only boottime on 
+Powerpc?
 
-FDDI = fiber, ATM = ATM.
 
---Bart
+-- 
+Yasunori Goto 
+
+

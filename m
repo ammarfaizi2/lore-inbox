@@ -1,123 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWCNAv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWCNAw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWCNAv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 19:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWCNAv3
+	id S932516AbWCNAw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 19:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751900AbWCNAw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 19:51:29 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:19430 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932388AbWCNAv2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 19:51:28 -0500
-Subject: [Patch 5/9] Swapin delays
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
-In-Reply-To: <1142296834.5858.3.camel@elinux04.optonline.net>
-References: <1142296834.5858.3.camel@elinux04.optonline.net>
+	Mon, 13 Mar 2006 19:52:56 -0500
+Received: from xproxy.gmail.com ([66.249.82.196]:25398 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751899AbWCNAwz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 19:52:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:subject:from:reply-to:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+        b=oBOHovwz0bFHq0Q1+suWMNr4irFFWac4Wz47rqkv76LwmiRpDNkUzdMZBxyfVCe1tIS+z4eKeDsRUZIwASRit0ulJLFXyTjTSfYrwUtY2fDrwW1iOudHMVcfTIPhjBrtO5vm+aiyCQK/km5tAf7jRz9ZRbtt3/JWC/19OxV72/c=
+Subject: Re: Kernel config problem between 2.4.x to 2.6.x!
+From: Chris Largret <largret@gmail.com>
+Reply-To: largret@gmail.com
+To: j4K3xBl4sT3r <jakexblaster@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <436c596f0603130342u4d38445bt5e9f129349cda0c8@mail.gmail.com>
+References: <436c596f0603121015j2a091ab2sf43d0c5c396bbb72@mail.gmail.com>
+	 <7c3341450603121247n7afe018m@mail.gmail.com>
+	 <436c596f0603121632qe3151k793fd3ccd9a0eacb@mail.gmail.com>
+	 <200603130708.13685.nick@linicks.net>
+	 <436c596f0603130342u4d38445bt5e9f129349cda0c8@mail.gmail.com>
 Content-Type: text/plain
-Organization: IBM
-Message-Id: <1142297486.5858.21.camel@elinux04.optonline.net>
+Date: Mon, 13 Mar 2006 16:52:52 -0800
+Message-Id: <1142297572.7090.4.camel@shogun.daga.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 13 Mar 2006 19:51:26 -0500
+X-Mailer: Evolution 2.4.2.1 Dropline GNOME 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-delayacct-swapin.patch
+On Mon, 2006-03-13 at 08:42 -0300, j4K3xBl4sT3r wrote:
 
-Account separately for block I/O delays 
-incurred as a result of swapin page faults since
-these are a result of insufficient rss limit.
+> 1. before, the mouse worked fine. now, it doesnt works
+> 2. before, the sound worked. and now, still working, just with ALSA,
+> no OSS support (tested with mpg321 and ogg123 on bash terminal)
+> 3. strangely, the X worked fine after the kernel update, is DRM and
+> AGPGART needed by Xorg?
+> 4. before, the PPPoE connected within the 2 first "." (seconds?). Now,
+> doesnt work, I always get TIMEOUT from PPPoE.
+> 5. the PNPDUMP returns a empty file on the isapnptools (from the
+> compilation, this is the only file that gets fully compiled)
+> 
+> This situation happened on the Slackware 10.2, assuming a Kernel
+> Update.
 
-Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+I'm running Slackware 10.2 on my server with the 2.6 kernel. Did you
+remember to chmod +x /etc/rc.d/rc.udev? It is either an issue with /dev
+or an issue with the drivers not being initialized correctly.
 
- include/linux/sched.h |    5 ++++-
- kernel/delayacct.c    |   17 ++++++++++++-----
- mm/memory.c           |    4 ++++
- 3 files changed, 20 insertions(+), 6 deletions(-)
-
-Index: linux-2.6.16-rc5/include/linux/sched.h
-===================================================================
---- linux-2.6.16-rc5.orig/include/linux/sched.h	2006-03-11 07:41:38.000000000 -0500
-+++ linux-2.6.16-rc5/include/linux/sched.h	2006-03-11 07:41:39.000000000 -0500
-@@ -550,9 +550,11 @@ struct task_delay_info {
- 	 * u32 XXX_count;
- 	 */
- 
--	struct timespec blkio_start, blkio_end;
-+	struct timespec blkio_start, blkio_end;	/* Shared by blkio, swapin */
- 	u64 blkio_delay;	/* wait for sync block io completion */
-+	u64 swapin_delay;	/* wait for sync block io completion */
- 	u32 blkio_count;
-+	u32 swapin_count;
- };
- #endif
- 
-@@ -949,6 +951,7 @@ static inline void put_task_struct(struc
- #define PF_BORROWED_MM	0x00400000	/* I am a kthread doing use_mm */
- #define PF_RANDOMIZE	0x00800000	/* randomize virtual address space */
- #define PF_SWAPWRITE	0x01000000	/* Allowed to write to swap */
-+#define PF_SWAPIN	0x02000000	/* I am doing a swap in */
- 
- /*
-  * Only the _current_ task can read/write to tsk->flags, but other
-Index: linux-2.6.16-rc5/kernel/delayacct.c
-===================================================================
---- linux-2.6.16-rc5.orig/kernel/delayacct.c	2006-03-11 07:41:38.000000000 -0500
-+++ linux-2.6.16-rc5/kernel/delayacct.c	2006-03-11 07:41:39.000000000 -0500
-@@ -98,9 +98,16 @@ void __delayacct_blkio_start(void)
- 
- void __delayacct_blkio_end(void)
- {
--	if (current->delays)
--		delayacct_end(&current->delays->blkio_start,
--				&current->delays->blkio_end,
--				&current->delays->blkio_delay,
--				&current->delays->blkio_count);
-+	if (current->delays) {
-+		if (current->flags & PF_SWAPIN)	/* Swapping a page in */
-+			delayacct_end(&current->delays->blkio_start,
-+				      &current->delays->blkio_end,
-+				      &current->delays->swapin_delay,
-+				      &current->delays->swapin_count);
-+		else	/* Other block I/O */
-+			delayacct_end(&current->delays->blkio_start,
-+				      &current->delays->blkio_end,
-+				      &current->delays->blkio_delay,
-+				      &current->delays->blkio_count);
-+	}
- }
-Index: linux-2.6.16-rc5/mm/memory.c
-===================================================================
---- linux-2.6.16-rc5.orig/mm/memory.c	2006-03-11 07:41:32.000000000 -0500
-+++ linux-2.6.16-rc5/mm/memory.c	2006-03-11 07:41:39.000000000 -0500
-@@ -1882,6 +1882,7 @@ static int do_swap_page(struct mm_struct
- 
- 	entry = pte_to_swp_entry(orig_pte);
- again:
-+	current->flags |= PF_SWAPIN;
- 	page = lookup_swap_cache(entry);
- 	if (!page) {
-  		swapin_readahead(entry, address, vma);
-@@ -1894,6 +1895,7 @@ again:
- 			page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
- 			if (likely(pte_same(*page_table, orig_pte)))
- 				ret = VM_FAULT_OOM;
-+			current->flags &= ~PF_SWAPOFF;
- 			goto unlock;
- 		}
- 
-@@ -1905,6 +1907,8 @@ again:
- 
- 	mark_page_accessed(page);
- 	lock_page(page);
-+	current->flags &= ~PF_SWAPOFF;
-+
- 	if (!PageSwapCache(page)) {
- 		/* Page migration has occured */
- 		unlock_page(page);
-
+--
+Chris Largret <http://daga.dyndns.org>
 

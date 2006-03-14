@@ -1,99 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752095AbWCNC32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752100AbWCNCaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752095AbWCNC32 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 21:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752100AbWCNC32
+	id S1752100AbWCNCaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 21:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752108AbWCNCaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 21:29:28 -0500
-Received: from ip-58-42.ib.tcz.pl ([81.210.58.42]:35850 "HELO ablewise.com")
-	by vger.kernel.org with SMTP id S1752095AbWCNC31 (ORCPT
+	Mon, 13 Mar 2006 21:30:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:55778 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752100AbWCNCaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 21:29:27 -0500
-Message-ID: <0FE30277.AC3F7FB@ablewise.com>
-Date: Mon, 13 Mar 2006 22:15:30 -0500
-From: "UNDP LOAN" <Loanopportunity1@ablewise.com>
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.5.1) Gecko/20031120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Subject: 
-Content-Type: text/plain;
-	charset="us-ascii"
+	Mon, 13 Mar 2006 21:30:08 -0500
+Date: Mon, 13 Mar 2006 18:27:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: agk@redhat.com, gregkh@suse.de, neilb@suse.de, lmb@suse.de,
+       dm-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/7] dm/md dependency tree in sysfs: bd_claim_by_kobject
+Message-Id: <20060313182730.335bc6c8.akpm@osdl.org>
+In-Reply-To: <4415EEFD.6010002@ce.jp.nec.com>
+References: <4415EC4B.4010003@ce.jp.nec.com>
+	<4415EEFD.6010002@ce.jp.nec.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Office of The United Nations Under-Secretary-General,
-Director-General of the United Nations, 
-United Nation Development Loan & Scheme Project.                           
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-       
-Geneva Switzerland.
+"Jun'ichi Nomura" <j-nomura@ce.jp.nec.com> wrote:
+>
+> This patch is part of dm/md dependency tree in sysfs.
+> 
+> This adds bd_claim_by_kobject() function which takes kobject as
+> additional signature of holder device and creates sysfs symlinks
+> between holder device and claimed device.
+> bd_release_from_kobject() is a counter part of bd_claim_by_kobject.
+> 
+> ...
+>
+> @@ -402,6 +402,7 @@ struct block_device {
+>  	struct list_head	bd_inodes;
+>  	void *			bd_holder;
+>  	int			bd_holders;
+> +	struct list_head	bd_holder_list;
+>  	struct block_device *	bd_contains;
+>  	unsigned		bd_block_size;
+>  	struct hd_struct *	bd_part;
 
+Bear in mind that sysfs is Kconfigurable (CONFIG_SYSFS).  If possible,
+newly-added code which doesn't make sense without sysfs should not appear
+in a CONFIG_SYSFS=n vmlinux.
 
-You could be chosen for this Life Time Opportunity.
+> +
+> +static inline struct kobject * bdev_get_kobj(struct block_device *bdev)
 
-The United Nation Development Loan and Scheme Project (UNDLSP) is a pet
-task of the UNDP whose priority is to provide a low interest scheme loan to 
-private individuals and companies to help combat the debilitating effect of
-poverty globally. 
+pet-peeve: The space after asterisk has no use.
 
-We also provide home equity line of credit, where our accredited bank gives
-you a checkbook or credit card to make purchases, which then accrue against 
-your home's equity. With this type of home equity loan, interest does not
-begin building until you make a purchase and we offer superlative and low
-interest rate. 
+> +{
+> +	if (bdev->bd_contains != bdev)
+> +		return kobject_get(&bdev->bd_part->kobj);
+> +	else
+> +		return kobject_get(&bdev->bd_disk->kobj);
+> +}
+> +
+> +static inline struct kobject * bdev_get_holder(struct block_device *bdev)
+> +static inline void add_symlink(struct kobject *from, struct kobject *to)
+> +static inline void del_symlink(struct kobject *from, struct kobject *to)
+> +static inline int bd_holder_grab_dirs(struct block_device *bdev,
+> +static inline void bd_holder_release_dirs(struct bd_holder *bo)
 
-The essence of this loan is to empower enthusiastic individuals and
-companies globally to create employment opportunities for their ward. Upon
-qualification 
-for the loan, our "Loan Appraisal Committee" (LAC) will determine an amount
-suitable for your proposed business interest. The qualified candidates will 
-single-handedly manage their business but will work in collaboration with
-our Special Task Force from the UNDP General Advisory and Supervisory 
-Department for a period of one year to enable the department prepare a
-report and submit to the UNDP Governing Board on debt servicing potential
-and 
-recommend options for making monthly or quarterly payments towards the
-interest and principal amount.    
+I suposse the inlines are OK, given that we "know" that there's only a
+single callsite.  But recent gcc's take care of that automatically.
 
-The qualified candidates under this Loan Scheme have an option of applying
-for loan between Five hundred thousand United States Dollars to Ten million 
-United States dollars ($500,000.00 - $10,000, 000.00) depending on their
-projected business scope, provided that the borrower have a good credit
-record. 
-The United Nation Development Loan and Scheme Project (UNDLSP) give a
-period of 20 years for lenders to repay their loans.
+> +static int add_bd_holder(struct block_device *bdev, struct bd_holder *bo)
+> +{
+> +        struct bd_holder *tmp;
+> +
+> +	if (!bo)
+> +		return 0;
 
-The investment area is not limited and may include new businesses or
-inoculation of funds into an existing business that requires expansion but
-must be 
-reputed to be profit oriented in all ramifications. Note that Governmental
-agencies are exempted from this loan Scheme opportunity.  
+whitespace went wild there.
 
-Candidates who are interested in the UNDP Loan Scheme Project are advised
-to send copy of their identification document, age, profession and contact 
-telephone/fax number to the "Loan Officer" in De Hague, Netherlands and
-request for "Loan Application Form" which must be completed and return to
-the 
-accredited Loan Officer who has the mandate to begin the process of
-analyzing and verifying the information on the application form to determine
-the client's 
-creditworthiness. If qualified, candidates would receive their loan within
-14 working days.  You may contact Loan Officer below:   
+> +static void free_bd_holder(struct bd_holder *bo)
+> ...
+> +
+> +	bo->sdir = kobj;
+> +	list_for_each_entry(tmp, &bdev->bd_holder_list, list) {
+> +		if (tmp->sdir == bo->sdir) {
+> +			tmp->count++;
+> +			return 0;
+> +		}
+> +	}
+> +
+> +	if (!bd_holder_grab_dirs(bdev, bo))
+> +		return 0;
+> +
+> +	add_symlink(bo->sdir, bo->sdev);
+> +	add_symlink(bo->hdir, bo->hdev);
+> +	list_add_tail(&bo->list, &bdev->bd_holder_list);
+> +	return 1;
+> +}
+> 
+> +static struct bd_holder *del_bd_holder(struct block_device *bdev,
+> +					struct kobject *kobj)
+> +{
+> +	struct bd_holder *bo;
+> +
+> +	list_for_each_entry(bo, &bdev->bd_holder_list, list) {
+> +		if (bo->sdir == kobj) {
+> +			bo->count--;
+> +			BUG_ON(bo->count < 0);
+> +			if (!bo->count) {
+> +				list_del(&bo->list);
+> +				del_symlink(bo->sdir, bo->sdev);
+> +				del_symlink(bo->hdir, bo->hdev);
+> +				bd_holder_release_dirs(bo);
+> +				return bo;
+> +			}
+> +			break;
+> +		}
+> +	}
+> +
+> +	return NULL;
+> +}
 
-Dr. Antonio Edward Konesky
-Tel: +31 630 133 177
-Email: draek1950@gmail.com 
+Some comments which describe what these do, what they return and why they
+return it would be nice.
 
-Kind regards 
+> +
+> +int bd_claim_by_kobject(struct block_device *bdev, void *holder,
+> +			struct kobject *kobj)
+> +{
 
-Theodora Holyfield
-For: United Nation Development Loan & Scheme Project  (UNDLSP). 
+Ditto.
 
+> +	int res = -EBUSY;
+> +	struct bd_holder *bo;
+> +
+> +	if (!kobj)
+> +		return -EINVAL;
+> +
+> +	bo = alloc_bd_holder(kobj);
+> +	if (!bo)
+> +		return -ENOMEM;
+> +
+> +	down(&bdev->bd_sem);
+> +	res = bd_claim(bdev, holder);
+> +	if (res || !add_bd_holder(bdev, bo))
+> +		free_bd_holder(bo);
+> +	up(&bdev->bd_sem);
+> +
+> +	return res;
+> +}
+> +
+> +EXPORT_SYMBOL(bd_claim_by_kobject);
 
+I don't think the blank line before the EXPORT_SYMBOL() does anything useful.
 
+EXPORT_SYMBOL_GPL() might be preferred.
+
+> +void bd_release_from_kobject(struct block_device *bdev, struct kobject *kobj)
+> +{
+> +	struct bd_holder *bo;
+> +
+> +	if (!kobj)
+> +		return;
+> +
+> +	down(&bdev->bd_sem);
+> +	bd_release(bdev);
+> +	if ((bo = del_bd_holder(bdev, kobj)))
+> +		free_bd_holder(bo);
+> +	up(&bdev->bd_sem);
+> +}
+> +
+> +EXPORT_SYMBOL(bd_release_from_kobject);
+
+Ditto.

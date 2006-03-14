@@ -1,103 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752043AbWCNJf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWCNJgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752043AbWCNJf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 04:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752046AbWCNJfz
+	id S932134AbWCNJgy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 04:36:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWCNJgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 04:35:55 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:16836 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752043AbWCNJfz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 04:35:55 -0500
-Date: Tue, 14 Mar 2006 15:03:14 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Eric W. Biederman" <ebiederman@lnxi.com>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Plug kdump shutdown race window
-Message-ID: <20060314093314.GB4577@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.10i
+	Tue, 14 Mar 2006 04:36:53 -0500
+Received: from toby.tomseeley.co.uk ([194.143.175.75]:24229 "EHLO
+	toby.tomseeley.co.uk") by vger.kernel.org with ESMTP
+	id S1752046AbWCNJgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 04:36:52 -0500
+Message-ID: <44168E9E.7050503@tomseeley.co.uk>
+Date: Tue, 14 Mar 2006 09:36:30 +0000
+From: Tom Seeley <redhat@tomseeley.co.uk>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Jiri Slaby <jirislaby@gmail.com>
+CC: Greg KH <gregkh@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Avuton Olrich <avuton@gmail.com>, xfs-masters@oss.sgi.com,
+       linux-xfs@oss.sgi.com, Dave Jones <davej@redhat.com>,
+       len.brown@intel.com, linux-acpi@vger.kernel.org, norsk5@xmission.com,
+       dsp@llnl.gov, bluesmoke-devel@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net, pete.chapman@exgate.tek.com,
+       Olaf Hering <olh@suse.de>, paulus@samba.org, anton@samba.org,
+       linuxppc64-dev@ozlabs.org, laredo@gnu.org,
+       v4l-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com
+Subject: Re: 2.6.16-rc6: known regressions
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org> <20060313200544.GG13973@stusta.de> <E1FIuFC-0004kk-00@decibel.fi.muni.cz>
+In-Reply-To: <E1FIuFC-0004kk-00@decibel.fi.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Jiri Slaby wrote:
+> Greg KH wrote:
+>> On Mon, Mar 13, 2006 at 09:05:44PM +0100, Adrian Bunk wrote:
+>>> Subject    : Stradis driver udev brekage
+>>> References : http://bugzilla.kernel.org/show_bug.cgi?id=6170
+>>>              https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181063
+>>>              http://lkml.org/lkml/2006/2/18/204
+>>> Submitter  : Tom Seeley <redhat@tomseeley.co.uk>
+>>>              Dave Jones <davej@redhat.com>
+>>> Handled-By : Jiri Slaby <jirislaby@gmail.com>
+>>> Status     : unknown
+>> Jiri, why did you create a kernel.org bugzilla bug with almost no
+>> information in it?
+>>
+>> Anyway, this is the first I've heard of this, more information is
+>> needed to help track it down.  How about the contents of /sys/class/dvb/ ?
+> Hello,
+> 
+> sorry for that, I expected Tom to help us track this down -- he has this
+> problem, but he haven't replied yet. Nobody else is complaining, would we defer
+> or close it for now?
+> 
+> best regards,
 
-Please include below patch for 2.6.16 if it is not too late.
+Apologies for the lack of additional information, this is simply a lack 
+of time on my behalf.  My first attempt to bisect 2.6.15 <-> 2.6.16-rc5 
+produced a kernel which caused udev to crash (and stop init).  I will 
+shift the goalposts and try again.  Once I have the results I will post 
+them to bugzilla.  I will also post the contents of /sys/class/dvb as 
+requested above.
 
+Thanks,
 
-Thanks
-Maneesh
-
-
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-51776416
-
-
-
-o lapic_shutdown() re-enables which is un-desirable for panic case,
-  so use local_irq_save() and local_irq_restore() to keep the irqs
-  disabled for kexec on panic case, and close a possible race window 
-  while kdump shutdown as shown in this stack trace
-
--- BUG: spinlock lockup on CPU#1, bash/4396, c52781a0
-[<c01c1870>] _raw_spin_lock+0xb7/0xd2
-[<c029e148>] _spin_lock+0x6/0x8
-[<c011b33f>] scheduler_tick+0xe7/0x328
-[<c0128a7c>] update_process_times+0x51/0x5d
-[<c0114592>] smp_apic_timer_interrupt+0x4f/0x58
-[<c01141ff>] lapic_shutdown+0x76/0x7e
-[<c0104d7c>] apic_timer_interrupt+0x1c/0x30
-[<c01141ff>] lapic_shutdown+0x76/0x7e
-[<c0116659>] machine_crash_shutdown+0x83/0xaa
-[<c013cc36>] crash_kexec+0xc1/0xe3
-[<c029e148>] _spin_lock+0x6/0x8
-[<c013cc22>] crash_kexec+0xad/0xe3
-[<c0215280>] __handle_sysrq+0x84/0xfd
-[<c018d937>] write_sysrq_trigger+0x2c/0x35
-[<c015e47b>] vfs_write+0xa2/0x13b
-[<c015ea73>] sys_write+0x3b/0x64
-[<c0103c69>] syscall_call+0x7/0xb
-
-
-
-Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
----
-
- linux-2.6.16-rc5-git14-maneesh/arch/i386/kernel/apic.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
-
-diff -puN arch/i386/kernel/apic.c~kdump-shutdown-hang-fix arch/i386/kernel/apic.c
---- linux-2.6.16-rc5-git14/arch/i386/kernel/apic.c~kdump-shutdown-hang-fix	2006-03-10 17:42:48.473188808 +0530
-+++ linux-2.6.16-rc5-git14-maneesh/arch/i386/kernel/apic.c	2006-03-10 17:43:40.390296208 +0530
-@@ -570,16 +570,18 @@ void __devinit setup_local_APIC(void)
-  */
- void lapic_shutdown(void)
- {
-+	unsigned long flags;
-+
- 	if (!cpu_has_apic)
- 		return;
- 
--	local_irq_disable();
-+	local_irq_save(flags);
- 	clear_local_APIC();
- 
- 	if (enabled_via_apicbase)
- 		disable_local_APIC();
- 
--	local_irq_enable();
-+	local_irq_restore(flags);
- }
- 
- #ifdef CONFIG_PM
-_
+Tom.

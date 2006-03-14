@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWCNIWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752020AbWCNIYY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWCNIWp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWCNIWp
+	id S1752020AbWCNIYY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 03:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752022AbWCNIYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:22:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58246 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751232AbWCNIWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:22:44 -0500
-Subject: Re: [PATCH] Expose input device usages to userspace
-From: Arjan van de Ven <arjan@infradead.org>
-To: Elias Naur <elias@oddlabs.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200603140821.32301.elias@oddlabs.com>
-References: <200603132154.38876.elias@oddlabs.com>
-	 <1142283779.3023.49.camel@laptopd505.fenrus.org>
-	 <200603140026.28522.dtor_core@ameritech.net>
-	 <200603140821.32301.elias@oddlabs.com>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 09:22:38 +0100
-Message-Id: <1142324558.3027.10.camel@laptopd505.fenrus.org>
+	Tue, 14 Mar 2006 03:24:24 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:44510 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1752020AbWCNIYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 03:24:23 -0500
+Date: Tue, 14 Mar 2006 09:24:17 +0100
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, Pavel Machek <pavel@ucw.cz>,
+       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org
+Subject: Re: does swsusp suck after resume for you? [was Re: Faster resuming of suspend technology.]
+Message-ID: <20060314082417.GA7476@rhlx01.fht-esslingen.de>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060313113631.GA1736@elf.ucw.cz> <200603132303.18758.kernel@kolivas.org> <200603141613.10915.kernel@kolivas.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603141613.10915.kernel@kolivas.org>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> > No, I don't think this is needed at all - users should be interested in
-> > what capabilities a particular device has, not what type it was assigned
-> > by soneone.
-> 
-> I see your point that an application should not rely too much on device 
-> usages. However, the main reason I want device usages is to help applications 
-> and users identify and (visually) represent devices. For example, games could 
-> show an appropriate icon graphic representing each active device. The event 
-> interface already has a few other ioctls for this kind of information:
+On Tue, Mar 14, 2006 at 04:13:10PM +1100, Con Kolivas wrote:
+> Since my warning probably scared anyone from actually trying this patch I've 
+> given it a thorough working over on my own laptop, booting with mem=128M. The 
+> patch works fine and basically with the patch after resuming from disk I have 
+> 25MB more memory in use with pages prefetched from swap. This makes a 
+> noticeable difference to me. That's a pretty artificial workload, so if 
+> someone who actually has lousy wakeup after resume could test the patch it 
+> would be appreciated.
 
+I did try it, but ran into weird unrelated compile failures multiple times
+(sorry, no log).
 
-ok then you should consider to do it the other way around: make a way of
-asking
-"are you matching THIS profile".
-rather than
-"what profile are you"
-
-that way devices can present multiple faces etc; which is going to be
-needed as more and more weird devices come into existence.
-
-
+Andreas Mohr

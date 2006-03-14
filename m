@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWCNWkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWCNWn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbWCNWkk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:40:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNWkk
+	id S932551AbWCNWn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNWn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:40:40 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:7367 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751944AbWCNWkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:40:39 -0500
-Date: Tue, 14 Mar 2006 23:40:37 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kirill Korotaev <dev@sw.ru>,
-       "Dave Hansen <haveblue@us.ibm.com> Cedric Le Goater" <clg@fr.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: question: pid space semantics.
-Message-ID: <20060314224037.GA1843@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Kirill Korotaev <dev@sw.ru>,
-	"Dave Hansen <haveblue@us.ibm.com> Cedric Le Goater" <clg@fr.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <1142282940.27590.17.camel@localhost.localdomain> <m1veuglvdx.fsf@ebiederm.dsl.xmission.com>
+	Tue, 14 Mar 2006 17:43:56 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:19124 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751944AbWCNWnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:43:55 -0500
+Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, "Moore, Eric" <Eric.Moore@lsil.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, hch@lst.de
+In-Reply-To: <20060314175741.GA2697@suse.de>
+References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D829@NAMAIL2.ad.lsil.com>
+	 <20060314153455.GA8071@suse.de> <20060314170855.GA18342@infradead.org>
+	 <20060314171951.GA22678@suse.de> <20060314172543.GA20331@infradead.org>
+	 <20060314172933.GA24619@suse.de>
+	 <1142358210.3241.28.camel@mulgrave.il.steeleye.com>
+	 <20060314175741.GA2697@suse.de>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 16:43:37 -0600
+Message-Id: <1142376218.3241.82.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1veuglvdx.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 11:43:38AM -0700, Eric W. Biederman wrote:
+On Tue, 2006-03-14 at 09:57 -0800, Greg KH wrote:
+> On Tue, Mar 14, 2006 at 11:43:30AM -0600, James Bottomley wrote:
+> > Actually, would it be OK if you sign off on this and I take it via the
+> > scsi tree?  Otherwise there'll be a nasty cross dependency between
+> > scsi-misc and usb and I'll spend the next week explaining what trees you
+> > need to pull in to get scsi-misc to build.
 > 
-> To retain any part of the existing unix process management
-> we need some processes that show up in multiple pid spaces.
-
-hmm ... not sure about that, what 'we' need is a way
-to move between pid spaces and to control processes
-in a child space from the parent process ...
-
-nevertheless I don't think we have a problem with
-schizophrenic processes if they have a somewhat sane
-*G* interface/view into both spaces ...
-
-> To allow for migration it must be possible for the pids in 
-> those pid spaces to be different.
-
-I take that as migration of a 'container' from one
-system to another, not as 'migration' between spaces
-
-I don't understand what you mean here, please elaborate
-
-> It is undesirable in the normal case of affairs to allocate more
-> than one pid per process.
+> Sure, that makes a lot of sense:
 > 
-> Given the small range of pid values these constraints make an
-> efficient and general pid space solution challenging.
-> 
-> The question:
->   If we could add additional pid values in different pid spaces 
->   to a process with a syscall upon demand would that lead to an
->   implementation everyone could use? 
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-again, for what would I need a 'second' or 'third' pid
-value for a process either on demand or permanent for
-handling or migration?
+OK, got it in scsi-misc, thanks.
 
-> I assume most processes by default only have a pid value in 
-> a single pid space.
-> 
-> The reason I ask is that I believe I know how to implement 
-> a cheap general mechanism for adding additional pids to a 
-> process.
+> Oh, and please make that scsi wrapper function either
+> EXPORT_SYMBOL_GPL() or an inline function or macro.
 
-I have the feeling this is going into a completely wrong
-direction, what am I missing here?
+I've put it in as an inline function.
 
-TIA,
-Herbert
+James
 
-> Eric
+

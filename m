@@ -1,125 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751873AbWCNKi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWCNKrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751873AbWCNKi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 05:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752076AbWCNKi7
+	id S932153AbWCNKrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 05:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWCNKrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 05:38:59 -0500
-Received: from lug-owl.de ([195.71.106.12]:40102 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1751873AbWCNKi6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 05:38:58 -0500
-Date: Tue, 14 Mar 2006 11:38:54 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Lanslott Gish <lanslott.gish@gmail.com>
-Cc: Daniel Ritz <daniel.ritz-ml@swissonline.ch>, Greg KH <greg@kroah.com>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
-       hc@mivu.no, vojtech@suse.cz
-Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
-Message-ID: <20060314103854.GC32065@lug-owl.de>
-Mail-Followup-To: Lanslott Gish <lanslott.gish@gmail.com>,
-	Daniel Ritz <daniel.ritz-ml@swissonline.ch>,
-	Greg KH <greg@kroah.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-usb <linux-usb-devel@lists.sourceforge.net>,
-	tejohnson@yahoo.com, hc@mivu.no, vojtech@suse.cz
-References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com> <200603112155.38984.daniel.ritz-ml@swissonline.ch> <38c09b90603121701q69c61221lf92bb150e419b1c9@mail.gmail.com> <38c09b90603131710p7932c12qf6e8602b9b0b59c8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WfZ7S8PLGjBY9Voh"
-Content-Disposition: inline
-In-Reply-To: <38c09b90603131710p7932c12qf6e8602b9b0b59c8@mail.gmail.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Tue, 14 Mar 2006 05:47:10 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:37387 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932314AbWCNKrI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 05:47:08 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <seanlkml@sympatico.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [future of drivers?] a proposal for binary drivers.
+Date: Tue, 14 Mar 2006 02:46:25 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEDIKLAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <BAYC1-PASMTP053A190824D64AF757F3ADAEE10@CEZ.ICE>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 14 Mar 2006 02:42:51 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 14 Mar 2006 02:42:51 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---WfZ7S8PLGjBY9Voh
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Mon, 13 Mar 2006 13:57:40 -0800
+> "David Schwartz" <davids@webmaster.com> wrote:
 
-On Tue, 2006-03-14 09:10:13 +0800, Lanslott Gish <lanslott.gish@gmail.com> =
-wrote:
-> i fixed some codes and add swap_x & swap_y functions.
-> and test your patch passed for my touchset hrdware.
-> here is the patch only for your usbtouchscreen.c
-> could you help to apply this?
-> thank you.
->=20
-> Regards,
->=20
-> Lanslott Gish
->=20
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.16-rc6.patched/drivers/usb/input/usbtouchscreen.c
-> +++ linux-2.6.16-rc6/drivers/usb/input/usbtouchscreen.c
-> @@ -224,13 +224,24 @@
->   * PanJit Part
->   */
->  #ifdef CONFIG_USB_TOUCHSCREEN_PANJIT
-> +
-> +static int swap_x;
-> +module_param(swap_x, bool, 0644);
-> +MODULE_PARM_DESC(swap_x, "If set X axe is swapped before XY swapped.");
-> +static int swap_y;
-> +module_param(swap_y, bool, 0644);
-> +MODULE_PARM_DESC(swap_y, "If set Y axe is swapped before XY swapped.");
-> +
->  static int panjit_read_data(char *pkt, int *x, int *y, int *touch, int *=
-press)
->  {
-> -       *x =3D pkt[1] | (pkt[2] << 8);
-> -       *y =3D pkt[3] | (pkt[4] << 8);
-> +       *x =3D (pkt[1] & 0x0F) | ((pkt[2]& 0xFF) << 8);
-> +       *y =3D (pkt[3] & 0x0F) | ((pkt[4]& 0xFF) << 8);
->         *touch =3D (pkt[0] & 0x01) ? 1 : 0;
->=20
-> -       return 1;
-> +	if(swap_x) *x =3D *x ^ 0x0FFF;
-> +	if(swap_y) *y =3D *y ^ 0x0FFF;
-> +
-> + 	return 1;
->  }
->  #endif
->=20
+> > 	No, it does not. Copyright law only gives copyright owners
+> > the right to
+> > control the *creation* of derivative works. I very carefully worded my
+> > statement above so that it would talk about precisely the right
+> > people claim
+> > they have and precisely the right they do not have.
 
-Um, I think it's generally a good idea to allow this, but I'd say this
-should go into the common code part using the pre-known number range.
+> > 	In this case, the alleged derivative work is created under
+> > first sale, as
+> > part of normal use. It is impossible to normally use the 'kernel-devel'
+> > package without creating derivative works, and under first
+> > sale, normal use
+> > (and anything required for normal use) cannot be burdened. Once the
+> > derivative work is lawfully created, there is nothing in
+> > copyright law that
+> > requires the permission of the author of the original work to
+> > distribute the
+> > derived work to licensees of the original work.
 
-MfG, JBG
+> > 	The GPL gets around this by imposing requirements on the creation of
+> > derivative works, under the assumption that you cannot get the right to
+> > create a derivative work any other way. But this is false,
+> > first sale grants
+> > the right to normal use, and normal use includes anything necessary for
+> > normal use. For a library or for the 'kernel-devel' package, normal use
+> > requires the creation of derivative works.
+> >
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+> So i buy a book; clearly the reason it's written in english is so
+> that I can
+> extend and alter it.
 
---WfZ7S8PLGjBY9Voh
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+	How is that clear? The normal use of a book is to read it and think about
+it. Extending and altering it is not only not the normal use but explicitly
+protected under copyright law (as a sequel).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+	While making a kernel module can be argued to be extending the kernel, I
+don't think you can argue it's "altering" the kernel. I certainly would not
+argue that you can produce an altered version of the kernel and distribute
+it in binary only form.
 
-iD8DBQFEFp0+Hb1edYOZ4bsRAhntAJ9tmcgcvR57teoeJIaJRqxBbrQpoACeNPFE
-HrHJmjM0mkN9ZQsvARoLx+0=
-=06aU
------END PGP SIGNATURE-----
+> So I rip out the last chapter and replace
+> it with one
+> of my own.   Now _clearly_ i can distribute this new work around the world
+> without any fear of being sued by the copyright holders because
+> it's fair use.
+> NOT!
 
---WfZ7S8PLGjBY9Voh--
+	Again, your example fails because you are talking about distributing it to
+people who do not lawfully acquire the original work. You notice I carefully
+said "to licensees of the original work" and yet your example talks about
+distribute to people who are not licensees of the original work.
+
+	A better example might be if you and a friend each buy a copy of music. You
+transpose it into a different key for your friend and then give him a copy
+of the transposed work. There's a huge difference between giving that copy
+to a licensee of the original work and giving it to someone who is not a
+licensee of the original work. You can argue whether you could lawfully
+transpose it in the first place, but assuming the creation is lawful, you
+can certainly distribute it to other licensees of the original work. (No
+court, AFAIK, has ever held otherwise and nothing in copyright law says
+otherwise. Please correct me if I'm wrong.)
+
+> Now before you try to argue that altering copyrighted source code is fair
+> use but altering copyrighted books isn't; just stop.
+
+	I wasn't talking about fair use. If you think I would argue fair use, you
+really have no idea what I'm talking about. I'm talking about:
+
+	1) First sale. That is, the right to the normal use of a lawfully-acquired
+work, and
+
+	2) The absence of a specific right under copyright to restrict the
+distribution of lawfully-created derivative works.
+
+	And who was ever talking about altering anything? Why would you think this
+is about "altering" copyrighted source code? Making an application that uses
+a library isn't about "altering" the library. Making a kernel module isn't
+about "altering" the kernel. Perhaps you are replying on auto-pilot and not
+reading what I'm actually writing. I am *NOT* talking about modifying a
+GPL'd work and then distributing the modified work in binary form.
+
+> Please leave this
+> matter to the lawyers and off this list.
+
+	If you want it off the list, don't reply or reply off the list. But if you
+choose to reply with an argument, I have as much right to rebut it in a
+given forum as you do to make it. How can a rebuttal of an argument be any
+less on-topic than the argument?
+
+	DS
+
+

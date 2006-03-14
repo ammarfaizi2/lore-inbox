@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWCNWMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932522AbWCNWND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWCNWMA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:12:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWCNWMA
+	id S932522AbWCNWND (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:13:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWCNWNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:12:00 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:2188 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964791AbWCNWMA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:12:00 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: [PATCH] provide hrtimer exports for module use [Was: Exports for hrtimer APIs]
-Date: Tue, 14 Mar 2006 14:11:44 -0800
-Message-ID: <CBDB88BFD06F7F408399DBCF8776B3DC06A92BAC@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] provide hrtimer exports for module use [Was: Exports for hrtimer APIs]
-Thread-Index: AcZHr0cFtDO0p068SiapIBwj5obT7wAAblKw
-From: "Stone, Joshua I" <joshua.i.stone@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Thomas Gleixner" <tglx@linutronix.de>
-X-OriginalArrivalTime: 14 Mar 2006 22:11:46.0465 (UTC) FILETIME=[489E3110:01C647B4]
+	Tue, 14 Mar 2006 17:13:01 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:9095 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932522AbWCNWNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:13:00 -0500
+Subject: Re: 2.6.16-rc1: 28ms latency when process with lots of swapped
+	memory exits
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>
+In-Reply-To: <20060314212207.GC23458@elte.hu>
+References: <1142352926.13256.117.camel@mindpipe>
+	 <20060314212207.GC23458@elte.hu>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 17:12:57 -0500
+Message-Id: <1142374378.24603.20.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.92 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Wordwrapped...
+On Tue, 2006-03-14 at 22:22 +0100, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > I've been testign for weeks with 2.6.16-rc1 + the latency trace patch 
+> > and the longest latencies measured were 10-15ms due to the well known 
+> > rt_run_flush issue.  Today I got one twice as long, when a Firefox 
+> > process with a bunch of acroreads in tabs, from a new code path.
+> > 
+> > It seems to trigger when a process with a large amount of memory 
+> > swapped out exits.
+> 
+> btw., one good way to get such things fixed is to code up a testcase: a 
+> .c file that just has to be run to reproduce the latency. It might be 
+> less trivial to code that up in some cases (like this one - e.g. you 
+> might have to first get a large chunk of memory swapped out which isnt 
+> easy), but i think it's still worth the effort, as that way you can 
+> gently pressure us lazy upstream maintainers to act quicker, and we can 
+> also easily verify whether the fix does the trick :-)
 
-Yes, Outlook/Exchange betrayed me... sorry.
+Sure, I'll try.  But I've been pounding on this kernel for weeks and
+only hit this once.  And I'm pretty sure I've killed processes with lots
+of swapped memory.  The only new variable was acroread - open 5 PDFs in
+Firefox tabs, leave it alone for a few days until the kernel swaps it
+all out, then kill it...
 
-> gee, that's a lot of exports.  I don't know whether all of these
-> would be considered stable over the long-term?
+Lee
 
-For that first patch, I simply looked for the functions that looked
-appropriate for general users of hrtimers.  If you would like to be more
-conservative, these five are all I need for SystemTap:
-
-EXPORT_SYMBOL_GPL(ktime_add_ns);
-EXPORT_SYMBOL_GPL(hrtimer_forward);
-EXPORT_SYMBOL_GPL(hrtimer_start);
-EXPORT_SYMBOL_GPL(hrtimer_cancel);
-EXPORT_SYMBOL_GPL(hrtimer_init);
-
-> Can you tell us a bit about why systemtap modules need the hrtimer
-> capability?  How it's being used and for what, etc?
-
-Sure - SystemTap uses timers to provide an asynchronous probe during
-module execution.  This might be utilized for polling kernel states, for
-flushing trace data, and perhaps other similar uses.  Currently we're
-using the main timer APIs - add_timer, mod_timer, etc.
-
-My motivation for moving to hrtimer is because of what I read in its
-documentation - basically that the timer wheel is best for timeout cases
-which are rarely recascaded.  The way SystemTap uses timers is more for
-defining intervals, and they are always cascaded until the module is
-complete.  The hrtimers seem more suited to this methodology.
-
-Correct me if I'm wrong...
-
-Josh

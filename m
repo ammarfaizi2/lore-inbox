@@ -1,61 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWCNIIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751600AbWCNILR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751786AbWCNIIB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 03:08:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWCNIIB
+	id S1751600AbWCNILR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 03:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWCNILQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 03:08:01 -0500
-Received: from max.feld.cvut.cz ([147.32.192.36]:24294 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S1751783AbWCNIIA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 03:08:00 -0500
-From: CIJOML <cijoml@volny.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Dmesg is not showing whole boot list
-Date: Tue, 14 Mar 2006 09:01:27 +0100
-User-Agent: KMail/1.8.3
+	Tue, 14 Mar 2006 03:11:16 -0500
+Received: from 85.8.13.51.se.wasadata.net ([85.8.13.51]:52107 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751600AbWCNILQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 03:11:16 -0500
+Message-ID: <44167AA3.8000607@drzeus.cx>
+Date: Tue, 14 Mar 2006 09:11:15 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060210)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: John Ronciak <john.ronciak@gmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>, cramerj@intel.com,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com
+Subject: Re: e1000 with serdes only shows a fiber port
+References: <44157178.90507@drzeus.cx> <56a8daef0603131430x8fd17fbn4aa5b5082e8aad0e@mail.gmail.com>
+In-Reply-To: <56a8daef0603131430x8fd17fbn4aa5b5082e8aad0e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603140901.27746.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+John Ronciak wrote:
+> On 3/13/06, Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>   
+>> Hi!
+>>
+>> I'm having problems with the e1000 card in a Dell Poweredge 1855. This
+>> model has support for both copper and fiber and has two cards on the PCI
+>> bus (might supposed to be one for each type).
+>>     
+>
+> If it's a blade server blade then it's really not fiber or copper
+> (i.e. no PHY), it's a serdes connection to the backplane in the blade
+> server.  I have never seen one of these not always have link (if the
+> blade is plugged into the backplane it must have link).
+>
+> So what versions of things are you running?  OS? Driver?  Version
+> number of the blade?  BIOS (must have the latest)?  Windows doesn't
+> use the BIOS but does everything itself regarding HW setup.
+>   
 
-maybe this si a wrong list to ask, bug after boot, dmesg shows that few lines 
-at the beginning are missing.
+I have tried Linux 2.6.11 and 2.6.15. I've also tried the independent
+variant of the driver, version 6.3.9 and 7.0.33. We've also tried Dell's
+version for RHEL4 (5.7.6.1).
 
-Is there any option I can increase to get full dmesg?
+BIOS has been confirmed to be the latest version.
 
-ine.. 4801.43 BogoMIPS (lpj=2400718)
-Security Framework v1.0.0 initialized
-SELinux:  Initializing.
-SELinux:  Starting in permissive mode
-Mount-cache hash table entries: 512
-CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 
-00004400 00000000 00000000
-CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004400 
-00000000 00000000
-CPU: Trace cache: 12K uops, L1 D cache: 8K
-CPU: L2 cache: 128K
-CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 00004400 
-00000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU0: Thermal monitoring enabled
-CPU: Intel(R) Celeron(R) CPU 2.40GHz stepping 09
-Checking 'hlt' instruction... OK.
-ACPI: setting ELCR to 0200 (from 0c88)
-.
-.
-.
+> Did you go back to Dell for support on this?  What did they say?  Are
+> you using a version of Linux that Dell supports on this hardware? 
+>   
 
-Linux Debian testing, kernel 2.6.16-rc5
+We haven't contacted Dell at this point no. Partly because we run Fedora
+Core and not one of the supported dists (this will be a terminal server
+so we want a more recent desktop on it).
 
-Thanks for reply a regards
+> There might need to be some special drivers that are needed which Dell
+> supplies with their versions for specific HW.  I'm not a blade server
+> expert but I've seen things like this before.
+>
+> One suggestion is to disable auto-negotiation and force the link to 1
+> gigabit full duplex to see what that does.
+>
+>   
 
-Michal
+We started doing this and discovered that the card started working when
+we plugged it into a gigabit port (copper). ethtool still says fiber
+though. So the immediate panic has settled. :)
+
+It would still be nice to plug this into a 100 Mbps port since the
+gigabit ports are a bit scarce.
+
+Rgds
+Pierre
+

@@ -1,119 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWCNV7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWCNWA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964780AbWCNV7z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 16:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbWCNV7z
+	id S964782AbWCNWA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWCNWA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 16:59:55 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:12732 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S964780AbWCNV7x
+	Tue, 14 Mar 2006 17:00:28 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:38815
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964782AbWCNWA0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 16:59:53 -0500
-Message-ID: <44173CD7.20200@watson.ibm.com>
-Date: Tue, 14 Mar 2006 16:59:51 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [Patch 0/9] Per-task delay accounting
-References: <1142296834.5858.3.camel@elinux04.optonline.net> <20060314192824.GB27012@kroah.com> <44172C4C.3020107@watson.ibm.com> <20060314212414.GA22202@kroah.com>
-In-Reply-To: <20060314212414.GA22202@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Mar 2006 17:00:26 -0500
+Subject: Re: 2.6.16-rc6-rt1
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0603141756500.1291-100000@lifa01.phys.au.dk>
+References: <Pine.LNX.4.44L0.0603141756500.1291-100000@lifa01.phys.au.dk>
+Content-Type: text/plain
+Date: Tue, 14 Mar 2006 23:00:58 +0100
+Message-Id: <1142373658.19916.655.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Tue, 2006-03-14 at 21:40 +0100, Esben Nielsen wrote:
+> The trick is: Maintain the unittest along with the code you are testing.
+> Unfortunately a lot of people haven't discovered that yet. As I said
+> before, the Linux kernel sould should have a tests/ directory in the main
+> directory and a "make tests". For any patch to be accepted, should "make
+> tests" should "build". Patches ofcouse include changes to the kernel code
+> and the tests/ directory as it is one distribution.  Notice the tests are
+> run _without_ running the kernel!
+> That is how I do it at work: I have it all in one source repository and
+> the "tests" target is the first dependency of "all:" in the makefile.
 
->On Tue, Mar 14, 2006 at 03:49:16PM -0500, Shailabh Nagar wrote:
->  
->
->>Greg KH wrote:
->>
->>    
->>
->>>On Mon, Mar 13, 2006 at 07:40:34PM -0500, Shailabh Nagar wrote:
->>>
->>>
->>>      
->>>
->>>>This is the next iteration of the delay accounting patches
->>>>last posted at
->>>>	http://www.ussg.iu.edu/hypermail/linux/kernel/0602.3/0893.html
->>>>  
->>>>
->>>>        
->>>>
->>>Do you have any benchmark numbers with this patch applied and with it
->>>not applied? 
->>>
->>>      
->>>
->>None yet. Wanted to iron out the collection/utility aspects a bit before 
->>going into
->>the performance impact.
->>
->>But this seems as good a time as any to collect some stats
->>using the usual suspects lmbench, kernbench, hackbench etc.
->>
->>    
->>
->>>Last I heard it was a measurable decrease for some
->>>"important" benchmark results...
->>>
->>>
->>>      
->>>
->>Might have been from an older iteration where schedstats was fully enabled.
->>But no point speculating....will run with this set of patches and see 
->>what shakes out.
->>
->>One point about the overhead is that it depends on the frequency with 
->>which data is
->>collected. So a proper test would probably be a comparison of a 
->>non-patched kernel
->>with
->>a) patches applied but delay accounting not turned on at boot i.e. cost 
->>of the checks
->>b) delay accounting turned on but not being read
->>    
->>
->
->This is probably the most important one, as that is what distros will be
->looking at.  They will have to enable the option, but will not "turn it
->on".
->  
->
-I guess you meant a), not b) but yes, will run them in all these modes.
+I did not say that a unittester is bad. It just does not help much when
+it only works on your workstation.
 
->  
->
->>c) delay accounting turned on and data read for all tasks at some 
->>"reasonable" rate
->>
->>Will that be good  ? Other suggestions welcome.
->>    
->>
->
->How about real benchmarks?  The ones that the big companies look at?  I
->know you have access to them :)
->  
->
-Hmm...though you also know, from working for some "big company",  that 
-it might
-take a while to get such data since one has to stand in queue :-)
-I'll try, and also explore the OSDL STP's DBT tests.
+> > The deadlock detection is done, when requested. So you _have_ to do it
+> > by following the lock chain. When the task goes to sleep, then there is
+> > no postmortem. When a futex requests deadlock detection you have to do
+>                               --------
+> > it in the locking path, as you have to return that information to
+> > userspace.
+> >
+> > http://www.opengroup.org/onlinepubs/009695399/functions/pthread_mutex_lock.html
+> >
+> The point is that when deadlock detection isn't requested it ought not to
+> be forced on the application.
 
+It is not forced. We break out of the loop, when it is not requested.
+This is just combined PI / deadlock detection code. And we do the check
+in the boosting path anyway to avoid deadlocking there. Given it
+works :)
 
-Thanks,
-Shailabh
+> It happens before getting into that loop
 
->thanks,
->
->greg k-h
->  
->
+Grmbl, you are right. Fix follows.
+
+	tglx
+
 

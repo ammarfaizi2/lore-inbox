@@ -1,88 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752125AbWCNQSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752113AbWCNQSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752125AbWCNQSe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752113AbWCNQSe
+	id S1752113AbWCNQSk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWCNQSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:18:34 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:27531 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1751199AbWCNQSd (ORCPT
+	Tue, 14 Mar 2006 11:18:40 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:28043 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1752099AbWCNQSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:18:33 -0500
+	Tue, 14 Mar 2006 11:18:39 -0500
 x-mimeole: Produced By Microsoft Exchange V6.5
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C64782.EADDADA2"
-Subject: RE: [PATCH ] drivers/scsi/scsi.c - export reprobe 
-Date: Tue, 14 Mar 2006 09:18:23 -0700
-Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F36D939@NAMAIL2.ad.lsil.com>
+	boundary="----_=_NextPart_001_01C64782.E81E5913"
+Subject: RE: [PATCH ] drivers/base/bus.c - export reprobe
+Date: Tue, 14 Mar 2006 09:18:18 -0700
+Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F36D938@NAMAIL2.ad.lsil.com>
 X-MS-Has-Attach: yes
 X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH ] drivers/scsi/scsi.c - export reprobe 
-Thread-Index: AcZHAZpp/wvGNY9KRWmb/AwqfyYfIwAgTCOw
+Thread-Topic: [PATCH ] drivers/base/bus.c - export reprobe
+Thread-Index: AcZHfQqtMnadw/VUTmyOYUTFWzohzAABZJ6Q
 From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: "Moore, Eric" <Eric.Moore@lsil.com>, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Cc: <James.Bottomley@SteelEye.com>, <hch@lst.de>, <gregkh@novell.com>
-X-OriginalArrivalTime: 14 Mar 2006 16:18:24.0031 (UTC) FILETIME=[EAFB82F0:01C64782]
+To: "Greg KH" <gregkh@suse.de>
+Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <James.Bottomley@SteelEye.com>, <hch@lst.de>
+X-OriginalArrivalTime: 14 Mar 2006 16:18:19.0546 (UTC) FILETIME=[E84F27A0:01C64782]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C64782.EADDADA2
+------_=_NextPart_001_01C64782.E81E5913
 Content-Type: text/plain;
 	charset="US-ASCII"
 Content-Transfer-Encoding: quoted-printable
 
-On  Monday, March 13, 2006 5:53 PM, Eric Moore wrote:
+On Tuesday, March 14, 2006 8:35 AM,  Greg KH wrote:
 
 >=20
-> ---------------------------------------------------
-> Adding support for exposing hidden raid components=20
-> for sg interface. The sdev->no_uld_attach flag
-> will set set accordingly.
+> base64 for the attachment with DOS line ends?  ugh, can you please fix
+> this up and resend?
 >=20
-> The sas module supports adding/removing raid
-> volumes using online storage management application
-> interface. =20
->=20
-> This patch was provided to me by Christoph Hellwig.
->=20
-> Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
-
 
 Here is repost of patch due to dos line endings.
 
-------_=_NextPart_001_01C64782.EADDADA2
+
+
+------_=_NextPart_001_01C64782.E81E5913
 Content-Type: application/octet-stream;
-	name="scsi_device_reprobe"
+	name="rescan_device"
 Content-Transfer-Encoding: base64
-Content-Description: scsi_device_reprobe
+Content-Description: rescan_device
 Content-Disposition: attachment;
-	filename="scsi_device_reprobe"
+	filename="rescan_device"
 
-SW5kZXg6IHNjc2ktbWlzYy0yLjYvZHJpdmVycy9zY3NpL3Njc2kuYw0KPT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
-IHNjc2ktbWlzYy0yLjYub3JpZy9kcml2ZXJzL3Njc2kvc2NzaS5jCTIwMDYtMDMtMDQgMTM6MDc6
-NDQuMDAwMDAwMDAwICswMTAwDQorKysgc2NzaS1taXNjLTIuNi9kcml2ZXJzL3Njc2kvc2NzaS5j
-CTIwMDYtMDMtMDcgMjE6NTc6MjEuMDAwMDAwMDAwICswMTAwDQpAQCAtMTIxNCw2ICsxMjE0LDEz
-IEBADQogfQ0KIEVYUE9SVF9TWU1CT0woc2NzaV9kZXZpY2VfY2FuY2VsKTsNCiANCit2b2lkIHNj
-c2lfZGV2aWNlX3JlcHJvYmUoc3RydWN0IHNjc2lfZGV2aWNlICpzZGV2KQ0KK3sNCisJZGV2aWNl
-X3JlcHJvYmUoJnNkZXYtPnNkZXZfZ2VuZGV2KTsNCit9DQorDQorRVhQT1JUX1NZTUJPTChzY3Np
-X2RldmljZV9yZXByb2JlKTsNCisNCiBNT0RVTEVfREVTQ1JJUFRJT04oIlNDU0kgY29yZSIpOw0K
-IE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsNCiANCkluZGV4OiBzY3NpLW1pc2MtMi42L2luY2x1ZGUv
-c2NzaS9zY3NpX2RldmljZS5oDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gc2NzaS1taXNjLTIuNi5vcmlnL2lu
-Y2x1ZGUvc2NzaS9zY3NpX2RldmljZS5oCTIwMDYtMDMtMDQgMTM6MDc6NDkuMDAwMDAwMDAwICsw
-MTAwDQorKysgc2NzaS1taXNjLTIuNi9pbmNsdWRlL3Njc2kvc2NzaV9kZXZpY2UuaAkyMDA2LTAz
-LTA3IDIxOjU3OjQ1LjAwMDAwMDAwMCArMDEwMA0KQEAgLTIwNCw2ICsyMDQsNyBAQA0KIAkJCSAg
-IHVpbnQgdGFyZ2V0LCB1aW50IGx1bik7DQogZXh0ZXJuIHZvaWQgc2NzaV9yZW1vdmVfZGV2aWNl
-KHN0cnVjdCBzY3NpX2RldmljZSAqKTsNCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2NhbmNlbChz
-dHJ1Y3Qgc2NzaV9kZXZpY2UgKiwgaW50KTsNCitleHRlcm4gdm9pZCBzY3NpX2RldmljZV9yZXBy
-b2JlKHN0cnVjdCBzY3NpX2RldmljZSAqKTsNCiANCiBleHRlcm4gaW50IHNjc2lfZGV2aWNlX2dl
-dChzdHJ1Y3Qgc2NzaV9kZXZpY2UgKik7DQogZXh0ZXJuIHZvaWQgc2NzaV9kZXZpY2VfcHV0KHN0
-cnVjdCBzY3NpX2RldmljZSAqKTsNCg==
+SW5kZXg6IHNjc2ktbWlzYy0yLjYvZHJpdmVycy9iYXNlL2J1cy5jDQo9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0g
+c2NzaS1taXNjLTIuNi5vcmlnL2RyaXZlcnMvYmFzZS9idXMuYwkyMDA2LTAzLTA0IDEzOjA3OjQw
+LjAwMDAwMDAwMCArMDEwMA0KKysrIHNjc2ktbWlzYy0yLjYvZHJpdmVycy9iYXNlL2J1cy5jCTIw
+MDYtMDMtMDcgMjE6MDY6NTkuMDAwMDAwMDAwICswMTAwDQpAQCAtNTM2LDYgKzUzNiwyOCBAQA0K
+IAlidXNfZm9yX2VhY2hfZGV2KGJ1cywgTlVMTCwgTlVMTCwgYnVzX3Jlc2Nhbl9kZXZpY2VzX2hl
+bHBlcik7DQogfQ0KIA0KKy8qKg0KKyAqIGRldmljZV9yZXByb2JlIC0gcmVtb3ZlIGRyaXZlciBm
+b3IgYSBkZXZpY2UgYW5kIHByb2JlIGZvciBhIG5ldyBkcml2ZXINCisgKiBAZGV2OiB0aGUgZGV2
+aWNlIHRvIHJlcHJvYmUNCisgKg0KKyAqIFRoaXMgZnVuY3Rpb24gZGV0YWNoZXMgdGhlIGF0dGFj
+aGVkIGRyaXZlciAoaWYgYW55KSBmb3IgdGhlIGdpdmVuDQorICogZGV2aWNlIGFuZCByZXN0YXJ0
+cyB0aGUgZHJpdmVyIHByb2JpbmcgcHJvY2Vzcy4gIEl0IGlzIGludGVuZGVkDQorICogdG8gdXNl
+IGlmIHByb2JpbmcgY3JpdGVyaWEgY2hhbmdlZCBkdXJpbmcgYSBkZXZpY2VzIGxpZmV0aW1lIGFu
+ZA0KKyAqIGRyaXZlciBhdHRhY2htZW50IHNob3VsZCBjaGFuZ2UgYWNjb3JkaW5nbHkuDQorICov
+DQordm9pZCBkZXZpY2VfcmVwcm9iZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQorew0KKwlpZiAoZGV2
+LT5kcml2ZXIpIHsNCisJCWlmIChkZXYtPnBhcmVudCkgICAgICAgIC8qIE5lZWRlZCBmb3IgVVNC
+ICovDQorCQkJZG93bigmZGV2LT5wYXJlbnQtPnNlbSk7DQorCQlkZXZpY2VfcmVsZWFzZV9kcml2
+ZXIoZGV2KTsNCisJCWlmIChkZXYtPnBhcmVudCkNCisJCQl1cCgmZGV2LT5wYXJlbnQtPnNlbSk7
+DQorCX0NCisNCisJYnVzX3Jlc2Nhbl9kZXZpY2VzX2hlbHBlcihkZXYsIE5VTEwpOw0KK30NCitF
+WFBPUlRfU1lNQk9MX0dQTChkZXZpY2VfcmVwcm9iZSk7DQogDQogc3RydWN0IGJ1c190eXBlICog
+Z2V0X2J1cyhzdHJ1Y3QgYnVzX3R5cGUgKiBidXMpDQogew0KSW5kZXg6IHNjc2ktbWlzYy0yLjYv
+aW5jbHVkZS9saW51eC9kZXZpY2UuaA0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIHNjc2ktbWlzYy0yLjYub3Jp
+Zy9pbmNsdWRlL2xpbnV4L2RldmljZS5oCTIwMDYtMDMtMDQgMTM6MDc6NDkuMDAwMDAwMDAwICsw
+MTAwDQorKysgc2NzaS1taXNjLTIuNi9pbmNsdWRlL2xpbnV4L2RldmljZS5oCTIwMDYtMDMtMDcg
+MjA6NTM6NDMuMDAwMDAwMDAwICswMTAwDQpAQCAtMzc4LDYgKzM3OCw3IEBADQogZXh0ZXJuIHZv
+aWQgZGV2aWNlX3JlbGVhc2VfZHJpdmVyKHN0cnVjdCBkZXZpY2UgKiBkZXYpOw0KIGV4dGVybiBp
+bnQgIGRldmljZV9hdHRhY2goc3RydWN0IGRldmljZSAqIGRldik7DQogZXh0ZXJuIHZvaWQgZHJp
+dmVyX2F0dGFjaChzdHJ1Y3QgZGV2aWNlX2RyaXZlciAqIGRydik7DQorZXh0ZXJuIHZvaWQgZGV2
+aWNlX3JlcHJvYmUoc3RydWN0IGRldmljZSAqZGV2KTsNCiANCiANCiAvKg0K
 
-------_=_NextPart_001_01C64782.EADDADA2--
+------_=_NextPart_001_01C64782.E81E5913--

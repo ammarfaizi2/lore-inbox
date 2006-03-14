@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932603AbWCNEqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWCNE7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932603AbWCNEqG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Mar 2006 23:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWCNEqG
+	id S932307AbWCNE7c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Mar 2006 23:59:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWCNE7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Mar 2006 23:46:06 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:2235 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932603AbWCNEqE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Mar 2006 23:46:04 -0500
-Date: Tue, 14 Mar 2006 10:16:00 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, Nathan Scott <nathans@sgi.com>,
-       Suzuki <suzuki@in.ibm.com>, linux-fsdevel@vger.kernel.org,
-       "linux-aio kvack.org" <linux-aio@kvack.org>,
-       lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
-Message-ID: <20060314044559.GA19382@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <440FDF3E.8060400@in.ibm.com> <20060309120306.GA26682@infradead.org> <20060309223042.GC1135@frodo> <20060309224219.GA6709@infradead.org> <20060309231422.GD1135@frodo> <20060310005020.GF1135@frodo> <20060310154925.GA5339@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 13 Mar 2006 23:59:32 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:47212 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932307AbWCNE7b convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Mar 2006 23:59:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B9QTnifa3hznRVxg8TMJgOhQIIk3KPAZpGo1BEy7UkjLLnKnkas8e/2AKWJJx5+/U62yfyd8CbAKi97Y8SRYzb4iRTiYb7L8yzln1iO7nPoKmi8ljBnHphRV64m8lqFzW24evud4NsMPfLdhQlTORo/zXn5zoDb3eYHPrBRdlUU=
+Message-ID: <40f323d00603132059g352ff3e6ufa2e0755f8a51975@mail.gmail.com>
+Date: Tue, 14 Mar 2006 05:59:29 +0100
+From: "Benoit Boissinot" <bboissin@gmail.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Subject: Re: 2.6.16-rc6: all psmouse regressions fixed?
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       "Pavlik Vojtech" <vojtech@suse.cz>,
+       "Ryan Phillips" <rphillips@gentoo.org>, Duncan <1i5t5.duncan@cox.net>,
+       "Meelis Roos" <mroos@linux.ee>
+In-Reply-To: <20060313190714.GD13973@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060310154925.GA5339@infradead.org>
-User-Agent: Mutt/1.4.1i
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
+	 <20060313190714.GD13973@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 10, 2006 at 03:49:25PM +0000, Christoph Hellwig wrote:
-> On Fri, Mar 10, 2006 at 11:50:20AM +1100, Nathan Scott wrote:
-> > Something like this (works OK for me)...
-> 
-> Yeah, that should work for now.  But long-term we really need to redo
-> direct I/O locking to have a common scheme for all filesystems.  I've heard
-> birds whistling RH patches yet another scheme into RHEL4 for GFS an it's
-> definitly already far too complex now.
+On 3/13/06, Adrian Bunk <bunk@stusta.de> wrote:
+> On Sat, Mar 11, 2006 at 03:58:12PM -0800, Linus Torvalds wrote:
+> >...
+> > Dmitry Torokhov:
+> >       Input: psmouse - disable autoresync
+> >...
+>
+> We had the three psmouse regressions below in 2.6.16-rc5.
+>
+> Duncan already stated that this patch fixed (more exactly: works around)
+> his problems.
+>
+> Does anyone still observe a psmouse regression in 2.6.16-rc6 compared
+> to 2.6.15, or is everything fine now?
+>
+I didn't test vanilla, but i still have:
+psmouse.c: DualPoint TouchPad at isa0060/serio1/input0 lost sync at byte 1
+psmouse.c: DualPoint TouchPad at isa0060/serio1/input0 - driver resynched.
 
-Yup, getting rid of the need for all these confusing locking
-modes was one of the objectives in mind for DIO simplification.
-(http://www.kernel.org/pub/linux/kernel/people/suparna/DIO-simplify.txt)
-Once we have an efficient range locking or similar mechanism in place
-(Chris Mason is working on a patch), then it should be possible to push
-out all of the i_mutex locking to higher level routines, outside of
-direct-io.c.
+in -mm (2.6.16-rc6-mm1).
+As I cannot reproduce it at will, it is hard to capture useful debug
+info (it usually happens once a day).
 
-Longer term, it would be nice to be able to rethink and further simplify
-the whole _nolock equiv versions for VFS write methods. Especially the
-percolation down to sync_page_range_nolock, etc.
+regards,
 
-Regards
-Suparna
-
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
-
+Benoit

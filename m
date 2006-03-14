@@ -1,53 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWCNWn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751944AbWCNWpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWCNWn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 17:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWCNWn4
+	id S1751944AbWCNWpk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 17:45:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWCNWpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 17:43:56 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:19124 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751944AbWCNWnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 17:43:55 -0500
-Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, "Moore, Eric" <Eric.Moore@lsil.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, hch@lst.de
-In-Reply-To: <20060314175741.GA2697@suse.de>
-References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D829@NAMAIL2.ad.lsil.com>
-	 <20060314153455.GA8071@suse.de> <20060314170855.GA18342@infradead.org>
-	 <20060314171951.GA22678@suse.de> <20060314172543.GA20331@infradead.org>
-	 <20060314172933.GA24619@suse.de>
-	 <1142358210.3241.28.camel@mulgrave.il.steeleye.com>
-	 <20060314175741.GA2697@suse.de>
-Content-Type: text/plain
-Date: Tue, 14 Mar 2006 16:43:37 -0600
-Message-Id: <1142376218.3241.82.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 14 Mar 2006 17:45:40 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:1857 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1751944AbWCNWpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 17:45:39 -0500
+Message-ID: <44174791.7090905@bigpond.net.au>
+Date: Wed, 15 Mar 2006 09:45:37 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH][2/4] sched: add discrete weighted cpu load function
+References: <200603131906.11739.kernel@kolivas.org> <cone.1142290371.837084.5853.501@kolivas.org> <44173F32.9020302@bigpond.net.au> <200603150926.52064.kernel@kolivas.org>
+In-Reply-To: <200603150926.52064.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 14 Mar 2006 22:45:37 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 09:57 -0800, Greg KH wrote:
-> On Tue, Mar 14, 2006 at 11:43:30AM -0600, James Bottomley wrote:
-> > Actually, would it be OK if you sign off on this and I take it via the
-> > scsi tree?  Otherwise there'll be a nasty cross dependency between
-> > scsi-misc and usb and I'll spend the next week explaining what trees you
-> > need to pull in to get scsi-misc to build.
+Con Kolivas wrote:
+> On Wednesday 15 March 2006 09:09, Peter Williams wrote:
 > 
-> Sure, that makes a lot of sense:
+>>Con Kolivas wrote:
+>>
+>>>Peter Williams writes:
+>>>
+>>>>Con Kolivas wrote:
+>>>>
+>>>>>+unsigned long weighted_cpuload(const int cpu)
+>>>>>+{
+>>>>>+    return (cpu_rq(cpu)->raw_weighted_load);
+>>>>>+}
+>>>>>+
+>>>>
+>>>>Wouldn't this be a candidate for inlining?
+>>>
+>>>That would make it unsuitable for exporting via sched.h.
+>>
+>>If above_background_load() were implemented inside sched.c instead of in
+>>sched.h there would be no need to export weighted_cpuload() would there?
+>>  This would allow weighted_cpuload() to be inline and the efficiency
+>>would be better as above_background_load() doesn't gain a lot by being
+>>inline
 > 
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> I don't care about above_background_load() being inline; that's done because 
+> all functions in header files need to be static inline to not become a mess.
+> 
+> 
+>>as having weighted_cpulpad() non inline means that it's doing a 
+>>function call several times in a loop i.e. it may save one function call
+>>by being inline but requires (up to) one function call for every CPU.
+> 
+> 
+> I haven't checked but gcc may well inline weighted_cpuload anyway?
 
-OK, got it in scsi-misc, thanks.
+It may be doing so for internal uses inside sched.c but I'm pretty sure 
+that it won't for external calls.
 
-> Oh, and please make that scsi wrapper function either
-> EXPORT_SYMBOL_GPL() or an inline function or macro.
+> We're 
+> moving away from inlining most things manually since the compiler is doing it 
+> well these days.
+> 
 
-I've put it in as an inline function.
+OK.  Even without explicit inlining you need to give the compiler a 
+chance to optimize function call overhead away.  It cant do that with 
+the present arrangement.
 
-James
+> 
+>>The other way around the cost would be just one function call.
+> 
+> 
+> The way you're suggesting adds a function that is never used by anything but 
+> swap prefetch which would then need to be 'ifdef'ed out to not be needlessly 
+> built on every system. Adding ifdefs is frowned upon already, and to have an 
+> mm/ specific ifdef in sched.c would be rather ugly.
 
+Sometimes ugliness is the best option.
 
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

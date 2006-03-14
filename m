@@ -1,40 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWCNQ0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752057AbWCNQ12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWCNQ0w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 11:26:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbWCNQ0w
+	id S1752057AbWCNQ12 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 11:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752032AbWCNQ12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 11:26:52 -0500
-Received: from silver.veritas.com ([143.127.12.111]:5416 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751821AbWCNQ0v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 11:26:51 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,191,1139212800"; 
-   d="scan'208"; a="35862066:sNHT31516752"
-Date: Tue, 14 Mar 2006 16:27:42 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: Andrew Clayton <andrew@rootshell.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-git[12] spontaneous reboots on x86_64
-In-Reply-To: <200603141639.38988.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0603141625001.4827@goblin.wat.veritas.com>
-References: <1142337319.4412.2.camel@zeus.pccl.info>
- <Pine.LNX.4.61.0603141523340.4309@goblin.wat.veritas.com> <200603141639.38988.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 14 Mar 2006 16:26:43.0254 (UTC) FILETIME=[148AE560:01C64784]
+	Tue, 14 Mar 2006 11:27:28 -0500
+Received: from lug-owl.de ([195.71.106.12]:12515 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1751834AbWCNQ11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 11:27:27 -0500
+Date: Tue, 14 Mar 2006 17:27:25 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "Moore, Eric" <Eric.Moore@lsil.com>
+Cc: Greg KH <gregkh@suse.de>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com, hch@lst.de
+Subject: Re: [PATCH ] drivers/base/bus.c - export reprobe
+Message-ID: <20060314162725.GQ32065@lug-owl.de>
+Mail-Followup-To: "Moore, Eric" <Eric.Moore@lsil.com>,
+	Greg KH <gregkh@suse.de>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com,
+	hch@lst.de
+References: <F331B95B72AFFB4B87467BE1C8E9CF5F36D938@NAMAIL2.ad.lsil.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y2MHPAl/EzyWgzIZ"
+Content-Disposition: inline
+In-Reply-To: <F331B95B72AFFB4B87467BE1C8E9CF5F36D938@NAMAIL2.ad.lsil.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Mar 2006, Andi Kleen wrote:
-> 
-> But what happens when you just revert the last hunk (the stub_execve change)?
 
-Still no good: spontaneously rebooted under load after eight minutes.
+--y2MHPAl/EzyWgzIZ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hugh
+On Tue, 2006-03-14 09:18:18 -0700, Moore, Eric <Eric.Moore@lsil.com> wrote:
+> On Tuesday, March 14, 2006 8:35 AM,  Greg KH wrote:
+> > base64 for the attachment with DOS line ends?  ugh, can you please fix
+> > this up and resend?
+>=20
+> Here is repost of patch due to dos line endings.
+
+Mangled again...
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--y2MHPAl/EzyWgzIZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFEFu7tHb1edYOZ4bsRAjo4AJ9WZwaJfnAdrrMsEX0BRrAZZfySMQCeLOCv
+HJgLIg8PoCZtNoebzQwyUww=
+=DWmt
+-----END PGP SIGNATURE-----
+
+--y2MHPAl/EzyWgzIZ--

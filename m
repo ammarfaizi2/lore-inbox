@@ -1,92 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWCOI0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWCOIhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751376AbWCOI0z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 03:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCOI0z
+	id S932089AbWCOIhU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 03:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751963AbWCOIhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 03:26:55 -0500
-Received: from wildsau.enemy.org ([193.170.194.34]:62089 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S1751376AbWCOI0z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 03:26:55 -0500
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200603150823.k2F8NdWL016554@wildsau.enemy.org>
-Subject: Re: procfs uglyness caused by "cat"
-In-Reply-To: <4416D4A3.9070705@shaw.ca>
-To: Robert Hancock <hancockr@shaw.ca>
-Date: Wed, 15 Mar 2006 09:23:39 +0100 (MET)
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
+	Wed, 15 Mar 2006 03:37:20 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:22797 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751907AbWCOIhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 03:37:19 -0500
+Message-ID: <4417D212.20401@vmware.com>
+Date: Wed, 15 Mar 2006 00:36:34 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
+To: Gerd Hoffmann <kraxel@suse.de>
+Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 7/24] i386 Vmi memory hole
+References: <200603131804.k2DI4N6s005678@zach-dev.vmware.com> <20060314064107.GK12807@sorel.sous-sol.org> <44166D6B.4090701@vmware.com> <20060314215616.GM12807@sorel.sous-sol.org> <4417454F.2080908@vmware.com> <20060315043108.GP12807@sorel.sous-sol.org> <4417CFDA.1060806@suse.de>
+In-Reply-To: <4417CFDA.1060806@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > static int uptime_read_proc(char *page, char **start, off_t off,
-> > >                                  int count, int *eof, void *data)
-> > > {
-> > >         struct timespec uptime;
-> > >         struct timespec idle;
-> > >         int len;
-> > >         cputime_t idletime;
-> > > 
-> > > +	if (off)
-> > > +		return 0;
-> > 
-> > Except that this is wrong - if you try to advance the offset a bit from 
-> > the start of the file and read something, you'll get nothing. This is 
-> > inconsistent with normal file behavior.
-> 
-> so what - "uptime_read_proc" ignores the offset parameter anyway.
-> you get wrong results right now, too, even without the two lines
-> I've added.
-> 
-> if you write "Except that this is wrong" you should have in mind that
-> "this is wrong" currently, too.
-> 
-> just "try to advance the offset a bit from the start of the file and
-> read something", like "dd if=/proc/uptime bs=1 count=1 seek=1".
-> do you expect to get right results?
+Gerd Hoffmann wrote:
+>>> The complications in my patch come 
+>>> from the fact that the vsyscall page has to be relocated dynamically, 
+>>> requiring, basically run time linking on the page and some tweaks to get 
+>>> sysenter to work.  If you don't use vsyscall (say, non-TLS glibc), then 
+>>> you don't need that complexity.  But I think it might be needed now, 
+>>> even for Xen.
+>>>       
+>> I believe both Xen and execshield move vsyscall out of fixmap, and then
+>> map into userspace as normal vma.
+>>     
+>
+> Yep, my patch (attached below for reference) moves the vsyscall page
+> into user address space, just below PAGE_OFFSET.  Works basically the
+> same way the vsyscall page is mapped in the ia32 emulation of the x86_64
+>  architecture.  Address stays fixed, thus the relocation magic isn't needed.
+>
+> Once the vsyscall page is moved out of fixmap it's easy to make fixmap
+> movable and thus have a runtime-resizable address space hole at the top
+> of address space.  Patch is attached too, although that one is more
+> proof-of-concept, it doesn't make much sense as-is.  It has a kernel
+> command line option to specify the top of address space so you can play
+> around with it ...
+>
+> Both patches are against -rc3 and most likely still apply just fine,
+> havn't tested that though.
+>   
 
-argh, my mistake, sorry. I see. I tried reading a character at a time
-and with the two lines, /proc/uptime will return only a single character.
+Your patch looks a lot cleaner and less hackish than mine.  But I wonder 
+if it still works with kernels that support the sysenter method of 
+calling into the kernel.  Look at the following code:
 
-so even though currently the update-routine is called more than
-needed, my patch is even more wrong.
+ENTRY(sysenter_entry)
+        movl TSS_sysenter_esp0(%esp),%esp
+sysenter_past_esp:
+        STI
+        pushl $(__USER_DS)
+        pushl %ebp
+        pushfl
+        pushl $(__USER_CS)
+        pushl $SYSENTER_RETURN
 
-but this means that e.g.:
+SYSENTER_RETURN is a link time constant that is defined based on the 
+location of the vsyscall page.  If the vsyscall page can move, this can 
+not be a constant.  The reason is, this "fake" exception frame is used 
+to return back to the EIP of the call site, and sysenter does not record 
+the EIP of the call site.
 
-    int main() {
-    int fd;
-    char ch;
-            fd=open("/proc/uptime",0);
-            for(;;) {
-                    if (read(fd,&ch,1)!=1)
-                            break;
-                    write(1,&ch,1);
-            }
-    }
-
-will call the buffer-formatting routines 16 times on the whole
-buffer, just to return 1 single character, and each call will
-return a different result. eeks...
-
-by the way: why does "dd if=/proc/uptime bs=1 seek=1" hang?
-e.g.:
-
-    root@afp ~ # strace -f dd if=/proc/uptime bs=1 count=1 seek=1
-    open("/proc/uptime", O_RDONLY|O_LARGEFILE) = 0
-    ...
-    _llseek(1, 1, 0xbfaa8464, SEEK_CUR)     = -1 ESPIPE (Illegal seek)
-    read(1, <unfinished ...>
-
-processing stops here.
-
-
-regards,
-h.rosmanith
-
-
-regards,
-h.rosmanith
+Zach

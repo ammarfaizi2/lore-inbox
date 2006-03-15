@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbWCOBiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWCOBoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932578AbWCOBiu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 20:38:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932579AbWCOBiu
+	id S932156AbWCOBoq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 20:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWCOBoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 20:38:50 -0500
-Received: from mtaout4.012.net.il ([84.95.2.10]:35391 "EHLO mtaout4.012.net.il")
-	by vger.kernel.org with ESMTP id S932578AbWCOBit (ORCPT
+	Tue, 14 Mar 2006 20:44:46 -0500
+Received: from xenotime.net ([66.160.160.81]:59102 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932156AbWCOBoq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 20:38:49 -0500
-Date: Wed, 15 Mar 2006 03:38:20 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [RFC PATCH 3/3] x86-64: Calgary IOMMU - hook it in
-In-reply-to: <20060315000621.GC7699@us.ibm.com>
-To: Jon Mason <jdmason@us.ibm.com>
-Cc: Pavel Machek <pavel@suse.cz>, Andi Kleen <ak@suse.de>,
-       Muli Ben-Yehuda <MULI@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Message-id: <20060315013820.GL23631@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060314082432.GE23631@granada.merseine.nu>
- <20060314082552.GF23631@granada.merseine.nu>
- <20060314082634.GG23631@granada.merseine.nu>
- <20060314230348.GC1579@elf.ucw.cz> <20060314232247.GB7699@us.ibm.com>
- <20060314232612.GC1785@elf.ucw.cz> <20060315000621.GC7699@us.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 14 Mar 2006 20:44:46 -0500
+Date: Tue, 14 Mar 2006 17:46:43 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: gcoady@gmail.com
+Cc: lexington.luthor@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Which kernel is the best for a small linux system?
+Message-Id: <20060314174643.6a5a53df.rdunlap@xenotime.net>
+In-Reply-To: <ppre129ugea16tmnk085nepi7nj45mkb89@4ax.com>
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+	<dv38rn$430$1@sea.gmane.org>
+	<ppre129ugea16tmnk085nepi7nj45mkb89@4ax.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 06:06:21PM -0600, Jon Mason wrote:
+On Wed, 15 Mar 2006 12:35:50 +1100 Grant Coady wrote:
 
-> > No, it was pretty clear. But unless these machines are pretty common,
-> > I'd suggest users to say N. ... its like most drivers, it takes space
-> > but no other harm. Still we don't want to say "say Y" on all drivers.
+> On Mon, 13 Mar 2006 08:00:51 +0000, Lexington Luthor <lexington.luthor@gmail.com> wrote:
 > 
-> Ah, I understand your point now.  I'll fixup the comment and default
-> value.
-
-I disagree - I think it's quite enough that it depends on EXPERIMENTAL
-&& MPSC. Also, gart is default Y as well.
- 
-> > ...it is not required for boot on IBM x366 machines, is it?
+> >You might want to look into patch sets like the 2.6-tiny patches, which 
+> >greatly reduce the memory footprint of the kernel: 
+> >http://www.selenic.com/linux-tiny/
 > 
-> No, it is not.
+> Seems to have stalled since Oct'05?
 
-... but defaulting it to Y has significant advantages at this stage,
-not the least of which is that it will get us more testing :-)
+maybe not going as strongly as it once was, but parts of it
+have been merged into mainline and (parts of) it are also being
+used in CELF (www.celinuxforum.org).
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
+---
+~Randy

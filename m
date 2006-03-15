@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752128AbWCOWun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWCOWwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752128AbWCOWun (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751625AbWCOWun
+	id S932183AbWCOWwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbWCOWwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:50:43 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:56715 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751360AbWCOWum (ORCPT
+	Wed, 15 Mar 2006 17:52:16 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:45833 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932183AbWCOWwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:50:42 -0500
-Message-ID: <44189A3D.5090202@garzik.org>
-Date: Wed, 15 Mar 2006 17:50:37 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Andi Kleen <ak@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost
- ticks on PM timer]
-References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <20060315215020.GA18241@elte.hu> <20060315221119.GA21775@elte.hu> <44189654.2080607@garzik.org> <20060315224408.GC24074@elte.hu>
-In-Reply-To: <20060315224408.GC24074@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Wed, 15 Mar 2006 17:52:15 -0500
+Date: Wed, 15 Mar 2006 23:51:59 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jiri Benc <jbenc@suse.cz>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, rusty@rustcorp.com.au,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] modpost: fix buffer overflow
+Message-ID: <20060315225159.GA11095@mars.ravnborg.org>
+References: <20060315154436.4286d2ab@griffin.suse.cz> <1142434648.17627.5.camel@tara.firmix.at> <20060315160858.311e5c0e@griffin.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060315160858.311e5c0e@griffin.suse.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Jeff Garzik <jeff@garzik.org> wrote:
+On Wed, Mar 15, 2006 at 04:08:58PM +0100, Jiri Benc wrote:
+> I got SIGABRT in modpost when compiling a module really deeply nested in
+> a filesystem (path > 100 chars):
 > 
+> >   Building modules, stage 2.
+> >   MODPOST
+> > *** glibc detected *** scripts/mod/modpost: realloc(): invalid next size: 0x0809f588 ***
+> > [...]
 > 
->>It won't work at all...
+> This patch fixes that problem.
 > 
+> Signed-off-by: Jiri Benc <jbenc@suse.cz>
 > 
-> ok.
-> 
-> 
->>You have to stop talking to PCI IDE registers completely (consumes 5 
->>PCI BARs), and talk exclusively to the MMIO 6th PCI BAR, at 
->>non-standard offsets and a using a proprietary DMA descriptor format 
->>[all public now in that link I just sent].
-> 
-> 
-> just to make it easier to test: i've attached the new sata_nv.c file, 
-> which, to test it, should be copied over the existing 
-> drivers/scsi/sata_nv.c file, correct?
+> --- linux-2.6.16-rc6.orig/scripts/mod/modpost.c
+> +++ linux-2.6.16-rc6/scripts/mod/modpost.c
+> @@ -553,7 +553,8 @@ void __attribute__((format(printf, 2, 3)
+>  	va_start(ap, fmt);
+>  	len = vsnprintf(tmp, SZ, fmt, ap);
+>  	if (buf->size - buf->pos < len + 1) {
+> -		buf->size += 128;
+> +		while (buf->size - buf->pos < len + 1)
+> +			buf->size += 128;
+>  		buf->p = realloc(buf->p, buf->size);
+>  	}
+>  	strncpy(buf->p + buf->pos, tmp, len + 1);
 
-Alas, it is far from that simple :(
+Hi Jiri.
 
-The code I linked to isn't in a working state.  NV contributed it 
-largely as "it worked at one time" documentation of a 
-previously-undocumented register interface.
+Can I ask you to make a new patch where you change buf_printf() to use
+buf_write. And then change buf_write to allocate in chunks also.
+This would be cleanest solution.
 
-Someone needs to debug it.
-
-	Jeff
-
-
-
+	Sam

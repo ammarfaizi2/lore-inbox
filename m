@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbWCOG0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbWCOGgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932609AbWCOG0m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 01:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWCOG0m
+	id S932608AbWCOGgB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 01:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932606AbWCOGgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 01:26:42 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:47772 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932605AbWCOG0l convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 01:26:41 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Wed, 15 Mar 2006 14:25:45 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B32AAAE@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-thread-index: AcZH9a/8sUg4AIF1RPeq7wHG4pEmkwAAoKqA
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+	Wed, 15 Mar 2006 01:36:01 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:36994 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932119AbWCOGgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 01:36:00 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
        "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
        "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
+       michael@mihu.de, mchehab@infradead.org,
        "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
        "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
        "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 15 Mar 2006 06:25:47.0593 (UTC) FILETIME=[4C1B6390:01C647F9]
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Wed, 15 Mar 2006 14:16:02 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B32AA80@pdsmsx403> 
+Date: Wed, 15 Mar 2006 06:35:56 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FJPbw-0005IG-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If you do it in this way, all thermal zone's _TMP will be faked.
 
->One sad piece of data that I came across, perhaps worth investigating
->further after this one is chased down:
->
->As described in the last email, the combination of _TMP fakery (in
->utils.c) plus the bisecting version of thermal.c (loading only the
->zone THM0 and then only up to bisect_get_info=1) got rid of the hangs.
->
->So I got bold and tried _TMP fakery but with the vanilla thermal.c.
->The idea being that if _TMP is to blame for all the problems, then S3
->sleep should work fine with this setup.  But it hung in the usual way,
->on the second sleep.  Below are the dmesgs after the usual boot-time
->ones.
->
->This experiment produces a hang even with _TMP faked, whereas the
->previous experiment didn't (also with _TMP faked but, after the boot,
->loading only the THM0 zone and only doing the _TMP methods of it, even
->on wake).  So one of the non-TMP methods below must be causing a
->problem?  My suspicion is that it's one of the methods called on wake
->(_THM0._PSV or ._TC1, etc. or maybe one of the other zone's methods),
->which would explain why the first sleep goes fine but the second one
->fails.
->
->I don't think it's any of the calls made when 'thermal' is loading at
->boot time, because the same calls happen in the previous experiment.
->In that experiment, thermal loads normally (with _TMP faked), and only
->after boot do I unload it and replace it with
->
->  modprobe thermal zone_to_keep=0 bisect_get_info=1
->
->Anyway, here are the dmesgs for this experiment (hangs on 2nd sleep):
+Loading 'thermal' with zone_to_keep=0 meant that it skipped THM{2,6,7}
+(the only other zones).  But only THM0 was loaded, so any path that
+included, say, THM2._TMP wouldn't get executed because of lines like:
 
-Ok, Let's change the way of hacking. Let's start bisection
-without  touching kernel, instead with DSDT.
-Firstly, you need to find out which THM.
-Then,  which Methods.
-Finally, which statements that triggers S3 hang.
+     if (!tz)
+	return_VALUE(-EINVAL);
 
-Thanks,
-Luming
+Plus the dmesgs show all cases when _TMP was faked (each fakery
+produces a printk).  In the experiment with zone_to_keep=0, the only
+cases were with THM0.
 
+> If you remove the real THM0._TMP, and fake a dummy THM0._TMP in
+> DSDT, and don't change anything in kernel, then if S3 works well, I
+> will be convinced that THM0._TMP was causing trouble.
+
+I'll try it, to test my theory above!  But one clarification first: Do
+you mean that I use a vanilla thermal.c, or should I keep using the
+modified thermal.c with zone_to_keep=0 as the module parameter?  I
+don't think I revert to the vanilla thermal.c.  Suppose that there are
+two bugs, which I think is likely (see previous email).  Commenting
+out only THM0._TMP but preserving everything else in the DSDT & kernel
+might eliminate any bug caused by THM0._TMP.  But if it still hangs --
+and I'm pretty sure it will -- it means there's a another bug
+somewhere else.
+
+Here's why I'm sure it will hang.  When I commented out all
+evaluations of _TMP (modifying utils.c), but used a vanilla thermal.c,
+it still hung.  And commenting out all _TMP's means I commented out
+THM0._TMP.  So vanilla thermal.c + no THM0._TMP should hang too.
+
+> Ok, Let's change the way of hacking. Let's start bisection without
+> touching kernel, instead with DSDT.
+
+No problem I think.
+
+> Firstly, you need to find out which THM.
+
+The zone_to_keep=0 tests show that THM0 causes a problem, don't they?
+Other zones may also cause a problem, but THM0 can do it all alone.
+
+> Then, which Methods.  
+
+The test that hung on the first S3 sleep, with zone_to_keep=0 and
+bisect_get_info=1, shows that just THM0._TMP can cause a problem --
+since no other methods got executed.
+
+As with figuring out which zones cause problems, other methods may
+also cause the problem.  So I want to make sure I use a bisection
+method that will work even if there is more than one bug, whether in
+multiple zones or in multiple methods in the same zone.
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

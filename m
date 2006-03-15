@@ -1,109 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWCOXb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752161AbWCOXb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWCOXb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752163AbWCOXb5
+	id S1752161AbWCOXb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 18:31:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752163AbWCOXb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:31:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1768 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752162AbWCOXbz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:31:55 -0500
-Date: Thu, 16 Mar 2006 00:31:28 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 24/24] i386 Vmi no idle hz
-Message-ID: <20060315233128.GD1919@elf.ucw.cz>
-References: <200603131817.k2DIHkMa005792@zach-dev.vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603131817.k2DIHkMa005792@zach-dev.vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 15 Mar 2006 18:31:58 -0500
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:51894 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752161AbWCOXb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 18:31:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=KIAvgRXtdAMIo+goLssxa+qFocyr7lwTsO6cNauXzXnxfTC2PnC0gQSGkQQcPb28xCoNRjEI3UnQnlzD/J+qsCqUsY7AJ2ZvRqXiXvn5VYAkK9Bim45+x4T9RG0pzOKXK0+qV56CeYQwjBooCgxRZgOijMXlFORBb7iRVbrSMcI=  ;
+Message-ID: <4418A3DC.9010809@yahoo.com.au>
+Date: Thu, 16 Mar 2006 10:31:40 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Richard Moser <nigelenki@comcast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ORMAP
+References: <44178429.90808@comcast.net> <44180784.6020608@yahoo.com.au> <44183E75.3080406@comcast.net>
+In-Reply-To: <44183E75.3080406@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+John Richard Moser wrote:
 
-> When a VCPU enters its idle loop, it disables its periodic
-> alarm and sets up a one shot alarm for the next time event.
-> That way, it does not become ready to run just to service
-> the periodic alarm interrupt. Instead, it can remain halted
-> until there is some real work pending for it.  This allows
-> the hypervisor to use the physical resources more
-> effectively since idle VCPUs will have lower overhead.
+>Nick Piggin wrote:
+>
+>>2.6 has an object based rmap system working nicely for quite
+>>a while now (though it was probably not exactly what you saw
+>>in the -wli tree, but a derivative).
+>>
+>>It would be surprising if that made your system boot 3 times
+>>faster though (unless it was on the edge of a swap storm or
+>>something)
+>>
+>
+>Dramatization.  It was probably around 30 seconds faster on a 2-3 minute
+>boot sequence (I had a lot in rc.d), but it was noticeable :P
+>
+>I was wondering about that stuff.  There used to be a few cute things
+>out there but I can't remember any of it now.  Page clustering etc etc.
+>
+>
 
-Does this NO_IDLE_HZ work only on VMI-enabled runs or globally? We are
-trying to get NO_IDLE_HZ working to save some power on notebooks; how
-is it related to this?
+Well I don't think any of that stuff was simply forgotten. Page 
+clustering for
+i386, for example became less important because of objrmap, reductions 
+in size
+of struct page, and the demise of insane highmem machines (due to x86-64).
 
-> @@ -579,6 +569,17 @@ static ctl_table kern_table[] = {
->  		.proc_handler	= &proc_dointvec,
->  	},
->  #endif
-> +#if defined(CONFIG_NO_IDLE_HZ) && (defined(CONFIG_ARCH_S390) || \
-> +				   defined(CONFIG_X86) && defined(CONFIG_X86_VMI))
-> +	{
-> +		.ctl_name       = KERN_HZ_TIMER,
-> +		.procname       = "hz_timer",
-> +		.data           = &sysctl_hz_timer,
-> +		.maxlen         = sizeof(int),
-> +		.mode           = 0644,
-> +		.proc_handler   = &proc_dointvec,
-> +	},
-> +#endif
->  	{
->  		.ctl_name	= KERN_PIDMAX,
->  		.procname	= "pid_max",
+Nick
+--
 
-But this seems to disable it for non-VMI machines :-(.
-
-> Index: linux-2.6.16-rc6/include/asm-i386/mach-default/mach_idletimer.h
-> ===================================================================
-> --- linux-2.6.16-rc6.orig/include/asm-i386/mach-default/mach_idletimer.h	2006-03-12 19:57:53.000000000 -0800
-> +++ linux-2.6.16-rc6/include/asm-i386/mach-default/mach_idletimer.h	2006-03-12 19:57:53.000000000 -0800
-> @@ -0,0 +1,19 @@
-> +
-> +/*
-> + * NO_IDLE_HZ callbacks.
-> + */
-> +
-> +#ifndef __ASM_MACH_IDLETIMER_H
-> +#define __ASM_MACH_IDLETIMER_H
-> +
-> +static inline void stop_hz_timer(void) 
-> +{
-> +
-> +}
-> +
-> +static inline void restart_hz_timer(struct pt_regs *regs)
-> +{
-> +
-> +}
-> +
-> +#endif /* __ASM_MACH_IDLETIMER_H */
-
-And I guess these would need to be implemented.
-
-Can you use NO_IDLE_HZ patches that are already floating around?
-
-								Pavel
-
-
--- 
-180:        alg = Rijndael.Create();
+Send instant messages to your online friends http://au.messenger.yahoo.com 

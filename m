@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752158AbWCOQrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWCORPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752158AbWCOQrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 11:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752159AbWCOQrO
+	id S1750715AbWCORPS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 12:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWCORPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 11:47:14 -0500
-Received: from mail.macqel.be ([194.78.208.39]:44806 "EHLO mail.macqel.be")
-	by vger.kernel.org with ESMTP id S1752158AbWCOQrO (ORCPT
+	Wed, 15 Mar 2006 12:15:18 -0500
+Received: from iabervon.org ([66.92.72.58]:36618 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S1750715AbWCORPQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 11:47:14 -0500
-Message-Id: <200603151647.k2FGl7Y04736@mail.macqel.be>
-Subject: PATCH m68knommu clear frame-pointer in start_thread
-To: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Date: Wed, 15 Mar 2006 17:47:07 +0100 (CET)
-From: "Philippe De Muyter" <phdm@macqel.be>
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	Wed, 15 Mar 2006 12:15:16 -0500
+Date: Wed, 15 Mar 2006 12:16:31 -0500 (EST)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: Module Ref Counting & ibmphp
+In-Reply-To: <20060314162104.5370b20d@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0603151205460.6773@iabervon.org>
+References: <20060314224700.41242.qmail@web52612.mail.yahoo.com>
+ <20060315000212.GB6533@kroah.com> <20060314162104.5370b20d@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When trying to print the calltrace of a user process on m68knommu targets
-gdb follows the frame-pointer en falls on unreachable adresses, because
-the frame pointer is not properly initialised by start_thread. This patch
-initialises the frame pointer to NULL in start_thread.
+On Tue, 14 Mar 2006, Stephen Hemminger wrote:
 
-Signed-off-by: Philippe De Muyter <phdm@macqel.be>
+> The proper way to prevent unloading is just not to have a module exit routine,
+> rather than causing ref count to be off. The the module subsystem will
+> mark it as unsafe to unload. Unless it wants to allow unsafe forced unload.
+> But IMHO either it needs to be safe to unload or not allow it.
 
----
+Maybe add a comment where module_exit was, saying that the hardware can't 
+be made to behave without the module, so people don't think that debugging 
+the module could make it safely unloadable?
 
-the only change is the initialisztion of a6, the rest is spacing fixes
-
-Index: linux-2.6.x/include/asm-m68knommu/processor.h
-===================================================================
-RCS file: /newdev6/cvsrepos/uClinux-dist/linux-2.6.x/include/asm-m68knommu/processor.h,v
-retrieving revision 1.1.1.1
-diff -r1.1.1.1 processor.h
-92,99c92,100
-< #define start_thread(_regs, _pc, _usp)           \
-< do {                                             \
-< 	set_fs(USER_DS); /* reads from user space */ \
-< 	(_regs)->pc = (_pc);                         \
-< 	if (current->mm)                             \
-< 		(_regs)->d5 = current->mm->start_data;   \
-< 	(_regs)->sr &= ~0x2000;                      \
-< 	wrusp(_usp);                                 \
----
-> #define start_thread(_regs, _pc, _usp)			\
-> do {							\
-> 	set_fs(USER_DS); /* reads from user space */	\
-> 	(_regs)->pc = (_pc);				\
-> 	((struct switch_stack *)(_regs))[-1].a6 = 0;	\
-> 	if (current->mm)				\
-> 		(_regs)->d5 = current->mm->start_data;	\
-> 	(_regs)->sr &= ~0x2000;				\
-> 	wrusp(_usp);					\
+	-Daniel
+*This .sig left intentionally blank*

@@ -1,124 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWCOEaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752073AbWCOE1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWCOEaH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 23:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWCOEaH
+	id S1752073AbWCOE1s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 23:27:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752077AbWCOE1s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 23:30:07 -0500
-Received: from xproxy.gmail.com ([66.249.82.202]:21549 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750757AbWCOEaF convert rfc822-to-8bit
+	Tue, 14 Mar 2006 23:27:48 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:17582 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752073AbWCOE1r convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 23:30:05 -0500
+	Tue, 14 Mar 2006 23:27:47 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DJWGgIC3/Ft/jvewJ/upH4PhG095eVRq+NhdWG+InMGI3m5wf/yPkN4vgdrFFHnjkA81yZlp2D45LR5PEjWx5LLutCElGbUTrlKpgU0CYC8ZUZ4BsuGpH+tjV+NNw2frEkuGA6AbX7ArYZO2skxtUTIhMOUYvreQ5V8yJOYGdqk=
-Message-ID: <38c09b90603142030o7092a39aq8ace7758972ce09a@mail.gmail.com>
-Date: Wed, 15 Mar 2006 12:30:04 +0800
-From: "Lanslott Gish" <lanslott.gish@gmail.com>
-To: "Lanslott Gish" <lanslott.gish@gmail.com>,
-       "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>,
-       "Greg KH" <greg@kroah.com>,
-       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
-       hc@mivu.no, vojtech@suse.cz
-Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
-In-Reply-To: <20060314103854.GC32065@lug-owl.de>
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j9dEWV+5w0agmCRRTJwi0ize5+bvO+goFcKKd9Aok/QQXA1OZLmE9E13v8SF5I11M/vXwvQhEXjLjuZTiY9+9OB2Mx9fvOBXq3CM0VTwpVN7pHhsgcsY8o/YgsKeUgGiBQe3Dn5eBMWBvtustUyf+kBOI8I3/RShtFAP7G1dl8w=
+Message-ID: <a36005b50603142027u4b811864maefa06f8d78a57bc@mail.gmail.com>
+Date: Tue, 14 Mar 2006 20:27:43 -0800
+From: "Ulrich Drepper" <drepper@gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: question: pid space semantics.
+Cc: "Kirill Korotaev" <dev@sw.ru>,
+       "Dave Hansen <haveblue@us.ibm.com> Cedric Le Goater" <clg@fr.ibm.com>,
+       "Herbert Poetzl" <herbert@13thfloor.at>, linux-kernel@vger.kernel.org
+In-Reply-To: <m1veuglvdx.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com>
-	 <200603112155.38984.daniel.ritz-ml@swissonline.ch>
-	 <38c09b90603121701q69c61221lf92bb150e419b1c9@mail.gmail.com>
-	 <38c09b90603131710p7932c12qf6e8602b9b0b59c8@mail.gmail.com>
-	 <20060314103854.GC32065@lug-owl.de>
+References: <1142282940.27590.17.camel@localhost.localdomain>
+	 <m1veuglvdx.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-did you mean like that? thx.
+On 3/14/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> The question:
+>   If we could add additional pid values in different pid spaces to a
+>   process with a syscall upon demand would that lead to an
+>   implementation everyone could use?
 
-regards,
+Before going into this, how do propose to solve some other issues:
 
-Lanslott Gish
-===================================================================
---- linux-2.6.16-rc6.patched/drivers/usb/input/usbtouchscreen.c
-+++ linux-2.6.16-rc6/drivers/usb/input/usbtouchscreen.c
-@@ -49,6 +49,13 @@
- static int swap_xy;
- module_param(swap_xy, bool, 0644);
- MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-+static int swap_x;
-+module_param(swap_x, bool, 0644);
-+MODULE_PARM_DESC(swap_x, "If set X axe is swapped before XY swapped.");
-+static int swap_y;
-+module_param(swap_y, bool, 0644);
-+MODULE_PARM_DESC(swap_y, "If set Y axe is swapped before XY swapped.");
-+
+- RT signal contexts have a si_pid field which contains the PID of the
+sender.  When and how do you fix this up?  Can a process which is not
+visible in a second PID space send a signal to a process in that
+second PID space?
 
+- similar problem: SysV IPC.  How do you fix up fields like msg_lspid
+in struct msqid_ds?
 
- /* device specifc data/functions */
-@@ -224,13 +231,17 @@
-  * PanJit Part
-  */
- #ifdef CONFIG_USB_TOUCHSCREEN_PANJIT
-+
- static int panjit_read_data(char *pkt, int *x, int *y, int *touch, int *press)
- {
--       *x = pkt[1] | (pkt[2] << 8);
--       *y = pkt[3] | (pkt[4] << 8);
-+       *x = (pkt[1] & 0x0F) | ((pkt[2]& 0xFF) << 8);
-+       *y = (pkt[3] & 0x0F) | ((pkt[4]& 0xFF) << 8);
-        *touch = (pkt[0] & 0x01) ? 1 : 0;
+- the proposed futex extensions for robust and maybe PI mutexes needs
+to store the TID in the futex field.  If the futex shared by processes
+in different PID spaces this value is worthless.
 
--       return 1;
-+	if(swap_x) *x = *x ^ 0x0FFF;
-+	if(swap_y) *y = *y ^ 0x0FFF;
-+
-+ 	return 1;
- }
- #endif
-===================================================================
+It would perhaps be conceivable to fix up the first two problems in
+some cases.  If the process is visible in the PID space of the
+receiver of the signal or the process which calls msgctl() etc the
+kernel could magically fill in the correct PID for the PID space.  But
+what to do if the process is not visible?
 
-On 3/14/06, Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
-> On Tue, 2006-03-14 09:10:13 +0800, Lanslott Gish <lanslott.gish@gmail.com> wrote:
-> > i fixed some codes and add swap_x & swap_y functions.
-> > and test your patch passed for my touchset hrdware.
-> > here is the patch only for your usbtouchscreen.c
-> > could you help to apply this?
-> > thank you.
-> >
-> > Regards,
-> >
-> > Lanslott Gish
-> >
-> > ==============================================================
+And for the futex case, the kernel is not involved in the fast path. 
+There is no magic fixup which can happen.
 
->
-> Um, I think it's generally a good idea to allow this, but I'd say this
-> should go into the common code part using the pre-known number range.
->
-> MfG, JBG
->
-> --
-> Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
-> "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
->  für einen Freien Staat voll Freier Bürger"  | im Internet! |   im Irak!   O O O
-> ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));
->
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.1 (GNU/Linux)
->
-> iD8DBQFEFp0+Hb1edYOZ4bsRAhntAJ9tmcgcvR57teoeJIaJRqxBbrQpoACeNPFE
-> HrHJmjM0mkN9ZQsvARoLx+0=
-> =06aU
-> -----END PGP SIGNATURE-----
->
->
->
-
-
---
-L.G, Life's Good~
+I don't see at all how any of these things can work without breaking
+all kinds of code.

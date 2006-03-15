@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWCOIzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751907AbWCOJFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751963AbWCOIzv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 03:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751907AbWCOIzv
+	id S1751907AbWCOJFR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 04:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWCOJFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 03:55:51 -0500
-Received: from ns1.rothwell.us ([72.236.213.43]:39552 "EHLO rothwell.us")
-	by vger.kernel.org with ESMTP id S1751775AbWCOIzu (ORCPT
+	Wed, 15 Mar 2006 04:05:17 -0500
+Received: from javad.com ([216.122.176.236]:12307 "EHLO javad.com")
+	by vger.kernel.org with ESMTP id S1751907AbWCOJFQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 03:55:50 -0500
-Mime-Version: 1.0 (Apple Message framework v746.3)
-Content-Transfer-Encoding: 7bit
-Message-Id: <B43A4369-3E69-4DCC-8AEF-F4D11AF82D64@rothwell.us>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Michael Rothwell <michael@rothwell.us>
-Subject: bug report: Pegasus USB Ethernet driver, SNMPd, and kernel errors
-Date: Wed, 15 Mar 2006 03:55:43 -0500
-X-Mailer: Apple Mail (2.746.3)
+	Wed, 15 Mar 2006 04:05:16 -0500
+From: Sergei Organov <osv@javad.com>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+References: <878xrecypp.fsf@javad.com>
+	<16835.1141936162@warthog.cambridge.redhat.com>
+	<31016.1142368317@warthog.cambridge.redhat.com>
+Date: Wed, 15 Mar 2006 12:04:54 +0300
+In-Reply-To: <31016.1142368317@warthog.cambridge.redhat.com> (David
+ Howells's
+	message of "Tue, 14 Mar 2006 20:31:57 +0000")
+Message-ID: <87hd60axjd.fsf@javad.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using a Linksys USB-Ethernet adapter (ADMtek AN986 "Pegasus") on  
-a 2.6.15-1.1833_FC4 system (if this is an inappropriate place to  
-report this bug, let me know, and my apologies).
+David Howells <dhowells@redhat.com> writes:
 
-I am running snmpd on that same system. A very short while after  
-snmpd is started, the kernel begins to log errors related to the  
-pegasus driver. It does not log these errors if snmpd is not running.  
-The errors seem to be triggered by snmpd's polling of the machine's  
-network interfaces. Once the errors begin, snmpd hangs in an  
-unkillable state until the machine is rebooted.
+> Sergei Organov <osv@javad.com> wrote:
+>
+>> "You can prevent an `asm' instruction from being deleted by writing the
+>> keyword `volatile' after the `asm'. [...]
+>> The `volatile' keyword indicates that the instruction has important
+>> side-effects.  GCC will not delete a volatile `asm' if it is reachable.
+>> (The instruction can still be deleted if GCC can prove that
+>> control-flow will never reach the location of the instruction.)  *Note
+>> that even a volatile `asm' instruction can be moved relative to other
+>> code, including across jump instructions.*"
+>
+> Ummm... If "asm volatile" statements don't form compiler barriers, then how do
+> you specify a compiler barrier? Or is that what the "memory" bit in:
+>
+> 	#define barrier() __asm__ __volatile__("": : :"memory")
+>
+> does?
 
-Sample of errors:
+AFAIU the "memory" tells GCC that this asm has side-effects of changing
+arbitrary memory addresses. This in turn prevents GCC from keeping
+memory values in registers through the instruction:
 
-Mar 13 18:43:41 kronk kernel: pegasus: v0.6.12 (2005/01/13), Pegasus/ 
-Pegasus II USB Ethernet driver
-Mar 13 18:43:41 kronk kernel: pegasus 1-1:1.0: eth2, ADMtek AN986  
-"Pegasus" USB Ethernet (evaluation board), 00:e0:98:77:9d:ae
-Mar 13 18:43:41 kronk kernel: usbcore: registered new driver pegasus
-Mar 13 18:46:27 kronk kernel: pegasus 1-1:1.0: get_registers, status -22
-Mar 13 18:46:27 kronk kernel: pegasus 1-1:1.0: ctrl_callback, status -71
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: set_register, status -22
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: set_registers, status -22
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: set_register, status -22
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: get_registers, status -22
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: set_register, status -22
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: get_registers, status -22
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: fail read_mii_word
-Mar 13 18:46:57 kronk kernel: pegasus 1-1:1.0: fail read_mii_word
-Mar 13 18:47:27 kronk kernel: pegasus 1-1:1.0: set_register, status -22
-Mar 13 18:47:27 kronk kernel: pegasus 1-1:1.0: set_registers, status -22
-Mar 13 18:47:27 kronk kernel: pegasus 1-1:1.0: set_register, status -22
+"If your assembler instructions access memory in an unpredictable
+ fashion, add `memory' to the list of clobbered registers.  This will
+ cause GCC to not keep memory values cached in registers across the
+ assembler instruction and not optimize stores or loads to that memory.
+ You will also want to add the `volatile' keyword if the memory affected
+ is not listed in the inputs or outputs of the `asm', as the `memory'
+ clobber does not count as a side-effect of the `asm'."
 
-I love that Linksys' shipping product uses an "evaluation board".
+So both volatile and "memory" are required to get true compiler barrier.
 
-
-
---
-Michael Rothwell
-michael at rothwell.us
-
-
-
+-- Sergei.

@@ -1,75 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752162AbWCOXcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWCOXb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752162AbWCOXcl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:32:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbWCOXck
+	id S932592AbWCOXb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 18:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752163AbWCOXb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:32:40 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:64218 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1752165AbWCOXcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:32:32 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Willy Tarreau <willy@w.ods.org>, Arjan van de Ven <arjan@infradead.org>,
-       j4K3xBl4sT3r <jakexblaster@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Which kernel is the best for a small linux system?
-Date: Thu, 16 Mar 2006 10:32:19 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <f78h1292orlp3vnrm2qq9c040ech0eduhg@4ax.com>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org> <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com> <1142273212.3023.35.camel@laptopd505.fenrus.org> <20060314062144.GC21493@w.ods.org> <kv2d12131e73fjkp0hufomj152un5tbsj1@4ax.com> <20060314222131.GB3166@flint.arm.linux.org.uk> <Pine.LNX.4.61.0603152347210.20859@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603152347210.20859@yvahk01.tjqt.qr>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Wed, 15 Mar 2006 18:31:57 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1768 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752162AbWCOXbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 18:31:55 -0500
+Date: Thu, 16 Mar 2006 00:31:28 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 24/24] i386 Vmi no idle hz
+Message-ID: <20060315233128.GD1919@elf.ucw.cz>
+References: <200603131817.k2DIHkMa005792@zach-dev.vmware.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200603131817.k2DIHkMa005792@zach-dev.vmware.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Mar 2006 23:53:21 +0100 (MET), Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+Hi!
 
->
->>> By stable I mean rate of change of codebase, patch volume per month,  
->>> 2.6 is orders of magnitude less stable than 2.4 by that simple measure.
->>
->>That is no measure of stability.
->>
->
->Ack! Let's pick one:
->
->Although the exact numbers of patches per time for a specific 
->software manufacturer - let's pick Microsoft as an example - is not known, 
->it is usually low (two for this *month* afaics), compared to what hits lkml 
->*each day*.
->
->Does that make their software more stable than Linux? I would have my 
->doubts about that.
+> When a VCPU enters its idle loop, it disables its periodic
+> alarm and sets up a one shot alarm for the next time event.
+> That way, it does not become ready to run just to service
+> the periodic alarm interrupt. Instead, it can remain halted
+> until there is some real work pending for it.  This allows
+> the hypervisor to use the physical resources more
+> effectively since idle VCPUs will have lower overhead.
 
-Yeah but MSFT has been very stably broken for many years ;)
+Does this NO_IDLE_HZ work only on VMI-enabled runs or globally? We are
+trying to get NO_IDLE_HZ working to save some power on notebooks; how
+is it related to this?
 
-Anyway, what I'm trying to put forward is the notion that the high 
-patch churn rate in l-k indicates a non-stable, experimental piece 
-of work which may one day result in a stable kernel.  But at the 
-moment I'll run 24/7 apps on a 2.4.latest box.
+> @@ -579,6 +569,17 @@ static ctl_table kern_table[] = {
+>  		.proc_handler	= &proc_dointvec,
+>  	},
+>  #endif
+> +#if defined(CONFIG_NO_IDLE_HZ) && (defined(CONFIG_ARCH_S390) || \
+> +				   defined(CONFIG_X86) && defined(CONFIG_X86_VMI))
+> +	{
+> +		.ctl_name       = KERN_HZ_TIMER,
+> +		.procname       = "hz_timer",
+> +		.data           = &sysctl_hz_timer,
+> +		.maxlen         = sizeof(int),
+> +		.mode           = 0644,
+> +		.proc_handler   = &proc_dointvec,
+> +	},
+> +#endif
+>  	{
+>  		.ctl_name	= KERN_PIDMAX,
+>  		.procname	= "pid_max",
 
-That some here choose to bend that point of view into an unintended 
-meaning has nothing to do with the simple reality that, for what I 
-use linux for, 2.6 is a such sluggish performing kernel that I soon 
-revert to 2.4.latest on the one box that runs 24/7 here.
+But this seems to disable it for non-VMI machines :-(.
 
-If you cannot accept that, fine, ridicule the testers feedback you 
-do not want to hear.
+> Index: linux-2.6.16-rc6/include/asm-i386/mach-default/mach_idletimer.h
+> ===================================================================
+> --- linux-2.6.16-rc6.orig/include/asm-i386/mach-default/mach_idletimer.h	2006-03-12 19:57:53.000000000 -0800
+> +++ linux-2.6.16-rc6/include/asm-i386/mach-default/mach_idletimer.h	2006-03-12 19:57:53.000000000 -0800
+> @@ -0,0 +1,19 @@
+> +
+> +/*
+> + * NO_IDLE_HZ callbacks.
+> + */
+> +
+> +#ifndef __ASM_MACH_IDLETIMER_H
+> +#define __ASM_MACH_IDLETIMER_H
+> +
+> +static inline void stop_hz_timer(void) 
+> +{
+> +
+> +}
+> +
+> +static inline void restart_hz_timer(struct pt_regs *regs)
+> +{
+> +
+> +}
+> +
+> +#endif /* __ASM_MACH_IDLETIMER_H */
 
-Certainly provides little motivation for testers to provide any 
-feedback does it not?  I've had two threads on sluggish terminal 
-here performance without resolution.  2.6 feels sluggish, the test 
-is simple and repeatable, your ridicule does not change that at all.
+And I guess these would need to be implemented.
+
+Can you use NO_IDLE_HZ patches that are already floating around?
+
+								Pavel
 
 
-2.4.early was a dog of a kernel, I was often bouncing between Linus' 
-and ac' branches back then depending on which was working in a 
-particular week.  It got better, as will 2.6.  Maybe by 2.6.20+ ?
-
-Grant.
+-- 
+180:        alg = Rijndael.Create();

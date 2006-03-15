@@ -1,109 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWCOBP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWCOBTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbWCOBP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 20:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCOBP5
+	id S932534AbWCOBTW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 20:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWCOBTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 20:15:57 -0500
-Received: from pacific.moreton.com.au ([203.143.235.130]:24472 "EHLO
-	moreton.com.au") by vger.kernel.org with ESMTP id S932179AbWCOBP4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 20:15:56 -0500
-Date: Wed, 15 Mar 2006 11:11:32 +1000
-From: David McCullough <david_mccullough@au.securecomputing.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Valdis.Kletnieks@vt.edu, Adrian Bunk <bunk@stusta.de>, davem@davemloft.net,
-       linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] crypto/aes.c: array overrun
-Message-ID: <20060315011132.GA28323@beast>
-References: <20060311010339.GF21864@stusta.de> <20060311024116.GA21856@gondor.apana.org.au> <200603142025.k2EKP8Z4010175@turing-police.cc.vt.edu> <20060314225448.GA27285@beast> <20060315003212.GA20843@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
-Content-Disposition: inline
-In-Reply-To: <20060315003212.GA20843@gondor.apana.org.au>
-User-Agent: Mutt/1.5.9i
+	Tue, 14 Mar 2006 20:19:22 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48563 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932181AbWCOBTV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 20:19:21 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0603141609520.3618@g5.osdl.org> 
+References: <Pine.LNX.4.64.0603141609520.3618@g5.osdl.org>  <17431.14867.211423.851470@cargo.ozlabs.ibm.com> <m1veujy47r.fsf@ebiederm.dsl.xmission.com> <16835.1141936162@warthog.cambridge.redhat.com> <32068.1142371612@warthog.cambridge.redhat.com> <2301.1142380768@warthog.cambridge.redhat.com> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, alan@redhat.com, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 15 Mar 2006 01:19:02 +0000
+Message-ID: <3762.1142385542@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> wrote:
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-Jivin Herbert Xu lays it down ...
-> On Wed, Mar 15, 2006 at 08:54:48AM +1000, David McCullough wrote:
-> >  
-> >  struct aes_ctx {
-> >  	int key_length;
-> > -	u32 E[60];
-> > -	u32 D[60];
-> > +	u32 _KEYS[120];
-> >  };
+> That's not that different from doing
 > 
-> Looks good.  Thanks for this David.
+> 	ptr = read a
+> 	data = read [ptr]
 > 
-> Could you please change the name from _KEYS to buf and patch the x86-64
-> version as well?
+>   and speculating the result of the first read.
 
-No problems, attached.
+But that would lead to the situation I suggested (q == &b and d == a), not the
+one Paul suggested (q == &b and d == old b) because we'd speculate on the old
+value of the pointer, and so see it before it's updated, and thus still
+pointing to a.
 
-Cheers,
-Davidm
+> The cache is fully coherent, but the coherency isn't _ordered_.
+> 
+> Remember: the smp_wmb() only orders on the _writer_ side. Not on the 
+> reader side. The writer may send out the stuff in a particular order, but 
+> the reader might see them in a different order because _it_ might queue 
+> the bus events internally for its caches (in particular, it could end up 
+> delaying updating a particular way in the cache because it's busy).
 
--- 
-David McCullough, david_mccullough@au.securecomputing.com, Ph:+61 734352815
-Secure Computing - SnapGear  http://www.uCdot.org http://www.cyberguard.com
+Ummm... So whilst smp_wmb() commits writes to the mercy of the cache coherency
+system in a particular order, the updates can be passed over from one cache to
+another and committed to the reader's cache in any order, and can even be
+delayed:
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="aes2.diff"
+	CPU 1		CPU 2		COMMENT
+	===============	===============	=======================================
+					a == 0, b == 1 and p == &a, q == &a
+	b = 2;
+	smp_wmb();			Make sure b is changed before p
+	<post b=2>
+			<queue b=2>
+	p = &b;		q = p;
+	<post p=&b>
+			<queue p=&b>
+			d = *q;
+			<commit p=&b>
+			<post q=p>
+			<read *q>	Reads from b before b updated in cache
+			<post d=*q>
+			<commit b=2>
 
-Index: linux-2.6.x/crypto/aes.c
-===================================================================
-RCS file: linux-2.6.x/crypto/aes.c,v
-retrieving revision 1.1.1.6
-diff -u -r1.1.1.6 aes.c
---- linux-2.6.x/crypto/aes.c	31 Aug 2005 00:33:03 -0000	1.1.1.6
-+++ linux-2.6.x/crypto/aes.c	15 Mar 2006 01:09:37 -0000
-@@ -78,12 +78,11 @@
- 
- struct aes_ctx {
- 	int key_length;
--	u32 E[60];
--	u32 D[60];
-+	u32 buf[120];
- };
- 
--#define E_KEY ctx->E
--#define D_KEY ctx->D
-+#define E_KEY (&ctx->buf[0])
-+#define D_KEY (&ctx->buf[60])
- 
- static u8 pow_tab[256] __initdata;
- static u8 log_tab[256] __initdata;
-Index: linux-2.6.x/arch/x86_64/crypto/aes.c
-===================================================================
-RCS file: linux-2.6.x/arch/x86_64/crypto/aes.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 aes.c
---- linux-2.6.x/arch/x86_64/crypto/aes.c	31 Aug 2005 00:33:07 -0000	1.1.1.1
-+++ linux-2.6.x/arch/x86_64/crypto/aes.c	15 Mar 2006 01:09:37 -0000
-@@ -79,12 +79,11 @@
- struct aes_ctx
- {
- 	u32 key_length;
--	u32 E[60];
--	u32 D[60];
-+	u32 buf[120];
- };
- 
--#define E_KEY ctx->E
--#define D_KEY ctx->D
-+#define E_KEY (&ctx->buf[0])
-+#define D_KEY (&ctx->buf[60])
- 
- static u8 pow_tab[256] __initdata;
- static u8 log_tab[256] __initdata;
+I presume the Alpha MB instruction forces cache queue completion in addition
+to a partial ordering on memory accesses:
 
---jRHKVT23PllUwdXP--
+	CPU 1		CPU 2		COMMENT
+	===============	===============	=======================================
+					a == 0, b == 1 and p == &a, q == &a
+	b = 2;
+	smp_wmb();			Make sure b is changed before p
+	<post b=2>
+			<queue b=2>
+	p = &b;		q = p;
+	<post p=&b>
+			<queue p=&b>
+			smp_read_barrier_depends();
+			<commit b=2>
+			<commit p=&b>
+			d = *q;
+			<post q=p>
+			<read *q>	Reads new value of b
+			<post d=*q>
+
+
+David

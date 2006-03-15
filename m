@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbWCPUhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWCPUjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932725AbWCPUhD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 15:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbWCPUhD
+	id S964808AbWCPUjA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 15:39:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbWCPUjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 15:37:03 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34986 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964808AbWCPUhA (ORCPT
+	Thu, 16 Mar 2006 15:39:00 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1029 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S932723AbWCPUi7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 15:37:00 -0500
-Date: Thu, 16 Mar 2006 12:33:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, janak@us.ibm.com,
-       viro@ftp.linux.org.uk, hch@lst.de, mtk-manpages@gmx.net, ak@muc.de,
-       paulus@samba.org
-Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we
- are committed.
-Message-Id: <20060316123341.0f55fd07.akpm@osdl.org>
-In-Reply-To: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
-References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 16 Mar 2006 15:38:59 -0500
+Date: Wed, 15 Mar 2006 23:13:09 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel config problem between 2.4.x to 2.6.x!
+Message-ID: <20060315231309.GC2462@ucw.cz>
+References: <436c596f0603121015j2a091ab2sf43d0c5c396bbb72@mail.gmail.com> <7c3341450603121247n7afe018m@mail.gmail.com> <436c596f0603121632qe3151k793fd3ccd9a0eacb@mail.gmail.com> <200603130708.13685.nick@linicks.net> <436c596f0603130342u4d38445bt5e9f129349cda0c8@mail.gmail.com> <1142273196.25358.317.camel@mindpipe> <20060316112523.GA3078@elf.ucw.cz> <1142535968.9395.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142535968.9395.7.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> Since we have not crossed the magic 2.6.16 line can we please
->  include this patch.  My apologies for catching this so late in the
->  cycle.
+Hi!
+
+> > > > 1. before, the mouse worked fine. now, it doesnt works
+> > > 
+> > > Probably /dev/input/mice vs. /dev/psaux isue
+> > > 
+> > > > 2. before, the sound worked. and now, still working, just with ALSA,
+> > > > no OSS support (tested with mpg321 and ogg123 on bash terminal) 
+> > > 
+> > > 
+> > > Best:
+> > > aoss ./oss-app
+> > > 
+> > > Not as good:
+> > > modprobe snd-pcm-oss
+> > > ./oss-app
+> > 
+> > Could snd-pcm-oss be fixed? If OSS is to be removed from kernel, it
+> > would be nice to have working and compatible emulation.
 > 
->  - Error if we are passed any flags we don't expect.
-> 
->    This preserves forward compatibility so programs that use new flags that
->    run on old kernels will fail instead of silently doing the wrong thing.
+> Well, snd-pcm-oss is a working and compatible emulation, but it can't
+> provide all of the features that ALSA implements in userspace like
+> channel routing, mixing of multiple streams, software volume control,
+> etc.  So aoss is the recommended way to run OSS apps on a moden distro.
 
-Makes sense.
-
->  - Use separate defines from sys_clone.
-> 
->    sys_unshare can't implement half of the clone flags under any circumstances
->    and those that it does implement have subtlely different semantics than
->    the clone flags.  Using a different set of flags sets the
->    expectation that things will be different.
-
-iirc there was some discussion about this and it was explicitly decided to
-keep the CLONE flags.
-
-Maybe Janak or Linus can comment?
+Aha, I see. Does snd-pcm-oss have all the features OSS used to have on
+that hardware? If so, sorry for the noise (but please tell me).
+								Pavel
+-- 
+Thanks, Sharp!

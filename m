@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWCOAqY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752102AbWCOAu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbWCOAqY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 19:46:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752092AbWCOAqY
+	id S1752102AbWCOAu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 19:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752115AbWCOAu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 19:46:24 -0500
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:65423 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751369AbWCOAqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 19:46:23 -0500
-From: Grant Coady <gcoady@gmail.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Willy Tarreau <willy@w.ods.org>, Arjan van de Ven <arjan@infradead.org>,
-       j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which kernel is the best for a small linux system?
-Date: Wed, 15 Mar 2006 11:46:18 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <jnoe125skf57s2cetv2kpup06162clbj32@4ax.com>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org> <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com> <1142273212.3023.35.camel@laptopd505.fenrus.org> <20060314062144.GC21493@w.ods.org> <kv2d12131e73fjkp0hufomj152un5tbsj1@4ax.com> <20060314222131.GB3166@flint.arm.linux.org.uk>
-In-Reply-To: <20060314222131.GB3166@flint.arm.linux.org.uk>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Mar 2006 19:50:57 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:52930 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1752102AbWCOAu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 19:50:56 -0500
+Message-Id: <200603150050.k2F0ogpT019966@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org,
+       Jan Knutar <jk-lkml@sci.fi>
+Subject: Re: [future of drivers?] a proposal for binary drivers. 
+In-Reply-To: Your message of "Tue, 14 Mar 2006 00:06:48 +0100."
+             <1142291208.8407.46.camel@gimli.at.home> 
+From: Valdis.Kletnieks@vt.edu
+References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com> <200603081151.33349.jk-lkml@sci.fi> <ec92bc30603080203rb4f5e7bvea993a44ceb5d3ca@mail.gmail.com>
+            <1142291208.8407.46.camel@gimli.at.home>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1142383841_9726P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 14 Mar 2006 19:50:41 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Mar 2006 22:21:32 +0000, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+--==_Exmh_1142383841_9726P
+Content-Type: text/plain; charset=us-ascii
 
->On Tue, Mar 14, 2006 at 09:03:39PM +1100, Grant Coady wrote:
->> By stable I mean rate of change of codebase, patch volume per month,  
->> 2.6 is orders of magnitude less stable than 2.4 by that simple measure.
->
->That is no measure of stability.
+On Tue, 14 Mar 2006 00:06:48 +0100, Bernd Petrovitsch said:
+> On Wed, 2006-03-08 at 15:33 +0530, Anshuman Gholap wrote:
+> [...]
+> > into installing it) , he knowing me as a linux person will keep
+> > bugging me, when i tell him to install a kernel source compile it to
+> > allow 16k stack, install ndiswrapper and load the windows driver and
+> 
+> And you seriously think that $COMPANY will rewrite their driver to work
+> with 4K-stacks (which seems to me to be an absolute requirement ATM)?
 
-You're welcome to your opinion.
+>From the NVidia drivers changelog:
 
->If, say, I merge a large patch in order to support ARM SMP and Linus
->takes that, let's say for the sake of argument that's a 10MB diff.
->It doesn't touch anything other than files which are solely built or
->used for the ARM architecture.
+2004-6-30 version 1.0-6106
 
-So what?  You're not one of the people here beholden to pushing a 
-distro's agenda for mainstream x86 windoze wannabe desktops.
+    * Added support for GLSL (OpenGL Shading Language).
 
->So, by your very comment above, if all the updates to non-x86
->architectures were prevented from happening in mainline, you'd have
->a much more stable kernel.
+    * Added support for GL_EXT_pixel_buffer_object.
 
-Not at all, you choose whatever interpretation suits your world view.
+    * Added support for 4kstack kernels.
 
->(Please do _not_ cc or reply directly to me in this thread - I'll
->read replies from the mailing list, thanks.)
+Looks like they managed to do that quite some time ago - in fact, before
+some parts of the *in-kernel* code were totally cleaned up....
 
-Get real
+So yes, I *do* expect $COMPANY to re-write their driver to support 4K stacks. ;)
 
-Grant.
+--==_Exmh_1142383841_9726P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFEF2ThcC3lWbTT17ARAjvtAKCaGDiu2gU1XU4TGnXA81yODIg3ZgCgjl/2
+xQj8JNKZsks31xNeieC4+z4=
+=VVUF
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1142383841_9726P--

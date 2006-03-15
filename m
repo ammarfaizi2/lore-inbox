@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751980AbWCOWSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752109AbWCOWXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751980AbWCOWSj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752074AbWCOWSj
+	id S1752109AbWCOWXI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:23:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752119AbWCOWXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:18:39 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:3292
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751980AbWCOWSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:18:39 -0500
-Date: Wed, 15 Mar 2006 14:18:20 -0800 (PST)
-Message-Id: <20060315.141820.124063256.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: ebiederm@xmission.com, bcrl@kvack.org, galak@kernel.crashing.org,
-       vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org, gregkh@suse.de
-Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in
- "struct resource"
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060315141305.13864705.akpm@osdl.org>
-References: <20060315212841.GE25361@kvack.org>
-	<m1fylje5sv.fsf@ebiederm.dsl.xmission.com>
-	<20060315141305.13864705.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 15 Mar 2006 17:23:08 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:28298 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1752109AbWCOWXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 17:23:07 -0500
+Message-ID: <441893AB.1070300@garzik.org>
+Date: Wed, 15 Mar 2006 17:22:35 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost
+ ticks on PM timer]
+References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <1142459152.1671.64.camel@mindpipe> <20060315215848.GB18241@elte.hu>
+In-Reply-To: <20060315215848.GB18241@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Wed, 15 Mar 2006 14:13:05 -0800
-
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >
-> > Benjamin LaHaise <bcrl@kvack.org> writes:
-> > 
-> > > On Wed, Mar 15, 2006 at 02:29:32PM -0700, Eric W. Biederman wrote:
-> > >> If the impact is very slight or unmeasurable this means the option
-> > >> needs to fall under CONFIG_EMBEDDED, where you can change if
-> > >> every last bit of RAM counts but otherwise you won't care.
-> > >
-> > > But we have a data type that is correct for this usage: dma_addr_t.
-> > 
-> > Well the name is wrong.  Because these are in general not DMA addresses,
-> > but it may have the other desired properties.  So it may be
-> > useable.
+Ingo Molnar wrote:
+> in this particular case there's only very simple (and non-IO) 
+> instructions in that codepath (no loops either), except for 
+> ata_bmdma_status() which does IO ops: so i agree with you that the most 
+> likely candidate for the delay is the readb() or the inb() in 
+> ata_bdma_status().
 > 
-> Yes, dma_addr_t does the right thing but has the wrong name.
+> I'm wondering which one of the two. inb()s are known to be horrible on 
+> some systems - but i've never seen them take 16 milliseconds. If it's 
+> the inb(), then that could also involve SMM mode and IO 
 
-No it doesn't.
 
-It's 32-bit on Sparc64 because all DMA mappings go through
-the IOMMU into a 32-bit window on PCI space.
+ata_bmdma_status() is just a single IO read, and even 1ms is highly 
+improbable.
 
-But we do most certainly want to support full 64-bit BARs
-in PCI devices on sparc64.
+I'd look elsewhere.  There are a ton of udelay() calls in the legacy PCI 
+IDE BMDMA code paths (sata_nv uses these), so I'm not surprised there is 
+latency in general, in a libata+sata_nv configuration.  Status checks 
+for example (ata_busy_wait in libata.h) are basically
+
+	while (ioreadX() != condition)
+		udelay(10)
+
+That delay is mainly a "don't pound too hard on the hardware" delay.  If 
+the hardware is really slow completing a command after signalling 
+completion, you'll potentially wait up to 1000*10 us in some cases.  And 
+there are other delays, such as the per-command ndelay() plus ioread().
+
+Welcome to the wonderful world of IDE.
+
+	Jeff
+
+

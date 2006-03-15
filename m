@@ -1,87 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752056AbWCOGRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752083AbWCOGUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752056AbWCOGRG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 01:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbWCOGRF
+	id S1752083AbWCOGUP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 01:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752089AbWCOGUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 01:17:05 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:41370 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752056AbWCOGRA convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 01:17:00 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Wed, 15 Mar 2006 14:16:02 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B32AA80@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-thread-index: AcZH81nAKta9OGGtR6mpQz040Tb/yQAAyxCQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 15 Mar 2006 06:16:05.0945 (UTC) FILETIME=[F16AF290:01C647F7]
+	Wed, 15 Mar 2006 01:20:15 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:28372 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1752083AbWCOGUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 01:20:14 -0500
+Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it
+	on 2.6.16-rc6
+From: Shaohua Li <shaohua.li@intel.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: "Raj, Ashok" <ashok.raj@intel.com>, Andrew Morton <akpm@osdl.org>,
+       olel@ans.pl, "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>, ak@muc.de
+In-Reply-To: <20060315054416.GF3205@localhost.localdomain>
+References: <20060315054416.GF3205@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 15 Mar 2006 14:18:20 +0800
+Message-Id: <1142403500.26706.2.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Could you just comment out _TMP in kernel or in DSDT, 
->
->I think it needs both excisions: If I comment out just the kernel _TMP
->calls, the DSDT might slip one in through the interpreter.  If I
->comment out just the DSDT _TMP calls, then the kernel can still call
->_TMP.  So instead I modified acpi_evaluate_integer() to return 27 C
->(3000 dK) if it's ever asked for a temperature, without doing any
->actual work:
->
->--- utils.c.orig	2006-02-27 00:09:35.000000000 -0500
->+++ utils.c		2006-03-14 23:36:59.000000000 -0500
->@@ -270,7 +270,15 @@ acpi_evaluate_integer(acpi_handle handle
->   memset(element, 0, sizeof(union acpi_object));
->   buffer.length = sizeof(union acpi_object);
->   buffer.pointer = element;
->-  status = acpi_evaluate_object(handle, pathname, arguments, &buffer);
->+  if (strcmp(pathname, "_TMP") != 0)
->+    status = acpi_evaluate_object(handle, pathname, 
->arguments, &buffer);
->+    else {
->+      printk(KERN_INFO PREFIX "acpi_evaluate_integer: Faking _TMP\n");
->+        status = AE_OK;
->+	   element->type = ACPI_TYPE_INTEGER;
->+	     element->integer.value = 3000; /* 27 C, in deciKelvins */
->+	     }
->+
->	if (ACPI_FAILURE(status)) {
->	   acpi_util_eval_error(handle, pathname, status);
->					return_ACPI_STATUS(status);
->
->This diff is in addition to the previous debugging changes to
->thermal.c.
+On Wed, 2006-03-15 at 13:44 +0800, Nathan Lynch wrote:
+> Ashok Raj wrote: 
+> > On Mon, Mar 13, 2006 at 02:22:23PM -0800, Andrew Morton wrote: 
+> > >  
+> > > And does it affect pretend-x86-hotplug, or is it only affecting
+> real hotplug? 
+> > >  
+> > its no more pretend-x86, in the past we used to put the cpu in
+> idle(),  
+> > now we do put the cpu in halt and bring back by another startup ipi,
+> just like  
+> > boot sequence, both for x86 and x86_64.
+> 
+> That's actually broken since 2.6.14 (at least on my P3 box); please 
+> see:
+> 
+> Subject: i386 cpu hotplug bug - instant reboot when onlining secondary
+> 
+> http://lkml.org/lkml/2006/2/19/186
+Works for me. But I saw a warning.
 
-If you do it in this way, all thermal zone's _TMP will be faked.
-If you remove the real THM0._TMP, and fake a dummy THM0._TMP
-in DSDT, and don't change anything in kernel, then if S3 works
-well, I will be convinced that THM0._TMP was causing trouble.
-Yes, I'm asking you to override DSDT for debugging. :-)
-But, please make sure don't change other things in DSDT, otherwise
-it still won't be trusted. :-)
+---
 
-Anyway, I'm studying THM0._TMP, and try to figure out how it is related
-with EC. 
+ linux-2.6.15-root/arch/i386/kernel/cpu/common.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Luming
+diff -puN arch/i386/kernel/cpu/common.c~cpuhp arch/i386/kernel/cpu/common.c
+--- linux-2.6.15/arch/i386/kernel/cpu/common.c~cpuhp	2006-03-14 12:13:43.000000000 +0800
++++ linux-2.6.15-root/arch/i386/kernel/cpu/common.c	2006-03-14 12:14:12.000000000 +0800
+@@ -605,7 +605,7 @@ void __devinit cpu_init(void)
+ 		/* alloc_bootmem_pages panics on failure, so no check */
+ 		memset(gdt, 0, PAGE_SIZE);
+ 	} else {
+-		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
++		gdt = (struct desc_struct *)get_zeroed_page(GFP_ATOMIC);
+ 		if (unlikely(!gdt)) {
+ 			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
+ 			for (;;)
+_
+
+

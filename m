@@ -1,60 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750957AbWCOUAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWCOSjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750957AbWCOUAm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 15:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWCOUAl
+	id S1751081AbWCOSjj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 13:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWCOSjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 15:00:41 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:9618 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750916AbWCOUAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 15:00:41 -0500
-In-Reply-To: <1142452665.3021.43.camel@laptopd505.fenrus.org>
-References: <20060315193114.GA7465@in.ibm.com> <1142452665.3021.43.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v746.3)
+	Wed, 15 Mar 2006 13:39:39 -0500
+Received: from iramx2.ira.uni-karlsruhe.de ([141.3.10.81]:44469 "EHLO
+	iramx2.ira.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S1751081AbWCOSji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 13:39:38 -0500
+In-Reply-To: <20060315102522.GA5926@infradead.org>
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com> <1142273346.3023.38.camel@laptopd505.fenrus.org> <4415B857.9010902@vmware.com> <20060315102522.GA5926@infradead.org>
+Mime-Version: 1.0 (Apple Message framework v749.3)
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C6CFDF8E-CE60-4FCD-AC17-72DC83E8521C@kernel.crashing.org>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
+Message-Id: <F032F3F4-00DB-43AF-A67B-E82673883303@ira.uka.de>
+Cc: Zachary Amsden <zach@vmware.com>, Arjan van de Ven <arjan@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Chris Wright <chrisw@osdl.org>,
+       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
-Date: Wed, 15 Mar 2006 14:01:13 -0600
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.746.3)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+From: Joshua LeVasseur <jtl@ira.uka.de>
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface	proposal
+Date: Wed, 15 Mar 2006 18:38:45 +0100
+To: Christoph Hellwig <hch@infradead.org>
+X-Mailer: Apple Mail (2.749.3)
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: -1.8 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	0.1 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mar 15, 2006, at 1:57 PM, Arjan van de Ven wrote:
+On Mar 15, 2006, at 11:25 , Christoph Hellwig wrote:
 
+> On Mon, Mar 13, 2006 at 10:22:15AM -0800, Zachary Amsden wrote:
+>>> Why can't vmware use the Xen interface instead?
+>>>
+>>
+>> We could.  But it is our opinion that the Xen interface is  
+>> unnecessarily
+>> complicated, without a clean separation between the layer of  
+>> interaction
+>> with the hypervisor and the kernel proper.  The interface we  
+>> propose we
+>> believe is more powerful, and more conducive to performance
+>> optimizations while providing significant advantages - most
+>> specifically, a single binary image that is properly virtualizable on
+>> multiple hypervisors and capable of running on native hardware.
 >
->> One of the possible solutions to this problem is that expand the size
->> of "start" and "end" to "unsigned long long". But whole of the PCI  
->> and
->> driver code has been written assuming start and end to be unsigned  
->> long
->> and compiler starts throwing warnings.
+> I agree with Zach here, the Xen hypervisor <-> kernel interface is
+> not very nice.  This proposal seems like a step forward althogh it'll
+> probably need to go through a few iterations.  Without and actually
+> useable opensource hypevisor reference implementation it's totally
+> unacceptable, though.
 >
->
-> please use dma_addr_t then instead of unsigned long long
->
-> this is the right size on all platforms afaik (could a ppc64 person
-> verify this?> ;)
 
-Actually we really just want "start" and "end" to be u64 on all  
-platforms.  Linus was ok with this change but no one has gone through  
-and fixed everything that would be required for it.
 
-- kumar
+As part of our pre-virtualization work, we developed a virtualization  
+solution similar to VMI.  We support Xen v2 and v3 with high  
+performance.  We added support for the first generation of VMI to our  
+project, and are currently adding support for the latest VMI patch.   
+Our work is open source.  We'll announce when we finish the VMI updates.
+
+We also experimented with other architectures and found the approach  
+highly suitable, such as for Itanium.
+
+Joshua
+
+

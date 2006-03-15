@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWCONgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWCONo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751252AbWCONgc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 08:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbWCONgc
+	id S1750926AbWCONo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 08:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751878AbWCONo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 08:36:32 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:55531 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751252AbWCONgb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 08:36:31 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andreas Schwab <schwab@suse.de>
-Subject: Re: /dev/stderr gets unlinked 8]
-Date: Wed, 15 Mar 2006 15:34:41 +0200
-User-Agent: KMail/1.8.2
-Cc: Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
-       christiand59@web.de
-References: <200603141213.00077.vda@ilport.com.ua> <20060315110252.GB31317@suse.de> <jehd5zq28o.fsf@sykes.suse.de>
-In-Reply-To: <jehd5zq28o.fsf@sykes.suse.de>
+	Wed, 15 Mar 2006 08:44:26 -0500
+Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:30092 "EHLO
+	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750926AbWCONo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 08:44:26 -0500
+Date: Wed, 15 Mar 2006 08:44:22 -0500 (EST)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@excalibur.intercode
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] SELinux - cleanup stray variable in selinux_inode_init_security()
+Message-ID: <Pine.LNX.4.64.0603150843070.15361@excalibur.intercode>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603151534.41899.vda@ilport.com.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 March 2006 15:14, Andreas Schwab wrote:
-> Stefan Seyfried <seife@suse.de> writes:
-> 
-> > any good daemon closes stdout, stderr, stdin
-> 
-> A real good daemon would redirect them to /dev/null.
+This patch removes an unneded pointer variable in
+selinux_inode_init_security().
 
-Yeah, yeah, let's first close stderr, and then proceed and 
-add some code to handle command line --log=file, and to do
-logging to that file.
+Please apply.
 
-Why good ol' fprintf(stderr,...) isn't enough? Why do you
-want to complicate things?
+Signed-off-by: James Morris <jmorris@namei.org>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-What's so hard in doing "daemon 2>/dev/null &" if you don't
-want to save log?
---
-vda
+---
+
+ security/selinux/hooks.c |    2 --
+ 1 files changed, 2 deletions(-)
+  
+diff -purN -X dontdiff linux-2.6.16-rc6.p/security/selinux/hooks.c linux-2.6.16-rc6.w/security/selinux/hooks.c
+--- linux-2.6.16-rc6.p/security/selinux/hooks.c	2006-03-13 20:02:35.000000000 -0500
++++ linux-2.6.16-rc6.w/security/selinux/hooks.c	2006-03-13 22:10:33.000000000 -0500
+@@ -1929,7 +1929,6 @@ static int selinux_inode_init_security(s
+ 	struct task_security_struct *tsec;
+ 	struct inode_security_struct *dsec;
+ 	struct superblock_security_struct *sbsec;
+-	struct inode_security_struct *isec;
+ 	u32 newsid, clen;
+ 	int rc;
+ 	char *namep = NULL, *context;
+@@ -1937,7 +1936,6 @@ static int selinux_inode_init_security(s
+ 	tsec = current->security;
+ 	dsec = dir->i_security;
+ 	sbsec = dir->i_sb->s_security;
+-	isec = inode->i_security;
+ 
+ 	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
+ 		newsid = tsec->create_sid;

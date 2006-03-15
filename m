@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751671AbWCOWGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWCOWIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751671AbWCOWGu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751680AbWCOWGu
+	id S1750783AbWCOWIW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWCOWIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:06:50 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:21209 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751671AbWCOWGt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:06:49 -0500
-Date: Wed, 15 Mar 2006 23:04:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
-       Lee Revell <rlrevell@joe-job.com>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: [patch] latency-tracing-v2.6.16.patch
-Message-ID: <20060315220432.GA20926@elte.hu>
-References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com>
+	Wed, 15 Mar 2006 17:08:22 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:60858
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750783AbWCOWIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 17:08:22 -0500
+Date: Wed, 15 Mar 2006 14:08:12 -0800
+From: Greg KH <gregkh@suse.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Morton Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
+Message-ID: <20060315220812.GA28485@suse.de>
+References: <20060315193114.GA7465@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060315213638.GA17817@ti64.telemetry-investments.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060315193114.GA7465@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 15, 2006 at 02:31:14PM -0500, Vivek Goyal wrote:
+> Hi,
+> 
+> Is there a reason why "start" and "end" field of "struct resource" are of
+> type unsigned long. My understanding is that "struct resource" can be used
+> to represent any system resource including physical memory. But unsigned
+> long is not suffcient to represent memory more than 4GB on PAE systems. 
 
-* Bill Rugolsky Jr. <brugolsky@telemetry-investments.com> wrote:
+As Kumar has stated, people have tried to do this in the past.  Please
+search the archives for the problems that will happen when you change
+this.
 
-> Here are a pair of traces from Ingo's latency tracer running on 
-> 2.6.16-rc6-git4 and 2.6.15 x86_64 SMP kernel with maxcpus=1 and 
-> report_lost_ticks. [...]
+I agree it should be fixed, but if you want to do this, you need to
+audit a _lot_ of kernel code and fix it up everywhere.  Please start
+with the old patches posted to lkml in the past and work from there.
 
-just for the record, the latency tracer can be found at:
+good luck,
 
-   http://redhat.com/~mingo/latency-tracing-patches/
-
-latency-tracing-v2.6.16.patch would be the one for current upstream 
-kernels. The codebase is the same as in the -rt tree.
-
-	Ingo
+greg k-h

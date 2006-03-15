@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751712AbWCOWNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWCOWNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751712AbWCOWNK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751787AbWCOWNJ
+	id S1751784AbWCOWNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWCOWNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:13:09 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:15313 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751712AbWCOWNI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:13:08 -0500
-Date: Wed, 15 Mar 2006 17:07:27 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Kumar Gala <galak@kernel.crashing.org>, Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
-Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
-Message-ID: <20060315220727.GF25361@kvack.org>
-References: <20060315193114.GA7465@in.ibm.com> <20060315205306.GC25361@kvack.org> <46E23BE4-4353-472B-90E6-C9E7A3CFFC15@kernel.crashing.org> <20060315211335.GD25361@kvack.org> <m1y7zbe6rn.fsf@ebiederm.dsl.xmission.com> <20060315212841.GE25361@kvack.org> <m13bhje5d1.fsf@ebiederm.dsl.xmission.com>
+	Wed, 15 Mar 2006 17:13:24 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:31628
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751811AbWCOWNX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 17:13:23 -0500
+Date: Wed, 15 Mar 2006 14:13:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
+Cc: Lanslott Gish <lanslott.gish@gmail.com>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
+       hc@mivu.no, vojtech@suse.cz
+Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
+Message-ID: <20060315221313.GB28635@kroah.com>
+References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com> <200603112155.38984.daniel.ritz-ml@swissonline.ch> <200603152254.37716.daniel.ritz-ml@swissonline.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m13bhje5d1.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200603152254.37716.daniel.ritz-ml@swissonline.ch>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 02:59:54PM -0700, Eric W. Biederman wrote:
-> Actually now that I think back there are machines with < 4GiB of ram
-> with 64bit pci BAR values.  It is more common to have 32bit values BAR
-> values and > 4GiB of ram.
+On Wed, Mar 15, 2006 at 10:54:37PM +0100, Daniel Ritz wrote:
+> hi
+> 
+> here the updated version of the patch. changes since first version:
+> - only advertise ABS_PRESSURE when device supports it
+> - handle input_register_device() errors
+> - allow vendor specifc init to fail.
+> - add invert_x/invert_y modparams
+> - only care about 12 bits for panjit
+> 
+> thanks for all the inputs.
+> 
+> rgds
+> -daniel
+> 
+> -----
+> 
+> [PATCH] usb/input/usbtouchscreen: unified USB touchscreen driver
+> 
+> A new single driver for various USB touchscreen devices. It currently
+> supports:
+> - eGalax TouchKit
+> - PanJit TouchSet
+> - 3M/Microtouch
+> - ITM Touchscreens
+> 
+> Support for the diffent devices can be enabled/disable when CONFIG_EMBEDDED
+> is set.
+> 
+> It's offering the same module params for all screens:
+> - swap_xy: swaps X and Y axes
+> - invert_x/invert_y: inverts X/Y.
 
-Such machines on x86 would have to be compiled with PAE.  Ditto any other 
-architecture, as you *have* to be able to represent those physical addresses, 
-which requires having page tables that can map them, which requires whatever 
-PAE is on the platform.
+These should be sysfs attributes, on the devices, which will allow them
+to be set individually for the different devices.  You can use the
+module paramater as the default to start with, so don't drop that.
 
-> Nor do I think struct resource is nearly as important when being
-> efficient, as dma_addr_t.  struct resource is only used during
-> driver setup which is a very rare event.  A few extra instructions
-> there likely will get lost in the noise and most of the will probably
-> be removed because they are in an __init section anyway.
+thanks,
 
-Bloat for no good reason is a bad habit to get into.
-
-		-ben
--- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+greg k-h

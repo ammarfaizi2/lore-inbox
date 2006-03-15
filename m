@@ -1,117 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWCOKxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWCOKyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWCOKxG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 05:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWCOKxG
+	id S1751153AbWCOKyR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 05:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWCOKyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 05:53:06 -0500
-Received: from hs-grafik.net ([80.237.205.72]:8209 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1750701AbWCOKxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 05:53:05 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.16-rc6-mm1 : Setting clocksource results in error
-Date: Wed, 15 Mar 2006 11:53:14 +0100
+	Wed, 15 Mar 2006 05:54:17 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:61854 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750824AbWCOKyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 05:54:17 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: New libata PATA patch for 2.6.16-rc1
+Date: Wed, 15 Mar 2006 11:54:11 +0100
 User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <200603140935.26927@zodiac.zodiac.dnsalias.org> <1142363464.8797.10.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1142363464.8797.10.camel@cog.beaverton.ibm.com>
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+References: <1142262431.25773.25.camel@localhost.localdomain> <200603132331.33129.prakash@punnoor.de>
+In-Reply-To: <200603132331.33129.prakash@punnoor.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart5550509.Po0QGqd7gt";
+  boundary="nextPart12556140.J4trOCrX8s";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200603151153.18873@zodiac.zodiac.dnsalias.org>
+Message-Id: <200603151154.15691.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5550509.Po0QGqd7gt
+--nextPart12556140.J4trOCrX8s
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi,
+Am Montag M=C3=A4rz 13 2006 23:31 schrieb Prakash Punnoor:
+> Hi,
+>
+> I tried your ide1 patch with 2.6.16-rc6 and NFORCE2 board, thus using the
+> AMD driver (and sil sata driver).
 
-applied patch. Didn't work?! Same error as before..
+[...]
 
-regards
-Alex
+> I will see how the DVD+RW drive behaves and let you know whether it makes
+> troubles. :-)
+
+Ok, I am having some troubles burning CDs/DVDs. I am using k3b as front-end=
+=20
+and it has troubles to detect the type of disc inserted. If you eg insert a=
+=20
+cd-rw the dialog changes the detected medium around (about each second):=20
+cd-rom, cd-rw, etc. Same with DVD+R. It detects DVD+R, waiting a second, th=
+an=20
+appendable DVD+R etc. But then it thinks it is a RW so it wants to=20
+blank/format/whatever it and this breaks, ie. I can't start the burning. It=
+=20
+worked fine with a DVD+RW though. And ignoring the message and blanking in=
+=20
+menu, I could also write a cd-rw.
 
 
-Am Dienstag, 14. M=E4rz 2006 20:11 schrieb john stultz:
-> On Tue, 2006-03-14 at 09:35 +0100, Alexander Gran wrote:
-> > I'm still fiddeling with my way to slow netbeans debugger. I just tried
-> > to change the clocksource. That resulted in an error, but apparently
-> > worked. Is that expected behaviour:
-> > root@t40:/sys/devices/system/clocksource/clocksource0# l
-> > insgesamt 0
-> > -rw------- 1 root root 4,0K 2006-03-14 09:31 available_clocksource
-> > -rw------- 1 root root    0 2006-03-14 09:31 current_clocksource
-> > root@t40:/sys/devices/system/clocksource/clocksource0# cat
-> > available_clocksource
-> > acpi_pm jiffies tsc pit
-> > root@t40:/sys/devices/system/clocksource/clocksource0# echo acpi_pm >
-> > current_clocksource
-> > -su: echo: write error: Das Argument ist ung=FCltig
-> > root@t40:/sys/devices/system/clocksource/clocksource0# cat
-> > current_clocksource acpi_pm
->
-> Huh. Interesting.
->
-> Oh! I see it, we're stripping the \n from the name and returning a count
-> value one less then what was given.
->
-> You can verify it by noticing "echo -n tsc > current_clocksource" does
-> not give the error.
->
-> This small fix should resolve it.
->
-> Thanks for the bug report!
-> -john
->
-> Signed-off-by: John Stultz <johnstul@us.ibm.com>
->
-> diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-> index d2ce2c3..fe22f64 100644
-> --- a/kernel/time/clocksource.c
-> +++ b/kernel/time/clocksource.c
-> @@ -220,6 +220,7 @@ sysfs_show_current_clocksources(struct s
->  static ssize_t sysfs_override_clocksource(struct sys_device *dev,
->  					  const char *buf, size_t count)
->  {
-> +	size_t ret =3D count;
->  	/* strings from sysfs write are not 0 terminated! */
->  	if (count >=3D sizeof(override_name))
->  		return -EINVAL;
-> @@ -241,7 +242,7 @@ static ssize_t sysfs_override_clocksourc
->
->  	spin_unlock_irq(&clocksource_lock);
->
-> -	return count;
-> +	return ret;
->  }
->
->  /**
+I am not sure what is causing the problem. Could dbus/hal be also trouble=20
+makers? I don't know whether k3b is making something stupid, as well. Last=
+=20
+time I tried I had no problem with the ide driver though. So I don't know=20
+whether ATAPI support in libata still needs polishing or whether Alan's PAT=
+A=20
+patch is missing something or whatever...
 
+
+What infos should I provide to make diagnosis easier?
 =2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+(=C2=B0=3D                 =3D=C2=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
---nextPart5550509.Po0QGqd7gt
+--nextPart12556140.J4trOCrX8s
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2.2 (GNU/Linux)
 
-iD8DBQBEF/Ie/aHb+2190pERAmVMAJ9OSvnrMrgRbgTvF69cIqZPhtoKzwCffk9C
-zyF4uKfnesbKp/+jiR0CdOA=
-=xQ6O
+iD8DBQBEF/JXxU2n/+9+t5gRAqbsAJ923SsWGSRU5jDnKvYeJg6ZSZuAlQCgyViK
+aI74qx5qY6MZDwxHuSRQ8rM=
+=UFOw
 -----END PGP SIGNATURE-----
 
---nextPart5550509.Po0QGqd7gt--
+--nextPart12556140.J4trOCrX8s--

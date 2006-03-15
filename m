@@ -1,78 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWCOHmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWCOHv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbWCOHmE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 02:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCOHmE
+	id S932181AbWCOHv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 02:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWCOHv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 02:42:04 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:50904 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932118AbWCOHmD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 02:42:03 -0500
-Date: Tue, 14 Mar 2006 23:41:15 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc6-mm1
-Message-ID: <20060315074115.GC5620@us.ibm.com>
-References: <20060312031036.3a382581.akpm@osdl.org>
+	Wed, 15 Mar 2006 02:51:27 -0500
+Received: from silver.veritas.com ([143.127.12.111]:25899 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932181AbWCOHv1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 02:51:27 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,193,1139212800"; 
+   d="scan'208"; a="35900668:sNHT26602028"
+Date: Wed, 15 Mar 2006 07:52:20 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc1: 28ms latency when process with lots of swapped memory
+ exits
+In-Reply-To: <1142375939.24603.33.camel@mindpipe>
+Message-ID: <Pine.LNX.4.61.0603150721040.9086@goblin.wat.veritas.com>
+References: <1142352926.13256.117.camel@mindpipe> 
+ <Pine.LNX.4.61.0603141812400.5882@goblin.wat.veritas.com> 
+ <20060314210142.GA23458@elte.hu> <1142375939.24603.33.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060312031036.3a382581.akpm@osdl.org>
-X-Operating-System: Linux 2.6.16-rc6-i386 (i686)
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 15 Mar 2006 07:51:26.0759 (UTC) FILETIME=[4349E370:01C64805]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12.03.2006 [03:10:36 -0800], Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
-> 
+On Tue, 14 Mar 2006, Lee Revell wrote:
+> On Tue, 2006-03-14 at 22:01 +0100, Ingo Molnar wrote:
+> > hm, where does the latency come from? We do have a lockbreaker in 
+> > unmap_vmas():
+> > 
+> >                         if (need_resched() ||
+> >                                 (i_mmap_lock &&
+> > need_lockbreak(i_mmap_lock))) {
+> >                                 if (i_mmap_lock) {
+> >                                         *tlbp = NULL;
+> >                                         goto out;
+> >                                 }
+> >                                 cond_resched();
+> >                         }
+> > 
+> > 
+> > why doesnt this break up the 28ms latency?
 
-Hrm, 2.6.16-rc6-mm1 fails to build 32-bit kernels on my Ubuntu Dapper
-install (64-bit kernel, 32-bit userspace). gcc is version 4.0.3 (Ubuntu
-4.0.3-1ubuntu1) and is biarch.  It builds 64-bit kernels fine (including
-2.6.16-rc6-mm1) and 2.6.16-rc6 as a 32-bit kernel also built fine. So
-seems like a regression with patch specific to -mm :( After a quick peek
-looks like 2.6.16-rc5-mm3 also suffers from this, at least (Sorry, I
-only recently started building 32-bit kernels on this box).
+That block is actually for PREEMPT n, and for truncating a mapped
+file (i_mmap_lock additionally held): all Lee's PREEMPT y exit case
+should need is the tlb_finish_mmu and tlb_gather_mmu around it,
+letting preemption in - and the ZAP_BLOCK_SIZE 8*PAGE_SIZE.
 
-nacc@arkanoid:~/linux/views/2.6.16-rc6-mm1-dev$ make ARCH=i386 O=$(pwd | sed s/views/build/) -j8
-  GEN    /home/nacc/linux/build/2.6.16-rc6-mm1-dev/Makefile
-  CHK     include/linux/version.h
-  Using /home/nacc/linux/views/2.6.16-rc6-mm1-dev as source for kernel
-  CHK     usr/initramfs_list
-  CHK     include/linux/compile.h
-  AS      arch/i386/kernel/vsyscall-int80.o
-  AS      arch/i386/kernel/vsyscall-sysenter.o
-  CC      arch/i386/kernel/time_hpet.o
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S: Assembler messages:
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:131: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:131: Error: undefined symbol `SIGCONTEXT_esp' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:132: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:132: Error: undefined symbol `SIGCONTEXT_eax' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:133: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:133: Error: undefined symbol `SIGCONTEXT_ecx' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:134: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:134: Error: undefined symbol `SIGCONTEXT_edx' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:135: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:135: Error: undefined symbol `SIGCONTEXT_ebx' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:136: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:136: Error: undefined symbol `SIGCONTEXT_ebp' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:137: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:137: Error: undefined symbol `SIGCONTEXT_esi' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:138: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:138: Error: undefined symbol `SIGCONTEXT_edi' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:139: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
-/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:139: Error: undefined symbol `SIGCONTEXT_eip' in operation
-make[2]: *** [arch/i386/kernel/vsyscall-int80.o] Error 1
-make[2]: *** Waiting for unfinished jobs....
-make[2]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
-make[1]: *** [arch/i386/kernel] Error 2
-make[1]: *** Waiting for unfinished jobs....
-make[1]: *** wait: No child processes.  Stop.
-make: *** [_all] Error 2
+> But the preempt count is >= 2, doesn't that mean some other lock must be
+> held also, or someone called preempt_disable?
 
-Thanks,
-Nish
+Yes, as I read the trace (and let me admit, I'm not at all skilled at
+reading those traces), and as your swap observation implies, this is
+not a problem with ptes present, but with swap entries: and with the
+radix tree lookup involved in finding whether they have an associated
+struct page in core - all handled while holding page table lock, and
+while holding the per-cpu mmu_gather structure.
+
+Oh, thank you for forcing me to take another look, 2.6.15 did make a
+regression there, and this one is very simply remedied: Lee, please
+try the patch below (I've done it against 2.6.16-rc6 because that's
+what I have to hand; and would be a better tree for you to test),
+and let us know if it fixes your case as I expect - thanks.
+
+(Robin Holt observed how inefficient the small ZAP_BLOCK_SIZE was on
+very sparse mmaps, as originally implemented; so he and Nick reworked
+it to count only real work done; but the swap entries got put on the
+side of "no real work", whereas you've found they may involve very
+significant work.  My patch below reverses that: yes, I've got some
+other cases now going the slow way when they needn't, but they're
+too rare to clutter the code for.)
+
+Hugh
+
+--- 2.6.16-rc6/mm/memory.c	2006-03-12 15:25:45.000000000 +0000
++++ linux/mm/memory.c	2006-03-15 07:32:36.000000000 +0000
+@@ -623,11 +623,12 @@ static unsigned long zap_pte_range(struc
+ 			(*zap_work)--;
+ 			continue;
+ 		}
++
++		(*zap_work) -= PAGE_SIZE;
++
+ 		if (pte_present(ptent)) {
+ 			struct page *page;
+ 
+-			(*zap_work) -= PAGE_SIZE;
+-
+ 			page = vm_normal_page(vma, addr, ptent);
+ 			if (unlikely(details) && page) {
+ 				/*

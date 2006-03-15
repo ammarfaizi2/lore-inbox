@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751574AbWCOVew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751566AbWCOVf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751574AbWCOVew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 16:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWCOVev
+	id S1751566AbWCOVf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 16:35:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWCOVfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 16:34:51 -0500
+	Wed, 15 Mar 2006 16:35:38 -0500
 Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46551 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751520AbWCOVes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 16:34:48 -0500
+	id S1751557AbWCOVe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 16:34:59 -0500
 To: Zachary Amsden <zach@vmware.com>
 Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -25,14 +25,14 @@ Cc: Linus Torvalds <torvalds@osdl.org>,
        Wim Coekaerts <wim.coekaerts@oracle.com>,
        Leendert van Doorn <leendert@watson.ibm.com>,
        Zachary Amsden <zach@vmware.com>
-Subject: Re: [RFC, PATCH 16/24] i386 Vmi io header
-References: <200603131811.k2DIBS8j005741@zach-dev.vmware.com>
+Subject: Re: [RFC, PATCH 14/24] i386 Vmi reboot fixes
+References: <200603131809.k2DI9slZ005727@zach-dev.vmware.com>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 15 Mar 2006 14:17:32 -0700
-In-Reply-To: <200603131811.k2DIBS8j005741@zach-dev.vmware.com> (Zachary
- Amsden's message of "Mon, 13 Mar 2006 10:11:28 -0800")
-Message-ID: <m1acbrxv9v.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <200603131809.k2DI9slZ005727@zach-dev.vmware.com> (Zachary
+ Amsden's message of "Mon, 13 Mar 2006 10:09:54 -0800")
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+Date: Wed, 15 Mar 2006 14:11:52 -0700
+Message-ID: <m1ek13xvjb.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
@@ -40,19 +40,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Zachary Amsden <zach@vmware.com> writes:
 
-> Move I/O instruction building to the sub-arch layer.  Some very crafty
-> but esoteric macros are used here to get optimized native instructions
-> for port I/O in Linux be writing raw instruction strings.  Adding a
-> wrapper layer here is fairly easy, and makes the full range of I/O
-> instructions available to the VMI interface.
->
-> Also, slowing down I/O is not a useful operation in a VM, so there
-> is a VMI call specifically to allow making it a NOP.  I could find
-> no place where SLOW_IO_BY_JUMPING is still used, and consider it
-> obsoleted.  Even on older 386 systems, the I/O delay approximation
-> by touching the extra page register is likely to better.
+> Fix reboot to work with the  VMI.  We must support fallback to the standard
+> BIOS reboot mechanism.  Turns out that this is required by kexec, and a good
+> idea for native hardware. 
 
-This sounds like a prime candidate for the alternate instruction interfaces
-and I don't see that being used here.
+Huh?  Rebooting through the BIOS and kexec are pretty much mutually exclusive.
+Looking at the patch I can't see what you are talking about either.
+
+Does kexec successfully work under VMWare?
+
+
+> We simply insert the NOP VMI reboot hook before
+> calling the BIOS reboot.  While here, fix SMP reboot issues as well.  The
+> problem is the halt() macro in VMI has been defined to be equivalent to
+> safe_halt(), which enables interrupts.  Several call sites actually want to
+> disable interrupts and shutdown the processor, which is what VMI_Shutdown()
+> does.
+
+machine_halt actually is not one of those places.
+
+machine_halt does not want to stop the processor.  It is very much
+about killing the kernel and user space but having the software still
+linger a little.
+
+This needs a cleaner abstraction to make sense or go in.
 
 Eric

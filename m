@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752112AbWCOBZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752104AbWCOBZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752112AbWCOBZm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 20:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752129AbWCOBZl
+	id S1752104AbWCOBZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 20:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752112AbWCOBZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 20:25:41 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:44198 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752112AbWCOBZi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 20:25:38 -0500
-Date: Tue, 14 Mar 2006 19:27:33 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: Olof Johansson <olof@lixom.net>
-Cc: Jon Mason <jdmason@us.ibm.com>, Pavel Machek <pavel@suse.cz>,
-       Muli Ben-Yehuda <mulix@mulix.org>, Andi Kleen <ak@suse.de>,
-       Muli Ben-Yehuda <MULI@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH RFC 2/3] x86-64: Calgary IOMMU - Calgary specific bits
-Message-ID: <20060315012733.GE7699@us.ibm.com>
-References: <20060314082432.GE23631@granada.merseine.nu> <20060314082552.GF23631@granada.merseine.nu> <20060314230306.GB1579@elf.ucw.cz> <20060315005514.GD7699@us.ibm.com> <20060315005632.GE5170@pb15.lixom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060315005632.GE5170@pb15.lixom.net>
-User-Agent: Mutt/1.5.11
+	Tue, 14 Mar 2006 20:25:27 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:45995 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752104AbWCOBZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 20:25:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=reLp/y4eQHFozRiPB44LmP88v7uKGT4s3QSIgV8iym64ZHz+BDdcaZzCtt8tyU69JlUTlodO4Wew1mJzxuo5WlhohrZ032rfU+28om1Oq3v1LaQVwxdMHIw5zzQT2M4U2MbinCcVYclPxU+L+FkCH8d4pzfzp8w2wCezECmsvco=  ;
+Message-ID: <44176CF9.90909@yahoo.com.au>
+Date: Wed, 15 Mar 2006 12:25:13 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, alan@redhat.com, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+References: <17431.14867.211423.851470@cargo.ozlabs.ibm.com>  <m1veujy47r.fsf@ebiederm.dsl.xmission.com> <16835.1141936162@warthog.cambridge.redhat.com> <32068.1142371612@warthog.cambridge.redhat.com>  <2301.1142380768@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0603141609520.3618@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603141609520.3618@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 06:56:32PM -0600, Olof Johansson wrote:
-> On Tue, Mar 14, 2006 at 06:55:15PM -0600, Jon Mason wrote:
-> > On Wed, Mar 15, 2006 at 12:03:06AM +0100, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > +union tce_entry {
-> > > > +   	u64 te_word;
-> > > > +	struct {
-> > > > +		unsigned int  read     :1;   /* read allowed */
-> > > > +		unsigned int  write    :1;   /* write allowed */
-> > > > +		unsigned int  hubid    :6;   /* hub id - unused */
-> > > > +		unsigned int  rsvd     :4;   /* reserved */
-> > > > +		unsigned long rpn      :36;  /* Real page number */
-> > > > +		unsigned int  unused   :16;  /* unused */
-> > > > +	} bits;
-> > > > +};
-> > > 
-> > > I'd say this is going to be pretty flakey.
-> > 
-> > Why do you think this would be flakey?  It's nearly identical to the
-> > tce_entry definition in include/asm-powerpc/tce.h (endien swapped, of
-> > course).
-> 
-> We're killing structures like that one by one on PPC, I just haven't
-> gotten around to dealing with tce_entry yet.
-> 
-> The way to do it is to use masking and shifting by hand.
+Linus Torvalds wrote:
 
-Really?  I thought this was much more elegant than masking and
-bitshifting (and less prone to errors).  Is there a particular reason to
-do it that way?
+>
+>On Tue, 14 Mar 2006, David Howells wrote:
+>
+>>But that doesn't make any sense!
+>>
+>>That would mean we that we'd've read b into d before having read the new value
+>>of p into q, and thus before having calculated the address from which to read d
+>>(ie: &b) - so how could we know we were supposed to read d from b and not from
+>>a without first having read p?
+>>
+>>Unless, of course, the smp_wmb() isn't effective, and the write to b happens
+>>after the write to p; or the Alpha's cache isn't fully coherent.
+>>
+>
+>The cache is fully coherent, but the coherency isn't _ordered_.
+>
+>
 
-Thanks,
-Jon
+This is what I was referring to when I said your (David's) idea of "memory"
+WRT memory consistency isn't correct -- cache coherency can be out of order.
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

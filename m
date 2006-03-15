@@ -1,21 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWCOJiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWCOJ5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWCOJiE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 04:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWCOJiD
+	id S1750788AbWCOJ5k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 04:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWCOJ5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 04:38:03 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:40465 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751190AbWCOJiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 04:38:00 -0500
-Message-ID: <4417E03E.9000009@vmware.com>
-Date: Wed, 15 Mar 2006 01:37:02 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>,
+	Wed, 15 Mar 2006 04:57:40 -0500
+Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:11394 "EHLO
+	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S1750788AbWCOJ5j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 04:57:39 -0500
+Date: Wed, 15 Mar 2006 02:02:10 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Virtualization Mailing List <virtualization@lists.osdl.org>,
        Xen-devel <xen-devel@lists.xensource.com>,
@@ -23,34 +20,75 @@ Cc: Chris Wright <chrisw@sous-sol.org>, Linus Torvalds <torvalds@osdl.org>,
        Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
        Pratap Subrahmanyam <pratap@vmware.com>,
        Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
        Ky Srinivasan <ksrinivasan@novell.com>,
        Wim Coekaerts <wim.coekaerts@oracle.com>,
        Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 7/24] i386 Vmi memory hole
-References: <200603131804.k2DI4N6s005678@zach-dev.vmware.com> <20060314064107.GK12807@sorel.sous-sol.org> <44166D6B.4090701@vmware.com> <20060314215616.GM12807@sorel.sous-sol.org> <4417454F.2080908@vmware.com> <20060315043108.GP12807@sorel.sous-sol.org> <4417CFDA.1060806@suse.de> <4417D212.20401@vmware.com> <4417DDF3.4060601@suse.de>
-In-Reply-To: <4417DDF3.4060601@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
+Message-ID: <20060315100210.GU12807@sorel.sous-sol.org>
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Hoffmann wrote:
->>        pushl $SYSENTER_RETURN
->>
->> SYSENTER_RETURN is a link time constant that is defined based on the
->> location of the vsyscall page.  If the vsyscall page can move, this can
->> not be a constant.
->>     
->
-> The vsyscall page is at PAGE_OFFSET - 2*PAGE_SIZE.  It doesn't move.  At
-> least not at runtime.  At compile time it can change with the new
-> VMSPLIT config options, but that isn't a problem ;)
->   
+* Zachary Amsden (zach@vmware.com) wrote:
+> +static void fixup_translation(struct vmi_annotation *a)
+> +{
+> +	unsigned char *c, *start, *end;
+> +	int left;
+> +
+> +	memcpy(a->nativeEIP, a->translationEIP, a->translation_size);
+> +	start = a->nativeEIP;
+> +	end = a->nativeEIP + a->translation_size;
+> +
+> +	for (c = start; c < end;) {
+> +		switch(*c) {
+> +			case MNEM_CALL_NEAR:
+> +				patch_call_site(a, c);
+> +				c+=5;
+> +				break;
+> +
+> +			case MNEM_PUSH_I:
+> +				c+=5;
+> +				break;
+> +
+> +			case MNEM_PUSH_IB:
+> +				c+=2;
+> +				break;
+> +
+> +			case MNEM_PUSH_EAX:
+> +			case MNEM_PUSH_ECX:
+> +			case MNEM_PUSH_EDX:
+> +			case MNEM_PUSH_EBX:
+> +			case MNEM_PUSH_EBP:
+> +			case MNEM_PUSH_ESI:
+> +			case MNEM_PUSH_EDI: 
+> +				c+=1;
+> +				break;
+> +
+> +			case MNEM_LEA:
+> +				BUG_ON(*(c+1) != 0x64);  /* [--][--]+disp8, %esp */
+> +				BUG_ON(*(c+2) != 0x24);  /* none + %esp */
+> +				c+=4;
+> +				break;
+> +
+> +			default:
+> +				/*
+> +				 * Don't printk - it may acquire spinlocks with
+> +				 * partially completed VMI translations, causing
+> +				 * nuclear meltdown of the core.
+> + 				 */
+> +				BUG();
+> +				return;
+> +		}
 
-Okay, I get it now.  Thanks for the explanation.  This certainly does 
-simplify the problem.
+Why these restrictions?  How do you do int $0x82, for example?
 
-Zach
+thanks,
+-chris

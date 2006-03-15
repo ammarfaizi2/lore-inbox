@@ -1,82 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWCOVxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWCOVxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbWCOVxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 16:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWCOVxJ
+	id S1751323AbWCOVxB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 16:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCOVxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 16:53:09 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:45526 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S1751327AbWCOVxI (ORCPT
+	Wed, 15 Mar 2006 16:53:01 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:54709 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751323AbWCOVxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 16:53:08 -0500
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-To: "Lanslott Gish" <lanslott.gish@gmail.com>
-Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
-Date: Wed, 15 Mar 2006 22:53:23 +0100
-User-Agent: KMail/1.7.2
-Cc: "Greg KH" <greg@kroah.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
-       hc@mivu.no, vojtech@suse.cz
-References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com> <20060314103854.GC32065@lug-owl.de> <38c09b90603142030o7092a39aq8ace7758972ce09a@mail.gmail.com>
-In-Reply-To: <38c09b90603142030o7092a39aq8ace7758972ce09a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Mar 2006 16:53:00 -0500
+Date: Wed, 15 Mar 2006 22:50:20 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
+       Lee Revell <rlrevell@joe-job.com>, Jason Baron <jbaron@redhat.com>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost ticks on PM timer]
+Message-ID: <20060315215020.GA18241@elte.hu>
+References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603152253.24194.daniel.ritz-ml@swissonline.ch>
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-04.tornado.cablecom.ch 32701;
-	Body=9 Fuz1=9 Fuz2=9
+In-Reply-To: <20060315213638.GA17817@ti64.telemetry-investments.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 March 2006 05.30, Lanslott Gish wrote:
-> did you mean like that? thx.
-> 
-> regards,
-> 
-> Lanslott Gish
-> ===================================================================
-> --- linux-2.6.16-rc6.patched/drivers/usb/input/usbtouchscreen.c
-> +++ linux-2.6.16-rc6/drivers/usb/input/usbtouchscreen.c
-> @@ -49,6 +49,13 @@
->  static int swap_xy;
->  module_param(swap_xy, bool, 0644);
->  MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-> +static int swap_x;
-> +module_param(swap_x, bool, 0644);
-> +MODULE_PARM_DESC(swap_x, "If set X axe is swapped before XY swapped.");
-> +static int swap_y;
-> +module_param(swap_y, bool, 0644);
-> +MODULE_PARM_DESC(swap_y, "If set Y axe is swapped before XY swapped.");
-> +
-> 
-(i prefer invert_x and invert_y...)
 
-> 
->  /* device specifc data/functions */
-> @@ -224,13 +231,17 @@
->   * PanJit Part
->   */
->  #ifdef CONFIG_USB_TOUCHSCREEN_PANJIT
-> +
->  static int panjit_read_data(char *pkt, int *x, int *y, int *touch, int *press)
->  {
-> -       *x = pkt[1] | (pkt[2] << 8);
-> -       *y = pkt[3] | (pkt[4] << 8);
-> +       *x = (pkt[1] & 0x0F) | ((pkt[2]& 0xFF) << 8);
-> +       *y = (pkt[3] & 0x0F) | ((pkt[4]& 0xFF) << 8);
+* Bill Rugolsky Jr. <brugolsky@telemetry-investments.com> wrote:
 
-that just can't be right. you probably mean
-+       *y = pkt[3] | ((pkt[4] & 0x0F) << 8);
+>    <...>-2913  0d.h.    8us : raise_softirq_irqoff (blk_complete_request)
+>    <...>-2913  0d.h.    8us : __ata_qc_complete (ata_qc_complete)
+>    <...>-2913  0d.h.    9us : ata_host_intr (nv_interrupt)
+>    <...>-2913  0d.h.    9us!: ata_bmdma_status (ata_host_intr)
+>    <...>-2913  0d.h. 16641us : nv_check_hotplug_ck804 (nv_interrupt)
+>    <...>-2913  0d.h. 16642us : _spin_unlock_irqrestore (nv_interrupt)
+>    <...>-2913  0d.h. 16642us : smp_apic_timer_interrupt (apic_timer_interrupt)
+>    <...>-2913  0d.h. 16642us : exit_idle (smp_apic_timer_interrupt)
 
-otherwise you mask out bits 4-7. but you want to limit it to 12 bits...
-(btw. no need for the & 0xFF mask since *pkt is char)
+ouch. The codepath in question (ata_host_intr()) doesnt seem to have any 
+loop that could take 16.6 msecs (!). This very much looks like some 
+hardware-triggered delay - some really screwed up DMA prioritization 
+perhaps, starving the host CPU for 16.6 msecs? But what DMA takes 16.6 
+msecs? That's enough time to transfer dozens of megabytes of data on a 
+midrange system.
 
-
-anyway, i updated the driver with all the comments i got so far.
-will send out in a minute as a new mail.
-
-rgds
--daniel
+	Ingo

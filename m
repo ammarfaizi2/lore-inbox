@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWCOKiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWCOK5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751591AbWCOKiq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 05:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWCOKiq
+	id S1750824AbWCOK5C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 05:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWCOK5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 05:38:46 -0500
-Received: from sainfoin.extra.cea.fr ([132.166.172.103]:14228 "EHLO
-	sainfoin.extra.cea.fr") by vger.kernel.org with ESMTP
-	id S1750707AbWCOKip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 05:38:45 -0500
-Message-Id: <200603151038.LAA21392@styx.bruyeres.cea.fr>
-Date: Wed, 15 Mar 2006 11:37:57 +0100
-From: Aurelien Degremont <aurelien.degremont@cea.fr>
-User-Agent: Mozilla Thunderbird 1.0.6-1.4.1 (X11/20050719)
-X-Accept-Language: en-us, en
+	Wed, 15 Mar 2006 05:57:01 -0500
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:11667 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750824AbWCOK5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 05:57:00 -0500
+Date: Wed, 15 Mar 2006 05:50:39 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle
+  it on 2.6.16-rc6
+To: Krzysztof Oledzki <olel@ans.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ashok Raj <ashok.raj@intel.com>
+Message-ID: <200603150553_MC3-1-BAB1-7C5A@compuserve.com>
 MIME-Version: 1.0
-To: trond.myklebust@fys.uio.no
-CC: viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       Jacques-Charles Lafoucriere <jc.lafoucriere@cea.fr>
-Subject: NFS superblock sharing implies mount flags bug
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+In-Reply-To: <Pine.LNX.4.64.0603120256480.14567@bizon.gios.gov.pl>
 
-I'm facing incorrect using of mount flags when dealing with NFS mounts 
-and I think it could be seen as a bug.
+On Sun, 12 Mar 2006 03:04:40 +0100, Krzysztof Oledzki wrote:
 
-The error occurs when mounting the same NFS export many times, on the 
-same machine but *with different mount flags*, particularly concerning 
-RO/RW flags.
+> After upgrading to 2.6.16-rc6 I noticed this strange message:
+> 
+> More than 8 CPUs detected and CONFIG_X86_PC cannot handle it.
+> Use CONFIG_X86_GENERICARCH or CONFIG_X86_BIGSMP.
+> 
+> This is a Dell PowerEdge SC1425 with two P4 Xeons with HT enabled (so with 
+> totoal of 4 logical CPUs).
 
-As the NFS client code re-uses superblocks when it detects that it is 
-the same export (same server/same port/same exported directory) and that 
-the read-only flag is managed as a per-superblock flag, if a NFS exports 
-is mounted a second time, the superblock of the first mount is re-used 
-and the specified mount flag is ignored.
+In a later message, you wrote:
 
-# mount foo:/bar /bar_ro -o ro
-# mount foo:/bar /bar_rw -o rw
-$ touch /bar_rw/bar
-touch: cannot touch `/bar_rw/bar': Read-only file system
+> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+> Processor #0 15:4 APIC version 20
+> ACPI: LAPIC (acpi_id[0x02] lapic_id[0x06] enabled)
+> Processor #6 15:4 APIC version 20
+             ^
+> ACPI: LAPIC (acpi_id[0x03] lapic_id[0x01] enabled)
+> Processor #1 15:4 APIC version 20
+> ACPI: LAPIC (acpi_id[0x04] lapic_id[0x07] enabled)
+> Processor #7 15:4 APIC version 20
+             ^
 
-Ideally, the best solution to fix this is to move the RDONLY flag from 
-its per-superblock basis to a per-mountpoint (vfsmount) basis. I do not 
-know is there is a something that prevent that except that this implies 
-many changes as many codes do not use macros but access s_flags directly.
+What processor numbers did you get on 2.6.15.x?
+Does /proc/cpuinfo show all four CPUs?
+If you start four CPU-hungry processes, do all four show 100% utilization in top(1)?
 
-It seems quite clear that the superblock sharing couldn't be changed (to 
-avoid incoherency, inode aliasing and so on...) ?
-
-Do you have a (better) solution ?
-I can help if needed.
-
-
-Cordially
 
 -- 
-Aurelien Degremont
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"
+

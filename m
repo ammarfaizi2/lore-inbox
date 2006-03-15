@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752115AbWCOQCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752091AbWCOQEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752115AbWCOQCG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 11:02:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752116AbWCOQCG
+	id S1752091AbWCOQEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 11:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752116AbWCOQEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 11:02:06 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:25872 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1752115AbWCOQCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 11:02:05 -0500
-Message-ID: <44183A58.10506@vmware.com>
-Date: Wed, 15 Mar 2006 08:01:28 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Wed, 15 Mar 2006 11:04:45 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:37079 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1752091AbWCOQEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 11:04:45 -0500
+Date: Wed, 15 Mar 2006 11:03:16 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: State of the Linux PCI and PCI Hotplug Subsystems for	2.6.16-rc5
+In-reply-to: <Pine.LNX.4.64.0603091222130.18022@g5.osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Tomasz Torcz <zdzichu@irc.pl>, Greg KH <gregkh@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
-References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com> <20060315100210.GU12807@sorel.sous-sol.org>
-In-Reply-To: <20060315100210.GU12807@sorel.sous-sol.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+Message-id: <1142438597.10394.167.camel@grayson>
+Organization: Ubuntu
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.92
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20060306223545.GA20885@kroah.com>
+ <20060308222652.GR4006@stusta.de> <20060308225029.GA26117@suse.de>
+ <Pine.LNX.4.64.0603081502350.32577@g5.osdl.org>
+ <20060308231851.GA26666@suse.de>
+ <Pine.LNX.4.64.0603081528040.32577@g5.osdl.org> <20060309184010.GA4639@irc.pl>
+ <Pine.LNX.4.64.0603091137180.18022@g5.osdl.org>
+ <1141935002.6072.40.camel@grayson>
+ <Pine.LNX.4.64.0603091222130.18022@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Zachary Amsden (zach@vmware.com) wrote:
->   
->> +static void fixup_translation(struct vmi_annotation *a)
->> +{
->> +	unsigned char *c, *start, *end;
->> +	int left;
->> +
->> +	memcpy(a->nativeEIP, a->translationEIP, a->translation_size);
->> +	start = a->nativeEIP;
->> +	end = a->nativeEIP + a->translation_size;
->> +
->> +	for (c = start; c < end;) {
->> +		switch(*c) {
->> +			case MNEM_CALL_NEAR:
->>
->>     
-> Why these restrictions?  How do you do int $0x82, for example?
->   
+On Thu, 2006-03-09 at 12:24 -0800, Linus Torvalds wrote:
+> 
+> On Thu, 9 Mar 2006, Ben Collins wrote:
+> > 
+> > The difference between our 2.6.15 386 and 686 kernels is actually pretty
+> > huge. The 386 is M486, and UP, while our 686 kernel is M686, and SMP.
+> 
+> Ok, that's actually better than a _real_ M386. At least M486 has most of 
+> the new instructions statically. But the SMP thing obviously makes a big 
+> difference.
+> 
+> Can you get your tester to try "ctrl + scroll-lock" to see if it outputs 
+> anything?
 
-We don't.  This is the minimal set of instructions that are emitted 
-during the annotation.  The instruction sequence is only sufficient to 
-call out to the hypervisor ROM.
+Here's some screen shots of the ctrl+scroll-lock the user was able to
+get:
 
-What we want to do next is to allow the hypervisor itself to do this 
-code fixup - in effect, relinking in the local translations, which in 
-many cases would then convert to int $0x82 for inline Xen calls.
+http://librarian.launchpad.net/1687295/ctl-scroll.tar.gz
 
-Zach
+-- 
+Ubuntu     - http://www.ubuntu.com/
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+SwissDisk  - http://www.swissdisk.com/
+

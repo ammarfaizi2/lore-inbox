@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752109AbWCOWXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751991AbWCOWYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752109AbWCOWXI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752119AbWCOWXI
+	id S1751991AbWCOWYc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752117AbWCOWYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:23:08 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:28298 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1752109AbWCOWXH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:23:07 -0500
-Message-ID: <441893AB.1070300@garzik.org>
-Date: Wed, 15 Mar 2006 17:22:35 -0500
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 15 Mar 2006 17:24:32 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:53876 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751991AbWCOWYb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 17:24:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=c1YZLfWpeCbuZQr9wQQZre8wHPbP4cCm6nH6h+yL9MCNUa0r8B3et1A25DdVUM+6HbpgkoUojiCLiz/xHRxqr5WNnkFreF28wYcfnc16uy/g/qJVoSJvbIsWwhg482Srgprl7S5lIsLvO61By1QWs37/IEYgy2illFR9UDuuSW8=
+Message-ID: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
+Date: Wed, 15 Mar 2006 14:24:30 -0800
+From: "Bret Towe" <magnade@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: nfs udp 1000/100baseT issue
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost
- ticks on PM timer]
-References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <1142459152.1671.64.camel@mindpipe> <20060315215848.GB18241@elte.hu>
-In-Reply-To: <20060315215848.GB18241@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> in this particular case there's only very simple (and non-IO) 
-> instructions in that codepath (no loops either), except for 
-> ata_bmdma_status() which does IO ops: so i agree with you that the most 
-> likely candidate for the delay is the readb() or the inb() in 
-> ata_bdma_status().
-> 
-> I'm wondering which one of the two. inb()s are known to be horrible on 
-> some systems - but i've never seen them take 16 milliseconds. If it's 
-> the inb(), then that could also involve SMM mode and IO 
+a while ago i noticed a issue when one has a nfs server that has
+gigabit connection
+to a network and a client that connects to that network instead via 100baseT
+that udp connection from client to server fails the client gets a
+server not responding
+message when trying to access a file, interesting bit is you can get a directory
+listing without issue
+work around i found for this is adding proto=tcp to the client side
+and all works
+without error
+
+ive seen this on kernels as far back as 2.6.13 on my own machines
+(was around that time when i accutally got gigabit at home)
+and recently noticed on some thin clients i maintain that 2.4 kernels
+on the client side are also affected so perhaps its server side issue?
+as all servers ive seen this on are 2.6 i havent used 2.4 kernels in ages
+on my own machines so i havent looked into if 2.4 has that issue server side
+or not
+
+error message i see client side are as follows:
+nfs: server vox.net not responding, still trying
+nfs: server vox.net not responding, still trying
+nfs: server vox.net not responding, still trying
+
+server side shows no errors at all
 
 
-ata_bmdma_status() is just a single IO read, and even 1ms is highly 
-improbable.
+i was able to cat a couple files and narrow it down to it doesnt like files
+over 28504 bytes
+kernels at the moment here are client and server 2.6.15.4 but like i
+said eariler
+version seems to not matter much
 
-I'd look elsewhere.  There are a ton of udelay() calls in the legacy PCI 
-IDE BMDMA code paths (sata_nv uses these), so I'm not surprised there is 
-latency in general, in a libata+sata_nv configuration.  Status checks 
-for example (ata_busy_wait in libata.h) are basically
-
-	while (ioreadX() != condition)
-		udelay(10)
-
-That delay is mainly a "don't pound too hard on the hardware" delay.  If 
-the hardware is really slow completing a command after signalling 
-completion, you'll potentially wait up to 1000*10 us in some cases.  And 
-there are other delays, such as the per-command ndelay() plus ioread().
-
-Welcome to the wonderful world of IDE.
-
-	Jeff
-
-
+any further info needed ask
+testing i can also do but it might take me a while before i can get around to it
+took me a couple months just to get around to doing this :\

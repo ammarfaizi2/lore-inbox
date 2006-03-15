@@ -1,127 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751802AbWCOQ0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752129AbWCOQ1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751802AbWCOQ0q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 11:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752128AbWCOQ0q
+	id S1752129AbWCOQ1h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 11:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752136AbWCOQ1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 11:26:46 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.192.83]:2023 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1751802AbWCOQ0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 11:26:46 -0500
-Message-ID: <44184002.4010109@comcast.net>
-Date: Wed, 15 Mar 2006 11:25:38 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mail/News 1.5 (X11/20060309)
+	Wed, 15 Mar 2006 11:27:37 -0500
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:64573 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1752129AbWCOQ1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 11:27:36 -0500
+Message-ID: <44184075.6080000@watson.ibm.com>
+Date: Wed, 15 Mar 2006 11:27:33 -0500
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.16-rc6-rt1
-References: <20060312220218.GA3469@elte.hu>
-In-Reply-To: <20060312220218.GA3469@elte.hu>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [Patch 3/9] Block I/O accounting initialization
+References: <1142296834.5858.3.camel@elinux04.optonline.net>	 <1142297222.5858.13.camel@elinux04.optonline.net> <1142418436.3021.13.camel@laptopd505.fenrus.org>
+In-Reply-To: <1142418436.3021.13.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Arjan van de Ven wrote:
 
-So Ingo, when are we going to see these in the mainline kernel yet?  I
-am particularly interested in priority inheriting semaphores; it seems
-like brain damage to have something spin_lock() and block a higher
-priority process while other mid-priority processes (i.e. higher than
-the blocker but lower than the blocked) are given execution priority.
-As I understand, the PI code fixes this by inheriting the priority of
-the highest blocked process on a lock into whatever process is holding
-the lock, which sounds like exactly what should be happening.
+>> 
+>>+static inline void delayacct_blkio_start(void)
+>>+{
+>>+	if (unlikely(delayacct_on))
+>>+		__delayacct_blkio_start();
+>>+}
+>>    
+>>
+>
+>
+>I still think the unlikely() makes no sense here; at runtime it's either
+>going to be always on or off (in the sense that switching it will be
+>RARE). The cpus branch predictor will get that right; while if you force
+>it unlikely you can even run the risk of getting a 100% miss on some
+>architectures (not x86/x86-64) when you enable the accounting
+>
+>  
+>
+I don't understand why the fact that delayacct_on is not going to vary
+dynamically once a kernel has been booted should prevent the usage of 
+"unlikely/likely"
+Perhaps you can help me understand. Here's the logic I was using:
 
-Ingo Molnar wrote:
-> i have released the 2.6.16-rc6-rt1 tree, which can be downloaded from 
-> the usual place:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> again, lots of changes all over the map:
-> 
-> - firstly, the -rt tree has been rebased to 2.6.16-rc6, which was a more
->   complex operation than usual, due to the many changes in 2.6.16 (in 
->   particular the mutex code).
-> 
-> - the PI code got reworked again, this time by Thomas Gleixner. The
->   priority boosting chain is now instantaneous again (and not 
->   wakeup/scheduling based) - but the previous list-walking hell has been 
->   avoided via the clever use of plists. Plus many other changes and
->   lots of cleanups to the rt-mutex proper.
-> 
-> - the rt-SLAB code got reworked too - hopefully for the better.
-> 
+There are two kinds of users
 
-I have not heard anything about your SLAB code before.  Think you can
-give me a basic idea of what it's supposed to do?
+1. Those who will not turn delay accounting on at boot time for a number of
+reasons (don't care about the functionality, don't want to incur any 
+overhead
+however small).
 
-> - there's also a completely new PI-futex approach included, ontop of the
->   robust-list futex feature. All combinations of PI and robustness are
->   supported: default non-robust non-PI futexes, robust+PI, !robust+PI,
->   PI+!robust futexes.
-> 
+2. The ones who do turn it on at boot time are willing to pay some overhead
+for the benefits such functionality brings. What that overhead exactly 
+is will be known
+when we finish running some tests but we can safely assume it'll be 
+non-zero.
 
-I don't know what non-robust futex means.  Also don't you mean
-!robust+!PI (00), robust+PI (11), !robust+PI (01), robust+!PI (10)?  The
-last two on your list look to be the same thing :)
+A distro will need to keep delay accounting configured to accomodate 
+both kinds
+of users but because 1 is the common case,  the default boot time option 
+will be off and
+there is a strong incentive to reduce overhead for non-users.
 
-> - new latency tracer feature: print every function call done by the
->   kernel to the console - useful to debug early bootup hangs or other
->   nasty bugs.
-> 
-> - plus zillions of bugfixes (and no doubt new regressions).
-> 
+Using unlikely reduces the overhead for the common case 1 and increases 
+overhead for
+case 2 (because of what you pointed out of 100% wrong decisions by the 
+branch predictor).
 
-Regressions are going to be the answer to my "when is some of this going
-into mainline" question, aren't they :P
+I don't know how much of overhead reduction is achieved by using 
+unlikely (I'm assuming its
+non-trivial) or how much penalty is imposed by a 100% wrong prediction 
+(I'm assuming its not
+very high).
 
-> to build a 2.6.16-rc6-rt1 tree, the following patches should be applied:
-> 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2
->   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.16-rc6.bz2
->   http://redhat.com/~mingo/realtime-preempt/patch-2.6.16-rc6-rt1
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+But under these assumptions, its better to use unlikely, make type 2 
+users pay extra overhead
+and save type 1 users from any.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Is this reasoning accurate ? If not, we could easily switch the unlikely 
+off.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+Regards,
+Shailabh
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                                     -- Evil alien overlord from Blasto
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iQIVAwUBRBhAAAs1xW0HCTEFAQIVPw//Zi/pqBvMlu0kPIlDQ6jfe5LuU1aJ8iaV
-g/1K7G0RV+PVkUE6LFgeTwtYPBaCCjELY6aU1zQa/8pPKofOXB7Rd5PYSXqzoVtr
-n0Wdpjwkz7sTjY15b6WtfymHgPxukin8JytFzdmITuD+oYOuP5W1zfXgHnYmghpM
-QnCuEmvbmpEQmLHrLgAjpjT4h9dwbCGqMm3RWk1mE6vo08hU7P8bX+qtYJ20kOXJ
-dYh/ZU0TkFxIoa4GC1eSe+w5zawyIpldHthswwom61MXz8yb5cNfXRwv+zv1TpHW
-lvnefxkQLya1cRQME34Pb37PRnylg2TH7DRmPDxOfZ4hTFHoZ6nGWSRBIBe1PQT6
-Za+aeSqFuYKI4qevDXrzwKoEb4AqLsVdvhl/+/HB+meKI3pn0ceeAvuRv4dJsBXx
-is5eejtoc4lTzNbbOaOMyTOB6TFjdIN0opRN8HLrLkU/JR6aLyeZfaMEEA9Qasfr
-9u2Zacphepgmw9gqnVGWhhrliQP8FluE2lt+JluLDMgkbXQHnzjRrDK75c66OB3J
-a/QJH/pAtM3xIs/cqmnoOz5Exz6v42QywYoRJ5xxG0pV4e/DWLTn+fByRcZaYYo4
-2EaNChymEI8kgzKuuTByWcxzGi02zMgW5Af21QVl7sF6H1iQGQpkKIGAz0we64lK
-UW+yDCaQrTU=
-=LapY
------END PGP SIGNATURE-----
+(cc'ing Greg since he'd brought up the overhead for real benchmarks etc.)

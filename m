@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWCOVTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWCOVPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWCOVTE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 16:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWCOVTD
+	id S1751193AbWCOVPW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 16:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWCOVPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 16:19:03 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:37584 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751396AbWCOVTA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 16:19:00 -0500
-Date: Wed, 15 Mar 2006 16:13:35 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Kumar Gala <galak@kernel.crashing.org>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
-Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
-Message-ID: <20060315211335.GD25361@kvack.org>
-References: <20060315193114.GA7465@in.ibm.com> <20060315205306.GC25361@kvack.org> <46E23BE4-4353-472B-90E6-C9E7A3CFFC15@kernel.crashing.org>
-Mime-Version: 1.0
+	Wed, 15 Mar 2006 16:15:22 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:11014 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751193AbWCOVPW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 16:15:22 -0500
+Date: Wed, 15 Mar 2006 22:15:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>, mchehab@infradead.org,
+       mdharm-usb@one-eyed-alien.net, v4l-dvb-maintainer@linuxtv.org,
+       video4linux-list@redhat.com, usb-storage@lists.one-eyed-alien.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] 2.6.16-rc: saa7134 + usb-storage = freeze
+Message-ID: <20060315211519.GC4454@stusta.de>
+References: <Pine.LNX.4.44L0.0603151435340.6203-100000@iolanthe.rowland.org> <200603152118.18741.duncan.sands@math.u-psud.fr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <46E23BE4-4353-472B-90E6-C9E7A3CFFC15@kernel.crashing.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200603152118.18741.duncan.sands@math.u-psud.fr>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 03:05:30PM -0600, Kumar Gala wrote:
-> I disagree.  I think we need to look to see what the "bloat" is  
-> before we go and make start/end config dependent.
+On Wed, Mar 15, 2006 at 09:18:17PM +0100, Duncan Sands wrote:
+> > > My computer always freezes after a few minutes with the following 
+> > > workload:
+> > > - watching TV with xawtv
+> 
+> bttv?  overlay or grabdisplay?  What motherboard?
 
-Eh?  32 bit kernels get used in embedded systems, which includes those 
-with only 8MB of RAM.  The upper 32 bits will never be anything other 
-than 0.
+- saa7134
+- overlay
+- Asus A7V600-X
 
-> It seems clear that drivers dont handle the fact that "start"/"end"  
-> change an 32-bit vs 64-bit archs to begin with.  By making this even  
-> more config dependent seems to be asking for more trouble.
+> Ciao,
 
-You can't get a non-32 bit value on a 32 bit platform, so why should a 
-driver be expected to handle anything?
+cu
+Adrian
 
-		-ben
 -- 
-"Time is of no importance, Mr. President, only life is important."
-Don't Email: <dont@kvack.org>.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

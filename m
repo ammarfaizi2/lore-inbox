@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWCOUSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWCOSL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbWCOUSg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 15:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbWCOUSg
+	id S1751068AbWCOSL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 13:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWCOSL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 15:18:36 -0500
-Received: from [217.170.8.20] ([217.170.8.20]:21527 "EHLO research.newtrade.nl")
-	by vger.kernel.org with ESMTP id S1750782AbWCOUSf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 15:18:35 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.16-rc: saa7134 + usb-storage = freeze
-Date: Wed, 15 Mar 2006 21:18:17 +0100
-User-Agent: KMail/1.9.1
-Cc: Alan Stern <stern@rowland.harvard.edu>, Adrian Bunk <bunk@stusta.de>,
-       mchehab@infradead.org, mdharm-usb@one-eyed-alien.net,
-       v4l-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0603151435340.6203-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0603151435340.6203-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Mar 2006 13:11:26 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:15269 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751068AbWCOSLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 13:11:25 -0500
+Date: Wed, 15 Mar 2006 10:09:29 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Shaohua Li <shaohua.li@intel.com>, ntl@pobox.com, ashok.raj@intel.com,
+       olel@ans.pl, venkatesh.pallipadi@intel.com,
+       linux-kernel@vger.kernel.org, suresh.b.siddha@intel.com,
+       rajesh.shah@intel.com, ak@muc.de, zwane@arm.linux.org.uk
+Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on 2.6.16-rc6
+Message-ID: <20060315100928.A19557@unix-os.sc.intel.com>
+References: <20060315054416.GF3205@localhost.localdomain> <1142403500.26706.2.camel@sli10-desk.sh.intel.com> <20060314233138.009414b4.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603152118.18741.duncan.sands@math.u-psud.fr>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060314233138.009414b4.akpm@osdl.org>; from akpm@osdl.org on Tue, Mar 14, 2006 at 11:31:38PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > My computer always freezes after a few minutes with the following 
-> > workload:
-> > - watching TV with xawtv
+On Tue, Mar 14, 2006 at 11:31:38PM -0800, Andrew Morton wrote:
+> >  > see:
+> >  > 
+> >  > Subject: i386 cpu hotplug bug - instant reboot when onlining secondary
+> >  > 
+> >  > http://lkml.org/lkml/2006/2/19/186
+> >  Works for me. But I saw a warning.
+> 
+> Guys, will you please stop being so cryptic?  What worked for you?  What
+> warning?  wtf is going on?  Who owns this problem, whatever it is?
 
-bttv?  overlay or grabdisplay?  What motherboard?
+Nathan's problem is different, its nothing related to this thread.
 
-Ciao,
+Appears that a PIII box had trouble to bring a CPU back online after it was
+just offlined. Iam not able to reproduce it with the systems i have here.
+I have tried a PIII box itself, and also a x86_64 system booting a i386 kernel
+and all seems to work ok.
 
-D.
+Zwane was attempting to trace Nathan's issue with some experimental patches
+but dont think it went far along yet.
+
+
+> >  -		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
+> >  +		gdt = (struct desc_struct *)get_zeroed_page(GFP_ATOMIC);
+> 
+
+It might help to post with the actual warning, so we can understand why this
+fix is necessary.
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

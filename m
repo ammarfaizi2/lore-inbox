@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751698AbWCONAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWCONAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751698AbWCONAR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 08:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWCONAR
+	id S1751476AbWCONAO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 08:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752024AbWCONAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 08:00:17 -0500
-Received: from cantor.suse.de ([195.135.220.2]:56715 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751698AbWCONAQ (ORCPT
+	Wed, 15 Mar 2006 08:00:13 -0500
+Received: from mx1.suse.de ([195.135.220.2]:55691 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751476AbWCONAM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 08:00:16 -0500
-Date: Wed, 15 Mar 2006 12:02:52 +0100
+	Wed, 15 Mar 2006 08:00:12 -0500
+Date: Wed, 15 Mar 2006 11:37:11 +0100
 From: Stefan Seyfried <seife@suse.de>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: linux-kernel@vger.kernel.org, christiand59@web.de
-Subject: Re: /dev/stderr gets unlinked 8]
-Message-ID: <20060315110252.GB31317@suse.de>
-References: <200603141213.00077.vda@ilport.com.ua> <200603141411.11121.christiand59@web.de> <200603141535.57978.vda@ilport.com.ua>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: ck@vds.kolivas.org, Jun OKAJIMA <okajima@digitalinfra.co.jp>,
+       linux-kernel@vger.kernel.org
+Subject: Re: does swsusp suck aftre resume for you? [was Re: Re: Faster resuming of suspend technology.]
+Message-ID: <20060315103711.GA31317@suse.de>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060312213228.GA27693@rhlx01.fht-esslingen.de> <20060313100619.GA2136@elf.ucw.cz> <200603132136.00210.kernel@kolivas.org> <20060313104315.GH3495@elf.ucw.cz> <20060313111326.GA29716@rhlx01.fht-esslingen.de> <20060313113631.GA1736@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200603141535.57978.vda@ilport.com.ua>
+In-Reply-To: <20060313113631.GA1736@elf.ucw.cz>
 X-Operating-System: Novell Linux Desktop 10 (i586), Kernel 2.6.16-rc5-git9-2-default
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 03:35:57PM +0200, Denis Vlasenko wrote:
- 
-> Mysql people are strange. For example, their daemon does not want to die
-> on SIGTERM, this makes it harder to run it under daemontools.
+On Mon, Mar 13, 2006 at 12:36:31PM +0100, Pavel Machek wrote:
 
-Well, daemontools are equally strange ;-))
+> Yes, I can do mem=128M... but then, I'd prefer not to code workarounds
+> for machines noone uses any more.
 
-> Also it drops privileges BEFORE it opens logfiles (--log=xxx).
-> I cannot get it to log stuff on stderr:
-> 
-> echo "* Starting mysqld"
-> env - \
-> setuidgid root \
-> mysqld \
->     --defaults-file="$PWD/my.cnf" \
->     --user="$user" \
->     --datadir="$var/data" \
->     --tmpdir="$var/tmp" \
->     --socket="$PWD/mysql.socket" \
->     --pid-file="$PWD/mysql.pid" \
->     --skip-name-resolve \
->     --skip-innodb \
->     --skip-ndbcluster \
->     --skip-networking \
->     --log=/proc/self/fd/2 \
->     --log-slow-queries=/proc/self/fd/2 \
-> 
-> Those last two options don't work:
-> 
-> mysqld: File '/proc/self/fd/2' not found (Errcode: 13)
+I have machines that cannot be upgraded to more than 192MB and would
+like to continue using them :-)
 
-any good daemon closes stdout, stderr, stdin and does chdir(/) on startup.
-msqld might do so as well.
+> 3) Does it still suck after setting image_size to high value (no =>
+> good, we have simple fix)
+
+no matter how high you set image_size, it will never be bigger than
+~64MB on a 128MB machine, or i have gotten something seriously wrong.
 -- 
 Stefan Seyfried                  \ "I didn't want to write for pay. I
 QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."

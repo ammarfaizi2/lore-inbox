@@ -1,74 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWCOJTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWCOJYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWCOJTW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 04:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWCOJTW
+	id S932137AbWCOJYr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 04:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWCOJYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 04:19:22 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:21008 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932121AbWCOJTV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 04:19:21 -0500
-Message-ID: <4417DBE8.6070302@vmware.com>
-Date: Wed, 15 Mar 2006 01:18:32 -0800
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Wed, 15 Mar 2006 04:24:47 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:55998 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932137AbWCOJYq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 04:24:46 -0500
+Date: Wed, 15 Mar 2006 04:12:10 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [RFC] Proposed manpage additions for ptrace(2)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Michael Kerrisk <mtk-manpages@gmx.net>
+Message-ID: <200603150415_MC3-1-BAB1-D3CE@compuserve.com>
 MIME-Version: 1.0
-To: Chris Wright <chrisw@sous-sol.org>
-Cc: Gerd Hoffmann <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 7/24] i386 Vmi memory hole
-References: <200603131804.k2DI4N6s005678@zach-dev.vmware.com> <20060314064107.GK12807@sorel.sous-sol.org> <44166D6B.4090701@vmware.com> <20060314215616.GM12807@sorel.sous-sol.org> <4417454F.2080908@vmware.com> <20060315043108.GP12807@sorel.sous-sol.org> <4417CFDA.1060806@suse.de> <4417D212.20401@vmware.com> <20060315090935.GS12807@sorel.sous-sol.org>
-In-Reply-To: <20060315090935.GS12807@sorel.sous-sol.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	 charset=ISO-8859-1
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Zachary Amsden (zach@vmware.com) wrote:
->   
->> ENTRY(sysenter_entry)
->>        movl TSS_sysenter_esp0(%esp),%esp
->> sysenter_past_esp:
->>        STI
->>        pushl $(__USER_DS)
->>        pushl %ebp
->>        pushfl
->>        pushl $(__USER_CS)
->>        pushl $SYSENTER_RETURN
->>
->> SYSENTER_RETURN is a link time constant that is defined based on the 
->> location of the vsyscall page.  If the vsyscall page can move, this can 
->> not be a constant.  The reason is, this "fake" exception frame is used 
->> to return back to the EIP of the call site, and sysenter does not record 
->> the EIP of the call site.
->>     
->
-> It's only real issue for something like execshield.  For this it's easy
-> to do the fixed math since it's still at fixed address.
->
-> +       DEFINE(VSYSCALL_BASE, (PAGE_OFFSET - 2*PAGE_SIZE));
->   
+The following is what I propose to add the the manpages entry for
+ptrace(2).  Some of it came from experimentation, some from linux-kernel
+messages and the rest came from reading the source code.
 
-Ok, I'm confused.  What fixed math?  The return EIP that is pushed here 
-is used when sysenter is active and you have to IRET back to userspace.  
-If that EIP is dynamically relocatable, you can't do fixed math unless 
-you patch the pushl site dynamically.  Notable reasons for returning via 
-IRET on this fake exception frame were (until my recent submission) IOPL 
-changes, but I believe there were more.  I will have to inspect the 
-source to determine if that is still the case.
 
-Zach
+       PTRACE_GETSIGINFO
+              Retrieve  information  about  the  signal  that caused the stop.
+              Copies a siginfo_t from the child to location data in  the  par-
+              ent.
+
+       PTRACE_SETSIGINFO
+              Set signal information.  Copies a siginfo_t from  location  data
+              in the parent to the child.
+
+       PTRACE_SETOPTIONS
+              Sets  ptrace  options  from  data in the parent.  data is inter-
+              preted as a bitmask of options, which are specified by the  fol-
+              lowing (addr is ignored:)
+
+              PTRACE_O_TRACESYSGOOD
+                     When  delivering  syscall  traps, set bit 7 in the signal
+                     number (i.e. deliver (SIGTRAP | 0x80)  This makes it easy
+                     for  the  tracer  to  tell  the difference between normal
+                     traps and those caused by a syscall.
+
+              PTRACE_O_TRACEFORK
+                     Stop the child at the next fork()  call  with  SIGTRAP  |
+                     PTRACE_EVENT_FORK  <<  8  and automatically start tracing
+                     the  newly  forked  process,  which  will  start  with  a
+                     SIGSTOP.   The  pid  for the new process can be retrieved
+                     with PTRACE_GETEVENTMSG.
+
+              PTRACE_O_TRACEVFORK
+                     Stop the child at the next vfork() call  with  SIGTRAP  |
+                     PTRACE_EVENT_VFORK  <<  8 and automatically start tracing
+                     the the newly vforked process, which will  start  with  a
+                     SIGSTOP.   The  pid  for the new process can be retrieved
+                     with PTRACE_GETEVENTMSG.
+
+              PTRACE_O_TRACECLONE
+                     Stop the child at the next clone() call  with  SIGTRAP  |
+                     PTRACE_EVENT_CLONE  <<  8 and automatically start tracing
+                     the  newly  cloned  process,  which  will  start  with  a
+                     SIGSTOP.   The  pid  for the new process can be retrieved
+                     with PTRACE_GETEVENTMSG.
+
+              PTRACE_O_TRACEEXEC
+                     Stop the child at the next exec()  call  with  SIGTRAP  |
+                     PTRACE_EVENT_EXEC << 8.
+
+              PTRACE_O_TRACEVFORKDONE
+                     Stop the child at the completion of the next vfork() call
+                     with SIGTRAP | PTRACE_EVENT_VFORK_DONE << 8.
+
+              PTRACE_O_TRACEEXIT
+                     Stop the child at exit with SIGTRAP  |  PTRACE_EVENT_EXIT
+                     <<  8.   The  child’s  exit  status can be retrieved with
+                     PTRACE_GETEVENTMSG.  This stop will be done early  during
+                     process  exit  whereas  the  normal  notification is done
+                     after the process is done exiting.
+
+       PTRACE_GETEVENTMSG
+              Retrieve a message (as an unsigned long) about the ptrace  event
+              that  just  happened  to  the  location data in the parent.  For
+              PTRACE_EVENT_EXIT  this  is  the   child’s   exit   code.    For
+              PTRACE_EVENT_FORK,   PTRACE_EVENT_VFORK  and  PTRACE_EVENT_CLONE
+              this is the pid of the new process.
+
+       PTRACE_SYSEMU, PTRACE_SYSEMU_SINGLESTEP
+              For  PTRACE_SYSEMU,  continue  and  stop  on  entry  to the next
+              syscall, which will not  be  executed.   For  PTRACE_SYSEMU_SIN-
+              GLESTEP, so the same but also singlestep if not a syscall.
+
+-- 
+Chuck
+"Penguins don't come from next door, they come from the Antarctic!"

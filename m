@@ -1,121 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWCOXSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752157AbWCOXWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWCOXSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:18:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752156AbWCOXSV
+	id S1752157AbWCOXWR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 18:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752161AbWCOXWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:18:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16047 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751797AbWCOXSU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:18:20 -0500
-Date: Thu, 16 Mar 2006 00:17:55 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 9/24] i386 Vmi smp support
-Message-ID: <20060315231755.GB1919@elf.ucw.cz>
-References: <200603131805.k2DI5wlO005693@zach-dev.vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603131805.k2DI5wlO005693@zach-dev.vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 15 Mar 2006 18:22:17 -0500
+Received: from smtp108.mail.mud.yahoo.com ([209.191.85.218]:14234 "HELO
+	smtp108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752156AbWCOXWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 18:22:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=IYOxUvlHvuEbLsOJd2SJmcRum0gS90AbKAGt2uk/srPysxlQFPTw1VKQZwtXodcEg1VsQlqsCLqsay9Tb5gOOd751GxLVmnAMqvtSFGUvTc+ZNk0kFiCaQil4IhVGMMudwqkGhub+bHtVqjRwjmEYpn9RPrLXZe8zyDdKjWzMmk=  ;
+Message-ID: <4418A191.5010108@yahoo.com.au>
+Date: Thu, 16 Mar 2006 10:21:53 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com, alan@redhat.com,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4]
+References: <4417FFC2.8040909@yahoo.com.au>  <44110E93.8060504@yahoo.com.au> <16835.1141936162@warthog.cambridge.redhat.com> <14886.1142421018@warthog.cambridge.redhat.com> <17625.1142430454@warthog.cambridge.redhat.com>
+In-Reply-To: <17625.1142430454@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 13-03-06 10:05:58, Zachary Amsden wrote:
-> SMP bootstrapping support.  Just as in the physical platform model,
-> the BSP is responsible for initializing the AP state prior to execution.
-> The dependence on lots of processor state information is a design choice
-> of our implementation.  Conceivably, this could be a hypercall that
-> awakens the same start of day state on APs as on the BSP.
-> 
-> It is likely the AP startup and the start-of-day model will eventually
-> merge into a more common interface.
-> 
-> Signed-off-by: Zachary Amsden <zach@vmware.com>
-> Signed-off-by: Daniel Arai <arai@vmware.com>
+David Howells wrote:
 
-I have to admit booting virtual CPUs is easy compared to booting real
-ones :-).
+>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>
+>>>Ah, but if the cache is on the CPU side of the dotted line, does that then
+>>>mean that a write memory barrier guarantees the CPU's cache to have
+>>>updated memory?
+>>>
+>>I don't think it has to[*]. It would guarantee the _order_ in which "global
+>>memory" of this model ie. visibility for other "CPUs" see the writes,
+>>whether that visibility ultimately be implemented by cache coherency
+>>protocol or something else, I don't think matters (for a discussion of
+>>memory ordering).
+>>
+>
+>It does matter, because I have to make it clear that the effect of the memory
+>barrier usually stops at the cache, and in fact memory barriers may have no
+>visibility at all on another CPU because it's all done inside a CPU's cache,
+>until that other CPU tries to observe the results.
+>
+>
 
-> +#include <asm/io.h>
-> +#include <asm/highmem.h>
-> +#include <asm/pgtable.h>
-> +#include <vmi.h>
+But that's a cache coherency issue that is really orthogonal to the memory
+consistency one. WHY, when explaining memory consistency, do they need to
+know that a barrier "usually stops at cache" (except for alpha)?
 
-How it is possible that vmi.h is included without path?
+They already _know_ that barriers may have no visibility on any other CPU
+because you should tell them that barriers only imply an ordering over the
+horizon, nothing more (ie. they need not imply a "push").
 
-> +APState ap;
+>>If anything it confused the matter for the case of Alpha.
+>>
+>
+>Nah... Alpha is self-confusing:-)
+>
+>
 
-Please don't hide structs like this.
-> +static __init int no_ipi_broadcast(char *str)
-> +{
-> +	get_option(&str, &no_broadcast);
-> +	printk ("Using %s mode\n", no_broadcast ? "No IPI Broadcast" :
-> +											"IPI Broadcast");
+Well maybe ;) But for better or worse, it is what kernel programmers now 
+have to
+deal with.
 
-Excesive number of spaces,             I'          d            say .
+>>All the programmer needs to know is that there is some horizon (memory)
+>>beyond which stores are visible to other CPUs, and stores can travel there
+>>at different speeds so later ones can overtake earlier ones. And likewise
+>>loads can come from memory to the CPU at different speeds too, so later
+>>loads can contain earlier results.
+>>
+>
+>They also need to know that memory barriers don't imply an ordering on the
+>cache.
+>
+>
 
-> @@ -0,0 +1,51 @@
-> +/* 
-> + * include/asm-i386/mach-default/smpboot_hooks.h
-> + *
-> + * Portions Copyright 2005 VMware, Inc.
-> + */
+Why? I'm contending that this is exactly what they don't need to know.
 
-Whose are the other portions?
+>>[*] Nor would your model require a smp_wmb() to update CPU caches either, I
+>>think: it wouldn't have to flush the store buffer, just order it.
+>>
+>
+>Exactly.
+>
+>But in your diagram, given that it doesn't show the cache, you don't know that
+>the memory barrier doesn't extend through the cache and all the way to memory.
+>
+>
 
+What do you mean "extend"? I don't think that is good terminology. What 
+it does is
+provide an ordering of traffic going over the vertical line dividing CPU 
+and memory.
+It does not matter whether "memory" is actually "cache + coherency" or 
+not, just
+that the vertical line is the horizon between "visible to other CPUs" 
+and "not".
 
-> +static inline void smpboot_restore_warm_reset_vector(void)
-> +{
-> +	/*
-> +	 * Install writable page 0 entry to set BIOS data area.
-> +	 */
-> +	local_flush_tlb();
+Nick
+--
 
-Code does not seem to match the comment.
-
-> +/*
-> + * The following vectors are part of the Linux architecture, there
-> + * is no hardware IRQ pin equivalent for them, they are triggered
-> + * through the ICC by us (IPIs)
-> + */
-> +#ifdef CONFIG_X86_SMP
-> +BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
-> +BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
-> +BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
-> +#endif
-
-How is it different from CONFIG_SMP? Also please add " " after ",".
-
-> +/*
-> + * every pentium local APIC has two 'local interrupts', with a
-
-"Every Pentium"
-
-> + * soft-definable vector attached to both interrupts, one of
-> + * which is a timer interrupt, the other one is error counter
-> + * overflow. Linux uses the local APIC timer interrupt to get
-> + * a much simpler SMP time architecture:
-> + */
-
-							Pavel
-
--- 
-184:        br = new BinaryReader( fs );
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,88 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752053AbWCOADU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWCOAJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752053AbWCOADU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 19:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752059AbWCOADT
+	id S932112AbWCOAJx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 19:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752091AbWCOAJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 19:03:19 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:19145 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752053AbWCOADT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 19:03:19 -0500
-Date: Tue, 14 Mar 2006 18:06:21 -0600
-From: Jon Mason <jdmason@us.ibm.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jon Mason <jdmason@us.ibm.com>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Andi Kleen <ak@suse.de>, Muli Ben-Yehuda <MULI@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
+	Tue, 14 Mar 2006 19:09:53 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6365 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1752059AbWCOAJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 19:09:52 -0500
+Date: Tue, 14 Mar 2006 18:09:23 -0600
+From: Mark Maule <maule@sgi.com>
+To: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, Greg KH <gregkh@suse.de>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC PATCH 3/3] x86-64: Calgary IOMMU - hook it in
-Message-ID: <20060315000621.GC7699@us.ibm.com>
-References: <20060314082432.GE23631@granada.merseine.nu> <20060314082552.GF23631@granada.merseine.nu> <20060314082634.GG23631@granada.merseine.nu> <20060314230348.GC1579@elf.ucw.cz> <20060314232247.GB7699@us.ibm.com> <20060314232612.GC1785@elf.ucw.cz>
+Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
+Message-ID: <20060315000923.GC25848@sgi.com>
+References: <44172F0E.6070708@ce.jp.nec.com> <20060314215736.GV13973@stusta.de> <4417580B.2090205@ce.jp.nec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060314232612.GC1785@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4417580B.2090205@ce.jp.nec.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 12:26:12AM +0100, Pavel Machek wrote:
-> On ?t 14-03-06 17:22:48, Jon Mason wrote:
-> > On Wed, Mar 15, 2006 at 12:03:48AM +0100, Pavel Machek wrote:
-> > > On ?t 14-03-06 10:26:34, Muli Ben-Yehuda wrote:
-> > > > This patch hooks Calgary into the build and the x86-64 IOMMU
-> > > > initialization paths.
-> > > > 
-> > > > Signed-Off-By: Muli Ben-Yehuda <mulix@mulix.org>
-> > > > Signed-Off-By: Jon Mason <jdmason@us.ibm.com>
-> > > > 
-> > > > diff -Naurp --exclude-from /home/muli/w/dontdiff iommu_detected/arch/x86_64/Kconfig linux/arch/x86_64/Kconfig
-> > > > --- iommu_detected/arch/x86_64/Kconfig	2006-03-14 08:58:23.000000000 +0200
-> > > > +++ linux/arch/x86_64/Kconfig	2006-03-12 10:49:04.000000000 +0200
-> > > > @@ -372,6 +372,16 @@ config GART_IOMMU
-> > > >  	  and a software emulation used on other systems.
-> > > >  	  If unsure, say Y.
-> > > >  
-> > > > +config CALGARY_IOMMU
-> > > > +	bool "IBM x366 server IOMMU"
-> > > > +	default y
-> > > > +	depends on PCI && MPSC && EXPERIMENTAL
-> > > > +	help
-> > > > +	  Support for hardware IOMMUs in IBM's x366 server
-> > > > +	  systems. The IOMMU can be turned off at runtime with the
-> > > > +	  iommu=off parameter. Normally the kernel will make the right
-> > > 
-> > > Runtime? I think you meant boottime.
-> > 
-> > Yes, thanks for pointing it out.
-> > 
-> > > 
-> > > > +	  choice by itself.  If unsure, say Y.
-> > > 
-> > > Eh? How common are those machines?
-> > 
-> > While this code is specific to IBM's xSeries systems, it will not hurt
-> > to have it enabled on other systems.  The code is intelligent enough to 
-> > detect the existence of Calgary chips and, if not there, will go down 
-> > the standard path of no-iommu (providing that swiotlb has not been
-> > specified at boottime).  If this isn't clear enough in the description,
-> > I can remedy that.
+On Tue, Mar 14, 2006 at 06:55:55PM -0500, Jun'ichi Nomura wrote:
+> Adrian Bunk wrote:
+> >>include2/asm/msi.h: In function `ia64_msi_init':
+> >>include2/asm/msi.h:23: warning: implicit declaration of function 
+> >>`msi_register'
+> >>In file included from include2/asm/machvec.h:408,
+> >>                from include2/asm/io.h:70,
+> >>                from include2/asm/smp.h:20,
+> >>                from /build/rc6/source/include/linux/smp.h:22,
+> >>...
+> >
+> >To avoid any wrong impression:
+> >
+> >This kind of warnings isn't harmless.
+> >
+> >gcc tries to guess the prototype of the function, and if gcc guessed 
+> >wrong this can cause nasty and hard to debug runtime errors.
 > 
-> No, it was pretty clear. But unless these machines are pretty common,
-> I'd suggest users to say N. ... its like most drivers, it takes space
-> but no other harm. Still we don't want to say "say Y" on all drivers.
-
-Ah, I understand your point now.  I'll fixup the comment and default value.
-
-> ...it is not required for boot on IBM x366 machines, is it?
-
-No, it is not.
-
-Thanks,
-Jon
-
-> 								Pavel
+> Sure.
+> But for this case, gcc emits the above warning for any files
+> which includes, for example, include/linux/smp.h on ia64.
+> So while the warning is harmless, it may cause other harmful
+> warnings being overlooked.
 > 
-> -- 
-> 56:        MD5.TransformBlock( adNAME, 0, strName.IndexOf( '\0' ), adNAME, 0 );
+
+Yes, this should be cleaned up.  I'll take a look.
+
+I thought though that we had all of this compiling cleanly ... guess not.
+
+Mark

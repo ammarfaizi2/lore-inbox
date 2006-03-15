@@ -1,91 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbWCOBsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932580AbWCOBsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932590AbWCOBsc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 20:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbWCOBsc
+	id S932580AbWCOBsD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 20:48:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbWCOBsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 20:48:32 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:32746 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932581AbWCOBsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 20:48:20 -0500
-Subject: Re: [PATCH] kexec for ia64
-From: Zou Nan hai <nanhai.zou@intel.com>
-To: Khalid Aziz <khalid_aziz@hp.com>
-Cc: Fastboot mailing list <fastboot@lists.osdl.org>,
-       Linux ia64 <linux-ia64@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>, "Luck, Tony" <tony.luck@intel.com>
-In-Reply-To: <1142352485.18421.11.camel@lyra.fc.hp.com>
-References: <1142271576.10787.15.camel@lyra.fc.hp.com>
-	 <1142318909.2545.4.camel@linux-znh>
-	 <1142352485.18421.11.camel@lyra.fc.hp.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1142381233.2684.19.camel@linux-znh>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 Mar 2006 08:07:13 +0800
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Mar 2006 20:48:01 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41707 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932581AbWCOBr7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 20:47:59 -0500
+Date: Tue, 14 Mar 2006 17:47:40 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: Paul Mackerras <paulus@samba.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, alan@redhat.com, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
+In-Reply-To: <3762.1142385542@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0603141734100.3618@g5.osdl.org>
+References: <Pine.LNX.4.64.0603141609520.3618@g5.osdl.org> 
+ <17431.14867.211423.851470@cargo.ozlabs.ibm.com> <m1veujy47r.fsf@ebiederm.dsl.xmission.com>
+ <16835.1141936162@warthog.cambridge.redhat.com> <32068.1142371612@warthog.cambridge.redhat.com>
+ <2301.1142380768@warthog.cambridge.redhat.com>  <3762.1142385542@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-15 at 00:08, Khalid Aziz wrote:
-> On Tue, 2006-03-14 at 14:48 +0800, Zou Nan hai wrote:
-> > 3. Is the set ar.k0 code necessary? ar.k0 is already holding the right
-> > value.
-> 
-> Purely defensive coding to ensure new kernel does not fall on its
-> face :)
-> 
-  I am afraid purely defensive code should go through efi memory map and
-find out the ar.k0. This can be done in purgatory code, In my current
-pugatory implement, ar.k0 is take from the previous kernel, but I can
-modify it to pick the value from efi memmap if this is really a concern.
-	
-> > 
-> > 4. Is the VHPT disable code necessary? kernel will soon goes into
-> > Physical mode and the new kernel will reset VHPT walker.
-> 
-> Again, playing it safe. We do not want VHPT walker waking up at this
-> point. Instead of assuming code will not do anything that could cause
-> VHPT walker to wake up, it is better to just disable it. This way, if
-> any code makes erroneous references to a virtual address which causes
-> VHPT walker to make a TLB entry, it will simply get a page fault and we
-> can catch that. It is much harder to debug if VHPT walker silently makes
-> a TLB entry for an unexpected virtual address reference and then things
-> go wrong further down the line.
-> 
-  But we are running in physical mode, how could VHPT walker be
-invoked?	
-> > 
-> > 5. Is the PCI disable code too complex?
-> 
-> I have simplified it as much as I can. Suggestions to simplify further
-> would be appreciated.
-> > 
-   I am afraid the irq and device disable code in machine_shutdown in
-your patch will never be called because kernel has already iterate on
-each device and called the driver->shutdown method for them, and I don't
-think we need to set affinity and power state here.
 
-   Please take a look at my patch, machine_shutdown is empty except CPU
-down code. There is another function device_shootdown used at the time
-of crashing.
-> > The overall concern is I am afraid the code is too much than
-> > necessary. 
-> > 
+
+On Wed, 15 Mar 2006, David Howells wrote:
+
+> Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> After testing this kexec code for over 10,000 iterations of kexec'ing, I
-> have found not shutting devices down results in many corner cases that
-> have been fairly hard to debug. Adding all this code to shut down as
-> much of the hardware as possible has resulted in much more reliable
-> kexec code.
-  I have also tested tens of thousands round of kexec to kexec over my
-patch, I have never seem device shutdown issue.
-  
-  I still prefer small and clean kernel patch than put too much
-redundant code in kernel.
+> > That's not that different from doing
+> > 
+> > 	ptr = read a
+> > 	data = read [ptr]
+> > 
+> >   and speculating the result of the first read.
+> 
+> But that would lead to the situation I suggested (q == &b and d == a), not the
+> one Paul suggested (q == &b and d == old b) because we'd speculate on the old
+> value of the pointer, and so see it before it's updated, and thus still
+> pointing to a.
 
-  Thanks.
-Zou Nan hai
+No. If it _speculates_ the old value, and the value has actually changed 
+when it checks the speculation, it would generally result in a uarch trap, 
+and re-do of the instruction without speculation.
 
+So for data speculation to make a difference in this case, it would 
+speculate the _new_ value (hey, doesn't matter _why_ - it could be that a 
+previous load at a previous time had gotten that value), and then load the 
+old value off the new pointer, and when the speculation ends up being 
+checked, it all pans out (the speculated value matched the value when "a" 
+was actually later read), and you get a "non-causal" result.
+
+Now, nobody actually does this kind of data speculation as far as I know, 
+and there are perfectly valid arguments for why outside of control 
+speculation nobody likely will (at least partly due to the fact that it 
+would screw up existing expectations for memory ordering). It's also 
+pretty damn complicated to do. But data speculation has certainly been a 
+research subject, and there are papers on it.
+
+> > Remember: the smp_wmb() only orders on the _writer_ side. Not on the 
+> > reader side. The writer may send out the stuff in a particular order, but 
+> > the reader might see them in a different order because _it_ might queue 
+> > the bus events internally for its caches (in particular, it could end up 
+> > delaying updating a particular way in the cache because it's busy).
+> 
+> Ummm... So whilst smp_wmb() commits writes to the mercy of the cache coherency
+> system in a particular order, the updates can be passed over from one cache to
+> another and committed to the reader's cache in any order, and can even be
+> delayed:
+
+Right. You should _always_ have as a rule of thinking that a "smp_wmb()" 
+on one side absolutely _has_ to be paired with a "smp_rmb()" on the other 
+side. If they aren't paired, something is _wrong_.
+
+Now, the data-dependent reads is actually a very specific optimization 
+where we say that on certain architectures you don't need it, so we relax 
+the rule to be "the reader has to have a smp_rmb() _or_ a 
+smp_read_barrier_depends(), where the latter is only valid if the address 
+of the dependent read depends directly on the first one".
+
+But the read barrier always has to be there, even though it can be of the 
+"weaker" type.
+
+And note that the address really has to have a _data_ dependency, not a 
+control dependency. If the address is dependent on the first read, but the 
+dependency is through a conditional rather than actually reading the 
+address itself, then it's a control dependency, and existing CPU's already 
+short-circuit those through branch prediction.
+
+			Linus

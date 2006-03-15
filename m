@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752161AbWCOXb6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752167AbWCOXdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752161AbWCOXb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:31:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752163AbWCOXb6
+	id S1752167AbWCOXdq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 18:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752163AbWCOXdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:31:58 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:51894 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1752161AbWCOXb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:31:56 -0500
+	Wed, 15 Mar 2006 18:33:46 -0500
+Received: from xproxy.gmail.com ([66.249.82.203]:62114 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751295AbWCOXdo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 18:33:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=KIAvgRXtdAMIo+goLssxa+qFocyr7lwTsO6cNauXzXnxfTC2PnC0gQSGkQQcPb28xCoNRjEI3UnQnlzD/J+qsCqUsY7AJ2ZvRqXiXvn5VYAkK9Bim45+x4T9RG0pzOKXK0+qV56CeYQwjBooCgxRZgOijMXlFORBb7iRVbrSMcI=  ;
-Message-ID: <4418A3DC.9010809@yahoo.com.au>
-Date: Thu, 16 Mar 2006 10:31:40 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050927 Debian/1.7.8-1sarge3
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WQ2pg0oCSRWzQvNLGSazR1XDQ/BtvO27U+/q729Zj+MI4PWAT4X7S8Q6RUGgovTr7OH6fYIDCEXeqsuEXkb+QV86IgSfr313Z2ZTBTYled1fsF8+lfI+fPzD2iyzpylHoroOcwCDiVZxkJgPseJa0H6mc778711h7xmPShw27eo=
+Message-ID: <4807377b0603151533i6a693d99ycdab71fe0a21dc4c@mail.gmail.com>
+Date: Wed, 15 Mar 2006 15:33:43 -0800
+From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH]: e1000 endianness bugs
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jeff@garzik.org,
+       cramerj@intel.com, john.ronciak@intel.com,
+       "Jesse Brandeburg" <jesse.brandeburg@intel.com>
+In-Reply-To: <20060315.142628.28661597.davem@davemloft.net>
 MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ORMAP
-References: <44178429.90808@comcast.net> <44180784.6020608@yahoo.com.au> <44183E75.3080406@comcast.net>
-In-Reply-To: <44183E75.3080406@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060315.142628.28661597.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
+On 3/15/06, David S. Miller <davem@davemloft.net> wrote:
+>
+>         return -E_NO_BIG_ENDIAN_TESTING;
+>
+> [E1000]: Fix 4 missed endianness conversions on RX descriptor fields.
+>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
 
->Nick Piggin wrote:
->
->>2.6 has an object based rmap system working nicely for quite
->>a while now (though it was probably not exactly what you saw
->>in the -wli tree, but a derivative).
->>
->>It would be surprising if that made your system boot 3 times
->>faster though (unless it was on the edge of a swap storm or
->>something)
->>
->
->Dramatization.  It was probably around 30 seconds faster on a 2-3 minute
->boot sequence (I had a lot in rc.d), but it was noticeable :P
->
->I was wondering about that stuff.  There used to be a few cute things
->out there but I can't remember any of it now.  Page clustering etc etc.
->
->
+Yep, those look like bugs to me, thanks and congratulations, you're
+the first person to test our PCI Express adapters in a big endian
+system (they haven't been available before, and we don't have one,
+yet)
 
-Well I don't think any of that stuff was simply forgotten. Page 
-clustering for
-i386, for example became less important because of objrmap, reductions 
-in size
-of struct page, and the demise of insane highmem machines (due to x86-64).
-
-Nick
---
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Acked-by: Jesse Brandeburg <jesse.brandeburg@intel.com>

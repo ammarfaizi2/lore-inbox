@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWCOT5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWCOUKb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWCOT5t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 14:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWCOT5t
+	id S1750709AbWCOUKb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 15:10:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWCOUKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 14:57:49 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19144 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750792AbWCOT5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 14:57:49 -0500
-Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in
-	"struct resource"
-From: Arjan van de Ven <arjan@infradead.org>
-To: vgoyal@in.ibm.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Wed, 15 Mar 2006 15:10:31 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:57490 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1750709AbWCOUKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 15:10:30 -0500
+In-Reply-To: <C6CFDF8E-CE60-4FCD-AC17-72DC83E8521C@kernel.crashing.org>
+References: <20060315193114.GA7465@in.ibm.com> <1142452665.3021.43.camel@laptopd505.fenrus.org> <C6CFDF8E-CE60-4FCD-AC17-72DC83E8521C@kernel.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <BF3D7562-5CDA-471E-A490-5AB0531D916F@kernel.crashing.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, vgoyal@in.ibm.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Fastboot mailing list <fastboot@lists.osdl.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
-In-Reply-To: <20060315193114.GA7465@in.ibm.com>
-References: <20060315193114.GA7465@in.ibm.com>
-Content-Type: text/plain
-Date: Wed, 15 Mar 2006 20:57:45 +0100
-Message-Id: <1142452665.3021.43.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
+Date: Wed, 15 Mar 2006 14:10:59 -0600
+To: Kumar Gala <galak@kernel.crashing.org>
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> One of the possible solutions to this problem is that expand the size
-> of "start" and "end" to "unsigned long long". But whole of the PCI and
-> driver code has been written assuming start and end to be unsigned long
-> and compiler starts throwing warnings. 
+On Mar 15, 2006, at 2:01 PM, Kumar Gala wrote:
 
+>
+> On Mar 15, 2006, at 1:57 PM, Arjan van de Ven wrote:
+>
+>>
+>>> One of the possible solutions to this problem is that expand the  
+>>> size
+>>> of "start" and "end" to "unsigned long long". But whole of the  
+>>> PCI and
+>>> driver code has been written assuming start and end to be  
+>>> unsigned long
+>>> and compiler starts throwing warnings.
+>>
+>>
+>> please use dma_addr_t then instead of unsigned long long
+>>
+>> this is the right size on all platforms afaik (could a ppc64 person
+>> verify this?> ;)
+>
+> Actually we really just want "start" and "end" to be u64 on all  
+> platforms.  Linus was ok with this change but no one has gone  
+> through and fixed everything that would be required for it.
 
-please use dma_addr_t then instead of unsigned long long
+As my memory comes back to me on this.  I also believe that Andrew  
+asked me for size comparisons between a kernel using 32-bit start/end  
+and 64-bit start/end on a 32-bit machine for a allyesconfig build.  I  
+don't believe I ever got around to doing this or reporting the  
+numbers to him.  It would be useful to have both code size  
+differences and run time (if possible).
 
-this is the right size on all platforms afaik (could a ppc64 person
-verify this?> ;)
-
+- kumar

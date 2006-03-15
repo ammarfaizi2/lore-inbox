@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWCOOzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWCOO5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWCOOzt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 09:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWCOOzt
+	id S932198AbWCOO5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 09:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWCOO5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 09:55:49 -0500
-Received: from ns.firmix.at ([62.141.48.66]:37042 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750922AbWCOOzs (ORCPT
+	Wed, 15 Mar 2006 09:57:38 -0500
+Received: from ns.firmix.at ([62.141.48.66]:37810 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932198AbWCOO5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 09:55:48 -0500
+	Wed, 15 Mar 2006 09:57:38 -0500
 Subject: Re: [PATCH] modpost: fix buffer overflow
 From: Bernd Petrovitsch <bernd@firmix.at>
 To: Jiri Benc <jbenc@suse.cz>
@@ -17,8 +17,8 @@ In-Reply-To: <20060315154436.4286d2ab@griffin.suse.cz>
 References: <20060315154436.4286d2ab@griffin.suse.cz>
 Content-Type: text/plain
 Organization: Firmix Software GmbH
-Date: Wed, 15 Mar 2006 15:55:29 +0100
-Message-Id: <1142434529.17627.2.camel@tara.firmix.at>
+Date: Wed, 15 Mar 2006 15:57:28 +0100
+Message-Id: <1142434648.17627.5.camel@tara.firmix.at>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -50,8 +50,14 @@ On Wed, 2006-03-15 at 15:44 +0100, Jiri Benc wrote:
 >  		buf->p = realloc(buf->p, buf->size);
 >  	}
 
-Are you sure you won't pull the line with realloc() out of the loop and
-do it once afterwards?
+Silly me. To make it more obvious whatz I really meant was:
+----  snip  ----
+	if (buf->size - buf->pos < len + 1) {
+		while (buf->size - buf->pos < len + 1)
+			buf->size += 128;
+		buf->p = realloc(buf->p, buf->size);
+	}
+----  snip  ----
 
 	Bernd
 -- 

@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWCOVsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWCOVvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWCOVsh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 16:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWCOVsg
+	id S1750738AbWCOVvi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 16:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWCOVvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 16:48:36 -0500
-Received: from smtp.uaf.edu ([137.229.34.30]:6919 "EHLO smtp.uaf.edu")
-	by vger.kernel.org with ESMTP id S1751038AbWCOVsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 16:48:36 -0500
-From: Joshua Kugler <joshua.kugler@uaf.edu>
-Organization: UAF Center for Distance Education - IT
-To: linux-kernel@vger.kernel.org
-Subject: Bug in 2.6.16-rc6 RAID size reporting
-Date: Wed, 15 Mar 2006 12:48:29 -0900
-User-Agent: KMail/1.7.2
+	Wed, 15 Mar 2006 16:51:38 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61655 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750738AbWCOVvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 16:51:37 -0500
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Kumar Gala <galak@kernel.crashing.org>, Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
+Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in
+ "struct resource"
+References: <20060315193114.GA7465@in.ibm.com>
+	<20060315205306.GC25361@kvack.org>
+	<46E23BE4-4353-472B-90E6-C9E7A3CFFC15@kernel.crashing.org>
+	<20060315211335.GD25361@kvack.org>
+	<m1y7zbe6rn.fsf@ebiederm.dsl.xmission.com>
+	<20060315212841.GE25361@kvack.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 15 Mar 2006 14:50:24 -0700
+In-Reply-To: <20060315212841.GE25361@kvack.org> (Benjamin LaHaise's message
+ of "Wed, 15 Mar 2006 16:28:41 -0500")
+Message-ID: <m1fylje5sv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603151248.29893.joshua.kugler@uaf.edu>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In my quest to get some stability in my system with large RAID devices, I 
-installed mdadm 2.3.1 and compiled and installed 2.6.16-rc6.
+Benjamin LaHaise <bcrl@kvack.org> writes:
 
-Ran this command:
+> On Wed, Mar 15, 2006 at 02:29:32PM -0700, Eric W. Biederman wrote:
+>> If the impact is very slight or unmeasurable this means the option
+>> needs to fall under CONFIG_EMBEDDED, where you can change if
+>> every last bit of RAM counts but otherwise you won't care.
+>
+> But we have a data type that is correct for this usage: dma_addr_t.
 
-mdadm -C /dev/md1 --auto=yes -l raid1 -n 2 /dev/etherd/e0.0 /dev/etherd/e1.0
+Well the name is wrong.  Because these are in general not DMA addresses,
+but it may have the other desired properties.  So it may be
+useable.
 
-Those are AoE devices, by the way.
+>> Having > 32bit values on a 32bit platform is not the issue.
+>> 
+>> Some drivers appear to puke simply because the value is 64bit.  Which
+>> means the driver will have problems on any 64bit kernel.  That kind
+>> of behavior is worth purging.
+>
+> Forcing it to be a 64 bit value doesn't fix that problem, so that isn't 
+> a valid excuse for adding bloat.
 
-Started fine, syncing at 43000K/sec or so.  Came in this morning, 
-and /proc/mdstat had this to report:
+It doesn't fix it but it finds it.  Which is half the battle.  Once
+the existing references are fixed up it makes it hard to introduce new
+breakage like that, because more people see it.
 
-Personalities : [raid1] 
-md1 : active raid1 etherd/e1.0[1] etherd/e0.0[0]
-      5469958900 blocks super 1.0 [2/2] [UU]
-      [==========================================================>]  resync 
-=292.8% (3440402688/1174991604) finish=785.8min speed=43043K/sec
+As for bloat this assumes there will be some measurable bloat.
+Resources are used in such a limited fashion I will be surprised if
+you can measure any bloat.
 
-You'll notice that it says 5469958900 blocks, but 3440402688/1174991604 done.  
-Oops.
-
-I tried this with two 400GB drives:
-
-mdadm -C /dev/md2 --auto=yes -l raid1 -n 2 /dev/sdc /dev/sdd
-
-And they report correctly:
-
-md2 : active raid1 sdd[1] sdc[0]
-      390711296 blocks [2/2] [UU]
-      [=>...................]  resync =  8.1% (31782144/390711296) 
-finish=152.8min speed=39133K/sec
-
-Line 4045, and following,  in drivers/md/md.c seems to be the offending code:
-
-if (test_bit(MD_RECOVERY_SYNC, &mddev->recovery))
-	max_blocks = mddev->resync_max_sectors >> 1;
-else
-	max_blocks = mddev->size;
-
-Should max_blocks be mddev->size even if it is resyncing?
-
-The resyncing isn't done, so I can't tell you if the block count is correct 
-after it's done.  I'll let you know as soon as it's done (about 37 hours, 
-since I had to do a hard reboot due to another unrelated issue...i.e. 
-PEBKAC).
-
-j----- k-----
-
--- 
-Joshua Kugler                 PGP Key: http://pgp.mit.edu/
-CDE System Administrator             ID 0xDB26D7CE
-http://distance.uaf.edu/
+Eric

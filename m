@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWCOOac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWCOOdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWCOOac (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 09:30:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751941AbWCOOac
+	id S932428AbWCOOdI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 09:33:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCOOdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 09:30:32 -0500
-Received: from cernmx08.cern.ch ([137.138.166.172]:58823 "EHLO
-	cernmxlb.cern.ch") by vger.kernel.org with ESMTP id S1751271AbWCOOab
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 09:30:31 -0500
-DomainKey-Signature: a=rsa-sha1; c=nofws; s=beta; d=cern.ch; q=dns; 
-	h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding;
-	b=Q+NcVXPKhPFHTIJJoHt/XO77n8u/az/to3FcJ31OmKNrTCgUPu/fPiHFPLysHI6lmvx1oc4MJZVASbA9577er5Aih71wgb1ih1OFVNnaoPy1PUjG6lZ2cKbGDYHIpxwq;
-Keywords: CERN SpamKiller Note: -50 Charset: west-latin
-X-Filter: CERNMX08 CERN MX v2.0 051012.1312 Release
-Message-ID: <44182505.3090604@cern.ch>
-Date: Wed, 15 Mar 2006 15:30:29 +0100
-From: Jiri Tyr <jiri.tyr@cern.ch>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20060128)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sami Farin <7atbggg02@sneakemail.com>
-CC: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
-Subject: Re: PROBLEM: four bttv tuners in one PC crashed
-References: <440C5672.7000009@cern.ch> <200603061656.18846.duncan.sands@math.u-psud.fr> <440D7384.5030307@cern.ch> <200603071332.19614.baldrick@free.fr> <4417D4ED.6010808@cern.ch> <20060315142148.GD20607@m.safari.iki.fi>
-In-Reply-To: <20060315142148.GD20607@m.safari.iki.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Mar 2006 14:30:26.0618 (UTC) FILETIME=[008E79A0:01C6483D]
+	Wed, 15 Mar 2006 09:33:07 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:2099 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932428AbWCOOdG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 09:33:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=gF2bFUtPZ1sTNKhgMT6+C1SyC9Vo0LhxbvcoJrTuFLBWxv80x/9sqcM01069wr/ZCMjfp9G8Yj2TNYWJzXxipCMolkph2g1XCexMwwzKxwGNZMe2eNK4FuLeNitRx3LPXG31zPKgJAreaxrJ2D3F2wa9kVv12OXKHQHhkDrpT+k=
+Date: Wed, 15 Mar 2006 17:33:01 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: PATCH: rio driver rework continued  #2
+Message-ID: <20060315143301.GA7790@mipter.zuzino.mipt.ru>
+References: <1142425657.5597.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142425657.5597.13.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sami Farin wrote:
+On Wed, Mar 15, 2006 at 12:27:36PM +0000, Alan Cox wrote:
+> First large chunk of code cleanup. The split between this and #3 and #4
+> is fairly arbitary and due to the message length limit on the list.
+> These patches continue the process of ripping out macros and typedefs
+> while cleaning up lots of 32bit assumptions. Several inlines for
+> compatibility also get removed and that causes a lot of noise.
 
->I didn't change xawtv configs, and
->1) with the patch system did not crash
->2) without the patch system crashed
+> --- linux.vanilla-2.6.16-rc6-mm1/drivers/char/rio/rioparam.c
+> +++ linux-2.6.16-rc6-mm1/drivers/char/rio/rioparam.c
+> @@ -247,7 +240,7 @@
+>  	}
 >
->draw your own conclusions.
->  
->
-OK, I will wait for the change in the kernel.
+>  	rio_dprintk(RIO_DEBUG_PARAM, "can_add_transmit() returns %x\n", res);
+> -	rio_dprintk(RIO_DEBUG_PARAM, "Packet is 0x%x\n", (int) PacketP);
+> +	rio_dprintk(RIO_DEBUG_PARAM, "Packet is 0x%p\n", PacketP);
+						^^^^
 
->and
->3) if xawtv is able to crash kernel, kernel needs fixing.
->  
->
-It is strange, but manipulation with the channel list (longer then 15 
-items) in XAWTV made not only solide lock of the kernel, but also 
-sometimes only crash of the USB driver or PS2 keyboard driver. I think 
-there is (was - not with your patch?) something wrong in the kernel. 
-Maybe some memory problem.
+Just %p.
 
-Jiri
+> @@ -466,10 +459,10 @@
+>  	rio_dprintk(RIO_DEBUG_TTY, "port close SysPort %d\n", PortP->PortNum);
+>
+>  	/* PortP = p->RIOPortp[SysPort]; */
+> -	rio_dprintk(RIO_DEBUG_TTY, "Port is at address 0x%x\n", (int) PortP);
+> +	rio_dprintk(RIO_DEBUG_TTY, "Port is at address 0x%p\n", PortP);
+>  	/* tp = PortP->TtyP; *//* Get tty */
+>  	tty = PortP->gs.tty;
+> -	rio_dprintk(RIO_DEBUG_TTY, "TTY is at address 0x%x\n", (int) tty);
+> +	rio_dprintk(RIO_DEBUG_TTY, "TTY is at address 0x%p\n", tty);
+
+Ditto.
+

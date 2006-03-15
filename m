@@ -1,88 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWCOKyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWCOLKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWCOKyR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 05:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWCOKyR
+	id S1751752AbWCOLKn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 06:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWCOLKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 05:54:17 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:61854 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1750824AbWCOKyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 05:54:17 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: New libata PATA patch for 2.6.16-rc1
-Date: Wed, 15 Mar 2006 11:54:11 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-References: <1142262431.25773.25.camel@localhost.localdomain> <200603132331.33129.prakash@punnoor.de>
-In-Reply-To: <200603132331.33129.prakash@punnoor.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart12556140.J4trOCrX8s";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603151154.15691.prakash@punnoor.de>
+	Wed, 15 Mar 2006 06:10:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16595 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751379AbWCOLKm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 06:10:42 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <44110E93.8060504@yahoo.com.au> 
+References: <44110E93.8060504@yahoo.com.au>  <16835.1141936162@warthog.cambridge.redhat.com> 
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       mingo@redhat.com, alan@redhat.com, linux-arch@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
+X-Mailer: MH-E 7.92+cvs; nmh 1.1; GNU Emacs 22.0.50.4
+Date: Wed, 15 Mar 2006 11:10:18 +0000
+Message-ID: <14886.1142421018@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart12556140.J4trOCrX8s
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Am Montag M=C3=A4rz 13 2006 23:31 schrieb Prakash Punnoor:
-> Hi,
->
-> I tried your ide1 patch with 2.6.16-rc6 and NFORCE2 board, thus using the
-> AMD driver (and sil sata driver).
+> Isn't the Alpha's split caches a counter-example of your model,
+> because the coherency itself is out of order?
 
-[...]
+I'd forgotten I need to adjust my documentation to deal with this. It seems
+this is the reason for read_barrier_depends(), and that read_barrier_depends()
+is also a partial cache sync.
 
-> I will see how the DVD+RW drive behaves and let you know whether it makes
-> troubles. :-)
+Do you know of any docs on Alpha's split caches? The Alpha Arch Handbook
+doesn't say very much about cache operation on the Alpha.
 
-Ok, I am having some troubles burning CDs/DVDs. I am using k3b as front-end=
-=20
-and it has troubles to detect the type of disc inserted. If you eg insert a=
-=20
-cd-rw the dialog changes the detected medium around (about each second):=20
-cd-rom, cd-rw, etc. Same with DVD+R. It detects DVD+R, waiting a second, th=
-an=20
-appendable DVD+R etc. But then it thinks it is a RW so it wants to=20
-blank/format/whatever it and this breaks, ie. I can't start the burning. It=
-=20
-worked fine with a DVD+RW though. And ignoring the message and blanking in=
-=20
-menu, I could also write a cd-rw.
+I've looked around for what exactly is meant by "split cache" in conjunction
+with Alpha CPUs, and I've found three different opinions of what it means:
 
+ (1) Separate Data and Instruction caches.
 
-I am not sure what is causing the problem. Could dbus/hal be also trouble=20
-makers? I don't know whether k3b is making something stupid, as well. Last=
-=20
-time I tried I had no problem with the ide driver though. So I don't know=20
-whether ATAPI support in libata still needs polishing or whether Alan's PAT=
-A=20
-patch is missing something or whatever...
+ (2) Serial data caches (CPU -> L1 Cache -> L2 Cache -> L3 Cache -> Memory).
 
+ (3) Parallel linked data caches, where a CPU's request can be satisfied by
+     either data cache, in which whilst one data cache is being interrogated by
+     the CPU, the other one can use the memory bus (at least, that's what I
+     understand).
 
-What infos should I provide to make diagnosis easier?
-=2D-=20
-(=C2=B0=3D                 =3D=C2=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+> Why do you need to include caches and queues in your model? Do
+> programmers care? Isn't the following sufficient...
 
---nextPart12556140.J4trOCrX8s
-Content-Type: application/pgp-signature
+I don't think it is sufficient, given the number of times the way the cache
+interacts with everything has come up in this discussion.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+>          :    | m |
+>    CPU -----> | e |
+>          :    | m |
+>          :    | o |
+>    CPU -----> | r |
+>          :    | y |
+> 
+> ... and bugger the implementation details?
 
-iD8DBQBEF/JXxU2n/+9+t5gRAqbsAJ923SsWGSRU5jDnKvYeJg6ZSZuAlQCgyViK
-aI74qx5qY6MZDwxHuSRQ8rM=
-=UFOw
------END PGP SIGNATURE-----
+Ah, but if the cache is on the CPU side of the dotted line, does that then mean
+that a write memory barrier guarantees the CPU's cache to have updated memory?
 
---nextPart12556140.J4trOCrX8s--
+David

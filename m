@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752038AbWCPCBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWCPCHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752038AbWCPCBK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 21:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752040AbWCPCBK
+	id S1750725AbWCPCHp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 21:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWCPCHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 21:01:10 -0500
-Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:37942 "EHLO
-	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
-	id S1752038AbWCPCBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 21:01:09 -0500
-Date: Thu, 16 Mar 2006 10:00:07 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: Fix gus_pcm dereference before NULL
-To: linux-kernel@vger.kernel.org
-Cc: Jaroslav Kysela <perex@suse.cz>
-Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
-Message-id: <20060316020007.GA20734@eugeneteo.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
-X-Operating-System: Debian GNU/Linux 2.6.16-rc6
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 15 Mar 2006 21:07:44 -0500
+Received: from ftp.linux-mips.org ([194.74.144.162]:9434 "EHLO
+	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1750725AbWCPCHo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 21:07:44 -0500
+Date: Wed, 15 Mar 2006 23:38:11 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Philippe De Muyter <phdm@macqel.be>
+Cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: PATCH m68knommu clear frame-pointer in start_thread
+Message-ID: <20060315233810.GA4605@linux-mips.org>
+References: <200603151647.k2FGl7Y04736@mail.macqel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603151647.k2FGl7Y04736@mail.macqel.be>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-substream is dereferenced before checking for NULL.
+On Wed, Mar 15, 2006 at 05:47:07PM +0100, Philippe De Muyter wrote:
 
-Coverity bug #861
+> When trying to print the calltrace of a user process on m68knommu targets
+> gdb follows the frame-pointer en falls on unreachable adresses, because
+> the frame pointer is not properly initialised by start_thread. This patch
+> initialises the frame pointer to NULL in start_thread.
+> 
+> Signed-off-by: Philippe De Muyter <phdm@macqel.be>
 
-Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+You've posted an ed-style diff.  Quite a safe method to make sure nobody
+will read it.  Pleae repost a unified diff.
 
---- linux-2.6/sound/isa/gus/gus_pcm.c~	2006-03-15 10:05:45.000000000 +0800
-+++ linux-2.6/sound/isa/gus/gus_pcm.c	2006-03-16 09:51:43.000000000 +0800
-@@ -103,8 +103,8 @@
- 
- static void snd_gf1_pcm_trigger_up(struct snd_pcm_substream *substream)
- {
--	struct snd_pcm_runtime *runtime = substream->runtime;
--	struct gus_pcm_private *pcmp = runtime->private_data;
-+	struct snd_pcm_runtime *runtime;
-+	struct gus_pcm_private *pcmp;
- 	struct snd_gus_card * gus = pcmp->gus;
- 	unsigned long flags;
- 	unsigned char voice_ctrl, ramp_ctrl;
-@@ -114,8 +114,10 @@
- 	unsigned char pan;
- 	unsigned int voice;
- 
--	if (substream == NULL)
-+	if (substream == NULL || substream->runtime == NULL)
- 		return;
-+	runtime = substream->runtime;
-+	pcmp = runtime->private_data;
- 	spin_lock_irqsave(&pcmp->lock, flags);
- 	if (pcmp->flags & SNDRV_GF1_PCM_PFLG_ACTIVE) {
- 		spin_unlock_irqrestore(&pcmp->lock, flags);
-
--- 
-1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
-
+  Ralf

@@ -1,28 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWCOTrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWCOVFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWCOTrs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 14:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWCOTrs
+	id S1751359AbWCOVFA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 16:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWCOVFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 14:47:48 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:50320 "EHLO
+	Wed, 15 Mar 2006 16:05:00 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:45977 "EHLO
 	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1750771AbWCOTrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 14:47:47 -0500
-In-Reply-To: <20060315193114.GA7465@in.ibm.com>
-References: <20060315193114.GA7465@in.ibm.com>
+	id S1751359AbWCOVE7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 16:04:59 -0500
+In-Reply-To: <20060315205306.GC25361@kvack.org>
+References: <20060315193114.GA7465@in.ibm.com> <20060315205306.GC25361@kvack.org>
 Mime-Version: 1.0 (Apple Message framework v746.3)
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <377D0492-8F52-4295-8D3B-A1ED8E24A13A@kernel.crashing.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+Message-Id: <46E23BE4-4353-472B-90E6-C9E7A3CFFC15@kernel.crashing.org>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
        Fastboot mailing list <fastboot@lists.osdl.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
 Content-Transfer-Encoding: 7bit
 From: Kumar Gala <galak@kernel.crashing.org>
 Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
-Date: Wed, 15 Mar 2006 13:48:18 -0600
-To: vgoyal@in.ibm.com
+Date: Wed, 15 Mar 2006 15:05:30 -0600
+To: Benjamin LaHaise <bcrl@kvack.org>
 X-Mailer: Apple Mail (2.746.3)
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
@@ -36,72 +37,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mar 15, 2006, at 1:31 PM, Vivek Goyal wrote:
+On Mar 15, 2006, at 2:53 PM, Benjamin LaHaise wrote:
 
-> Hi,
+> On Wed, Mar 15, 2006 at 02:31:14PM -0500, Vivek Goyal wrote:
+>> Is there a reason why "start" and "end" field of "struct resource"  
+>> are of
+>> type unsigned long. My understanding is that "struct resource" can  
+>> be used
+>> to represent any system resource including physical memory. But  
+>> unsigned
+>> long is not suffcient to represent memory more than 4GB on PAE  
+>> systems.
+>> and compiler starts throwing warnings.
 >
-> Is there a reason why "start" and "end" field of "struct resource"  
-> are of
-> type unsigned long. My understanding is that "struct resource" can  
-> be used
-> to represent any system resource including physical memory. But  
-> unsigned
-> long is not suffcient to represent memory more than 4GB on PAE  
-> systems.
->
-> Currently /proc/iomem exports physical memory also apart from io  
-> device
-> memory. But on i386, it truncates any memory more than 4GB. This leads
-> to problems for kexec/kdump.
->
-> - Kexec reads /proc/iomem to determine the system memory layout and  
-> prepares
->   a memory map based on that and passes it to the kernel being  
-> kexeced. Given
->   the fact that memory more than 4GB has been truncated, new kernel  
-> never
->   gets to see and use that memory.
->
-> - Kdump also reads /proc/iomem to determine the physical memory  
-> layout of
->   the system and encodes this informaiton in ELF headers. After a  
-> crash
->   new kernel parses these ELF headers being used by previous kernel  
-> and
->   vmcore is prepared accordingly. As memory more than 4GB has been  
-> truncated,
->   kdump never sees that memory and never prepares ELF headers for  
-> it. Hence
->   vmcore is truncated and limited to 4GB even if there is more  
-> physical
->   memory in the system.
->
-> One of the possible solutions to this problem is that expand the size
-> of "start" and "end" to "unsigned long long". But whole of the PCI and
-> driver code has been written assuming start and end to be unsigned  
-> long
-> and compiler starts throwing warnings.
->
-> I am attaching a prototype patch which does minimal changes to make  
-> memory
-> more than 4GB appear in /proc/iomem. It does not take care of  
-> modifying
-> in tree drivers to supress warnings.
->
-> Looking for your suggestion what's the best way to handle this  
-> issue. If
-> above approach seems reasonable then I can go ahead and do the changes
-> for in tree drivers to handle the warnings.
->
-> Thanks
-> Vivek
-> -
+> Please make this depend on the kernel being compiled with PAE.  We  
+> don't
+> need to bloat 32 bit kernels needlessly.
 
-Your patch is insufficient.  You really need to audit all the users  
-of "struct resource".  If you search the lkml archives you will see  
-that Deepak Saxena, GregKH, and myself have taken stabs at this.  You  
-should start with Greg's patch which I'm guessing is rather out of  
-date now.
+I disagree.  I think we need to look to see what the "bloat" is  
+before we go and make start/end config dependent.
+
+It seems clear that drivers dont handle the fact that "start"/"end"  
+change an 32-bit vs 64-bit archs to begin with.  By making this even  
+more config dependent seems to be asking for more trouble.
 
 - kumar
-

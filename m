@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWCOHea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbWCOHmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWCOHea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 02:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWCOHea
+	id S932118AbWCOHmE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 02:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCOHmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 02:34:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41682 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750954AbWCOHe3 (ORCPT
+	Wed, 15 Mar 2006 02:42:04 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50904 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932118AbWCOHmD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 02:34:29 -0500
-Date: Tue, 14 Mar 2006 23:31:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: ntl@pobox.com, ashok.raj@intel.com, olel@ans.pl,
-       venkatesh.pallipadi@intel.com, linux-kernel@vger.kernel.org,
-       suresh.b.siddha@intel.com, rajesh.shah@intel.com, ak@muc.de
-Subject: Re: More than 8 CPUs detected and CONFIG_X86_PC cannot handle it on
- 2.6.16-rc6
-Message-Id: <20060314233138.009414b4.akpm@osdl.org>
-In-Reply-To: <1142403500.26706.2.camel@sli10-desk.sh.intel.com>
-References: <20060315054416.GF3205@localhost.localdomain>
-	<1142403500.26706.2.camel@sli10-desk.sh.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Mar 2006 02:42:03 -0500
+Date: Tue, 14 Mar 2006 23:41:15 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6-mm1
+Message-ID: <20060315074115.GC5620@us.ibm.com>
+References: <20060312031036.3a382581.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060312031036.3a382581.akpm@osdl.org>
+X-Operating-System: Linux 2.6.16-rc6-i386 (i686)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shaohua Li <shaohua.li@intel.com> wrote:
->
-> On Wed, 2006-03-15 at 13:44 +0800, Nathan Lynch wrote:
->  > Ashok Raj wrote: 
->  > > On Mon, Mar 13, 2006 at 02:22:23PM -0800, Andrew Morton wrote: 
->  > > >  
->  > > > And does it affect pretend-x86-hotplug, or is it only affecting
->  > real hotplug? 
->  > > >  
->  > > its no more pretend-x86, in the past we used to put the cpu in
->  > idle(),  
->  > > now we do put the cpu in halt and bring back by another startup ipi,
->  > just like  
->  > > boot sequence, both for x86 and x86_64.
->  > 
->  > That's actually broken since 2.6.14 (at least on my P3 box); please 
->  > see:
->  > 
->  > Subject: i386 cpu hotplug bug - instant reboot when onlining secondary
->  > 
->  > http://lkml.org/lkml/2006/2/19/186
->  Works for me. But I saw a warning.
-
-Guys, will you please stop being so cryptic?  What worked for you?  What
-warning?  wtf is going on?  Who owns this problem, whatever it is?
-<head spins>
-
->   linux-2.6.15-root/arch/i386/kernel/cpu/common.c |    2 +-
->   1 files changed, 1 insertion(+), 1 deletion(-)
+On 12.03.2006 [03:10:36 -0800], Andrew Morton wrote:
 > 
->  diff -puN arch/i386/kernel/cpu/common.c~cpuhp arch/i386/kernel/cpu/common.c
->  --- linux-2.6.15/arch/i386/kernel/cpu/common.c~cpuhp	2006-03-14 12:13:43.000000000 +0800
->  +++ linux-2.6.15-root/arch/i386/kernel/cpu/common.c	2006-03-14 12:14:12.000000000 +0800
->  @@ -605,7 +605,7 @@ void __devinit cpu_init(void)
->   		/* alloc_bootmem_pages panics on failure, so no check */
->   		memset(gdt, 0, PAGE_SIZE);
->   	} else {
->  -		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
->  +		gdt = (struct desc_struct *)get_zeroed_page(GFP_ATOMIC);
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
+> 
 
-That would be rather a sad thing to have to do.  OK if it's during initial
-bootup, less OK if it's during CPU hot-add.
+Hrm, 2.6.16-rc6-mm1 fails to build 32-bit kernels on my Ubuntu Dapper
+install (64-bit kernel, 32-bit userspace). gcc is version 4.0.3 (Ubuntu
+4.0.3-1ubuntu1) and is biarch.  It builds 64-bit kernels fine (including
+2.6.16-rc6-mm1) and 2.6.16-rc6 as a 32-bit kernel also built fine. So
+seems like a regression with patch specific to -mm :( After a quick peek
+looks like 2.6.16-rc5-mm3 also suffers from this, at least (Sorry, I
+only recently started building 32-bit kernels on this box).
+
+nacc@arkanoid:~/linux/views/2.6.16-rc6-mm1-dev$ make ARCH=i386 O=$(pwd | sed s/views/build/) -j8
+  GEN    /home/nacc/linux/build/2.6.16-rc6-mm1-dev/Makefile
+  CHK     include/linux/version.h
+  Using /home/nacc/linux/views/2.6.16-rc6-mm1-dev as source for kernel
+  CHK     usr/initramfs_list
+  CHK     include/linux/compile.h
+  AS      arch/i386/kernel/vsyscall-int80.o
+  AS      arch/i386/kernel/vsyscall-sysenter.o
+  CC      arch/i386/kernel/time_hpet.o
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S: Assembler messages:
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:131: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:131: Error: undefined symbol `SIGCONTEXT_esp' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:132: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:132: Error: undefined symbol `SIGCONTEXT_eax' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:133: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:133: Error: undefined symbol `SIGCONTEXT_ecx' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:134: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:134: Error: undefined symbol `SIGCONTEXT_edx' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:135: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:135: Error: undefined symbol `SIGCONTEXT_ebx' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:136: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:136: Error: undefined symbol `SIGCONTEXT_ebp' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:137: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:137: Error: undefined symbol `SIGCONTEXT_esi' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:138: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:138: Error: undefined symbol `SIGCONTEXT_edi' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:139: Error: undefined symbol `RT_SIGFRAME_sigcontext' in operation
+/home/nacc/linux/views/2.6.16-rc6-mm1-dev/arch/i386/kernel/vsyscall-sigreturn.S:139: Error: undefined symbol `SIGCONTEXT_eip' in operation
+make[2]: *** [arch/i386/kernel/vsyscall-int80.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[2]: *** [arch/i386/kernel/vsyscall-sysenter.o] Error 1
+make[1]: *** [arch/i386/kernel] Error 2
+make[1]: *** Waiting for unfinished jobs....
+make[1]: *** wait: No child processes.  Stop.
+make: *** [_all] Error 2
+
+Thanks,
+Nish

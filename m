@@ -1,112 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752160AbWCOXWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWCOXYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752160AbWCOXWu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752162AbWCOXWu
+	id S1750787AbWCOXYN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 18:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWCOXYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:22:50 -0500
-Received: from mail.gurulabs.com ([67.137.148.7]:28826 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S1752160AbWCOXWt (ORCPT
+	Wed, 15 Mar 2006 18:24:13 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54403 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750787AbWCOXYM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:22:49 -0500
-Subject: Re: Warning - Maxtor SATA II and Nvidia nforce4
-From: Dax Kelson <dax@gurulabs.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-In-Reply-To: <4418996E.6010808@garzik.org>
-References: <1142461887.2521.44.camel@station14.example.com>
-	 <4418996E.6010808@garzik.org>
-Content-Type: text/plain
-Date: Wed, 15 Mar 2006 16:23:18 -0700
-Message-Id: <1142464998.5578.17.camel@station14.example.com>
+	Wed, 15 Mar 2006 18:24:12 -0500
+Date: Thu, 16 Mar 2006 00:23:53 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 10/24] i386 Vmi descriptor changes
+Message-ID: <20060315232352.GC1919@elf.ucw.cz>
+References: <200603131806.k2DI6jlJ005700@zach-dev.vmware.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603131806.k2DI6jlJ005700@zach-dev.vmware.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-15 at 17:47 -0500, Jeff Garzik wrote:
-> Ah, I see this made it to LKML :)
-> 
-> Dax Kelson wrote:
-> > Short version
-> > ==============
-> > Nvidia Nforce4 chipset with Maxtor SATA II drives with certain firmware
-> > revisions cause data corruption and system instability when under
-> > moderate to heavy I/O load.
-> 
-> I'm a bit suspicious of this.
-> 
-> Looking at the link, there are three problem areas and two problem blame 
-> targets implied:
-> 
-> 	Data corruption	-> blame nvidia driver
-> 	NCQ		-> blame nvidia driver
-> 	Detection	-> blame maxtor firmware
-> 
-> The first one likely applies to the Windows driver not Linux's sata_nv, 
-> and thus irrelevant here.
+Hi!
 
-No.
+> +static inline void vmi_write_gdt(void *gdt, unsigned entry, u32 descLo, u32 descHi)
+> +{
+> +	vmi_wrap_call(
+> +		WriteGDTEntry, "movl %2, (%0,%1,8);"
+> +			       "movl %3, 4(%0,%1,8);",
+> +		VMI_NO_OUTPUT,
+> +		4, XCONC(VMI_IREG1(gdt), VMI_IREG2(entry), VMI_IREG3(descLo), VMI_IREG4(descHi)),
+> +		VMI_CLOBBER_EXTENDED(ZERO_RETURNS, "memory"));
+> +}
 
-Take a big file (5-10gb)
+I'd say "not funny" here. Very little comments for very obscure
+code. "movl %3, 4(%0,%1,8);" is particulary "interesting".
 
-$ cp bigfile newfile
-$ cp bigfile newfile2
-$ cp bigfile newfile3
-$ cp bigfile newfile4
-$ md5sum bigfile newfile*
-[results are all different, assuming kernel doesn't panic during test]
+> +static inline void write_gdt_entry(void *gdt, int entry, __u32 entry_a, __u32 entry_b)
+> +{
+> +        vmi_write_gdt(gdt, entry, entry_a, entry_b);
+> +}
 
-When I use the "stress" utility from
-http://weather.ou.edu/~apw/projects/stress/
+You should be able to use u32 (not __u32) here.
+								Pavel
 
-The box usually makes it an an hour or two before a kernel panic or I/O
-errors wedge the box.
-
-I setup a netdump/netconsole server on my network and I have several
-crashes captured. If you are interested I can send them on to you. I
-filed most them under the Red Hat bugzilla, but closed them after I
-discovered they were a hardware problem.
-
-> The second one OBVIOUSLY applies only to 
-> Windows, since sata_nv (and libata itself) don't yet enable NCQ.  The 
-> third one could potentially apply to Linux.  Lastly, your mention of 
-> "nforce fake raid" almost certainly indicates Windows or proprietary 
-> drivers.
-
-Linux device mapper is proprietary? :)
-
-The corruption occurs with a single disk or when using a device mapper
-"nvraid".
-
-> Therefore, I ask:
-> * are you reporting a only drive detection problem?
-
-No. Detection was never a problem for me.
-
-> * why are you reporting unrelated Windows problems to a Linux list?
-
-I'm not, see above.
-
-> * if you are indeed reporting a problem on Linux, where is the kernel 
-> and driver version info, as requested in REPORTING-BUGS?
-
-Well, what can Linux do about this hardware problem? Maybe there is a
-workaround that can be done, but I'm not counting on it. A warning would
-be nice if it possible to detect the conditions where this can occur.
-This way others can troubleshoot and identify this problem quicker.
-
-I used mostly late model FC5 rawhide kernels which I believe are based
-off of 2.6.16rc5-git12/git13 or therebouts.
-
-> * and can you provide such info *and reproduce the problems* without 
-> proprietary drivers loaded?
-
-Sorry for the misunderstanding. Again, no proprietary drivers ever
-loaded. Problem is 100% reproducible. See above, etc.
-
-Dax Kelson
-
-
+-- 
+142:        byte [] Bytes = new byte[ 4 ];

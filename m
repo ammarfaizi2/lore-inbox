@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWCOTiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWCOTGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWCOTiH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 14:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWCOTiH
+	id S1750872AbWCOTGk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 14:06:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWCOTGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 14:38:07 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:44237 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750910AbWCOTiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 14:38:06 -0500
-Date: Wed, 15 Mar 2006 14:38:02 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Adrian Bunk <bunk@stusta.de>
-cc: mchehab@infradead.org, <mdharm-usb@one-eyed-alien.net>,
-       <v4l-dvb-maintainer@linuxtv.org>, <video4linux-list@redhat.com>,
-       <usb-storage@lists.one-eyed-alien.net>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.16-rc: saa7134 + usb-storage = freeze
-In-Reply-To: <20060315185152.GA4454@stusta.de>
-Message-ID: <Pine.LNX.4.44L0.0603151435340.6203-100000@iolanthe.rowland.org>
+	Wed, 15 Mar 2006 14:06:40 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:38162 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1750872AbWCOTGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 14:06:39 -0500
+X-IronPort-AV: i="4.02,195,1139212800"; 
+   d="scan'208"; a="415928155:sNHT6609845956"
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: <hawkes@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, "Jack Steiner" <steiner@sgi.com>,
+       "Jes Sorensen" <jes@sgi.com>
+Subject: Re: [PATCH] fix alloc_large_system_hash roundup
+X-Message-Flag: Warning: May contain useful information
+References: <200603151828.k2FISxg19755@unix-os.sc.intel.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 15 Mar 2006 10:41:58 -0800
+In-Reply-To: <200603151828.k2FISxg19755@unix-os.sc.intel.com> (Kenneth W. Chen's message of "Wed, 15 Mar 2006 10:29:00 -0800")
+Message-ID: <adalkvb35zd.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 15 Mar 2006 18:41:59.0583 (UTC) FILETIME=[24AA2AF0:01C64860]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Mar 2006, Adrian Bunk wrote:
+    Kenneth> roundup_pow_of_two uses fls, but fls takes an "int"
+    Kenneth> argument.  I think that function is buggy on 64-bit
+    Kenneth> arch. Is it an oversight or something?
 
-> My computer always freezes after a few minutes with the following 
-> workload:
-> - watching TV with xawtv
-> - backup to an external USB disk using backup2l
-> 
-> As long as I'm not doing both at the same time there are no problems.
-> 
-> Freeze means:
-> - X is completely frozen
-> - TV sound continues to be correctly played (the TV card and the 
->   internal sound chip are connected through an external cable)
-> - the light of the USB enclosure flashes at about twice per second
-> 
-> This problem is present in both 2.6.16-rc6-mm1 and 2.6.16-rc5
-> (the latter with a patch to support my saa7134 card).
-> 
-> dmesg is below.
-> 
-> Any hints how to find the source of this problem?
+Huh, looks like you're right.  I never looked inside fls() before.
+Yes, roundup_pow_of_two() should probably be fixed, since a naive
+person (like me) would look at it and think it works on longs.
 
-It's not obvious, at least, not to me.
-
-One possibility is that the combination of the USB backup and the TV 
-activity is overloading the PCI bus, and instead of failing gracefully it 
-crashes the whole machine.  If that is the reason, it will be very hard to 
-prove.  Or fix.
-
-Alan Stern
-
+ - R.

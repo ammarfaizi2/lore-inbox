@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752122AbWCOAyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751834AbWCOBCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752122AbWCOAyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 19:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWCOAyx
+	id S1751834AbWCOBCH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 20:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWCOBCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 19:54:53 -0500
-Received: from ozlabs.org ([203.10.76.45]:26547 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751248AbWCOAyw (ORCPT
+	Tue, 14 Mar 2006 20:02:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3755 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751834AbWCOBCF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 19:54:52 -0500
+	Tue, 14 Mar 2006 20:02:05 -0500
+Message-ID: <441767EB.6070908@ce.jp.nec.com>
+Date: Tue, 14 Mar 2006 20:03:39 -0500
+From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17431.26069.168489.609677@cargo.ozlabs.ibm.com>
-Date: Wed, 15 Mar 2006 11:54:45 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: David Howells <dhowells@redhat.com>
-Cc: ebiederm@xmission.com (Eric W. Biederman), akpm@osdl.org,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mingo@redhat.com, alan@redhat.com,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #4] 
-In-Reply-To: <2301.1142380768@warthog.cambridge.redhat.com>
-References: <17431.14867.211423.851470@cargo.ozlabs.ibm.com>
-	<m1veujy47r.fsf@ebiederm.dsl.xmission.com>
-	<16835.1141936162@warthog.cambridge.redhat.com>
-	<32068.1142371612@warthog.cambridge.redhat.com>
-	<2301.1142380768@warthog.cambridge.redhat.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+To: Greg KH <gregkh@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kobject_uevent CONFIG_SYSFS=n build fix
+References: <4416EB14.50306@ce.jp.nec.com> <20060314220130.GB12257@suse.de> <44175911.1010400@ce.jp.nec.com> <20060315000951.GA6608@suse.de>
+In-Reply-To: <20060315000951.GA6608@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------020402030101040701080707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells writes:
+This is a multi-part message in MIME format.
+--------------020402030101040701080707
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Paul Mackerras <paulus@samba.org> wrote:
-> 
-> > No, that's not the problem.  The problem is that you can get q == &b
-> > and d == 1, believe it or not.  That is, you can see the new value of
-> > the pointer but the old value of the thing pointed to.
-> 
-> But that doesn't make any sense!
+Hi,
 
-It certainly violates the principle of least surprise. :)
+Greg KH wrote:
+>>@@ -27,6 +27,8 @@
+>> #include <asm/atomic.h>
+>> 
+>> #define KOBJ_NAME_LEN			20
+>>+
+>>+#ifdef CONFIG_HOTPLUG
+>> #define UEVENT_HELPER_PATH_LEN		256
 
-Apparently this can occur on some Alpha machines that have a
-partitioned cache.  Although CPU 1 sends out the updates to b and p in
-the right order because of the smp_wmb(), it's possible that b and p
-are present in CPU 2's cache, one in each half of the cache.  If there
-are a lot of updates coming in for the half containing b, but the half
-containing p is quiet, it is possible for CPU 2 to see a new value of
-p but an old value of b, unless you put an rmb instruction between the
-two loads from memory.
+> That shouldn't be needed, right?
 
-I haven't heard of this being an issue on any other architecture.  On
-PowerPC it can't happen because the architecture specifies that a data
-dependency creates an implicit read barrier.
+You're right. They are not needed.
+Please disregard that part.
 
-Paul.
+Thanks,
+-- 
+Jun'ichi Nomura, NEC Solutions (America), Inc.
+
+--------------020402030101040701080707
+Content-Type: text/x-patch;
+ name="kobject_uevent-config_sysfs_n-build-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kobject_uevent-config_sysfs_n-build-fix.patch"
+
+--- linux-2.6.16-rc6-mm1.orig/lib/kobject_uevent.c	2006-03-14 22:57:23.000000000 +0900
++++ linux-2.6.16-rc6-mm1/lib/kobject_uevent.c	2006-03-15 08:39:33.000000000 +0900
+@@ -25,6 +25,11 @@
+ #define BUFFER_SIZE	2048	/* buffer for the variables */
+ #define NUM_ENVP	32	/* number of env pointers */
+ 
++#ifdef CONFIG_HOTPLUG
++u64 uevent_seqnum;
++char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
++#endif
++
+ #if defined(CONFIG_HOTPLUG) && defined(CONFIG_NET)
+ static DEFINE_SPINLOCK(sequence_lock);
+ static struct sock *uevent_sock;
+--- linux-2.6.16-rc6-mm1.orig/kernel/ksysfs.c	2006-03-14 22:57:31.000000000 +0900
++++ linux-2.6.16-rc6-mm1/kernel/ksysfs.c	2006-03-15 08:41:11.000000000 +0900
+@@ -15,9 +15,6 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+-u64 uevent_seqnum;
+-char uevent_helper[UEVENT_HELPER_PATH_LEN] = "/sbin/hotplug";
+-
+ #define KERNEL_ATTR_RO(_name) \
+ static struct subsys_attribute _name##_attr = __ATTR_RO(_name)
+
+--------------020402030101040701080707--

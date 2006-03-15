@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWCOJSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWCOJTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbWCOJSe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 04:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWCOJSe
+	id S932121AbWCOJTW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 04:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWCOJTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 04:18:34 -0500
-Received: from ns.firmix.at ([62.141.48.66]:14770 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750784AbWCOJSe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 04:18:34 -0500
-Subject: Re: [future of drivers?] a proposal for binary drivers.
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Valdis.Kletnieks@vt.edu
-Cc: Anshuman Gholap <anshu.pg@gmail.com>, linux-kernel@vger.kernel.org,
-       Jan Knutar <jk-lkml@sci.fi>
-In-Reply-To: <200603150050.k2F0ogpT019966@turing-police.cc.vt.edu>
-References: <ec92bc30603080135j5257c992k2452f64752d38abd@mail.gmail.com>
-	 <200603081151.33349.jk-lkml@sci.fi>
-	 <ec92bc30603080203rb4f5e7bvea993a44ceb5d3ca@mail.gmail.com>
-	 <1142291208.8407.46.camel@gimli.at.home>
-	 <200603150050.k2F0ogpT019966@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 15 Mar 2006 10:18:25 +0100
-Message-Id: <1142414305.4073.132.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 15 Mar 2006 04:19:22 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:21008 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932121AbWCOJTV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 04:19:21 -0500
+Message-ID: <4417DBE8.6070302@vmware.com>
+Date: Wed, 15 Mar 2006 01:18:32 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Chris Wright <chrisw@sous-sol.org>
+Cc: Gerd Hoffmann <kraxel@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 7/24] i386 Vmi memory hole
+References: <200603131804.k2DI4N6s005678@zach-dev.vmware.com> <20060314064107.GK12807@sorel.sous-sol.org> <44166D6B.4090701@vmware.com> <20060314215616.GM12807@sorel.sous-sol.org> <4417454F.2080908@vmware.com> <20060315043108.GP12807@sorel.sous-sol.org> <4417CFDA.1060806@suse.de> <4417D212.20401@vmware.com> <20060315090935.GS12807@sorel.sous-sol.org>
+In-Reply-To: <20060315090935.GS12807@sorel.sous-sol.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-03-14 at 19:50 -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 14 Mar 2006 00:06:48 +0100, Bernd Petrovitsch said:
-> > On Wed, 2006-03-08 at 15:33 +0530, Anshuman Gholap wrote:
-> > [...]
-> > > into installing it) , he knowing me as a linux person will keep
-> > > bugging me, when i tell him to install a kernel source compile it to
-> > > allow 16k stack, install ndiswrapper and load the windows driver and
-> > 
-> > And you seriously think that $COMPANY will rewrite their driver to work
-> > with 4K-stacks (which seems to me to be an absolute requirement ATM)?
-> 
-> From the NVidia drivers changelog:
+Chris Wright wrote:
+> * Zachary Amsden (zach@vmware.com) wrote:
+>   
+>> ENTRY(sysenter_entry)
+>>        movl TSS_sysenter_esp0(%esp),%esp
+>> sysenter_past_esp:
+>>        STI
+>>        pushl $(__USER_DS)
+>>        pushl %ebp
+>>        pushfl
+>>        pushl $(__USER_CS)
+>>        pushl $SYSENTER_RETURN
+>>
+>> SYSENTER_RETURN is a link time constant that is defined based on the 
+>> location of the vsyscall page.  If the vsyscall page can move, this can 
+>> not be a constant.  The reason is, this "fake" exception frame is used 
+>> to return back to the EIP of the call site, and sysenter does not record 
+>> the EIP of the call site.
+>>     
+>
+> It's only real issue for something like execshield.  For this it's easy
+> to do the fixed math since it's still at fixed address.
+>
+> +       DEFINE(VSYSCALL_BASE, (PAGE_OFFSET - 2*PAGE_SIZE));
+>   
 
-NVidia is one of the better examples (and I leave the binary driver
-discusion out) - they supported their drivers from the start (and the
-first years there were lots of trouble with official builds every other
-day or so IIRC).
+Ok, I'm confused.  What fixed math?  The return EIP that is pushed here 
+is used when sysenter is active and you have to IRET back to userspace.  
+If that EIP is dynamically relocatable, you can't do fixed math unless 
+you patch the pushl site dynamically.  Notable reasons for returning via 
+IRET on this fake exception frame were (until my recent submission) IOPL 
+changes, but I believe there were more.  I will have to inspect the 
+source to determine if that is still the case.
 
-[...]
-> Looks like they managed to do that quite some time ago - in fact, before
-> some parts of the *in-kernel* code were totally cleaned up....
-> 
-> So yes, I *do* expect $COMPANY to re-write their driver to support 4K stacks. ;)
-
-Of course implies "maintaing a driver for Linux" that such
-maintenance/development/call-it-what-you-want is done (and not only for
-4K-stacks - this just a current example and probably needs handling on
-the driver side and providing some "compatibility layer" won't work that
-good).
-
-My doubt is that (above supposed old-economy) $COMPANY (which was more
-or less "forced" to support Linux and didn't "freely" choose that way
-like NVidia) writes a driver (or payed someone external once for it) and
-considers the "Linux case" closed for the next 3 years (as you would
-with a Win*-driver).
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Zach

@@ -1,116 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbWCOVgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751655AbWCOVff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751562AbWCOVgL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 16:36:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWCOVf4
+	id S1751655AbWCOVff (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 16:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWCOVe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 16:35:56 -0500
-Received: from smtpout10-04.prod.mesa1.secureserver.net ([64.202.165.238]:34791
-	"HELO smtpout10-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S1751557AbWCOVft (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 16:35:49 -0500
-From: hackmiester / Hunter Fuller <hackmiester@hackmiester.com>
-Reply-To: hackmiester@hackmiester.com
-Organization: hackmiester.com, Ltd.
-To: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in "struct resource"
-Date: Wed, 15 Mar 2006 15:35:15 -0600
-User-Agent: KMail/1.8
-References: <20060315193114.GA7465@in.ibm.com> <20060315211335.GD25361@kvack.org> <90BA5A4C-6EC1-47E2-954A-5EDEB240DD4B@kernel.crashing.org>
-In-Reply-To: <90BA5A4C-6EC1-47E2-954A-5EDEB240DD4B@kernel.crashing.org>
-X-Face: #pm4uI.4%U/S1i<i'(UPkahbf^inZ;WOH{EKM,<n/P;R5m8#`2&`HN`hB;ht_>=?utf-8?q?oJYRGD3o=0A=09?=)AM
-Cc: linux-kernel@vger.kernel.org
+	Wed, 15 Mar 2006 16:34:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46551 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751584AbWCOVex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 16:34:53 -0500
+To: Zachary Amsden <zach@vmware.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>,
+       Zachary Amsden <zach@vmware.com>
+Subject: Re: [RFC, PATCH 14/24] i386 Vmi reboot fixes
+References: <200603131809.k2DI9slZ005727@zach-dev.vmware.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 15 Mar 2006 14:11:19 -0700
+In-Reply-To: <200603131809.k2DI9slZ005727@zach-dev.vmware.com> (Zachary
+ Amsden's message of "Mon, 13 Mar 2006 10:09:54 -0800")
+Message-ID: <m1fyljxvk8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1394183.QXIXys2Hip";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603151535.17977.hackmiester@hackmiester.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1394183.QXIXys2Hip
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Zachary Amsden <zach@vmware.com> writes:
 
-On Wednesday 15 March 2006 15:30, Kumar Gala  wrote:
-> On Mar 15, 2006, at 3:13 PM, Benjamin LaHaise wrote:
-> > On Wed, Mar 15, 2006 at 03:05:30PM -0600, Kumar Gala wrote:
-> >> I disagree.  I think we need to look to see what the "bloat" is
-> >> before we go and make start/end config dependent.
-> >
-> > Eh?  32 bit kernels get used in embedded systems, which includes those
-> > with only 8MB of RAM.  The upper 32 bits will never be anything other
-> > than 0.
->
-> Why do people equate embedded with small amounts of memory.
-They don't. I believe Kumar said "which includes those that have 8mB" and n=
-ot=20
-"which all have 8mB" :)
- > I know=20
-> of embedded systems which use 32-bit PowerPCs that have >4G of system
-> memory.
->
-> >> It seems clear that drivers dont handle the fact that "start"/"end"
-> >> change an 32-bit vs 64-bit archs to begin with.  By making this even
-> >> more config dependent seems to be asking for more trouble.
-> >
-> > You can't get a non-32 bit value on a 32 bit platform, so why should a
-> > driver be expected to handle anything?
->
-> I dont follow.  I would say that most drivers shouldn't care about
-> the fact that they are on a 32-bit platform or 64-bit platform.  The
-> point is that drivers have made assumptions about being on 32-bit
-> platforms which breaks when a 32-bit platform supports a larger
-> physical address space.
-Some platforms are way too different from a 32 bit one to have a driver=20
-support both... so in some cases this wouldn't be good.
->
-> - kumar
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Fix reboot to work with the  VMI.  We must support fallback to the standard
+> BIOS reboot mechanism.  Turns out that this is required by kexec, and a good
+> idea for native hardware. 
 
-=2D-=20
-=2D-hackmiester
-Walk a mile in my shoes and you will be a mile away in a new pair of shoes.
+Huh?  Rebooting through the BIOS and kexec are pretty much mutually exclusive.
+Looking at the patch I can't see what you are talking about either.
 
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Does kexec successfully work under VMWare?
 
-iD8DBQFD/yYl3ApzN91C7BcRAoVVAJ97uhjh30nQ4hd9bQ90gJqiwsLEfgCeKSrg
-bVfqEeJ09WhO6Y51WHEHb6o=3D
-=3DVTUd
-=2D----END PGP SIGNATURE-----
 
-=2D----BEGIN GEEK CODE BLOCK-----
-Version: Geek Code v3.1 (PHP)
-GCS/CM/E/IT d-@ s: a- C++$ UBLS*++++$ P+ L+++$ E- W++$ !N-- !o+ K-- !w-- !O-
-M++$ V-- PS@ PE@ Y--? PGP++ !t--- 5--? !X-- !R-- tv-- b+ DI++ D++ G+ e++++
-h---- r+++ z++++
-=2D-----END GEEK CODE BLOCK------
+> We simply insert the NOP VMI reboot hook before
+> calling the BIOS reboot.  While here, fix SMP reboot issues as well.  The
+> problem is the halt() macro in VMI has been defined to be equivalent to
+> safe_halt(), which enables interrupts.  Several call sites actually want to
+> disable interrupts and shutdown the processor, which is what VMI_Shutdown()
+> does.
 
-Quick contact info:
-Work: hfuller@stpaulsmobile.net
-Personal: hackmiester@hackmiester.com
-Large files/spam: hackmiester@gmail.com
-GTalk:hackmiester/AIM:hackmiester1337/Y!:hackm1ester/IRC:irc.7sinz.net/7sinz
+machine_halt actually is not one of those places.
 
---nextPart1394183.QXIXys2Hip
-Content-Type: application/pgp-signature
+machine_halt does not want to stop the processor.  It is very much
+about killing the kernel and user space but having the software still
+linger a little.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+This needs a cleaner abstraction to make sense or go in.
 
-iD8DBQBEGIiV3ApzN91C7BcRAi7KAKCAE99s5a37ZO990XnL81gjYDptJQCg0nhG
-qxI2TYKyabhjaAu/2ILYbSc=
-=kXO/
------END PGP SIGNATURE-----
-
---nextPart1394183.QXIXys2Hip--
+Eric

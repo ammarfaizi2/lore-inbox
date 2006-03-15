@@ -1,107 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWCOWcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWCOWeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWCOWcd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWCOWcc
+	id S932221AbWCOWeE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWCOWeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:32:32 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:19901 "EHLO
-	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S932214AbWCOWcc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:32:32 -0500
-Date: Wed, 15 Mar 2006 17:32:20 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+	Wed, 15 Mar 2006 17:34:04 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:1419 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932221AbWCOWeC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 17:34:02 -0500
+Message-ID: <44189654.2080607@garzik.org>
+Date: Wed, 15 Mar 2006 17:33:56 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
-       Lee Revell <rlrevell@joe-job.com>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: Re: [patch] latency-tracing-v2.6.16.patch
-Message-ID: <20060315223220.GB17817@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-	Jeff Garzik <jeff@garzik.org>, Lee Revell <rlrevell@joe-job.com>,
-	Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
-	john stultz <johnstul@us.ibm.com>
-References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <20060315220432.GA20926@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060315220432.GA20926@elte.hu>
-User-Agent: Mutt/1.4.1i
+CC: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Andi Kleen <ak@suse.de>, Lee Revell <rlrevell@joe-job.com>,
+       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost
+ ticks on PM timer]
+References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <20060315215020.GA18241@elte.hu> <20060315221119.GA21775@elte.hu>
+In-Reply-To: <20060315221119.GA21775@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 11:04:33PM +0100, Ingo Molnar wrote:
+Ingo Molnar wrote:
+> the patch below is a blind shot into the dark: it turns on MMIO for the 
+> sata_nv driver. But be careful with it - this turns on a probably 
+> totally untested mode in the driver and thus may damage your data. (It 
+> might not even work at all because the driver might not be ready for it 
+> - Jeff?).  I'd suggest to first boot into single-user mode with all 
+> filesystems readonly mounted.
 > 
-> * Bill Rugolsky Jr. <brugolsky@telemetry-investments.com> wrote:
+> on the low chance of this patch actually working, the interesting thing 
+> would be to check whether the latencies occur in MMIO mode too? (if they 
+> do then please send us the new latency traces too.)
 > 
-> > Here are a pair of traces from Ingo's latency tracer running on 
-> > 2.6.16-rc6-git4 and 2.6.15 x86_64 SMP kernel with maxcpus=1 and 
-> > report_lost_ticks. [...]
+> 	Ingo
 > 
-> just for the record, the latency tracer can be found at:
+> ---------
 > 
->    http://redhat.com/~mingo/latency-tracing-patches/
+> WARNING: this may damage your data. Be careful ...
 > 
-> latency-tracing-v2.6.16.patch would be the one for current upstream 
-> kernels. The codebase is the same as in the -rt tree.
+>  drivers/scsi/sata_nv.c |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> Index: linux/drivers/scsi/sata_nv.c
+> ===================================================================
+> --- linux.orig/drivers/scsi/sata_nv.c
+> +++ linux/drivers/scsi/sata_nv.c
+> @@ -280,6 +280,7 @@ static struct ata_port_info nv_port_info
+>  	.host_flags	= ATA_FLAG_SATA |
+>  			  /* ATA_FLAG_SATA_RESET | */
+>  			  ATA_FLAG_SRST |
+> +			  ATA_FLAG_MMIO |
+>  			  ATA_FLAG_NO_LEGACY,
 
-Ingo, I had to add this incremental patch against 2.6.16-rc6-git4 in order to
-get the 2.6.15-rc7 latency tracer working on x86_64.  Looks like the
-problem is still there in latency-tracing-v2.6.16.patch.
+It won't work at all...
+
+You have to stop talking to PCI IDE registers completely (consumes 5 PCI 
+BARs), and talk exclusively to the MMIO 6th PCI BAR, at non-standard 
+offsets and a using a proprietary DMA descriptor format [all public now 
+in that link I just sent].
+
+My main workstation has one:
+> 00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller (rev f3) (prog-if 85 [Master SecO PriO])
+>         Subsystem: Hewlett-Packard Company: Unknown device 1500
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort-
+> <MAbort- >SERR- <PERR-
+>         Latency: 0 (750ns min, 250ns max)
+>         Interrupt: pin A routed to IRQ 201
+>         Region 0: I/O ports at 28e0 [size=8]
+>         Region 1: I/O ports at 2c00 [size=4]
+>         Region 2: I/O ports at 28e8 [size=8]
+>         Region 3: I/O ports at 2c04 [size=4]
+>         Region 4: I/O ports at 28c0 [size=16]
+>         Region 5: Memory at f2103000 (32-bit, non-prefetchable) [size=4K]
 
 Regards,
 
-	Bill
+	Jeff
 
 
---- linux-2.6.16-rc6-git4-latency/include/asm-x86_64/system.h	2006-03-15 17:19:20.000000000 -0500
-+++ linux-2.6.16-rc6-git4-latency/include/asm-x86_64/system.h	2006-03-15 13:45:14.000000000 -0500
-@@ -341,10 +341,8 @@
- #define local_irq_disable()	do { unsigned long flags; local_save_flags(flags); local_irq_restore((flags & ~(1 << 9)) | (1 << 18)); } while (0)
- #define local_irq_enable()	do { unsigned long flags; local_save_flags(flags); local_irq_restore((flags | (1 << 9)) & ~(1 << 18)); } while (0)
- 
--#define irqs_disabled()					\
-+#define irqs_disabled_flags(flags)			\
- ({							\
--	unsigned long flags;				\
--	local_save_flags(flags);			\
- 	(flags & (1<<18)) || !(flags & (1<<9));		\
- })
- 
-@@ -354,10 +352,8 @@
- #define local_irq_disable() 	__asm__ __volatile__("cli": : :"memory")
- #define local_irq_enable()	__asm__ __volatile__("sti": : :"memory")
- 
--#define irqs_disabled()			\
-+#define irqs_disabled_flags(flags)	\
- ({					\
--	unsigned long flags;		\
--	local_save_flags(flags);	\
- 	!(flags & (1<<9));		\
- })
- 
-@@ -365,6 +361,13 @@
- #define local_irq_save(x) 	do { warn_if_not_ulong(x); __asm__ __volatile__("# local_irq_save \n\t pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory"); } while (0)
- #endif
- 
-+#define irqs_disabled()			\
-+({					\
-+	unsigned long flags;		\
-+	local_save_flags(flags);	\
-+	irqs_disabled_flags(flags);	\
-+})
-+
- /* used in the idle loop; sti takes one instruction cycle to complete */
- #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
- /* used when interrupts are already enabled or to shutdown the processor */
---- linux-2.6.16-rc6-git4-latency/include/asm-x86_64/unistd.h	2006-03-15 17:19:20.000000000 -0500
-+++ linux-2.6.16-rc6-git4-latency/include/asm-x86_64/unistd.h	2006-03-15 13:47:32.000000000 -0500
-@@ -607,6 +607,7 @@
- __SYSCALL(__NR_unshare,	sys_unshare)
- 
- #define __NR_syscall_max __NR_unshare
-+#define NR_syscalls (__NR_syscall_max+1)
- 
- #ifndef __NO_STUBS
- 

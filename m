@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWCOBFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWCOBG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbWCOBFe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Mar 2006 20:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWCOBFe
+	id S932187AbWCOBG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Mar 2006 20:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWCOBG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Mar 2006 20:05:34 -0500
-Received: from lixom.net ([66.141.50.11]:52102 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S932131AbWCOBFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Mar 2006 20:05:33 -0500
-Date: Tue, 14 Mar 2006 18:56:32 -0600
-To: Jon Mason <jdmason@us.ibm.com>
-Cc: Pavel Machek <pavel@suse.cz>, Muli Ben-Yehuda <mulix@mulix.org>,
-       Andi Kleen <ak@suse.de>, Muli Ben-Yehuda <MULI@il.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH RFC 2/3] x86-64: Calgary IOMMU - Calgary specific bits
-Message-ID: <20060315005632.GE5170@pb15.lixom.net>
-References: <20060314082432.GE23631@granada.merseine.nu> <20060314082552.GF23631@granada.merseine.nu> <20060314230306.GB1579@elf.ucw.cz> <20060315005514.GD7699@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060315005514.GD7699@us.ibm.com>
-User-Agent: Mutt/1.5.11
-From: Olof Johansson <olof@lixom.net>
+	Tue, 14 Mar 2006 20:06:58 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:28555
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932137AbWCOBG5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Mar 2006 20:06:57 -0500
+Date: Tue, 14 Mar 2006 17:06:48 -0800 (PST)
+Message-Id: <20060314.170648.23393069.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: patrick@tykepenguin.com, linux-decnet-user@lists.sourceforge.net,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] net/decnet/dn_route.c: fix inconsequent NULL
+ checking
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060310230233.GB21864@stusta.de>
+References: <20060310230233.GB21864@stusta.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 14, 2006 at 06:55:15PM -0600, Jon Mason wrote:
-> On Wed, Mar 15, 2006 at 12:03:06AM +0100, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > +union tce_entry {
-> > > +   	u64 te_word;
-> > > +	struct {
-> > > +		unsigned int  read     :1;   /* read allowed */
-> > > +		unsigned int  write    :1;   /* write allowed */
-> > > +		unsigned int  hubid    :6;   /* hub id - unused */
-> > > +		unsigned int  rsvd     :4;   /* reserved */
-> > > +		unsigned long rpn      :36;  /* Real page number */
-> > > +		unsigned int  unused   :16;  /* unused */
-> > > +	} bits;
-> > > +};
-> > 
-> > I'd say this is going to be pretty flakey.
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sat, 11 Mar 2006 00:02:33 +0100
+
+> The Coverity checker noted this inconsequent NULL checking in
+> dnrt_drop().
 > 
-> Why do you think this would be flakey?  It's nearly identical to the
-> tce_entry definition in include/asm-powerpc/tce.h (endien swapped, of
-> course).
+> Since all callers ensure that NULL isn't passed, we can simply remove 
+> the check.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-We're killing structures like that one by one on PPC, I just haven't
-gotten around to dealing with tce_entry yet.
-
-The way to do it is to use masking and shifting by hand.
-
-
--Olof
+Applied, thanks Adrian.

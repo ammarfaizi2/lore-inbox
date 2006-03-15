@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbWCOOdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWCOOkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbWCOOdI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 09:33:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCOOdH
+	id S932322AbWCOOkg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 09:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWCOOkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 09:33:07 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:2099 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932428AbWCOOdG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 09:33:06 -0500
+	Wed, 15 Mar 2006 09:40:36 -0500
+Received: from nproxy.gmail.com ([64.233.182.205]:8628 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932322AbWCOOkg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 09:40:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=gF2bFUtPZ1sTNKhgMT6+C1SyC9Vo0LhxbvcoJrTuFLBWxv80x/9sqcM01069wr/ZCMjfp9G8Yj2TNYWJzXxipCMolkph2g1XCexMwwzKxwGNZMe2eNK4FuLeNitRx3LPXG31zPKgJAreaxrJ2D3F2wa9kVv12OXKHQHhkDrpT+k=
-Date: Wed, 15 Mar 2006 17:33:01 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: PATCH: rio driver rework continued  #2
-Message-ID: <20060315143301.GA7790@mipter.zuzino.mipt.ru>
-References: <1142425657.5597.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lvTh+0xjGOsx30ZNcJt2O8IbnvlYWi1ah5hee1S0zb3tCDeCaq63FlHIZ6/86M6q+BRNgkBqj4JHcbuiw/xtmvnyy3kn2WXf20I9+9MGoqeBPITfrpTlGv8f3hpRON+DGKH2r+HjHOhqBsn51o8MWo54Yi65MGFNX9OGvZLCR/o=
+Message-ID: <3f250c710603150640y95617e3sfa7c8f8db005290b@mail.gmail.com>
+Date: Wed, 15 Mar 2006 10:40:34 -0400
+From: "Mauricio Lin" <mauriciolin@gmail.com>
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Subject: Re: Jiffy is not able to measure the fraction of time a process runs a processor
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, craig.lkml@gmail.com
+In-Reply-To: <y0mveugagsm.fsf@ton.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1142425657.5597.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+References: <3f250c710603130549w6ccdf14cu73a0d7d2999fd4ee@mail.gmail.com>
+	 <y0mveugagsm.fsf@ton.toronto.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 12:27:36PM +0000, Alan Cox wrote:
-> First large chunk of code cleanup. The split between this and #3 and #4
-> is fairly arbitary and due to the message length limit on the list.
-> These patches continue the process of ripping out macros and typedefs
-> while cleaning up lots of 32bit assumptions. Several inlines for
-> compatibility also get removed and that causes a lot of noise.
+Hi all,
 
-> --- linux.vanilla-2.6.16-rc6-mm1/drivers/char/rio/rioparam.c
-> +++ linux-2.6.16-rc6-mm1/drivers/char/rio/rioparam.c
-> @@ -247,7 +240,7 @@
->  	}
+I have managed to measure the cpu time in nanoseconds. On i386 I have used
+the monotonic_clock() to measure the cpu time accurately.
+
+The cpu time measurements were based on t->sched_info.cpu_time, but
+instead of accumulate
+the all cpu time, I needed just the diff=jiffies
+-t->sched_info.last_arrival in the sched_info_depart().
+
+The problem was most of time the diff was zero. So to solve this
+problem I used the monotonic_clock() function that provides more accurate
+way to measure cpu time.
+
+Any comments?
+
+On 14 Mar 2006 15:54:17 -0500, Frank Ch. Eigler <fche@redhat.com> wrote:
+> "Mauricio Lin" <mauriciolin@gmail.com> writes:
 >
->  	rio_dprintk(RIO_DEBUG_PARAM, "can_add_transmit() returns %x\n", res);
-> -	rio_dprintk(RIO_DEBUG_PARAM, "Packet is 0x%x\n", (int) PacketP);
-> +	rio_dprintk(RIO_DEBUG_PARAM, "Packet is 0x%p\n", PacketP);
-						^^^^
-
-Just %p.
-
-> @@ -466,10 +459,10 @@
->  	rio_dprintk(RIO_DEBUG_TTY, "port close SysPort %d\n", PortP->PortNum);
+> >  I am trying to measure the fraction of time a process runs on a
+> > processor, but the jiffies is not able to provide an accurate value.
 >
->  	/* PortP = p->RIOPortp[SysPort]; */
-> -	rio_dprintk(RIO_DEBUG_TTY, "Port is at address 0x%x\n", (int) PortP);
-> +	rio_dprintk(RIO_DEBUG_TTY, "Port is at address 0x%p\n", PortP);
->  	/* tp = PortP->TtyP; *//* Get tty */
->  	tty = PortP->gs.tty;
-> -	rio_dprintk(RIO_DEBUG_TTY, "TTY is at address 0x%x\n", (int) tty);
-> +	rio_dprintk(RIO_DEBUG_TTY, "TTY is at address 0x%p\n", tty);
+> See sched_clock().
 
-Ditto.
+I have checked it. It helped me to reach the monotonic_clock()
+function after hacking the code.
 
+>
+> >  The example below [...]
+> > PID  : NAME : LAST ARRIVAL : CPU TIME : CALLER
+> > 4544 : kmix : 6170433 : 0 : work_resched+0x6c
+> > 4078 : lpd : 6170433 : 0 : __down_interruptible+0x5
+> > 4544 : kmix : 6170433 : 0 : schedule_timeout+0xb8
+>
+> What tool/patchset are you using to generate this trace?
+
+I am using the relayfs to report the information I need among the
+processors. I just put some klog in some key points in the code.
+
+BR,
+
+Mauricio Lin.

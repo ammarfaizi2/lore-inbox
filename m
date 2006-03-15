@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbWCOX7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752182AbWCPAAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbWCOX7e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752183AbWCOX7e
+	id S1752182AbWCPAAT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 19:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752187AbWCPAAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:59:34 -0500
-Received: from mailout1.vmware.com ([65.113.40.130]:26381 "EHLO
+	Wed, 15 Mar 2006 19:00:19 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:38413 "EHLO
 	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1752182AbWCOX7d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:59:33 -0500
-Message-ID: <4418A9C5.1070701@vmware.com>
-Date: Wed, 15 Mar 2006 15:56:53 -0800
-From: Zachary Amsden <zach@vmware.com>
+	id S1752184AbWCPAAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 19:00:17 -0500
+Message-ID: <4418AA64.7030306@vmware.com>
+Date: Wed, 15 Mar 2006 15:59:32 -0800
+From: Dan Hecht <dhecht@vmware.com>
 User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
 To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+Cc: Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Virtualization Mailing List <virtualization@lists.osdl.org>,
        Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Arai <arai@vmware.com>,
+       Anne Holler <anne@vmware.com>, Pratap Subrahmanyam <pratap@vmware.com>,
        Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
        Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
        Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
@@ -29,47 +28,50 @@ Cc: Linus Torvalds <torvalds@osdl.org>,
        Ky Srinivasan <ksrinivasan@novell.com>,
        Wim Coekaerts <wim.coekaerts@oracle.com>,
        Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 4/24] i386 Vmi inline implementation
-References: <200603131802.k2DI22OK005657@zach-dev.vmware.com> <20060315225212.GB1719@elf.ucw.cz>
-In-Reply-To: <20060315225212.GB1719@elf.ucw.cz>
+Subject: Re: [RFC, PATCH 24/24] i386 Vmi no idle hz
+References: <200603131817.k2DIHkMa005792@zach-dev.vmware.com> <20060315233128.GD1919@elf.ucw.cz>
+In-Reply-To: <20060315233128.GD1919@elf.ucw.cz>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2006 23:59:32.0762 (UTC) FILETIME=[813E8FA0:01C6488C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Pavel Machek wrote:
-> We already do runtime patching for SMP vs. UP, could you use same
-> infrastructure? I do not want VMI-specific grub.
+> Hi!
+> 
+>> When a VCPU enters its idle loop, it disables its periodic
+>> alarm and sets up a one shot alarm for the next time event.
+>> That way, it does not become ready to run just to service
+>> the periodic alarm interrupt. Instead, it can remain halted
+>> until there is some real work pending for it.  This allows
+>> the hypervisor to use the physical resources more
+>> effectively since idle VCPUs will have lower overhead.
+> 
+> Does this NO_IDLE_HZ work only on VMI-enabled runs or globally? We are
+> trying to get NO_IDLE_HZ working to save some power on notebooks; how
+> is it related to this?
+> 
 
-I think we could almost use the same infrastructure - or extend it to 
-work.  The problem is how to determine register liveness for calls into 
-the VMI layer which take > 3 arguments.  If you squeeze all the 
-arguments into fixed registers, you can unnecessarily constrain the 
-native code - and rapidly run out of registers for the compiler to use, 
-generating impossible constraints in some cases.
+The NO_IDLE_HZ implementation provided here is enabled when the 
+VMI-Timer device is used as the timer interrupt source.  The VMI-Timer 
+device is only present on paravirtual hardware.
 
-To work around these issues, we do not constrain the arguments beyond 
-the first three registers.  But this means that the hypervisor needs a 
-way to locate the additional arguments.  That information gets encoded 
-implicitly by the auto-generated translation into a VMI call, which 
-pushes the arguments onto the stack (thus revealing the registers, and 
-allowing constant immediate optimization).
+However, the hooks introduced into the kernel (stop_hz_timer, 
+restart_hz_timer) with these patches will be approximately the same 
+(perhaps a subset) for implementing NO_IDLE_HZ on systems that use other 
+interrupt sources.
 
-Now, if you can generate all of the code to do the callout to the VMI, 
-you could use it directly in an alternative instruction sequence, just 
-as the existing infrastructure.  But I'm not sure you can do it in one 
-compiler pass.  We are already pushing the limits of the preprocessor, 
-compiler and assembler here.  Having another preprocessing pass may make 
-it possible, but it does make the build more complicated.
+> Can you use NO_IDLE_HZ patches that are already floating around?
+> 
 
-I'm not sure it is really what we want though.  The alternative 
-instruction interfaces is based on global feature detection that is done 
-and applied by the _kernel_.  In the end, we want the hypervisor to be 
-able to toggle each VMI call site as a separate feature, and replace it 
-with hypervisor specific code.  In this way, a VT based hypervisor could 
-simply not patch those class of VMI calls that are already emulated by 
-hardware, and also inline direct hypercalls for those classes that are 
-not.  The VMI layer is supposed to be very much an inline linker for 
-feature detection done by the _hypervisor_.
+Certainly we plan to merge our NO_IDLE_HZ implementation with those 
+patches once they are stabilized in the kernel.  Presently, they seem to 
+be too fast of a moving target to be worth merging at this point, 
+though.  Additionally, the VMI-Timer NO_IDLE_HZ implementation does not 
+need all the machinery provided with the NO_IDLE_HZ patches that are 
+floating around because the VMI-Timer code does not track time by 
+counting interrupts.  This leads to a fairly simplistic NO_IDLE_HZ 
+implementation.
 
-Zach
+Dan

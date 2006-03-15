@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752177AbWCOXlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWCOXoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752177AbWCOXlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 18:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752176AbWCOXls
+	id S1751053AbWCOXoG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 18:44:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752179AbWCOXoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 18:41:48 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29623 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1752179AbWCOXls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 18:41:48 -0500
-Date: Thu, 16 Mar 2006 00:41:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VMI Interface Proposal Documentation for I386, Part 5
-Message-ID: <20060315234137.GF1919@elf.ucw.cz>
-References: <4415CE76.9030006@vmware.com> <Pine.LNX.4.64.0603132328270.11606@montezuma.fsmlabs.com> <44167E03.3060807@vmware.com>
+	Wed, 15 Mar 2006 18:44:06 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52958 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751053AbWCOXoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 18:44:05 -0500
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost
+	ticks on PM timer]
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+In-Reply-To: <20060315231426.GD17817@ti64.telemetry-investments.com>
+References: <200602280022.40769.darkray@ic3man.com>
+	 <4408BEB5.7000407@garzik.org>
+	 <20060303234330.GA14401@ti64.telemetry-investments.com>
+	 <200603040107.27639.ak@suse.de>
+	 <20060315213638.GA17817@ti64.telemetry-investments.com>
+	 <20060315215020.GA18241@elte.hu> <20060315221119.GA21775@elte.hu>
+	 <44189654.2080607@garzik.org> <20060315224408.GC24074@elte.hu>
+	 <44189A3D.5090202@garzik.org>
+	 <20060315231426.GD17817@ti64.telemetry-investments.com>
+Content-Type: text/plain
+Date: Wed, 15 Mar 2006 18:44:02 -0500
+Message-Id: <1142466242.1671.96.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44167E03.3060807@vmware.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2006-03-15 at 18:14 -0500, Bill Rugolsky Jr. wrote:
+> [Meanwhile, I still have to switch contexts and look at the long
+> softirq latencies that at first glance appear to be due to the use of
+> mempool by the RAID1 bio code.] 
 
-> >>   VMI_EnableInterrupts
-> >>
-> >>      VMICALL void VMI_EnableInterrupts(void);
-> >>
-> >>      Enable maskable interrupts on the processor.  Note that the
-> >>      current implementation always will deliver any pending interrupts
-> >>      on a call which enables interrupts, for compatibility with kernel
-> >>      code which expects this behavior.  Whether this should be required
-> >>      is open for debate.
-> >>    
-> >
-> >Mind if i push this debate slightly forward? If we were to move the 
-> >dispatch of pending interrupts elsewhere, where would that be? In 
-> >particular, for a device which won't issue any more interrupts until it's 
-> >previous interrupt is serviced. Perhaps injection at arbitrary points 
-> >during runtime when interrupts are enabled?
-> >  
-> 
-> Thanks for the response.
-> 
-> This is exactly what I was hoping for - discussion.  Think about this 
-> from the hypervisor perspective - if the guest enables interrupts, and 
-> you have something pending to deliver, for correctness, you have to 
-> deliver it, right now.  But does the kernel truly require that interrupt 
-> deliver immediately - in most cases, no.  In particular, on the fast 
+Can you post traces of them somewhere?  There are no long running
+softirqs in the two you posted (the worst is only 200 usecs or so).
 
-I'd say PCI hardware can delay interrupts for any arbitrary
-delay... so if driver expects to get them "immediately", I'd say it is
-broken. It should be enough to deliver them "soon enough", like not
-more than 1msec late...
-								Pavel
--- 
-29:
+Lee
+

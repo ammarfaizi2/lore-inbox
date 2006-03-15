@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751823AbWCOWNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751980AbWCOWSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751823AbWCOWNo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 17:13:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWCOWNn
+	id S1751980AbWCOWSj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 17:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752074AbWCOWSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 17:13:43 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:22174 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751823AbWCOWNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 17:13:41 -0500
-Date: Wed, 15 Mar 2006 23:11:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
-       Lee Revell <rlrevell@joe-job.com>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
-Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost ticks on PM timer]
-Message-ID: <20060315221119.GA21775@elte.hu>
-References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <20060315215020.GA18241@elte.hu>
+	Wed, 15 Mar 2006 17:18:39 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:3292
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751980AbWCOWSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 17:18:39 -0500
+Date: Wed, 15 Mar 2006 14:18:20 -0800 (PST)
+Message-Id: <20060315.141820.124063256.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: ebiederm@xmission.com, bcrl@kvack.org, galak@kernel.crashing.org,
+       vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org, gregkh@suse.de
+Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in
+ "struct resource"
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060315141305.13864705.akpm@osdl.org>
+References: <20060315212841.GE25361@kvack.org>
+	<m1fylje5sv.fsf@ebiederm.dsl.xmission.com>
+	<20060315141305.13864705.akpm@osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060315215020.GA18241@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Andrew Morton <akpm@osdl.org>
+Date: Wed, 15 Mar 2006 14:13:05 -0800
 
-the patch below is a blind shot into the dark: it turns on MMIO for the 
-sata_nv driver. But be careful with it - this turns on a probably 
-totally untested mode in the driver and thus may damage your data. (It 
-might not even work at all because the driver might not be ready for it 
-- Jeff?).  I'd suggest to first boot into single-user mode with all 
-filesystems readonly mounted.
+> ebiederm@xmission.com (Eric W. Biederman) wrote:
+> >
+> > Benjamin LaHaise <bcrl@kvack.org> writes:
+> > 
+> > > On Wed, Mar 15, 2006 at 02:29:32PM -0700, Eric W. Biederman wrote:
+> > >> If the impact is very slight or unmeasurable this means the option
+> > >> needs to fall under CONFIG_EMBEDDED, where you can change if
+> > >> every last bit of RAM counts but otherwise you won't care.
+> > >
+> > > But we have a data type that is correct for this usage: dma_addr_t.
+> > 
+> > Well the name is wrong.  Because these are in general not DMA addresses,
+> > but it may have the other desired properties.  So it may be
+> > useable.
+> 
+> Yes, dma_addr_t does the right thing but has the wrong name.
 
-on the low chance of this patch actually working, the interesting thing 
-would be to check whether the latencies occur in MMIO mode too? (if they 
-do then please send us the new latency traces too.)
+No it doesn't.
 
-	Ingo
+It's 32-bit on Sparc64 because all DMA mappings go through
+the IOMMU into a 32-bit window on PCI space.
 
----------
-
-WARNING: this may damage your data. Be careful ...
-
- drivers/scsi/sata_nv.c |    1 +
- 1 files changed, 1 insertion(+)
-
-Index: linux/drivers/scsi/sata_nv.c
-===================================================================
---- linux.orig/drivers/scsi/sata_nv.c
-+++ linux/drivers/scsi/sata_nv.c
-@@ -280,6 +280,7 @@ static struct ata_port_info nv_port_info
- 	.host_flags	= ATA_FLAG_SATA |
- 			  /* ATA_FLAG_SATA_RESET | */
- 			  ATA_FLAG_SRST |
-+			  ATA_FLAG_MMIO |
- 			  ATA_FLAG_NO_LEGACY,
- 	.pio_mask	= NV_PIO_MASK,
- 	.mwdma_mask	= NV_MWDMA_MASK,
+But we do most certainly want to support full 64-bit BARs
+in PCI devices on sparc64.

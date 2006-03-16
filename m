@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752188AbWCPGmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752191AbWCPGnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752188AbWCPGmb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 01:42:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752189AbWCPGmb
+	id S1752191AbWCPGnI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 01:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752189AbWCPGnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 01:42:31 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:25298 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752186AbWCPGma convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 01:42:30 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Thu, 16 Mar 2006 14:41:27 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B37A678@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZIvacuxzv5JQmVQ+qYksyFun3oPQABn3og
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 16 Mar 2006 06:41:29.0798 (UTC) FILETIME=[A81E3660:01C648C4]
+	Thu, 16 Mar 2006 01:43:08 -0500
+Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:48854 "EHLO
+	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
+	id S1752194AbWCPGnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 01:43:07 -0500
+Date: Thu, 16 Mar 2006 14:42:11 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+Subject: [PATCH] Hamradio: Fix a NULL pointer dereference in
+ net/hamradio/mkiss.c
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Osterried DL9SAU <thomas@x-berg.in-berlin.de>,
+       Ralf Baechle DL5RB <ralf@linux-mips.org>,
+       Hans Alblas PE1AYX <hans@esrac.ele.tue.nl>
+Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
+Message-id: <20060316064211.GA22681@eugeneteo.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
+X-Operating-System: Debian GNU/Linux 2.6.16-rc6
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   hang iff (TMP & (PSV | AC0)).
+Pointer ax is dereferenced before NULL check.
 
-Very interesting! 
+Coverity bug #817
 
-I found the common code in _PSV and _AC0
+Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
 
- Store (DerefOf (Index (DerefOf (MODP (0x01)), Local1)), Local0)
+--- linux-2.6/drivers/net/hamradio/mkiss.c~	2006-03-15 10:05:35.000000000 +0800
++++ linux-2.6/drivers/net/hamradio/mkiss.c	2006-03-16 14:31:35.000000000 +0800
+@@ -844,13 +844,16 @@ static void mkiss_close(struct tty_struc
+ static int mkiss_ioctl(struct tty_struct *tty, struct file *file,
+ 	unsigned int cmd, unsigned long arg)
+ {
+-	struct mkiss *ax = mkiss_get(tty);
+-	struct net_device *dev = ax->dev;
++	struct mkiss *ax;
++	struct net_device *dev;
+ 	unsigned int tmp, err;
+ 
+ 	/* First make sure we're connected. */
+ 	if (ax == NULL)
+ 		return -ENXIO;
++	
++	ax = mkiss_get(tty);
++	dev = ax->dev;
+ 
+ 	switch (cmd) {
+  	case SIOCGIFNAME:
 
-Could you just comment out that?
-
-We are very near at root-cause.
-
-Thanks,
-luming
-
-
+-- 
+1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
+main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
 

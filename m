@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWCPPOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWCPPPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWCPPOL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 10:14:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWCPPOL
+	id S1751331AbWCPPPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 10:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWCPPPQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 10:14:11 -0500
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:27282 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751320AbWCPPOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 10:14:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=LDDv+kM6xLTh3xaPZhNl0xWwE7djPt3j26aPFAq4FBqKaX6V2vFlBFpzsXwzK78MKBundtcJHx4/IEkRPfCOrHLOiIb+sxeJoTIeK/0ONU+SZ1zPsggQ9E1AmaaWuAv9LiLfSLV3toVe34QNeQLsHzHYVtnRz9deqGKmbW2Quj4=  ;
-Message-ID: <44193826.8010701@yahoo.com.au>
-Date: Thu, 16 Mar 2006 21:04:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines for_each_possible_cpu
-References: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>	<4418DEEA.2000008@yahoo.com.au>	<20060316131743.d7b716e9.kamezawa.hiroyu@jp.fujitsu.com>	<4418E879.3000207@yahoo.com.au>	<20060316152206.7ac3bdb4.kamezawa.hiroyu@jp.fujitsu.com>	<44190A7C.6030901@yahoo.com.au> <20060316014820.51dbb3b8.akpm@osdl.org>
-In-Reply-To: <20060316014820.51dbb3b8.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 10:15:16 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:17057 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751331AbWCPPPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 10:15:14 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Thu, 16 Mar 2006 16:18:05 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B37A7EF@pdsmsx403> 
+Date: Thu, 16 Mar 2006 15:15:10 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FJuBy-0004Sd-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->>for_each_cpu has always meant for
->> each possible CPU.
-> 
-> 
-> That was the most long-winded ack I've ever seen ;)
-> 
+Bad news.  It hangs when I do the usual stress test:
 
-Is not! :). This is the very reason why I think it is pointless churn.
-There are plenty of functions (even static, confined to a single file,
-or ones much more complex than this) which could unquestionably have
-their names changed for the better.
+echo 1 > THM0/polling_frequency
+sleep.sh
+sleep.sh
 
-This change doesn't even add anything except a redundant element so
-it is even questionable that it makes the name better at all.
+The second sleep.sh hangs going to sleep.  It is in an endless loop
+printing the following line, once per second (from the
+polling_frequency):
 
-But I know you've got your heart set on them now so I won't continue
-with the impossible task of talking you out of them ;) Just don't
-expect that people will suddenly start getting hotplug-cpu races
-right, overnight.
+  Execute Method: [\_TZ_.THM0._TMP] (Node c157bf88)
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> Please also make sure you have vanilla DSDT
+
+$ grep DSDT /boot/config-2.6.16-rc5.fake-thermal_active+passive
+# CONFIG_ACPI_CUSTOM_DSDT is not set
+
+> vanilla Kernel, and just hacked acpi_thermal_active/passive.
+
+Only diff between pristine 2.6.16-rc5 tree and mine is:
+
+diff -rup /tmp/linux-2.6.16-rc5/drivers/acpi/thermal.c /usr/src/linux-2.6.16-rc5/drivers/acpi/thermal.c
+--- /tmp/linux-2.6.16-rc5/drivers/acpi/thermal.c	2006-02-27 00:09:35.000000000 -0500
++++ /usr/src/linux-2.6.16-rc5/drivers/acpi/thermal.c	2006-03-16 09:45:30.000000000 -0500
+@@ -526,6 +526,8 @@ static void acpi_thermal_passive(struct 
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_thermal_passive");
+ 
++	return;
++
+ 	if (!tz || !tz->trips.passive.flags.valid)
+ 		return;
+ 
+@@ -615,6 +617,8 @@ static void acpi_thermal_active(struct a
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_thermal_active");
+ 
++	return;
++
+ 	if (!tz)
+ 		return;
+ 
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

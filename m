@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWCPXh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWCPXiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWCPXh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 18:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCPXh2
+	id S1751296AbWCPXiE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 18:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCPXiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 18:37:28 -0500
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:48547 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S1751238AbWCPXh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 18:37:27 -0500
-To: Greg KH <gregkh@suse.de>
-Cc: Mark Maule <maule@sgi.com>, "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, shaohua.li@intel.com
-Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
+	Thu, 16 Mar 2006 18:38:03 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:31142 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1751296AbWCPXiB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 18:38:01 -0500
+X-IronPort-AV: i="4.03,103,1141632000"; 
+   d="scan'208"; a="315178020:sNHT17812304"
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Bryan O'Sullivan" <bos@pathscale.com>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core driver
 X-Message-Flag: Warning: May contain useful information
-References: <44172F0E.6070708@ce.jp.nec.com>
-	<20060314134535.72eb7243.akpm@osdl.org>
-	<44176502.9050109@ce.jp.nec.com> <20060315235544.GA6504@suse.de>
-	<44198210.6090109@ce.jp.nec.com> <20060316181934.GM13666@sgi.com>
-	<4419BD64.5070705@ce.jp.nec.com> <20060316194155.GP13666@sgi.com>
-	<20060316232837.GA12408@suse.de>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+	<ada3bhjuph2.fsf@cisco.com>
+	<1142475069.6994.114.camel@localhost.localdomain>
+	<adaslpjt8rg.fsf@cisco.com>
+	<1142477579.6994.124.camel@localhost.localdomain>
+	<20060315192813.71a5d31a.akpm@osdl.org>
+	<1142485103.25297.13.camel@camp4.serpentine.com>
+	<20060315213813.747b5967.akpm@osdl.org>
+	<Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
 From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 16 Mar 2006 15:37:22 -0800
-In-Reply-To: <20060316232837.GA12408@suse.de> (Greg KH's message of "Thu, 16 Mar 2006 15:28:37 -0800")
-Message-ID: <adalkvaneq5.fsf@cisco.com>
+Date: Thu, 16 Mar 2006 15:37:56 -0800
+In-Reply-To: <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com> (Hugh Dickins's message of "Thu, 16 Mar 2006 14:24:47 +0000 (GMT)")
+Message-ID: <adahd5ynep7.fsf@cisco.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 16 Mar 2006 23:37:24.0200 (UTC) FILETIME=[93C5D680:01C64952]
+X-OriginalArrivalTime: 16 Mar 2006 23:37:57.0515 (UTC) FILETIME=[A7A14DB0:01C64952]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> As msi.c today is pretty platform-specific as is, I don't
-    Greg> have a problem with moving the ia64 stuff also into that
-    Greg> directory.  Especially as it will help solve issues like
-    Greg> this a lot better.
-
-I think we really want to make drivers/pci/msi.c less
-platform-specific.  Both powerpc and sparc64 are starting to pay
-attention to MSI, so we should really be trying to move things in the
-direction of a clean separation of generic MSI handling and
-Intel-specific bits.
-
- - R.

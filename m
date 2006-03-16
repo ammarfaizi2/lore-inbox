@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWCPKaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752154AbWCPK3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751665AbWCPKaM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 05:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752068AbWCPKaM
+	id S1752154AbWCPK3R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 05:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752168AbWCPK3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 05:30:12 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:56760
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751665AbWCPKaL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 05:30:11 -0500
-Subject: [PATCH] posix-timer fix requeue accounting when signal is ignored
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 11:30:11 +0100
-Message-Id: <1142505012.29968.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 05:29:17 -0500
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:42668 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1752154AbWCPK3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 05:29:16 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Thu, 16 Mar 2006 10:28:38 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: [patch 1/1] consolidate TRUE and FALSE
+In-Reply-To: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.64.0603161015130.31173@hermes-2.csi.cam.ac.uk>
+References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roman Zippel <zippel@linux-m68k.org>
+Hi,
 
-When the posix-timer signal is ignored then the timer is rearmed by the
-callback function. The requeue pending accounting has to be fixed up 
-else the state might be wrong.
+On Thu, 16 Mar 2006, akpm@osdl.org wrote:
+> From: Andrew Morton <akpm@osdl.org>
+> 
+> We have no less than 65 implementations of TRUE and FALSE in the tree, so the
+> inevitable happened:
+[snip
+> 
+> The patch implements TRUE and FALSE in include/linux/kernel.h and removes all
+> the private versions.
 
-Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Great!  That has really been long overdue.
 
-Index: linux-2.6.16-updates/kernel/posix-timers.c
-===================================================================
---- linux-2.6.16-updates.orig/kernel/posix-timers.c
-+++ linux-2.6.16-updates/kernel/posix-timers.c
-@@ -358,6 +358,7 @@ static int posix_timer_fn(struct hrtimer
- 						timer->base->softirq_time,
- 						timr->it.real.interval);
- 			ret = HRTIMER_RESTART;
-+			++timr->it_requeue_pending;
- 		}
- 	}
- 
+> Various places are doing things like
+> 
+> typedef {
+> 	FALSE,
+> 	TRUE
+> } my_fave_name_for_a_bool;
+> 
+> These are converted to
+> 
+> typedef int my_fave_name_for_a_bool;
 
+Given that the kernel now requires gcc 3.2 or later, that already includes 
+a native boolean type (_Bool)?  Why not use that instead of "int"?
 
+Also <stdbool.h> contains:
+
+#define bool	_Bool
+#define true	1
+#define false	0
+
+So we could take the bool rather than _Bool, too given _Bool looks 
+rather ugly...
+
+We could even go as far as removing all those typedefs and replacing all 
+their uses with the native boolean type (or the "bool" define or 
+whatever).  Seems like the perfect janitorial task to me.  (-;
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

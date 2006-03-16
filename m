@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752411AbWCPRBv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752424AbWCPRH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752411AbWCPRBv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 12:01:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752415AbWCPRBv
+	id S1752424AbWCPRH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 12:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752423AbWCPRH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 12:01:51 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:46002 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752410AbWCPRBu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 12:01:50 -0500
-Date: Thu, 16 Mar 2006 22:31:35 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cpu_exclusive feature of cpuset broken?
-Message-ID: <20060316170135.GB6548@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20060316152848.GA6548@in.ibm.com> <20060316083836.f598ff45.pj@sgi.com>
+	Thu, 16 Mar 2006 12:07:59 -0500
+Received: from [84.204.75.166] ([84.204.75.166]:10200 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
+	id S1752421AbWCPRH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 12:07:58 -0500
+Subject: Re: [Bug? Report] kref problem
+From: "Artem B. Bityutskiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <20060316165323.GA10197@kroah.com>
+References: <1142509279.3920.31.camel@sauron.oktetlabs.ru>
+	 <20060316165323.GA10197@kroah.com>
+Content-Type: text/plain
+Organization: MTD
+Date: Thu, 16 Mar 2006 20:07:57 +0300
+Message-Id: <1142528877.3920.64.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060316083836.f598ff45.pj@sgi.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 08:38:36AM -0800, Paul Jackson wrote:
-> While you created a subcpuset 'a', you changed the
-> cpus and cpu_exclusive in the root cpuset.  This
-> changed -all- tasks to only be allowed to run on
-> cpu 7.
-
-oops sorry  ..i did mean to say that i was trying to change
-cpu-exclusive flag of a (and not the root cpuset).
-
+On Thu, 2006-03-16 at 08:53 -0800, Greg KH wrote: 
+> > static void a_release(struct kobject *kobj)
+> > {
+> > 	struct my_obj_a *a;
+> > 	
+> > 	printk("%s\n", __FUNCTION__);
+> > 	a = container_of(kobj, struct my_obj_a, kobj);
+> > 	sysfs_remove_dir(&a->kobj);
 > 
-> I'd guess you have some kernel thread or such that
-> really, really wants to run on some other cpu.
-> 
-> When I read you transcript, I expected it to say:
-> 
-> 	# mkdir /dev/cpuset
-> 	# mount -t cpuset cpuset /dev/cpuset	# s/none/cpuset/ - clearer
-> 	# cd /dev/cpuset
-> 	# mkdir a
-> 	# cd a					# the missing step
+> Woah, don't do that here, the kobject core already does this.  A release
+> function is for you to release the memory you have created with this
+> kobject, not to mess with sysfs.
+So do you mean this (attached) ? Anyway I end up with -1 kref.
 
-Yes ..you are right. I did run 'cd a' and then ran the below commands.
+My real task is: I have sysfs directory /sys/A which corresponds to my
+module, to my subsystem. There I want to create subdirectories
+like /sys/A/B/ and delete them from time to time. So the problem is that
+whenver I remove B I end up with A's kref decremented. The attached test
+demonstrates this. P;ease, look at its output:
 
-> 	# /bin/echo 7 > cpus
-> 	# /bin/echo 1 > cpu_exclusive
+a inited, kref 1
+b inited, kref 1
+dir A created, A kref 1, B kref 1
+dir B created, A kref 1, B kref 1
+dir B removed, A kref 1, B kref 1
+b_release
+a_release       <--- What is this? I removed B, not A ???
+kobj B put, A kref 0, B kref 0
+dir A removed, A kref 0, B kref 0
+kobj A put, A kref -1, B kref 0
 
-> When I do your commands (without the 'cd a'), I don't
-> see any problem or hang on my Altix test box.  But that
-> probably just means I am not critically depending at that
-> moment on some kernel thread running on any particular cpu.
-
-Did you try with the 'cd a' (in other words turn on exclusive 
-property of cpuset 'a')?
+Thanks.
 
 -- 
-Regards,
-vatsa
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
+

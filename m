@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWCPWPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWCPWQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbWCPWPW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 17:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWCPWPW
+	id S1750869AbWCPWQS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 17:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWCPWQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 17:15:22 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:44745 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964874AbWCPWPW (ORCPT
+	Thu, 16 Mar 2006 17:16:18 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:13519 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750866AbWCPWQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 17:15:22 -0500
-Date: Thu, 16 Mar 2006 23:15:12 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Bug while trying to mount nfs share
-In-Reply-To: <200603162220.59240@zodiac.zodiac.dnsalias.org>
-Message-ID: <Pine.LNX.4.61.0603162308150.27951@yvahk01.tjqt.qr>
-References: <200603151244.34159@zodiac.zodiac.dnsalias.org>
- <Pine.LNX.4.61.0603162133100.11776@yvahk01.tjqt.qr>
- <200603162220.59240@zodiac.zodiac.dnsalias.org>
+	Thu, 16 Mar 2006 17:16:17 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: does swsusp suck after resume for you?
+Date: Thu, 16 Mar 2006 23:15:09 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, ck@vds.kolivas.org,
+       Stefan Seyfried <seife@suse.de>,
+       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060316105054.GB9399@atrey.karlin.mff.cuni.cz> <200603170833.27114.kernel@kolivas.org>
+In-Reply-To: <200603170833.27114.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603162315.09939.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >127MB HIGHMEM available.
->> >896MB LOWMEM available.
->>
->> BTW, you could try ot VMSPLIT_3G_OPT.
->
->Which works ;) BTW: Why do I need to recompile the complete kernel for that 
->option, and isn't there any negative impact (The menuconfig help doesn't 
->mention anything...)
->
+On Thursday 16 March 2006 22:33, Con Kolivas wrote:
+> > > > > The tunable in /proc/sys/vm/swap_prefetch is now bitwise ORed:
+> > > > > Thus if you set this value 
+> > > > > to 3 it will prefetch aggressively and then drop back to the default
+> > > > > of 1. This makes it easy to simply set the aggressive flag once and
+> > > > > forget about it. I've booted and tested this feature and it's working
+> > > > > nicely. Where exactly you'd set this in your resume scripts I'm not
+> > > > > sure. A rolled up patch against 2.6.16-rc6-mm1 is here for
+> > > > > simplicity:
+> 
+> correct url:
+> http://ck.kolivas.org/patches/swap-prefetch/2.6.16-rc6-mm1-swap_prefetch_test.patch
+> 
+> > > 2 means aggressively prefetch as much as possible and then disable swap
+> > > prefetching from that point on. Too confusing?
+> >
+> > Ahha... oops, yes, clever; no, I guess keep it.
+> 
+> Ok the patch works fine for me and the feature is worthwhile in absolute terms 
+> as well as for improving resume. 
+> 
+> Pavel, while we're talking about improving behaviour after resume I had a look 
+> at the mechanism used to free up ram before suspending and I can see scope 
+> for some changes in the vm code that would improve the behaviour after 
+> resuming. Is the mechanism used to free up ram going to continue being used 
+> with uswsusp?
 
-Every file somehow depends on page.h. Only one file in kernel/*.c (taking 
-.h in .h into account) does not require page.h, sys_ni.c:
+Yes.
 
-23:08 shanghai:../linux-2.6-AS24/kernel > diff -dpru <(ls -1 .*.o.cmd) 
-<(grep -l /page.h .*.o.cmd)
---- /dev/fd/63  2006-03-16 23:09:20.248517000 +0100
-+++ /dev/fd/62  2006-03-16 23:09:20.248517000 +0100
-@@ -1,4 +1,3 @@
--.built-in.o.cmd
- .capability.o.cmd
- .configs.o.cmd
- .dma.o.cmd
-@@ -31,7 +30,6 @@
- .signal.o.cmd
- .softirq.o.cmd
- .sys.o.cmd
--.sys_ni.o.cmd
- .sysctl.o.cmd
- .time.o.cmd
- .timer.o.cmd
+> If so, I'd like to have a go at improving the free up ram vm  
+> code to make it behave nicer after resume. I have some ideas about how best 
+> to free up ram differently from normal reclaim which would improve behaviour 
+> post resume.
 
+That sounds really good to me. :-)
 
-Jan Engelhardt
--- 
+Greetings,
+Rafael

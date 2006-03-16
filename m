@@ -1,246 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWCPDXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWCPDYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWCPDXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 22:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWCPDXv
+	id S932233AbWCPDYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 22:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWCPDYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 22:23:51 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:51383 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932222AbWCPDXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 22:23:50 -0500
-Date: Thu, 16 Mar 2006 12:22:40 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] for_each_possible_cpu [2/19] fixes for generic part
-Message-Id: <20060316122240.2d7b850a.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Mar 2006 22:24:16 -0500
+Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:37356 "EHLO
+	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
+	id S932233AbWCPDYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 22:24:15 -0500
+Date: Thu, 16 Mar 2006 11:23:18 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+Subject: Re: Fix sequencer missing negative bound check
+In-reply-to: <200603160307.k2G37KLX007666@turing-police.cc.vt.edu>
+To: linux-kernel@vger.kernel.org
+Cc: alsa-devel@alsa-project.org, Valdis.Kletnieks@vt.edu
+Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
+Message-id: <20060316032318.GA21534@eugeneteo.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
+X-Operating-System: Debian GNU/Linux 2.6.16-rc6
+References: <20060316011911.GA20384@eugeneteo.net>
+ <200603160307.k2G37KLX007666@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-replaces for_each_cpu with for_each_possible_cpu().
+<quote sender="Valdis.Kletnieks@vt.edu">
+> On Thu, 16 Mar 2006 09:19:11 +0800, Eugene Teo said:
+> > dev is missing a negative bound check.
+> > 
+> > Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+[snipped]
+> static void seq_sysex_message(unsigned char *event_rec)
+> {
+>         int dev = event_rec[1];
+>         int i, l = 0;
+>         unsigned char  *buf = &event_rec[2];
+> 
+>         if ((int) dev > max_synthdev)
+>                 return;
+[snipped]
+> that 'int dev' came out of an 'unsigned char *' - as such, I doubt you
+> can get a negative value.  If anything, it should be 'unsigned int dev'.
 
- block/ll_rw_blk.c            |    2 +-
- fs/file.c                    |    2 +-
- fs/proc/proc_misc.c          |    2 +-
- include/asm-generic/percpu.h |    2 +-
- include/linux/genhd.h        |    4 ++--
- include/linux/kernel_stat.h  |    2 +-
- init/main.c                  |    4 ++--
- kernel/rcutorture.c          |    4 ++--
- kernel/sched.c               |    8 ++++----
- lib/percpu_counter.c         |    2 +-
- mm/slab.c                    |    4 ++--
- 11 files changed, 18 insertions(+), 18 deletions(-)
+Yes, thanks for pointing it out.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+--
+'int dev' came out of an 'unsigned char *' - as such, it will not get
+a negative value. Thanks Valdis.
 
-Index: linux-2.6.16-rc6-mm1/kernel/rcutorture.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/kernel/rcutorture.c
-+++ linux-2.6.16-rc6-mm1/kernel/rcutorture.c
-@@ -301,7 +301,7 @@ rcu_torture_printk(char *page)
- 	long pipesummary[RCU_TORTURE_PIPE_LEN + 1] = { 0 };
- 	long batchsummary[RCU_TORTURE_PIPE_LEN + 1] = { 0 };
+Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+
+--- linux-2.6/sound/oss/sequencer.c~	2006-03-15 10:05:45.000000000 +0800
++++ linux-2.6/sound/oss/sequencer.c	2006-03-16 11:15:31.000000000 +0800
+@@ -709,7 +709,7 @@
  
--	for_each_cpu(cpu) {
-+	for_each_possible_cpu(cpu) {
- 		for (i = 0; i < RCU_TORTURE_PIPE_LEN + 1; i++) {
- 			pipesummary[i] += per_cpu(rcu_torture_count, cpu)[i];
- 			batchsummary[i] += per_cpu(rcu_torture_batch, cpu)[i];
-@@ -535,7 +535,7 @@ rcu_torture_init(void)
- 	atomic_set(&n_rcu_torture_error, 0);
- 	for (i = 0; i < RCU_TORTURE_PIPE_LEN + 1; i++)
- 		atomic_set(&rcu_torture_wcount[i], 0);
--	for_each_cpu(cpu) {
-+	for_each_possible_cpu(cpu) {
- 		for (i = 0; i < RCU_TORTURE_PIPE_LEN + 1; i++) {
- 			per_cpu(rcu_torture_count, cpu)[i] = 0;
- 			per_cpu(rcu_torture_batch, cpu)[i] = 0;
-Index: linux-2.6.16-rc6-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/kernel/sched.c
-+++ linux-2.6.16-rc6-mm1/kernel/sched.c
-@@ -1720,7 +1720,7 @@ unsigned long nr_uninterruptible(void)
+ static void seq_sysex_message(unsigned char *event_rec)
  {
- 	unsigned long i, sum = 0;
+-	int dev = event_rec[1];
++	unsigned int dev = event_rec[1];
+ 	int i, l = 0;
+ 	unsigned char  *buf = &event_rec[2];
  
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 		sum += cpu_rq(i)->nr_uninterruptible;
- 
- 	/*
-@@ -1737,7 +1737,7 @@ unsigned long long nr_context_switches(v
- {
- 	unsigned long long i, sum = 0;
- 
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 		sum += cpu_rq(i)->nr_switches;
- 
- 	return sum;
-@@ -1747,7 +1747,7 @@ unsigned long nr_iowait(void)
- {
- 	unsigned long i, sum = 0;
- 
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 		sum += atomic_read(&cpu_rq(i)->nr_iowait);
- 
- 	return sum;
-@@ -6342,7 +6342,7 @@ void __init sched_init(void)
- 	runqueue_t *rq;
- 	int i, j, k;
- 
--	for_each_cpu(i) {
-+	for_each_possible_cpu(i) {
- 		prio_array_t *array;
- 
- 		rq = cpu_rq(i);
-Index: linux-2.6.16-rc6-mm1/mm/slab.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/mm/slab.c
-+++ linux-2.6.16-rc6-mm1/mm/slab.c
-@@ -3287,7 +3287,7 @@ void *__alloc_percpu(size_t size)
- 	 * and we have no way of figuring out how to fix the array
- 	 * that we have allocated then....
- 	 */
--	for_each_cpu(i) {
-+	for_each_possible_cpu(i) {
- 		int node = cpu_to_node(i);
- 
- 		if (node_online(node))
-@@ -3374,7 +3374,7 @@ void free_percpu(const void *objp)
- 	/*
- 	 * We allocate for all cpus so we cannot use for online cpu here.
- 	 */
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 	    kfree(p->ptrs[i]);
- 	kfree(p);
- }
-Index: linux-2.6.16-rc6-mm1/fs/file.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/fs/file.c
-+++ linux-2.6.16-rc6-mm1/fs/file.c
-@@ -373,6 +373,6 @@ static void __devinit fdtable_defer_list
- void __init files_defer_init(void)
- {
- 	int i;
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 		fdtable_defer_list_init(i);
- }
-Index: linux-2.6.16-rc6-mm1/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/fs/proc/proc_misc.c
-+++ linux-2.6.16-rc6-mm1/fs/proc/proc_misc.c
-@@ -534,7 +534,7 @@ static int show_stat(struct seq_file *p,
- 	if (wall_to_monotonic.tv_nsec)
- 		--jif;
- 
--	for_each_cpu(i) {
-+	for_each_possible_cpu(i) {
- 		int j;
- 
- 		user = cputime64_add(user, kstat_cpu(i).cpustat.user);
-Index: linux-2.6.16-rc6-mm1/block/ll_rw_blk.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/block/ll_rw_blk.c
-+++ linux-2.6.16-rc6-mm1/block/ll_rw_blk.c
-@@ -3549,7 +3549,7 @@ int __init blk_dev_init(void)
- 	iocontext_cachep = kmem_cache_create("blkdev_ioc",
- 			sizeof(struct io_context), 0, SLAB_PANIC, NULL, NULL);
- 
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 		INIT_LIST_HEAD(&per_cpu(blk_cpu_done, i));
- 
- 	open_softirq(BLOCK_SOFTIRQ, blk_done_softirq, NULL);
-Index: linux-2.6.16-rc6-mm1/lib/percpu_counter.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/lib/percpu_counter.c
-+++ linux-2.6.16-rc6-mm1/lib/percpu_counter.c
-@@ -50,7 +50,7 @@ long percpu_counter_sum(struct percpu_co
- 
- 	spin_lock(&fbc->lock);
- 	ret = fbc->count;
--	for_each_cpu(cpu) {
-+	for_each_possible_cpu(cpu) {
- 		long *pcount = per_cpu_ptr(fbc->counters, cpu);
- 		ret += *pcount;
- 	}
-Index: linux-2.6.16-rc6-mm1/init/main.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/init/main.c
-+++ linux-2.6.16-rc6-mm1/init/main.c
-@@ -359,7 +359,7 @@ static void __init setup_per_cpu_areas(v
- #endif
- 	ptr = alloc_bootmem(size * nr_possible_cpus);
- 
--	for_each_cpu(i) {
-+	for_each_possible_cpu(i) {
- 		__per_cpu_offset[i] = ptr - __per_cpu_start;
- 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
- 		ptr += size;
-@@ -680,7 +680,7 @@ static inline void fixup_cpu_present_map
- 	 * for other cpu bringup code to function as normal. e.g smp_init() etc.
- 	 */
- 	if (cpus_empty(cpu_present_map)) {
--		for_each_cpu(i) {
-+		for_each_possible_cpu(i) {
- 			cpu_set(i, cpu_present_map);
- 		}
- 	}
-Index: linux-2.6.16-rc6-mm1/include/linux/genhd.h
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/include/linux/genhd.h
-+++ linux-2.6.16-rc6-mm1/include/linux/genhd.h
-@@ -149,14 +149,14 @@ struct disk_attribute {
- ({									\
- 	typeof(gendiskp->dkstats->field) res = 0;			\
- 	int i;								\
--	for_each_cpu(i)							\
-+	for_each_possible_cpu(i)					\
- 		res += per_cpu_ptr(gendiskp->dkstats, i)->field;	\
- 	res;								\
- })
- 
- static inline void disk_stat_set_all(struct gendisk *gendiskp, int value)	{
- 	int i;
--	for_each_cpu(i)
-+	for_each_possible_cpu(i)
- 		memset(per_cpu_ptr(gendiskp->dkstats, i), value,
- 				sizeof (struct disk_stats));
- }		
-Index: linux-2.6.16-rc6-mm1/include/linux/kernel_stat.h
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/include/linux/kernel_stat.h
-+++ linux-2.6.16-rc6-mm1/include/linux/kernel_stat.h
-@@ -46,7 +46,7 @@ static inline int kstat_irqs(int irq)
- {
- 	int cpu, sum = 0;
- 
--	for_each_cpu(cpu)
-+	for_each_possible_cpu(cpu)
- 		sum += kstat_cpu(cpu).irqs[irq];
- 
- 	return sum;
-Index: linux-2.6.16-rc6-mm1/include/asm-generic/percpu.h
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/include/asm-generic/percpu.h
-+++ linux-2.6.16-rc6-mm1/include/asm-generic/percpu.h
-@@ -19,7 +19,7 @@ extern unsigned long __per_cpu_offset[NR
- #define percpu_modcopy(pcpudst, src, size)			\
- do {								\
- 	unsigned int __i;					\
--	for_each_cpu(__i)					\
-+	for_each_possible_cpu(__i)				\
- 		memcpy((pcpudst)+__per_cpu_offset[__i],		\
- 		       (src), (size));				\
- } while (0)
+-- 
+1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
+main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
+

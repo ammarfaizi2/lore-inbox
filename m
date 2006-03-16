@@ -1,152 +1,311 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbWCPD70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751983AbWCPEMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932617AbWCPD70 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 22:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932618AbWCPD7Z
+	id S1751983AbWCPEMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 23:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752039AbWCPEMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 22:59:25 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:8926 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S932617AbWCPD7Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 22:59:24 -0500
-Date: Wed, 15 Mar 2006 22:59:16 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, Etienne Lorrain <etienne_lorrain@yahoo.fr>,
-       lm-sensors <lm-sensors@lm-sensors.org>
-Subject: Re: sis96x compiled in by error: delay of one minute at boot
-Message-ID: <20060316035916.GA10675@jupiter.solarsys.private>
-References: <20060315034625.GA21733@jupiter.solarsys.private> <zJe6kSDV.1142413307.3312800.khali@localhost>
+	Wed, 15 Mar 2006 23:12:17 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:9669 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1751983AbWCPEMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 23:12:16 -0500
+Date: Thu, 16 Mar 2006 13:11:05 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] for_each_possible_cpu [12/19] powerpc
+Message-Id: <20060316131105.f99a0f1c.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060316123228.e9e292a4.kamezawa.hiroyu@jp.fujitsu.com>
+References: <20060316123228.e9e292a4.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <zJe6kSDV.1142413307.3312800.khali@localhost>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean:
+Sorry...looks I failed to refresh patch...
+This is valid one.
 
-(cc'ed lm-sensors ML)
+This patch replaces for_each_cpu with for_each_possible_cpu.
 
-[user reports waiting ~23 seconds for i2c/hwmon stuff to init in a
-monolithic kernel build]
 
-> On 2006-03-15, Mark M. Hoffman wrote:
-> > Wow, that's a huge delay.  One alternative would be for i2c slaves to
-> > behave more like USB and do the probing asynchronous to driver load;
-> > i.e. 'modprobe w83627hf' returns before the chip is actually recognized
-> > and attached.
-> 
-* Jean Delvare <khali@linux-fr.org> [2006-03-15 10:01:47 +0100]:
-> You mean that the i2c subsystem would finally be rewritten from scratch
-> to comply with the driver model? I'm waiting for your patches :)
+ arch/powerpc/kernel/irq.c               |    2 +-
+ arch/powerpc/kernel/lparcfg.c           |    4 ++--
+ arch/powerpc/kernel/rtas.c              |    4 ++--
+ arch/powerpc/kernel/setup-common.c      |    2 +-
+ arch/powerpc/kernel/setup_32.c          |    2 +-
+ arch/powerpc/kernel/setup_64.c          |    6 +++---
+ arch/powerpc/kernel/smp.c               |    2 +-
+ arch/powerpc/kernel/sysfs.c             |    6 +++---
+ arch/powerpc/kernel/time.c              |    4 ++--
+ arch/powerpc/mm/numa.c                  |    2 +-
+ arch/powerpc/mm/stab.c                  |    2 +-
+ arch/powerpc/platforms/cell/interrupt.c |    2 +-
+ arch/powerpc/platforms/cell/pervasive.c |    2 +-
+ arch/powerpc/platforms/pseries/xics.c   |    2 +-
+ include/asm-powerpc/percpu.h            |    2 +-
+ 15 files changed, 22 insertions(+), 22 deletions(-)
 
-Heh, 'spose I asked for that.
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-> > OTOH, that brings up all the related problems.  E.g., you could no longer
-> > expect this simple fragment of a RC script to work...
-> >
-> >	modprobe i2c-sis96x
-> >	modprobe asb100
-> >	sensors -s
-> 
-> I guess we would have to use hotplug instead then.
-> 
-> > Short of fixing all that... one has to accept that (1) i2c bus probing
-> > is slow, and (2) some i2c busses themselves are not reliably
-> > detectable...
-> 
-> Things can be improved still. The busses which cannot be reliably
-> detected could test themselves, and discard themselves if they find they
-> don't work. This is much the spirit of the bit_test parameter of the
-> i2c-algo-bit module; it could be made the default. i2c-algo-pca could be
-> added a similar option.
-> 
-> Also, the i2c subsystem is currently relying on general probing for
-> almost everything. Whenever you load an i2c chip driver, it'll probe
-> all the i2c busses for supported chips. We tried to limit the probing
-> area by introducing the concept of "classes", and we now only probe
-> the busses which share a class with the i2c chip driver. Not all drivers
-> have been modified to take benefit of that class check though, and the
-> i2c core doesn't enforce it at the moment; it is all based on drivers
-> cooperation. So there is room for improvement here.
-> 
-> Last, sometimes you know exactly where the chip is, yet the i2c core
-> doesn't offer a way to skip the probing step and attach the driver
-> directly to the device. I'm working on a way to do that, and hope to
-> have something ready to show soon. This should speed up the driver load
-> quite a bit.
 
-Here's a start: why does i2c-parport[-light] have a default adapter type?
-Loading it with the default could be considered an accident by definition.
-It takes ~6 seconds to load all of kernel/drivers/hwmon/*.ko on a test box
-here with i2c-parport-light present (but without any adapter hardware).
-With this patch, that drops to ~1 second.
-
----
-
-This patch forces the user to specify what type of adapter is present when
-loading i2c-parport or i2c-parport-light.  If none is specified, the driver
-init simply fails - instead of assuming adapter type 0.
-
-This alleviates the sometimes lengthy boot time delays which can be caused
-by accidentally building one of these into a kernel along with several i2c
-slave drivers that have lengthy probe routines (e.g. hwmon drivers).
-
-Signed-off-by: Mark M. Hoffman <mhoffman@lightlink.com>
-
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/i2c-parport-light.c
-+++ linux-2.6.16-rc6/drivers/i2c/busses/i2c-parport-light.c
-@@ -121,9 +121,14 @@ static struct i2c_adapter parport_adapte
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/irq.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/irq.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/irq.c
+@@ -379,7 +379,7 @@ void irq_ctx_init(void)
+ 	struct thread_info *tp;
+ 	int i;
  
- static int __init i2c_parport_init(void)
- {
--	if (type < 0 || type >= ARRAY_SIZE(adapter_parm)) {
-+	if (type < 0) {
-+		printk(KERN_WARNING "i2c-parport: adapter type unspecified\n");
-+		return -ENODEV;
-+	}
-+
-+	if (type >= ARRAY_SIZE(adapter_parm)) {
- 		printk(KERN_WARNING "i2c-parport: invalid type (%d)\n", type);
--		type = 0;
-+		return -ENODEV;
+-	for_each_cpu(i) {
++	for_each_possible_cpu(i) {
+ 		memset((void *)softirq_ctx[i], 0, THREAD_SIZE);
+ 		tp = softirq_ctx[i];
+ 		tp->cpu = i;
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/smp.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/smp.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/smp.c
+@@ -362,7 +362,7 @@ void __init smp_prepare_cpus(unsigned in
+  
+ 	smp_space_timers(max_cpus);
+ 
+-	for_each_cpu(cpu)
++	for_each_possible_cpu(cpu)
+ 		if (cpu != boot_cpuid)
+ 			smp_create_idle(cpu);
+ }
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/time.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/time.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/time.c
+@@ -261,7 +261,7 @@ void snapshot_timebases(void)
+ 
+ 	if (!cpu_has_feature(CPU_FTR_PURR))
+ 		return;
+-	for_each_cpu(cpu)
++	for_each_possible_cpu(cpu)
+ 		spin_lock_init(&per_cpu(cpu_purr_data, cpu).lock);
+ 	on_each_cpu(snapshot_tb_and_purr, NULL, 0, 1);
+ }
+@@ -741,7 +741,7 @@ void __init smp_space_timers(unsigned in
+ 	 * systems works better if the two threads' timebase interrupts
+ 	 * are staggered by half a jiffy with respect to each other.
+ 	 */
+-	for_each_cpu(i) {
++	for_each_possible_cpu(i) {
+ 		if (i == boot_cpuid)
+ 			continue;
+ 		if (i == (boot_cpuid ^ 1))
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/mm/numa.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/mm/numa.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/mm/numa.c
+@@ -398,7 +398,7 @@ static int __init parse_numa_properties(
+ 	 * As a result of hotplug we could still have cpus appear later on
+ 	 * with larger node ids. In that case we force the cpu into node 0.
+ 	 */
+-	for_each_cpu(i) {
++	for_each_possible_cpu(i) {
+ 		int numa_domain;
+ 
+ 		cpu = find_cpu_node(i);
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/mm/stab.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/mm/stab.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/mm/stab.c
+@@ -239,7 +239,7 @@ void stabs_alloc(void)
+ 	if (cpu_has_feature(CPU_FTR_SLB))
+ 		return;
+ 
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		unsigned long newstab;
+ 
+ 		if (cpu == 0)
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/lparcfg.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/lparcfg.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/lparcfg.c
+@@ -56,7 +56,7 @@ static unsigned long get_purr(void)
+ 	unsigned long sum_purr = 0;
+ 	int cpu;
+ 
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		sum_purr += lppaca[cpu].emulated_time_base;
+ 
+ #ifdef PURR_DEBUG
+@@ -222,7 +222,7 @@ static unsigned long get_purr(void)
+ 	int cpu;
+ 	struct cpu_usage *cu;
+ 
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		cu = &per_cpu(cpu_usage_array, cpu);
+ 		sum_purr += cu->current_tb;
+ 	}
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/rtas.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/rtas.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/rtas.c
+@@ -591,7 +591,7 @@ static void rtas_percpu_suspend_me(void 
+ 		data->waiting = 0;
+ 		data->args->args[data->args->nargs] =
+ 			rtas_call(ibm_suspend_me_token, 0, 1, NULL);
+-		for_each_cpu(i)
++		for_each_possible_cpu(i)
+ 			plpar_hcall_norets(H_PROD,i);
+ 	} else {
+ 		data->waiting = -EBUSY;
+@@ -624,7 +624,7 @@ static int rtas_ibm_suspend_me(struct rt
+ 	/* Prod each CPU.  This won't hurt, and will wake
+ 	 * anyone we successfully put to sleep with H_Join
+ 	 */
+-	for_each_cpu(i)
++	for_each_possible_cpu(i)
+ 		plpar_hcall_norets(H_PROD, i);
+ 
+ 	return data.waiting;
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/setup-common.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/setup-common.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/setup-common.c
+@@ -439,7 +439,7 @@ void __init smp_setup_cpu_maps(void)
+ 	/*
+ 	 * Do the sibling map; assume only two threads per processor.
+ 	 */
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		cpu_set(cpu, cpu_sibling_map[cpu]);
+ 		if (cpu_has_feature(CPU_FTR_SMT))
+ 			cpu_set(cpu ^ 0x1, cpu_sibling_map[cpu]);
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/setup_32.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/setup_32.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/setup_32.c
+@@ -272,7 +272,7 @@ int __init ppc_init(void)
+ 	if ( ppc_md.progress ) ppc_md.progress("             ", 0xffff);
+ 
+ 	/* register CPU devices */
+-	for_each_cpu(i)
++	for_each_possible_cpu(i)
+ 		register_cpu(&cpu_devices[i], i, NULL);
+ 
+ 	/* call platform init */
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/setup_64.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/setup_64.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/setup_64.c
+@@ -518,7 +518,7 @@ static void __init irqstack_early_init(v
+ 	 * interrupt stacks must be under 256MB, we cannot afford to take
+ 	 * SLB misses on them.
+ 	 */
+-	for_each_cpu(i) {
++	for_each_possible_cpu(i) {
+ 		softirq_ctx[i] = (struct thread_info *)
+ 			__va(lmb_alloc_base(THREAD_SIZE,
+ 					    THREAD_SIZE, 0x10000000));
+@@ -551,7 +551,7 @@ static void __init emergency_stack_init(
+ 	 */
+ 	limit = min(0x10000000UL, lmb.rmo_size);
+ 
+-	for_each_cpu(i)
++	for_each_possible_cpu(i)
+ 		paca[i].emergency_sp =
+ 		__va(lmb_alloc_base(HW_PAGE_SIZE, 128, limit)) + HW_PAGE_SIZE;
+ }
+@@ -674,7 +674,7 @@ void __init setup_per_cpu_areas(void)
+ 		size = PERCPU_ENOUGH_ROOM;
+ #endif
+ 
+-	for_each_cpu(i) {
++	for_each_possible_cpu(i) {
+ 		ptr = alloc_bootmem_node(NODE_DATA(cpu_to_node(i)), size);
+ 		if (!ptr)
+ 			panic("Cannot allocate cpu data for CPU %d\n", i);
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/kernel/sysfs.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/kernel/sysfs.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/kernel/sysfs.c
+@@ -74,7 +74,7 @@ static int __init smt_setup(void)
+ 	val = (unsigned int *)get_property(options, "ibm,smt-snooze-delay",
+ 					   NULL);
+ 	if (!smt_snooze_cmdline && val) {
+-		for_each_cpu(cpu)
++		for_each_possible_cpu(cpu)
+ 			per_cpu(smt_snooze_delay, cpu) = *val;
  	}
  
- 	if (base == 0) {
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/i2c-parport.h
-+++ linux-2.6.16-rc6/drivers/i2c/busses/i2c-parport.h
-@@ -90,7 +90,7 @@ static struct adapter_parm adapter_parm[
- 	},
- };
+@@ -93,7 +93,7 @@ static int __init setup_smt_snooze_delay
+ 	smt_snooze_cmdline = 1;
  
--static int type;
-+static int type = -1;
- module_param(type, int, 0);
- MODULE_PARM_DESC(type,
- 	"Type of adapter:\n"
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/i2c-parport.c
-+++ linux-2.6.16-rc6/drivers/i2c/busses/i2c-parport.c
-@@ -241,9 +241,14 @@ static struct parport_driver i2c_parport
- 
- static int __init i2c_parport_init(void)
- {
--	if (type < 0 || type >= ARRAY_SIZE(adapter_parm)) {
-+	if (type < 0) {
-+		printk(KERN_WARNING "i2c-parport: adapter type unspecified\n");
-+		return -ENODEV;
-+	}
-+
-+	if (type >= ARRAY_SIZE(adapter_parm)) {
- 		printk(KERN_WARNING "i2c-parport: invalid type (%d)\n", type);
--		type = 0;
-+		return -ENODEV;
+ 	if (get_option(&str, &snooze)) {
+-		for_each_cpu(cpu)
++		for_each_possible_cpu(cpu)
+ 			per_cpu(smt_snooze_delay, cpu) = snooze;
  	}
  
- 	return parport_register_driver(&i2c_parport_driver);
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
-
+@@ -347,7 +347,7 @@ static int __init topology_init(void)
+ 
+ 	register_cpu_notifier(&sysfs_cpu_nb);
+ 
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		struct cpu *c = &per_cpu(cpu_devices, cpu);
+ 
+ #ifdef CONFIG_NUMA
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/platforms/pseries/xics.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/platforms/pseries/xics.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/platforms/pseries/xics.c
+@@ -540,7 +540,7 @@ nextnode:
+ 		ops = &pSeriesLP_ops;
+ 	else {
+ #ifdef CONFIG_SMP
+-		for_each_cpu(i) {
++		for_each_possible_cpu(i) {
+ 			int hard_id;
+ 
+ 			/* FIXME: Do this dynamically! --RR */
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/platforms/cell/interrupt.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/platforms/cell/interrupt.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/platforms/cell/interrupt.c
+@@ -284,7 +284,7 @@ void iic_init_IRQ(void)
+ 	struct iic *iic;
+ 
+ 	irq_offset = 0;
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		iic = &per_cpu(iic, cpu);
+ 		setup_iic(cpu, iic);
+ 		if (iic->regs)
+Index: linux-2.6.16-rc6-mm1/arch/powerpc/platforms/cell/pervasive.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/powerpc/platforms/cell/pervasive.c
++++ linux-2.6.16-rc6-mm1/arch/powerpc/platforms/cell/pervasive.c
+@@ -217,7 +217,7 @@ void __init cell_pervasive_init(void)
+ 	if (!cpu_has_feature(CPU_FTR_PAUSE_ZERO))
+ 		return;
+ 
+-	for_each_cpu(cpu) {
++	for_each_possible_cpu(cpu) {
+ 		p = &cbe_pervasive[cpu];
+ 		ret = cbe_find_pmd_mmio(cpu, p);
+ 		if (ret)
+Index: linux-2.6.16-rc6-mm1/include/asm-powerpc/percpu.h
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/include/asm-powerpc/percpu.h
++++ linux-2.6.16-rc6-mm1/include/asm-powerpc/percpu.h
+@@ -27,7 +27,7 @@
+ #define percpu_modcopy(pcpudst, src, size)			\
+ do {								\
+ 	unsigned int __i;					\
+-	for_each_cpu(__i)					\
++	for_each_possible_cpu(__i)				\
+ 		memcpy((pcpudst)+__per_cpu_offset(__i),		\
+ 		       (src), (size));				\
+ } while (0)

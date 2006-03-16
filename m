@@ -1,80 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWCPFMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbWCPFXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbWCPFMW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 00:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbWCPFMV
+	id S932657AbWCPFXE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 00:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbWCPFXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 00:12:21 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63195 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932430AbWCPFMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 00:12:20 -0500
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 14/24] i386 Vmi reboot fixes
-References: <200603131809.k2DI9slZ005727@zach-dev.vmware.com>
-	<m1fyljxvk8.fsf@ebiederm.dsl.xmission.com>
-	<4418A21E.6030704@vmware.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 15 Mar 2006 22:03:44 -0700
-In-Reply-To: <4418A21E.6030704@vmware.com> (Zachary Amsden's message of
- "Wed, 15 Mar 2006 15:24:14 -0800")
-Message-ID: <m1d5gnc767.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Mar 2006 00:23:04 -0500
+Received: from xenotime.net ([66.160.160.81]:35530 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932657AbWCPFXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 00:23:03 -0500
+Date: Wed, 15 Mar 2006 21:24:59 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Eugene Teo <eugene.teo@eugeneteo.net>
+Cc: linux-kernel@vger.kernel.org, perex@suse.cz
+Subject: Re: Fix gus_pcm dereference before NULL
+Message-Id: <20060315212459.74cc8b78.rdunlap@xenotime.net>
+In-Reply-To: <20060316020007.GA20734@eugeneteo.net>
+References: <20060316020007.GA20734@eugeneteo.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden <zach@vmware.com> writes:
+On Thu, 16 Mar 2006 10:00:07 +0800 Eugene Teo wrote:
 
-> Eric W. Biederman wrote:
->> Zachary Amsden <zach@vmware.com> writes:
->> Huh?  Rebooting through the BIOS and kexec are pretty much mutually exclusive.
->> Looking at the patch I can't see what you are talking about either.
->>
->
-> Let me rephrase - kexec doesn't define calls for machine_shutdown and others
-> that are in arch/i386/kernel/reboot.c.  So kexec requires BIOS reboot code to be
-> compiled in, even though the usage of the two is mutually exclusive.
+> substream is dereferenced before checking for NULL.
+> 
+> Coverity bug #861
+> 
+> Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+> 
+> --- linux-2.6/sound/isa/gus/gus_pcm.c~	2006-03-15 10:05:45.000000000 +0800
+> +++ linux-2.6/sound/isa/gus/gus_pcm.c	2006-03-16 09:51:43.000000000 +0800
+> @@ -103,8 +103,8 @@
 
-Partially true.  Basically it has never been optional to compile in the
-BIOS reboot code and kexec did not change that situation.  Although it
-did provide a similar mechanism.
+BTW, please use "-p" diff option so that the "@@" sections
+include function or struct names etc.  I.e., be nice to patch
+readers/reviewers.  :)
 
->> Does kexec successfully work under VMWare?
->>
->
-> It should work just fine.  But it could expose bugs on either end.  I've been
-> monitoring our kexec testing, and I'll be able to help you with any issues that
-> we might find on the Linux side.  :)
-
-Ok.
-
->> machine_halt does not want to stop the processor.  It is very much
->> about killing the kernel and user space but having the software still
->> linger a little.
->>
->
-> I was afraid of that.  I can back that change out.  The problem I had was that
-> the shutdown code I was running in userspace would not make the syscalls to
-> actually call machine_power_off, but machine_halt instead.  Will fix.
-
-/sbin/halt -p will call machine_power_off if pm_power_off is defined.
-otherwise it will call machine_halt.
-
-Eric
-
+---
+~Randy

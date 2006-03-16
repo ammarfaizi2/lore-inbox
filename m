@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWCPJBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751930AbWCPJME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWCPJBz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 04:01:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751930AbWCPJBy
+	id S1751930AbWCPJME (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 04:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752231AbWCPJME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 04:01:54 -0500
-Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:38071
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751159AbWCPJBy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 04:01:54 -0500
-Subject: Re: [patch 5/8] hrtimer remove state field
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.64.0603152055380.16802@scrub.home>
-References: <20060312080316.826824000@localhost.localdomain>
-	 <20060312080332.274315000@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121302590.16802@scrub.home>
-	 <1142169010.19916.397.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121422180.16802@scrub.home>
-	 <1142170505.19916.402.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121444530.16802@scrub.home>
-	 <1142172917.19916.421.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121523320.16802@scrub.home>
-	 <1142175286.19916.459.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121608440.17704@scrub.home>
-	 <1142178108.19916.475.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603121650230.16802@scrub.home>
-	 <1142180796.19916.497.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0603152055380.16802@scrub.home>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 10:01:53 +0100
-Message-Id: <1142499713.29968.11.camel@localhost.localdomain>
+	Thu, 16 Mar 2006 04:12:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56545 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751930AbWCPJMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 04:12:02 -0500
+Date: Thu, 16 Mar 2006 10:11:51 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]swsusp: drain high mem pages
+Message-ID: <20060316091151.GC1729@elf.ucw.cz>
+References: <1142481202.26706.15.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1142481202.26706.15.camel@sli10-desk.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman,
+On Čt 16-03-06 11:53:22, Shaohua Li wrote:
+> Highmem could be in pcp list as well.
 
-> I have an idea what might have happened. You don't advance the pending 
-> state, if the signal isn't queued, so that the pending state is screwed up 
-> afterwards. Although I don't see how it could crash the kernel (it has 
-> only the potential to mess up the timer queue via hrtimer_forward() a 
-> bit), but I don't know what other patches were applied.
+This explains some strangeness I was seeing before.
 
-Good catch, but I dont see how it would trigger the bug.
+OTOH it is nothing but ugly these days, so this is not urgent for 2.6.16.
 
-> For example no current user restarts an active timer, which could be used 
-> to simplify the locking.
+ACK.
+								Pavel
 
-How does this simplify the locking ? It just removes the
-hrtimer_cancel() call in hrtimer_start() and makes the
-switch_hrtimer_base() code a bit simpler. 
+> Signed-off-by: Shaohua Li<shaohua.li@intel.com>
+> ---
+> 
+>  linux-2.6.15-root/kernel/power/snapshot.c |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> diff -puN kernel/power/snapshot.c~drain_highmem kernel/power/snapshot.c
+> --- linux-2.6.15/kernel/power/snapshot.c~drain_highmem	2006-03-14 13:38:16.000000000 +0800
+> +++ linux-2.6.15-root/kernel/power/snapshot.c	2006-03-14 14:13:30.000000000 +0800
+> @@ -120,6 +120,7 @@ int save_highmem(void)
+>  	int res = 0;
+>  
+>  	pr_debug("swsusp: Saving Highmem\n");
+> +	drain_local_pages();
+>  	for_each_zone (zone) {
+>  		if (is_highmem(zone))
+>  			res = save_highmem_zone(zone);
+> _
+> 
 
-The general locking rules would be still the same and I dont see
-increased flexibility at all.
-
-> If we tightened a bit what a user is allowed to 
-> do, we could gain flexibility on the other side, e.g. allow drivers to 
-> create timer sources or how to integrate cpu timer.
-
--ENOPARSE. Can you please explain what "allow drivers to create timer
-sources" means and why the above locking is in the way ?
-
-	tglx
-
-
+-- 
+220: * This program is distributed in the hope that it will be useful,

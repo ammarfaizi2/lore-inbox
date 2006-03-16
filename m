@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWCPS7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWCPTAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWCPS7j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 13:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWCPS7j
+	id S964852AbWCPTAR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:00:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWCPTAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 13:59:39 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:32896 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964830AbWCPS7i (ORCPT
+	Thu, 16 Mar 2006 14:00:17 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:17676 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S964848AbWCPTAP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 13:59:38 -0500
-Date: Thu, 16 Mar 2006 19:58:40 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Zachary Amsden <zach@vmware.com>
-cc: Rik van Riel <riel@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
-In-Reply-To: <441658A2.4090905@vmware.com>
-Message-ID: <Pine.LNX.4.61.0603161956570.11776@yvahk01.tjqt.qr>
-References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>
- <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com>
- <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com> <441658A2.4090905@vmware.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Mar 2006 14:00:15 -0500
+Date: Thu, 16 Mar 2006 19:59:51 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jiri Benc <jbenc@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, rusty@rustcorp.com.au,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] kbuild: fix buffer overflow in modpost
+Message-ID: <20060316185951.GA21681@mars.ravnborg.org>
+References: <20060315154436.4286d2ab@griffin.suse.cz> <1142434648.17627.5.camel@tara.firmix.at> <20060315160858.311e5c0e@griffin.suse.cz> <20060315225159.GA11095@mars.ravnborg.org> <20060316142114.74367113@griffin.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060316142114.74367113@griffin.suse.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> But most importantly, I really don't understand how it is possible to make a
-> patch to the Linux kernel and not release it under GPL.
->
+Hi Linus - please apply to 2.6.16-rc
 
-If the patch is so ultimatively trivial that there is only a few solutions (one
-or two), then there is no use in gpl'ing that flock of patchcode, in which case
-I think, it is (or at best should be) public domain. In conjunction with the
-patched function, they will/should become GPL.
+Jiri Benc <jbenc@suse.cz> reported that modpost would stop with SIGABRT if
+used with long filepaths.
+The error looked like:
+>   Building modules, stage 2.
+>   MODPOST
+> *** glibc detected *** scripts/mod/modpost: realloc(): invalid next size:
++0x0809f588 ***
+> [...]
 
+Following patch fixes this by allocating at least the required
+memory + SZ bytes each time. Before we sometimes ended up allocating
+too little memory resuting in the glibc detected bug above.
+Based on patch originally submitted by: Jiri Benc <jbenc@suse.cz>
 
-Jan Engelhardt
--- 
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+---
+
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index f70ff13..b8b2a56 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -508,12 +508,7 @@ buf_printf(struct buffer *buf, const cha
+ 	
+ 	va_start(ap, fmt);
+ 	len = vsnprintf(tmp, SZ, fmt, ap);
+-	if (buf->size - buf->pos < len + 1) {
+-		buf->size += 128;
+-		buf->p = realloc(buf->p, buf->size);
+-	}
+-	strncpy(buf->p + buf->pos, tmp, len + 1);
+-	buf->pos += len;
++	buf_write(buf, tmp, len);
+ 	va_end(ap);
+ }
+ 
+@@ -521,7 +516,7 @@ void
+ buf_write(struct buffer *buf, const char *s, int len)
+ {
+ 	if (buf->size - buf->pos < len) {
+-		buf->size += len;
++		buf->size += len + SZ;
+ 		buf->p = realloc(buf->p, buf->size);
+ 	}
+ 	strncpy(buf->p + buf->pos, s, len);

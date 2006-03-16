@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752198AbWCPGqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752189AbWCPGqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752198AbWCPGqv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 01:46:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752200AbWCPGqu
+	id S1752189AbWCPGqg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 01:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752192AbWCPGqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 01:46:50 -0500
-Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:51422 "EHLO
-	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
-	id S1752192AbWCPGqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 01:46:38 -0500
-Date: Thu, 16 Mar 2006 14:46:37 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: [PATCH] Hamradio: Fix a NULL pointer dereference in
- net/hamradio/6pack.c
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Osterried DL9SAU <thomas@x-berg.in-berlin.de>,
-       Ralf Baechle DL5RB <ralf@linux-mips.org>,
-       Hans Alblas PE1AYX <hans@esrac.ele.tue.nl>
-Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
-Message-id: <20060316064637.GA22737@eugeneteo.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
-X-Operating-System: Debian GNU/Linux 2.6.16-rc6
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 16 Mar 2006 01:46:36 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:40581 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752189AbWCPGqf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 01:46:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=M4JQ92/bmGc1twtTPIhVyOn2G7husLdt8yQbUqjLldGieLH2Owy6D6RAtYvOvvPFDMrkfCVH4KC7nGNLpN7ENhA0jVmI/qmC1LoHBTahardSzvThNk8FnNHU60r7njUVAccDjgvxCOE+pQ82edQ1xGLTZlY5FkgY1kIwp8m6Ikc=
+Message-ID: <38c09b90603152246yc168984j3921bfbd27b5d3ae@mail.gmail.com>
+Date: Thu, 16 Mar 2006 14:46:34 +0800
+From: "Lanslott Gish" <lanslott.gish@gmail.com>
+To: "Lanslott Gish" <lanslott.gish@gmail.com>,
+       "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>,
+       "Greg KH" <greg@kroah.com>,
+       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
+       hc@mivu.no, vojtech@suse.cz
+Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
+In-Reply-To: <20060315140800.GC32065@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com>
+	 <200603112155.38984.daniel.ritz-ml@swissonline.ch>
+	 <38c09b90603121701q69c61221lf92bb150e419b1c9@mail.gmail.com>
+	 <38c09b90603131710p7932c12qf6e8602b9b0b59c8@mail.gmail.com>
+	 <20060314103854.GC32065@lug-owl.de>
+	 <38c09b90603142030o7092a39aq8ace7758972ce09a@mail.gmail.com>
+	 <20060315140800.GC32065@lug-owl.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pointer sp is dereferenced before NULL check.
+i'm not sure if any touch device need this.
+If some need, please move any code to general part. thx.
 
-Coverity bug #816
 
-Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+On 3/15/06, Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
+> On Wed, 2006-03-15 12:30:04 +0800, Lanslott Gish <lanslott.gish@gmail.com> wrote:
+> > did you mean like that? thx.
+>
+> That's basically the same patch as before?! What was ment is to move
+> inverting the axes into usbtouch_process_pkt().
+>
+> MfG, JBG
+>
+> --
 
---- linux-2.6/drivers/net/hamradio/6pack.c~	2006-03-15 10:05:35.000000000 +0800
-+++ linux-2.6/drivers/net/hamradio/6pack.c	2006-03-16 14:43:44.000000000 +0800
-@@ -726,13 +726,16 @@ static void sixpack_close(struct tty_str
- static int sixpack_ioctl(struct tty_struct *tty, struct file *file,
- 	unsigned int cmd, unsigned long arg)
- {
--	struct sixpack *sp = sp_get(tty);
--	struct net_device *dev = sp->dev;
-+	struct sixpack *sp;
-+	struct net_device *dev;
- 	unsigned int tmp, err;
- 
- 	if (!sp)
- 		return -ENXIO;
- 
-+	sp = sp_get(tty);
-+	dev = sp->dev;
-+
- 	switch(cmd) {
- 	case SIOCGIFNAME:
- 		err = copy_to_user((void __user *) arg, dev->name,
 
--- 
-1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
-
+--
+L.G, Life's Good~

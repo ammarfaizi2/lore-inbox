@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWCPTKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWCPTLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbWCPTKh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWCPTKg
+	id S964844AbWCPTLe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWCPTLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:10:36 -0500
-Received: from silver.veritas.com ([143.127.12.111]:31370 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S964838AbWCPTKg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:10:36 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,198,1139212800"; 
-   d="scan'208"; a="35987525:sNHT24337280"
-Date: Thu, 16 Mar 2006 19:11:14 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix free swap cache latency
-Message-ID: <Pine.LNX.4.61.0603161853300.24463@goblin.wat.veritas.com>
+	Thu, 16 Mar 2006 14:11:34 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:14762 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964844AbWCPTLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 14:11:33 -0500
+Date: Thu, 16 Mar 2006 20:10:56 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Zachary Amsden <zach@vmware.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
+In-Reply-To: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
+Message-ID: <Pine.LNX.4.61.0603162008300.11776@yvahk01.tjqt.qr>
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Mar 2006 19:10:35.0585 (UTC) FILETIME=[4DE50B10:01C6492D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell reported 28ms latency when process with lots of swapped memory
-exits.
+>
+>The question of licensing of such ROM code is a completely separate
+>issue.  We are not trying to hide some proprietary code by putting it
+>inside of a ROM to keep it hidden.  In fact, you can disassemble the
+>ROM code and see it quite readily - and you know all of the entry points.
+>Whether we can distribute our ROM code under a GPL compatible license
+>is not something I know at this time.  Just as you can't compile a
+>binary using Linux kernel headers and claim that your binary is not
+>subject to the GPL, our ROM code includes headers from other parts of
+>our system that are specifically not under the GPL.  How this affects
+>the final license under which the ROM is distributed is not something
+>I think we know at this time.
 
-2.6.15 introduced a latency regression when unmapping: in accounting the
-zap_work latency breaker, pte_none counted 1, pte_present PAGE_SIZE, but
-a swap entry counted nothing at all.  We think of pages present as the
-slow case, but Lee's trace shows that free_swap_and_cache's radix tree
-lookup can make a lot of work - and we could have been doing it many
-thousands of times without a latency break.
+The code _you_ wrote can be put under any license(s) you want, so in
+the worst case you do not need to rewrite your .c files.
 
-Move the zap_work update up to account swap entries like pages present.
-This does account non-linear pte_file entries, and unmap_mapping_range
-skipping over swap entries, by the same amount even though they're quick:
-but neither of those cases deserves complicating the code (and they're
-treated no worse than they were in 2.6.14).
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-Acked-by: Nick Piggin <npiggin@suse.de>
----
-Andrew, I recommend this one for 2.6.16: but you may fairly disagree,
-so I'm sending it to you, to pass on to Linus or not as you see fit.
-Lee doesn't expect to be able to reproduce the testcase quickly, so
-the fix has not been verified: but we consider it self-evidently good.
-
- mm/memory.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
---- 2.6.16-rc6/mm/memory.c	2006-03-12 15:25:45.000000000 +0000
-+++ linux/mm/memory.c	2006-03-15 07:32:36.000000000 +0000
-@@ -623,11 +623,12 @@ static unsigned long zap_pte_range(struc
- 			(*zap_work)--;
- 			continue;
- 		}
-+
-+		(*zap_work) -= PAGE_SIZE;
-+
- 		if (pte_present(ptent)) {
- 			struct page *page;
- 
--			(*zap_work) -= PAGE_SIZE;
--
- 			page = vm_normal_page(vma, addr, ptent);
- 			if (unlikely(details) && page) {
- 				/*
+Jan Engelhardt
+-- 

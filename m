@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752258AbWCPJdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752296AbWCPJj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752258AbWCPJdo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 04:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPJdn
+	id S1752296AbWCPJj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 04:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752287AbWCPJj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 04:33:43 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:25169 "HELO
+	Thu, 16 Mar 2006 04:39:59 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:4183 "HELO
 	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751842AbWCPJdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 04:33:43 -0500
+	id S1751222AbWCPJj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 04:39:58 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ZgkHslDEi5K5pPbs3TFffEXVUOXUUKX3asceYlsgWG+FYPxWfIdRZBRTBm4n32YhGDzgNF9Hud1e4yhihKD7zKSE5dFafMOu3BsCG3jASmytJkb9ABfokRVr76jSLF1DH5fNGuIxfWgIsItZGQrBasli5lePpXNWH2+KUuhVnpg=  ;
-Message-ID: <44190934.7040207@yahoo.com.au>
-Date: Thu, 16 Mar 2006 17:44:04 +1100
+  b=vc4o4cOeuGfXPHkOJGTJ1li9vRNgsF81wsDKRcZAy/RxlmPT+i8K123nP84wwonsSLO7yX7sKH+x2GDjJ6gAJ4OydI3+tvjV42m4dNFeq7//hIpRC5jyJD2CVLgGIjZTiGVWaexQH2iQY0YzbyAyehR3LQtotkVlCKn9pGv5Gxc=  ;
+Message-ID: <44190A7C.6030901@yahoo.com.au>
+Date: Thu, 16 Mar 2006 17:49:32 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Roland Dreier <rdreier@cisco.com>, bos@pathscale.com, Hugh@veritas.com,
-       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
- driver
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>	<ada4q27fban.fsf@cisco.com>	<1141948516.10693.55.camel@serpentine.pathscale.com>	<ada1wxbdv7a.fsf@cisco.com>	<1141949262.10693.69.camel@serpentine.pathscale.com>	<20060309163740.0b589ea4.akpm@osdl.org>	<1142470579.6994.78.camel@localhost.localdomain>	<ada3bhjuph2.fsf@cisco.com>	<1142475069.6994.114.camel@localhost.localdomain>	<adaslpjt8rg.fsf@cisco.com>	<1142477579.6994.124.camel@localhost.localdomain>	<20060315192813.71a5d31a.akpm@osdl.org>	<1142485103.25297.13.camel@camp4.serpentine.com>	<20060315213813.747b5967.akpm@osdl.org>	<ada8xrbszmx.fsf@cisco.com> <20060315221716.19a92762.akpm@osdl.org>
-In-Reply-To: <20060315221716.19a92762.akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines for_each_possible_cpu
+References: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>	<4418DEEA.2000008@yahoo.com.au>	<20060316131743.d7b716e9.kamezawa.hiroyu@jp.fujitsu.com>	<4418E879.3000207@yahoo.com.au> <20060316152206.7ac3bdb4.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060316152206.7ac3bdb4.kamezawa.hiroyu@jp.fujitsu.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+KAMEZAWA Hiroyuki wrote:
+> On Thu, 16 Mar 2006 15:24:25 +1100
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> vm_insert_page() mucks around with rmap-named functions which don't
-> actually do rmap
+>>I'm sure that renaming for_each_cpu would not prevent that either.
+>>
+> 
+> 
+> But maintainers can check easily whether online or possible should be,
+> when they received a patch which includes for_each_cpu().
+> 
 
-What functions are those? I don't see.
-
-> and sports apparently-incorrect comments wrt
-> PageReserved().
-
-What's the comment? Are we looking at the same vm_insert_page?
-
->  I don't know how well-cared-for it is...
-
-I think Linus has been caring for it since he added it 3 months ago ;)
+The submitter of the patch should have already thought of that
+regardless of the name of the function. Everybody should be on
+the same page anyway because for_each_cpu has always meant for
+each possible CPU.
 
 -- 
 SUSE Labs, Novell Inc.

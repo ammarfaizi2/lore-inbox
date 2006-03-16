@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbWCPS51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWCPS46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbWCPS51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 13:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWCPS51
+	id S964834AbWCPS46 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 13:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWCPS46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 13:57:27 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17829 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964836AbWCPS50 (ORCPT
+	Thu, 16 Mar 2006 13:56:58 -0500
+Received: from xenotime.net ([66.160.160.81]:22493 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964834AbWCPS45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 13:57:26 -0500
-Date: Thu, 16 Mar 2006 10:57:19 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Race in pagevec_strip?
-In-Reply-To: <Pine.LNX.4.64.0603161033120.2395@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64.0603161056270.2518@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0603161033120.2395@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Mar 2006 13:56:57 -0500
+Date: Thu, 16 Mar 2006 10:58:53 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: sam@ravnborg.org, hch@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
+Subject: Re: [patch 1/1] consolidate TRUE and FALSE
+Message-Id: <20060316105853.f62b2fe4.rdunlap@xenotime.net>
+In-Reply-To: <20060316184946.GX27946@ftp.linux.org.uk>
+References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
+	<20060316160129.GB6407@infradead.org>
+	<20060316082951.58592fdc.rdunlap@xenotime.net>
+	<20060316163001.GA7222@infradead.org>
+	<20060316174112.GA21003@mars.ravnborg.org>
+	<20060316180047.GW27946@ftp.linux.org.uk>
+	<20060316101220.67f4f33c.rdunlap@xenotime.net>
+	<20060316184946.GX27946@ftp.linux.org.uk>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sigh. TestSetPackLocked works just opposite of spin_trylock. So add an !
+On Thu, 16 Mar 2006 18:49:46 +0000 Al Viro wrote:
 
+> On Thu, Mar 16, 2006 at 10:12:20AM -0800, Randy.Dunlap wrote:
+> > On Thu, 16 Mar 2006 18:00:47 +0000 Al Viro wrote:
+> > 
+> > > On Thu, Mar 16, 2006 at 06:41:12PM +0100, Sam Ravnborg wrote:
+> > > > I assume that when you are not used to see 'bool', 'true' and 'false'
+> > > > then they hurt the eye, but when used to it it looks natural.
+> > > 
+> > > Five words: kernel is written in C.
+> > > 
+> > > Not in Pascal.  Not in C++.  Not in Algol.  "When used to (something
+> > > non-idiomatic in C) it becomes natural" is not a valid argument.
+> > 
+> > C (C99) now includes booleans.  Are we stuck pre-C99?
+> 
+> TRUE and FALSE are not those.  Your point is...?
 
-Seems that we can call try_to_release_page with PagePrivate off and a 
-valid mapping? This may cause all sorts of trouble for the 
-filesystem *_releasepage() handlers. XFS bombs out in that case.
- 
-Lock the page before checking for page private.
- 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Correct.  So it would be better if they were spelled 'true' and 'false',
+as in the C99 spec?
 
-Index: linux-2.6.16-rc6/mm/swap.c
-===================================================================
---- linux-2.6.16-rc6.orig/mm/swap.c	2006-03-11 14:12:55.000000000 -0800
-+++ linux-2.6.16-rc6/mm/swap.c	2006-03-16 10:15:23.000000000 -0800
-@@ -392,8 +392,9 @@ void pagevec_strip(struct pagevec *pvec)
- 	for (i = 0; i < pagevec_count(pvec); i++) {
- 		struct page *page = pvec->pages[i];
- 
--		if (PagePrivate(page) && !TestSetPageLocked(page)) {
--			try_to_release_page(page, 0);
-+		if (!TestSetPageLocked(page)) {
-+			if (PagePrivate(page))
-+				try_to_release_page(page, 0);
- 			unlock_page(page);
- 		}
- 	}
+---
+~Randy

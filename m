@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWCPOeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWCPOmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWCPOeD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 09:34:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWCPOeD
+	id S1751145AbWCPOmi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 09:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWCPOmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 09:34:03 -0500
-Received: from silver.veritas.com ([143.127.12.111]:28422 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751141AbWCPOeB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 09:34:01 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,197,1139212800"; 
-   d="scan'208"; a="35973233:sNHT24247648"
-Date: Thu, 16 Mar 2006 14:34:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       "Bryan O'Sullivan" <bos@pathscale.com>, torvalds@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
- driver
-In-Reply-To: <4419062C.6000803@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
- <ada4q27fban.fsf@cisco.com> <1141948516.10693.55.camel@serpentine.pathscale.com>
- <ada1wxbdv7a.fsf@cisco.com> <1141949262.10693.69.camel@serpentine.pathscale.com>
- <20060309163740.0b589ea4.akpm@osdl.org> <1142470579.6994.78.camel@localhost.localdomain>
- <ada3bhjuph2.fsf@cisco.com> <1142475069.6994.114.camel@localhost.localdomain>
- <adaslpjt8rg.fsf@cisco.com> <1142477579.6994.124.camel@localhost.localdomain>
- <20060315192813.71a5d31a.akpm@osdl.org> <1142485103.25297.13.camel@camp4.serpentine.com>
- <20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com>
- <4419062C.6000803@yahoo.com.au>
+	Thu, 16 Mar 2006 09:42:38 -0500
+Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:57306 "EHLO
+	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
+	id S1751145AbWCPOmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 09:42:38 -0500
+Date: Thu, 16 Mar 2006 15:42:26 +0100
+From: Gabor Gombas <gombasg@sztaki.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Jeff Garzik <jeff@garzik.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>,
+       Allen Martin <AMartin@nvidia.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost ticks on PM timer]
+Message-ID: <20060316144226.GV15509@boogie.lpds.sztaki.hu>
+References: <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <20060315215020.GA18241@elte.hu> <20060315221119.GA21775@elte.hu> <44189654.2080607@garzik.org> <20060315224408.GC24074@elte.hu> <44189A3D.5090202@garzik.org> <20060315231426.GD17817@ti64.telemetry-investments.com> <20060316031528.GF17817@ti64.telemetry-investments.com> <1142482825.1671.148.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Mar 2006 14:34:01.0240 (UTC) FILETIME=[AAE4F180:01C64906]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142482825.1671.148.camel@mindpipe>
+X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Mar 2006, Nick Piggin wrote:
-> > 
-> > How about the case where one wants to map pages from
-> > dma_alloc_coherent() into userspace?  It seems one should do
-> > get_page() in .nopage, and then the driver can do dma_free_coherent()
-> > when the vma is released.
-> 
-> I think so, provided you set VM_IO on the vma. You need VM_IO to
-> ensure that get_user_pages callers can't hijack your page's lifetime
-> rules
+On Wed, Mar 15, 2006 at 11:20:24PM -0500, Lee Revell wrote:
 
-Once __GFP_COMP is passed to the dma_alloc_coherent, as it needs to be
-(unless going VM_PFNMAP), get_user_pages will be safe: no need for VM_IO.
+> Lots of people have these boards and it seems like if the problem was
+> widespread, I would have seen it on the Linux audio lists, as many of
+> those users run Ingo's instrumented kernel and they all know to report
+> latency traces when they get them.
 
-Hugh
+I did not experience any sata_nv problems with 2 disks/RAID1 (at least I
+never noticed). I immediately got the "warning: many lost ticks. Your
+time source seems to be instable or some driver is hogging interupts"
+message when I started using 4 disks/RAID5. It's possible that most
+people do not have enough disks connected to the nForce4 to trigger the
+bug.
+
+Gabor
+
+-- 
+     ---------------------------------------------------------
+     MTA SZTAKI Computer and Automation Research Institute
+                Hungarian Academy of Sciences
+     ---------------------------------------------------------

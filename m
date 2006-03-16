@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWCPXzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWCPX4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWCPXzI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 18:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWCPXzI
+	id S964915AbWCPX4J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 18:56:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWCPX4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 18:55:08 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50704 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964908AbWCPXzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 18:55:06 -0500
-Date: Fri, 17 Mar 2006 00:55:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-scsi@vger.kernel.org,
-       promise_linux@promise.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
-Message-ID: <20060316235504.GH3914@stusta.de>
-References: <20060313224112.GA19513@havoc.gtf.org> <20060313154236.32293cf9.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060313154236.32293cf9.akpm@osdl.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 16 Mar 2006 18:56:08 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:22506 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S964909AbWCPX4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 18:56:06 -0500
+Subject: Re: Remapping pages mapped to userspace (was: [PATCH 10 of 20]
+	ipath - support for userspace apps using core driver)
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <adad5gmne20.fsf_-_@cisco.com>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org>
+	 <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+	 <adad5gmne20.fsf_-_@cisco.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 16 Mar 2006 15:56:01 -0800
+Message-Id: <1142553361.15045.19.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 13, 2006 at 03:42:36PM -0800, Andrew Morton wrote:
-> Jeff Garzik <jeff@garzik.org> wrote:
->...
-> > +config SCSI_SHASTA
-> > +	tristate "Promise SuperTrek EX8350/8300/16350/16300 support"
-> > +	depends on PCI && SCSI
-> 
-> Might it also depend upon BLK_DEV_SD?
->...
+On Thu, 2006-03-16 at 15:51 -0800, Roland Dreier wrote:
 
-None of the other RAID adapters in drivers/scsi/Kconfig does.
+> However, on a hot unplug event, when the underlying PCI device is
+> going away, I would like to replace that mapping with a mapping (with
+> a mapping to the zero page?), so that userspace accesses after the
+> device is gone don't explode.
 
-cu
-Adrian
+Why would you not want accesses to explode?  Exploding seems like the
+right behaviour to me, since there's no hardware for userspace to talk
+to any more.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+	<b
 

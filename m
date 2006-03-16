@@ -1,623 +1,841 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWCPQzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbWCPQ5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWCPQzx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 11:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWCPQzw
+	id S932413AbWCPQ5z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 11:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWCPQ5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 11:55:52 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:20640 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S932417AbWCPQzv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 11:55:51 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-       Carsten Otte <cotte@de.ibm.com>
-Subject: [patch] mspec - special memory driver and do_no_pfn handler
-From: Jes Sorensen <jes@sgi.com>
-Date: 16 Mar 2006 11:55:48 -0500
-Message-ID: <yq0k6auuy5n.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Thu, 16 Mar 2006 11:57:55 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:19671 "EHLO
+	mail1.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S932413AbWCPQ5y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 11:57:54 -0500
+Date: Thu, 16 Mar 2006 11:57:37 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       Andi Kleen <ak@suse.de>, Jeff Garzik <jeff@garzik.org>,
+       Jason Baron <jbaron@redhat.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost ticks on PM timer]
+Message-ID: <20060316165737.GA23248@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
+	Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
+	Jeff Garzik <jeff@garzik.org>, Jason Baron <jbaron@redhat.com>,
+	linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+References: <200602280022.40769.darkray@ic3man.com> <4408BEB5.7000407@garzik.org> <20060303234330.GA14401@ti64.telemetry-investments.com> <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <1142459152.1671.64.camel@mindpipe> <20060315215848.GB18241@elte.hu> <20060315220046.GA20469@elte.hu> <1142522019.13318.27.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142522019.13318.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 16, 2006 at 03:13:39PM +0000, Alan Cox wrote:
+> On Mer, 2006-03-15 at 23:00 +0100, Ingo Molnar wrote:
+> > so my guess would be that this device doesnt do MMIO, and the PIO inb() 
+> > causes some bad BIOS-based SMM handler/emulator to trigger, which takes 
+> > 16.6 msecs. If indeed the device is not in MMIO mode, is there a way to 
+> > force it into MMIO mode, to test this theory?
+> 
+> There is a much more reliable way to check this. Use the profiling
+> registers to check the instruction issue count before/after the I/O and
+> you'll know if its something like SMM or just a bus stall.
 
-This is an updated version of the mspec driver (special memory
-support), formerly known as fetchop.
 
-With this version I have implemented a do_no_pfn() handler, similar to
-the do_no_page() handler but for pages which are not backed by a
-struct page. This avoids the trick used in earlier versions where the
-driver was allocating a dumy page returning it back to the
-do_no_page() handler which would the free it immediately. Hopefully
-this addresses the main concern there were with this driver in the
-past.
+Brilliant [as usual 8-)].
 
-The reason for taking the do_no_pfn() approch rather than
-remap_pfn_range() is that it needs to benefit from node locality of
-the pages on NUMA systems.
 
-While the driver is currently only used on SN2 hardware, it is placed
-in drivers/char as it should be possible and beneficial for other
-architectures to implement and use the uncached mode.
+So I imagine that the thing to do is just insert before/after
+rdmsr(MSR_K7_PERFCTR[0123]) into the code, with a suitable printk(),
+and then program the counters with oprofile to use large event
+counts (lasting seconds)?  The -rt patch could make good use of some
+infrastructure for doing this.
 
-Please let me know if there are any objections or comments etc. to
-this approach. If preferred I can split out the do_no_pfn part into a
-seperate patch.
+> I can believe the bus stall because some devices will queue a large FIFO
+> of data for the disk and the status read may require flushing it all
+> out.
 
-Cheers,
-Jes
+It may involve synchronous writes. 
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
+I did as Ingo suggested, and added the before/after mcount()s:
 
- drivers/char/Kconfig  |    8 
- drivers/char/Makefile |    1 
- drivers/char/mspec.c  |  442 ++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/mm.h    |    1 
- mm/memory.c           |   51 +++++
- 5 files changed, 502 insertions(+), 1 deletion(-)
-
-Index: linux-2.6/drivers/char/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/char/Kconfig
-+++ linux-2.6/drivers/char/Kconfig
-@@ -421,6 +421,14 @@
-          If you have an SGI Altix with an attached SABrick
-          say Y or M here, otherwise say N.
- 
-+config MSPEC
-+	tristate "  Memory special operations driver"
-+	depends on IA64
-+	help
-+	  If you have an ia64 and you want to enable memory special
-+	  operations support (formerly known as fetchop), say Y here,
-+	  otherwise say N.
-+
- source "drivers/serial/Kconfig"
- 
- config UNIX98_PTYS
-Index: linux-2.6/drivers/char/Makefile
-===================================================================
---- linux-2.6.orig/drivers/char/Makefile
-+++ linux-2.6/drivers/char/Makefile
-@@ -49,6 +49,7 @@
- obj-$(CONFIG_VIOTAPE)		+= viotape.o
- obj-$(CONFIG_HVCS)		+= hvcs.o
- obj-$(CONFIG_SGI_MBCS)		+= mbcs.o
-+obj-$(CONFIG_MSPEC)		+= mspec.o
- 
- obj-$(CONFIG_PRINTER) += lp.o
- obj-$(CONFIG_TIPAR) += tipar.o
-Index: linux-2.6/drivers/char/mspec.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/char/mspec.c
-@@ -0,0 +1,442 @@
-+/*
-+ * Copyright (C) 2001-2006 Silicon Graphics, Inc.  All rights
-+ * reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of version 2 of the GNU General Public License
-+ * as published by the Free Software Foundation.
-+ */
-+
-+/*
-+ * SN Platform Special Memory (mspec) Support
-+ *
-+ * This driver exports the SN special memory (mspec) facility to user
-+ * processes.
-+ * There are three types of memory made available thru this driver:
-+ * fetchops, uncached and cached.
-+ *
-+ * Fetchops are atomic memory operations that are implemented in the
-+ * memory controller on SGI SN hardware.
-+ *
-+ * Uncached are used for memory write combining feature of the ia64
-+ * cpu.
-+ *
-+ * Cached are used for areas of memory that are used as cached addresses
-+ * on our partition and used as uncached addresses from other partitions.
-+ * Due to a design constraint of the SN2 Shub, you can not have processors
-+ * on the same FSB perform both a cached and uncached reference to the
-+ * same cache line.  These special memory cached regions prevent the
-+ * kernel from ever dropping in a TLB entry and therefore prevent the
-+ * processor from ever speculating a cache line from this page.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/errno.h>
-+#include <linux/miscdevice.h>
-+#include <linux/spinlock.h>
-+#include <linux/mm.h>
-+#include <linux/proc_fs.h>
-+#include <linux/vmalloc.h>
-+#include <linux/bitops.h>
-+#include <linux/string.h>
-+#include <linux/slab.h>
-+#include <linux/seq_file.h>
-+#include <linux/efi.h>
-+#include <linux/numa.h>
-+#include <asm/page.h>
-+#include <asm/pal.h>
-+#include <asm/system.h>
-+#include <asm/pgtable.h>
-+#include <asm/atomic.h>
-+#include <asm/tlbflush.h>
-+#include <asm/uncached.h>
-+#include <asm/sn/addrs.h>
-+#include <asm/sn/arch.h>
-+#include <asm/sn/mspec.h>
-+#include <asm/sn/sn_cpuid.h>
-+#include <asm/sn/io.h>
-+#include <asm/sn/bte.h>
-+#include <asm/sn/shubio.h>
-+
-+
-+#define FETCHOP_ID	"SGI Fetchop,"
-+#define CACHED_ID	"Cached,"
-+#define UNCACHED_ID	"Uncached"
-+#define REVISION	"4.0"
-+#define MSPEC_BASENAME	"mspec"
-+
-+/*
-+ * Page types allocated by the device.
-+ */
-+enum {
-+	MSPEC_FETCHOP = 1,
-+	MSPEC_CACHED,
-+	MSPEC_UNCACHED
-+};
-+
-+/*
-+ * One of these structures is allocated when an mspec region is mmaped. The
-+ * structure is pointed to by the vma->vm_private_data field in the vma struct.
-+ * This structure is used to record the addresses of the mspec pages.
-+ */
-+struct vma_data {
-+	atomic_t refcnt;	/* Number of vmas sharing the data. */
-+	spinlock_t lock;	/* Serialize access to the vma. */
-+	int count;		/* Number of pages allocated. */
-+	int type;		/* Type of pages allocated. */
-+	unsigned long maddr[0];	/* Array of MSPEC addresses. */
-+};
-+
-+/* used on shub2 to clear FOP cache in the HUB */
-+static unsigned long scratch_page[MAX_NUMNODES];
-+#define SH2_AMO_CACHE_ENTRIES	4
-+
-+static inline int
-+mspec_zero_block(unsigned long addr, int len)
-+{
-+	int status;
-+
-+	if (ia64_platform_is("sn2")) {
-+		if (is_shub2()) {
-+			int nid;
-+			void *p;
-+			int i;
-+
-+			nid = nasid_to_cnodeid(get_node_number(__pa(addr)));
-+			p = (void *)TO_AMO(scratch_page[nid]);
-+
-+			for (i=0; i < SH2_AMO_CACHE_ENTRIES; i++) {
-+				FETCHOP_LOAD_OP(p, FETCHOP_LOAD);
-+				p += FETCHOP_VAR_SIZE;
-+			}
-+		}
-+
-+		status = bte_copy(0, addr & ~__IA64_UNCACHED_OFFSET, len,
-+				  BTE_WACQUIRE | BTE_ZERO_FILL, NULL);
-+	} else {
-+		memset((char *) addr, 0, len);
-+		status = 0;
-+	}
-+	return status;
-+}
-+
-+/*
-+ * mspec_open
-+ *
-+ * Called when a device mapping is created by a means other than mmap
-+ * (via fork, etc.).  Increments the reference count on the underlying
-+ * mspec data so it is not freed prematurely.
-+ */
-+static void
-+mspec_open(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+
-+	vdata = vma->vm_private_data;
-+	atomic_inc(&vdata->refcnt);
-+}
-+
-+/*
-+ * mspec_close
-+ *
-+ * Called when unmapping a device mapping. Frees all mspec pages
-+ * belonging to the vma.
-+ */
-+static void
-+mspec_close(struct vm_area_struct *vma)
-+{
-+	struct vma_data *vdata;
-+	int i, pages, result, vdata_size;
-+
-+	vdata = vma->vm_private_data;
-+	if (!atomic_dec_and_test(&vdata->refcnt))
-+		return;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	for (i = 0; i < pages; i++) {
-+		if (vdata->maddr[i] == 0)
-+			continue;
-+		/*
-+		 * Clear the page before sticking it back
-+		 * into the pool.
-+		 */
-+		result = mspec_zero_block(vdata->maddr[i], PAGE_SIZE);
-+		if (!result)
-+			uncached_free_page(vdata->maddr[i]);
-+		else
-+			printk(KERN_WARNING "mspec_close(): "
-+			       "failed to zero page %i\n",
-+			       result);
-+	}
-+
-+	if (vdata_size <= PAGE_SIZE)
-+		kfree(vdata);
-+	else
-+		vfree(vdata);
-+}
-+
-+
-+/*
-+ * mspec_get_one_pte
-+ *
-+ * Return the pmd for a given mm and address.
-+ */
-+static __inline__ pmd_t *
-+mspec_get_pmd(struct mm_struct *mm, u64 address)
-+{
-+	pgd_t *pgd;
-+	pud_t *pud;
-+	pmd_t *pmd = NULL;
-+
-+	pgd = pgd_offset(mm, address);
-+	if (pgd_present(*pgd)) {
-+		pud = pud_offset(pgd, address);
-+
-+		if (pud_present(*pud))
-+			pmd = pmd_offset(pud, address);
-+	}
-+
-+	return pmd;
-+}
-+
-+/*
-+ * mspec_nopfn
-+ *
-+ * Creates a mspec page and maps it to user space.
-+ */
-+static long
-+mspec_nopfn(struct vm_area_struct *vma, unsigned long address, int *unused)
-+{
-+	unsigned long paddr, maddr;
-+	unsigned long pfn;
-+	int index;
-+	struct vma_data *vdata = vma->vm_private_data;
-+
-+	index = (address - vma->vm_start) >> PAGE_SHIFT;
-+	maddr = (volatile unsigned long) vdata->maddr[index];
-+	if (maddr == 0) {
-+		maddr = uncached_alloc_page(numa_node_id());
-+		if (maddr == 0)
-+			return -ENOMEM;
-+
-+		spin_lock(&vdata->lock);
-+		if (vdata->maddr[index] == 0) {
-+			vdata->count++;
-+			vdata->maddr[index] = maddr;
-+		} else {
-+			uncached_free_page(maddr);
-+			maddr = vdata->maddr[index];
-+		}
-+		spin_unlock(&vdata->lock);
-+	}
-+
-+	if (vdata->type == MSPEC_FETCHOP)
-+		paddr = TO_AMO(maddr);
-+	else
-+		paddr = __pa(TO_CAC(maddr));
-+
-+	pfn = paddr >> PAGE_SHIFT;
-+
-+	return pfn;
-+}
-+
-+static struct vm_operations_struct mspec_vm_ops = {
-+	.open = mspec_open,
-+	.close = mspec_close,
-+	.nopfn = mspec_nopfn
-+};
-+
-+/*
-+ * mspec_mmap
-+ *
-+ * Called when mmaping the device.  Initializes the vma with a fault handler
-+ * and private data structure necessary to allocate, track, and free the
-+ * underlying pages.
-+ */
-+static int
-+mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
-+{
-+	struct vma_data *vdata;
-+	int pages, vdata_size;
-+
-+	if (vma->vm_pgoff != 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_SHARED) == 0)
-+		return -EINVAL;
-+
-+	if ((vma->vm_flags & VM_WRITE) == 0)
-+		return -EPERM;
-+
-+	pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	vdata_size = sizeof(struct vma_data) + pages * sizeof(long);
-+	if (vdata_size <= PAGE_SIZE)
-+		vdata = kmalloc(vdata_size, GFP_KERNEL);
-+	else
-+		vdata = vmalloc(vdata_size);
-+	if (!vdata)
-+		return -ENOMEM;
-+	memset(vdata, 0, vdata_size);
-+
-+	vdata->type = type;
-+	spin_lock_init(&vdata->lock);
-+	vdata->refcnt = ATOMIC_INIT(1);
-+	vma->vm_private_data = vdata;
-+
-+	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
-+	if (vdata->type == MSPEC_FETCHOP || vdata->type == MSPEC_UNCACHED)
-+		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-+	vma->vm_ops = &mspec_vm_ops;
-+
-+	return 0;
-+}
-+
-+static int
-+fetchop_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_FETCHOP);
-+}
-+
-+static int
-+cached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_CACHED);
-+}
-+
-+static int
-+uncached_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	return mspec_mmap(file, vma, MSPEC_UNCACHED);
-+}
-+
-+static struct file_operations fetchop_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = fetchop_mmap
-+};
-+
-+static struct miscdevice fetchop_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "sgi_fetchop",
-+	.fops = &fetchop_fops
-+};
-+
-+static struct file_operations cached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = cached_mmap
-+};
-+
-+static struct miscdevice cached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_cached",
-+	.fops = &cached_fops
-+};
-+
-+static struct file_operations uncached_fops = {
-+	.owner = THIS_MODULE,
-+	.mmap = uncached_mmap
-+};
-+
-+static struct miscdevice uncached_miscdev = {
-+	.minor = MISC_DYNAMIC_MINOR,
-+	.name = "mspec_uncached",
-+	.fops = &uncached_fops
-+};
-+
-+/*
-+ * mspec_init
-+ *
-+ * Called at boot time to initialize the mspec facility.
-+ */
-+static int __init
-+mspec_init(void)
-+{
-+	int ret;
-+	int nid;
-+
-+	/*
-+	 * The fetchop device only works on SN2 hardware, uncached and cached
-+	 * memory drivers should both be valid on all ia64 hardware
-+	 */
-+	if (ia64_platform_is("sn2")) {
-+		if (is_shub2()) {
-+			ret = -ENOMEM;
-+			for_each_online_node(nid) {
-+				int actual_nid;
-+
-+				scratch_page[nid] = uncached_alloc_page(nid);
-+				if (scratch_page[nid] == 0)
-+					goto free_scratch_pages;
-+				actual_nid = nasid_to_cnodeid(get_node_number(__pa(scratch_page[nid])));
-+				if (actual_nid != nid)
-+					goto free_scratch_pages;
-+			}
-+		}
-+
-+		ret = misc_register(&fetchop_miscdev);
-+		if (ret) {
-+			printk(KERN_ERR
-+			       "%s: failed to register device %i\n",
-+			       FETCHOP_ID, ret);
-+			goto free_scratch_pages;
-+		}
-+	}
-+	ret = misc_register(&cached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       CACHED_ID, ret);
-+		misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+	ret = misc_register(&uncached_miscdev);
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to register device %i\n",
-+		       UNCACHED_ID, ret);
-+		misc_deregister(&cached_miscdev);
-+		misc_deregister(&fetchop_miscdev);
-+		goto free_scratch_pages;
-+	}
-+
-+	printk(KERN_INFO "%s %s initialized devices: %s %s %s\n",
-+	       MSPEC_BASENAME, REVISION,
-+	       ia64_platform_is("sn2") ? FETCHOP_ID : "",
-+	       CACHED_ID, UNCACHED_ID);
-+
-+	return 0;
-+
-+free_scratch_pages:
-+	for_each_node(nid) {
-+		if (scratch_page[nid] != 0)
-+			uncached_free_page(scratch_page[nid]);
-+	}
-+	return ret;
-+}
-+
-+static void __exit
-+mspec_exit(void)
-+{
-+	int nid;
-+
-+	misc_deregister(&uncached_miscdev);
-+	misc_deregister(&cached_miscdev);
-+	if (ia64_platform_is("sn2")) {
-+		misc_deregister(&fetchop_miscdev);
-+
-+		for_each_node(nid) {
-+			if (scratch_page[nid] != 0)
-+				uncached_free_page(scratch_page[nid]);
-+		}
-+	}
-+}
-+
-+module_init(mspec_init);
-+module_exit(mspec_exit);
-+
-+MODULE_AUTHOR("Silicon Graphics, Inc.");
-+MODULE_DESCRIPTION("Driver for SGI SN special memory operations");
-+MODULE_LICENSE("GPL");
-+MODULE_INFO(supported, "external");
-Index: linux-2.6/include/linux/mm.h
-===================================================================
---- linux-2.6.orig/include/linux/mm.h
-+++ linux-2.6/include/linux/mm.h
-@@ -199,6 +199,7 @@
- 	void (*open)(struct vm_area_struct * area);
- 	void (*close)(struct vm_area_struct * area);
- 	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
-+	long (*nopfn)(struct vm_area_struct * area, unsigned long address, int *type);
- 	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
- #ifdef CONFIG_NUMA
- 	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
-Index: linux-2.6/mm/memory.c
-===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -2148,6 +2148,51 @@
+diff -up drivers/scsi/libata-core.c{.orig,}
+--- drivers/scsi/libata-core.c.orig     2006-03-15 17:19:42.000000000 -0500
++++ drivers/scsi/libata-core.c  2006-03-16 10:08:32.000000000 -0500
+@@ -3984,8 +3984,11 @@ u8 ata_bmdma_status(struct ata_port *ap)
+        if (ap->flags & ATA_FLAG_MMIO) {
+                void __iomem *mmio = (void __iomem *) ap->ioaddr.bmdma_addr;
+                host_stat = readb(mmio + ATA_DMA_STATUS);
+-       } else
++       } else {
++               mcount();
+                host_stat = inb(ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
++               mcount();
++       }
+        return host_stat;
  }
- 
- /*
-+ * do_no_pfn() tries to create a new page mapping for a page without
-+ * a struct_page backing it
-+ *
-+ * As this is called only for pages that do not currently exist, we
-+ * do not need to flush old virtual caches or the TLB.
-+ *
-+ * We enter with non-exclusive mmap_sem (to exclude vma changes,
-+ * but allow concurrent faults), and pte mapped but not yet locked.
-+ * We return with mmap_sem still held, but pte unmapped and unlocked.
-+ *
-+ * It is expected that the ->nopfn handler always returns the same pfn
-+ * for a given virtual mapping.
-+ */
-+static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
-+		     unsigned long address, pte_t *page_table, pmd_t *pmd,
-+		     int write_access)
-+{
-+	spinlock_t *ptl;
-+	pte_t entry;
-+	long pfn;
-+	int ret = VM_FAULT_MINOR;
-+
-+	pte_unmap(page_table);
-+	BUG_ON(!(vma->vm_flags & VM_PFNMAP));
-+
-+	pfn = vma->vm_ops->nopfn(vma, address & PAGE_MASK, &ret);
-+	if (pfn == -ENOMEM)
-+		return VM_FAULT_OOM;
-+	if (pfn == -EFAULT)
-+		return VM_FAULT_SIGBUS;
-+	if (pfn < 0)
-+		return VM_FAULT_SIGBUS;
-+
-+	page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
-+
-+	entry = pfn_pte(pfn, vma->vm_page_prot);
-+	if (write_access)
-+		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
-+	set_pte_at(mm, address, page_table, entry);
-+
-+	pte_unmap_unlock(page_table, ptl);
-+	return ret;
-+}
-+
-+/*
-  * Fault of a previously existing named mapping. Repopulate the pte
-  * from the encoded file_pte if possible. This enables swappable
-  * nonlinear vmas.
-@@ -2209,9 +2254,13 @@
- 	old_entry = entry = *pte;
- 	if (!pte_present(entry)) {
- 		if (pte_none(entry)) {
--			if (!vma->vm_ops || !vma->vm_ops->nopage)
-+			if (!vma->vm_ops ||
-+			    (!vma->vm_ops->nopage && !vma->vm_ops->nopfn))
- 				return do_anonymous_page(mm, vma, address,
- 					pte, pmd, write_access);
-+			if (vma->vm_ops->nopfn)
-+				return do_no_pfn(mm, vma, address,
-+						 pte, pmd, write_access);
- 			return do_no_page(mm, vma, address,
- 					pte, pmd, write_access);
- 		}
+
+This produced the trace below in < 30 seconds, which clearly indicates
+that the inb() is a problem.  This occurs when running
+
+	 tar cf /dev/zero /usr & tar cf /dev/zero /extra_disk &
+
+with both of them mounted readonly.  HOWEVER - I'm an idiot - I just
+realized that syslog is sitting there synchronously writing lost tick
+messages into the log on the same disks.  So I turned off syslog and the
+trace became much harder to reproduce.  After several minutes I got one.
+
++1 for Alan's theory about flushes stalling status reads.
+
+	-Bill
+
+
+preemption latency trace v1.1.5 on 2.6.16-rc6-git4-profile
+--------------------------------------------------------------------
+ latency: 1861 us, #730/730, CPU#0 | (M:desktop VP:0, KP:0, SP:0 HP:0 #P:1)
+    -----------------
+    | task: rtpserver-3032 (uid:316 nice:-10 policy:0 rt_prio:0)
+    -----------------
+
+                 _------=> CPU#            
+                / _-----=> irqs-off        
+               | / _----=> need-resched    
+               || / _---=> hardirq/softirq 
+               ||| / _--=> preempt-depth   
+               |||| /                      
+               |||||     delay             
+   cmd     pid ||||| time  |   caller      
+      \   /    |||||   \   |   /           
+  <idle>-0     0dns.    0us : __trace_start_sched_wakeup (try_to_wake_up)
+  <idle>-0     0dns.    0us : __trace_start_sched_wakeup <<...>-3032> (69 0)
+  <idle>-0     0dns.    0us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dns.    0us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns.    0us : do_IRQ (ret_from_intr)
+  <idle>-0     0dns.    0us : exit_idle (do_IRQ)
+  <idle>-0     0dns.    0us : in_lock_functions (add_preempt_count)
+  <idle>-0     0dnH.    0us : __do_IRQ (do_IRQ)
+  <idle>-0     0dnH.    0us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH.    1us : mask_and_ack_level_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH.    1us : handle_IRQ_event (__do_IRQ)
+  <idle>-0     0dnH.    1us : nv_interrupt (handle_IRQ_event)
+  <idle>-0     0dnH.    1us : _spin_lock_irqsave (nv_interrupt)
+  <idle>-0     0dnH.    1us : ata_host_intr (nv_interrupt)
+  <idle>-0     0dnH.    1us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH.    1us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH.    2us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH.    2us : ata_bmdma_stop (ata_host_intr)
+  <idle>-0     0dnH.    2us : ata_altstatus (ata_bmdma_stop)
+  <idle>-0     0dnH.    2us : ata_altstatus (ata_host_intr)
+  <idle>-0     0dnH.    3us : ata_check_status (ata_host_intr)
+  <idle>-0     0dnH.    3us : ata_bmdma_irq_clear (ata_host_intr)
+  <idle>-0     0dnH.    3us : ata_qc_complete (ata_host_intr)
+  <idle>-0     0dnH.    4us : nommu_unmap_sg (ata_qc_complete)
+  <idle>-0     0dnH.    4us : ata_scsi_qc_complete (ata_qc_complete)
+  <idle>-0     0dnH.    4us : scsi_done (ata_scsi_qc_complete)
+  <idle>-0     0dnH.    4us : scsi_delete_timer (scsi_done)
+  <idle>-0     0dnH.    4us : del_timer (scsi_delete_timer)
+  <idle>-0     0dnH.    4us : lock_timer_base (del_timer)
+  <idle>-0     0dnH.    4us : _spin_lock_irqsave (lock_timer_base)
+  <idle>-0     0dnH.    4us : _spin_unlock_irqrestore (del_timer)
+  <idle>-0     0dnH.    4us : __scsi_done (scsi_done)
+  <idle>-0     0dnH.    5us : blk_complete_request (__scsi_done)
+  <idle>-0     0dnH.    5us : raise_softirq_irqoff (blk_complete_request)
+  <idle>-0     0dnH.    5us : __ata_qc_complete (ata_qc_complete)
+  <idle>-0     0dnH.    5us : ata_host_intr (nv_interrupt)
+  <idle>-0     0dnH.    5us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH.    5us!: ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH. 1726us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH. 1726us : nv_check_hotplug_ck804 (nv_interrupt)
+  <idle>-0     0dnH. 1726us : _spin_unlock_irqrestore (nv_interrupt)
+  <idle>-0     0dnH. 1727us : smp_apic_timer_interrupt (apic_timer_interrupt)
+  <idle>-0     0dnH. 1727us : exit_idle (smp_apic_timer_interrupt)
+  <idle>-0     0dnH. 1727us : in_lock_functions (add_preempt_count)
+  <idle>-0     0dnH. 1727us : smp_local_timer_interrupt (smp_apic_timer_interrupt)
+  <idle>-0     0dnH. 1727us : profile_tick (smp_local_timer_interrupt)
+  <idle>-0     0dnH. 1727us : profile_pc (profile_tick)
+  <idle>-0     0dnH. 1727us : in_lock_functions (profile_pc)
+  <idle>-0     0dnH. 1727us : profile_hit (profile_tick)
+  <idle>-0     0dnH. 1727us : update_process_times (smp_local_timer_interrupt)
+  <idle>-0     0dnH. 1727us : account_system_time (update_process_times)
+  <idle>-0     0dnH. 1728us : acct_update_integrals (account_system_time)
+  <idle>-0     0dnH. 1728us : run_local_timers (update_process_times)
+  <idle>-0     0dnH. 1728us : raise_softirq (run_local_timers)
+  <idle>-0     0dnH. 1728us : rcu_pending (update_process_times)
+  <idle>-0     0dnH. 1728us : __rcu_pending (rcu_pending)
+  <idle>-0     0dnH. 1728us : rcu_check_callbacks (update_process_times)
+  <idle>-0     0dnH. 1728us : idle_cpu (rcu_check_callbacks)
+  <idle>-0     0dnH. 1728us : __tasklet_schedule (rcu_check_callbacks)
+  <idle>-0     0dnH. 1728us : scheduler_tick (update_process_times)
+  <idle>-0     0dnH. 1728us : sched_clock (scheduler_tick)
+  <idle>-0     0dnH. 1729us : __lock_text_start (scheduler_tick)
+  <idle>-0     0dnH. 1729us : resched_task (scheduler_tick)
+  <idle>-0     0dnH. 1729us : rebalance_tick (scheduler_tick)
+  <idle>-0     0dnH. 1729us : run_posix_cpu_timers (update_process_times)
+  <idle>-0     0dnH. 1729us : irq_exit (smp_apic_timer_interrupt)
+  <idle>-0     0dnH. 1730us : do_IRQ (ret_from_intr)
+  <idle>-0     0dnH. 1730us : exit_idle (do_IRQ)
+  <idle>-0     0dnH. 1730us : in_lock_functions (add_preempt_count)
+  <idle>-0     0dnH. 1730us : __do_IRQ (do_IRQ)
+  <idle>-0     0dnH. 1730us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1730us : mask_and_ack_level_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1730us : handle_IRQ_event (__do_IRQ)
+  <idle>-0     0dnH. 1730us : nv_nic_irq (handle_IRQ_event)
+  <idle>-0     0dnH. 1731us : __lock_text_start (nv_nic_irq)
+  <idle>-0     0dnH. 1731us : nv_tx_done (nv_nic_irq)
+  <idle>-0     0dnH. 1731us : netpoll_trap (nv_tx_done)
+  <idle>-0     0dnH. 1731us : nommu_unmap_single (nv_nic_irq)
+  <idle>-0     0dnH. 1732us : eth_type_trans (nv_nic_irq)
+  <idle>-0     0dnH. 1732us : netif_rx (nv_nic_irq)
+  <idle>-0     0dnH. 1732us : nommu_unmap_single (nv_nic_irq)
+  <idle>-0     0dnH. 1733us : eth_type_trans (nv_nic_irq)
+  <idle>-0     0dnH. 1733us : netif_rx (nv_nic_irq)
+  <idle>-0     0dnH. 1733us : nommu_unmap_single (nv_nic_irq)
+  <idle>-0     0dnH. 1733us : eth_type_trans (nv_nic_irq)
+  <idle>-0     0dnH. 1734us : netif_rx (nv_nic_irq)
+  <idle>-0     0dnH. 1734us : nv_alloc_rx (nv_nic_irq)
+  <idle>-0     0dnH. 1734us : __alloc_skb (nv_alloc_rx)
+  <idle>-0     0dnH. 1734us : kmem_cache_alloc (__alloc_skb)
+  <idle>-0     0dnH. 1734us : __kmalloc (__alloc_skb)
+  <idle>-0     0dnH. 1735us : nommu_map_single (nv_alloc_rx)
+  <idle>-0     0dnH. 1735us : check_addr (nommu_map_single)
+  <idle>-0     0dnH. 1735us : __alloc_skb (nv_alloc_rx)
+  <idle>-0     0dnH. 1735us : kmem_cache_alloc (__alloc_skb)
+  <idle>-0     0dnH. 1735us : __kmalloc (__alloc_skb)
+  <idle>-0     0dnH. 1735us : nommu_map_single (nv_alloc_rx)
+  <idle>-0     0dnH. 1735us : check_addr (nommu_map_single)
+  <idle>-0     0dnH. 1735us : __alloc_skb (nv_alloc_rx)
+  <idle>-0     0dnH. 1736us : kmem_cache_alloc (__alloc_skb)
+  <idle>-0     0dnH. 1736us : __kmalloc (__alloc_skb)
+  <idle>-0     0dnH. 1736us : nommu_map_single (nv_alloc_rx)
+  <idle>-0     0dnH. 1736us : check_addr (nommu_map_single)
+  <idle>-0     0dnH. 1737us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1737us : note_interrupt (__do_IRQ)
+  <idle>-0     0dnH. 1737us : end_level_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1737us : irq_exit (do_IRQ)
+  <idle>-0     0dnH. 1737us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1738us : note_interrupt (__do_IRQ)
+  <idle>-0     0dnH. 1738us : end_level_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1738us : irq_exit (do_IRQ)
+  <idle>-0     0dns. 1738us : do_IRQ (ret_from_intr)
+  <idle>-0     0dns. 1738us : exit_idle (do_IRQ)
+  <idle>-0     0dns. 1738us : in_lock_functions (add_preempt_count)
+  <idle>-0     0dnH. 1738us : __do_IRQ (do_IRQ)
+  <idle>-0     0dnH. 1738us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1738us : ack_edge_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1739us : handle_IRQ_event (__do_IRQ)
+  <idle>-0     0dnH. 1739us : timer_interrupt (handle_IRQ_event)
+  <idle>-0     0dnH. 1739us : main_timer_handler (timer_interrupt)
+  <idle>-0     0dnH. 1739us : __lock_text_start (main_timer_handler)
+  <idle>-0     0dnH. 1739us+: __lock_text_start (main_timer_handler)
+  <idle>-0     0dnH. 1742us : pmtimer_mark_offset (main_timer_handler)
+  <idle>-0     0dnH. 1743us : handle_lost_ticks (main_timer_handler)
+  <idle>-0     0dnH. 1744us : printk (handle_lost_ticks)
+  <idle>-0     0dnH. 1744us : vprintk (printk)
+  <idle>-0     0dnH. 1744us : _spin_lock_irqsave (vprintk)
+  <idle>-0     0dnH. 1745us : vscnprintf (vprintk)
+  <idle>-0     0dnH. 1745us+: vsnprintf (vscnprintf)
+  <idle>-0     0dnH. 1747us : number (vsnprintf)
+  <idle>-0     0dnH. 1748us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1749us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1750us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1751us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1752us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1752us : _spin_unlock_irqrestore (vprintk)
+  <idle>-0     0dnH. 1752us : release_console_sem (vprintk)
+  <idle>-0     0dnH. 1752us : _spin_lock_irqsave (release_console_sem)
+  <idle>-0     0dnH. 1753us : _call_console_drivers (release_console_sem)
+  <idle>-0     0dnH. 1753us : _spin_lock_irqsave (release_console_sem)
+  <idle>-0     0dnH. 1753us : _spin_unlock_irqrestore (release_console_sem)
+  <idle>-0     0dnH. 1753us : __wake_up (release_console_sem)
+  <idle>-0     0dnH. 1753us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dnH. 1753us : __wake_up_common (__wake_up)
+  <idle>-0     0dnH. 1754us : default_wake_function (__wake_up_common)
+  <idle>-0     0dnH. 1754us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dnH. 1754us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dnH. 1754us : idle_cpu (try_to_wake_up)
+  <idle>-0     0dnH. 1754us : activate_task (try_to_wake_up)
+  <idle>-0     0dnH. 1754us : sched_clock (activate_task)
+  <idle>-0     0dnH. 1755us : recalc_task_prio (activate_task)
+  <idle>-0     0dnH. 1755us : effective_prio (recalc_task_prio)
+  <idle>-0     0dnH. 1755us : activate_task <<...>-1774> (73 1)
+  <idle>-0     0dnH. 1755us : enqueue_task (activate_task)
+  <idle>-0     0dnH. 1755us : resched_task (try_to_wake_up)
+  <idle>-0     0dnH. 1756us : __trace_start_sched_wakeup (try_to_wake_up)
+  <idle>-0     0dnH. 1756us : __lock_text_start (__trace_start_sched_wakeup)
+  <idle>-0     0dnH. 1756us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dnH. 1756us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dnH. 1756us : __print_symbol (handle_lost_ticks)
+  <idle>-0     0dnH. 1757us : kallsyms_lookup (__print_symbol)
+  <idle>-0     0dnH. 1758us+: get_symbol_offset (kallsyms_lookup)
+  <idle>-0     0dnH. 1761us : kallsyms_expand_symbol (kallsyms_lookup)
+  <idle>-0     0dnH. 1762us : sprintf (__print_symbol)
+  <idle>-0     0dnH. 1763us : vsnprintf (sprintf)
+  <idle>-0     0dnH. 1763us : strnlen (vsnprintf)
+  <idle>-0     0dnH. 1764us : number (vsnprintf)
+  <idle>-0     0dnH. 1765us : number (vsnprintf)
+  <idle>-0     0dnH. 1765us : printk (__print_symbol)
+  <idle>-0     0dnH. 1765us : vprintk (printk)
+  <idle>-0     0dnH. 1765us : _spin_lock_irqsave (vprintk)
+  <idle>-0     0dnH. 1765us : vscnprintf (vprintk)
+  <idle>-0     0dnH. 1765us : vsnprintf (vscnprintf)
+  <idle>-0     0dnH. 1766us : strnlen (vsnprintf)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1766us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1767us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1768us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : emit_log_char (vprintk)
+  <idle>-0     0dnH. 1769us : _spin_unlock_irqrestore (vprintk)
+  <idle>-0     0dnH. 1769us : release_console_sem (vprintk)
+  <idle>-0     0dnH. 1769us : _spin_lock_irqsave (release_console_sem)
+  <idle>-0     0dnH. 1770us : _call_console_drivers (release_console_sem)
+  <idle>-0     0dnH. 1770us : _call_console_drivers (release_console_sem)
+  <idle>-0     0dnH. 1770us : _spin_lock_irqsave (release_console_sem)
+  <idle>-0     0dnH. 1770us : _spin_unlock_irqrestore (release_console_sem)
+  <idle>-0     0dnH. 1770us : __wake_up (release_console_sem)
+  <idle>-0     0dnH. 1770us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dnH. 1770us : __wake_up_common (__wake_up)
+  <idle>-0     0dnH. 1770us : default_wake_function (__wake_up_common)
+  <idle>-0     0dnH. 1771us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dnH. 1771us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dnH. 1771us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dnH. 1771us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dnH. 1771us : do_timer (main_timer_handler)
+  <idle>-0     0dnH. 1771us : adjtime_adjustment (do_timer)
+  <idle>-0     0dnH. 1771us : adjtime_adjustment (do_timer)
+  <idle>-0     0dnH. 1772us : softlockup_tick (do_timer)
+  <idle>-0     0dnH. 1772us : smp_send_timer_broadcast_ipi (timer_interrupt)
+  <idle>-0     0dnH. 1772us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1772us : note_interrupt (__do_IRQ)
+  <idle>-0     0dnH. 1772us : end_edge_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1772us : irq_exit (do_IRQ)
+  <idle>-0     0dns. 1772us : do_IRQ (ret_from_intr)
+  <idle>-0     0dns. 1773us : exit_idle (do_IRQ)
+  <idle>-0     0dns. 1773us : in_lock_functions (add_preempt_count)
+  <idle>-0     0dnH. 1773us : __do_IRQ (do_IRQ)
+  <idle>-0     0dnH. 1773us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1773us : mask_and_ack_level_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1773us : handle_IRQ_event (__do_IRQ)
+  <idle>-0     0dnH. 1773us : nv_interrupt (handle_IRQ_event)
+  <idle>-0     0dnH. 1773us : _spin_lock_irqsave (nv_interrupt)
+  <idle>-0     0dnH. 1773us : ata_check_status (nv_interrupt)
+  <idle>-0     0dnH. 1774us : ata_host_intr (nv_interrupt)
+  <idle>-0     0dnH. 1774us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH. 1774us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH. 1774us : ata_bmdma_status (ata_host_intr)
+  <idle>-0     0dnH. 1774us : ata_bmdma_stop (ata_host_intr)
+  <idle>-0     0dnH. 1775us : ata_altstatus (ata_bmdma_stop)
+  <idle>-0     0dnH. 1775us : ata_altstatus (ata_host_intr)
+  <idle>-0     0dnH. 1775us : ata_check_status (ata_host_intr)
+  <idle>-0     0dnH. 1775us : ata_bmdma_irq_clear (ata_host_intr)
+  <idle>-0     0dnH. 1776us : ata_qc_complete (ata_host_intr)
+  <idle>-0     0dnH. 1776us : nommu_unmap_sg (ata_qc_complete)
+  <idle>-0     0dnH. 1776us : ata_scsi_qc_complete (ata_qc_complete)
+  <idle>-0     0dnH. 1776us : scsi_done (ata_scsi_qc_complete)
+  <idle>-0     0dnH. 1776us : scsi_delete_timer (scsi_done)
+  <idle>-0     0dnH. 1776us : del_timer (scsi_delete_timer)
+  <idle>-0     0dnH. 1777us : lock_timer_base (del_timer)
+  <idle>-0     0dnH. 1777us : _spin_lock_irqsave (lock_timer_base)
+  <idle>-0     0dnH. 1777us : _spin_unlock_irqrestore (del_timer)
+  <idle>-0     0dnH. 1777us : __scsi_done (scsi_done)
+  <idle>-0     0dnH. 1777us : blk_complete_request (__scsi_done)
+  <idle>-0     0dnH. 1777us : raise_softirq_irqoff (blk_complete_request)
+  <idle>-0     0dnH. 1777us : __ata_qc_complete (ata_qc_complete)
+  <idle>-0     0dnH. 1777us : nv_check_hotplug_ck804 (nv_interrupt)
+  <idle>-0     0dnH. 1778us : _spin_unlock_irqrestore (nv_interrupt)
+  <idle>-0     0dnH. 1778us : __lock_text_start (__do_IRQ)
+  <idle>-0     0dnH. 1778us : note_interrupt (__do_IRQ)
+  <idle>-0     0dnH. 1778us : end_level_ioapic_irq (__do_IRQ)
+  <idle>-0     0dnH. 1778us : irq_exit (do_IRQ)
+  <idle>-0     0dns. 1779us : run_timer_softirq (__do_softirq)
+  <idle>-0     0dns. 1779us : hrtimer_run_queues (run_timer_softirq)
+  <idle>-0     0dns. 1779us : ktime_get_real (hrtimer_run_queues)
+  <idle>-0     0dns. 1779us : getnstimeofday (ktime_get_real)
+  <idle>-0     0dns. 1779us : do_gettimeofday (getnstimeofday)
+  <idle>-0     0dns. 1780us : do_gettimeoffset_pm (do_gettimeofday)
+  <idle>-0     0dns. 1781us : _spin_lock_irq (hrtimer_run_queues)
+  <idle>-0     0dns. 1782us : ktime_get (hrtimer_run_queues)
+  <idle>-0     0dns. 1782us : ktime_get_ts (ktime_get)
+  <idle>-0     0dns. 1782us : getnstimeofday (ktime_get_ts)
+  <idle>-0     0dns. 1782us : do_gettimeofday (getnstimeofday)
+  <idle>-0     0dns. 1782us : do_gettimeoffset_pm (do_gettimeofday)
+  <idle>-0     0dns. 1784us : set_normalized_timespec (ktime_get_ts)
+  <idle>-0     0dns. 1784us : _spin_lock_irq (hrtimer_run_queues)
+  <idle>-0     0dns. 1784us : _spin_lock_irq (run_timer_softirq)
+  <idle>-0     0dns. 1785us : i8042_timer_func (run_timer_softirq)
+  <idle>-0     0dns. 1785us : i8042_interrupt (i8042_timer_func)
+  <idle>-0     0dns. 1785us : mod_timer (i8042_interrupt)
+  <idle>-0     0dns. 1785us : __mod_timer (mod_timer)
+  <idle>-0     0dns. 1785us : lock_timer_base (__mod_timer)
+  <idle>-0     0dns. 1786us : _spin_lock_irqsave (lock_timer_base)
+  <idle>-0     0dns. 1786us : internal_add_timer (__mod_timer)
+  <idle>-0     0dns. 1786us : _spin_unlock_irqrestore (__mod_timer)
+  <idle>-0     0dns. 1786us : _spin_lock_irqsave (i8042_interrupt)
+  <idle>-0     0dns. 1788us : _spin_unlock_irqrestore (i8042_interrupt)
+  <idle>-0     0dns. 1788us : _spin_lock_irq (run_timer_softirq)
+  <idle>-0     0dns. 1788us : net_rx_action (__do_softirq)
+  <idle>-0     0dns. 1788us : process_backlog (net_rx_action)
+  <idle>-0     0dns. 1789us : netif_receive_skb (process_backlog)
+  <idle>-0     0dns. 1789us : vlan_skb_recv (netif_receive_skb)
+  <idle>-0     0dns. 1789us : __find_vlan_dev (vlan_skb_recv)
+  <idle>-0     0dns. 1789us : __vlan_find_group (__find_vlan_dev)
+  <idle>-0     0dns. 1790us : memmove (vlan_skb_recv)
+  <idle>-0     0dns. 1790us : netif_rx (vlan_skb_recv)
+  <idle>-0     0dns. 1790us : netif_receive_skb (process_backlog)
+  <idle>-0     0dns. 1791us : vlan_skb_recv (netif_receive_skb)
+  <idle>-0     0dns. 1791us : __find_vlan_dev (vlan_skb_recv)
+  <idle>-0     0dns. 1791us : __vlan_find_group (__find_vlan_dev)
+  <idle>-0     0dns. 1791us : memmove (vlan_skb_recv)
+  <idle>-0     0dns. 1792us : netif_rx (vlan_skb_recv)
+  <idle>-0     0dns. 1792us : netif_receive_skb (process_backlog)
+  <idle>-0     0dns. 1792us : vlan_skb_recv (netif_receive_skb)
+  <idle>-0     0dns. 1792us : __find_vlan_dev (vlan_skb_recv)
+  <idle>-0     0dns. 1793us : __vlan_find_group (__find_vlan_dev)
+  <idle>-0     0dns. 1793us : memmove (vlan_skb_recv)
+  <idle>-0     0dns. 1793us : netif_rx (vlan_skb_recv)
+  <idle>-0     0dns. 1793us : netif_receive_skb (process_backlog)
+  <idle>-0     0dns. 1794us : ip_rcv (netif_receive_skb)
+  <idle>-0     0dns. 1794us : ip_route_input (ip_rcv)
+  <idle>-0     0dns. 1794us : rt_hash_code (ip_route_input)
+  <idle>-0     0dns. 1794us : ip_local_deliver (ip_rcv)
+  <idle>-0     0dns. 1795us : udp_rcv (ip_local_deliver)
+  <idle>-0     0dns. 1795us : _read_lock (udp_rcv)
+  <idle>-0     0dns. 1795us : ip_mc_sf_allow (udp_rcv)
+  <idle>-0     0dns. 1795us : udp_queue_rcv_skb (udp_rcv)
+  <idle>-0     0dns. 1796us : dummy_socket_sock_rcv_skb (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1796us : skb_queue_tail (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1796us : _spin_lock_irqsave (skb_queue_tail)
+  <idle>-0     0dns. 1796us : _spin_unlock_irqrestore (skb_queue_tail)
+  <idle>-0     0dns. 1796us : sock_def_readable (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1796us : _read_lock (sock_def_readable)
+  <idle>-0     0dns. 1797us : __wake_up (sock_def_readable)
+  <idle>-0     0dns. 1797us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1797us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1797us : default_wake_function (__wake_up_common)
+  <idle>-0     0dns. 1797us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dns. 1797us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dns. 1798us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dns. 1798us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1798us : netif_receive_skb (process_backlog)
+  <idle>-0     0dns. 1799us : ip_rcv (netif_receive_skb)
+  <idle>-0     0dns. 1799us : ip_route_input (ip_rcv)
+  <idle>-0     0dns. 1799us : rt_hash_code (ip_route_input)
+  <idle>-0     0dns. 1799us : ip_local_deliver (ip_rcv)
+  <idle>-0     0dns. 1799us : udp_rcv (ip_local_deliver)
+  <idle>-0     0dns. 1800us : _read_lock (udp_rcv)
+  <idle>-0     0dns. 1800us : ip_mc_sf_allow (udp_rcv)
+  <idle>-0     0dns. 1800us : udp_queue_rcv_skb (udp_rcv)
+  <idle>-0     0dns. 1800us : dummy_socket_sock_rcv_skb (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1800us : skb_queue_tail (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1800us : _spin_lock_irqsave (skb_queue_tail)
+  <idle>-0     0dns. 1801us : _spin_unlock_irqrestore (skb_queue_tail)
+  <idle>-0     0dns. 1801us : sock_def_readable (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1801us : _read_lock (sock_def_readable)
+  <idle>-0     0dns. 1801us : __wake_up (sock_def_readable)
+  <idle>-0     0dns. 1801us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1801us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1801us : default_wake_function (__wake_up_common)
+  <idle>-0     0dns. 1802us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dns. 1802us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dns. 1802us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dns. 1802us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1802us : netif_receive_skb (process_backlog)
+  <idle>-0     0dns. 1803us : ip_rcv (netif_receive_skb)
+  <idle>-0     0dns. 1803us : ip_route_input (ip_rcv)
+  <idle>-0     0dns. 1803us : rt_hash_code (ip_route_input)
+  <idle>-0     0dns. 1803us : ip_local_deliver (ip_rcv)
+  <idle>-0     0dns. 1803us : udp_rcv (ip_local_deliver)
+  <idle>-0     0dns. 1803us : _read_lock (udp_rcv)
+  <idle>-0     0dns. 1804us : ip_mc_sf_allow (udp_rcv)
+  <idle>-0     0dns. 1804us : udp_queue_rcv_skb (udp_rcv)
+  <idle>-0     0dns. 1804us : dummy_socket_sock_rcv_skb (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1804us : skb_queue_tail (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1804us : _spin_lock_irqsave (skb_queue_tail)
+  <idle>-0     0dns. 1804us : _spin_unlock_irqrestore (skb_queue_tail)
+  <idle>-0     0dns. 1805us : sock_def_readable (udp_queue_rcv_skb)
+  <idle>-0     0dns. 1805us : _read_lock (sock_def_readable)
+  <idle>-0     0dns. 1805us : __wake_up (sock_def_readable)
+  <idle>-0     0dns. 1805us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1805us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1805us : default_wake_function (__wake_up_common)
+  <idle>-0     0dns. 1805us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dns. 1805us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dns. 1806us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dns. 1806us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1806us : blk_done_softirq (__do_softirq)
+  <idle>-0     0dns. 1806us : scsi_softirq_done (blk_done_softirq)
+  <idle>-0     0dns. 1807us : scsi_decide_disposition (scsi_softirq_done)
+  <idle>-0     0dns. 1807us : scsi_log_completion (scsi_softirq_done)
+  <idle>-0     0dns. 1807us : scsi_finish_command (scsi_softirq_done)
+  <idle>-0     0dns. 1807us : scsi_device_unbusy (scsi_finish_command)
+  <idle>-0     0dns. 1807us : _spin_lock_irqsave (scsi_device_unbusy)
+  <idle>-0     0dns. 1807us : __lock_text_start (scsi_device_unbusy)
+  <idle>-0     0dns. 1807us : _spin_unlock_irqrestore (scsi_device_unbusy)
+  <idle>-0     0dns. 1808us : sd_rw_intr (scsi_finish_command)
+  <idle>-0     0dns. 1808us : scsi_io_completion (sd_rw_intr)
+  <idle>-0     0dns. 1808us : scsi_free_sgtable (scsi_io_completion)
+  <idle>-0     0dns. 1808us : mempool_free (scsi_free_sgtable)
+  <idle>-0     0dns. 1808us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1808us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1809us : scsi_end_request (scsi_io_completion)
+  <idle>-0     0dns. 1809us : end_that_request_chunk (scsi_end_request)
+  <idle>-0     0dns. 1809us : __end_that_request_first (end_that_request_chunk)
+  <idle>-0     0dns. 1809us : bio_endio (__end_that_request_first)
+  <idle>-0     0dns. 1809us : raid1_end_read_request (bio_endio)
+  <idle>-0     0dns. 1810us : raid_end_bio_io (raid1_end_read_request)
+  <idle>-0     0dns. 1810us : bio_endio (raid_end_bio_io)
+  <idle>-0     0dns. 1810us : clone_endio (bio_endio)
+  <idle>-0     0dns. 1810us : mempool_free (clone_endio)
+  <idle>-0     0dns. 1810us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1810us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1810us : dec_pending (clone_endio)
+  <idle>-0     0dns. 1811us : disk_round_stats (dec_pending)
+  <idle>-0     0dns. 1811us : __wake_up (dec_pending)
+  <idle>-0     0dns. 1811us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1811us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1811us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1811us : bio_endio (dec_pending)
+  <idle>-0     0dns. 1812us : mpage_end_io_read (bio_endio)
+  <idle>-0     0dns. 1812us : unlock_page (mpage_end_io_read)
+  <idle>-0     0dns. 1812us : page_waitqueue (unlock_page)
+  <idle>-0     0dns. 1812us : __wake_up_bit (unlock_page)
+  <idle>-0     0dns. 1812us : unlock_page (mpage_end_io_read)
+  <idle>-0     0dns. 1812us : page_waitqueue (unlock_page)
+  <idle>-0     0dns. 1813us : __wake_up_bit (unlock_page)
+  <idle>-0     0dns. 1813us : __wake_up (__wake_up_bit)
+  <idle>-0     0dns. 1813us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1813us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1813us : wake_bit_function (__wake_up_common)
+  <idle>-0     0dns. 1813us : autoremove_wake_function (wake_bit_function)
+  <idle>-0     0dns. 1813us : default_wake_function (autoremove_wake_function)
+  <idle>-0     0dns. 1814us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dns. 1814us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dns. 1814us : idle_cpu (try_to_wake_up)
+  <idle>-0     0dns. 1814us : activate_task (try_to_wake_up)
+  <idle>-0     0dns. 1814us : sched_clock (activate_task)
+  <idle>-0     0dns. 1814us : recalc_task_prio (activate_task)
+  <idle>-0     0dns. 1815us : effective_prio (recalc_task_prio)
+  <idle>-0     0dns. 1815us : activate_task <<...>-3524> (76 2)
+  <idle>-0     0dns. 1815us : enqueue_task (activate_task)
+  <idle>-0     0dns. 1815us : resched_task (try_to_wake_up)
+  <idle>-0     0dns. 1815us : __trace_start_sched_wakeup (try_to_wake_up)
+  <idle>-0     0dns. 1816us : __lock_text_start (__trace_start_sched_wakeup)
+  <idle>-0     0dns. 1816us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dns. 1816us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1816us : bio_put (mpage_end_io_read)
+  <idle>-0     0dns. 1816us : bio_fs_destructor (bio_put)
+  <idle>-0     0dns. 1816us : bio_free (bio_fs_destructor)
+  <idle>-0     0dns. 1817us : mempool_free (bio_free)
+  <idle>-0     0dns. 1817us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1817us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1817us : mempool_free (bio_free)
+  <idle>-0     0dns. 1817us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1818us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1818us : mempool_free (dec_pending)
+  <idle>-0     0dns. 1818us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1818us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1818us : bio_put (clone_endio)
+  <idle>-0     0dns. 1819us : bio_fs_destructor (bio_put)
+  <idle>-0     0dns. 1819us : bio_free (bio_fs_destructor)
+  <idle>-0     0dns. 1819us : mempool_free (bio_free)
+  <idle>-0     0dns. 1819us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1819us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1819us : mempool_free (bio_free)
+  <idle>-0     0dns. 1820us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1820us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1820us : allow_barrier (raid_end_bio_io)
+  <idle>-0     0dns. 1820us : _spin_lock_irqsave (allow_barrier)
+  <idle>-0     0dns. 1820us : _spin_unlock_irqrestore (allow_barrier)
+  <idle>-0     0dns. 1821us : __wake_up (allow_barrier)
+  <idle>-0     0dns. 1821us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1821us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1821us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1821us : bio_put (raid_end_bio_io)
+  <idle>-0     0dns. 1821us : bio_fs_destructor (bio_put)
+  <idle>-0     0dns. 1822us : bio_free (bio_fs_destructor)
+  <idle>-0     0dns. 1822us : mempool_free (bio_free)
+  <idle>-0     0dns. 1822us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1822us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1822us : mempool_free (bio_free)
+  <idle>-0     0dns. 1822us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1823us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1823us : mempool_free (raid_end_bio_io)
+  <idle>-0     0dns. 1823us : r1bio_pool_free (mempool_free)
+  <idle>-0     0dns. 1823us : kfree (r1bio_pool_free)
+  <idle>-0     0dns. 1824us : add_disk_randomness (scsi_end_request)
+  <idle>-0     0dns. 1824us : add_timer_randomness (add_disk_randomness)
+  <idle>-0     0dns. 1824us : _spin_lock_irqsave (scsi_end_request)
+  <idle>-0     0dns. 1824us : end_that_request_last (scsi_end_request)
+  <idle>-0     0dns. 1824us : disk_round_stats (end_that_request_last)
+  <idle>-0     0dns. 1824us : __blk_put_request (end_that_request_last)
+  <idle>-0     0dns. 1825us : elv_completed_request (__blk_put_request)
+  <idle>-0     0dns. 1825us : cfq_completed_request (elv_completed_request)
+  <idle>-0     0dns. 1825us : elv_put_request (__blk_put_request)
+  <idle>-0     0dns. 1825us : cfq_put_request (elv_put_request)
+  <idle>-0     0dns. 1826us : put_io_context (cfq_put_request)
+  <idle>-0     0dns. 1826us : mempool_free (cfq_put_request)
+  <idle>-0     0dns. 1826us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1826us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1826us : cfq_put_queue (cfq_put_request)
+  <idle>-0     0dns. 1827us : mempool_free (__blk_put_request)
+  <idle>-0     0dns. 1827us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1827us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1827us : freed_request (__blk_put_request)
+  <idle>-0     0dns. 1827us : __freed_request (freed_request)
+  <idle>-0     0dns. 1827us : clear_queue_congested (__freed_request)
+  <idle>-0     0dns. 1828us : _spin_unlock_irqrestore (scsi_end_request)
+  <idle>-0     0dns. 1828us : scsi_next_command (scsi_end_request)
+  <idle>-0     0dns. 1828us : get_device (scsi_next_command)
+  <idle>-0     0dns. 1828us : kobject_get (get_device)
+  <idle>-0     0dns. 1828us : kref_get (kobject_get)
+  <idle>-0     0dns. 1829us : scsi_put_command (scsi_next_command)
+  <idle>-0     0dns. 1829us : _spin_lock_irqsave (scsi_put_command)
+  <idle>-0     0dns. 1829us : __lock_text_start (scsi_put_command)
+  <idle>-0     0dns. 1829us : _spin_unlock_irqrestore (scsi_put_command)
+  <idle>-0     0dns. 1829us : kmem_cache_free (scsi_put_command)
+  <idle>-0     0dns. 1829us : put_device (scsi_put_command)
+  <idle>-0     0dns. 1830us : kobject_put (put_device)
+  <idle>-0     0dns. 1830us : kref_put (kobject_put)
+  <idle>-0     0dns. 1830us : scsi_run_queue (scsi_next_command)
+  <idle>-0     0dns. 1830us : _spin_lock_irqsave (scsi_run_queue)
+  <idle>-0     0dns. 1830us : _spin_unlock_irqrestore (scsi_run_queue)
+  <idle>-0     0dns. 1830us : blk_run_queue (scsi_run_queue)
+  <idle>-0     0dns. 1831us : _spin_lock_irqsave (blk_run_queue)
+  <idle>-0     0dns. 1831us : blk_remove_plug (blk_run_queue)
+  <idle>-0     0dns. 1831us : elv_queue_empty (blk_run_queue)
+  <idle>-0     0dns. 1831us : cfq_queue_empty (elv_queue_empty)
+  <idle>-0     0dns. 1831us : _spin_unlock_irqrestore (blk_run_queue)
+  <idle>-0     0dns. 1831us : put_device (scsi_next_command)
+  <idle>-0     0dns. 1831us : kobject_put (put_device)
+  <idle>-0     0dns. 1831us : kref_put (kobject_put)
+  <idle>-0     0dns. 1832us : scsi_softirq_done (blk_done_softirq)
+  <idle>-0     0dns. 1832us : scsi_decide_disposition (scsi_softirq_done)
+  <idle>-0     0dns. 1832us : scsi_log_completion (scsi_softirq_done)
+  <idle>-0     0dns. 1832us : scsi_finish_command (scsi_softirq_done)
+  <idle>-0     0dns. 1832us : scsi_device_unbusy (scsi_finish_command)
+  <idle>-0     0dns. 1833us : _spin_lock_irqsave (scsi_device_unbusy)
+  <idle>-0     0dns. 1833us : __lock_text_start (scsi_device_unbusy)
+  <idle>-0     0dns. 1833us : _spin_unlock_irqrestore (scsi_device_unbusy)
+  <idle>-0     0dns. 1833us : sd_rw_intr (scsi_finish_command)
+  <idle>-0     0dns. 1833us : scsi_io_completion (sd_rw_intr)
+  <idle>-0     0dns. 1833us : scsi_free_sgtable (scsi_io_completion)
+  <idle>-0     0dns. 1833us : mempool_free (scsi_free_sgtable)
+  <idle>-0     0dns. 1833us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1834us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1834us : scsi_end_request (scsi_io_completion)
+  <idle>-0     0dns. 1834us : end_that_request_chunk (scsi_end_request)
+  <idle>-0     0dns. 1834us : __end_that_request_first (end_that_request_chunk)
+  <idle>-0     0dns. 1834us : bio_endio (__end_that_request_first)
+  <idle>-0     0dns. 1834us : raid1_end_read_request (bio_endio)
+  <idle>-0     0dns. 1835us : raid_end_bio_io (raid1_end_read_request)
+  <idle>-0     0dns. 1835us : bio_endio (raid_end_bio_io)
+  <idle>-0     0dns. 1835us : clone_endio (bio_endio)
+  <idle>-0     0dns. 1835us : mempool_free (clone_endio)
+  <idle>-0     0dns. 1835us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1835us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1836us : dec_pending (clone_endio)
+  <idle>-0     0dns. 1836us : disk_round_stats (dec_pending)
+  <idle>-0     0dns. 1836us : __wake_up (dec_pending)
+  <idle>-0     0dns. 1836us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1836us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1837us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1837us : bio_endio (dec_pending)
+  <idle>-0     0dns. 1837us : end_bio_bh_io_sync (bio_endio)
+  <idle>-0     0dns. 1837us : end_buffer_read_sync (end_bio_bh_io_sync)
+  <idle>-0     0dns. 1837us : unlock_buffer (end_buffer_read_sync)
+  <idle>-0     0dns. 1837us : wake_up_bit (unlock_buffer)
+  <idle>-0     0dns. 1837us : bit_waitqueue (wake_up_bit)
+  <idle>-0     0dns. 1837us : __wake_up_bit (wake_up_bit)
+  <idle>-0     0dns. 1838us : __wake_up (__wake_up_bit)
+  <idle>-0     0dns. 1838us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1838us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1838us : wake_bit_function (__wake_up_common)
+  <idle>-0     0dns. 1838us : autoremove_wake_function (wake_bit_function)
+  <idle>-0     0dns. 1838us : default_wake_function (autoremove_wake_function)
+  <idle>-0     0dns. 1838us : try_to_wake_up (default_wake_function)
+  <idle>-0     0dns. 1839us : __lock_text_start (try_to_wake_up)
+  <idle>-0     0dns. 1839us : idle_cpu (try_to_wake_up)
+  <idle>-0     0dns. 1839us : activate_task (try_to_wake_up)
+  <idle>-0     0dns. 1839us : sched_clock (activate_task)
+  <idle>-0     0dns. 1839us : recalc_task_prio (activate_task)
+  <idle>-0     0dns. 1840us : effective_prio (recalc_task_prio)
+  <idle>-0     0dns. 1840us : activate_task <<...>-3525> (76 3)
+  <idle>-0     0dns. 1840us : enqueue_task (activate_task)
+  <idle>-0     0dns. 1840us : resched_task (try_to_wake_up)
+  <idle>-0     0dns. 1840us : __trace_start_sched_wakeup (try_to_wake_up)
+  <idle>-0     0dns. 1840us : __lock_text_start (__trace_start_sched_wakeup)
+  <idle>-0     0dns. 1840us : _spin_unlock_irqrestore (try_to_wake_up)
+  <idle>-0     0dns. 1841us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1841us : bio_put (end_bio_bh_io_sync)
+  <idle>-0     0dns. 1841us : bio_fs_destructor (bio_put)
+  <idle>-0     0dns. 1841us : bio_free (bio_fs_destructor)
+  <idle>-0     0dns. 1841us : mempool_free (bio_free)
+  <idle>-0     0dns. 1842us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1842us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1842us : mempool_free (bio_free)
+  <idle>-0     0dns. 1842us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1842us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1842us : mempool_free (dec_pending)
+  <idle>-0     0dns. 1842us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1843us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1843us : bio_put (clone_endio)
+  <idle>-0     0dns. 1843us : bio_fs_destructor (bio_put)
+  <idle>-0     0dns. 1843us : bio_free (bio_fs_destructor)
+  <idle>-0     0dns. 1843us : mempool_free (bio_free)
+  <idle>-0     0dns. 1843us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1843us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1844us : mempool_free (bio_free)
+  <idle>-0     0dns. 1844us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1844us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1844us : allow_barrier (raid_end_bio_io)
+  <idle>-0     0dns. 1844us : _spin_lock_irqsave (allow_barrier)
+  <idle>-0     0dns. 1844us : _spin_unlock_irqrestore (allow_barrier)
+  <idle>-0     0dns. 1844us : __wake_up (allow_barrier)
+  <idle>-0     0dns. 1844us : _spin_lock_irqsave (__wake_up)
+  <idle>-0     0dns. 1845us : __wake_up_common (__wake_up)
+  <idle>-0     0dns. 1845us : _spin_unlock_irqrestore (__wake_up)
+  <idle>-0     0dns. 1845us : bio_put (raid_end_bio_io)
+  <idle>-0     0dns. 1845us : bio_fs_destructor (bio_put)
+  <idle>-0     0dns. 1845us : bio_free (bio_fs_destructor)
+  <idle>-0     0dns. 1846us : mempool_free (bio_free)
+  <idle>-0     0dns. 1846us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1846us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1846us : mempool_free (bio_free)
+  <idle>-0     0dns. 1846us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1846us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1847us : mempool_free (raid_end_bio_io)
+  <idle>-0     0dns. 1847us : r1bio_pool_free (mempool_free)
+  <idle>-0     0dns. 1847us : kfree (r1bio_pool_free)
+  <idle>-0     0dns. 1847us : add_disk_randomness (scsi_end_request)
+  <idle>-0     0dns. 1847us : add_timer_randomness (add_disk_randomness)
+  <idle>-0     0dns. 1848us : _spin_lock_irqsave (scsi_end_request)
+  <idle>-0     0dns. 1848us : end_that_request_last (scsi_end_request)
+  <idle>-0     0dns. 1848us : disk_round_stats (end_that_request_last)
+  <idle>-0     0dns. 1848us : __blk_put_request (end_that_request_last)
+  <idle>-0     0dns. 1848us : elv_completed_request (__blk_put_request)
+  <idle>-0     0dns. 1849us : cfq_completed_request (elv_completed_request)
+  <idle>-0     0dns. 1849us : elv_put_request (__blk_put_request)
+  <idle>-0     0dns. 1849us : cfq_put_request (elv_put_request)
+  <idle>-0     0dns. 1849us : put_io_context (cfq_put_request)
+  <idle>-0     0dns. 1850us : mempool_free (cfq_put_request)
+  <idle>-0     0dns. 1850us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1850us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1850us : cfq_put_queue (cfq_put_request)
+  <idle>-0     0dns. 1850us : mempool_free (__blk_put_request)
+  <idle>-0     0dns. 1850us : mempool_free_slab (mempool_free)
+  <idle>-0     0dns. 1851us : kmem_cache_free (mempool_free_slab)
+  <idle>-0     0dns. 1851us : freed_request (__blk_put_request)
+  <idle>-0     0dns. 1851us : __freed_request (freed_request)
+  <idle>-0     0dns. 1851us : clear_queue_congested (__freed_request)
+  <idle>-0     0dns. 1851us : _spin_unlock_irqrestore (scsi_end_request)
+  <idle>-0     0dns. 1852us : scsi_next_command (scsi_end_request)
+  <idle>-0     0dns. 1852us : get_device (scsi_next_command)
+  <idle>-0     0dns. 1852us : kobject_get (get_device)
+  <idle>-0     0dns. 1852us : kref_get (kobject_get)
+  <idle>-0     0dns. 1852us : scsi_put_command (scsi_next_command)
+  <idle>-0     0dns. 1852us : _spin_lock_irqsave (scsi_put_command)
+  <idle>-0     0dns. 1853us : __lock_text_start (scsi_put_command)
+  <idle>-0     0dns. 1853us : _spin_unlock_irqrestore (scsi_put_command)
+  <idle>-0     0dns. 1853us : kmem_cache_free (scsi_put_command)
+  <idle>-0     0dns. 1853us : put_device (scsi_put_command)
+  <idle>-0     0dns. 1853us : kobject_put (put_device)
+  <idle>-0     0dns. 1853us : kref_put (kobject_put)
+  <idle>-0     0dns. 1854us : scsi_run_queue (scsi_next_command)
+  <idle>-0     0dns. 1854us : _spin_lock_irqsave (scsi_run_queue)
+  <idle>-0     0dns. 1854us : _spin_unlock_irqrestore (scsi_run_queue)
+  <idle>-0     0dns. 1854us : blk_run_queue (scsi_run_queue)
+  <idle>-0     0dns. 1854us : _spin_lock_irqsave (blk_run_queue)
+  <idle>-0     0dns. 1854us : blk_remove_plug (blk_run_queue)
+  <idle>-0     0dns. 1855us : elv_queue_empty (blk_run_queue)
+  <idle>-0     0dns. 1855us : cfq_queue_empty (elv_queue_empty)
+  <idle>-0     0dns. 1855us : _spin_unlock_irqrestore (blk_run_queue)
+  <idle>-0     0dns. 1855us : put_device (scsi_next_command)
+  <idle>-0     0dns. 1855us : kobject_put (put_device)
+  <idle>-0     0dns. 1855us : kref_put (kobject_put)
+  <idle>-0     0dns. 1856us : tasklet_action (__do_softirq)
+  <idle>-0     0dns. 1856us : rcu_process_callbacks (tasklet_action)
+  <idle>-0     0dns. 1856us : __rcu_process_callbacks (rcu_process_callbacks)
+  <idle>-0     0dns. 1856us : __lock_text_start (__rcu_process_callbacks)
+  <idle>-0     0dns. 1856us : rcu_start_batch (__rcu_process_callbacks)
+  <idle>-0     0dns. 1857us : __rcu_process_callbacks (rcu_process_callbacks)
+  <idle>-0     0dn.. 1857us : __exit_idle (cpu_idle)
+  <idle>-0     0dn.. 1857us : notifier_call_chain (__exit_idle)
+  <idle>-0     0dn.. 1857us : schedule (cpu_idle)
+  <idle>-0     0dn.. 1858us : profile_hit (schedule)
+  <idle>-0     0dn.. 1858us : sched_clock (schedule)
+  <idle>-0     0dn.. 1858us : _spin_lock_irq (schedule)
+  <idle>-0     0dn.. 1858us : recalc_task_prio (schedule)
+  <idle>-0     0dn.. 1859us : effective_prio (recalc_task_prio)
+  <idle>-0     0dn.. 1859us : requeue_task (schedule)
+  <idle>-0     0d... 1859us : __kprobes_text_start (thread_return)
+   <...>-3032  0d... 1860us : thread_return <<idle>-0> (8c 69)
+   <...>-3032  0d... 1860us : trace_stop_sched_switched (thread_return)
+   <...>-3032  0d... 1860us : __lock_text_start (trace_stop_sched_switched)
+   <...>-3032  0d... 1860us : trace_stop_sched_switched <<...>-3032> (69 0)
+   <...>-3032  0d... 1861us : thread_return (thread_return)
+
+
+vim:ft=help

@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752189AbWCPGqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752197AbWCPGqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752189AbWCPGqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 01:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752192AbWCPGqg
+	id S1752197AbWCPGqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 01:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752192AbWCPGqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 01:46:36 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:40581 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752189AbWCPGqf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 01:46:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=M4JQ92/bmGc1twtTPIhVyOn2G7husLdt8yQbUqjLldGieLH2Owy6D6RAtYvOvvPFDMrkfCVH4KC7nGNLpN7ENhA0jVmI/qmC1LoHBTahardSzvThNk8FnNHU60r7njUVAccDjgvxCOE+pQ82edQ1xGLTZlY5FkgY1kIwp8m6Ikc=
-Message-ID: <38c09b90603152246yc168984j3921bfbd27b5d3ae@mail.gmail.com>
-Date: Thu, 16 Mar 2006 14:46:34 +0800
-From: "Lanslott Gish" <lanslott.gish@gmail.com>
-To: "Lanslott Gish" <lanslott.gish@gmail.com>,
-       "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>,
-       "Greg KH" <greg@kroah.com>,
-       "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
-       hc@mivu.no, vojtech@suse.cz
-Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
-In-Reply-To: <20060315140800.GC32065@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com>
-	 <200603112155.38984.daniel.ritz-ml@swissonline.ch>
-	 <38c09b90603121701q69c61221lf92bb150e419b1c9@mail.gmail.com>
-	 <38c09b90603131710p7932c12qf6e8602b9b0b59c8@mail.gmail.com>
-	 <20060314103854.GC32065@lug-owl.de>
-	 <38c09b90603142030o7092a39aq8ace7758972ce09a@mail.gmail.com>
-	 <20060315140800.GC32065@lug-owl.de>
+	Thu, 16 Mar 2006 01:46:31 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:49902 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1752189AbWCPGqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 01:46:30 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Wed, 15 Mar 2006 16:02:57 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B32AC5E@pdsmsx403> 
+Date: Thu, 16 Mar 2006 06:46:26 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FJmFe-00006W-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm not sure if any touch device need this.
-If some need, please move any code to general part. thx.
+I started subdividing the _TMP method, and found that
 
+hangs: -AC0 (as reported in the last email)
+okay:  -AC0-TMP (also in last email)
 
-On 3/15/06, Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
-> On Wed, 2006-03-15 12:30:04 +0800, Lanslott Gish <lanslott.gish@gmail.com> wrote:
-> > did you mean like that? thx.
->
-> That's basically the same patch as before?! What was ment is to move
-> inverting the axes into usbtouch_process_pkt().
->
-> MfG, JBG
->
-> --
+but
 
+okay: -AC0-one line of TMP, by which I mean getting rid of the 
+EC0.UPDT() line below:
 
---
-L.G, Life's Good~
+            Method (_TMP, 0, NotSerialized)
+            {
+                \_SB.PCI0.ISA0.EC0.UPDT ()
+                Store (\_SB.PCI0.ISA0.EC0.TMP0, Local0)
+                If (LGreater (Local0, 0x0AAC))
+                {
+                    Return (Local0)
+                }
+                Else
+                {
+                    Return (0x0BB8)
+                }
+            }
+
+So that's a small change in which having a line means the hang
+happens, and not having the line means it goes away.
+
+By the way, I just checked -AC0-TMP and it was okay (no hang).  That
+data point is consistent with TMP & (PSV | AC0).
+
+> I found the common code in _PSV and _AC0
+>    Store (DerefOf (Index (DerefOf (MODP (0x01)), Local1)), Local0)
+> Could you just comment out that?
+
+I will try that right now (leaving TMP as in the vanilla DSDT).
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

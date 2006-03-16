@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932714AbWCPTGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWCPTGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932714AbWCPTGO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbWCPTGO
+	id S964848AbWCPTGs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWCPTGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:06:14 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:34235 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932714AbWCPTGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:06:12 -0500
-Subject: Re: Kernel config problem between 2.4.x to 2.6.x!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060316112523.GA3078@elf.ucw.cz>
-References: <436c596f0603121015j2a091ab2sf43d0c5c396bbb72@mail.gmail.com>
-	 <7c3341450603121247n7afe018m@mail.gmail.com>
-	 <436c596f0603121632qe3151k793fd3ccd9a0eacb@mail.gmail.com>
-	 <200603130708.13685.nick@linicks.net>
-	 <436c596f0603130342u4d38445bt5e9f129349cda0c8@mail.gmail.com>
-	 <1142273196.25358.317.camel@mindpipe>  <20060316112523.GA3078@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 14:06:07 -0500
-Message-Id: <1142535968.9395.7.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Thu, 16 Mar 2006 14:06:48 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:16140 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964848AbWCPTGr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 14:06:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=lRpymyD9rseuEzxHsuu8ZHHUlIt6PqGkDAhhnyZSvU59GzPxHjxOBWvvgvdsjZCeY5STKgmWtncpbUyHmGtOC00M52ydxLavRItXk6Jphpj4sa5Ihgc2X786wdKe8zjoV8f6n+l9oM5EmXIVoGdKIaUbS6Cc21Q0jkJnzdVDcpU=
+Message-ID: <4419B73D.8080901@gmail.com>
+Date: Fri, 17 Mar 2006 04:06:37 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Petr Vandrovec <petr@vandrovec.name>, linux-kernel@vger.kernel.org,
+       sam@ravenborg.org, kai@germaschewski.name
+Subject: Re: [PATCH] Do not rebuild full kernel tree again and again...
+References: <20060312172511.GA17936@vana.vc.cvut.cz> <20060312174250.GA1470@mars.ravnborg.org> <44150CD7.604@yahoo.com.au> <20060313091254.GA28231@mars.ravnborg.org> <44154DAC.6050006@yahoo.com.au> <20060313163041.GA29719@mars.ravnborg.org> <4419AEEA.50702@gmail.com> <20060316183703.GB21003@mars.ravnborg.org>
+In-Reply-To: <20060316183703.GB21003@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 12:25 +0100, Pavel Machek wrote:
-> On Po 13-03-06 13:06:35, Lee Revell wrote:
-> > On Mon, 2006-03-13 at 08:42 -0300, j4K3xBl4sT3r wrote:
-> > > 1. before, the mouse worked fine. now, it doesnt works
-> > 
-> > Probably /dev/input/mice vs. /dev/psaux isue
-> > 
-> > > 2. before, the sound worked. and now, still working, just with ALSA,
-> > > no OSS support (tested with mpg321 and ogg123 on bash terminal) 
-> > 
-> > 
-> > Best:
-> > aoss ./oss-app
-> > 
-> > Not as good:
-> > modprobe snd-pcm-oss
-> > ./oss-app
+Sam Ravnborg wrote:
+> On Fri, Mar 17, 2006 at 03:31:06AM +0900, Tejun Heo wrote:
+>  Wouldn't it be better to have an option to tell make to assume the old 
 > 
-> Could snd-pcm-oss be fixed? If OSS is to be removed from kernel, it
-> would be nice to have working and compatible emulation.
+>>behavior? I only skimmed the original thread but it didn't seem terribly 
+>>complex thing to do. A LOT of people will be doing things on pre-2.6.17 
+>>kernel for quite some time and they will be cursing a lot if they have 
+>>to rebuild everything everytime.
+> 
+> 
+> If Paul planned for a new make relase this year - then yes.
+> But I assume it will take another year (almost) before next make realse
+> after the current 3.81. And then it should not matter much.
+> 
 
-Well, snd-pcm-oss is a working and compatible emulation, but it can't
-provide all of the features that ALSA implements in userspace like
-channel routing, mixing of multiple streams, software volume control,
-etc.  So aoss is the recommended way to run OSS apps on a moden distro.
+Fair enough for me. :-)
 
-Lee
-
+-- 
+tejun

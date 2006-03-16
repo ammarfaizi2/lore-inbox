@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752257AbWCPIh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752263AbWCPIjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752257AbWCPIh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 03:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPIh1
+	id S1752263AbWCPIjY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 03:39:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752264AbWCPIjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 03:37:27 -0500
-Received: from smtp-0-2.linuxrulz.org ([64.191.81.102]:61111 "EHLO
-	smtp-0-2.linuxrulz.org") by vger.kernel.org with ESMTP
-	id S1751080AbWCPIh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 03:37:26 -0500
-Message-ID: <20060316083716.jnfgt8wilcgoo4ws@webmail.lbsd.net>
-Date: Thu, 16 Mar 2006 08:37:16 +0000
-From: Nigel Kukard <nkukard@lbsd.net>
-To: Mariusz Mazur <mmazur@kernel.pl>
-Cc: llh-announce@lists.pld-linux.org, VMiklos <vmiklos@frugalware.org>,
-       linux-kernel@vger.kernel.org, Dan Kegel <dank@kegel.com>
-Subject: Re: [llh-announce] [ANNOUNCE] linux-libc-headers dead
-References: <200603141619.36609.mmazur@kernel.pl>
-In-Reply-To: <200603141619.36609.mmazur@kernel.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
-Content-Disposition: inline
+	Thu, 16 Mar 2006 03:39:23 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:60319
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1752261AbWCPIjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 03:39:23 -0500
+Date: Thu, 16 Mar 2006 00:38:19 -0800 (PST)
+Message-Id: <20060316.003819.74819074.davem@davemloft.net>
+To: adobriyan@gmail.com
+Cc: eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org,
+       thomas@x-berg.in-berlin.de, ralf@linux-mips.org, hans@esrac.ele.tue.nl
+Subject: Re: [PATCH] Hamradio: Fix a NULL pointer dereference in
+ net/hamradio/mkiss.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060316082413.GA7789@mipter.zuzino.mipt.ru>
+References: <20060316064211.GA22681@eugeneteo.net>
+	<20060316070737.GA22920@eugeneteo.net>
+	<20060316082413.GA7789@mipter.zuzino.mipt.ru>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
-X-Originating-IP: 196.207.45.254
-X-Abuse-Report-To: abuse@linuxrulz.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> LLH hasn't seen a new release for a lot more than six months now and up until
-> today I hoped to get back on track with new releases. But I've just spent
-> some time doing a 2.6.14 update, and it came back to me, that I'd have to
-> spend up to 10 hours just to get a basic 2.6.14.0 ready. And there'd still be
-> 2.6.15 waiting, 2.6.16 just around the corner plus sorting through all the
-> bug reports that came in during those months and all the internal rearranging
-> I either had planned or that's being forced by new kernel releases (eg.
-> addition of asm-powerpc).
->
-> I stopped having both the time and the will for such commitments a couple of
-> months ago.
->
-> Should anyone want to take over, I'd be happy to give hints, pointers, and
-> whatnot. Just don't get overexcited -- diffs between new kernel versions get
-> bigger, not smaller, and after a couple of years there's still no long term
-> solution in sight.
+From: Alexey Dobriyan <adobriyan@gmail.com>
+Date: Thu, 16 Mar 2006 11:24:13 +0300
 
-I'm interested, more so to be part of a team which as a group is 
-responsible for linux-libc-headers. This way if one or two persons 
-don't have much time available, the others can share the load.
+> Actual codepath, please... valid "ax" is plonked into ->disc_data in
+> mkiss_open().
 
-If there is no-one else willing to maintain linux-libc-headers, I'll be 
-more than happy to take it over and try get more developers interested.
+Please be more clear about what you are advocating.
+I had to sit and think about what you were saying
+before I could figure out that you were actually
+suggesting that the NULL check need not be there to
+begin with.
 
-
-Kind Regards
-
--- 
-Nigel Kukard, PhD CompSc
-
-
+Thanks.

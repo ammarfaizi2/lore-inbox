@@ -1,107 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752351AbWCPKxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752352AbWCPKxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752351AbWCPKxe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 05:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752353AbWCPKxe
+	id S1752352AbWCPKxq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 05:53:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752354AbWCPKxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 05:53:34 -0500
-Received: from web26913.mail.ukl.yahoo.com ([217.146.177.80]:15275 "HELO
-	web26913.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1752351AbWCPKxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 05:53:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.fr;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=LywlT5AyjoyT4CtC5e6SPUCFkeohJg9MfhzJV1M4ksEn6+hRU31wjETECSOjn4s5NXxyfP/nOBOZkjgFSOV9oh+tAEBeLOpeBw7Kjo0k7O/hHJA8DXutm4oRUpFuj5s8wsCI24oiEtvvj7MB0avTM+kvX8WUVzN0G4NMde6go4E=  ;
-Message-ID: <20060316105332.46898.qmail@web26913.mail.ukl.yahoo.com>
-Date: Thu, 16 Mar 2006 11:53:32 +0100 (CET)
-From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
-Subject: Re: sis96x compiled in by error: delay of one minute at boot
-To: linux-kernel@vger.kernel.org
-Cc: Jean Delvare <khali@linux-fr.org>,
-       "Mark M. Hoffman" <mhoffman@lightlink.com>,
-       lm-sensors <lm-sensors@lm-sensors.org>
-In-Reply-To: <3ZH07HE0.1142498811.4526410.khali@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 16 Mar 2006 05:53:46 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56986 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752353AbWCPKxp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 05:53:45 -0500
+Date: Thu, 16 Mar 2006 16:24:04 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: akpm@osdl.org, Andi Kleen <ak@suse.de>, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, ananth@in.ibm.com,
+       anil.s.keshavamurthy@intel.com
+Subject: Re: [2/5 PATCH] Kprobes-fix-broken-fault-handling-for-x86_64
+Message-ID: <20060316105404.GC16392@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20060316105236.GB16392@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060316105236.GB16392@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Jean Delvare wrote:
->> Mark, can you provide a patch to your i2c-sis96x driver so that it'll
->> keep quiet when no supported device is found?
->
->Mark M. Hoffman wrote:
->Lots of drivers printk messages when they load - IMO it's useful info.
->E.g. how else could Etienne discover that he accidentally built a kernel
->with dozens of i2c bus drivers (and probably all of the hwmon drivers)
->built-in by accident?
+This patch fixes the broken kprobes fault handling similar
+to i386 architecture.
 
- I did not built with all hwmon drivers because I could determine what I
- had on my mainboard. For me, because the kernel say it enters the I2C
- system by the line:
-Mar 13 21:46:48 kernel: [   47.705445] i2c /dev entries driver
- It could print a line when finished probing all those I2C drivers by a
- line like:
-Mar 13 21:46:48 kernel: [   50.705445] i2c driver found: aaa-i2c, bbb-i2c.
- And then I can have a clue on what to include in my monolitic build.
- I do not care about such timeout on _one_ build, as long as I know what
- to do for next build. Another possibility is to print a line when an I2C
- detection has failed: you know that it has taken quite a lot of time and
- it should not have been done in the first place (even for a module
- because this module should not have been inserted).
-
- It also protect the I2C group from people like me complainning
- because completely unrelated messages like
-Mar 13 22:12:54 kernel: [   61.997032]  : Detection failed at step 3
-
-Elsewhere Jean Delvare wrote:
-> That being said, the key problem being stuck i2c busses, it's even more
-> important to get rid of these. You can use "i2cdetect -l" to list all
-> detected i2c bus, so you'll see if you have any unwanted bus left.
-
-I do not have this i2cdetect software installed on my system.
-
-> If all drivers were actually printking messages when they load,
-> monolithic kernels would be a mess (not that I much understand the
-> point of such monolithic kernels, but...) You wouldn't be able to tell from
-> the boot log which drivers are actually used by the system, and which
-> aren't.
-
-Maybe it is only me, and I am totally wrong, but it seems that the
-resulting _monolitic_ kernel is quicker.
-- Maybe it is quicker because a lot of modules try to insert themself
-and fails as an autodetection subsystem in some distributions.
-- Maybe because fetching a lot of files (kernel modules) at boot
-time creates a lot of disk activity - and it is better to load everything
-at startup by the bootloader (hint: Gujin).
-- Maybe it is quicker because when loading a module there is a lot
-of addresses to resolve at run time and that takes time, instead of
-doing it once when you are linking the monolitic kernel.
-- Maybe it is simply (correct me if I am wrong) because modules
-_have_ to be compiled as a relocatable library (because the load
-address of code and data segment isn't known) and that is acheived
-by the compiler by fixing register %ebx to the base address - and
-on i386 removing one of the 4 (or 6) general purpose register
-produces code which is a lot slower (up to the point you do not care
-for which processor you compile the kernel: the improvement done
-by one or two added instruction/features do not compensate for this
-kind of loss).
-
-Maybe also managing the tree /lib/modules/* and the initrd take
-more time than simply doing once a clean linux/.config and
-maintaining this file by saying "No" to most added drivers...
-
-  Cheers,
-  Etienne.
+Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
 
+ arch/x86_64/kernel/kprobes.c |   62 ++++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 55 insertions(+), 7 deletions(-)
 
-	
+diff -puN arch/x86_64/kernel/kprobes.c~kprobes-x86_64-pagefault-handling arch/x86_64/kernel/kprobes.c
+--- linux-2.6.16-rc6-mm1/arch/x86_64/kernel/kprobes.c~kprobes-x86_64-pagefault-handling	2006-03-16 15:58:14.000000000 +0530
++++ linux-2.6.16-rc6-mm1-prasanna/arch/x86_64/kernel/kprobes.c	2006-03-16 15:58:15.000000000 +0530
+@@ -37,10 +37,12 @@
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/preempt.h>
++#include <linux/module.h>
+ 
+ #include <asm/cacheflush.h>
+ #include <asm/pgtable.h>
+ #include <asm/kdebug.h>
++#include <asm/uaccess.h>
+ 
+ void jprobe_return_end(void);
+ static void __kprobes arch_copy_kprobe(struct kprobe *p);
+@@ -578,16 +580,62 @@ int __kprobes kprobe_fault_handler(struc
+ {
+ 	struct kprobe *cur = kprobe_running();
+ 	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
++	const struct exception_table_entry *fixup;
+ 
+-	if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
+-		return 1;
+-
+-	if (kcb->kprobe_status & KPROBE_HIT_SS) {
+-		resume_execution(cur, regs, kcb);
++	switch(kcb->kprobe_status) {
++	case KPROBE_HIT_SS:
++	case KPROBE_REENTER:
++		/*
++		 * We are here because the instruction being single
++		 * stepped caused a page fault. We reset the current
++		 * kprobe and the rip points back to the probe address
++		 * and allow the page fault handler to continue as a
++		 * normal page fault.
++		 */
++		regs->rip = (unsigned long)cur->addr;
+ 		regs->eflags |= kcb->kprobe_old_rflags;
+-
+-		reset_current_kprobe();
++		if (kcb->kprobe_status == KPROBE_REENTER)
++			restore_previous_kprobe(kcb);
++		else
++			reset_current_kprobe();
+ 		preempt_enable_no_resched();
++		break;
++	case KPROBE_HIT_ACTIVE:
++	case KPROBE_HIT_SSDONE:
++		/*
++		 * We increment the nmissed count for accounting,
++		 * we can also use npre/npostfault count for accouting
++		 * these specific fault cases.
++		 */
++		kprobes_inc_nmissed_count(cur);
++
++		/*
++		 * We come here because instructions in the pre/post
++		 * handler caused the page_fault, this could happen
++		 * if handler tries to access user space by
++		 * copy_from_user(), get_user() etc. Let the
++		 * user-specified handler try to fix it first.
++		 */
++		if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
++			return 1;
++
++		/*
++		 * In case the user-specified fault handler returned
++		 * zero, try to fix up.
++		 */
++		fixup = search_exception_tables(regs->rip);
++		if (fixup) {
++			regs->rip = fixup->fixup;
++			return 1;
++		}
++
++		/*
++		 * fixup() could not handle it,
++		 * Let do_page_fault() fix it.
++		 */
++		break;
++	default:
++		break;
+ 	}
+ 	return 0;
+ }
 
-	
-		
-___________________________________________________________________________ 
-Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
-Téléchargez sur http://fr.messenger.yahoo.com
+_
+-- 
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-51776329

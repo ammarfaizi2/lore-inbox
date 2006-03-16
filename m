@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932729AbWCPUmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932727AbWCPUnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932729AbWCPUmq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 15:42:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbWCPUmp
+	id S932727AbWCPUnq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 15:43:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932732AbWCPUnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 15:42:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:42777 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932726AbWCPUmo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 15:42:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ilr2U2W63d9lnodx6TAk2tdv8gY4DdqUqRt/NGNj4642KxeOxwZgMwYsDti2MIizrfavS+BtOd0QRkb9ibLZWRarY4ZT9qz/ehHhm7fllxrPJKtCGFSJNYfMBZTpHLkg2jyuj5xgbIjxqZjz0ToymRQ/5/VZUfP83xWpdl7kc80=
-Message-ID: <a71bd89a0603161242i5dbe0d1fk7f2c028027dae2e6@mail.gmail.com>
-Date: Thu, 16 Mar 2006 12:42:42 -0800
-From: "Dan Kegel" <dank@kegel.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: [llh-announce] [ANNOUNCE] linux-libc-headers dead
-Cc: "Nigel Kukard" <nkukard@lbsd.net>, "Mariusz Mazur" <mmazur@kernel.pl>,
-       llh-announce@lists.pld-linux.org, VMiklos <vmiklos@frugalware.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0603162118080.11776@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200603141619.36609.mmazur@kernel.pl>
-	 <20060316083716.jnfgt8wilcgoo4ws@webmail.lbsd.net>
-	 <Pine.LNX.4.61.0603162118080.11776@yvahk01.tjqt.qr>
+	Thu, 16 Mar 2006 15:43:46 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:56279 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932731AbWCPUnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 15:43:45 -0500
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+	driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       rdreier@cisco.com, hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0603161234160.3618@g5.osdl.org>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org>
+	 <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+	 <1142523201.25297.56.camel@camp4.serpentine.com>
+	 <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
+	 <1142538765.10950.16.camel@serpentine.pathscale.com>
+	 <Pine.LNX.4.61.0603162003140.25033@goblin.wat.veritas.com>
+	 <Pine.LNX.4.64.0603161234160.3618@g5.osdl.org>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 16 Mar 2006 12:43:40 -0800
+Message-Id: <1142541820.10950.18.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/16/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> Some linux distributions (I know of Novell who do it for SUSE Linux)
-> seem to roll their own thing AFAICS. The glibc.src.rpm from them contains
-> a userspacified copy of the kernel headers.
+On Thu, 2006-03-16 at 12:35 -0800, Linus Torvalds wrote:
 
-Yep.  Red Hat does, too.  They had to, since there wasn't
-a linux-libc-headers project when they started.
+> The alternative is to always allocate the pages one by one ("order-0"), 
+> and do get_page() when you return them in the ->nopage handler. That will 
+> work with any kernel, so it has the simplicity thing going for it.
 
-Maybe the way to move forward is to see if we can
-get the linux-libc-headers accepted as is into
-the kernel.org tree in a userspace-include directory,
-then maintain it there.
-- Dan
+Thanks.  That's a very useful suggestion.
 
---
-Wine for Windows ISVs: http://kegel.com/wine/isv
+	<b
+

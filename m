@@ -1,78 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWCPPPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWCPPSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWCPPPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 10:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWCPPPQ
+	id S1750856AbWCPPSN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 10:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWCPPSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 10:15:16 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:17057 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751331AbWCPPPO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 10:15:14 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Thu, 16 Mar 2006 16:18:05 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B37A7EF@pdsmsx403> 
-Date: Thu, 16 Mar 2006 15:15:10 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FJuBy-0004Sd-00@skye.ra.phy.cam.ac.uk>
+	Thu, 16 Mar 2006 10:18:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36232 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750856AbWCPPSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 10:18:12 -0500
+Message-ID: <44198210.6090109@ce.jp.nec.com>
+Date: Thu, 16 Mar 2006 10:19:44 -0500
+From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>, maule@sgi.com
+CC: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       shaohua.li@intel.com
+Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
+References: <44172F0E.6070708@ce.jp.nec.com> <20060314134535.72eb7243.akpm@osdl.org> <44176502.9050109@ce.jp.nec.com> <20060315235544.GA6504@suse.de>
+In-Reply-To: <20060315235544.GA6504@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------050904080408040707040806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bad news.  It hangs when I do the usual stress test:
+This is a multi-part message in MIME format.
+--------------050904080408040707040806
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-echo 1 > THM0/polling_frequency
-sleep.sh
-sleep.sh
+Greg KH wrote:
+> No, we don't need a linux/msi.h, these are core pci things that no one
+> else should care about.  The other arches handle this just fine, let's
+> not mess everything up just because ia64 can't get it right :)
 
-The second sleep.sh hangs going to sleep.  It is in an endless loop
-printing the following line, once per second (from the
-polling_frequency):
+Hmm, it sounds asm/msi.h shouldn't be included from common headers. :<
+I think the attached patch might be better. How about this?
 
-  Execute Method: [\_TZ_.THM0._TMP] (Node c157bf88)
+Default msi_arch_init() looks sufficient for most ia64 platforms
+except for SGI SN2, which seems to need its special version.
+gregkh-pci-msi-vector-targeting-abstractions.patch used machvec
+to switch the functions between platforms.
+For that, it included asm/msi.h from asm/machvec.h and
+caused the warnings flood.
+The attached patch separates machvec function and the original
+inline function. So that we don't need to include asm/msi.h from
+common headers.
 
-> Please also make sure you have vanilla DSDT
 
-$ grep DSDT /boot/config-2.6.16-rc5.fake-thermal_active+passive
-# CONFIG_ACPI_CUSTOM_DSDT is not set
+There is another problem that CONFIG_IA64_GENERIC still doesn't
+build due to error in SGI SN specific code.
+It needs additional fix.
 
-> vanilla Kernel, and just hacked acpi_thermal_active/passive.
+Thanks,
+-- 
+Jun'ichi Nomura, NEC Solutions (America), Inc.
 
-Only diff between pristine 2.6.16-rc5 tree and mine is:
+--------------050904080408040707040806
+Content-Type: text/x-patch;
+ name="ia64-machvec-based-msi-init.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ia64-machvec-based-msi-init.patch"
 
-diff -rup /tmp/linux-2.6.16-rc5/drivers/acpi/thermal.c /usr/src/linux-2.6.16-rc5/drivers/acpi/thermal.c
---- /tmp/linux-2.6.16-rc5/drivers/acpi/thermal.c	2006-02-27 00:09:35.000000000 -0500
-+++ /usr/src/linux-2.6.16-rc5/drivers/acpi/thermal.c	2006-03-16 09:45:30.000000000 -0500
-@@ -526,6 +526,8 @@ static void acpi_thermal_passive(struct 
+asm/msi.h is a private header for core pci code.
+It should not be included from common header.
+
+Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+
+--- linux-2.6.16-rc6-mm1.orig/include/asm-ia64/msi.h	2006-03-14 13:54:11.000000000 -0500
++++ linux-2.6.16-rc6-mm1/include/asm-ia64/msi.h	2006-03-16 01:36:44.000000000 -0500
+@@ -17,12 +17,12 @@ static inline void set_intr_gate (int nr
+ extern struct msi_ops msi_apic_ops;
  
- 	ACPI_FUNCTION_TRACE("acpi_thermal_passive");
+ /* default ia64 msi init routine */
+-static inline int ia64_msi_init(void)
++static inline int msi_arch_init(void)
+ {
++	if (platform_msi_init)
++		return platform_msi_init();
+ 	msi_register(&msi_apic_ops);
+ 	return 0;
+ }
  
-+	return;
-+
- 	if (!tz || !tz->trips.passive.flags.valid)
- 		return;
+-#define msi_arch_init		platform_msi_init	/* in asm/machvec.h */
+-
+ #endif /* ASM_MSI_H */
+--- linux-2.6.16-rc6-mm1.orig/include/asm-ia64/machvec.h	2006-03-16 01:22:49.000000000 -0500
++++ linux-2.6.16-rc6-mm1/include/asm-ia64/machvec.h	2006-03-16 01:40:34.000000000 -0500
+@@ -404,12 +404,7 @@ extern ia64_mv_dma_supported		swiotlb_dm
+ # define platform_migrate machvec_noop_task
+ #endif
+ #ifndef platform_msi_init
+-#ifdef CONFIG_PCI_MSI
+-#include <asm/msi.h>		/* pull in ia64_msi_init() */
+-# define platform_msi_init	ia64_msi_init
+-#else
+ # define platform_msi_init	NULL
+-#endif /* CONFIG_PCI_MSI */
+ #endif
  
-@@ -615,6 +617,8 @@ static void acpi_thermal_active(struct a
- 
- 	ACPI_FUNCTION_TRACE("acpi_thermal_active");
- 
-+	return;
-+
- 	if (!tz)
- 		return;
- 
+ #endif /* _ASM_IA64_MACHVEC_H */
 
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
+--------------050904080408040707040806--

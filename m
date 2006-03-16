@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752246AbWCPIYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752255AbWCPI1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752246AbWCPIYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 03:24:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752250AbWCPIYQ
+	id S1752255AbWCPI1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 03:27:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPI1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 03:24:16 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:25294 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751025AbWCPIYQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 03:24:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=VMScRSCfYtmNp52x0nWHeavliOOttMtxH/G9lSa0pw/Ctfbf6fZ3ZLqr69BJATgkvjdKUtI0DaUKQ15d50W2vojIBJTLEFVxvGvi+FrvujpmXbEK/0xXPZGeiV9UkVEceWB+c/F2gyk57ElUCxubx8lhqsXavxDCipUNd/sZFA8=
-Date: Thu, 16 Mar 2006 11:24:13 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: linux-kernel@vger.kernel.org,
-       Thomas Osterried DL9SAU <thomas@x-berg.in-berlin.de>,
-       Ralf Baechle DL5RB <ralf@linux-mips.org>,
-       Hans Alblas PE1AYX <hans@esrac.ele.tue.nl>
-Subject: Re: [PATCH] Hamradio: Fix a NULL pointer dereference in net/hamradio/mkiss.c
-Message-ID: <20060316082413.GA7789@mipter.zuzino.mipt.ru>
-References: <20060316064211.GA22681@eugeneteo.net> <20060316070737.GA22920@eugeneteo.net>
+	Thu, 16 Mar 2006 03:27:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1431 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750763AbWCPI1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 03:27:41 -0500
+Subject: Re: Invalidating a page of a user level process.
+From: Arjan van de Ven <arjan@infradead.org>
+To: VISHAL NAHAR <naharvishalj@yahoo.co.in>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060316065930.85327.qmail@web8702.mail.in.yahoo.com>
+References: <20060316065930.85327.qmail@web8702.mail.in.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 16 Mar 2006 09:27:39 +0100
+Message-Id: <1142497659.3041.18.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060316070737.GA22920@eugeneteo.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 03:07:37PM +0800, Eugene Teo wrote:
-> Pointer ax is dereferenced before NULL check.
->
-> Coverity bug #817
+On Thu, 2006-03-16 at 06:59 +0000, VISHAL NAHAR wrote:
+> Hello all,
+>    I am stuck up at invalidation of a   page of a user
+> level process.
+> Wht i am doin is that i am calling a device driver
+> ioctl func from a normal C prog in user space and
+> passing a virtual address into the ioctl func .In the
+> ioctl func (kernel space) i want to invalidate the
+> corresponding page.I have used funcs like pte_clear,
+> flush_tlb_page,page_remove_rmap,etc. but couldnt
+> succeed.Also suggest if any locks have to be acquired
+> .
+> 
+> Can anyone of u help me in page invalidation.I would
+> be grateful.
+> Thanking you  in advance
 
-> --- linux-2.6/drivers/net/hamradio/mkiss.c
-> +++ linux-2.6/drivers/net/hamradio/mkiss.c
-> @@ -845,13 +845,15 @@ static int mkiss_ioctl(struct tty_struct
->  	unsigned int cmd, unsigned long arg)
->  {
->  	struct mkiss *ax = mkiss_get(tty);
-> -	struct net_device *dev = ax->dev;
-> +	struct net_device *dev;
->  	unsigned int tmp, err;
->
->  	/* First make sure we're connected. */
->  	if (ax == NULL)
->  		return -ENXIO;
->
-> +	dev = ax->dev;
-> +
+you forgot to attach your sourcecode.
 
-Actual codepath, please... valid "ax" is plonked into ->disc_data in
-mkiss_open().
 

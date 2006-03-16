@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752219AbWCPH3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752223AbWCPH3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752219AbWCPH3T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 02:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752220AbWCPH3T
+	id S1752223AbWCPH3z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 02:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752224AbWCPH3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 02:29:19 -0500
-Received: from mail.macqel.be ([194.78.208.39]:55565 "EHLO mail.macqel.be")
-	by vger.kernel.org with ESMTP id S1752219AbWCPH3T (ORCPT
+	Thu, 16 Mar 2006 02:29:55 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:42455 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1752223AbWCPH3y convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 02:29:19 -0500
-Date: Thu, 16 Mar 2006 08:29:02 +0100
-From: Philippe De Muyter <phdm@mail.macqel.be>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Philippe De Muyter <phdm@macqel.be>, linux-kernel@vger.kernel.org,
-       uclinux-dev@uclinux.org
-Subject: Re: PATCH m68knommu clear frame-pointer in start_thread
-Message-ID: <20060316082902.A13021@mail.macqel.be>
-References: <200603151647.k2FGl7Y04736@mail.macqel.be> <20060315233810.GA4605@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20060315233810.GA4605@linux-mips.org>; from ralf@linux-mips.org on Wed, Mar 15, 2006 at 11:38:11PM +0000
+	Thu, 16 Mar 2006 02:29:54 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Thu, 16 Mar 2006 15:28:47 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840B37A72F@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZIxvh5cmjl+S1lTMiwn45d1D/i4QAASHUQ
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 16 Mar 2006 07:28:49.0351 (UTC) FILETIME=[449F9D70:01C648CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 11:38:11PM +0000, Ralf Baechle wrote:
-> On Wed, Mar 15, 2006 at 05:47:07PM +0100, Philippe De Muyter wrote:
-> 
-> > When trying to print the calltrace of a user process on m68knommu targets
-> > gdb follows the frame-pointer en falls on unreachable adresses, because
-> > the frame pointer is not properly initialised by start_thread. This patch
-> > initialises the frame pointer to NULL in start_thread.
-> > 
-> > Signed-off-by: Philippe De Muyter <phdm@macqel.be>
-> 
-> You've posted an ed-style diff.  Quite a safe method to make sure nobody
-> will read it.  Pleae repost a unified diff.
-> 
->   Ralf
+>It doesn't hang.  Though it seemed close to hanging a couple times,
+>but after a 5-10 second pause always managed to go to sleep.  I tried
+>about 15 sleep cycles, with a few echo 1 > polling_frequency thrown in.
 
-Oops
+ACPI SPEC define:
 
-Thanks for your attention and your reply
+_PSV  : thermal zone object that returns Passive trip point in
+	tenths of digress Kelvin.
 
-I will resend it.
+_ACx:  thermal zone object that returns active cooling policy 
+	threshold values in tenths of degrees Kelvin.
 
-Philippe
+I suspect , when hang, the system was trying to start active cooling
+with Fan
+in function acpi_thermal_active that was somehow conflict request with
+_PTS's call to SMPI in BIOS.  So, the solution is :
 
--- 
-Philippe De Muyter  phdm at macqel dot be  Tel +32 27029044
-Macq Electronique SA  rue de l'Aeronef 2  B-1140 Bruxelles  Fax +32 27029077
+	Disable active/passive cooling request before suspend.
+
+To verify this, please hack acpi_thermal_active.
+
+We need a suspend/resume method for acpi thermal to cleanly solve 
+your problem.
+
+Thanks,
+Luming

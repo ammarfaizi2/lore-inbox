@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWCPS46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWCPS7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWCPS46 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 13:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbWCPS46
+	id S964830AbWCPS7j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 13:59:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWCPS7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 13:56:58 -0500
-Received: from xenotime.net ([66.160.160.81]:22493 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964834AbWCPS45 (ORCPT
+	Thu, 16 Mar 2006 13:59:39 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:32896 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964830AbWCPS7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 13:56:57 -0500
-Date: Thu, 16 Mar 2006 10:58:53 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: sam@ravnborg.org, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
-Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-Message-Id: <20060316105853.f62b2fe4.rdunlap@xenotime.net>
-In-Reply-To: <20060316184946.GX27946@ftp.linux.org.uk>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
-	<20060316160129.GB6407@infradead.org>
-	<20060316082951.58592fdc.rdunlap@xenotime.net>
-	<20060316163001.GA7222@infradead.org>
-	<20060316174112.GA21003@mars.ravnborg.org>
-	<20060316180047.GW27946@ftp.linux.org.uk>
-	<20060316101220.67f4f33c.rdunlap@xenotime.net>
-	<20060316184946.GX27946@ftp.linux.org.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 13:59:38 -0500
+Date: Thu, 16 Mar 2006 19:58:40 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Zachary Amsden <zach@vmware.com>
+cc: Rik van Riel <riel@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface proposal
+In-Reply-To: <441658A2.4090905@vmware.com>
+Message-ID: <Pine.LNX.4.61.0603161956570.11776@yvahk01.tjqt.qr>
+References: <200603131758.k2DHwQM7005618@zach-dev.vmware.com>
+ <441642EE.80900@us.ibm.com> <4416460A.2090704@vmware.com>
+ <Pine.LNX.4.63.0603132329160.17874@cuia.boston.redhat.com> <441658A2.4090905@vmware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Mar 2006 18:49:46 +0000 Al Viro wrote:
+>
+> But most importantly, I really don't understand how it is possible to make a
+> patch to the Linux kernel and not release it under GPL.
+>
 
-> On Thu, Mar 16, 2006 at 10:12:20AM -0800, Randy.Dunlap wrote:
-> > On Thu, 16 Mar 2006 18:00:47 +0000 Al Viro wrote:
-> > 
-> > > On Thu, Mar 16, 2006 at 06:41:12PM +0100, Sam Ravnborg wrote:
-> > > > I assume that when you are not used to see 'bool', 'true' and 'false'
-> > > > then they hurt the eye, but when used to it it looks natural.
-> > > 
-> > > Five words: kernel is written in C.
-> > > 
-> > > Not in Pascal.  Not in C++.  Not in Algol.  "When used to (something
-> > > non-idiomatic in C) it becomes natural" is not a valid argument.
-> > 
-> > C (C99) now includes booleans.  Are we stuck pre-C99?
-> 
-> TRUE and FALSE are not those.  Your point is...?
+If the patch is so ultimatively trivial that there is only a few solutions (one
+or two), then there is no use in gpl'ing that flock of patchcode, in which case
+I think, it is (or at best should be) public domain. In conjunction with the
+patched function, they will/should become GPL.
 
-Correct.  So it would be better if they were spelled 'true' and 'false',
-as in the C99 spec?
 
----
-~Randy
+Jan Engelhardt
+-- 

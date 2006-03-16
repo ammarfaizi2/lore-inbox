@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWCPOmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWCPOrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWCPOmi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 09:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWCPOmi
+	id S1751189AbWCPOrD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 09:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWCPOrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 09:42:38 -0500
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:57306 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S1751145AbWCPOmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 09:42:38 -0500
-Date: Thu, 16 Mar 2006 15:42:26 +0100
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Jeff Garzik <jeff@garzik.org>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
-       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>,
-       Allen Martin <AMartin@nvidia.com>
-Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost ticks on PM timer]
-Message-ID: <20060316144226.GV15509@boogie.lpds.sztaki.hu>
-References: <200603040107.27639.ak@suse.de> <20060315213638.GA17817@ti64.telemetry-investments.com> <20060315215020.GA18241@elte.hu> <20060315221119.GA21775@elte.hu> <44189654.2080607@garzik.org> <20060315224408.GC24074@elte.hu> <44189A3D.5090202@garzik.org> <20060315231426.GD17817@ti64.telemetry-investments.com> <20060316031528.GF17817@ti64.telemetry-investments.com> <1142482825.1671.148.camel@mindpipe>
+	Thu, 16 Mar 2006 09:47:03 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7137 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751189AbWCPOrB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 09:47:01 -0500
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Kumar Gala <galak@kernel.crashing.org>, Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>, gregkh@suse.de
+Subject: Re: [RFC][PATCH] Expanding the size of "start" and "end" field in
+ "struct resource"
+References: <20060315193114.GA7465@in.ibm.com>
+	<20060315205306.GC25361@kvack.org>
+	<46E23BE4-4353-472B-90E6-C9E7A3CFFC15@kernel.crashing.org>
+	<20060315211335.GD25361@kvack.org>
+	<m1y7zbe6rn.fsf@ebiederm.dsl.xmission.com>
+	<20060315212841.GE25361@kvack.org>
+	<m13bhje5d1.fsf@ebiederm.dsl.xmission.com>
+	<20060315220727.GF25361@kvack.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 16 Mar 2006 07:45:23 -0700
+In-Reply-To: <20060315220727.GF25361@kvack.org> (Benjamin LaHaise's message
+ of "Wed, 15 Mar 2006 17:07:27 -0500")
+Message-ID: <m1r752bg8s.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1142482825.1671.148.camel@mindpipe>
-X-Copyright: Forwarding or publishing without permission is prohibited.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 15, 2006 at 11:20:24PM -0500, Lee Revell wrote:
+Benjamin LaHaise <bcrl@kvack.org> writes:
 
-> Lots of people have these boards and it seems like if the problem was
-> widespread, I would have seen it on the Linux audio lists, as many of
-> those users run Ingo's instrumented kernel and they all know to report
-> latency traces when they get them.
+> On Wed, Mar 15, 2006 at 02:59:54PM -0700, Eric W. Biederman wrote:
+>> Actually now that I think back there are machines with < 4GiB of ram
+>> with 64bit pci BAR values.  It is more common to have 32bit values BAR
+>> values and > 4GiB of ram.
+>
+> Such machines on x86 would have to be compiled with PAE.  Ditto any other 
+> architecture, as you *have* to be able to represent those physical addresses, 
+> which requires having page tables that can map them, which requires whatever 
+> PAE is on the platform.
 
-I did not experience any sata_nv problems with 2 disks/RAID1 (at least I
-never noticed). I immediately got the "warning: many lost ticks. Your
-time source seems to be instable or some driver is hogging interupts"
-message when I started using 4 disks/RAID5. It's possible that most
-people do not have enough disks connected to the nForce4 to trigger the
-bug.
+It depends on who the user is.  In the case that inspired this thread
+user space can profit from the information even when the kernel can't.
+In addition it appears kernel code quality can benefit as well.
 
-Gabor
+>> Nor do I think struct resource is nearly as important when being
+>> efficient, as dma_addr_t.  struct resource is only used during
+>> driver setup which is a very rare event.  A few extra instructions
+>> there likely will get lost in the noise and most of the will probably
+>> be removed because they are in an __init section anyway.
+>
+> Bloat for no good reason is a bad habit to get into.
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences
-     ---------------------------------------------------------
+I agree bloat for no good reason is a bad habit to get into.
+Premature optimization is a worse habit to get into, as is making
+problems unnecessarily complex.  Until working patches are produced,
+and the impact can be assessed it is to soon to seriously worry about
+something that back of the napkin calculations indicate suggest
+will have no measurable impact.
+
+Eric
+

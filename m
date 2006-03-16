@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752221AbWCPVVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWCPV0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752221AbWCPVVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 16:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752194AbWCPVVQ
+	id S1751456AbWCPV0h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 16:26:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752194AbWCPV0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 16:21:16 -0500
-Received: from hs-grafik.net ([80.237.205.72]:59913 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1751456AbWCPVVQ (ORCPT
+	Thu, 16 Mar 2006 16:26:37 -0500
+Received: from thunk.org ([69.25.196.29]:8835 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1750845AbWCPV0h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 16:21:16 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Kernel Bug while trying to mount nfs share
-Date: Thu, 16 Mar 2006 22:20:55 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <200603151244.34159@zodiac.zodiac.dnsalias.org> <Pine.LNX.4.61.0603162133100.11776@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603162133100.11776@yvahk01.tjqt.qr>
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
+	Thu, 16 Mar 2006 16:26:37 -0500
+Date: Thu, 16 Mar 2006 16:26:32 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       Laurent Vivier <Laurent.Vivier@bull.net>
+Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
+Message-ID: <20060316212632.GA21004@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+	Laurent Vivier <Laurent.Vivier@bull.net>
+References: <000301c6482d$7e5b5200$4168010a@bsd.tnes.nec.co.jp> <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com> <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart9447685.0QpsREeJJ5";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200603162220.59240@zodiac.zodiac.dnsalias.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060316183549.GK30801@schatzie.adilger.int>
+User-Agent: Mutt/1.5.11+cvs20060126
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart9447685.0QpsREeJJ5
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Mar 16, 2006 at 11:35:49AM -0700, Andreas Dilger wrote:
+> Beyond that, we need a format change and may as well have something
+> like extents, but even extents still need to allow a larger i_blocks,
 
-Am Donnerstag, 16. M=E4rz 2006 21:35 schrieb Jan Engelhardt:
-> >127MB HIGHMEM available.
-> >896MB LOWMEM available.
->
-> BTW, you could try ot VMSPLIT_3G_OPT.
+As a side note, one of the things that we've been talking about doing
+is bundling a number of small changes together into a single INCOMPAT
+flag.  Changing i_blocks so its units are in blocks rather than
+512-byte sectors was one such change.
 
-Which works ;) BTW: Why do I need to recompile the complete kernel for that=
-=20
-option, and isn't there any negative impact (The menuconfig help doesn't=20
-mention anything...)
+Another was guaranteeing that for large inodes (> 128 bytes) that at
+least some number of bytes (probably on the order of 32 bytes or so)
+would be reserved for things like the high resolution portion of
+ctime/mtime/atime, high watermark, and other inode extensions.  (One
+of the problems with doing high res timestamps right is how to handle
+the case where you can't make room for the high res timestamps, due to
+too much space being taken up by extended attributes.  The make(1)
+program gets really confused unless all files are either using or not
+using high res timestamps.)
 
-regards
-Alex
+The idea was to do a quick easy strike of all of the ideas which could
+be implemented quickly, and perhaps try to get them done before RHEL 5
+snapshots.  Even if RHEL5 doesn't enable use of these features by
+default, having it supported by RHEL5 would be extremely convenient.
 
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+> so that patch would be useful in any case...  though it needs some
+> cleanup to remove all users of i_frag and i_faddr (which have never
+> ever been used).
 
---nextPart9447685.0QpsREeJJ5
-Content-Type: application/pgp-signature
+One of the things which we need to consider is whether we think we
+will never support tail packing or other forms of fragments, which is
+related to whether we think we will ever support large blocks (i.e.,
+32k, 64k, and up).  If we do, we might want to keep those fields
+around.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQBEGda7/aHb+2190pERAusEAJ4pi8b2maQV36SpzG3VBQaKSKCA1wCffbsW
-fDptvlcHl+EFVv2/UeaFVqA=
-=xqRo
------END PGP SIGNATURE-----
-
---nextPart9447685.0QpsREeJJ5--
+						- Ted

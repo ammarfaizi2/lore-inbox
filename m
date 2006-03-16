@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbWCPDor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWCPDps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932614AbWCPDor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 22:44:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbWCPDor
+	id S932616AbWCPDps (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 22:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbWCPDps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 22:44:47 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:63920 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932614AbWCPDoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 22:44:46 -0500
-Date: Thu, 16 Mar 2006 12:43:33 +0900
+	Wed, 15 Mar 2006 22:45:48 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:19399 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932616AbWCPDpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 22:45:47 -0500
+Date: Thu, 16 Mar 2006 12:41:13 +0900
 From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH/DOC ] for_each_possible_cpu  documentaion [1/1]
-Message-Id: <20060316124333.6fe40a86.kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [PATCH] for_each_possible_cpu [19/19] xfs
+Message-Id: <20060316124113.7f0615bc.kamezawa.hiroyu@jp.fujitsu.com>
 Organization: Fujitsu
 X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -24,45 +24,42 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch replaces for_each_cpu with for_each_possible_cpu.
-
-Modifies occurences in documentaion.
-
-for_each_cpu in whatisRCU.txt should be for_each_online_cpu ???
-(I'm not sure..)
+in xfs.
 
 Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
-
-Index: linux-2.6.16-rc6-mm1/Documentation/RCU/whatisRCU.txt
+Index: linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_sysctl.c
 ===================================================================
---- linux-2.6.16-rc6-mm1.orig/Documentation/RCU/whatisRCU.txt
-+++ linux-2.6.16-rc6-mm1/Documentation/RCU/whatisRCU.txt
-@@ -605,7 +605,7 @@ are the same as those shown in the prece
- 	{
- 		int cpu;
+--- linux-2.6.16-rc6-mm1.orig/fs/xfs/linux-2.6/xfs_sysctl.c
++++ linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_sysctl.c
+@@ -38,7 +38,7 @@ xfs_stats_clear_proc_handler(
  
--		for_each_cpu(cpu)
-+		for_each_possible_cpu(cpu)
- 			run_on(cpu);
+ 	if (!ret && write && *valp) {
+ 		printk("XFS Clearing xfsstats\n");
+-		for_each_cpu(c) {
++		for_each_possible_cpu(c) {
+ 			preempt_disable();
+ 			/* save vn_active, it's a universal truth! */
+ 			vn_active = per_cpu(xfsstats, c).vn_active;
+Index: linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_stats.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/fs/xfs/linux-2.6/xfs_stats.c
++++ linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_stats.c
+@@ -62,7 +62,7 @@ xfs_read_xfsstats(
+ 		while (j < xstats[i].endpoint) {
+ 			val = 0;
+ 			/* sum over all cpus */
+-			for_each_cpu(c)
++			for_each_possible_cpu(c)
+ 				val += *(((__u32*)&per_cpu(xfsstats, c) + j));
+ 			len += sprintf(buffer + len, " %u", val);
+ 			j++;
+@@ -70,7 +70,7 @@ xfs_read_xfsstats(
+ 		buffer[len++] = '\n';
  	}
- 
-Index: linux-2.6.16-rc6-mm1/Documentation/cpu-hotplug.txt
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/Documentation/cpu-hotplug.txt
-+++ linux-2.6.16-rc6-mm1/Documentation/cpu-hotplug.txt
-@@ -97,13 +97,13 @@ at which time hotplug is disabled.
- 
- You really dont need to manipulate any of the system cpu maps. They should
- be read-only for most use. When setting up per-cpu resources almost always use
--cpu_possible_map/for_each_cpu() to iterate.
-+cpu_possible_map/for_each_possible_cpu() to iterate.
- 
- Never use anything other than cpumask_t to represent bitmap of CPUs.
- 
- #include <linux/cpumask.h>
- 
--for_each_cpu              - Iterate over cpu_possible_map
-+for_each_possible_cpu     - Iterate over cpu_possible_map
- for_each_online_cpu       - Iterate over cpu_online_map
- for_each_present_cpu      - Iterate over cpu_present_map
- for_each_cpu_mask(x,mask) - Iterate over some random collection of cpu mask.
+ 	/* extra precision counters */
+-	for_each_cpu(i) {
++	for_each_possible_cpu(i) {
+ 		xs_xstrat_bytes += per_cpu(xfsstats, i).xs_xstrat_bytes;
+ 		xs_write_bytes += per_cpu(xfsstats, i).xs_write_bytes;
+ 		xs_read_bytes += per_cpu(xfsstats, i).xs_read_bytes;

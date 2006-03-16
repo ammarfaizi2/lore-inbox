@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWCPN1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWCPNVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbWCPN1a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 08:27:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWCPN13
+	id S1750867AbWCPNVR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 08:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWCPNVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 08:27:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9740 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750838AbWCPN13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 08:27:29 -0500
-Date: Thu, 16 Mar 2006 14:27:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: mchehab@infradead.org
-Cc: v4l-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] VIDEO_CPIA2 must depend on USB
-Message-ID: <20060316132727.GF3914@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 16 Mar 2006 08:21:17 -0500
+Received: from styx.suse.cz ([82.119.242.94]:46791 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750867AbWCPNVQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 08:21:16 -0500
+Date: Thu, 16 Mar 2006 14:21:14 +0100
+From: Jiri Benc <jbenc@suse.cz>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Bernd Petrovitsch <bernd@firmix.at>, rusty@rustcorp.com.au,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] modpost: fix buffer overflow
+Message-ID: <20060316142114.74367113@griffin.suse.cz>
+In-Reply-To: <20060315225159.GA11095@mars.ravnborg.org>
+References: <20060315154436.4286d2ab@griffin.suse.cz>
+	<1142434648.17627.5.camel@tara.firmix.at>
+	<20060315160858.311e5c0e@griffin.suse.cz>
+	<20060315225159.GA11095@mars.ravnborg.org>
+X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_VIDEO_CPIA2=y, CONFIG_USB=n results in the following compile 
-error:
+On Wed, 15 Mar 2006 23:51:59 +0100, Sam Ravnborg wrote:
+> Can I ask you to make a new patch where you change buf_printf() to use
+> buf_write. And then change buf_write to allocate in chunks also.
+> This would be cleanest solution.
 
+This probably will be the cleanest solution, but I doubt it would be
+acceptable for 2.6.16. And I think the fix should go into 2.6.16.
 
-<--  snip  -->
+Thanks,
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o: In function `set_alternate':cpia2_usb.c:(.text+0x443aa2): undefined reference to `usb_set_interface'
-:cpia2_usb.c:(.text+0x443abe): undefined reference to `usb_set_interface'
-drivers/built-in.o: In function `cpia2_usb_stream_resume': undefined reference to `usb_alloc_urb'
-drivers/built-in.o: In function `cpia2_usb_stream_resume': undefined reference to `usb_submit_urb'
-drivers/built-in.o: In function `cpia2_usb_stream_pause': undefined reference to `usb_kill_urb'
-drivers/built-in.o: In function `cpia2_usb_stream_pause': undefined reference to `usb_free_urb'
-drivers/built-in.o: In function `cpia2_usb_disconnect':cpia2_usb.c:(.text+0x443e14): undefined reference to `usb_driver_release_interface'
-drivers/built-in.o: In function `cpia2_usb_transfer_cmd': undefined reference to `usb_control_msg'
-drivers/built-in.o: In function `cpia2_usb_transfer_cmd': undefined reference to `usb_control_msg'
-drivers/built-in.o: In function `cpia2_usb_complete':cpia2_usb.c:(.text+0x444836): undefined reference to `usb_submit_urb'
-drivers/built-in.o: In function `cpia2_usb_cleanup': undefined reference to `usb_deregister'
-drivers/built-in.o: In function `cpia2_usb_init': undefined reference to `usb_register_driver'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.16-rc6-mm1-full/drivers/media/video/Kconfig.old	2006-03-16 14:19:19.000000000 +0100
-+++ linux-2.6.16-rc6-mm1-full/drivers/media/video/Kconfig	2006-03-16 14:19:36.000000000 +0100
-@@ -144,7 +144,7 @@
- 
- config VIDEO_CPIA2
- 	tristate "CPiA2 Video For Linux"
--	depends on VIDEO_DEV
-+	depends on VIDEO_DEV && USB
- 	---help---
- 	  This is the video4linux driver for cameras based on Vision's CPiA2
- 	  (Colour Processor Interface ASIC), such as the Digital Blue QX5
-
+-- 
+Jiri Benc
+SUSE Labs

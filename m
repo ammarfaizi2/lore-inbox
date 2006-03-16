@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWCPR7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbWCPSAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWCPR7L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 12:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbWCPR7L
+	id S932627AbWCPSAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 13:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbWCPSAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 12:59:11 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:56019
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932474AbWCPR7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 12:59:09 -0500
-Date: Thu, 16 Mar 2006 09:58:58 -0800
-From: Greg KH <greg@kroah.com>
-To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+	Thu, 16 Mar 2006 13:00:24 -0500
+Received: from [84.204.75.166] ([84.204.75.166]:39128 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S932627AbWCPSAY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 13:00:24 -0500
+Subject: Re: [Bug? Report] kref problem
+From: "Artem B. Bityutskiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>,
        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [Bug? Report] kref problem
-Message-ID: <20060316175858.GA7124@kroah.com>
-References: <1142509279.3920.31.camel@sauron.oktetlabs.ru> <20060316165323.GA10197@kroah.com> <4419A426.9080908@yandex.ru>
+In-Reply-To: <20060316172039.GB5624@kroah.com>
+References: <1142509279.3920.31.camel@sauron.oktetlabs.ru>
+	 <20060316165323.GA10197@kroah.com>
+	 <1142528877.3920.64.camel@sauron.oktetlabs.ru>
+	 <1142529004.3920.66.camel@sauron.oktetlabs.ru>
+	 <20060316172039.GB5624@kroah.com>
+Content-Type: text/plain
+Organization: MTD
+Date: Thu, 16 Mar 2006 21:00:19 +0300
+Message-Id: <1142532019.3920.79.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4419A426.9080908@yandex.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 08:45:10PM +0300, Artem B. Bityutskiy wrote:
-> 
-> Greg KH wrote:
-> >Don't statically create kobjects, it's not nice.  But the real problem
-> >is below...
-> 
-> Well, that was just an example...
-> 
-> But in real life I do use a static kobject in one case, so I'm very 
-> interested what should I do instead. I have a subsystem, and I want it 
-> to put all its stuff in a /sys/A directory. So I just define a static 
-> kobject for A and assign a dummy release function to it. Why is this bad?
+On Thu, 2006-03-16 at 09:20 -0800, Greg KH wrote:
+> Again, why are you trying to call the sysfs raw functions?  You are not
+> registering the kobject with the kobject core, so bad things are
+> happening.  Why not call kobject_register() or kobject_add(), like it is
+> documented to do so?
 
-If you use decl_subsys(), you should be fine for this.  Use that instead
-of trying to roll your own subsystem kobjects please.  That
-infrastructure was written for a reason...
+Well, we were discussing this with you some time ago, and you pointed me
+to these raw functions. My stuff just does not fit device/driver/bu
+modes and you said I have to create whatever sysfs hierarchy I want with
+the raw functions.
 
-> And what should I do instead? kmalloc(sizeof(struct kobject), 
-> GFP_KERNEL) ? I do not have a dynamic structure corresponding to my 
-> module. I have many data structures corresponding to entities my object 
-> handles and I have one static array which refers them. All is simple. I 
-> do not want to introduce a dynamic data structure corresponding to the 
-> subsystem as a whole just in order to not use static kobjects.
+kobject_register()/kobject_del() instead of
+sysfs_create_dir()/sysfs_remove_dir() solved my problem, thanks. Just to
+refine this, I'm still going to use
+sysfs_create_file()/sysfs_remove_file() to create whatever attributes I
+want, is this right?
 
-Data (kobjects) have a different lifespan than code (modules).
-Seperating them is a good idea, and if not, your reference counting
-issues can be quite nasty.  See the recent EDAC fiasco for a good
-example of how easy it is to mess things up in this manner.
+I've just noticed similarity in naming: sysfs_remove_file() creates a
+file, so the symmetrical sysfs_create_dir() creates a directory. So just
+started using it. From the names it was not obvious that I could
+not. :-)
 
-thanks,
+Thanks.
 
-greg k-h
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
+

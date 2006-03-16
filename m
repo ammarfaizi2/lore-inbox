@@ -1,85 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWCPPLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWCPPMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWCPPLY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 10:11:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWCPPLY
+	id S1751458AbWCPPMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 10:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWCPPMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 10:11:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63872 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751258AbWCPPLY (ORCPT
+	Thu, 16 Mar 2006 10:12:25 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:5051 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751320AbWCPPMY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 10:11:24 -0500
-Date: Thu, 16 Mar 2006 15:11:14 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: dm stripe: Fix bounds
-Message-ID: <20060316151114.GS4724@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Thu, 16 Mar 2006 10:12:24 -0500
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+	driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Andrew Morton <akpm@osdl.org>, Hugh@veritas.com, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <ada8xrbszmx.fsf@cisco.com>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org>  <ada8xrbszmx.fsf@cisco.com>
+Content-Type: text/plain
+Date: Thu, 16 Mar 2006 07:12:23 -0800
+Message-Id: <1142521943.25297.42.camel@camp4.serpentine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Kevin Corry <kevcorry@us.ibm.com>
+On Wed, 2006-03-15 at 21:54 -0800, Roland Dreier wrote:
 
-The dm-stripe target currently does not enforce that the size of a stripe 
-device be a multiple of the chunk-size. Under certain conditions, this can 
-lead to I/O requests going off the end of an underlying device. This 
-test-case shows one example.
+> How about the case where one wants to map pages from
+> dma_alloc_coherent() into userspace?
 
-echo "0 100 linear /dev/hdb1 0" | dmsetup create linear0
-echo "0 100 linear /dev/hdb1 100" | dmsetup create linear1
-echo "0 200 striped 2 32 /dev/mapper/linear0 0 /dev/mapper/linear1 0" | \
-   dmsetup create stripe0
-dd if=/dev/zero of=/dev/mapper/stripe0 bs=1k
+This is precisely our case, btw.  The pages in question are allocated
+during fops->open (some during dev->probe).  mmap and nopage never
+allocate anything.
 
-This will produce the output:
-dd: writing '/dev/mapper/stripe0': Input/output error
-97+0 records in
-96+0 records out
+>   It seems one should do
+> get_page() in .nopage, and then the driver can do dma_free_coherent()
+> when the vma is released.
 
-And in the kernel log will be:
-attempt to access beyond end of device
-dm-0: rw=0, want=104, limit=100
+If that were the case, I'm unclear on how I would do this.  Add a
+vmops->close method along with the existing vmops->nopage handler?
 
-The patch below will check that the table size is a multiple of the stripe 
-chunk-size when the table is created, which will prevent the above striped 
-device from being created.
+	<b
 
-This should not affect tools like LVM or EVMS, since in all the cases I can 
-think of, striped devices are always created with the sizes being a multiple 
-of the chunk-size.
-
-The size of a stripe device must be a multiple of its chunk-size.
-
-Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-
- dm-stripe.c |    6 ++++++
- 1 file changed, 6 insertions(+)
-
-Index: linux-2.6.16-rc5/drivers/md/dm-stripe.c
-===================================================================
---- linux-2.6.16-rc5.orig/drivers/md/dm-stripe.c	2006-03-14 18:25:38.000000000 +0000
-+++ linux-2.6.16-rc5/drivers/md/dm-stripe.c	2006-03-15 17:56:37.000000000 +0000
-@@ -103,9 +103,15 @@ static int stripe_ctr(struct dm_target *
- 		return -EINVAL;
- 	}
- 
-+	if (((uint32_t)ti->len) & (chunk_size - 1)) {
-+		ti->error = "dm-stripe: Target length not divisible by "
-+		    "chunk size";
-+		return -EINVAL;
-+	}
-+
- 	width = ti->len;
- 	if (sector_div(width, stripes)) {
--		ti->error = "dm-stripe: Target length not divisable by "
-+		ti->error = "dm-stripe: Target length not divisible by "
- 		    "number of stripes";
- 		return -EINVAL;
- 	}

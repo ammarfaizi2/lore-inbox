@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752206AbWCPHDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752213AbWCPHH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752206AbWCPHDt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 02:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752211AbWCPHDt
+	id S1752213AbWCPHH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 02:07:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752214AbWCPHH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 02:03:49 -0500
-Received: from web8702.mail.in.yahoo.com ([203.84.221.123]:52661 "HELO
-	web8702.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id S1752206AbWCPHDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 02:03:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.co.in;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=N7kZszXnITio6iH/gZ5YiQmd3yVSUPAxYE8WFtuhjVYTDmytbW45+3+ZyxxZrEzVOak3xwDARF38DmgPPaUmBb5QKORvi2PzadQYvt3bgGhLotKX2LxORQKBnaiot7vDlhQBW6NNMKN1d3+yXAuwcdy2Ap4fE86/4Sbds++ujgo=  ;
-Message-ID: <20060316065930.85327.qmail@web8702.mail.in.yahoo.com>
-Date: Thu, 16 Mar 2006 06:59:30 +0000 (GMT)
-From: VISHAL NAHAR <naharvishalj@yahoo.co.in>
-Subject: Invalidating a page of a user level process.
+	Thu, 16 Mar 2006 02:07:59 -0500
+Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:15917 "EHLO
+	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
+	id S1752212AbWCPHH6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 02:07:58 -0500
+Date: Thu, 16 Mar 2006 15:07:37 +0800
+From: Eugene Teo <eugene.teo@eugeneteo.net>
+Subject: Re: [PATCH] Hamradio: Fix a NULL pointer dereference in
+ net/hamradio/mkiss.c
+In-reply-to: <20060316064211.GA22681@eugeneteo.net>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Cc: Thomas Osterried DL9SAU <thomas@x-berg.in-berlin.de>,
+       Ralf Baechle DL5RB <ralf@linux-mips.org>,
+       Hans Alblas PE1AYX <hans@esrac.ele.tue.nl>
+Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
+Message-id: <20060316070737.GA22920@eugeneteo.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
+X-Operating-System: Debian GNU/Linux 2.6.16-rc6
+References: <20060316064211.GA22681@eugeneteo.net>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-   I am stuck up at invalidation of a   page of a user
-level process.
-Wht i am doin is that i am calling a device driver
-ioctl func from a normal C prog in user space and
-passing a virtual address into the ioctl func .In the
-ioctl func (kernel space) i want to invalidate the
-corresponding page.I have used funcs like pte_clear,
-flush_tlb_page,page_remove_rmap,etc. but couldnt
-succeed.Also suggest if any locks have to be acquired
-.
+<quote sender="Eugene Teo">
+> Pointer ax is dereferenced before NULL check.
+> 
+> Coverity bug #817
+> 
+> Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
 
-Can anyone of u help me in page invalidation.I would
-be grateful.
-Thanking you  in advance
+Ignore the previous patch please. Here's a resend.
 
-omkarlagu@yahoo.com
+--
+Pointer ax is dereferenced before NULL check.
 
+Coverity bug #817
 
-		
-__________________________________________________________ 
-Yahoo! India Matrimony: Find your partner now. Go to http://yahoo.shaadi.com
+Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+
+--- linux-2.6/drivers/net/hamradio/mkiss.c~	2006-03-15 10:05:35.000000000 +0800
++++ linux-2.6/drivers/net/hamradio/mkiss.c	2006-03-16 15:06:02.000000000 +0800
+@@ -845,13 +845,15 @@ static int mkiss_ioctl(struct tty_struct
+ 	unsigned int cmd, unsigned long arg)
+ {
+ 	struct mkiss *ax = mkiss_get(tty);
+-	struct net_device *dev = ax->dev;
++	struct net_device *dev;
+ 	unsigned int tmp, err;
+ 
+ 	/* First make sure we're connected. */
+ 	if (ax == NULL)
+ 		return -ENXIO;
+ 
++	dev = ax->dev;
++	
+ 	switch (cmd) {
+  	case SIOCGIFNAME:
+ 		err = copy_to_user((void __user *) arg, ax->dev->name,
+
+-- 
+1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
+main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
+

@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752445AbWCPRld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752442AbWCPRnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752445AbWCPRld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 12:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752447AbWCPRld
+	id S1752442AbWCPRnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 12:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752441AbWCPRnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 12:41:33 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:48388 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1752445AbWCPRlc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 12:41:32 -0500
-Date: Thu, 16 Mar 2006 18:41:12 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
-Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-Message-ID: <20060316174112.GA21003@mars.ravnborg.org>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net> <20060316160129.GB6407@infradead.org> <20060316082951.58592fdc.rdunlap@xenotime.net> <20060316163001.GA7222@infradead.org>
+	Thu, 16 Mar 2006 12:43:04 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:18819
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1752442AbWCPRnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 12:43:02 -0500
+Date: Thu, 16 Mar 2006 09:42:54 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "Artem B. Bityutskiy" <dedekind@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Bug? Report] kref problem
+Message-ID: <20060316174254.GA6698@kroah.com>
+References: <1142509279.3920.31.camel@sauron.oktetlabs.ru> <20060316165323.GA10197@kroah.com> <1142530278.10906.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060316163001.GA7222@infradead.org>
+In-Reply-To: <1142530278.10906.27.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 04:30:01PM +0000, Christoph Hellwig wrote:
- 
-> it makes the code longer and harder to read.  there's a reason the core
-> code doesn't use it, and the periphal code should do the same.
-Let see:
-0 is an interger zero. It is not a null pointer.
-1 is an interger one
-NULL is an null pointer
+On Thu, Mar 16, 2006 at 09:31:18AM -0800, Dave Hansen wrote:
+> On Thu, 2006-03-16 at 08:53 -0800, Greg KH wrote:
+> > On Thu, Mar 16, 2006 at 02:41:19PM +0300, Artem B. Bityutskiy wrote:
+> > > struct my_obj_a
+> > > {
+> > > 	struct kobject kobj;
+> > > } a;
+> > > 
+> > > struct my_obj_b
+> > > {
+> > > 	struct kobject kobj;
+> > > } b;
+> > 
+> > Don't statically create kobjects, it's not nice.  But the real problem
+> > is below...
+> 
+> This seems to be one of those top ten sysfs snafus.  Could we take the
+> definitions from include/asm-generic/sections.h, and make a kobject
+> verification function to put in the critical generic kernel functions
+> that deal with kobjects,  like kobject_init()?
 
-We agree so far?
+I wish.  The main offender of this is the kernel core code itself, with
+the decl_subsys and struct bus stuff.  If you provide some nice fuctions
+to fix those up to be dynamic, then I would have no problem with the
+function you have below.
 
-And you say:
-0 is also false
-1 is also true
+> Somthing like...
+> 
+> void verify_dynamic_kobject_allocation(struct kobject *kobj)
+> {
+> 	if (kobj >= &_data && kobj < &_edata)
+> 		goto warn;
+> 	if (kobj >= &_bss_start && kobj < &_bss_end)
+> 		goto warn;
+> 	...
+> 	return;
+> warn:
+> 	printk(KERN_WARN "statically allocated kobject, you suck...\n");
+> }
+> 
+> I'm not sure that all of the architectures fill in all of the values,
+> but we could at least support the warnings for the ones that do.  That
+> includes at least i386, so it could be a relatively effective tool.
+> 
+> I'll cook up a real patch in a bit.
 
-But others say:
-0 is not false, only false is false.
-1 is not true, only true is true.
-Thats more readable. No magic = 1; assignments or return 1; things.
+That would be fun to play with, I'd appreciate it.  If nothing else,
+I'll add it to my tree for future use.
 
-Then we will have the case where a 1 is transformed to a true, and
-likewise a 0 to a false. But thats just normal type conversion.
+thanks,
 
-I assume that when you are not used to see 'bool', 'true' and 'false'
-then they hurt the eye, but when used to it it looks natural.
-
-	Sam
+greg k-h

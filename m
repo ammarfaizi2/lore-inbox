@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932620AbWCPAQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752183AbWCPAOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932620AbWCPAQf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 19:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbWCPAQe
+	id S1752183AbWCPAOY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 19:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWCPAOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 19:16:34 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24246 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932620AbWCPAQe (ORCPT
+	Wed, 15 Mar 2006 19:14:24 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:1167 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932620AbWCPAOY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 19:16:34 -0500
-Date: Wed, 15 Mar 2006 16:16:28 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: time_interpolator: add __read_mostly
-Message-ID: <Pine.LNX.4.64.0603151615500.30203@schroedinger.engr.sgi.com>
+	Wed, 15 Mar 2006 19:14:24 -0500
+Message-ID: <4418ADD0.3050808@garzik.org>
+Date: Wed, 15 Mar 2006 19:14:08 -0500
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>,
+       "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Andi Kleen <ak@suse.de>, Jason Baron <jbaron@redhat.com>,
+       linux-kernel@vger.kernel.org, john stultz <johnstul@us.ibm.com>
+Subject: Re: libata/sata_nv latency on NVIDIA CK804 [was Re: AMD64 X2 lost
+ ticks on PM timer]
+References: <200602280022.40769.darkray@ic3man.com>	 <4408BEB5.7000407@garzik.org>	 <20060303234330.GA14401@ti64.telemetry-investments.com>	 <200603040107.27639.ak@suse.de>	 <20060315213638.GA17817@ti64.telemetry-investments.com>	 <20060315215020.GA18241@elte.hu> <20060315221119.GA21775@elte.hu>	 <44189654.2080607@garzik.org> <20060315224408.GC24074@elte.hu>	 <44189A3D.5090202@garzik.org> <1142467290.1671.107.camel@mindpipe>
+In-Reply-To: <1142467290.1671.107.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pointer to the current time interpolator and the current list of
-time interpolators are typically only changed during bootup. Adding
-__read_mostly takes them away from possibly hot cachelines.
+Lee Revell wrote:
+> 
+>>Alas, it is far from that simple :(
+>>
+>>The code I linked to isn't in a working state.  NV contributed it 
+>>largely as "it worked at one time" documentation of a 
+>>previously-undocumented register interface.
+>>
+>>Someone needs to debug it.
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> Would you expect every device supported by sata_nv to have this bug?
 
-Index: linux-2.6.16-rc6/kernel/timer.c
-===================================================================
---- linux-2.6.16-rc6.orig/kernel/timer.c	2006-03-11 14:12:55.000000000 -0800
-+++ linux-2.6.16-rc6/kernel/timer.c	2006-03-15 16:13:05.000000000 -0800
-@@ -1354,8 +1354,8 @@ void __init init_timers(void)
- 
- #ifdef CONFIG_TIME_INTERPOLATION
- 
--struct time_interpolator *time_interpolator;
--static struct time_interpolator *time_interpolator_list;
-+struct time_interpolator *time_interpolator __read_mostly;
-+static struct time_interpolator *time_interpolator_list __read_mostly;
- static DEFINE_SPINLOCK(time_interpolator_lock);
- 
- static inline u64 time_interpolator_get_cycles(unsigned int src)
+We don't know yet what "this bug" is.
+
+	Jeff
+
+
+

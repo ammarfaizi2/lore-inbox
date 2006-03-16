@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752363AbWCPK5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752368AbWCPLAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752363AbWCPK5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 05:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752365AbWCPK5E
+	id S1752368AbWCPLAo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 06:00:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752369AbWCPLAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 05:57:04 -0500
-Received: from mx1.suse.de ([195.135.220.2]:29117 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752363AbWCPK5C (ORCPT
+	Thu, 16 Mar 2006 06:00:44 -0500
+Received: from ns2.suse.de ([195.135.220.15]:27114 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752367AbWCPLAo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 05:57:02 -0500
-Date: Thu, 16 Mar 2006 11:56:57 +0100
-Message-ID: <s5hfylir72e.wl%tiwai@suse.de>
+	Thu, 16 Mar 2006 06:00:44 -0500
+Date: Thu, 16 Mar 2006 12:00:42 +0100
+Message-ID: <s5hek12r6w5.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
 To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: linux-kernel@vger.kernel.org, Frank van de Pol <fvdpol@coil.demon.nl>,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: Re: Fix seq_clientmgr dereferences before NULL check
-In-Reply-To: <20060316014606.GA20609@eugeneteo.net>
-References: <20060316014606.GA20609@eugeneteo.net>
+Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@suse.cz>
+Subject: Re: Fix gus_pcm dereference before NULL
+In-Reply-To: <20060316020007.GA20734@eugeneteo.net>
+References: <20060316020007.GA20734@eugeneteo.net>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta24)
  (dandelion) (i386-suse-linux)
@@ -26,39 +25,48 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Thu, 16 Mar 2006 09:46:06 +0800,
+At Thu, 16 Mar 2006 10:00:07 +0800,
 Eugene Teo wrote:
 > 
-> Fix cptr->pool dereferences before NULL check.
+> substream is dereferenced before checking for NULL.
 
-cptr->pool must be non-NULL there, so just the if (cptr->pool) is
-superfluous.
+The NULL check of substream is simply superfluous.
+It is guaranteed to receive non-NULL substream and
+substream->runtime.
 
 
 Takashi
 
-> Coverity bug #860
+> 
+> Coverity bug #861
 > 
 > Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
 > 
-> --- linux-2.6/sound/core/seq/seq_clientmgr.c~	2006-03-15 10:05:45.000000000 +0800
-> +++ linux-2.6/sound/core/seq/seq_clientmgr.c	2006-03-16 09:41:05.000000000 +0800
-> @@ -1862,12 +1862,13 @@
->  	cptr = snd_seq_client_use_ptr(info.client);
->  	if (cptr == NULL)
->  		return -ENOENT;
-> +	if (cptr->pool == NULL)
-> +		return -ENOENT;
->  	memset(&info, 0, sizeof(info));
->  	info.output_pool = cptr->pool->size;
->  	info.output_room = cptr->pool->room;
->  	info.output_free = info.output_pool;
-> -	if (cptr->pool)
-> -		info.output_free = snd_seq_unused_cells(cptr->pool);
-> +	info.output_free = snd_seq_unused_cells(cptr->pool);
->  	if (cptr->type == USER_CLIENT) {
->  		info.input_pool = cptr->data.user.fifo_pool_size;
->  		info.input_free = info.input_pool;
+> --- linux-2.6/sound/isa/gus/gus_pcm.c~	2006-03-15 10:05:45.000000000 +0800
+> +++ linux-2.6/sound/isa/gus/gus_pcm.c	2006-03-16 09:51:43.000000000 +0800
+> @@ -103,8 +103,8 @@
+>  
+>  static void snd_gf1_pcm_trigger_up(struct snd_pcm_substream *substream)
+>  {
+> -	struct snd_pcm_runtime *runtime = substream->runtime;
+> -	struct gus_pcm_private *pcmp = runtime->private_data;
+> +	struct snd_pcm_runtime *runtime;
+> +	struct gus_pcm_private *pcmp;
+>  	struct snd_gus_card * gus = pcmp->gus;
+>  	unsigned long flags;
+>  	unsigned char voice_ctrl, ramp_ctrl;
+> @@ -114,8 +114,10 @@
+>  	unsigned char pan;
+>  	unsigned int voice;
+>  
+> -	if (substream == NULL)
+> +	if (substream == NULL || substream->runtime == NULL)
+>  		return;
+> +	runtime = substream->runtime;
+> +	pcmp = runtime->private_data;
+>  	spin_lock_irqsave(&pcmp->lock, flags);
+>  	if (pcmp->flags & SNDRV_GF1_PCM_PFLG_ACTIVE) {
+>  		spin_unlock_irqrestore(&pcmp->lock, flags);
 > 
 > -- 
 > 1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80

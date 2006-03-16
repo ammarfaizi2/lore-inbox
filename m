@@ -1,43 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWCPNVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWCPNkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWCPNVR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 08:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWCPNVR
+	id S1750925AbWCPNkE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 08:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWCPNkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 08:21:17 -0500
-Received: from styx.suse.cz ([82.119.242.94]:46791 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S1750867AbWCPNVQ (ORCPT
+	Thu, 16 Mar 2006 08:40:04 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:4107 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750925AbWCPNkD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 08:21:16 -0500
-Date: Thu, 16 Mar 2006 14:21:14 +0100
-From: Jiri Benc <jbenc@suse.cz>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, rusty@rustcorp.com.au,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] modpost: fix buffer overflow
-Message-ID: <20060316142114.74367113@griffin.suse.cz>
-In-Reply-To: <20060315225159.GA11095@mars.ravnborg.org>
-References: <20060315154436.4286d2ab@griffin.suse.cz>
-	<1142434648.17627.5.camel@tara.firmix.at>
-	<20060315160858.311e5c0e@griffin.suse.cz>
-	<20060315225159.GA11095@mars.ravnborg.org>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Thu, 16 Mar 2006 08:40:03 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <20060315231029.GF4454@stusta.de>
+x-originalarrivaltime: 16 Mar 2006 13:40:00.0645 (UTC) FILETIME=[1F596350:01C648FF]
+Content-class: urn:content-classes:message
+Subject: Re: Which kernel is the best for a small linux system?
+Date: Thu, 16 Mar 2006 08:39:54 -0500
+Message-ID: <Pine.LNX.4.61.0603160836270.7151@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Which kernel is the best for a small linux system?
+Thread-Index: AcZI/x9j4qMUC0GFS2uDV/HzjKAmKg==
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com> <1142237867.3023.8.camel@laptopd505.fenrus.org> <20060313182725.GA31211@mars.ravnborg.org> <Pine.LNX.4.61.0603152355460.20859@yvahk01.tjqt.qr> <20060315231029.GF4454@stusta.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       "Sam Ravnborg" <sam@ravnborg.org>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "j4K3xBl4sT3r" <jakexblaster@gmail.com>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Mar 2006 23:51:59 +0100, Sam Ravnborg wrote:
-> Can I ask you to make a new patch where you change buf_printf() to use
-> buf_write. And then change buf_write to allocate in chunks also.
-> This would be cleanest solution.
 
-This probably will be the cleanest solution, but I doubt it would be
-acceptable for 2.6.16. And I think the fix should go into 2.6.16.
+On Wed, 15 Mar 2006, Adrian Bunk wrote:
 
-Thanks,
+> On Wed, Mar 15, 2006 at 11:57:12PM +0100, Jan Engelhardt wrote:
+>>>
+>>> On another denx.de page I found this summary (so you do not have to
+>>> visit the page):
+>>> # slow to build: 2.6 takes 30...40% longer to compile
+>>
+>> A side effect of all the new optimizations that went into gcc since 2.95,
+>> I would say.
+>
+> If you would have had a quick look at the results on the webpage you are
+> commenting on instead of blindly speculating, you'd have known that your
+> statement is bullshit since both the 2.4 and the 2.6 compiles were done
+> using gcc 3.3.3.
+>
+>> Jan Engelhardt
+>
+> cu
+> Adrian
 
--- 
-Jiri Benc
-SUSE Labs
+There have been no systemic problems with 2.4.26 in small and
+embedded systems -- for whatever that's worth. Stuff might not
+be "optimum", but networking of all types, and the usual
+unistd.h stuff all works fine. It's good for systems you
+don't want to have to muck with.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

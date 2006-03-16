@@ -1,70 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbWCPTwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbWCPTzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932687AbWCPTwu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWCPTwu
+	id S1751134AbWCPTzS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCPTzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:52:50 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:37587 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932687AbWCPTwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:52:50 -0500
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
-	driver
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, rdreier@cisco.com, torvalds@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
-	 <ada4q27fban.fsf@cisco.com>
-	 <1141948516.10693.55.camel@serpentine.pathscale.com>
-	 <ada1wxbdv7a.fsf@cisco.com>
-	 <1141949262.10693.69.camel@serpentine.pathscale.com>
-	 <20060309163740.0b589ea4.akpm@osdl.org>
-	 <1142470579.6994.78.camel@localhost.localdomain>
-	 <ada3bhjuph2.fsf@cisco.com>
-	 <1142475069.6994.114.camel@localhost.localdomain>
-	 <adaslpjt8rg.fsf@cisco.com>
-	 <1142477579.6994.124.camel@localhost.localdomain>
-	 <20060315192813.71a5d31a.akpm@osdl.org>
-	 <1142485103.25297.13.camel@camp4.serpentine.com>
-	 <20060315213813.747b5967.akpm@osdl.org>
-	 <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
-	 <1142523201.25297.56.camel@camp4.serpentine.com>
-	 <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
+	Thu, 16 Mar 2006 14:55:18 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:53438 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750861AbWCPTzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 14:55:16 -0500
+Subject: Re: [patch 1/1] consolidate TRUE and FALSE
+From: Nicholas Miell <nmiell@comcast.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+       len.brown@intel.com
+In-Reply-To: <20060316024234.103d37dc.akpm@osdl.org>
+References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
+	 <Pine.LNX.4.64.0603161015130.31173@hermes-2.csi.cam.ac.uk>
+	 <20060316024234.103d37dc.akpm@osdl.org>
 Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 16 Mar 2006 11:52:45 -0800
-Message-Id: <1142538765.10950.16.camel@serpentine.pathscale.com>
+Date: Thu, 16 Mar 2006 11:55:13 -0800
+Message-Id: <1142538913.2994.6.camel@entropy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 17:23 +0000, Hugh Dickins wrote:
+On Thu, 2006-03-16 at 02:42 -0800, Andrew Morton wrote:
+> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+> >
+> > > Various places are doing things like
+> >  > 
+> >  > typedef {
+> >  > 	FALSE,
+> >  > 	TRUE
+> >  > } my_fave_name_for_a_bool;
+> >  > 
+> >  > These are converted to
+> >  > 
+> >  > typedef int my_fave_name_for_a_bool;
+> > 
+> >  Given that the kernel now requires gcc 3.2 or later, that already includes 
+> >  a native boolean type (_Bool)?
+> 
+> It does?
+> 
+> Is it any good?
+> 
+> bix:/home/akpm> cat t.c
+> void foo()
+> {
+> 	_Bool b = 1;
+> 
+> 	b += 2;
+> }
+> bix:/home/akpm> gcc -O -Wall -c t.c
+> bix:/home/akpm> 
+> 
+> Sigh.
+> 
 
-> But your backport driver will
-> have to be using PageReserved still, not relying on __GFP_COMP: although
-> __GFP_COMP was defined in 2.6.9 and a few earlier, it used to take effect
-> only when #ifdef CONFIG_HUGETLB_PAGE - only in 2.6.15 did we make it
-> available to all configurations.  You'll have irritating accounting
-> differences between the two drivers: it used to be the case that put_page
-> on a PageReserved page did nothing, so you had to avoid get_page on it to
-> get the page accounting right; we straightened that out in 2.6.15.
+If you were to read the value of b after "b += 2", you'd find that b is
+still 1.
 
-OK.  Would it be correct to say that this is what we should do, then?
+Also note that _Bool is a byte, so anything that exposed its own custom
+boolean type to userspace needs to be carefully updated.
 
-      * On 2.6.15 and later kernels, use __GFP_COMP at allocation time,
-        and get_page in ->nopage.  This is what we're doing as of this
-        morning, and it works.
-      * For backports to 2.6.14 and earlier, avoid __GFP_COMP, mark each
-        page with SetPageReserved at allocation time, and do nothing
-        special in ->nopage.  Do we need to ClearPageReserved before
-        freeing?
-
-Thanks,
-
-	<b
+-- 
+Nicholas Miell <nmiell@comcast.net>
 

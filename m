@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932732AbWCPV3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWCPVdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932732AbWCPV3d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 16:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWCPV3d
+	id S1750845AbWCPVdb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 16:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWCPVdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 16:29:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61111 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932685AbWCPV3c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 16:29:32 -0500
-Date: Thu, 16 Mar 2006 13:26:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
-Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-Message-Id: <20060316132639.274691d6.akpm@osdl.org>
-In-Reply-To: <20060316164932.GT27946@ftp.linux.org.uk>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
-	<20060316164932.GT27946@ftp.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 16 Mar 2006 16:33:31 -0500
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:58332 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750845AbWCPVda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 16:33:30 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: does swsusp suck after resume for you?
+Date: Fri, 17 Mar 2006 08:33:26 +1100
+User-Agent: KMail/1.8.3
+Cc: ck@vds.kolivas.org, Stefan Seyfried <seife@suse.de>,
+       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603162147.56725.kernel@kolivas.org> <20060316105054.GB9399@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20060316105054.GB9399@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603170833.27114.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> wrote:
+> > > > The tunable in /proc/sys/vm/swap_prefetch is now bitwise ORed:
+> > > > Thus if you set this value 
+> > > > to 3 it will prefetch aggressively and then drop back to the default
+> > > > of 1. This makes it easy to simply set the aggressive flag once and
+> > > > forget about it. I've booted and tested this feature and it's working
+> > > > nicely. Where exactly you'd set this in your resume scripts I'm not
+> > > > sure. A rolled up patch against 2.6.16-rc6-mm1 is here for
+> > > > simplicity:
+
+correct url:
+http://ck.kolivas.org/patches/swap-prefetch/2.6.16-rc6-mm1-swap_prefetch_test.patch
+
+> > 2 means aggressively prefetch as much as possible and then disable swap
+> > prefetching from that point on. Too confusing?
 >
-> On Thu, Mar 16, 2006 at 02:01:28AM -0800, akpm@osdl.org wrote:
->  > 
->  > From: Andrew Morton <akpm@osdl.org>
->  > 
->  > We have no less than 65 implementations of TRUE and FALSE in the tree, so the
->  > inevitable happened:
->  > 
->  > In file included from drivers/pci/hotplug/ibmphp_core.c:40:
->  > drivers/pci/hotplug/ibmphp.h:409:1: warning: "FALSE" redefined
->  > In file included from include/acpi/acpi.h:55,
->  >                  from drivers/pci/hotplug/pci_hotplug.h:187,
->  >                  from drivers/pci/hotplug/ibmphp.h:33,
->  >                  from drivers/pci/hotplug/ibmphp_core.c:40:
->  > include/acpi/actypes.h:336:1: warning: this is the location of the previous definition
->  > 
->  > The patch implements TRUE and FALSE in include/linux/kernel.h and removes all
->  > the private versions.
-> 
->  NAK.  Simply remove those and be done with that.  It's bad style and we
->  certainly don't need to propagate that lossage.
+> Ahha... oops, yes, clever; no, I guess keep it.
 
-No, it is not bad style.
+Ok the patch works fine for me and the feature is worthwhile in absolute terms 
+as well as for improving resume. 
 
-It is bad that the C design failed to distinguish between booleans and
-scalars.  These are quite different concepts and it is a gruesome kludge to
-go and use a scalar when a boolean is what was intended.
+Pavel, while we're talking about improving behaviour after resume I had a look 
+at the mechanism used to free up ram before suspending and I can see scope 
+for some changes in the vm code that would improve the behaviour after 
+resuming. Is the mechanism used to free up ram going to continue being used 
+with uswsusp? If so, I'd like to have a go at improving the free up ram vm 
+code to make it behave nicer after resume. I have some ideas about how best 
+to free up ram differently from normal reclaim which would improve behaviour 
+post resume.
 
-There are readability (and hence maintainability) advantages in using
-boolean types for boolean variables.
-
-Yes, the use of scalars in this manner is an (ancient, old-fashioned) C
-idiom.  But it is one which was forced on us by shortcomings in the
-language.  Times change.  Just because something is idiomatic doesn't mean
-that it is either good or right.  If C had had proper boolean support back
-in the old days then using scalars as booleans would be frowned upon.
-
-C99 does have boolean support, so the proper thing to do is to start
-using it - implement stdbool.h, fix up fallout, start fixing subsystems. 
-Given that, and as Greg has fixed up this particular build error I'll drop
-the patch.
-
-(It's a shame that the compiler doesn't preperly enforce boolean
-typechecking, but sparse could do that).
+Cheers,
+Con

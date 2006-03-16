@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932730AbWCPUtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWCPUvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932730AbWCPUtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 15:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932731AbWCPUtO
+	id S964853AbWCPUvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 15:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWCPUvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 15:49:14 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:33236 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932730AbWCPUtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 15:49:13 -0500
-Subject: Re: Kernel config problem between 2.4.x to 2.6.x!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: j4K3xBl4sT3r <jakexblaster@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060315231309.GC2462@ucw.cz>
-References: <436c596f0603121015j2a091ab2sf43d0c5c396bbb72@mail.gmail.com>
-	 <7c3341450603121247n7afe018m@mail.gmail.com>
-	 <436c596f0603121632qe3151k793fd3ccd9a0eacb@mail.gmail.com>
-	 <200603130708.13685.nick@linicks.net>
-	 <436c596f0603130342u4d38445bt5e9f129349cda0c8@mail.gmail.com>
-	 <1142273196.25358.317.camel@mindpipe> <20060316112523.GA3078@elf.ucw.cz>
-	 <1142535968.9395.7.camel@mindpipe>  <20060315231309.GC2462@ucw.cz>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 15:49:06 -0500
-Message-Id: <1142542148.9395.11.camel@mindpipe>
+	Thu, 16 Mar 2006 15:51:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53952 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964853AbWCPUvM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 15:51:12 -0500
+Date: Thu, 16 Mar 2006 15:50:56 -0500
+From: Dave Jones <davej@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: signal_cache slab corruption.
+Message-ID: <20060316205056.GA11091@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Hugh Dickins <hugh@veritas.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060313181524.GA26234@redhat.com> <Pine.LNX.4.61.0603140921270.5164@goblin.wat.veritas.com> <20060314170153.GB32080@redhat.com> <Pine.LNX.4.61.0603162013350.25141@goblin.wat.veritas.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0603162013350.25141@goblin.wat.veritas.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-03-15 at 23:13 +0000, Pavel Machek wrote:
-> Aha, I see. Does snd-pcm-oss have all the features OSS used to have on
-> that hardware? 
+On Thu, Mar 16, 2006 at 08:29:08PM +0000, Hugh Dickins wrote:
 
-Yes.
+ > I'd be interested in the signal_cache line from your /proc/slabinfo,
+ > to see what cachep->num is usually in your configuration.  But it's
+ > an idle interest: I won't have anything interesting to say, whatever
+ > it is...
 
-Lee
+after 3 days of uptime on a slightly newer kernel..
+signal_cache         134    143    696   11    2 : tunables   32   16    8 : slabdata     13     13      0 : globalstat   98892    176   173  156                              0    0  129  940 : cpustat  19802  17821  36683      2
 
+the other had seen a little more abuse. These last three days, that
+box has been quite idle most of the time, whereas the box that crashed
+was my workhorse for most of last week.
+
+		Dave
+
+-- 
+http://www.codemonkey.org.uk

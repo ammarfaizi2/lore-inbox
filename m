@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWCPO5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWCPPD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWCPO5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 09:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWCPO5E
+	id S1751203AbWCPPD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 10:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWCPPD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 09:57:04 -0500
-Received: from silver.veritas.com ([143.127.12.111]:41859 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751142AbWCPO5D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 09:57:03 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,197,1139212800"; 
-   d="scan'208"; a="35974194:sNHT25532564"
-Date: Thu, 16 Mar 2006 14:57:38 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
+	Thu, 16 Mar 2006 10:03:27 -0500
+Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:8275 "HELO
+	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751203AbWCPPD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 10:03:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=MluYzPLKmjlhZM50tCUjVcbNBEraM3oI/9nVdYYE82yT6strL8iB5QCuw/eO6PgVv6u+Rix8gNGL7wlSW9MSonWQ1sS2Z6lsiMQhwSvmmqYk7D67GIu6WOfBvH2+yaJgp2NR2eXT59xxzqHG6c6JUNQjPu8+1pe1lV39nGCR+dw=  ;
+Message-ID: <44193733.9060003@yahoo.com.au>
+Date: Thu, 16 Mar 2006 21:00:19 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
-cc: Roland Dreier <rdreier@cisco.com>, bos@pathscale.com, torvalds@osdl.org,
+CC: rdreier@cisco.com, bos@pathscale.com, Hugh@veritas.com, torvalds@osdl.org,
        hch@infradead.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
  driver
-In-Reply-To: <20060315221716.19a92762.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0603161435170.21570@goblin.wat.veritas.com>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
- <ada4q27fban.fsf@cisco.com> <1141948516.10693.55.camel@serpentine.pathscale.com>
- <ada1wxbdv7a.fsf@cisco.com> <1141949262.10693.69.camel@serpentine.pathscale.com>
- <20060309163740.0b589ea4.akpm@osdl.org> <1142470579.6994.78.camel@localhost.localdomain>
- <ada3bhjuph2.fsf@cisco.com> <1142475069.6994.114.camel@localhost.localdomain>
- <adaslpjt8rg.fsf@cisco.com> <1142477579.6994.124.camel@localhost.localdomain>
- <20060315192813.71a5d31a.akpm@osdl.org> <1142485103.25297.13.camel@camp4.serpentine.com>
- <20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com>
- <20060315221716.19a92762.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Mar 2006 14:56:58.0987 (UTC) FILETIME=[E01873B0:01C64909]
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>	<ada4q27fban.fsf@cisco.com>	<1141948516.10693.55.camel@serpentine.pathscale.com>	<ada1wxbdv7a.fsf@cisco.com>	<1141949262.10693.69.camel@serpentine.pathscale.com>	<20060309163740.0b589ea4.akpm@osdl.org>	<1142470579.6994.78.camel@localhost.localdomain>	<ada3bhjuph2.fsf@cisco.com>	<1142475069.6994.114.camel@localhost.localdomain>	<adaslpjt8rg.fsf@cisco.com>	<1142477579.6994.124.camel@localhost.localdomain>	<20060315192813.71a5d31a.akpm@osdl.org>	<1142485103.25297.13.camel@camp4.serpentine.com>	<20060315213813.747b5967.akpm@osdl.org>	<ada8xrbszmx.fsf@cisco.com>	<20060315221716.19a92762.akpm@osdl.org>	<44190934.7040207@yahoo.com.au> <20060316013914.430a2542.akpm@osdl.org>
+In-Reply-To: <20060316013914.430a2542.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Mar 2006, Andrew Morton wrote:
-> Roland Dreier <rdreier@cisco.com> wrote:
+Andrew Morton wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> > Or maybe it's just simpler to use vm_insert_page() in the .mmap method
-> > and not try to be fancy with .nopage?
+>>Andrew Morton wrote:
+>>
+>> > vm_insert_page() mucks around with rmap-named functions which don't
+>> > actually do rmap
+>>
+>> What functions are those? I don't see.
+>>
+>> > and sports apparently-incorrect comments wrt
+>> > PageReserved().
+>>
+>> What's the comment? Are we looking at the same vm_insert_page?
 > 
-> One would need to work out what to do with these pages when they're shared,
-> after a fork - a ->nopage() handler would still be needed there, assuming
-> the VMA is marked VM_DONTCOPY.  Because we don't copy all the pte's on a
-> VM_DONTCOPY vma at fork()-time.  (I think we _could_, but we don't)
+> 
+> vm_insert_page() calls insert_page().
+> 
 
-Misapprehension of VM_DONTCOPY addressed in another reply.
+Oh OK. I guess I didn't think insert_page was rmap-named. Yes, it looks
+like the comment on that one is wrong.
 
-> vm_insert_page() mucks around with rmap-named functions which don't
-> actually do rmap and sports apparently-incorrect comments wrt
-> PageReserved().  I don't know how well-cared-for it is...
-
-It does seem to have four users intree now, so I hope it works.
-
-It was a byproduct of when Linus thought he could get away with
-limiting remap_pfn_range, in ways that later proved unsustainable.
-It's a bit surplus to requirements now, but does have those users.
-
-I'm not keen on it, because I think most drivers actually
-want something slightly different (a remap_vmalloc_pages or a
-remap_highorder_page).  But that will emerge later on, in that
-fabled time when I go remove the SetPageReserveds from drivers.
-
-Yes, there are some out-of-date comments thereabouts: I did correct
-them once, but in one of those patches that Linus rejected.
-
-insert_page does a page_add_file_rmap to bump the mapcount, yes;
-but whether we ever "reverse map" from page to pte depends on other
-things (page->mapping and prio_tree) certainly not set here, and
-probably not (indeed, hopefully not!) done by any vm_insert_page
-caller.  That criticism applies to all the page_add_rmaps and
-page_remove_rmaps: we carried over the name from pte_chain days,
-but the only thing that gets added or removed there now is "1".
-
-Hugh
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

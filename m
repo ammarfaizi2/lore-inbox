@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbWCPDps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbWCPD6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932616AbWCPDps (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 22:45:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbWCPDps
+	id S932615AbWCPD6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 22:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932617AbWCPD6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 22:45:48 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:19399 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932616AbWCPDpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 22:45:47 -0500
-Date: Thu, 16 Mar 2006 12:41:13 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] for_each_possible_cpu [19/19] xfs
-Message-Id: <20060316124113.7f0615bc.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Wed, 15 Mar 2006 22:58:16 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3221 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932615AbWCPD6Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 22:58:16 -0500
+Date: Wed, 15 Mar 2006 19:55:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines
+ for_each_possible_cpu
+Message-Id: <20060315195537.0a039f64.akpm@osdl.org>
+In-Reply-To: <4418DEEA.2000008@yahoo.com.au>
+References: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>
+	<4418DEEA.2000008@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch replaces for_each_cpu with for_each_possible_cpu.
-in xfs.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> KAMEZAWA Hiroyuki wrote:
+> > Now,
+> > for_each_cpu() is for-loop cpu over cpu_possible_map.
+> > for_each_online_cpu is for-loop cpu over cpu_online_map.
+> > .....for_each_cpu() looks bad name.
+> > 
+> > This patch renames for_each_cpu() as for_each_possible_cpu().
+> > 
+> > I also wrote patches to replace all for_each_cpu with for_each_possible_cpu.
+> > please confirm....
+> > 
+> > BTW, when HOTPLUC_CPU is not suppoted, using for_each_possible_cpu()
+> > should be avoided, I think.
+> > 
+> > all patches are against 2.6.16-rc6-mm1.
+> > 
+> 
+> for_each_cpu() effectively is for_each_possible_cpu() as far as
+> generic code is concerned. In other words, nobody would ever expect
+> for_each_cpu to return an _impossible_ CPU, thus you are just
+> adding a redundant element to the name.
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+We've had various screwups and confusions with these things.  I think the
+new naming is good - it makes developers _think_ before they use it. 
+Instead of "I want to touch all the CPUs, gee that looks right" they'll
+have to stop and decide whether they want to access the online, possible or
+present ones and then they'll (hopefully) have a little think about what
+happens when CPUs migrate between those states.
 
-Index: linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_sysctl.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/fs/xfs/linux-2.6/xfs_sysctl.c
-+++ linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_sysctl.c
-@@ -38,7 +38,7 @@ xfs_stats_clear_proc_handler(
- 
- 	if (!ret && write && *valp) {
- 		printk("XFS Clearing xfsstats\n");
--		for_each_cpu(c) {
-+		for_each_possible_cpu(c) {
- 			preempt_disable();
- 			/* save vn_active, it's a universal truth! */
- 			vn_active = per_cpu(xfsstats, c).vn_active;
-Index: linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_stats.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/fs/xfs/linux-2.6/xfs_stats.c
-+++ linux-2.6.16-rc6-mm1/fs/xfs/linux-2.6/xfs_stats.c
-@@ -62,7 +62,7 @@ xfs_read_xfsstats(
- 		while (j < xstats[i].endpoint) {
- 			val = 0;
- 			/* sum over all cpus */
--			for_each_cpu(c)
-+			for_each_possible_cpu(c)
- 				val += *(((__u32*)&per_cpu(xfsstats, c) + j));
- 			len += sprintf(buffer + len, " %u", val);
- 			j++;
-@@ -70,7 +70,7 @@ xfs_read_xfsstats(
- 		buffer[len++] = '\n';
- 	}
- 	/* extra precision counters */
--	for_each_cpu(i) {
-+	for_each_possible_cpu(i) {
- 		xs_xstrat_bytes += per_cpu(xfsstats, i).xs_xstrat_bytes;
- 		xs_write_bytes += per_cpu(xfsstats, i).xs_write_bytes;
- 		xs_read_bytes += per_cpu(xfsstats, i).xs_read_bytes;

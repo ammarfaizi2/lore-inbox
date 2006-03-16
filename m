@@ -1,205 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752409AbWCPQwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752418AbWCPQx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752409AbWCPQwe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 11:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752413AbWCPQwe
+	id S1752418AbWCPQx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 11:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752416AbWCPQx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 11:52:34 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35810 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1752407AbWCPQwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 11:52:33 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-CC: <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Janak Desai <janak@us.ibm.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Christoph Hellwig <hch@lst.de>, Michael Kerrisk <mtk-manpages@gmx.net>,
-       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
-       JANAK DESAI <janak@us.ibm.com>
-Subject: [PATCH] unshare: Cleanup up the sys_unshare interface before we are
- committed.
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 16 Mar 2006 09:49:08 -0700
-Message-ID: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 16 Mar 2006 11:53:28 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:5570 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1752415AbWCPQx1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 11:53:27 -0500
+Date: Thu, 16 Mar 2006 08:53:23 -0800
+From: Greg KH <greg@kroah.com>
+To: "Artem B. Bityutskiy" <dedekind@infradead.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Bug? Report] kref problem
+Message-ID: <20060316165323.GA10197@kroah.com>
+References: <1142509279.3920.31.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142509279.3920.31.camel@sauron.oktetlabs.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 16, 2006 at 02:41:19PM +0300, Artem B. Bityutskiy wrote:
+> struct my_obj_a
+> {
+> 	struct kobject kobj;
+> } a;
+> 
+> struct my_obj_b
+> {
+> 	struct kobject kobj;
+> } b;
 
-Since we have not crossed the magic 2.6.16 line can we please
-include this patch.  My apologies for catching this so late in the
-cycle.
+Don't statically create kobjects, it's not nice.  But the real problem
+is below...
 
-- Error if we are passed any flags we don't expect.
+> static __init int test_init(void)
+> {
+> 	int err;
+> 
+> 	kobject_init(&a.kobj);
+> 	a.kobj.ktype = &a_ktype;
+> 	err = kobject_set_name(&a.kobj, "A");
+> 	if (err)
+> 		return err;
+> 	printk("a inited, kref %d\n", atomic_read(&a.kobj.kref.refcount));
+> 	
+> 	kobject_init(&b.kobj);
+> 	b.kobj.ktype = &b_ktype;
+> 	b.kobj.parent = &a.kobj;
+> 	err = kobject_set_name(&b.kobj, "B");
+> 	if (err)
+> 		goto out_a;
+> 	printk("b inited, kref %d\n", atomic_read(&b.kobj.kref.refcount));
+> 
+> 	err = sysfs_create_dir(&a.kobj);
+> 	if (err)
+> 		goto out_b;
+> 	printk("dir A created, A kref %d, B kref %d\n",
+> 	       atomic_read(&a.kobj.kref.refcount), atomic_read(&b.kobj.kref.refcount));
+> 	
+> 	err = sysfs_create_dir(&b.kobj);
+> 	if (err)
+> 		goto out_a_dir;
+> 	printk("dir B created, A kref %d, B kref %d\n",
+> 	       atomic_read(&a.kobj.kref.refcount), atomic_read(&b.kobj.kref.refcount));
+> 
+> 	kobject_put(&b.kobj);
+> 	printk("kobj B put, A kref %d, B kref %d\n",
+> 	       atomic_read(&a.kobj.kref.refcount), atomic_read(&b.kobj.kref.refcount));
+> 
+> 	kobject_put(&a.kobj);
+> 	printk("kobj A put, A kref %d, B kref %d\n",
+> 	       atomic_read(&a.kobj.kref.refcount), atomic_read(&b.kobj.kref.refcount));
+> 
+> 	return 0;
+> 
+> out_a_dir:
+> 	sysfs_remove_dir(&a.kobj);
+> out_b:
+> 	kobject_put(&b.kobj);
+> out_a:
+> 	kobject_put(&a.kobj);
+> 	return err;
+> }
+> module_init(test_init);
+> 
+> static void a_release(struct kobject *kobj)
+> {
+> 	struct my_obj_a *a;
+> 	
+> 	printk("%s\n", __FUNCTION__);
+> 	a = container_of(kobj, struct my_obj_a, kobj);
+> 	sysfs_remove_dir(&a->kobj);
 
-  This preserves forward compatibility so programs that use new flags that
-  run on old kernels will fail instead of silently doing the wrong thing.
+Woah, don't do that here, the kobject core already does this.  A release
+function is for you to release the memory you have created with this
+kobject, not to mess with sysfs.
 
-- Use separate defines from sys_clone.
+So, don't do this and everything should work just fine.
 
-  sys_unshare can't implement half of the clone flags under any circumstances
-  and those that it does implement have subtlely different semantics than
-  the clone flags.  Using a different set of flags sets the
-  expectation that things will be different.
+thanks,
 
-  Binary compatibility with current users of the is still maintained
-  as the unshare flags and the clone flags have the same values.
-
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
-
----
-
- include/linux/sched.h |   17 +++++++++++++++++
- kernel/fork.c         |   34 +++++++++++++++++++---------------
- 2 files changed, 36 insertions(+), 15 deletions(-)
-
-1b9e67b9696f1e828ba789d3f6c8247d1171f367
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 62e6314..8e46f05 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -69,6 +69,23 @@ struct exec_domain;
- #define CLONE_KERNEL	(CLONE_FS | CLONE_FILES | CLONE_SIGHAND)
- 
- /*
-+ * unsharing flags: (Keep in sync with the clone flags if possible)
-+ */
-+#define UNSHARE_VM	0x00000100	/* stop sharing the VM between processes */
-+#define UNSHARE_FS	0x00000200	/* stop sharing the fs info between processes */
-+#define UNSHARE_FILES	0x00000400	/* stop sharing open files between processes */
-+#define UNSHARE_SIGHAND	0x00000800	/* stop sharing signal handlers and blocked signals */
-+#define UNSHARE_THREAD	0x00010000	/* stop sharing a thread group */
-+#define UNSHARE_NS	0x00020000	/* stop sharing the mount namespace */
-+#define UNSHARE_SYSVSEM	0x00040000	/* stop sharing system V SEM_UNDO semantics */
-+
-+/*
-+ * Helper so sys_unshare can check if it is passed valid flags.
-+ */
-+#define UNSHARE_VALID	(UNSHARE_VM|UNSHARE_FS|UNSHARE_FILES|UNSHARE_SIGHAND| \
-+				UNSHARE_THREAD|UNSHARE_NS|UNSHARE_SYSVSEM)
-+
-+/*
-  * These are the constant used to fake the fixed-point load-average
-  * counting. Some notes:
-  *  - 11 bit fractions expand to 22 bits by the multiplies: this gives
-diff --git a/kernel/fork.c b/kernel/fork.c
-index ccdfbb1..d2706e9 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1382,28 +1382,28 @@ static inline void check_unshare_flags(u
- 	 * If unsharing a thread from a thread group, must also
- 	 * unshare vm.
- 	 */
--	if (*flags_ptr & CLONE_THREAD)
--		*flags_ptr |= CLONE_VM;
-+	if (*flags_ptr & UNSHARE_THREAD)
-+		*flags_ptr |= UNSHARE_VM;
- 
- 	/*
- 	 * If unsharing vm, must also unshare signal handlers.
- 	 */
--	if (*flags_ptr & CLONE_VM)
--		*flags_ptr |= CLONE_SIGHAND;
-+	if (*flags_ptr & UNSHARE_VM)
-+		*flags_ptr |= UNSHARE_SIGHAND;
- 
- 	/*
- 	 * If unsharing signal handlers and the task was created
- 	 * using CLONE_THREAD, then must unshare the thread
- 	 */
--	if ((*flags_ptr & CLONE_SIGHAND) &&
-+	if ((*flags_ptr & UNSHARE_SIGHAND) &&
- 	    (atomic_read(&current->signal->count) > 1))
--		*flags_ptr |= CLONE_THREAD;
-+		*flags_ptr |= UNSHARE_THREAD;
- 
- 	/*
- 	 * If unsharing namespace, must also unshare filesystem information.
- 	 */
--	if (*flags_ptr & CLONE_NEWNS)
--		*flags_ptr |= CLONE_FS;
-+	if (*flags_ptr & UNSHARE_NS)
-+		*flags_ptr |= UNSHARE_FS;
- }
- 
- /*
-@@ -1411,7 +1411,7 @@ static inline void check_unshare_flags(u
-  */
- static int unshare_thread(unsigned long unshare_flags)
- {
--	if (unshare_flags & CLONE_THREAD)
-+	if (unshare_flags & UNSHARE_THREAD)
- 		return -EINVAL;
- 
- 	return 0;
-@@ -1424,7 +1424,7 @@ static int unshare_fs(unsigned long unsh
- {
- 	struct fs_struct *fs = current->fs;
- 
--	if ((unshare_flags & CLONE_FS) &&
-+	if ((unshare_flags & UNSHARE_FS) &&
- 	    (fs && atomic_read(&fs->count) > 1)) {
- 		*new_fsp = __copy_fs_struct(current->fs);
- 		if (!*new_fsp)
-@@ -1441,7 +1441,7 @@ static int unshare_namespace(unsigned lo
- {
- 	struct namespace *ns = current->namespace;
- 
--	if ((unshare_flags & CLONE_NEWNS) &&
-+	if ((unshare_flags & UNSHARE_NS) &&
- 	    (ns && atomic_read(&ns->count) > 1)) {
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
-@@ -1462,7 +1462,7 @@ static int unshare_sighand(unsigned long
- {
- 	struct sighand_struct *sigh = current->sighand;
- 
--	if ((unshare_flags & CLONE_SIGHAND) &&
-+	if ((unshare_flags & UNSHARE_SIGHAND) &&
- 	    (sigh && atomic_read(&sigh->count) > 1))
- 		return -EINVAL;
- 	else
-@@ -1476,7 +1476,7 @@ static int unshare_vm(unsigned long unsh
- {
- 	struct mm_struct *mm = current->mm;
- 
--	if ((unshare_flags & CLONE_VM) &&
-+	if ((unshare_flags & UNSHARE_VM) &&
- 	    (mm && atomic_read(&mm->mm_users) > 1)) {
- 		*new_mmp = dup_mm(current);
- 		if (!*new_mmp)
-@@ -1494,7 +1494,7 @@ static int unshare_fd(unsigned long unsh
- 	struct files_struct *fd = current->files;
- 	int error = 0;
- 
--	if ((unshare_flags & CLONE_FILES) &&
-+	if ((unshare_flags & UNSHARE_FILES) &&
- 	    (fd && atomic_read(&fd->count) > 1)) {
- 		*new_fdp = dup_fd(fd, &error);
- 		if (!*new_fdp)
-@@ -1510,7 +1510,7 @@ static int unshare_fd(unsigned long unsh
-  */
- static int unshare_semundo(unsigned long unshare_flags, struct sem_undo_list **new_ulistp)
- {
--	if (unshare_flags & CLONE_SYSVSEM)
-+	if (unshare_flags & UNSHARE_SYSVSEM)
- 		return -EINVAL;
- 
- 	return 0;
-@@ -1534,6 +1534,10 @@ asmlinkage long sys_unshare(unsigned lon
- 	struct files_struct *fd, *new_fd = NULL;
- 	struct sem_undo_list *new_ulist = NULL;
- 
-+	/* Only accept valid unshare flags */
-+	if (unshare_flags & ~UNSHARE_VALID)
-+		return -EINVAL;
-+
- 	check_unshare_flags(&unshare_flags);
- 
- 	if ((err = unshare_thread(unshare_flags)))
--- 
-1.2.4.g2d33
-
+greg k-h

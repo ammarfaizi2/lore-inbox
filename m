@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbWCPTtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932687AbWCPTwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932691AbWCPTtI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932693AbWCPTtH
+	id S932687AbWCPTwu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWCPTwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:49:07 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:31145 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932691AbWCPTtG (ORCPT
+	Thu, 16 Mar 2006 14:52:50 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:37587 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932687AbWCPTwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:49:06 -0500
-Date: Thu, 16 Mar 2006 11:49:03 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
-Subject: Re: Race in pagevec_strip?
-In-Reply-To: <Pine.LNX.4.61.0603161934220.24837@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0603161147590.2704@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0603161033120.2395@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0603161056270.2518@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0603161934220.24837@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Mar 2006 14:52:50 -0500
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+	driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, rdreier@cisco.com, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org>
+	 <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+	 <1142523201.25297.56.camel@camp4.serpentine.com>
+	 <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 16 Mar 2006 11:52:45 -0800
+Message-Id: <1142538765.10950.16.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Mar 2006, Hugh Dickins wrote:
+On Thu, 2006-03-16 at 17:23 +0000, Hugh Dickins wrote:
 
-> But wouldn't you, on balance, be better off repeating the
-> PagePrivate test within the lock?
+> But your backport driver will
+> have to be using PageReserved still, not relying on __GFP_COMP: although
+> __GFP_COMP was defined in 2.6.9 and a few earlier, it used to take effect
+> only when #ifdef CONFIG_HUGETLB_PAGE - only in 2.6.15 did we make it
+> available to all configurations.  You'll have irritating accounting
+> differences between the two drivers: it used to be the case that put_page
+> on a PageReserved page did nothing, so you had to avoid get_page on it to
+> get the page accounting right; we straightened that out in 2.6.15.
 
-Good idea. That avoid uselessly taking the pagelock.
+OK.  Would it be correct to say that this is what we should do, then?
 
+      * On 2.6.15 and later kernels, use __GFP_COMP at allocation time,
+        and get_page in ->nopage.  This is what we're doing as of this
+        morning, and it works.
+      * For backports to 2.6.14 and earlier, avoid __GFP_COMP, mark each
+        page with SetPageReserved at allocation time, and do nothing
+        special in ->nopage.  Do we need to ClearPageReserved before
+        freeing?
 
+Thanks,
 
-Seems that we can call try_to_release_page with PagePrivate off and a
-valid mapping because we check PagePrivate before taking the page lock.
-This may cause all sorts of trouble for thefilesystem *_releasepage()
-handlers. XFS bombs out in that case.
+	<b
 
-Check the PagePrivate again before calling try_to_release_page.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.16-rc6/mm/swap.c
-===================================================================
---- linux-2.6.16-rc6.orig/mm/swap.c	2006-03-11 14:12:55.000000000 -0800
-+++ linux-2.6.16-rc6/mm/swap.c	2006-03-16 11:46:54.000000000 -0800
-@@ -393,7 +393,8 @@ void pagevec_strip(struct pagevec *pvec)
- 		struct page *page = pvec->pages[i];
- 
- 		if (PagePrivate(page) && !TestSetPageLocked(page)) {
--			try_to_release_page(page, 0);
-+			if (PagePrivate(page))
-+				try_to_release_page(page, 0);
- 			unlock_page(page);
- 		}
- 	}

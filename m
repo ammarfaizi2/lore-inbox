@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWCPIbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752257AbWCPIh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750920AbWCPIbn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 03:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPIbn
+	id S1752257AbWCPIh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 03:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPIh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 03:31:43 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:13238 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750899AbWCPIbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 03:31:42 -0500
-Subject: Re: Which kernel is the best for a small linux system?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: gcoady@gmail.com, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Willy Tarreau <willy@w.ods.org>, Arjan van de Ven <arjan@infradead.org>,
-       j4K3xBl4sT3r <jakexblaster@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1142496748.10098.5.camel@homer>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
-	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
-	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
-	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
-	 <20060314062144.GC21493@w.ods.org>
-	 <kv2d12131e73fjkp0hufomj152un5tbsj1@4ax.com>
-	 <20060314222131.GB3166@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.61.0603152347210.20859@yvahk01.tjqt.qr>
-	 <f78h1292orlp3vnrm2qq9c040ech0eduhg@4ax.com>
-	 <1142482749.8369.12.camel@homer>  <1142496748.10098.5.camel@homer>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 03:31:32 -0500
-Message-Id: <1142497893.1671.173.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Thu, 16 Mar 2006 03:37:27 -0500
+Received: from smtp-0-2.linuxrulz.org ([64.191.81.102]:61111 "EHLO
+	smtp-0-2.linuxrulz.org") by vger.kernel.org with ESMTP
+	id S1751080AbWCPIh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 03:37:26 -0500
+Message-ID: <20060316083716.jnfgt8wilcgoo4ws@webmail.lbsd.net>
+Date: Thu, 16 Mar 2006 08:37:16 +0000
+From: Nigel Kukard <nkukard@lbsd.net>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: llh-announce@lists.pld-linux.org, VMiklos <vmiklos@frugalware.org>,
+       linux-kernel@vger.kernel.org, Dan Kegel <dank@kegel.com>
+Subject: Re: [llh-announce] [ANNOUNCE] linux-libc-headers dead
+References: <200603141619.36609.mmazur@kernel.pl>
+In-Reply-To: <200603141619.36609.mmazur@kernel.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format="flowed"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
+X-Originating-IP: 196.207.45.254
+X-Abuse-Report-To: abuse@linuxrulz.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 09:12 +0100, Mike Galbraith wrote:
-> P.S.  if you're talking about ssh console slowdown thingie, as I write
-> this I'm ssh'd into my P3/500, and..
-> 
-> [root]:# time w
+> LLH hasn't seen a new release for a lot more than six months now and up until
+> today I hoped to get back on track with new releases. But I've just spent
+> some time doing a 2.6.14 update, and it came back to me, that I'd have to
+> spend up to 10 hours just to get a basic 2.6.14.0 ready. And there'd still be
+> 2.6.15 waiting, 2.6.16 just around the corner plus sorting through all the
+> bug reports that came in during those months and all the internal rearranging
+> I either had planned or that's being forced by new kernel releases (eg.
+> addition of asm-powerpc).
+>
+> I stopped having both the time and the will for such commitments a couple of
+> months ago.
+>
+> Should anyone want to take over, I'd be happy to give hints, pointers, and
+> whatnot. Just don't get overexcited -- diffs between new kernel versions get
+> bigger, not smaller, and after a couple of years there's still no long term
+> solution in sight.
 
-> real    0m0.033s
-> user    0m0.013s
-> sys     0m0.019s
-> [root]:#         
+I'm interested, more so to be part of a team which as a group is 
+responsible for linux-libc-headers. This way if one or two persons 
+don't have much time available, the others can share the load.
 
-I think you left out the result for 2.4.
+If there is no-one else willing to maintain linux-libc-headers, I'll be 
+more than happy to take it over and try get more developers interested.
 
-Lee
+
+Kind Regards
+
+-- 
+Nigel Kukard, PhD CompSc
+
 

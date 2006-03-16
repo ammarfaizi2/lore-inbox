@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752075AbWCPERr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752055AbWCPET2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752075AbWCPERr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 23:17:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752164AbWCPERr
+	id S1752055AbWCPET2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 23:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752156AbWCPET2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 23:17:47 -0500
-Received: from mail.gmx.net ([213.165.64.20]:50656 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752075AbWCPERq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 23:17:46 -0500
-X-Authenticated: #14349625
-Subject: Re: Which kernel is the best for a small linux system?
-From: Mike Galbraith <efault@gmx.de>
-To: gcoady@gmail.com
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Willy Tarreau <willy@w.ods.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       j4K3xBl4sT3r <jakexblaster@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <f78h1292orlp3vnrm2qq9c040ech0eduhg@4ax.com>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
-	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
-	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
-	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
-	 <20060314062144.GC21493@w.ods.org>
-	 <kv2d12131e73fjkp0hufomj152un5tbsj1@4ax.com>
-	 <20060314222131.GB3166@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.61.0603152347210.20859@yvahk01.tjqt.qr>
-	 <f78h1292orlp3vnrm2qq9c040ech0eduhg@4ax.com>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 05:19:09 +0100
-Message-Id: <1142482749.8369.12.camel@homer>
+	Wed, 15 Mar 2006 23:19:28 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:28896 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1752055AbWCPET1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 23:19:27 -0500
+Date: Thu, 16 Mar 2006 13:17:43 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines
+ for_each_possible_cpu
+Message-Id: <20060316131743.d7b716e9.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <4418DEEA.2000008@yahoo.com.au>
+References: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>
+	<4418DEEA.2000008@yahoo.com.au>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 10:32 +1100, Grant Coady wrote:
+On Thu, 16 Mar 2006 14:43:38 +1100
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> The only places where things might care is arch bootup code, but
+> the cpu interface is such that the arch code is expected to _hide_
+> any weird details from these generic interfaces.
 > 
-> Certainly provides little motivation for testers to provide any 
-> feedback does it not?  I've had two threads on sluggish terminal 
-> here performance without resolution.  2.6 feels sluggish, the test 
-> is simple and repeatable, your ridicule does not change that at all.
+Please see i386 patch. it contains BUG fix.
+cpu_msrs[i].coutners are allocated by for_each_online_cpu().
+and free it by for_each_possible_cpus() without no pointer check.
 
-Hmm.  You have a testcase that's both simple _and_ repeatable?  Cool.
-What is it?
-
-	-Mike
-
+I think this kind of confusion will be seen again in future.
+--Kame
+--
+ static void free_msrs(void)
+ {
+        int i;
+-       for_each_cpu(i) {
+-               kfree(cpu_msrs[i].counters);
++       for_each_possible_cpu(i) {
++               if (cpu_msrs[i].counters)
++                       kfree(cpu_msrs[i].counters);
+                cpu_msrs[i].counters = NULL;
+-               kfree(cpu_msrs[i].controls);
++               if (cpu_msrs[i].controls)
++                       kfree(cpu_msrs[i].controls);
+                cpu_msrs[i].controls = NULL;
+        }
+ }
+--

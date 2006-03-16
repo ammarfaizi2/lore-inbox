@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWCPWKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWCPWL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWCPWKR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 17:10:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWCPWKQ
+	id S964878AbWCPWL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 17:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWCPWL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 17:10:16 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38859 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964870AbWCPWKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 17:10:15 -0500
-Date: Thu, 16 Mar 2006 23:07:58 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix free swap cache latency
-Message-ID: <20060316220758.GA27349@elte.hu>
-References: <Pine.LNX.4.61.0603161853300.24463@goblin.wat.veritas.com>
+	Thu, 16 Mar 2006 17:11:58 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:43994 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964880AbWCPWLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 17:11:55 -0500
+Subject: Re: can I bring Linux down by running "renice -20
+	cpu_intensive_process"?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4419D575.4080203@tmr.com>
+References: <441180DD.3020206@wpkg.org>
+	 <Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
+	 <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
+	 <1142135077.25358.47.camel@mindpipe>
+	 <yw1xk6azdgae.fsf@agrajag.inprovide.com>  <4419D575.4080203@tmr.com>
+Content-Type: text/plain
+Date: Thu, 16 Mar 2006 17:11:48 -0500
+Message-Id: <1142547108.9395.17.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0603161853300.24463@goblin.wat.veritas.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.5
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.5 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-03-16 at 16:15 -0500, Bill Davidsen wrote:
+> There's a good fix for this, don't give this guy root 
+> any more ;-) 
 
-* Hugh Dickins <hugh@veritas.com> wrote:
+Minor nit: s/root/realtime privileges/.  Since 2.6.12 these have been
+decoupled.  No official distro release supports it OOTB yet (the
+upcoming Ubuntu Dapper will).
 
-> Lee Revell reported 28ms latency when process with lots of swapped memory
-> exits.
-> 
-> 2.6.15 introduced a latency regression when unmapping: in accounting the
-> zap_work latency breaker, pte_none counted 1, pte_present PAGE_SIZE, but
-> a swap entry counted nothing at all.  We think of pages present as the
-> slow case, but Lee's trace shows that free_swap_and_cache's radix tree
-> lookup can make a lot of work - and we could have been doing it many
-> thousands of times without a latency break.
-> 
-> Move the zap_work update up to account swap entries like pages present.
-> This does account non-linear pte_file entries, and unmap_mapping_range
-> skipping over swap entries, by the same amount even though they're quick:
-> but neither of those cases deserves complicating the code (and they're
-> treated no worse than they were in 2.6.14).
-> 
-> Signed-off-by: Hugh Dickins <hugh@veritas.com>
-> Acked-by: Nick Piggin <npiggin@suse.de>
+Lee
 
-i've added this patch to the 2.6.16-rc6 based -rt kernel yesterday and 
-have ran an overnight stresstest on an SMP box (which creates heavy 
-swapping too, amongst other things), which found no problems whatsoever.  
-(not that we would expect any, but it's still nice to know.)
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

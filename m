@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWCPXzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWCPXzj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWCPXzq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 18:55:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWCPXzp
+	id S964911AbWCPXzj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 18:55:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWCPXzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 18:55:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5605 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964912AbWCPXzo (ORCPT
+	Thu, 16 Mar 2006 18:55:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2789 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964911AbWCPXzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 18:55:44 -0500
-Date: Thu, 16 Mar 2006 15:58:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Yi Yang <yang.y.yi@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.16-rc6-m1 PATCH] Connector: Filesystem Events Connector
- try 2
-Message-Id: <20060316155801.298e7e9e.akpm@osdl.org>
-In-Reply-To: <44198795.2080407@gmail.com>
-References: <44198795.2080407@gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 18:55:38 -0500
+Date: Thu, 16 Mar 2006 15:55:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Document Linux's memory barriers [try #5]
+In-Reply-To: <20060316231723.GB1323@us.ibm.com>
+Message-ID: <Pine.LNX.4.64.0603161551000.3618@g5.osdl.org>
+References: <16835.1141936162@warthog.cambridge.redhat.com>
+ <18351.1142432599@warthog.cambridge.redhat.com> <20060316231723.GB1323@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yi Yang <yang.y.yi@gmail.com> wrote:
->
-> This new patch is update for last patch, it removes spinlock and
-> makes include/linux/fsnotify.h more clean when CONFIG_FS_EVENTS=n,
-> it also reformats some too long lines so that they are less than 80
-> columns.
+
+
+On Thu, 16 Mar 2006, Paul E. McKenney wrote:
 > 
-> This patch implements a new connector, Filesystem Event Connector,
->  the user can monitor filesystem activities via it, currently, it
->  can monitor access, attribute change, open, create, modify, delete,
->  move and close of any file or directory.
-> 
-> Every filesystem event will include tgid, uid and gid of the process
->  which triggered this event, process name, file or directory name 
-> operated by it.
+> Also, I have some verbiage and diagrams of Alpha's operation at
+> http://www.rdrop.com/users/paulmck/scalability/paper/ordering.2006.03.13a.pdf
+> Feel free to take any that helps.  (Source for paper is Latex and xfig,
+> for whatever that is worth.)
 
-That would seem to have some privacy implications...
+This paper too claims that x86-64 has somehow different memory ordering 
+constraints than regular x86. Do you actually have a source for that 
+statement, or is it just a continuation of what looks like confusion in 
+the Linux x86-64 header files?
 
-I'd expect that all the info which is needed can be obtained via syscall
-auditing.
+(Also, x86 doesn't have an incoherent instruction cache - some older x86 
+cores have an incoherent instruction decode _buffer_, but that's a 
+slightly different issue with basically no effect on any sane program).
 
-I don't recall having seen demand for this feature before.  For what reason
-is it needed?  What is the application?
+			Linus

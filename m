@@ -1,63 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932713AbWCPUNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932717AbWCPUOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932713AbWCPUNV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 15:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbWCPUNV
+	id S932717AbWCPUOq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 15:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbWCPUOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 15:13:21 -0500
-Received: from smtp.uaf.edu ([137.229.34.30]:27148 "EHLO smtp.uaf.edu")
-	by vger.kernel.org with ESMTP id S932713AbWCPUNU (ORCPT
+	Thu, 16 Mar 2006 15:14:46 -0500
+Received: from mail.gmx.net ([213.165.64.20]:50120 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932718AbWCPUOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 15:13:20 -0500
-From: Joshua Kugler <joshua.kugler@uaf.edu>
-Organization: UAF Center for Distance Education - IT
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bug in 2.6.16-rc6 RAID size reporting
-Date: Thu, 16 Mar 2006 11:13:10 -0900
-User-Agent: KMail/1.7.2
-References: <200603151248.29893.joshua.kugler@uaf.edu> <17432.58799.147308.149539@cse.unsw.edu.au>
-In-Reply-To: <17432.58799.147308.149539@cse.unsw.edu.au>
-Cc: Neil Brown <neilb@suse.de>
+	Thu, 16 Mar 2006 15:14:45 -0500
+X-Authenticated: #427522
+Message-ID: <4419C88A.1060000@gmx.de>
+Date: Thu, 16 Mar 2006 21:20:26 +0100
+From: Mathis Ahrens <Mathis.Ahrens@gmx.de>
+User-Agent: Mail/News 1.5 (X11/20060206)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH] Makefile: localversion fix (was: [2.6.16-rc6] CONFIG_LOCALVERSION_AUTO)
+References: <44179C77.1010902@gmx.de>
+In-Reply-To: <44179C77.1010902@gmx.de>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603161113.10555.joshua.kugler@uaf.edu>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 March 2006 19:12, Neil Brown wrote:
-> On Wednesday March 15, joshua.kugler@uaf.edu wrote:
-> > Started fine, syncing at 43000K/sec or so.  Came in this morning,
-> > and /proc/mdstat had this to report:
-> >
-> > Personalities : [raid1]
-> > md1 : active raid1 etherd/e1.0[1] etherd/e0.0[0]
-> >       5469958900 blocks super 1.0 [2/2] [UU]
-> >       [==========================================================>] 
-> > resync =292.8% (3440402688/1174991604) finish=785.8min speed=43043K/sec
-> >
-> > You'll notice that it says 5469958900 blocks, but 3440402688/1174991604
-> > done.
+Mathis Ahrens wrote:
+> 1.
+> Semantics of LOCALVERSION are confusing and probably buggy.
+> The Makefile states:
 >
-> Hmmm. there is sever bitrot in that code.  The following patch might
-> help.
+> # Take the contents of any files called localversion* and the config
+> # variable CONFIG_LOCALVERSION and append them to KERNELRELEASE.
+> # LOCALVERSION from the command line override all of this
+>
+> whereas my simplified view of current code is:
+>
+> version = major + minor + patch + extra
+> release = version + localver-full
+> localver-full = localver + localver-auto
+> localver = <concat all localversions*> + $CONFIG_LOCALVERSION
+> localver-auto = $LOCALVERSION + <some -gxxxxxx>
+>
+> LOCALVERSION does not seem to /override/ anything if specified on the
+> command line, but rather (with CONFIG_LOCALVERSION_AUTO=y) gets
+> /inserted/.
+>
+> Also, with CONFIG_LOCALVERSION_AUTO=n, specifying LOCALVERSION
+> on the command line currently does nothing at all. This is a regression
+> from 2.6.15, I suppose.
+>   
 
-I'll wait until the patch is in the official tree.  I am trying to patch rc6, 
-but it seems you've made a lot of changes to your version of md.c:
+Hmm, no comments on this?
+I am not sure if different behaviour is desired, but here goes my proposal:
 
-patching file md.c
-Hunk #1 succeeded at 4038 (offset -338 lines).
-Hunk #2 succeeded at 4057 (offset -338 lines).
-Hunk #3 FAILED at 4081.
-1 out of 3 hunks FAILED -- saving rejects to file md.c.rej
+From: Mathis Ahrens <Mathis.Ahrens@gmx.de>
 
-Thanks for the fix, though.  Hope to see it in the tree soon.
+Fix Makefile to honor LOCALVERSION if specified on the command line.
+Make it then replace any other localversions from files, CONFIG_LOCALVERSION
+or CONFIG_LOCALVERSION_AUTO.
 
-j----- k-----
+Signed-off-by: Mathis Ahrens <Mathis.Ahrens@gmx.de>
 
--- 
-Joshua Kugler                 PGP Key: http://pgp.mit.edu/
-CDE System Administrator             ID 0xDB26D7CE
-http://distance.uaf.edu/
+--- linux/Makefile.orig    2006-03-15 01:49:26.000000000 +0100
++++ linux/Makefile    2006-03-16 18:10:38.000000000 +0100
+@@ -760,22 +760,27 @@ $(vmlinux-dirs): prepare scripts
+ # The KERNELRELEASE is stored in a file named .kernelrelease
+ # to be used when executing for example make install or make
+modules_install
+ #
+-# Take the contents of any files called localversion* and the config
+-# variable CONFIG_LOCALVERSION and append them to KERNELRELEASE.
+-# LOCALVERSION from the command line override all of this
++# If LOCALVERSION from the command line is not empty, that is
++# appended to the KERNELRELEASE.
++#
++# Else we append in that order
++#     - the contents of any files called localversion*
++#     - the config variable CONFIG_LOCALVERSION
++#     - if CONFIG_LOCALVERSION_AUTO is set, another scm-specific string
+ 
+ nullstring :=
+ space      := $(nullstring) # end of line
+ 
+-___localver = $(objtree)/localversion* $(srctree)/localversion*
+-__localver  = $(sort $(wildcard $(___localver)))
++__localver-filelist = $(objtree)/localversion* $(srctree)/localversion*
++_localver-filelist  = $(sort $(wildcard $(__localver-filelist)))
+ # skip backup files (containing '~')
+-_localver = $(foreach f, $(__localver), $(if $(findstring ~, $(f)),,$(f)))
++localver-filelist = $(foreach f, $(_localver-filelist), \
++                    $(if $(findstring ~, $(f)),,$(f)))
++
++localver-files = $(subst $(space),, $(shell cat /dev/null
+$(localver-filelist)))
++localver-conf = $(subst $(space),, $(patsubst
+"%",%,$(CONFIG_LOCALVERSION)))
++
+ 
+-localver = $(subst $(space),, \
+-       $(shell cat /dev/null $(_localver)) \
+-       $(patsubst "%",%,$(CONFIG_LOCALVERSION)))
+-          
+ # If CONFIG_LOCALVERSION_AUTO is set scripts/setlocalversion is called
+ # and if the SCM is know a tag from the SCM is appended.
+ # The appended tag is determinded by the SCM used.
+@@ -784,12 +789,15 @@ localver = $(subst $(space),, \
+ # Other SCMs can edit scripts/setlocalversion and add the appropriate
+ # checks as needed.
+ ifdef CONFIG_LOCALVERSION_AUTO
+-    _localver-auto = $(shell $(CONFIG_SHELL) \
++    localver-auto = $(shell $(CONFIG_SHELL) \
+                       $(srctree)/scripts/setlocalversion $(srctree))
+-    localver-auto  = $(LOCALVERSION)$(_localver-auto)
+ endif
+ 
+-localver-full = $(localver)$(localver-auto)
++ifeq ($(LOCALVERSION),)
++    localver-full = $(localver-files)$(localver-conf)$(localver-auto)
++else
++    localver-full = $(subst $(space),, $(LOCALVERSION))
++endif
+ 
+ # Store (new) KERNELRELASE string in .kernelrelease
+ kernelrelease = $(KERNELVERSION)$(localver-full)
+
+

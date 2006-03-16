@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932722AbWCPUff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932725AbWCPUhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932722AbWCPUff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 15:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbWCPUff
+	id S932725AbWCPUhD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 15:37:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbWCPUhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 15:35:35 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21418 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932722AbWCPUfe (ORCPT
+	Thu, 16 Mar 2006 15:37:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:34986 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964808AbWCPUhA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 15:35:34 -0500
-Date: Thu, 16 Mar 2006 12:35:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
-       rdreier@cisco.com, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
- driver
-In-Reply-To: <Pine.LNX.4.61.0603162003140.25033@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0603161234160.3618@g5.osdl.org>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> 
- <ada4q27fban.fsf@cisco.com>  <1141948516.10693.55.camel@serpentine.pathscale.com>
-  <ada1wxbdv7a.fsf@cisco.com>  <1141949262.10693.69.camel@serpentine.pathscale.com>
-  <20060309163740.0b589ea4.akpm@osdl.org>  <1142470579.6994.78.camel@localhost.localdomain>
-  <ada3bhjuph2.fsf@cisco.com>  <1142475069.6994.114.camel@localhost.localdomain>
-  <adaslpjt8rg.fsf@cisco.com>  <1142477579.6994.124.camel@localhost.localdomain>
-  <20060315192813.71a5d31a.akpm@osdl.org>  <1142485103.25297.13.camel@camp4.serpentine.com>
-  <20060315213813.747b5967.akpm@osdl.org>  <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
-  <1142523201.25297.56.camel@camp4.serpentine.com> 
- <Pine.LNX.4.61.0603161629150.23220@goblin.wat.veritas.com>
- <1142538765.10950.16.camel@serpentine.pathscale.com>
- <Pine.LNX.4.61.0603162003140.25033@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Mar 2006 15:37:00 -0500
+Date: Thu, 16 Mar 2006 12:33:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, janak@us.ibm.com,
+       viro@ftp.linux.org.uk, hch@lst.de, mtk-manpages@gmx.net, ak@muc.de,
+       paulus@samba.org
+Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we
+ are committed.
+Message-Id: <20060316123341.0f55fd07.akpm@osdl.org>
+In-Reply-To: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 16 Mar 2006, Hugh Dickins wrote:
-
-> On Thu, 16 Mar 2006, Bryan O'Sullivan wrote:
-> > 
-> > OK.  Would it be correct to say that this is what we should do, then?
-> > 
-> >       * On 2.6.15 and later kernels, use __GFP_COMP at allocation time,
-> >         and get_page in ->nopage.  This is what we're doing as of this
-> >         morning, and it works.
-> >       * For backports to 2.6.14 and earlier, avoid __GFP_COMP, mark each
-> >         page with SetPageReserved at allocation time, and do nothing
-> >         special in ->nopage.  Do we need to ClearPageReserved before
-> >         freeing?
+ebiederm@xmission.com (Eric W. Biederman) wrote:
+>
+> Since we have not crossed the magic 2.6.16 line can we please
+>  include this patch.  My apologies for catching this so late in the
+>  cycle.
 > 
-> Yes, I believe that's exactly right - so long as you do ClearPageReserved
-> from each of its constituent 0-order-pages before freeing the >0-order
-> page, in the <= 2.6.14 case.
+>  - Error if we are passed any flags we don't expect.
+> 
+>    This preserves forward compatibility so programs that use new flags that
+>    run on old kernels will fail instead of silently doing the wrong thing.
 
-The alternative is to always allocate the pages one by one ("order-0"), 
-and do get_page() when you return them in the ->nopage handler. That will 
-work with any kernel, so it has the simplicity thing going for it.
+Makes sense.
 
-		Linus
+>  - Use separate defines from sys_clone.
+> 
+>    sys_unshare can't implement half of the clone flags under any circumstances
+>    and those that it does implement have subtlely different semantics than
+>    the clone flags.  Using a different set of flags sets the
+>    expectation that things will be different.
+
+iirc there was some discussion about this and it was explicitly decided to
+keep the CLONE flags.
+
+Maybe Janak or Linus can comment?

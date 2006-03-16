@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752442AbWCPRnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWCPRog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752442AbWCPRnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 12:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752441AbWCPRnE
+	id S932399AbWCPRog (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 12:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752447AbWCPRog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 12:43:04 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:18819
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1752442AbWCPRnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 12:43:02 -0500
-Date: Thu, 16 Mar 2006 09:42:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Artem B. Bityutskiy" <dedekind@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [Bug? Report] kref problem
-Message-ID: <20060316174254.GA6698@kroah.com>
-References: <1142509279.3920.31.camel@sauron.oktetlabs.ru> <20060316165323.GA10197@kroah.com> <1142530278.10906.27.camel@localhost.localdomain>
+	Thu, 16 Mar 2006 12:44:36 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:55750 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1752446AbWCPRof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 12:44:35 -0500
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+	driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, rdreier@cisco.com, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0603161724070.23220@goblin.wat.veritas.com>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org>
+	 <1142521718.25297.37.camel@camp4.serpentine.com>
+	 <Pine.LNX.4.61.0603161724070.23220@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Thu, 16 Mar 2006 09:44:34 -0800
+Message-Id: <1142531074.25297.145.camel@camp4.serpentine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1142530278.10906.27.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 09:31:18AM -0800, Dave Hansen wrote:
-> On Thu, 2006-03-16 at 08:53 -0800, Greg KH wrote:
-> > On Thu, Mar 16, 2006 at 02:41:19PM +0300, Artem B. Bityutskiy wrote:
-> > > struct my_obj_a
-> > > {
-> > > 	struct kobject kobj;
-> > > } a;
-> > > 
-> > > struct my_obj_b
-> > > {
-> > > 	struct kobject kobj;
-> > > } b;
-> > 
-> > Don't statically create kobjects, it's not nice.  But the real problem
-> > is below...
-> 
-> This seems to be one of those top ten sysfs snafus.  Could we take the
-> definitions from include/asm-generic/sections.h, and make a kobject
-> verification function to put in the critical generic kernel functions
-> that deal with kobjects,  like kobject_init()?
+On Thu, 2006-03-16 at 17:27 +0000, Hugh Dickins wrote:
 
-I wish.  The main offender of this is the kernel core code itself, with
-the decl_subsys and struct bus stuff.  If you provide some nice fuctions
-to fix those up to be dynamic, then I would have no problem with the
-function you have below.
+> There's no need to do a get_page after the allocation and a put_page
+> before the free (though you could, it's just extra unnecessary work):
+> the allocation comes with a reference count of 1, the free frees up
+> that last remaining reference count of 1 (as Andrew explained more
+> lucidly elsewhere in his mail).
 
-> Somthing like...
-> 
-> void verify_dynamic_kobject_allocation(struct kobject *kobj)
-> {
-> 	if (kobj >= &_data && kobj < &_edata)
-> 		goto warn;
-> 	if (kobj >= &_bss_start && kobj < &_bss_end)
-> 		goto warn;
-> 	...
-> 	return;
-> warn:
-> 	printk(KERN_WARN "statically allocated kobject, you suck...\n");
-> }
-> 
-> I'm not sure that all of the architectures fill in all of the values,
-> but we could at least support the warnings for the ones that do.  That
-> includes at least i386, so it could be a relatively effective tool.
-> 
-> I'll cook up a real patch in a bit.
+All right.  I followed your advice and you are indeed correct; the added
+get_page and put_page were not necessary; __GFP_COMP alone did the
+trick.
 
-That would be fun to play with, I'd appreciate it.  If nothing else,
-I'll add it to my tree for future use.
+Thanks,
 
-thanks,
+	<b
 
-greg k-h

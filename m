@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbWCPDm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbWCPDnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbWCPDm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 22:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWCPDm6
+	id S932604AbWCPDnr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 22:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbWCPDnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 22:42:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46992 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932555AbWCPDm5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 22:42:57 -0500
-Date: Wed, 15 Mar 2006 19:40:06 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Wed, 15 Mar 2006 22:43:47 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:24499 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932604AbWCPDnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 22:43:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=nbL/rTGDCiqh09voMqOyoDEpewbpOJILlaegDQ6lZDaL8DVkngg1J18EMJZvWeASgh2dSxX5sJc+4+27QOo/o5aDjs4ebSq1Owdo+1ybup8isnIXYuJ1QjgyptMWS2A+MgGogj1wT43A3usGfKG1ydmH6DDJd3Cf0G1tcNazVsA=  ;
+Message-ID: <4418DEEA.2000008@yahoo.com.au>
+Date: Thu, 16 Mar 2006 14:43:38 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines
- for_each_possible_cpu
-Message-Id: <20060315194006.17dd9e24.akpm@osdl.org>
-In-Reply-To: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>
+CC: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines for_each_possible_cpu
 References: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
->
+KAMEZAWA Hiroyuki wrote:
 > Now,
->  for_each_cpu() is for-loop cpu over cpu_possible_map.
->  for_each_online_cpu is for-loop cpu over cpu_online_map.
->  .....for_each_cpu() looks bad name.
+> for_each_cpu() is for-loop cpu over cpu_possible_map.
+> for_each_online_cpu is for-loop cpu over cpu_online_map.
+> .....for_each_cpu() looks bad name.
 > 
->  This patch renames for_each_cpu() as for_each_possible_cpu().
->
-
-Sane.
-
->  I also wrote patches to replace all for_each_cpu with for_each_possible_cpu.
->  please confirm....
+> This patch renames for_each_cpu() as for_each_possible_cpu().
 > 
->  BTW, when HOTPLUC_CPU is not suppoted, using for_each_possible_cpu()
->  should be avoided, I think.
+> I also wrote patches to replace all for_each_cpu with for_each_possible_cpu.
+> please confirm....
+> 
+> BTW, when HOTPLUC_CPU is not suppoted, using for_each_possible_cpu()
+> should be avoided, I think.
+> 
+> all patches are against 2.6.16-rc6-mm1.
+> 
 
-Sometimes.  Sometimes it's valid though - allocating (small amounts of)
-per-cpu storage, summing up per-cpu counters (poorly), etc.
+for_each_cpu() effectively is for_each_possible_cpu() as far as
+generic code is concerned. In other words, nobody would ever expect
+for_each_cpu to return an _impossible_ CPU, thus you are just
+adding a redundant element to the name.
 
->  -#define for_each_cpu(cpu)	  for_each_cpu_mask((cpu), cpu_possible_map)
->  +#define for_each_possible_cpu(cpu)  for_each_cpu_mask((cpu), cpu_possible_map)
+The only places where things might care is arch bootup code, but
+the cpu interface is such that the arch code is expected to _hide_
+any weird details from these generic interfaces.
 
-Nope, I'll change this to
-
-#define for_each_cpu(cpu)	  for_each_cpu_mask((cpu), cpu_possible_map)
-#define for_each_possible_cpu(cpu)  for_each_cpu_mask((cpu), cpu_possible_map)
-
-So both are valid.  That way
-
-a) The kernel continues to compile at each step of the patch series
-   (important!) and
-
-b) We can remove for_each_cpu() later on, after all the various
-   out-of-tree usages have been converted.
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

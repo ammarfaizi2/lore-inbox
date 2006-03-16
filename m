@@ -1,109 +1,449 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWCPW7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWCPXCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964863AbWCPW7p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 17:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWCPW7p
+	id S1751000AbWCPXCT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 18:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWCPXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 17:59:45 -0500
-Received: from mail.clusterfs.com ([206.168.112.78]:19118 "EHLO
-	mail.clusterfs.com") by vger.kernel.org with ESMTP id S964863AbWCPW7p
+	Thu, 16 Mar 2006 18:02:19 -0500
+Received: from vmaila.mclink.it ([195.110.128.108]:60424 "EHLO
+	vmaila.mclink.it") by vger.kernel.org with ESMTP id S1750866AbWCPXCS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 17:59:45 -0500
-Date: Thu, 16 Mar 2006 15:59:13 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Takashi Sato <sho@bsd.tnes.nec.co.jp>,
-       cmm@us.ibm.com, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net,
-       Laurent Vivier <Laurent.Vivier@bull.net>
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Message-ID: <20060316225913.GV30801@schatzie.adilger.int>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-	Laurent Vivier <Laurent.Vivier@bull.net>
-References: <000301c6482d$7e5b5200$4168010a@bsd.tnes.nec.co.jp> <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com> <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060316212632.GA21004@thunk.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Thu, 16 Mar 2006 18:02:18 -0500
+From: "Mauro Tassinari" <mtassinari@cmanet.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: libata/sata errors on ich[?]/maxtor
+Date: Fri, 17 Mar 2006 00:02:17 +0100
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAoSG5sanwXkG4qxYkj76rcgEAAAAA@cmanet.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 16, 2006  16:26 -0500, Theodore Ts'o wrote:
-> On Thu, Mar 16, 2006 at 11:35:49AM -0700, Andreas Dilger wrote:
-> > Beyond that, we need a format change and may as well have something
-> > like extents, but even extents still need to allow a larger i_blocks,
-> 
-> As a side note, one of the things that we've been talking about doing
-> is bundling a number of small changes together into a single INCOMPAT
-> flag.  Changing i_blocks so its units are in blocks rather than
-> 512-byte sectors was one such change.
+The following hw combination appears to be broken, up to 2.6.16-rc6,
+hanging after giving the usual bunch of repeated messages whenever a
+moderate
+i/o load is started, in this case a sda (hitachi) to sdb (maxtor) cpio.
 
-> Another was guaranteeing that for large inodes (> 128 bytes) that at
-> least some number of bytes (probably on the order of 32 bytes or so)
-> would be reserved for things like the high resolution portion of
-> ctime/mtime/atime, high watermark, and other inode extensions.  (One
-> of the problems with doing high res timestamps right is how to handle
-> the case where you can't make room for the high res timestamps, due to
-> too much space being taken up by extended attributes.  The make(1)
-> program gets really confused unless all files are either using or not
-> using high res timestamps.)
-> 
-> The idea was to do a quick easy strike of all of the ideas which could
-> be implemented quickly, and perhaps try to get them done before RHEL 5
-> snapshots.  Even if RHEL5 doesn't enable use of these features by
-> default, having it supported by RHEL5 would be extremely convenient.
+.... snip ....
 
-While I agree with that in theory, in practise we never end up doing
-this and it just ends up delaying the acceptance of the trivial patches.
-It may also be a burden later on when some of the features that could
-be e.g. ROCOMPAT are bundled with an INCOMPAT change and we then
-make the filesystem gratuitously INCOMPAT.
+ata2: command 0x35 timeout, stat 0xd0 host_stat 0x21
+ata2: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ 0xb/47/00
+ata2: status=0xd0 { Busy }
+sd 1:0:0:0: SCSI error: return code = 0x8000002
+sdb: Current: sense key: Aborted Command
+    Additional sense: Scsi parity error
+end_request: I/O error, dev sdb, sector 308678943
+ATA: abnormal status 0xD0 on port 0xEFA7
+ATA: abnormal status 0xD0 on port 0xEFA7
+ATA: abnormal status 0xD0 on port 0xEFA7
 
-In the end, I don't think having a couple of separate flags is any more
-effort than having a single one.  As yet we only have about 6 of each 32
-feature bits used, and if we get close to running out we can make an
-EXT3_FEATURE_{,RO,IN}COMPAT_NEXT_WORD flag to continue it on.
+.... snip ....
 
-Note that I'm not against this in practise, but I wouldn't hold up any
-feature for this reason.  How long has large i_blocks been pending,
-and usecond timestamps?  Many years already, even though they are trivial
-to implement, so I'm hesitant to tie them together and delay further.
+The behaviour is repetitive and does not depend on hw.
+Different tests were run on different disks and platforms.
+Hitachi to hitachi gave no errors.
 
-I think i_blocks can be considered an ROCOMPAT feature, and the large
-inode reservation for usecond timestamps could be COMPAT I think (since
-an unsupporting kernel would still update all the timestamps consistently
-even if the useconds on disk would be some constant instead of 0.
+Some details follow
 
-> > so that patch would be useful in any case...  though it needs some
-> > cleanup to remove all users of i_frag and i_faddr (which have never
-> > ever been used).
-> 
-> One of the things which we need to consider is whether we think we
-> will never support tail packing or other forms of fragments, which is
-> related to whether we think we will ever support large blocks (i.e.,
-> 32k, 64k, and up).  If we do, we might want to keep those fields
-> around.
+Regards
 
-I thought the long-term plan for small files was to just store them
-in an EA?  That way, we can efficiently pack them inside the inode
-or up to blocksize (space willing) without any usage of inode fields
-(maybe with a flag to indicate that there is such a fragment to avoid
-gratuitous EA searching).  This would be a net win on performance since
-it avoids an IO for the in-inode case at least.
+Mauro Tassinari
 
-I think testing with reiserfs showed that tail packing was a net loss in
-most cases, since basically every benchmark I've ever seen with reiserfs
-disables tail packing or suffers.  For space constrained systems (if
-there ever exists such a thing again ;-) it would probably be better to
-go to compressed files.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+
+
+root@test:~# /usr/src/linux/scripts/ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux test 2.6.16-rc6-abi-sata #3 PREEMPT Thu Mar 16 18:59:20 Local time
+zone must be set--see  i686 pentium4 i386 GNU/Linux
+
+Gnu C                  3.4.6
+Gnu make               3.80
+binutils               2.15.92.0.2
+util-linux             2.12r
+mount                  2.12r
+module-init-tools      3.1
+e2fsprogs              1.38
+jfsutils               1.1.8
+reiserfsprogs          3.6.19
+reiser4progs           line
+xfsprogs               2.7.11
+pcmcia-cs              3.2.8
+quota-tools            3.12.
+PPP                    2.4.4b1
+nfs-utils              1.0.7
+Linux C Library        2.3.6
+Dynamic linker (ldd)   2.3.6
+Linux C++ Library      6.0.3
+Procps                 3.2.6
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.94
+udev                   064
+Modules Loaded         binfmt_aout binfmt_xout binfmt_coff abi_wyse
+abi_solaris abi_sco abi_uw7 abi_ibcs abi_cxenix abi_svr4 lcall
+7 abi_util snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss
+snd_mixer_oss nfsd exportfs lockd sunrpc ipv6 ohci_hcd
+ pcspkr intel_agp pl2303 usbserial shpchp pci_hotplug uhci_hcd ehci_hcd
+usbcore i8xx_tco ahci i2c_i801 i2c_core sky2 pci200syn hdl
+c syncppp com20020_pci com20020 arcnet snd_ens1371 gameport snd_rawmidi
+snd_seq_device snd_ac97_codec snd_ac97_bus snd_pcm snd_tim
+er snd soundcore snd_page_alloc pcmcia firmware_class yenta_socket
+rsrc_nonstatic pcmcia_core tsdev lp parport_pc parport psmouse
+
+root@test:~# hdparm -I /dev/sdb
+
+/dev/sdb:
+
+ATA device, with non-removable media
+        Model Number:       Maxtor 6L160M0
+        Serial Number:      L39VAZ4G
+        Firmware Revision:  BACE1G20
+Standards:
+        Used: ATA/ATAPI-7 T13 1532D revision 0
+        Supported: 7 6 5 4
+Configuration:
+        Logical         max     current
+        cylinders       16383   16383
+        heads           16      16
+        sectors/track   63      63
+        --
+        CHS current addressable sectors:   16514064
+        LBA    user addressable sectors:  268435455
+        LBA48  user addressable sectors:  320173056
+        device size with M = 1024*1024:      156334 MBytes
+        device size with M = 1000*1000:      163928 MBytes (163 GB)
+Capabilities:
+        LBA, IORDY(can be disabled)
+        Queue depth: 32
+        Standby timer values: spec'd by Standard, no device specific minimum
+        R/W multiple sector transfer: Max = 16  Current = 16
+        Advanced power management level: unknown setting (0x0000)
+        Recommended acoustic management value: 192, current value: 254
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 udma5 *udma6
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+Commands/features:
+        Enabled Supported:
+           *    SMART feature set
+                Security Mode feature set
+           *    Power Management feature set
+           *    Write cache
+           *    Look-ahead
+           *    Host Protected Area feature set
+           *    WRITE_VERIFY command
+           *    WRITE_BUFFER command
+           *    READ_BUFFER command
+           *    NOP cmd
+           *    DOWNLOAD_MICROCODE
+                Advanced Power Management feature set
+                SET_MAX security extension
+           *    Automatic Acoustic Management feature set
+           *    48-bit Address feature set
+           *    Device Configuration Overlay feature set
+           *    Mandatory FLUSH_CACHE
+           *    FLUSH_CACHE_EXT
+           *    SMART error logging
+           *    SMART self-test
+                Media Card Pass-Through
+           *    General Purpose Logging feature set
+           *    WRITE_{DMA|MULTIPLE}_FUA_EXT
+           *    URG for READ_STREAM[_DMA]_EXT
+           *    URG for WRITE_STREAM[_DMA]_EXT
+           *    SATA-I signaling speed (1.5Gb/s)
+           *    Native Command Queueing (NCQ)
+                Software settings preservation
+Security:
+        Master password revision code = 65534
+                supported
+        not     enabled
+        not     locked
+        not     frozen
+        not     expired: security count
+        not     supported: enhanced erase
+Checksum: correct
+
+
+1^ platform
+
+root@test:~# lspci -v
+00:00.0 Host bridge: Intel Corporation 82865G/PE/P DRAM Controller/Host-Hub
+Interface (rev 02)
+        Subsystem: ASUSTeK Computer Inc. P4P800 Mainboard
+        Flags: bus master, fast devsel, latency 0
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [e4] #09 [2106]
+        Capabilities: [a0] AGP version 3.0
+
+00:01.0 PCI bridge: Intel Corporation 82865G/PE/P PCI to AGP Controller (rev
+02) (prog-if 00 [Normal decode])
+        Flags: bus master, 66Mhz, fast devsel, latency 64
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+        Memory behind bridge: fc900000-fe9fffff
+        Prefetchable memory behind bridge: e7f00000-f7efffff
+
+00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2) (prog-if 00
+[Normal decode])
+        Flags: bus master, fast devsel, latency 0
+        Bus: primary=00, secondary=02, subordinate=02, sec-latency=64
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: fea00000-feafffff
+
+00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface
+Bridge (rev 02)
+        Flags: bus master, medium devsel, latency 0
+
+00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE
+Controller (rev 02) (prog-if 8a [Master SecP PriP])
+        Subsystem: ASUSTeK Computer Inc. P4P800 Mainboard
+        Flags: bus master, medium devsel, latency 0, IRQ 16
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at fc00 [size=16]
+        Memory at 30000000 (32-bit, non-prefetchable) [size=1K]
+
+00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA Controller (rev
+02) (prog-if 8f [Master SecP SecO PriP PriO])
+        Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+        Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 16
+        I/O ports at efe0 [size=8]
+        I/O ports at efac [size=4]
+        I/O ports at efa0 [size=8]
+        I/O ports at efa8 [size=4]
+        I/O ports at ef90 [size=16]
+
+00:1f.3 SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R) SMBus Controller
+(rev 02)
+        Subsystem: ASUSTeK Computer Inc. P4P800 Mainboard
+        Flags: medium devsel, IRQ 11
+        I/O ports at 0400 [size=32]
+
+00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER
+(ICH5/ICH5R) AC'97 Audio Controller (rev 02)
+        Subsystem: ASUSTeK Computer Inc.: Unknown device 812a
+        Flags: bus master, medium devsel, latency 0, IRQ 20
+        I/O ports at e800 [size=256]
+        I/O ports at ef00 [size=64]
+        Memory at febfb800 (32-bit, non-prefetchable) [size=512]
+        Memory at febfb400 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+
+01:00.0 VGA compatible controller: nVidia Corporation NV18 [GeForce4 MX 440
+AGP 8x] (rev c1) (prog-if 00 [VGA])
+        Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 19
+        Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+        Memory at e8000000 (32-bit, prefetchable) [size=128M]
+        Expansion ROM at fe9e0000 [disabled] [size=128K]
+        Capabilities: [60] Power Management version 2
+        Capabilities: [44] AGP version 3.0
+
+02:04.0 RAID bus controller: Promise Technology, Inc. PDC20378 (FastTrak
+378/SATA 378) (rev 02)
+        Subsystem: ASUSTeK Computer Inc. K8V Deluxe/PC-DL Deluxe motherboard
+        Flags: bus master, 66Mhz, medium devsel, latency 96, IRQ 18
+        I/O ports at df00 [size=64]
+        I/O ports at dfa0 [size=16]
+        I/O ports at dc00 [size=128]
+        Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
+        Memory at feac0000 (32-bit, non-prefetchable) [size=128K]
+        Capabilities: [60] Power Management version 2
+
+02:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Flags: bus master, medium devsel, latency 64, IRQ 18
+        I/O ports at d800 [size=256]
+        Memory at feafec00 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+
+02:0c.0 Communication controller: PLX Technology, Inc. PCI <-> IOBus Bridge
+(rev 01)
+        Subsystem: PLX Technology, Inc.: Unknown device 1584
+        Flags: medium devsel, IRQ 17
+        I/O ports at d480 [size=128]
+        I/O ports at df80 [size=32]
+        I/O ports at dfe0 [size=8]
+
+
+
+2^ platform
+
+root@test:/var/lspci -v
+00:00.0 Host bridge: Intel Corporation 915G/P/GV/GL/PL/910GL Processor to
+I/O Controller (rev 04)
+	Subsystem: Intel Corporation 915G/P/GV/GL/PL/910GL Processor to I/O
+Controller
+	Flags: bus master, fast devsel, latency 0
+	Capabilities: [e0] #09 [2109]
+
+00:01.0 PCI bridge: Intel Corporation 915G/P/GV/GL/PL/910GL PCI Express Root
+Port (rev 04) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=04, subordinate=04, sec-latency=0
+	I/O behind bridge: 0000e000-0000efff
+	Memory behind bridge: d7f00000-d7ffffff
+	Prefetchable memory behind bridge: d8000000-dfffffff
+	Capabilities: [88] #0d [0000]
+	Capabilities: [80] Power Management version 2
+	Capabilities: [90] Message Signalled Interrupts: 64bit- Queue=0/0
+Enable-
+	Capabilities: [a0] #10 [0141]
+
+00:1c.0 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family)
+PCI Express Port 1 (rev 03) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=03, subordinate=03, sec-latency=0
+	I/O behind bridge: 0000d000-0000dfff
+	Capabilities: [40] #10 [0141]
+	Capabilities: [80] Message Signalled Interrupts: 64bit- Queue=0/0
+Enable-
+	Capabilities: [90] #0d [0000]
+	Capabilities: [a0] Power Management version 2
+
+00:1c.1 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family)
+PCI Express Port 2 (rev 03) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=0
+	I/O behind bridge: 0000c000-0000cfff
+	Memory behind bridge: d7e00000-d7efffff
+	Capabilities: [40] #10 [0141]
+	Capabilities: [80] Message Signalled Interrupts: 64bit- Queue=0/0
+Enable-
+	Capabilities: [90] #0d [0000]
+	Capabilities: [a0] Power Management version 2
+
+00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6
+Family) USB UHCI #1 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: bus master, medium devsel, latency 0, IRQ 22
+	I/O ports at 9880 [size=32]
+
+00:1d.1 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6
+Family) USB UHCI #2 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: bus master, medium devsel, latency 0, IRQ 19
+	I/O ports at 9c00 [size=32]
+
+00:1d.2 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6
+Family) USB UHCI #3 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: bus master, medium devsel, latency 0, IRQ 18
+	I/O ports at a000 [size=32]
+
+00:1d.3 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6
+Family) USB UHCI #4 (rev 03) (prog-if 00 [UHCI])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: bus master, medium devsel, latency 0, IRQ 16
+	I/O ports at a080 [size=32]
+
+00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6
+Family) USB2 EHCI Controller (rev 03) (prog-if 20 [EHCI])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: bus master, medium devsel, latency 0, IRQ 22
+	Memory at d7dff800 (32-bit, non-prefetchable) [size=1K]
+	Capabilities: [50] Power Management version 2
+	Capabilities: [58] #0a [20a0]
+
+00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev d3) (prog-if 01
+[Subtractive decode])
+	Flags: bus master, fast devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000b000-0000bfff
+	Capabilities: [50] #0d [0000]
+
+00:1f.0 ISA bridge: Intel Corporation 82801FB/FR (ICH6/ICH6R) LPC Interface
+Bridge (rev 03)
+	Flags: bus master, medium devsel, latency 0
+
+00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family)
+IDE Controller (rev 03) (prog-if 8a [Master SecP PriP])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: bus master, medium devsel, latency 0, IRQ 18
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at ffa0 [size=16]
+
+00:1f.2 IDE interface: Intel Corporation 82801FR/FRW (ICH6R/ICH6RW) SATA
+Controller (rev 03) (prog-if 8f [Master SecP SecO PriP PriO])
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 2601
+	Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 19
+	I/O ports at ac00 [size=8]
+	I/O ports at a880 [size=4]
+	I/O ports at a800 [size=8]
+	I/O ports at a480 [size=4]
+	I/O ports at a400 [size=16]
+	Memory at d7dffc00 (32-bit, non-prefetchable) [size=1K]
+	Capabilities: [70] Power Management version 2
+
+00:1f.3 SMBus: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus
+Controller (rev 03)
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 80a6
+	Flags: medium devsel
+	I/O ports at 0400 [size=32]
+
+01:0a.0 Communication controller: PLX Technology, Inc. PCI <-> IOBus Bridge
+(rev 01)
+	Subsystem: PLX Technology, Inc.: Unknown device 1588
+	Flags: medium devsel, IRQ 21
+	I/O ports at b880 [size=128]
+	I/O ports at b800 [size=64]
+	I/O ports at b480 [size=8]
+
+01:0b.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
+	Subsystem: Ensoniq Creative Sound Blaster AudioPCI128
+	Flags: bus master, slow devsel, latency 64, IRQ 20
+	I/O ports at bc00 [size=64]
+	Capabilities: [dc] Power Management version 1
+
+02:00.0 Ethernet controller: Marvell Technology Group Ltd. 88E8053 Gigabit
+Ethernet Controller (rev 15)
+	Subsystem: ASUSTeK Computer Inc. Marvell 88E8053 Gigabit Ethernet
+Controller (Asus)
+	Flags: bus master, fast devsel, latency 0, IRQ 17
+	Memory at d7efc000 (64-bit, non-prefetchable) [size=16K]
+	I/O ports at c800 [size=256]
+	Expansion ROM at d7ec0000 [disabled] [size=128K]
+	Capabilities: [48] Power Management version 2
+	Capabilities: [50] Vital Product Data
+	Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/1
+Enable-
+	Capabilities: [e0] #10 [0011]
+
+04:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon
+X300 (PCIE)] (prog-if 00 [VGA])
+	Subsystem: ASUSTeK Computer Inc. Extreme AX300SE-X
+	Flags: bus master, fast devsel, latency 0
+	Memory at d8000000 (32-bit, prefetchable) [size=128M]
+	I/O ports at e000 [size=256]
+	Memory at d7fe0000 (32-bit, non-prefetchable) [size=64K]
+	Expansion ROM at d7fc0000 [disabled] [size=128K]
+	Capabilities: [50] Power Management version 2
+	Capabilities: [58] #10 [0001]
+	Capabilities: [80] Message Signalled Interrupts: 64bit+ Queue=0/0
+Enable-
+
+04:00.1 Display controller: ATI Technologies Inc RV370 [Radeon X300SE]
+	Subsystem: ASUSTeK Computer Inc.: Unknown device 002b
+	Flags: bus master, fast devsel, latency 0
+	Memory at d7ff0000 (32-bit, non-prefetchable) [size=64K]
+	Capabilities: [50] Power Management version 2
+	Capabilities: [58] #10 [0001]
+
+
+
 

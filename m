@@ -1,69 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWCPWvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWCPWwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWCPWvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 17:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWCPWvd
+	id S964892AbWCPWwM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 17:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbWCPWwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 17:51:33 -0500
-Received: from [82.153.166.94] ([82.153.166.94]:7398 "EHLO mail.inprovide.com")
-	by vger.kernel.org with ESMTP id S1750897AbWCPWvc convert rfc822-to-8bit
+	Thu, 16 Mar 2006 17:52:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:17989 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964892AbWCPWwK convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 17:51:32 -0500
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: can I bring Linux down by running "renice -20 cpu_intensive_process"?
-References: <441180DD.3020206@wpkg.org>
-	<Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
-	<yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
-	<1142135077.25358.47.camel@mindpipe>
-	<yw1xk6azdgae.fsf@agrajag.inprovide.com> <4419D575.4080203@tmr.com>
-From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Thu, 16 Mar 2006 22:51:16 +0000
-In-Reply-To: <4419D575.4080203@tmr.com> (Bill Davidsen's message of "Thu, 16 Mar 2006 16:15:33 -0500")
-Message-ID: <yw1xbqw69f6j.fsf@agrajag.inprovide.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
+	Thu, 16 Mar 2006 17:52:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LW1USlD5txLnYRJcEFGOXl3HUiMtxW12jCczV8Nt2DB868Cbo2Y8oy1FQKhbY4HX7bZSgBkOCZop10ie+qTA+GARRdxm6uKuXnDf1B3ZfOuGfH6FLvFacNrSv0snkv7YqHrHhA8tTGQtB10lSql2Hl7aGHtBTkz6r3Jr/A8ar0g=
+Message-ID: <e7aeb7c60603161452t8630996kcab443bdaac4454e@mail.gmail.com>
+Date: Fri, 17 Mar 2006 00:52:08 +0200
+From: "Yitzchak Eidus" <ieidus@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: puting task to TASK_INTERRUPTIBLE before adding it to an wait queue
+In-Reply-To: <e7aeb7c60603161431m6d873520r2b6754e115e26f80@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <e7aeb7c60603161431m6d873520r2b6754e115e26f80@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> writes:
+On 3/17/06, Yitzchak Eidus <ieidus@gmail.com> wrote:
+> the function worker_thread in kernel 2.6.15.6  first put the task to
+> TASK_INTERRUPTIBLE and only then add itself to an wait queue:
+>         set_current_state(TASK_INTERRUPTIBLE);
+>         while (!kthread_should_stop()) {
+>                 add_wait_queue(&cwq->more_work, &wait);
+> ....
+> my question is, what will happen if the timeslice for the
+> worker_thread will finished just before it add itself to the wait
+> queue?
+> wont it call schedule() that will find the task is in
+> TASK_INTERRUPTIBLE state and remove it from the runqueue? ( that what
+> schedule() should do no? )
+> and then how will the kernel be able to call to worker_thread ever if
+> it isnt in any list???
+> thanks for the comments!
+>
 
-> Måns Rullgård wrote:
->> Lee Revell <rlrevell@joe-job.com> writes:
->>
->>> On Fri, 2006-03-10 at 22:01 +0000, Måns Rullgård wrote:
->>>> Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
->>>>
->>>>>> Subject: can I bring Linux down by running "renice -20
->>>>>> cpu_intensive_process"?
->>>>>>
->>>>> Depends on what the cpu_intensive_process does. If it tries to
->>>>> allocate lots of memory, maybe. If it's _just_ CPU (as in `perl
->>>>> -e '1 while 1'`), you get a chance that you can input some
->>>>> commands on a terminal to kill it.  SCHED_FIFO'ing or
->>>>> SCHED_RR'ing such a process is sudden death of course.
->>>> Sysrq+n changes all realtime tasks to normal priority.
->>>>
->>> A nice -20 SCHED_OTHER task is not realtime, only SCHED_FIFO and
->>> SCHED_RR.
->> Maybe extending sysrq+n to lower the priority of -20 tasks would be a
->> good idea.
->>
-> If it runs before the keyboard thread it doesn't matter...
+more over the whole loop look like that:
+set_current_state(TASK_INTERRUPTIBLE);
+	while (!kthread_should_stop()) {
+		add_wait_queue(&cwq->more_work, &wait);
+		if (list_empty(&cwq->worklist))
+			schedule();
+		else
+			__set_current_state(TASK_RUNNING);
+		remove_wait_queue(&cwq->more_work, &wait);
 
-Of course not, but that's not generally the case.
+		if (!list_empty(&cwq->worklist))
+			run_workqueue(cwq);
+		set_current_state(TASK_INTERRUPTIBLE);
+	}
 
-> But why should this hang anything, when there should be enough i/o
-> to get out of the user process. There's a good fix for this, don't
-> give this guy root any more ;-)
+what was the logic of putting the
+set_current_state(TASK_INTERRUPTIBLE); before the loop and in the last
+statement of the loop?
 
-Ever heard of bugs?  Anyone developing a program can make a mistake.
-If the program runs with realtime scheduling a bug that makes it enter
-an infinite loop (or do something else that hogs the CPU) can be
-difficult to find since it rather efficiently locks you out.
+why not use something like this:
+while (!kthread_should_stop()) {
+		add_wait_queue(&cwq->more_work, &wait);
+		set_current_state(TASK_INTERRUPTIBLE);
+		if (list_empty(&cwq->worklist))
+			schedule();
+		else
+			__set_current_state(TASK_RUNNING);
+		remove_wait_queue(&cwq->more_work, &wait);
 
--- 
-Måns Rullgård
-mru@inprovide.com
+		if (!list_empty(&cwq->worklist))
+			run_workqueue(cwq);
+	}
+that do the same thing without putting the task before the loop and in
+the loop...?
+( unless i am missing something? )

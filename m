@@ -1,116 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWCPA4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWCPA6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751333AbWCPA4E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 19:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751849AbWCPA4D
+	id S932637AbWCPA6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 19:58:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWCPA6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 19:56:03 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:16362 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751333AbWCPA4C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 19:56:02 -0500
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
-	driver
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060309163740.0b589ea4.akpm@osdl.org>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
-	 <ada4q27fban.fsf@cisco.com>
-	 <1141948516.10693.55.camel@serpentine.pathscale.com>
-	 <ada1wxbdv7a.fsf@cisco.com>
-	 <1141949262.10693.69.camel@serpentine.pathscale.com>
-	 <20060309163740.0b589ea4.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 15 Mar 2006 16:56:19 -0800
-Message-Id: <1142470579.6994.78.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-2.1) 
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Mar 2006 19:58:48 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:60889 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S932637AbWCPA6r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 19:58:47 -0500
+Message-ID: <4418B843.3050800@namesys.com>
+Date: Wed, 15 Mar 2006 16:58:43 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Andreas_Sch=E4fer?= <gentryx@gmx.de>
+CC: reiserfs-list@namesys.com, Nate Diller <ndiller@namesys.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: 4k at a time only works well for an OS that does less per iteration
+ than Linux does
+References: <3aa654a40603140241s5d8a7430j6bf29a5ef7dd1bf5@mail.gmail.com> <1142336718.7415.55.camel@tribesman.namesys.com> <194f62550603140732j6ef10757j@mail.gmail.com> <4417BEC4.6060506@namesys.com> <20060315085745.GA21609@wintermute> <44185CEC.3010103@namesys.com> <20060315192730.GA11927@wintermute>
+In-Reply-To: <20060315192730.GA11927@wintermute>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-09 at 16:37 -0800, Andrew Morton wrote:
+To sum up for akpm what was said previously in this thread:
 
-> If your driver allocated these pages and never added them to the LRU then
-> the VM won't touch them.
+Linux needs to take the lesson learned from bios about how going up and
+down through various software layers once per 4k is too expensive, and
+generalize it to where in general, in all of the layers, we are
+operating many pages at a time.  It would be nice for code simplicity if
+the same struct, with perhaps some optional attachments to it, was used
+the whole trip (rather than pagevecs in once place and bios in another). 
 
-We have a rather complex set of user memory mappings.  Let me describe
-what's going on.
+For kernel newbies on lkml let me summarize it as for every trip made
+through these layers, a whole lot more than 4k of code gets traversed,
+all of it seeming to have some legitimate purpose;-), so only handling
+4k per trip is more expensive than you might guess.
 
-We use get_user_pages to pin user pages, but I'm 85% sure that our
-acquisition and release of user pages is just fine (mostly because the
-protocol for get_user_pages/free_page is simple).  It's all the other
-stuff I'm worried about.  So here goes ...
+Now, for the question that was raised:
 
-There are five (yes, really) different kinds of thing we mmap into
-userspace.
+Andreas Schäfer wrote:
 
-The first two are windows onto the chip's MMIO space; we create mappings
-for userspace in our mmap code using io_remap_pfn_range.
+>On 10:29 Wed 15 Mar     , Hans Reiser wrote:
+>  
+>
+>>Tell the mosix guys we would be willing to cooperate with them regarding
+>>their problem.
+>>    
+>>
+>
+>If it was that easy... The problem for openMosix is that most devices
+>fetch data in 4k blocks via copy_from_user(). For migrated processes,
+>openMosix intercepts these calls and forwards them to the node which
+>currently hosts the process. This forwarding yields a high latency
+>penalty.
+>
+>Obviously there are two ways to get rid of this problem: 
+>
+>* modify _every_ Linux device driver to use a
+>  _a_lot_more_than_4k_at_a_time_ approach or
+>  
+>
+I suspect that if the code benefitted more than mosix in its
+implementation, and I think it would, then akpm might not be opposed to
+the one above provided someone wrote it.  There is a rumor he already
+understands this is a problem.  Maybe he can comment on the rumor.;-)
 
-- General user-oriented chip registers.
+>* implement a second "read ahead" buffer which fetches large blocks via
+>  the network in the background and answers calls to copy_from_user()
+>  directly from the local buffer
+>
+>In my _very_ humble opinion the first approach would be much nicer,
+>but after you guys had so many trouble with just your filesystem, I
+>don't see that one coming, not at all.
+>
+>So I think the long term strategy for oM will the second, double
+>buffering approach. At least I couldn't think of any other realistic,
+>feasible way.
+>
+>BTW: how are you guys planning to solve this 4k issue? Will you revert
+>to small blocks 
+>
+not sure what that means.  You mean surrender?  Not yet.;-)  First we
+fix our code so that reiser4 really does what I am arguing it needs to
+do, then we will argue it is the right approach.
 
-- Chip PIO buffers.
+>or will you "pretend" to perform 4k transfers and
+>assemble those in the background to, again, process large chunks at
+>once? 
+>
+Oh is that ugly....  no.  Dynamically sized pagevecs (I call them
+pagezams) are better.
 
-We don't do any funnies with get_page/SetPageReserved (or the new
-vm_insert_page) on these.  However, we turn on the VM_* flag christmas
-tree, in a frenzied effort to make the kernel pay no attention:
-VM_DONTCOPY | VM_DONTEXPAND | VM_IO | VM_SHM | VM_LOCKED.
+We will process things in large chunks all the way down to the io layer,
+and then wait for Nate or others to fix the io layer someday.
 
-I'm pretty sure this is wrong, but I have no idea what right would look
-like.
-
-The next three kinds or memory are allocated with dma_alloc_coherent
-(first two) or pci_alloc_consistent (last).  We have a nopage handler
-that knows how to deal with them.  We set the low two bits of
-vma->vm_private_data to tell the nopage handler what kind of memory it
-is dealing with.
-
-- IPATH_VM_RCVEGRBUFS: Memory that the driver allocates for the chip
-  to DMA small ("eager") messages into.  Read-only for userspace.  We
-  mark these pages with SetPageReserved.
-
-- IPATH_VM_RCVHDRQ: A table of queue headers, again DMAed into by the
-  chip.  Read and written by userspace.  We mark these pages with
-  SetPageReserved.
-
-- IPATH_VM_PIOAVAILREGS: A table of buffer availability
-  registers.  DMAed into by the chip.  Read-only for userspace.  Not
-  marked with SetPageReserved.
-
-Once again, we sprinkle heaps of VM_* flags all over the freshly baked
-mapping: VM_DONTEXPAND | VM_DONTCOPY | VM_RESERVED | VM_IO | VM_SHM
-
-Some of these mappings are exactly one page in size, some are more.
-
-The nopage handler looks very normal, except it does a get_page on
-pages marked with IPATH_VM_PIOAVAILREGS, but not on others.  Presumably
-this is because they've had SetPageReserved set on them.
-
-I won't claim that any of this was ever even slightly correct, but we at
-least got away with it from mid-2.5 kernels until 2.6.15.  Now we're
-apparently being so ill-behaved that the entire box locks up when we run
-"hello, world".
-
-These interfaces have changed a lot recently, and surely there are many
-people who know better than I what we ought to be doing.  I'm personally
-stumped.  The current code makes no real sense to me, but I have no
-outline in my head of what we should be doing instead.
-
-Things about which I am confused:
-
-I don't know what to to protect chip memory that I'm mapping into
-userspace.
-
-I think I shouldn't be calling SetPageReserved at all, but I don't know
-what I should be doing instead.  Naively using get_page instead just
-gets me a big crash.
-
-I'll be happy to show off specific hunks of code if you think they'll
-help you to understand what's going on, so that you can suggest a better
-way.
-
-	<b
+>If yes, wouldn't this seriously increase CPU usage due to
+>(most likely) unnecessary data duplication?
+>
+>Regards
+>-Andreas
+>
+>
+>  
+>
 

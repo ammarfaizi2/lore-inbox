@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWCPVEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWCPVNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751416AbWCPVEe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 16:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCPVEe
+	id S1750764AbWCPVNu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 16:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWCPVNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 16:04:34 -0500
-Received: from thunk.org ([69.25.196.29]:25730 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751416AbWCPVEd (ORCPT
+	Thu, 16 Mar 2006 16:13:50 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:45018 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750764AbWCPVNu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 16:04:33 -0500
-Date: Thu, 16 Mar 2006 16:04:24 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, jack@suse.cz
-Subject: Re: ext3_ordered_writepage() questions
-Message-ID: <20060316210424.GD29275@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-	lkml <linux-kernel@vger.kernel.org>,
-	linux-fsdevel <linux-fsdevel@vger.kernel.org>, jack@suse.cz
-References: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com> <20060308124726.GC4128@lst.de> <4410551D.5000303@us.ibm.com> <20060309153550.379516e1.akpm@osdl.org> <4410CA25.2090400@us.ibm.com> <20060316180904.GA29275@thunk.org> <1142533360.21442.153.camel@dyn9047017100.beaverton.ibm.com>
+	Thu, 16 Mar 2006 16:13:50 -0500
+Message-ID: <4419D575.4080203@tmr.com>
+Date: Thu, 16 Mar 2006 16:15:33 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.1) Gecko/20060130 SeaMonkey/1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1142533360.21442.153.camel@dyn9047017100.beaverton.ibm.com>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: can I bring Linux down by running "renice -20 cpu_intensive_process"?
+References: <441180DD.3020206@wpkg.org>	<Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>	<yw1xbqwe2c2x.fsf@agrajag.inprovide.com>	<1142135077.25358.47.camel@mindpipe> <yw1xk6azdgae.fsf@agrajag.inprovide.com>
+In-Reply-To: <yw1xk6azdgae.fsf@agrajag.inprovide.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 10:22:40AM -0800, Badari Pulavarty wrote:
-> > However, if what we are doing is overwriting our own data with more an
-> > updated, more recent version of the data block, do we guarantee that
-> > any ordering semantics apply?  For example, what if we write a data
-> > block, and then follow it up with some kind of metadata update (say we
-> > touch atime, or add an extended attribute).  Do we guarantee that if
-> > the metadata update is committed, that the data block will have made
-> > it to disk as well?  
+Måns Rullgård wrote:
+> Lee Revell <rlrevell@joe-job.com> writes:
 > 
-> I don't see how we do this today. Yes. Metadata updates are jounalled,
-> but I don't see how current adding buffers through journal_dirty_data
-> (bh) call can guarantee that these buffers get added to metadata-update
-> transaction ?
+>> On Fri, 2006-03-10 at 22:01 +0000, Måns Rullgård wrote:
+>>> Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
+>>>
+>>>>> Subject: can I bring Linux down by running "renice -20
+>>>>> cpu_intensive_process"?
+>>>>>
+>>>> Depends on what the cpu_intensive_process does. If it tries to
+>>>> allocate lots of memory, maybe. If it's _just_ CPU (as in `perl
+>>>> -e '1 while 1'`), you get a chance that you can input some
+>>>> commands on a terminal to kill it.  SCHED_FIFO'ing or
+>>>> SCHED_RR'ing such a process is sudden death of course.
+>>> Sysrq+n changes all realtime tasks to normal priority.
+>>>
+>> A nice -20 SCHED_OTHER task is not realtime, only SCHED_FIFO and
+>> SCHED_RR.
+> 
+> Maybe extending sysrq+n to lower the priority of -20 tasks would be a
+> good idea.
+> 
+If it runs before the keyboard thread it doesn't matter... But why 
+should this hang anything, when there should be enough i/o to get out of 
+the user process. There's a good fix for this, don't give this guy root 
+any more ;-)
 
-Even though there aren't any updates to any metadata blocks that take
-place between the journal_start() and journal_stop() calls, if
-journal_dirty_data() is called (for example in ordered_writepage),
-those buffers will be associated with the currently open transaction,
-so they will be guaranteed to be written before the transaction is
-allowed to commit.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
-Remember, journal_start and journal_stop do not delineate a full
-ext3/jbd transaction, but rather an operation, where a large number of
-operations are bundled together to form a transaction.  When you call
-journal_start, and request a certain number of credits (number of
-buffers that you maximally intend to dirty), that opens up an
-operation.  If the operation turns out not to dirty any metadata
-blocks at the time of journal_stop(), all of the credits that were
-reserved by jouranl_start() are returned to the currently open
-transaction.  However, any data blocks which are marked via
-journal_dirty_data() are still going to be associated with the
-currently open transaction, and they will still be forced out before
-the transaction is allowed to commit.
-
-Does that make sense?
-
-						- Ted

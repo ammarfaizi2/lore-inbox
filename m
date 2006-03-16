@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752165AbWCPEqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWCPExz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752165AbWCPEqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 23:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752185AbWCPEqT
+	id S932366AbWCPExz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 23:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWCPExz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 23:46:19 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:15957 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1752165AbWCPEqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 23:46:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=qwLt/UsaxydyI+mnHNYjBD8gN2Lrg8mAIrj0g9XyB7XOTji1mOfE6GRzO10Duj2mIyOg9dUodfZihOtO+5BXRpXiTK/l19Sm7g+sn9R82GJhFCOrI9ZzKSGpf5IskyQyNYnOogxGbPnxjK/lG9IjuAZ9Y4DSp8Cw0bG210akP3w=  ;
-Message-ID: <4418E4D8.1020603@yahoo.com.au>
-Date: Thu, 16 Mar 2006 15:08:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 15 Mar 2006 23:53:55 -0500
+Received: from test-iport-1.cisco.com ([171.71.176.117]:54613 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932366AbWCPExy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 23:53:54 -0500
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core driver
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+	<ada3bhjuph2.fsf@cisco.com>
+	<1142475069.6994.114.camel@localhost.localdomain>
+	<adaslpjt8rg.fsf@cisco.com>
+	<1142477579.6994.124.camel@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 15 Mar 2006 20:53:50 -0800
+In-Reply-To: <1142477579.6994.124.camel@localhost.localdomain> (Bryan O'Sullivan's message of "Wed, 15 Mar 2006 18:52:59 -0800")
+Message-ID: <adad5gnt2g1.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: kamezawa.hiroyu@jp.fujitsu.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] for_each_possible_cpu [1/19] defines for_each_possible_cpu
-References: <20060316122110.c00f4181.kamezawa.hiroyu@jp.fujitsu.com>	<4418DEEA.2000008@yahoo.com.au> <20060315195537.0a039f64.akpm@osdl.org>
-In-Reply-To: <20060315195537.0a039f64.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Mar 2006 04:53:52.0660 (UTC) FILETIME=[9F5D2540:01C648B5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+ > Bad page state at free_hot_cold_page (in process 'mpi_hello', page ffff810002098af8)
+ > flags:0x0100000000000404 mapping:0000000000000000 mapcount:0 count:0 (Not tainted)
 
->>for_each_cpu() effectively is for_each_possible_cpu() as far as
->>generic code is concerned. In other words, nobody would ever expect
->>for_each_cpu to return an _impossible_ CPU, thus you are just
->>adding a redundant element to the name.
-> 
-> 
-> We've had various screwups and confusions with these things.  I think the
-> new naming is good - it makes developers _think_ before they use it. 
-> Instead of "I want to touch all the CPUs, gee that looks right" they'll
-> have to stop and decide whether they want to access the online, possible or
-> present ones and then they'll (hopefully) have a little think about what
-> happens when CPUs migrate between those states.
-> 
-> 
+You're setting PG_reserved somewhere.  That's deprecated now.  Just do
+get_page() unconditionally and be happy.  I don't think there's any
+way that your pages could be swapped out, even though you don't do
+SetPageReserved().
 
-I think screwups probably came from unclear documentation (which it was
-until recently, and some implementations were plain wrong IIRC), and the
-recentish introduction of cpu hotplug.
-
-I don't see the point in this though. If people don't want to even think
-about these issues, then this change isn't going to make them.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ - R.

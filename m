@@ -1,113 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932637AbWCPA6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbWCPBF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932637AbWCPA6s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 19:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932638AbWCPA6s
+	id S932640AbWCPBF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 20:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbWCPBFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 19:58:48 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:60889 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S932637AbWCPA6r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 19:58:47 -0500
-Message-ID: <4418B843.3050800@namesys.com>
-Date: Wed, 15 Mar 2006 16:58:43 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Wed, 15 Mar 2006 20:05:55 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:44212 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932640AbWCPBFz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 20:05:55 -0500
+Date: Thu, 16 Mar 2006 02:05:37 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 5/8] hrtimer remove state field
+In-Reply-To: <1142180796.19916.497.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0603152055380.16802@scrub.home>
+References: <20060312080316.826824000@localhost.localdomain> 
+ <20060312080332.274315000@localhost.localdomain>  <Pine.LNX.4.64.0603121302590.16802@scrub.home>
+  <1142169010.19916.397.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0603121422180.16802@scrub.home>  <1142170505.19916.402.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121444530.16802@scrub.home>  <1142172917.19916.421.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121523320.16802@scrub.home>  <1142175286.19916.459.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121608440.17704@scrub.home>  <1142178108.19916.475.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0603121650230.16802@scrub.home> <1142180796.19916.497.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Andreas_Sch=E4fer?= <gentryx@gmx.de>
-CC: reiserfs-list@namesys.com, Nate Diller <ndiller@namesys.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: 4k at a time only works well for an OS that does less per iteration
- than Linux does
-References: <3aa654a40603140241s5d8a7430j6bf29a5ef7dd1bf5@mail.gmail.com> <1142336718.7415.55.camel@tribesman.namesys.com> <194f62550603140732j6ef10757j@mail.gmail.com> <4417BEC4.6060506@namesys.com> <20060315085745.GA21609@wintermute> <44185CEC.3010103@namesys.com> <20060315192730.GA11927@wintermute>
-In-Reply-To: <20060315192730.GA11927@wintermute>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To sum up for akpm what was said previously in this thread:
+Hi,
 
-Linux needs to take the lesson learned from bios about how going up and
-down through various software layers once per 4k is too expensive, and
-generalize it to where in general, in all of the layers, we are
-operating many pages at a time.  It would be nice for code simplicity if
-the same struct, with perhaps some optional attachments to it, was used
-the whole trip (rather than pagevecs in once place and bios in another). 
+On Sun, 12 Mar 2006, Thomas Gleixner wrote:
 
-For kernel newbies on lkml let me summarize it as for every trip made
-through these layers, a whole lot more than 4k of code gets traversed,
-all of it seeming to have some legitimate purpose;-), so only handling
-4k per trip is more expensive than you might guess.
+> But the problem I described now happened with the current patch queue -
+> without the hrtimer_active() check. I have no direct access to the
+> machine which lets this surface and I just tried to reconstruct the
+> scenario from the sparse information which was provided by the customer.
+> All I can tell, that it is related to something similar and a requeue
+> happens where none should happen.
 
-Now, for the question that was raised:
+I have an idea what might have happened. You don't advance the pending 
+state, if the signal isn't queued, so that the pending state is screwed up 
+afterwards. Although I don't see how it could crash the kernel (it has 
+only the potential to mess up the timer queue via hrtimer_forward() a 
+bit), but I don't know what other patches were applied.
 
-Andreas Schäfer wrote:
+> I make the check a BUG_ON(!hrtimer_active(timer) so it might show up in
+> -mm again. Ok ?
 
->On 10:29 Wed 15 Mar     , Hans Reiser wrote:
->  
->
->>Tell the mosix guys we would be willing to cooperate with them regarding
->>their problem.
->>    
->>
->
->If it was that easy... The problem for openMosix is that most devices
->fetch data in 4k blocks via copy_from_user(). For migrated processes,
->openMosix intercepts these calls and forwards them to the node which
->currently hosts the process. This forwarding yields a high latency
->penalty.
->
->Obviously there are two ways to get rid of this problem: 
->
->* modify _every_ Linux device driver to use a
->  _a_lot_more_than_4k_at_a_time_ approach or
->  
->
-I suspect that if the code benefitted more than mosix in its
-implementation, and I think it would, then akpm might not be opposed to
-the one above provided someone wrote it.  There is a rumor he already
-understands this is a problem.  Maybe he can comment on the rumor.;-)
+That's fine.
+The point is that it's currently not needed to allow the user this 
+behaviour. It's a bit unfortunate that such API details were not discussed 
+before it got merged - users have a tendency to (ab)use a system in the 
+least expected way (especially if they somehow gotten the idea it's much 
+better than the old stuff in every way).
+For example no current user restarts an active timer, which could be used 
+to simplify the locking. If we tightened a bit what a user is allowed to 
+do, we could gain flexibility on the other side, e.g. allow drivers to 
+create timer sources or how to integrate cpu timer.
 
->* implement a second "read ahead" buffer which fetches large blocks via
->  the network in the background and answers calls to copy_from_user()
->  directly from the local buffer
->
->In my _very_ humble opinion the first approach would be much nicer,
->but after you guys had so many trouble with just your filesystem, I
->don't see that one coming, not at all.
->
->So I think the long term strategy for oM will the second, double
->buffering approach. At least I couldn't think of any other realistic,
->feasible way.
->
->BTW: how are you guys planning to solve this 4k issue? Will you revert
->to small blocks 
->
-not sure what that means.  You mean surrender?  Not yet.;-)  First we
-fix our code so that reiser4 really does what I am arguing it needs to
-do, then we will argue it is the right approach.
+bye, Roman
 
->or will you "pretend" to perform 4k transfers and
->assemble those in the background to, again, process large chunks at
->once? 
->
-Oh is that ugly....  no.  Dynamically sized pagevecs (I call them
-pagezams) are better.
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
 
-We will process things in large chunks all the way down to the io layer,
-and then wait for Nate or others to fix the io layer someday.
-
->If yes, wouldn't this seriously increase CPU usage due to
->(most likely) unnecessary data duplication?
->
->Regards
->-Andreas
->
->
->  
->
-
+Index: linux-2.6-git/kernel/posix-timers.c
+===================================================================
+--- linux-2.6-git.orig/kernel/posix-timers.c	2006-03-14 19:48:21.000000000 +0100
++++ linux-2.6-git/kernel/posix-timers.c	2006-03-15 20:54:38.000000000 +0100
+@@ -353,6 +353,7 @@
+ 				hrtimer_forward(&timr->it.real.timer,
+ 						timr->it.real.interval);
+ 			ret = HRTIMER_RESTART;
++			++timr->it_requeue_pending;
+ 		}
+ 	}
+ 

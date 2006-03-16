@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWCPXxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWCPXzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWCPXxu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 18:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWCPXxu
+	id S964908AbWCPXzI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 18:55:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWCPXzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 18:53:50 -0500
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:48025 "EHLO
-	taverner.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S1751253AbWCPXxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 18:53:50 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-Date: Thu, 16 Mar 2006 23:53:36 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <dvctq0$c0o$1@taverner.CS.Berkeley.EDU>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net> <20060316160129.GB6407@infradead.org> <20060316082951.58592fdc.rdunlap@xenotime.net>
-Reply-To: daw-usenet@cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.CS.Berkeley.EDU 1142553216 12312 128.32.168.222 (16 Mar 2006 23:53:36 GMT)
-X-Complaints-To: news@taverner.CS.Berkeley.EDU
-NNTP-Posting-Date: Thu, 16 Mar 2006 23:53:36 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Thu, 16 Mar 2006 18:55:08 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:50704 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964908AbWCPXzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 18:55:06 -0500
+Date: Fri, 17 Mar 2006 00:55:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-scsi@vger.kernel.org,
+       promise_linux@promise.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-rc6] Promise SuperTrak driver
+Message-ID: <20060316235504.GH3914@stusta.de>
+References: <20060313224112.GA19513@havoc.gtf.org> <20060313154236.32293cf9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060313154236.32293cf9.akpm@osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
->nah, the only place that using symbolic names for true and false
->is a problem is when someone #defines or enums them bassackwards.
+On Mon, Mar 13, 2006 at 03:42:36PM -0800, Andrew Morton wrote:
+> Jeff Garzik <jeff@garzik.org> wrote:
+>...
+> > +config SCSI_SHASTA
+> > +	tristate "Promise SuperTrek EX8350/8300/16350/16300 support"
+> > +	depends on PCI && SCSI
+> 
+> Might it also depend upon BLK_DEV_SD?
+>...
 
-Here's another danger associated with #define TRUE:
-    int x = ...;
-    if (x == TRUE)
-        do_something();
-A surprise happens if x is initialized to something other than 0 or 1.
-Looks like there maybe as many as a hundred instances of the above
-pattern in the kernel.  Most of them seem safe, but I don't know whether
-they all are, and there are too many for me to check them all.
+None of the other RAID adapters in drivers/scsi/Kconfig does.
 
-For instance, take a look at net/core/ethtool.c:ethtool_set_rx_csum()
-and drivers/net/ixgb/ixgb_ethtool.c:ixgb_set_rx_csum() and
-drivers/net/ixgb/ixgb_main.c:ixgb_configure_rx() for how it handles
-adapter->rx_csum to see one example that strikes me as dubious.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

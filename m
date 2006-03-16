@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752428AbWCPRL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752433AbWCPRNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752428AbWCPRL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 12:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752433AbWCPRL1
+	id S1752433AbWCPRNd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 12:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752434AbWCPRNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 12:11:27 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:5356 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1752428AbWCPRL0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 12:11:26 -0500
-Date: Thu, 16 Mar 2006 17:11:15 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: ray-gmail@madrabbit.org
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Randy. Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
+	Thu, 16 Mar 2006 12:13:32 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:17061
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1752433AbWCPRNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 12:13:32 -0500
+Date: Thu, 16 Mar 2006 09:13:27 -0800
+From: Greg KH <greg@kroah.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
 Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-Message-ID: <20060316171115.GV27946@ftp.linux.org.uk>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net> <20060316160129.GB6407@infradead.org> <20060316082951.58592fdc.rdunlap@xenotime.net> <20060316163001.GA7222@infradead.org> <20060316083654.d802f3f3.rdunlap@xenotime.net> <20060316163621.GA7519@infradead.org> <Pine.LNX.4.64.0603161640230.31173@hermes-2.csi.cam.ac.uk> <20060316165035.GU27946@ftp.linux.org.uk> <2c0942db0603160905v26011d8dx1e64967b2eb4deac@mail.gmail.com>
+Message-ID: <20060316171327.GA5620@kroah.com>
+References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net> <20060316170735.GA27311@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2c0942db0603160905v26011d8dx1e64967b2eb4deac@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060316170735.GA27311@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 09:05:05AM -0800, Ray Lee wrote:
-> > And that's supposed to be an argument in favour of that crap?
+On Thu, Mar 16, 2006 at 09:07:35AM -0800, Greg KH wrote:
+> On Thu, Mar 16, 2006 at 02:01:28AM -0800, akpm@osdl.org wrote:
+> > 
+> > From: Andrew Morton <akpm@osdl.org>
+> > 
+> > We have no less than 65 implementations of TRUE and FALSE in the tree, so the
+> > inevitable happened:
+> > 
+> > In file included from drivers/pci/hotplug/ibmphp_core.c:40:
+> > drivers/pci/hotplug/ibmphp.h:409:1: warning: "FALSE" redefined
+> > In file included from include/acpi/acpi.h:55,
+> >                  from drivers/pci/hotplug/pci_hotplug.h:187,
+> >                  from drivers/pci/hotplug/ibmphp.h:33,
+> >                  from drivers/pci/hotplug/ibmphp_core.c:40:
+> > include/acpi/actypes.h:336:1: warning: this is the location of the previous definition
 > 
-> So an honest, if stupid, question: How is the TRUE/FALSE stuff any
-> different than the case of using a NULL when assigning a zero to a
-> pointer is explicitly required to have the same effect?  They both
-> seem to further the goal of better self-documenting code.
+> I have a patch in my queue that fixes this, in the ibmphp driver.
 
-NULL is idiomatic in C.  TRUE and FALSE are definitely not.  Again,
-if you want Bournegol, you know where to find it.  Grab the v7 sh
-and enjoy "self-documenting" code.
+Pushed out into my tree now, if you want to update your copy.
+
+thanks,
+
+greg k-h

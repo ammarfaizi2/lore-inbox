@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWCPTGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWCPTKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964848AbWCPTGs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:06:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWCPTGs
+	id S964854AbWCPTKh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbWCPTKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:06:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:16140 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964848AbWCPTGr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:06:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=lRpymyD9rseuEzxHsuu8ZHHUlIt6PqGkDAhhnyZSvU59GzPxHjxOBWvvgvdsjZCeY5STKgmWtncpbUyHmGtOC00M52ydxLavRItXk6Jphpj4sa5Ihgc2X786wdKe8zjoV8f6n+l9oM5EmXIVoGdKIaUbS6Cc21Q0jkJnzdVDcpU=
-Message-ID: <4419B73D.8080901@gmail.com>
-Date: Fri, 17 Mar 2006 04:06:37 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 16 Mar 2006 14:10:36 -0500
+Received: from silver.veritas.com ([143.127.12.111]:31370 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S964838AbWCPTKg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 14:10:36 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.02,198,1139212800"; 
+   d="scan'208"; a="35987525:sNHT24337280"
+Date: Thu, 16 Mar 2006 19:11:14 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix free swap cache latency
+Message-ID: <Pine.LNX.4.61.0603161853300.24463@goblin.wat.veritas.com>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Petr Vandrovec <petr@vandrovec.name>, linux-kernel@vger.kernel.org,
-       sam@ravenborg.org, kai@germaschewski.name
-Subject: Re: [PATCH] Do not rebuild full kernel tree again and again...
-References: <20060312172511.GA17936@vana.vc.cvut.cz> <20060312174250.GA1470@mars.ravnborg.org> <44150CD7.604@yahoo.com.au> <20060313091254.GA28231@mars.ravnborg.org> <44154DAC.6050006@yahoo.com.au> <20060313163041.GA29719@mars.ravnborg.org> <4419AEEA.50702@gmail.com> <20060316183703.GB21003@mars.ravnborg.org>
-In-Reply-To: <20060316183703.GB21003@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 16 Mar 2006 19:10:35.0585 (UTC) FILETIME=[4DE50B10:01C6492D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Fri, Mar 17, 2006 at 03:31:06AM +0900, Tejun Heo wrote:
->  Wouldn't it be better to have an option to tell make to assume the old 
-> 
->>behavior? I only skimmed the original thread but it didn't seem terribly 
->>complex thing to do. A LOT of people will be doing things on pre-2.6.17 
->>kernel for quite some time and they will be cursing a lot if they have 
->>to rebuild everything everytime.
-> 
-> 
-> If Paul planned for a new make relase this year - then yes.
-> But I assume it will take another year (almost) before next make realse
-> after the current 3.81. And then it should not matter much.
-> 
+Lee Revell reported 28ms latency when process with lots of swapped memory
+exits.
 
-Fair enough for me. :-)
+2.6.15 introduced a latency regression when unmapping: in accounting the
+zap_work latency breaker, pte_none counted 1, pte_present PAGE_SIZE, but
+a swap entry counted nothing at all.  We think of pages present as the
+slow case, but Lee's trace shows that free_swap_and_cache's radix tree
+lookup can make a lot of work - and we could have been doing it many
+thousands of times without a latency break.
 
--- 
-tejun
+Move the zap_work update up to account swap entries like pages present.
+This does account non-linear pte_file entries, and unmap_mapping_range
+skipping over swap entries, by the same amount even though they're quick:
+but neither of those cases deserves complicating the code (and they're
+treated no worse than they were in 2.6.14).
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Acked-by: Nick Piggin <npiggin@suse.de>
+---
+Andrew, I recommend this one for 2.6.16: but you may fairly disagree,
+so I'm sending it to you, to pass on to Linus or not as you see fit.
+Lee doesn't expect to be able to reproduce the testcase quickly, so
+the fix has not been verified: but we consider it self-evidently good.
+
+ mm/memory.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+--- 2.6.16-rc6/mm/memory.c	2006-03-12 15:25:45.000000000 +0000
++++ linux/mm/memory.c	2006-03-15 07:32:36.000000000 +0000
+@@ -623,11 +623,12 @@ static unsigned long zap_pte_range(struc
+ 			(*zap_work)--;
+ 			continue;
+ 		}
++
++		(*zap_work) -= PAGE_SIZE;
++
+ 		if (pte_present(ptent)) {
+ 			struct page *page;
+ 
+-			(*zap_work) -= PAGE_SIZE;
+-
+ 			page = vm_normal_page(vma, addr, ptent);
+ 			if (unlikely(details) && page) {
+ 				/*

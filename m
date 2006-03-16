@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWCPXtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWCPXvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWCPXtm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 18:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWCPXtm
+	id S964898AbWCPXvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 18:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWCPXvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 18:49:42 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:51644
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751227AbWCPXtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 18:49:41 -0500
-Date: Thu, 16 Mar 2006 15:49:06 -0800
-From: Greg KH <gregkh@suse.de>
-To: Grant Grundler <iod00d@hp.com>
-Cc: Mark Maule <maule@sgi.com>, "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, shaohua.li@intel.com
-Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
-Message-ID: <20060316234906.GA24675@suse.de>
-References: <44172F0E.6070708@ce.jp.nec.com> <20060314134535.72eb7243.akpm@osdl.org> <44176502.9050109@ce.jp.nec.com> <20060315235544.GA6504@suse.de> <44198210.6090109@ce.jp.nec.com> <20060316181934.GM13666@sgi.com> <20060316234118.GB9746@esmail.cup.hp.com>
-Mime-Version: 1.0
+	Thu, 16 Mar 2006 18:51:54 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:17967 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1751227AbWCPXvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 18:51:53 -0500
+X-IronPort-AV: i="4.03,103,1141632000"; 
+   d="scan'208"; a="416773138:sNHT26129488"
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Bryan O'Sullivan" <bos@pathscale.com>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Remapping pages mapped to userspace (was: [PATCH 10 of 20] ipath - support for userspace apps using core driver)
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+	<ada3bhjuph2.fsf@cisco.com>
+	<1142475069.6994.114.camel@localhost.localdomain>
+	<adaslpjt8rg.fsf@cisco.com>
+	<1142477579.6994.124.camel@localhost.localdomain>
+	<20060315192813.71a5d31a.akpm@osdl.org>
+	<1142485103.25297.13.camel@camp4.serpentine.com>
+	<20060315213813.747b5967.akpm@osdl.org>
+	<Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 16 Mar 2006 15:51:51 -0800
+In-Reply-To: <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com> (Hugh Dickins's message of "Thu, 16 Mar 2006 14:24:47 +0000 (GMT)")
+Message-ID: <adad5gmne20.fsf_-_@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060316234118.GB9746@esmail.cup.hp.com>
-User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 16 Mar 2006 23:51:52.0575 (UTC) FILETIME=[995D58F0:01C64954]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 03:41:18PM -0800, Grant Grundler wrote:
-> On Thu, Mar 16, 2006 at 12:19:34PM -0600, Mark Maule wrote:
-> > If there's objectins to having struct msi_ops declared in pci.h, then I guess
-> > we need to come up with another solution.
-> 
-> There are other transaction based interrupt subsystems that are typically
-> arch specific (e.g. GSC device interrupts on PA-RISC). So far, MSI is the
-> only generic one and that is clearly part of the PCI spec. 
+[Err, sorry about the empty mail...]
 
-Yes, that's fine.  But the core pci msi structures do not need to be
-exported for the whole kernel to see, right?  That's my only point here.
+Anyway, I'd like to hijack this thread slightly, since we are close to
+a subject that I've been thinking about lately, and I'd like to take
+advantage of the expert's attention...
 
-pci.h is cluttered enough as it is :)
+My mthca driver (drivers/infiniband/hw/mthca) supports mapping some
+MMIO registers into userspace via io_remap_pfn_range() in a .mmap
+method.  I think I have that pretty well under control.
 
-thanks,
+However, on a hot unplug event, when the underlying PCI device is
+going away, I would like to replace that mapping with a mapping (with
+a mapping to the zero page?), so that userspace accesses after the
+device is gone don't explode.  What's the "right" way to do that?
 
-greg k-h
+Presumably it would be something like zeromap_page_range(), but that's
+not exported to modules.  Exporting that would be one option, but in a
+way that's overkill for me: I only have a single page to deal with, so
+I could also do something like
+
+	vm_insert_page(vma, addr, ZERO_PAGE(addr));
+
+But do I have to do anything to kill the old mapping coming from
+remap_pfn_range()?  What's the exported API to do that?
+
+I can keep a list of vmas that have registers mapped to userspace and
+iterate through it on hot unplug.  The only question is what to do
+with those vmas.
+
+Thanks,
+  Roland

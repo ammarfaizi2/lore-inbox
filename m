@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932702AbWCPSU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932705AbWCPSVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932702AbWCPSU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 13:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWCPSU2
+	id S932705AbWCPSVd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 13:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWCPSVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 13:20:28 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:32652
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932702AbWCPSU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 13:20:27 -0500
-Date: Thu, 16 Mar 2006 10:20:18 -0800
-From: Greg KH <greg@kroah.com>
-To: "Artem B. Bityutskiy" <dedekind@yandex.ru>
+	Thu, 16 Mar 2006 13:21:33 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:3335 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S932705AbWCPSVc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 13:21:32 -0500
+Message-ID: <4419A4A1.9030509@vmware.com>
+Date: Thu, 16 Mar 2006 09:47:13 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [Bug? Report] kref problem
-Message-ID: <20060316182018.GA4301@kroah.com>
-References: <1142509279.3920.31.camel@sauron.oktetlabs.ru> <20060316165323.GA10197@kroah.com> <4419A426.9080908@yandex.ru> <20060316175858.GA7124@kroah.com> <4419A9B8.8060102@yandex.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4419A9B8.8060102@yandex.ru>
-User-Agent: Mutt/1.5.11
+       Chris Wright <chrisw@sous-sol.org>, Jan Beulich <JBeulich@novell.com>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>
+Subject: Re: [RFC, PATCH 12/24] i386 Vmi processor header
+References: <200603161133_MC3-1-BACA-4C6C@compuserve.com>
+In-Reply-To: <200603161133_MC3-1-BACA-4C6C@compuserve.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 09:08:56PM +0300, Artem B. Bityutskiy wrote:
-> Greg KH wrote:
-> >If you use decl_subsys(), you should be fine for this.  Use that instead
-> >of trying to roll your own subsystem kobjects please.  That
-> >infrastructure was written for a reason...
-> Ok, I see, thanks. I just thought that this subsystem stuff will oblige 
-> me to use the device/driver/bus model which does not suit me.
+Chuck Ebbert wrote:
+>
+>> +/* Some CPUID calls want 'count' to be placed in ecx */
+>> +static inline void cpuid_count(int op, int count, int *eax, int *ebx, int *ecx,
+>> +             int *edx)
+>> +{
+>> +     asm volatile(""::"c"(count));
+>> +     vmi_cpuid(op, eax, ebx, ecx, edx);
+>> +}
+>>     
+>
+> You can't assume those last two statements will stay together.
+> >From the gcc 4.0.2 info file:
+>   
 
-decl_subsys() is in the sysfs.h header file, not the device.h file.
-Just stay away from anything in there if you hate the driver core so
-much :)
+I know.  I've abused this a bit.  When we originally wrote the cpuid 
+call, there were no ecx dependencies on cpuid.  Never got around to 
+fixing it properly.
+>   
+>> <...> you can't expect a sequence of volatile `asm' instructions
+>> to remain perfectly consecutive.  If you want consecutive output, use a
+>> single `asm'.
+>>     
+>
+> Maybe you could make vmi_cpuid always take a 'count' param, then just make cpuid
+> do:
+>
+>         vmi_cpuid(op, 0, eax, ebx, ecx, edx);
+>
+> and cpuid_count do:
+>
+>         vmi_cpuid(op, count, eax, ebx, ecx, edx);
+>   
 
-> >Data (kobjects) have a different lifespan than code (modules).
-> >Seperating them is a good idea, and if not, your reference counting
-> >issues can be quite nasty.  See the recent EDAC fiasco for a good
-> >example of how easy it is to mess things up in this manner.
-> 
-> My logic was that the lifetime of that kobject = lifetime of my module 
-> because I cannot remove the module because every it's user increments 
-> the module's refcount. So, if refcount of my module is zero then the 
-> kobject's refcount is zero. Why this doesn't this work?
+That is the proper fix.  I'll put that in the next round.
 
-It "should" work in theory, but in real-life, the odds of getting all of
-that lifetime logic correct...  :)
+>
+> (And sorry about trimming the cc: but I'm reading from a digest and that list
+> is too long to enter manually.)
+>   
 
-You can do it, but in general, it's easier to think about kobjects as
-being dynamic devices, as that is what they are.  So making them dynamic
-for real is a better thing to do to reinforce that principle.
+N.P.
 
-Again, what are you doing that you can't use the driver core for?
-
-thanks,
-
-greg k-h
+Thanks for looking at my code,
+Zach

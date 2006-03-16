@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWCPWL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWCPWPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbWCPWL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 17:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWCPWL6
+	id S964874AbWCPWPW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 17:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWCPWPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 17:11:58 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:43994 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964880AbWCPWLz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 17:11:55 -0500
-Subject: Re: can I bring Linux down by running "renice -20
-	cpu_intensive_process"?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4419D575.4080203@tmr.com>
-References: <441180DD.3020206@wpkg.org>
-	 <Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
-	 <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
-	 <1142135077.25358.47.camel@mindpipe>
-	 <yw1xk6azdgae.fsf@agrajag.inprovide.com>  <4419D575.4080203@tmr.com>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 17:11:48 -0500
-Message-Id: <1142547108.9395.17.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 17:15:22 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:44745 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964874AbWCPWPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 17:15:22 -0500
+Date: Thu, 16 Mar 2006 23:15:12 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alexander Gran <alex@zodiac.dnsalias.org>
+cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Bug while trying to mount nfs share
+In-Reply-To: <200603162220.59240@zodiac.zodiac.dnsalias.org>
+Message-ID: <Pine.LNX.4.61.0603162308150.27951@yvahk01.tjqt.qr>
+References: <200603151244.34159@zodiac.zodiac.dnsalias.org>
+ <Pine.LNX.4.61.0603162133100.11776@yvahk01.tjqt.qr>
+ <200603162220.59240@zodiac.zodiac.dnsalias.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 16:15 -0500, Bill Davidsen wrote:
-> There's a good fix for this, don't give this guy root 
-> any more ;-) 
+>> >127MB HIGHMEM available.
+>> >896MB LOWMEM available.
+>>
+>> BTW, you could try ot VMSPLIT_3G_OPT.
+>
+>Which works ;) BTW: Why do I need to recompile the complete kernel for that 
+>option, and isn't there any negative impact (The menuconfig help doesn't 
+>mention anything...)
+>
 
-Minor nit: s/root/realtime privileges/.  Since 2.6.12 these have been
-decoupled.  No official distro release supports it OOTB yet (the
-upcoming Ubuntu Dapper will).
+Every file somehow depends on page.h. Only one file in kernel/*.c (taking 
+.h in .h into account) does not require page.h, sys_ni.c:
 
-Lee
+23:08 shanghai:../linux-2.6-AS24/kernel > diff -dpru <(ls -1 .*.o.cmd) 
+<(grep -l /page.h .*.o.cmd)
+--- /dev/fd/63  2006-03-16 23:09:20.248517000 +0100
++++ /dev/fd/62  2006-03-16 23:09:20.248517000 +0100
+@@ -1,4 +1,3 @@
+-.built-in.o.cmd
+ .capability.o.cmd
+ .configs.o.cmd
+ .dma.o.cmd
+@@ -31,7 +30,6 @@
+ .signal.o.cmd
+ .softirq.o.cmd
+ .sys.o.cmd
+-.sys_ni.o.cmd
+ .sysctl.o.cmd
+ .time.o.cmd
+ .timer.o.cmd
 
+
+Jan Engelhardt
+-- 

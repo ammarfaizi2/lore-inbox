@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751966AbWCPL1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752253AbWCPL3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751966AbWCPL1w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 06:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752250AbWCPL1w
+	id S1752253AbWCPL3U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 06:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752285AbWCPL3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 06:27:52 -0500
-Received: from ftp.linux-mips.org ([194.74.144.162]:17317 "EHLO
-	ftp.linux-mips.org") by vger.kernel.org with ESMTP id S1751966AbWCPL1v
+	Thu, 16 Mar 2006 06:29:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:13405 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752250AbWCPL3T convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 06:27:51 -0500
-Date: Thu, 16 Mar 2006 11:27:51 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: linux-kernel@vger.kernel.org,
-       Thomas Osterried DL9SAU <thomas@x-berg.in-berlin.de>,
-       Hans Alblas PE1AYX <hans@esrac.ele.tue.nl>
-Subject: Re: [PATCH] Hamradio: Fix a NULL pointer dereference in net/hamradio/mkiss.c
-Message-ID: <20060316112751.GA4431@linux-mips.org>
-References: <20060316064211.GA22681@eugeneteo.net> <20060316112045.GA4067@linux-mips.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Mar 2006 06:29:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PgjeMc4aaHTy1dX/2XHYxiV3BJ8ABJkTWr1/1PT0bMho72bYtm5tymmMRDJ+P2OT/QDZ9RLDZvwKYawdHwpUsV4n6EL/EY08zblMbB9oxcdO2PFcxSK7rSIz9SNEyEPSr6cBUaywrUAjtePQ6GypvTsKETjmUnxzFfEGOA0Sg9c=
+Message-ID: <3fd7d9680603160329i23b2f58bg@mail.gmail.com>
+Date: Thu, 16 Mar 2006 12:29:19 +0100
+From: beware <wimille@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Adding a new module in the Kernel source
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060316112045.GA4067@linux-mips.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 11:20:45AM +0000, Ralf Baechle wrote:
+Hi everybody,
 
-> On Thu, Mar 16, 2006 at 02:42:11PM +0800, Eugene Teo wrote:
-> 
-> > Pointer ax is dereferenced before NULL check.
-> > 
-> > Coverity bug #817
-> 
-> Coverity non-bug #817.  The line discipline's ioctl method can only be
-> called as long as sp_get(tty) is valid.  Same for mkiss.
-> 
-> Unless I'm wrong on the "locking rules" of the tty code that is and maybe
-> that unobviousness is the real reason why the patch should be applied.
+I want to compile the last stable version of the Linux Kernel
+(2.6.15.6) but i want to add my own module in the kernel.
 
-Oh and the same applies to Coverity bug #816.
+Firstly, is it a good idea to do this? Or it's more simple to add this
+module after the compilation and add it to the modules which are
+automicaly laoded?
 
-  Ralf
+But, if i want to add this module in the kernel source, what do i have
+to do for this operation?
+
+Thank you.
+
+PS : sorry for my not fluent english.

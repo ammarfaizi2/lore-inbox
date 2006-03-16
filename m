@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752223AbWCPH3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752226AbWCPHbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752223AbWCPH3z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 02:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752224AbWCPH3z
+	id S1752226AbWCPHbo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 02:31:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752228AbWCPHbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 02:29:55 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:42455 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752223AbWCPH3y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 02:29:54 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Thu, 16 Mar 2006 15:28:47 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B37A72F@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZIxvh5cmjl+S1lTMiwn45d1D/i4QAASHUQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 16 Mar 2006 07:28:49.0351 (UTC) FILETIME=[449F9D70:01C648CB]
+	Thu, 16 Mar 2006 02:31:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:14267 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1752224AbWCPHbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 02:31:43 -0500
+Date: Thu, 16 Mar 2006 07:31:41 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jeff@garzik.org,
+       cramerj@intel.com, john.ronciak@intel.com
+Subject: Re: [PATCH]: e1000 endianness bugs
+Message-ID: <20060316073141.GA29074@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, jeff@garzik.org, cramerj@intel.com,
+	john.ronciak@intel.com
+References: <20060315.142628.28661597.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060315.142628.28661597.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It doesn't hang.  Though it seemed close to hanging a couple times,
->but after a 5-10 second pause always managed to go to sleep.  I tried
->about 15 sleep cycles, with a few echo 1 > polling_frequency thrown in.
+On Wed, Mar 15, 2006 at 02:26:28PM -0800, David S. Miller wrote:
+> 
+> 	return -E_NO_BIG_ENDIAN_TESTING;
+> 
+> [E1000]: Fix 4 missed endianness conversions on RX descriptor fields.
 
-ACPI SPEC define:
+Could the e1000 maintainers please add endianess annotations so that
+sparse will catch such things in the future?
 
-_PSV  : thermal zone object that returns Passive trip point in
-	tenths of digress Kelvin.
-
-_ACx:  thermal zone object that returns active cooling policy 
-	threshold values in tenths of degrees Kelvin.
-
-I suspect , when hang, the system was trying to start active cooling
-with Fan
-in function acpi_thermal_active that was somehow conflict request with
-_PTS's call to SMPI in BIOS.  So, the solution is :
-
-	Disable active/passive cooling request before suspend.
-
-To verify this, please hack acpi_thermal_active.
-
-We need a suspend/resume method for acpi thermal to cleanly solve 
-your problem.
-
-Thanks,
-Luming

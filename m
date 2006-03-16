@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932683AbWCPTnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbWCPTpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932683AbWCPTnq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWCPTnq
+	id S932699AbWCPTpn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbWCPTpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:43:46 -0500
-Received: from silver.veritas.com ([143.127.12.111]:32678 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S932683AbWCPTnp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:43:45 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.02,198,1139212800"; 
-   d="scan'208"; a="35988970:sNHT22912540"
-Date: Thu, 16 Mar 2006 19:44:25 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Christoph Lameter <clameter@sgi.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Race in pagevec_strip?
-In-Reply-To: <Pine.LNX.4.64.0603161056270.2518@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.61.0603161934220.24837@goblin.wat.veritas.com>
-References: <Pine.LNX.4.64.0603161033120.2395@schroedinger.engr.sgi.com>
- <Pine.LNX.4.64.0603161056270.2518@schroedinger.engr.sgi.com>
+	Thu, 16 Mar 2006 14:45:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:47496 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932699AbWCPTpm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 14:45:42 -0500
+Date: Thu, 16 Mar 2006 14:45:13 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Jyothy Reddy <jreddy@vmware.com>,
+       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
+       Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
+In-Reply-To: <Pine.LNX.4.61.0603162008300.11776@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.63.0603161444460.4458@cuia.boston.redhat.com>
+References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
+ <Pine.LNX.4.61.0603162008300.11776@yvahk01.tjqt.qr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Mar 2006 19:43:45.0335 (UTC) FILETIME=[EFE0CC70:01C64931]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Mar 2006, Christoph Lameter wrote:
-> Sigh. TestSetPackLocked works just opposite of spin_trylock. So add an !
-> 
-> 
-> Seems that we can call try_to_release_page with PagePrivate off and a 
-> valid mapping? This may cause all sorts of trouble for the 
-> filesystem *_releasepage() handlers. XFS bombs out in that case.
+On Thu, 16 Mar 2006, Jan Engelhardt wrote:
 
-I think you're right, and you are consistent with the sequence when
-try_to_release_page is called from elsewhere.
+> The code _you_ wrote can be put under any license(s) you want, so in
+> the worst case you do not need to rewrite your .c files.
 
-But the last time I had anything to do with try_to_release_page was
-way back in 2.5.mid, I don't think there was a pagevec_strip then.
-Andrew will know better.
+The license might affect which other OSes could link in
+the ROM though...
 
-I can't see what protects the default drop_buffers case against this,
-so can't argue that it's an XFS problem.
-
-But wouldn't you, on balance, be better off repeating the
-PagePrivate test within the lock?
-
-		if (PagePrivate(page) && !TestSetPageLocked(page)) {
-			if (PagePrivate(page))
-				try_to_release_page(page, 0);
-			unlock_page(page);
-		}
-
->  
-> Lock the page before checking for page private.
->  
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
-> Index: linux-2.6.16-rc6/mm/swap.c
-> ===================================================================
-> --- linux-2.6.16-rc6.orig/mm/swap.c	2006-03-11 14:12:55.000000000 -0800
-> +++ linux-2.6.16-rc6/mm/swap.c	2006-03-16 10:15:23.000000000 -0800
-> @@ -392,8 +392,9 @@ void pagevec_strip(struct pagevec *pvec)
->  	for (i = 0; i < pagevec_count(pvec); i++) {
->  		struct page *page = pvec->pages[i];
->  
-> -		if (PagePrivate(page) && !TestSetPageLocked(page)) {
-> -			try_to_release_page(page, 0);
-> +		if (!TestSetPageLocked(page)) {
-> +			if (PagePrivate(page))
-> +				try_to_release_page(page, 0);
->  			unlock_page(page);
->  		}
->  	}
+-- 
+All Rights Reversed

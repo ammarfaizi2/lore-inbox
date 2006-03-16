@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWCPVdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932685AbWCPVhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbWCPVdb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 16:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751442AbWCPVdb
+	id S932685AbWCPVhX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 16:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbWCPVhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 16:33:31 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:58332 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750845AbWCPVda (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 16:33:30 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: does swsusp suck after resume for you?
-Date: Fri, 17 Mar 2006 08:33:26 +1100
-User-Agent: KMail/1.8.3
-Cc: ck@vds.kolivas.org, Stefan Seyfried <seife@suse.de>,
-       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org,
-       Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603162147.56725.kernel@kolivas.org> <20060316105054.GB9399@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20060316105054.GB9399@atrey.karlin.mff.cuni.cz>
+	Thu, 16 Mar 2006 16:37:23 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:2997 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932685AbWCPVhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 16:37:22 -0500
+Message-ID: <4419DA6D.7050800@us.ibm.com>
+Date: Thu, 16 Mar 2006 16:36:45 -0500
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk, hch@lst.de,
+       mtk-manpages@gmx.net, ak@muc.de, paulus@samba.org
+Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before
+ we are committed.
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com> <20060316123341.0f55fd07.akpm@osdl.org>
+In-Reply-To: <20060316123341.0f55fd07.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603170833.27114.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > The tunable in /proc/sys/vm/swap_prefetch is now bitwise ORed:
-> > > > Thus if you set this value 
-> > > > to 3 it will prefetch aggressively and then drop back to the default
-> > > > of 1. This makes it easy to simply set the aggressive flag once and
-> > > > forget about it. I've booted and tested this feature and it's working
-> > > > nicely. Where exactly you'd set this in your resume scripts I'm not
-> > > > sure. A rolled up patch against 2.6.16-rc6-mm1 is here for
-> > > > simplicity:
+Andrew Morton wrote:
 
-correct url:
-http://ck.kolivas.org/patches/swap-prefetch/2.6.16-rc6-mm1-swap_prefetch_test.patch
-
-> > 2 means aggressively prefetch as much as possible and then disable swap
-> > prefetching from that point on. Too confusing?
+>ebiederm@xmission.com (Eric W. Biederman) wrote:
+>  
 >
-> Ahha... oops, yes, clever; no, I guess keep it.
+>>Since we have not crossed the magic 2.6.16 line can we please
+>> include this patch.  My apologies for catching this so late in the
+>> cycle.
+>>
+>> - Error if we are passed any flags we don't expect.
+>>
+>>   This preserves forward compatibility so programs that use new flags that
+>>   run on old kernels will fail instead of silently doing the wrong thing.
+>>    
+>>
+>
+>Makes sense.
+>
+>  
+>
+>> - Use separate defines from sys_clone.
+>>
+>>   sys_unshare can't implement half of the clone flags under any circumstances
+>>   and those that it does implement have subtlely different semantics than
+>>   the clone flags.  Using a different set of flags sets the
+>>   expectation that things will be different.
+>>    
+>>
+>
+>iirc there was some discussion about this and it was explicitly decided to
+>keep the CLONE flags.
+>
+>Maybe Janak or Linus can comment?
+>
+>  
+>
+In the two prior discussions on this, the disagreement was on how much 
+confusion
+(if any) the use of CLONE_* flags would generate. I personally did not 
+think that
+it was confusing enough to add new flags, with the same values as CLONE_*
+flags, in the kernel. Linus's last email (3/1/06) on the subject seemed 
+to lean in that
+direction as well. That's why I didn't take any action on it.
 
-Ok the patch works fine for me and the feature is worthwhile in absolute terms 
-as well as for improving resume. 
+-Janak
 
-Pavel, while we're talking about improving behaviour after resume I had a look 
-at the mechanism used to free up ram before suspending and I can see scope 
-for some changes in the vm code that would improve the behaviour after 
-resuming. Is the mechanism used to free up ram going to continue being used 
-with uswsusp? If so, I'd like to have a go at improving the free up ram vm 
-code to make it behave nicer after resume. I have some ideas about how best 
-to free up ram differently from normal reclaim which would improve behaviour 
-post resume.
-
-Cheers,
-Con

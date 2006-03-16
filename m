@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWCPWR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWCPWXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751062AbWCPWR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 17:17:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWCPWR2
+	id S1751108AbWCPWXT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 17:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWCPWXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 17:17:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:35524 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750713AbWCPWR1 (ORCPT
+	Thu, 16 Mar 2006 17:23:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13472 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751066AbWCPWXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 17:17:27 -0500
-Date: Thu, 16 Mar 2006 14:19:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, janak@us.ibm.com,
-       viro@ftp.linux.org.uk, hch@lst.de, mtk-manpages@gmx.net, ak@muc.de,
-       paulus@samba.org
-Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we
- are committed.
-Message-Id: <20060316141927.50aabbc2.akpm@osdl.org>
-In-Reply-To: <m1d5gm6ohm.fsf@ebiederm.dsl.xmission.com>
-References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com>
-	<20060316123341.0f55fd07.akpm@osdl.org>
-	<Pine.LNX.4.64.0603161240330.3618@g5.osdl.org>
-	<m1d5gm6ohm.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 17:23:19 -0500
+Date: Thu, 16 Mar 2006 17:23:01 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Joshua Kugler <joshua.kugler@uaf.edu>
+cc: linux-kernel@vger.kernel.org, sah@coraid.com
+Subject: Re: OOM kiler/load problems with RAID/LVM and AoE
+In-Reply-To: <200603131602.03886.joshua.kugler@uaf.edu>
+Message-ID: <Pine.LNX.4.63.0603161635330.15712@cuia.boston.redhat.com>
+References: <200603131602.03886.joshua.kugler@uaf.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > On Thu, 16 Mar 2006, Andrew Morton wrote:
-> >> 
-> >> iirc there was some discussion about this and it was explicitly decided to
-> >> keep the CLONE flags.
-> >> 
-> >> Maybe Janak or Linus can comment?
-> >
-> > My personal opinion is that having a different set of flags is more 
-> > confusing and likely to result in problems later than having the same 
-> > ones. Regardless, I'm not touching this for 2.6.16 any more, 
-> 
-> I am actually a lot more concerned with the fact that we don't test
-> for invalid bits.  So we have an ABI that will change in the future,
-> and that doesn't allow us to have a program that runs on old and new
-> kernels.
+On Mon, 13 Mar 2006, Joshua Kugler wrote:
 
-The risk of breaking things is small - it would require someone to write a
-sys_unshare-using app which a) they care about and b) has a particular bug
-in it.  But yes, we should check.
+> RAID or LVM problem? AoE drivers?  Network driver badness (for both of them)?
 
-> I guess I can resend some version of my patch after 2.6.16 is out and
-> break the ABI for the undefined bits then.  Correct programs shouldn't
-> care.  But it sure would be nice if they could care.
-> 
+You could simply be hitting a fundamental problem that's present
+on most operating systems.  It happens roughly like this:
 
-Your single patch did two different things - there's a lesson here ;)
+1) free memory gets low, so kswapd starts evicting pages
+2) in order to write pages out over the network, the kernel
+   needs to allocate memory to compose network packets,
+   headers, etc...
+3) if kswapd writes out a bunch of pages at once, or simply
+   if memory was low to begin with when we hit (1), there
+   may not be enough free memory left to receive the ACK
+   packets from the NAS box that acknowledge that the data
+   was received, nor the packets that indicate that the
+   data was written to disk and the kernel can complete
+   the IO
+
+Locally attached disks do not have this problem because the
+kernel keeps a number of reserved buffer heads around to get
+us out of this deadlock problem.
+
+Networking will need something similar.  Because this is
+slowly turning into an FAQ, I've written down the problem
+and a proposed solution:
+
+	http://linux-mm.org/NetworkStorageDeadlock
+
+-- 
+All Rights Reversed

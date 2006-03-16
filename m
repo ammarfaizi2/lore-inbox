@@ -1,86 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752265AbWCPJTS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752268AbWCPJT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752265AbWCPJTS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 04:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752262AbWCPJTR
+	id S1752268AbWCPJT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 04:19:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752272AbWCPJT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 04:19:17 -0500
-Received: from mail.gmx.de ([213.165.64.20]:56742 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751107AbWCPJTR (ORCPT
+	Thu, 16 Mar 2006 04:19:57 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65448 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752262AbWCPJT4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 04:19:17 -0500
-X-Authenticated: #14349625
-Subject: Re: Which kernel is the best for a small linux system?
-From: Mike Galbraith <efault@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: gcoady@gmail.com, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Willy Tarreau <willy@w.ods.org>, Arjan van de Ven <arjan@infradead.org>,
-       j4K3xBl4sT3r <jakexblaster@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1142499323.10098.14.camel@homer>
-References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
-	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
-	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
-	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
-	 <20060314062144.GC21493@w.ods.org>
-	 <kv2d12131e73fjkp0hufomj152un5tbsj1@4ax.com>
-	 <20060314222131.GB3166@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.61.0603152347210.20859@yvahk01.tjqt.qr>
-	 <f78h1292orlp3vnrm2qq9c040ech0eduhg@4ax.com>
-	 <1142482749.8369.12.camel@homer>  <1142496748.10098.5.camel@homer>
-	 <1142497893.1671.173.camel@mindpipe>  <1142499323.10098.14.camel@homer>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 10:20:44 +0100
-Message-Id: <1142500844.10098.26.camel@homer>
+	Thu, 16 Mar 2006 04:19:56 -0500
+Date: Thu, 16 Mar 2006 10:19:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp_suspend continues?
+Message-ID: <20060316091943.GD1729@elf.ucw.cz>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <20060313113631.GA1736@elf.ucw.cz> <20060315103711.GA31317@suse.de> <200603161320.36051.kernel@kolivas.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200603161320.36051.kernel@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 09:55 +0100, Mike Galbraith wrote:
-> On Thu, 2006-03-16 at 03:31 -0500, Lee Revell wrote:
-> > On Thu, 2006-03-16 at 09:12 +0100, Mike Galbraith wrote:
-> > > P.S.  if you're talking about ssh console slowdown thingie, as I write
-> > > this I'm ssh'd into my P3/500, and..
-> > > 
-> > > [root]:# time w
-> > 
-> > > real    0m0.033s
-> > > user    0m0.013s
-> > > sys     0m0.019s
-> > > [root]:#         
-> > 
-> > I think you left out the result for 2.4.
+On Čt 16-03-06 13:20:35, Con Kolivas wrote:
+> Hi Pavel
 > 
-> I don't have a 2.4 kernel.  But no matter, I don't think it's going to
-> get much better than .033s.  Even if it did, .033s sure doesn't feel
-> sluggish to me.
+> I've been playing with hooking in the post resume swap prefetch code into 
+> swsusp_suspend and just started noting this on 2.6.16-rc6-mm1:
+> During the _suspend_ to disk cycle on this machine the swsusp_suspend function 
+> appears to continue beyond swsusp_arch_suspend as I get the same messages 
+> that I would normally get during a resume cycle such as this:
 > 
-> Running ab from the other box is a bit slower since ssh is using the
-> same net ab is blasting (only net I have)..
+> Suspending device platform
+> swsusp: Need to copy 14852 pages
+> Intel machine check architecture supported.
+> Intel machine check reporting enabled on CPU#0
+> and...
+> eth1: Coming out of suspend...
+> and so on
 > 
-> [root]:# time netstat|grep :81|wc -l
->    1645
-> 
-> real    0m0.259s
-> user    0m0.133s
-> sys     0m0.126s
-> 
-> ...but still not what I'd call a slug.
+> but then it manages to write to disk and power down anyway. Is this correct? 
 
-Oops.  Wrong kernel.  That was one of my twiddled kernels.  This is
-2.6.15 doing the same ab across the net.
+Yes. We need our hardware enabled for image write (disk would be
+enough), so we resume it (and we resume all of it, because that was
+easier to code).
 
-[root]:# time netstat|grep :81|wc -l
-   1592
+> If I put post_resume_swap_prefetch at the end of swsusp_suspend it hits that 
+> function on both resume _and_ suspend cycles. Am I missing something?
 
-real    3m7.502s
-user    0m0.119s
-sys     0m0.146s
+No. That's just the way it is. See
 
-Ouch!!
+        /* Restore control flow magically appears here */
 
-	-Mike
+and 
 
+        /* Code below is only ever reached in case of failure. Otherwise
+         * execution continues at place where swsusp_arch_suspend was called
+         */
+        BUG_ON(!error);
+
+Yes, I agree it is confusing, and feel free to suggest comment cleanups.
+
+I'd suggest you hook at disk.c:pm_suspend_disk.
+
+Or just include that /sys interface, and trigger it from userspace
+just after resume. Actually I like that best. It is optional, it can
+be triggered from userspace, and you will not have to deal with
+suspend internals.
+
+(And it will be useful to uswsusp, too, that avoids big chunks of
+in-kernel suspend code).
+
+								Pavel
+-- 
+133:

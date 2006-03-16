@@ -1,54 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWCPRSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752386AbWCPRUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbWCPRSi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 12:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752435AbWCPRSi
+	id S1752386AbWCPRUp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 12:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752438AbWCPRUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 12:18:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:16352 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752436AbWCPRSh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 12:18:37 -0500
-Date: Thu, 16 Mar 2006 09:18:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       inux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document Linux's memory barriers [try #5] 
-In-Reply-To: <21253.1142509812@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0603160914410.3618@g5.osdl.org>
-References: <20060315200956.4a9e2cb3.akpm@osdl.org> 
- <16835.1141936162@warthog.cambridge.redhat.com> <18351.1142432599@warthog.cambridge.redhat.com>
-  <21253.1142509812@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Mar 2006 12:20:44 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:47753
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1752386AbWCPRUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 12:20:44 -0500
+Date: Thu, 16 Mar 2006 09:20:39 -0800
+From: Greg KH <greg@kroah.com>
+To: "Artem B. Bityutskiy" <dedekind@infradead.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Bug? Report] kref problem
+Message-ID: <20060316172039.GB5624@kroah.com>
+References: <1142509279.3920.31.camel@sauron.oktetlabs.ru> <20060316165323.GA10197@kroah.com> <1142528877.3920.64.camel@sauron.oktetlabs.ru> <1142529004.3920.66.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142529004.3920.66.camel@sauron.oktetlabs.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 16, 2006 at 08:10:04PM +0300, Artem B. Bityutskiy wrote:
+> On Thu, 2006-03-16 at 20:07 +0300, Artem B. Bityutskiy wrote:
+> > On Thu, 2006-03-16 at 08:53 -0800, Greg KH wrote: 
+> > > > static void a_release(struct kobject *kobj)
+> > > > {
+> > > > 	struct my_obj_a *a;
+> > > > 	
+> > > > 	printk("%s\n", __FUNCTION__);
+> > > > 	a = container_of(kobj, struct my_obj_a, kobj);
+> > > > 	sysfs_remove_dir(&a->kobj);
+> > > 
+> > > Woah, don't do that here, the kobject core already does this.  A release
+> > > function is for you to release the memory you have created with this
+> > > kobject, not to mess with sysfs.
+> > So do you mean this (attached) ? Anyway I end up with -1 kref.
+> > 
+> Pardon, forgot to attach.
 
-
-On Thu, 16 Mar 2006, David Howells wrote:
+> #include <linux/kernel.h>
+> #include <linux/init.h>
+> #include <linux/module.h>
+> #include <linux/kobject.h>
+> #include <linux/stat.h>
 > 
-> More or less, I think; but Nick has raised a good point about whether I should
-> be mentioning the existence of things like caching at all in the document,
-> except to say that memory barriers can't be assumed to have any effect on them.
+> static void a_release(struct kobject *kobj);
 > 
-> The problem is that if I don't mention caches, I get lots of arguments about
-> the effects locking primitives have (since in modern CPUs these happen within
-> the caches and not much within memory). I can't just say these things affect
-> memory because it's just not necessarily true:-/
+> static struct kobj_type a_ktype = {
+>         .release   = a_release
+> };
+> 
+> static void b_release(struct kobject *kobj);
+> 
+> static struct kobj_type b_ktype = {
+>         .release   = b_release
+> };
+> 
+> struct my_obj_a
+> {
+> 	struct kobject kobj;
+> } a;
+> 
+> struct my_obj_b
+> {
+> 	struct kobject kobj;
+> } b;
+> 
+> static __init int test_init(void)
+> {
+> 	int err;
+> 
+> 	kobject_init(&a.kobj);
+> 	a.kobj.ktype = &a_ktype;
+> 	err = kobject_set_name(&a.kobj, "A");
+> 	if (err)
+> 		return err;
+> 	printk("a inited, kref %d\n", atomic_read(&a.kobj.kref.refcount));
+> 	
+> 	kobject_init(&b.kobj);
+> 	b.kobj.ktype = &b_ktype;
+> 	b.kobj.parent = &a.kobj;
+> 	err = kobject_set_name(&b.kobj, "B");
+> 	if (err)
+> 		goto out_a;
+> 	printk("b inited, kref %d\n", atomic_read(&b.kobj.kref.refcount));
+> 
+> 	err = sysfs_create_dir(&a.kobj);
 
-Well, the argument I have against mentioning caches is that cache 
-coherency order is _not_ the only thing that is relevant. As already 
-mentioned, data speculation can cause exactly the same "non-causal" effect 
-as cache update ordering, so from a _conceptual_ standpoint, the cache is 
-really just one implementation detail in the much bigger picture of 
-buffering and speculative work re-ordering operations...
+Again, why are you trying to call the sysfs raw functions?  You are not
+registering the kobject with the kobject core, so bad things are
+happening.  Why not call kobject_register() or kobject_add(), like it is
+documented to do so?
 
-So it might be a good idea to first explain the memory barriers in a more 
-abstract sense without talking about what exactly goes on, and then have 
-the section that gives _examples_ of what the CPU actually is doing that 
-causes these barriers to be needed. And make it clear that the examples 
-are just that - examples.
+Because of this, you are seeing odd things happen.
 
-		Linus
+thanks,
+
+greg k-h

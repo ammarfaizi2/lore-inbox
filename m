@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752217AbWCPHOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752218AbWCPHZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752217AbWCPHOF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 02:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752218AbWCPHOF
+	id S1752218AbWCPHZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 02:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752219AbWCPHZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 02:14:05 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:8176 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1752215AbWCPHOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 02:14:03 -0500
-To: "Yu, Luming" <luming.yu@intel.com>
-cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       michael@mihu.de, mchehab@infradead.org,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
-       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-In-Reply-To: Your message of "Thu, 16 Mar 2006 14:41:27 +0800."
-             <3ACA40606221794F80A5670F0AF15F840B37A678@pdsmsx403> 
-Date: Thu, 16 Mar 2006 07:14:01 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1FJmgL-0000PX-00@skye.ra.phy.cam.ac.uk>
+	Thu, 16 Mar 2006 02:25:46 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:45080 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1752215AbWCPHZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 02:25:45 -0500
+X-IronPort-AV: i="4.02,196,1139212800"; 
+   d="scan'208"; a="314831757:sNHT23381224"
+To: Andrew Morton <akpm@osdl.org>
+Cc: bos@pathscale.com, Hugh@veritas.com, torvalds@osdl.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core driver
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+	<ada3bhjuph2.fsf@cisco.com>
+	<1142475069.6994.114.camel@localhost.localdomain>
+	<adaslpjt8rg.fsf@cisco.com>
+	<1142477579.6994.124.camel@localhost.localdomain>
+	<20060315192813.71a5d31a.akpm@osdl.org>
+	<1142485103.25297.13.camel@camp4.serpentine.com>
+	<20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com>
+	<20060315221716.19a92762.akpm@osdl.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 15 Mar 2006 23:25:41 -0800
+In-Reply-To: <20060315221716.19a92762.akpm@osdl.org> (Andrew Morton's message of "Wed, 15 Mar 2006 22:17:16 -0800")
+Message-ID: <ada4q1yu9ze.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Mar 2006 07:25:43.0706 (UTC) FILETIME=[D5F86FA0:01C648CA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I found the common code in _PSV and _AC0
->    Store (DerefOf (Index (DerefOf (MODP (0x01)), Local1)), Local0)
-> Could you just comment out that?
+    Andrew> vm_insert_page() mucks around with rmap-named functions
+    Andrew> which don't actually do rmap and sports
+    Andrew> apparently-incorrect comments wrt PageReserved().  I don't
+    Andrew> know how well-cared-for it is...
 
-It doesn't hang.  Though it seemed close to hanging a couple times,
-but after a 5-10 second pause always managed to go to sleep.  I tried
-about 15 sleep cycles, with a few echo 1 > polling_frequency thrown in.
+Linus just added vm_insert_page() a few months ago.  Has it already bit-rotted?
 
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
+ - R.

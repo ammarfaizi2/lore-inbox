@@ -1,51 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWCPGbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932680AbWCPGa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWCPGbd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 01:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWCPGbd
+	id S932680AbWCPGa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 01:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbWCPGa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 01:31:33 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:43227 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932386AbWCPGbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 01:31:32 -0500
-Date: Thu, 16 Mar 2006 15:32:54 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] for_each_possible_cpu [9/19] i386 fix patch
-Message-Id: <20060316153254.9f1ca93b.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <20060316122952.e19f2726.kamezawa.hiroyu@jp.fujitsu.com>
-References: <20060316122952.e19f2726.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 01:30:28 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:56792 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S932381AbWCPGa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 01:30:27 -0500
+Date: Thu, 16 Mar 2006 07:30:24 +0100
+From: Sander <sander@humilis.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Warning - Maxtor SATA II and Nvidia nforce4
+Message-ID: <20060316063024.GB8825@favonius>
+Reply-To: sander@humilis.net
+References: <1142461887.2521.44.camel@station14.example.com> <4418996E.6010808@garzik.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4418996E.6010808@garzik.org>
+X-Uptime: 06:27:37 up 13 days, 10:37, 24 users,  load average: 2.99, 2.29, 2.59
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch for i386 for_each_possible_cpu() includes unnecessary parts...
-Sorry..
+Jeff Garzik wrote (ao):
+> Ah, I see this made it to LKML :)
 
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+I'm not the OP. The Maxtor notice is a few months old already.
 
-Index: linux-2.6.16-rc6-mm1/arch/i386/oprofile/nmi_int.c
-===================================================================
---- linux-2.6.16-rc6-mm1.orig/arch/i386/oprofile/nmi_int.c
-+++ linux-2.6.16-rc6-mm1/arch/i386/oprofile/nmi_int.c
-@@ -123,11 +123,9 @@ static void free_msrs(void)
- {
- 	int i;
- 	for_each_possible_cpu(i) {
--		if (cpu_msrs[i].counters)
--			kfree(cpu_msrs[i].counters);
-+		kfree(cpu_msrs[i].counters);
- 		cpu_msrs[i].counters = NULL;
--		if (cpu_msrs[i].controls)
--			kfree(cpu_msrs[i].controls);
-+		kfree(cpu_msrs[i].controls);
- 		cpu_msrs[i].controls = NULL;
- 	}
- }
+> Dax Kelson wrote:
+> >Short version
+> >==============
+> >Nvidia Nforce4 chipset with Maxtor SATA II drives with certain firmware
+> >revisions cause data corruption and system instability when under
+> >moderate to heavy I/O load.
+> 
+> I'm a bit suspicious of this.
+> 
+> Looking at the link, there are three problem areas and two problem blame 
+> targets implied:
+> 
+> 	Data corruption	-> blame nvidia driver
+> 	NCQ		-> blame nvidia driver
+> 	Detection	-> blame maxtor firmware
+> 
+> The first one likely applies to the Windows driver not Linux's sata_nv, 
+> and thus irrelevant here.  The second one OBVIOUSLY applies only to 
+> Windows, since sata_nv (and libata itself) don't yet enable NCQ.  The 
+> third one could potentially apply to Linux.  Lastly, your mention of 
+> "nforce fake raid" almost certainly indicates Windows or proprietary 
+> drivers.
+> 
+> Therefore, I ask:
+> * are you reporting a only drive detection problem?
+> * why are you reporting unrelated Windows problems to a Linux list?
+> * if you are indeed reporting a problem on Linux, where is the kernel 
+> and driver version info, as requested in REPORTING-BUGS?
+> * and can you provide such info *and reproduce the problems* without 
+> proprietary drivers loaded?
+> 
+> Your email is just a list of highly general symptoms.  Your link seems 
+> to indicate two NV driver bugs on Windows, and a Maxtor firmware upgrade 
+> for undescribed detection problems.
+> 
+> My recommended action for users is:
+> 1) Avoid Windows.
+> 2) Don't panic.
 
+Last december I requested new firmware for my drives. Maxtor called me
+and asked if I did have any problems. I did not, but just wanted to fix
+the problem before I would notice any.
+
+The Maxtor guy then told me that harddisk firmware upgrades are best not
+to be done if not needed, and asked what operating system I run (answer:
+Linux). He said that the problems only exists with Windows, and that
+Linux should be ok.
+
+In fact, I have yet to see a problem with my sata Maxtor disks connected
+to the onboard nForce4 controller. This supports Jeff Garziks story.
+
+I do notice that the nForce4 controller most of the times fails to
+detect some of the drives (seems random) on a reboot. A powerdown and
+fresh boot lets the controller detect all disks again.
+
+	Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

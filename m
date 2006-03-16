@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752352AbWCPKxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752342AbWCPKyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752352AbWCPKxq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 05:53:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752354AbWCPKxq
+	id S1752342AbWCPKyq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 05:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752358AbWCPKyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 05:53:46 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:56986 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752353AbWCPKxp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 05:53:45 -0500
-Date: Thu, 16 Mar 2006 16:24:04 +0530
+	Thu, 16 Mar 2006 05:54:46 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:31952 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1752341AbWCPKyp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 05:54:45 -0500
+Date: Thu, 16 Mar 2006 16:25:09 +0530
 From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 To: akpm@osdl.org, Andi Kleen <ak@suse.de>, davem@davemloft.net
 Cc: linux-kernel@vger.kernel.org, ananth@in.ibm.com,
        anil.s.keshavamurthy@intel.com
-Subject: Re: [2/5 PATCH] Kprobes-fix-broken-fault-handling-for-x86_64
-Message-ID: <20060316105404.GC16392@in.ibm.com>
+Subject: Re: [3/5 PATCH] Kprobes-fix-broken-fault-handling-for-powerpc64
+Message-ID: <20060316105509.GD16392@in.ibm.com>
 Reply-To: prasanna@in.ibm.com
-References: <20060316105236.GB16392@in.ibm.com>
+References: <20060316105236.GB16392@in.ibm.com> <20060316105404.GC16392@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060316105236.GB16392@in.ibm.com>
+In-Reply-To: <20060316105404.GC16392@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,48 +32,48 @@ to i386 architecture.
 Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
 
- arch/x86_64/kernel/kprobes.c |   62 ++++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 55 insertions(+), 7 deletions(-)
+ arch/powerpc/kernel/kprobes.c |   61 +++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 54 insertions(+), 7 deletions(-)
 
-diff -puN arch/x86_64/kernel/kprobes.c~kprobes-x86_64-pagefault-handling arch/x86_64/kernel/kprobes.c
---- linux-2.6.16-rc6-mm1/arch/x86_64/kernel/kprobes.c~kprobes-x86_64-pagefault-handling	2006-03-16 15:58:14.000000000 +0530
-+++ linux-2.6.16-rc6-mm1-prasanna/arch/x86_64/kernel/kprobes.c	2006-03-16 15:58:15.000000000 +0530
-@@ -37,10 +37,12 @@
- #include <linux/string.h>
- #include <linux/slab.h>
+diff -puN arch/powerpc/kernel/kprobes.c~kprobes-powerpc-pagefault-handling arch/powerpc/kernel/kprobes.c
+--- linux-2.6.16-rc6-mm1/arch/powerpc/kernel/kprobes.c~kprobes-powerpc-pagefault-handling	2006-03-16 15:58:45.000000000 +0530
++++ linux-2.6.16-rc6-mm1-prasanna/arch/powerpc/kernel/kprobes.c	2006-03-16 15:58:45.000000000 +0530
+@@ -30,9 +30,11 @@
+ #include <linux/kprobes.h>
+ #include <linux/ptrace.h>
  #include <linux/preempt.h>
 +#include <linux/module.h>
- 
  #include <asm/cacheflush.h>
- #include <asm/pgtable.h>
  #include <asm/kdebug.h>
+ #include <asm/sstep.h>
 +#include <asm/uaccess.h>
  
- void jprobe_return_end(void);
- static void __kprobes arch_copy_kprobe(struct kprobe *p);
-@@ -578,16 +580,62 @@ int __kprobes kprobe_fault_handler(struc
+ DEFINE_PER_CPU(struct kprobe *, current_kprobe) = NULL;
+ DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
+@@ -372,17 +374,62 @@ static inline int kprobe_fault_handler(s
  {
  	struct kprobe *cur = kprobe_running();
  	struct kprobe_ctlblk *kcb = get_kprobe_ctlblk();
-+	const struct exception_table_entry *fixup;
++	const struct exception_table_entry *entry;
  
 -	if (cur->fault_handler && cur->fault_handler(cur, regs, trapnr))
 -		return 1;
 -
 -	if (kcb->kprobe_status & KPROBE_HIT_SS) {
--		resume_execution(cur, regs, kcb);
+-		resume_execution(cur, regs);
 +	switch(kcb->kprobe_status) {
 +	case KPROBE_HIT_SS:
 +	case KPROBE_REENTER:
 +		/*
 +		 * We are here because the instruction being single
 +		 * stepped caused a page fault. We reset the current
-+		 * kprobe and the rip points back to the probe address
++		 * kprobe and the nip points back to the probe address
 +		 * and allow the page fault handler to continue as a
 +		 * normal page fault.
 +		 */
-+		regs->rip = (unsigned long)cur->addr;
- 		regs->eflags |= kcb->kprobe_old_rflags;
++		regs->nip = (unsigned long)cur->addr;
+ 		regs->msr &= ~MSR_SE;
+ 		regs->msr |= kcb->kprobe_saved_msr;
 -
 -		reset_current_kprobe();
 +		if (kcb->kprobe_status == KPROBE_REENTER)
@@ -105,14 +105,13 @@ diff -puN arch/x86_64/kernel/kprobes.c~kprobes-x86_64-pagefault-handling arch/x8
 +		 * In case the user-specified fault handler returned
 +		 * zero, try to fix up.
 +		 */
-+		fixup = search_exception_tables(regs->rip);
-+		if (fixup) {
-+			regs->rip = fixup->fixup;
++		if ((entry = search_exception_tables(regs->nip)) != NULL) {
++			regs->nip = entry->fixup;
 +			return 1;
 +		}
 +
 +		/*
-+		 * fixup() could not handle it,
++		 * fixup_exception() could not handle it,
 +		 * Let do_page_fault() fix it.
 +		 */
 +		break;

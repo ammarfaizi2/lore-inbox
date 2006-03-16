@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbWCPSVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWCPSbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932703AbWCPSVF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 13:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWCPSVE
+	id S964807AbWCPSbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 13:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932706AbWCPSbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 13:21:04 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:32727 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932703AbWCPSVB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 13:21:01 -0500
-Subject: Re: ext3_ordered_writepage() questions
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andrew Morton <akpm@osdl.org>, sct@redhat.com,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, jack@suse.cz
-In-Reply-To: <20060316180904.GA29275@thunk.org>
-References: <1141777204.17095.33.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060308124726.GC4128@lst.de> <4410551D.5000303@us.ibm.com>
-	 <20060309153550.379516e1.akpm@osdl.org> <4410CA25.2090400@us.ibm.com>
-	 <20060316180904.GA29275@thunk.org>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 10:22:40 -0800
-Message-Id: <1142533360.21442.153.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 13:31:25 -0500
+Received: from mail.infrasupportetc.com ([66.173.97.5]:35283 "EHLO
+	mail733.InfraSupportEtc.com") by vger.kernel.org with ESMTP
+	id S932688AbWCPSbY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 13:31:24 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Router stops routing after changing MAC Address
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Date: Thu, 16 Mar 2006 12:32:35 -0600
+Message-ID: <925A849792280C4E80C5461017A4B8A203222D@mail733.InfraSupportEtc.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Router stops routing after changing MAC Address
+Thread-Index: AcZJIxF17t/UTHM/QnuaH8foO0geGAABFkzA
+From: "Greg Scott" <GregScott@InfraSupportEtc.com>
+To: "Stephen Hemminger" <shemminger@osdl.org>, "Chris Wedgwood" <cw@f00f.org>
+Cc: "Chuck Ebbert" <76306.1226@compuserve.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>, <netdev@vger.kernel.org>,
+       "Bart Samwel" <bart@samwel.tk>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Simon Mackinlay" <smackinlay@mail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 13:09 -0500, Theodore Ts'o wrote:
-> > >Yup.  Ordered-mode JBD commit needs to write and wait upon all dirty
-> > >file-data buffers prior to journalling the metadata.  If we didn't run
-> > >journal_dirty_data_fn() against those buffers then they'd still be under
-> > >I/O after commit had completed.
-> > >
-> > In  non-block allocation case, what metadata are we journaling in 
-> > writepage() ?
-> > block allocation happend in prepare_write() and commit_write() journaled the
-> > transaction. All the meta data updates should be done there.  What JBD 
-> > commit are you refering to here ?
+I wonder if they would be more open to accepting that patch now?
+
+- Greg Scott
+ 
+
+-----Original Message-----
+From: Stephen Hemminger [mailto:shemminger@osdl.org] 
+Sent: Thursday, March 16, 2006 11:55 AM
+To: Chris Wedgwood
+Cc: Greg Scott; Chuck Ebbert; linux-kernel; David S. Miller;
+netdev@vger.kernel.org; Bart Samwel; Alan Cox; Simon Mackinlay
+Subject: Re: Router stops routing after changing MAC Address
+
+On Thu, 16 Mar 2006 08:07:43 -0800
+Chris Wedgwood <cw@f00f.org> wrote:
+
+> On Mon, Mar 13, 2006 at 10:00:41AM -0800, Stephen Hemminger wrote:
 > 
-> Basically, this boils down to what is our definition of ordered-mode?
+> > There still is a bug in the 3c59x driver.  It doesn't include any 
+> > code to handle changing the mac address.  It will work if you take 
+> > the device down, change address, then bring it up. But you shouldn't
+
+> > have to do that.
 > 
-> If the goal is to make sure we avoid the security exposure of
-> allocating a block and then crashing before we write the data block,
-> potentially exposing previously written data that might be belong to
-> another user, then what Badari is suggesting would avoid this
-> particular problem.
+> I sent a patch do to this probably a year or two back and it was 
+> rejected (by akpm if I recall) because of the argument that you could 
+> and should take it down, change the MAC and bring it back up.
+> 
+> Is this no longer a requirement?
 
-Yes, if the block allocation is needed, my patch is basically
-no-op, we go through regular code.
-
-> However, if what we are doing is overwriting our own data with more an
-> updated, more recent version of the data block, do we guarantee that
-> any ordering semantics apply?  For example, what if we write a data
-> block, and then follow it up with some kind of metadata update (say we
-> touch atime, or add an extended attribute).  Do we guarantee that if
-> the metadata update is committed, that the data block will have made
-> it to disk as well?  
-
-I don't see how we do this today. Yes. Metadata updates are jounalled,
-but I don't see how current adding buffers through journal_dirty_data
-(bh) call can guarantee that these buffers get added to metadata-update
-transaction ?
-
-
-> Today that is the way things work, but is that
-> guarantee part of the contract of ordered-mode?
-
-
-
-BTW, thanks Ted for putting this in human-readable terms :)
-
-Thanks,
-Badari
-
-						
-
+No. most drivers allow changes on the fly.

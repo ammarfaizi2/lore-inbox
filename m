@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWCPTLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752452AbWCPTc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbWCPTLe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWCPTLe
+	id S1752452AbWCPTc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWCPTc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:11:34 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:14762 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964844AbWCPTLd (ORCPT
+	Thu, 16 Mar 2006 14:32:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14315 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751192AbWCPTc1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:11:33 -0500
-Date: Thu, 16 Mar 2006 20:10:56 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Zachary Amsden <zach@vmware.com>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
-       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
-       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
-       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
-In-Reply-To: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
-Message-ID: <Pine.LNX.4.61.0603162008300.11776@yvahk01.tjqt.qr>
-References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com>
+	Thu, 16 Mar 2006 14:32:27 -0500
+Message-ID: <4419BD64.5070705@ce.jp.nec.com>
+Date: Thu, 16 Mar 2006 14:32:52 -0500
+From: "Jun'ichi Nomura" <j-nomura@ce.jp.nec.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Maule <maule@sgi.com>
+CC: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       shaohua.li@intel.com
+Subject: Re: [PATCH] (-mm) drivers/pci/msi: explicit declaration of msi_register
+References: <44172F0E.6070708@ce.jp.nec.com> <20060314134535.72eb7243.akpm@osdl.org> <44176502.9050109@ce.jp.nec.com> <20060315235544.GA6504@suse.de> <44198210.6090109@ce.jp.nec.com> <20060316181934.GM13666@sgi.com>
+In-Reply-To: <20060316181934.GM13666@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->The question of licensing of such ROM code is a completely separate
->issue.  We are not trying to hide some proprietary code by putting it
->inside of a ROM to keep it hidden.  In fact, you can disassemble the
->ROM code and see it quite readily - and you know all of the entry points.
->Whether we can distribute our ROM code under a GPL compatible license
->is not something I know at this time.  Just as you can't compile a
->binary using Linux kernel headers and claim that your binary is not
->subject to the GPL, our ROM code includes headers from other parts of
->our system that are specifically not under the GPL.  How this affects
->the final license under which the ROM is distributed is not something
->I think we know at this time.
+Hi Mark,
 
-The code _you_ wrote can be put under any license(s) you want, so in
-the worst case you do not need to rewrite your .c files.
+Thanks for the reply.
 
+Mark Maule wrote:
+>>There is another problem that CONFIG_IA64_GENERIC still doesn't
+>>build due to error in SGI SN specific code.
+>>It needs additional fix.
+> 
+> Ok, looking back at some of my original patches, it seems like the
+> declaration of msi_ops got moved from pci.h to and some forward declarations
+> in ia64/msi.h were removed.  This patch corrects the build problems.
 
-Jan Engelhardt
+But,
+
+Greg said:
+> these are core pci things that no one else should care about.
+
+Andrew said:
+> a declaration for msi_register(), in drivers/pci/pci.h.
+ > We don't want to add a duplicated declaration like this.
+
+I think the idea already gets objections.
+
+> The reason for putting struct msi_ops in pci.h is so that msi code that
+> resides outside of drivers/pci can use the declaration without having to
+> reach down into drivers/pci.
+
+The code in arch/ia64/sn/pci/msi.c looks much like
+drivers/pci/msi-apic.c.
+Why don't you move them to drivers/pci/msi-sgi-sn.c or something?
+
+Thanks,
 -- 
+Jun'ichi Nomura, NEC Solutions (America), Inc.

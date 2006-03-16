@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752330AbWCPKQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752331AbWCPKRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752330AbWCPKQd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 05:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752329AbWCPKQd
+	id S1752331AbWCPKRa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 05:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752332AbWCPKR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 05:16:33 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:64456 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1752327AbWCPKQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 05:16:32 -0500
-Date: Thu, 16 Mar 2006 11:16:30 +0100
-From: Sander <sander@humilis.net>
-To: Dan Aloni <da-x@monatomic.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lkml@rtr.ca>
-Subject: Re: [PATCH] sata_mv: stabilize for 5081 and other fixes
-Message-ID: <20060316101630.GA14179@favonius>
-Reply-To: sander@humilis.net
-References: <20060308194627.GA22346@localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060308194627.GA22346@localdomain>
-X-Uptime: 08:36:12 up 13 days, 12:46, 24 users,  load average: 3.70, 3.48, 3.01
-User-Agent: Mutt/1.5.11+cvs20060126
+	Thu, 16 Mar 2006 05:17:29 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30689
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1752331AbWCPKR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 05:17:29 -0500
+Date: Thu, 16 Mar 2006 02:17:34 -0800 (PST)
+Message-Id: <20060316.021734.33153483.davem@davemloft.net>
+To: ryadav@neomagic.com
+Cc: linux-kernel@vger.kernel.org
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <FE009StlS26hqgcBmrc000af456@Mx1.Myoutlookonline.com>
+References: <20060316070737.GA22920@eugeneteo.net>
+	<FE009StlS26hqgcBmrc000af456@Mx1.Myoutlookonline.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dan,
+From: "Raj Kumar Yadav" <ryadav@neomagic.com>
+Date: Thu, 16 Mar 2006 15:44:27 +0530
 
-Dan Aloni wrote (ao):
-> With the patch below I've managed to stabilize the sata_mv driver
-> running a Marvell 5081 SATA controller.
+> unsubscribe linux-kernel 
 
-Your patch (applied to 2.6.16-rc6) seems to work on the MV88SX6081 too.
-I have two Maxtor disks connected and in a raid0 configuration. The
-array is both fast and stable. I see no error messages in dmesg and no
-data corruption.
+It's not as if every single list posting doesn't give you precise
+directions on how to unsubscribe properly.
 
-I have yet to test if raid5 works well too, so I'll report on that
-later. It didn't work a month ago:
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0602.2/0360.html
+Sigh...
 
-Thanks a lot for your patch!
-
-	Kind regards, Sander
-
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+I've removed you manually from the list, why is this so
+hard?

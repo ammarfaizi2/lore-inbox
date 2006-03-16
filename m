@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752371AbWCPPu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752323AbWCPQBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752371AbWCPPu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 10:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752378AbWCPPu6
+	id S1752323AbWCPQBd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 11:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752316AbWCPQBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 10:50:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:62400 "EHLO
+	Thu, 16 Mar 2006 11:01:33 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34180 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1752371AbWCPPu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 10:50:57 -0500
-Subject: Re: remap_page_range() vs. remap_pfn_range()
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Brian D. McGrew" <brian@visionpro.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0970C7D@chicken.machinevisionproducts.com>
-References: <14CFC56C96D8554AA0B8969DB825FEA0970C7D@chicken.machinevisionproducts.com>
-Content-Type: text/plain
-Date: Thu, 16 Mar 2006 16:50:55 +0100
-Message-Id: <1142524255.3041.50.camel@laptopd505.fenrus.org>
+	id S1751998AbWCPQBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 11:01:33 -0500
+Date: Thu, 16 Mar 2006 16:01:30 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
+Subject: Re: [patch 1/1] consolidate TRUE and FALSE
+Message-ID: <20060316160129.GB6407@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
+References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 07:42 -0800, Brian D. McGrew wrote:
-> I've seen the change in the kernel for this call so I changed my device
-> drive to use the new call and now every time I access the device the
-> machine gets really unstable and crashes after a minute or so.
+> The patch implements TRUE and FALSE in include/linux/kernel.h and removes all
+> the private versions.
+> 
+> The patch also kills off a few private implementations of NULL.
 
-you forgot to post the URL to your source code, so how can we help you?
-
-
+NACK.  Just kill them all and use 0/1
 

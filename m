@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752403AbWCPQrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752402AbWCPQtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752403AbWCPQrX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 11:47:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752402AbWCPQrW
+	id S1752402AbWCPQtg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 11:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752398AbWCPQtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 11:47:22 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:38635
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751979AbWCPQrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 11:47:22 -0500
-Date: Thu, 16 Mar 2006 08:47:12 -0800
-From: Greg KH <greg@kroah.com>
-To: "Artem B. Bityutskiy" <dedekind@infradead.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [Bug? Report] kref problem
-Message-ID: <20060316164712.GA10167@kroah.com>
-References: <1142509279.3920.31.camel@sauron.oktetlabs.ru>
+	Thu, 16 Mar 2006 11:49:36 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:27562 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751241AbWCPQtg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 11:49:36 -0500
+Date: Thu, 16 Mar 2006 16:49:32 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, aia21@cantab.net, len.brown@intel.com
+Subject: Re: [patch 1/1] consolidate TRUE and FALSE
+Message-ID: <20060316164932.GT27946@ftp.linux.org.uk>
+References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1142509279.3920.31.camel@sauron.oktetlabs.ru>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 02:41:19PM +0300, Artem B. Bityutskiy wrote:
-> Hello Greg,
+On Thu, Mar 16, 2006 at 02:01:28AM -0800, akpm@osdl.org wrote:
 > 
-> I've hit on a kref problem Please, glance at the attached test module.
+> From: Andrew Morton <akpm@osdl.org>
 > 
-> The idea of the test is to create 2 kobjects (a and b), create dir A
-> with kobject A, and dir B with kobject B, so that A is B's parent. E.g.,
-> we'll have /sys/A/B.
+> We have no less than 65 implementations of TRUE and FALSE in the tree, so the
+> inevitable happened:
 > 
-> I see the following output of the test:
+> In file included from drivers/pci/hotplug/ibmphp_core.c:40:
+> drivers/pci/hotplug/ibmphp.h:409:1: warning: "FALSE" redefined
+> In file included from include/acpi/acpi.h:55,
+>                  from drivers/pci/hotplug/pci_hotplug.h:187,
+>                  from drivers/pci/hotplug/ibmphp.h:33,
+>                  from drivers/pci/hotplug/ibmphp_core.c:40:
+> include/acpi/actypes.h:336:1: warning: this is the location of the previous definition
 > 
-> a inited, kref 1
-> b inited, kref 1
-> dir A created, A kref 1, B kref 1
-> dir B created, A kref 1, B kref 1
-> b_release
-> a_release
-> kobj B put, A kref 0, B kref 0
-> kobj A put, A kref -1, B kref 0
-> 
-> 
-> So what I don't like is this "A kref -1". Why when I remove directory B,
-> kobj a is released? For me it looks like a bug.
+> The patch implements TRUE and FALSE in include/linux/kernel.h and removes all
+> the private versions.
 
-Sample code please?
+NAK.  Simply remove those and be done with that.  It's bad style and we
+certainly don't need to propagate that lossage.
 
-Also, creating sysfs directories does not change the reference count on
-kobjects, they are two separate things.
-
-thanks,
-
-greg k-h
+..oO[and no, #define BEGIN { is also not kernel.h fodder]

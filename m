@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbWCPBix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWCPBoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932549AbWCPBix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 20:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbWCPBix
+	id S1751844AbWCPBoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 20:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751994AbWCPBoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 20:38:53 -0500
-Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:58343 "EHLO
-	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
-	id S932549AbWCPBiw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 20:38:52 -0500
-Date: Thu, 16 Mar 2006 09:36:02 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: Fix ali5451 dereferenced before NULL check
-To: linux-kernel@vger.kernel.org
-Cc: Matt Wu <Matt_Wu@acersoftech.com.cn>
-Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
-Message-id: <20060316013602.GA20455@eugeneteo.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
-X-Operating-System: Debian GNU/Linux 2.6.16-rc6
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 15 Mar 2006 20:44:04 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:6367
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751844AbWCPBoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 20:44:02 -0500
+Message-ID: <4418C26A.5010001@microgate.com>
+Date: Wed, 15 Mar 2006 19:42:02 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc6: known regressions
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>	 <20060313200544.GG13973@stusta.de>  <20060313144244.266d96ef.akpm@osdl.org> <1142374716.3623.23.camel@localhost.localdomain>
+In-Reply-To: <1142374716.3623.23.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pvoice is missing a NULL check. channel needs a bound check too.
+Alan Cox wrote:
+> On Llu, 2006-03-13 at 14:42 -0800, Andrew Morton wrote:
+> 
+>>Post-<tty changes, perhaps>
+>>  From: "Bob Copeland" <bcopeland@gmail.com>
+>>  Subject: 2.6.16-rc5 pppd oops on disconnects
+> 
+> 
+> Possibly although from an initial look I didn't see anything that
+> explained it and I still do see a lot of problems with USB serial and
+> USB error handling that might be USB or serial but predate the changes.
 
-Coverity bug #862
+GregKH just snuffed this one with a tweak to sysfs.
+It was a convoluted interaction of usb/tty/sysfs
+which was only revealed with slab debug and unplugging
+the usb device in an active tty session.
 
-Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
-
---- linux-2.6/sound/pci/ali5451/ali5451.c~	2006-03-15 10:05:45.000000000 +0800
-+++ linux-2.6/sound/pci/ali5451/ali5451.c	2006-03-16 09:27:53.000000000 +0800
-@@ -990,7 +990,13 @@
- 	if (!(old & mask))
- 		return;
- 
-+	if (channel < 0 || channel >= ALI_CHANNELS)
-+		return;
-+	
- 	pvoice = &codec->synth.voices[channel];
-+	if (pvoice == NULL)
-+		return;
-+
- 	runtime = pvoice->substream->runtime;
- 
- 	udelay(100);
-
--- 
-1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
-
+--
+Paul

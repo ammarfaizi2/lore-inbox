@@ -1,72 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWCPU2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932719AbWCPUeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751586AbWCPU2c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 15:28:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbWCPU2c
+	id S932719AbWCPUeH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 15:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932721AbWCPUeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 15:28:32 -0500
-Received: from gold.veritas.com ([143.127.12.110]:27009 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751586AbWCPU2b (ORCPT
+	Thu, 16 Mar 2006 15:34:07 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:28169 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932719AbWCPUeG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 15:28:31 -0500
-X-IronPort-AV: i="4.02,198,1139212800"; 
-   d="scan'208"; a="57291960:sNHT31212464"
-Date: Thu, 16 Mar 2006 20:29:08 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: signal_cache slab corruption.
-In-Reply-To: <20060314170153.GB32080@redhat.com>
-Message-ID: <Pine.LNX.4.61.0603162013350.25141@goblin.wat.veritas.com>
-References: <20060313181524.GA26234@redhat.com>
- <Pine.LNX.4.61.0603140921270.5164@goblin.wat.veritas.com>
- <20060314170153.GB32080@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 16 Mar 2006 20:28:29.0485 (UTC) FILETIME=[2FC195D0:01C64938]
+	Thu, 16 Mar 2006 15:34:06 -0500
+Date: Thu, 16 Mar 2006 21:34:00 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mathis Ahrens <Mathis.Ahrens@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.16-rc6] CONFIG_LOCALVERSION_AUTO
+Message-ID: <20060316203400.GA24008@mars.ravnborg.org>
+References: <44179C77.1010902@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44179C77.1010902@gmx.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Mar 2006, Dave Jones wrote:
-> On Tue, Mar 14, 2006 at 09:22:35AM +0000, Hugh Dickins wrote:
->  > On Mon, 13 Mar 2006, Dave Jones wrote:
->  > 
->  > > I got into the office today to find my workstation that was running
->  > > a kernel based on .16rc5-git9 was totally unresponsive.
->  > > After rebooting, I found this in the logs.
->  > > 
->  > > slab signal_cache: invalid slab found in partial list at ffff8100e3a48080 (11/11).
->  > > slab signal_cache: invalid slab found in partial list at ffff81007ecc6100 (11/11).
->  > > slab: Internal list corruption detected in cache 'signal_cache'(11), slabp ffff810037ec0998(12). Hexdump:
->  > > 
->  > > 000: c0 60 d9 7e 00 81 ff ff 00 61 cc 7e 00 81 ff ff
->  > > 010: a8 09 ec 37 00 81 ff ff a8 09 ec 37 00 81 ff ff
->  > > 020: 0c 00 00 00 00 00 00 00 57 d0 1d 07 01 00 00 00
->  > > 030: 00 00 00 00
->  > > ----------- [cut here ] --------- [please bite here ] ---------
->  > > Kernel BUG at mm/slab.c:2598
+On Wed, Mar 15, 2006 at 05:47:51AM +0100, Mathis Ahrens wrote:
+> 
+> Hi all,
+> 
+> i just discovered this cute little feature, but had three
+> minor issues while experimenting with it on 2.6.16-rc6:
+> 
+> 1.
+> Semantics of LOCALVERSION are confusing and probably buggy.
+> The Makefile states:
+> 
+> # Take the contents of any files called localversion* and the config
+> # variable CONFIG_LOCALVERSION and append them to KERNELRELEASE.
+> # LOCALVERSION from the command line override all of this
+> 
+> whereas my simplified view of current code is:
+> 
+> version = major + minor + patch + extra
+> release = version + localver-full
+> localver-full = localver + localver-auto
+> localver = <concat all localversions*> + $CONFIG_LOCALVERSION
+> localver-auto = $LOCALVERSION + <some -gxxxxxx>
+> 
+> LOCALVERSION does not seem to /override/ anything if specified on the
+> command line, but rather (with CONFIG_LOCALVERSION_AUTO=y) gets
+> /inserted/.
+> 
+> Also, with CONFIG_LOCALVERSION_AUTO=n, specifying LOCALVERSION
+> on the command line currently does nothing at all. This is a regression
+> from 2.6.15, I suppose.
+This is a bug.
+I will fix that for 2.6.17.
 
-Thanks for the diff, that fitted together better.
 
-I spent several hours poring over your report,
-but came to no useful conclusions - sorry.
+> 2.
+> "make kernelrelease" does not imply "make .kernelrelease", it only
+> does cat the file .kernelrelease (or shows an error if it's not there).
+> 
+> This leads to the following IMHO slightly irritating behaviour
+> $ echo "LV1" > localversion
+> $ make kernelrelease
+> 2.6.16-rc6LV1
+> $ echo "LV2" > localversion
+> $ make kernelrelease
+> 2.6.16-rc6LV1
+> 
+> Is there a reason for this?
+make kernelrelase shall work in both a read-only environment and shall
+avoid modifying files when run as another user.
+So the simple measure was to error out only if .kernelrelease was
+missing.
 
-As you probably noticed yourself, struct slab's colouroff and s_mem
-have been overwritten by a list_head; but I can't deduce anything
-illuminating from that.
+The trick here seems to print $(KERNELVERSION)$(localver-full)
+but only if .kernelrelease is present.
+On the other hand if .kernelrelase and $(KERNELVERSION)$(localver-full)
+differ then what to print.
+The kernelrelease of the kernel or how it is configured?
 
-Less obvious and more interesting, is that the struct kmem_cache is
-being corrupted during the course of the output: it starts off saying
-in several places that cachep->num is 11, but ends up printing only
-one kmem_bufctl_t (aside from "free"): implying cachep->num 1 by then.
-Which may relate to how 11/11 was wrongly in the partial list.
+echo -sam > locelversion does NOT change the kernel.
+The kernelrealse of the kernel is only changed after running 'make'.
+And this is what we want to see - the kernelrelase of the kernel, not
+what happes to be stored in a file after the kernel was compiled.
 
-I'd be interested in the signal_cache line from your /proc/slabinfo,
-to see what cachep->num is usually in your configuration.  But it's
-an idle interest: I won't have anything interesting to say, whatever
-it is...
+> 
+> 3.
+> The help of CONFIG_LOCALVERSION_AUTO reads:
+> 
+> Note: This requires Perl, and a git repository, but not necessarily
+> the git or cogito tools to be installed.
+> 
+> Looking at scripts/setlocalversion, this does not seem to be correct
+> anymore.
 
-Anyone else?
+Thanks. Will be fixed.
 
-Hugh
+	Sam

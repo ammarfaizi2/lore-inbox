@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752385AbWCPQ1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWCPQ2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752385AbWCPQ1z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 11:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752383AbWCPQ1z
+	id S932402AbWCPQ2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 11:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWCPQ2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 11:27:55 -0500
-Received: from xenotime.net ([66.160.160.81]:57037 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751214AbWCPQ1z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 11:27:55 -0500
-Date: Thu, 16 Mar 2006 08:29:51 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, aia21@cantab.net,
-       len.brown@intel.com
-Subject: Re: [patch 1/1] consolidate TRUE and FALSE
-Message-Id: <20060316082951.58592fdc.rdunlap@xenotime.net>
-In-Reply-To: <20060316160129.GB6407@infradead.org>
-References: <200603161004.k2GA46Fc029649@shell0.pdx.osdl.net>
-	<20060316160129.GB6407@infradead.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.2 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 11:28:51 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10722 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932406AbWCPQ2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 11:28:50 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+       Michael Kerrisk <michael.kerrisk@gmx.net>
+Subject: Re: [PATCH] make fork() atomic wrt pgrp/session signals
+References: <44198BC4.EE653B1@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 16 Mar 2006 09:27:31 -0700
+In-Reply-To: <44198BC4.EE653B1@tv-sign.ru> (Oleg Nesterov's message of "Thu,
+ 16 Mar 2006 19:01:08 +0300")
+Message-ID: <m164mebbik.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Mar 2006 16:01:30 +0000 Christoph Hellwig wrote:
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-> > The patch implements TRUE and FALSE in include/linux/kernel.h and removes all
-> > the private versions.
-> > 
-> > The patch also kills off a few private implementations of NULL.
-> 
-> NACK.  Just kill them all and use 0/1
+> Eric W. Biederman wrote:
+>>
+>> Ok. SUSV3/Posix is clear, fork is atomic with respect
+>> to signals.  Either a signal comes before or after a
+>> fork but not during. (See the rationale section).
+>> http://www.opengroup.org/onlinepubs/000095399/functions/fork.html
+>>
+>> The tasklist_lock does not stop forks from adding to a process
+>> group. The forks stall while the tasklist_lock is held, but a fork
+>> that began before we grabbed the tasklist_lock simply completes
+>> afterwards, and the child does not receive the signal.
+>
+> This also means that SIGSTOP or sig_kernel_coredump() signal can't
+> be delivered to pgrp/session reliably.
+>
+> With this patch copy_process() returns -ERESTARTNOINTR when it
+> detects a pending signal, fork() will be restarted transparently
+> after handling the signals.
+>
+> This patch also deletes now unneeded "group_stop_count > 0" check,
+> copy_process() can no longer succeed while group stop in progress.
+>
+> Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-nah, the only place that using symbolic names for true and false
-is a problem is when someone #defines or enums them bassackwards.
+Looks like what we discussed and I can't see any flaws with it.
 
----
-~Randy
+Acked-By: Eric Biederman <ebiederm@xmission.com>

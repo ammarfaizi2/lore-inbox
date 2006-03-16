@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWCPTAR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWCPTFO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWCPTAR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 14:00:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbWCPTAR
+	id S964847AbWCPTFO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 14:05:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbWCPTFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 14:00:17 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:17676 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S964848AbWCPTAP (ORCPT
+	Thu, 16 Mar 2006 14:05:13 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:62947 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932706AbWCPTFM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 14:00:15 -0500
-Date: Thu, 16 Mar 2006 19:59:51 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jiri Benc <jbenc@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: Bernd Petrovitsch <bernd@firmix.at>, rusty@rustcorp.com.au,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kbuild: fix buffer overflow in modpost
-Message-ID: <20060316185951.GA21681@mars.ravnborg.org>
-References: <20060315154436.4286d2ab@griffin.suse.cz> <1142434648.17627.5.camel@tara.firmix.at> <20060315160858.311e5c0e@griffin.suse.cz> <20060315225159.GA11095@mars.ravnborg.org> <20060316142114.74367113@griffin.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060316142114.74367113@griffin.suse.cz>
-User-Agent: Mutt/1.5.11
+	Thu, 16 Mar 2006 14:05:12 -0500
+Date: Thu, 16 Mar 2006 20:04:28 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Zachary Amsden <zach@vmware.com>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 2/24] i386 Vmi config
+In-Reply-To: <20060314152350.GB16921@infradead.org>
+Message-ID: <Pine.LNX.4.61.0603161959510.11776@yvahk01.tjqt.qr>
+References: <200603131800.k2DI0RfN005633@zach-dev.vmware.com>
+ <20060314152350.GB16921@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus - please apply to 2.6.16-rc
 
-Jiri Benc <jbenc@suse.cz> reported that modpost would stop with SIGABRT if
-used with long filepaths.
-The error looked like:
->   Building modules, stage 2.
->   MODPOST
-> *** glibc detected *** scripts/mod/modpost: realloc(): invalid next size:
-+0x0809f588 ***
-> [...]
+>> Introduce the basic VMI sub-arch configuration dependencies.  VMI
+>> kernels only are designed to run on modern hardware platforms.  As
+>> such, they require a working APIC, and do not support some legacy
+>> functionality, including APM BIOS, ISA and MCA bus systems, PCI BIOS
+>> interfaces, or PnP BIOS (by implication of dropping ISA support). 
+>> They also require a P6 series CPU.
+>
 
-Following patch fixes this by allocating at least the required
-memory + SZ bytes each time. Before we sometimes ended up allocating
-too little memory resuting in the glibc detected bug above.
-Based on patch originally submitted by: Jiri Benc <jbenc@suse.cz>
+Maybe I'm mixing things, but if VMware is capable of running on a i586
+(=P5?) (like AMD K6 - and it certainly is capable of doing that),
+should not VMI be similar?
 
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
----
+For example, the TM5800 CPU which is somewhat of a mixture between i586
+and i686 but does not have an IOAPIC can run VMware machines (although
+painfully slow).
 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index f70ff13..b8b2a56 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -508,12 +508,7 @@ buf_printf(struct buffer *buf, const cha
- 	
- 	va_start(ap, fmt);
- 	len = vsnprintf(tmp, SZ, fmt, ap);
--	if (buf->size - buf->pos < len + 1) {
--		buf->size += 128;
--		buf->p = realloc(buf->p, buf->size);
--	}
--	strncpy(buf->p + buf->pos, tmp, len + 1);
--	buf->pos += len;
-+	buf_write(buf, tmp, len);
- 	va_end(ap);
- }
- 
-@@ -521,7 +516,7 @@ void
- buf_write(struct buffer *buf, const char *s, int len)
- {
- 	if (buf->size - buf->pos < len) {
--		buf->size += len;
-+		buf->size += len + SZ;
- 		buf->p = realloc(buf->p, buf->size);
- 	}
- 	strncpy(buf->p + buf->pos, s, len);
+And, the last thing, distributor kernels are often compiled for i586 to
+be generic to all users. But some users may actually run them on i686,
+and these users would like to have VMI (speculation :-). Which would
+include a forceful patch to Kconfig to have the VMI option available
+with CONFIG_M586.
+
+>That's pretty bad because distributors need another kernel still.  At least
+>a working APIC isn't quite as common today as it should.
+
+
+Jan Engelhardt
+-- 

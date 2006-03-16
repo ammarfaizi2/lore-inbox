@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751994AbWCPBrs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752026AbWCPBvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751994AbWCPBrs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 20:47:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751995AbWCPBrs
+	id S1752026AbWCPBvK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 20:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752127AbWCPBvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 20:47:48 -0500
-Received: from kbsmtao2.starhub.net.sg ([203.116.2.167]:57594 "EHLO
-	kbsmtao2.starhub.net.sg") by vger.kernel.org with ESMTP
-	id S1751994AbWCPBrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 20:47:47 -0500
-Date: Thu, 16 Mar 2006 09:46:06 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: Fix seq_clientmgr dereferences before NULL check
-To: linux-kernel@vger.kernel.org
-Cc: Frank van de Pol <fvdpol@coil.demon.nl>, Jaroslav Kysela <perex@suse.cz>,
-       Takashi Iwai <tiwai@suse.de>
-Reply-to: Eugene Teo <eugene.teo@eugeneteo.net>
-Message-id: <20060316014606.GA20609@eugeneteo.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-PGP-Key: http://www.honeynet.org/misc/pgp/eugene-teo.pgp
-X-Operating-System: Debian GNU/Linux 2.6.16-rc6
-User-Agent: Mutt/1.5.11+cvs20060126
+	Wed, 15 Mar 2006 20:51:09 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:41400 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1752026AbWCPBvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 20:51:08 -0500
+X-IronPort-AV: i="4.02,196,1139212800"; 
+   d="scan'208"; a="314722027:sNHT26322248"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core driver
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Wed, 15 Mar 2006 17:51:05 -0800
+In-Reply-To: <1142470579.6994.78.camel@localhost.localdomain> (Bryan O'Sullivan's message of "Wed, 15 Mar 2006 16:56:19 -0800")
+Message-ID: <ada3bhjuph2.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 16 Mar 2006 01:51:06.0935 (UTC) FILETIME=[17484C70:01C6489C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix cptr->pool dereferences before NULL check.
+ > The first two are windows onto the chip's MMIO space; we create mappings
+ > for userspace in our mmap code using io_remap_pfn_range.
+ > 
+ > - General user-oriented chip registers.
+ > 
+ > - Chip PIO buffers.
+ > 
+ > We don't do any funnies with get_page/SetPageReserved (or the new
+ > vm_insert_page) on these.  However, we turn on the VM_* flag christmas
+ > tree, in a frenzied effort to make the kernel pay no attention:
+ > VM_DONTCOPY | VM_DONTEXPAND | VM_IO | VM_SHM | VM_LOCKED.
 
-Coverity bug #860
+I don't think you need to do anything beyond io_remap_pfn_range().
+Look at the comment inside remap_pfn_range() in mm/memory.c.
+You may want VM_DONTCOPY for fork() handling I guess.
 
-Signed-off-by: Eugene Teo <eugene.teo@eugeneteo.net>
+ > The next three kinds or memory are allocated with dma_alloc_coherent
+ > (first two) or pci_alloc_consistent (last).  We have a nopage handler
+ > that knows how to deal with them.  We set the low two bits of
+ > vma->vm_private_data to tell the nopage handler what kind of memory it
+ > is dealing with.
 
---- linux-2.6/sound/core/seq/seq_clientmgr.c~	2006-03-15 10:05:45.000000000 +0800
-+++ linux-2.6/sound/core/seq/seq_clientmgr.c	2006-03-16 09:41:05.000000000 +0800
-@@ -1862,12 +1862,13 @@
- 	cptr = snd_seq_client_use_ptr(info.client);
- 	if (cptr == NULL)
- 		return -ENOENT;
-+	if (cptr->pool == NULL)
-+		return -ENOENT;
- 	memset(&info, 0, sizeof(info));
- 	info.output_pool = cptr->pool->size;
- 	info.output_room = cptr->pool->room;
- 	info.output_free = info.output_pool;
--	if (cptr->pool)
--		info.output_free = snd_seq_unused_cells(cptr->pool);
-+	info.output_free = snd_seq_unused_cells(cptr->pool);
- 	if (cptr->type == USER_CLIENT) {
- 		info.input_pool = cptr->data.user.fifo_pool_size;
- 		info.input_free = info.input_pool;
+As a side note, why do you use both dma_alloc_coherent() and
+pci_alloc_consistent()?  Presumably all the allocations are for the
+same underlying device, so why not just pick one interface (probably
+dma_alloc_coherent(), since it lets you specify the GFP mask).
 
--- 
-1024D/A6D12F80 print D51D 2633 8DAC 04DB 7265  9BB8 5883 6DAA A6D1 2F80
-main(i) { putchar(182623909 >> (i-1) * 5&31|!!(i<7)<<6) && main(++i); }
+ > Once again, we sprinkle heaps of VM_* flags all over the freshly baked
+ > mapping: VM_DONTEXPAND | VM_DONTCOPY | VM_RESERVED | VM_IO | VM_SHM
 
+You probably want VM_RESERVED.  I don't think you want VM_IO (these
+pages are in RAM), and there's not much point to VM_SHM, since it's
+currently defined as:
+
+#define VM_SHM          0x00000000      /* Means nothing: delete it later */
+
+VM_DONTEXPAND is fine, although you could handle it in your NOPAGE
+method too.  And VM_DONTCOPY is just as above -- it might make fork()
+work better for you.
+
+ > The nopage handler looks very normal, except it does a get_page on
+ > pages marked with IPATH_VM_PIOAVAILREGS, but not on others.  Presumably
+ > this is because they've had SetPageReserved set on them.
+
+I think you should always be doing a get_page().  As far as I know,
+there's always a put_page() when the userspace mapping is torn down,
+and things are going to get pretty bad if a page count goes below 0.
+
+ - R.

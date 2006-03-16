@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWCPI1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750920AbWCPIbn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbWCPI1s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 03:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPI1s
+	id S1750920AbWCPIbn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 03:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752252AbWCPIbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 03:27:48 -0500
-Received: from [213.91.10.50] ([213.91.10.50]:32975 "EHLO zone4.gcu-squad.org")
-	by vger.kernel.org with ESMTP id S1750763AbWCPI1r convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 03:27:47 -0500
-Date: Thu, 16 Mar 2006 09:22:44 +0100 (CET)
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ot] VIA southbridge strangeness (was: sis96x compiled in by error: delay of one minute at boot)
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
-Message-ID: <vp9VZWCx.1142497364.7674680.khali@localhost>
-In-Reply-To: <Pine.LNX.4.61.0603152359170.20859@yvahk01.tjqt.qr>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Etienne Lorrain" <etienne_lorrain@yahoo.fr>,
-       "Mark M. Hoffman" <mhoffman@lightlink.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.1.2 (zone4.gcu-squad.org [127.0.0.1]); Thu, 16 Mar 2006 09:22:46 +0100 (CET)
+	Thu, 16 Mar 2006 03:31:43 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:13238 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750899AbWCPIbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 03:31:42 -0500
+Subject: Re: Which kernel is the best for a small linux system?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: gcoady@gmail.com, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Willy Tarreau <willy@w.ods.org>, Arjan van de Ven <arjan@infradead.org>,
+       j4K3xBl4sT3r <jakexblaster@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1142496748.10098.5.camel@homer>
+References: <436c596f0603121640h4f286d53h9f1dd177fd0475a4@mail.gmail.com>
+	 <1142237867.3023.8.camel@laptopd505.fenrus.org>
+	 <opcb12964ic9im9ojmobduqvvu4pcpgppc@4ax.com>
+	 <1142273212.3023.35.camel@laptopd505.fenrus.org>
+	 <20060314062144.GC21493@w.ods.org>
+	 <kv2d12131e73fjkp0hufomj152un5tbsj1@4ax.com>
+	 <20060314222131.GB3166@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.61.0603152347210.20859@yvahk01.tjqt.qr>
+	 <f78h1292orlp3vnrm2qq9c040ech0eduhg@4ax.com>
+	 <1142482749.8369.12.camel@homer>  <1142496748.10098.5.camel@homer>
+Content-Type: text/plain
+Date: Thu, 16 Mar 2006 03:31:32 -0500
+Message-Id: <1142497893.1671.173.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-03-16 at 09:12 +0100, Mike Galbraith wrote:
+> P.S.  if you're talking about ssh console slowdown thingie, as I write
+> this I'm ssh'd into my P3/500, and..
+> 
+> [root]:# time w
 
-Hi Jan,
+> real    0m0.033s
+> user    0m0.013s
+> sys     0m0.019s
+> [root]:#         
 
-On 2006-03-15, Jan Engelhardt wrote:
-> > > I have this lspci:
-> > > (...)
-> > > 0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
-> > > (...)
-> > > 0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-> >
-> > Off-topic, but it's quite strange. Your south bridge cannot be a
-> > VT8237R and a VT8235 at the same time...
->
-> Where does it say that the southbridge is 35 and 37 at the same time?
-> (The only thing that's different between the two lspci lines is the
-> vtABCD number...)
+I think you left out the result for 2.4.
 
-"The only thing that's different is the thing you said was different."
-:)
+Lee
 
-It looked strange to me because I have two systems with a VT8237R and on
-both, lspci says "VT8237" for both the PCI and the ISA bridges. So the
-result provided by Etienne suggests that a different (supposedly
-earlier) version of the VT8237R has a different ISA bridge sub-device
-embedded.
-
-Not that it really matters, anyway, so I probably shouldn't have
-commented on it in the first place.
-
-> Or it looks like there's another of these "strange" cases:
->
-> 0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
-> MVP3/Pro133x AGP]
-> 0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South]
-> (rev 23)
-
-There are many of these, indeed. South bridges include several
-sub-devices, and it is very frequent that chip manufacturers do not
-upgrade all these sub-devices when they release a new version of their
-chip.
-
-My original comment was really related to the specific case of the
-VT8237R, not general.
-
-Thanks,
---
-Jean Delvare

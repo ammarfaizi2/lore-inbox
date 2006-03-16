@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWCPBQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751932AbWCPBRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751931AbWCPBQz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Mar 2006 20:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWCPBQz
+	id S1751932AbWCPBRw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Mar 2006 20:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751983AbWCPBRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Mar 2006 20:16:55 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:47284 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751931AbWCPBQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Mar 2006 20:16:55 -0500
-Date: Thu, 16 Mar 2006 02:16:51 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: + posix-timer-cleanup-common_timer_get.patch added to -mm tree
-In-Reply-To: <1142422432.19916.714.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0603160205520.16802@scrub.home>
-References: <200603121139.k2CBdTAx001302@shell0.pdx.osdl.net>
- <1142422432.19916.714.camel@localhost.localdomain>
+	Wed, 15 Mar 2006 20:17:52 -0500
+Received: from mailout1.vmware.com ([65.113.40.130]:47366 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751932AbWCPBRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Mar 2006 20:17:51 -0500
+Message-ID: <4418BCBE.7010608@vmware.com>
+Date: Wed, 15 Mar 2006 17:17:50 -0800
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
+       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
+       Pratap Subrahmanyam <pratap@vmware.com>,
+       Christopher Li <chrisl@vmware.com>, Joshua LeVasseur <jtl@ira.uka.de>,
+       Chris Wright <chrisw@osdl.org>, Rik Van Riel <riel@redhat.com>,
+       Jyothy Reddy <jreddy@vmware.com>, Jack Lo <jlo@vmware.com>,
+       Kip Macy <kmacy@fsmware.com>, Jan Beulich <jbeulich@novell.com>,
+       Ky Srinivasan <ksrinivasan@novell.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Leendert van Doorn <leendert@watson.ibm.com>
+Subject: Re: [RFC, PATCH 9/24] i386 Vmi smp support
+References: <200603131805.k2DI5wlO005693@zach-dev.vmware.com> <20060315231755.GB1919@elf.ucw.cz>
+In-Reply-To: <20060315231755.GB1919@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek wrote:
+>   
+>> @@ -0,0 +1,51 @@
+>> +/* 
+>> + * include/asm-i386/mach-default/smpboot_hooks.h
+>> + *
+>> + * Portions Copyright 2005 VMware, Inc.
+>> + */
+>>     
+>
+> Whose are the other portions?
+>   
 
-On Wed, 15 Mar 2006, Thomas Gleixner wrote:
+We don't know.  Most of this is copied from the generic smpboot_hooks.h, 
+and most of the fixups you pointed out can be applied there as well.  
+Adding to my todo list.
 
-> -	if (timr->it.real.interval.tv64 == 0) {
-> +	if (iv.tv64)
-
-Just for the record: this wasn't my bug... :)
-
-> +	if (iv.tv64 && (timr->it_requeue_pending & REQUEUE_PENDING ||
-> +	    (timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE))
-> +		timr->it_overrun += hrtimer_forward(timer, now, iv);
-
-The iv.tv64 test is only needed for the SIGEV_NONE case, so one could also 
-move it to the end:
-
-	if ((timr->it_requeue_pending & REQUEUE_PENDING) ||
-	    ((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE && iv.tv64))
-
-OTOH since it_requeue_pending is unused for SIGEV_NONE, we could as well 
-initialize it during timer_set:
-
-	if (timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE)
-		timr->it_requeue_pending == interval.tv64 ? REQUEUE_PENDING : 0;
-
-and make the test even simpler.
-
-> +	if (remaining.tv64 <= 0) {
-> +		/*
-> +		 * A single shot SIGEV_NONE timer must return 0, when
-> +		 * it is expired !
-> +		 */
-> +		if ((timr->it_sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE)
-> +			cur_setting->it_value.tv_nsec = 1;
-
-It's maybe practically not relevant, but theoretically a (iv.tv64) would 
-be more correct and then we could also move it up to the initial (iv.tv64) 
-test and leave the (remaining.tv64 > 0) case here.
-
-bye, Roman
+Zach

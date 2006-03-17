@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752512AbWCQBaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752514AbWCQBdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752512AbWCQBaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752514AbWCQBaY
+	id S1752514AbWCQBdV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752515AbWCQBdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:30:24 -0500
-Received: from out-mta2.ai270.net ([83.244.130.113]:13270 "EHLO
-	out-mta1.ai270.net") by vger.kernel.org with ESMTP id S1752512AbWCQBaX
+	Thu, 16 Mar 2006 20:33:21 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:24397 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752514AbWCQBdV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:30:23 -0500
-In-Reply-To: <20060317010529.GB30801@schatzie.adilger.int>
-References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk> <20060317010529.GB30801@schatzie.adilger.int>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CF2CC9AC-3695-45C1-9FA6-9BDAAA6418DD@lougher.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Phillip Lougher <phillip@lougher.org.uk>
-Subject: Re: [ANN] Squashfs 3.0 released
-Date: Fri, 17 Mar 2006 01:30:03 +0000
-To: Andreas Dilger <adilger@clusterfs.com>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 16 Mar 2006 20:33:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Sgcy4c1mNUrfctJsDeMBLac/r7bvUrMjS5lYB9U29tWsHrUNxheAXisZH4JaJsalbhbTIwSM+ng3co3V4sG+ZrWeg8M5O4awXM9FEHawgtdUPpVENQ20oOOSMnQvQvAyySq6Q4DeMNCSD6QRVRZw19ENKtFTjaMvu7l0brJn8Lk=
+Message-ID: <dda83e780603161733o10a3c330kddf96a726f162fa7@mail.gmail.com>
+Date: Thu, 16 Mar 2006 17:33:17 -0800
+From: "Bret Towe" <magnade@gmail.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Subject: Re: nfs udp 1000/100baseT issue
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
+	 <Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Mar 2006, at 01:05, Andreas Dilger wrote:
-
-> On Mar 17, 2006  00:45 +0000, Phillip Lougher wrote:
->> Squashfs 3.0 has finally been released.  Squashfs 3.0 is a major
->> improvement to Squashfs, and it addresses most of the issues that
->> that have been raised, particularly the 4GB filesystem and file
->> limit.
+On 3/16/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >
+> >a while ago i noticed a issue when one has a nfs server that has
+> >gigabit connection
+> >to a network and a client that connects to that network instead via 100baseT
+> >that udp connection from client to server fails the client gets a
+> >server not responding
+> >message when trying to access a file, interesting bit is you can get a directory
+> >listing without issue
+> >work around i found for this is adding proto=tcp to the client side
+> >and all works
+> >without error
 >
-> Sometimes it is useful for the casual reader if you include a brief
-> blurb about what exactly squashfs is... :-)
+> UDP has its implications, like silently dropping packets when the link
+> is full, by design. Try tcpdump on both systems and compare what packets
+> are sent and which do arrive. The error message is then probably because
+> the client is confused of not receiving some packets.
+
+after compairing a working and not working client i found that
+packets containing offset 19240, 20720, 22200 are missing
+and the 100baseT client had an extra offset of 32560
+on the working client it ends at 31080
+
+the missing ones are mostly constantly missing 22200 appears every so often
+on retransmission and 23680 also disappears every so often
+
+i hope that isnt too confusing i dont use tcpdump type stuff much
+(well i did give up on tcpdump and had to use ethereal...)
+
+> >error message i see client side are as follows:
+> >nfs: server vox.net not responding, still trying
+> >nfs: server vox.net not responding, still trying
+> >nfs: server vox.net not responding, still trying
 >
-Ok, for those who are interested, old blurb  from the README follows:
-
-"Squashfs is a highly compressed read-only filesystem for Linux.
-It uses zlib compression to compress both files, inodes and directories.
-Inodes in the system are very small and all blocks are packed to  
-minimise
-data overhead. Block sizes greater than 4K are supported up to a maximum
-of 64K.
-
-Squashfs is intended for general read-only filesystem use, for archival
-use (i.e. in cases where a .tar.gz file may be used), and in constrained
-block device/memory systems (e.g. embedded systems) where low  
-overhead is
-needed."
-
-At the moment it tends to be used for embedded systems, and liveCDs.
-
-Phillip
-
+>
+> Jan Engelhardt
+> --
+>

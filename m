@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWCQIWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWCQIWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWCQIWX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWCQIWW
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S964929AbWCQIWW (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 17 Mar 2006 03:22:22 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:58575 "EHLO
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWCQIWT
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 17 Mar 2006 03:22:19 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:58831 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1752567AbWCQIWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1752575AbWCQIWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 17 Mar 2006 03:22:09 -0500
-Date: Fri, 17 Mar 2006 17:21:15 +0900
+Date: Fri, 17 Mar 2006 17:20:53 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 005/017]Memory hotplug for new nodes v.4.(generic refresh NODE_DATA())
+Subject: [PATCH: 003/017]Memory hotplug for new nodes v.4.(get node id at probe memory)
 Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060317163118.C641.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060317162835.C63D.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -25,59 +25,76 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This function refresh NODE_DATA() for generic archs.
-In this case, NODE_DATA(nid) == node_data[nid].
-node_data[] is array of address of pgdat.
-So, refresh is quite simple.
+When CONFIG_NUMA && CONFIG_ARCH_MEMORY_PROBE, nid should be defined
+before calling add_memory(nid, start, size).
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+Each arch , which supports CONFIG_NUMA && ARCH_MEMORY_PROBE, should
+define arch_nid_probe(paddr);
+
+Powerpc has nice function. X86_64 has not.....
+
+Note:
+If memory is hot-plugged by firmware, there is another *good* information
+like pxm.
+
 Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
- include/linux/memory_hotplug.h |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
+ arch/powerpc/mm/mem.c          |    5 +++++
+ drivers/base/memory.c          |    3 ++-
+ include/linux/memory_hotplug.h |    9 +++++++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
-Index: pgdat8/include/linux/memory_hotplug.h
+Index: pgdat8/arch/powerpc/mm/mem.c
 ===================================================================
---- pgdat8.orig/include/linux/memory_hotplug.h	2006-03-17 13:53:23.914730042 +0900
-+++ pgdat8/include/linux/memory_hotplug.h	2006-03-17 13:53:27.319026876 +0900
-@@ -88,11 +88,14 @@ static inline int arch_nid_probe(u64 sta
-  */
- extern pg_data_t * arch_alloc_nodedata(int nid);
- extern void arch_free_nodedata(pg_data_t *pgdat);
-+extern void arch_refresh_nodedata(int nid, pg_data_t *pgdat);
+--- pgdat8.orig/arch/powerpc/mm/mem.c	2006-03-17 13:48:31.665710185 +0900
++++ pgdat8/arch/powerpc/mm/mem.c	2006-03-17 13:52:47.538753925 +0900
+@@ -114,6 +114,11 @@ void online_page(struct page *page)
+ 	num_physpages++;
+ }
  
- #else /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
- 
- #define arch_alloc_nodedata(nid)	generic_alloc_nodedata(nid)
- #define arch_free_nodedata(pgdat)	generic_free_nodedata(pgdat)
-+#define arch_refresh_nodedata(nid, pgdat)	\
-+				generic_refresh_nodedata(nid, pgdat)
- 
- #ifdef CONFIG_NUMA
- /*
-@@ -111,6 +114,12 @@ extern void arch_free_nodedata(pg_data_t
-  */
- #define generic_free_nodedata(pgdat)	kfree(pgdat)
- 
-+extern pg_data_t *node_data[];
-+static inline void generic_refresh_nodedata(int nid, pg_data_t *pgdat)
++int arch_nid_probe(u64 start)
 +{
-+	node_data[nid] = pgdat;
++	return hot_add_scn_to_nid(start);
 +}
 +
- #else /* !CONFIG_NUMA */
- 
- /* never called */
-@@ -122,6 +131,9 @@ static inline pg_data_t *generic_alloc_n
- static inline void generic_free_nodedata(pg_data_t *pgdat)
+ int __meminit arch_add_memory(int nid, u64 start, u64 size)
  {
- }
-+static inline void generic_refresh_nodedata(int nid, pg_data_t *pgdat)
+ 	struct pglist_data *pgdata;
+Index: pgdat8/include/linux/memory_hotplug.h
+===================================================================
+--- pgdat8.orig/include/linux/memory_hotplug.h	2006-03-17 13:48:31.626647685 +0900
++++ pgdat8/include/linux/memory_hotplug.h	2006-03-17 13:51:28.325864271 +0900
+@@ -66,6 +66,15 @@ extern int online_pages(unsigned long, u
+ /* reasonably generic interface to expand the physical pages in a zone  */
+ extern int __add_pages(struct zone *zone, unsigned long start_pfn,
+ 	unsigned long nr_pages);
++#if defined(CONFIG_NUMA) && defined(CONFIG_ARCH_MEMORY_PROBE)
++extern int arch_nid_probe(u64 start);
++#else
++static inline int arch_nid_probe(u64 start)
 +{
++	return 0;
 +}
- #endif /* CONFIG_NUMA */
- #endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
++#endif
++
+ #else /* ! CONFIG_MEMORY_HOTPLUG */
+ /*
+  * Stub functions for when hotplug is off
+Index: pgdat8/drivers/base/memory.c
+===================================================================
+--- pgdat8.orig/drivers/base/memory.c	2006-03-17 13:47:31.558289046 +0900
++++ pgdat8/drivers/base/memory.c	2006-03-17 13:51:28.326840833 +0900
+@@ -310,7 +310,8 @@ memory_probe_store(struct class *class, 
  
+ 	phys_addr = simple_strtoull(buf, NULL, 0);
+ 
+-	ret = add_memory(phys_addr, PAGES_PER_SECTION << PAGE_SHIFT);
++	ret = add_memory(arch_nid_probe(phys_addr),
++			 phys_addr, PAGES_PER_SECTION << PAGE_SHIFT);
+ 
+ 	if (ret)
+ 		count = ret;
 
 -- 
 Yasunori Goto 

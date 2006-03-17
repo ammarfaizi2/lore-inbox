@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWCQPCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWCQPKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWCQPCK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 10:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWCQPCK
+	id S932618AbWCQPKm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbWCQPKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 10:02:10 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:13031 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751229AbWCQPCJ (ORCPT
+	Fri, 17 Mar 2006 10:10:41 -0500
+Received: from vmailb.mclink.it ([195.110.128.107]:2318 "EHLO vmailb.mclink.it")
+	by vger.kernel.org with ESMTP id S932618AbWCQPKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 10:02:09 -0500
-Date: Fri, 17 Mar 2006 15:59:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ck@vds.kolivas.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched: activate SCHED BATCH expired
-Message-ID: <20060317145956.GB13207@elte.hu>
-References: <200603081013.44678.kernel@kolivas.org> <200603180036.11326.kernel@kolivas.org> <441ABD9F.6060407@yahoo.com.au> <200603180111.01466.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200603180111.01466.kernel@kolivas.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 17 Mar 2006 10:10:41 -0500
+From: "Mauro Tassinari" <mtassinari@cmanet.it>
+To: "'Samuel Masham'" <samuel.masham@gmail.com>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: R: libata/sata errors on ich[?]/maxtor
+Date: Fri, 17 Mar 2006 16:10:39 +0100
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAN5pvyF35YUy6A7BRxroj/AEAAAAA@cmanet.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+In-Reply-To: <93564eb70603170635s4d3c8c3o@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Samuel,
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> ps Mauro, yep I am quite convinced we are seeing the same 
+> thing here... I will let you know how it turns out for us
+> 
 
-> Good enough for me. Here's a respin, thanks!
+yes, definitely.
 
-> Signed-off-by: Con Kolivas <kernel@kolivas.org>
+Just note that - same systems - hitachi -> hitachi
+works fine.
 
-Still-Acked-by: Ingo Molnar <mingo@elte.hu>
+As soon as I'm back in the office, next Monday,
+I'll try to get a couple of cables no more than three 
+inches long and see what happens. Not that I expect much, btw...
 
-	Ingo
+Mauro
+

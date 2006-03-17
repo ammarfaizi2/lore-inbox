@@ -1,137 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWCQD66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWCQEOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbWCQD66 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 22:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWCQD66
+	id S1751238AbWCQEOE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 23:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWCQEOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 22:58:58 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:7386 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S1751240AbWCQD65
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 22:58:57 -0500
-Date: Thu, 16 Mar 2006 22:58:56 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, Etienne Lorrain <etienne_lorrain@yahoo.fr>,
-       lm-sensors <lm-sensors@lm-sensors.org>
-Subject: [PATCH 2.6.16-rc6] i2c: require type parameter for i2c-parport and i2c-parport-light
-Message-ID: <20060317035856.GB3446@jupiter.solarsys.private>
-References: <20060316035916.GA10675@jupiter.solarsys.private> <3ZH07HE0.1142498811.4526410.khali@localhost> <20060317035616.GA3446@jupiter.solarsys.private>
+	Thu, 16 Mar 2006 23:14:03 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:28859 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751238AbWCQEOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 23:14:02 -0500
+Subject: Re: nfs udp 1000/100baseT issue
+From: Lee Revell <rlrevell@joe-job.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Bret Towe <magnade@gmail.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <17434.12285.88843.708858@cse.unsw.edu.au>
+References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
+	 <Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>
+	 <dda83e780603161733o10a3c330kddf96a726f162fa7@mail.gmail.com>
+	 <17434.7434.626268.71114@cse.unsw.edu.au>
+	 <dda83e780603161911o7c2babb7wfc6671f9bc3441e4@mail.gmail.com>
+	 <17434.12285.88843.708858@cse.unsw.edu.au>
+Content-Type: text/plain
+Date: Thu, 16 Mar 2006 23:13:54 -0500
+Message-Id: <1142568835.25258.16.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060317035616.GA3446@jupiter.solarsys.private>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch forces the user to specify what type of adapter is present when
-loading i2c-parport or i2c-parport-light.  If none is specified, the driver
-init simply fails - instead of assuming adapter type 0.
+On Fri, 2006-03-17 at 14:41 +1100, Neil Brown wrote:
+> 
+> > >
+> > >   - use tcp
+> > 
+> > im wondering why this isnt the default to begin with
+> 
+> Because it wasn't that many years ago that Linux NFS didn't support
+> tcp at all.
+> Some distributions modify 'mount' to get it to prefer tcp over udp. 
 
-This alleviates the sometimes lengthy boot time delays which can be caused
-by accidentally building one of these into a kernel along with several i2c
-slave drivers that have lengthy probe routines (e.g. hwmon drivers).
+Also historical reasons that predate Linux, the original NFS
+implementations were UDP only.  TCP was not an option until NFSv3.
 
-Kconfig and documentation updated accordingly.
-
-Signed-off-by: Mark M. Hoffman <mhoffman@lightlink.com>
-
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/i2c-parport-light.c
-+++ linux-2.6.16-rc6/drivers/i2c/busses/i2c-parport-light.c
-@@ -121,9 +121,14 @@ static struct i2c_adapter parport_adapte
- 
- static int __init i2c_parport_init(void)
- {
--	if (type < 0 || type >= ARRAY_SIZE(adapter_parm)) {
-+	if (type < 0) {
-+		printk(KERN_WARNING "i2c-parport: adapter type unspecified\n");
-+		return -ENODEV;
-+	}
-+
-+	if (type >= ARRAY_SIZE(adapter_parm)) {
- 		printk(KERN_WARNING "i2c-parport: invalid type (%d)\n", type);
--		type = 0;
-+		return -ENODEV;
- 	}
- 
- 	if (base == 0) {
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/i2c-parport.h
-+++ linux-2.6.16-rc6/drivers/i2c/busses/i2c-parport.h
-@@ -90,7 +90,7 @@ static struct adapter_parm adapter_parm[
- 	},
- };
- 
--static int type;
-+static int type = -1;
- module_param(type, int, 0);
- MODULE_PARM_DESC(type,
- 	"Type of adapter:\n"
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/i2c-parport.c
-+++ linux-2.6.16-rc6/drivers/i2c/busses/i2c-parport.c
-@@ -241,9 +241,14 @@ static struct parport_driver i2c_parport
- 
- static int __init i2c_parport_init(void)
- {
--	if (type < 0 || type >= ARRAY_SIZE(adapter_parm)) {
-+	if (type < 0) {
-+		printk(KERN_WARNING "i2c-parport: adapter type unspecified\n");
-+		return -ENODEV;
-+	}
-+
-+	if (type >= ARRAY_SIZE(adapter_parm)) {
- 		printk(KERN_WARNING "i2c-parport: invalid type (%d)\n", type);
--		type = 0;
-+		return -ENODEV;
- 	}
- 
- 	return parport_register_driver(&i2c_parport_driver);
---- linux-2.6.16-rc6.orig/drivers/i2c/busses/Kconfig
-+++ linux-2.6.16-rc6/drivers/i2c/busses/Kconfig
-@@ -284,7 +284,10 @@ config I2C_PARPORT
- 	  This driver is a replacement for (and was inspired by) an older
- 	  driver named i2c-philips-par.  The new driver supports more devices,
- 	  and makes it easier to add support for new devices.
--	  
-+
-+	  An adapter type parameter is now mandatory.  Please read the file
-+	  Documentation/i2c/busses/i2c-parport for details.
-+
- 	  Another driver exists, named i2c-parport-light, which doesn't depend
- 	  on the parport driver.  This is meant for embedded systems. Don't say
- 	  Y here if you intend to say Y or M there.
---- linux-2.6.16-rc6.orig/Documentation/i2c/busses/i2c-parport
-+++ linux-2.6.16-rc6/Documentation/i2c/busses/i2c-parport
-@@ -12,18 +12,21 @@ meant as a replacement for the older, in
-                       teletext adapters)
- 
- It currently supports the following devices:
-- * Philips adapter
-- * home brew teletext adapter
-- * Velleman K8000 adapter
-- * ELV adapter
-- * Analog Devices evaluation boards (ADM1025, ADM1030, ADM1031, ADM1032)
-- * Barco LPT->DVI (K5800236) adapter
-+ * (type=0) Philips adapter
-+ * (type=1) home brew teletext adapter
-+ * (type=2) Velleman K8000 adapter
-+ * (type=3) ELV adapter
-+ * (type=4) Analog Devices ADM1032 evaluation board
-+ * (type=5) Analog Devices evaluation boards: ADM1025, ADM103[01]
-+ * (type=6) Barco LPT->DVI (K5800236) adapter
- 
- These devices use different pinout configurations, so you have to tell
- the driver what you have, using the type module parameter. There is no
- way to autodetect the devices. Support for different pinout configurations
- can be easily added when needed.
- 
-+Earlier kernels defaulted to type=0 (Philips).  But now, if the type
-+parameter is missing, the driver will simply fail to initialize.
- 
- Building your own adapter
- -------------------------
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
+Lee
 

@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWCQNgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbWCQNiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWCQNgq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 08:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbWCQNgq
+	id S932632AbWCQNiH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 08:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbWCQNiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 08:36:46 -0500
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:21119 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751023AbWCQNgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 08:36:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Vd7wsnuWmmkeXWtNBCF/CuW2Q7p5rsxV1Z3YcpzhvD8OusbunJJEZeYEb7B3ruKx3yKZHRO5lMC3m6htg3hmgDeh8BHECFut7CYFrqFLtsn2yaINQIJT70Cw9hDpT3i/A6LdnfqCwZrLk/GrC5diz+yX9ilYcpPFW4OlTxZlbTA=  ;
-Message-ID: <441ABB68.1020502@yahoo.com.au>
-Date: Sat, 18 Mar 2006 00:36:40 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 17 Mar 2006 08:38:06 -0500
+Received: from pro75-4-82-238-201-39.fbx.proxad.net ([82.238.201.39]:12170
+	"EHLO puako.maunakeatech.zone") by vger.kernel.org with ESMTP
+	id S932635AbWCQNiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 08:38:05 -0500
+From: Jean-Baptiste MUR <jeanbaptiste@maunakeatech.com>
+To: linux1394-devel@lists.sourceforge.net
+Subject: [PATCH] ieee1394/ohci1394 : CycleTooLong interrupt management
+Date: Fri, 17 Mar 2006 14:37:57 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, hch@lst.de,
-       cotte@de.ibm.com, Hugh Dickins <hugh@veritas.com>
-Subject: Re: [patch 2/2] mspec driver
-References: <yq0k6auuy5n.fsf@jaguar.mkp.net>	<20060316163728.06f49c00.akpm@osdl.org> <yq0bqw5utyc.fsf_-_@jaguar.mkp.net>
-In-Reply-To: <yq0bqw5utyc.fsf_-_@jaguar.mkp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603171437.57519.jeanbaptiste@maunakeatech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
 
-> +static int
-> +mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
+This patch modifies the ohci1394.c file to enable and manage the "cycle too 
+long" interrupt. 
+If this interrupt occurs, the "LinkControl.CycleMaster" bit of the host 
+controller is reseted. This implies, that the host controller does not send 
+"cycle start" packet anymore freezing then the isochronous communication. 
+The management of the interrupt added by the patch is that when the interrupt 
+occurs, the OHCI irq handler prints a kernel log warning and then sets the 
+"LinkControl.CycleMaster" bit again resuming the isochronous communication.
 
-...
+Signed-off-by : Jean-Baptiste Mur <jeanbaptiste@maunakeatech.com>
 
-> +	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
+---
 
-VM_PFNMAP actually has a fairly specific meaning [unlike the rest of
-them :)] so you should be careful with it. Actually if you set vm_pgoff
-in the right way, then that should enable you to do COWs on these areas
-if that is what you want.
+Kernel version : 2.6.16-rc4
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+#############Patch begin
+diff --git a/drivers/ieee1394/ohci1394.c b/drivers/ieee1394/ohci1394.c
+index ab01a54..33850eb 100644
+--- a/drivers/ieee1394/ohci1394.c
++++ b/drivers/ieee1394/ohci1394.c
+@@ -580,6 +580,7 @@ static void ohci_initialize(struct ti_oh
+                  OHCI1394_isochRx |
+                  OHCI1394_isochTx |
+                  OHCI1394_postedWriteErr |
++                  OHCI1394_cycleTooLong |
+                  OHCI1394_cycleInconsistent);
+
+        /* Enable link */
+@@ -2386,6 +2387,15 @@ static irqreturn_t ohci_irq_handler(int
+                PRINT(KERN_ERR, "physical posted write error");
+                /* no recovery strategy yet, had to involve protocol drivers 
+*/
+        }
++        if (event & OHCI1394_cycleTooLong) {
++                if(printk_ratelimit())
++                        PRINT(KERN_WARNING, "isochronous cycle too long");
++                else
++                        DBGMSG("OHCI1394_cycleTooLong");
++                /* If this event occurs, we try to reactivate the "cycle 
+master" bit. */
++                reg_write(ohci, OHCI1394_LinkControlSet, 
+OHCI1394_LinkControl_CycleMaster);
++                event &= ~OHCI1394_cycleTooLong;
++        }
+        if (event & OHCI1394_cycleInconsistent) {
+                /* We subscribe to the cycleInconsistent event only to
+                 * clear the corresponding event bit... otherwise,
+#############Patch end

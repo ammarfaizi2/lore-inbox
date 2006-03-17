@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932763AbWCQU6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932780AbWCQU57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932763AbWCQU6l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 15:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbWCQU6J
+	id S932780AbWCQU57 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 15:57:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932778AbWCQU5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 15:58:09 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3755 "EHLO
+	Fri, 17 Mar 2006 15:57:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:683 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932763AbWCQU51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 15:57:27 -0500
+	id S932191AbWCQU5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 15:57:16 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org,
-       Markus Rechberger <mrechberger@gmail.com>,
+Cc: linux-dvb-maintainer@linuxtv.org, Michael Hunold <hunold@linuxtv.org>,
+       Andrew Morton <akpm@osdl.org>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 14/21] Cinergy T2 dmx cleanup on disconnect
-Date: Fri, 17 Mar 2006 17:54:36 -0300
-Message-id: <20060317205436.PS76282600014@infradead.org>
+Subject: [PATCH 15/21] Restore tuning capabilities in v4l2 mxb driver
+Date: Fri, 17 Mar 2006 17:54:37 -0300
+Message-id: <20060317205437.PS07135600015@infradead.org>
 In-Reply-To: <20060317205359.PS65198900000@infradead.org>
 References: <20060317205359.PS65198900000@infradead.org>
 Mime-Version: 1.0
@@ -29,39 +29,43 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Markus Rechberger <mrechberger@gmail.com>
-Date: 1142425891 \-0300
+From: Michael Hunold <hunold@linuxtv.org>
+Date: 1142446742 \-0300
 
-Detaching the device didn't clean up several device files in /dev/dvb,
-after applying that patch all dvb devices disappeared as expected.
+The behaviour of the all-in-one Video4Linux tuner driver apparently
+changed.  It now wants to know the tv standard, otherwise it refuses to
+tune.
+Restore tuning functionality in my driver for the "Multimedia eXtension
+Board".  The all-in-one tuner driver apparently changed its behaviour.
 
-Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
+Signed-off-by: Michael Hunold <hunold@linuxtv.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/cinergyT2/cinergyT2.c |    4 ++++
+ drivers/media/video/mxb.c |    4 ++++
  1 files changed, 4 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/dvb/cinergyT2/cinergyT2.c b/drivers/media/dvb/cinergyT2/cinergyT2.c
-index c4b4c5b..4ef54c7 100644
---- a/drivers/media/dvb/cinergyT2/cinergyT2.c
-+++ b/drivers/media/dvb/cinergyT2/cinergyT2.c
-@@ -505,6 +505,9 @@ static int cinergyt2_open (struct inode 
+diff --git a/drivers/media/video/mxb.c b/drivers/media/video/mxb.c
+index 8416cef..e2b36ce 100644
+--- a/drivers/media/video/mxb.c
++++ b/drivers/media/video/mxb.c
+@@ -327,6 +327,7 @@ static int mxb_init_done(struct saa7146_
+ 	struct video_decoder_init init;
+ 	struct i2c_msg msg;
+ 	struct tuner_setup tun_setup;
++	v4l2_std_id std = V4L2_STD_PAL_BG;
  
- static void cinergyt2_unregister(struct cinergyt2 *cinergyt2)
- {
-+	dvb_net_release(&cinergyt2->dvbnet);
-+	dvb_dmxdev_release(&cinergyt2->dmxdev);
-+	dvb_dmx_release(&cinergyt2->demux);
- 	dvb_unregister_device(cinergyt2->fedev);
- 	dvb_unregister_adapter(&cinergyt2->adapter);
+ 	int i = 0, err = 0;
+ 	struct	tea6415c_multiplex vm;	
+@@ -361,6 +362,9 @@ static int mxb_init_done(struct saa7146_
+ 	mxb->tuner->driver->command(mxb->tuner, VIDIOC_S_FREQUENCY,
+ 					&mxb->cur_freq);
  
-@@ -937,6 +940,7 @@ static int cinergyt2_probe (struct usb_i
- 	return 0;
- 
- bailout:
-+	dvb_net_release(&cinergyt2->dvbnet);
- 	dvb_dmxdev_release(&cinergyt2->dmxdev);
- 	dvb_dmx_release(&cinergyt2->demux);
- 	dvb_unregister_adapter(&cinergyt2->adapter);
++	/* set a default video standard */
++	mxb->tuner->driver->command(mxb->tuner, VIDIOC_S_STD, &std);
++
+ 	/* mute audio on tea6420s */
+ 	mxb->tea6420_1->driver->command(mxb->tea6420_1,TEA6420_SWITCH, &TEA6420_line[6][0]);
+ 	mxb->tea6420_2->driver->command(mxb->tea6420_2,TEA6420_SWITCH, &TEA6420_line[6][1]);
 

@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWCQOvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWCQOvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWCQOvM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 09:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWCQOvM
+	id S1751161AbWCQOvc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 09:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWCQOvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 09:51:12 -0500
-Received: from pproxy.gmail.com ([64.233.166.177]:10540 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750711AbWCQOvL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 09:51:11 -0500
+	Fri, 17 Mar 2006 09:51:31 -0500
+Received: from xproxy.gmail.com ([66.249.82.206]:18912 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751161AbWCQOvU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 09:51:20 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:sender;
-        b=CJyVYFlzQwg8mAFgf4PmB+DoWVWJctD5/yzOb9ZQZTk8ApmZjLl5FxUejP4HdKJiS68+jCHokYU1oqn0IksxTT5pncqDtPW1bpBdeBOvlvT35Y+RphCDgtCW6G6epWyfn1+WxH5NCSDnPRbITTQmtJRQove0j40znZJVacmv+t0=
-Message-ID: <441ACCD5.6070404@pol.net>
-Date: Fri, 17 Mar 2006 22:51:01 +0800
-From: "Antonino A. Daplas" <adaplas@pol.net>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Y3q7JbhVh0ju6TWLEgSWEzOvPH4X+zTgFEmFsyR6HugTWIV9tYTeWEfXHDH5PwLuD2YgMJcPdNIpAG0E2l9AkIvS2tZYMm0hIpjycyGmWKGJHBpHACN5vgMFOM26igOBpqGE+EBqX86Gnlz5YEMEd/7DGRoAFi4o/1FzbggswEM=
+Message-ID: <60bb95410603170651s761ec545qcc3dfe9cd2aaabff@mail.gmail.com>
+Date: Fri, 17 Mar 2006 22:51:17 +0800
+From: "James Yu" <cyu021@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How does timeslice affect kernel threads?
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Tilman Schmidt <tilman@imap.cc>, linux-kernel@vger.kernel.org
-Subject: Re: i810 framebuffer - BUG: sleeping function called from invalid
- context
-References: <44186D30.4040603@imap.cc> <20060317031410.2479d8e1.akpm@osdl.org>
-In-Reply-To: <20060317031410.2479d8e1.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The console cursor can be called in atomic context.  Change memory
-allocation to use the GFP_ATOMIC flag in i810fb_cursor().
+Hi folks,
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
+I make two kernel threads each with an endless loop. Base on my
+understanding on timeslice, I thought scheduler will let another
+thread to have CPU resource while one runs out its timeslice. However,
+I observed only one kernel thread is running inside its endless loop.
 
----
-Andrew Morton wrote:
-> Tilman Schmidt <tilman@imap.cc> wrote:
->> Thought I'd finally report this, seeing it still around with 2.6.16-rc6-mm1.
->>
->>  With every 2.6.16-rc-mm version I can remember (sorry, no precise records)
->>  my development machine (a Dell OptiPlex GX110, Intel P3/933, Intel chipset)
->>  has been producing the following three BUG messages while booting:
->>
->>  <6>[   36.528181] md: Autodetecting RAID arrays.
->>  <3>[   36.528263] BUG: sleeping function called from invalid context at mm/slab.c:2758
->>  <4>[   36.528270] in_atomic():1, irqs_disabled():
+Therefore, here is my question. Does timeslice have any effice on
+kernel threads? and how?
 
-This one, most probably.
-
-Tony
-
- i810_main.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff --git a/drivers/video/i810/i810_main.c b/drivers/video/i810/i810_main.c
-index d8467c0..788297e 100644
---- a/drivers/video/i810/i810_main.c
-+++ b/drivers/video/i810/i810_main.c
-@@ -1508,7 +1508,7 @@ static int i810fb_cursor(struct fb_info 
- 		int size = ((cursor->image.width + 7) >> 3) *
- 			cursor->image.height;
- 		int i;
--		u8 *data = kmalloc(64 * 8, GFP_KERNEL);
-+		u8 *data = kmalloc(64 * 8, GFP_ATOMIC);
- 
- 		if (data == NULL)
- 			return -ENOMEM;
+Cheers,
+--
+James
+cyu021@gmail.com

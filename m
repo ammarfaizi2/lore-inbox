@@ -1,97 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752479AbWCQBSx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752488AbWCQBUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752479AbWCQBSx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:18:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752481AbWCQBSx
+	id S1752488AbWCQBUp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752491AbWCQBUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:18:53 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:58782 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752479AbWCQBSv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:18:51 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 16 Mar 2006 20:20:45 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:33423 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752490AbWCQBUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 20:20:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=v8Ao/nU0kRCE02F+SLOG/5vAEUXqOAVfjsD78SOIUhJPsDvIaqchfioK331ite7zQ0kL09de8SqVaxYKM3GhFOrPUiKHaM4PVoKAFlVrV1yAxRpqsm28H4gtHF+3cmoe2BxKDFgTgg3aLTEKejEtfglrQ1XlHl0NrKYinVjo1CA=  ;
+Message-ID: <441A0EE7.60809@yahoo.com.au>
+Date: Fri, 17 Mar 2006 12:20:39 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Fri, 17 Mar 2006 09:17:40 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840B37ABA9@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZJDMVGuR5H8T1jTHu7WiZHFgaXQAAUfNGg
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 17 Mar 2006 01:17:42.0124 (UTC) FILETIME=[96BC2AC0:01C64960]
+To: Linus Torvalds <torvalds@osdl.org>
+CC: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Document Linux's memory barriers [try #5]
+References: <20060315200956.4a9e2cb3.akpm@osdl.org>  <16835.1141936162@warthog.cambridge.redhat.com> <18351.1142432599@warthog.cambridge.redhat.com>  <21253.1142509812@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0603160914410.3618@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603160914410.3618@g5.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Bad news.  It hangs when I do the usual stress test:
+Linus Torvalds wrote:
 
-Hmm,  we can continue to have fun with debugging. Right?
+> Well, the argument I have against mentioning caches is that cache 
+> coherency order is _not_ the only thing that is relevant. As already 
+> mentioned, data speculation can cause exactly the same "non-causal" effect 
+> as cache update ordering, so from a _conceptual_ standpoint, the cache is 
+> really just one implementation detail in the much bigger picture of 
+> buffering and speculative work re-ordering operations...
+> 
 
->
->echo 1 > THM0/polling_frequency
->sleep.sh
->sleep.sh
->
->The second sleep.sh hangs going to sleep.  It is in an endless loop
->printing the following line, once per second (from the
->polling_frequency):
->
->  Execute Method: [\_TZ_.THM0._TMP] (Node c157bf88)
+Agreed. I wonder how you can best illustrate the theoretical machine
+model (from a programmer's point of view). I guess each consistency
+domain has an horizon (barrier, but I'm trying to avoid that word in
+this context) over which memory barriers will provide some partial
+ordering on transactions going to and/or from the horizon.
 
-This should be the diffient problem with the previous reported hang.
-I recall it was hang at a loop in SMPI waiting for BIOS's response.
-Please confirm, Also please mute THM0 polling.
+            +---+   :   |c
+            |CPU|---:---|a m
+            +---+   :   |c e
+                    :   |h m
+            +---+   :   |e o
+            |CPU|---:---|d r
+            +---+   :   |  y
 
->
->> Please also make sure you have vanilla DSDT
->
->$ grep DSDT /boot/config-2.6.16-rc5.fake-thermal_active+passive
-># CONFIG_ACPI_CUSTOM_DSDT is not set
->
->> vanilla Kernel, and just hacked acpi_thermal_active/passive.
->
->Only diff between pristine 2.6.16-rc5 tree and mine is:
->
->diff -rup /tmp/linux-2.6.16-rc5/drivers/acpi/thermal.c 
->/usr/src/linux-2.6.16-rc5/drivers/acpi/thermal.c
->--- /tmp/linux-2.6.16-rc5/drivers/acpi/thermal.c	
->2006-02-27 00:09:35.000000000 -0500
->+++ /usr/src/linux-2.6.16-rc5/drivers/acpi/thermal.c	
->2006-03-16 09:45:30.000000000 -0500
->@@ -526,6 +526,8 @@ static void acpi_thermal_passive(struct 
-> 
-> 	ACPI_FUNCTION_TRACE("acpi_thermal_passive");
-> 
->+	return;
->+
-> 	if (!tz || !tz->trips.passive.flags.valid)
-> 		return;
-> 
->@@ -615,6 +617,8 @@ static void acpi_thermal_active(struct a
-> 
-> 	ACPI_FUNCTION_TRACE("acpi_thermal_active");
-> 
->+	return;
->+
-> 	if (!tz)
-> 		return;
-> 
->
+I guess you could think of a smp_wmb() in this case being a wall that
+moves out from the CPU along with other memory stores, and stops them
+from passing (the problem with a "wall" is that it doesn't easily apply
+to a full smp_mb() unless you have loads travelling the same way, which
+has its own intuitiveness problems).
 
-This looks ok for debugging.
+> So it might be a good idea to first explain the memory barriers in a more 
+> abstract sense without talking about what exactly goes on, and then have 
+> the section that gives _examples_ of what the CPU actually is doing that 
+> causes these barriers to be needed. And make it clear that the examples 
+> are just that - examples.
+> 
+
+Yeah that would be nice. The abstract explanation will be tricky. Maybe
+it isn't so critical to be easily understandable if it is backed by
+examples.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

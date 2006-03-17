@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWCQLLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWCQLJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751394AbWCQLLk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 06:11:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWCQLLk
+	id S1751479AbWCQLJb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 06:09:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWCQLJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 06:11:40 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:37663 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751394AbWCQLLk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 06:11:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gaGesUeNT72iB8QVyVZU0FUkN56Z4ZTf4LKoLGwYOVtm8ldbcz1sANVkgJtB6GJhV7ouiwzx50Zg0CKtryfRB4RpKa1zfkCPwQO4LbniFxDFNvBRo37rl+fS8V4pttdHe4GyqK2lLcewNZzJAsJADBj7wy7Q/UbHsYfDbMhPdYk=
-Message-ID: <661de9470603170311o146f0a63m9f866817b4525ff0@mail.gmail.com>
-Date: Fri, 17 Mar 2006 16:41:38 +0530
-From: "Balbir Singh" <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-To: prasanna@in.ibm.com
-Subject: Re: Kernel Oops-jprobe
-Cc: "emist emist" <emistz@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060317095858.GA855@in.ibm.com>
+	Fri, 17 Mar 2006 06:09:31 -0500
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:38648 "EHLO smtp2.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751394AbWCQLJb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 06:09:31 -0500
+X-ME-UUID: 20060317110929920.E09501C0021B@mwinf0212.wanadoo.fr
+From: Laurent Wandrebeck <l.wandrebeck@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: [patch 1/1] OSS gus_wave missing return check for request_region()
+Date: Fri, 17 Mar 2006 12:13:35 +0100
+User-Agent: KMail/1.8
+Cc: akpm@osdl.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060317025519.GA32497@in.ibm.com>
-	 <661de9470603170131j7580d8ccr9927a600a7184ef3@mail.gmail.com>
-	 <20060317095858.GA855@in.ibm.com>
+Message-Id: <200603171213.35891.l.wandrebeck@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I think the handler should first copy_from_user().
->
-> User must not call copy_from_user() in the handler, since preemption is
-> disabled and the copy_from_user might cause a page fault that might
-> sleep if the user page is not in the memory. Although the latest patch
-> posted on lkml tries to fixup the exception, it may some
-> times not succeed and the data collected might be incorrect.
->
-Yes, you are right. I forgot about the probe handler requirements. In
-that case you need to come up with your own trick to get the user
-space data. Also look at/use systemtap.
+Hi,
+in sound/oss/gus_wave.c, request_region() is called without checking the return
+value. Here is a simple patch to fix it.
+Patch against 2.6.16-rc6-git8.
+Please CC me on replies.
+Regards.
 
-Balbir
+Signed-off-by: Laurent Wandrebeck <l.wandrebeck@free.fr>
+
+--- linux-2.6.16-rc6/sound/oss/gus_wave.c.ori   2006-03-17 11:33:36.000000000 +0100
++++ linux-2.6.16-rc6/sound/oss/gus_wave.c       2006-03-17 11:46:46.000000000 +0100
+@@ -2938,7 +2938,11 @@ void __init gus_wave_init(struct address
+                        model_num = "3.7";
+                        gus_type = 0x37;
+                        mixer_type = ICS2101;
+-                       request_region(u_MixSelect, 1, "GUS mixer");
++                       if (!request_region(u_MixSelect, 1, "GUS mixer")) {
++                           printk(KERN_ERR "gus_card: unable to reserve region %d for mixer\n",
++                                            u_MixSelect);
++                           return;
++                       }
+                }
+                else
+                {
+

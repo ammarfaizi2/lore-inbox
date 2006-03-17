@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932747AbWCQOO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWCQOQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932747AbWCQOO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 09:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932736AbWCQOO1
+	id S1030185AbWCQOQB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 09:16:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWCQOQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 09:14:27 -0500
-Received: from n36.shimpinomori.net ([219.127.89.36]:42666 "HELO ldh.org")
-	by vger.kernel.org with SMTP id S932747AbWCQOO0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 09:14:26 -0500
-From: vido@ldh.org
-Date: Fri, 17 Mar 2006 23:14:03 +0900
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, sdhci-devel@list.drzeus.cx
-Subject: [2.6.16-rc6-mm1] sdhci driver purrrfect
-Message-ID: <20060317141403.GA19753@z.shimpinomori.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 17 Mar 2006 09:16:01 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:55725 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030185AbWCQOQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 09:16:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=aYrsRUHRde+JsIDy3F3mjSN7P4SSdFR1rfg2Y5WlpocJpdgf3rEZLQTXUdct0g+ljZVj+B5nYyqk6C4TQ/ki9it0m/HOT/EpkopXAJUJRFm16HouM5dTOXPpWokzNHW2qEFI6qNDHvifLVRtGzUjDCQEboKpb4LZXgn18GtAxTY=  ;
+Message-ID: <441AC3C7.1060900@yahoo.com.au>
+Date: Sat, 18 Mar 2006 01:12:23 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nick Piggin <npiggin@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: [rfc] mm: mmu gather in-place
+References: <20060317131354.GA16156@wotan.suse.de>
+In-Reply-To: <20060317131354.GA16156@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sending this on behalf the SDHCI-devel people. I tested today the
-latest SDHCI driver on my Thinkpad X40 with the 2.6.16-rc6-mm1 kernel.
+Nick Piggin wrote:
+> Hi,
+> 
+> I'm embarrassed to release this patch in such a state, but I am
+> because a) I won't have much time to work on it in the short term;
+> b) it would take a lot of work to polish so I'd like to see what
+> people think before going too far; c) so I have something other than
+> boring lockless pagecache to talk about at Ottawa.
+> 
+> The basic idea is this: replace the heavyweight per-CPU mmu_gather
+> structure with a lightweight stack based one which is missing the
+> big page vector. Instead of the vector, use Linux pagetables to
+> store the pages-to-be-freed. Pages and pagetables are first unmapped,
+> then tlbs are flushed, then pages and pagetables are freed.
+> 
+> There is a downside: walking the page table can be anywhere from
+> slightly to a lot less efficient than walking the vector, depending
+> on density, and this adds a 2nd pagetable walk to unmapping (but
+> removes the vector walk, of course).
+> 
+> Upsides: mmu_gather is preemptible, horrible mmu_gather breaking
+> code can be removed, artificial disparity between PREEMPT tlb
+> flush batching and non-PREEMPT disappears (preempt can now have
+> good performance and non-preempt can have good latency). tlb flush
+> batching is possibly much closer to perfect though on non-PREEMPT
+> that may not be noticable (for PREEMPT, it appears to be spending
+> 5x less time in tlb flushing on kbuild)
+> 
+> Caveats:
+> - nonlinear mappings don't work yet
+> - hugepages don't work yet
+> - i386 only
 
-The SD card reader itself is a Ricoh :
-0000:02:00.1 0805: Ricoh Co Ltd R5C822 SD/SDIO/MMC/MS/MSPro Host Adapter (rev 13)
-
-
-The initialisation part is normal, here is the dmesg portion :
-
-sdhci: Secure Digital Host Controller Interface driver, 0.11
-sdhci: Copyright(c) Pierre Ossman
-PCI: Found IRQ 5 for device 0000:02:00.1
-PCI: Sharing IRQ 5 with 0000:00:1f.3
-PCI: Sharing IRQ 5 with 0000:00:1f.5
-PCI: Sharing IRQ 5 with 0000:00:1f.6
-cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x377
-cs: IO port probe 0x800-0x8ff: clean.
-cs: IO port probe 0xc00-0xcff: clean.
-cs: IO port probe 0xa00-0xaff: clean.
-mmc0: SDHCI at 0xd0210000 irq 5 PIO
-
-
-I tested with 5 different SD card models (no MMC), correctly identified
-upon insertion as shown below :
-- Hagiwara "Super High Speed" 1 Gb (ac41 SK01G 967680KiB)
-- Kingmax "Platinum" 1 Gb (b368 SD01G 999936KiB)
-- SanDisk 512 Mb (a95c SD512 495488KiB)
-- Generic 128 Mb (cdef SD128 118272KiB)
-- Toshiba 16 Mb (6f52 SD016 14560KiB)
-
-I found no problem to read, write or delete.
-
-My opinion is that this patch is mature enough to become part of
-the regular Linux kernel. 
-Andrew please consider pushing the code to Linus in time for 2.6.16,
-as it's a device with no current driver.
-
-Regards,
+Note that in theory it should be usable by any architecture of course.
+Actually those ones for which hardware doesn't natively grok the Linux
+page tables can even be more creative than i386...
 
 -- 
-Augustin Vidovic  --   http://augustin.vidovic.org
-
-Can you doubt in french ?
-Check it out at http://www.forum-zetetique.com
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

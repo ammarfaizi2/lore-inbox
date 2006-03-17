@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWCQQBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWCQQEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWCQQBq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 11:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWCQQBq
+	id S1751398AbWCQQEP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 11:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCQQEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 11:01:46 -0500
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:16782 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751324AbWCQQBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 11:01:45 -0500
-Date: Fri, 17 Mar 2006 10:56:36 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [RFC, PATCH 0/24] VMI i386 Linux virtualization interface
-  proposal
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Zachary Amsden <zach@vmware.com>, Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Chris Wright <chrisw@sous-sol.org>
-Message-ID: <200603171058_MC3-1-BADF-9E3F@compuserve.com>
-MIME-Version: 1.0
+	Fri, 17 Mar 2006 11:04:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33742 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751417AbWCQQEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 11:04:14 -0500
+Subject: Re: [RFC][PATCH] warn when statically-allocated kobjects are used
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
+In-Reply-To: <20060317013016.5C643E69@localhost.localdomain>
+References: <20060317013016.5C643E69@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 17 Mar 2006 17:04:03 +0100
+Message-Id: <1142611444.3033.94.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060315102522.GA5926@infradead.org>
 
-On Wed, 15 Mar 2006 10:25:22 +0000, Christoph Hellwig wrote:
+> +warn:
+> +	printk("---- begin silly warning ----\n");
+> +	printk("This is a janitorial warning, not a kernel bug.\n");
 
-> I agree with Zach here, the Xen hypervisor <-> kernel interface is
-> not very nice.  This proposal seems like a step forward althogh it'll
-> probably need to go through a few iterations.  Without and actually
-> useable opensource hypevisor reference implementation it's totally
-> unacceptable, though.
+technically it IS a kernel bug ;)
 
-I'd like to see a test harness implementation that has no actual
-hypervisor functionality and just implements the VMI calls natively.
-This could be used to test the interface and would provide a nice
-starting point for those who want to write a VMI hypervisor.
-
-
--- 
-Chuck
-"Penguins don't come from next door, they come from the Antarctic!"
 

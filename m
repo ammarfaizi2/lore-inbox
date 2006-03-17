@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752550AbWCQG5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWCQHB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752550AbWCQG5u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 01:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752552AbWCQG5u
+	id S1751185AbWCQHB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 02:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWCQHB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 01:57:50 -0500
-Received: from mga02.intel.com ([134.134.136.20]:25101 "EHLO
-	orsmga101-1.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1752550AbWCQG5t convert rfc822-to-8bit (ORCPT
+	Fri, 17 Mar 2006 02:01:28 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:3516 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751185AbWCQHB1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 01:57:49 -0500
-X-IronPort-AV: i="4.03,103,1141632000"; 
-   d="scan'208"; a="13593993:sNHT34415955"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Fri, 17 Mar 2006 14:57:38 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC264@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZJjJtKX1xnRMYMR26bduQ8nvvflgAAYUCg
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 17 Mar 2006 06:57:39.0981 (UTC) FILETIME=[14CE23D0:01C64990]
+	Fri, 17 Mar 2006 02:01:27 -0500
+Date: Fri, 17 Mar 2006 08:25:19 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: emist emist <emistz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops-jprobe
+Message-ID: <20060317025519.GA32497@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Hmm,  we can continue to have fun with debugging. Right?
->
->Definitely, I haven't given up.
+>Greetings,
+                                                                                                                                               
+>The following oops occurs when probing the sys_open function.
+>Following is the oops and a module with which the error can be
+>replicated.
 
-Great!
+I tried to recreate this problem on 4-way i386 box, but could not
+recreate it. Could you please send me your config file?
 
->
->>> The second sleep.sh hangs going to sleep.  It is in an endless loop
->>> printing the following line, once per second (from the
->>> polling_frequency):
->>>
->>>  Execute Method: [\_TZ_.THM0._TMP] (Node c157bf88)
->
->I don't think these lines are a problem.  They just reflect that
->thermal polling is happening once per second.  So even though the ACPI
->system is hanging in the SMPI loop (as you say below), it is alive
->enough to poll the temperature sensors.
->
->> Also please mute THM0 polling.
->
->I retested the hacked kernel (with faked thermal_active/passive)
->but with no thermal polling, just doing
->
->  cat THM*/polling_frequency (they were all 'polling disabled')
->  sleep.sh  (works)
->  sleep.sh  (hangs in the usual SMPI loop)
->
->and it hangs as usual.
+Thanks
+Prasanna
 
-Good news, no new branch needed to track. 
-I assume the problem is still like _TMP & (_PSV | _AC0).
+>[17192145.756000] kobject sysensor: registering. parent: <NULL>, set:
+>module
+>[17192145.756000] kobject_hotplug
+>[17192145.756000] fill_kobj_path: path = '/module/sysensor'
+>[17192145.756000] kobject_hotplug: /sbin/udevsend module seq=1024
+>HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=add
+>DEVPATH=/module/sysensor SUBSYSTEM=module[17192146.124000] Unable to
+>handle kernel paging request at virtual address 080c9566
+>[17192146.124000]  printing eip:
+>[17192146.124000] c01c61ae
+>[17192146.124000] *pde = 0e124067
+>[17192146.124000] *pte = 00000000
+>[17192146.124000] Oops: 0000 [#1]
+>[17192146.124000] PREEMPT
+>[17192146.124000] Modules linked in: sysensor ppp_deflate zlib_deflate
+>bsd_comp ppp_async crc_ccitt ppp_generic slhc ipv6 acpi_cpufreq
+>speedstep_lib cpufreq_powersave cpufreq_userspace serial_cs
+>cpufreq_ondemand i915 pcmcia drm video battery container fan button
+>thermal processor ac ohci1394 yenta_socket rsrc_nonstatic pcmcia_core
+>ipw2200 ieee80211 ieee80211_crypt firmware_class b44 mii snd_intel8x0
+>snd_ac97_codec snd_ac97_bus snd_pcm_oss snd_mixer_oss snd_pcm
+>shpchp pci_hotplug ehci_hcd uhci_hcd usbcore intel_agp agpgart rtc
+>joydev md_mod dm_mod sr_mod sbp2 scsi_mod ieee1394 psmouse mousedev
+>parport_pc lp parport unix
 
-How about re-testing dummy _PSV and dummy _AC0 in DSDT?
-Because, your testing result with dummy _PSV and dummy_AC0
-IS NOT consistent with the result of hacking
-acpi_thermal_passive/active.
-Maybe I need to reconsider the impact of _PSV or_AC0 on the 
-platform.
-
-How about  just faking _TMP in DSDT. I'm sure you have done this before.
-But, I need to confirm that the problem is NOT _TMP | _PSV | _AC0.
-
-Thanks,
-Luming
+-- 
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-51776329

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWCQNvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932690AbWCQNwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932688AbWCQNvi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 08:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932698AbWCQNvi
+	id S932690AbWCQNwm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 08:52:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932698AbWCQNwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 08:51:38 -0500
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:40336 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932688AbWCQNvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 08:51:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=jFdP2smVes5PzgcFCEydAMc5Sy4t5RayX8Xd+W+8RuNGvg396fKpVm8sytm9I7XpzkVANAiIjA+C/FPS7vKNGssHKcx1Ebnezt/JfcUllGzR2VMzWqGI8T2WGpUvdSDfEOcUYAGOdV5etICJggKPiQV1GbXvynSlQXfRwW6L/cQ=  ;
-Message-ID: <441ABEE5.3050408@yahoo.com.au>
-Date: Sat, 18 Mar 2006 00:51:33 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Ingo Molnar <mingo@elte.hu>, ck@vds.kolivas.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sched: activate SCHED BATCH expired
-References: <200603081013.44678.kernel@kolivas.org> <200603172338.10107.kernel@kolivas.org> <441AB8FA.10609@yahoo.com.au> <200603180036.11326.kernel@kolivas.org> <441ABD9F.6060407@yahoo.com.au>
-In-Reply-To: <441ABD9F.6060407@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 08:52:42 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51072 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932690AbWCQNwl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 08:52:41 -0500
+Date: Fri, 17 Mar 2006 14:50:29 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: 2.6.16-rc6-rt3
+Message-ID: <20060317135029.GA4007@elte.hu>
+References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com> <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com> <20060317092351.GA18491@elte.hu> <6bffcb0e0603170532r664142a4w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6bffcb0e0603170532r664142a4w@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Con Kolivas wrote:
 
->> I'm not attached to the style, just the feature. If you think it's 
->> warranted I'll change it.
->>
+* Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+
+> Something goes wrong.
 > 
+> make
+> [..]
+>   LD [M]  lib/zlib_inflate/zlib_inflate.o
+>   LD      arch/i386/lib/built-in.o
+>   CC      arch/i386/lib/bitops.o
+> {standard input}: Assembler messages:
+> {standard input}:429: Error: can't resolve `.sched.text' {.sched.text
+> section} - `.Ltext0' {.text section}
 
-> At least other archtectures might be able to make better use of it,
-> and I agree even for i386 the code looks better (and slightly smaller).
-> 
+hm, cannot reproduce that build problem here, with your config and with:
 
-s/I agree/I think/
+ gcc version 4.0.2 20051125 (Red Hat 4.0.2-8)
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

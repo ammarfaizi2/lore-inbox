@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWCQXbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWCQXcE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWCQXbM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 18:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWCQXat
+	id S1751589AbWCQXcE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 18:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751576AbWCQXcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 18:30:49 -0500
-Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:40859 "EHLO
-	cinder.waste.org") by vger.kernel.org with ESMTP id S1751105AbWCQXar
+	Fri, 17 Mar 2006 18:32:01 -0500
+Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:42651 "EHLO
+	cinder.waste.org") by vger.kernel.org with ESMTP id S1751455AbWCQXbh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 18:30:47 -0500
+	Fri, 17 Mar 2006 18:31:37 -0500
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <2.132654658@selenic.com>
-Message-Id: <3.132654658@selenic.com>
-Subject: [PATCH 2/14] RTC: Remove RTC UIP synchronization on x86_64
-Date: Fri, 17 Mar 2006 17:30:35 -0600
+Message-Id: <6.132654658@selenic.com>
+Subject: [PATCH 5/14] RTC: Remove RTC UIP synchronization on CHRP (arch/powerpc)
+Date: Fri, 17 Mar 2006 17:30:36 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove RTC UIP synchronization on x86_64
+Remove RTC UIP synchronization on CHRP (arch/powerpc)
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: rtc/arch/x86_64/kernel/time.c
+Index: rtc/arch/powerpc/platforms/chrp/time.c
 ===================================================================
---- rtc.orig/arch/x86_64/kernel/time.c	2006-03-16 16:48:38.000000000 -0600
-+++ rtc/arch/x86_64/kernel/time.c	2006-03-16 17:21:17.000000000 -0600
-@@ -514,36 +514,19 @@ unsigned long long sched_clock(void)
- 
- static unsigned long get_cmos_time(void)
+--- rtc.orig/arch/powerpc/platforms/chrp/time.c	2006-03-16 16:48:37.000000000 -0600
++++ rtc/arch/powerpc/platforms/chrp/time.c	2006-03-16 19:02:54.000000000 -0600
+@@ -122,33 +122,15 @@ int chrp_set_rtc_time(struct rtc_time *t
+ void chrp_get_rtc_time(struct rtc_time *tm)
  {
--	unsigned int timeout = 1000000, year, mon, day, hour, min, sec;
--	unsigned char uip = 0, this = 0;
-+	unsigned int year, mon, day, hour, min, sec;
- 	unsigned long flags;
+ 	unsigned int year, mon, day, hour, min, sec;
+-	int uip, i;
  
--/*
-- * The Linux interpretation of the CMOS clock register contents: When the
-- * Update-In-Progress (UIP) flag goes from 1 to 0, the RTC registers show the
-- * second which has precisely just started. Waiting for this can take up to 1
-- * second, we timeout approximately after 2.4 seconds on a machine with
-- * standard 8.3 MHz ISA bus.
-- */
+-	/* The Linux interpretation of the CMOS clock register contents:
+-	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
+-	 * RTC registers show the second which has precisely just started.
+-	 * Let's hope other operating systems interpret the RTC the same way.
+-	 */
 -
- 	spin_lock_irqsave(&rtc_lock, flags);
- 
--	while (timeout && (!uip || this)) {
--		uip |= this;
--		this = CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP;
--		timeout--;
--	}
+-	/* Since the UIP flag is set for about 2.2 ms and the clock
+-	 * is typically written with a precision of 1 jiffy, trying
+-	 * to obtain a precision better than a few milliseconds is
+-	 * an illusion. Only consistency is interesting, this also
+-	 * allows to use the routine for /dev/rtc without a potential
+-	 * 1 second kernel busy loop triggered by any reader of /dev/rtc.
+-	 */
 -
--	/*
--	 * Here we are safe to assume the registers won't change for a whole
--	 * second, so we just go ahead and read them.
-- 	 */
--	sec = CMOS_READ(RTC_SECONDS);
--	min = CMOS_READ(RTC_MINUTES);
--	hour = CMOS_READ(RTC_HOURS);
--	day = CMOS_READ(RTC_DAY_OF_MONTH);
--	mon = CMOS_READ(RTC_MONTH);
--	year = CMOS_READ(RTC_YEAR);
+-	for ( i = 0; i<1000000; i++) {
+-		uip = chrp_cmos_clock_read(RTC_FREQ_SELECT);
 +	do {
-+		sec = CMOS_READ(RTC_SECONDS);
-+		min = CMOS_READ(RTC_MINUTES);
-+		hour = CMOS_READ(RTC_HOURS);
-+		day = CMOS_READ(RTC_DAY_OF_MONTH);
-+		mon = CMOS_READ(RTC_MONTH);
-+		year = CMOS_READ(RTC_YEAR);
-+	} while (sec != CMOS_READ(RTC_SECONDS));
+ 		sec = chrp_cmos_clock_read(RTC_SECONDS);
+ 		min = chrp_cmos_clock_read(RTC_MINUTES);
+ 		hour = chrp_cmos_clock_read(RTC_HOURS);
+ 		day = chrp_cmos_clock_read(RTC_DAY_OF_MONTH);
+ 		mon = chrp_cmos_clock_read(RTC_MONTH);
+ 		year = chrp_cmos_clock_read(RTC_YEAR);
+-		uip |= chrp_cmos_clock_read(RTC_FREQ_SELECT);
+-		if ((uip & RTC_UIP)==0) break;
+-	}
++	} while (sec != chrp_cmos_clock_read(RTC_SECONDS));
  
- 	spin_unlock_irqrestore(&rtc_lock, flags);
- 
+ 	if (!(chrp_cmos_clock_read(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 		BCD_TO_BIN(sec);

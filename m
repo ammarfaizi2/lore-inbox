@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWCQOQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWCQOTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbWCQOQB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 09:16:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWCQOQB
+	id S1030192AbWCQOTb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 09:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWCQOTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 09:16:01 -0500
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:55725 "HELO
+	Fri, 17 Mar 2006 09:19:31 -0500
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:48305 "HELO
 	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030185AbWCQOQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 09:16:00 -0500
+	id S1030192AbWCQOTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 09:19:30 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=aYrsRUHRde+JsIDy3F3mjSN7P4SSdFR1rfg2Y5WlpocJpdgf3rEZLQTXUdct0g+ljZVj+B5nYyqk6C4TQ/ki9it0m/HOT/EpkopXAJUJRFm16HouM5dTOXPpWokzNHW2qEFI6qNDHvifLVRtGzUjDCQEboKpb4LZXgn18GtAxTY=  ;
-Message-ID: <441AC3C7.1060900@yahoo.com.au>
-Date: Sat, 18 Mar 2006 01:12:23 +1100
+  b=bVLs8JP4EsmTUwGpDm3br/Ng/2uuZHS98bZT89f+0ERJQA99DeRzS+6cVhU0GntkH3hz5clk/Nh+gMmFqSgb47X6dOP7m+BqxjzuasQE8kA3CeY6NmBrOAQ5Ds/HgL6uZyuFZhYpdO1a+bv6uculcEG93hCHB0nL/mc+Me+cGiw=  ;
+Message-ID: <441AC4BC.4010904@yahoo.com.au>
+Date: Sat, 18 Mar 2006 01:16:28 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Nick Piggin <npiggin@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [rfc] mm: mmu gather in-place
-References: <20060317131354.GA16156@wotan.suse.de>
-In-Reply-To: <20060317131354.GA16156@wotan.suse.de>
+To: Jes Sorensen <jes@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, hch@lst.de,
+       cotte@de.ibm.com, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch 2/2] mspec driver
+References: <yq0k6auuy5n.fsf@jaguar.mkp.net>	<20060316163728.06f49c00.akpm@osdl.org>	<yq0bqw5utyc.fsf_-_@jaguar.mkp.net> <441ABB68.1020502@yahoo.com.au> <yq07j6tuq05.fsf@jaguar.mkp.net> <441AC300.8020003@yahoo.com.au> <441AC3A4.801@sgi.com>
+In-Reply-To: <441AC3A4.801@sgi.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Hi,
+Jes Sorensen wrote:
+> Nick Piggin wrote:
 > 
-> I'm embarrassed to release this patch in such a state, but I am
-> because a) I won't have much time to work on it in the short term;
-> b) it would take a lot of work to polish so I'd like to see what
-> people think before going too far; c) so I have something other than
-> boring lockless pagecache to talk about at Ottawa.
+>>No problem, I think you should just stop using the VM_PFNMAP flag then.
+>>[Linus should jump in here if I'm wrong ;)]
 > 
-> The basic idea is this: replace the heavyweight per-CPU mmu_gather
-> structure with a lightweight stack based one which is missing the
-> big page vector. Instead of the vector, use Linux pagetables to
-> store the pages-to-be-freed. Pages and pagetables are first unmapped,
-> then tlbs are flushed, then pages and pagetables are freed.
 > 
-> There is a downside: walking the page table can be anywhere from
-> slightly to a lot less efficient than walking the vector, depending
-> on density, and this adds a 2nd pagetable walk to unmapping (but
-> removes the vector walk, of course).
+> I'd have to go back and find the discussion to verify, but if I
+> remember correctly the conclusion was that I needed to use it in
+> order to make sure that vm_normal_page() didn't start thinking it was
+> in fact a real page, ie. VM_PFNMAP + never a COW mapping..
 > 
-> Upsides: mmu_gather is preemptible, horrible mmu_gather breaking
-> code can be removed, artificial disparity between PREEMPT tlb
-> flush batching and non-PREEMPT disappears (preempt can now have
-> good performance and non-preempt can have good latency). tlb flush
-> batching is possibly much closer to perfect though on non-PREEMPT
-> that may not be noticable (for PREEMPT, it appears to be spending
-> 5x less time in tlb flushing on kbuild)
-> 
-> Caveats:
-> - nonlinear mappings don't work yet
-> - hugepages don't work yet
-> - i386 only
 
-Note that in theory it should be usable by any architecture of course.
-Actually those ones for which hardware doesn't natively grok the Linux
-page tables can even be more creative than i386...
+Oh of course: the primary purpose for VM_PFNMAP is to signal a pfn
+mapping, strangely enough. The COW facility is additional to that.
+Sorry.
 
 -- 
 SUSE Labs, Novell Inc.

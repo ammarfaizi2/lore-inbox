@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWCQPka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWCQPon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWCQPka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 10:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWCQPka
+	id S1030194AbWCQPon (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbWCQPon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 10:40:30 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:64519 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932738AbWCQPk3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 10:40:29 -0500
+	Fri, 17 Mar 2006 10:44:43 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:30833 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030194AbWCQPon convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 10:44:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZolQZzjatSJKLDX/gy17brCT0tTBZo3v+SX1Y7bUioUcmT83CeddxsQVkKhaLnr39N5zsimDT6IPTbeK6NbB6cEg1a8cnw8hdULsuI2cBgW/iLwH7ERBnKIQlT+hsjtgLsx9UgrNH6ggnaAqkliKDDtGq+4DFrlxf4JAzgUFSOA=
+Message-ID: <6bffcb0e0603170744lb17b661x@mail.gmail.com>
+Date: Fri, 17 Mar 2006 16:44:12 +0100
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Subject: Re: 2.6.16-rc6-rt3
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060317135029.GA4007@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-in-reply-to: <Pine.LNX.4.61.0603171527090.24878@yvahk01.tjqt.qr>
-x-originalarrivaltime: 17 Mar 2006 15:40:12.0745 (UTC) FILETIME=[14824390:01C649D9]
-Content-class: urn:content-classes:message
-Subject: Re: /dev/stderr gets unlinked 8]
-Date: Fri, 17 Mar 2006 10:40:11 -0500
-Message-ID: <Pine.LNX.4.61.0603171029340.8333@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: /dev/stderr gets unlinked 8]
-Thread-Index: AcZJ2RSLXTwLmRLuTnW8oU3I3wFkEA==
-References: <200603141213.00077.vda@ilport.com.ua> <jehd5zq28o.fsf@sykes.suse.de> <Pine.LNX.4.61.0603162111400.11776@yvahk01.tjqt.qr> <200603170834.27694.vda@ilport.com.ua> <Pine.LNX.4.61.0603171527090.24878@yvahk01.tjqt.qr>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Cc: "Denis Vlasenko" <vda@ilport.com.ua>, "Andreas Schwab" <schwab@suse.de>,
-       "Stefan Seyfried" <seife@suse.de>, <linux-kernel@vger.kernel.org>,
-       <christiand59@web.de>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com>
+	 <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com>
+	 <20060317092351.GA18491@elte.hu>
+	 <6bffcb0e0603170532r664142a4w@mail.gmail.com>
+	 <20060317135029.GA4007@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 17 Mar 2006, Jan Engelhardt wrote:
-
->>>>> any good daemon closes stdout, stderr, stdin
->>>>
->>>> A real good daemon would redirect them to /dev/null.
->>>
->>> and writes to /var/log/mysql/...
->>
->> And has log rotation. Apache has log rotation. Squid has log rotation.
->>
->> Why they all need to have log rotation code? I forced them all to just
+On 17/03/06, Ingo Molnar <mingo@elte.hu> wrote:
 >
-> I dunno. SUSE Linux (no advertisement intended) uses a global solution -
-> "logrotate" rather than using each project's own logrotation.
+> * Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
 >
->> write log to stderr, and multilog from daemontools does the logging
->> (with rotation and postprocessing (for example, feeds Squid log into
->> Mysql db)) just fine.
->>
->> But we digress. Is there any magic (mount --bind?) to make
->> /dev/stderr undestructible?
+> > Something goes wrong.
+> >
+> > make
+> > [..]
+> >   LD [M]  lib/zlib_inflate/zlib_inflate.o
+> >   LD      arch/i386/lib/built-in.o
+> >   CC      arch/i386/lib/bitops.o
+> > {standard input}: Assembler messages:
+> > {standard input}:429: Error: can't resolve `.sched.text' {.sched.text
+> > section} - `.Ltext0' {.text section}
 >
-> If not, you could write an LSM that prohibits unlinking /dev/stderr.
+> hm, cannot reproduce that build problem here, with your config and with:
 >
-> Jan Engelhardt
+>  gcc version 4.0.2 20051125 (Red Hat 4.0.2-8)
+>
+>         Ingo
+>
 
-That symlink isn't even used -- at least by any sane program!
-I don't have a clue why these things were created and what they
-were for. The objects stdin, stdout, and stderr, are 'C' runtime
-library pointers to opaque types associated with the file descriptors,
-STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO. The presence of
-these bogus sym-links in /dev represent some kind of obfuscation
-and have no value except to confuse (or identify a RedHat distribution).
+It looks like a gcc 4.1.0 regression.
+gcc 4.0.3 (Debian 4.0.3-1) works good.
 
+Can you check it on gcc 4.1 from Fedora?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
-Warning : 98.36% of all statistics are fiction, book release in April.
-_
-
+Regards,
+Michal
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/wiki/)

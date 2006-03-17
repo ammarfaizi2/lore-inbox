@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWCQM3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWCQMbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWCQM3a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 07:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWCQM3a
+	id S932161AbWCQMbD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 07:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWCQMbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 07:29:30 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:17605 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932106AbWCQM33
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 07:29:29 -0500
-Message-ID: <441AABBC.1060809@de.ibm.com>
-Date: Fri, 17 Mar 2006 13:29:48 +0100
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jes Sorensen <jes@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, hch@lst.de,
-       Hugh Dickins <hugh@veritas.com>, Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [patch] mspec - special memory driver and do_no_pfn handler
-References: <yq0k6auuy5n.fsf@jaguar.mkp.net> <20060316163728.06f49c00.akpm@osdl.org> <Pine.LNX.4.64.0603161659210.3618@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0603161659210.3618@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 07:31:03 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:57746 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932161AbWCQMbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 07:31:01 -0500
+Date: Fri, 17 Mar 2006 04:30:13 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: akpm@osdl.org
+Cc: vatsa@in.ibm.com, ak@muc.de, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] Dont create a control file for BSP that cannot be removed
+Message-ID: <20060317043013.A13623@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Quite frankly, I don't think nopfn() is a good interface. It's only usable 
-> for one single thing, so trying to claim that it's a generic VM op is 
-> really not valid. If (and that's a big if) we need this interface, we 
-> should just do it inside mm/memory.c instead of playing games as if it was 
-> generic.
-Execute in place would be the second single thing we'll need it for. Also,
-I remember a statement from Anrd that it has value for SPUfs on Cell which
-does count as singe thing #3. With three single things at hand, I believe
-there is some sense in makeing it "a generic thing".
+Hi Andrew
 
-Carsten
+this patch just doesnt create an online file if the logical cpu cannot be
+offlined.
+
+We originally added to support ppc64 if the kernel has support but BIOS indicated
+no offline support, we just didnt create online files for them.
+
+We used the same method in ia64 as well, if we have a cpu taking platform interrupts
+but cannot be removed if those interrupts cannot be re-targeted to another cpu.
+
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center
+
+
+Don't create "online" control file for BSP (i386/x86_64) since its
+not removable.
+
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+-----------------------------------------------------------
+ arch/i386/kernel/topology.c |    9 +++++++++
+ 1 files changed, 9 insertions(+)
+
+Index: linux-2.6.16-rc6-mm1/arch/i386/kernel/topology.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/arch/i386/kernel/topology.c
++++ linux-2.6.16-rc6-mm1/arch/i386/kernel/topology.c
+@@ -41,6 +41,15 @@ int arch_register_cpu(int num){
+ 		parent = &node_devices[node].node;
+ #endif /* CONFIG_NUMA */
+ 
++	/*
++	 * CPU0 cannot be offlined due to several
++	 * restrictions and assumptions in kernel. This basically
++	 * doesnt add a control file, one cannot attempt to offline
++	 * BSP.
++	 */
++	if (!num)
++		cpu_devices[num].cpu.no_control = 1;
++
+ 	return register_cpu(&cpu_devices[num].cpu, num, parent);
+ }
+ 

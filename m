@@ -1,105 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWCQNg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWCQNgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWCQNg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 08:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWCQNg1
+	id S1751023AbWCQNgq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 08:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbWCQNgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 08:36:27 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:26565 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750732AbWCQNg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 08:36:26 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] sched: activate SCHED BATCH expired
-Date: Sat, 18 Mar 2006 00:36:10 +1100
-User-Agent: KMail/1.9.1
-Cc: Ingo Molnar <mingo@elte.hu>, ck@vds.kolivas.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200603081013.44678.kernel@kolivas.org> <200603172338.10107.kernel@kolivas.org> <441AB8FA.10609@yahoo.com.au>
-In-Reply-To: <441AB8FA.10609@yahoo.com.au>
+	Fri, 17 Mar 2006 08:36:46 -0500
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:21119 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751023AbWCQNgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 08:36:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Vd7wsnuWmmkeXWtNBCF/CuW2Q7p5rsxV1Z3YcpzhvD8OusbunJJEZeYEb7B3ruKx3yKZHRO5lMC3m6htg3hmgDeh8BHECFut7CYFrqFLtsn2yaINQIJT70Cw9hDpT3i/A6LdnfqCwZrLk/GrC5diz+yX9ilYcpPFW4OlTxZlbTA=  ;
+Message-ID: <441ABB68.1020502@yahoo.com.au>
+Date: Sat, 18 Mar 2006 00:36:40 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jes Sorensen <jes@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, hch@lst.de,
+       cotte@de.ibm.com, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch 2/2] mspec driver
+References: <yq0k6auuy5n.fsf@jaguar.mkp.net>	<20060316163728.06f49c00.akpm@osdl.org> <yq0bqw5utyc.fsf_-_@jaguar.mkp.net>
+In-Reply-To: <yq0bqw5utyc.fsf_-_@jaguar.mkp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603180036.11326.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 March 2006 00:26, Nick Piggin wrote:
-> Con Kolivas wrote:
-> > -static inline void __activate_task(task_t *p, runqueue_t *rq)
-> > +static void __activate_task(task_t *p, runqueue_t *rq)
-> >  {
-> > -	enqueue_task(p, rq->active);
-> > +	if (batch_task(p))
-> > +		enqueue_task(p, rq->expired);
-> > +	else
-> > +		enqueue_task(p, rq->active);
-> >  	inc_nr_running(p, rq);
-> >  }
->
-> I prefer:
->
->    prio_array_t *target = rq->active;
->    if (batch_task(p))
->      target = rq->expired;
->    enqueue_task(p, target);
->
-> Because gcc can use things like predicated instructions for it.
-> But perhaps it is smart enough these days to recognise this?
-> At least in the past I have seen it start using cmov after doing
-> such a conversion.
->
-> At any rate, I think it looks nicer as well. IMO, of course.
+Jes Sorensen wrote:
 
-Well on my one boring architecture here is a before and after, gcc 4.1.0 with 
-optimise for size kernel config:
-0xb01127da <__activate_task+0>: push   %ebp
-0xb01127db <__activate_task+1>: mov    %esp,%ebp
-0xb01127dd <__activate_task+3>: push   %esi
-0xb01127de <__activate_task+4>: push   %ebx
-0xb01127df <__activate_task+5>: mov    %eax,%esi
-0xb01127e1 <__activate_task+7>: mov    %edx,%ebx
-0xb01127e3 <__activate_task+9>: cmpl   $0x3,0x58(%eax)
-0xb01127e7 <__activate_task+13>:        jne    0xb01127ee <__activate_task+20>
-0xb01127e9 <__activate_task+15>:        mov    0x44(%edx),%edx
-0xb01127ec <__activate_task+18>:        jmp    0xb01127f1 <__activate_task+23>
-0xb01127ee <__activate_task+20>:        mov    0x40(%edx),%edx
-0xb01127f1 <__activate_task+23>:        mov    %esi,%eax
-0xb01127f3 <__activate_task+25>:        call   0xb01124bb <enqueue_task>
-0xb01127f8 <__activate_task+30>:        incl   0x8(%ebx)
-0xb01127fb <__activate_task+33>:        mov    0x18(%esi),%eax
-0xb01127fe <__activate_task+36>:        add    %eax,0xc(%ebx)
-0xb0112801 <__activate_task+39>:        pop    %ebx
-0xb0112802 <__activate_task+40>:        pop    %esi
-0xb0112803 <__activate_task+41>:        pop    %ebp
-0xb0112804 <__activate_task+42>:        ret
+> +static int
+> +mspec_mmap(struct file *file, struct vm_area_struct *vma, int type)
 
-Your version:
-0xb01127da <__activate_task+0>: push   %ebp
-0xb01127db <__activate_task+1>: mov    %esp,%ebp
-0xb01127dd <__activate_task+3>: push   %esi
-0xb01127de <__activate_task+4>: push   %ebx
-0xb01127df <__activate_task+5>: mov    %eax,%esi
-0xb01127e1 <__activate_task+7>: mov    %edx,%ebx
-0xb01127e3 <__activate_task+9>: mov    0x40(%edx),%edx
-0xb01127e6 <__activate_task+12>:        cmpl   $0x3,0x58(%eax)
-0xb01127ea <__activate_task+16>:        jne    0xb01127ef <__activate_task+21>
-0xb01127ec <__activate_task+18>:        mov    0x44(%ebx),%edx
-0xb01127ef <__activate_task+21>:        mov    %esi,%eax
-0xb01127f1 <__activate_task+23>:        call   0xb01124bb <enqueue_task>
-0xb01127f6 <__activate_task+28>:        incl   0x8(%ebx)
-0xb01127f9 <__activate_task+31>:        mov    0x18(%esi),%eax
-0xb01127fc <__activate_task+34>:        add    %eax,0xc(%ebx)
-0xb01127ff <__activate_task+37>:        pop    %ebx
-0xb0112800 <__activate_task+38>:        pop    %esi
-0xb0112801 <__activate_task+39>:        pop    %ebp
-0xb0112802 <__activate_task+40>:        ret
+...
 
-I'm not attached to the style, just the feature. If you think it's warranted 
-I'll change it.
+> +	vma->vm_flags |= (VM_IO | VM_LOCKED | VM_RESERVED | VM_PFNMAP);
 
-Cheers,
-Con
+VM_PFNMAP actually has a fairly specific meaning [unlike the rest of
+them :)] so you should be careful with it. Actually if you set vm_pgoff
+in the right way, then that should enable you to do COWs on these areas
+if that is what you want.
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

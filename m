@@ -1,96 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWCQPa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWCQPka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWCQPa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 10:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWCQPa7
+	id S1030190AbWCQPka (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWCQPka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 10:30:59 -0500
-Received: from vsmtp14.tin.it ([212.216.176.118]:20112 "EHLO vsmtp14.tin.it")
-	by vger.kernel.org with ESMTP id S932738AbWCQPa6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 10:30:58 -0500
-Message-ID: <10a08d2a312.susanconsole10@virgilio.it>
-Date: Fri, 17 Mar 2006 16:28:42 +0100 (GMT+01:00)
-From: <susanconsole10@virgilio.it>
-Reply-To: <susanconsole10@virgilio.it>
-Subject: Ticket No: 00903228100
-Mime-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: 194.151.147.178
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 17 Mar 2006 10:40:30 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:64519 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932738AbWCQPk3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 10:40:29 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+in-reply-to: <Pine.LNX.4.61.0603171527090.24878@yvahk01.tjqt.qr>
+x-originalarrivaltime: 17 Mar 2006 15:40:12.0745 (UTC) FILETIME=[14824390:01C649D9]
+Content-class: urn:content-classes:message
+Subject: Re: /dev/stderr gets unlinked 8]
+Date: Fri, 17 Mar 2006 10:40:11 -0500
+Message-ID: <Pine.LNX.4.61.0603171029340.8333@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: /dev/stderr gets unlinked 8]
+Thread-Index: AcZJ2RSLXTwLmRLuTnW8oU3I3wFkEA==
+References: <200603141213.00077.vda@ilport.com.ua> <jehd5zq28o.fsf@sykes.suse.de> <Pine.LNX.4.61.0603162111400.11776@yvahk01.tjqt.qr> <200603170834.27694.vda@ilport.com.ua> <Pine.LNX.4.61.0603171527090.24878@yvahk01.tjqt.qr>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
+Cc: "Denis Vlasenko" <vda@ilport.com.ua>, "Andreas Schwab" <schwab@suse.de>,
+       "Stefan Seyfried" <seife@suse.de>, <linux-kernel@vger.kernel.org>,
+       <christiand59@web.de>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ticket No: 00903228100
 
- 
-RE: WINNING FINAL NOTIFICATION 
- 
-LOTTO NL 
-INTERNATIONAL PRIZE AWARD DEPT. 
+On Fri, 17 Mar 2006, Jan Engelhardt wrote:
 
+>>>>> any good daemon closes stdout, stderr, stdin
+>>>>
+>>>> A real good daemon would redirect them to /dev/null.
+>>>
+>>> and writes to /var/log/mysql/...
+>>
+>> And has log rotation. Apache has log rotation. Squid has log rotation.
+>>
+>> Why they all need to have log rotation code? I forced them all to just
+>
+> I dunno. SUSE Linux (no advertisement intended) uses a global solution -
+> "logrotate" rather than using each project's own logrotation.
+>
+>> write log to stderr, and multilog from daemontools does the logging
+>> (with rotation and postprocessing (for example, feeds Squid log into
+>> Mysql db)) just fine.
+>>
+>> But we digress. Is there any magic (mount --bind?) to make
+>> /dev/stderr undestructible?
+>
+> If not, you could write an LSM that prohibits unlinking /dev/stderr.
+>
+> Jan Engelhardt
 
-Sir/Madam,
-
-CONGRATULATIONS!!!
-
-We 
-are pleased to inform you of the result of the Lotto NL Winners 
-International programs held on the 17th of   March, 2006.  Your e-mail 
-address attached to ticket No: 00903228100 with prize No 778009/UK drew 
-€1,000,000.00 which was first in the 2ndclass of the draws. You are to 
-receive €1,000,000.00 (One Million Euros).
-
-Be informed because of mix 
-up in cash pay-outs, we ask that you keep your winning information 
-confidential until your fund (€1,000,000.00) has been fully remitted to 
-you by our accredited pay-point bank. This measure must be adhere to 
-avoid loss of your cash prize - winners of our cash prizes are advised 
-to adhere to these instructions to forestall the abuse of this program 
-by other participants. It's important to note that this draws were 
-conducted formally, and winners are selected through an internet ballot 
-system from 60,000 individual and companies e-mail addresses - the 
-draws are conducted around the world through our internet based ballot 
-system. The promotion is sponsored and promoted by Lotto NL.
-
-We 
-congratulate you once again. We hope you will use part of it in our 
-next draws; the jackpot winning is €85million.  Remember, all winning 
-must be claimed not later than 20 days. After this date all unclaimed 
-cash prize will be forfeited and included in the next sweepstake.  
-Please, in order to avoid unnecessary delays and complications remember 
-to quote your winning numbers in all correspondence with us.
-
-Congratulations once again from all members of Lotto NL. Thank you for 
-being part of our promotional program.
-
-For immediate release of your 
-cash prize to you, please kindly contact our Paying Bank
-(Inter 
-Continental Alliance Finance & Securities Den Haag.)
-
-Kindly send the 
-following information to the paying bank:
-(i)  Your names,
-(ii) Contact 
-telephone and fax numbers
-(iii) Contact Address
-(iv) Your winning 
-numbers
-(v) Quote amount won.
-
-Contact person: Mr. James Milton 
-E-mail:
-icafinance01@netscape.net
-Tel: 0031-629-355-505
-
-Congratulations once 
-again.
-
-Yours Sincerely,
-Mrs. Susan Console
-(Lottery Coordinator)
+That symlink isn't even used -- at least by any sane program!
+I don't have a clue why these things were created and what they
+were for. The objects stdin, stdout, and stderr, are 'C' runtime
+library pointers to opaque types associated with the file descriptors,
+STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO. The presence of
+these bogus sym-links in /dev represent some kind of obfuscation
+and have no value except to confuse (or identify a RedHat distribution).
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.15.4 on an i686 machine (5589.54 BogoMips).
+Warning : 98.36% of all statistics are fiction, book release in April.
+_
+
 
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

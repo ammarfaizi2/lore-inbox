@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752487AbWCQDnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWCQD4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752487AbWCQDnI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 22:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752492AbWCQDnH
+	id S1750938AbWCQD4X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 22:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWCQD4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 22:43:07 -0500
-Received: from mx1.suse.de ([195.135.220.2]:37090 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752487AbWCQDnG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 22:43:06 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Bret Towe" <magnade@gmail.com>
-Date: Fri, 17 Mar 2006 14:41:49 +1100
-MIME-Version: 1.0
+	Thu, 16 Mar 2006 22:56:23 -0500
+Received: from smtp-relay.dca.net ([216.158.48.66]:1497 "EHLO
+	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S1751030AbWCQD4W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 22:56:22 -0500
+Date: Thu, 16 Mar 2006 22:56:16 -0500
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org, Etienne Lorrain <etienne_lorrain@yahoo.fr>,
+       lm-sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [lm-sensors] sis96x compiled in by error: delay of one minute at boot
+Message-ID: <20060317035616.GA3446@jupiter.solarsys.private>
+References: <20060316035916.GA10675@jupiter.solarsys.private> <3ZH07HE0.1142498811.4526410.khali@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17434.12285.88843.708858@cse.unsw.edu.au>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs udp 1000/100baseT issue
-In-Reply-To: message from Bret Towe on Thursday March 16
-References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
-	<Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>
-	<dda83e780603161733o10a3c330kddf96a726f162fa7@mail.gmail.com>
-	<17434.7434.626268.71114@cse.unsw.edu.au>
-	<dda83e780603161911o7c2babb7wfc6671f9bc3441e4@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <3ZH07HE0.1142498811.4526410.khali@localhost>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday March 16, magnade@gmail.com wrote:
-> On 3/16/06, Neil Brown <neilb@suse.de> wrote:
-> >
-> > There is no flow control in UDP
+Hi Jean:
+
+> On 2006-03-16, Mark M. Hoffman wrote:
+> > Loading it with the default could be considered an accident by
+> > definition. It takes ~6 seconds to load all of
+> > kernel/drivers/hwmon/*.ko on a test box here with i2c-parport-light
+> > present (but without any adapter hardware). With this patch, that
+> > drops to ~1 second.
+
+* Jean Delvare <khali@linux-fr.org> [2006-03-16 09:46:51 +0100]:
+> Note that the same result could be achieved by using
+> i2c_algo_bit.bit_test=1, which is why I was suggesting to make it the
+> default. Doing so would also help the radeonfb driver users: this one
+> creates up to 4 i2c busses and at least one does not work for me (I
+> guess it depends on how the chip was wired on the graphics adapter),
+> causing significant delays on when loading i2c chip drivers afterwards.
 > 
-> is this a linux design flaw or just nature of udp?
+> I wonder if i2c_algo_bit.bit_test=1 can cause problems. Why wasn't it
+> made the default in the first place?
 
-Just the nature of UDP.
+It doesn't look very reliable to me.  E.g. if there happens to be bus
+traffic during the bus test, it fails.  If it gets past that, it gets
+worse... 
 
+	5. A START condition immediately followed by a STOP condition
+	(void message) is an illegal format.
+		- I2C Bus Specification, Version 2.1 (page 14)
+
+Unless I read it wrong, that's exactly what the bus test will do.
+
+> > This patch forces the user to specify what type of adapter is present
+> > when loading i2c-parport or i2c-parport-light.  If none is specified,
+> > the driver init simply fails - instead of assuming adapter type 0.
 > >
-> >   - use tcp
+> > This alleviates the sometimes lengthy boot time delays which can be
+> > caused by accidentally building one of these into a kernel along with
+> > several i2c slave drivers that have lengthy probe routines (e.g. hwmon
+> > drivers).
 > 
-> im wondering why this isnt the default to begin with
+> This makes sense, no adapter type is more likely to be found than the
+> others. So I like the patch and am willing to accept it. However, given
+> that it changes the default behavior, and makes the "type" module
+> parameter mandatory, a short notice in the documentation and/or Kconfig
+> would be welcome, don't you think?
 
-Because it wasn't that many years ago that Linux NFS didn't support
-tcp at all.
-Some distributions modify 'mount' to get it to prefer tcp over udp.
+OK - patch to follow.
 
-NeilBrown
+Regards,
+
+-- 
+Mark M. Hoffman
+mhoffman@lightlink.com
+

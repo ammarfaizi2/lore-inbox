@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750971AbWCQJH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWCQJJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750971AbWCQJH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 04:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWCQJH0
+	id S1750988AbWCQJJO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 04:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752575AbWCQJJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 04:07:26 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:47084 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750971AbWCQJHC (ORCPT
+	Fri, 17 Mar 2006 04:09:13 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:20616 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750988AbWCQJJM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 04:07:02 -0500
-Date: Fri, 17 Mar 2006 01:04:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, shaohua.li@intel.com,
-       bryce@osdl.org
-Subject: Re: [PATCH] Check for online cpus before bringing them up
-Message-Id: <20060317010412.3243364c.akpm@osdl.org>
-In-Reply-To: <20060317084653.GA4515@in.ibm.com>
-References: <20060316174447.GA8184@in.ibm.com>
-	<20060316170814.02fa55a1.akpm@osdl.org>
-	<20060317084653.GA4515@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 17 Mar 2006 04:09:12 -0500
+Date: Fri, 17 Mar 2006 10:06:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: ck@vds.kolivas.org, Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ck] Re: [PATCH] mm: yield during swap prefetching
+Message-ID: <20060317090653.GC13387@elte.hu>
+References: <200603081013.44678.kernel@kolivas.org> <20060307152636.1324a5b5.akpm@osdl.org> <cone.1141774323.5234.18683.501@kolivas.org> <200603090036.49915.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603090036.49915.kernel@kolivas.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
->
-> Well ..other arch-es need to have a similar check if they get around to
-> implement physical hot-add (even if they allow offlining of all CPUs). This is 
-> required since a user can (by mistake maybe) try to bring up an already online 
-> CPU by writing a '1' to it's sysfs 'online' file. 'store_online' 
-> (drivers/base/cpu.c) unconditionally calls 'smp_prepare_cpu' w/o checking for 
-> this error condition. The check added in the patch catches such error 
-> conditions as well.
 
-OK..  I guess we should fix those architectures while we're thinking about it.
+* Con Kolivas <kernel@kolivas.org> wrote:
 
-> --- linux-2.6.16-rc6/arch/i386/kernel/smpboot.c~cpu_hp	2006-03-17 14:27:15.000000000 +0530
-> +++ linux-2.6.16-rc6-root/arch/i386/kernel/smpboot.c	2006-03-17 14:38:50.000000000 +0530
-> @@ -1029,6 +1029,16 @@ int __devinit smp_prepare_cpu(int cpu)
->  	int	apicid, ret;
->  
->  	lock_cpu_hotplug();
-> +
-> +	/* Check if CPU is already online. This can happen if user tries to 
-> +	 * bringup an already online CPU or a previous offline attempt
-> +	 * on this CPU has failed.
-> +	 */
-> +	if (cpu_online(cpu)) {
-> +		ret = -EINVAL;
-> +		goto exit;
-> +	}
-> +
+> > We do have SCHED_BATCH but even that doesn't really have the desired
+> > effect. I know how much yield sucks and I actually want it to suck as much
+> > as yield does.
+> 
+> Thinking some more on this I wonder if SCHED_BATCH isn't a strong 
+> enough scheduling hint if it's not suitable for such an application. 
+> Ingo do you think we could make SCHED_BATCH tasks always wake up on 
+> the expired array?
 
-How well tested is this?  From my reading, this will cause
-enable_nonboot_cpus() to panic.  Is that intended?
+yep, i think that's a good idea. In the worst case the starvation 
+timeout should kick in.
 
+	Ingo

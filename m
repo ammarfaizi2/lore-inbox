@@ -1,76 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWCQJN0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752577AbWCQJQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWCQJN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 04:13:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752577AbWCQJN0
+	id S1752577AbWCQJQF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 04:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWCQJQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 04:13:26 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:42710 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751500AbWCQJN0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 04:13:26 -0500
-Message-ID: <441A7DA5.7070303@aitel.hist.no>
-Date: Fri, 17 Mar 2006 10:13:09 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bret Towe <magnade@gmail.com>
-CC: Neil Brown <neilb@suse.de>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs udp 1000/100baseT issue
-References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>	 <Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>	 <dda83e780603161733o10a3c330kddf96a726f162fa7@mail.gmail.com>	 <17434.7434.626268.71114@cse.unsw.edu.au> <dda83e780603161911o7c2babb7wfc6671f9bc3441e4@mail.gmail.com>
-In-Reply-To: <dda83e780603161911o7c2babb7wfc6671f9bc3441e4@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 04:16:05 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:42447 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1752577AbWCQJQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 04:16:02 -0500
+Date: Fri, 17 Mar 2006 10:13:47 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andreas Mohr <andi@rhlx01.fht-esslingen.de>, ck@vds.kolivas.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] -mm: Small schedule() optimization
+Message-ID: <20060317091347.GD13387@elte.hu>
+References: <20060308175450.GA28763@rhlx01.fht-esslingen.de> <200603111200.27557.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603111200.27557.kernel@kolivas.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bret Towe wrote:
 
->On 3/16/06, Neil Brown <neilb@suse.de> wrote:
->  
->
->>There is no flow control in UDP
->>    
->>
->
->is this a linux design flaw or just nature of udp?
->  
->
-That has nothing to do with linux at all.
+* Con Kolivas <kernel@kolivas.org> wrote:
 
-"Now flow control in udp" is a udp design issue.  And it is not
-a flaw either - the rule is simple:
+> > -	if (likely(!current->exit_state)) {
+> > -		if (unlikely(in_atomic())) {
+> > +	if (unlikely(in_atomic())) {
+> > +		if (likely(!current->exit_state)) {
+> 
+> I suspect that once we're in_atomic() then we're no longer likely to 
+> be !current->exit_state
+> 
+> Probably better to just
+> 	if (unlikely(in_atomic())) {
+> 		if (!current->exit_state) {
+> 
+> Ingo?
 
-If you need flow control - use tcp.
-If you don't need flow control, and don't want the
-overhead of flow control - use udp.
+yeah. There's not much point in nesting likely/unlikely. In fact we can 
+just merge the two conditions, as per updated patch below.
 
-Udp is for those cases where flow control is consideres a waste of time.
+	Ingo
 
-Now, the original decision to base early NFS on udp, that was
-a design mistake.  Again, not a linux problem but a nfs problem.
-Fortunately, today a solution for this exists and is implemented
-in linux - and it is nfs over tcp.
+---
+From: Andreas Mohr <andi@lisas.de>
 
->>.  If anything gets lots, the client
->>has to resend the request, and the server then has to respond again.
->>If the respond is large (e.g. a read) and gets fragmented (if > 1500bytes)
->>then there is a good chance that one or more fragments of a reply will
->>get lots in the switch stepping down from 1G to 100M.  Every time.
->>
->>Your options include:
->>
->>  - use tcp
->>    
->>
->
->im wondering why this isnt the default to begin with
->  
->
-Hard to say.  I guess someone thought they could get better
-performance with udp - it has less overhead.,
-Then didn't bother testing this idea with a somewhat congested network?
+small schedule() microoptimization.
 
-Helge Hafting
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -2873,13 +2873,11 @@ asmlinkage void __sched schedule(void)
+ 	 * schedule() atomically, we ignore that path for now.
+ 	 * Otherwise, whine if we are scheduling when we should not be.
+ 	 */
+-	if (likely(!current->exit_state)) {
+-		if (unlikely(in_atomic())) {
+-			printk(KERN_ERR "scheduling while atomic: "
+-				"%s/0x%08x/%d\n",
+-				current->comm, preempt_count(), current->pid);
+-			dump_stack();
+-		}
++	if (unlikely(in_atomic() && !current->exit_state)) {
++		printk(KERN_ERR "scheduling while atomic: "
++			"%s/0x%08x/%d\n",
++			current->comm, preempt_count(), current->pid);
++		dump_stack();
+ 	}
+ 	profile_hit(SCHED_PROFILING, __builtin_return_address(0));
+ 

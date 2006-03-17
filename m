@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWCQSEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWCQSF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWCQSEU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 13:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCQSEU
+	id S1030242AbWCQSF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 13:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWCQSF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 13:04:20 -0500
-Received: from verein.lst.de ([213.95.11.210]:63106 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751351AbWCQSET (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 13:04:19 -0500
-Date: Fri, 17 Mar 2006 19:03:55 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: carsteno@de.ibm.com
-Cc: Jes Sorensen <jes@sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, hch@lst.de,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [patch] mspec - special memory driver and do_no_pfn handler
-Message-ID: <20060317180355.GA8232@lst.de>
-References: <yq0k6auuy5n.fsf@jaguar.mkp.net> <20060316163728.06f49c00.akpm@osdl.org> <Pine.LNX.4.64.0603161659210.3618@g5.osdl.org> <1142571490.9022.37.camel@localhost.localdomain> <441A7E34.90508@sgi.com> <441AB9A9.2000704@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <441AB9A9.2000704@de.ibm.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Fri, 17 Mar 2006 13:05:27 -0500
+Received: from silver.veritas.com ([143.127.12.111]:3336 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1030242AbWCQSF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 13:05:27 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.03,105,1141632000"; 
+   d="scan'208"; a="36035570:sNHT24608768"
+Date: Fri, 17 Mar 2006 18:05:53 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Race in pagevec_strip?
+In-Reply-To: <Pine.LNX.4.64.0603161644510.4748@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0603171757270.643@goblin.wat.veritas.com>
+References: <Pine.LNX.4.64.0603161033120.2395@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.64.0603161056270.2518@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0603161934220.24837@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0603162000380.25033@goblin.wat.veritas.com>
+ <Pine.LNX.4.64.0603161644510.4748@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 17 Mar 2006 18:05:26.0603 (UTC) FILETIME=[5E5F79B0:01C649ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2006 at 02:29:13PM +0100, Carsten Otte wrote:
-> Jes Sorensen wrote:
-> > Well then the question is, would it simplify the code using no_pfn in
-> > this case? Hacking up fake struct page entries seems even more of a
-> > hack to me.
-> I second that. That's were we are with our dcss xip thing today.
-> It _is_ a hack to have a struct page that you don't need.
+On Thu, 16 Mar 2006, Christoph Lameter wrote:
+> On Thu, 16 Mar 2006, Hugh Dickins wrote:
+> > 
+> > But I should add, I don't see what might be racing with what on the
+> > same page, to cause the problem in practice.
+> 
+> The page is on the inactive list at the time pagevec_strip is called 
+> (see refill_inactive_zone). So kswapd could get to it. Could filesystems 
+> get to the page via the mapping?
 
-The same is true for the SPU support.  The way it's done currently works
-which is great, but the way it's done is everything but nice.
+A filesystem could get there, but I doubt it'd want to be releasing
+buffers.  But now I see truncation's invalidate_complete_page,
+that looks quite capable of racing with the kswapd instance.
 
+Anyway, I don't disagree with your patch, and happy to see it now
+in Linus' tree: was just wanting to make clear that I hadn't actually
+seen the race in question, and didn't know if you were fixing a
+potentiality or something actually seen.
+
+Hugh

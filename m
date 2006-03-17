@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWCQRqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWCQRsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWCQRqa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 12:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWCQRqa
+	id S1030230AbWCQRsM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 12:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030234AbWCQRsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 12:46:30 -0500
-Received: from mail.linicks.net ([217.204.244.146]:63196 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1030229AbWCQRqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 12:46:30 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: chmod 111
-Date: Fri, 17 Mar 2006 17:46:18 +0000
-User-Agent: KMail/1.9.1
+	Fri, 17 Mar 2006 12:48:12 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:43971 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1030233AbWCQRsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 12:48:10 -0500
+Message-ID: <441AF596.F6E66BC9@tv-sign.ru>
+Date: Fri, 17 Mar 2006 20:44:54 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Janak Desai <janak@us.ibm.com>,
+       Al Viro <viro@ftp.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+       Michael Kerrisk <mtk-manpages@gmx.net>, Andi Kleen <ak@muc.de>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH] unshare: Use rcu_assign_pointer when setting sighand
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com> <m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603171746.18894.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+"Eric W. Biederman" wrote:
+> 
+> @@ -1573,7 +1573,7 @@ asmlinkage long sys_unshare(unsigned lon
+> 
+>                 if (new_sigh) {
+>                         sigh = current->sighand;
+> -                       current->sighand = new_sigh;
+> +                       rcu_assign_pointer(current->sighand, new_sigh);
+>                         new_sigh = sigh;
+>                 }
 
-First, I apologise if this isn't a kernel question, but I think it is related.
+Isn't it better to just replace this code with
+'BUG_ON(new_sigh != NULL)' ?
 
-Slackware 10 base, 2.6.15.6
+It is never executed, but totally broken, afaics.
+task_lock() has nothing to do with ->sighand changing.
 
-I am normal user, in groups users and wheel.  Why can I do this:
-
-
-nick@linuxamd:nick$ which ls
-/usr/bin/ls
-nick@linuxamd:nick$ ls -lsa /usr/bin/ls
-0 lrwxrwxrwx  1 root root 12 2004-07-22 22:52 /usr/bin/ls -> ../../bin/ls
-nick@linuxamd:nick$ cd /bin
-nick@linuxamd:bin$ sudo chmod 111 ls
-nick@linuxamd:bin$ ls -lsa ls
-76 ---x--x--x  1 root bin 72608 2004-03-16 02:08 ls
-
-
-
-I shouldn't be able to execute 'ls' as I can't read it, shouldn't it?
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+Oleg.

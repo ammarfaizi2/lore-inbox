@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWCQXZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWCQXar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751245AbWCQXZA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 18:25:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWCQXZA
+	id S1751399AbWCQXar (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 18:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWCQXar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 18:25:00 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25866 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751245AbWCQXY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 18:24:59 -0500
-Date: Sat, 18 Mar 2006 00:24:57 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-Subject: Re: [PATCH 05/21] Added no_overlay option and quirks to saa7134
-Message-ID: <20060317232457.GB9717@stusta.de>
-References: <20060317205359.PS65198900000@infradead.org> <20060317205433.PS91497800005@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060317205433.PS91497800005@infradead.org>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Fri, 17 Mar 2006 18:30:47 -0500
+Received: from CPE-70-92-180-7.mn.res.rr.com ([70.92.180.7]:41627 "EHLO
+	cinder.waste.org") by vger.kernel.org with ESMTP id S1751399AbWCQXar
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 18:30:47 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2.132654658@selenic.com>
+Message-Id: <4.132654658@selenic.com>
+Subject: [PATCH 3/14] RTC: Remove RTC UIP synchronization on Sparc64
+Date: Fri, 17 Mar 2006 17:30:35 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2006 at 05:54:34PM -0300, mchehab@infradead.org wrote:
-> 
-> From: Mauro Carvalho Chehab <mchehab@infradead.org>
-> Date: 1142020010 \-0300
-> 
-> Some chipsets have several problems when pci to pci transfers are activated
-> on overlay mode. the option no_overlay allows disabling such feature of
-> the driver, in favor of keeping the system stable.
-> The default is to use pcipci_fail flag defined on drivers/pci/quirks.c.
-> It also allows the user to override it by forcing disable overlay or forcing
-> enable. Forcing enable may generate PCI transfer corruption, including disk
-> mass corruption, so should be used with care.
-> Added a text description to this option and make messages looks the same at
-> both bttv and saa7134 drivers.
->...
+Remove RTC UIP synchronization on Sparc64
 
-As far as I can see, the the no_overlay option in the saa7134 driver 
-doesn't change anything (except for a printk).
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Index: rtc/arch/sparc64/kernel/time.c
+===================================================================
+--- rtc.orig/arch/sparc64/kernel/time.c	2006-03-16 16:48:37.000000000 -0600
++++ rtc/arch/sparc64/kernel/time.c	2006-03-17 11:51:53.000000000 -0600
+@@ -632,23 +632,8 @@ static void __init set_system_time(void)
+ 		mon = MSTK_REG_MONTH(mregs);
+ 		year = MSTK_CVT_YEAR( MSTK_REG_YEAR(mregs) );
+ 	} else {
+-		int i;
+-
+ 		/* Dallas 12887 RTC chip. */
+ 
+-		/* Stolen from arch/i386/kernel/time.c, see there for
+-		 * credits and descriptive comments.
+-		 */
+-		for (i = 0; i < 1000000; i++) {
+-			if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
+-				break;
+-			udelay(10);
+-		}
+-		for (i = 0; i < 1000000; i++) {
+-			if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
+-				break;
+-			udelay(10);
+-		}
+ 		do {
+ 			sec  = CMOS_READ(RTC_SECONDS);
+ 			min  = CMOS_READ(RTC_MINUTES);
+@@ -657,6 +642,7 @@ static void __init set_system_time(void)
+ 			mon  = CMOS_READ(RTC_MONTH);
+ 			year = CMOS_READ(RTC_YEAR);
+ 		} while (sec != CMOS_READ(RTC_SECONDS));
++
+ 		if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 			BCD_TO_BIN(sec);
+ 			BCD_TO_BIN(min);

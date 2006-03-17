@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWCQI1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752567AbWCQIhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWCQI1j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWCQI1c
+	id S1752567AbWCQIhH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 03:37:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752570AbWCQIhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 03:27:32 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:49104 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964931AbWCQIWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 03:22:55 -0500
-Date: Fri, 17 Mar 2006 17:21:38 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 008/017]Memory hotplug for new nodes v.4.(allocate pgdat for ia64)
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org,
-       "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
-       linux-mm <linux-mm@kvack.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060317163324.C647.Y-GOTO@jp.fujitsu.com>
+	Fri, 17 Mar 2006 03:37:07 -0500
+Received: from xproxy.gmail.com ([66.249.82.201]:4783 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752567AbWCQIhF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 03:37:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=NgbYSbkeOrSr+j8N8HFOVa5DhAt+ScbxWLsvWXinRDwaadzKEx79YmZcLy2WcO7AcoJNoS/cTR/ke0EINrjFbLT7uy9+AB3k5/MkK41jJxjwv3RT9bGRAZQi7sGm/LQXS3S2mgkVqqCdYvupiqCz3xNe1fPOt5HWofxlHIQQxZM=
+Message-ID: <9fda5f510603170037v41d273c5naf36776e6f03246e@mail.gmail.com>
+Date: Fri, 17 Mar 2006 00:37:04 -0800
+From: "Pradeep Vincent" <pradeep.vincent@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Priority in Memory management
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch to allocate pgdat and per node data area for ia64.
-The size for them can be calculated by compute_pernodesize().
+I tried searching for discussions related to this but in vain A
+significant number of servers running Linux come under the category of
+"Caching Servers". These servers usually try to server data either
+from RAM or disk sub-systems and for obvious reasons want to serve as
+much data as possible from RAM. Even if the dataset is comparable to
+RAM size, other bon-performance critical activities on the system
+(such as logging, log rotation/compression, remote performance
+monitors, application code updates, security related searches )
+disturb the cache hit ratio.
 
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+Mlocking the dataset is one option. Using fadvise/O_STREAM for
+everything else is another option - but this doesn't address all the
+cases.
 
- arch/ia64/mm/discontig.c |   16 ++++++++++++++--
- 1 files changed, 14 insertions(+), 2 deletions(-)
-
-Index: pgdat8/arch/ia64/mm/discontig.c
-===================================================================
---- pgdat8.orig/arch/ia64/mm/discontig.c	2006-03-16 21:20:31.251828760 +0900
-+++ pgdat8/arch/ia64/mm/discontig.c	2006-03-16 21:21:25.615109344 +0900
-@@ -100,7 +100,7 @@ static int __init build_node_maps(unsign
-  * acpi_boot_init() (which builds the node_to_cpu_mask array) hasn't been
-  * called yet.  Note that node 0 will also count all non-existent cpus.
-  */
--static int __init early_nr_cpus_node(int node)
-+static int __meminit early_nr_cpus_node(int node)
- {
- 	int cpu, n = 0;
- 
-@@ -115,7 +115,7 @@ static int __init early_nr_cpus_node(int
-  * compute_pernodesize - compute size of pernode data
-  * @node: the node id.
-  */
--static unsigned long __init compute_pernodesize(int node)
-+static unsigned long __meminit compute_pernodesize(int node)
- {
- 	unsigned long pernodesize = 0, cpus;
- 
-@@ -728,6 +728,18 @@ void __init paging_init(void)
- 	zero_page_memmap_ptr = virt_to_page(ia64_imva(empty_zero_page));
- }
- 
-+pg_data_t *arch_alloc_nodedata(int nid)
-+{
-+	unsigned long size = compute_pernodesize(nid);
-+
-+	return kzalloc(size, GFP_KERNEL);
-+}
-+
-+void arch_free_nodedata(pg_data_t *pgdat)
-+{
-+	kfree(pgdat);
-+}
-+
- void arch_refresh_nodedata(int update_node, pg_data_t *update_pgdat)
- {
- 	pgdat_list[update_node] = update_pgdat;
-
--- 
-Yasunori Goto 
+Instead of locking out all memory, being able to set priorities for
+virtual memory regions comes across as a better idea. This way if the
+system really really needs memory, kernel can reclaim the cache pages
+but not just because somebody is writing something and it might seem
+fair to reclaim the dataset cache.
 
 
+Has this come up in the past. Any history at all - I am all ears for
+ideas and concerns.
+
+Thanks,
+
+Pradeep Vincent

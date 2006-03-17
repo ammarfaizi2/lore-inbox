@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWCQJfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752578AbWCQJmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWCQJfd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 04:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWCQJfd
+	id S1752578AbWCQJmS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 04:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWCQJmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 04:35:33 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:974 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1751195AbWCQJfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 04:35:32 -0500
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-From: Laurent Vivier <Laurent.Vivier@bull.net>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Takashi Sato <sho@bsd.tnes.nec.co.jp>, Mingming Cao <cmm@us.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       ext2-devel <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20060316183549.GK30801@schatzie.adilger.int>
-References: <000301c6482d$7e5b5200$4168010a@bsd.tnes.nec.co.jp>
-	 <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com>
-	 <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp>
-	 <20060316183549.GK30801@schatzie.adilger.int>
-Message-Id: <1142588127.22660.1.camel@openx2.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-14) 
-Date: Fri, 17 Mar 2006 10:35:27 +0100
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 17/03/2006 10:37:15,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 17/03/2006 10:37:16,
-	Serialize complete at 17/03/2006 10:37:16
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DNQzp71X4ut2fL3fAgxz"
+	Fri, 17 Mar 2006 04:42:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:38106 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751212AbWCQJmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 04:42:17 -0500
+Message-ID: <441A8469.8020504@sgi.com>
+Date: Fri, 17 Mar 2006 10:42:01 +0100
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5 (X11/20060223)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, hch@lst.de, cotte@de.ibm.com,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] mspec - special memory driver and do_no_pfn handler
+References: <yq0k6auuy5n.fsf@jaguar.mkp.net> <20060316163728.06f49c00.akpm@osdl.org> <Pine.LNX.4.64.0603161659210.3618@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603161659210.3618@g5.osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> Quite frankly, I don't think nopfn() is a good interface. It's only usable 
+> for one single thing, so trying to claim that it's a generic VM op is 
+> really not valid. If (and that's a big if) we need this interface, we 
+> should just do it inside mm/memory.c instead of playing games as if it was 
+> generic.
 
---=-DNQzp71X4ut2fL3fAgxz
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Hi Linus,
 
-Le jeu 16/03/2006 =C3=A0 19:35, Andreas Dilger a =C3=A9crit :
-[...]
-> Laurent, do your 64-bit patches include support for larger i_blocks?
+As Robin mentioned I believe Carsten was also looking for this interface
+and I received an email from Bjorn Helgas after posting this stating
+that he was also looking for it, so there may be several users for it.
 
-No, I only work on extending the filesystem size. Extending the file
-size will be the next step...
+I believe it was originally Christoph who suggested we took this
+approach to avoid playing tricks on do_no_page. However, if you have a
+suggestion for how to do it in a better way, I shall be happy to try
+and implement it that way instead, if you'll share the details.
 
 Cheers,
-Laurent
---=20
-Laurent Vivier
-Bull, Architect of an Open World (TM)
-http://www.bullopensource.org/ext4
-
---=-DNQzp71X4ut2fL3fAgxz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-
-iD8DBQBEGoLf9Kffa9pFVzwRAg+6AJ9wAuSaDQqUkLOf6XlGRagcbpoKDgCg2P6+
-lmQIIyX23uqCKvA0XhFGo5U=
-=cdID
------END PGP SIGNATURE-----
-
---=-DNQzp71X4ut2fL3fAgxz--
-
+Jes

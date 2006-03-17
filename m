@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWCQJwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWCQJzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbWCQJwO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 04:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbWCQJwO
+	id S1751228AbWCQJzL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 04:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWCQJzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 04:52:14 -0500
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:4993 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S964922AbWCQJwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 04:52:14 -0500
-Date: Fri, 17 Mar 2006 10:52:08 +0100
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Con Kolivas <kernel@kolivas.org>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [ck] Re: [PATCH] -mm: Small schedule() optimization
-Message-ID: <20060317095208.GA31745@rhlx01.fht-esslingen.de>
-References: <20060308175450.GA28763@rhlx01.fht-esslingen.de> <200603111200.27557.kernel@kolivas.org> <20060317091347.GD13387@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060317091347.GD13387@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+	Fri, 17 Mar 2006 04:55:11 -0500
+Received: from smtp6.libero.it ([193.70.192.59]:6875 "EHLO smtp6.libero.it")
+	by vger.kernel.org with ESMTP id S1751228AbWCQJzK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 04:55:10 -0500
+From: <mtassinari@libero.it>
+To: "'Samuel Masham'" <samuel.masham@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: R: libata/sata errors on ich[?]/maxtor
+Date: Fri, 17 Mar 2006 10:55:03 +0100
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAAcm3p+dGrIEuKvCi2uAOJU8KAAAAQAAAANezXGJ110ECmqkLxIsGzkgEAAAAA@libero.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+In-Reply-To: <93564eb70603162201l856be5al@mail.gmail.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Samuel, All
 
-On Fri, Mar 17, 2006 at 10:13:47AM +0100, Ingo Molnar wrote:
-> 
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> > Probably better to just
-> > 	if (unlikely(in_atomic())) {
-> > 		if (!current->exit_state) {
-> > 
-> > Ingo?
-> 
-> yeah. There's not much point in nesting likely/unlikely. In fact we can 
-> just merge the two conditions, as per updated patch below.
+> some value in adding my information here... I will be adding this to 
+> redhats bugzilla ... soon ;)
+>
+>see: https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=185724
+>
+> What seems to happen is that mkfs will try and write to the drive 
+> using the normal
+>
 
-ACK, thanks!
+from bugzilla:
 
-> 	Ingo
+>Writing inode tables:  733/1247        
+>  
+>....and then no more (actually since the update the block number we stick
+on  
+>has moved slightly)  
 
-Andreas Mohr
+yes, we experimented the same absolutely reproducible behaviour, 
+the system hangs - better, processes involving i/o hang - 
+after a few timeouts and cannot be brought down other than hard resetting
+it.
+Our mileage can vary...
+
+We use vanilla kernels on slackware-current distribution (see ver_linux in
+previous post).
+
+Tryed:
+2.6.15
+2.6.15.6
+2.6.16-rc4
+2.6.16-rc6
+
+Mauro
+
+

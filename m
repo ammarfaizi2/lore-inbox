@@ -1,87 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752482AbWCQBME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752480AbWCQBMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752482AbWCQBME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752486AbWCQBMD
+	id S1752480AbWCQBMf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752479AbWCQBMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:12:03 -0500
-Received: from mail.gmx.de ([213.165.64.20]:65153 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1752480AbWCQBL5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:11:57 -0500
-Date: Fri, 17 Mar 2006 02:11:55 +0100 (MET)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org,
-       janak@us.ibm.com, viro@ftp.linux.org.uk, hch@lst.de, ak@muc.de,
-       paulus@samba.org
+	Thu, 16 Mar 2006 20:12:35 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:63265 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1752485AbWCQBMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 20:12:32 -0500
+X-IronPort-AV: i="4.03,103,1141632000"; 
+   d="scan'208"; a="1785708087:sNHT3324945208"
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: Remapping pages mapped to userspace
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+	<ada3bhjuph2.fsf@cisco.com>
+	<1142475069.6994.114.camel@localhost.localdomain>
+	<adaslpjt8rg.fsf@cisco.com>
+	<1142477579.6994.124.camel@localhost.localdomain>
+	<20060315192813.71a5d31a.akpm@osdl.org>
+	<1142485103.25297.13.camel@camp4.serpentine.com>
+	<20060315213813.747b5967.akpm@osdl.org>
+	<Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
+	<adad5gmne20.fsf_-_@cisco.com>
+	<1142553361.15045.19.camel@serpentine.pathscale.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 16 Mar 2006 17:12:17 -0800
+In-Reply-To: <1142553361.15045.19.camel@serpentine.pathscale.com> (Bryan O'Sullivan's message of "Thu, 16 Mar 2006 15:56:01 -0800")
+Message-ID: <adapsklnaby.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-References: <Pine.LNX.4.64.0603161555210.3618@g5.osdl.org>
-Subject: =?ISO-8859-1?Q?Re:_[PATCH]_unshare:_Cleanup_up_the_sys=5Funshare_interfac?=
- =?ISO-8859-1?Q?e_before_we_are_committed.?=
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <29085.1142557915@www064.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 17 Mar 2006 01:12:17.0312 (UTC) FILETIME=[D521CA00:01C6495F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+    Bryan> Why would you not want accesses to explode?  Exploding
+    Bryan> seems like the right behaviour to me, since there's no
+    Bryan> hardware for userspace to talk to any more.
 
-> On Fri, 17 Mar 2006, Michael Kerrisk wrote:
-> > > 
-> > > My personal opinion is that having a different set of flags is more 
-> > > confusing 
-> > 
-> > How is it confusing?  And who is it confusing for?
-> 
-> It's confusing because
->  - it's just more flags to keep track of
+Oh yeah... but getting rid of the mapping so userspace gets a segfault
+might be a good idea too.  However, leaving the old PCI mapping there
+seems rather risky to me: I think it's entirely possible that accesses
+to that area after the device is gone could trigger machine checks or
+worse.
 
-Agreed, there is a "confusion cost" to that.
+So what's the right way for a driver to get rid of a remap_pfn_range()
+mapping into userspace?
 
->  - it's all the same issues that clone() has
-
-At the moment, but possibly not in the future (if one day
-usnhare() needs a flag that has no analogue in clone()).
-
->  - it's an opportunity for future incoherence
-
-Not sure what future incoherence you mean here.  Anyway,
-we inject some incoherence *now* (some unshare() flags reverse
-their clone() counterparts, one does not).
-
-> > It will potentially require kernel developers to think for just 
-> > a moment about what is going on.  But why care about them -- 
-> > they don't have to *use* this interface; userland programmers do.
-> 
-> All the confusion is equally a userland issue, don't try to just enforce 
-> your own opinions as somehow being "facts" by repeating them over 
-> and over again.
-
-I'm not trying to do that.  I've repeated my statements 
-because I haven't seen any clear counterarguments.  I have a
-particular opinion about what constitutes confusion, and it
-comes from a perspective that focuses on the kernel-userland 
-interface.  I agree that it does create some "confusion cost"
-for userland programmers to add new flags.  But _in my opinion_
-that cost is outweighed by the greater "confusion costs" that
-I have described.  Eric seemed to agree.  Unfortunately for my
-argument, you and Janak don't ;-).
-
-Cheers,
-
-Michael
-
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+ - R.

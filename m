@@ -1,57 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWCQWVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWCQWW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751573AbWCQWVm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 17:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWCQWVm
+	id S932212AbWCQWW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 17:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWCQWW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 17:21:42 -0500
-Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:43344 "HELO
-	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751570AbWCQWVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 17:21:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=l6wsVdIkomJ+yRbMs0xc7/bNQhjNimy3co3iEgPpCI29F975hMSpTz7RYDpLw9gSFwnCcyV/nmlouA4NisjP0CIfTuwuv4jfCbNvu+19Kv5EsrYUDS9a+HVo8s2EXJ1LMaWjF7NjZLo0S7tfrOa7T/yFc9L2rny6syKDpd0QsP8=  ;
-Message-ID: <441B3670.5010502@yahoo.com.au>
-Date: Sat, 18 Mar 2006 09:21:36 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Fri, 17 Mar 2006 17:22:26 -0500
+Received: from [82.153.166.94] ([82.153.166.94]:35777 "EHLO mail.inprovide.com")
+	by vger.kernel.org with ESMTP id S932212AbWCQWWZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 17:22:25 -0500
+To: Mike Galbraith <efault@gmx.de>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: can I bring Linux down by running "renice -20 cpu_intensive_process"?
+References: <441180DD.3020206@wpkg.org>
+	<Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
+	<yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
+	<1142135077.25358.47.camel@mindpipe>
+	<yw1xk6azdgae.fsf@agrajag.inprovide.com> <4419D575.4080203@tmr.com>
+	<yw1xbqw69f6j.fsf@agrajag.inprovide.com>
+	<1142575550.8868.20.camel@homer>
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 17 Mar 2006 22:22:22 +0000
+In-Reply-To: <1142575550.8868.20.camel@homer> (Mike Galbraith's message of "Fri, 17 Mar 2006 07:05:50 +0100")
+Message-ID: <yw1x1wx090f5.fsf@agrajag.inprovide.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       "Bryan O'Sullivan" <bos@pathscale.com>, torvalds@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
- driver
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> <ada4q27fban.fsf@cisco.com> <1141948516.10693.55.camel@serpentine.pathscale.com> <ada1wxbdv7a.fsf@cisco.com> <1141949262.10693.69.camel@serpentine.pathscale.com> <20060309163740.0b589ea4.akpm@osdl.org> <1142470579.6994.78.camel@localhost.localdomain> <ada3bhjuph2.fsf@cisco.com> <1142475069.6994.114.camel@localhost.localdomain> <adaslpjt8rg.fsf@cisco.com> <1142477579.6994.124.camel@localhost.localdomain> <20060315192813.71a5d31a.akpm@osdl.org> <1142485103.25297.13.camel@camp4.serpentine.com> <20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com> <4419062C.6000803@yahoo.com.au> <Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com> <441A04D0.3060201@yahoo.com.au> <Pine.LNX.4.61.0603171440570.31402@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0603171440570.31402@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I'm not a driver or pci/dma person either, so I can't usefully answer
-most of your questions, I'm afraid]
+Mike Galbraith <efault@gmx.de> writes:
 
-Hugh Dickins wrote:
+> On Thu, 2006-03-16 at 22:51 +0000, Måns Rullgård wrote:
+>> Bill Davidsen <davidsen@tmr.com> writes:
+>> 
+>> > Måns Rullgård wrote:
+>> >> Maybe extending sysrq+n to lower the priority of -20 tasks would be a
+>> >> good idea.
+>> >>
+>> > If it runs before the keyboard thread it doesn't matter...
+>> 
+>> Of course not, but that's not generally the case.
+>> 
+>> > But why should this hang anything, when there should be enough i/o
+>> > to get out of the user process. There's a good fix for this, don't
+>> > give this guy root any more ;-)
+>> 
+>> Ever heard of bugs?  Anyone developing a program can make a mistake.
+>> If the program runs with realtime scheduling a bug that makes it enter
+>> an infinite loop (or do something else that hogs the CPU) can be
+>> difficult to find since it rather efficiently locks you out.
+>
+> Given that someone has already determined that installing a safety valve
+> for RT tasks was worth while, and given that there is practically no
+> difference between a nice -20 and the lowest RT priority, seems to me
+> that extending that safety valve to cover reniced tasks is the
+> obviously-correct thing to do.  I think you should submit a patch.
 
-> Is there any chance that your split_page() work in -mm, actually addresses
-> precisely those places that were screwed up by universal compound pages?
-> So that with your split_page(), we could go back to every >0-order page
-> being PageCompound, without any need for __GFP_COMP.
-> 
+Something like this ought to do it (untested):
 
-I think it should catch most of the places [I'm sure I've missed some :(]
-that split up higher-order pages (which doesn't work on compound pages, I
-guess this was the problem).
+--- kernel/sched.c.orig 2006-02-09 23:41:57.000000000 +0000
++++ kernel/sched.c      2006-03-17 22:16:46.257298014 +0000
+@@ -5681,21 +5681,22 @@
+ 
+        read_lock_irq(&tasklist_lock);
+        for_each_process (p) {
+-               if (!rt_task(p))
+-                       continue;
++               if (rt_task(p)) {
++                       rq = task_rq_lock(p, &flags);
+ 
+-               rq = task_rq_lock(p, &flags);
+-
+-               array = p->array;
+-               if (array)
+-                       deactivate_task(p, task_rq(p));
+-               __setscheduler(p, SCHED_NORMAL, 0);
+-               if (array) {
+-                       __activate_task(p, task_rq(p));
+-                       resched_task(rq->curr);
++                       array = p->array;
++                       if (array)
++                               deactivate_task(p, task_rq(p));
++                       __setscheduler(p, SCHED_NORMAL, 0);
++                       if (array) {
++                               __activate_task(p, task_rq(p));
++                               resched_task(rq->curr);
++                       }
++
++                       task_rq_unlock(rq, &flags);
++               } else if (TASK_NICE(p) == -20) {
++                       set_user_nice(p, 0);
+                }
+-
+-               task_rq_unlock(rq, &flags);
+        }
+        read_unlock_irq(&tasklist_lock);
+ }
 
-It makes like difficult for some future patch of mine if the refcounting
-mechanism is changed while the page is allocated (eg. like PageReserved
-used to do), however I think it wouldn't be too hard to instead invert the
-meaning of the flag and just use it in those few places that care?
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Måns Rullgård
+mru@inprovide.com

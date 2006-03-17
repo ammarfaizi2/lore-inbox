@@ -1,122 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752505AbWCQBa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752512AbWCQBaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752505AbWCQBa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752501AbWCQBa1
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:30:27 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:8636 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1752516AbWCQBaZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1752512AbWCQBaZ (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 16 Mar 2006 20:30:25 -0500
-Subject: [RFC][PATCH] warn when statically-allocated kobjects are used
-To: linux-kernel@vger.kernel.org
-Cc: gregkh@suse.de, Dave Hansen <haveblue@us.ibm.com>
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Thu, 16 Mar 2006 17:30:16 -0800
-Message-Id: <20060317013016.5C643E69@localhost.localdomain>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752514AbWCQBaY
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 16 Mar 2006 20:30:24 -0500
+Received: from out-mta2.ai270.net ([83.244.130.113]:13270 "EHLO
+	out-mta1.ai270.net") by vger.kernel.org with ESMTP id S1752512AbWCQBaX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 20:30:23 -0500
+In-Reply-To: <20060317010529.GB30801@schatzie.adilger.int>
+References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk> <20060317010529.GB30801@schatzie.adilger.int>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CF2CC9AC-3695-45C1-9FA6-9BDAAA6418DD@lougher.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Phillip Lougher <phillip@lougher.org.uk>
+Subject: Re: [ANN] Squashfs 3.0 released
+Date: Fri, 17 Mar 2006 01:30:03 +0000
+To: Andreas Dilger <adilger@clusterfs.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 17 Mar 2006, at 01:05, Andreas Dilger wrote:
 
-One of the top ten sysfs problems is that users use statically
-allocated kobjects.  This patch reminds them that this is a
-naughty thing.
+> On Mar 17, 2006  00:45 +0000, Phillip Lougher wrote:
+>> Squashfs 3.0 has finally been released.  Squashfs 3.0 is a major
+>> improvement to Squashfs, and it addresses most of the issues that
+>> that have been raised, particularly the 4GB filesystem and file
+>> limit.
+>
+> Sometimes it is useful for the casual reader if you include a brief
+> blurb about what exactly squashfs is... :-)
+>
+Ok, for those who are interested, old blurb  from the README follows:
 
-One _really_ nice thing this patch does, is us the kallsyms
-mechanism to print out exactly which symbol is being complained
-about:
+"Squashfs is a highly compressed read-only filesystem for Linux.
+It uses zlib compression to compress both files, inodes and directories.
+Inodes in the system are very small and all blocks are packed to  
+minimise
+data overhead. Block sizes greater than 4K are supported up to a maximum
+of 64K.
 
-The kobject at, or inside devices_subsys+0x14/0x60 is not dynamically allocated.
+Squashfs is intended for general read-only filesystem use, for archival
+use (i.e. in cases where a .tar.gz file may be used), and in constrained
+block device/memory systems (e.g. embedded systems) where low  
+overhead is
+needed."
 
-There are not very many architectures that actually place a
-_sdata or _data symbol in their vmlinux.lds.S.  This patch
-causes link errors in all these cases.  Is there an
-alternative symbol that we can use, or can we use weak
-symbols and detect them, so that they are at least skipped?
+At the moment it tends to be used for embedded systems, and liveCDs.
 
-Does kernel/kallsyms.c:is_kernel() do the trick, so that we
-don't need to use the asm-generic/sections.h variables at all?
+Phillip
 
----
-
- mm/memory.c                              |    0 
- work-dave/arch/i386/kernel/vmlinux.lds.S |    2 +
- work-dave/lib/kobject.c                  |   35 +++++++++++++++++++++++++++++++
- 3 files changed, 37 insertions(+)
-
-diff -puN arch/i386/kernel/vmlinux.lds.S~kobject-static-work arch/i386/kernel/vmlinux.lds.S
---- work/arch/i386/kernel/vmlinux.lds.S~kobject-static-work	2006-03-16 17:24:46.000000000 -0800
-+++ work-dave/arch/i386/kernel/vmlinux.lds.S	2006-03-16 17:24:46.000000000 -0800
-@@ -35,6 +35,8 @@ SECTIONS
-   __ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) { *(__ex_table) }
-   __stop___ex_table = .;
- 
-+  _sdata = .;			/* End of text section */
-+
-   RODATA
- 
-   /* writeable */
-diff -puN lib/kobject.c~kobject-static-work lib/kobject.c
---- work/lib/kobject.c~kobject-static-work	2006-03-16 17:24:46.000000000 -0800
-+++ work-dave/lib/kobject.c	2006-03-16 17:24:46.000000000 -0800
-@@ -15,6 +15,8 @@
- #include <linux/module.h>
- #include <linux/stat.h>
- #include <linux/slab.h>
-+#include <linux/kallsyms.h>
-+#include <asm-generic/sections.h>
- 
- /**
-  *	populate_dir - populate directory with attributes.
-@@ -120,12 +122,45 @@ char *kobject_get_path(struct kobject *k
- 	return path;
- }
- 
-+static int ptr_in_range(void *ptr, void *start, void *end)
-+{
-+	/*
-+	 * This should hopefully get rid of causing warnings
-+	 * if the architecture did not set one of the section
-+	 * variables up.
-+	 */
-+	if (start >= end)
-+		return 0;
-+
-+	if ((ptr >= start) && (ptr < end))
-+		return 1;
-+	return 0;
-+}
-+
-+static void verify_dynamic_kobject_allocation(struct kobject *kobj)
-+{
-+	if (ptr_in_range(kobj, &_data[0], &_edata[0]))
-+		goto warn;
-+	if (ptr_in_range(kobj, &__bss_start[0], &__bss_stop[0]))
-+		goto warn;
-+	return;
-+warn:
-+	printk("---- begin silly warning ----\n");
-+	printk("This is a janitorial warning, not a kernel bug.\n");
-+	print_symbol("The kobject at, or inside %s is not dynamically allocated.\n",
-+			(unsigned long)kobj);
-+	printk("kobjects must be dynamically allocated, not static\n");
-+	dump_stack();
-+	printk("---- end silly warning ----\n");
-+}
-+
- /**
-  *	kobject_init - initialize object.
-  *	@kobj:	object in question.
-  */
- void kobject_init(struct kobject * kobj)
- {
-+	verify_dynamic_kobject_allocation(kobj);
- 	kref_init(&kobj->kref);
- 	INIT_LIST_HEAD(&kobj->entry);
- 	kobj->kset = kset_get(kobj->kset);
-diff -L kernel/Ma -puN /dev/null /dev/null
-diff -puN kernel/Makefile~kobject-static-work kernel/Makefile
-diff -puN kernel/kallsyms.c~kobject-static-work kernel/kallsyms.c
-diff -puN mm/memory.c~kobject-static-work mm/memory.c
-_

@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWCQGf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752494AbWCQGsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbWCQGf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 01:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWCQGf1
+	id S1752494AbWCQGsA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 01:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752546AbWCQGsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 01:35:27 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:65427 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932072AbWCQGf1
+	Fri, 17 Mar 2006 01:48:00 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:37831 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752494AbWCQGr7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 01:35:27 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: /dev/stderr gets unlinked 8]
-Date: Fri, 17 Mar 2006 08:34:27 +0200
-User-Agent: KMail/1.8.2
-Cc: Andreas Schwab <schwab@suse.de>, Stefan Seyfried <seife@suse.de>,
-       linux-kernel@vger.kernel.org, christiand59@web.de
-References: <200603141213.00077.vda@ilport.com.ua> <jehd5zq28o.fsf@sykes.suse.de> <Pine.LNX.4.61.0603162111400.11776@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0603162111400.11776@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 01:47:59 -0500
+Date: Thu, 16 Mar 2006 22:48:30 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Janak Desai <janak@us.ibm.com>,
+       Al Viro <viro@ftp.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+       Michael Kerrisk <mtk-manpages@gmx.net>, Andi Kleen <ak@muc.de>,
+       Paul Mackerras <paulus@samba.org>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [PATCH] unshare: Use rcu_assign_pointer when setting sighand
+Message-ID: <20060317064829.GG1323@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com> <m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200603170834.27694.vda@ilport.com.ua>
+In-Reply-To: <m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 March 2006 22:11, Jan Engelhardt wrote:
-> >> any good daemon closes stdout, stderr, stdin
-> >
-> >A real good daemon would redirect them to /dev/null.
+On Thu, Mar 16, 2006 at 10:31:38AM -0700, Eric W. Biederman wrote:
 > 
-> and writes to /var/log/mysql/...
+> The sighand pointer only needs the rcu_read_lock on the
+> read side.  So only depending on task_lock protection
+> when setting this pointer is not enough.  We also need
+> a memory barrier to ensure the initialization is seen first.
+> 
+> Use rcu_assign_pointer as it does this for us, and clearly
+> documents that we are setting an rcu readable pointer.
 
-And has log rotation. Apache has log rotation. Squid has log rotation.
+Good catch!
 
-Why they all need to have log rotation code? I forced them all to just
-write log to stderr, and multilog from daemontools does the logging
-(with rotation and postprocessing (for example, feeds Squid log into
-Mysql db)) just fine.
-
-But we digress. Is there any magic (mount --bind?) to make
-/dev/stderr undestructible?
---
-vda
+Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
+> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+> 
+> 
+> ---
+> 
+>  kernel/fork.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> f0cdb649b7140927777f4355631648b396ee235b
+> diff --git a/kernel/fork.c b/kernel/fork.c
+> index d2706e9..2f24553 100644
+> --- a/kernel/fork.c
+> +++ b/kernel/fork.c
+> @@ -1573,7 +1573,7 @@ asmlinkage long sys_unshare(unsigned lon
+>  
+>  		if (new_sigh) {
+>  			sigh = current->sighand;
+> -			current->sighand = new_sigh;
+> +			rcu_assign_pointer(current->sighand, new_sigh);
+>  			new_sigh = sigh;
+>  		}
+>  
+> -- 
+> 1.2.4.g2d33
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

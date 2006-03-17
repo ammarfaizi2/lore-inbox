@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWCQIXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWCQIYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWCQIXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWCQIXC
+	id S964943AbWCQIYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 03:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWCQIXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 03:23:02 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:10475 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964926AbWCQIWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 03:22:30 -0500
-Date: Fri, 17 Mar 2006 17:21:22 +0900
+	Fri, 17 Mar 2006 03:23:45 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:24529 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964933AbWCQIX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 03:23:28 -0500
+Date: Fri, 17 Mar 2006 17:22:45 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 006/017]Memory hotplug for new nodes v.4.(move out pgdat array from mem_data for ia64)
+Subject: [PATCH: 013/017]Memory hotplug for new nodes v.4.(changes from __init to __meminit) 
 Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060317163146.C643.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060317163657.C651.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -25,106 +25,111 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is preparing patch to make common code for updating of NODE_DATA()
-of ia64 between boottime and hotplug.
 
-Current code remembers pgdat address in mem_data which is used at just boot
-time. But its information can be used at hotplug time
-by moving to global value.
-The next patche use this array.
-
+This is a patch to change definition of some functions and data
+from __init to __meminit.
+These functions and data can be used after bootup by this patch to
+be used for hot-add codes.
 
 Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
- arch/ia64/mm/discontig.c |   19 ++++++++-----------
- 1 files changed, 8 insertions(+), 11 deletions(-)
+ include/linux/bootmem.h |    4 ++--
+ mm/page_alloc.c         |   18 +++++++++---------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
-Index: pgdat8/arch/ia64/mm/discontig.c
+Index: pgdat8/mm/page_alloc.c
 ===================================================================
---- pgdat8.orig/arch/ia64/mm/discontig.c	2006-03-16 16:05:38.000000000 +0900
-+++ pgdat8/arch/ia64/mm/discontig.c	2006-03-16 16:51:35.000000000 +0900
-@@ -33,7 +33,6 @@
+--- pgdat8.orig/mm/page_alloc.c	2006-03-17 13:53:45.530940715 +0900
++++ pgdat8/mm/page_alloc.c	2006-03-17 13:53:53.011409373 +0900
+@@ -82,8 +82,8 @@ EXPORT_SYMBOL(zone_table);
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "DMA32", "Normal", "HighMem" };
+ int min_free_kbytes = 1024;
+ 
+-unsigned long __initdata nr_kernel_pages;
+-unsigned long __initdata nr_all_pages;
++unsigned long __meminitdata nr_kernel_pages;
++unsigned long __meminitdata nr_all_pages;
+ 
+ #ifdef CONFIG_DEBUG_VM
+ static int page_outside_zone_boundaries(struct zone *zone, struct page *page)
+@@ -1579,7 +1579,7 @@ void show_free_areas(void)
+  *
+  * Add all populated zones of a node to the zonelist.
   */
- struct early_node_data {
- 	struct ia64_node_data *node_data;
--	pg_data_t *pgdat;
- 	unsigned long pernode_addr;
- 	unsigned long pernode_size;
- 	struct bootmem_data bootmem_data;
-@@ -46,6 +45,8 @@ struct early_node_data {
- static struct early_node_data mem_data[MAX_NUMNODES] __initdata;
- static nodemask_t memory_less_mask __initdata;
- 
-+static pg_data_t *pgdat_list[MAX_NUMNODES];
-+
- /*
-  * To prevent cache aliasing effects, align per-node structures so that they
-  * start at addresses that are strided by node number.
-@@ -175,13 +176,13 @@ static void __init fill_pernode(int node
- 	pernode += PERCPU_PAGE_SIZE * cpus;
- 	pernode += node * L1_CACHE_BYTES;
- 
--	mem_data[node].pgdat = __va(pernode);
-+	pgdat_list[node] = __va(pernode);
- 	pernode += L1_CACHE_ALIGN(sizeof(pg_data_t));
- 
- 	mem_data[node].node_data = __va(pernode);
- 	pernode += L1_CACHE_ALIGN(sizeof(struct ia64_node_data));
- 
--	mem_data[node].pgdat->bdata = bdp;
-+	pgdat_list[node]->bdata = bdp;
- 	pernode += L1_CACHE_ALIGN(sizeof(pg_data_t));
- 
- 	cpu_data = per_cpu_node_setup(cpu_data, node);
-@@ -268,7 +269,7 @@ static int __init find_pernode_space(uns
- static int __init free_node_bootmem(unsigned long start, unsigned long len,
- 				    int node)
+-static int __init build_zonelists_node(pg_data_t *pgdat,
++static int __meminit build_zonelists_node(pg_data_t *pgdat,
+ 			struct zonelist *zonelist, int nr_zones, int zone_type)
  {
--	free_bootmem_node(mem_data[node].pgdat, start, len);
-+	free_bootmem_node(pgdat_list[node], start, len);
+ 	struct zone *zone;
+@@ -1615,7 +1615,7 @@ static inline int highest_zone(int zone_
  
- 	return 0;
+ #ifdef CONFIG_NUMA
+ #define MAX_NODE_LOAD (num_online_nodes())
+-static int __initdata node_load[MAX_NUMNODES];
++static int __meminitdata node_load[MAX_NUMNODES];
+ /**
+  * find_next_best_node - find the next node that should appear in a given node's fallback list
+  * @node: node whose fallback list we're appending
+@@ -1630,7 +1630,7 @@ static int __initdata node_load[MAX_NUMN
+  * on them otherwise.
+  * It returns -1 if no node is found.
+  */
+-static int __init find_next_best_node(int node, nodemask_t *used_node_mask)
++static int __meminit find_next_best_node(int node, nodemask_t *used_node_mask)
+ {
+ 	int n, val;
+ 	int min_val = INT_MAX;
+@@ -1676,7 +1676,7 @@ static int __init find_next_best_node(in
+ 	return best_node;
  }
-@@ -287,7 +288,7 @@ static void __init reserve_pernode_space
- 	int node;
  
- 	for_each_online_node(node) {
--		pg_data_t *pdp = mem_data[node].pgdat;
-+		pg_data_t *pdp = pgdat_list[node];
- 
- 		if (node_isset(node, memory_less_mask))
- 			continue;
-@@ -317,12 +318,8 @@ static void __init reserve_pernode_space
-  */
- static void __init initialize_pernode_data(void)
+-static void __init build_zonelists(pg_data_t *pgdat)
++static void __meminit build_zonelists(pg_data_t *pgdat)
  {
--	pg_data_t *pgdat_list[MAX_NUMNODES];
- 	int cpu, node;
+ 	int i, j, k, node, local_node;
+ 	int prev_node, load;
+@@ -1728,7 +1728,7 @@ static void __init build_zonelists(pg_da
  
--	for_each_online_node(node)
--		pgdat_list[node] = mem_data[node].pgdat;
--
- 	/* Copy the pg_data_t list to each node and init the node field */
- 	for_each_online_node(node) {
- 		memcpy(mem_data[node].node_data->pg_data_ptrs, pgdat_list,
-@@ -372,7 +369,7 @@ static void __init *memory_less_node_all
- 	if (bestnode == -1)
- 		bestnode = anynode;
+ #else	/* CONFIG_NUMA */
  
--	ptr = __alloc_bootmem_node(mem_data[bestnode].pgdat, pernodesize,
-+	ptr = __alloc_bootmem_node(pgdat_list[bestnode], pernodesize,
- 		PERCPU_PAGE_SIZE, __pa(MAX_DMA_ADDRESS));
+-static void __init build_zonelists(pg_data_t *pgdat)
++static void __meminit build_zonelists(pg_data_t *pgdat)
+ {
+ 	int i, j, k, node, local_node;
  
- 	return ptr;
-@@ -476,7 +473,7 @@ void __init find_memory(void)
- 		pernodesize = mem_data[node].pernode_size;
- 		map = pernode + pernodesize;
+@@ -2190,7 +2190,7 @@ __meminit int init_currently_empty_zone(
+  *   - mark all memory queues empty
+  *   - clear the memory bitmaps
+  */
+-static void __init free_area_init_core(struct pglist_data *pgdat,
++static void __meminit free_area_init_core(struct pglist_data *pgdat,
+ 		unsigned long *zones_size, unsigned long *zholes_size)
+ {
+ 	unsigned long j;
+@@ -2272,7 +2272,7 @@ static void __init alloc_node_mem_map(st
+ #endif /* CONFIG_FLAT_NODE_MEM_MAP */
+ }
  
--		init_bootmem_node(mem_data[node].pgdat,
-+		init_bootmem_node(pgdat_list[node],
- 				  map>>PAGE_SHIFT,
- 				  bdp->node_boot_start>>PAGE_SHIFT,
- 				  bdp->node_low_pfn);
+-void __init free_area_init_node(int nid, struct pglist_data *pgdat,
++void __meminit free_area_init_node(int nid, struct pglist_data *pgdat,
+ 		unsigned long *zones_size, unsigned long node_start_pfn,
+ 		unsigned long *zholes_size)
+ {
+Index: pgdat8/include/linux/bootmem.h
+===================================================================
+--- pgdat8.orig/include/linux/bootmem.h	2006-03-17 13:53:45.530940715 +0900
++++ pgdat8/include/linux/bootmem.h	2006-03-17 13:53:53.011409373 +0900
+@@ -91,8 +91,8 @@ static inline void *alloc_remap(int nid,
+ }
+ #endif
+ 
+-extern unsigned long __initdata nr_kernel_pages;
+-extern unsigned long __initdata nr_all_pages;
++extern unsigned long nr_kernel_pages;
++extern unsigned long nr_all_pages;
+ 
+ extern void *__init alloc_large_system_hash(const char *tablename,
+ 					    unsigned long bucketsize,
 
 -- 
 Yasunori Goto 

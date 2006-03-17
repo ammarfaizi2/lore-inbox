@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWCQQ5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWCQRBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWCQQ5h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 11:57:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCQQ5h
+	id S1751393AbWCQRBf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 12:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751424AbWCQRBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 11:57:37 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:41638
+	Fri, 17 Mar 2006 12:01:35 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:43942
 	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750946AbWCQQ5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 11:57:37 -0500
-Date: Fri, 17 Mar 2006 08:57:23 -0800
+	id S1751393AbWCQRBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 12:01:34 -0500
+Date: Fri, 17 Mar 2006 09:01:26 -0800
 From: Greg KH <greg@kroah.com>
-To: Mark Lord <lkml@rtr.ca>, drzeus-sdhci@drzeus.cx
-Cc: "David J. Wallace" <katana@onetel.com>, sdhci-devel@list.drzeus.cx,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Mark Lord <lkml@rtr.ca>, "David J. Wallace" <katana@onetel.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       sdhci-devel@list.drzeus.cx
 Subject: Re: [Sdhci-devel] Submission to the kernel?
-Message-ID: <20060317165723.GA32281@kroah.com>
-References: <4419FA7A.4050104@cogweb.net> <200603171042.52589.katana@onetel.com> <441AD537.5080403@rtr.ca>
+Message-ID: <20060317170126.GB32281@kroah.com>
+References: <4419FA7A.4050104@cogweb.net> <200603171042.52589.katana@onetel.com> <441AD537.5080403@rtr.ca> <441AD9C3.2090703@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <441AD537.5080403@rtr.ca>
+In-Reply-To: <441AD9C3.2090703@drzeus.cx>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2006 at 10:26:47AM -0500, Mark Lord wrote:
-> David J. Wallace wrote:
-> >On Thursday 16 March 2006 23:53, David Liontooth wrote:
-> >
-> >>I would urge people to test Andrew's latest -mm kernel and report to
-> >>lkml (cc him) on whether the sdhci driver works or causes any kind of
-> >>problem. 
-> 
-> SDHCI seems to be working well on my Dell Inspiron 9300.
-> 
-> But I have concerns over maintenance of the code -- there does not
-> seem to be a functioning (for me) email address for a maintainer.
+In looking at the patches in -mm, I see the following 5:
+	secure-digital-host-controller-id-and-regs.patch
+	secure-digital-host-controller-id-and-regs-fix.patch
+	mmc-secure-digital-host-controller-interface-driver.patch
+	mmc-secure-digital-host-controller-interface-driver-fix.patch
+	mmc-sdhci-build-fix.patch
 
-Did you try the one listed in the MAINTAINERS portion of the patch:
+Is that all that is needed for this feature?
 
-	+SECURE DIGITAL HOST CONTROLLER INTERFACE DRIVER
-	+P:	Pierre Ossman
-	+M:	drzeus-sdhci@drzeus.cx
-	+L:	sdhci-devel@list.drzeus.cx
-	+W:	http://mmc.drzeus.cx/wiki/Linux/Drivers/sdhci
-	+S:	Maintained
+If so, I'll go try it out now...
 
 thanks,
 

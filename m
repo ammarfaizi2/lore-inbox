@@ -1,46 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWCQSfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWCQSng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWCQSfP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 13:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWCQSfP
+	id S1030222AbWCQSng (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 13:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWCQSnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 13:35:15 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:15313 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750930AbWCQSfO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 13:35:14 -0500
-Subject: Re: Idea: Automatic binary driver compiling system
-From: Lee Revell <rlrevell@joe-job.com>
-To: Benjamin Bach <benjamin@overtag.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <441AF93C.6040407@overtag.dk>
-References: <441AF93C.6040407@overtag.dk>
-Content-Type: text/plain
-Date: Fri, 17 Mar 2006 13:35:08 -0500
-Message-Id: <1142620509.25258.53.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+	Fri, 17 Mar 2006 13:43:35 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:22972 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030258AbWCQSne
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 13:43:34 -0500
+Message-ID: <441B034F.7020102@us.ibm.com>
+Date: Fri, 17 Mar 2006 12:43:27 -0600
+From: Anthony Liguori <aliguori@us.ibm.com>
+User-Agent: Mail/News 1.5 (X11/20060309)
+MIME-Version: 1.0
+To: Zachary Amsden <zach@vmware.com>
+CC: Chuck Ebbert <76306.1226@compuserve.com>,
+       Chris Wright <chrisw@sous-sol.org>,
+       Xen-devel <xen-devel@lists.xensource.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Virtualization Mailing List <virtualization@lists.osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [Xen-devel] Re: [RFC,	PATCH 0/24] VMI i386 Linux virtualization
+ interface proposal
+References: <200603171058_MC3-1-BADF-9E3F@compuserve.com> <441AF747.5000400@vmware.com>
+In-Reply-To: <441AF747.5000400@vmware.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 19:00 +0100, Benjamin Bach wrote:
-> Hi all,
-> 
-> First off: I'm new on this list. I'm also new at starting projects. 
-> Anyways, I've decided on this idea for my first year computer science 
-> project. I have three months to set it off and definitely the whole 
-> thing would be released into the world afterwards.
-> 
-> Second: I don't want opinions on the issue of making it easier for 
-> companies to create binary (pre-compiled) drivers. Yes, we all want more 
-> open source drivers. Of course.
+Zachary Amsden wrote:
+> Chuck Ebbert wrote:
+>> In-Reply-To: <20060315102522.GA5926@infradead.org>
+>>
+>> On Wed, 15 Mar 2006 10:25:22 +0000, Christoph Hellwig wrote:
+>>   I'd like to see a test harness implementation that has no actual
+>> hypervisor functionality and just implements the VMI calls natively.
+>> This could be used to test the interface and would provide a nice
+>> starting point for those who want to write a VMI hypervisor.
+>>   
+>
+> I was going to make one yesterday.  But Fry's electronics stopped 
+> carrying flashable blank PCI cards. :)  Anyone know of a vendor?
+It's very practical to just patch Qemu to load a VMI rom as an option 
+ROM.  That makes such an example VMI ROM very practical without having 
+to build a special PCI device.
 
-Then let's end the thread here because this is the crux of ther issue -
-no one WANTS it to be easier for vendors to ship binary drivers.
+Regards,
 
-Linux will not change to accomodate vendors desire for binary drivers.
-The vendors must adapt to Linux.  End of story.
-
-Lee
+Anthony Liguori
+> It is possible to do in a software layer, although it really is a lot 
+> easier to have the BIOS take care of all the fuss of finding a place 
+> in low memory for you to live, setting up the various memory maps and 
+> everything else for you.
+>
+> There is enormous benefit to having such a layer - you have a very 
+> power test harness, not just to make sure VMI works, but even more 
+> importantly, to inspect and verify the native kernel operation as 
+> well.  You have a plethora of imporant hooks into the system, which 
+> feed you knowledge you can not otherwise gain about which page tables 
+> have been made active, when you take IRQs, where the kernel stack lives.
+>
+> All of this is ripe for a debug harness that can verify the kernel 
+> doesn't overflow the kernel stack, doesn't write to active page table 
+> entries without proper accessors and subsequent invalidations, and 
+> obeys the rules that are required for correctness when running under a 
+> hypervisor.  You probably even want to do hypervisor like things - 
+> such as write protecting the kernel page tables so that you can be 
+> confident there are no stray raw PTE accesses.
+>
+> We actually found one (harmless on native) in i386, which was enabling 
+> NX bit.
+>
+> Zach
+>
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xensource.com
+> http://lists.xensource.com/xen-devel
 

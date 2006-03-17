@@ -1,45 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWCQPTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWCQPVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751184AbWCQPTO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 10:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWCQPTN
+	id S1751041AbWCQPVh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWCQPVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 10:19:13 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:38580
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750803AbWCQPTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 10:19:13 -0500
-Date: Fri, 17 Mar 2006 07:18:58 -0800
-From: Greg KH <greg@kroah.com>
-To: "Artem B. Bityutskiy" <dedekind@oktetlabs.ru>
-Cc: "Artem B. Bityutskiy" <dedekind@yandex.ru>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [Bug? Report] kref problem
-Message-ID: <20060317151858.GA31318@kroah.com>
-References: <1142509279.3920.31.camel@sauron.oktetlabs.ru> <20060316165323.GA10197@kroah.com> <4419A426.9080908@yandex.ru> <20060316175858.GA7124@kroah.com> <4419A9B8.8060102@yandex.ru> <20060316182018.GA4301@kroah.com> <441A819F.7040305@oktetlabs.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <441A819F.7040305@oktetlabs.ru>
-User-Agent: Mutt/1.5.11
+	Fri, 17 Mar 2006 10:21:37 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:51874 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751041AbWCQPVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 10:21:36 -0500
+Message-ID: <441AD41C.5030506@ens.fr>
+Date: Fri, 17 Mar 2006 16:22:04 +0100
+From: Giuseppe Castagna <Giuseppe.Castagna@ens.fr>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, sdhci-devel@list.drzeus.cx
+Subject: Re: [Sdhci-devel] [2.6.16-rc6-mm1] sdhci driver purrrfect
+References: <20060317141403.GA19753@z.shimpinomori.net>
+In-Reply-To: <20060317141403.GA19753@z.shimpinomori.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2006 at 12:30:07PM +0300, Artem B. Bityutskiy wrote:
-> Greg KH wrote:
-> >decl_subsys() is in the sysfs.h header file, not the device.h file.
-> >Just stay away from anything in there if you hate the driver core so
-> >much :)
-> Ok, I see, thank you. I do not hate it, it is just not appropriate for 
-> me. I do not have any bus. My device is a virtual device, not a real one.
+I confirm,
 
-So, you should still use the driver core for virtual devices (we have
-lots of virtual devices in the driver model today.)
+   I have the same machine and the same mm-kernel, and it works perfectly also with
+pny technology sd-cards (128M and 1Gb).
 
-Why are you not using it?  What kind of device do you have?  Why does it
-not fit into any existing device model (platform, system, etc)?
+--Beppe--
 
-thanks,
 
-greg k-h
+vido@ldh.org wrote:
+> I'm sending this on behalf the SDHCI-devel people. I tested today the
+> latest SDHCI driver on my Thinkpad X40 with the 2.6.16-rc6-mm1 kernel.
+> 
+> The SD card reader itself is a Ricoh :
+> 0000:02:00.1 0805: Ricoh Co Ltd R5C822 SD/SDIO/MMC/MS/MSPro Host Adapter (rev 13)
+> 
+> 
+> The initialisation part is normal, here is the dmesg portion :
+> 
+> sdhci: Secure Digital Host Controller Interface driver, 0.11
+> sdhci: Copyright(c) Pierre Ossman
+> PCI: Found IRQ 5 for device 0000:02:00.1
+> PCI: Sharing IRQ 5 with 0000:00:1f.3
+> PCI: Sharing IRQ 5 with 0000:00:1f.5
+> PCI: Sharing IRQ 5 with 0000:00:1f.6
+> cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x377
+> cs: IO port probe 0x800-0x8ff: clean.
+> cs: IO port probe 0xc00-0xcff: clean.
+> cs: IO port probe 0xa00-0xaff: clean.
+> mmc0: SDHCI at 0xd0210000 irq 5 PIO
+> 
+> 
+> I tested with 5 different SD card models (no MMC), correctly identified
+> upon insertion as shown below :
+> - Hagiwara "Super High Speed" 1 Gb (ac41 SK01G 967680KiB)
+> - Kingmax "Platinum" 1 Gb (b368 SD01G 999936KiB)
+> - SanDisk 512 Mb (a95c SD512 495488KiB)
+> - Generic 128 Mb (cdef SD128 118272KiB)
+> - Toshiba 16 Mb (6f52 SD016 14560KiB)
+> 
+> I found no problem to read, write or delete.
+> 
+> My opinion is that this patch is mature enough to become part of
+> the regular Linux kernel. 
+> Andrew please consider pushing the code to Linus in time for 2.6.16,
+> as it's a device with no current driver.
+> 
+> Regards,
+> 
+

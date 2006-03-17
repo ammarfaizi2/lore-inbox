@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752475AbWCQBf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752473AbWCQBvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752475AbWCQBf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752515AbWCQBf6
+	id S1752473AbWCQBvc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752484AbWCQBvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:35:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:58770 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752475AbWCQBf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:35:58 -0500
-Date: Thu, 16 Mar 2006 17:38:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: rlrevell@joe-job.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix free swap cache latency
-Message-Id: <20060316173808.3be343b0.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0603161853300.24463@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0603161853300.24463@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
+	Thu, 16 Mar 2006 20:51:32 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:20573 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752473AbWCQBvb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 20:51:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HLW8M/HvNpO5Pd1S91ZnGMRNcVE8tTlfP77fc8myyzDJdvnq4LqZcp/yg6GbHU270+/ThC/3pTCLnzOipZ8xXAePQA3kyX7dy8JYQEmtN9178pIQ06Lc2NEIgfwlFpelPgrn9Pvf1eQ14teY2O+wpa4UMBwtxvuDyRLpGcgINho=
+Message-ID: <93564eb70603161751g734b0690t@mail.gmail.com>
+Date: Fri, 17 Mar 2006 10:51:29 +0900
+From: "Samuel Masham" <samuel.masham@gmail.com>
+To: "Phillip Lougher" <phillip@lougher.org.uk>
+Subject: Re: [ANN] Squashfs 3.0 released
+Cc: "Andreas Dilger" <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <CF2CC9AC-3695-45C1-9FA6-9BDAAA6418DD@lougher.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk>
+	 <20060317010529.GB30801@schatzie.adilger.int>
+	 <CF2CC9AC-3695-45C1-9FA6-9BDAAA6418DD@lougher.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+Hi Phillip,
+
+On 17/03/06, Phillip Lougher <phillip@lougher.org.uk> wrote:
+> and in constrained
+> block device/memory systems (e.g. embedded systems) where low
+> overhead is
+> needed."
 >
->  			(*zap_work)--;
->  			continue;
->  		}
-> +
-> +		(*zap_work) -= PAGE_SIZE;
+> At the moment it tends to be used for embedded systems, and liveCDs.
 
-Sometimes we subtract 1 from zap_work, sometimes PAGE_SIZE.  It's in units
-of bytes, so PAGE_SIZE is correct.  Although it would make sense to
-redefine it to be in units of PAGE_SIZE.  What's up with that?
+>From the embedded side here...
 
-Even better, define it in units of "approximate number of touched
-cachelines".  After all, it is a sort-of-time-based thing.
+Have you any idea how the performance of version 3.0 stack up against 2.1?
 
+You haven't updated the readme.performance file yet :)
+
+thanks
+
+Samuel
+
+ps Looking forward to seeing squashfs in main line soon :)

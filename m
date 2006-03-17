@@ -1,76 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWCQRah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWCQRc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWCQRah (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 12:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWCQRah
+	id S1030224AbWCQRc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 12:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWCQRc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 12:30:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49821 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030225AbWCQRah (ORCPT
+	Fri, 17 Mar 2006 12:32:57 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:39125 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030224AbWCQRc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 12:30:37 -0500
-Date: Fri, 17 Mar 2006 09:30:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-cc: Hugh Dickins <hugh@veritas.com>, Roland Dreier <rdreier@cisco.com>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Remapping pages mapped to userspace (was: [PATCH 10 of 20] ipath
- - support for userspace apps using core driver)
-In-Reply-To: <1142615848.28538.53.camel@serpentine.pathscale.com>
-Message-ID: <Pine.LNX.4.64.0603170921470.3618@g5.osdl.org>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> 
- <ada4q27fban.fsf@cisco.com>  <1141948516.10693.55.camel@serpentine.pathscale.com>
-  <ada1wxbdv7a.fsf@cisco.com>  <1141949262.10693.69.camel@serpentine.pathscale.com>
-  <20060309163740.0b589ea4.akpm@osdl.org>  <1142470579.6994.78.camel@localhost.localdomain>
-  <ada3bhjuph2.fsf@cisco.com>  <1142475069.6994.114.camel@localhost.localdomain>
-  <adaslpjt8rg.fsf@cisco.com>  <1142477579.6994.124.camel@localhost.localdomain>
-  <20060315192813.71a5d31a.akpm@osdl.org>  <1142485103.25297.13.camel@camp4.serpentine.com>
-  <20060315213813.747b5967.akpm@osdl.org>  <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
-  <adad5gmne20.fsf_-_@cisco.com>  <Pine.LNX.4.61.0603171631240.32660@goblin.wat.veritas.com>
- <1142615848.28538.53.camel@serpentine.pathscale.com>
+	Fri, 17 Mar 2006 12:32:56 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] swsusp reclaim tweaks 2
+Date: Fri, 17 Mar 2006 18:31:45 +0100
+User-Agent: KMail/1.9.1
+Cc: ck@vds.kolivas.org, Andreas Mohr <andi@rhlx01.fht-esslingen.de>,
+       Jun OKAJIMA <okajima@digitalinfra.co.jp>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>, Stefan Seyfried <seife@suse.de>
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603171546.03002.kernel@kolivas.org> <200603171717.23288.kernel@kolivas.org>
+In-Reply-To: <200603171717.23288.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200603171831.46811.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 17 Mar 2006, Bryan O'Sullivan wrote:
+On Friday 17 March 2006 07:17, Con Kolivas wrote:
+> On Fri, 17 Mar 2006 03:46 pm, Con Kolivas wrote:
+> > On Fri, 17 Mar 2006 03:28 pm, Con Kolivas wrote:
+> > > Ok here is a kind of directed memory reclaim for swsusp which is
+> > > different to ordinary memory reclaim. It reclaims memory in up to 4
+> > > passes with just shrink_zone, without hooking into balance_pgdat thereby
+> > > simplifying that function as well.
 > 
-> It would be unfortunate if userspace were spinning on a chip register,
-> waiting for the register to transition from zero to non-zero, and we
-> replaced that mapping with an anonymous page.  In that case, userspace
-> could potentially spin forever, having no way to detect the demise of
-> the device.
+> > It may need to be made more aggressive with another reclaim mapped pass to
+> > ensure it frees enough memory. That would be trivial to add.
+> 
+> Indeed this was true after a few more suspend resume cycles. Here is a rework
+> which survived many suspend resume cycles. This worked nicely in combination
+> with the aggressive swap prefetch tunable being set on resume.
+> 
+> Ok, now please test :) Patch for 2.6.16-rc6-mm1
+> 
+> Cheers,
+> Con
+> ---
+}-- snip --{
 
-Generally, replacing the mmap with an anonymous zero-mapped mapping would 
-be a horribly bad idea.
+I'm not an mm expert, but I like that.
 
-The fact is, you can't avoid the race of seeing the removed state (which 
-_usually_ means that you will read 0xffffffff from the bus - normal PC's 
-won't result in bus errors etc). Whatever the kernel does, it can do only 
-after the device has already been removed - we no longer live in a world 
-where the administrator can tell the system before-hand that something 
-will go away.
+> Index: linux-2.6.16-rc6-mm1/kernel/power/swsusp.c
+> ===================================================================
+> --- linux-2.6.16-rc6-mm1.orig/kernel/power/swsusp.c	2006-03-17 16:44:47.000000000 +1100
+> +++ linux-2.6.16-rc6-mm1/kernel/power/swsusp.c	2006-03-17 16:45:11.000000000 +1100
+> @@ -173,9 +173,6 @@ void free_all_swap_pages(int swap, struc
+>   *	Notice: all userland should be stopped before it is called, or
+>   *	livelock is possible.
+>   */
+> -
+> -#define SHRINK_BITE	10000
+> -
+>  int swsusp_shrink_memory(void)
+>  {
+>  	long size, tmp;
+> @@ -195,13 +192,12 @@ int swsusp_shrink_memory(void)
+>  			if (!is_highmem(zone))
+>  				tmp -= zone->free_pages;
+>  		if (tmp > 0) {
+> -			tmp = shrink_all_memory(SHRINK_BITE);
+> +			tmp = shrink_all_memory(tmp);
+>  			if (!tmp)
+>  				return -ENOMEM;
+>  			pages += tmp;
+> -		} else if (size > image_size / PAGE_SIZE) {
 
-Replacing the MMIO map with a zero map would be absolutely horrible. It 
-would be inconsistent, and not even help the fact that the user will haev 
-seen the removed state.
+If you drop this, swsusp can free less memory than you want (image_size is
+ignored).  Generally we want it to free memory until
+size <= image_size / PAGE_SIZE.
 
-In fact, I think even "revert" is pretty useless. You're much better off 
-just sending a perfectly good signal - something that the app will get 
-regardless of whether it reads the MMIO space at that point in time or 
-not. After all, the only thing the "revert" would really do is to send a 
-signal, but then only if the user is trying to access the device.
+Appended is a fix on top of your patch (untested).
 
-Anyway, zap_page_range() would do what you want, but it's not exported, 
-and I'm not convinced it's even something we want to export. You can only 
-zap a page range from within the context of the zappee, not from an 
-external module/driver.
+> -			tmp = shrink_all_memory(SHRINK_BITE);
+> -			pages += tmp;
+> +			if (pages > size)
+> +				break;
+>  		}
+>  		printk("\b%c", p[i++%4]);
+>  	} while (tmp > 0);
 
-[ Maybe it works if somebody else calls it, maybe it doesn't. I wouldn't 
-  bet on it, and more importantly, I can pretty much _guarantee_ that a 
-  driver will get the "struct mm_struct" reference counting wrong. ]
+ kernel/power/swsusp.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-		Linus
+Index: linux-2.6.16-rc6-mm1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.16-rc6-mm1.orig/kernel/power/swsusp.c
++++ linux-2.6.16-rc6-mm1/kernel/power/swsusp.c
+@@ -191,13 +191,13 @@ int swsusp_shrink_memory(void)
+ 		for_each_zone (zone)
+ 			if (!is_highmem(zone))
+ 				tmp -= zone->free_pages;
++		if (tmp <= 0)
++			tmp = size - image_size / PAGE_SIZE;
+ 		if (tmp > 0) {
+ 			tmp = shrink_all_memory(tmp);
+ 			if (!tmp)
+ 				return -ENOMEM;
+ 			pages += tmp;
+-			if (pages > size)
+-				break;
+ 		}
+ 		printk("\b%c", p[i++%4]);
+ 	} while (tmp > 0);

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWCQLAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWCQLLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWCQLAX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 06:00:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752594AbWCQLAX
+	id S1751394AbWCQLLk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 06:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWCQLLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 06:00:23 -0500
-Received: from main.gmane.org ([80.91.229.2]:50071 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751397AbWCQLAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 06:00:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andras Mantia <amantia@kde.org>
-Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
-Date: Fri, 17 Mar 2006 12:38:33 +0200
-Message-ID: <dve3j9$r50$1@sea.gmane.org>
-References: <20060305192709.GA3789@skyscraper.unix9.prv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 80.86.125.193
-User-Agent: KNode/0.10.1
+	Fri, 17 Mar 2006 06:11:40 -0500
+Received: from nproxy.gmail.com ([64.233.182.195]:37663 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751394AbWCQLLk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 06:11:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gaGesUeNT72iB8QVyVZU0FUkN56Z4ZTf4LKoLGwYOVtm8ldbcz1sANVkgJtB6GJhV7ouiwzx50Zg0CKtryfRB4RpKa1zfkCPwQO4LbniFxDFNvBRo37rl+fS8V4pttdHe4GyqK2lLcewNZzJAsJADBj7wy7Q/UbHsYfDbMhPdYk=
+Message-ID: <661de9470603170311o146f0a63m9f866817b4525ff0@mail.gmail.com>
+Date: Fri, 17 Mar 2006 16:41:38 +0530
+From: "Balbir Singh" <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+To: prasanna@in.ibm.com
+Subject: Re: Kernel Oops-jprobe
+Cc: "emist emist" <emistz@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060317095858.GA855@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060317025519.GA32497@in.ibm.com>
+	 <661de9470603170131j7580d8ccr9927a600a7184ef3@mail.gmail.com>
+	 <20060317095858.GA855@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bjd wrote:
+> > I think the handler should first copy_from_user().
+>
+> User must not call copy_from_user() in the handler, since preemption is
+> disabled and the copy_from_user might cause a page fault that might
+> sleep if the user page is not in the memory. Although the latest patch
+> posted on lkml tries to fixup the exception, it may some
+> times not succeed and the data collected might be incorrect.
+>
+Yes, you are right. I forgot about the probe handler requirements. In
+that case you need to come up with your own trick to get the user
+space data. Also look at/use systemtap.
 
-> From: Bauke Jan Douma <bjdouma@xs4all.nl>
-> 
-> On ASUS A8V and A8V Deluxe boards, the onboard AC97 audio controller
-> and MC97 modem controller are deactivated when a second PCI soundcard
-> is present.  This patch enables them.
-
-
-Thanks for the patch! I can't wait to go home and try it. AFAIK it affects
-other boards aside of the ASUS A8V using the same chipset. Once I contacted
-the ASUS support and they told me due to the chipset's design it is not
-possible to enable the onboard sound when a PCI card is installed. It is
-amazing that you could do it. :-)
-
-Andras
-
+Balbir

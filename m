@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWCQUTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWCQUZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbWCQUTu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 15:19:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCQUTu
+	id S1751308AbWCQUZX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 15:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWCQUZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 15:19:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12553 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751263AbWCQUTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 15:19:50 -0500
-Date: Fri, 17 Mar 2006 21:19:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: bharata@in.ibm.com
-Cc: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [-mm patch] make the dummy kmem_set_shrinker() a static inline
-Message-ID: <20060317201948.GX3914@stusta.de>
+	Fri, 17 Mar 2006 15:25:23 -0500
+Received: from EXCHG2003.microtech-ks.com ([24.124.14.122]:1875 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1751308AbWCQUZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 15:25:22 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.15.6 not finding everything on a Supermicro H8QC8 Quad Opteron 8132/nforce2200 
+Date: Fri, 17 Mar 2006 14:37:48 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060126
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcZKAqc5jDFiom1bSW+Yx6JKsTViSQ==
+Message-ID: <EXCHG2003y16xsoIIzQ000006f6@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 17 Mar 2006 20:17:52.0806 (UTC) FILETIME=[DEADD460:01C649FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the CONFIG_SLAB=n case we want to save space - so let's save a few 
-more bytes.
+Hello,
+
+I am doing some testing on a Supermico H8QC8 Quad Opteron.
+
+The distribution is SLES 9 SP2, and the SLES kernel 
+appears to find everything and works, compiling 
+the kernel.org 2.6.15.6 it fails to find anything
+on the AMD 8132 part of the chipset, it does not even appear
+to find the AMD 8132.
+
+This motherboards can be found at:
+
+http://www.supermicro.com/Aplus/motherboard/Opteron/nForce/H8QC8.cfm
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+According to the block diagram the 8132 is tied off of
+CPU#2, and the nforce 2200 is tied off of cpu#1.
 
----
+I will be sending the .config/dmesg/lspci and such if necessary,
+right now the machine is offline, I have a feeling though that
+the problem is a lot more basic since lspci indicates that it did
+not find anything attached to the second cpu except memory.  I
+did verify that the kernel.org kernel sees 4 cpus, and of the
+installed ram.
 
- include/linux/slab.h |    7 +++++++
- mm/slob.c            |    5 -----
- 2 files changed, 7 insertions(+), 5 deletions(-)
+Does 2.6.16rcx have changes that could address this issue?  Or is
+there something that I could be missing in the config (the config
+was copied from the original suse config + make oldconfig) or
+is there some kernel boot option that could help?
 
---- linux-2.6.16-rc6-mm1-full/include/linux/slab.h.old	2006-03-17 13:39:18.000000000 +0100
-+++ linux-2.6.16-rc6-mm1-full/include/linux/slab.h	2006-03-17 15:48:53.000000000 +0100
-@@ -144,6 +144,9 @@
- extern int FASTCALL(kmem_cache_reap(int));
- extern int FASTCALL(kmem_ptr_validate(kmem_cache_t *cachep, void *ptr));
- 
-+struct shrinker;
-+extern void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker);
-+
- #else /* CONFIG_SLOB */
- 
- /* SLOB allocator routines */
-@@ -176,6 +179,10 @@
- #define kmalloc_node(s, f, n) kmalloc(s, f)
- #define ____kmalloc kmalloc
- 
-+struct shrinker;
-+static inline void kmem_set_shrinker(kmem_cache_t *cachep,
-+				     struct shrinker *shrinker) {}
-+
- #endif /* CONFIG_SLOB */
- 
- /* System wide caches */
---- linux-2.6.16-rc6-mm1-full/mm/slob.c.old	2006-03-17 13:40:54.000000000 +0100
-+++ linux-2.6.16-rc6-mm1-full/mm/slob.c	2006-03-17 13:41:01.000000000 +0100
-@@ -240,11 +240,6 @@
- 	return ((slob_t *)block - 1)->units * SLOB_UNIT;
- }
- 
--void kmem_set_shrinker(kmem_cache_t *cachep, struct shrinker *shrinker)
--{
--}
--EXPORT_SYMBOL(kmem_set_shrinker);
--
- struct kmem_cache {
- 	unsigned int size, align;
- 	const char *name;
+                               Roger
 

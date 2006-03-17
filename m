@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932789AbWCQVMo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbWCQVQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932789AbWCQVMo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 16:12:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932790AbWCQVMn
+	id S1030193AbWCQVQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 16:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932793AbWCQVQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 16:12:43 -0500
-Received: from 216-99-217-87.dsl.aracnet.com ([216.99.217.87]:1408 "EHLO
-	sorel.sous-sol.org") by vger.kernel.org with ESMTP id S932789AbWCQVMm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 16:12:42 -0500
-Date: Fri, 17 Mar 2006 13:11:46 -0800
-From: Chris Wright <chrisw@sous-sol.org>
-To: Joshua LeVasseur <jtl@ira.uka.de>
-Cc: Pavel Machek <pavel@ucw.cz>, Zachary Amsden <zach@vmware.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       Andrew Morton <akpm@osdl.org>, Dan Hecht <dhecht@vmware.com>,
-       Dan Arai <arai@vmware.com>, Anne Holler <anne@vmware.com>,
-       Pratap Subrahmanyam <pratap@vmware.com>,
-       Christopher Li <chrisl@vmware.com>, Chris Wright <chrisw@osdl.org>,
-       Rik Van Riel <riel@redhat.com>, Jyothy Reddy <jreddy@vmware.com>,
-       Jack Lo <jlo@vmware.com>, Kip Macy <kmacy@fsmware.com>,
-       Jan Beulich <jbeulich@novell.com>,
-       Ky Srinivasan <ksrinivasan@novell.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Leendert van Doorn <leendert@watson.ibm.com>
-Subject: Re: [RFC, PATCH 5/24] i386 Vmi code patching
-Message-ID: <20060317211146.GP15997@sorel.sous-sol.org>
-References: <200603131802.k2DI2nv8005665@zach-dev.vmware.com> <20060315230012.GA1919@elf.ucw.cz> <869E58AF-339F-4660-8458-36F58A5E35EF@ira.uka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <869E58AF-339F-4660-8458-36F58A5E35EF@ira.uka.de>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 17 Mar 2006 16:16:30 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:44203 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932791AbWCQVQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 16:16:29 -0500
+In-Reply-To: <6CCFFBB4-CDE0-4DC0-A4D7-A3E7398B2494@kernel.crashing.org>
+References: <6CCFFBB4-CDE0-4DC0-A4D7-A3E7398B2494@kernel.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <7A19BA6C-6308-4DFC-B70D-A0AE0E144B59@kgala.com>
+Cc: lm-sensors@lm-sensors.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <kumar@kgala.com>
+Subject: Re: I2C-virtual and locking?
+Date: Fri, 17 Mar 2006 15:16:58 -0600
+To: Greg KH <gregkh@suse.de>, khali@linux-fr.org
+X-Mailer: Apple Mail (2.746.3)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kgala.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Joshua LeVasseur (jtl@ira.uka.de) wrote:
-> extern "C" void
-> afterburn_cpu_write_gdt32_ext( burn_clobbers_frame_t *frame )
-> {
->     get_cpu()->gdtr =  *(dtr_t *)frame->eax;
-> }
 
-What is this get_cpu()?  Accessing data structure that's avail. in ROM
-and shared with hypervisor...could you elaborate a bit here?
+On Mar 17, 2006, at 12:54 PM, Kumar Gala wrote:
 
-thanks,
--chris
+> I'm looking at porting the i2c-virtual code from 2.4 to 2.6.  One  
+> thing I'm not clear on is the use of i2c_add_adapter_nolock() by  
+> the old code.  The only reference I can find related to this is:
+>
+> http://archives.andrew.net.au/lm-sensors/msg31060.html
+>
+> I can't think of a reason why locking would be in issue when adding  
+> or removing of a virtual adapter.  Anyone have an additional ides  
+> on this?
+
+Ok, so I figured out why the _nolock() versions exist.  In  
+i2c_driver_register we take the core_list lock.  Eventually we will  
+call i2c_probe() which should call driver->attach_adapter().  For a  
+virtual bus the driver's attach_adapter() will end up calling  
+i2c_virt_create_adapter() which will end up calling i2c_add_adapter()  
+which will never get the core_list lock.
+
+So should we integrate the concept of virtual adapters into the i2c  
+core and have it such that i2c_virt_create_adapter()/ 
+i2c_virt_remove_adapter() expects the caller to have the core_list  
+lock already?
+
+- kumar

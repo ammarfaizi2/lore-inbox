@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWCQU5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932769AbWCQVAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932193AbWCQU5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 15:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932763AbWCQU5L
+	id S932769AbWCQVAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 16:00:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932783AbWCQU57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 15:57:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:63146 "EHLO
+	Fri, 17 Mar 2006 15:57:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:7595 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932193AbWCQU4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 15:56:53 -0500
+	id S932775AbWCQU5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 15:57:44 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Michael Krufky <mkrufky@linuxtv.org>,
+Cc: linux-dvb-maintainer@linuxtv.org, Duncan Sands <baldrick@free.fr>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 17/21] Kconfig: fix ATSC frontend menu item names by
-	manufacturer
-Date: Fri, 17 Mar 2006 17:54:37 -0300
-Message-id: <20060317205437.PS70957700017@infradead.org>
+Subject: [PATCH 01/21] Nskips maybe used uninitialized in bttv_risc_overlay
+Date: Fri, 17 Mar 2006 17:54:32 -0300
+Message-id: <20060317205432.PS54911700001@infradead.org>
 In-Reply-To: <20060317205359.PS65198900000@infradead.org>
 References: <20060317205359.PS65198900000@infradead.org>
 Mime-Version: 1.0
@@ -29,50 +28,30 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Michael Krufky <mkrufky@linuxtv.org>
-Date: 1142525905 \-0300
+From: Duncan Sands <baldrick@free.fr>
+Date: 1141914014 \-0300
 
-- Corrected typo for NxtWave NXT200X
-- Added "Oren" manufacturer name to menu items for OR51132 and OR51211
-- Removed "(pcHDTV HDx000 card)" from Oren frontends menu item names,
-  This isn't necessary, as these frontends are selected by the card drivers,
-  build configuration (DVB_BT8XX and VIDEO_CX88_DVB).
+The Coverity checker (previously Stanford checker) noticed that
+the value of nskips could be read even if it was never written.
 
-Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
+Signed-off-by: Duncan Sands <baldrick@free.fr>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/frontends/Kconfig |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/video/bttv-risc.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/dvb/frontends/Kconfig b/drivers/media/dvb/frontends/Kconfig
-index c676b1e..ff077eb 100644
---- a/drivers/media/dvb/frontends/Kconfig
-+++ b/drivers/media/dvb/frontends/Kconfig
-@@ -155,7 +155,7 @@ comment "ATSC (North American/Korean Ter
- 	depends on DVB_CORE
+diff --git a/drivers/media/video/bttv-risc.c b/drivers/media/video/bttv-risc.c
+index b40e973..af66a8d 100644
+--- a/drivers/media/video/bttv-risc.c
++++ b/drivers/media/video/bttv-risc.c
+@@ -274,6 +274,8 @@ bttv_risc_overlay(struct bttv *btv, stru
+ 		if (line > maxy)
+ 			btcx_calc_skips(line, ov->w.width, &maxy,
+ 					skips, &nskips, ov->clips, ov->nclips);
++		else
++			nskips = 0;
  
- config DVB_NXT200X
--	tristate "Nextwave NXT2002/NXT2004 based"
-+	tristate "NxtWave Communications NXT2002/NXT2004 based"
- 	depends on DVB_CORE
- 	select FW_LOADER
- 	help
-@@ -169,14 +169,14 @@ config DVB_NXT200X
- 	  or /lib/firmware (depending on configuration of firmware hotplug).
- 
- config DVB_OR51211
--	tristate "or51211 based (pcHDTV HD2000 card)"
-+	tristate "Oren OR51211 based"
- 	depends on DVB_CORE
- 	select FW_LOADER
- 	help
- 	  An ATSC 8VSB tuner module. Say Y when you want to support this frontend.
- 
- config DVB_OR51132
--	tristate "OR51132 based (pcHDTV HD3000 card)"
-+	tristate "Oren OR51132 based"
- 	depends on DVB_CORE
- 	select FW_LOADER
- 	help
+ 		/* write out risc code */
+ 		for (start = 0, skip = 0; start < ov->w.width; start = end) {
 

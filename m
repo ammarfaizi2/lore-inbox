@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWCQIXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWCQI0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964938AbWCQIXe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWCQIXM
+	id S964947AbWCQI0v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 03:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWCQIW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 03:23:12 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:56272 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964933AbWCQIXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 03:23:00 -0500
-Date: Fri, 17 Mar 2006 17:22:19 +0900
+	Fri, 17 Mar 2006 03:22:57 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:41707 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964937AbWCQIWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 03:22:47 -0500
+Date: Fri, 17 Mar 2006 17:22:06 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 010/017]Memory hotplug for new nodes v.4.(allocate wait table)
-Cc: Andi Kleen <ak@suse.de>, "Luck, Tony" <tony.luck@intel.com>,
+Subject: [PATCH: 009/017]Memory hotplug for new nodes v.4.(add return code init_currently_empty_zone)
+Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060317163451.C64B.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060317163404.C649.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -25,112 +25,121 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When add_zone() is called against empty zone (not populated zone),
+we have to initialize the zone which didn't initialize at boot time.
+But, init_currently_empty_zone() may fail due to allocation of 
+wait table. So, this patch is to catch its error code.
 
-Wait_table is initialized according to zone size at boot time.
-But, we cannot know the maixmum zone size when memory hotplug is enabled.
-It can be changed.... And resizing of wait_table is too hard.
+Changes against wait_table is in the next patch.
 
-So kernel allocate and initialzie wait_table as its maximum size.
 
 Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
- mm/page_alloc.c |   45 +++++++++++++++++++++++++++++++++++++++------
- 1 files changed, 39 insertions(+), 6 deletions(-)
+ include/linux/mmzone.h |    3 +++
+ mm/memory_hotplug.c    |   15 +++++++++++++--
+ mm/page_alloc.c        |   11 ++++++++---
+ 3 files changed, 24 insertions(+), 5 deletions(-)
 
 Index: pgdat8/mm/page_alloc.c
 ===================================================================
---- pgdat8.orig/mm/page_alloc.c	2006-03-17 11:13:18.466550152 +0900
-+++ pgdat8/mm/page_alloc.c	2006-03-17 11:19:32.371677992 +0900
-@@ -1788,6 +1788,7 @@ void __init build_all_zonelists(void)
-  */
- #define PAGES_PER_WAITQUEUE	256
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG
- static inline unsigned long wait_table_size(unsigned long pages)
- {
- 	unsigned long size = 1;
-@@ -1806,6 +1807,17 @@ static inline unsigned long wait_table_s
- 
- 	return max(size, 4UL);
+--- pgdat8.orig/mm/page_alloc.c	2006-03-16 16:05:38.000000000 +0900
++++ pgdat8/mm/page_alloc.c	2006-03-16 16:44:04.000000000 +0900
+@@ -2111,8 +2111,9 @@ static __meminit void zone_pcp_init(stru
+ 		zone->name, zone->present_pages, batch);
  }
-+#else
-+/*
-+ * Because zone size might be changed by hot-add,
-+ * We can't determin suitable size for wait_table as traditional.
-+ * So, we use maximum size.
-+ */
-+static inline unsigned long wait_table_size(unsigned long pages)
-+{
-+	return 4096UL;
-+}
-+#endif
  
- /*
-  * This is an integer logarithm so that shifts can be used later
-@@ -2074,7 +2086,7 @@ void __init setup_per_cpu_pageset(void)
- #endif
- 
- static __meminit
--void zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
-+int zone_wait_table_init(struct zone *zone, unsigned long zone_size_pages)
+-static __meminit void init_currently_empty_zone(struct zone *zone,
+-		unsigned long zone_start_pfn, unsigned long size)
++__meminit int init_currently_empty_zone(struct zone *zone,
++					unsigned long zone_start_pfn,
++					unsigned long size)
  {
- 	int i;
  	struct pglist_data *pgdat = zone->zone_pgdat;
-@@ -2085,12 +2097,37 @@ void zone_wait_table_init(struct zone *z
- 	 */
- 	zone->wait_table_size = wait_table_size(zone_size_pages);
- 	zone->wait_table_bits =	wait_table_bits(zone->wait_table_size);
--	zone->wait_table = (wait_queue_head_t *)
--		alloc_bootmem_node(pgdat, zone->wait_table_size
--					* sizeof(wait_queue_head_t));
-+	if (system_state == SYSTEM_BOOTING) {
-+		zone->wait_table = (wait_queue_head_t *)
-+			alloc_bootmem_node(pgdat, zone->wait_table_size
-+						* sizeof(wait_queue_head_t));
-+	} else {
-+		int table_size;
-+		/*
-+		 * XXX: This is the case that new node is hotadded.
-+		 * 	At this time, kmalloc() will not get this new node's
-+		 *	memory. Because this wait_table must be initialized,
-+		 *	to use this new node itself. To use this new node's
-+		 *	memory, further consideration will be necessary.
-+		 */
-+		do {
-+			table_size = zone->wait_table_size
-+					* sizeof(wait_queue_head_t);
-+			zone->wait_table = kmalloc(table_size, GFP_KERNEL);
-+			if (!zone->wait_table) {
-+				/* try half size */
-+				zone->wait_table_size >>= 1;
-+				zone->wait_table_bits =
-+					wait_table_bits(zone->wait_table_size);
-+			}
-+		} while (zone->wait_table_size && !zone->wait_table);
-+	}
-+	if (!zone->wait_table)
-+		return -ENOMEM;
  
- 	for(i = 0; i < zone->wait_table_size; ++i)
- 		init_waitqueue_head(zone->wait_table + i);
+@@ -2124,6 +2125,8 @@ static __meminit void init_currently_emp
+ 	memmap_init(size, pgdat->node_id, zone_idx(zone), zone_start_pfn);
+ 
+ 	zone_init_free_lists(pgdat, zone, zone->spanned_pages);
++
 +	return 0;
  }
  
- static __meminit void zone_pcp_init(struct zone *zone)
-@@ -2116,8 +2153,10 @@ __meminit int init_currently_empty_zone(
- 					unsigned long size)
+ /*
+@@ -2138,6 +2141,7 @@ static void __init free_area_init_core(s
+ 	unsigned long j;
+ 	int nid = pgdat->node_id;
+ 	unsigned long zone_start_pfn = pgdat->node_start_pfn;
++	int ret;
+ 
+ 	pgdat_resize_init(pgdat);
+ 	pgdat->nr_zones = 0;
+@@ -2179,7 +2183,8 @@ static void __init free_area_init_core(s
+ 			continue;
+ 
+ 		zonetable_add(zone, nid, j, zone_start_pfn, size);
+-		init_currently_empty_zone(zone, zone_start_pfn, size);
++		ret = init_currently_empty_zone(zone, zone_start_pfn, size);
++		BUG_ON(ret);
+ 		zone_start_pfn += size;
+ 	}
+ }
+Index: pgdat8/mm/memory_hotplug.c
+===================================================================
+--- pgdat8.orig/mm/memory_hotplug.c	2006-03-16 16:05:38.000000000 +0900
++++ pgdat8/mm/memory_hotplug.c	2006-03-16 16:45:30.000000000 +0900
+@@ -26,16 +26,23 @@
+ 
+ extern void zonetable_add(struct zone *zone, int nid, int zid, unsigned long pfn,
+ 			  unsigned long size);
+-static void __add_zone(struct zone *zone, unsigned long phys_start_pfn)
++static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
  {
  	struct pglist_data *pgdat = zone->zone_pgdat;
--
--	zone_wait_table_init(zone, size);
-+	int ret;
-+	ret = zone_wait_table_init(zone, size);
-+	if (ret)
-+		return ret;
- 	pgdat->nr_zones = zone_idx(zone) + 1;
+ 	int nr_pages = PAGES_PER_SECTION;
+ 	int nid = pgdat->node_id;
+ 	int zone_type;
++	int ret = 0;
  
- 	zone->zone_start_pfn = zone_start_pfn;
+ 	zone_type = zone - pgdat->node_zones;
++	if (!populated_zone(zone)) {
++		ret = init_currently_empty_zone(zone, phys_start_pfn, nr_pages);
++		if (ret < 0)
++			return ret;
++	}
+ 	memmap_init_zone(nr_pages, nid, zone_type, phys_start_pfn);
+ 	zonetable_add(zone, nid, zone_type, phys_start_pfn, nr_pages);
++	return 0;
+ }
+ 
+ extern int sparse_add_one_section(struct zone *zone, unsigned long start_pfn,
+@@ -50,7 +57,11 @@ static int __add_section(struct zone *zo
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	__add_zone(zone, phys_start_pfn);
++	ret = __add_zone(zone, phys_start_pfn);
++
++	if (ret < 0)
++		return ret;
++
+ 	return register_new_memory(__pfn_to_section(phys_start_pfn));
+ }
+ 
+Index: pgdat8/include/linux/mmzone.h
+===================================================================
+--- pgdat8.orig/include/linux/mmzone.h	2006-03-16 16:05:38.000000000 +0900
++++ pgdat8/include/linux/mmzone.h	2006-03-16 16:06:27.000000000 +0900
+@@ -332,6 +332,9 @@ void wakeup_kswapd(struct zone *zone, in
+ int zone_watermark_ok(struct zone *z, int order, unsigned long mark,
+ 		int classzone_idx, int alloc_flags);
+ 
++extern int init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
++				     unsigned long size);
++
+ #ifdef CONFIG_HAVE_MEMORY_PRESENT
+ void memory_present(int nid, unsigned long start, unsigned long end);
+ #else
 
 -- 
 Yasunori Goto 

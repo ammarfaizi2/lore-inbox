@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWCQTln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWCQTlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWCQTln (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 14:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWCQTln
+	id S1751207AbWCQTlW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 14:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWCQTlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 14:41:43 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:44972 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S1751221AbWCQTlm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 14:41:42 -0500
-X-OB-Received: from unknown (205.158.62.232)
-  by wfilter.us4.outblaze.com; 17 Mar 2006 19:42:47 -0000
+	Fri, 17 Mar 2006 14:41:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:27024 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751207AbWCQTlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 14:41:21 -0500
+Date: Fri, 17 Mar 2006 19:41:13 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Eric Van Hensbergen <ericvh@hera.kernel.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net, ericvh@gmail.com
+Subject: Re: [RESEND][PATCH] v9fs: print v9fs module address
+Message-ID: <20060317194113.GA8848@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Eric Van Hensbergen <ericvh@hera.kernel.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+	ericvh@gmail.com
+References: <200603171909.k2HJ9BiD006068@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-From: "martin schneebacher" <masc@operamail.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: sdhci-devel@list.drzeus.cx
-Date: Fri, 17 Mar 2006 20:42:46 +0100
-Subject: new sdhci driver
-X-Originating-Ip: 85.125.216.214
-X-Originating-Server: ws5-11.us4.outblaze.com
-Message-Id: <20060317194247.1641ECA0A4@ws5-11.us4.outblaze.com>
+In-Reply-To: <200603171909.k2HJ9BiD006068@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+On Fri, Mar 17, 2006 at 07:09:14PM +0000, Eric Van Hensbergen wrote:
+> Subject: [PATCH] print v9fs module address
+> From: Latchesar Ionkov <lucho@ionkov.net>
+> Date: 1141313037 -0500
+> 
+> This patch prints v9fs module address when the module is initialized. It is
+> useful to have it in the logs -- if the kernel crashes the address can be
+> used together with the oops print to find out the exact place (presumably in
+> the v9fs code) that cause the oops.
 
-the sdhci driver works fine here at this aopen barebook 1559as, i haven't experienced any problems while accessing/inserting/removing the card. even udev/hal/gnome-volume-manager works fine with it. the writing speed isn't that good, but at least it works without errors.
-i have kernel  2.6.16-rc6-mm1 on a updated debian/unstable installed.
-controller is the (lspci)
+NACK.
 
-0000:06:09.3 Mass storage controller: Texas Instruments PCIxx21 Integrated FlashMedia Controller
-0000:06:09.4 0805: Texas Instruments PCI6411, PCI6421, PCI6611, PCI6621, PCI7411, PCI7421, PCI7611, PCI7621 Secure Digital (SD) Controller
+This just clutters the log.  The information is provided in /proc/modules
+for all modules.
 
-there are no errors nor warnings in the syslog, just 
-Mar 17 20:28:06 gusti kernel: mmcblk0: mmc2:014d S008B 6640KiB 
-Mar 17 20:28:06 gusti kernel:  mmcblk0: p1
-when inserting the card. the only card i have is a panasonic 8MB SD card. 
-
-
-bye...masc.
-
-
-
--- 
-_______________________________________________
-Surf the Web in a faster, safer and easier way:
-Download Opera 8 at http://www.opera.com
-
-Powered by Outblaze

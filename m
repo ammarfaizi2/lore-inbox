@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWCQQxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWCQQ5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWCQQxR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 11:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWCQQxR
+	id S1750946AbWCQQ5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 11:57:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWCQQ5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 11:53:17 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:26024 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750776AbWCQQxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 11:53:16 -0500
-Message-ID: <441AE971.8040907@linux.intel.com>
-Date: Fri, 17 Mar 2006 17:53:05 +0100
-From: Arjan van de Ven <arjan@linux.intel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 0/8] Port of -fstack-protector to the kernel
-References: <1142611850.3033.100.camel@laptopd505.fenrus.org> <6bffcb0e0603170850i5f955151v@mail.gmail.com>
-In-Reply-To: <6bffcb0e0603170850i5f955151v@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 11:57:37 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:41638
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750946AbWCQQ5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 11:57:37 -0500
+Date: Fri, 17 Mar 2006 08:57:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Mark Lord <lkml@rtr.ca>, drzeus-sdhci@drzeus.cx
+Cc: "David J. Wallace" <katana@onetel.com>, sdhci-devel@list.drzeus.cx,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Sdhci-devel] Submission to the kernel?
+Message-ID: <20060317165723.GA32281@kroah.com>
+References: <4419FA7A.4050104@cogweb.net> <200603171042.52589.katana@onetel.com> <441AD537.5080403@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <441AD537.5080403@rtr.ca>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Piotrowski wrote:
-> Hi,
+On Fri, Mar 17, 2006 at 10:26:47AM -0500, Mark Lord wrote:
+> David J. Wallace wrote:
+> >On Thursday 16 March 2006 23:53, David Liontooth wrote:
+> >
+> >>I would urge people to test Andrew's latest -mm kernel and report to
+> >>lkml (cc him) on whether the sdhci driver works or causes any kind of
+> >>problem. 
 > 
-> On 17/03/06, Arjan van de Ven <arjan@linux.intel.com> wrote:
->> This patch series adds support for the gcc 4.1 -fstack-protector feature to
->> the kernel. Unfortunately this needs a gcc patch before it can work, so at
->> this point these patches are just for comment, not for merging.
->>
+> SDHCI seems to be working well on my Dell Inspiron 9300.
 > 
-> It's x86_64 specific?
+> But I have concerns over maintenance of the code -- there does not
+> seem to be a functioning (for me) email address for a maintainer.
 
-for now it is yes; x86-64 is the "easiest" one because there already is a
-per-processor datastructure in line with what gcc expect (eg similar to the
-userland per thread structure). For x86... that's not there in the kernel.
+Did you try the one listed in the MAINTAINERS portion of the patch:
 
+	+SECURE DIGITAL HOST CONTROLLER INTERFACE DRIVER
+	+P:	Pierre Ossman
+	+M:	drzeus-sdhci@drzeus.cx
+	+L:	sdhci-devel@list.drzeus.cx
+	+W:	http://mmc.drzeus.cx/wiki/Linux/Drivers/sdhci
+	+S:	Maintained
+
+thanks,
+
+greg k-h

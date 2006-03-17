@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932780AbWCQU57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932778AbWCQU6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932780AbWCQU57 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 15:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932778AbWCQU5b
+	id S932778AbWCQU6A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 15:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932777AbWCQU50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 15:57:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:683 "EHLO
+	Fri, 17 Mar 2006 15:57:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2475 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932191AbWCQU5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 15:57:16 -0500
+	id S932769AbWCQU5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 15:57:21 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, Michael Hunold <hunold@linuxtv.org>,
-       Andrew Morton <akpm@osdl.org>,
+Cc: linux-dvb-maintainer@linuxtv.org, Marcin Rudowski <mar_rud@poczta.onet.pl>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 15/21] Restore tuning capabilities in v4l2 mxb driver
-Date: Fri, 17 Mar 2006 17:54:37 -0300
-Message-id: <20060317205437.PS07135600015@infradead.org>
+Subject: [PATCH 03/21] Correct gpio values for Aver 303 Studio in v4l-dvb
+	tree
+Date: Fri, 17 Mar 2006 17:54:33 -0300
+Message-id: <20060317205433.PS23211600003@infradead.org>
 In-Reply-To: <20060317205359.PS65198900000@infradead.org>
 References: <20060317205359.PS65198900000@infradead.org>
 Mime-Version: 1.0
@@ -29,43 +29,45 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Michael Hunold <hunold@linuxtv.org>
-Date: 1142446742 \-0300
+From: Marcin Rudowski <mar_rud@poczta.onet.pl>
+Date: 1141931391 \-0300
 
-The behaviour of the all-in-one Video4Linux tuner driver apparently
-changed.  It now wants to know the tv standard, otherwise it refuses to
-tune.
-Restore tuning functionality in my driver for the "Multimedia eXtension
-Board".  The all-in-one tuner driver apparently changed its behaviour.
+Old values generally works in A2 mono, but new ones allows:
+- detect and use Nicam stereo
+- mute in tv
+- use radio FM
 
-Signed-off-by: Michael Hunold <hunold@linuxtv.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Marcin Rudowski <mar_rud@poczta.onet.pl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/mxb.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/media/video/cx88/cx88-cards.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/video/mxb.c b/drivers/media/video/mxb.c
-index 8416cef..e2b36ce 100644
---- a/drivers/media/video/mxb.c
-+++ b/drivers/media/video/mxb.c
-@@ -327,6 +327,7 @@ static int mxb_init_done(struct saa7146_
- 	struct video_decoder_init init;
- 	struct i2c_msg msg;
- 	struct tuner_setup tun_setup;
-+	v4l2_std_id std = V4L2_STD_PAL_BG;
- 
- 	int i = 0, err = 0;
- 	struct	tea6415c_multiplex vm;	
-@@ -361,6 +362,9 @@ static int mxb_init_done(struct saa7146_
- 	mxb->tuner->driver->command(mxb->tuner, VIDIOC_S_FREQUENCY,
- 					&mxb->cur_freq);
- 
-+	/* set a default video standard */
-+	mxb->tuner->driver->command(mxb->tuner, VIDIOC_S_STD, &std);
-+
- 	/* mute audio on tea6420s */
- 	mxb->tea6420_1->driver->command(mxb->tea6420_1,TEA6420_SWITCH, &TEA6420_line[6][0]);
- 	mxb->tea6420_2->driver->command(mxb->tea6420_2,TEA6420_SWITCH, &TEA6420_line[6][1]);
+diff --git a/drivers/media/video/cx88/cx88-cards.c b/drivers/media/video/cx88/cx88-cards.c
+index 1bc9992..9e29df3 100644
+--- a/drivers/media/video/cx88/cx88-cards.c
++++ b/drivers/media/video/cx88/cx88-cards.c
+@@ -184,17 +184,18 @@ struct cx88_board cx88_boards[] = {
+ 		.input          = {{
+ 			.type   = CX88_VMUX_TELEVISION,
+ 			.vmux   = 0,
+-			.gpio1  = 0x309f,
++			.gpio1  = 0xe09f,
+ 		},{
+ 			.type   = CX88_VMUX_COMPOSITE1,
+ 			.vmux   = 1,
+-			.gpio1  = 0x305f,
++			.gpio1  = 0xe05f,
+ 		},{
+ 			.type   = CX88_VMUX_SVIDEO,
+ 			.vmux   = 2,
+-			.gpio1  = 0x305f,
++			.gpio1  = 0xe05f,
+ 		}},
+ 		.radio = {
++			.gpio1  = 0xe0df,
+ 			.type   = CX88_RADIO,
+ 		},
+ 	},
 

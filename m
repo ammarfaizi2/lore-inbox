@@ -1,54 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752567AbWCQIhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWCQIq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752567AbWCQIhH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752570AbWCQIhH
+	id S1751509AbWCQIq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 03:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752570AbWCQIq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 03:37:07 -0500
-Received: from xproxy.gmail.com ([66.249.82.201]:4783 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752567AbWCQIhF convert rfc822-to-8bit
+	Fri, 17 Mar 2006 03:46:58 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:23958 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751509AbWCQIq4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 03:37:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NgbYSbkeOrSr+j8N8HFOVa5DhAt+ScbxWLsvWXinRDwaadzKEx79YmZcLy2WcO7AcoJNoS/cTR/ke0EINrjFbLT7uy9+AB3k5/MkK41jJxjwv3RT9bGRAZQi7sGm/LQXS3S2mgkVqqCdYvupiqCz3xNe1fPOt5HWofxlHIQQxZM=
-Message-ID: <9fda5f510603170037v41d273c5naf36776e6f03246e@mail.gmail.com>
-Date: Fri, 17 Mar 2006 00:37:04 -0800
-From: "Pradeep Vincent" <pradeep.vincent@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Priority in Memory management
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 17 Mar 2006 03:46:56 -0500
+Date: Fri, 17 Mar 2006 14:16:53 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, shaohua.li@intel.com,
+       bryce@osdl.org
+Subject: Re: [PATCH] Check for online cpus before bringing them up
+Message-ID: <20060317084653.GA4515@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060316174447.GA8184@in.ibm.com> <20060316170814.02fa55a1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060316170814.02fa55a1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried searching for discussions related to this but in vain A
-significant number of servers running Linux come under the category of
-"Caching Servers". These servers usually try to server data either
-from RAM or disk sub-systems and for obvious reasons want to serve as
-much data as possible from RAM. Even if the dataset is comparable to
-RAM size, other bon-performance critical activities on the system
-(such as logging, log rotation/compression, remote performance
-monitors, application code updates, security related searches )
-disturb the cache hit ratio.
+On Thu, Mar 16, 2006 at 05:08:14PM -0800, Andrew Morton wrote:
+> Is x86 the only architecture which is exposed to this?
 
-Mlocking the dataset is one option. Using fadvise/O_STREAM for
-everything else is another option - but this doesn't address all the
-cases.
+Currently only x86 implements smp_prepare_cpu(). On other arch, it is a
+no-op. Hence yes, only x86 is exposed to this bug.
 
-Instead of locking out all memory, being able to set priorities for
-virtual memory regions comes across as a better idea. This way if the
-system really really needs memory, kernel can reclaim the cache pages
-but not just because somebody is writing something and it might seem
-fair to reclaim the dataset cache.
+> >  
+> >  	lock_cpu_hotplug();
+> > +
+> > +	if (cpu_online(cpu)) {
+> > +		ret = -EINVAL;
+> > +		goto exit;
+> > +	}
+> > +
+> >  	apicid = x86_cpu_to_apicid[cpu];
+> >  	if (apicid == BAD_APICID) {
+> >  		ret = -ENODEV;
+> 
+> a) It's hard for the reader to understand what that test is doing there
+> 
+> b) People copy code from x86, so other architectures which are not
+>    exposed to this problem will end up having a pointless test in there.
+
+Well ..other arch-es need to have a similar check if they get around to
+implement physical hot-add (even if they allow offlining of all CPUs). This is 
+required since a user can (by mistake maybe) try to bring up an already online 
+CPU by writing a '1' to it's sysfs 'online' file. 'store_online' 
+(drivers/base/cpu.c) unconditionally calls 'smp_prepare_cpu' w/o checking for 
+this error condition. The check added in the patch catches such error 
+conditions as well.
+
+> IOW: please comment your code.   I'll fix this one up.
+
+Sorry about not commenting my code earlier! How does the patch below look?
 
 
-Has this come up in the past. Any history at all - I am all ears for
-ideas and concerns.
+Add check for online cpus.
 
-Thanks,
+Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
 
-Pradeep Vincent
+
+ arch/i386/kernel/smpboot.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
+
+diff -puN arch/i386/kernel/smpboot.c~cpu_hp arch/i386/kernel/smpboot.c
+--- linux-2.6.16-rc6/arch/i386/kernel/smpboot.c~cpu_hp	2006-03-17 14:27:15.000000000 +0530
++++ linux-2.6.16-rc6-root/arch/i386/kernel/smpboot.c	2006-03-17 14:38:50.000000000 +0530
+@@ -1029,6 +1029,16 @@ int __devinit smp_prepare_cpu(int cpu)
+ 	int	apicid, ret;
+ 
+ 	lock_cpu_hotplug();
++
++	/* Check if CPU is already online. This can happen if user tries to 
++	 * bringup an already online CPU or a previous offline attempt
++	 * on this CPU has failed.
++	 */
++	if (cpu_online(cpu)) {
++		ret = -EINVAL;
++		goto exit;
++	}
++
+ 	apicid = x86_cpu_to_apicid[cpu];
+ 	if (apicid == BAD_APICID) {
+ 		ret = -ENODEV;
+
+_
+
+-- 
+Regards,
+vatsa

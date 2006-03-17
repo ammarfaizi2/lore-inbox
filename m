@@ -1,95 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWCQOfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWCQOgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWCQOfv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 09:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWCQOfv
+	id S1750758AbWCQOgp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 09:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWCQOgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 09:35:51 -0500
-Received: from pproxy.gmail.com ([64.233.166.181]:49924 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751272AbWCQOfu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 09:35:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=g5TL0m8x182Gz94xJFrrU9GJyaqlE1DX/sPem75j++Aq+bgL5ncK4vjJVyiVMhO6hKa3CcL43E9tvA2k4rEW1m3JimRlIsky6oIi+MyEgw/h2qCZjuyf8oSi/HBrK/SQux/v/g/XmYcf6OkK/k6Ltbf+pMMjfbdeb8RsrDgy0bk=
-Message-ID: <93564eb70603170635s4d3c8c3o@mail.gmail.com>
-Date: Fri, 17 Mar 2006 23:35:48 +0900
-From: "Samuel Masham" <samuel.masham@gmail.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: libata/sata errors on ich[?]/maxtor
-Cc: "Mauro Tassinari" <mtassinari@cmanet.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <1142595294.28614.3.camel@localhost.localdomain>
+	Fri, 17 Mar 2006 09:36:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37382 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750758AbWCQOgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 09:36:44 -0500
+Date: Fri, 17 Mar 2006 15:36:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, norsk5@xmission.com, dsp@llnl.gov,
+       bluesmoke-devel@lists.sourceforge.net,
+       Tom Seeley <redhat@tomseeley.co.uk>, Jiri Slaby <jirislaby@gmail.com>,
+       v4l-dvb-maintainer@linuxtv.org, gregkh@suse.de,
+       Avuton Olrich <avuton@gmail.com>, Nathan Scott <nathans@sgi.com>,
+       linux-xfs@oss.sgi.com, Parag Warudkar <kernel-stuff@comcast.net>,
+       Takashi Iwai <tiwai@suse.de>, perex@suse.cz,
+       alsa-devel@alsa-project.org, Alex Outhred <aouthred@gmail.com>,
+       NeilBrown <neilb@suse.de>
+Subject: 2.6.16-rc6: known regressions (v2)
+Message-ID: <20060317143642.GJ3914@stusta.de>
+References: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAoSG5sanwXkG4qxYkj76rcgEAAAAA@cmanet.it>
-	 <93564eb70603162037g1856b7eey@mail.gmail.com>
-	 <1142595294.28614.3.camel@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0603111551330.18022@g5.osdl.org>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+This email lists some known regressions in 2.6.16-rc6 compared to 2.6.15.
 
-On 17/03/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Gwe, 2006-03-17 at 13:37 +0900, Samuel Masham wrote:
-> > As you can see from the printk's here this error continues and the for
-> > every access (write?) to the drive you just have to wait for a
-> > timeout.
->
-> Eventually the drive will be offlined.
+If you find your name in the Cc header, you are either submitter of one
+of the bugs, maintainer of an affectected subsystem or driver, a patch
+of you was declared guilty for a breakage or I'm considering you in any
+other way possibly involved with one or more of these issues.
 
-really? I can test that easily enough if nothing else :)
+Due to the huge amount of recipients, please trim the Cc when answering.
 
-> > ata1: command 0x35 timeout, stat 0xd1 host_stat 0x61
-> > ata1: translated ATA stat/err 0xd1/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-> > ata1: status=0xd1 { Busy }
-> > SCSI disk error : host 0 channel 0 id 1 lun 0 return code = 8000002
-> > Current sd08:12: sense key Aborted Command
-> > Additional sense indicates Scsi parity error
->
-> It thinks there is a communication (eg cable problem), at least that is
-> how it has mapped the error report. Not something I'd expect to see in
-> the SATA case on several machines so it could be some kind of setup
-> error or timing incompatibility in the driver.
 
-Well Its cheep enough to get another cable and test that. But as the
-failure is repeatable in nearly (but not quite) down to the block for
-a given build then i don't have so much hope.
+Subject    : signal_cache slab corruption
+References : http://lkml.org/lkml/2006/3/13/170
+Submitter  : Dave Jones <davej@redhat.com>
+Status     : unknown
 
-> What is attached to that controller (SATA and PATA items)
 
-It being the weekend here i don't now have access to the box... but
-from the rhn page (linked in the bugzilla entry if anyone can follow
-that) it says
+Subject    : edac slab corruption
+References : http://lkml.org/lkml/2006/3/5/14
+Submitter  : Dave Jones <davej@redhat.com>
+Status     : unknown
 
-Ata Maxtor 6Y080M0  SCSI  sda 0
-Ata Maxtor 6V250F0   SCSI  sdb 0
 
-I thought they had a ide (normal ata) cddrive on board as well but
-cant see that on the hardware info page...
+Subject    : yet more slab corruption
+References : https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=184310
+Submitter  : Dave Jones <davej@redhat.com>
+Status     : unknown
 
-I will check on Monday and report back.
 
-Since posting this i have tried one more thing
+Subject    : wintv-novaT broken (no devices in in /dev/dvb)
+References : https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181063
+             http://lkml.org/lkml/2006/2/18/204
+Submitter  : Tom Seeley <redhat@tomseeley.co.uk>
+             Dave Jones <davej@redhat.com>
+Handled-By : Jiri Slaby <jirislaby@gmail.com>
+Status     : submitter tries to bisect to find the guilty change
 
-I had a look at the data sheet for the sata control er and it said
-that it supported the SATA 1 (150) mode  and the drive supports SATA 2
-(300) i think (names maybe confused here).
 
-So I tried moving the jumper on the drive to the 150 mode position but
-this made no difference.
+Subject    : XFS oopses on my box sometimes
+References : http://bugzilla.kernel.org/show_bug.cgi?id=6180
+Submitter  : Avuton Olrich <avuton@gmail.com>
+Handled-By : Nathan Scott <nathans@sgi.com>
+Status     : discussion in the bug
 
-Could the drive have some functions (NCQ?) enabled by default that the
-controller cant handle? (and we dont turn off when we initialise the
-drive as we have no support yet?)... ok that's reaching...
 
-Any ideas of what I can check or tryout would be great!
+Subject    : snd-intel-hda stopped working on a Dell E1705 Laptop
+References : http://lkml.org/lkml/2006/3/12/16
+Submitter  : Parag Warudkar <kernel-stuff@comcast.net>
+Handled-By : Takashi Iwai <tiwai@suse.de>
+Status     : Takashi Iwai: This looks like a problem of the latest sigmatel
+                           codec code in general. The author of original
+                           code is investigating.
 
-Thanks
 
-Samuel
+Subject    : The init process gets stuck in "D" state during boot.
+References : http://bugzilla.kernel.org/show_bug.cgi?id=6230
+Submitter  : Alex Outhred <aouthred@gmail.com>
+Handled-By : NeilBrown <neilb@suse.de>
+Status     : guilty commit: 04b857f74cec5efc7730e9db47e291310f4708a4
 
-ps Mauro, yep I am quite convinced we are seeing the same thing
-here... I will let you know how it turns out for us
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

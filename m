@@ -1,92 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752549AbWCQGZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWCQG2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752549AbWCQGZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 01:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752548AbWCQGZ3
+	id S932067AbWCQG2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 01:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752548AbWCQG2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 01:25:29 -0500
-Received: from cantor.suse.de ([195.135.220.2]:35459 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1752541AbWCQGZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 01:25:28 -0500
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 17 Mar 2006 17:24:11 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17434.22027.100178.665781@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 005 of 13] md: Allow stripes to be expanded in
- preparation for expanding an array.
-In-Reply-To: message from Andrew Morton on Thursday March 16
-References: <20060317154017.15880.patches@notabene>
-	<1060317044745.16072@suse.de>
-	<20060316215739.2b11cb82.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Fri, 17 Mar 2006 01:28:53 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:29403 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1752546AbWCQG2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 01:28:52 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Fri, 17 Mar 2006 09:17:40 +0800."
+             <3ACA40606221794F80A5670F0AF15F840B37ABA9@pdsmsx403> 
+Date: Fri, 17 Mar 2006 06:28:47 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FK8S7-0003ZD-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday March 16, akpm@osdl.org wrote:
-> NeilBrown <neilb@suse.de> wrote:
-> >
-> > +	/* Got them all.
-> >  +	 * Return the new ones and free the old ones.
-> >  +	 * At this point, we are holding all the stripes so the array
-> >  +	 * is completely stalled, so now is a good time to resize
-> >  +	 * conf->disks.
-> >  +	 */
-> >  +	ndisks = kzalloc(newsize * sizeof(struct disk_info), GFP_NOIO);
-> >  +	if (ndisks) {
-> >  +		for (i=0; i<conf->raid_disks; i++)
-> >  +			ndisks[i] = conf->disks[i];
-> >  +		kfree(conf->disks);
-> >  +		conf->disks = ndisks;
-> >  +	} else
-> >  +		err = -ENOMEM;
-> >  +	while(!list_empty(&newstripes)) {
-> >  +		nsh = list_entry(newstripes.next, struct stripe_head, lru);
-> >  +		list_del_init(&nsh->lru);
-> >  +		for (i=conf->raid_disks; i < newsize; i++)
-> >  +			if (nsh->dev[i].page == NULL) {
-> >  +				struct page *p = alloc_page(GFP_NOIO);
-> >  +				nsh->dev[i].page = p;
-> >  +				if (!p)
-> >  +					err = -ENOMEM;
-> >  +			}
-> >  +		release_stripe(nsh);
-> >  +	}
-> >  +	while(!list_empty(&oldstripes)) {
-> >  +		osh = list_entry(oldstripes.next, struct stripe_head, lru);
-> >  +		list_del(&osh->lru);
-> >  +		kmem_cache_free(conf->slab_cache, osh);
-> >  +	}
-> >  +	kmem_cache_destroy(conf->slab_cache);
-> >  +	conf->slab_cache = sc;
-> >  +	conf->active_name = 1-conf->active_name;
-> >  +	conf->pool_size = newsize;
-> >  +	return err;
-> >  +}
-> 
-> Are you sure the -ENOMEM handling here is solid?  It
-> looks.... strange.
+> Hmm,  we can continue to have fun with debugging. Right?
 
-The philosophy of the -ENOMEM handling is (awkwardly?) embodied in the
-comment
-	 * Finally we add new pages.  This could fail, but we leave
-	 * the stripe cache at it's new size, just with some pages empty.
+Definitely, I haven't given up.
 
-at the top of the function.  The core function here is making some
-data structures bigger.  In each case, having a bigger data structure
-than required is no big deal.  So we try to increase the size of each
-of them (the stripe_head cache, the 'disks' array, and the pages
-allocated to each stripe.
-If any of there fail we return -ENOMEM, but may allow others to
-succeed.
+>> The second sleep.sh hangs going to sleep.  It is in an endless loop
+>> printing the following line, once per second (from the
+>> polling_frequency):
+>>
+>>  Execute Method: [\_TZ_.THM0._TMP] (Node c157bf88)
 
-Does that help?
+I don't think these lines are a problem.  They just reflect that
+thermal polling is happening once per second.  So even though the ACPI
+system is hanging in the SMPI loop (as you say below), it is alive
+enough to poll the temperature sensors.
 
-NeilBrown
+> Also please mute THM0 polling.
+
+I retested the hacked kernel (with faked thermal_active/passive)
+but with no thermal polling, just doing
+
+  cat THM*/polling_frequency (they were all 'polling disabled')
+  sleep.sh  (works)
+  sleep.sh  (hangs in the usual SMPI loop)
+
+and it hangs as usual.
+
+> This should be the different problem from the previous reported hang.
+> I recall it was hanging at a loop in SMPI waiting for BIOS's response.
+> Please confirm, 
+
+I just retested vanilla 2.6.16-rc5 (vanilla kernel, vanilla DSDT),
+with polling_interval=1 (second).  My earlier tests with that kernel
+had polling_interval=100, and the easiest way to reproduce the hang
+was:
+
+  echo 100 > THM0/polling_interval
+  modprobe -r thermal ; modprobe thermal
+  sleep.sh  (this hangs)
+
+With this method, the system would hang on the *first* sleep cycle.
+The other method to produce the hang, with thermal polling muted, was:
+
+  echo 0 > THM0/polling_interval (and the rest of them, to make sure)
+  sleep.sh  (it comes back)
+  sleep.sh  (this one hangs)
+
+I tried the same method but with 1 second instead of 100 seconds:
+
+  echo 1 > THM0/polling_interval
+  sleep.sh  (this one works, maybe because I didn't do the modprobing)
+  sleep.sh  (this hangs)
+
+The second sleep.sh hangs in the usual loop, which produces the
+ex-region etc. loop, but interspersed in that dmesg output
+is the output from the thermal polling.  So I also see 
+
+  Execute Method: [\_TZ_.THM0._TMP] (Node c157bf88)
+
+plus its associated function traces (ec_intr_write or something like
+that -- I saved all the log files).
+
+One other point is that we haven't yet used a piece of information:
+that the system never hangs if I boot with ec_intr=0.  Actually,
+that's why I tried commenting out the \_SB.PCI0.ISA0.EC0.UPDT () line
+in _TMP method, and it did 'solve' the problem (at least, it did with
+AC0 faked -- I haven't tried keeping AC0 but taking out just that
+line).
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

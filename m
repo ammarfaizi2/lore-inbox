@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWCQRRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932748AbWCQRSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWCQRRe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 12:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWCQRRe
+	id S932748AbWCQRSG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 12:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWCQRSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 12:17:34 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:61381 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932748AbWCQRRd (ORCPT
+	Fri, 17 Mar 2006 12:18:05 -0500
+Received: from pproxy.gmail.com ([64.233.166.179]:60870 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932748AbWCQRSC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 12:17:33 -0500
-Subject: Re: Remapping pages mapped to userspace (was: [PATCH 10 of 20]
-	ipath - support for userspace apps using core driver)
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0603171631240.32660@goblin.wat.veritas.com>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
-	 <ada4q27fban.fsf@cisco.com>
-	 <1141948516.10693.55.camel@serpentine.pathscale.com>
-	 <ada1wxbdv7a.fsf@cisco.com>
-	 <1141949262.10693.69.camel@serpentine.pathscale.com>
-	 <20060309163740.0b589ea4.akpm@osdl.org>
-	 <1142470579.6994.78.camel@localhost.localdomain>
-	 <ada3bhjuph2.fsf@cisco.com>
-	 <1142475069.6994.114.camel@localhost.localdomain>
-	 <adaslpjt8rg.fsf@cisco.com>
-	 <1142477579.6994.124.camel@localhost.localdomain>
-	 <20060315192813.71a5d31a.akpm@osdl.org>
-	 <1142485103.25297.13.camel@camp4.serpentine.com>
-	 <20060315213813.747b5967.akpm@osdl.org>
-	 <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
-	 <adad5gmne20.fsf_-_@cisco.com>
-	 <Pine.LNX.4.61.0603171631240.32660@goblin.wat.veritas.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Fri, 17 Mar 2006 09:17:28 -0800
-Message-Id: <1142615848.28538.53.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 12:18:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:x-enigmail-version:openpgp:content-type;
+        b=mPjnkU6Vrtu4UvDJMzEZ7gA23ONS7x4grisXpJIV6YmGpSCzti0KelhwNxFBctfjIMbj9SkkLsS6DAvYB1fOel8EsgDuYEJW8x7j8se2cvZjUGwq/040RbHK6Mm8hjKLJJRA1T1BfyDmpK9q6qHJ/UQph4OH8SNhFRuk0xO2Z5g=
+Message-ID: <441AEF45.6080200@gmail.com>
+Date: Fri, 17 Mar 2006 19:17:57 +0200
+From: Georgi Alexandrov <georgi.alexandrov@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: removing iptable_nat module problem.
+X-Enigmail-Version: 0.93.0.0
+OpenPGP: id=37B4B3EE;
+	url=http://pgp.mit.edu/
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBEE91D9283A260274917A91F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 17:13 +0000, Hugh Dickins wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBEE91D9283A260274917A91F
+Content-Type: text/plain; charset=windows-1251
+Content-Transfer-Encoding: 7bit
 
-> You seem to be asking to "revoke" an mmap:
+Hello,
 
-Yes.  We'd like this ability, too.
+I've tried to modprobe -r iptable_nat on a debian testing system running
+debian's 2.6.15-1-686 kernel. Now modprobe is taking 99% cpu resources
+and can't be killed even with -9. I've tried to kill it's parents (ssh
+---- bash --- modprobe) but that didn't help too.
+I don't want to restart the machine as it is a production one and alot
+of people count on it.
+Exactly the same thing happened when the machine was in the "testlab"
+(pre deployment) and i tried to rmmod ip_conntrack.
 
-> Though it looks like subsequent userspace accesses will then go to
-> do_anonymous_page, giving ZERO_PAGE to read faults or a fresh anon
-> page to write faults: I think I'd prefer it if pte_none accesses in
-> a VM_PFNMAP area gave SIGBUS, but unsure if we can change that now.
+Is that some kind of kernel issue? Can i stop that process someway?
 
-It would be unfortunate if userspace were spinning on a chip register,
-waiting for the register to transition from zero to non-zero, and we
-replaced that mapping with an anonymous page.  In that case, userspace
-could potentially spin forever, having no way to detect the demise of
-the device.
+thanks in advance
 
-	<b
 
+-- 
+regards,
+Georgi Alexandrov
+
+Key Server = http://pgp.mit.edu/ :: KeyID = 37B4B3EE
+Key Fingerprint = E429 BF93 FA67 44E9 B7D4  F89E F990 01C1 37B4 B3EE
+
+
+--------------enigBEE91D9283A260274917A91F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFEGu9F+ZABwTe0s+4RAjJJAJ4qoagDID+Vt377FFXjIaon4IEdigCeNkq1
+mX+x0ImCoyQhI4CYkqBEWd8=
+=K1+/
+-----END PGP SIGNATURE-----
+
+--------------enigBEE91D9283A260274917A91F--

@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWCQQGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWCQQLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWCQQGq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 11:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWCQQGq
+	id S1751006AbWCQQLM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 11:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWCQQLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 11:06:46 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53632 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751217AbWCQQGp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 11:06:45 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Michael Kerrisk <mtk-manpages@gmx.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, janak@us.ibm.com, viro@ftp.linux.org.uk,
-       hch@lst.de, ak@muc.de, paulus@samba.org
-Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before we
- are committed.
-References: <Pine.LNX.4.64.0603161555210.3618@g5.osdl.org>
-	<29085.1142557915@www064.gmx.net>
-	<Pine.LNX.4.64.0603162140190.3618@g5.osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 17 Mar 2006 09:04:41 -0700
-In-Reply-To: <Pine.LNX.4.64.0603162140190.3618@g5.osdl.org> (Linus
- Torvalds's message of "Thu, 16 Mar 2006 21:42:53 -0800 (PST)")
-Message-ID: <m1y7z93vmu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Mar 2006 11:11:12 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:52415 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751006AbWCQQLM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 11:11:12 -0500
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+	driver
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Roland Dreier <rdreier@cisco.com>,
+       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <441A04D0.3060201@yahoo.com.au>
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	 <ada4q27fban.fsf@cisco.com>
+	 <1141948516.10693.55.camel@serpentine.pathscale.com>
+	 <ada1wxbdv7a.fsf@cisco.com>
+	 <1141949262.10693.69.camel@serpentine.pathscale.com>
+	 <20060309163740.0b589ea4.akpm@osdl.org>
+	 <1142470579.6994.78.camel@localhost.localdomain>
+	 <ada3bhjuph2.fsf@cisco.com>
+	 <1142475069.6994.114.camel@localhost.localdomain>
+	 <adaslpjt8rg.fsf@cisco.com>
+	 <1142477579.6994.124.camel@localhost.localdomain>
+	 <20060315192813.71a5d31a.akpm@osdl.org>
+	 <1142485103.25297.13.camel@camp4.serpentine.com>
+	 <20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com>
+	 <4419062C.6000803@yahoo.com.au>
+	 <Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com>
+	 <441A04D0.3060201@yahoo.com.au>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Fri, 17 Mar 2006 08:11:01 -0800
+Message-Id: <1142611861.28538.22.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+On Fri, 2006-03-17 at 11:37 +1100, Nick Piggin wrote:
 
-> On Fri, 17 Mar 2006, Michael Kerrisk wrote:
->> 
->> >  - it's all the same issues that clone() has
->> 
->> At the moment, but possibly not in the future (if one day
->> usnhare() needs a flag that has no analogue in clone()).
->
-> I don't believe that.
->
-> If we have something we might want to unshare, that implies by definition 
-> that it was something we wanted to conditionally share in the first place.
->
-> IOW, it ends up being something that would be a clone() flag.
->
-> So I really do believe that there is a fundamental 1:1 between the flags. 
-> They aren't just "similar". They are very fundamentally about the same 
-> thing, and giving two different names to the same thing is CONFUSING.
+> But it doesn't look like dma_alloc_coherent is guaranteed to return
+> memory allocated from the regular page allocator, nor even memory
+> backed by a struct page.
 
-The scary thing is that with only 7 things we can share or not,
-and a 32bit field we have only 7 bits left that we can define.
-Last count I think I know of at least that many additional global
-namespaces in the kernel.
+Hmm.  Which of the implementations that you've seen will return
+something not backed by a struct page?  On the half dozen arches I've
+looked at (i386/x86_64, powerpc, sparc64, ia64, mips), every one uses
+either kmalloc, __get_free_pages, or __alloc_pages at some point, and I
+think they all have struct pages behind them.
 
+> For example, I see one that returns kmalloc()ed memory. If the pages
+> for the slab are already allocated then __GFP_COMP will not do anything
+> there.
 
+Bleh.  Perhaps I'm being dense here, but if I'm making a request of
+non-zero order and the slab has already been allocated, won't it be
+populated with compound pages anyway?  Or will it have been allocated as
+a single giant compound page, just handing me back individual hunks of
+the appropriate size?
 
-On the confusing side.  Unshare largely because it doesn't default to
-unsharing all of the thread state.  Has the weird issue that unshare
-will automatically add bits you didn't ask for (so it can satisfy your
-request) and unsharing more than you requested.  Clone when presented
-with the same situation returns an error.
+I ask this because I seemed to be getting compound pages out of
+dma_alloc_coherent even when I *wasn't* passing in __GFP_COMP.  This is
+apparently why PG_private was set on the individual pages I was getting
+back.
 
-So even while the resources are the same the interaction of the
-bits really is quite different between the two calls.
+	<b
 
-Eric

@@ -1,62 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWCQGEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752533AbWCQGGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWCQGEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 01:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752531AbWCQGEQ
+	id S1752533AbWCQGGH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 01:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752534AbWCQGGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 01:04:16 -0500
-Received: from mail.gmx.de ([213.165.64.20]:45205 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751407AbWCQGEP (ORCPT
+	Fri, 17 Mar 2006 01:06:07 -0500
+Received: from ns2.suse.de ([195.135.220.15]:2194 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752533AbWCQGGF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 01:04:15 -0500
-X-Authenticated: #14349625
-Subject: Re: can I bring Linux down by running "renice -20
-	cpu_intensive_process"?
-From: Mike Galbraith <efault@gmx.de>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <yw1xbqw69f6j.fsf@agrajag.inprovide.com>
-References: <441180DD.3020206@wpkg.org>
-	 <Pine.LNX.4.61.0603101540310.23690@yvahk01.tjqt.qr>
-	 <yw1xbqwe2c2x.fsf@agrajag.inprovide.com>
-	 <1142135077.25358.47.camel@mindpipe>
-	 <yw1xk6azdgae.fsf@agrajag.inprovide.com> <4419D575.4080203@tmr.com>
-	 <yw1xbqw69f6j.fsf@agrajag.inprovide.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 17 Mar 2006 07:05:50 +0100
-Message-Id: <1142575550.8868.20.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Fri, 17 Mar 2006 01:06:05 -0500
+From: Neil Brown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 17 Mar 2006 17:04:48 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17434.20864.926514.729680@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 005 of 13] md: Allow stripes to be expanded in
+ preparation for expanding an array.
+In-Reply-To: message from Andrew Morton on Thursday March 16
+References: <20060317154017.15880.patches@notabene>
+	<1060317044745.16072@suse.de>
+	<20060316215047.65f411d4.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-03-16 at 22:51 +0000, Måns Rullgård wrote:
-> Bill Davidsen <davidsen@tmr.com> writes:
+On Thursday March 16, akpm@osdl.org wrote:
+> NeilBrown <neilb@suse.de> wrote:
+> >
+> > +static int resize_stripes(raid5_conf_t *conf, int newsize)
+> >  +{
+> >  +	/* make all the stripes able to hold 'newsize' devices.
+> >  +	 * New slots in each stripe get 'page' set to a new page.
+> >  +	 * We allocate all the new stripes first, then if that succeeds,
+> >  +	 * copy everything across.
+> >  +	 * Finally we add new pages.  This could fail, but we leave
+> >  +	 * the stripe cache at it's new size, just with some pages empty.
+> >  +	 *
+> >  +	 * We use GFP_NOIO allocations as IO to the raid5 is blocked
+> >  +	 * at some points in this operation.
+> >  +	 */
+> >  +	struct stripe_head *osh, *nsh;
+> >  +	struct list_head newstripes, oldstripes;
 > 
-> > Måns Rullgård wrote:
-> >> Maybe extending sysrq+n to lower the priority of -20 tasks would be a
-> >> good idea.
-> >>
-> > If it runs before the keyboard thread it doesn't matter...
+> You can use LIST_HEAD() here, avoid the separate INIT_LIST_HEAD().
 > 
-> Of course not, but that's not generally the case.
-> 
-> > But why should this hang anything, when there should be enough i/o
-> > to get out of the user process. There's a good fix for this, don't
-> > give this guy root any more ;-)
-> 
-> Ever heard of bugs?  Anyone developing a program can make a mistake.
-> If the program runs with realtime scheduling a bug that makes it enter
-> an infinite loop (or do something else that hogs the CPU) can be
-> difficult to find since it rather efficiently locks you out.
 
-Given that someone has already determined that installing a safety valve
-for RT tasks was worth while, and given that there is practically no
-difference between a nice -20 and the lowest RT priority, seems to me
-that extending that safety valve to cover reniced tasks is the
-obviously-correct thing to do.  I think you should submit a patch.
+I guess.....
+I have to have the declaration "miles" from where I use the variable.
+Do I have to have the initialisation equally far?  Ok, I'll do that..
 
-	-Mike
+
+> 
+> >  +	struct disk_info *ndisks;
+> >  +	int err = 0;
+> >  +	kmem_cache_t *sc;
+> >  +	int i;
+> >  +
+> >  +	if (newsize <= conf->pool_size)
+> >  +		return 0; /* never bother to shrink */
+> >  +
+> >  +	sc = kmem_cache_create(conf->cache_name[1-conf->active_name],
+> >  +			       sizeof(struct stripe_head)+(newsize-1)*sizeof(struct r5dev),
+> >  +			       0, 0, NULL, NULL);
+> 
+> kmem_cache_create() internally does a GFP_KERNEL allocation.
+> 
+> >  +	if (!sc)
+> >  +		return -ENOMEM;
+> >  +	INIT_LIST_HEAD(&newstripes);
+> >  +	for (i = conf->max_nr_stripes; i; i--) {
+> >  +		nsh = kmem_cache_alloc(sc, GFP_NOIO);
+> 
+> So either this can use GFP_KERNEL, or we have a problem.
+
+Good point....  Maybe the comment about GFP_NOIO just needs to be
+improved. 
+We cannot risk waiting on IO after the 
+	/* OK, we have enough stripes, start collecting inactive
+	 * stripes and copying them over
+	 */
+
+comment, up to the second last while loop, that starts
+	while(!list_empty(&newstripes)) {
+
+Before the comment, which where the kmem_cache_create is, is OK.
+
+Thanks!
+
+NeilBrown
 

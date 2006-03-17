@@ -1,104 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWCQCfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWCQCqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751449AbWCQCfW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 21:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWCQCfW
+	id S1751017AbWCQCqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 21:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWCQCqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 21:35:22 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:13956 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1750828AbWCQCfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 21:35:21 -0500
-Date: Thu, 16 Mar 2006 18:35:20 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: linux-kernel@vger.kernel.org
-Subject: uml build problem 2.6.15.6/2.6.16rc6
-Message-ID: <Pine.LNX.4.62.0603161831480.12573@qynat.qvtvafvgr.pbz>
+	Thu, 16 Mar 2006 21:46:09 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:40620 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751017AbWCQCqI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 21:46:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KHT9yZL/bp02WZS4dGpOWQmUaobSI1wdj9esMzpGOi2CUJupLx9zMYDfrpoE6+751OfbS0xAV5HWg2PsipGcAMS6PDgdVena80E1tFPuXz9WYXZJ2ejFJe7S3RU4RZIMBA2pz8SVu/F6wOtHljgJ2RiqUNQ1nM/JCXYt4VSLNn4=
+Message-ID: <38c09b90603161846n47b5d47fnc6b4d4b9ff2d078b@mail.gmail.com>
+Date: Fri, 17 Mar 2006 10:46:07 +0800
+From: "Lanslott Gish" <lanslott.gish@gmail.com>
+To: "Daniel Ritz" <daniel.ritz-ml@swissonline.ch>
+Subject: Re: [RFC][PATCH] USB touch screen driver, all-in-one
+Cc: "Greg KH" <greg@kroah.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb <linux-usb-devel@lists.sourceforge.net>, tejohnson@yahoo.com,
+       hc@mivu.no, vojtech@suse.cz
+In-Reply-To: <200603152253.24194.daniel.ritz-ml@swissonline.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <38c09b90603100124l1aa8cbc6qaf71718e203f3768@mail.gmail.com>
+	 <20060314103854.GC32065@lug-owl.de>
+	 <38c09b90603142030o7092a39aq8ace7758972ce09a@mail.gmail.com>
+	 <200603152253.24194.daniel.ritz-ml@swissonline.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm attempting to build a UML kernel on both versions (same starting 
-config before make ARCH-um oldconfig) and I get the following error on 
-2.6.16rc6 (similar errors on 2.6.15.6)
+On 3/16/06, Daniel Ritz <daniel.ritz-ml@swissonline.ch> wrote:
+> On Wednesday 15 March 2006 05.30, Lanslott Gish wrote:
+> > did you mean like that? thx.
+> >
+> > regards,
+> >
+> > Lanslott Gish
+> > ===================================================================
+> > --- linux-2.6.16-rc6.patched/drivers/usb/input/usbtouchscreen.c
+> > +++ linux-2.6.16-rc6/drivers/usb/input/usbtouchscreen.c
+> > @@ -49,6 +49,13 @@
+> >  static int swap_xy;
+> >  module_param(swap_xy, bool, 0644);
+> >  MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
+> > +static int swap_x;
+> > +module_param(swap_x, bool, 0644);
+> > +MODULE_PARM_DESC(swap_x, "If set X axe is swapped before XY swapped.");
+> > +static int swap_y;
+> > +module_param(swap_y, bool, 0644);
+> > +MODULE_PARM_DESC(swap_y, "If set Y axe is swapped before XY swapped.");
+> > +
+> >
+> (i prefer invert_x and invert_y...)
+>
+"invert" is great, thx.
+evtouch(X11 driver) called these swap_x and swap_y
 
-this is on a dual Opteron system with a debian 3.1 64bit build
+> >
+> >  /* device specifc data/functions */
+> > @@ -224,13 +231,17 @@
+> >   * PanJit Part
+> >   */
+> >  #ifdef CONFIG_USB_TOUCHSCREEN_PANJIT
+> > +
+> >  static int panjit_read_data(char *pkt, int *x, int *y, int *touch, int *press)
+> >  {
+> > -       *x = pkt[1] | (pkt[2] << 8);
+> > -       *y = pkt[3] | (pkt[4] << 8);
+> > +       *x = (pkt[1] & 0x0F) | ((pkt[2]& 0xFF) << 8);
+> > +       *y = (pkt[3] & 0x0F) | ((pkt[4]& 0xFF) << 8);
+>
+> that just can't be right. you probably mean
+> +       *y = pkt[3] | ((pkt[4] & 0x0F) << 8);
+>
+> otherwise you mask out bits 4-7. but you want to limit it to 12 bits...
+> (btw. no need for the & 0xFF mask since *pkt is char)
+>
 
-# make ARCH=um -j8
-   SYMLINK arch/um/include/kern_constants.h
-   SYMLINK arch/um/include/sysdep
-   CHK     include/linux/version.h
-scripts/kconfig/conf -s arch/um/Kconfig
-#
-# using defaults found in .config
-#
-.config:11:warning: trying to assign nonexistent symbol HZ
-   CHK     arch/um/include/uml-config.h
-   UPD     arch/um/include/uml-config.h
-   SPLIT   include/linux/autoconf.h -> include/config/*
-   CC      arch/um/kernel/asm-offsets.s
-In file included from include/asm/timex.h:14,
-                  from include/linux/timex.h:61,
-                  from include/linux/sched.h:11,
-                  from arch/um/include/sysdep/kernel-offsets.h:3,
-                  from arch/um/kernel/asm-offsets.c:1:
-include/asm/processor.h:70: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared 
-here (not in a function)
-include/asm/processor.h:70: error: requested alignment is not a constant
-include/asm/processor.h:225: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared 
-here (not in a function)
-include/asm/processor.h:225: error: requested alignment is not a constant
-In file included from include/linux/sched.h:12,
-                  from arch/um/include/sysdep/kernel-offsets.h:3,
-                  from arch/um/kernel/asm-offsets.c:1:
-include/linux/jiffies.h:18:5: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:20:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:22:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:24:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:26:7: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:28:7: warning: "CONFIG_HZ" is not defined
+you are right, sorry for my fault. the truely way is
 
-many for errors follow in jiffies.h related to CONFIG_HZ
++       *x = (pkt[1] & 0xFF) | ((pkt[2] & 0x0F) << 8);
++       *y = (pkt[3] & 0xFF) | ((pkt[4] & 0x0F) << 8);
 
-include/linux/jiffies.h:410:6: warning: "CONFIG_HZ" is not defined
-include/linux/jiffies.h:410:6: division by zero in #if
-include/linux/jiffies.h: In function `jiffies_64_to_clock_t':
-include/linux/jiffies.h:411: error: `CONFIG_HZ' undeclared (first use in 
-this function)
-In file included from include/linux/list.h:7,
-                  from include/linux/wait.h:23,
-                  from include/asm/semaphore.h:42,
-                  from include/linux/sched.h:20,
-                  from arch/um/include/sysdep/kernel-offsets.h:3,
-                  from arch/um/kernel/asm-offsets.c:1:
-include/linux/prefetch.h: In function `prefetch_range':
-include/linux/prefetch.h:64: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared 
-(first use in this function)
-In file included from include/linux/slab.h:97,
-                  from include/linux/percpu.h:4,
-                  from include/linux/sched.h:34,
-                  from arch/um/include/sysdep/kernel-offsets.h:3,
-                  from arch/um/kernel/asm-offsets.c:1:
-include/linux/kmalloc_sizes.h:5:5: warning: "CONFIG_X86_L1_CACHE_SHIFT" is 
-not defined
-include/linux/kmalloc_sizes.h:9:5: warning: "CONFIG_X86_L1_CACHE_SHIFT" is 
-not defined
-In file included from arch/um/kernel/asm-offsets.c:1:
-arch/um/include/sysdep/kernel-offsets.h: In function `foo':
-arch/um/include/sysdep/kernel-offsets.h:22: error: structure has no member 
-named `mode'
-In file included from arch/um/include/sysdep/kernel-offsets.h:24,
-                  from arch/um/kernel/asm-offsets.c:1:
-arch/um/include/common-offsets.h:3: error: structure has no member named 
-`regs'
-make[1]: *** [arch/um/kernel/asm-offsets.s] Error 1
-make: *** [prepare0] Error 2
+still need 12 bits( 0x0FFF) and the masks to avoid get negative.
 
 
+BTW, may i also suggest add more module_param to max_x, max_y, min_x, min_y  ?
+i think these options is useful, too.
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+regards,
 
+Lanslott Gish
+--
+L.G, Life's Good~

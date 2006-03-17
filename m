@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752583AbWCQK3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752582AbWCQKiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752583AbWCQK3N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 05:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752584AbWCQK3N
+	id S1752582AbWCQKiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 05:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752584AbWCQKiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 05:29:13 -0500
-Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:60907 "EHLO
-	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1752583AbWCQK3M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 05:29:12 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: "Pradeep Vincent" <pradeep.vincent@gmail.com>
-Subject: Re: Priority in Memory management
-Date: Fri, 17 Mar 2006 21:29:01 +1100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <9fda5f510603170037v41d273c5naf36776e6f03246e@mail.gmail.com>
-In-Reply-To: <9fda5f510603170037v41d273c5naf36776e6f03246e@mail.gmail.com>
+	Fri, 17 Mar 2006 05:38:51 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:51723 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1752582AbWCQKiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 05:38:50 -0500
+Message-ID: <441A91A5.3020607@shadowen.org>
+Date: Fri, 17 Mar 2006 10:38:29 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, gregkh@suse.de
+Subject: Re: [PATCH] i386: run BIOS PCI detection before direct
+References: <20060317000303.13252107@localhost.localdomain>
+In-Reply-To: <20060317000303.13252107@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603172129.01490.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 March 2006 19:37, Pradeep Vincent wrote:
-> I tried searching for discussions related to this but in vain A
-> significant number of servers running Linux come under the category of
-> "Caching Servers". These servers usually try to server data either
-> from RAM or disk sub-systems and for obvious reasons want to serve as
-> much data as possible from RAM. Even if the dataset is comparable to
-> RAM size, other bon-performance critical activities on the system
-> (such as logging, log rotation/compression, remote performance
-> monitors, application code updates, security related searches )
-> disturb the cache hit ratio.
->
-> Mlocking the dataset is one option. Using fadvise/O_STREAM for
-> everything else is another option - but this doesn't address all the
-> cases.
->
-> Instead of locking out all memory, being able to set priorities for
-> virtual memory regions comes across as a better idea. This way if the
-> system really really needs memory, kernel can reclaim the cache pages
-> but not just because somebody is writing something and it might seem
-> fair to reclaim the dataset cache.
->
->
-> Has this come up in the past. Any history at all - I am all ears for
-> ideas and concerns.
+Dave Hansen wrote:
+> from 2.6.16-rc3-mm1 through at least 2.6.16-rc6-mm1 a patch from
+> Andi Kleen, titled
+> 
+>         x86_64-i386-pci-ordering.patch
+> 
+> which is now called:
+> 
+> 	gregkh-pci-pci-give-pci-config-access-initialization-a-defined-ordering.patch
+> 
+> has caused a 4-way PIII Xeon (non-NUMA) to stop detecting its SCSI
+> card.  I believe this is also the issue keeping -mm from booting
+> on "elm3b67" from http://test.kernel.org/. 
+> 
+> The following patch reverts the ordering of the PCI detection code
+> to always run the BIOS initialization, first.  As far as I can
+> tell, this was the original behavior, and it makes my machine boot
+> again.
+> 
+> Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 
-True priority support in the form of a "vm scheduler" is something I've 
-mentioned many times in the past. The overhead would not be insignificant. 
-Nonetheless I do have some weak priority support for page reclaiming in my 
--ck tree because doing so was not overly expensive. As far as I'm aware noone 
-is currently working on a comprehensive vm scheduler.
+Ran this through the nightly regression suite on the affected machine
+and it boots fine with this patch applied.
 
-Cheers,
-Con
+-apw

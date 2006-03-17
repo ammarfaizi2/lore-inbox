@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750881AbWCQPyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWCQPxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750881AbWCQPyX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 10:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWCQPyX
+	id S1750995AbWCQPxm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWCQPxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 10:54:23 -0500
-Received: from smtp18.wanadoo.fr ([193.252.22.126]:45829 "EHLO
-	smtp18.wanadoo.fr") by vger.kernel.org with ESMTP id S1751004AbWCQPyW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 10:54:22 -0500
-X-ME-UUID: 20060317155418179.2BBB2700009B@mwinf1808.wanadoo.fr
-Subject: Re: [ANN] Squashfs 3.0 released
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Phillip Lougher <phillip@lougher.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk>
-References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk>
+	Fri, 17 Mar 2006 10:53:42 -0500
+Received: from pat.uio.no ([129.240.130.16]:58363 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750815AbWCQPxl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 10:53:41 -0500
+Subject: Re: nfs udp 1000/100baseT issue
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Bret Towe <magnade@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060317031834.43d3c1e6.akpm@osdl.org>
+References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
+	 <20060317031834.43d3c1e6.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1142610853.22772.282.camel@capoeira>
+Date: Fri, 17 Mar 2006 10:53:25 -0500
+Message-Id: <1142610805.4250.7.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 17 Mar 2006 16:54:13 +0100
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.064, required 12,
+	autolearn=disabled, AWL 1.75, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 01:45, Phillip Lougher wrote:
-> Hi,
+On Fri, 2006-03-17 at 03:18 -0800, Andrew Morton wrote:
+> "Bret Towe" <magnade@gmail.com> wrote:
+> >
+> > ive seen this on kernels as far back as 2.6.13 on my own machines
+> >  (was around that time when i accutally got gigabit at home)
+> >  and recently noticed on some thin clients i maintain that 2.4 kernels
+> >  on the client side are also affected so perhaps its server side issue?
+> >  as all servers ive seen this on are 2.6 i havent used 2.4 kernels in ages
+> >  on my own machines so i havent looked into if 2.4 has that issue server side
+> >  or not
 > 
-> Squashfs 3.0 has finally been released.  Squashfs 3.0 is a major  
-> improvement to Squashfs, and it addresses most of the issues that  
-> that have been raised, particularly the 4GB filesystem and file  
-> limit.  It can be obtained from the usual address http:// 
-> squashfs.sourceforge.net.  There is still some work to be done, in  
-> particular NFS support which I'll add as soon as I get time.  After  
-> this I'll consider resubmitting patches to the LKML.
-> 
->  From the changelog, the improvements are as follows:
-> 
->          1. Filesystems are no longer limited to 4 GB.  In
->             theory 2^64 or 4 exabytes is now supported.
+> It would be interesting if you could do so.  I do recall that
+> nfs-over-crappy-udp was much better behaved in 2.4...
 
-Isn't 2^64 16 exabytes ?
+The 2.6 servers allow clients to use 32k block sizes for READ and WRITE
+requests, and set that as the preferred size for both TCP and UDP. In
+2.4, they only supported 8k blocks.
 
-	Xav
-
+Cheers,
+  Trond
 

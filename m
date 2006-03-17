@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWCQHvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWCQHzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbWCQHvE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 02:51:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWCQHvE
+	id S964914AbWCQHzv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 02:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWCQHzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 02:51:04 -0500
-Received: from mga01.intel.com ([192.55.52.88]:28245 "EHLO
-	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964872AbWCQHvC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 02:51:02 -0500
-X-IronPort-AV: i="4.03,103,1141632000"; 
-   d="scan'208"; a="13990740:sNHT14655956"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Date: Fri, 17 Mar 2006 15:50:35 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC265@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
-Thread-Index: AcZJlR49nP18laXUT8CfO+ELmgEYLgAADSuQ
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
-Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
-       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
-       <michael@mihu.de>, <mchehab@infradead.org>,
-       "Brian Marete" <bgmarete@gmail.com>,
-       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
-       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
-       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
-       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
-X-OriginalArrivalTime: 17 Mar 2006 07:50:35.0877 (UTC) FILETIME=[79C96950:01C64997]
+	Fri, 17 Mar 2006 02:55:50 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:46988 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S964914AbWCQHzu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 02:55:50 -0500
+Date: Fri, 17 Mar 2006 08:56:11 +0100
+From: DervishD <lkml@dervishd.net>
+To: Mariusz Mazur <mmazur@kernel.pl>
+Cc: llh-announce@lists.pld-linux.org, VMiklos <vmiklos@frugalware.org>,
+       Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers dead
+Message-ID: <20060317075611.GG25859@DervishD>
+Mail-Followup-To: Mariusz Mazur <mmazur@kernel.pl>,
+	llh-announce@lists.pld-linux.org, VMiklos <vmiklos@frugalware.org>,
+	Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
+References: <200603141619.36609.mmazur@kernel.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200603141619.36609.mmazur@kernel.pl>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> How about re-testing dummy _PSV and dummy _AC0 in DSDT?
->
->Just retested and you were right.  This time I managed to get it to
->hang, after many cycles of sleep.sh and "modprobe -r thermal ;
->modprobe thermal" mixed in.
->
+    Hi Mariusz :)
 
-Hmmm, may I think this is a problem of:
-_TMP ,
+ * Mariusz Mazur <mmazur@kernel.pl> dixit:
+> I stopped having both the time and the will for such commitments a
+> couple of months ago.
 
-It is neither _TMP && (_PSV || _AC0),
-nor  _TMP || _PSV || _AC0.
+    I understand. And it's a pity, because LLH is very useful, and
+you did a GREAT job with it.
+ 
+> Oh, and women don't fall for the "I hack kernel stuff" line. I was lied to.
 
-So, please try hack thermal.c by removing calls to _TMP.
-And do stress test with Vanilla Kernel, Vanilla Dsdt , just
-with hacked thermal.c
+    Yes... XDDD
 
-Anyway, the clean way to fix your problem might be:
+    Well, I can volunteer to test LLH and contribute a bit, fixing
+things I can fix, but IMHO this kind of work should be done by the
+kernel itself: it should provide both user-space and kernel-space
+headers (yes, I know, "don't-include-kernel-headers-in-userspace".
+Tell that to iproute2, iptables, etc...).
 
- suspend thermal driver with disabling AML methods invoke
-that might cause/ trigger BIOS issues.
+    Thanks a lot for your work, your effort and your interest in this
+problem. You have done a lot for the linux community (at least,
+you've done a lot for me).
 
-Thanks,
-Luming
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to... RAmen!

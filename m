@@ -1,82 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWCQCQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWCQCWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWCQCQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 21:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751454AbWCQCQ3
+	id S1750826AbWCQCWS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 21:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWCQCWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 21:16:29 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:1674 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1751449AbWCQCQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 21:16:28 -0500
-X-IronPort-AV: i="4.03,103,1141632000"; 
-   d="scan'208"; a="1785725739:sNHT34682296"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Remapping pages mapped to userspace
-X-Message-Flag: Warning: May contain useful information
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
-	<ada4q27fban.fsf@cisco.com>
-	<1141948516.10693.55.camel@serpentine.pathscale.com>
-	<ada1wxbdv7a.fsf@cisco.com>
-	<1141949262.10693.69.camel@serpentine.pathscale.com>
-	<20060309163740.0b589ea4.akpm@osdl.org>
-	<1142470579.6994.78.camel@localhost.localdomain>
-	<ada3bhjuph2.fsf@cisco.com>
-	<1142475069.6994.114.camel@localhost.localdomain>
-	<adaslpjt8rg.fsf@cisco.com>
-	<1142477579.6994.124.camel@localhost.localdomain>
-	<20060315192813.71a5d31a.akpm@osdl.org>
-	<1142485103.25297.13.camel@camp4.serpentine.com>
-	<20060315213813.747b5967.akpm@osdl.org>
-	<Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
-	<adad5gmne20.fsf_-_@cisco.com>
-	<1142553361.15045.19.camel@serpentine.pathscale.com>
-	<adapsklnaby.fsf@cisco.com>
-	<1142558909.23236.11.camel@localhost.localdomain>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 16 Mar 2006 18:16:26 -0800
-In-Reply-To: <1142558909.23236.11.camel@localhost.localdomain> (Alan Cox's message of "Fri, 17 Mar 2006 01:28:28 +0000")
-Message-ID: <adalkv9n7d1.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 16 Mar 2006 21:22:18 -0500
+Received: from ns2.suse.de ([195.135.220.15]:40576 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750826AbWCQCWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 21:22:18 -0500
+From: Neil Brown <neilb@suse.de>
+To: "Bret Towe" <magnade@gmail.com>
+Date: Fri, 17 Mar 2006 13:20:58 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 17 Mar 2006 02:16:27.0513 (UTC) FILETIME=[CC07D690:01C64968]
+Content-Transfer-Encoding: 7bit
+Message-ID: <17434.7434.626268.71114@cse.unsw.edu.au>
+Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: nfs udp 1000/100baseT issue
+In-Reply-To: message from Bret Towe on Thursday March 16
+References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
+	<Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>
+	<dda83e780603161733o10a3c330kddf96a726f162fa7@mail.gmail.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > Oh yeah... but getting rid of the mapping so userspace gets a segfault
- > > might be a good idea too.  However, leaving the old PCI mapping there
- > > seems rather risky to me: I think it's entirely possible that accesses
- > > to that area after the device is gone could trigger machine checks or
- > > worse.
- > 
- > Not really. After all the hot remove can race an actual mmio cycle so
- > you can't close that window to nothing. In other words if it does make
- > the PCI bridge burp at you - well hotplug has to handle it.
- > 
- > That means on the positive side that all you need to do is refcount
- > properly and destroy the PCI device when you have finished with it. If a
- > mapping continues to exist then fine, because the device is still
- > logically there. If the device is logically there then the resources
- > have not been unmapped. If the resources have not been unmapped they are
- > not free for allocation to another device.
+On Thursday March 16, magnade@gmail.com wrote:
+> On 3/16/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> > >
+> > >a while ago i noticed a issue when one has a nfs server that has
+> > >gigabit connection
+> > >to a network and a client that connects to that network instead via 100baseT
+> > >that udp connection from client to server fails the client gets a
+> > >server not responding
+> > >message when trying to access a file, interesting bit is you can get a directory
+> > >listing without issue
+> > >work around i found for this is adding proto=tcp to the client side
+> > >and all works
+> > >without error
+> >
+> > UDP has its implications, like silently dropping packets when the link
+> > is full, by design. Try tcpdump on both systems and compare what packets
+> > are sent and which do arrive. The error message is then probably because
+> > the client is confused of not receiving some packets.
+> 
+> after compairing a working and not working client i found that
+> packets containing offset 19240, 20720, 22200 are missing
+> and the 100baseT client had an extra offset of 32560
+> on the working client it ends at 31080
+> 
+> the missing ones are mostly constantly missing 22200 appears every so often
+> on retransmission and 23680 also disappears every so often
+> 
+> i hope that isnt too confusing i dont use tcpdump type stuff much
+> (well i did give up on tcpdump and had to use ethereal...)
 
-I'm not sure I'm following you.  Is it OK for a driver to return from
-its pci_driver .remove method with userspace mappings to MMIO BARs
-still hanging around?  I wouldn't think so.
+This is all to be expected.  I remember having this issue with a
+server on 100M and clients in 10M...
 
-Non-privileged userspace processes can get direct access to (a safe
-subset of) PCI space for IB devices, and it seems unfriendly to force
-all of those processes to be killed before an IB device can be removed.
+There is no flow control in UDP.  If anything gets lots, the client
+has to resend the request, and the server then has to respond again.
+If the respond is large (e.g. a read) and gets fragmented (if > 1500bytes)
+then there is a good chance that one or more fragments of a reply will
+get lots in the switch stepping down from 1G to 100M.  Every time.
 
-The way I think about it is that one doesn't have to kill every
-process with a connected socket to remove an ethernet device, and I'd
-like the same to hold for IB devices.  The analogy doesn't really hold
-at a technical level I know, but it still seems like the friendliest
-interface.
+Your options include:
 
-Thanks,
-  Roland
+  - use tcp
+  - get a switch with a (much) bigger packet buffer
+  - drop the server down to 100M
+  - drop the nfs rsize down to 1024 to you don't get fragments.
+
+NeilBrown

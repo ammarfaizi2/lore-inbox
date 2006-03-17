@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWCQIWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752579AbWCQIVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbWCQIWW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbWCQIWT
+	id S1752579AbWCQIVu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 03:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752577AbWCQIVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 03:22:19 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:58831 "EHLO
+	Fri, 17 Mar 2006 03:21:43 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:20687 "EHLO
 	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1752575AbWCQIWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 03:22:09 -0500
-Date: Fri, 17 Mar 2006 17:20:53 +0900
+	id S1752571AbWCQIVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 03:21:40 -0500
+Date: Fri, 17 Mar 2006 17:21:04 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH: 003/017]Memory hotplug for new nodes v.4.(get node id at probe memory)
+Subject: [PATCH: 004/017]Memory hotplug for new nodes v.4.(generic alloc pgdat)
 Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.063
-Message-Id: <20060317162835.C63D.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20060317162912.C63F.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -25,76 +25,104 @@ X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When CONFIG_NUMA && CONFIG_ARCH_MEMORY_PROBE, nid should be defined
-before calling add_memory(nid, start, size).
+For node hotplug, basically we have to allocate new pgdat.
+But, there are several types of implementations of pgdat.
 
-Each arch , which supports CONFIG_NUMA && ARCH_MEMORY_PROBE, should
-define arch_nid_probe(paddr);
+1. Allocate only pgdat.
+   This style allocate only pgdat area.
+   And its address is recorded in node_data[].
+   It is most popular style.
 
-Powerpc has nice function. X86_64 has not.....
+2. Static array of pgdat
+   In this case, all of pgdats are static array.
+   Some archs use this style.
 
-Note:
-If memory is hot-plugged by firmware, there is another *good* information
-like pxm.
+3. Allocate not only pgdat, but also per node data.
+   To increase performance, each node has copy of some data as
+   a per node data. So, this area must be allocated too.
 
+   Ia64 is this style. Ia64 has the copies of node_data[] array
+   on each per node data to increase performance.
+
+In this series of patches, treat (1) as generic arch.
+
+generic archs can use generic function. (2) and (3) should have
+its own if necessary. 
+
+This patch defines pgdat allocator.
+Updating NODE_DATA() macro function is in other patch.
+
+( I'll post another patch for (3).
+  I don't know (2) which can use memory hotplug.
+  So, there is not patch for (2). )
+
+Signed-off-by: Yasonori Goto     <y-goto@jp.fujitsu.com>
 Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
- arch/powerpc/mm/mem.c          |    5 +++++
- drivers/base/memory.c          |    3 ++-
- include/linux/memory_hotplug.h |    9 +++++++++
- 3 files changed, 16 insertions(+), 1 deletion(-)
+ include/linux/memory_hotplug.h |   50 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+)
 
-Index: pgdat8/arch/powerpc/mm/mem.c
-===================================================================
---- pgdat8.orig/arch/powerpc/mm/mem.c	2006-03-17 13:48:31.665710185 +0900
-+++ pgdat8/arch/powerpc/mm/mem.c	2006-03-17 13:52:47.538753925 +0900
-@@ -114,6 +114,11 @@ void online_page(struct page *page)
- 	num_physpages++;
- }
- 
-+int arch_nid_probe(u64 start)
-+{
-+	return hot_add_scn_to_nid(start);
-+}
-+
- int __meminit arch_add_memory(int nid, u64 start, u64 size)
- {
- 	struct pglist_data *pgdata;
 Index: pgdat8/include/linux/memory_hotplug.h
 ===================================================================
---- pgdat8.orig/include/linux/memory_hotplug.h	2006-03-17 13:48:31.626647685 +0900
-+++ pgdat8/include/linux/memory_hotplug.h	2006-03-17 13:51:28.325864271 +0900
-@@ -66,6 +66,15 @@ extern int online_pages(unsigned long, u
- /* reasonably generic interface to expand the physical pages in a zone  */
- extern int __add_pages(struct zone *zone, unsigned long start_pfn,
- 	unsigned long nr_pages);
-+#if defined(CONFIG_NUMA) && defined(CONFIG_ARCH_MEMORY_PROBE)
-+extern int arch_nid_probe(u64 start);
-+#else
-+static inline int arch_nid_probe(u64 start)
+--- pgdat8.orig/include/linux/memory_hotplug.h	2006-03-17 11:12:41.933104080 +0900
++++ pgdat8/include/linux/memory_hotplug.h	2006-03-17 12:05:14.554754256 +0900
+@@ -75,6 +75,56 @@ static inline int arch_nid_probe(u64 sta
+ }
+ #endif
+ 
++#ifdef CONFIG_HAVE_ARCH_NODEDATA_EXTENSION
++/*
++ * For supporint node-hotadd, we have to allocate new pgdat.
++ *
++ * If an arch have generic style NODE_DATA(),
++ * node_data[nid] = kzalloc() works well . But it depends on each arch.
++ *
++ * In general, generic_alloc_nodedata() is used.
++ * Now, arch_free_nodedata() is just defined for error path of node_hot_add.
++ *
++ */
++extern pg_data_t * arch_alloc_nodedata(int nid);
++extern void arch_free_nodedata(pg_data_t *pgdat);
++
++#else /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
++
++#define arch_alloc_nodedata(nid)	generic_alloc_nodedata(nid)
++#define arch_free_nodedata(pgdat)	generic_free_nodedata(pgdat)
++
++#ifdef CONFIG_NUMA
++/*
++ * If ARCH_HAS_NODEDATA_EXTENSION=n, this func is used to allocate pgdat.
++ * XXX: kmalloc_node() can't work well to get new node's memory at this time.
++ *	Because, pgdat for the new node is not allocated/initialized yet itself.
++ *	To use new node's memory, more consideration will be necessary.
++ */
++#define generic_alloc_nodedata(nid)				\
++({								\
++	(pg_data_t *)kzalloc(sizeof(pg_data_t), GFP_KERNEL);	\
++})
++/*
++ * This definition is just for error path in node hotadd.
++ * For node hotremove, we have to replace this.
++ */
++#define generic_free_nodedata(pgdat)	kfree(pgdat)
++
++#else /* !CONFIG_NUMA */
++
++/* never called */
++static inline pg_data_t *generic_alloc_nodedata(int nid)
 +{
-+	return 0;
++	BUG();
++	return NULL;
 +}
-+#endif
++static inline void generic_free_nodedata(pg_data_t *pgdat)
++{
++}
++#endif /* CONFIG_NUMA */
++#endif /* CONFIG_HAVE_ARCH_NODEDATA_EXTENSION */
 +
  #else /* ! CONFIG_MEMORY_HOTPLUG */
  /*
   * Stub functions for when hotplug is off
-Index: pgdat8/drivers/base/memory.c
-===================================================================
---- pgdat8.orig/drivers/base/memory.c	2006-03-17 13:47:31.558289046 +0900
-+++ pgdat8/drivers/base/memory.c	2006-03-17 13:51:28.326840833 +0900
-@@ -310,7 +310,8 @@ memory_probe_store(struct class *class, 
- 
- 	phys_addr = simple_strtoull(buf, NULL, 0);
- 
--	ret = add_memory(phys_addr, PAGES_PER_SECTION << PAGE_SHIFT);
-+	ret = add_memory(arch_nid_probe(phys_addr),
-+			 phys_addr, PAGES_PER_SECTION << PAGE_SHIFT);
- 
- 	if (ret)
- 		count = ret;
 
 -- 
 Yasunori Goto 

@@ -1,79 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWCQCWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751449AbWCQCfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWCQCWS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 21:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWCQCWS
+	id S1751449AbWCQCfW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 21:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWCQCfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 21:22:18 -0500
-Received: from ns2.suse.de ([195.135.220.15]:40576 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750826AbWCQCWS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 21:22:18 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Bret Towe" <magnade@gmail.com>
-Date: Fri, 17 Mar 2006 13:20:58 +1100
+	Thu, 16 Mar 2006 21:35:22 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:13956 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1750828AbWCQCfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 21:35:21 -0500
+Date: Thu, 16 Mar 2006 18:35:20 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: linux-kernel@vger.kernel.org
+Subject: uml build problem 2.6.15.6/2.6.16rc6
+Message-ID: <Pine.LNX.4.62.0603161831480.12573@qynat.qvtvafvgr.pbz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17434.7434.626268.71114@cse.unsw.edu.au>
-Cc: "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs udp 1000/100baseT issue
-In-Reply-To: message from Bret Towe on Thursday March 16
-References: <dda83e780603151424u1b3ea605vd6e8dea896fc276e@mail.gmail.com>
-	<Pine.LNX.4.61.0603162139450.11776@yvahk01.tjqt.qr>
-	<dda83e780603161733o10a3c330kddf96a726f162fa7@mail.gmail.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday March 16, magnade@gmail.com wrote:
-> On 3/16/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> > >
-> > >a while ago i noticed a issue when one has a nfs server that has
-> > >gigabit connection
-> > >to a network and a client that connects to that network instead via 100baseT
-> > >that udp connection from client to server fails the client gets a
-> > >server not responding
-> > >message when trying to access a file, interesting bit is you can get a directory
-> > >listing without issue
-> > >work around i found for this is adding proto=tcp to the client side
-> > >and all works
-> > >without error
-> >
-> > UDP has its implications, like silently dropping packets when the link
-> > is full, by design. Try tcpdump on both systems and compare what packets
-> > are sent and which do arrive. The error message is then probably because
-> > the client is confused of not receiving some packets.
-> 
-> after compairing a working and not working client i found that
-> packets containing offset 19240, 20720, 22200 are missing
-> and the 100baseT client had an extra offset of 32560
-> on the working client it ends at 31080
-> 
-> the missing ones are mostly constantly missing 22200 appears every so often
-> on retransmission and 23680 also disappears every so often
-> 
-> i hope that isnt too confusing i dont use tcpdump type stuff much
-> (well i did give up on tcpdump and had to use ethereal...)
+I'm attempting to build a UML kernel on both versions (same starting 
+config before make ARCH-um oldconfig) and I get the following error on 
+2.6.16rc6 (similar errors on 2.6.15.6)
 
-This is all to be expected.  I remember having this issue with a
-server on 100M and clients in 10M...
+this is on a dual Opteron system with a debian 3.1 64bit build
 
-There is no flow control in UDP.  If anything gets lots, the client
-has to resend the request, and the server then has to respond again.
-If the respond is large (e.g. a read) and gets fragmented (if > 1500bytes)
-then there is a good chance that one or more fragments of a reply will
-get lots in the switch stepping down from 1G to 100M.  Every time.
+# make ARCH=um -j8
+   SYMLINK arch/um/include/kern_constants.h
+   SYMLINK arch/um/include/sysdep
+   CHK     include/linux/version.h
+scripts/kconfig/conf -s arch/um/Kconfig
+#
+# using defaults found in .config
+#
+.config:11:warning: trying to assign nonexistent symbol HZ
+   CHK     arch/um/include/uml-config.h
+   UPD     arch/um/include/uml-config.h
+   SPLIT   include/linux/autoconf.h -> include/config/*
+   CC      arch/um/kernel/asm-offsets.s
+In file included from include/asm/timex.h:14,
+                  from include/linux/timex.h:61,
+                  from include/linux/sched.h:11,
+                  from arch/um/include/sysdep/kernel-offsets.h:3,
+                  from arch/um/kernel/asm-offsets.c:1:
+include/asm/processor.h:70: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared 
+here (not in a function)
+include/asm/processor.h:70: error: requested alignment is not a constant
+include/asm/processor.h:225: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared 
+here (not in a function)
+include/asm/processor.h:225: error: requested alignment is not a constant
+In file included from include/linux/sched.h:12,
+                  from arch/um/include/sysdep/kernel-offsets.h:3,
+                  from arch/um/kernel/asm-offsets.c:1:
+include/linux/jiffies.h:18:5: warning: "CONFIG_HZ" is not defined
+include/linux/jiffies.h:20:7: warning: "CONFIG_HZ" is not defined
+include/linux/jiffies.h:22:7: warning: "CONFIG_HZ" is not defined
+include/linux/jiffies.h:24:7: warning: "CONFIG_HZ" is not defined
+include/linux/jiffies.h:26:7: warning: "CONFIG_HZ" is not defined
+include/linux/jiffies.h:28:7: warning: "CONFIG_HZ" is not defined
 
-Your options include:
+many for errors follow in jiffies.h related to CONFIG_HZ
 
-  - use tcp
-  - get a switch with a (much) bigger packet buffer
-  - drop the server down to 100M
-  - drop the nfs rsize down to 1024 to you don't get fragments.
+include/linux/jiffies.h:410:6: warning: "CONFIG_HZ" is not defined
+include/linux/jiffies.h:410:6: division by zero in #if
+include/linux/jiffies.h: In function `jiffies_64_to_clock_t':
+include/linux/jiffies.h:411: error: `CONFIG_HZ' undeclared (first use in 
+this function)
+In file included from include/linux/list.h:7,
+                  from include/linux/wait.h:23,
+                  from include/asm/semaphore.h:42,
+                  from include/linux/sched.h:20,
+                  from arch/um/include/sysdep/kernel-offsets.h:3,
+                  from arch/um/kernel/asm-offsets.c:1:
+include/linux/prefetch.h: In function `prefetch_range':
+include/linux/prefetch.h:64: error: `CONFIG_X86_L1_CACHE_SHIFT' undeclared 
+(first use in this function)
+In file included from include/linux/slab.h:97,
+                  from include/linux/percpu.h:4,
+                  from include/linux/sched.h:34,
+                  from arch/um/include/sysdep/kernel-offsets.h:3,
+                  from arch/um/kernel/asm-offsets.c:1:
+include/linux/kmalloc_sizes.h:5:5: warning: "CONFIG_X86_L1_CACHE_SHIFT" is 
+not defined
+include/linux/kmalloc_sizes.h:9:5: warning: "CONFIG_X86_L1_CACHE_SHIFT" is 
+not defined
+In file included from arch/um/kernel/asm-offsets.c:1:
+arch/um/include/sysdep/kernel-offsets.h: In function `foo':
+arch/um/include/sysdep/kernel-offsets.h:22: error: structure has no member 
+named `mode'
+In file included from arch/um/include/sysdep/kernel-offsets.h:24,
+                  from arch/um/kernel/asm-offsets.c:1:
+arch/um/include/common-offsets.h:3: error: structure has no member named 
+`regs'
+make[1]: *** [arch/um/kernel/asm-offsets.s] Error 1
+make: *** [prepare0] Error 2
 
-NeilBrown
+
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
+

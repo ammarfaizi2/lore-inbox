@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751481AbWCQIAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWCQIJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751481AbWCQIAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 03:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752535AbWCQIAL
+	id S964916AbWCQIJL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 03:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752568AbWCQIJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 03:00:11 -0500
-Received: from mail.gmx.net ([213.165.64.20]:43964 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751481AbWCQIAK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 03:00:10 -0500
-X-Authenticated: #14349625
-Subject: Re: puting task to TASK_INTERRUPTIBLE before adding it to an wait
-	queue
-From: Mike Galbraith <efault@gmx.de>
-To: Yitzchak Eidus <ieidus@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e7aeb7c60603161431m6d873520r2b6754e115e26f80@mail.gmail.com>
-References: <e7aeb7c60603161431m6d873520r2b6754e115e26f80@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 17 Mar 2006 09:01:43 +0100
-Message-Id: <1142582503.7973.15.camel@homer>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 17 Mar 2006 03:09:11 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:18137 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1752567AbWCQIJK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 03:09:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VxCBplTNG4YlcGwW2LHBSI9ehfHI7ID+d20IoJg9hdyy6egbcdXd7gC/5YWJUaiE9NchVStgsGvXO7Lc7keunPP4WiNi4S2BOnIYl0VHm9dwS53H/NT1RFqK7XrwGEccMyGdf2N6Kv136JMNR1k3FGeMsjthYqacSssbDbgFylY=
+Message-ID: <9a8748490603170009s4685c0cpc1b05a410d7a975b@mail.gmail.com>
+Date: Fri, 17 Mar 2006 09:09:09 +0100
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "kernel@ministry.se" <kernel@ministry.se>
+Subject: Re: kernel cache mem bug(?)
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GHP.4.44.0603170658530.15349-100000@celeborn.ministry.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200603162042.k2GKgEUR019711@turing-police.cc.vt.edu>
+	 <Pine.GHP.4.44.0603170658530.15349-100000@celeborn.ministry.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 00:31 +0200, Yitzchak Eidus wrote:
-> the function worker_thread in kernel 2.6.15.6  first put the task to
-> TASK_INTERRUPTIBLE and only then add itself to an wait queue:
-> 	set_current_state(TASK_INTERRUPTIBLE);
-> 	while (!kthread_should_stop()) {
-> 		add_wait_queue(&cwq->more_work, &wait);
+On 3/17/06, kernel@ministry.se <kernel@ministry.se> wrote:
+> > On Thu, 16 Mar 2006 18:41:02 +0100, kernel@ministry.se said:
+> > > [X.] Other notes, patches, fixes, workarounds:
+> >
+> > >     Workaround: When we disable HyperThreading in BIOS, this
+> > >     problem goes away. We re-enabling HT, it comes back...
+> >
+> > Have you ruled out marginal memory, or overclocking/overheating?
+>
+> No overclocking done, no overheating happening. All RAM memory checks
+> turn out just fine, with and without HT.
+>
 
-See dusty old archives...
+When you say "All RAM memory checks turn out just fine" do you mean
+the BIOS memory checks or something else?
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/9712.2/0545.html
-
-<quote>
-Anyway, the basic race-free wait loop looks like this (there are
-variations, but this is one of the basic versions that you find in
-various places):
-
-
-if (should_wait_condition) {
-add_wait_queue(..);
-repeat:
-current->state = TASK_UNINTERRUPTIBLE;
-if (should_wait_condition) {
-schedule();
-goto repeat;
-}
-remove_wait_queue(..);
-current->state = TASK_RUNNING;
-}
+For a proper memory test run memtest86 (http://www.memtest86.com/)
+and/or memtest86+ (http://www.memtest.org/) overnight (some 8-12hours
+or more) with all tests enabled.. If the machine survives without
+errors that then you can be reasonably sure memory is OK... The BIOS
+tests are more or less worthless.
 
 
-There are only two important rules:
-- you have to add yourself to the wait queue _before_ testing for the
-condition.
-- you have to mark yourself asleep _before_ testing for the condition.
-
-</quote>
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

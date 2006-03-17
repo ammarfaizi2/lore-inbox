@@ -1,141 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWCQP1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWCQPa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWCQP1L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 10:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWCQP1L
+	id S1030189AbWCQPa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:30:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932740AbWCQPa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 10:27:11 -0500
-Received: from silver.veritas.com ([143.127.12.111]:56333 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751201AbWCQP1I
+	Fri, 17 Mar 2006 10:30:59 -0500
+Received: from vsmtp14.tin.it ([212.216.176.118]:20112 "EHLO vsmtp14.tin.it")
+	by vger.kernel.org with ESMTP id S932738AbWCQPa6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 10:27:08 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-X-IronPort-AV: i="4.03,104,1141632000"; 
-   d="scan'208"; a="36028023:sNHT25704360"
-Date: Fri, 17 Mar 2006 15:27:35 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       "Bryan O'Sullivan" <bos@pathscale.com>, torvalds@osdl.org,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
- driver
-In-Reply-To: <441A04D0.3060201@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0603171440570.31402@goblin.wat.veritas.com>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
- <ada4q27fban.fsf@cisco.com> <1141948516.10693.55.camel@serpentine.pathscale.com>
- <ada1wxbdv7a.fsf@cisco.com> <1141949262.10693.69.camel@serpentine.pathscale.com>
- <20060309163740.0b589ea4.akpm@osdl.org> <1142470579.6994.78.camel@localhost.localdomain>
- <ada3bhjuph2.fsf@cisco.com> <1142475069.6994.114.camel@localhost.localdomain>
- <adaslpjt8rg.fsf@cisco.com> <1142477579.6994.124.camel@localhost.localdomain>
- <20060315192813.71a5d31a.akpm@osdl.org> <1142485103.25297.13.camel@camp4.serpentine.com>
- <20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com>
- <4419062C.6000803@yahoo.com.au> <Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com>
- <441A04D0.3060201@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Mar 2006 15:27:07.0847 (UTC) FILETIME=[40AC5570:01C649D7]
+	Fri, 17 Mar 2006 10:30:58 -0500
+Message-ID: <10a08d2a312.susanconsole10@virgilio.it>
+Date: Fri, 17 Mar 2006 16:28:42 +0100 (GMT+01:00)
+From: <susanconsole10@virgilio.it>
+Reply-To: <susanconsole10@virgilio.it>
+Subject: Ticket No: 00903228100
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Originating-IP: 194.151.147.178
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Mar 2006, Nick Piggin wrote:
-> Hugh Dickins wrote:
-> > 
-> > Once __GFP_COMP is passed to the dma_alloc_coherent, as it needs to be
-> > (unless going VM_PFNMAP), get_user_pages will be safe: no need for VM_IO.
-> 
-> But it doesn't look like dma_alloc_coherent is guaranteed to return
-> memory allocated from the regular page allocator, nor even memory
-> backed by a struct page.
+Ticket No: 00903228100
 
-Hmm, that's bad news.
+ 
+RE: WINNING FINAL NOTIFICATION 
+ 
+LOTTO NL 
+INTERNATIONAL PRIZE AWARD DEPT. 
 
-If it's not backed by a struct page, then I guess Bryan can't be
-interested in mapping it into userspace with a .nopage; so perhaps that
-case is already ruled out somehow, and we needn't worry about it.  Or
-should he just be using remap_pfn_range - is there a portable way to
-use that with dma_alloc_coherent/pci_alloc_consistent?
 
-I'm not a driver writer, and have no idea of these things: I think,
-having got Bryan back on track with his page counts, I'd better step
-aside, and let those who understand these things take him forward.
+Sir/Madam,
 
-> For example, I see one that returns kmalloc()ed memory. If the pages
-> for the slab are already allocated then __GFP_COMP will not do anything
-> there. i386 looks like it has a path that uses ioremap...
+CONGRATULATIONS!!!
 
-I don't remember offhand whether passing __GFP_COMP to kmalloc does
-something, nothing, errors out, or behaves erratically according to
-whether the slab is already allocated.
+We 
+are pleased to inform you of the result of the Lotto NL Winners 
+International programs held on the 17th of   March, 2006.  Your e-mail 
+address attached to ticket No: 00903228100 with prize No 778009/UK drew 
+€1,000,000.00 which was first in the 2ndclass of the draws. You are to 
+receive €1,000,000.00 (One Million Euros).
 
-I'd feel so much more confident if no __GFP_COMP flag were ever needed.
-It seems that's how PageCompound started out, every >0-order was compound;
-then some nasty code found down in ARM and some drivers that were screwed
-by that, so __GFP_COMP introduced (and other trees had __GFP_NOCOMP).
+Be informed because of mix 
+up in cash pay-outs, we ask that you keep your winning information 
+confidential until your fund (€1,000,000.00) has been fully remitted to 
+you by our accredited pay-point bank. This measure must be adhere to 
+avoid loss of your cash prize - winners of our cash prizes are advised 
+to adhere to these instructions to forestall the abuse of this program 
+by other participants. It's important to note that this draws were 
+conducted formally, and winners are selected through an internet ballot 
+system from 60,000 individual and companies e-mail addresses - the 
+draws are conducted around the world through our internet based ballot 
+system. The promotion is sponsored and promoted by Lotto NL.
 
-Is there any chance that your split_page() work in -mm, actually addresses
-precisely those places that were screwed up by universal compound pages?
-So that with your split_page(), we could go back to every >0-order page
-being PageCompound, without any need for __GFP_COMP.
+We 
+congratulate you once again. We hope you will use part of it in our 
+next draws; the jackpot winning is €85million.  Remember, all winning 
+must be claimed not later than 20 days. After this date all unclaimed 
+cash prize will be forfeited and included in the next sweepstake.  
+Please, in order to avoid unnecessary delays and complications remember 
+to quote your winning numbers in all correspondence with us.
 
-There'd probably be a few blips to sort out, but if it seems a plausible
-way forward, that's the way I'd like to go.  But I wasn't in on the
-early days of PageCompound, maybe Andrew remembers the issues.  I've
-appended a couple of akpm entries from ChangeLog-2.6.6 below, to help
-jog memories (I'm amused to see how the compound page logic started
-off using page->lru, where we've just now moved it back to).
+Congratulations once again from all members of Lotto NL. Thank you for 
+being part of our promotional program.
 
-> Now I haven't looked through all these closely like you will have, but
-> I'd like to know how __GFP_COMP solves all the potential problems I
-> see.
+For immediate release of your 
+cash prize to you, please kindly contact our Paying Bank
+(Inter 
+Continental Alliance Finance & Securities Den Haag.)
 
-It seems I can't have looked as closely as I thought.  I was advising
-Bryan on the basis of the __GFP_COMP (I added) in snd_malloc_dev_pages,
-which appears to have been working.  But now I fear perhaps that was
-just a rare case to support a single driver only needed on a few
-architectures (not everyone exports snd_malloc_dev_pages memory into
-userspace); or we have a nasty surprise in store for us there too.
+Kindly send the 
+following information to the paying bank:
+(i)  Your names,
+(ii) Contact 
+telephone and fax numbers
+(iii) Contact Address
+(iv) Your winning 
+numbers
+(v) Quote amount won.
 
-Aside from the dark alleys of dma_alloc_coherent that you've mentioned,
-there's the architectures which #define it to pci_alloc_consistent,
-which takes no gfp_mask, so __GFP_COMP would be ignored (hence,
-in part, my desire to make all >0-order pages compound).
+Contact person: Mr. James Milton 
+E-mail:
+icafinance01@netscape.net
+Tel: 0031-629-355-505
 
-None of what I've said above is much help to Bryan (nor is Linus'
-suggestion that he allocates one page at a time, if dma_alloc_coherent
-won't even give him the right kind of struct-page-backed memory):
-but as I said, I'll have to step aside from pretending to advise
-on what his driver should be doing.
+Congratulations once 
+again.
 
-Hugh
+Yours Sincerely,
+Mrs. Susan Console
+(Lottery Coordinator)
 
-<akpm@osdl.org>
-  [PATCH] stop using page->lru in compound pages
-  
-  The compound page logic is using page->lru, and these get will scribbled on
-  in various places so switch the Compound page logic over to using ->mapping
-  and ->private.
 
-<akpm@osdl.org>
-  [PATCH] use compound pages for hugetlb pages only
-  
-  The compound page logic is a little fragile - it relies on additional
-  metadata in the pageframes which some other kernel code likes to stomp on
-  (xfs was doing this).
-  
-  Also, because we're treating all higher-order pages as compound pages it is
-  no longer possible to free individual lower-order pages from the middle of
-  higher-order pages.  At least one ARM driver insists on doing this.
-  
-  We only really need the compound page logic for higher-order pages which can
-  be mapped into user pagetables and placed under direct-io.  This covers
-  hugetlb pages and, conceivably, soundcard DMA buffers which were allcoated
-  with a higher-order allocation but which weren't marked PageReserved.
-  
-  The patch arranges for the hugetlb implications to allocate their pages with
-  compound page metadata, and all other higher-order allocations go back to the
-  old way.
-  
-  (Andrea supplied the GFP_LEVEL_MASK fix)
+

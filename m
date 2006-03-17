@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbWCQUEg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932741AbWCQUEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932501AbWCQUEg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 15:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932749AbWCQUEf
+	id S932741AbWCQUEL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 15:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932751AbWCQUEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 15:04:35 -0500
-Received: from nevyn.them.org ([66.93.172.17]:12941 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S932501AbWCQUEf (ORCPT
+	Fri, 17 Mar 2006 15:04:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10187 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932741AbWCQUEK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 15:04:35 -0500
-Date: Fri, 17 Mar 2006 15:04:31 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Michael Kerrisk <mtk-manpages@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Proposed manpage additions for ptrace(2)
-Message-ID: <20060317200431.GA20273@nevyn.them.org>
-Mail-Followup-To: Chuck Ebbert <76306.1226@compuserve.com>,
-	Michael Kerrisk <mtk-manpages@gmx.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200603170647_MC3-1-BAD9-ED70@compuserve.com>
+	Fri, 17 Mar 2006 15:04:10 -0500
+Date: Fri, 17 Mar 2006 15:02:30 -0500
+From: Alan Cox <alan@redhat.com>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Cc: "'Alan Cox'" <alan@redhat.com>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>, v4l-dvb-maintainer@linuxtv.org,
+       mdharm-usb@one-eyed-alien.net
+Subject: Re: [usb-storage] Re: [v4l-dvb-maintainer] 2.6.16-rc: saa7134 + u sb-storage = freeze
+Message-ID: <20060317200230.GA13144@devserv.devel.redhat.com>
+References: <820212CF2FD63647B52A8F64B35352B20B94229B@essomaexc1.essvote.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200603170647_MC3-1-BAD9-ED70@compuserve.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <820212CF2FD63647B52A8F64B35352B20B94229B@essomaexc1.essvote.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 17, 2006 at 06:44:21AM -0500, Chuck Ebbert wrote:
-> > Specifically, the three kinds of cloning are distinguished as:
-> > 
-> > if CLONE_VFORK -> PTRACE_EVENT_VFORK
-> > else if clone exit signal == SIGCHLD -> PTRACE_EVENT_FORK
-> > else PTRACE_EVENT_CLONE
-> > 
-> > You need to do some juggling to get the actual clone flags.
-> 
-> It might be best to leave these descriptions in terms of C library functions
-> rather than kernel-internal.  Looking at sys_clone() and sys_fork() I can see
-> what you mean but I'm not sure how to describe it to a programmer.
+On Fri, Mar 17, 2006 at 09:59:44AM -0600, Ballentine, Casey wrote:
+> Attached please find the output of "lspci -vvxxx" using the released 1.05
+> BIOS and the 1.05 test BIOS on a VIA EPIA PD-10000 mainboard (CLE266
+> northbridge and vt8235 southbridge).  Hopefully this will shed some light on
+> what VIA is doing.  Let me know if I can provide more information.
 
-Those are user accessible flags.  Fork will give you a
-PTRACE_EVENT_FORK, vfork will give you a PTRACE_EVENT_VFORK, but
-clone may give you any of the above, depending on what arguments you
-pass to it.  The SIGCHLD test matches the bit described in clone(2)
-for __WALL or __WCLONE, for instance.
+Ok the changes in the PCI space are
 
-> > BTW, I believe there are still some potential deadlocks between
-> > the vfork event and the vfork done event; I used to regularly generate
-> > unkillable processes working on this code.
-> 
-> I have a test program and didn't hit any problems yet.  Maybe this was fixed?
+82C586_1		:	0x70 was 0x22: now 0x42
+8235	(South)		:	0x91 was 0x00 now 0x03
+862X	(North)		:	0x61 was 2a now ea 0x62 was 00 now 03 0x68
+				was 0xD1 now 0xCA 0x81 was 0x61 now 0x69
 
-One thing that IIRC was a problem was killing the parent before the
-child (or maybe the other way round) when stopped at this point - such
-as would happen if you typed "kill" at a GDB prompt after catch vfork.
 
--- 
-Daniel Jacobowitz
-CodeSourcery
+8235 0x91 is just general purpose timer control
+82C586_1 0x70 is an IDE status bit
+
+So the changes that matter are those (or some of those) on the 862X. Which is
+the one bit I don't have docs on
+

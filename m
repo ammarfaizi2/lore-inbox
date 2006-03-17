@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752470AbWCQBGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752474AbWCQBJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752470AbWCQBGE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752474AbWCQBGE
+	id S1752474AbWCQBJS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752477AbWCQBJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:06:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65418 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752470AbWCQBGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:06:03 -0500
-Date: Thu, 16 Mar 2006 17:08:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, shaohua.li@intel.com,
-       bryce@osdl.org
-Subject: Re: [PATCH] Check for online cpus before bringing them up
-Message-Id: <20060316170814.02fa55a1.akpm@osdl.org>
-In-Reply-To: <20060316174447.GA8184@in.ibm.com>
-References: <20060316174447.GA8184@in.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Mar 2006 20:09:18 -0500
+Received: from test-iport-1.cisco.com ([171.71.176.117]:24927 "EHLO
+	test-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1752474AbWCQBJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 20:09:17 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       "Bryan O'Sullivan" <bos@pathscale.com>, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core driver
+X-Message-Flag: Warning: May contain useful information
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain>
+	<ada4q27fban.fsf@cisco.com>
+	<1141948516.10693.55.camel@serpentine.pathscale.com>
+	<ada1wxbdv7a.fsf@cisco.com>
+	<1141949262.10693.69.camel@serpentine.pathscale.com>
+	<20060309163740.0b589ea4.akpm@osdl.org>
+	<1142470579.6994.78.camel@localhost.localdomain>
+	<ada3bhjuph2.fsf@cisco.com>
+	<1142475069.6994.114.camel@localhost.localdomain>
+	<adaslpjt8rg.fsf@cisco.com>
+	<1142477579.6994.124.camel@localhost.localdomain>
+	<20060315192813.71a5d31a.akpm@osdl.org>
+	<1142485103.25297.13.camel@camp4.serpentine.com>
+	<20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com>
+	<4419062C.6000803@yahoo.com.au>
+	<Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com>
+	<441A04D0.3060201@yahoo.com.au>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 16 Mar 2006 17:09:15 -0800
+In-Reply-To: <441A04D0.3060201@yahoo.com.au> (Nick Piggin's message of "Fri, 17 Mar 2006 11:37:36 +1100")
+Message-ID: <aday7z9nah0.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 17 Mar 2006 01:09:15.0921 (UTC) FILETIME=[6903B810:01C6495F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
->
-> Bryce reported a bug wherein offlining CPU0 (on x86 box) and then subsequently
-> onlining it resulted in a lockup. 
-> 
-> On x86, CPU0 is never offlined. The subsequent attempt to online CPU0
-> doesn't take that into account. It actually tries to bootup the already
-> booted CPU. Following patch fixes the problem (as acknowledged by
-> Bryce). Please consider for inclusion in 2.6.16.
-> 
-> 
+    Nick> But it doesn't look like dma_alloc_coherent is guaranteed to
+    Nick> return memory allocated from the regular page allocator, nor
+    Nick> even memory backed by a struct page.
 
-Is x86 the only architecture which is exposed to this?
+    Nick> For example, I see one that returns kmalloc()ed memory. If
+    Nick> the pages for the slab are already allocated then __GFP_COMP
+    Nick> will not do anything there. i386 looks like it has a path
+    Nick> that uses ioremap...
 
-> 
-> diff -puN arch/i386/kernel/smpboot.c~cpuhp arch/i386/kernel/smpboot.c
-> --- linux-2.6.16-rc5/arch/i386/kernel/smpboot.c~cpuhp	2006-03-14 14:42:26.000000000 +0530
-> +++ linux-2.6.16-rc5-root/arch/i386/kernel/smpboot.c	2006-03-14 14:43:21.000000000 +0530
-> @@ -1029,6 +1029,12 @@ int __devinit smp_prepare_cpu(int cpu)
->  	int	apicid, ret;
->  
->  	lock_cpu_hotplug();
-> +
-> +	if (cpu_online(cpu)) {
-> +		ret = -EINVAL;
-> +		goto exit;
-> +	}
-> +
->  	apicid = x86_cpu_to_apicid[cpu];
->  	if (apicid == BAD_APICID) {
->  		ret = -ENODEV;
+Ugh.  So is there a correct way to map DMA-able memory into userspace?
 
-a) It's hard for the reader to understand what that test is doing there
-
-b) People copy code from x86, so other architectures which are not
-   exposed to this problem will end up having a pointless test in there.
-
-IOW: please comment your code.   I'll fix this one up.
+ - R.

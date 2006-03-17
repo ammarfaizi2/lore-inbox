@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWCQSTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbWCQS05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbWCQSTs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 13:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWCQSTs
+	id S1030259AbWCQS05 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 13:26:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWCQS04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 13:19:48 -0500
-Received: from gold.veritas.com ([143.127.12.110]:5936 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1030252AbWCQSTr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 13:19:47 -0500
-X-IronPort-AV: i="4.03,105,1141632000"; 
-   d="scan'208"; a="57339987:sNHT30515028"
-Date: Fri, 17 Mar 2006 18:20:12 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: "Bryan O'Sullivan" <bos@pathscale.com>, Roland Dreier <rdreier@cisco.com>,
-       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Remapping pages mapped to userspace (was: [PATCH 10 of 20] ipath
- - support for userspace apps using core driver)
-In-Reply-To: <Pine.LNX.4.64.0603170921470.3618@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0603171813390.1099@goblin.wat.veritas.com>
-References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> 
- <ada4q27fban.fsf@cisco.com>  <1141948516.10693.55.camel@serpentine.pathscale.com>
-  <ada1wxbdv7a.fsf@cisco.com>  <1141949262.10693.69.camel@serpentine.pathscale.com>
-  <20060309163740.0b589ea4.akpm@osdl.org>  <1142470579.6994.78.camel@localhost.localdomain>
-  <ada3bhjuph2.fsf@cisco.com>  <1142475069.6994.114.camel@localhost.localdomain>
-  <adaslpjt8rg.fsf@cisco.com>  <1142477579.6994.124.camel@localhost.localdomain>
-  <20060315192813.71a5d31a.akpm@osdl.org>  <1142485103.25297.13.camel@camp4.serpentine.com>
-  <20060315213813.747b5967.akpm@osdl.org>  <Pine.LNX.4.61.0603161332090.21570@goblin.wat.veritas.com>
-  <adad5gmne20.fsf_-_@cisco.com>  <Pine.LNX.4.61.0603171631240.32660@goblin.wat.veritas.com>
- <1142615848.28538.53.camel@serpentine.pathscale.com>
- <Pine.LNX.4.64.0603170921470.3618@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Mar 2006 18:19:46.0150 (UTC) FILETIME=[5EB3F060:01C649EF]
+	Fri, 17 Mar 2006 13:26:56 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:63399 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030255AbWCQS0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 13:26:55 -0500
+Subject: Re: chmod 111
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nick Warne <nick@linicks.net>
+Cc: Felipe Alfaro Solana <felipe.alfaro@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200603171811.01963.nick@linicks.net>
+References: <200603171746.18894.nick@linicks.net>
+	 <6f6293f10603171007vbf752e5n8a3d6f2d65e0a1e7@mail.gmail.com>
+	 <200603171811.01963.nick@linicks.net>
+Content-Type: text/plain
+Date: Fri, 17 Mar 2006 13:26:44 -0500
+Message-Id: <1142620004.9478.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Mar 2006, Linus Torvalds wrote:
+On Fri, 2006-03-17 at 18:11 +0000, Nick Warne wrote:
+> On Friday 17 March 2006 18:07, Felipe Alfaro Solana wrote:
+> > > I shouldn't be able to execute 'ls' as I can't read it, shouldn't it?
+> >
+> > Nop... you can execute binaries even if the read permission is not
+> > granted. Note that I said "binaries". Shell script files need read and
+> > execute permission, since they must be read by a shell interpreter in
+> > order to get executed.
 > 
-> Anyway, zap_page_range() would do what you want, but it's not exported, 
-> and I'm not convinced it's even something we want to export. You can only 
-> zap a page range from within the context of the zappee, not from an 
-> external module/driver.
+> Hi Felipe,
 > 
-> [ Maybe it works if somebody else calls it, maybe it doesn't. I wouldn't 
->   bet on it, and more importantly, I can pretty much _guarantee_ that a 
->   driver will get the "struct mm_struct" reference counting wrong. ]
+> First, apologies as this isn't kernel issue (but related, I suppose).
+> 
+> Yes, I see now after much messing about.  Why then are most binaries chmod 
+> 755?  Who would need (why) to read a [system] binary?
 
-But vmtruncate or unmap_mapping_range is quite used to operating on
-whatever mm's have mapped the file, so should be a safe route.  Except
-here it's a device mapped VM_PFNMAP, so there might prove to be some
-gotchas.  I'd be happy to make a nopage fault on VM_PFNMAP give SIGBUS,
-for sensible behaviour after the "truncate" - but recent history warns
-we're liable then to discover some app expecting otherwise ;)
+Well, I guess you can't ptrace an executable that you can't read.
 
-Hugh
+# cd /bin
+# ls -l ls
+-rwxr-xr-x 1 root root 80008 2006-03-02 15:08 ls
+# chmod 711 ls
+# ls -l ls
+-rwx--x--x 1 root root 80008 2006-03-02 15:08 ls
+
+$ cd /bin
+$ ls -l ls
+-rwx--x--x 1 root root 80008 2006-03-02 15:08 ls
+$ gdb
+GNU gdb 6.4-debian
+Copyright 2005 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you
+are
+welcome to change it and/or distribute copies of it under certain
+conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for
+details.
+This GDB was configured as "i486-linux-gnu".
+(gdb) file /bin/ls
+/bin/ls: Permission denied.
+(gdb)
+
+
+# chmod 755 ls
+
+(gdb) file /bin/ls
+Reading symbols from /bin/ls...(no debugging symbols found)...done.
+Using host libthread_db library "/lib/tls/i686/cmov/libthread_db.so.1".
+(gdb)
+
+
+So I guess if you need to debug a system binary, you need it readable.
+But I guess that can also be a security problem, and having system
+binaries not readable, might make you system a little more secure.
+
+-- Steve
+
+

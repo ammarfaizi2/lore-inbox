@@ -1,84 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWCQSng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030257AbWCQSnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbWCQSng (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 13:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWCQSnf
+	id S1030257AbWCQSnS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 13:43:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWCQSnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 13:43:35 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:22972 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030258AbWCQSne
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 13:43:34 -0500
-Message-ID: <441B034F.7020102@us.ibm.com>
-Date: Fri, 17 Mar 2006 12:43:27 -0600
-From: Anthony Liguori <aliguori@us.ibm.com>
-User-Agent: Mail/News 1.5 (X11/20060309)
-MIME-Version: 1.0
-To: Zachary Amsden <zach@vmware.com>
-CC: Chuck Ebbert <76306.1226@compuserve.com>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Xen-devel <xen-devel@lists.xensource.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Virtualization Mailing List <virtualization@lists.osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [Xen-devel] Re: [RFC,	PATCH 0/24] VMI i386 Linux virtualization
- interface proposal
-References: <200603171058_MC3-1-BADF-9E3F@compuserve.com> <441AF747.5000400@vmware.com>
-In-Reply-To: <441AF747.5000400@vmware.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 13:43:18 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:41892 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751322AbWCQSnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 13:43:17 -0500
+To: "Yu, Luming" <luming.yu@intel.com>
+cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       michael@mihu.de, mchehab@infradead.org,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, gregkh@suse.de,
+       "Brown, Len" <len.brown@intel.com>, linux-acpi@vger.kernel.org,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       jgarzik@pobox.com, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+Subject: Re: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+In-Reply-To: Your message of "Fri, 17 Mar 2006 15:50:35 +0800."
+             <3ACA40606221794F80A5670F0AF15F84041AC265@pdsmsx403> 
+Date: Fri, 17 Mar 2006 18:43:14 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1FKJus-000166-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden wrote:
-> Chuck Ebbert wrote:
->> In-Reply-To: <20060315102522.GA5926@infradead.org>
->>
->> On Wed, 15 Mar 2006 10:25:22 +0000, Christoph Hellwig wrote:
->>   I'd like to see a test harness implementation that has no actual
->> hypervisor functionality and just implements the VMI calls natively.
->> This could be used to test the interface and would provide a nice
->> starting point for those who want to write a VMI hypervisor.
->>   
->
-> I was going to make one yesterday.  But Fry's electronics stopped 
-> carrying flashable blank PCI cards. :)  Anyone know of a vendor?
-It's very practical to just patch Qemu to load a VMI rom as an option 
-ROM.  That makes such an example VMI ROM very practical without having 
-to build a special PCI device.
+> So, please try hack thermal.c by removing calls to _TMP.
 
-Regards,
+I did something like that before, by changing acpi_evaluate_integer()
+to return 3000 if it is asked for _TMP.  
 
-Anthony Liguori
-> It is possible to do in a software layer, although it really is a lot 
-> easier to have the BIOS take care of all the fuss of finding a place 
-> in low memory for you to live, setting up the various memory maps and 
-> everything else for you.
->
-> There is enormous benefit to having such a layer - you have a very 
-> power test harness, not just to make sure VMI works, but even more 
-> importantly, to inspect and verify the native kernel operation as 
-> well.  You have a plethora of imporant hooks into the system, which 
-> feed you knowledge you can not otherwise gain about which page tables 
-> have been made active, when you take IRQs, where the kernel stack lives.
->
-> All of this is ripe for a debug harness that can verify the kernel 
-> doesn't overflow the kernel stack, doesn't write to active page table 
-> entries without proper accessors and subsequent invalidations, and 
-> obeys the rules that are required for correctness when running under a 
-> hypervisor.  You probably even want to do hypervisor like things - 
-> such as write protecting the kernel page tables so that you can be 
-> confident there are no stray raw PTE accesses.
->
-> We actually found one (harmless on native) in i386, which was enabling 
-> NX bit.
->
-> Zach
->
-> _______________________________________________
-> Xen-devel mailing list
-> Xen-devel@lists.xensource.com
-> http://lists.xensource.com/xen-devel
+--- a/utils.c	2006-03-15 01:42:34.000000000 -0500
++++ b/utils.c	2006-03-14 23:36:59.000000000 -0500
+@@ -270,7 +270,15 @@ acpi_evaluate_integer(acpi_handle handle
+ 	memset(element, 0, sizeof(union acpi_object));
+ 	buffer.length = sizeof(union acpi_object);
+ 	buffer.pointer = element;
+-	status = acpi_evaluate_object(handle, pathname, arguments, &buffer);
++	if (strcmp(pathname, "_TMP") != 0)
++	  status = acpi_evaluate_object(handle, pathname, arguments, &buffer);
++	else {
++	  printk(KERN_INFO PREFIX "acpi_evaluate_integer: Faking _TMP\n");
++	  status = AE_OK;
++	  element->type = ACPI_TYPE_INTEGER;
++	  element->integer.value = 3000; /* 27 C, in deciKelvins */
++	}
++
+ 	if (ACPI_FAILURE(status)) {
+ 		acpi_util_eval_error(handle, pathname, status);
+ 		return_ACPI_STATUS(status);
+
+
+The alternative, obvious change in thermal.c (diff below) turns out
+not to be a minimal change.  If acpi_thermal_get_temperature() returns
+with a failure, then most of the later methods in THM0 aren't
+executed, so one is actually commenting out much more than _TMP.
+
+Which is why I think the minimal change is the diff above to utils.c.
+With that change the system never hung.
+
+Or should I do a compromise modification, where calls from thermal.c
+to _TMP use the hacked acpi_evaluate_integer()
+[e.g. acpi_evaluate_integer_called_from_thermal()], but other calls to
+_TMP get the unhacked version?
+
+Here is the diff for commenting out _TMP directly in thermal.c, which
+I think I've tried already but I'll try it again.  I'm sure it'll
+work, though.
+
+--- a/thermal.c	2006-03-16 09:45:30.000000000 -0500
++++ b/thermal.c	2006-03-17 09:00:30.000000000 -0500
+@@ -222,7 +222,7 @@ static int acpi_thermal_get_temperature(
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_thermal_get_temperature");
+ 
+-	if (!tz)
++	if (!tz || strcmp(tz->handle, "_TMP") == 0)
+ 		return_VALUE(-EINVAL);
+ 
+ 	tz->last_temperature = tz->temperature;
+
 

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbWCQUeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWCQUj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbWCQUeS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 15:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWCQUeS
+	id S932188AbWCQUj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 15:39:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932753AbWCQUj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 15:34:18 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:45964 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751049AbWCQUeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 15:34:17 -0500
-Date: Fri, 17 Mar 2006 21:31:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Jan Altenberg <tb10alj@tglx.de>,
-       Sastien Dugu <sebastien.dugue@bull.net>
-Subject: Re: 2.6.16-rc6-rt3
-Message-ID: <20060317203149.GA23069@elte.hu>
-References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com> <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com> <20060317092351.GA18491@elte.hu> <441AE417.1030601@cybsft.com>
+	Fri, 17 Mar 2006 15:39:27 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:10248 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932188AbWCQUj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 15:39:26 -0500
+Date: Fri, 17 Mar 2006 21:39:04 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Phillip Lougher <phillip@lougher.org.uk>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [ANN] Squashfs 3.0 released
+Message-ID: <20060317203904.GE21493@w.ods.org>
+References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk> <20060317104023.GA28927@wohnheim.fh-wedel.de> <C91BFAB7-C442-4EB7-8089-B55BB86EB148@lougher.org.uk> <20060317124310.GB28927@wohnheim.fh-wedel.de> <441ADD28.3090303@garzik.org> <0E3DADA8-1A1C-47C5-A3CF-F6A85FF5AFB8@lougher.org.uk> <441AF118.7000902@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <441AE417.1030601@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <441AF118.7000902@garzik.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* K.R. Foley <kr@cybsft.com> wrote:
+On Fri, Mar 17, 2006 at 12:25:44PM -0500, Jeff Garzik wrote:
+> I have two routers, ADM5120-based Edimax and LinkSys WRT54G v5, both of 
+> which have a mere 2MB of flash, and both use SquashFS to maximize that 
+> space.  And both are el cheapo, slow embedded processors that run far 
+> slower than 300Mhz.  I look askance at anyone who wants to make an 
+> arbitrary filesystem design decision imposing tons of bytesex upon these 
+> lowly devices.
 
-> OK. Tried rt9 with a clean build and still no joy. I've attached the 
-> log which looks like it could be a similar problem?
+100% agreed. I love squashfs because it's tiny and efficient, and I
+would not want to see it getting heavy.
 
-seems to be a different one:
+BTW, has someone tried to port LZMA to squashfs ? I tried so on
+bzImage + initramfs, and got something like a 27% smaller image.
+That would mean about 500 kB on a 2 MB image.
 
-> input: ImPS/2 Generic Wheel Mouse as /class/input/input1
-> Freeing unused kernel memory: 284k freed
-> Could not allocate 8 bytes percpu data
-> sd_mod: Unknown symbol scsi_print_sense_hdr
+> 	Jeff
 
-could you increase PERCPU_ENOUGH_ROOM in include/linux/percpu.h? (to 
-e.g. 65536)
+Willy
 
-	Ingo

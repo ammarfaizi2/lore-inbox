@@ -1,54 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752473AbWCQBvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWCQBv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752473AbWCQBvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752484AbWCQBvc
+	id S1751437AbWCQBv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752481AbWCQBv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:51:32 -0500
-Received: from uproxy.gmail.com ([66.249.92.203]:20573 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1752473AbWCQBvb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:51:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HLW8M/HvNpO5Pd1S91ZnGMRNcVE8tTlfP77fc8myyzDJdvnq4LqZcp/yg6GbHU270+/ThC/3pTCLnzOipZ8xXAePQA3kyX7dy8JYQEmtN9178pIQ06Lc2NEIgfwlFpelPgrn9Pvf1eQ14teY2O+wpa4UMBwtxvuDyRLpGcgINho=
-Message-ID: <93564eb70603161751g734b0690t@mail.gmail.com>
-Date: Fri, 17 Mar 2006 10:51:29 +0900
-From: "Samuel Masham" <samuel.masham@gmail.com>
-To: "Phillip Lougher" <phillip@lougher.org.uk>
-Subject: Re: [ANN] Squashfs 3.0 released
-Cc: "Andreas Dilger" <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <CF2CC9AC-3695-45C1-9FA6-9BDAAA6418DD@lougher.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 16 Mar 2006 20:51:57 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:34458 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751437AbWCQBvw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 20:51:52 -0500
+Date: Thu, 16 Mar 2006 17:52:09 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu, dipankar@in.ibm.com, suparna@in.ibm.com
+Subject: [PATCH -rt, RFC] rid rcu_read_lock() and _unlock() of common-case atomics
+Message-ID: <20060317015209.GA2886@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk>
-	 <20060317010529.GB30801@schatzie.adilger.int>
-	 <CF2CC9AC-3695-45C1-9FA6-9BDAAA6418DD@lougher.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Phillip,
+Hello!
 
-On 17/03/06, Phillip Lougher <phillip@lougher.org.uk> wrote:
-> and in constrained
-> block device/memory systems (e.g. embedded systems) where low
-> overhead is
-> needed."
->
-> At the moment it tends to be used for embedded systems, and liveCDs.
+This is an RFC, -not- intended for inclusion because it does not help
+x86 performance or latency.  (Yes, it does remove atomic instructions
+in the common case, but memory barriers on x86 are implemented as ...
+atomic instructions!!!)
 
->From the embedded side here...
+That said, it is a step towards a lighter-weight rcu_read_lock()
+implementation, so sending it out to get feedback.  Work underway
+to also get rid of the memory barriers...
 
-Have you any idea how the performance of version 3.0 stack up against 2.1?
+The patch relies on the fact that both rcu_read_lock() and
+rcu_read_unlock() disable hardware interrupts, which has the
+side-effect of also disabling preemption.  So, if rcu_read_lock()
+finds a counter value of zero, there cannot possibly be another
+CPU wanting to update that same counter.  Similar reasoning is
+applied to rcu_read_unlock() -- see comments below.
 
-You haven't updated the readme.performance file yet :)
+							Thanx, Paul
 
-thanks
+ include/linux/sched.h |    1 +
+ kernel/rcupreempt.c   |   31 ++++++++++++++++++++++++++-----
+ 2 files changed, 27 insertions(+), 5 deletions(-)
 
-Samuel
-
-ps Looking forward to seeing squashfs in main line soon :)
+diff -urpNa -X dontdiff linux-2.6.15-rt16-splitPREEMPT_RCU/include/linux/sched.h linux-2.6.15-rt16-sPR-optatomic/include/linux/sched.h
+--- linux-2.6.15-rt16-splitPREEMPT_RCU/include/linux/sched.h	2006-03-15 22:10:19.000000000 -0800
++++ linux-2.6.15-rt16-sPR-optatomic/include/linux/sched.h	2006-03-15 22:10:12.000000000 -0800
+@@ -893,6 +893,7 @@ struct task_struct {
+ 	int rcu_read_lock_nesting;
+ 	atomic_t *rcu_flipctr1;
+ 	atomic_t *rcu_flipctr2;
++	int rcu_read_lock_cpu;
+ #endif
+ #ifdef CONFIG_SCHEDSTATS
+ 	struct sched_info sched_info;
+diff -urpNa -X dontdiff linux-2.6.15-rt16-splitPREEMPT_RCU/kernel/rcupreempt.c linux-2.6.15-rt16-sPR-optatomic/kernel/rcupreempt.c
+--- linux-2.6.15-rt16-splitPREEMPT_RCU/kernel/rcupreempt.c	2006-02-24 11:19:50.000000000 -0800
++++ linux-2.6.15-rt16-sPR-optatomic/kernel/rcupreempt.c	2006-03-15 22:07:15.000000000 -0800
+@@ -127,14 +127,24 @@ rcu_read_lock(void)
+ 		/*
+ 		 * Outermost nesting of rcu_read_lock(), so atomically
+ 		 * increment the current counter for the current CPU.
++		 * However, if the counter is zero, there can be no
++		 * race with another decrement.  In addition, since
++		 * we have interrupts disabled, there can be no race
++		 * with another increment.
+ 		 */
+ 
+ 		flipctr = rcu_ctrlblk.completed & 0x1;
+ 		smp_read_barrier_depends();
+ 		current->rcu_flipctr1 = &(__get_cpu_var(rcu_flipctr)[flipctr]);
+-		/* Can optimize to non-atomic on fastpath, but start simple. */
+-		atomic_inc(current->rcu_flipctr1);
+-		smp_mb__after_atomic_inc();  /* might optimize out... */
++		current->rcu_read_lock_cpu = smp_processor_id();
++		if (atomic_read(current->rcu_flipctr1) == 0) {
++			atomic_set(current->rcu_flipctr1,
++				   atomic_read(current->rcu_flipctr1) + 1);
++			smp_mb();  /* will optimize out... */
++		} else {
++			atomic_inc(current->rcu_flipctr1);
++			smp_mb__after_atomic_inc();  /* will optimize out... */
++		}
+ 		if (unlikely(flipctr != (rcu_ctrlblk.completed & 0x1))) {
+ 
+ 			/*
+@@ -170,13 +180,24 @@ rcu_read_unlock(void)
+ 
+ 		/*
+ 		 * Just atomically decrement whatever we incremented.
++		 * However, if the counter is equal to one, there can
++		 * be no other concurrent decrement.  In addition, since
++		 * we have interrupts disabled, there can be no
++		 * concurrent increment.
+ 		 * Might later want to awaken some task waiting for the
+ 		 * grace period to complete, but keep it simple for the
+ 		 * moment.
+ 		 */
+ 
+-		smp_mb__before_atomic_dec();
+-		atomic_dec(current->rcu_flipctr1);
++		if ((atomic_read(current->rcu_flipctr1) == 1) &&
++		    (current->rcu_read_lock_cpu == smp_processor_id())) {
++			atomic_set(current->rcu_flipctr1,
++				   atomic_read(current->rcu_flipctr1) - 1);
++			smp_mb();  /* will optimize out... */
++		} else {
++			smp_mb__before_atomic_dec();
++			atomic_dec(current->rcu_flipctr1);
++		}
+ 		current->rcu_flipctr1 = NULL;
+ 		if (unlikely(current->rcu_flipctr2 != NULL)) {
+ 			atomic_dec(current->rcu_flipctr2);

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932659AbWCQNvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbWCQNvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932659AbWCQNvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 08:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932690AbWCQNvH
+	id S932688AbWCQNvi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 08:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932698AbWCQNvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 08:51:07 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:53445 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932659AbWCQNvF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 08:51:05 -0500
-Message-ID: <441ABEDD.4070003@de.ibm.com>
-Date: Fri, 17 Mar 2006 14:51:25 +0100
-From: Carsten Otte <cotte@de.ibm.com>
-Reply-To: carsteno@de.ibm.com
-Organization: IBM Deutschland
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 17 Mar 2006 08:51:38 -0500
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:40336 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932688AbWCQNvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 08:51:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=jFdP2smVes5PzgcFCEydAMc5Sy4t5RayX8Xd+W+8RuNGvg396fKpVm8sytm9I7XpzkVANAiIjA+C/FPS7vKNGssHKcx1Ebnezt/JfcUllGzR2VMzWqGI8T2WGpUvdSDfEOcUYAGOdV5etICJggKPiQV1GbXvynSlQXfRwW6L/cQ=  ;
+Message-ID: <441ABEE5.3050408@yahoo.com.au>
+Date: Sat, 18 Mar 2006 00:51:33 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: [patch] mspec - special memory driver and do_no_pfn handler
-References: <yq0k6auuy5n.fsf@jaguar.mkp.net>
-In-Reply-To: <yq0k6auuy5n.fsf@jaguar.mkp.net>
-Content-Type: text/plain; charset=us-ascii
+To: Con Kolivas <kernel@kolivas.org>
+CC: Ingo Molnar <mingo@elte.hu>, ck@vds.kolivas.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched: activate SCHED BATCH expired
+References: <200603081013.44678.kernel@kolivas.org> <200603172338.10107.kernel@kolivas.org> <441AB8FA.10609@yahoo.com.au> <200603180036.11326.kernel@kolivas.org> <441ABD9F.6060407@yahoo.com.au>
+In-Reply-To: <441ABD9F.6060407@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen wrote:
-> Index: linux-2.6/include/linux/mm.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/mm.h
-> +++ linux-2.6/include/linux/mm.h
-> @@ -199,6 +199,7 @@
->  	void (*open)(struct vm_area_struct * area);
->  	void (*close)(struct vm_area_struct * area);
->  	struct page * (*nopage)(struct vm_area_struct * area, unsigned long address, int *type);
-> +	long (*nopfn)(struct vm_area_struct * area, unsigned long address, int *type);
->  	int (*populate)(struct vm_area_struct * area, unsigned long address, unsigned long len, pgprot_t prot, unsigned long pgoff, int nonblock);
->  #ifdef CONFIG_NUMA
->  	int (*set_policy)(struct vm_area_struct *vma, struct mempolicy *new);
-If you use address as parameter to nopfn, it won't work with highmem
-on 32bit systems. Alternative would be to use (unsigned long) phys. page
-frame number.
+Nick Piggin wrote:
+> Con Kolivas wrote:
 
-Your work in memory.c looks like the right thing to do.
-Afaics it will work for xip as well once I figure how to
-do COW. Cool stuff :-).
+>> I'm not attached to the style, just the feature. If you think it's 
+>> warranted I'll change it.
+>>
+> 
 
-Carsten
+> At least other archtectures might be able to make better use of it,
+> and I agree even for i386 the code looks better (and slightly smaller).
+> 
+
+s/I agree/I think/
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

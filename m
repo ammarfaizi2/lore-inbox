@@ -1,106 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWCQO50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWCQPB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWCQO50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 09:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWCQO50
+	id S1751192AbWCQPB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 10:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbWCQPB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 09:57:26 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:9344 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750884AbWCQO5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 09:57:25 -0500
-Date: Fri, 17 Mar 2006 08:57:09 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: mingo@elte.hu, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] - Reduce overhead of calc_load
-Message-ID: <20060317145709.GA4296@sgi.com>
+	Fri, 17 Mar 2006 10:01:26 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:64230 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751192AbWCQPB0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 10:01:26 -0500
+Date: Fri, 17 Mar 2006 15:59:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jack Steiner <steiner@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Reduce overhead of calc_load
+Message-ID: <20060317145912.GA13207@elte.hu>
+References: <20060317145709.GA4296@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20060317145709.GA4296@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, count_active_tasks() calls both nr_running() & nr_interruptible().
-Each of these functions does a "for_each_cpu" & reads values from the
-runqueue of each cpu. Although this is not a lot of instructions, each
-runqueue may be located on different node. Depending on the architecture,
-a unique TLB entry may be required to access each runqueue. 
 
-Since there may be more runqueues than cpu TLB entries, a scan of all runqueues 
-can trash the TLB. Each memory reference incurs a TLB miss & refill.
+* Jack Steiner <steiner@sgi.com> wrote:
 
-In addition, the runqueue cacheline that contains nr_running & 
-nr_uninterruptible may be evicted from the cache between the two passes.
-This causes unnecessary cache misses.
+> 	Signed-off-by: Jack Steiner <steiner@sgi.com>
 
-Combining nr_running() & nr_interruptible() into a single function
-substantially reduces the TLB & cache misses on large systems. This should 
-have no measureable effect on smaller systems.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-On a 128p IA64 system running a memory stress workload, the new function reduced
-the overhead of calc_load() from 605 usec/call to 324 usec/call. 
+>  extern int nr_processes(void);
+>  extern unsigned long nr_running(void);
+> +extern unsigned long nr_active(void);
+>  extern unsigned long nr_uninterruptible(void);
+>  extern unsigned long nr_iowait(void);
 
+ob'nit, i'd make it:
 
-	Signed-off-by: Jack Steiner <steiner@sgi.com>
+>  extern int nr_processes(void);
+>  extern unsigned long nr_running(void);
+>  extern unsigned long nr_uninterruptible(void);
+> +extern unsigned long nr_active(void);
+>  extern unsigned long nr_iowait(void);
 
- include/linux/sched.h |    1 +
- kernel/sched.c        |   16 ++++++++++++++++
- kernel/timer.c        |    8 +++++++-
- 3 files changed, 24 insertions(+), 1 deletion(-)
+just to keep the logical order.
 
-
-
-Index: linux/include/linux/sched.h
-===================================================================
---- linux.orig/include/linux/sched.h	2006-03-16 16:17:55.982340489 -0600
-+++ linux/include/linux/sched.h	2006-03-16 16:26:01.137096980 -0600
-@@ -98,6 +98,7 @@ extern int last_pid;
- DECLARE_PER_CPU(unsigned long, process_counts);
- extern int nr_processes(void);
- extern unsigned long nr_running(void);
-+extern unsigned long nr_active(void);
- extern unsigned long nr_uninterruptible(void);
- extern unsigned long nr_iowait(void);
- 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2006-03-16 16:17:56.376832371 -0600
-+++ linux/kernel/sched.c	2006-03-16 16:26:01.141002841 -0600
-@@ -1655,6 +1655,22 @@ unsigned long nr_iowait(void)
- 	return sum;
- }
- 
-+unsigned long nr_active(void)
-+{
-+	unsigned long i, running = 0, uninterruptible = 0;
-+
-+	for_each_online_cpu(i) {
-+		running += cpu_rq(i)->nr_running;
-+		uninterruptible += cpu_rq(i)->nr_uninterruptible;
-+	}
-+
-+	if (unlikely((long)uninterruptible < 0))
-+		uninterruptible = 0;
-+
-+	return running + uninterruptible;
-+}
-+
-+
- #ifdef CONFIG_SMP
- 
- /*
-Index: linux/kernel/timer.c
-===================================================================
---- linux.orig/kernel/timer.c	2006-03-16 16:17:56.385620556 -0600
-+++ linux/kernel/timer.c	2006-03-16 16:26:01.141979306 -0600
-@@ -849,7 +849,7 @@ void update_process_times(int user_tick)
-  */
- static unsigned long count_active_tasks(void)
- {
--	return (nr_running() + nr_uninterruptible()) * FIXED_1;
-+	return nr_active() * FIXED_1;
- }
- 
- /*
+	Ingo

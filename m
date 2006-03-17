@@ -1,161 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752463AbWCQAfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752456AbWCQAhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752463AbWCQAfY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 19:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752462AbWCQAfY
+	id S1752456AbWCQAhq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 19:37:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752461AbWCQAhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 19:35:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5506 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752459AbWCQAfX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 19:35:23 -0500
-Date: Thu, 16 Mar 2006 16:37:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jes Sorensen <jes@sgi.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, hch@lst.de, cotte@de.ibm.com,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [patch] mspec - special memory driver and do_no_pfn handler
-Message-Id: <20060316163728.06f49c00.akpm@osdl.org>
-In-Reply-To: <yq0k6auuy5n.fsf@jaguar.mkp.net>
-References: <yq0k6auuy5n.fsf@jaguar.mkp.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 16 Mar 2006 19:37:46 -0500
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:58489 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1752456AbWCQAhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Mar 2006 19:37:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=w38ZIqcpE5bK8UvseZ63u9BjhpOn+lUrIBL1ZKkEqZU2ISFhxo6PXjxpHcdIMJ+k+iq5WTg6Xjr0OhLPxCwjU+EjPD/joggtdfazAPfx2PGW7RGDpFuXMMExiFX/43nNb5Cc6c3ptPh6c1fHWXDM+daUI0/bBA7Zxe5Lb5kSRqA=  ;
+Message-ID: <441A04D0.3060201@yahoo.com.au>
+Date: Fri, 17 Mar 2006 11:37:36 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+CC: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       "Bryan O'Sullivan" <bos@pathscale.com>, torvalds@osdl.org,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10 of 20] ipath - support for userspace apps using core
+ driver
+References: <71644dd19420ddb07a75.1141922823@localhost.localdomain> <ada4q27fban.fsf@cisco.com> <1141948516.10693.55.camel@serpentine.pathscale.com> <ada1wxbdv7a.fsf@cisco.com> <1141949262.10693.69.camel@serpentine.pathscale.com> <20060309163740.0b589ea4.akpm@osdl.org> <1142470579.6994.78.camel@localhost.localdomain> <ada3bhjuph2.fsf@cisco.com> <1142475069.6994.114.camel@localhost.localdomain> <adaslpjt8rg.fsf@cisco.com> <1142477579.6994.124.camel@localhost.localdomain> <20060315192813.71a5d31a.akpm@osdl.org> <1142485103.25297.13.camel@camp4.serpentine.com> <20060315213813.747b5967.akpm@osdl.org> <ada8xrbszmx.fsf@cisco.com> <4419062C.6000803@yahoo.com.au> <Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0603161426010.21570@goblin.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@sgi.com> wrote:
->
-> Hi,
+Hugh Dickins wrote:
+> On Thu, 16 Mar 2006, Nick Piggin wrote:
 > 
-> This is an updated version of the mspec driver (special memory
-> support), formerly known as fetchop.
+>>>How about the case where one wants to map pages from
+>>>dma_alloc_coherent() into userspace?  It seems one should do
+>>>get_page() in .nopage, and then the driver can do dma_free_coherent()
+>>>when the vma is released.
+>>
+>>I think so, provided you set VM_IO on the vma. You need VM_IO to
+>>ensure that get_user_pages callers can't hijack your page's lifetime
+>>rules
 > 
-> With this version I have implemented a do_no_pfn() handler, similar to
-> the do_no_page() handler but for pages which are not backed by a
-> struct page.
-
-hm.  Is that a superset of ->nopage?  Should we be looking at
-migrating over to ->nopfn, retire ->nopage?
-
-<looks at the ghastly stuff in do_no_page>
-
-Maybe not...
-
-> This avoids the trick used in earlier versions where the
-> driver was allocating a dumy page returning it back to the
-> do_no_page() handler which would the free it immediately. Hopefully
-> this addresses the main concern there were with this driver in the
-> past.
 > 
-> The reason for taking the do_no_pfn() approch rather than
-> remap_pfn_range() is that it needs to benefit from node locality of
-> the pages on NUMA systems.
+> Once __GFP_COMP is passed to the dma_alloc_coherent, as it needs to be
+> (unless going VM_PFNMAP), get_user_pages will be safe: no need for VM_IO.
 > 
-> While the driver is currently only used on SN2 hardware, it is placed
-> in drivers/char as it should be possible and beneficial for other
-> architectures to implement and use the uncached mode.
-> 
-> Please let me know if there are any objections or comments etc. to
-> this approach. If preferred I can split out the do_no_pfn part into a
-> seperate patch.
 
-That would probably be best.
+But it doesn't look like dma_alloc_coherent is guaranteed to return
+memory allocated from the regular page allocator, nor even memory
+backed by a struct page.
 
-> +#include <linux/config.h>
-> +#include <linux/types.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/errno.h>
-> +#include <linux/miscdevice.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/mm.h>
-> +#include <linux/proc_fs.h>
-> +#include <linux/vmalloc.h>
-> +#include <linux/bitops.h>
-> +#include <linux/string.h>
-> +#include <linux/slab.h>
-> +#include <linux/seq_file.h>
-> +#include <linux/efi.h>
-> +#include <linux/numa.h>
-> +#include <asm/page.h>
-> +#include <asm/pal.h>
-> +#include <asm/system.h>
-> +#include <asm/pgtable.h>
-> +#include <asm/atomic.h>
-> +#include <asm/tlbflush.h>
-> +#include <asm/uncached.h>
-> +#include <asm/sn/addrs.h>
-> +#include <asm/sn/arch.h>
-> +#include <asm/sn/mspec.h>
-> +#include <asm/sn/sn_cpuid.h>
-> +#include <asm/sn/io.h>
-> +#include <asm/sn/bte.h>
-> +#include <asm/sn/shubio.h>
+For example, I see one that returns kmalloc()ed memory. If the pages
+for the slab are already allocated then __GFP_COMP will not do anything
+there. i386 looks like it has a path that uses ioremap...
 
-Wow.
+Now I haven't looked through all these closely like you will have, but
+I'd like to know how __GFP_COMP solves all the potential problems I
+see.
 
-> +static inline int
-> +mspec_zero_block(unsigned long addr, int len)
-> +{
-> +	int status;
-> +
-> +	if (ia64_platform_is("sn2")) {
-
-ia64 uses strcmp() in hotpaths to work out what sort of platform it's
-running on?  Surely someone has cached this info in a __read_mostly integer
-somewhere?
-
-> +static __inline__ pmd_t *
-
-`inline', please.
-
-> +mspec_get_pmd(struct mm_struct *mm, u64 address)
-
-This function has no callers.
-
-> +static int __init
-> +mspec_init(void)
-> +{
-> +	int ret;
-> +	int nid;
-> +
-> +	/*
-> +	 * The fetchop device only works on SN2 hardware, uncached and cached
-> +	 * memory drivers should both be valid on all ia64 hardware
-> +	 */
-> +	if (ia64_platform_is("sn2")) {
-> +		if (is_shub2()) {
-> +			ret = -ENOMEM;
-> +			for_each_online_node(nid) {
-> +				int actual_nid;
-> +
-> +				scratch_page[nid] = uncached_alloc_page(nid);
-> +				if (scratch_page[nid] == 0)
-> +					goto free_scratch_pages;
-> +				actual_nid = nasid_to_cnodeid(get_node_number(__pa(scratch_page[nid])));
-> +				if (actual_nid != nid)
-> +					goto free_scratch_pages;
-> +			}
-> +		}
-> +
-> +		ret = misc_register(&fetchop_miscdev);
-> +		if (ret) {
-> +			printk(KERN_ERR
-> +			       "%s: failed to register device %i\n",
-> +			       FETCHOP_ID, ret);
-> +			goto free_scratch_pages;
-> +		}
-> +	}
-> +	ret = misc_register(&cached_miscdev);
-> +	if (ret) {
-> +		printk(KERN_ERR "%s: failed to register device %i\n",
-> +		       CACHED_ID, ret);
-> +		misc_deregister(&fetchop_miscdev);
-
-You don't know that fetchop_miscdev was registered.
-
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

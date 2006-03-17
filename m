@@ -1,73 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752587AbWCQKlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752585AbWCQKnP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752587AbWCQKlE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 05:41:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752586AbWCQKlE
+	id S1752585AbWCQKnP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 05:43:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752589AbWCQKnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 05:41:04 -0500
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:18624 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1752584AbWCQKlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 05:41:01 -0500
-Date: Fri, 17 Mar 2006 11:40:23 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Phillip Lougher <phillip@lougher.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [ANN] Squashfs 3.0 released
-Message-ID: <20060317104023.GA28927@wohnheim.fh-wedel.de>
-References: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <B6C8687D-6543-42A1-9262-653C4D3C30B2@lougher.org.uk>
-User-Agent: Mutt/1.5.9i
+	Fri, 17 Mar 2006 05:43:15 -0500
+Received: from ironport1.mynow.co.uk ([81.91.192.235]:24212 "EHLO
+	ironport1.mynow.co.uk") by vger.kernel.org with ESMTP
+	id S1752585AbWCQKnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 05:43:14 -0500
+X-BrightmailFiltered: true
+From: "David J. Wallace" <katana@onetel.com>
+To: sdhci-devel@list.drzeus.cx, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Sdhci-devel] Submission to the kernel?
+Date: Fri, 17 Mar 2006 10:42:47 +0000
+User-Agent: KMail/1.8.2
+References: <4419FA7A.4050104@cogweb.net>
+In-Reply-To: <4419FA7A.4050104@cogweb.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart4128332.Ct8g3aRNfr";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200603171042.52589.katana@onetel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 March 2006 00:45:42 +0000, Phillip Lougher wrote:
-> 
-> Squashfs 3.0 has finally been released.  Squashfs 3.0 is a major  
-> improvement to Squashfs, and it addresses most of the issues that  
-> that have been raised, particularly the 4GB filesystem and file  
-> limit.  It can be obtained from the usual address http:// 
-> squashfs.sourceforge.net.  There is still some work to be done, in  
-> particular NFS support which I'll add as soon as I get time.  After  
-> this I'll consider resubmitting patches to the LKML.
-> 
-> From the changelog, the improvements are as follows:
-> 
->         1. Filesystems are no longer limited to 4 GB.  In
->            theory 2^64 or 4 exabytes is now supported.
-> 
->         2. Files are no longer limited to 4 GB.  In theory the maximum
->            file size is 4 exabytes.
-> 
->         3. Metadata (inode table and directory tables) are no longer
->            restricted to 16 Mbytes.
-> 
->         4. Hardlinks are now suppported.
-> 
->         5. Nlink counts are now supported.
-> 
->         6. Readdir now returns '.' and '..' entries.
-> 
->         7. Special support for files larger than 256 MB has been  
-> added to
->            the Squashfs kernel code for faster read access.
-> 
->         8. Inode numbers are now stored within the inode rather than  
-> being
->            computed from inode location on disk (this is not so much an
->            improvement, but a change forced by the previously listed
->            improvements).
+--nextPart4128332.Ct8g3aRNfr
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Nice list of improvements.  The one still painfully missing is a
-fixed-endianness disk format.  Would have been a good time to make an
-incompatible change and decide on one or the other.
+On Thursday 16 March 2006 23:53, David Liontooth wrote:
 
-Jörn
+>
+> I would urge people to test Andrew's latest -mm kernel and report to
+> lkml (cc him) on whether the sdhci driver works or causes any kind of
+> problem.=20
 
--- 
-And spam is a useful source of entropy for /dev/random too!
--- Jasmine Strong
+sdhci is working fine here on my Panasonic CF-R4. Read speeds seem to be ab=
+out=20
+1.5MB/s with writes being a tad slower. This is on a 1GB Lexar SD card usin=
+g=20
+=46AT.  I have tested both 2.6.16-rc6-mm1 and a patched 2.6.15 without issu=
+es.
+
+I can provide logs etc if required, but at present I am happily using the=20
+driver. I'm not subscribed so please cc me if required.
+
+lspci:
+
+00:00.0 Host bridge: Intel Corporation Mobile 915GM/PM/GMS/910GML Express=20
+Processor to DRAM Controller (rev 03)
+00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GM=
+L=20
+Express Graphics Controller (rev 03)
+00:02.1 Display controller: Intel Corporation Mobile 915GM/GMS/910GML Expre=
+ss=20
+Graphics Controller (rev 03)
+00:1d.0 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Famil=
+y)=20
+USB UHCI #1 (rev 04)
+00:1d.7 USB Controller: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Famil=
+y)=20
+USB2 EHCI Controller (rev 04)
+00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev d4)
+00:1e.2 Multimedia audio controller: Intel Corporation 82801FB/FBM/FR/FW/FR=
+W=20
+(ICH6 Family) AC'97 Audio Controller (rev 04)
+00:1e.3 Modem: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) AC'97=
+=20
+Modem Controller (rev 04)
+00:1f.0 ISA bridge: Intel Corporation 82801FBM (ICH6M) LPC Interface Bridge=
+=20
+(rev 04)
+00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family=
+)=20
+IDE Controller (rev 04)
+00:1f.3 SMBus: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) SMBus=
+=20
+Controller (rev 04)
+06:01.0 Ethernet controller: Realtek Semiconductor Co., Ltd.=20
+RTL-8139/8139C/8139C+ (rev 10)
+06:04.0 Network controller: Intel Corporation PRO/Wireless 2915ABG MiniPCI=
+=20
+Adapter (rev 05)
+06:05.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 8d)
+06:05.1 Class 0805: Ricoh Co Ltd R5C822 SD/SDIO/MMC/MS/MSPro Host Adapter (=
+rev=20
+13)
+
+Now to get hotkeys working on this laptop...
+
+Regards,
+
+David
+
+
+--nextPart4128332.Ct8g3aRNfr
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBEGpKsKsvwCXwmAPgRAl5SAKCB6stWAox+CFZoLFxtUglIqVKUwgCeIayR
+SfTfTgAf5sB15ErrJ22QrMs=
+=n00v
+-----END PGP SIGNATURE-----
+
+--nextPart4128332.Ct8g3aRNfr--

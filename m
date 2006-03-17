@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752554AbWCQJ0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752571AbWCQJYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752554AbWCQJ0O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 04:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752580AbWCQJ0O
+	id S1752571AbWCQJYt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 04:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752580AbWCQJYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 04:26:14 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:38350 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752554AbWCQJ0O (ORCPT
+	Fri, 17 Mar 2006 04:24:49 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:432 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1752571AbWCQJYs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 04:26:14 -0500
-Date: Fri, 17 Mar 2006 10:23:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Jan Altenberg <tb10alj@tglx.de>,
-       Sastien Dugu <sebastien.dugue@bull.net>
-Subject: Re: 2.6.16-rc6-rt3
-Message-ID: <20060317092351.GA18491@elte.hu>
-References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com> <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4416F14E.1040708@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 17 Mar 2006 04:24:48 -0500
+Message-ID: <1142587487.441a805faa348@imp1-g19.free.fr>
+Date: Fri, 17 Mar 2006 10:24:47 +0100
+From: l.wandrebeck@free.fr
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [patch 1/1] OSS ali5455 missing return check for request_region()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 82.127.4.221
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+in sound/oss/ali5455.c, request_region() is called without checking the return
+value. Here is a simple patch to fix it.
+Please apply, even if OSS is aimed at /dev/null some day :-)
+Patch applies cleanly on 2.6.16-rc6 and 2.6.16-rc6-git8.
+Regards.
 
-* K.R. Foley <kr@cybsft.com> wrote:
+Signed-off-by: Laurent Wandrebeck <l.wandrebeck@free.fr>
 
->  [<c0103c3b>] die+0xf3/0x16f (56)
->  [<c0111e19>] do_page_fault+0x36f/0x48a (88)
->  [<c010357f>] error_code+0x4f/0x54 (76)
->  [<c0132cc6>] resolve_symbol+0x22/0x5d (44)
->  [<c013321c>] simplify_symbols+0x81/0xf4 (40)
->  [<c0133e2d>] load_module+0x637/0x968 (168)
->  [<c01341c1>] sys_init_module+0x3d/0x1d3 (28)
->  [<c0102a1b>] sysenter_past_esp+0x54/0x75 (-8116)
-
-S�bastien Dugu� found a bug that might explain your crash: during the 
-2.6.16 rebase we lost a section marker which missing marker placed 
-assembly code into the ksymtabs table. That could cause confusion in the 
-ksymtab parser.
-
-I've released 2.6.16-rc6-rt9 with this fix - could you check whether the 
-crash you are seeing is fixed?
-
-	Ingo
+--- linux-2.6.16-rc6-low/sound/oss/ali5455.c.ori        2006-03-11
+23:12:55.000000000 +0100
++++ linux-2.6.16-rc6-low/sound/oss/ali5455.c    2006-03-16 23:45:27.316837000
++0100
+@@ -3457,7 +3457,12 @@ static int __devinit ali_probe(struct pc
+        card->channel[4].port = 0xb0;
+        card->channel[4].num = 4;
+        /* claim our iospace and irq */
+-       request_region(card->iobase, 256, card_names[pci_id->driver_data]);
++       if (request_region(card->iobase, 256, card_names[pci_id->driver_data]) <
+0) {
++               printk(KERN_ERR "ali_audio: unable to reserve region %d\n",
++                                card->iobase);
++               kfree(card);
++               return -ENODEV;
++       }
+        if (request_irq(card->irq, &ali_interrupt, SA_SHIRQ,
+                        card_names[pci_id->driver_data], card)) {
+                printk(KERN_ERR "ali_audio: unable to allocate irq %d\n",

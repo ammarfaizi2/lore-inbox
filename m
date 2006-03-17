@@ -1,124 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWCQQq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWCQQtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWCQQq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 11:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWCQQq1
+	id S1751188AbWCQQtx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 11:49:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbWCQQtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 11:46:27 -0500
-Received: from orfeus.profiwh.com ([82.100.20.117]:59400 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1750803AbWCQQq0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 11:46:26 -0500
-Message-ID: <441AE7EE.2050701@gmail.com>
-Date: Fri, 17 Mar 2006 17:46:15 +0059
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060210)
+	Fri, 17 Mar 2006 11:49:53 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:29056 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751188AbWCQQtx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 11:49:53 -0500
+Message-ID: <441AE891.9060207@us.ibm.com>
+Date: Fri, 17 Mar 2006 11:49:21 -0500
+From: Janak Desai <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ian Kent <raven@themaw.net>
-CC: Jiri Slaby <xslaby@fi.muni.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BUG: atomic counter underflow [Was: 2.6.16-rc6-mm1]
-References: <E1FIYLc-00080b-00@decibel.fi.muni.cz> <Pine.LNX.4.64.0603131330210.21830@eagle.themaw.net>
-In-Reply-To: <Pine.LNX.4.64.0603131330210.21830@eagle.themaw.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Michael Kerrisk <mtk-manpages@gmx.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk,
+       hch@lst.de, ak@muc.de, paulus@samba.org
+Subject: Re: [PATCH] unshare: Cleanup up the sys_unshare interface before
+ we are committed.
+References: <Pine.LNX.4.64.0603161555210.3618@g5.osdl.org>	<29085.1142557915@www064.gmx.net>	<Pine.LNX.4.64.0603162140190.3618@g5.osdl.org> <m1y7z93vmu.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1y7z93vmu.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SpamReason: {}-{0,00}-{0,00}-{0,00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Eric W. Biederman wrote:
 
-Ian Kent napsal(a):
-> On Sun, 12 Mar 2006, Jiri Slaby wrote:
-> 
->> Andrew Morton wrote:
->>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc6/2.6.16-rc6-mm1/
->> [snip]
->>> +remove-redundant-check-from-autofs4_put_super.patch
->>> +autofs4-follow_link-missing-funtionality.patch
+>Linus Torvalds <torvalds@osdl.org> writes:
+>
+>  
+>
+>>On Fri, 17 Mar 2006, Michael Kerrisk wrote:
+>>    
+>>
+>>>> - it's all the same issues that clone() has
+>>>>        
+>>>>
+>>>At the moment, but possibly not in the future (if one day
+>>>usnhare() needs a flag that has no analogue in clone()).
+>>>      
 >>>
->>> Update autofs4 patches in -mm.
->> Hello, 
+>>I don't believe that.
 >>
->> I caught this during ftp browsing autofs-bind-mounted directories. I don't know
->> circumstancies and if the patches above are source of problem. I also don't know
->> if -rc6-mm1 is the first one.
-> 
-> btw what do you mean autofs-bind-mounted ?
-For the first, sorry for the delay, I am going now to test it and gain more info
-how to reproduce it. Come back soon.
-> 
->> BUG: atomic counter underflow at:
->>  [<c0104736>] show_trace+0x13/0x15
->>  [<c0104873>] dump_stack+0x1e/0x20
->>  [<c01d6c97>] autofs4_wait+0x751/0x93a
->>  [<c01d543b>] try_to_fill_dentry+0xca/0x11c
->>  [<c01d59b3>] autofs4_revalidate+0xe1/0x148
->>  [<c0171338>] do_lookup+0x40/0x157
->>  [<c0172ec4>] __link_path_walk+0x804/0xe8c
->>  [<c017359c>] link_path_walk+0x50/0xe8
->>  [<c01738b7>] do_path_lookup+0x10f/0x26d
->>  [<c017429c>] __user_walk_fd+0x33/0x50
->>  [<c016d226>] vfs_stat_fd+0x1e/0x50
->>  [<c016d30d>] vfs_stat+0x20/0x22
->>  [<c016d328>] sys_stat64+0x19/0x2d
->>  [<c0103127>] syscall_call+0x7/0xb
+>>If we have something we might want to unshare, that implies by definition 
+>>that it was something we wanted to conditionally share in the first place.
 >>
-> 
-> There's some suspicious code in waitq.c.
-> Could you try the following patch for me please?
-> 
-> --- linux-2.6.16-rc6-mm1/fs/autofs4/waitq.c.notify-bug	2006-03-13 13:23:52.000000000 +0800
-> +++ linux-2.6.16-rc6-mm1/fs/autofs4/waitq.c	2006-03-13 13:25:40.000000000 +0800
-> @@ -263,7 +263,7 @@ int autofs4_wait(struct autofs_sb_info *
->  		wq->tgid = current->tgid;
->  		wq->status = -EINTR; /* Status return if interrupted */
->  		atomic_set(&wq->wait_ctr, 2);
-> -		atomic_set(&wq->notified, 1);
-> +		atomic_set(&wq->notify, 1);
->  		mutex_unlock(&sbi->wq_mutex);
->  	} else {
->  		atomic_inc(&wq->wait_ctr);
-> @@ -273,9 +273,11 @@ int autofs4_wait(struct autofs_sb_info *
->  			(unsigned long) wq->wait_queue_token, wq->len, wq->name, notify);
->  	}
+>>IOW, it ends up being something that would be a clone() flag.
+>>
+>>So I really do believe that there is a fundamental 1:1 between the flags. 
+>>They aren't just "similar". They are very fundamentally about the same 
+>>thing, and giving two different names to the same thing is CONFUSING.
+>>    
+>>
+>
+>The scary thing is that with only 7 things we can share or not,
+>and a 32bit field we have only 7 bits left that we can define.
+>Last count I think I know of at least that many additional global
+>namespaces in the kernel.
+>
+>
+>
+>On the confusing side.  Unshare largely because it doesn't default to
+>unsharing all of the thread state.  Has the weird issue that unshare
+>will automatically add bits you didn't ask for (so it can satisfy your
+>request) and unsharing more than you requested.  Clone when presented
+>with the same situation returns an error.
 >  
-> -	if (notify != NFY_NONE && atomic_dec_and_test(&wq->notified)) {
-> +	if (notify != NFY_NONE && atomic_read(&wq->notify)) {
->  		int type;
->  
-> +		atomic_dec(&wq->notify);
-> +
->  		if (sbi->version < 5) {
->  			if (notify == NFY_MOUNT)
->  				type = autofs_ptype_missing;
-> --- linux-2.6.16-rc6-mm1/fs/autofs4/autofs_i.h.notify-bug	2006-03-13 13:23:39.000000000 +0800
-> +++ linux-2.6.16-rc6-mm1/fs/autofs4/autofs_i.h	2006-03-13 13:24:08.000000000 +0800
-> @@ -85,7 +85,7 @@ struct autofs_wait_queue {
->  	pid_t tgid;
->  	/* This is for status reporting upon return */
->  	int status;
-> -	atomic_t notified;
-> +	atomic_t notify;
->  	atomic_t wait_ctr;
->  };
->  
-> 
-> 
-> 
+>
+We are probably digressing from the original discussion but just wanted to
+point out that the situations presented to clone and unshare are a bit 
+different.
+Clone returns an error because in the same call you are trying to provide
+illegal combination of flags. Like saying that you want a new namespace
+but want to share the filesystem. There is no way for clone to know which
+of the two flags to honor or ignore. Where as with unshare if you are
+trying to unshare namespace but are currently sharing filesystem, then
+it is possible to complete the request by unsharing filesystem as well .
+You may remember that the earlier incarnation of the unshare patch did
+return an error. However it was pointed out, and correctly so, that it is
+better to unshare appropriate related contexts.
 
-thanks,
-- --
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+-Janak
 
-iD8DBQFEGueJMsxVwznUen4RAh2NAKCn3If6/WX0/Ps/EGVM1TigT47zLgCfeftr
-idL2GKQBfiW0MPCmsea9ZkI=
-=24hQ
------END PGP SIGNATURE-----
+>So even while the resources are the same the interaction of the
+>bits really is quite different between the two calls.
+>
+>Eric
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+

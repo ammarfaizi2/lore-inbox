@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWCQSLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWCQSMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWCQSLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 13:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWCQSLG
+	id S1030248AbWCQSMl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 13:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWCQSMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 13:11:06 -0500
-Received: from mail.linicks.net ([217.204.244.146]:8069 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1030247AbWCQSLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 13:11:05 -0500
-From: Nick Warne <nick@linicks.net>
-To: "Felipe Alfaro Solana" <felipe.alfaro@gmail.com>,
-       linux-kernel@vger.kernel.org
+	Fri, 17 Mar 2006 13:12:41 -0500
+Received: from pproxy.gmail.com ([64.233.166.180]:6227 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030249AbWCQSMk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 13:12:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QHVTMYRXXL+ixihp9qVJqWRxAVXBK0suuGTiTnyJ63a3EFgFKWL5knYo81NzoY8dtMgg91/BuMkQ+wl1f4pT9f4GYaaHu12rRXdeOfXOnpJUPIC9aSSqaplEijdN4crtO57DDXCdFYU3pAV8aRINu7oW8GspH0VS1b3Q4mwKqe0=
+Message-ID: <bda6d13a0603171012te97c31ew10df997df447a631@mail.gmail.com>
+Date: Fri, 17 Mar 2006 10:12:39 -0800
+From: "Joshua Hudson" <joshudson@gmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: chmod 111
-Date: Fri, 17 Mar 2006 18:11:01 +0000
-User-Agent: KMail/1.9.1
-References: <200603171746.18894.nick@linicks.net> <6f6293f10603171007vbf752e5n8a3d6f2d65e0a1e7@mail.gmail.com>
-In-Reply-To: <6f6293f10603171007vbf752e5n8a3d6f2d65e0a1e7@mail.gmail.com>
+In-Reply-To: <200603171746.18894.nick@linicks.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200603171811.01963.nick@linicks.net>
+References: <200603171746.18894.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 March 2006 18:07, Felipe Alfaro Solana wrote:
-> > I shouldn't be able to execute 'ls' as I can't read it, shouldn't it?
+On 3/17/06, Nick Warne <nick@linicks.net> wrote:
+> Hi All,
 >
-> Nop... you can execute binaries even if the read permission is not
-> granted. Note that I said "binaries". Shell script files need read and
-> execute permission, since they must be read by a shell interpreter in
-> order to get executed.
+> First, I apologise if this isn't a kernel question, but I think it is related.
+>
+> Slackware 10 base, 2.6.15.6
+>
+> I am normal user, in groups users and wheel.  Why can I do this:
+>
+>
+> nick@linuxamd:nick$ which ls
+> /usr/bin/ls
+> nick@linuxamd:nick$ ls -lsa /usr/bin/ls
+> 0 lrwxrwxrwx  1 root root 12 2004-07-22 22:52 /usr/bin/ls -> ../../bin/ls
+> nick@linuxamd:nick$ cd /bin
+> nick@linuxamd:bin$ sudo chmod 111 ls
+> nick@linuxamd:bin$ ls -lsa ls
+> 76 ---x--x--x  1 root bin 72608 2004-03-16 02:08 ls
+>
+>
+>
+> I shouldn't be able to execute 'ls' as I can't read it, shouldn't it?
+>
+> Nick
 
-Hi Felipe,
-
-First, apologies as this isn't kernel issue (but related, I suppose).
-
-Yes, I see now after much messing about.  Why then are most binaries chmod 
-755?  Who would need (why) to read a [system] binary?
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+You have x permission, you can execute. That's the rules.
+Now a shell script, ...

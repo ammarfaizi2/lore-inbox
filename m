@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWCQRUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030217AbWCQRWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbWCQRUc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 12:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030217AbWCQRUc
+	id S1030217AbWCQRWN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 12:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbWCQRWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 12:20:32 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:29410 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030216AbWCQRUb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 12:20:31 -0500
-Subject: Re: [PATCH: 009/017]Memory hotplug for new nodes v.4.(add return
-	code init_currently_empty_zone)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>, Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20060317163404.C649.Y-GOTO@jp.fujitsu.com>
-References: <20060317163404.C649.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Fri, 17 Mar 2006 09:19:11 -0800
-Message-Id: <1142615951.10906.70.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 12:22:13 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:776 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030218AbWCQRWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 12:22:11 -0500
+Date: Fri, 17 Mar 2006 18:22:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Suzuki <suzuki@in.ibm.com>,
+       linux-fsdevel@vger.kernel.org,
+       "linux-aio kvack.org" <linux-aio@kvack.org>,
+       lkml <linux-kernel@vger.kernel.org>, suparna <suparna@in.ibm.com>,
+       akpm@osdl.org, linux-xfs@oss.sgi.com
+Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
+Message-ID: <20060317172210.GP3914@stusta.de>
+References: <440FDF3E.8060400@in.ibm.com> <20060309120306.GA26682@infradead.org> <20060309223042.GC1135@frodo> <20060309224219.GA6709@infradead.org> <20060309231422.GD1135@frodo> <20060310005020.GF1135@frodo>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060310005020.GF1135@frodo>
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 17:22 +0900, Yasunori Goto wrote:
-> --- pgdat8.orig/mm/memory_hotplug.c	2006-03-16 16:05:38.000000000 +0900
-> +++ pgdat8/mm/memory_hotplug.c	2006-03-16 16:45:30.000000000 +0900
-> @@ -26,16 +26,23 @@
->  
->  extern void zonetable_add(struct zone *zone, int nid, int zid, unsigned long pfn,
->  			  unsigned long size);
-> -static void __add_zone(struct zone *zone, unsigned long phys_start_pfn)
-> +static int __add_zone(struct zone *zone, unsigned long phys_start_pfn)
->  {
->  	struct pglist_data *pgdat = zone->zone_pgdat;
->  	int nr_pages = PAGES_PER_SECTION;
->  	int nid = pgdat->node_id;
->  	int zone_type;
-> +	int ret = 0;
->  
->  	zone_type = zone - pgdat->node_zones;
-> +	if (!populated_zone(zone)) {
-> +		ret = init_currently_empty_zone(zone, phys_start_pfn, nr_pages);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
->  	memmap_init_zone(nr_pages, nid, zone_type, phys_start_pfn);
->  	zonetable_add(zone, nid, zone_type, phys_start_pfn, nr_pages);
-> +	return 0;
->  }
+On Fri, Mar 10, 2006 at 11:50:20AM +1100, Nathan Scott wrote:
+> On Fri, Mar 10, 2006 at 10:14:22AM +1100, Nathan Scott wrote:
+> > On Thu, Mar 09, 2006 at 10:42:19PM +0000, Christoph Hellwig wrote:
+> > > On Fri, Mar 10, 2006 at 09:30:42AM +1100, Nathan Scott wrote:
+> > > > Not for reads AFAICT - __generic_file_aio_read + own-locking
+> > > > should always have released i_mutex at the end of the direct
+> > > > read - are you thinking of writes or have I missed something?
+> > > 
+> > > if an error occurs before a_ops->direct_IO is called __generic_file_aio_read
+> > > will return with i_mutex still locked.  Note that checking for negative
+> > > return values is not enough as __blockdev_direct_IO can return errors
+> > > aswell.
+> > 
+> > *groan* - right you are.  Another option may be to have the
+> > generic dio+own-locking case reacquire i_mutex if it drops
+> > it, before returning... thoughts?  Seems alot less invasive
+> > than the filemap.c code dup'ing thing.
+> 
+> Something like this (works OK for me)...
 
-Minor nit: If you're going to introduce a top-level 'ret' variable, it
-is probably best to just use it everywhere.  In this case, you only use
-it inside of that if(), so you _could_ declare it in there.
+Is this 2.6.16 material?
 
--- Dave
+> cheers.
+> Nathan
+>...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

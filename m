@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWCQTho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWCQTkD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbWCQTho (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 14:37:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWCQTho
+	id S1751132AbWCQTkD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 14:40:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWCQTkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 14:37:44 -0500
-Received: from rtr.ca ([64.26.128.89]:55272 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750814AbWCQThn (ORCPT
+	Fri, 17 Mar 2006 14:40:03 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:14003 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751132AbWCQTkC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 14:37:43 -0500
-Message-ID: <441B1003.4060003@rtr.ca>
-Date: Fri, 17 Mar 2006 14:37:39 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20060305 SeaMonkey/1.1a
+	Fri, 17 Mar 2006 14:40:02 -0500
+Message-ID: <441B1025.7000708@cfl.rr.com>
+Date: Fri, 17 Mar 2006 14:38:13 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: "David J. Wallace" <katana@onetel.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, sdhci-devel@list.drzeus.cx
-Subject: Re: [Sdhci-devel] Submission to the kernel?
-References: <4419FA7A.4050104@cogweb.net>	<200603171042.52589.katana@onetel.com> <441AD537.5080403@rtr.ca> <441AD9C3.2090703@drzeus.cx>
-In-Reply-To: <441AD9C3.2090703@drzeus.cx>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Steven Rostedt <rostedt@goodmis.org>, Nick Warne <nick@linicks.net>,
+       Felipe Alfaro Solana <felipe.alfaro@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: chmod 111
+References: <200603171746.18894.nick@linicks.net>  <6f6293f10603171007vbf752e5n8a3d6f2d65e0a1e7@mail.gmail.com>  <200603171811.01963.nick@linicks.net> <1142620004.9478.13.camel@localhost.localdomain> <Pine.LNX.4.64.0603171036240.3618@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0603171036240.3618@g5.osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Mar 2006 19:42:29.0454 (UTC) FILETIME=[ED1006E0:01C649FA]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14329.000
+X-TM-AS-Result: No--1.300000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Mark Lord wrote:
->> But I have concerns over maintenance of the code -- there does not
->> seem to be a functioning (for me) email address for a maintainer.
->>
+Linus Torvalds wrote:
+> In particular, it's fairly easy to create a shared library that replaces a 
+> system library (LD_LIBRARY_PATH) and then just dumps out the binary image.
 > 
-> You don't seem to have any problems reaching the mailing list hosted on
-> the same mail server as the address directly to me. :)
 
-Ahh.. your email is different from the non-functioning email address
-that you have on the patch itself (linked to from your web site):
+What prevents you from injecting a shared library and manipulating a 
+suid executable?  Does the environment get cleared when you exec a suid 
+program?  Or does the dynamic linker just notice euid != uid and ignore 
+the LD environment variables?  If so then would adding the sgid bit and 
+making the binary owned by a powerless group effectively prevent this 
+attack vector to read it?
 
-     sdhci-devel@list.drzeus.cx
 
-That one above didn't work for me, and until now I had assumed
-it to be your preferred address (aka. /dev/null).
-
-Cheers

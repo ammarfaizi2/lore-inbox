@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752476AbWCQBE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752470AbWCQBGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752476AbWCQBE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Mar 2006 20:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752474AbWCQBE3
+	id S1752470AbWCQBGE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Mar 2006 20:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752474AbWCQBGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Mar 2006 20:04:29 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:15242 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752467AbWCQBE2 (ORCPT
+	Thu, 16 Mar 2006 20:06:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65418 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752470AbWCQBGD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Mar 2006 20:04:28 -0500
-Date: Thu, 16 Mar 2006 17:04:14 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, hch@lst.de, cotte@de.ibm.com,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [patch] mspec - special memory driver and do_no_pfn handler
-In-Reply-To: <20060316163728.06f49c00.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0603161659210.3618@g5.osdl.org>
-References: <yq0k6auuy5n.fsf@jaguar.mkp.net> <20060316163728.06f49c00.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Mar 2006 20:06:03 -0500
+Date: Thu, 16 Mar 2006 17:08:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, shaohua.li@intel.com,
+       bryce@osdl.org
+Subject: Re: [PATCH] Check for online cpus before bringing them up
+Message-Id: <20060316170814.02fa55a1.akpm@osdl.org>
+In-Reply-To: <20060316174447.GA8184@in.ibm.com>
+References: <20060316174447.GA8184@in.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 16 Mar 2006, Andrew Morton wrote:
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+>
+> Bryce reported a bug wherein offlining CPU0 (on x86 box) and then subsequently
+> onlining it resulted in a lockup. 
 > 
-> hm.  Is that a superset of ->nopage?  Should we be looking at
-> migrating over to ->nopfn, retire ->nopage?
+> On x86, CPU0 is never offlined. The subsequent attempt to online CPU0
+> doesn't take that into account. It actually tries to bootup the already
+> booted CPU. Following patch fixes the problem (as acknowledged by
+> Bryce). Please consider for inclusion in 2.6.16.
 > 
-> <looks at the ghastly stuff in do_no_page>
 > 
-> Maybe not...
 
-Yeah, absolutely _not_.
+Is x86 the only architecture which is exposed to this?
 
-If we wouldn't pass the "struct page" around, we wouldn't have anything to 
-synchronize with, and each nopage() function would have to do rmap stuff.
+> 
+> diff -puN arch/i386/kernel/smpboot.c~cpuhp arch/i386/kernel/smpboot.c
+> --- linux-2.6.16-rc5/arch/i386/kernel/smpboot.c~cpuhp	2006-03-14 14:42:26.000000000 +0530
+> +++ linux-2.6.16-rc5-root/arch/i386/kernel/smpboot.c	2006-03-14 14:43:21.000000000 +0530
+> @@ -1029,6 +1029,12 @@ int __devinit smp_prepare_cpu(int cpu)
+>  	int	apicid, ret;
+>  
+>  	lock_cpu_hotplug();
+> +
+> +	if (cpu_online(cpu)) {
+> +		ret = -EINVAL;
+> +		goto exit;
+> +	}
+> +
+>  	apicid = x86_cpu_to_apicid[cpu];
+>  	if (apicid == BAD_APICID) {
+>  		ret = -ENODEV;
 
-That's actually how nopage() worked a long time ago (not rmap, but it was 
-up the the low-level function to do all the page table logic etc). 
-Switching to returning a structured return value and letting the generic 
-VM code handle all the locking and the races was a _huge_ improvement.
+a) It's hard for the reader to understand what that test is doing there
 
-So yes, the modern "->nopage()" interface is less flexible, but it's less 
-flexible for a very good reason. 
+b) People copy code from x86, so other architectures which are not
+   exposed to this problem will end up having a pointless test in there.
 
-Quite frankly, I don't think nopfn() is a good interface. It's only usable 
-for one single thing, so trying to claim that it's a generic VM op is 
-really not valid. If (and that's a big if) we need this interface, we 
-should just do it inside mm/memory.c instead of playing games as if it was 
-generic.
-
-		Linus
+IOW: please comment your code.   I'll fix this one up.

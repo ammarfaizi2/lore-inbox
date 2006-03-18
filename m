@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWCRJeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWCRJlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWCRJeB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 04:34:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWCRJeB
+	id S932350AbWCRJlF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 04:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWCRJlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 04:34:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60054 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932185AbWCRJeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 04:34:01 -0500
-Subject: Re: Can't include <asm/checksum.h>
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hooman Bahreini <hoomanbahreini@yahoo.com>
+	Sat, 18 Mar 2006 04:41:05 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:48278 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932350AbWCRJlD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 04:41:03 -0500
+Date: Sat, 18 Mar 2006 10:38:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Arjan van de Ven <arjan@linux.intel.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060318092027.58967.qmail@web35211.mail.mud.yahoo.com>
-References: <20060318092027.58967.qmail@web35211.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Sat, 18 Mar 2006 10:33:58 +0100
-Message-Id: <1142674439.2889.11.camel@laptopd505.fenrus.org>
+Subject: Re: [Patch 2 of 8] annotate the PDA structure with offsets
+Message-ID: <20060318093853.GA28846@elte.hu>
+References: <1142611850.3033.100.camel@laptopd505.fenrus.org> <1142611989.3033.107.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142611989.3033.107.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-03-18 at 09:20 +0000, Hooman Bahreini wrote:
-> Dear Sir
-> 
-> I am including <asm/checksum.h> to my code, because I
-> need to use ip_fast_csum. But I am getting error while
-> compiling my code?
 
+* Arjan van de Ven <arjan@linux.intel.com> wrote:
 
-you 
-1) failed to provide the exact error message
-2) failed to provide your code
-3) failed to specify even if your code is kernel or userspace
+> Change the comments in the pda structure to make the first fields to 
+> have their offset documented (the rest of the fields follows in a 
+> later patch) and to have the comments aligned
 
-so... how is anyone supposed to help you?
+i think offset 40 should be build-time checked - then you dont have to 
+do this annotation.
 
+	Ingo 

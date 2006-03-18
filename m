@@ -1,86 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWCRSJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWCRSLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWCRSJR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 13:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWCRSJR
+	id S1750781AbWCRSLH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 13:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWCRSLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 13:09:17 -0500
-Received: from lug-owl.de ([195.71.106.12]:58069 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750773AbWCRSJQ (ORCPT
+	Sat, 18 Mar 2006 13:11:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:11242 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750781AbWCRSLG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 13:09:16 -0500
-Date: Sat, 18 Mar 2006 19:09:12 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Arthur Othieno <apgo@patchbomb.org>
-Cc: Nico Schottelius <nico-kernel2@schottelius.org>,
-       LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: [PATCH] doc: Updated Documentation/nfsroot.txt
-Message-ID: <20060318180912.GX20746@lug-owl.de>
-Mail-Followup-To: Arthur Othieno <apgo@patchbomb.org>,
-	Nico Schottelius <nico-kernel2@schottelius.org>,
-	LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org
-References: <20060318110232.GB4336@schottelius.org> <20060318145548.GA2255@krypton>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AAiVQQES42Kk67ff"
-Content-Disposition: inline
-In-Reply-To: <20060318145548.GA2255@krypton>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+	Sat, 18 Mar 2006 13:11:06 -0500
+Date: Sat, 18 Mar 2006 10:10:34 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Janak Desai <janak@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       ebiederm@xmission.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       viro@ftp.linux.org.uk, hch@lst.de, mtk-manpages@gmx.net, ak@muc.de,
+       paulus@samba.org, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] for 2.6.16, disable unshare_vm()
+In-Reply-To: <441C4636.15F57F6@tv-sign.ru>
+Message-ID: <Pine.LNX.4.64.0603181007020.3826@g5.osdl.org>
+References: <m1y7za9vy3.fsf@ebiederm.dsl.xmission.com> 
+ <m1pskm9tz9.fsf@ebiederm.dsl.xmission.com>  <441AF596.F6E66BC9@tv-sign.ru>
+ <20060317125607.78a5dbe4.akpm@osdl.org> <441C0741.3BC25010@tv-sign.ru>
+ <441C2AA0.3080200@us.ibm.com> <441C4263.B779CDA8@tv-sign.ru>
+ <441C4636.15F57F6@tv-sign.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AAiVQQES42Kk67ff
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, 2006-03-18 09:55:48 -0500, Arthur Othieno <apgo@patchbomb.org> wrot=
-e:
-> On Sat, Mar 18, 2006 at 12:02:32PM +0100, Nico Schottelius wrote:
-> I'll fall out as patch monkey in re-transmission mode now. Please send
-> patch to <trivial@kernel.org> (added to Cc). Thanks.
-> > --=20
-> > Please reply to nico-kernel2 (same domain as sending address).
-> > Replying to this address needs a confirmation, but works, too.
->=20
-> Setting From: address on your end is trivial. Having to jump through
-> hoops like these to provide any feedback is just a waste of peoples'
-> time, really.
+On Sat, 18 Mar 2006, Oleg Nesterov wrote:
+>
+> sys_unshare() does mmput(new_mm). This is not enough
+> if we have mm->core_waiters. This patch is a temporary
+> fix for soon to be released 2.6.16.
 
-Nico does this willfully for whatever reasons (trapping SPAM or
-something), I even asked him to stop this nonsense some time ago but
-he seemed to like that idea. (I was about to help him on a problem at
-that time.)  So right now, he's in my ~/.killfile ...  No hassle...
+Yes. Quick raising of hands: is there anybody out there that expects to 
+use unshare(CLONE_VM) right now? One of the reasons it was integrated was 
+that I thought glibc wanted it for distros. Is disabling the CLONE_VM 
+unsharing going to impact that?
 
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---AAiVQQES42Kk67ff
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFEHEzIHb1edYOZ4bsRAnlYAJ4nqotLuJH3PkfSIe7TJ4vF1FRLtwCfTKjl
-YOHp58zxTASi0dt+FXnc5rM=
-=HZO6
------END PGP SIGNATURE-----
-
---AAiVQQES42Kk67ff--
+		Linus

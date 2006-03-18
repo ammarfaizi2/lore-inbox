@@ -1,107 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWCRRHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWCRRIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWCRRHe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 12:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWCRRHe
+	id S1750706AbWCRRIt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 12:08:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWCRRIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 12:07:34 -0500
-Received: from thunk.org ([69.25.196.29]:8884 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750703AbWCRRHe (ORCPT
+	Sat, 18 Mar 2006 12:08:49 -0500
+Received: from mga01.intel.com ([192.55.52.88]:52517 "EHLO
+	fmsmga101-1.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750706AbWCRRIr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 12:07:34 -0500
-Date: Sat, 18 Mar 2006 12:07:29 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       Laurent Vivier <Laurent.Vivier@bull.net>
-Subject: Re: [Ext2-devel] [PATCH 1/2] ext2/3: Support 2^32-1 blocks(Kernel)
-Message-ID: <20060318170729.GI21232@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Takashi Sato <sho@bsd.tnes.nec.co.jp>, cmm@us.ibm.com,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-	Laurent Vivier <Laurent.Vivier@bull.net>
-References: <000301c6482d$7e5b5200$4168010a@bsd.tnes.nec.co.jp> <1142475556.3764.133.camel@dyn9047017067.beaverton.ibm.com> <02bc01c648f2$bd35e830$4168010a@bsd.tnes.nec.co.jp> <20060316183549.GK30801@schatzie.adilger.int> <20060316212632.GA21004@thunk.org> <20060316225913.GV30801@schatzie.adilger.int>
+	Sat, 18 Mar 2006 12:08:47 -0500
+X-IronPort-AV: i="4.03,106,1141632000"; 
+   d="scan'208"; a="14228708:sNHT75545246"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060316225913.GV30801@schatzie.adilger.int>
-User-Agent: Mutt/1.5.11+cvs20060126
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Date: Sun, 19 Mar 2006 01:08:41 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F84041AC26B@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc5: known regressions [TP 600X S3, vanilla DSDT] 
+Thread-Index: AcZKriS2mz+vDn+dTBuBtWNgs2Xm5AAAFc7Q
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Sanjoy Mahajan" <sanjoy@mrao.cam.ac.uk>
+Cc: <linux-kernel@vger.kernel.org>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@osdl.org>, "Tom Seeley" <redhat@tomseeley.co.uk>,
+       "Dave Jones" <davej@redhat.com>, "Jiri Slaby" <jirislaby@gmail.com>,
+       <michael@mihu.de>, <mchehab@infradead.org>,
+       "Brian Marete" <bgmarete@gmail.com>,
+       "Ryan Phillips" <rphillips@gentoo.org>, <gregkh@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, <linux-acpi@vger.kernel.org>,
+       "Mark Lord" <lkml@rtr.ca>, "Randy Dunlap" <rdunlap@xenotime.net>,
+       <jgarzik@pobox.com>, "Duncan" <1i5t5.duncan@cox.net>,
+       "Pavlik Vojtech" <vojtech@suse.cz>, "Meelis Roos" <mroos@linux.ee>
+X-OriginalArrivalTime: 18 Mar 2006 17:08:42.0388 (UTC) FILETIME=[9BB73D40:01C64AAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 16, 2006 at 03:59:13PM -0700, Andreas Dilger wrote:
-> While I agree with that in theory, in practise we never end up doing
-> this and it just ends up delaying the acceptance of the trivial patches.
-> It may also be a burden later on when some of the features that could
-> be e.g. ROCOMPAT are bundled with an INCOMPAT change and we then
-> make the filesystem gratuitously INCOMPAT.
-> 
-> In the end, I don't think having a couple of separate flags is any more
-> effort than having a single one.  As yet we only have about 6 of each 32
-> feature bits used, and if we get close to running out we can make an
-> EXT3_FEATURE_{,RO,IN}COMPAT_NEXT_WORD flag to continue it on.
 
-The overhead is not running out of feature bit flags.  After all, it's
-easy to add more if we need to; we just define the MSB as meaning
-"check the auxiliary features compat/rocompat/incompat mask", and then
-define a new 32-bit extension bitmask in the superblock.
+>>> PM: Preparing system for mem sleep
+>>> Stopping tasks: 
+>>> =======================================================|
+>
+>> Did you see any methods before and after this line in hang case on
+>> screen?  If yes, do you recall what they are?
+>
+>I capture across a serial console, so here are the exact msgs (I just
+>ran the second sleep and got the usual hang).  This is with vanilla
+>2.6.16-rc5 (and vanilla DSDT):
+>
+>Stopping tasks: 
+>=========================================================|
+>Execute Method: [\_SB_.LID0._PSW] (Node c1564808)
+>Execute Method: [\_SB_.SLPB._PSW] (Node c1564708)
+>Execute Method: [\_S3_] (Node c157a988)
+>Execute Method: [\_PTS] (Node c157ab48)
+>
+>The screen itself is full of garbage because the first 
+>sleep/wake messes
+>up the console.  Along with a giant white square that fills most of the
+>screen, I see a fuzzy, dotted version of the above messages, plus one
+>more line "ACPI" and then a flashing underscore cursor after that.  I
+>don't know if it was trying to printk "ACPI" but then the rest of the
+>message got lost, or it hung before printing it, or whether the ACPI is
+>from a previous dmesg (i.e. the first sleep/wake) that didn't get
+>cleared properly.
 
-What I'm trying to simplify is the overhead of users trying to
-understand a tangled mess of features, some compat, some incompat,
-etc.
-
-> Note that I'm not against this in practise, but I wouldn't hold up any
-> feature for this reason.  How long has large i_blocks been pending,
-> and usecond timestamps?  Many years already, even though they are trivial
-> to implement, so I'm hesitant to tie them together and delay further.
-
-i_blocks has been pending because the people who could push it haven't
-had the time, and usec timestamps because the trivial way (without an
-at least an ROCOMPAT flag).
-
-> I think i_blocks can be considered an ROCOMPAT feature, and the large
-> inode reservation for usecond timestamps could be COMPAT I think (since
-> an unsupporting kernel would still update all the timestamps consistently
-> even if the useconds on disk would be some constant instead of 0.
-
-i_blocks can ROCOMPAT only if it is acceptable for stat(2) to return
-erroneous i_blocks return values.  I'm not entirely convinced that's a
-good thing, and at the very least it would be extremely confusing, but
-maybe.
-
-usecond timestamps must be at least ROCOMPAT, because of the
-requirement that all newly created inodes must reserve extra space and
-guarantee that i_extra_isize must be at least n bytes (where n is the
-size of the guaranteed extra inode fields).  If you don't do that,
-then when the filesystem is mounted one again on a kernel that does
-understand usec timestamps, some inodes will have room for the usec
-time fields, and other inodes won't (because they have too much of the
-space used for EA's), and that will cause serious problems for make(1).
-
-> I think testing with reiserfs showed that tail packing was a net loss in
-> most cases, since basically every benchmark I've ever seen with reiserfs
-> disables tail packing or suffers.  For space constrained systems (if
-> there ever exists such a thing again ;-) it would probably be better to
-> go to compressed files.
-
-I have to wonder if that's because of the way reiserfs implemented
-tail-packing more than anything else.  I don't belive fragments hurt
-performance on UFS systems quite as much as it does on reiserfs
-systems.  I'm not worried about this as much for space constrained
-systems, but for cases where we find that increasing the blocksize to
-8k or even larger (32k?  64k) really helps, but we don't want to pay
-the internal fragmentation penalty for small files.  There are other
-ways to solve the problem, yes, such as by assuming that we can use a
-different filesystem for database or video streams separate from the
-/, /usr, and/or /var filesystems, for example.  
-
-If we are ready to forever forswear wanting to use large block sizes,
-then maybe we don't need to worry about fragmentations support (or
-maybe the 1.8" pedabyte disk drives will show up and be cheap enough
-that we just won't care about wasting space on small files).  But
-that's I think a decision which we need to formally make.
-
-					- Ted
+Do you load processor driver?

@@ -1,97 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWCRKhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752401AbWCRKoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWCRKhM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 05:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWCRKhM
+	id S1752401AbWCRKoX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 05:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWCRKoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 05:37:12 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:58584
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932378AbWCRKhK
+	Sat, 18 Mar 2006 05:44:23 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:42183 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750753AbWCRKoW convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 05:37:10 -0500
-Subject: Re: 2.6.16-rc6-rt7
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       John Stultz <johnstul@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>,
-       Martin Ridgeway <mridge@users.sourceforge.net>
-In-Reply-To: <20060317233636.GB26253@smtp.west.cox.net>
-References: <20060316095607.GA28571@elte.hu>
-	 <20060317233636.GB26253@smtp.west.cox.net>
-Content-Type: text/plain
-Date: Sat, 18 Mar 2006 11:37:19 +0100
-Message-Id: <1142678240.17279.76.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Mar 2006 05:44:22 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Subject: Re: [PATCH]use kzalloc in vfs where appropriate
+Date: Sat, 18 Mar 2006 11:44:09 +0100
+User-Agent: KMail/1.8
+Cc: Oliver Neukum <neukum@fachschaft.cup.uni-muenchen.de>,
+       viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0603172153160.30725@fachschaft.cup.uni-muenchen.de> <20060317210823.GA8980@parisc-linux.org>
+In-Reply-To: <20060317210823.GA8980@parisc-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200603181144.10820.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-03-17 at 16:36 -0700, Tom Rini wrote:
-> On Thu, Mar 16, 2006 at 10:56:08AM +0100, Ingo Molnar wrote:
+Am Freitag, 17. März 2006 22:08 schrieb Matthew Wilcox:
+> On Fri, Mar 17, 2006 at 09:58:14PM +0100, Oliver Neukum wrote:
+> > --- a/fs/bio.c	2006-03-11 23:12:55.000000000 +0100
+> > +++ b/fs/bio.c	2006-03-17 16:44:49.000000000 +0100
+> > @@ -635,12 +635,10 @@
+> >  		return ERR_PTR(-ENOMEM);
+> >  
+> >  	ret = -ENOMEM;
+> > -	pages = kmalloc(nr_pages * sizeof(struct page *), GFP_KERNEL);
+> > +	pages = kzalloc(nr_pages * sizeof(struct page *), GFP_KERNEL);
 > 
-> > i have released the 2.6.16-rc6-rt7 tree, which can be downloaded from 
-> > the usual place:
-> > 
-> >    http://redhat.com/~mingo/realtime-preempt/
-> 
-> I was wondering, is it normal for the nanosleep02 and alarm02 LTP tests
-> to fail?  For sometime I've seen these tests fail from time to time with
-> the -RT patch but not the regular kernel.
+> Didn't we just discuss this one and conclude it needed to use kcalloc
+> instead?
 
-The nanosleep02 failure is incorrect due to rounding errors in the test
-code.
+I've found some discussion in the archive, but no conclusion. Could you
+elaborate?
 
-Requested time to sleep is 5.000009999 seconds (5s 9999ns)
-
-Program flow is:
-
-unsigned long req, rem, before, after, elapsed;
-
-gettimeofday(&otime);
-nanosleep(&timereq, &timerem); <- Interrupted by a signal
-gettimeofday(&ntime);
-
-req = timereq.tv_sec * 1000 + timereq.tv_nsec / 1000000;
-rem = timerem.tv_sec * 1000 + timerem.tv_nsec / 1000000;
-before = otime.tv_sec * 1000 + otime.tv_usec/1000;
-after = ntime.tv_sec * 1000 + ntime.tv_usec/1000;
-elapsed = after - before;
-
-if (rem - (req -elapsed) > 250)
-	fail;
-
-The error message is:
-nanosleep02    1  FAIL  :  Remaining sleep time 3999 msec doesn't match with the expected 4000 msec time
-
-rem: 3999 ms
-req - elasped: 4000 ms
-
-The unsigned long subtraction results in a value > 250, where the real
-result is < 0.
-
-Looking at the real values with usec resolution gives:
-
-req: 5000009 usec 
-rem: 3999740 usec
-elapsed: 1000452 usec
-req - elapsed: 3999557 usec
-
-rem - (req -elapsed) = 183 usec
-
-Truncating the real values by the division used in the test code results
-in:
-
-req_ms = 5000010 / 1000 = 5000 ms
-rem_ms = 3999470 / 1000 = 3999 ms
-elapsed_ms = 1000452 / 1000 = 1000ms
-req_ms - elapsed_ms = 4000ms
-
-This never happens on vanilla, as the nanosleep is rounded to the next
-jiffie. -rt has high resolution timers which are delivered accurate, so
-the rounding errors of the testcode surface.
-
-	tglx
-
-
+	Oliver

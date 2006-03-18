@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbWCRPx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWCRP6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751237AbWCRPx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 10:53:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWCRPx0
+	id S1751339AbWCRP6r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 10:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWCRP6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 10:53:26 -0500
-Received: from [85.233.228.164] ([85.233.228.164]:61114 "EHLO botch.workgroup")
-	by vger.kernel.org with ESMTP id S1751237AbWCRPx0 (ORCPT
+	Sat, 18 Mar 2006 10:58:47 -0500
+Received: from main.gmane.org ([80.91.229.2]:33499 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751339AbWCRP6r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 10:53:26 -0500
-Message-ID: <441C2CF6.1050607@overtag.dk>
-Date: Sat, 18 Mar 2006 16:53:26 +0100
-From: Benjamin Bach <benjamin@overtag.dk>
-User-Agent: Mail/News 1.5 (X11/20060309)
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Idea: Automatic binary driver compiling system
-References: <441AF93C.6040407@overtag.dk>	 <1142620509.25258.53.camel@mindpipe>  <441C213A.3000404@overtag.dk> <1142694655.2889.22.camel@laptopd505.fenrus.org>
-In-Reply-To: <1142694655.2889.22.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Mar 2006 10:58:47 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: [PATCH 001/001] PCI: PCI quirk for Asus A8V and A8V Deluxe motherboards
+Date: Sat, 18 Mar 2006 15:58:28 +0000
+Message-ID: <yw1xoe0368yj.fsf@agrajag.inprovide.com>
+References: <20060305192709.GA3789@skyscraper.unix9.prv> <dve3j9$r50$1@sea.gmane.org> <20060317143303.GR20746@lug-owl.de> <dvehv7$j9r$1@sea.gmane.org> <20060317144920.GS20746@lug-owl.de> <dveugj$aob$1@sea.gmane.org> <yw1xmzfo98em.fsf@agrajag.inprovide.com> <dvh3rb$ui8$1@sea.gmane.org> <yw1x64mb7rwm.fsf@agrajag.inprovide.com> <dvh7aj$95v$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 82.153.166.94
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.15 (linux)
+Cancel-Lock: sha1:shOaxC8/RG9KS5r4RnVeva/sFng=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> there are over a thousand open source drivers, and at most a handful
-> binary ones. Please go do your math.
->   
-You're doing the wrong comparison. How many drivers are missing or
-lacking in ability? And if you add to your handful of binary drivers
-those thousands that exist for xp...
-well, numbers do change. Also, most open source drivers aren't made by
-the vendors themselves.
+Andras Mantia <amantia@kde.org> writes:
 
-We're doing subjective math here. It doesn't change the fact that Linux
-would be better off with improved hardware support, right?
+> Måns Rullgård wrote:
+>> With the card in the bad slot I only got a few seconds of sound before
+>> the machine locked up.  Since you have a different board, it could of
+>> course still be a similar problem, just less likely to happen.
+>> 
+>> Which sound card were you using when your machine hung?
+>
+> I tried to use the onboard sound card at that time.
 
+Hmm, mine crashed when I used the PCI card.  Using the onboard sound
+was fine.
 
-/ Benjamin
+>>> Can you tell me how can I find the real device ID for my chipset? It
+>>> *should* be the same one as the original writer of the patch wrote (he
+>>> also had an ASUS A8V Deluxe as I understood), but the experience tells it
+>>> is not.
+>> 
+>> lspci -n will list the PCI IDs in hex.
+>
+> Thanks.
+
+Care to post the output?
+
+-- 
+Måns Rullgård
+mru@inprovide.com
 

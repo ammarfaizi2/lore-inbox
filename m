@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWCRVHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWCRVIX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWCRVHt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 16:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWCRVHt
+	id S1751016AbWCRVIX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 16:08:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWCRVIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 16:07:49 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59808 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751002AbWCRVHs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 16:07:48 -0500
-Date: Sat, 18 Mar 2006 13:04:46 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: tglx@linutronix.de
-Cc: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       trini@kernel.crashing.org
-Subject: Re: [patch 1/2] Validate itimer timeval from userspace
-Message-Id: <20060318130446.18f4ae40.akpm@osdl.org>
-In-Reply-To: <1142713820.17279.140.camel@localhost.localdomain>
-References: <20060318142827.419018000@localhost.localdomain>
-	<20060318142830.607556000@localhost.localdomain>
-	<20060318120728.63cbad54.akpm@osdl.org>
-	<9a8748490603181223i32391d96nf794e93aa734f785@mail.gmail.com>
-	<1142713820.17279.140.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 18 Mar 2006 16:08:22 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:6788 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1751010AbWCRVIW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 16:08:22 -0500
+Message-ID: <441C7760.3000405@wolfmountaingroup.com>
+Date: Sat, 18 Mar 2006 14:10:56 -0700
+From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3ware 6x00 monitor/control utilities broken/dropped since 2.6.10?
+References: <17435.43034.364906.429948@wellington.i202.centerclick.org>
+In-Reply-To: <17435.43034.364906.429948@wellington.i202.centerclick.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner <tglx@linutronix.de> wrote:
+Dave,
+
+I had to revert to 2.6.9-22 ES4 kernels to solve this, and I still 
+needed to update the 3Ware driver in 2.6.9. There's a patch that 
+includes the latest 3Ware drivers that appears to make this work at 
+ftp.soleranetworks.com:/var/ftp/pub/solera/dsfs/. Look under the ES4 
+directory for the kernel and patch.
+
+Jeff
+
+Dave Johnson wrote:
+
+>I have a 3ware 6400 controller that I've been using for some 5 years
+>without problems.  I just upgraded my kernel from 2.6.9 to
+>2.6.15.6 and now the 3ware provided monitoring/control daemon (3dm) will
+>no longer talk to the driver in 2.6.15.
 >
-> On Sat, 2006-03-18 at 21:23 +0100, Jesper Juhl wrote:
-> 
->  > Wouldn't this only break existing applications that do incorrect
->  > things (passing invalid values) ?
->  > If that's the case I'd say breaking them is OK and we should change to
->  > follow the spec.
->  > 
->  > I don't like potential userspace breakage any more than the next guy,
->  > but if the breakage only affects buggy applications then I think it's
->  > more acceptable.
-> 
->  Yes, it only breaks buggy applications.
+>It appears that /proc/scsi/3w-xxxx which the daemon relies on was removed
+>from the driver:
+>
+>open("/proc/scsi/3w-xxxx", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOENT (No such file or directory)
+>open("/proc/scsi/3w-xxxx-z", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOENT (No such file or directory)
+>
+>The problem is I'm already using the latest 3ware utilities (v6.9 for
+>the 6400).  While the driver does allow access to the array from the
+>SCSI subsystem and I can use the filesystem, I have no way to monitor
+>or control it anymore.
+>
+>Any suggestions besides reverting back to 2.6.9 and staying there?
+>
+>I'd be happy to use a different monitor/control program if one exists.
+>
+>  
+>
 
-But we live in the real world.  There could be four-year-old applications
-which passed all their Linux QA and which work perfectly well.
-
-Then the kernel guys make some correctness change and that application
-totally fails on new kernels.  Your choice is a) don't use new kernels or
-b) hold off the new kernel until your provider (if the company or internal
-group still exists) has put out a new version of the application and then
-you wear the (considerable) cost of upgrading what was a perfectly-running
-application.
-
-And whose fault was it?  Ours.  Because older kernels had the wrong
-checking (thus causing that app's QA to pass) and because later kernels
-changed the rules.

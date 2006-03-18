@@ -1,279 +1,457 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWCRRVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWCRRWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWCRRVi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 12:21:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWCRRVU
+	id S1750743AbWCRRWX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 12:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWCRRWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 12:21:20 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:15349 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1750722AbWCRRVQ (ORCPT
+	Sat, 18 Mar 2006 12:22:07 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:16373 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1750752AbWCRRV2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 12:21:16 -0500
-Message-Id: <20060318171947.241968000@towertech.it>
+	Sat, 18 Mar 2006 12:21:28 -0500
+Message-Id: <20060318171948.736840000@towertech.it>
 References: <20060318171946.821316000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 18 Mar 2006 18:19:48 +0100
+Date: Sat, 18 Mar 2006 18:19:56 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 02/18] RTC subsystem, ARM cleanup
-Content-Disposition: inline; filename=rtc-arm-cleanup.patch
+Cc: akpm@zip.com.au, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 10/18] RTC subsystem, dev interface
+Content-Disposition: inline; filename=rtc-intf-dev.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes from the ARM subsytem some of the
-rtc-related functions that have been included in
-the RTC subsystem. It also fixes some naming collisions.
+This patch adds the dev interface to the RTC
+subsystem.
+
+Each RTC will be available under /dev/rtcX . A
+symlink from /dev/rtc0 to /dev/rtc cab be obtained
+with the following udev rule:
+
+KERNEL=="rtc0", SYMLINK+="rtc"
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
 --
 
- arch/arm/Kconfig          |    3 +
- arch/arm/common/rtctime.c |  108 +++++-----------------------------------------
- drivers/char/Kconfig      |    2 
- include/asm-arm/rtc.h     |    3 -
- 4 files changed, 17 insertions(+), 99 deletions(-)
+ drivers/rtc/Kconfig   |   11 +
+ drivers/rtc/Makefile  |    1 
+ drivers/rtc/rtc-dev.c |  382 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 394 insertions(+)
 
---- linux-rtc.orig/arch/arm/common/rtctime.c	2006-02-28 12:35:57.000000000 +0100
-+++ linux-rtc/arch/arm/common/rtctime.c	2006-02-28 12:37:14.000000000 +0100
-@@ -20,6 +20,7 @@
- #include <linux/capability.h>
- #include <linux/device.h>
- #include <linux/mutex.h>
-+#include <linux/rtc.h>
- 
- #include <asm/rtc.h>
- #include <asm/semaphore.h>
-@@ -42,89 +43,6 @@ static struct rtc_ops *rtc_ops;
- 
- #define rtc_epoch 1900UL
- 
--static const unsigned char days_in_month[] = {
--	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
--};
--
--#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
--#define LEAP_YEAR(year) ((!(year % 4) && (year % 100)) || !(year % 400))
--
--static int month_days(unsigned int month, unsigned int year)
--{
--	return days_in_month[month] + (LEAP_YEAR(year) && month == 1);
--}
--
--/*
-- * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
-- */
--void rtc_time_to_tm(unsigned long time, struct rtc_time *tm)
--{
--	int days, month, year;
--
--	days = time / 86400;
--	time -= days * 86400;
--
--	tm->tm_wday = (days + 4) % 7;
--
--	year = 1970 + days / 365;
--	days -= (year - 1970) * 365
--	        + LEAPS_THRU_END_OF(year - 1)
--	        - LEAPS_THRU_END_OF(1970 - 1);
--	if (days < 0) {
--		year -= 1;
--		days += 365 + LEAP_YEAR(year);
--	}
--	tm->tm_year = year - 1900;
--	tm->tm_yday = days + 1;
--
--	for (month = 0; month < 11; month++) {
--		int newdays;
--
--		newdays = days - month_days(month, year);
--		if (newdays < 0)
--			break;
--		days = newdays;
--	}
--	tm->tm_mon = month;
--	tm->tm_mday = days + 1;
--
--	tm->tm_hour = time / 3600;
--	time -= tm->tm_hour * 3600;
--	tm->tm_min = time / 60;
--	tm->tm_sec = time - tm->tm_min * 60;
--}
--EXPORT_SYMBOL(rtc_time_to_tm);
--
--/*
-- * Does the rtc_time represent a valid date/time?
-- */
--int rtc_valid_tm(struct rtc_time *tm)
--{
--	if (tm->tm_year < 70 ||
--	    tm->tm_mon >= 12 ||
--	    tm->tm_mday < 1 ||
--	    tm->tm_mday > month_days(tm->tm_mon, tm->tm_year + 1900) ||
--	    tm->tm_hour >= 24 ||
--	    tm->tm_min >= 60 ||
--	    tm->tm_sec >= 60)
--		return -EINVAL;
--
--	return 0;
--}
--EXPORT_SYMBOL(rtc_valid_tm);
--
--/*
-- * Convert Gregorian date to seconds since 01-01-1970 00:00:00.
-- */
--int rtc_tm_to_time(struct rtc_time *tm, unsigned long *time)
--{
--	*time = mktime(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
--		       tm->tm_hour, tm->tm_min, tm->tm_sec);
--
--	return 0;
--}
--EXPORT_SYMBOL(rtc_tm_to_time);
--
- /*
-  * Calculate the next alarm time given the requested alarm time mask
-  * and the current time.
-@@ -151,13 +69,13 @@ void rtc_next_alarm_time(struct rtc_time
- 	}
- }
- 
--static inline int rtc_read_time(struct rtc_ops *ops, struct rtc_time *tm)
-+static inline int rtc_arm_read_time(struct rtc_ops *ops, struct rtc_time *tm)
- {
- 	memset(tm, 0, sizeof(struct rtc_time));
- 	return ops->read_time(tm);
- }
- 
--static inline int rtc_set_time(struct rtc_ops *ops, struct rtc_time *tm)
-+static inline int rtc_arm_set_time(struct rtc_ops *ops, struct rtc_time *tm)
- {
- 	int ret;
- 
-@@ -168,7 +86,7 @@ static inline int rtc_set_time(struct rt
- 	return ret;
- }
- 
--static inline int rtc_read_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
-+static inline int rtc_arm_read_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
- {
- 	int ret = -EINVAL;
- 	if (ops->read_alarm) {
-@@ -178,7 +96,7 @@ static inline int rtc_read_alarm(struct 
- 	return ret;
- }
- 
--static inline int rtc_set_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
-+static inline int rtc_arm_set_alarm(struct rtc_ops *ops, struct rtc_wkalrm *alrm)
- {
- 	int ret = -EINVAL;
- 	if (ops->set_alarm)
-@@ -266,7 +184,7 @@ static int rtc_ioctl(struct inode *inode
- 
- 	switch (cmd) {
- 	case RTC_ALM_READ:
--		ret = rtc_read_alarm(ops, &alrm);
-+		ret = rtc_arm_read_alarm(ops, &alrm);
- 		if (ret)
- 			break;
- 		ret = copy_to_user(uarg, &alrm.time, sizeof(tm));
-@@ -288,11 +206,11 @@ static int rtc_ioctl(struct inode *inode
- 		alrm.time.tm_wday = -1;
- 		alrm.time.tm_yday = -1;
- 		alrm.time.tm_isdst = -1;
--		ret = rtc_set_alarm(ops, &alrm);
-+		ret = rtc_arm_set_alarm(ops, &alrm);
- 		break;
- 
- 	case RTC_RD_TIME:
--		ret = rtc_read_time(ops, &tm);
-+		ret = rtc_arm_read_time(ops, &tm);
- 		if (ret)
- 			break;
- 		ret = copy_to_user(uarg, &tm, sizeof(tm));
-@@ -310,7 +228,7 @@ static int rtc_ioctl(struct inode *inode
- 			ret = -EFAULT;
- 			break;
- 		}
--		ret = rtc_set_time(ops, &tm);
-+		ret = rtc_arm_set_time(ops, &tm);
- 		break;
- 
- 	case RTC_EPOCH_SET:
-@@ -341,11 +259,11 @@ static int rtc_ioctl(struct inode *inode
- 			ret = -EFAULT;
- 			break;
- 		}
--		ret = rtc_set_alarm(ops, &alrm);
-+		ret = rtc_arm_set_alarm(ops, &alrm);
- 		break;
- 
- 	case RTC_WKALM_RD:
--		ret = rtc_read_alarm(ops, &alrm);
-+		ret = rtc_arm_read_alarm(ops, &alrm);
- 		if (ret)
- 			break;
- 		ret = copy_to_user(uarg, &alrm, sizeof(alrm));
-@@ -435,7 +353,7 @@ static int rtc_read_proc(char *page, cha
- 	struct rtc_time tm;
- 	char *p = page;
- 
--	if (rtc_read_time(ops, &tm) == 0) {
-+	if (rtc_arm_read_time(ops, &tm) == 0) {
- 		p += sprintf(p,
- 			"rtc_time\t: %02d:%02d:%02d\n"
- 			"rtc_date\t: %04d-%02d-%02d\n"
-@@ -445,7 +363,7 @@ static int rtc_read_proc(char *page, cha
- 			rtc_epoch);
- 	}
- 
--	if (rtc_read_alarm(ops, &alrm) == 0) {
-+	if (rtc_arm_read_alarm(ops, &alrm) == 0) {
- 		p += sprintf(p, "alrm_time\t: ");
- 		if ((unsigned int)alrm.time.tm_hour <= 24)
- 			p += sprintf(p, "%02d:", alrm.time.tm_hour);
---- linux-rtc.orig/include/asm-arm/rtc.h	2006-02-28 12:35:57.000000000 +0100
-+++ linux-rtc/include/asm-arm/rtc.h	2006-02-28 12:37:14.000000000 +0100
-@@ -25,9 +25,6 @@ struct rtc_ops {
- 	int		(*proc)(char *buf);
- };
- 
--void rtc_time_to_tm(unsigned long, struct rtc_time *);
--int rtc_tm_to_time(struct rtc_time *, unsigned long *);
--int rtc_valid_tm(struct rtc_time *);
- void rtc_next_alarm_time(struct rtc_time *, struct rtc_time *, struct rtc_time *);
- void rtc_update(unsigned long, unsigned long);
- int register_rtc(struct rtc_ops *);
---- linux-rtc.orig/drivers/char/Kconfig	2006-02-28 12:35:57.000000000 +0100
-+++ linux-rtc/drivers/char/Kconfig	2006-02-28 12:37:14.000000000 +0100
-@@ -695,7 +695,7 @@ config NVRAM
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
--	depends on !PPC32 && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV
-+	depends on !PPC32 && !PARISC && !IA64 && !M68K && (!SPARC || PCI) && !FRV && !ARM
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
---- linux-rtc.orig/arch/arm/Kconfig	2006-02-28 12:35:57.000000000 +0100
-+++ linux-rtc/arch/arm/Kconfig	2006-02-28 12:40:04.000000000 +0100
-@@ -8,6 +8,7 @@ mainmenu "Linux Kernel Configuration"
- config ARM
- 	bool
- 	default y
-+	select RTC_LIB
- 	help
- 	  The ARM series is a line of low-power-consumption RISC chip designs
- 	  licensed by ARM Ltd and targeted at embedded applications and
-@@ -817,6 +818,8 @@ source "drivers/usb/Kconfig"
- 
- source "drivers/mmc/Kconfig"
- 
-+source "drivers/rtc/Kconfig"
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-rtc/drivers/rtc/rtc-dev.c	2006-03-15 03:08:55.000000000 +0100
+@@ -0,0 +1,382 @@
++/*
++ * RTC subsystem, dev interface
++ *
++ * Copyright (C) 2005 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * based on arch/arm/common/rtctime.c
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++*/
 +
- endmenu
++#include <linux/module.h>
++#include <linux/rtc.h>
++
++static struct class *rtc_dev_class;
++static dev_t rtc_devt;
++
++#define RTC_DEV_MAX 16 /* 16 RTCs should be enough for everyone... */
++
++static int rtc_dev_open(struct inode *inode, struct file *file)
++{
++	int err;
++	struct rtc_device *rtc = container_of(inode->i_cdev,
++					struct rtc_device, char_dev);
++	struct rtc_class_ops *ops = rtc->ops;
++
++	/* We keep the lock as long as the device is in use
++	 * and return immediately if busy
++	 */
++	if (!(mutex_trylock(&rtc->char_lock)))
++		return -EBUSY;
++
++	file->private_data = &rtc->class_dev;
++
++	err = ops->open ? ops->open(rtc->class_dev.dev) : 0;
++	if (err == 0) {
++		spin_lock_irq(&rtc->irq_lock);
++		rtc->irq_data = 0;
++		spin_unlock_irq(&rtc->irq_lock);
++
++		return 0;
++	}
++
++	/* something has gone wrong, release the lock */
++	mutex_unlock(&rtc->char_lock);
++	return err;
++}
++
++
++static ssize_t
++rtc_dev_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
++{
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++
++	DECLARE_WAITQUEUE(wait, current);
++	unsigned long data;
++	ssize_t ret;
++
++	if (count < sizeof(unsigned long))
++		return -EINVAL;
++
++	add_wait_queue(&rtc->irq_queue, &wait);
++	do {
++		__set_current_state(TASK_INTERRUPTIBLE);
++
++		spin_lock_irq(&rtc->irq_lock);
++		data = rtc->irq_data;
++		rtc->irq_data = 0;
++		spin_unlock_irq(&rtc->irq_lock);
++
++		if (data != 0) {
++			ret = 0;
++			break;
++		}
++		if (file->f_flags & O_NONBLOCK) {
++			ret = -EAGAIN;
++			break;
++		}
++		if (signal_pending(current)) {
++			ret = -ERESTARTSYS;
++			break;
++		}
++		schedule();
++	} while (1);
++	set_current_state(TASK_RUNNING);
++	remove_wait_queue(&rtc->irq_queue, &wait);
++
++	if (ret == 0) {
++		/* Check for any data updates */
++		if (rtc->ops->read_callback)
++			data = rtc->ops->read_callback(rtc->class_dev.dev, data);
++
++		ret = put_user(data, (unsigned long __user *)buf);
++		if (ret == 0)
++			ret = sizeof(unsigned long);
++	}
++	return ret;
++}
++
++static unsigned int rtc_dev_poll(struct file *file, poll_table *wait)
++{
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++	unsigned long data;
++
++	poll_wait(file, &rtc->irq_queue, wait);
++
++	data = rtc->irq_data;
++
++	return (data != 0) ? (POLLIN | POLLRDNORM) : 0;
++}
++
++static int rtc_dev_ioctl(struct inode *inode, struct file *file,
++		unsigned int cmd, unsigned long arg)
++{
++	int err = 0;
++	struct class_device *class_dev = file->private_data;
++	struct rtc_device *rtc = to_rtc_device(class_dev);
++	struct rtc_class_ops *ops = rtc->ops;
++	struct rtc_time tm;
++	struct rtc_wkalrm alarm;
++	void __user *uarg = (void __user *) arg;
++
++	/* avoid conflicting IRQ users */
++	if (cmd == RTC_PIE_ON || cmd == RTC_PIE_OFF || cmd == RTC_IRQP_SET) {
++		spin_lock(&rtc->irq_task_lock);
++		if (rtc->irq_task)
++			err = -EBUSY;
++		spin_unlock(&rtc->irq_task_lock);
++
++		if (err < 0)
++			return err;
++	}
++
++	/* try the driver's ioctl interface */
++	if (ops->ioctl) {
++		err = ops->ioctl(class_dev->dev, cmd, arg);
++		if (err != -EINVAL)
++			return err;
++	}
++
++	/* if the driver does not provide the ioctl interface
++	 * or if that particular ioctl was not implemented
++	 * (-EINVAL), we will try to emulate here.
++	 */
++
++	switch (cmd) {
++	case RTC_ALM_READ:
++		err = rtc_read_alarm(class_dev, &alarm);
++		if (err < 0)
++			return err;
++
++		if (copy_to_user(uarg, &alarm.time, sizeof(tm)))
++			return -EFAULT;
++		break;
++
++	case RTC_ALM_SET:
++		if (copy_from_user(&alarm.time, uarg, sizeof(tm)))
++			return -EFAULT;
++
++		alarm.enabled = 0;
++		alarm.pending = 0;
++		alarm.time.tm_mday = -1;
++		alarm.time.tm_mon = -1;
++		alarm.time.tm_year = -1;
++		alarm.time.tm_wday = -1;
++		alarm.time.tm_yday = -1;
++		alarm.time.tm_isdst = -1;
++		err = rtc_set_alarm(class_dev, &alarm);
++		break;
++
++	case RTC_RD_TIME:
++		err = rtc_read_time(class_dev, &tm);
++		if (err < 0)
++			return err;
++
++		if (copy_to_user(uarg, &tm, sizeof(tm)))
++			return -EFAULT;
++		break;
++
++	case RTC_SET_TIME:
++		if (!capable(CAP_SYS_TIME))
++			return -EACCES;
++
++		if (copy_from_user(&tm, uarg, sizeof(tm)))
++			return -EFAULT;
++
++		err = rtc_set_time(class_dev, &tm);
++		break;
++#if 0
++	case RTC_EPOCH_SET:
++#ifndef rtc_epoch
++		/*
++		 * There were no RTC clocks before 1900.
++		 */
++		if (arg < 1900) {
++			err = -EINVAL;
++			break;
++		}
++		if (!capable(CAP_SYS_TIME)) {
++			err = -EACCES;
++			break;
++		}
++		rtc_epoch = arg;
++		err = 0;
++#endif
++		break;
++
++	case RTC_EPOCH_READ:
++		err = put_user(rtc_epoch, (unsigned long __user *)uarg);
++		break;
++#endif
++	case RTC_WKALM_SET:
++		if (copy_from_user(&alarm, uarg, sizeof(alarm)))
++			return -EFAULT;
++
++		err = rtc_set_alarm(class_dev, &alarm);
++		break;
++
++	case RTC_WKALM_RD:
++		err = rtc_read_alarm(class_dev, &alarm);
++		if (err < 0)
++			return err;
++
++		if (copy_to_user(uarg, &alarm, sizeof(alarm)))
++			return -EFAULT;
++		break;
++
++	default:
++		err = -EINVAL;
++		break;
++	}
++
++	return err;
++}
++
++static int rtc_dev_release(struct inode *inode, struct file *file)
++{
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++
++	if (rtc->ops->release)
++		rtc->ops->release(rtc->class_dev.dev);
++
++	mutex_unlock(&rtc->char_lock);
++	return 0;
++}
++
++static int rtc_dev_fasync(int fd, struct file *file, int on)
++{
++	struct rtc_device *rtc = to_rtc_device(file->private_data);
++	return fasync_helper(fd, file, on, &rtc->async_queue);
++}
++
++static struct file_operations rtc_dev_fops = {
++	.owner		= THIS_MODULE,
++	.llseek		= no_llseek,
++	.read		= rtc_dev_read,
++	.poll		= rtc_dev_poll,
++	.ioctl		= rtc_dev_ioctl,
++	.open		= rtc_dev_open,
++	.release	= rtc_dev_release,
++	.fasync		= rtc_dev_fasync,
++};
++
++/* insertion/removal hooks */
++
++static int rtc_dev_add_device(struct class_device *class_dev,
++				struct class_interface *class_intf)
++{
++	int err = 0;
++	struct rtc_device *rtc = to_rtc_device(class_dev);
++
++	if (rtc->id >= RTC_DEV_MAX) {
++		dev_err(class_dev->dev, "too many RTCs\n");
++		return -EINVAL;
++	}
++
++	mutex_init(&rtc->char_lock);
++	spin_lock_init(&rtc->irq_lock);
++	init_waitqueue_head(&rtc->irq_queue);
++
++	cdev_init(&rtc->char_dev, &rtc_dev_fops);
++	rtc->char_dev.owner = rtc->owner;
++
++	if (cdev_add(&rtc->char_dev, MKDEV(MAJOR(rtc_devt), rtc->id), 1)) {
++		cdev_del(&rtc->char_dev);
++		dev_err(class_dev->dev,
++			"failed to add char device %d:%d\n",
++			MAJOR(rtc_devt), rtc->id);
++		return -ENODEV;
++	}
++
++	rtc->rtc_dev = class_device_create(rtc_dev_class, NULL,
++						MKDEV(MAJOR(rtc_devt), rtc->id),
++						class_dev->dev, "rtc%d", rtc->id);
++	if (IS_ERR(rtc->rtc_dev)) {
++		dev_err(class_dev->dev, "cannot create rtc_dev device\n");
++		err = PTR_ERR(rtc->rtc_dev);
++		goto err_cdev_del;
++	}
++
++	dev_info(class_dev->dev, "rtc intf: dev (%d:%d)\n",
++		MAJOR(rtc->rtc_dev->devt),
++		MINOR(rtc->rtc_dev->devt));
++
++	return 0;
++
++err_cdev_del:
++
++	cdev_del(&rtc->char_dev);
++	return err;
++}
++
++static void rtc_dev_remove_device(struct class_device *class_dev,
++					struct class_interface *class_intf)
++{
++	struct rtc_device *rtc = to_rtc_device(class_dev);
++
++	if (rtc->rtc_dev) {
++		dev_dbg(class_dev->dev, "removing char %d:%d\n",
++			MAJOR(rtc->rtc_dev->devt),
++			MINOR(rtc->rtc_dev->devt));
++
++		class_device_unregister(rtc->rtc_dev);
++		cdev_del(&rtc->char_dev);
++	}
++}
++
++/* interface registration */
++
++static struct class_interface rtc_dev_interface = {
++	.add = &rtc_dev_add_device,
++	.remove = &rtc_dev_remove_device,
++};
++
++static int __init rtc_dev_init(void)
++{
++	int err;
++
++	rtc_dev_class = class_create(THIS_MODULE, "rtc-dev");
++	if (IS_ERR(rtc_dev_class))
++		return PTR_ERR(rtc_dev_class);
++
++	err = alloc_chrdev_region(&rtc_devt, 0, RTC_DEV_MAX, "rtc");
++	if (err < 0) {
++		printk(KERN_ERR "%s: failed to allocate char dev region\n",
++			__FILE__);
++		goto err_destroy_class;
++	}
++
++	err = rtc_interface_register(&rtc_dev_interface);
++	if (err < 0) {
++		printk(KERN_ERR "%s: failed to register the interface\n",
++			__FILE__);
++		goto err_unregister_chrdev;
++	}
++
++	return 0;
++
++err_unregister_chrdev:
++	unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
++
++err_destroy_class:
++	class_destroy(rtc_dev_class);
++
++	return err;
++}
++
++static void __exit rtc_dev_exit(void)
++{
++	class_interface_unregister(&rtc_dev_interface);
++	class_destroy(rtc_dev_class);
++	unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
++}
++
++module_init(rtc_dev_init);
++module_exit(rtc_dev_exit);
++
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
++MODULE_DESCRIPTION("RTC class dev interface");
++MODULE_LICENSE("GPL");
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-15 03:08:54.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-15 03:09:51.000000000 +0100
+@@ -62,6 +62,17 @@ config RTC_INTF_PROC
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-proc.
  
- source "fs/Kconfig"
++config RTC_INTF_DEV
++	tristate "dev"
++	depends on RTC_CLASS
++	default RTC_CLASS
++	help
++	  Say yes here if you want to use your RTC using the dev
++	  interface, /dev/rtc .
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-dev.
++
+ comment "RTC drivers"
+ 	depends on RTC_CLASS
+ 
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-15 03:08:54.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-15 03:09:51.000000000 +0100
+@@ -9,3 +9,4 @@ rtc-core-y			:= class.o interface.o
+ 
+ obj-$(CONFIG_RTC_INTF_SYSFS)	+= rtc-sysfs.o
+ obj-$(CONFIG_RTC_INTF_PROC)	+= rtc-proc.o
++obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
 
 --

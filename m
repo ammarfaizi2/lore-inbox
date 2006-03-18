@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWCRRWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWCRRWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWCRRWX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 12:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWCRRWD
+	id S1750734AbWCRRWV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 12:22:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWCRRV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 12:22:03 -0500
-Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:15349 "EHLO
-	linux") by vger.kernel.org with ESMTP id S1750751AbWCRRV1 (ORCPT
+	Sat, 18 Mar 2006 12:21:57 -0500
+Received: from 213-140-6-124.ip.fastwebnet.it ([213.140.6.124]:16117 "EHLO
+	linux") by vger.kernel.org with ESMTP id S1750743AbWCRRVZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 12:21:27 -0500
-Message-Id: <20060318171949.853562000@towertech.it>
+	Sat, 18 Mar 2006 12:21:25 -0500
+Message-Id: <20060318171949.401347000@towertech.it>
 References: <20060318171946.821316000@towertech.it>
 User-Agent: quilt/0.43-1
-Date: Sat, 18 Mar 2006 18:20:02 +0100
+Date: Sat, 18 Mar 2006 18:19:59 +0100
 From: Alessandro Zummo <a.zummo@towertech.it>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au
-Subject: [PATCH 16/18] RTC subsystem, EP93XX driver
-Content-Disposition: inline; filename=rtc-drv-ep93xx.patch
+Cc: akpm@zip.com.au, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 13/18] RTC subsystem, DS1672 driver
+Content-Disposition: inline; filename=rtc-drv-ds1672.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a driver for the RTC embedded
-in the Cirrus Logic EP93XX family of processors.
+Driver for the Dallas/Maxim DS1672 chip, found
+on the Loft (http://www.giantshoulderinc.com) .
+
 
 Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
----
- drivers/rtc/Kconfig      |   11 +++
- drivers/rtc/Makefile     |    2 
- drivers/rtc/rtc-ep93xx.c |  162 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 174 insertions(+), 1 deletion(-)
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+--
+ drivers/rtc/Kconfig      |   10 ++
+ drivers/rtc/Makefile     |    1 
+ drivers/rtc/rtc-ds1672.c |  233 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 244 insertions(+)
 
+--- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-15 03:12:58.000000000 +0100
++++ linux-rtc/drivers/rtc/Kconfig	2006-03-15 03:12:59.000000000 +0100
+@@ -86,6 +86,16 @@ config RTC_DRV_X1205
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-x1205.
+ 
++config RTC_DRV_DS1672
++	tristate "Dallas/Maxim DS1672"
++	depends on RTC_CLASS && I2C
++	help
++	  If you say yes here you get support for the
++	  Dallas/Maxim DS1672 timekeeping chip.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called rtc-ds1672.
++
+ config RTC_DRV_TEST
+ 	tristate "Test driver/device"
+ 	depends on RTC_CLASS
+--- linux-rtc.orig/drivers/rtc/Makefile	2006-03-15 03:12:58.000000000 +0100
++++ linux-rtc/drivers/rtc/Makefile	2006-03-15 03:12:59.000000000 +0100
+@@ -13,4 +13,5 @@ obj-$(CONFIG_RTC_INTF_DEV)	+= rtc-dev.o
+ 
+ obj-$(CONFIG_RTC_DRV_X1205)	+= rtc-x1205.o
+ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
++obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
+ 
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-rtc/drivers/rtc/rtc-ep93xx.c	2006-03-13 03:31:29.000000000 +0100
-@@ -0,0 +1,162 @@
++++ linux-rtc/drivers/rtc/rtc-ds1672.c	2006-03-15 03:13:54.000000000 +0100
+@@ -0,0 +1,233 @@
 +/*
-+ * A driver for the RTC embedded in the Cirrus Logic EP93XX processors
-+ * Copyright (c) 2006 Tower Technologies
-+ *
-+ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ * An rtc/i2c driver for the Dallas DS1672
++ * Copyright 2005 Alessandro Zummo
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
@@ -46,183 +73,228 @@ Signed-off-by: Alessandro Zummo <a.zummo@towertech.it>
 + */
 +
 +#include <linux/module.h>
++#include <linux/i2c.h>
 +#include <linux/rtc.h>
-+#include <linux/platform_device.h>
-+#include <asm/hardware.h>
-+
-+#define EP93XX_RTC_REG(x)	(EP93XX_RTC_BASE + (x))
-+#define EP93XX_RTC_DATA		EP93XX_RTC_REG(0x0000)
-+#define EP93XX_RTC_LOAD		EP93XX_RTC_REG(0x000C)
-+#define EP93XX_RTC_SWCOMP	EP93XX_RTC_REG(0x0108)
 +
 +#define DRV_VERSION "0.2"
 +
-+static int ep93xx_get_swcomp(struct device *dev, unsigned short *preload,
-+				unsigned short *delete)
++/* Addresses to scan: none. This chip cannot be detected. */
++static unsigned short normal_i2c[] = { I2C_CLIENT_END };
++
++/* Insmod parameters */
++I2C_CLIENT_INSMOD;
++
++/* Registers */
++
++#define DS1672_REG_CNT_BASE	0
++#define DS1672_REG_CONTROL	4
++#define DS1672_REG_TRICKLE	5
++
++
++/* Prototypes */
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind);
++
++/*
++ * In the routines that deal directly with the ds1672 hardware, we use
++ * rtc_time -- month 0-11, hour 0-23, yr = calendar year-epoch
++ * Epoch is initialized as 2000. Time is set to UTC.
++ */
++static int ds1672_get_datetime(struct i2c_client *client, struct rtc_time *tm)
 +{
-+	unsigned short comp = __raw_readl(EP93XX_RTC_SWCOMP);
++	unsigned long time;
++	unsigned char addr = DS1672_REG_CNT_BASE;
++	unsigned char buf[4];
 +
-+	if (preload)
-+		*preload = comp & 0xffff;
++	struct i2c_msg msgs[] = {
++		{ client->addr, 0, 1, &addr },		/* setup read ptr */
++		{ client->addr, I2C_M_RD, 4, buf },	/* read date */
++	};
 +
-+	if (delete)
-+		*delete = (comp >> 16) & 0x1f;
-+
-+	return 0;
-+}
-+
-+static int ep93xx_rtc_read_time(struct device *dev, struct rtc_time *tm)
-+{
-+	unsigned long time = __raw_readl(EP93XX_RTC_DATA);
-+
-+	rtc_time_to_tm(time, tm);
-+	return 0;
-+}
-+
-+static int ep93xx_rtc_set_mmss(struct device *dev, unsigned long secs)
-+{
-+	__raw_writel(secs + 1, EP93XX_RTC_LOAD);
-+	return 0;
-+}
-+
-+static int ep93xx_rtc_set_time(struct device *dev, struct rtc_time *tm)
-+{
-+	int err;
-+	unsigned long secs;
-+
-+	err = rtc_tm_to_time(tm, &secs);
-+	if (err != 0)
-+		return err;
-+
-+	return ep93xx_rtc_set_mmss(dev, secs);
-+}
-+
-+static int ep93xx_rtc_proc(struct device *dev, struct seq_file *seq)
-+{
-+	unsigned short preload, delete;
-+
-+	ep93xx_get_swcomp(dev, &preload, &delete);
-+
-+	seq_printf(seq, "24hr\t\t: yes\n");
-+	seq_printf(seq, "preload\t\t: %d\n", preload);
-+	seq_printf(seq, "delete\t\t: %d\n", delete);
-+
-+	return 0;
-+}
-+
-+static struct rtc_class_ops ep93xx_rtc_ops = {
-+	.read_time	= ep93xx_rtc_read_time,
-+	.set_time	= ep93xx_rtc_set_time,
-+	.set_mmss	= ep93xx_rtc_set_mmss,
-+	.proc		= ep93xx_rtc_proc,
-+};
-+
-+static ssize_t ep93xx_sysfs_show_comp_preload(struct device *dev,
-+			struct device_attribute *attr, char *buf)
-+{
-+	unsigned short preload;
-+
-+	ep93xx_get_swcomp(dev, &preload, NULL);
-+
-+	return sprintf(buf, "%d\n", preload);
-+}
-+static DEVICE_ATTR(comp_preload, S_IRUGO, ep93xx_sysfs_show_comp_preload, NULL);
-+
-+static ssize_t ep93xx_sysfs_show_comp_delete(struct device *dev,
-+			struct device_attribute *attr, char *buf)
-+{
-+	unsigned short delete;
-+
-+	ep93xx_get_swcomp(dev, NULL, &delete);
-+
-+	return sprintf(buf, "%d\n", delete);
-+}
-+static DEVICE_ATTR(comp_delete, S_IRUGO, ep93xx_sysfs_show_comp_delete, NULL);
-+
-+
-+static int __devinit ep93xx_rtc_probe(struct platform_device *dev)
-+{
-+	struct rtc_device *rtc = rtc_device_register("ep93xx",
-+				&dev->dev, &ep93xx_rtc_ops, THIS_MODULE);
-+
-+	if (IS_ERR(rtc)) {
-+		dev_err(&dev->dev, "unable to register\n");
-+		return PTR_ERR(rtc);
++	/* read date registers */
++	if ((i2c_transfer(client->adapter, &msgs[0], 2)) != 2) {
++		dev_err(&client->dev, "%s: read error\n", __FUNCTION__);
++		return -EIO;
 +	}
 +
-+	platform_set_drvdata(dev, rtc);
++	dev_dbg(&client->dev,
++		"%s: raw read data - counters=%02x,%02x,%02x,%02x\n"
++		__FUNCTION__,
++		buf[0], buf[1], buf[2], buf[3]);
 +
-+	device_create_file(&dev->dev, &dev_attr_comp_preload);
-+	device_create_file(&dev->dev, &dev_attr_comp_delete);
++	time = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf[0];
++
++	rtc_time_to_tm(time, tm);
++
++	dev_dbg(&client->dev, "%s: tm is secs=%d, mins=%d, hours=%d, "
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
 +
 +	return 0;
 +}
 +
-+static int __devexit ep93xx_rtc_remove(struct platform_device *dev)
++static int ds1672_set_mmss(struct i2c_client *client, unsigned long secs)
 +{
-+	struct rtc_device *rtc = platform_get_drvdata(dev);
++	int xfer;
++	unsigned char buf[5];
++
++	buf[0] = DS1672_REG_CNT_BASE;
++	buf[1] = secs & 0x000000FF;
++	buf[2] = (secs & 0x0000FF00) >> 8;
++	buf[3] = (secs & 0x00FF0000) >> 16;
++	buf[4] = (secs & 0xFF000000) >> 24;
++
++	xfer = i2c_master_send(client, buf, 5);
++	if (xfer != 5) {
++		dev_err(&client->dev, "%s: send: %d\n", __FUNCTION__, xfer);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++static int ds1672_set_datetime(struct i2c_client *client, struct rtc_time *tm)
++{
++	unsigned long secs;
++
++	dev_dbg(&client->dev,
++		"%s: secs=%d, mins=%d, hours=%d, ",
++		"mday=%d, mon=%d, year=%d, wday=%d\n",
++		__FUNCTION__,
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++
++	rtc_tm_to_time(tm, &secs);
++
++	return ds1672_set_mmss(client, secs);
++}
++
++static int ds1672_rtc_read_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_get_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_time(struct device *dev, struct rtc_time *tm)
++{
++	return ds1672_set_datetime(to_i2c_client(dev), tm);
++}
++
++static int ds1672_rtc_set_mmss(struct device *dev, unsigned long secs)
++{
++	return ds1672_set_mmss(to_i2c_client(dev), secs);
++}
++
++static struct rtc_class_ops ds1672_rtc_ops = {
++	.read_time	= ds1672_rtc_read_time,
++	.set_time	= ds1672_rtc_set_time,
++	.set_mmss	= ds1672_rtc_set_mmss,
++};
++
++static int ds1672_attach(struct i2c_adapter *adapter)
++{
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++	return i2c_probe(adapter, &addr_data, ds1672_probe);
++}
++
++static int ds1672_detach(struct i2c_client *client)
++{
++	int err;
++	struct rtc_device *rtc = i2c_get_clientdata(client);
++
++	dev_dbg(&client->dev, "%s\n", __FUNCTION__);
 +
 + 	if (rtc)
 +		rtc_device_unregister(rtc);
 +
-+	platform_set_drvdata(dev, NULL);
++	if ((err = i2c_detach_client(client)))
++		return err;
++
++	kfree(client);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver ep93xx_rtc_platform_driver = {
++static struct i2c_driver ds1672_driver = {
 +	.driver		= {
-+		.name	= "ep93xx-rtc",
-+		.owner	= THIS_MODULE,
++		.name	= "ds1672",
 +	},
-+	.probe		= ep93xx_rtc_probe,
-+	.remove		= __devexit_p(ep93xx_rtc_remove),
++	.id		= I2C_DRIVERID_DS1672,
++	.attach_adapter = &ds1672_attach,
++	.detach_client	= &ds1672_detach,
 +};
 +
-+static int __init ep93xx_rtc_init(void)
++static int ds1672_probe(struct i2c_adapter *adapter, int address, int kind)
 +{
-+	return platform_driver_register(&ep93xx_rtc_platform_driver);
++	int err = 0;
++	struct i2c_client *client;
++	struct rtc_device *rtc;
++
++	dev_dbg(&adapter->dev, "%s\n", __FUNCTION__);
++
++	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
++		err = -ENODEV;
++		goto exit;
++	}
++
++	if (!(client = kzalloc(sizeof(struct i2c_client), GFP_KERNEL))) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	/* I2C client */
++	client->addr = address;
++	client->driver = &ds1672_driver;
++	client->adapter	= adapter;
++
++	strlcpy(client->name, ds1672_driver.driver.name, I2C_NAME_SIZE);
++
++	/* Inform the i2c layer */
++	if ((err = i2c_attach_client(client)))
++		goto exit_kfree;
++
++	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
++
++	rtc = rtc_device_register(ds1672_driver.driver.name, &client->dev,
++				&ds1672_rtc_ops, THIS_MODULE);
++
++	if (IS_ERR(rtc)) {
++		err = PTR_ERR(rtc);
++		dev_err(&client->dev,
++			"unable to register the class device\n");
++		goto exit_detach;
++	}
++
++	i2c_set_clientdata(client, rtc);
++
++	return 0;
++
++exit_detach:
++	i2c_detach_client(client);
++
++exit_kfree:
++	kfree(client);
++
++exit:
++	return err;
 +}
 +
-+static void __exit ep93xx_rtc_exit(void)
++static int __init ds1672_init(void)
 +{
-+	platform_driver_unregister(&ep93xx_rtc_platform_driver);
++	return i2c_add_driver(&ds1672_driver);
++}
++
++static void __exit ds1672_exit(void)
++{
++	i2c_del_driver(&ds1672_driver);
 +}
 +
 +MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
-+MODULE_DESCRIPTION("EP93XX RTC driver");
++MODULE_DESCRIPTION("Dallas/Maxim DS1672 timekeeper driver");
 +MODULE_LICENSE("GPL");
 +MODULE_VERSION(DRV_VERSION);
 +
-+module_init(ep93xx_rtc_init);
-+module_exit(ep93xx_rtc_exit);
---- linux-rtc.orig/drivers/rtc/Makefile	2006-03-13 03:28:53.000000000 +0100
-+++ linux-rtc/drivers/rtc/Makefile	2006-03-13 03:30:50.000000000 +0100
-@@ -16,4 +16,4 @@ obj-$(CONFIG_RTC_DRV_TEST)	+= rtc-test.o
- obj-$(CONFIG_RTC_DRV_DS1672)	+= rtc-ds1672.o
- obj-$(CONFIG_RTC_DRV_PCF8563)	+= rtc-pcf8563.o
- obj-$(CONFIG_RTC_DRV_RS5C372)	+= rtc-rs5c372.o
--
-+obj-$(CONFIG_RTC_DRV_EP93XX)	+= rtc-ep93xx.o
---- linux-rtc.orig/drivers/rtc/Kconfig	2006-03-13 03:28:53.000000000 +0100
-+++ linux-rtc/drivers/rtc/Kconfig	2006-03-13 03:30:50.000000000 +0100
-@@ -117,6 +117,17 @@ config RTC_DRV_RS5C372
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-rs5c372.
- 
-+config RTC_DRV_EP93XX
-+	tristate "Cirrus Logic EP93XX"
-+	depends on RTC_CLASS && ARCH_EP93XX
-+	help
-+	  If you say yes here you get support for the
-+	  RTC embedded in the Cirrus Logic EP93XX processors.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called rtc-ep93xx.
-+
-+
- config RTC_DRV_TEST
- 	tristate "Test driver/device"
- 	depends on RTC_CLASS
++module_init(ds1672_init);
++module_exit(ds1672_exit);
 
 --

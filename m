@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751908AbWCRF6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWCRGIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751908AbWCRF6R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 00:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751922AbWCRF6R
+	id S1751470AbWCRGIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 01:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWCRGIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 00:58:17 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:29410 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1751908AbWCRF6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 00:58:16 -0500
-Message-ID: <00e801c64a50$e4c82980$4168010a@bsd.tnes.nec.co.jp>
-From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
-To: "Badari Pulavarty" <pbadari@gmail.com>
-Cc: "lkml" <linux-kernel@vger.kernel.org>,
-       "ext2-devel" <Ext2-devel@lists.sourceforge.net>
-References: <000401c6482d$880adfa0$4168010a@bsd.tnes.nec.co.jp> <1142630359.15257.30.camel@dyn9047017100.beaverton.ibm.com>
-Subject: Re: [Ext2-devel] [PATCH 2/2] ext2/3: Support 2^32-1blocks(e2fsprogs)
-Date: Sat, 18 Mar 2006 14:57:47 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-2022-jp";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Sat, 18 Mar 2006 01:08:53 -0500
+Received: from sip2.vilos.com ([69.90.134.213]:20685 "EHLO mail.tig-grr.com")
+	by vger.kernel.org with ESMTP id S1751470AbWCRGIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 01:08:52 -0500
+Date: Fri, 17 Mar 2006 22:08:46 -0800
+From: Tom Marshall <tommy@home.tig-grr.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2-announce] Nigel's work and the future of Suspend2.
+Message-ID: <20060318060846.GA11546@home.tig-grr.com>
+References: <200603071005.56453.nigel@suspend2.net> <20060308122500.GB3274@elf.ucw.cz> <1141839915.5382.49.camel@marvin.se.eecs.uni-kassel.de> <200603082139.06259.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200603082139.06259.rjw@sisk.pl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 08, 2006 at 09:39:05PM +0100, Rafael J. Wysocki wrote:
+> On Wednesday 08 March 2006 18:45, Thomas Maier wrote:
+> > Am Mittwoch, den 08.03.2006, 13:25 +0100 schrieb Pavel Machek:
+> > > On ??t 07-03-06 14:14:00, Thomas Maier wrote:
+> }-- snip --{
+> > > > Mainline swsusp never worked for me and
+> > > > so with you leaving I am tempted to leave Linux behind after more than
+> > > > ten years and switch to that other OS that at least has working suspend
+> > > > and resume.
+> 
+> Frankly that's something I really don't understand.  swsusp is supposed to
+> work (actually with 2.6.16-rc5-mm2 it works for me 100% of the time) and
+> if it doesn't work for you, there's a bug and it should be fixed.  Yet, you
+> don't report it, so it is unknown to anyone except for you and there's no
+> hope anyone will actually work on fixing it.
 
-> Hi,
-> 
-> Few comments on the patches:
-> 
-> 1) Both kernel patch and e2fsprogs doesn't seem to apply cleanly for
-> the versions you mentioned. I had to fix few rejects.
+I have the opposite problem, more or less (S3 not swsusp):
 
-Sorry. My patches were corrupted because my poor mailer had
-removed spaces in the patch.
-I will take care of it when I update this patch.
+I have two identical (except for different model drives) Thinkpad T42
+laptops that exhibit the same behavior.  S3 mostly works but occasionally
+fails to resume, for values of occasionally that vary between 1-2 successful
+resumes before failure to several dozens.
 
-> 2) I am still not able to make filesystem bigger than 8TB with your
-> patch. I get following message.
-> 
-> # fdisk -l /dev/md0
-> 
-> Disk /dev/md0: 10479.7 GB, 10479753756672 bytes
-> 2 heads, 4 sectors/track, -1736433664 cylinders
-> Units = cylinders of 8 * 512 = 4096 bytes
-> 
-> 
-> elm3b29:~/e2fsprogs-1.38/misc # ./mke2fs /dev/md0
-> mke2fs 1.38 (30-Jun-2005)
-> mke2fs: Filesystem too large.  No more than 2**31-1 blocks
->         (8TB using a blocksize of 4k) are currently supported.
-> 
-> When I try to create "ext3":
+Unfortunately, having recently been bitten by kernel-userspace API breakages
+(probably udev but it's been a while ago and I don't really care anymore)
+for the first time in a decade of constant Linux usage, I have not tracked
+mainline since about 2.6.12 and instead rely on my vendor kernel plus
+private patches as recommended over and over on this list.  Therefore, no
+bug report from me.  But I have the highest confidence that someone with a
+Centrino laptop and enough free time to run the most recent vanilla kernel
+will eventually file a bug and some kernel developer will eventually fix it. 
+In the meantime, I just rely on swsusp or pray that a pre-S3 "sync" and ext3
+journalling will be good enough.  Sad but true.
 
-As I said in my previous mail, You should specify -F option to
-create ext2/3 which has more than 2**31-1 blocks.
-It is because of the compatibility.
+If anyone is willing to work with me on tracking down the issue in a vendor
+kernel (Ubuntu Dapper), I would be more than happy to apply debug patches
+and supply any debug info requested.
 
-> elm3b29:~/e2fsprogs-1.38/misc # ./mke2fs -t ext3 /dev/md0
-> mke2fs 1.38 (30-Jun-2005)
-> mke2fs: invalid blocks count - /dev/md0
-> 
-> Were you able to test these changes ?
-
-You should specify -j option to create ext3 as below.
-
-# ./mke2fs -j /dev/md0
+-- 
+Write a wise saying and your name will live forever.
+        -- Anonymous

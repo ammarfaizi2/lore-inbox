@@ -1,54 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWCRFDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWCRFGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWCRFDe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 00:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWCRFDe
+	id S1751300AbWCRFGU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 00:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWCRFGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 00:03:34 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44299 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751326AbWCRFDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 00:03:33 -0500
-Date: Sat, 18 Mar 2006 06:03:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Nathan Scott <nathans@sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Suzuki <suzuki@in.ibm.com>,
-       linux-fsdevel@vger.kernel.org,
-       "linux-aio kvack.org" <linux-aio@kvack.org>,
-       lkml <linux-kernel@vger.kernel.org>, suparna <suparna@in.ibm.com>,
-       akpm@osdl.org, linux-xfs@oss.sgi.com
-Subject: Re: [RFC] Badness in __mutex_unlock_slowpath with XFS stress tests
-Message-ID: <20060318050331.GD9717@stusta.de>
-References: <440FDF3E.8060400@in.ibm.com> <20060309120306.GA26682@infradead.org> <20060309223042.GC1135@frodo> <20060309224219.GA6709@infradead.org> <20060309231422.GD1135@frodo> <20060310005020.GF1135@frodo> <20060317172210.GP3914@stusta.de> <20060318143444.E568717@wobbly.melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060318143444.E568717@wobbly.melbourne.sgi.com>
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sat, 18 Mar 2006 00:06:20 -0500
+Received: from mail.gmx.net ([213.165.64.20]:48837 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751300AbWCRFGT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 00:06:19 -0500
+X-Authenticated: #14349625
+Subject: [2.6.16-rc6 patch] fix interactive task starvation
+From: Mike Galbraith <efault@gmx.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 18 Mar 2006 06:08:00 +0100
+Message-Id: <1142658480.8262.38.camel@homer>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 18, 2006 at 02:34:44PM +1100, Nathan Scott wrote:
-> On Fri, Mar 17, 2006 at 06:22:10PM +0100, Adrian Bunk wrote:
-> > On Fri, Mar 10, 2006 at 11:50:20AM +1100, Nathan Scott wrote:
-> > > Something like this (works OK for me)...
-> > 
-> > Is this 2.6.16 material?
-> 
-> Its been merged already.
+Greetings,
 
-Ups, sorry for missing this.
+The patch below fixes a starvation problem that occurs when a stream of
+highly interactive tasks delay an array switch for extended periods
+despite EXPIRED_STARVING(rq) being true.  AFAIKT, the only choice is to
+enqueue awakening tasks on the expired array in this case.
 
-> cheers.
-> Nathan
+Without this patch, it can be nearly impossible to remotely login to a
+busy server, and interactive shell commands can starve for minutes.
 
-cu
-Adrian
+This has not been verified by anyone.  Comments?
 
--- 
+	-Mike
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+
+--- linux-2.6.16-rc6/kernel/sched.c.org	2006-03-17 14:48:35.000000000 +0100
++++ linux-2.6.16-rc6/kernel/sched.c	2006-03-17 17:41:25.000000000 +0100
+@@ -662,11 +662,30 @@
+ }
+ 
+ /*
++ * We place interactive tasks back into the active array, if possible.
++ *
++ * To guarantee that this does not starve expired tasks we ignore the
++ * interactivity of a task if the first expired task had to wait more
++ * than a 'reasonable' amount of time. This deadline timeout is
++ * load-dependent, as the frequency of array switched decreases with
++ * increasing number of running tasks. We also ignore the interactivity
++ * if a better static_prio task has expired:
++ */
++#define EXPIRED_STARVING(rq) \
++	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
++		(jiffies - (rq)->expired_timestamp >= \
++			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
++			((rq)->curr->static_prio > (rq)->best_expired_prio))
++
++/*
+  * __activate_task - move a task to the runqueue.
+  */
+ static inline void __activate_task(task_t *p, runqueue_t *rq)
+ {
+-	enqueue_task(p, rq->active);
++	prio_array_t *array = rq->active;
++	if (unlikely(EXPIRED_STARVING(rq)))
++		array = rq->expired;
++	enqueue_task(p, array);
+ 	rq->nr_running++;
+ }
+ 
+@@ -2461,22 +2480,6 @@
+ }
+ 
+ /*
+- * We place interactive tasks back into the active array, if possible.
+- *
+- * To guarantee that this does not starve expired tasks we ignore the
+- * interactivity of a task if the first expired task had to wait more
+- * than a 'reasonable' amount of time. This deadline timeout is
+- * load-dependent, as the frequency of array switched decreases with
+- * increasing number of running tasks. We also ignore the interactivity
+- * if a better static_prio task has expired:
+- */
+-#define EXPIRED_STARVING(rq) \
+-	((STARVATION_LIMIT && ((rq)->expired_timestamp && \
+-		(jiffies - (rq)->expired_timestamp >= \
+-			STARVATION_LIMIT * ((rq)->nr_running) + 1))) || \
+-			((rq)->curr->static_prio > (rq)->best_expired_prio))
+-
+-/*
+  * Account user cpu time to a process.
+  * @p: the process that the cpu time gets accounted to
+  * @hardirq_offset: the offset to subtract from hardirq_count()
+
 

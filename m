@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWCRI7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWCRJDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932331AbWCRI7u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 03:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWCRI7u
+	id S932332AbWCRJDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 04:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWCRJDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 03:59:50 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20423 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932331AbWCRI7t (ORCPT
+	Sat, 18 Mar 2006 04:03:46 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:17101
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932332AbWCRJDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 03:59:49 -0500
-Date: Sat, 18 Mar 2006 09:57:25 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.16-rc6-rt7
-Message-ID: <20060318085725.GE23317@elte.hu>
-References: <20060316095607.GA28571@elte.hu> <20060317233636.GB26253@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060317233636.GB26253@smtp.west.cox.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.6 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.0 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 18 Mar 2006 04:03:45 -0500
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual Core on Linux questions
+Date: Sat, 18 Mar 2006 03:03:40 -0600
+Message-Id: <20060318085954.M66389@linuxwireless.org>
+In-Reply-To: <441BCBAE.2020302@garzik.org>
+References: <20060318082434.M33432@linuxwireless.org> <441BCBAE.2020302@garzik.org>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 200.91.94.134 (abonilla@linuxwireless.org)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Tom Rini <trini@kernel.crashing.org> wrote:
-
-> On Thu, Mar 16, 2006 at 10:56:08AM +0100, Ingo Molnar wrote:
-> 
-> > i have released the 2.6.16-rc6-rt7 tree, which can be downloaded from 
-> > the usual place:
+On Sat, 18 Mar 2006 03:58:22 -0500, Jeff Garzik wrote
+> Alejandro Bonilla wrote:
+> > Hi,
 > > 
-> >    http://redhat.com/~mingo/realtime-preempt/
+> > I have a few questions about the PM Dual Core and how could it really work
+> > with Linux. Sorry if there are new patches on LKML about any of these things:
+> > 
+> > Could each processor or die, have it's own cpufreq scaling governor?
 > 
-> I was wondering, is it normal for the nanosleep02 and alarm02 LTP 
-> tests to fail?  For sometime I've seen these tests fail from time to 
-> time with the -RT patch but not the regular kernel.
+> Sure.  On a laptop, if you don't need dual core power, it makes 
+> sense to turn off the unused core, even.
+> 
+> 	Jeff
 
-no, it's not normal. How repeatable is it?
+Jeff,
 
-	Ingo
+For some reason, while I was writing this email, I knew you would be the first
+to reply. LOL. Anyway. Does this need new patches sent to LKML or nice
+commands to make this work or any idea if stock cpufreqd should manage the
+cores separatelly? I haven't got that to work on 2.6.15 so far. How flexible
+can we get with the cores?
+
+Thanks for your time,
+
+.Alejandro

@@ -1,135 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbWCRQFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWCRQLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbWCRQFy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 11:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWCRQFy
+	id S1750813AbWCRQLi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 11:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWCRQLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 11:05:54 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:16347 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932125AbWCRQFy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 11:05:54 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: -mm: PM=y, VT=n doesn't compile
-Date: Sat, 18 Mar 2006 17:04:44 +0100
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org
-References: <20060317171814.GO3914@stusta.de>
-In-Reply-To: <20060317171814.GO3914@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200603181704.44873.rjw@sisk.pl>
+	Sat, 18 Mar 2006 11:11:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:56019 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750813AbWCRQLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 11:11:37 -0500
+Subject: Re: Idea: Automatic binary driver compiling system
+From: Arjan van de Ven <arjan@infradead.org>
+To: Benjamin Bach <benjamin@overtag.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <441C2CF6.1050607@overtag.dk>
+References: <441AF93C.6040407@overtag.dk>
+	 <1142620509.25258.53.camel@mindpipe>  <441C213A.3000404@overtag.dk>
+	 <1142694655.2889.22.camel@laptopd505.fenrus.org>
+	 <441C2CF6.1050607@overtag.dk>
+Content-Type: text/plain
+Date: Sat, 18 Mar 2006 17:11:32 +0100
+Message-Id: <1142698292.2889.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2006-03-18 at 16:53 +0100, Benjamin Bach wrote:
+> Arjan van de Ven wrote:
+> > there are over a thousand open source drivers, and at most a handful
+> > binary ones. Please go do your math.
+> >   
+> You're doing the wrong comparison. How many drivers are missing
 
-On Friday 17 March 2006 18:18, Adrian Bunk wrote:
-> swsusp-pm-refuse-to-suspend-devices-if-wrong-console-is-active.patch
-> causes the following compile error with CONFIG_PM=y, CONFIG_VT=n:
+not too many. This is largely because hardware interfaces are getting
+increasingly standardized (it's cheaper for the hw vendors to not have
+to create a new driver for Windows XP)
+
+>  or
+> lacking in ability?
+
+some. But the vast majority is "good enough" by any standard.
+
+>  And if you add to your handful of binary drivers
+> those thousands that exist for xp...
+
+then it's clear that linux is better off ;)
+(and yes while XP has more drivers, in linux a driver would generally
+drive the hardware that in the windows world uses 10 to 20  drivers)
+
+> well, numbers do change. Also, most open source drivers aren't made by
+> the vendors themselves.
+
+and? For standard interfaces... no big deal.
+And for non-standard interfaces.. it's increasingly done with the vendor
+help
+
 > 
-> <--  snip  -->
-> 
-> ...
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `device_suspend': undefined reference to `fg_console'
-> drivers/built-in.o: In function `device_suspend': undefined reference to `vc_cons'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> <--  snip  -->
+> We're doing subjective math here. It doesn't change the fact that Linux
+> would be better off with improved hardware support, right?
 
-Sorry, I overlooked your message yesterday.  [Actually Andrew turned my
-attention to it by dropping the patch from -mm. ;-)]
+yes. But "more binary drivers" is absolutely not "better off"; but
+that's going towards the usual bimonthly troll topic so lets not go
+there and stop here.
 
-Fixed version of the patch is appended.
 
-Greetings,
-Rafael
-
----
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-
-1) Remove the console-switching code from the suspend part of the swsusp
-   userland interface and let the userland tools switch the console.
-
-2) It is unsafe to suspend devices if the hardware is controlled by X. 
-   Add an extra check to prevent this from happening.
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
- drivers/base/power/suspend.c |   17 +++++++++++++++++
- kernel/power/user.c          |    3 ---
- 2 files changed, 17 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.16-rc6-mm2/drivers/base/power/suspend.c
-===================================================================
---- linux-2.6.16-rc6-mm2.orig/drivers/base/power/suspend.c
-+++ linux-2.6.16-rc6-mm2/drivers/base/power/suspend.c
-@@ -8,6 +8,9 @@
-  *
-  */
- 
-+#include <linux/vt_kern.h>
-+#include <linux/kbd_kern.h>
-+#include <linux/console.h>
- #include <linux/device.h>
- #include <linux/kallsyms.h>
- #include <linux/pm.h>
-@@ -65,6 +68,17 @@ int suspend_device(struct device * dev, 
- 	return error;
- }
- 
-+#ifdef CONFIG_VT
-+static inline int is_suspend_console_safe(void)
-+{
-+	/* It is unsafe to suspend devices while X has control of the
-+	 * hardware. Make sure we are running on a kernel-controlled console.
-+	 */
-+	return vc_cons[fg_console].d->vc_mode == KD_TEXT;
-+}
-+#else
-+#define is_suspend_console_safe()	1
-+#endif
- 
- /**
-  *	device_suspend - Save state and stop all devices in system.
-@@ -85,6 +99,9 @@ int device_suspend(pm_message_t state)
- {
- 	int error = 0;
- 
-+	if (!is_suspend_console_safe())
-+		return -EINVAL;
-+
- 	down(&dpm_sem);
- 	down(&dpm_list_sem);
- 	while (!list_empty(&dpm_active) && error == 0) {
-Index: linux-2.6.16-rc6-mm2/kernel/power/user.c
-===================================================================
---- linux-2.6.16-rc6-mm2.orig/kernel/power/user.c
-+++ linux-2.6.16-rc6-mm2/kernel/power/user.c
-@@ -138,12 +138,10 @@ static int snapshot_ioctl(struct inode *
- 		if (data->frozen)
- 			break;
- 		down(&pm_sem);
--		pm_prepare_console();
- 		disable_nonboot_cpus();
- 		if (freeze_processes()) {
- 			thaw_processes();
- 			enable_nonboot_cpus();
--			pm_restore_console();
- 			error = -EBUSY;
- 		}
- 		up(&pm_sem);
-@@ -157,7 +155,6 @@ static int snapshot_ioctl(struct inode *
- 		down(&pm_sem);
- 		thaw_processes();
- 		enable_nonboot_cpus();
--		pm_restore_console();
- 		up(&pm_sem);
- 		data->frozen = 0;
- 		break;

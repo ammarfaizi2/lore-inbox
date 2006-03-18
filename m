@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932856AbWCRCub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932861AbWCRC5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932856AbWCRCub (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 21:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932857AbWCRCub
+	id S932861AbWCRC5t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 21:57:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932860AbWCRC5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 21:50:31 -0500
-Received: from mxsf19.cluster1.charter.net ([209.225.28.219]:57483 "EHLO
-	mxsf19.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932856AbWCRCub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 21:50:31 -0500
-X-IronPort-AV: i="4.03,106,1141621200"; 
-   d="scan'208"; a="101198642:sNHT27865680"
-Message-ID: <441B756A.9060309@cybsft.com>
-Date: Fri, 17 Mar 2006 20:50:18 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Jan Altenberg <tb10alj@tglx.de>,
-       Sastien Dugu <sebastien.dugue@bull.net>
-Subject: Re: 2.6.16-rc6-rt3
-References: <20060314084658.GA28947@elte.hu> <4416C6DD.80209@cybsft.com> <20060314142458.GA21796@elte.hu> <4416F14E.1040708@cybsft.com> <20060317092351.GA18491@elte.hu> <441AE417.1030601@cybsft.com> <20060317203149.GA23069@elte.hu>
-In-Reply-To: <20060317203149.GA23069@elte.hu>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Mar 2006 21:57:49 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:41865 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932854AbWCRC5s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Mar 2006 21:57:48 -0500
+Date: Sat, 18 Mar 2006 08:27:43 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>,
+       Andreas Dilger <adilger@clusterfs.com>, Jan Kara <jack@suse.cz>,
+       "Theodore Ts'o" <tytso@mit.edu>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: ext3_ordered_writepage() questions
+Message-ID: <20060318025743.GA20722@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20060316180904.GA29275@thunk.org> <1142533360.21442.153.camel@dyn9047017100.beaverton.ibm.com> <20060316210424.GD29275@thunk.org> <1142546275.21442.172.camel@dyn9047017100.beaverton.ibm.com> <20060316220545.GB18753@atrey.karlin.mff.cuni.cz> <1142552722.21442.180.camel@dyn9047017100.beaverton.ibm.com> <20060317005418.GY30801@schatzie.adilger.int> <1142615110.3641.8.camel@orbit.scot.redhat.com> <1142631141.15257.40.camel@dyn9047017100.beaverton.ibm.com> <1142634134.3641.56.camel@orbit.scot.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1142634134.3641.56.camel@orbit.scot.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
+On Fri, Mar 17, 2006 at 05:22:13PM -0500, Stephen C. Tweedie wrote:
+> Hi,
 > 
->> OK. Tried rt9 with a clean build and still no joy. I've attached the 
->> log which looks like it could be a similar problem?
+> On Fri, 2006-03-17 at 13:32 -0800, Badari Pulavarty wrote:
 > 
-> seems to be a different one:
+> > I have a patch which eliminates adding buffers to the journal, if
+> > we are doing just re-write of the disk block. ...
 > 
->> input: ImPS/2 Generic Wheel Mouse as /class/input/input1
->> Freeing unused kernel memory: 284k freed
->> Could not allocate 8 bytes percpu data
->> sd_mod: Unknown symbol scsi_print_sense_hdr
+> >      2.6.16-rc6      2.6.16-rc6+patch
+> > real  0m6.606s        0m3.705s 
 > 
-> could you increase PERCPU_ENOUGH_ROOM in include/linux/percpu.h? (to 
-> e.g. 65536)
+> OK, that's a really significant win!  What exactly was the test case for
+> this, and does that performance edge persist for a longer-running test?
 > 
-> 	Ingo
+> > In real world, does this ordering guarantee matter ? 
 > 
+> Not that I am aware of.  Even with the ordering guarantee, there is
+> still no guarantee of the order in which the writes hit disk within that
+> transaction, which makes it hard to depend on it.
+> 
+> I recall that some versions of fsync depended on ordered mode flushing
+> dirty data on transaction commit, but I don't think the current
+> ext3_sync_file() will have any problems there.  
+> 
+> Other than that, the only thing I can think of that had definite
+> dependencies in this are was InterMezzo, and that's no longer in the
+> tree.  Even then, I'm not 100% certain that InterMezzo had a dependency
+> for overwrites (it was certainly strongly dependent on the ordering
+> semantics for allocates.)
 
-Perhaps I misunderstood what you wanted me to do before. Just for grins
-I doubled the PERCPU_ENOUGH_ROOM to 131072 and have successfully booted
-twice now.
+Besides we seem to have already broken the guarantee in async DIO
+writes for the overwrite case.
+
+Regards
+Suparna
+
+> 
+> It is theoretically possible to write applications that depend on that
+> ordering, but they would be necessarily non-portable anyway.  I think
+> relaxing it is fine, especially for a 100% (wow) performance gain.
+> 
+> There is one other perspective to be aware of, though: the current
+> behaviour means that by default ext3 generally starts flushing pending
+> writeback data within 5 seconds of a write.  Without that, we may end up
+> accumulating a lot more dirty data in memory, shifting the task of write
+> throttling from the filesystem to the VM.  
+> 
+> That's not a problem per se, just a change of behaviour to keep in mind,
+> as it could expose different corner cases in the performance of
+> write-intensive workloads.
+> 
+> --Stephen
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-   kr
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

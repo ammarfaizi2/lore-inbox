@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932855AbWCRAlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932785AbWCRAlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932855AbWCRAlI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Mar 2006 19:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932794AbWCRAkr
+	id S932785AbWCRAlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Mar 2006 19:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932822AbWCRAkm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Mar 2006 19:40:47 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:28107 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932795AbWCRAkf
+	Fri, 17 Mar 2006 19:40:42 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:25295 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932785AbWCRAkW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Mar 2006 19:40:35 -0500
-Date: Fri, 17 Mar 2006 17:40:34 -0700
+	Fri, 17 Mar 2006 19:40:22 -0500
+Date: Fri, 17 Mar 2006 17:40:21 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: john stultz <johnstul@us.ibm.com>, george@wildturkeyranch.net,
@@ -17,117 +17,120 @@ Cc: john stultz <johnstul@us.ibm.com>, george@wildturkeyranch.net,
        Thomas Gleixner <tglx@linutronix.de>,
        Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
        Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>
-Message-Id: <20060318004033.32251.11769.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20060318004020.32251.87158.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20060318003955.32251.80532.sendpatchset@cog.beaverton.ibm.com>
 References: <20060318003955.32251.80532.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 6/10] Time: i386 Conversion - part 1: Move timer_pit.c to i8253.c
+Subject: [PATCH 4/10] Time: Use clocksource abstraction for NTP adjustments
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	This patch is just a simple cleanup for the i386 arch in 
-preparation of moving to the generic timeofday infrastructure. It 
-simply moves the PIT initialization code, locks, and other code we want 
-to keep from some code from timer_pit.c (which will be removed) to 
-i8253.c.
+	Instead of incrementing xtime by tick_nsec + ntp adjustments, 
+use the clocksource abstraction. This removes the need to keep 
+time_phase adjustments as we just use the current_tick_length() 
+function and accumulate using shifted nanoseconds.
 
-thanks
--john
+By using the clocksource abstraction to increment time, this allows 
+other clocksources to be used consistently in the face of late or lost 
+ticks, while preserving the existing behavior via the jiffies 
+clocksource.
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- Makefile           |    2 +-
- i8253.c            |   32 ++++++++++++++++++++++++++++++++
- time.c             |    5 -----
- timers/timer_pit.c |   13 -------------
- 4 files changed, 33 insertions(+), 19 deletions(-)
+ timer.c |   49 ++++++++++++++++++++++++++++++-------------------
+ 1 files changed, 30 insertions(+), 19 deletions(-)
 
-linux-2.6.16-rc6_timeofday-arch-i386-part1_C0.patch
+linux-2.6.16-rc6_timeofday-core3_C0.patch
 ============================================
-diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
-index 65656c0..687a29b 100644
---- a/arch/i386/kernel/Makefile
-+++ b/arch/i386/kernel/Makefile
-@@ -7,7 +7,7 @@ extra-y := head.o init_task.o vmlinux.ld
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_i386.o \
- 		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
--		quirks.o i8237.o topology.o
-+		quirks.o i8237.o i8253.o topology.o
+diff --git a/kernel/timer.c b/kernel/timer.c
+index 90fe137..99b6c83 100644
+--- a/kernel/timer.c
++++ b/kernel/timer.c
+@@ -599,7 +599,6 @@ long time_tolerance = MAXFREQ;		/* frequ
+ long time_precision = 1;		/* clock precision (us)		*/
+ long time_maxerror = NTP_PHASE_LIMIT;	/* maximum error (us)		*/
+ long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
+-static long time_phase;			/* phase offset (scaled us)	*/
+ long time_freq = (((NSEC_PER_SEC + HZ/2) % HZ - HZ/2) << SHIFT_USEC) / NSEC_PER_USEC;
+ 					/* frequency offset (scaled ppm)*/
+ static long time_adj;			/* tick adjust (scaled 1 / HZ)	*/
+@@ -758,27 +757,14 @@ static long adjtime_adjustment(void)
+ }
  
- obj-y				+= cpu/
- obj-y				+= timers/
-diff --git a/arch/i386/kernel/i8253.c b/arch/i386/kernel/i8253.c
-new file mode 100644
-index 0000000..29cb2eb
---- /dev/null
-+++ b/arch/i386/kernel/i8253.c
-@@ -0,0 +1,32 @@
-+/*
-+ * i8253.c  8253/PIT functions
-+ *
-+ */
-+#include <linux/spinlock.h>
-+#include <linux/jiffies.h>
-+#include <linux/sysdev.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+
-+#include <asm/smp.h>
-+#include <asm/delay.h>
-+#include <asm/i8253.h>
-+#include <asm/io.h>
-+
-+#include "io_ports.h"
-+
-+DEFINE_SPINLOCK(i8253_lock);
-+EXPORT_SYMBOL(i8253_lock);
-+
-+void setup_pit_timer(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i8253_lock, flags);
-+	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
-+	udelay(10);
-+	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
-+	udelay(10);
-+	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
-+	spin_unlock_irqrestore(&i8253_lock, flags);
-+}
-diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
-index 9d30747..796e5fa 100644
---- a/arch/i386/kernel/time.c
-+++ b/arch/i386/kernel/time.c
-@@ -82,11 +82,6 @@ extern unsigned long wall_jiffies;
- DEFINE_SPINLOCK(rtc_lock);
- EXPORT_SYMBOL(rtc_lock);
+ /* in the NTP reference this is called "hardclock()" */
+-static void update_wall_time_one_tick(void)
++static void update_ntp_one_tick(void)
+ {
+-	long time_adjust_step, delta_nsec;
++	long time_adjust_step;
  
--#include <asm/i8253.h>
--
--DEFINE_SPINLOCK(i8253_lock);
--EXPORT_SYMBOL(i8253_lock);
--
- struct timer_opts *cur_timer __read_mostly = &timer_none;
+ 	time_adjust_step = adjtime_adjustment();
+ 	if (time_adjust_step)
+ 		/* Reduce by this step the amount of time left  */
+ 		time_adjust -= time_adjust_step;
+-	delta_nsec = tick_nsec + time_adjust_step * 1000;
+-	/*
+-	 * Advance the phase, once it gets to one microsecond, then
+-	 * advance the tick more.
+-	 */
+-	time_phase += time_adj;
+-	if ((time_phase >= FINENSEC) || (time_phase <= -FINENSEC)) {
+-		long ltemp = shift_right(time_phase, (SHIFT_SCALE - 10));
+-		time_phase -= ltemp << (SHIFT_SCALE - 10);
+-		delta_nsec += ltemp;
+-	}
+-	xtime.tv_nsec += delta_nsec;
+-	time_interpolator_update(delta_nsec);
+ 
+ 	/* Changes by adjtime() do not take effect till next tick. */
+ 	if (time_next_adjust != 0) {
+@@ -883,8 +869,13 @@ device_initcall(timekeeping_init_device)
+  */
+ static void update_wall_time(void)
+ {
++	static s64 remainder_snsecs, error;
++	s64 snsecs_per_sec;
+ 	cycle_t now, offset;
+ 
++	snsecs_per_sec = (s64)NSEC_PER_SEC << clock->shift;
++	remainder_snsecs += (s64)xtime.tv_nsec << clock->shift;
++
+ 	now = read_clocksource(clock);
+ 	offset = (now - last_clock_cycle)&clock->mask;
+ 
+@@ -892,13 +883,33 @@ static void update_wall_time(void)
+ 	 * case of lost or late ticks, it will accumulate correctly.
+ 	 */
+ 	while (offset > clock->interval_cycles) {
+-		update_wall_time_one_tick();
+-		if (xtime.tv_nsec >= 1000000000) {
+-			xtime.tv_nsec -= 1000000000;
++		s64 ntp_snsecs	= current_tick_length(clock->shift);
++
++		/* increment the last cycle, offset and remainder snsec vals */
++		last_clock_cycle += clock->interval_cycles;
++		offset -= clock->interval_cycles;
++		remainder_snsecs += clock->interval_snsecs;
++
++		/* accumulate error between NTP and clock tick interval */
++		error += (ntp_snsecs - (s64)clock->interval_snsecs);
++
++		/* interpolator bits */
++		time_interpolator_update(clock->interval_snsecs
++						>> clock->shift);
++
++		update_ntp_one_tick();
++
++		/* correct the clock when NTP error is too big */
++		remainder_snsecs += make_ntp_adj(clock, offset, &error);
++
++		if (remainder_snsecs >= snsecs_per_sec) {
++			remainder_snsecs -= snsecs_per_sec;
+ 			xtime.tv_sec++;
+ 			second_overflow();
+ 		}
+ 	}
++	xtime.tv_nsec = remainder_snsecs >> clock->shift;
++	remainder_snsecs -= (s64)xtime.tv_nsec << clock->shift;
+ }
  
  /*
-diff --git a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
-index b9b6bd5..44cbdf9 100644
---- a/arch/i386/kernel/timers/timer_pit.c
-+++ b/arch/i386/kernel/timers/timer_pit.c
-@@ -162,16 +162,3 @@ struct init_timer_opts __initdata timer_
- 	.init = init_pit, 
- 	.opts = &timer_pit,
- };
--
--void setup_pit_timer(void)
--{
--	unsigned long flags;
--
--	spin_lock_irqsave(&i8253_lock, flags);
--	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
--	udelay(10);
--	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
--	udelay(10);
--	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
--	spin_unlock_irqrestore(&i8253_lock, flags);
--}

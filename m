@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWCRVIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWCRVJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWCRVIX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 16:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWCRVIW
+	id S1751015AbWCRVJU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 16:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWCRVJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 16:08:22 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:6788 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1751010AbWCRVIW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 16:08:22 -0500
-Message-ID: <441C7760.3000405@wolfmountaingroup.com>
-Date: Sat, 18 Mar 2006 14:10:56 -0700
-From: "Jeffrey V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3ware 6x00 monitor/control utilities broken/dropped since 2.6.10?
-References: <17435.43034.364906.429948@wellington.i202.centerclick.org>
-In-Reply-To: <17435.43034.364906.429948@wellington.i202.centerclick.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 18 Mar 2006 16:09:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7329 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751015AbWCRVJT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 16:09:19 -0500
+Date: Sat, 18 Mar 2006 13:06:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: tglx@linutronix.de
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, trini@kernel.crashing.org
+Subject: Re: [patch 2/2] alarm unsigned signed conversion fixup
+Message-Id: <20060318130618.76075192.akpm@osdl.org>
+In-Reply-To: <1142713634.17279.136.camel@localhost.localdomain>
+References: <20060318142827.419018000@localhost.localdomain>
+	<20060318142831.114986000@localhost.localdomain>
+	<20060318121251.66d2b55d.akpm@osdl.org>
+	<1142713634.17279.136.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
+Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> On Sat, 2006-03-18 at 12:12 -0800, Andrew Morton wrote:
+> > Thomas Gleixner <tglx@linutronix.de> wrote:
+> > >
+> > > alarm() calls the kernel with an unsigend int timeout in seconds.
+> > >  The value is converted to a timeval which is used to setup the
+> > >  itimer. The tv_sec field of the timeval is a long, which causes
+> > >  the timeout to be negative on 32 bit machines if seconds > INT_MAX.
+> > >  Also this was silently caught before the hrtimer merge. 
+> > >  To avoid fixups all over the place the duplicated sys_alarm code 
+> > >  is moved to itimer.c.
+> > 
+> > It's not clear what you mean by this.   What does "silently caught" mean?
+> > 
+> > I _think_ you mean "a negative tv_sec gets treated in a random fashion, but
+> > with my preceding patch it will incorrectly get -EINVAL, so fix things to
+> > accept this large tv_sec".  Or something else.
+> > 
+> > Please clarify.
+> > 
+> > What happens if change sys_setitimer() to normalise the incoming timeval as
+> > I suggested?  I guess that doesn't affect this..
+> 
+> No, because a negative value does not become positive by normalizing.
+> Well except you build a normalizing function which converts negative
+> values to INT_MAX.
+> 
 
-I had to revert to 2.6.9-22 ES4 kernels to solve this, and I still 
-needed to update the 3Ware driver in 2.6.9. There's a patch that 
-includes the latest 3Ware drivers that appears to make this work at 
-ftp.soleranetworks.com:/var/ftp/pub/solera/dsfs/. Look under the ES4 
-directory for the kernel and patch.
+I just don't know what this patch does, sorry.
 
-Jeff
+I could go read it and work that out, but am lazy.
 
-Dave Johnson wrote:
-
->I have a 3ware 6400 controller that I've been using for some 5 years
->without problems.  I just upgraded my kernel from 2.6.9 to
->2.6.15.6 and now the 3ware provided monitoring/control daemon (3dm) will
->no longer talk to the driver in 2.6.15.
->
->It appears that /proc/scsi/3w-xxxx which the daemon relies on was removed
->from the driver:
->
->open("/proc/scsi/3w-xxxx", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOENT (No such file or directory)
->open("/proc/scsi/3w-xxxx-z", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = -1 ENOENT (No such file or directory)
->
->The problem is I'm already using the latest 3ware utilities (v6.9 for
->the 6400).  While the driver does allow access to the array from the
->SCSI subsystem and I can use the filesystem, I have no way to monitor
->or control it anymore.
->
->Any suggestions besides reverting back to 2.6.9 and staying there?
->
->I'd be happy to use a different monitor/control program if one exists.
->
->  
->
-
+Can we start again?

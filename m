@@ -1,63 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWCRWCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWCRWFI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWCRWCp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 17:02:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWCRWCp
+	id S1751073AbWCRWFI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 17:05:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWCRWFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 17:02:45 -0500
-Received: from uproxy.gmail.com ([66.249.92.196]:18621 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751070AbWCRWCo convert rfc822-to-8bit
+	Sat, 18 Mar 2006 17:05:08 -0500
+Received: from 213-239-205-134.clients.your-server.de ([213.239.205.134]:13280
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751073AbWCRWFG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 17:02:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dEVcIjLzxd8wqlb47WGQFgk1SAEXC1xo5ZyWgzW0TZy6BYoDTnnaQ+FHA0HnOo4G34/qVLqogJ609wqnwxpc6QGOOF+79A97ds+oIBYDFmEwfcNo7633EPLXuR6ALv815JQJPcHL362JFlcur8rWakSRo+m+OilRMpy9lrSPdrA=
-Message-ID: <2c0942db0603181402o4115999jb990ac05cca7fb9e@mail.gmail.com>
-Date: Sat, 18 Mar 2006 14:02:43 -0800
-From: "Ray Lee" <madrabbit@gmail.com>
-Reply-To: ray-gmail@madrabbit.org
-To: "Jesper Juhl" <jesper.juhl@gmail.com>
+	Sat, 18 Mar 2006 17:05:06 -0500
 Subject: Re: [patch 1/2] Validate itimer timeval from userspace
-Cc: "Andrew Morton" <akpm@osdl.org>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, trini@kernel.crashing.org
-In-Reply-To: <9a8748490603181245v47b9f0a5v1ef252f91c30a7d2@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, trini@kernel.crashing.org
+In-Reply-To: <20060318130925.616d11c5.akpm@osdl.org>
 References: <20060318142827.419018000@localhost.localdomain>
 	 <20060318142830.607556000@localhost.localdomain>
 	 <20060318120728.63cbad54.akpm@osdl.org>
 	 <1142712975.17279.131.camel@localhost.localdomain>
 	 <20060318123102.7d8c048a.akpm@osdl.org>
-	 <9a8748490603181245v47b9f0a5v1ef252f91c30a7d2@mail.gmail.com>
+	 <1142714332.17279.148.camel@localhost.localdomain>
+	 <20060318130925.616d11c5.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 18 Mar 2006 23:05:18 +0100
+Message-Id: <1142719518.10017.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3/18/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> If the change only affects buggy apps (as Thomas says), then it seems
-> completely obvious to me that the change should be made.
+On Sat, 2006-03-18 at 13:09 -0800, Andrew Morton wrote:
+> > Of course I can convert it that way, if we want to keep this "help
+> > sloppy programmers aid" alive.
+> > 
+> 
+> It would be strange to set an alarm for 0xffffffff seconds in the future
+> but yeah, unless we can point at a reason why nobody could have ever been
+> doing that, we should turn this into permanent, documented behaviour of
+> Linux 2.6 and earlier, I'm afraid.
 
-But the app isn't buggy, it's just not coded to some arbitrary spec.
-Further, an arbitrary spec that *the kernel didn't implement*. The app
-author could very well have been competent and tested that behavior in
-a ten line program (I do that sort of code *all the time* to test
-corner cases that aren't clear in man pages). Once tested, they found
-out -1 is an effectively infinite timeout, went "Hey, cool, that makes
-sense", and went on with their day.
+We have to take two things into account:
 
-You're now arguing that we should break apps -- possibly well tested
-apps -- because they didn't implement a spec that the kernel itself
-wasn't implementing.
+1. sys_alarm()
 
-That's just nuts.
+The alarm value 0xFFFFFFFF is valid as the argument to alarm() is an
+unsigned int. So we have to convert this to 0x7FFFFFFF (for 32bit
+machines) because timeval.tv_sec is a signed long. This is done by the
+alarm patch, which is necessary whether we check the sanity of the
+timeval in do_setitimer or not. The current -rc6 kernel sends the alarm
+with the next timer tick, which will break an application which set it
+to something > INT_MAX. 
 
-> 3. Correct applications are unaffected.
+Of course we could do this by the silent conversion of negative values
+in setitimer too. But thats insane as we rely on some broken feature.
 
-You're assuming that the apps that we'd break are incorrect. That's a
-big assumption. Try imagining instead that it's a well-tested app that
-passed QA with flying colors on a previous version of the kernel. They
-exist. Honest.
+2. setitimer()
 
-Ray
+An application would have to set value.it_value.tv_sec to a negative
+value to trigger this. Also uninitialized usage of struct timevals can
+cause such behaviour.
+
+I'm not sure, if it is sane to ingore this. I can change the itimer
+validate patch for now to do
+
+if (unlikely(!timeval_valid(v))
+	fixup_timeval(v);
+
+and print an appropriate warning in fixup_timeval() for the time being.
+
+	tglx
+
+
+
+
+
+
+
+
+

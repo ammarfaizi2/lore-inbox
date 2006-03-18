@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752249AbWCRIQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752384AbWCRIao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752249AbWCRIQI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 03:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752348AbWCRIQI
+	id S1752384AbWCRIao (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 03:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752349AbWCRIao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 03:16:08 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:41424 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1752249AbWCRIQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 03:16:07 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.16-rc6 patch] fix interactive task starvation
-Date: Sat, 18 Mar 2006 19:15:47 +1100
-User-Agent: KMail/1.9.1
-Cc: Mike Galbraith <efault@gmx.de>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-References: <1142658480.8262.38.camel@homer> <20060318000549.4bb35800.akpm@osdl.org>
-In-Reply-To: <20060318000549.4bb35800.akpm@osdl.org>
+	Sat, 18 Mar 2006 03:30:44 -0500
+Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:51356 "HELO
+	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751949AbWCRIan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Mar 2006 03:30:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=wef7Ef6n9hMu6l7thpUU9UmIKRXYUd39OzBaHUftzZsLpG96QEoIINLWMWvTpUMVJG84B5hVuq98TYGKgDwnEXvdpHHKN63BWCseGnKxeJDg22PNhaP+MvYE+biFqvXRXxBF2eCjget0KNbW6ce/nBnWn0fJVEFSGqcijlVcsNE=  ;
+Message-ID: <441BC527.50400@yahoo.com.au>
+Date: Sat, 18 Mar 2006 19:30:31 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Con Kolivas <kernel@kolivas.org>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>, ck@vds.kolivas.org,
+       Andreas Mohr <andi@rhlx01.fht-esslingen.de>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Stefan Seyfried <seife@suse.de>, Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH][RFC] mm: swsusp shrink_all_memory tweaks
+References: <200603101704.AA00798@bbb-jz5c7z9hn9y.digitalinfra.co.jp> <200603181556.23307.kernel@kolivas.org> <441B9E5A.1040703@yahoo.com.au> <200603181714.23977.kernel@kolivas.org>
+In-Reply-To: <200603181714.23977.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200603181915.48098.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 March 2006 19:05, Andrew Morton wrote:
-> Mike Galbraith <efault@gmx.de> wrote:
-> > The patch below fixes a starvation problem that occurs when a stream of
-> >  highly interactive tasks delay an array switch for extended periods
-> >  despite EXPIRED_STARVING(rq) being true.  AFAIKT, the only choice is to
-> >  enqueue awakening tasks on the expired array in this case.
-> >
-> >  Without this patch, it can be nearly impossible to remotely login to a
-> >  busy server, and interactive shell commands can starve for minutes.
-> >
-> >  This has not been verified by anyone.  Comments?
->
-> What does that question mean, btw?
+Con Kolivas wrote:
+> cc'ed GregKH for comment hopefully.
 
-He's waiting for me to say I don't like it. But I do like it.
+>>You did the right thing there by introducing the accessor, which moves the
+>>ifdef out of code that wants to query the member right? But you can still
+>>leave it in the .c file if it is local (which it is).
+> 
+> 
+> Once again I'm happy to do the right thing; I'm just not sure what that is.
+> 
 
-> -mm is looking like linux-2.6.38 at present so of course things got tangled
-> up - sched-activate-sched-batch-expired.patch modifies __activate_task().
->
-> I ended up with the below.
->
-> Which do we think is more likely to be true - batch_task(p) or
-> expired_starving(rq)?  batch_task() looks cheaper to evaluate so I put that
-> first.  But I guess it's less likely to be true.  hmm.
+Well, struct scan_control escaping from vmscan.c is not the right thing
+(try to get that past Andrew!). Obviously in this case, having the ifdef
+in the .c file is OK.
 
-Depends entirely on workload so it's impossible to predict in advance. Any 
-order will do I suspect.
+I guess Greg's presentation is a first order approximation to get people
+thinking in the right way. I mean we do it all the time, and in core kernel
+code too (our favourite sched.c is a prime example).
 
-> +	if (unlikely(batch_task(p) || expired_starving(rq)))
-
-Looks good to me.
-
-Acked-by: Con Kolivas <kernel@kolivas.org>
-
-Cheers,
-Con
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,29 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWCRTzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWCRTyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWCRTzO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Mar 2006 14:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWCRTzN
+	id S1750827AbWCRTyv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Mar 2006 14:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWCRTyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Mar 2006 14:55:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9874 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750833AbWCRTyw (ORCPT
+	Sat, 18 Mar 2006 14:54:51 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9106 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750827AbWCRTyu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Mar 2006 14:54:52 -0500
-Date: Sat, 18 Mar 2006 11:51:48 -0800
+	Sat, 18 Mar 2006 14:54:50 -0500
+Date: Sat, 18 Mar 2006 11:48:25 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-ia64@vger.kernel.org, ak@suse.de,
-       openipmi-developer@lists.sourceforge.net, matthew.e.tolentino@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
-Message-Id: <20060318115148.06d5a6e9.akpm@osdl.org>
-In-Reply-To: <20060318154319.GB29862@humbolt.us.dell.com>
-References: <20060104221627.GA26064@lists.us.dell.com>
-	<20060106172140.GB19605@lists.us.dell.com>
-	<20060106223932.GB9230@lists.us.dell.com>
-	<20060317155445.602f07b9.akpm@osdl.org>
-	<20060318145621.GA29862@humbolt.us.dell.com>
-	<20060318154319.GB29862@humbolt.us.dell.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: bunk@stusta.de, pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: -mm: PM=y, VT=n doesn't compile
+Message-Id: <20060318114825.75dba55a.akpm@osdl.org>
+In-Reply-To: <200603181704.44873.rjw@sisk.pl>
+References: <20060317171814.GO3914@stusta.de>
+	<200603181704.44873.rjw@sisk.pl>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -31,12 +25,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch <Matt_Domsch@dell.com> wrote:
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 >
-> > Built 2.6.16-rc6-mm2 on ia64 Itanium2 (Dell PowerEdge 7250, aka Intel
->  > Tiger4).  Compiled clean, loaded clean, works as expected.  Thanks!
-> 
->  Built 2.6.16-rc6-mm2 on x86_64 Dell PowerEdge 2800.  Compiled clean,
->  loaded clean, works as expected.  Thanks!
+> --- linux-2.6.16-rc6-mm2.orig/drivers/base/power/suspend.c
+>  +++ linux-2.6.16-rc6-mm2/drivers/base/power/suspend.c
+>  @@ -8,6 +8,9 @@
+>    *
+>    */
+>   
+>  +#include <linux/vt_kern.h>
+>  +#include <linux/kbd_kern.h>
+>  +#include <linux/console.h>
+>   #include <linux/device.h>
+>   #include <linux/kallsyms.h>
+>   #include <linux/pm.h>
+>  @@ -65,6 +68,17 @@ int suspend_device(struct device * dev, 
+>   	return error;
+>   }
+>   
+>  +#ifdef CONFIG_VT
+>  +static inline int is_suspend_console_safe(void)
+>  +{
+>  +	/* It is unsafe to suspend devices while X has control of the
+>  +	 * hardware. Make sure we are running on a kernel-controlled console.
+>  +	 */
+>  +	return vc_cons[fg_console].d->vc_mode == KD_TEXT;
+>  +}
 
-Sweet, thanks.
+Please implement this inside the vt subsystem, not the pm subsystem.  That way
+
+a) It gets to be called "console_is_in_text_mode()", or
+   "vt_not_running_X()" or something, which is something someone else might
+   want to know.  
+
+b) People who work on vt code don't need to keep an eye on a hunk of pm
+   code at the same time.
+
+c) You won't need all those includes.
+
+>  +#else
+>  +#define is_suspend_console_safe()	1
+
+And this can go in console.h
+
+>  +#endif
